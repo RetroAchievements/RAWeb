@@ -1,0 +1,12 @@
+
+body {
+	color: rgb(255, 0, 228);/*rgb(51, 153, 255);*/
+}
+
+a { 
+	color: rgb(255, 0, 128);/*rgb(51, 153, 255);*/
+}
+
+.component { 
+	background-image: url('/Images/001667.png');
+}
