@@ -1,0 +1,102 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "5038abc892def4229b7e996bb336dd81",
+    "packages": [
+        {
+            "name": "asika/autolink",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/asika32764/php-autolink.git",
+                "reference": "3a7bd0fa4aad551e6717c25f51ab2f1ba38f3b55"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/asika32764/php-autolink/zipball/3a7bd0fa4aad551e6717c25f51ab2f1ba38f3b55",
+                "reference": "3a7bd0fa4aad551e6717c25f51ab2f1ba38f3b55",
+                "shasum": ""
+            },
+            "require": {
+                "windwalker/dom": "~2.0@stable"
+            },
+            "require-dev": {
+                "windwalker/test": "~2.0@stable"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Asika\\Autolink\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Simon Asika",
+                    "email": "asika32764@gmail.com"
+                }
+            ],
+            "description": "Auto convert url to link anchor.",
+            "homepage": "https://github.com/asika32764/php-autolink",
+            "time": "2016-06-28T04:22:23+00:00"
+        },
+        {
+            "name": "windwalker/dom",
+            "version": "2.1.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ventoviro/windwalker-dom.git",
+                "reference": "1e5b1022f92d1e44c07aa918f83a5f8d8687103b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ventoviro/windwalker-dom/zipball/1e5b1022f92d1e44c07aa918f83a5f8d8687103b",
+                "reference": "1e5b1022f92d1e44c07aa918f83a5f8d8687103b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.10"
+            },
+            "require-dev": {
+                "windwalker/test": "~2.0"
+            },
+            "type": "windwalker-package",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Windwalker\\Dom\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.0+"
+            ],
+            "description": "Windwalker Dom package",
+            "homepage": "https://github.com/ventoviro/windwalker-dom",
+            "keywords": [
+                "filesystem",
+                "framework",
+                "windwalker"
+            ],
+            "time": "2016-02-12T15:36:22+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

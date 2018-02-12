@@ -1,0 +1,28 @@
+<?php 
+	require_once('db.inc.php');
+	
+	if( !ValidateGETChars( "ui" ) )
+	{
+		echo "FAILED! (POST)";
+		exit;
+	}
+	
+	$source = seekGET( 'u' );
+	$lbid = seekGET( 'i' );
+	
+	//	Double check cookie as well
+	
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) && 
+		($source == $user) )
+	{
+		requestResetLB( $lbid );
+		
+		header( "location: http://" . AT_HOST . "/leaderboardinfo.php?i=$lbid&e=success" );
+		exit;
+	}
+	else
+	{
+		header( "location: http://" . AT_HOST . "/leaderboardinfo.php?i=$lbid&e=failed" );
+		exit;
+	}
+?>

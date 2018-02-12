@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <style>
+      /*body {
+        font-family: "Helvetica Neue", helvetica, arial;
+      }*/
+
+    </style>
+
+    <script>
+        //var host = location.origin.replace(/^http/, 'ws');  //  Get the exact host, but replace url scheme with 'ws'
+		//var host = "ws://retroachievements.org/nodejs";
+		var host = "ws://retroachievements.org:5000";
+        var ws = new WebSocket(host);
+
+        ws.onmessage = function (event) {
+            var d = new Date();
+            //var txt = d.toLocaleFormat('%d-%b-%Y');
+            var datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
+            var li = document.createElement('li');
+            li.innerHTML = "[" + datestring + "]: " + JSON.parse(event.data);
+
+            document.querySelector('#pings').appendChild(li);
+        };
+
+        ws.onclose = function (event) {
+            li = document.createElement('li');
+            
+            li.innerHTML = "Server closed connection!";
+            document.querySelector('#pings').appendChild(li);
+        };
+    </script>
+  </head>
+  <body>
+    <h1>Pings</h1>
+    <ul id='pings'></ul>
+  </body>
+</html>
