@@ -1,0 +1,72 @@
+body {
+}
+
+a { 
+}
+
+#leftcontainer { 
+	margin: auto;
+	width: auto;
+}
+
+#rightcontainer { 
+	margin: auto;
+	position: relative;
+	right: auto;
+	width: auto;
+	top: auto;
+	/*display: inline-block;*/
+}
+
+#title {
+	max-width: inherit;
+	min-width: inherit;
+	height: auto;
+}
+
+#mainpage {
+	max-width: inherit;
+	min-width: inherit;
+}
+
+#innermenu {
+	max-width: inherit;
+	min-width: inherit;
+}
+
+#footer { 
+	max-width: inherit;
+	min-width: inherit;
+}
+	
+#topborder { 
+	max-width: inherit;
+	min-width: inherit;
+	padding: 0px;
+	margin: 0px;
+}
+
+#logocontainer {
+	min-height: 60px;	/*Unsure...*/
+	width: 90%;
+	margin: auto;
+	padding-top: 8px;
+}
+
+#logo {
+	width: 90%;
+	background-size: contain;
+	margin: 0px;
+}
+
+.login {
+	float: none;
+	position: relative;
+}
+
+.topiccommenttext {
+	max-width: 21em;
+	/*max-width: 85%;*/
+ 	word-wrap: break-word;
+	font-size: small;
+}

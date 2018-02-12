@@ -1,0 +1,21 @@
+a { 
+	color: rgb(255, 12, 0);/*rgb(51, 153, 255);*/
+}
+
+.left { 
+}
+
+.right { 
+}
+
+body {
+	font-weight: light;
+	color: rgb(212, 0, 12);
+	width: auto;
+	text-align: left;
+	letter-spacing: 0px; 
+	line-height: 1.3em;
+	
+	/*background: rgb(248, 248, 248);*/
+	font-family: 'Rosario', arial, sans-serif;
+}
