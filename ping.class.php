@@ -25,7 +25,7 @@ class Feed
     if($numMessages > 0)
     {      
       // loop through all the fetched messages to build the result message
-	  for( $i = 0; $i < $numMessages, $i++ )
+	  for( $i = 0; $i < $numMessages; $i++ )
 	  {
 		$row = $dataOut[$i];
 		
