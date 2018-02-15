@@ -2382,8 +2382,8 @@ function RenderDocType( $isOpenGraphPage = FALSE )
 
 function RenderSharedHeader( $user )
 {
-    echo "<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />\n";
-    echo "<link href='http://fonts.googleapis.com/css?family=Rosario' rel='stylesheet' type='text/css' />\n";
+    echo "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />\n";
+    echo "<link href='https://fonts.googleapis.com/css?family=Rosario' rel='stylesheet' type='text/css' />\n";
     echo "<link rel='stylesheet' href='" . CSS_FILE . "' type='text/css' media='screen' />\n";
     $customCSS = RA_ReadCookie( 'RAPrefs_CSS' );
     if( $customCSS !== FALSE && strlen( $customCSS ) > 2 )
@@ -2399,16 +2399,16 @@ function RenderSharedHeader( $user )
     echo '<meta property="fb:app_id" content="490904194261313" />';
     echo "<meta name='viewport' content='width=device-width,user-scalable = no'/>\n";
 
-    echo "<link rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css' type='text/css' />\n";
-    echo "<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js' type='text/javascript'></script>\n";
-    echo "<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js' type='text/javascript'></script>\n";
+    echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css' type='text/css' />\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js' type='text/javascript'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js' type='text/javascript'></script>\n";
 
     echo "
 	<script type='text/javascript'>
 		window.fbAsyncInit = function() {
 		  FB.init({
 			appId      : 490904194261313, // App ID
-			channelUrl : 'http://www.retroachievements.org/channel.php', // Channel File
+			channelUrl : 'https://www.retroachievements.org/channel.php', // Channel File
 			status     : true, // check login status
 			cookie     : true, // enable cookies to allow the server to access the session
 			xfbml      : true  // parse XFBML
@@ -2437,8 +2437,8 @@ function RenderSharedHeader( $user )
 function RenderFBMetadata( $title, $OGType, $imageURL, $thisURL, $description )
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='http://www.retroachievements.org/$imageURL' />\n";
-    echo "<meta property='og:url' content='http://www.retroachievements.org$thisURL' />\n";
+    echo "<meta property='og:image' content='https://www.retroachievements.org/$imageURL' />\n";
+    echo "<meta property='og:url' content='https://www.retroachievements.org$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
 }
@@ -2460,7 +2460,7 @@ function RenderTitleTag( $title, $user )
     //<script>
     //$( function() {
     //	//	Onload:
-    //	$('body').append( \"<img src='http://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
+    //	$('body').append( \"<img src='https://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
     //});
     //</script>";
 }
