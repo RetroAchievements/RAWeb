@@ -2,13 +2,14 @@
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
+	
+$playersOnlineArray = array();
 
 if (file_exists("../cronjobs/playersonline.log")) {
 	$playersOnlineCSV = file_get_contents("../cronjobs/playersonline.log");
 
 	$playersCSV = preg_split('/\n|\r\n?/', $playersOnlineCSV);
 
-	$playersOnlineArray = array();
 	for ($i = 0; $i < 48; $i++) {
 		$playersOnlineArray[] = $playersCSV[count($playersCSV) - ($i + 2)];
 	}
@@ -61,6 +62,9 @@ $now = date( "Y/m/d G:0:0" );
 
 for( $i = 0; $i < 48; $i++ )
 {
+	if( count($playersOnlineArray) < $i )
+		continue;
+	
     $players = $playersOnlineArray[ $i ];
     settype( $players, 'integer' );
 
