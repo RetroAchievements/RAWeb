@@ -85,7 +85,7 @@
 		<?php
 		echo "<div class='navpath'>";
 		echo "<a href='/forum.php'>Forum Index</a>";
-		echo " &raquo; <a href='/forum.php?c=EXTERNAL_FRAGMENT'>$thisTopicCategoryID$thisTopicCategory</a>";
+		echo " &raquo; <a href='forum.php?c=$thisTopicCategoryID'>$thisTopicCategory</a>";
 		echo " &raquo; <a href='viewforum.php?f=$thisTopicForumID'>$thisTopicForum</a>";
 		echo " &raquo; <b>$thisTopicTitle</b></a>";
 		echo "</div>";
@@ -102,7 +102,7 @@
 			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 			{
 				echo "<li>Change Topic Title:</li>";
-				echo "<form action='/requestmodifytopic.php' method='post' >";
+				echo "<form action='requestmodifytopic.php' method='post' >";
 				echo "<input type='text' name='v' value='$thisTopicTitle' size='51' >";
 				echo "<input type='hidden' name='t' value='$thisTopicID' />";
 				echo "<input type='hidden' name='f' value='" . ModifyTopicField::ModifyTitle . "' />";
@@ -114,7 +114,7 @@
 			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 			{
 				echo "<li>Delete Topic:</li>";
-				echo "<form action='/requestmodifytopic.php' method='post' >";
+				echo "<form action='requestmodifytopic.php' method='post' >";
 				echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
 				echo "<input type='hidden' name='t' value='$thisTopicID' />";
 				echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "' />";
@@ -123,7 +123,7 @@
 				echo "</form>";
 			}
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
+			if( ( $thisTopicAuthor == $user ) || ( $permissions >= Permissions::Developer ) )
 			{
 				$selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
 				$selected1 = ( $thisTopicPermissions == 1 ) ? 'selected' : '';
@@ -132,7 +132,7 @@
 				$selected4 = ( $thisTopicPermissions == 4 ) ? 'selected' : '';
 				
 				echo "<li>Restrict Topic:</li>";
-				echo "<form action='/requestmodifytopic.php' method='post' >";
+				echo "<form action='requestmodifytopic.php' method='post' >";
 				echo "<select name='v'>";
 				echo "<option value='0' $selected0>Unregistered</option>";
 				echo "<option value='1' $selected1>Registered</option>";
@@ -275,15 +275,15 @@
 			echo "<div class='smalltext rightfloat'>Posted: $nextCommentDateCreatedNiceDate";
 			
 			if( ( $user == $nextCommentAuthor ) || ( $permissions >= \RA\Permissions::Admin ) )
-				echo "&nbsp;<a href='/editpost.php?c=EXTERNAL_FRAGMENT'>($nextCommentIDEdit&nbsp;Post)</a>";
+				echo "&nbsp;<a href='/editpost.php?c=$nextCommentID'>(Edit&nbsp;Post)</a>";
 				
 			if( $showDisclaimer )
 			{
 				echo "<br/><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
 				if( $showAuthoriseTools )
 				{
-					echo "<br/><a href='/requestupdateuser.php?t=EXTERNAL_FRAGMENT&amp;p=1&amp;v=1'>Au$nextCommentAuthorthorise this user and all their posts?</a>";
-					echo "<br/><a href='/requestupdateuser.php?t=EXTERNAL_FRAGMENT&amp;p=1&amp;v=0'>Pe$nextCommentAuthorrmanently Block (spam)?</a>";
+					echo "<br/><a href='requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
+					echo "<br/><a href='requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
 				}
 			}
 			
@@ -356,7 +356,7 @@
             $defaultMessage = ( $permissions >= 1 ) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ( $permissions >= 1 ) ? "" : "disabled";
             
-			echo "<form action='/requestsubmittopiccomment.php' method='post'>";
+			echo "<form action='requestsubmittopiccomment.php' method='post'>";
 			echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p'>$defaultMessage</textarea><br/><br/>";
 			echo "<input type='hidden' name='u' value='$user'>";
 			echo "<input type='hidden' name='t' value='$thisTopicID'>";

@@ -86,7 +86,7 @@
 		<?php
 		echo "<div class='navpath'>";
 		echo "<a href='/forum.php'>Forum Index</a>";
-		echo " &raquo; <a href='/forum.php?c=EXTERNAL_FRAGMENT'>$thisCategoryID$thisCategoryName</a>";
+		echo " &raquo; <a href='/forum.php?c=$thisCategoryID'>$thisCategoryName</a>";
 		echo " &raquo; <b>$requestedForum</b></a>";
 		echo "</div>";
 		
@@ -100,7 +100,7 @@
 		echo "$thisForumDescription<br/>";
 
 		if( $permissions >= \RA\Permissions::Registered )
-			echo "<a href='/createtopic.php?f=EXTERNAL_FRAGMENT'><div cl$thisForumIDass='rightlink'>[Create New Topic]</div></a>";
+			echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
 		
 		echo "<table><tbody>";
 		echo "<tr class='forumsheader'>";
@@ -170,7 +170,7 @@
 		
 		if( $permissions >= \RA\Permissions::Registered )
 		{
-			echo "<a href='/createtopic.php?f=EXTERNAL_FRAGMENT'><div cl$thisForumIDass='rightlink'>[Create New Topic]</div></a>";
+			echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
 		}
 		else
 		{

@@ -77,7 +77,7 @@
 	  <?php 
 		echo "<div class='navpath'>";
 		echo "<a href='/gameList.php'>All Games</a>";
-		echo " &raquo; <a href='/gameList.php?c=EXTERNAL_FRAGMENT'>$consoleID$consoleName</a>";
+		echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
 		echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
 		echo " &raquo; <b>Game Compare</b>";
 		echo "</div>";
@@ -91,7 +91,7 @@
 		echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, FALSE, 96 );
 		//echo "<a href='/Game/$gameID'>$gameTitle ($consoleName)</a><br/><br/>";
 		
-		echo "<form method=get action='/public/gamecompare.phpare.php'>";
+		echo "<form method=get action='/gamecompare.php'>";
 		echo "<input type='hidden' name='f' value='$user2'>";
 		echo "<select name='ID'>";
 		foreach( $gamesPlayedWithAchievements as $nextGameID => $nextGameTitle )
@@ -306,7 +306,7 @@
 		echo "</br>";
 		echo "Compare with any user:<br/>";
 		
-		echo "<form method='get' action='/public/gamecompare.phpare.php'>";
+		echo "<form method='get' action='/gamecompare.php'>";
 		echo "<input type='hidden' name='ID' value='$gameID'>";
 		echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' />";
 		echo "&nbsp;<input type='submit' value='Select' />";
@@ -331,7 +331,7 @@
 		
 		echo "or compare against any user:<br/>";
 		
-		echo "<form method='get' action='/public/gamecompare.phpare.php'>";
+		echo "<form method='get' action='/gamecompare.php'>";
 		echo "<input type='hidden' name='ID' value='$gameID'>";
 		echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' />";
 		echo "&nbsp;<input type='submit' value='Select' />";

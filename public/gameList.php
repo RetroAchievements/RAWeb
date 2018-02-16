@@ -47,7 +47,7 @@ RenderDocType();
             }
             else //if( $requestedConsole != "" )
             {
-                echo ">All Games</a>";
+                echo "<a href=\"/gameList.php\">All Games</a>";
                 echo " &raquo; <b>$requestedConsole games</b></a>";
             }
             echo "</div>";

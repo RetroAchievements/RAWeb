@@ -60,7 +60,7 @@ function onPostComplete( data )
 	else
 	{
 		//$("body").find( "#warning" ).html( "Status: Loading..." );
-		window.location = '/public/index.php';
+		window.location = '/index.php?e=newspostsuccess';
 	}
 }
 
@@ -150,7 +150,7 @@ function onUploadImageComplete( data )
 			
 			$selected = ($nextID == $newsArticleID) ? "selected" : "";
 			
-			echo "<option value='$nextID' $selected><a href='/submitnews.phpews.php?n=EXTERNAL_FRAGMENT'>$nextID$nextID - $nextTitle</a></option>";
+			echo "<option value='$nextID' $selected><a href='/submitnews.php?n=$nextID'>$nextID - $nextTitle</a></option>";
 			
 			if( $nextNews['ID'] == $newsArticleID )
 				$activeNewsArticle = $nextNews;

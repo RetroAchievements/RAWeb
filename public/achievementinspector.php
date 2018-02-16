@@ -145,7 +145,8 @@
 			}
 			
 			echo "<option value='$gameID'>$gameTitle</option>";
-
+			echo "<a href=\"/achievementinspector.php?g=$gameID\">$gameTitle</a><br/>";
+			
 			
 		}
 		echo "</select>";
