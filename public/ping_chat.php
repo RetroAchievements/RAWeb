@@ -13,7 +13,7 @@ $id = 0;
 $maxMessages = 50;
 
 // create a new Chat instance
-$chat = new Chat();
+$chat = new \RA\Chat();
 
 // if the operation is SendAndRetrieve
 if( $mode == 'SendAndRetrieveNew' )
@@ -51,5 +51,3 @@ header('Content-Type: text/xml');
 
 // retrieve new messages from the server
 echo $chat->retrieveNewMessages( $id, $maxMessages );
-
-?>

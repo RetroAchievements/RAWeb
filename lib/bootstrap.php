@@ -51,47 +51,6 @@ $fbConn = new Facebook($fbConfig);
 $developerCountBoundaries = [ 5, 10, 50, 100, 200, 400, 600, 800, 1000, 2000, 3000, 4000, 5000, 6000 ];
 $developerPointBoundaries = [ 100, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 4000, 5000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 70000 ];
 
-abstract class Permissions
-{
-	const Spam = -2;
-	const Banned = -1;
-	const Unregistered = 0;
-	const Registered = 1;
-	const SuperUser = 2;
-	const Developer = 3;
-	const Admin = 4;
-	const Root = 5;
-}
-
-function PermissionsToString( $permissions )
-{
-	$permissionsStr = [ "Spam", "Banned", "Unregistered", "Registered", "Super User", "Developer", "Admin", "Root" ];
-	return $permissionsStr[$permissions - ( Permissions::Spam )]; //	Offset of 0
-}
-
-abstract class ActivityType
-{
-	const Unknown = 0;
-	const EarnedAchivement = 1;
-	const Login = 2;
-	const StartedPlaying = 3;
-	const UploadAchievement = 4;
-	const EditAchievement = 5;
-	const CompleteGame = 6;
-	const NewLeaderboardEntry = 7;
-	const ImprovedLeaderboardEntry = 8;
-
-}
-
-//	Dynamic typing, misc usage
-abstract class ObjectType
-{
-	const Game = 1;
-	const User = 2;
-	const Achievement = 3;
-
-}
-
 require_once( 'utils.php' );                //	general utilities
 require_once( 'dynrender.php' );            //	dynamic rendering
 

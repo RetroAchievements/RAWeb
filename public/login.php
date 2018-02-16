@@ -14,7 +14,7 @@ if( validateUser( $user, $pass, $fbUser, 0 ) )
 
     //	TBD: Check for messages, updates? etc
     //	Post activity of login:
-    postActivity( $user, ActivityType::Login, null );
+    postActivity( $user, \RA\ActivityType::Login, null );
 
     //	Remove 'incorrect password' from redir url:
     $redir = str_replace( "e=incorrectpassword", "", $redir );
