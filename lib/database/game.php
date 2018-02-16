@@ -918,7 +918,7 @@ function SubmitNewGameTitleJSON( $user, $md5, $titleIn, $consoleID )
         $retVal[ 'Error' ] = "Cannot submit game title, ConsoleID is 0! What console is this for?";
         $retVal[ 'Success' ] = FALSE;
     }
-    else if( $permissions < Permissions::Developer )
+    else if( $permissions < \RA\Permissions::Developer )
     {
         error_log( __FUNCTION__ . " Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)" );
         $retVal[ 'Error' ] = "Cannot submit *new* game title, not allowed! Please apply in forums for 'developer' access.";

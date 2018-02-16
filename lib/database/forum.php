@@ -558,7 +558,7 @@ function requestModifyTopic( $user, $permissions, $topicID, $field, $value )
 	switch( $field )
 	{
 		case ModifyTopicField::ModifyTitle:
-			if( ( $permissions >= Permissions::Developer ) || ( $user == $topicData['Author'] ) )
+			if( ( $permissions >= \RA\Permissions::Developer ) || ( $user == $topicData['Author'] ) )
 			{
 				$query = "	UPDATE ForumTopic AS ft
 							SET Title='$value'
@@ -585,7 +585,7 @@ function requestModifyTopic( $user, $permissions, $topicID, $field, $value )
 			}
 			break;
 		case ModifyTopicField::DeleteTopic:
-			if( ( $permissions >= Permissions::Developer ) || ( $user == $topicData['Author'] ) )
+			if( ( $permissions >= \RA\Permissions::Developer ) || ( $user == $topicData['Author'] ) )
 			{
 				$query = "	DELETE FROM ForumTopic
 							WHERE ID=$topicID";
@@ -611,7 +611,7 @@ function requestModifyTopic( $user, $permissions, $topicID, $field, $value )
 			}
 			break;
 		case ModifyTopicField::RequiredPermissions:
-			if( ( $permissions >= Permissions::Developer ) || ( $user == $topicData['Author'] ) )
+			if( ( $permissions >= \RA\Permissions::Developer ) || ( $user == $topicData['Author'] ) )
 			{
 				$query = "	UPDATE ForumTopic AS ft
 							SET RequiredPermissions='$value'

@@ -9,7 +9,7 @@
 	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
 	$numUnofficialLinks = 0;
-	if( $permissions >= Permissions::Developer )
+	if( $permissions >= \RA\Permissions::Developer )
 	{
 		$unofficialLinks = getUnauthorisedForumLinks();
 		$numUnofficialLinks = count( $unofficialLinks );

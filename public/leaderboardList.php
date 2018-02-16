@@ -64,7 +64,7 @@ function ReloadLBPage()
 </script>
 
 <?php
-if( $permissions >= Permissions::Developer )
+if( $permissions >= \RA\Permissions::Developer )
 {
 ?>
 <script>

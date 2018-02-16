@@ -16,7 +16,7 @@
 	
 	error_log( "$source resolving ticket ID $ticketID" );
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) && 
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) && 
 		($source == $user) )
 	{
 		if( updateTicket( $user, $ticketID, $ticketVal ) )

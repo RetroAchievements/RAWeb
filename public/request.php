@@ -130,7 +130,7 @@ switch( $requestType )
 		break;
 			
 	case "createnewlb":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 		{
 			DoRequestError( "credentials failed!" );
 			exit;
@@ -144,7 +144,7 @@ switch( $requestType )
 		break;
 	
 	case "recalctrueratio":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 		{
 			DoRequestError( "credentials failed!" );
 			exit;
@@ -155,7 +155,7 @@ switch( $requestType )
 		break;
 		
 	case "removelbentry":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 		{
 			DoRequestError( "credentials failed!" );
 			break;
@@ -185,7 +185,7 @@ switch( $requestType )
 		break;
 	
 	case "getfriendlist":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered ) )
 		{
 			DoRequestError( "credentials failed!" );
 			exit;
@@ -196,7 +196,7 @@ switch( $requestType )
 		break;
 		
 	case "uploaduserpic":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered ) )
 		{
 			DoRequestError( "credentials failed!" );
 			exit;

@@ -12,7 +12,7 @@
 	settype( $count, "integer" );
 	
 	$numUnofficialLinks = 0;
-	if( $permissions >= Permissions::Developer )
+	if( $permissions >= \RA\Permissions::Developer )
 	{
 		$unofficialLinks = getUnauthorisedForumLinks();
 		$numUnofficialLinks = count( $unofficialLinks );
@@ -20,7 +20,7 @@
 
 	if( $requestedForumID == 0 )
 	{
-		if( $permissions >= Permissions::Developer )
+		if( $permissions >= \RA\Permissions::Developer )
 		{
 			//	Continue
 			$viewingUnauthorisedForumLinks = true;
@@ -99,7 +99,7 @@
 		echo "<h2>$requestedForum</h2>";
 		echo "$thisForumDescription<br/>";
 
-		if( $permissions >= Permissions::Registered )
+		if( $permissions >= \RA\Permissions::Registered )
 			echo "<a href='/createtopic.php?f=EXTERNAL_FRAGMENT'><div cl$thisForumIDass='rightlink'>[Create New Topic]</div></a>";
 		
 		echo "<table><tbody>";
@@ -168,7 +168,7 @@
 		
 		echo "<br/>";
 		
-		if( $permissions >= Permissions::Registered )
+		if( $permissions >= \RA\Permissions::Registered )
 		{
 			echo "<a href='/createtopic.php?f=EXTERNAL_FRAGMENT'><div cl$thisForumIDass='rightlink'>[Create New Topic]</div></a>";
 		}

@@ -88,7 +88,7 @@ function generateEmailValidationString( $user )
     }
 
     //	Clear permissions til they validate their email.
-    SetAccountPermissionsJSON( 'Scott', Permissions::Admin, $user, 0 );
+    SetAccountPermissionsJSON( 'Scott', \RA\Permissions::Admin, $user, 0 );
 
     return $emailCookie;
 }
@@ -110,7 +110,7 @@ function SetAccountPermissionsJSON( $sourceUser, $sourcePermissions, $destUser, 
         $retVal[ 'Error' ] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Not allowed!";
         $retVal[ 'Success' ] = FALSE;
     }
-    else if( ( $newPermissions >= Permissions::Admin ) && ( $sourcePermissions != Permissions::Root ) )
+    else if( ( $newPermissions >= \RA\Permissions::Admin ) && ( $sourcePermissions != \RA\Permissions::Root ) )
     {
         //	Ignore: cannot promote to admin unless you are root
         error_log( __FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!" );
@@ -148,7 +148,7 @@ function setAccountPermissions( $sourceUser, $sourcePermissions, $user, $permiss
         error_log( __FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $user ($existingPermissions) to $permissions??! not allowed!" );
         return FALSE;
     }
-    else if( ( $permissions >= Permissions::Admin ) && ( $sourceUser != 'Scott' ) )
+    else if( ( $permissions >= \RA\Permissions::Admin ) && ( $sourceUser != 'Scott' ) )
     {
         error_log( __FUNCTION__ . " failed: person who is not Scott trying to set a user's permissions to admin" );
         return FALSE;
@@ -186,7 +186,7 @@ function setAccountForumPostAuth( $sourceUser, $sourcePermissions, $user, $permi
             //	Also ban the spammy user!
             RemoveUnauthorisedForumPosts( $user );
 
-            SetAccountPermissionsJSON( $sourceUser, $sourcePermissions, $user, Permissions::Spam );
+            SetAccountPermissionsJSON( $sourceUser, $sourcePermissions, $user, \RA\Permissions::Spam );
             return TRUE;
         }
         else
@@ -239,8 +239,8 @@ function validateEmailValidationString( $emailCookie, &$user )
             $dbResult = s_mysql_query( $query );
             if( $dbResult !== FALSE )
             {
-                $response = SetAccountPermissionsJSON( 'Scott', Permissions::Admin, $user, 1 );
-                //if( setAccountPermissions( 'Scott', Permissions::Admin, $user, 1 ) )
+                $response = SetAccountPermissionsJSON( 'Scott', \RA\Permissions::Admin, $user, 1 );
+                //if( setAccountPermissions( 'Scott', \RA\Permissions::Admin, $user, 1 ) )
                 if( $response[ 'Success' ] )
                 {
                     static_addnewregistereduser( $user );

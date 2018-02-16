@@ -1,7 +1,7 @@
 <?php 
 	require_once __DIR__ . '/../lib/bootstrap.php';
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered ) )
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered ) )
 	{
 		if( getAccountDetails( $user, $userDetails ) == FALSE )
 		{

@@ -296,7 +296,7 @@ RenderDocType();
                 echo "</td>";
                 echo "</tr>";
 
-                if( $permissions >= Permissions::Developer )
+                if( $permissions >= \RA\Permissions::Developer )
                 {
                     echo "<tr>";
 
@@ -416,7 +416,7 @@ RenderDocType();
                 echo "<div class='commentscomponent'>";
 
                 echo "<h4>Comments</h4>";
-                $forceAllowDeleteComments = $permissions >= Permissions::Admin;
+                $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
                 RenderCommentsComponent( $user, $numArticleComments, $commentData, $ticketID, 7, $forceAllowDeleteComments );
 
                 echo "</div>";

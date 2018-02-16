@@ -42,7 +42,7 @@
 		}
 	}
 	
-    if( validateFromCookie( $user, $points, $permissions, Permissions::Registered ) )
+    if( validateFromCookie( $user, $points, $permissions, \RA\Permissions::Registered ) )
 	{
 		if( submitNewTopic( $user, $forumID, $topicTitle, $topicPayload, $topicID ) )
 		{

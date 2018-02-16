@@ -2,7 +2,7 @@
 	require_once __DIR__ . '/../lib/bootstrap.php';
 
 	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
-	$modifyOK = ( $permissions >= Permissions::Developer );
+	$modifyOK = ( $permissions >= \RA\Permissions::Developer );
 	
 	$gameID = seekGET( 'g' );
 	$errorCode = seekGET( 'e' );

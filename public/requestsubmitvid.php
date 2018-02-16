@@ -13,7 +13,7 @@
 	$id = seekPOST( 'i', NULL );
 	settype( $id, 'integer' );
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::SuperUser ) && 
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser ) && 
 		($author == $user) )
 	{
 		$link = str_replace( "_http_", "http", $link );
