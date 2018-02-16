@@ -610,7 +610,7 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
         else
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points) <span class='TrueRatio'>($truePoints)</span><br/>";
 
-        echo "<a href='/logout.php?Redir=EXTERNAL_FRAGMENT'>logout<" . $_SERVER[ 'REQUEST_URI' ] . "/a><br/>";
+        echo "<a href='/logout.php?Redir=" . $_SERVER[ 'REQUEST_URI' ] . "'>logout<" . $_SERVER[ 'REQUEST_URI' ] . "/a><br/>";
 
         $mailboxIcon = $unreadMessageCount > 0 ? 'http://i.retroachievements.org/Images/_MailUnread.png' : 'http://i.retroachievements.org/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
@@ -1182,7 +1182,7 @@ function RenderLoginComponent( $user, $points, $errorCode, $inline = FALSE )
         else
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points)<br/>";
 
-        echo "<a href='/logout.php?Redir=EXTERNAL_FRAGMENT'>logout<" . $_SERVER[ 'REQUEST_URI' ] . "/a><br/>";
+        echo "<a href='/logout.php?Redir=" . $_SERVER[ 'REQUEST_URI' ] . "'>logout<" . $_SERVER[ 'REQUEST_URI' ] . "/a><br/>";
 
         echo "</p>";
 
@@ -1570,7 +1570,7 @@ function RenderGameLeaderboardsComponent( $gameID, $lbData )
             //	Title
             echo "<tr class='alt'>";
             echo "<td colspan='2'>";
-            echo "<div class='fixheightcellsmaller'><a href='/leaderboardinfo.php?i=EXTERNAL_FRAGMENT'>$lbID$lbTitle</a></div>";
+            echo "<div class='fixheightcellsmaller'><a href='/leaderboardinfo.php?i=$lbID'>$lbID$lbTitle</a></div>";
             echo "<div class='fixheightcellsmaller'>$lbDesc</div>";
             echo "</td>";
             echo "</tr>";

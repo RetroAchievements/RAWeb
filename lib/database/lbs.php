@@ -80,13 +80,13 @@ function SubmitLeaderboardEntryJSON( $user, $lbID, $newEntry, $validation )
             {
                 //	(New) Entry added!
                 $retVal[ 'BestScore' ] = $newEntry;
-                postActivity( $user, ActivityType::NewLeaderboardEntry, $scoreData );
+                postActivity( $user, \RA\ActivityType::NewLeaderboardEntry, $scoreData );
             }
             else //if( $numRowsAffected == 2 )
             {
                 //	Improved Entry added!
                 $retVal[ 'BestScore' ] = $newEntry;
-                postActivity( $user, ActivityType::ImprovedLeaderboardEntry, $scoreData );
+                postActivity( $user, \RA\ActivityType::ImprovedLeaderboardEntry, $scoreData );
             }
 
             settype( $retVal[ 'BestScore' ], 'integer' );
@@ -167,7 +167,7 @@ function submitLeaderboardEntry( $user, $lbID, $newEntry, $validation, &$dataOut
             }
             else
             {
-                postActivity( $user, ActivityType::NewLeaderboardEntry, $scoreData );
+                postActivity( $user, \RA\ActivityType::NewLeaderboardEntry, $scoreData );
 
                 //error_log( $query );
                 //log_email( __FUNCTION__ . " NEW entry added OK for $user, new record $newEntry for leaderboard $lbID!" );
@@ -209,7 +209,7 @@ function submitLeaderboardEntry( $user, $lbID, $newEntry, $validation, &$dataOut
                 }
                 else
                 {
-                    postActivity( $user, ActivityType::ImprovedLeaderboardEntry, $scoreData );
+                    postActivity( $user, \RA\ActivityType::ImprovedLeaderboardEntry, $scoreData );
 
                     //error_log( $query );
                     //log_email( __FUNCTION__ . " entry added OK for $user, new record $newEntry (was $oldEntry) for leaderboard $lbID!" );

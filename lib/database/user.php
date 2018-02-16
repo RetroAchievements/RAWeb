@@ -627,7 +627,7 @@ function login_appWithToken( $user, $pass, &$tokenInOut, &$scoreOut, &$messagesO
                 s_mysql_query( $query );
             }
 
-            postActivity( $user, ActivityType::Login, "" );
+            postActivity( $user, \RA\ActivityType::Login, "" );
 
             return 1;
         }

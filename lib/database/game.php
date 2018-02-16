@@ -523,7 +523,7 @@ function testFullyCompletedGame( $user, $achID, $isHardcore )
             }
             else
             {
-                postActivity( $user, ActivityType::CompleteGame, $gameID, $isHardcore );
+                postActivity( $user, \RA\ActivityType::CompleteGame, $gameID, $isHardcore );
             }
             return TRUE;
         }
