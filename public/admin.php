@@ -14,7 +14,7 @@ $activeNewsArticle = NULL;
 
 $testUser = "Bob";
 $rawPass = "qwe";
-$saltPass = md5( $rawPass . RA_PASSWORD_SALT );
+$saltPass = md5( $rawPass . getenv('RA_PASSWORD_SALT') );
 $appToken = "INbOEl5bviMEmU4b";
 
 $reqAchievementID = 1;

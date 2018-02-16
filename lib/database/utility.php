@@ -19,7 +19,7 @@ function validateUser( &$user, $pass, &$fbUser, $permissionRequired )
         $row = mysqli_fetch_array( $result );
 
         //	Add salt
-        $saltedHash = md5( $pass . RA_PASSWORD_SALT );
+        $saltedHash = md5( $pass . getenv('RA_PASSWORD_SALT') );
 
         if( $row[ 'SaltedPass' ] == $saltedHash )
         {
