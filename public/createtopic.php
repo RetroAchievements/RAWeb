@@ -65,8 +65,8 @@
 		<?php
 		echo "<div class='navpath'>";
 		echo "<a href='forum.php'>Forum Index</a>";
-		echo " &raquo; <a href='/forum.php?c=EXTERNAL_FRAGMENT'>$thisCategoryID$thisCategoryName</a>";
-		echo " &raquo; <a href='/viewforum.php?f=EXTERNAL_FRAGMENT'>$thisForumID$thisForumTitle</a>";
+		echo " &raquo; <a href='/forum.php?c=$thisCategoryID'>$thisCategoryName</a>";
+		echo " &raquo; <a href='/viewforum.php?f=$thisForumID'>$thisForumTitle</a>";
 		echo " &raquo; <b>Create Topic</b></a>";
 		echo "</div>";
 		

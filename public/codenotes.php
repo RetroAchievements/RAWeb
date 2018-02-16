@@ -20,8 +20,8 @@
 </head>
 
 <body>
-<script type='text/javascript' src='/public/js/wz_tooltip.js'></script>
-<script type='text/javascript' src="public/js/ping_chat.js"></script>
+<script type='text/javascript' src='/js/wz_tooltip.js'></script>
+<script type='text/javascript' src="js/ping_chat.js"></script>
 
 <?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode ); ?>
 <?php RenderToolbar( $user, $permissions ); ?>

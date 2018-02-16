@@ -87,7 +87,7 @@
 		RenderPHPBBIcons();
 		
 		echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:300px' rows='32' cols='32' name='p'>$existingComment</textarea></td></tr>";
-		echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit post' SIZE='37'/>&nbsp;<a href='/viewtopic.php?t=$thisTopicID&c=EXTERNAL_FRAGMENT'>Cancel</a></td></tr>$requestedComment";
+		echo "<tr>" . 			  "<td></td><td class='fullwidth'><input type='submit' value='Submit post' SIZE='37'/>&nbsp;<a href='/viewtopic.php?t=$thisTopicID&c=$requestedComment'>Cancel</a></td></tr>";
 		echo "</form>";
 		
 		echo "</tbody>";

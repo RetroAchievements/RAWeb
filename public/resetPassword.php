@@ -47,7 +47,7 @@
 			echo "<h4 class='longheader'>Enter username for password reset:</h2>";
 			
 			echo "<div class='longer'>";
-			echo "<form action='/public/requestresetpassword.php' method='post'>";
+			echo "<form action='/requestresetpassword.php' method='post'>";
 			echo "<input type='text' name='u' value='' />";
 			echo "&nbsp;&nbsp;";
 			echo "<input type='submit' value='Request Reset' />";
@@ -60,7 +60,7 @@
 			echo "<h4 class='longheader'>Enter new Password for $user:</h4>";
 			
 			echo "<div class='longer'>";
-			echo "<form action='/public/requestchangepassword.php' method='post'>";
+			echo "<form action='/requestchangepassword.php' method='post'>";
 			echo "<input type='password' name='x' size='42' />&nbsp;";
 			echo "<input type='password' name='y' size='42' />&nbsp;";
 			echo "<input type='hidden' name='t' value='$passResetToken' />";

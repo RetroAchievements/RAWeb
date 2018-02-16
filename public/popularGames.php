@@ -44,12 +44,12 @@
 		echo "Show: | ";
 		
 		if( $method==0 ) 	echo "by number of awards given";
-		else 				echo "<a href='/popularGames.phpmes.php?p=0'>by number of awards given</a>";
+		else 				echo "<a href='/popularGames.php?p=0'>by number of awards given</a>";
 			
 		echo " | ";
 			
 		if( $method==1 )	echo "by unique members played ";
-		else				echo "<a href='/popularGames.phpmes.php?p=1'>by unique members played</a> ";
+		else				echo "<a href='/popularGames.php?p=1'>by unique members played</a> ";
 		
 		echo " | ";
 			
@@ -124,13 +124,13 @@
 		if( $offset > 0 )
 		{
 			$prevOffset = $offset - $maxCount;
-			echo "<a href='/popularGames.phpmes.php?o=$prevOffset&amp;p=EXTERNAL_FRAGMENT'>&lt; Previous $method$maxCount</a> - ";
+			echo "<a href='/popularGames.php?o=$prevOffset&amp;p=$method'>&lt; Previous $maxCount</a> - ";
 		}
 		if( $count == $maxCount )
 		{
 			//	Max number fetched, i.e. there are more. Can goto next 25.
 			$nextOffset = $offset + $maxCount;
-			echo "<a href='/popularGames.php?o=$nextOffset&amp;p=EXTERNAL_FRAGMENT'>Next $method$maxCount &gt;</a>";
+			echo "<a href='/popularGames.php?o=$nextOffset&amp;p=$method'>Next $maxCount &gt;</a>";
 		}
 		echo "</div>";
 		

@@ -115,7 +115,7 @@ RenderDocType( TRUE );
 
             echo "<div class='navpath'>";
             echo "<a href='/gameList.php'>All Games</a>";
-            echo " &raquo; <a href='/gameList.php?c=EXTERNAL_FRAGMENT'>$consoleID$consoleName</a>";
+            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
             echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
             echo " &raquo; <b>$achievementTitle</b>";
             echo "</div>"; //navpath
@@ -186,7 +186,7 @@ RenderDocType( TRUE );
                 echo "<div style='clear:both;'></div>";
 
                 if( $achFlags == 3 )
-                    echo "<li>State: Official&nbsp;<a href='/requestupdateachievement.php?a=EXTERNAL_FRAGMENT&amp;f=3&amp;u=EXTERNAL_FRAGMENT&amp;v=5'>Demote To Unofficial</a></li>$achievementID$user";
+                    echo "<li>State: Official&nbsp;<a href='/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
                 else if( $achFlags == 5 )
                     echo "<li>State: Unofficial</li>";
 

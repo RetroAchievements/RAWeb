@@ -45,7 +45,7 @@ RenderDocType();
             if( ($sortBy == 2 ) )
                 echo "<th>Rank</th>";
 
-            echo ">User</a></th>";
+            echo "<th colspan='2'><a href=\"/userList.php?s=$sort1\">User</a></th>";
             echo "<th><a href=\"/userList.php?s=$sort2\">Points</a></th>";
             echo "<th><a href=\"/userList.php?s=$sort3\">Num Achievements Earned</a></th>";
 
