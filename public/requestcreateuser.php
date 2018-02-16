@@ -115,7 +115,7 @@ if( $dbResult !== FALSE && mysqli_num_rows( $dbResult ) == 1 )
     return false;
 }
 
-$saltedPass = md5( $pass . RA_PASSWORD_SALT );
+$saltedPass = md5( $pass . getenv('RA_PASSWORD_SALT') );
 
 $query = "INSERT INTO UserAccounts VALUES ( NULL, \"$user\", \"$saltedPass\", \"$email\", 0, 0, 0, 0, '', '', NULL, 63, 0, 0, \"\", 0, 0, \"\", 0, 0, \"Unknown\", NULL, 0, 0, 0, 1, NULL, false )";
 log_sql( $query );

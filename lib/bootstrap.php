@@ -1,7 +1,7 @@
 <?php
 //echo "Hold on..."; exit;
 
-require_once( '../vendor/autoload.php' );
+require_once( __DIR__ . '/../vendor/autoload.php' );
 
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
