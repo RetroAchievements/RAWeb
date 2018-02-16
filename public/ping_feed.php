@@ -7,7 +7,7 @@ $mode = $_POST['mode'];
 // default the last id to 0
 $id = 0;
 // create a new Feed instance
-$feed = new Feed();
+$feed = new \RA\Feed();
 
 if( !isset( $mode ) )
 {

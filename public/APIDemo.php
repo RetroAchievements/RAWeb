@@ -9,7 +9,7 @@ $pageTitle = "RetroAchievements API Demo (PHP)";
 $errorCode = seekGET( 'e' );
 
 $apiUser = isset( $user ) ? $user : 'TestUser';
-$apiKey = isset( $user ) ? GetAPIKey($user) : 'gdPk9A1UWj9IWCM9uuzcpcTSatwubnGh';
+$apiKey = isset( $user ) ? GetAPIKey($user) : getenv('RA_API_KEY');
 
 ?>
 <head>
