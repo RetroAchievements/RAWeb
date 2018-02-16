@@ -93,13 +93,13 @@
 		echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
 		//if( isset( $user ) && $permissions >= 1 )
-		if( ( $thisTopicAuthor == $user ) || ( $permissions >= Permissions::Developer ) )
+		if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 		{
 			echo "<div class='devbox'>";
 			echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Options (Click to show):</span><br/>";
 			echo "<div id='devboxcontent'>";
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= Permissions::Developer ) )
+			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 			{
 				echo "<li>Change Topic Title:</li>";
 				echo "<form action='/requestmodifytopic.php' method='post' >";
@@ -111,7 +111,7 @@
 				echo "</form>";
 			}
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= Permissions::Developer ) )
+			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 			{
 				echo "<li>Delete Topic:</li>";
 				echo "<form action='/requestmodifytopic.php' method='post' >";
@@ -123,7 +123,7 @@
 				echo "</form>";
 			}
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= Permissions::Developer ) )
+			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 			{
 				$selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
 				$selected1 = ( $thisTopicPermissions == 1 ) ? 'selected' : '';
@@ -242,7 +242,7 @@
 			if( $nextCommentAuthorised == 0 )
 			{
 				//	Allow, only if this is MY comment (disclaimer: unofficial), or if I'm admin (disclaimer: unofficial, verify user?)
-				if( $permissions >= Permissions::Developer )
+				if( $permissions >= \RA\Permissions::Developer )
 				{
 					//	Allow with disclaimer
 					$showDisclaimer = true;
@@ -274,7 +274,7 @@
 				
 			echo "<div class='smalltext rightfloat'>Posted: $nextCommentDateCreatedNiceDate";
 			
-			if( ( $user == $nextCommentAuthor ) || ( $permissions >= Permissions::Admin ) )
+			if( ( $user == $nextCommentAuthor ) || ( $permissions >= \RA\Permissions::Admin ) )
 				echo "&nbsp;<a href='/editpost.php?c=EXTERNAL_FRAGMENT'>($nextCommentIDEdit&nbsp;Post)</a>";
 				
 			if( $showDisclaimer )

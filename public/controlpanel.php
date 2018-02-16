@@ -375,7 +375,7 @@
 		echo "<span class='usermotto'>$userMotto</span><br/>";	
 	echo "</p>";
 	
-	if( $permissions == Permissions::Unregistered )
+	if( $permissions == \RA\Permissions::Unregistered )
 		echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/requestresendactivationemail.php?u=$user'>here</a> to resend your activation email!</div>";
 	?>
 	

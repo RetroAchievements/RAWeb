@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Admin ) )
+if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin ) )
 {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
     header( "Location: http://" . AT_HOST );
@@ -454,7 +454,7 @@ $staticData = getStaticData();
     echo "Account: <b>" . $user . "</b><br/>";
     echo "Account Type: <b>" . PermissionsToString( $permissions ) . "</b><br/>";
 
-    if( $permissions >= Permissions::Root )
+    if( $permissions >= \RA\Permissions::Root )
     {
         echo "<h1>API Key</h1>";
         echo "<a href='/admin.php?action=regenapi'>Regenerate ALL API Keys! (WARNING)</a><br/>";
@@ -463,7 +463,7 @@ $staticData = getStaticData();
         echo "<a href='/admin.php?action=errorlog'>ERROR LOG</a><br/>";
     }
 
-    if( $permissions >= Permissions::Root )
+    if( $permissions >= \RA\Permissions::Root )
     {
         echo "<h1>Achievement Inspection/Interaction</h1>";
         echo "<a href='/admin.php?action=recalcdev'>Recalculate developer contribution totals! (1) (WARNING)</a><br/>";
@@ -471,7 +471,7 @@ $staticData = getStaticData();
         echo "<a href='/admin.php?action=reconstructsiteawards'>Reconstruct site awards (completed games)! (3) (WARNING)</a><br/>";
     }
 
-    if( $permissions >= Permissions::Admin )
+    if( $permissions >= \RA\Permissions::Admin )
     {
         echo "<h2>Get Game Achievement IDs</h2>";
         echo "<form method='post' action='admin.php'>";
@@ -481,7 +481,7 @@ $staticData = getStaticData();
         echo "</form>";
     }
 
-    if( $permissions >= Permissions::Admin )
+    if( $permissions >= \RA\Permissions::Admin )
     {
         echo "<h2>Award Achievement</h2>";
         echo "<form method='post' action='admin.php'>";
@@ -494,7 +494,7 @@ $staticData = getStaticData();
         echo "</form>";
     }
 
-    if( $permissions >= Permissions::Admin )
+    if( $permissions >= \RA\Permissions::Admin )
     {
         $eventAchievementID = $staticData[ 'Event_AOTW_AchievementID' ];
         $eventForumTopicID = $staticData[ 'Event_AOTW_ForumID' ];
@@ -509,7 +509,7 @@ $staticData = getStaticData();
         echo "</form>";
     }
 
-    if( $permissions >= Permissions::Root )
+    if( $permissions >= \RA\Permissions::Root )
     { //TBD
         ?>
 

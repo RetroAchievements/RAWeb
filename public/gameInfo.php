@@ -817,7 +817,7 @@ $numGridlines = $numAchievements;
                 RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
 
                 //	Render article comments
-                $forceAllowDeleteComments = $permissions >= Permissions::Admin;
+                $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
                 RenderCommentsComponent( $user, $numArticleComments, $commentData, $gameID, 1, $forceAllowDeleteComments );
                 ?>
             </div>

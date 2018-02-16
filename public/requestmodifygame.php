@@ -16,7 +16,7 @@
 	$field = $_POST["f"];
 	$value = $_POST["v"];
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) )
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 	{
 		if( requestModifyGame( $author, $gameID, $field, $value ) )
 		{

@@ -209,7 +209,7 @@ RenderDocType( TRUE );
             }
 
             //	Comments:
-            $forceAllowDeleteComments = $permissions >= Permissions::Admin;
+            $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
             RenderCommentsComponent( $user, $numArticleComments, $commentData, $achievementID, 2, $forceAllowDeleteComments );
 
             echo "</div>"; //achievement

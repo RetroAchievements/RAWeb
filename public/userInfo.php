@@ -391,7 +391,7 @@ foreach( $arrayToUse as $dayInfo )
                 echo "</div>"; //	friendbox
             }
 
-            if( isset( $user ) && $permissions >= Permissions::Admin )
+            if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
             {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Admin (Click to show):</span><br/>";
@@ -405,10 +405,10 @@ foreach( $arrayToUse as $dayInfo )
                     echo "<input type='hidden' name='t' value='$userPage' />";
 
                     echo "<select name='v' >";
-                    $i = Permissions::Banned;
+                    $i = \RA\Permissions::Banned;
                     //	NB. Only I can authorise changing to Admin
                     //	Don't do this, looks weird when trying to change someone above you
-                    //while( $i <= $permissions && ( $i <= Permissions::Developer || $user == 'Scott' ) )
+                    //while( $i <= $permissions && ( $i <= \RA\Permissions::Developer || $user == 'Scott' ) )
                     while( $i <= $permissions )
                     {
                         if( $userMassData[ 'Permissions' ] == $i )
@@ -428,7 +428,7 @@ foreach( $arrayToUse as $dayInfo )
                     echo "</form><br/>";
                 }
 
-                if( isset( $user ) && $permissions >= Permissions::Root )
+                if( isset( $user ) && $permissions >= \RA\Permissions::Root )
                 {
                     //  Me only
                     echo "<form method='post' action='/public/requestupdateuser.php' enctype='multipart/form-data'>";
@@ -440,7 +440,7 @@ foreach( $arrayToUse as $dayInfo )
                     echo "</form>";
                 }
 
-                if( isset( $user ) && $permissions >= Permissions::Admin )
+                if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
                 {
                     echo "<form method='post' action='/public/requestscorerecalculation.php' enctype='multipart/form-data'>";
                     echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
@@ -595,7 +595,7 @@ foreach( $arrayToUse as $dayInfo )
             if( $userWallActive )
             {
                 echo "<h4>User Wall</h4>";
-                $forceAllowDeleteComments = $permissions >= Permissions::Admin;
+                $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
                 RenderCommentsComponent( $user, $numArticleComments, $commentData, $userPageID, 3, $forceAllowDeleteComments );
             }
 

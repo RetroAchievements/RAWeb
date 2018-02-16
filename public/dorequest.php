@@ -62,14 +62,14 @@ switch( $requestType )
     case "submitlbentry":
     case "unlocks":
     case "uploadachievement":
-        $credentialsOK = $validLogin && ( $permissions >= Permissions::Registered );
+        $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Registered );
         break;
 
     //	Developer status required:
     case "createnewlb":
     case "recalctrueratio":
     case "removelbentry":
-        $credentialsOK = $validLogin && ( $permissions >= Permissions::Developer );
+        $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Developer );
         break;
 
     default: //	Incl. Login!

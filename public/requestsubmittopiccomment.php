@@ -11,7 +11,7 @@
 	$topicID = seekPOST( 't' );
 	$commentPayload = seekPOST( 'p' );
 	
-	if( validateFromCookie( $user, $unused, $permissions, Permissions::Registered ) )
+	if( validateFromCookie( $user, $unused, $permissions, \RA\Permissions::Registered ) )
 	{
 		if( submitTopicComment( $user, $topicID, $commentPayload, $newCommentID ) )
 		{

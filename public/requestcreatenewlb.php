@@ -11,7 +11,7 @@
 		$gameID = seekGET( 'g' );
 	}
 	
-	if( validateUser_cookie( $user, $cookie, Permissions::Developer ) )
+	if( validateUser_cookie( $user, $cookie, \RA\Permissions::Developer ) )
 	{
 		if( submitNewLeaderboard( $gameID, $lbID ) )
 		{

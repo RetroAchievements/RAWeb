@@ -4,7 +4,7 @@
 	$gameID = seekGET('ID');
 	$user2 = seekGET('f');
 	
-	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Unregistered ) )
+	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Unregistered ) )
 	{
 		header( "Location: http://" . AT_HOST . "?e=notloggedin" );
 		exit;

@@ -795,7 +795,7 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
             {
                 $userPermissions = getUserPermissions( $author );
                 error_log( "changing ach set detected; user is $author, permissions is $userPermissions, target set is $type" );
-                if( $userPermissions < Permissions::Developer )
+                if( $userPermissions < \RA\Permissions::Developer )
                 {
                     //  Must be developer to modify core!
                     $errorOut = "You must be a developer to modify values in Core! Please drop a message in the chat/forums to apply.";

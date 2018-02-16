@@ -14,7 +14,7 @@
 	$newGameAlt = seekPOST( 'n' );
 	$removeGameAlt = seekPOST( 'm' );
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::SuperUser ) )
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser ) )
 	{
 		if( isset( $richPresence ) )
 		{

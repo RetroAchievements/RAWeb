@@ -19,7 +19,7 @@
 	getCookie( $user, $cookie );
 	
 	//	Somewhat elevated privileges to modify an LB:
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer ) && 
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) &&
 		($source == $user) )
 	{
 		if( submitLBData( $user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder ) )
