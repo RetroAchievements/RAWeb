@@ -3,8 +3,8 @@
 
 require_once( '../vendor/autoload.php' );
 
-$dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
-$dotenv->load();
+//$dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
+//$dotenv->load();
 
 $g_pageLoadAt = microtime(true);
 $g_numQueries = 0;
