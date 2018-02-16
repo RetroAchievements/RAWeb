@@ -364,7 +364,7 @@
 	<?php RenderErrorCodeWarning( 'left', $errorCode ); ?>
 	
 	<div class='component' >
-	<h2>User Details</h3>
+	<h2>User Details</h2>
 	<?php	
 	//	Render user panel
 	echo "<p style='min-height:62px'>";

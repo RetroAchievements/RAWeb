@@ -99,7 +99,7 @@ echo "<p>Next, simply call one of the available functions to use it. Here we fet
 echo '<code>$data = $RAConn->GetTopTenUsers();</code><br/>';
 $data = $RAConn->GetTopTenUsers();
 echo "<p>And here is the contents of that call. Note you are free to interpret this data, I am simply dumping it here so you can see what's in this object:</p>";
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -109,7 +109,7 @@ echo '<h3 id=\'GetConsoleIDs\' class=\'longheader\' onclick="$(\'#GetConsoleIDsD
 echo '<div class=\'CodeDiv\' id=\'GetConsoleIDsDiv\'>';
 echo '<code>$data = $RAConn->GetConsoleIDs();</code><br/>';
 $data = $RAConn->GetConsoleIDs();
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -119,7 +119,7 @@ echo '<h3 id=\'GetGameList\' class=\'longheader\' onclick="$(\'#GetGameListDiv\'
 echo '<div class=\'CodeDiv\' id=\'GetGameListDiv\'>';
 echo '<code>$data = $RAConn->GetGameList( 4 );</code>';
 $data = $RAConn->GetGameList( 4 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -128,7 +128,7 @@ echo '<h3 id=\'GetGameInfo\' class=\'longheader\' onclick="$(\'#GetGameInfoDiv\'
 echo '<div class=\'CodeDiv\' id=\'GetGameInfoDiv\'>';
 echo '<code>$data = $RAConn->GetGameInfo( 504 );</code>';
 $data = $RAConn->GetGameInfo( 504 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -137,7 +137,7 @@ echo '<h3 id=\'GetGameInfoExtended\' class=\'longheader\' onclick="$(\'#GetGameI
 echo '<div class=\'CodeDiv\' id=\'GetGameInfoExtendedDiv\'>';
 echo '<code>$data = $RAConn->GetGameInfoExtended( 504 );</code>';
 $data = $RAConn->GetGameInfoExtended( 504 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -146,7 +146,7 @@ echo '<h3 id=\'GetGameInfoAndUserProgress\' class=\'longheader\' onclick="$(\'#G
 echo '<div class=\'CodeDiv\' id=\'GetGameInfoAndUserProgressDiv\'>';
 echo '<code>$data = $RAConn->GetGameInfoAndUserProgress( \'Scott\', 3 );</code>';
 $data = $RAConn->GetGameInfoAndUserProgress( 'Scott', 3 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -156,7 +156,7 @@ echo '<h3 id=\'GetUserRankAndScore\' class=\'longheader\' onclick="$(\'#GetUserR
 echo '<div class=\'CodeDiv\' id=\'GetUserRankAndScoreDiv\'>';
 echo '<code>$data = $RAConn->GetUserRankAndScore( \'Scott\' );</code>';
 $data = $RAConn->GetUserRankAndScore( 'Scott' );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -165,7 +165,7 @@ echo '<h3 id=\'GetUserRecentlyPlayedGames\' class=\'longheader\' onclick="$(\'#G
 echo '<div class=\'CodeDiv\' id=\'GetUserRecentlyPlayedGamesDiv\'>';
 echo '<code>$data = $RAConn->GetUserRecentlyPlayedGames( \'Scott\' );</code>';
 $data = $RAConn->GetUserRecentlyPlayedGames( 'Scott', 10 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -174,7 +174,7 @@ echo '<h3 id=\'GetUserProgress\' class=\'longheader\' onclick="$(\'#GetUserProgr
 echo '<div class=\'CodeDiv\' id=\'GetUserProgressDiv\'>';
 echo '<code>$data = $RAConn->GetUserProgress( \'Scott\', \'2, 3, 75\' );</code>';
 $data = $RAConn->GetUserProgress( 'Scott', '2, 3, 75' );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -183,7 +183,7 @@ echo '<h3 id=\'GetUserSummary\' class=\'longheader\' onclick="$(\'#GetUserSummar
 echo '<div class=\'CodeDiv\' id=\'GetUserSummaryDiv\'>';
 echo '<code>$data = $RAConn->GetUserSummary( \'Scott\', 3 );</code>';
 $data = $RAConn->GetUserSummary( 'Scott', 3 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -192,7 +192,7 @@ echo '<h3 id=\'GetFeedFor\' class=\'longheader\' onclick="$(\'#GetFeedForDiv\').
 echo '<div class=\'CodeDiv\' id=\'GetFeedForDiv\'>';
 echo '<code>$data = $RAConn->GetFeedFor( \'Scott\', 10 );</code>';
 $data = $RAConn->GetFeedFor( 'Scott', 10 );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -202,7 +202,7 @@ echo '<h3 id=\'GetAchievementsEarnedOnDay\' class=\'longheader\' onclick="$(\'#G
 echo '<div class=\'CodeDiv\' id=\'GetAchievementsEarnedOnDayDiv\'>';
 echo '<code>$data = $RAConn->GetAchievementsEarnedOnDay( \'Scott\', \'2014-01-04\' );</code>';
 $data = $RAConn->GetAchievementsEarnedOnDay( 'Scott', '2014-01-04' );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
@@ -211,7 +211,7 @@ echo '<h3 id=\'GetAchievementsEarnedBetween\' class=\'longheader\' onclick="$(\'
 echo '<div class=\'CodeDiv\' id=\'GetAchievementsEarnedBetweenDiv\'>';
 echo '<code>$data = $RAConn->GetAchievementsEarnedBetween( \'Scott\', \'2013-12-31 20:00:00\', \'2014-01-01 04:00:00\' );</code>';
 $data = $RAConn->GetAchievementsEarnedBetween( 'Scott', '2013-12-31 20:00:00', '2014-01-01 04:00:00' );
-new dBug( $data );
+new \RA\dBug( $data );
 echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
