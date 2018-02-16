@@ -75,7 +75,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
 
     switch( $activity )
     {
-        case ActivityType::EarnedAchivement:
+        case \RA\ActivityType::EarnedAchivement:
             //	earned an achievement
             $achID = $customMsg;
 
@@ -94,7 +94,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             $query .= "(NOW(), $activity, '$user', '$achID', $isalt )";
             break;
 
-        case ActivityType::Login:
+        case \RA\ActivityType::Login:
             //	login
             $lastLoginActivity = getMostRecentActivity( $user, $activity, null );
             if( isset( $lastLoginActivity ) )
@@ -113,7 +113,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             $query .= "(NOW(), $activity, '$user', NULL, NULL)";
             break;
 
-        case ActivityType::StartedPlaying:
+        case \RA\ActivityType::StartedPlaying:
             //	start playing game
             $gameID = $customMsg;
             getGameTitleFromID( $gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData );
@@ -145,7 +145,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             //error_log( $query );
             break;
 
-        case ActivityType::UploadAchievement:
+        case \RA\ActivityType::UploadAchievement:
             //	upload achievement
             $achID = $customMsg;
             $achievementName = getAchievementTitle( $achID, $gameTitle, $gameID );
@@ -159,7 +159,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             $query .= "(NOW(), $activity, '$user', '$achID', NULL)";
             break;
 
-        case ActivityType::EditAchievement:
+        case \RA\ActivityType::EditAchievement:
             //	commit achievement changes
             $achID = $customMsg;
             $achievementName = getAchievementTitle( $achID, $gameTitle, $gameID );
@@ -173,7 +173,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             $query .= "(NOW(), $activity, '$user', '$achID', NULL)";
             break;
 
-        case ActivityType::CompleteGame:
+        case \RA\ActivityType::CompleteGame:
             //	Completed a game!
             $gameID = $customMsg;
             getGameTitleFromID( $gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData );
@@ -186,7 +186,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             $query .= "(NOW(), $activity, '$user', '$gameID', $isalt)";
             break;
 
-        case ActivityType::NewLeaderboardEntry:
+        case \RA\ActivityType::NewLeaderboardEntry:
             //	New LB Entry
             $lbID = $customMsg[ 'LBID' ];
             $lbTitle = $customMsg[ 'LBTitle' ];
@@ -197,15 +197,15 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
 
             $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace( "'", "''", $gameLink );
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=EXTERNAL_FRAGMENT'>$lbID$scoreFormatted</a>";
+            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$scoreFormatted</a>";
             $lbLinkScore = str_replace( "'", "''", $lbLinkScore );
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=EXTERNAL_FRAGMENT'>$lbID$lbTitle</a>";
+            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$lbTitle</a>";
             $lbLinkTitle = str_replace( "'", "''", $lbLinkTitle );
 
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
 
-        case ActivityType::ImprovedLeaderboardEntry:
+        case \RA\ActivityType::ImprovedLeaderboardEntry:
             //	Updated LB Entry
             $lbID = $customMsg[ 'LBID' ];
             $lbTitle = $customMsg[ 'LBTitle' ];
@@ -216,16 +216,16 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
 
             $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace( "'", "''", $gameLink );
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=EXTERNAL_FRAGMENT'>$lbID$scoreFormatted</a>";
+            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$scoreFormatted</a>";
             $lbLinkScore = str_replace( "'", "''", $lbLinkScore );
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=EXTERNAL_FRAGMENT'>$lbID$lbTitle</a>";
+            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$lbTitle</a>";
             $lbLinkTitle = str_replace( "'", "''", $lbLinkTitle );
 
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
 
         default: //ft
-        case ActivityType::Unknown:
+        case \RA\ActivityType::Unknown:
             error_log( __FUNCTION__ . " received unknown activity: $activity" );
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
             break;
@@ -653,7 +653,7 @@ FROM (
  ) AS Inner1
 LEFT JOIN GameData AS gd ON gd.ID = Inner1.data
 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-LEFT JOIN Rating AS r ON r.RatingObjectType = " . ObjectType::Game . " AND r.RatingID=Inner1.data AND r.User='$user'
+LEFT JOIN Rating AS r ON r.RatingObjectType = " . \RA\ObjectType::Game . " AND r.RatingID=Inner1.data AND r.User='$user'
 LIMIT $offset, $count";
 
     $dbResult = s_mysql_query( $query );

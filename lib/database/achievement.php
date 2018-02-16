@@ -321,7 +321,7 @@ function CrossPostToSocial( $userData, $activityType, $data )
     {
         switch( $activityType )
         {
-            case ActivityType::EarnedAchivement:
+            case \RA\ActivityType::EarnedAchivement:
                 {
                     //	Ensure the user wants to post this!
                     if( ( $userData[ 'fbPrefs' ] & FBUserPref::PostFBOn_EarnAchievement ) != 0 )
@@ -333,7 +333,7 @@ function CrossPostToSocial( $userData, $activityType, $data )
                 }
                 break;
 
-            case ActivityType::CompleteGame:
+            case \RA\ActivityType::CompleteGame:
                 {
                     //	Ensure the user wants to post this!
                     if( ( $userData[ 'fbPrefs' ] & FBUserPref::PostFBOn_CompleteGame ) != 0 )
@@ -488,7 +488,7 @@ function AddEarnedAchievementJSON( $user, $achIDToAward, $isHardcore, $validatio
                         $dbResult = s_mysql_query( $query );
                         SQL_ASSERT( $dbResult );
 
-                        postActivity( $user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore );
+                        postActivity( $user, \RA\ActivityType::EarnedAchivement, $achIDToAward, $isHardcore );
 
                         testFullyCompletedGame( $user, $achIDToAward, $isHardcore );
 
@@ -497,7 +497,7 @@ function AddEarnedAchievementJSON( $user, $achIDToAward, $isHardcore, $validatio
                         $socialData[ 'Points' ] = $userData[ 'RAPoints' ] + $pointsToGive;
                         $socialData[ 'AchievementData' ] = $achData; //Passthru
                         $socialData[ 'Hardcore' ] = $isHardcore;
-                        CrossPostToSocial( $userData, ActivityType::EarnedAchivement, $socialData );
+                        CrossPostToSocial( $userData, \RA\ActivityType::EarnedAchivement, $socialData );
                     }
                 }
             }
@@ -655,7 +655,7 @@ function AddEarnedAchievement( $userIn, $validation, $achIDToAward, $fbUser, &$n
 
                     if( $silent == FALSE )
                     {
-                        postActivity( $user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore );
+                        postActivity( $user, \RA\ActivityType::EarnedAchivement, $achIDToAward, $isHardcore );
                     }
 
                     testFullyCompletedGame( $user, $achIDToAward, $isHardcore );
@@ -762,7 +762,7 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
         {
             global $db;
             $idInOut = mysqli_insert_id( $db );
-            postActivity( $author, ActivityType::UploadAchievement, $idInOut );
+            postActivity( $author, \RA\ActivityType::UploadAchievement, $idInOut );
 
             static_addnewachievement( $idInOut );
 
@@ -831,7 +831,7 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
                 static_setlastupdatedgame( $gameID );
                 static_setlastupdatedachievement( $idInOut );
 
-                postActivity( $author, ActivityType::EditAchievement, $idInOut );
+                postActivity( $author, \RA\ActivityType::EditAchievement, $idInOut );
 
                 return true;
             }
