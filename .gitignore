@@ -1,4 +1,14 @@
+nbproject
+._*
+.~lock.*
+.buildpath
+.DS_Store
+.idea
+.project
+.settings
+.php_cs.cache
+/public/RA_Integration.dll
+/node_modules
+/vendor
 /_db_secrets_real.php
-/RA_Integration.dll
-/nbproject/private/
-/nbproject
+.env
