@@ -58,7 +58,7 @@ if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount,
 
         echo "<h2 class='longheader'>Upload news image</h2>";
         echo "160px max width or height! Image size will be scaled to fit.</br>";
-        echo "<form action='../uploadpic.php' style='padding: 2px;' method='post' enctype='multipart/form-data'>";
+        echo "<form action='uploadpic.php' style='padding: 2px;' method='post' enctype='multipart/form-data'>";
         echo "<label for='file'>New image:</label>";
         echo "<input type='file' name='file' id='file' />";
         echo "<input type='hidden' name='t' value='NEWS' />";
@@ -82,7 +82,7 @@ if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount,
 
             $selected = ($nextID == $newsArticleID) ? "selected" : "";
 
-            echo "<option value='$nextID' $selected><a href='/submitnews.php?n=EXTERNAL_FRAGMENT'>$nextID$nextID - $nextTitle</a></option>";
+            echo "<option value='$nextID' $selected><a href='/submitnews.php?n=$nextID'>$nextID - $nextTitle</a></option>";
 
             if( $nextNews[ 'ID' ] == $newsArticleID )
             {

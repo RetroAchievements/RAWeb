@@ -10,5 +10,6 @@ nbproject
 /public/RA_Integration.dll
 /node_modules
 /vendor
+/tmp
 /_db_secrets_real.php
 .env

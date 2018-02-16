@@ -153,7 +153,7 @@ function onUpdateComplete( data )
 			if( isset( $gameID ) )
 			{
 				echo "<li>";
-				echo "$user<a href='requestcreatenewlb.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;g=EXTERNAL_FRAGMENT'>Add New Leaderboard to $cookie$gameID" . $gameData['Title'] . "</a>";
+				echo "<a href='requestcreatenewlb.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a>";
 				echo "</li>";
 			}
 			else
@@ -239,13 +239,13 @@ function onUpdateComplete( data )
 		}
 		else
 		{
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>ID<$sort1/a></th>";
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>Gam$sort2e</a></th>";
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>Con$sort3sole</a></th>";
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>Tit$sort4le</a></th>";
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>Des$sort5cription</a></th>";
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>Typ$sort6e</a></th>";
-			echo "<th><a href='/leaderboardList.php?s=EXTERNAL_FRAGMENT'>Num$sort7Results</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort1'>ID</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort2'>Game</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort3'>Console</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort4'>Title</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort5'>Description</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort6'>Type</a></th>";
+			echo "<th><a href='/leaderboardList.php?s=$sort7'>NumResults</a></th>";
 		}
 		
 		$listCount = 0;
@@ -372,13 +372,13 @@ function onUpdateComplete( data )
 				echo "<div style='float:left;' >";
 				echo "&#124;";
 				echo "&nbsp;";
-				echo "$user<a href='requestdeletelb.php?u=EXTERNAL_FRAGMENT&amp;i=EXTERNAL_FRAGMENT&g=EXTERNAL_FRAGMENT'>Permanently Delete?</a>$lbID$gameID";
+				echo "<a href='requestdeletelb.php?u=$user&amp;i=$lbID&g=$gameID'>Permanently Delete?</a>";
 				echo "&nbsp;";
 				echo "&#124;";
 				echo "&nbsp;";
 				
 				if( $lbNumEntries > 0 )
-					echo "<a href='requestresetlb.php?u=EXTERNAL_FRAGMENT&amp;i=EXTERNAL_FRAGMENT'>Reset all $user$lbID$lbNumEntries entries?</a>";
+					echo "<a href='requestresetlb.php?u=$user&amp;i=$lbID'>Reset all $lbNumEntries entries?</a>";
 				else
 					echo "0 entries";
 					

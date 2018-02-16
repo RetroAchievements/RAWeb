@@ -53,7 +53,7 @@
 		}
 		else
 		{
-			echo "<a href='/forum.phprum.php'>Forum Index</a>";
+			echo "<a href='/forum.php'>Forum Index</a>";
 			echo " &raquo; <b>$requestedCategory</b></a>";	
 		}
 		echo "</div>";
@@ -120,7 +120,7 @@
 			echo "<tr>";
 				
 			echo "<td class='unreadicon'><img title='$nextForumTitle' alt='$nextForumTitle' src='http://i.retroachievements.org/Images/ForumTopicUnread32.gif' width='32' height='32'></img></td>";
-			echo "<td class='forumtitle'><a href='/viewforum.php?f=EXTERNAL_FRAGMENT'>$nextForumID$nextForumTitle</a><br/>";
+			echo "<td class='forumtitle'><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br/>";
 			echo "$nextForumDesc</td>";
 			echo "<td class='topiccount'>$nextForumNumTopics</td>";
 			echo "<td class='postcount'>$nextForumNumPosts</td>";
@@ -131,7 +131,7 @@
 			{
 				echo GetUserAndTooltipDiv( $nextForumLastPostAuthor, NULL, NULL, NULL, NULL, TRUE );
 				//echo "<a href='/User/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
-				echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=EXTERNAL_FRAGMENT'>[View]</a>$nextForumLastPostID";
+				echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID'>[View]</a>";
 			}
 			echo "</div>";
 			echo "</td>";

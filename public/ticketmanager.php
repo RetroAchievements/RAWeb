@@ -96,26 +96,26 @@ RenderDocType();
                 if( $assignedToUser !== $user && $ticketState == 0 )
                     echo "<b>All Tickets</b> | ";
                 else
-                    echo "<a href='/ticketmanager.php?t=0EXTERNAL_FRAGMENT'>All Tic$gameIDQuerykets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=0$gameIDQuery'>All Tickets</a> | ";
 
                 if( $assignedToUser !== $user && $ticketState == 1 )
                     echo "<b>Open Tickets</b> | ";
                 else
-                    echo "<a href='/ticketmanager.php?t=1EXTERNAL_FRAGMENT'>Open Ti$gameIDQueryckets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=1$gameIDQuery'>Open Tickets</a> | ";
 
                 if( $assignedToUser == $user && $ticketState == 0 )
                     echo "<b>All My Tickets</b> | ";
                 else
-                    echo "<a href='/ticketmanager.php?t=0&u=EXTERNAL_FRAGMENT'>All My $user$gameIDQueryTickets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=0&u=$user$gameIDQuery'>All My Tickets</a> | ";
 
                 if( $assignedToUser == $user && $ticketState == 1 )
                     echo "<b>My Open Tickets</b> | ";
                 else
-                    echo "<a href='/ticketmanager.php?t=1&u=EXTERNAL_FRAGMENT'>My Open$user$gameIDQuery Tickets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=1&u=$user$gameIDQuery'>My Open Tickets</a> | ";
 
                 if( !empty( $gameIDGiven ) )
                 {
-                    echo "</br>Viewing Game ID: $gameIDGiven <a href='/ticketmanager.php?t=1&u=EXTERNAL_FRAGMENT'>Clear $userFilter</a> ";
+                    echo "</br>Viewing Game ID: $gameIDGiven <a href='/ticketmanager.php?t=1&u=$user'>Clear Filter</a> ";
                 }
 
                 echo "<table><tbody>";
@@ -161,7 +161,7 @@ RenderDocType();
                         echo "<tr class='alt'>";
 
                     echo "<td>";
-                    echo "<a href='/ticketmanager.php?i=EXTERNAL_FRAGMENT'>$ticketID$ticketID</a>";
+                    echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
                     echo "</td>";
 
                     echo "<td>";
@@ -203,13 +203,13 @@ RenderDocType();
                 if( $offset > 0 )
                 {
                     $prevOffset = $offset - $maxCount;
-                    echo "$prevOffset<a href='/ticketmanager.php?o=EXTERNAL_FRAGMENT&amp;u=EXTERNAL_FRAGMENT&amp;t=EXTERNAL_FRAGMENT'>&lt; Previous $assignedToUser$ticketState$maxCount</a> - ";
+                    echo "<a href='/ticketmanager.php?o=$prevOffset&amp;u=$assignedToUser&amp;t=$ticketState'>&lt; Previous $maxCount</a> - ";
                 }
                 if( $rowCount == $maxCount )
                 {
                     //	Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
-                    echo "$nextOffset<a href='/ticketmanager.php?o=EXTERNAL_FRAGMENT&amp;u=EXTERNAL_FRAGMENT&amp;t=EXTERNAL_FRAGMENT'>Next $assignedToUser$ticketState$maxCount &gt;</a>";
+                    echo "<a href='/ticketmanager.php?o=$nextOffset&amp;u=$assignedToUser&amp;t=$ticketState'>Next $maxCount &gt;</a>";
                 }
                 echo "</div>";
             }
@@ -248,7 +248,7 @@ RenderDocType();
                 echo "<tr>";
 
                 echo "<td>";
-                echo "<a href='/ticketmanager.php?i=EXTERNAL_FRAGMENT'>$ticketID$ticketID</a>";
+                echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
@@ -309,7 +309,7 @@ RenderDocType();
                     echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket www.retroachievements.org/ticketmanager.php?i=$ticketID ";
                     $msgPayload = rawurlencode( $msgPayload );
-                    echo "$reportedBy<a href='createmessage.php?t=EXTERNAL_FRAGMENT&amp;s=Bug%20Report%20(EXTERNAL_FRAGMENT)&amp;p=EXTERNAL_FRAGMENT'>Contact $gameTitle$msgPayload$reportedBy</a>";
+                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20($gameTitle)&amp;p=$msgPayload'>Contact $reportedBy</a>";
                     echo "</span>";
                     echo "</div>";
                     echo "</td>";
@@ -323,7 +323,7 @@ RenderDocType();
                         echo "<td></td><td colspan='4'>";
                         echo "<div class='smallicon'>";
                         echo "<span>";
-                        echo "<a href='requestupdateticket.php?u=EXTERNAL_FRAGMENT&amp;i=EXTERNAL_FRAGMENT&amp;v=2'>Resolve as fixed</a>$user$ticketID";
+                        echo "<a href='requestupdateticket.php?u=$user&amp;i=$ticketID&amp;v=2'>Resolve as fixed</a>";
                         echo "</span>";
                         echo "</div>";
                         echo "</td>";
@@ -335,7 +335,7 @@ RenderDocType();
                         echo "<td></td><td colspan='4'>";
                         echo "<div class='smallicon'>";
                         echo "<span>";
-                        echo "<a href='requestupdateticket.php?u=EXTERNAL_FRAGMENT&amp;i=EXTERNAL_FRAGMENT&amp;v=0'>Demote achievement to unofficial</a>$user$ticketID";
+                        echo "<a href='requestupdateticket.php?u=$user&amp;i=$ticketID&amp;v=0'>Demote achievement to unofficial</a>";
                         //echo "<a href='/requestupdateachievement.php?a=$achID&amp;f=3&amp;u=$user&amp;v=5'>Demote achievement to unofficial</a>";
                         echo "</span>";
                         echo "</div>";
@@ -348,7 +348,7 @@ RenderDocType();
                 echo "<tr>";
                 echo "<td></td><td colspan='4'>";
                 echo "<div class='temp'>";
-                echo "<a href='ticketmanager.php?g=EXTERNAL_FRAGMENT&t=1'>View ot$gameIDher tickets for this game</a>";
+                echo "<a href='ticketmanager.php?g=$gameID&t=1'>View other tickets for this game</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
@@ -370,7 +370,7 @@ RenderDocType();
 
                             if( $nextTicketID !== $ticketID && ( $nextTicket[ 'ReportState' ] == 1 ) )
                             {
-                                echo "<a href='ticketmanager.php?i=EXTERNAL_FRAGMENT'>$nextTicketID$nextTicketID</a>, ";
+                                echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
                             }
                         }
 
@@ -392,7 +392,7 @@ RenderDocType();
 
                             if( $nextTicketID !== $ticketID && ( $nextTicket[ 'ReportState' ] !== 1 ) )
                             {
-                                echo "<a href='ticketmanager.php?i=EXTERNAL_FRAGMENT'>$nextTicketID$nextTicketID</a>, ";
+                                echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
                             }
                         }
 
