@@ -413,7 +413,7 @@ $numGridlines = $numAchievements;
                 <?php
                 echo "<div class='navpath'>";
                 echo "<a href='/gameList.php'>All Games</a>";
-                echo " &raquo; <a href='/gameList.php?c=EXTERNAL_FRAGMENT'>$consoleID$consoleName</a>";
+                echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
                 echo " &raquo; <b>$gameTitle</b>";
                 echo "</div>";
 
@@ -475,15 +475,15 @@ $numGridlines = $numAchievements;
                     echo "<div id='devboxcontent'>";
                     echo "<ul>";
                     echo "<li><a href='/achievementinspector.php?g=$gameID'>Manage Achievements</a></li>";
-                    echo "<li><a href='/leaderboardList.php?g=EXTERNAL_FRAGMENT'>Man$gameIDage Leaderboards</a></li>";
+                    echo "<li><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></li>";
                     if( $numAchievements == 0 )
                         echo "<li><a href='/attemptmerge.php?g=$gameID'>Merge Game</a></li>";
                     echo "<li><a href='/attemptrename.php?g=$gameID'>Rename Game</a></li>";
                     echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
                     if( $numLeaderboards == 0 )
-                        echo "$user<li><a href='/requestcreatenewlb.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;g=EXTERNAL_FRAGMENT'>Create First Leaderboard</a></li>$cookie$gameID";
-                    echo "<li><a href='/request.php?r=recalctrueratio&amp;g=EXTERNAL_FRAGMENT&amp;b=1'>Rec$gameIDalculate True Ratios</a></li>";
-                    echo "<li><a href='/ticketmanager.php?g=EXTERNAL_FRAGMENT&ampt=1'>Vie$gameIDw open tickets for this game</a></li>";
+                        echo "<li><a href='/requestcreatenewlb.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
+                    echo "<li><a href='/request.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
+                    echo "<li><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></li>";
                     echo "<li><a href='/codenotes.php?g=$gameID'>Code Notes</a>";
 
                     echo "</br>";
@@ -521,7 +521,7 @@ $numGridlines = $numAchievements;
                     echo "</form><br/>";
 
                     echo "<li>Update game details:</br>";
-                    echo "<form method='post' action='/public/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                     echo "<table><tbody>";
                     echo "<input type='hidden' name='i' value='$gameID' />";
                     echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'/></td></tr>";
@@ -539,7 +539,7 @@ $numGridlines = $numAchievements;
                     if( count( $gameAlts ) > 0 )
                     {
                         echo "<tr><td>";
-                        echo "<form method='post' action='/public/submitgamedata.php' enctype='multipart/form-data'>";
+                        echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID' />";
 
                         echo "To remove (game ID):";
@@ -560,7 +560,7 @@ $numGridlines = $numAchievements;
                     }
 
                     echo "<tr><td>";
-                    echo "<form method='post' action='/public/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                     echo "To add (game ID):";
                     echo "<input type='hidden' name='i' value='$gameID' />";
                     echo "<input type='text' name='n' class='searchboxgame' size='20'/>";
@@ -570,7 +570,7 @@ $numGridlines = $numAchievements;
                     echo "</tbody></table>";
 
                     echo "<li>Update <a href='http://retroachievements.org/viewtopic.php?t=842'>Rich Presence</a> script:</li>";
-                    echo "<form method='post' action='/public/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' value='$gameID' name='i'></input>";
                     echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea></br>";
                     echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";

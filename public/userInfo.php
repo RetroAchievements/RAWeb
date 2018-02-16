@@ -351,38 +351,38 @@ foreach( $arrayToUse as $dayInfo )
                 {
                     if( $userMassData[ 'FriendReciprocation' ] == 1 )
                     {
-                        echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=0'>Remove friend</a></span>$cookie$userPage";
+                        echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                     }
                     else if( $userMassData[ 'FriendReciprocation' ] == 0 )
                     {
                         //	They haven't accepted yet
-                        echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=0'>Cancel friend request</a></span>$cookie$userPage";
+                        echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Cancel friend request</a></span>";
                     }
                     else if( $userMassData[ 'FriendReciprocation' ] == -1 )
                     {
                         //	They blocked us
-                        echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=0'>Remove friend</a></span>$cookie$userPage";
+                        echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                     }
                 }
                 else if( $userMassData[ 'Friendship' ] == 0 )
                 {
                     if( $userMassData[ 'FriendReciprocation' ] == 1 )
                     {
-                        echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=1'>Confirm friend request</a></span>$cookie$userPage";
+                        echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Confirm friend request</a></span>";
                     }
                     else if( $userMassData[ 'FriendReciprocation' ] == 0 )
                     {
-                        echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=1'>Add friend</a></span>$cookie$userPage";
+                        echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Add friend</a></span>";
                     }
                 }
 
                 if( $userMassData[ 'Friendship' ] !== -1 )
                 {
-                    echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=-1'>Block user</a></span>$cookie$userPage";
+                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
                 }
                 else //if( $userMassData['Friendship'] == -1 )
                 {
-                    echo "$user<span class='clickablebutton'><a href='/requestchangefriend.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT&amp;a=0'>Unblock user</a></span>$cookie$userPage";
+                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
                 }
 
                 echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
@@ -400,7 +400,7 @@ foreach( $arrayToUse as $dayInfo )
                 if( $permissions >= $userMassData[ 'Permissions' ] && ( $user != $userPage ) )
                 {
                     echo "<li>Update Account Type:</li>";
-                    echo "<form method='post' action='/public/requestupdateuser.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/requestupdateuser.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='p' value='0' />";
                     echo "<input type='hidden' name='t' value='$userPage' />";
 
@@ -431,7 +431,7 @@ foreach( $arrayToUse as $dayInfo )
                 if( isset( $user ) && $permissions >= \RA\Permissions::Root )
                 {
                     //  Me only
-                    echo "<form method='post' action='/public/requestupdateuser.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/requestupdateuser.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='p' value='2' />";
                     echo "<input type='hidden' name='t' value='$userPage' />";
                     echo "<input type='hidden' name='v' value='0' />";
@@ -442,7 +442,7 @@ foreach( $arrayToUse as $dayInfo )
 
                 if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
                 {
-                    echo "<form method='post' action='/public/requestscorerecalculation.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/requestscorerecalculation.php' enctype='multipart/form-data'>";
                     echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
                     echo "&nbsp;<input type='submit' style='float: right;' value='Recalc Score Now' /></br></br>";
                     echo "<div style='clear:all;'></div>";
@@ -451,7 +451,7 @@ foreach( $arrayToUse as $dayInfo )
                     //$userIsUntracked
                     echo ($userIsUntracked == 1) ? "<b>Untracked User!</b>&nbsp;" : "Tracked User.&nbsp;";
                     $newValue = $userIsUntracked ? 0 : 1;
-                    echo "<form method='post' action='/public/requestupdateuser.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/requestupdateuser.php' enctype='multipart/form-data'>";
                     echo "<input TYPE='hidden' NAME='p' VALUE='3' />";
                     echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
                     echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";

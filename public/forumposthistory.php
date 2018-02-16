@@ -75,7 +75,7 @@
 			echo GetUserAndTooltipDiv( $postAuthor, null, null, NULL, NULL, TRUE );
 			echo "</td>";
 
-			echo "<td class='forumposthistory message recentforummsg'><a href='/viewtopic.php?t=$forumTopicID&c=EXTERNAL_FRAGMENT'>$forumCommentID$forumTopicTitle</a><br/>$postMessage...</td>";
+			echo "<td class='forumposthistory message recentforummsg'><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br/>$postMessage...</td>";
 			echo "<td class='forumposthistory smalldate datetd'>$nicePostTime</td>";
 			echo "</tr>";
 		}
@@ -86,13 +86,13 @@
 		if( $offset > 0 )
 		{
 			$prevOffset = $offset - $maxCount;
-			echo "<a href='/forumposthistory.phpory.php?o=EXTERNAL_FRAGMENT'>&lt; Previous $prevOffset$maxCount</a> - ";
+			echo "<a href='/forumposthistory.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
 		}
 		if( $numPostsFound == $maxCount )
 		{
 			//	Max number fetched, i.e. there are more. Can goto next 25.
 			$nextOffset = $offset + $maxCount;
-			echo "<a href='/forumposthistory.phpory.php?o=EXTERNAL_FRAGMENT'>Next $nextOffset$maxCount &gt;</a>";
+			echo "<a href='/forumposthistory.php?o=$nextOffset'>Next $maxCount &gt;</a>";
 		}
 		echo "</div>";
 		

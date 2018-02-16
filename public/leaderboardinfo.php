@@ -90,14 +90,14 @@ RenderDocType( TRUE );
                     echo "<div id='devboxcontent'>";
 
                     echo "<ul>";
-                    echo "<a href='/leaderboardList.php?g=EXTERNAL_FRAGMENT'>Leaderboard Management for $gameID$gameTitle</a>";
+                    echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
 
                     echo "<li>Manage Entries</li>";
                     echo "<table><tbody>";
                     if( count( $lbData[ 'Entries' ] ) > 0 )
                     {
                         echo "<tr><td>";
-                        echo "<form method='post' action='/public/request.php' enctype='multipart/form-data'>";
+                        echo "<form method='post' action='/request.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='r' value='removelbentry' />";
                         echo "<input type='hidden' name='l' value='$lbID' />";
                         echo "<input type='hidden' name='b' value='true' />";
@@ -211,7 +211,7 @@ RenderDocType( TRUE );
                 if( $offset > 0 )
                 {
                     $prevOffset = $offset - $count;
-                    echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID$prevOffset&amp;o=$count&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT'>&lt; Previous $friendsOnly$count</a></span> - ";
+                    echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a></span> - ";
                 }
 
                 //echo "$numActualEntries";
@@ -220,7 +220,7 @@ RenderDocType( TRUE );
                 {
                     //	Max number fetched, i.e. there are more. Can goto next 20.
                     $nextOffset = $offset + $count;
-                    echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID$nextOffset&amp;o=$count&amp;c=EXTERNAL_FRAGMENT&amp;f=EXTERNAL_FRAGMENT'>Next $friendsOnly$count &gt;</a></span>";
+                    echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a></span>";
                 }
                 echo "</div>";
 

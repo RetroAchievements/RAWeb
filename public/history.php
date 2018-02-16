@@ -279,9 +279,9 @@ foreach( $arrayToUse as $dayInfo )
     $sort3 = ($sortBy == 3) ? 13 : 3;
 
     echo "<tr>";
-    echo "<th><a href='/history.phpory.php?s=EXTERNAL_FRAGMENT'>Dat$sort1e</a></th>";
-    echo "<th><a href='/history.phpory.php?s=EXTERNAL_FRAGMENT'>Num$sort2 Achievements</a></th>";
-    echo "<th><a href='/history.phpory.php?s=EXTERNAL_FRAGMENT'>Sco$sort3re Earned</a></th>";
+    echo "<th><a href='/history.php?s=$sort1'>Date</a></th>";
+    echo "<th><a href='/history.php?s=$sort2'>Num Achievements</a></th>";
+    echo "<th><a href='/history.php?s=$sort3'>Score Earned</a></th>";
     echo "</tr>";
 
     $dayCount = 0;
@@ -302,8 +302,8 @@ foreach( $arrayToUse as $dayInfo )
             echo "<tr class='alt'>";
 
         echo "<td>$dateStr</td>";
-        echo "<td><a href='historyexamine.php?d=$dateUnix&u=EXTERNAL_FRAGMENT'>$userPage$nextNumAwarded</a></td>";
-        echo "<td><a href='historyexamine.php?d=$dateUnix&u=EXTERNAL_FRAGMENT'>$userPage$nextTotalPointsEarned</a></td>";
+        echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextNumAwarded</a></td>";
+        echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextTotalPointsEarned</a></td>";
 
         echo "</tr>";
     }

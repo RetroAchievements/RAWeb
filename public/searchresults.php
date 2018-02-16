@@ -37,7 +37,7 @@
 		echo "<h2 class='longheader'>Search</h2>";
 
 		echo "<div class='searchbox longer'>";
-		echo "<form action='/public/searchresults.phplts.php' method='get'>";
+		echo "<form action='/searchresults.php' method='get'>";
 		//echo "Search:&nbsp;";
 		echo "<input size='42' name='s' type='text' class='searchboxinput' />";
 		echo "&nbsp;&nbsp;";
@@ -118,13 +118,13 @@
 				if( $offset > 0 )
 				{
 					$prevOffset = $offset - $maxCount;
-					echo "<a href='/searchresults.phplts.php?s=$searchQuery&amp;o=EXTERNAL_FRAGMENT'>&lt; Previous $prevOffset$maxCount</a> - ";
+					echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
 				}
 				if( $resultsCount == $maxCount )
 				{
 					//	Max number fetched, i.e. there are more. Can goto next 25.
 					$nextOffset = $offset + $maxCount;
-					echo "<a href='/searchresults.php?s=$searchQuery&amp;o=EXTERNAL_FRAGMENT'>Next $nextOffset$maxCount &gt;</a>";
+					echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
 				}
 				echo "</div>";
 				

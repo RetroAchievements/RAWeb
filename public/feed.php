@@ -60,8 +60,8 @@
 </head>
 
 <body onload="init_chat(50);">	
-<script type='text/javascript' src="/public/js/all.js"></script>
-<script type='text/javascript' src="/public/js/ping_chat.js"></script>
+<script type='text/javascript' src="/js/all.js"></script>
+<script type='text/javascript' src="/js/ping_chat.js"></script>
 	
 <?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode ); ?>
 <?php RenderToolbar( $user, $permissions ); ?>
@@ -125,7 +125,7 @@
 			
 			if( $activityID !== NULL )
 			{
-				echo "<a href='/feed.phpeed.php?g=1'>Global Feed &gt;</a> ";
+				echo "<a href='/feed.php?g=1'>Global Feed &gt;</a> ";
 			}
 			else if( $numFeedItems > 0 )
 			{

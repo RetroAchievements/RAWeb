@@ -137,9 +137,9 @@
 			
 			echo "<span class='rightalign clickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
 			if( $unreadOnly )
-				echo "<span class='rightalign clickablebutton'><a href='/inbox.phpbox.php?u=0'>View All Messages</a></span>";
+				echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";
 			else
-				echo "<span class='rightalign clickablebutton'><a href='/inbox.phpbox.php?u=1'>View Unread Only</a></span>";
+				echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=1'>View Unread Only</a></span>";
 			
 			echo "<table class='messagestable' id='messages'><tbody>";
 			echo "<tr>";
@@ -202,8 +202,8 @@
 				
 				echo "<div class='buttoncollection rightfloat'>";
 				echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
-				echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgFrom&amp;i=EXTERNAL_FRAGMENT'>Reply</a></span>$msgID";
-				echo "$user<span class='rightalign clickablebutton'><a href='/requestdeletemessage.php?u=EXTERNAL_FRAGMENT&amp;c=EXTERNAL_FRAGMENT&amp;m=EXTERNAL_FRAGMENT'>Delete</a></span>$cookieRaw$msgID";
+				echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgFrom&amp;i=$msgID'>Reply</a></span>";
+				echo "<span class='rightalign clickablebutton'><a href='/requestdeletemessage.php?u=$user&amp;c=$cookieRaw&amp;m=$msgID'>Delete</a></span>";
 				echo "</div>";
 				
 				echo "</td>";
