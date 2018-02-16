@@ -567,7 +567,7 @@ function login_appWithToken( $user, $pass, &$tokenInOut, &$scoreOut, &$messagesO
     {
         //	Password provided:
         //	Note: Safer to receive a plaintext password: embedding any DB secret in-app is inexcusable!
-        $saltedPass = md5( $pass . RA_PASSWORD_SALT );
+        $saltedPass = md5( $pass . getenv('RA_PASSWORD_SALT') );
         $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user' AND SaltedPass='$saltedPass'";
         //error_log( $query );
     }
@@ -720,7 +720,7 @@ function getAccountDetailsFB( $fbUser, &$details )
 function changePassword( $user, $pass )
 {
     //	Add salt
-    $saltedHash = md5( $pass . RA_PASSWORD_SALT );
+    $saltedHash = md5( $pass . getenv('RA_PASSWORD_SALT') );
 
     if( strrchr( ' ', $saltedHash ) || strlen( $saltedHash ) != 32 )
     {
