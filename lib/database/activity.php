@@ -197,9 +197,9 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
 
             $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace( "'", "''", $gameLink );
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$scoreFormatted</a>";
+            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
             $lbLinkScore = str_replace( "'", "''", $lbLinkScore );
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$lbTitle</a>";
+            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a>";
             $lbLinkTitle = str_replace( "'", "''", $lbLinkTitle );
 
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
@@ -216,9 +216,9 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
 
             $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace( "'", "''", $gameLink );
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$scoreFormatted</a>";
+            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
             $lbLinkScore = str_replace( "'", "''", $lbLinkScore );
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbID$lbTitle</a>";
+            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a>";
             $lbLinkTitle = str_replace( "'", "''", $lbLinkTitle );
 
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
