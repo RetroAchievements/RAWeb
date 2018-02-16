@@ -2,23 +2,22 @@
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 //	Will need copy/pasting when required :S
-require_once('bin/aws.phar');
 use Aws\S3\S3Client;
-use Guzzle\Http\EntityBody;
+
 function UploadToS3( $filenameDest, $rawFile )
 {
     error_log( "UploadToS3\n" );
-    $client = S3Client::factory( array(
-	    'key' => getenv('AMAZON_S3_KEY'),
-	    'secret' => getenv('AMAZON_S3_SECRET'),
-	    'region' => getenv('AMAZON_S3_REGION')
-    ) );
+	$client = new S3Client([
+		'key' => getenv('AMAZON_S3_KEY'),
+		'secret' => getenv('AMAZON_S3_SECRET'),
+		'region' => getenv('AMAZON_S3_REGION'),
+	]);
 
-    $result = $client->putObject( array(
-        'Bucket' => "i.retroachievements.org",
-        'Key' => "$filenameDest",
-        'Body' => EntityBody::factory( fopen( $filenameDest, 'r+' ) )
-    ) );
+	$result = $client->putObject([
+		'Bucket' => getenv('AMAZON_S3_BUCKET'),
+		'Key' => "$filenameDest",
+		'Body' => fopen($filenameDest, 'r+'),
+	]);
 
     if( $result )
     {

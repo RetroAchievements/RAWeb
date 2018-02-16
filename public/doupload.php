@@ -25,28 +25,25 @@ if( $validLogin == FALSE )
     $validLogin = RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 }
 
-
-require_once('../bin/aws.phar');
 use Aws\S3\S3Client;
-use Guzzle\Http\EntityBody;
+
 function UploadToS3( $filenameDest, $rawFile )
 {
-    $client = S3Client::factory( array(
-                'key' => getenv('AMAZON_S3_KEY'),
-                'secret' => getenv('AMAZON_S3_SECRET'),
-                'region' => getenv('AMAZON_S3_REGION')
-            ) );
+    $client = new S3Client([
+	    'key' => getenv('AMAZON_S3_KEY'),
+	    'secret' => getenv('AMAZON_S3_SECRET'),
+	    'region' => getenv('AMAZON_S3_REGION'),
+    ]);
 
     // Register the stream wrapper from a client object
     //$client->registerStreamWrapper();
     //$url = "s3://i.retroachievements.org/$filenameDest";
 
-    $result = $client->putObject( array(
-        'Bucket' => "i.retroachievements.org",
-        'Key' => "$filenameDest",
-        //'Body' => EntityBody::factory( $rawFile )
-        'Body' => EntityBody::factory( fopen( $filenameDest, 'r+' ) )
-            ) );
+	$result = $client->putObject([
+		'Bucket' => getenv('AMAZON_S3_BUCKET'),
+		'Key' => "$filenameDest",
+		'Body' => fopen($filenameDest, 'r+'),
+	]);
 
     //$ok = imagepng( $rawFile, $url );
     if( $result )
