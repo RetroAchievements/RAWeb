@@ -123,7 +123,7 @@
 				echo "</form>";
 			}
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= Permissions::Developer ) )
+			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
 			{
 				$selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
 				$selected1 = ( $thisTopicPermissions == 1 ) ? 'selected' : '';
