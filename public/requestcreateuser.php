@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-require_once( 'recaptchalib.php' );
 function checkEmail( $email )
 {
     return filter_var( $email, FILTER_VALIDATE_EMAIL );
