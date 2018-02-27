@@ -8,6 +8,7 @@ nbproject
 .settings
 .php_cs.cache
 /public/RA_Integration.dll
+/public/Latest*.html
 /node_modules
 /vendor
 /tmp
