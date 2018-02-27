@@ -14,3 +14,4 @@ nbproject
 /tmp
 /_db_secrets_real.php
 .env
+/public/bin
