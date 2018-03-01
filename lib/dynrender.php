@@ -736,7 +736,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/gameList.php?c=7'>- NES</a></li>";
     echo "<li><a href='/gameList.php?c=8'>- PC Engine</a></li>";
     echo "<li><a href='/gameList.php?c=2'>- N64</a></li>";
-    echo "<li><a href='/gameList.php?c=12'>- PS1</a></li>";
+    //echo "<li><a href='/gameList.php?c=12'>- PS1</a></li>";
     echo "<li><a href='/gameList.php?c=13'>- Atari Lynx</a></li>";
     echo "<li><a href='/gameList.php?c=14'>- Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=25'>- Atari 2600</a></li>";
