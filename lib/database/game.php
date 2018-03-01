@@ -921,8 +921,9 @@ function SubmitNewGameTitleJSON( $user, $md5, $titleIn, $consoleID )
     else if( $permissions < \RA\Permissions::Developer )
     {
         error_log( __FUNCTION__ . " Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)" );
-        $retVal[ 'Error' ] = "Cannot submit *new* game title, not allowed! Please apply in forums for 'developer' access.";
-        $retVal[ 'Success' ] = FALSE;
+        //$retVal[ 'Error' ] = "Cannot submit *new* game title, not allowed! Please apply in forums for 'developer' access.";
+        $retVal[ 'Error' ] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
+	$retVal[ 'Success' ] = FALSE;
     }
     else
     {
