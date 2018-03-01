@@ -48,16 +48,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.52.11",
+            "version": "3.52.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "4baba19877e363b971a4600a4bc3b3fa94fdfbba"
+                "reference": "d64c6f8715dacfba6276dd43c4bc5f0002d660a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4baba19877e363b971a4600a4bc3b3fa94fdfbba",
-                "reference": "4baba19877e363b971a4600a4bc3b3fa94fdfbba",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d64c6f8715dacfba6276dd43c4bc5f0002d660a5",
+                "reference": "d64c6f8715dacfba6276dd43c4bc5f0002d660a5",
                 "shasum": ""
             },
             "require": {
@@ -124,7 +124,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2018-02-16T20:40:39+00:00"
+            "time": "2018-02-28T20:46:05+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -464,16 +464,16 @@
         },
         {
             "name": "windwalker/dom",
-            "version": "3.2.8",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ventoviro/windwalker-dom.git",
-                "reference": "785c5cf09f4a6daf07716dac1cea554ac0c4cd6c"
+                "reference": "ac639013836bd2a225350730d7fd102491669f3c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ventoviro/windwalker-dom/zipball/785c5cf09f4a6daf07716dac1cea554ac0c4cd6c",
-                "reference": "785c5cf09f4a6daf07716dac1cea554ac0c4cd6c",
+                "url": "https://api.github.com/repos/ventoviro/windwalker-dom/zipball/ac639013836bd2a225350730d7fd102491669f3c",
+                "reference": "ac639013836bd2a225350730d7fd102491669f3c",
                 "shasum": ""
             },
             "require": {
@@ -495,7 +495,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-2.0+"
+                "LGPL-2.0-or-later"
             ],
             "description": "Windwalker Dom package",
             "homepage": "https://github.com/ventoviro/windwalker-dom",
@@ -504,7 +504,7 @@
                 "framework",
                 "windwalker"
             ],
-            "time": "2017-06-09T18:19:49+00:00"
+            "time": "2018-02-20T08:15:16+00:00"
         }
     ],
     "packages-dev": [
@@ -863,16 +863,16 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.7.4",
+            "version": "1.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "9f901e29c93dae4aa77c0bb161df4276f9c9a1be"
+                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/9f901e29c93dae4aa77c0bb161df4276f9c9a1be",
-                "reference": "9f901e29c93dae4aa77c0bb161df4276f9c9a1be",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/dfd6be44111a7c41c2e884a336cc4f461b3b2401",
+                "reference": "dfd6be44111a7c41c2e884a336cc4f461b3b2401",
                 "shasum": ""
             },
             "require": {
@@ -922,7 +922,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-02-11T18:49:29+00:00"
+            "time": "2018-02-19T10:16:54+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1175,16 +1175,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "6.5.6",
+            "version": "6.5.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "3330ef26ade05359d006041316ed0fa9e8e3cefe"
+                "reference": "6bd77b57707c236833d2b57b968e403df060c9d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3330ef26ade05359d006041316ed0fa9e8e3cefe",
-                "reference": "3330ef26ade05359d006041316ed0fa9e8e3cefe",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6bd77b57707c236833d2b57b968e403df060c9d9",
+                "reference": "6bd77b57707c236833d2b57b968e403df060c9d9",
                 "shasum": ""
             },
             "require": {
@@ -1255,7 +1255,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-02-01T05:57:37+00:00"
+            "time": "2018-02-26T07:01:09+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
