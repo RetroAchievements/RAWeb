@@ -675,7 +675,7 @@ function SubmitCodeNote( $user, $gameID, $address, $note )
     $note = str_replace( "#", "_", $note );
 
     $query = "UPDATE CodeNotes AS cn
-			  SET cn.AuthorID = $userID, cn.Note = \"$note\"
+			  SET cn.AuthorID = $userID, cn.Note = CONVERT(\"$note\" USING ASCII)
 			  WHERE cn.Address = $addressAsInt AND cn.GameID = $gameID ";
 
     log_sql( $query );
@@ -686,7 +686,7 @@ function SubmitCodeNote( $user, $gameID, $address, $note )
         if( mysqli_affected_rows( $db ) == 0 )
         {
             //	Insert required
-            $query = "INSERT INTO CodeNotes VALUES ( $gameID, $addressAsInt, $userID, \"$note\" )";
+            $query = "INSERT INTO CodeNotes VALUES ( $gameID, $addressAsInt, $userID, CONVERT(\"$note\" USING ASCII) )";
 
             log_sql( $query );
             global $db;
