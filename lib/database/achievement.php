@@ -746,6 +746,13 @@ function AddEarnedAchievement( $userIn, $validation, $achIDToAward, $fbUser, &$n
 //	18:27 23/02/2013
 function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, &$idInOut, $badge, &$errorOut )
 {
+	//	Hack for 'development tutorial game'
+	if( $gameID == 10971 )
+	{
+		$errorOut = "Tutorial: Achievement upload! This reply is happening on the server, to say that we have successfully received your achievement data.";
+		return FALSE;
+	}
+	
     $title = str_replace( "'", "''", $title );
     $desc = str_replace( "'", "''", $desc );
     $title = str_replace( "/", "_", $title );

@@ -635,6 +635,12 @@ function getCodeNotes( $gameID, &$codeNotesOut )
 
 function SubmitCodeNote2( $user, $gameID, $address, $note )
 {
+	//	Hack for 'development tutorial game'
+	if( $gameID == 10971 )
+	{
+		return FALSE;
+	}
+	
     global $db;
 
     if( !isset( $user ) || !isset( $gameID ) || !isset( $address ) )
@@ -661,6 +667,12 @@ function SubmitCodeNote2( $user, $gameID, $address, $note )
 //	21:55 30/04/2013
 function SubmitCodeNote( $user, $gameID, $address, $note )
 {
+	//	Hack for 'development tutorial game'
+	if( $gameID == 10971 )
+	{
+		return FALSE;
+	}
+	
     global $db;
 
     $userID = getUserIDFromUser( $user );
