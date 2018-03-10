@@ -80,7 +80,7 @@ function UploadUserPic( $user, $filename, $rawImage )
         if( IsAtHome() )
             $existingUserFile = "UserPic/$user.png";
         else
-            $existingUserFile = "/var/www/html/UserPic/$user.png";
+            $existingUserFile = "/var/www/html/public/UserPic/$user.png";
 
         $existingImage = imagecreatefrompng( $existingUserFile );
         $blackRect = imagecreatetruecolor( 64, 64 )
