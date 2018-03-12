@@ -658,7 +658,8 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "<li><a href='/admin.php'>Admin Tools</a></li>";
     }
 
-    echo "<li><a href='/faq.php'>FAQ</a></li>";
+    echo "<li><a href='https://retroachievements.github.io/docs/'>Documentation</a></li>";
+    echo "<li><a href='https://retroachievements.github.io/docs/FAQ/'>- FAQ</a></li>";
 
     echo "</ul>";
     echo "</li>";
