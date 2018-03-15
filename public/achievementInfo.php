@@ -169,7 +169,7 @@ RenderDocType( TRUE );
 
             echo "Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)";
 
-            if( isset( $user ) )
+            if( isset( $user ) && $permissions >= 1 )
             {
               echo " - ";
               echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
@@ -289,4 +289,3 @@ RenderDocType( TRUE );
 
 </body>
 </html>
-
