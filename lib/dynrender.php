@@ -1134,6 +1134,10 @@ function RenderErrorCodeWarning( $location, $errorCode )
             echo "<div id='warning'>Please check your email for further instructions.</div>";
         else if( $errorCode == 'newpasswordset' )
             echo "<div id='warning'>New password accepted. Please log in.</div>";
+        else if( $errorCode == 'issue_submitted' )
+            echo "<div id='warning'>Your issue ticket has been successfully submitted.</div>";
+        else if( $errorCode == 'issue_failed' )
+            echo "<div id='warning'>Sorry. There was an issue submitting your ticket.</div>";
 
         echo "</div>";
     }
