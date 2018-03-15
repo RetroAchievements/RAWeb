@@ -39,7 +39,7 @@ RenderDocType( TRUE );
 
 <body>
 <script type="text/javascript">
-    function diplayCore() {
+    function displayCore() {
         if (document.getElementById('emulator').value == 'RetroArch') {
             document.getElementById('core').style.display = '';
         } else {
@@ -93,7 +93,7 @@ RenderDocType( TRUE );
                 <tr>
                     <td>Emulator:</td>
                     <td>
-                        <select name="note[emulator]" id="emulator" onclick="diplayCore()" required>
+                        <select name="note[emulator]" id="emulator" onclick="displayCore()" required>
                             <option value="" disabled selected hidden>Select your emulator...</option>
                             <option>RAGens</option>
                             <option>RANes</option>
