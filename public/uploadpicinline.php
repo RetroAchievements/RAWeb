@@ -11,8 +11,7 @@ function UploadToS3( $filenameDest, $rawFile )
 {
     //error_log( "UploadToS3\n" );
 	$client = new S3Client([
-		'key' => getenv('AMAZON_S3_KEY'),
-		'secret' => getenv('AMAZON_S3_SECRET'),
+		'version' => "latest",
 		'region' => getenv('AMAZON_S3_REGION'),
 	]);
 
