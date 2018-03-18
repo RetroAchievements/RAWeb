@@ -102,7 +102,7 @@ else
     settype( $nextImageFilename, "integer" );
     $nextImageFilenameStr = str_pad( $nextImageFilename, 6, "0", STR_PAD_LEFT );
 
-    $destPath = "/var/www/html/Images/";
+    $destPath = "/var/www/html/public/Images/";
 
     $newImageFilename = $destPath . $nextImageFilenameStr . ".png";
 

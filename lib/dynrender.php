@@ -658,7 +658,8 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "<li><a href='/admin.php'>Admin Tools</a></li>";
     }
 
-    echo "<li><a href='/faq.php'>FAQ</a></li>";
+    echo "<li><a href='https://retroachievements.github.io/docs/'>Documentation</a></li>";
+    echo "<li><a href='https://retroachievements.github.io/docs/FAQ/'>- FAQ</a></li>";
 
     echo "</ul>";
     echo "</li>";
@@ -1134,6 +1135,10 @@ function RenderErrorCodeWarning( $location, $errorCode )
             echo "<div id='warning'>Please check your email for further instructions.</div>";
         else if( $errorCode == 'newpasswordset' )
             echo "<div id='warning'>New password accepted. Please log in.</div>";
+        else if( $errorCode == 'issue_submitted' )
+            echo "<div id='warning'>Your issue ticket has been successfully submitted.</div>";
+        else if( $errorCode == 'issue_failed' )
+            echo "<div id='warning'>Sorry. There was an issue submitting your ticket.</div>";
 
         echo "</div>";
     }
