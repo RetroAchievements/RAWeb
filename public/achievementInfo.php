@@ -167,7 +167,14 @@ RenderDocType( TRUE );
             echo "</small>";
             echo "</p>";
 
-            echo "Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)<br/><br/><br/><br/>";
+            echo "Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)";
+
+            if( isset( $user ) && $permissions >= 1 )
+            {
+              echo " - ";
+              echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+            }
+            echo "<br/><br/><br/><br/>";
 
             if( isset( $user ) && $permissions >= 2 )
             {
@@ -282,4 +289,3 @@ RenderDocType( TRUE );
 
 </body>
 </html>
-
