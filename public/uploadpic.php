@@ -1,12 +1,10 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-//	Will need copy/pasting when required :S
 use Aws\S3\S3Client;
 
 function UploadToS3( $filenameSrc, $filenameDest )
 {
-    error_log( "UploadToS3\n" );
 	$client = new S3Client([
 		'region' => getenv('AMAZON_S3_REGION'),
 		'version' => 'latest'
@@ -20,11 +18,11 @@ function UploadToS3( $filenameSrc, $filenameDest )
 
     if( $result )
     {
-        error_log( "Successfully uploaded $filenameDest to S3!" );
+        error_log( "Successfully uploaded $filenameSrc to S3!" );
     }
     else
     {
-        error_log( "FAILED to upload $filenameDest to S3!" );
+        error_log( "FAILED to upload $filenameSrc to S3!" );
     }
 
     error_log( "UploadToS3 2\n" );
