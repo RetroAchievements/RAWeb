@@ -30,9 +30,8 @@ use Aws\S3\S3Client;
 function UploadToS3( $filenameDest, $rawFile )
 {
     $client = new S3Client([
-	    'key' => getenv('AMAZON_S3_KEY'),
-	    'secret' => getenv('AMAZON_S3_SECRET'),
-	    'region' => getenv('AMAZON_S3_REGION'),
+		'region' => getenv('AMAZON_S3_REGION'),
+		'version' => 'latest'
     ]);
 
     // Register the stream wrapper from a client object

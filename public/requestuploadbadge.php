@@ -1,35 +1,24 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-//require_once('doupload.php');
 
 use Aws\S3\S3Client;
 
-function UploadToS3( $filenameDest, $rawFile )
+function UploadToS3( $filenameSrc, $filenameDest )
 {
 	$client = new S3Client([
-		'key' => getenv('AMAZON_S3_KEY'),
-		'secret' => getenv('AMAZON_S3_SECRET'),
 		'region' => getenv('AMAZON_S3_REGION'),
+		'version' => 'latest'
 	]);
-
-    // Register the stream wrapper from a client object
-    //$client->registerStreamWrapper();
-    //$url = "s3://i.retroachievements.org/$filenameDest";
 
 	$result = $client->putObject([
 		'Bucket' => getenv('AMAZON_S3_BUCKET'),
 		'Key' => "$filenameDest",
-		'Body' => fopen($filenameDest, 'r+'),
+		'Body' => fopen($filenameSrc, 'r+'),
 	]);
 
-    //$ok = imagepng( $rawFile, $url );
-    if( $result )
+    if( $result == FALSE )
     {
-        //error_log( "Successfully uploaded $filenameDest to S3!" );
-    }
-    else
-    {
-        error_log( "FAILED to upload $filenameDest to S3!" );
+        error_log( "FAILED to upload $filenameSrc to S3!" );
     }
 }
 

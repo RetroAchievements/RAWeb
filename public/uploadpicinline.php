@@ -1,33 +1,28 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-//define( "IMAGE_ITER", "/var/www/html/ImageIter.txt" );
-//define( "DEST_PATH", "Images/" );
-//	Will need copy/pasting when required :S
-
 use Aws\S3\S3Client;
 
-function UploadToS3( $filenameDest, $rawFile )
+function UploadToS3( $filenameSrc, $filenameDest )
 {
-    //error_log( "UploadToS3\n" );
 	$client = new S3Client([
-		'version' => "latest",
 		'region' => getenv('AMAZON_S3_REGION'),
+		'version' => 'latest'
 	]);
 
     $result = $client->putObject([
 	    'Bucket' => getenv('AMAZON_S3_BUCKET'),
 	    'Key' => "$filenameDest",
-	    'Body' => fopen($filenameDest, 'r+'),
+	    'Body' => fopen($filenameSrc, 'r+'),
     ]);
 
 	if( $result )
     {
-        //error_log( "Successfully uploaded $filenameDest to S3!" );
+        //error_log( "Successfully uploaded $filenameSrc to S3!" );
     }
     else
     {
-        error_log( "FAILED to upload $filenameDest to S3!" );
+        error_log( "FAILED to upload $filenameSrc to S3!" );
     }
 
     //error_log( "UploadToS3 2\n" );
@@ -177,7 +172,7 @@ if( $success )
     }
     else
     {
-        UploadToS3( $newImageFilename, $newImage );
+        UploadToS3( $newImageFilename, "Images/$nextImageFilenameStr.png" );
 
         //	Increment and save this new badge number for next time
         $thisImageIter = str_pad( $nextImageFilename, 6, "0", STR_PAD_LEFT );
