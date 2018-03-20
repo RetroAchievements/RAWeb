@@ -25,3 +25,5 @@ nbproject
 /_Images
 /logs
 
+/cronjobs/cronlog.log
+/cronjobs/playersonline.log
