@@ -2297,7 +2297,7 @@ function RenderBoxArt( $imagePath )
     echo "<h3>Box Art</h3>";
     echo "<table><tbody>";
     echo "<tr><td>";
-    echo "<img src='$imagePath' />";
+    echo "<img src='$imagePath' style='max-width:100%;' />";
     echo "</td></tr>";
     echo "</tbody></table>";
     echo "</div>";
