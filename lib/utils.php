@@ -1,29 +1,19 @@
 <?php
-
-// convert all non printable ascii character to a dot '.'
-function ascii_only( $str )
-{
-    // \x20 = space; \x7e = '~' 
-    return preg_replace('/[^\x20-\x7e]/', '.', $str);
-}
-
-//  Interrogates $_GET
+//	Interrogates $_GET
 function seekGET( $key, $default = NULL )
 {
     if( $_GET !== FALSE && array_key_exists( $key, $_GET ) )
-        $retval = $_GET[ $key ];
+        return $_GET[ $key ];
     else
-        $retval = $default;
-    return ascii_only($retval);
+        return $default;
 }
 
 function seekPOST( $key, $default = NULL )
 {
     if( $_POST !== FALSE && array_key_exists( $key, $_POST ) )
-        $retval = $_POST[ $key ];
+        return $_POST[ $key ];
     else
-        $retval = $default;
-    return ascii_only($retval);
+        return $default;
 }
 
 function seekPOSTorGET( $key, $default = NULL, $type = NULL )
@@ -32,21 +22,20 @@ function seekPOSTorGET( $key, $default = NULL, $type = NULL )
     {
         if( isset( $type ) )
             settype( $_POST[ $key ], $type );
-        $retval = $_POST[ $key ];
+        return $_POST[ $key ];
     }
     else if( $_GET !== FALSE && array_key_exists( $key, $_GET ) )
     {
         if( isset( $type ) )
             settype( $_GET[ $key ], $type );
-        $retval = $_GET[ $key ];
+        return $_GET[ $key ];
     }
     else
     {
         if( isset( $type ) )
             settype( $default, $type );
-        $retval = $default;
+        return $default;
     }
-    return ascii_only($retval);
 }
 
 function debug_string_backtrace()
