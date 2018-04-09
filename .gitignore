@@ -18,7 +18,7 @@ nbproject
 /vendor
 /tmp
 /_db_secrets_real.php
-.env
+.env*
 /public/bin
 /Badge
 /Images
