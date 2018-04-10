@@ -27,6 +27,7 @@ nbproject
 /public/UserPic
 /public/bin
 /public/Latest*
+/public/*Iter.txt
 /public/RA_Integration.dll
 
 /chat/node-gyp
