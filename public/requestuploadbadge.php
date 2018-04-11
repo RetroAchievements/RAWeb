@@ -64,7 +64,7 @@ function UploadUserPic( $user, $filename, $rawImage )
         else if( $extension == 'gif' )
             $tempImage = imagecreatefromgif( $tempFilename );
         else if( $extension == 'bmp' )
-            $tempImage = imagecreatefrombmp( $tempFilename );
+            $tempImage = imagecreatefrombitmap( $tempFilename );
 
         if( IsAtHome() )
             $existingUserFile = "UserPic/$user.png";

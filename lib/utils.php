@@ -308,7 +308,7 @@ function ConvertBMP2GD( $src, $dest = false )
     return true;
 }
 
-function imagecreatefrombmp( $filename )
+function imagecreatefrombitmap( $filename )
 {
     $tmp_name = tempnam( "/tmp", "GD" );
     if( ConvertBMP2GD( $filename, $tmp_name ) )

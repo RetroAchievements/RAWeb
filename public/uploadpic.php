@@ -93,7 +93,7 @@ else
     }
     else if( $extension == 'bmp' )
     {
-        $tempImage = imagecreatefrombmp( $tempFile );
+        $tempImage = imagecreatefrombitmap( $tempFile );
     }
 
     $nextImageFilename = file_get_contents( $imageIterFilename );

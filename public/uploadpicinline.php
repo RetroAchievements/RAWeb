@@ -89,7 +89,7 @@ if( $success )
     else if( $extension == 'gif' )
         $tempImage = imagecreatefromgif( $tempFilename );
     else if( $extension == 'bmp' )
-        $tempImage = imagecreatefrombmp( $tempFilename );
+        $tempImage = imagecreatefrombitmap( $tempFilename );
 
     $targetExt = ( $uploadType == "NEWS" ) ? ".jpg" : ".png";
 
