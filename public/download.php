@@ -57,23 +57,29 @@ RenderDocType();
                 <span class='clickablebutton'><a href="/bin/RANes.zip">Download RANes</a></span> (<?php echo $latestRANesVer; ?> for Windows)
             </div>
 
-            <h2 class='longheader' id='rapce'>RAPCEngine: PC Engine Emulator</h2>
+            <!--<h2 class='longheader' id='rapce'>RAPCEngine: PC Engine Emulator</h2>
 
             <div class='largeicon'>
                 <span class='clickablebutton'><a href="/bin/RAPCE.zip">Download RAPCEngine</a></span> (<?php echo $latestRAPCEVer; ?> for Windows)
-            </div>
+            </div>-->
 
-            <h2 class='longheader' id='rapce'>RAMeka: Master System Emulator</h2>
+            <!--<h2 class='longheader' id='rapce'>RAMeka: Master System Emulator</h2>
 
             <div class='largeicon'>
                 <span class='clickablebutton'><a href="https://drive.google.com/drive/folders/0B8GcPMKEziSHYVBVSUhwM2VnZnc">Download RAMeka</a></span>
-            </div>
+            </div>-->
 
             <h2 class='longheader' id='rapce'>RAProject64: N64 Emulator</h2>
 
             <div class='largeicon'>
                 <span class='clickablebutton'><a href="http://retroachievements.org/viewtopic.php?t=4686">Download RAProject64</a></span>
             </div>
+
+            <h2 class='longheader' id='ralibretro'>RALibRetro</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'><a href="https://retroachievements.github.io/docs/RALibretro/">RALibRetro</a></span>
+            </div>-->
 
 
             <div class="infobox">
