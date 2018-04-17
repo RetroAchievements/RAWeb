@@ -79,8 +79,7 @@ RenderDocType();
 
             <div class='largeicon'>
                 <span class='clickablebutton'><a href="https://retroachievements.github.io/docs/RALibretro/">RALibRetro</a></span>
-            </div>-->
-
+            </div>
 
             <div class="infobox">
                 <h3>Free Genesis ROMs</h3>
