@@ -103,7 +103,7 @@ RenderDocType();
             </div>
 
             <h3>Source Code</h3>
-            <p>The vast majority of the code for these emulators is GPL protected, and as such all source code for these emulators is GPL alike, and publically available at the following URL: <a href='https://github.com/RetroAchievements/RASuite'>github.com/RetroAchievements/RASuite</a></p>
+            <p>The vast majority of the code for these emulators is GPL protected, and as such all source code for these emulators is GPL alike, and publically available at the following URL: <a href='https://github.com/RetroAchievements/RAEmus'>https://github.com/RetroAchievements/RAEmus</a></p>
 
             <h3>Legal</h3>
             <p><small>RetroAchievements.org does not condone or supply any copyright-protected ROMs to be used in conjunction with the emulator supplied within.
