@@ -587,7 +587,7 @@ $numGridlines = $numAchievements;
                 echo "<h4>Achievements</h4>";
 
                 echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
-
+                echo "<a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a><br/>";
                 if( isset( $user ) )
                 {
                     $pctAwardedCasual = 0;
