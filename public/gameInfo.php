@@ -584,6 +584,23 @@ $numGridlines = $numAchievements;
                     echo "</div>";
                 }
 
+                if( isset( $user ) )
+                {
+                    echo "<div class='devbox'>";
+                    echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">More info (Click to show):</span><br/>";
+                    echo "<div id='devboxcontent'>";
+                    echo "<ul>";
+
+                    echo "<li><a href='/linkedhashes.php?g=$gameID'>Show linked hashes to this game</a></li>";
+                    echo "<li><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></li>";
+
+                    echo "</ul>";
+
+                    echo "</div>";
+
+                    echo "</div>";
+                }
+
                 echo "<h4>Achievements</h4>";
 
                 echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
