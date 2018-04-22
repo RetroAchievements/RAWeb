@@ -436,8 +436,8 @@ function GetLeaderboardAndTooltipDiv(lbID, lbName, lbDesc, gameName, gameIcon, d
                 tooltip = replaceAll("\'", "\\\'", tooltip);
                 tooltip = replaceAll("\"", "&quot;", tooltip);
                 return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
-                "<a href=" + lbID + "'/leaderboardinfo.php?i='>" +
-                displayable.toString() +
+                "<a href='/leaderboardinfo.php?i=" + lbID + "'>" +
+                displayable +
                 "</a>" +
                 "</div>";
                 }
@@ -643,7 +643,7 @@ function onRefreshActivePlayers(data)
     headers.append($('<th></th>').text('Currently...'));
     tbody.append(headers);
     table.append(tbody);
-    
+
     for (var i = 0; i < numPlayersOnline; ++i)
     {
         var player = playerList[i];
@@ -651,7 +651,7 @@ function onRefreshActivePlayers(data)
         var userElement = $('<td></td>').append(userStamp);
         var gameElement;
         var activityElement;
-        
+
         if (player.InGame)
         {
             gameElement = $('<td></td>').append(GetGameAndTooltipDiv(player.GameID, player.GameTitle, player.GameIcon, player.ConsoleName, true));
