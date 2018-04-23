@@ -791,6 +791,13 @@ th {
     border-bottom: 2px dashed;
 }
 
+.userinfobox {
+    padding: 4px 0px;
+}
+.userinfobox span {
+    border-bottom: 2px dashed;
+}
+
 .leftfloat {
     float: left;
 }

@@ -586,9 +586,9 @@ $numGridlines = $numAchievements;
 
                 if( isset( $user ) )
                 {
-                    echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">More info (Click to show):</span><br/>";
-                    echo "<div id='devboxcontent'>";
+                    echo "<div class='userinfobox'>";
+                    echo "<span onclick=\"$('#userinfoboxcontent').toggle(500); return false;\">More info (Click to show):</span><br/>";
+                    echo "<div id='userinfoboxcontent'>";
                     echo "<ul>";
 
                     echo "<li><a href='/linkedhashes.php?g=$gameID'>Show linked hashes to this game</a></li>";
