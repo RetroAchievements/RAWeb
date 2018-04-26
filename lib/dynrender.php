@@ -1867,6 +1867,23 @@ function RenderDeveloperStats( $user, $type )
     }
 }
 
+function RenderDocsComponent()
+{
+    echo "
+      <div class='component'>
+        <h3>Documentation</h3>
+        <div id='docsbox' class='infobox'>
+          <div>
+            Check our documentation site: <a href='http://docs.retroachievements.org/'>http://docs.retroachievements.org/</a>
+            <br/><br/>
+            Do you have questions? Check our <a href='http://docs.retroachievements.org/FAQ/'>FAQ</a>.
+            <br/><br/>
+            Do you wanna learn how to create achievements? Check our <a href='http://docs.retroachievements.org/Developer-docs'>Developer docs</a>.
+          </div>
+        </div>
+      </div>";
+}
+
 function RenderCurrentlyOnlineComponent( $user )
 {
     if( isset( $user ) )
