@@ -381,6 +381,8 @@ function RenderFeedComment( $user, $comment, $submittedDate )
 //
 function RenderWelcomeComponent()
 {
+    if( isset( $user ) ) return;
+
     echo "
 	<div class='component welcome'>
 		<h2>Welcome!</h2>
