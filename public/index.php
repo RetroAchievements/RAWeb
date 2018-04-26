@@ -287,6 +287,7 @@ else
 
             echo '<div class=\'discord\'><a href=\'https://discordapp.com/invite/'.getenv('DISCORD_INVITE_ID').'\'><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
 
+            RenderDocsComponent();
             RenderCurrentlyOnlineComponent( NULL );
 
             RenderActivePlayersComponent();
