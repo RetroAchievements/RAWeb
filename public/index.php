@@ -268,7 +268,7 @@ else
             RenderErrorCodeWarning( 'left', $errorCode );
             if( !$mobileBrowser )
             {
-                RenderWelcomeComponent();
+                if( ! isset( $user ) ) RenderWelcomeComponent();
                 RenderNewsComponent();
                 RenderFeedComponent( $user );
                 //RenderDemoVideosComponent();
@@ -280,7 +280,7 @@ else
             <?php
             if( $mobileBrowser )
             {
-                RenderWelcomeComponent();
+                if( ! isset( $user ) ) RenderWelcomeComponent();
             }
 
             echo '<div class=\'patron\'><a href=\'https://www.patreon.com/bePatron?u=5403777\' data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script></div>';
