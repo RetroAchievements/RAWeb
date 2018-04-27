@@ -730,6 +730,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/gameList.php'>Supported Games</a></li>";
     echo "<li><a href='/gameList.php?c=1'>- Mega Drive/Genesis</a></li>";
     echo "<li><a href='/gameList.php?c=11'>- Master System</a></li>";
+    echo "<li><a href='/gameList.php?c=15'>- Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=3'>- Super Nintendo</a></li>";
     echo "<li><a href='/gameList.php?c=4'>- Gameboy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>- Gameboy Color</a></li>";
