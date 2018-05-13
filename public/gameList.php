@@ -111,8 +111,8 @@ RenderDocType();
                     echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort3&amp;c=$consoleIDInput'>Points Available</a></th>";
                     echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort4&amp;c=$consoleIDInput'>Leader-boards Available</a></th>";
                     echo "</tr>";
-                    $gameCount = 0;
 
+                    $gameCount = 0;
                     $pointsTally = 0;
                     $achievementsTally = 0;
                     $truePointsTally = 0;
@@ -152,6 +152,7 @@ RenderDocType();
 
                             echo "</tr>";
 
+                            $gameCount++;
                             $pointsTally += $maxPoints;
                             $achievementsTally += $numAchievements;
                             $truePointsTally += $totalTrueRatio;
@@ -161,7 +162,7 @@ RenderDocType();
                     //	Totals:
                     echo "<tr>";
 
-                    echo "<td><b>Totals:</b></td>";
+                    echo "<td><b>Totals: $gameCount games</b></td>";
                     echo "<td><b>$achievementsTally</b></td>";
                     echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
                     echo "<td></td>";
