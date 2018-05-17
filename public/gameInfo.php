@@ -116,6 +116,7 @@ if( isset( $achievementData ) )
     //var_dump( $achievementData );
     foreach( $achievementData as &$nextAch )
     {
+        $authors[] = $nextAch[ 'Author' ];
         $totalPossible += $nextAch[ 'Points' ];
         $totalPossibleTrueRatio += $nextAch[ 'TrueRatio' ];
 
@@ -131,6 +132,7 @@ if( isset( $achievementData ) )
             $totalEarnedHardcore += $nextAch[ 'Points' ];
         }
     }
+    $authors = array_unique( $authors );
 }
 
 
@@ -587,6 +589,16 @@ $numGridlines = $numAchievements;
                 echo "<h4>Achievements</h4>";
 
                 echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                if( $numAchievements > 0 )
+                {
+                    echo "<b>Authors:</b> ";
+                    foreach( $authors as $author )
+                    {
+                        echo "<a href='/User/$author'>$author</a>";
+                        if( next($array) != NULL) echo ', ';
+                    }
+                    echo "<br/>";
+                }
 
                 if( isset( $user ) )
                 {
