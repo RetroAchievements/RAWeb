@@ -599,6 +599,7 @@ $numGridlines = $numAchievements;
                         if( next($authors) != NULL) echo ', ';
                     }
                     echo "<br/>";
+                    echo "<br/>";
                 }
 
                 if( isset( $user ) )
