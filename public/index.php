@@ -11,10 +11,11 @@ if (file_exists("../cronjobs/playersonline.log")) {
 	$playersCSV = preg_split('/\n|\r\n?/', $playersOnlineCSV);
 
 	for ($i = 0; $i < 48; $i++) {
-		$playersOnlineArray[] = $playersCSV[count($playersCSV) - ($i + 2)];
+	    if(isset($playersCSV[count($playersCSV) - ($i + 2)])) {
+		    $playersOnlineArray[] = $playersCSV[count($playersCSV) - ($i + 2)];
+        }
 	}
 }
-
 $staticData = getStaticData();
 $errorCode = seekGET( 'e' );
 $mobileBrowser = IsMobileBrowser();
