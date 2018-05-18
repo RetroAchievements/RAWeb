@@ -595,7 +595,7 @@ $numGridlines = $numAchievements;
                     echo "<b>Authors:</b> ";
                     foreach( $authors as $author )
                     {
-                        echo "<a href='/User/$author'>$author</a> ";
+                        echo "<a href='/User/$author'>$author</a>";
                         if( next($authors) != NULL) echo ', ';
                     }
                     echo "<br/>";
