@@ -592,13 +592,12 @@ $numGridlines = $numAchievements;
                 echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
                 if( $numAchievements > 0 )
                 {
-                    echo "<br/>";
                     echo "<b>Authors:</b> ";
                     foreach( $authors as $author )
                     {
                         echo "<a href='/User/$author'>$author</a> ";
+                        if( next($authors) != NULL) echo ', ';
                     }
-                    echo "<br/>";
                     echo "<br/>";
                 }
 
