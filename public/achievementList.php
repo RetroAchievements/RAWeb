@@ -10,7 +10,7 @@ RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $per
 $maxCount = 25;
 
 $count = seekGET( 'c', $maxCount );
-settype( $params, 'integer' );
+settype( $count, 'integer' );
 $offset = seekGET( 'o', 0 );
 settype( $offset, 'integer' );
 $params = seekGET( 'p', 0 );
@@ -21,7 +21,7 @@ if( $user == NULL )
 
 $flags = NULL;
 if( $params != 0 )
-    $flags = 3; //	If we are interrogating 'me/my achievements', only include completed ones
+    $flags = 3; // achievements from Core set only
 
 $sortBy = seekGET( 's', 1 );
 $achCount = getAchievementsList( $consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags );
@@ -65,42 +65,29 @@ RenderDocType();
                 echo "Showing:</br>";
 
                 echo "&nbsp;- ";
-                if( $params !== 0 )
-                    echo "<a href='/achievementList.php?s=$sortBy&p=0'>";
-                else
-                    echo "<b>";
+                echo $params !== 0 ? "<a href='/achievementList.php?s=$sortBy&p=0'>" : "<b>";
                 echo "All achievements";
-                if( $params !== 0 )
-                    echo "</a>";
-                else
-                    echo "</b>";
+                echo $params !== 0 ? "</a>" : "</b>";
                 echo "<br/>";
-
 
                 if( $user !== NULL )
                 {
                     echo "&nbsp;- ";
-                    if( $params !== 1 )
-                        echo "<a href='/achievementList.php?s=$sortBy&p=1'>";
-                    else
-                        echo "<b>";
-                    echo "Only my earned achievements";
-                    if( $params !== 1 )
-                        echo "</a>";
-                    else
-                        echo "</b>";
+                    echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3'>" : "<b>";
+                    echo "Only achievements in the Core Set";
+                    echo $params !== 3 ? "</a>" : "</b>";
                     echo "<br/>";
 
                     echo "&nbsp;- ";
-                    if( $params !== 2 )
-                        echo "<a href='/achievementList.php?s=$sortBy&p=2'>";
-                    else
-                        echo "<b>";
+                    echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1'>" : "<b>";
+                    echo "Only my earned achievements";
+                    echo $params !== 1 ? "</a>" : "</b>";
+                    echo "<br/>";
+
+                    echo "&nbsp;- ";
+                    echo $params !== 2 ? "<a href='/achievementList.php?s=$sortBy&p=2'>" : "<b>";
                     echo "Achievements I haven't yet won";
-                    if( $params !== 2 )
-                        echo "</a>";
-                    else
-                        echo "</b>";
+                    echo $params !== 2 ? "</a>" : "</b>";
                     echo "<br/>";
                 }
 
@@ -115,6 +102,7 @@ RenderDocType();
                 //$sort5 = ($sortBy==5) ? 15 : 5;
                 $sort6 = ($sortBy == 6) ? 16 : 6;
                 $sort7 = ($sortBy == 7) ? 17 : 7;
+                $sort8 = ($sortBy == 8) ? 18 : 8;
 
                 $mark1 = ($sortBy % 10 == 1) ? '&nbsp;*' : '';
                 $mark2 = ($sortBy % 10 == 2) ? '&nbsp;*' : '';
@@ -123,6 +111,7 @@ RenderDocType();
                 //$mark5 = ($sortBy%10==5) ? '&nbsp;*' : '';
                 $mark6 = ($sortBy % 10 == 6) ? '&nbsp;*' : '';
                 $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
+                $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
 
                 echo "<th><a href='/achievementList.php?s=$sort1&p=$params'>Title</a>$mark1</th>";
                 //if(!$mobileBrowser)
@@ -133,6 +122,7 @@ RenderDocType();
                 //echo "<th><a href='/achievementList.php?s=$sort5&p=$params'>Author</a>$mark5</th>";
                 echo "<th><a href='/achievementList.php?s=$sort6&p=$params'>Game</a>$mark6</th>";
                 echo "<th><a href='/achievementList.php?s=$sort7&p=$params'>Added</a>$mark7</th>";
+                echo "<th><a href='/achievementList.php?s=$sort8&p=$params'>Modified</a>$mark8</th>";
 
                 $achCount = 0;
 
@@ -190,6 +180,10 @@ RenderDocType();
 
                     echo "<td>";
                     echo "<span class='smalldate'>" . getNiceDate( strtotime( $achDateCreated ) ) . "</span>";
+                    echo "</td>";
+
+                    echo "<td>";
+                    echo "<span class='smalldate'>" . getNiceDate( strtotime( $achDateModified ) ) . "</span>";
                     echo "</td>";
 
                     echo "</tr>";
