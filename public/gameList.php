@@ -73,34 +73,36 @@ RenderDocType();
 
                     if( $dataExists == FALSE )
                         continue;
-                    //
 
-                    echo "<h3 class='longheader'>$consoleName games with achievements";
                     if( $dev != NULL)
-                        echo " by <a href='/User/$dev'>$dev</a>";
-                    echo ":</h3>";
-                    if( $showCompleteGames == 0 )
-                        echo "<h4>All games</h4>";
-                    else if( $showCompleteGames == 1 )
-                        echo "<h4>Complete games</h4>";
-                    else if( $showCompleteGames == 2 )
-                        echo "<h4>Incomplete games</h4>";
-
-
-                    if( $showCompleteGames != 0 )
-                        echo "<a href='/gameList.php?d=$dev&c=$consoleIDInput&f=0&s=$sortBy'>Show All</a> | ";
+                    {
+                        echo "<h3 class='longheader'>$consoleName games with achievements by <a href='/User/$dev'>$dev</a>:</h3>";
+                    }
                     else
-                        echo "Show All | ";
+                    {
+                        echo "<h3 class='longheader'>$consoleName games with achievements:</h3>";
+                        if( $showCompleteGames == 0 )
+                            echo "<h4>All games</h4>";
+                        else if( $showCompleteGames == 1 )
+                            echo "<h4>Complete games</h4>";
+                        else if( $showCompleteGames == 2 )
+                            echo "<h4>Incomplete games</h4>";
 
-                    if( $showCompleteGames != 1 )
-                        echo "<a href='/gameList.php?d=$dev&c=$consoleIDInput&f=1&s=$sortBy'>Show Complete Only</a> | ";
-                    else
-                        echo "Show Complete Only | ";
+                        if( $showCompleteGames != 0 )
+                            echo "<a href='/gameList.php?d=$dev&c=$consoleIDInput&f=0&s=$sortBy'>Show All</a> | ";
+                        else
+                            echo "Show All | ";
 
-                    if( $showCompleteGames != 2 )
-                        echo "<a href='/gameList.php?d=$dev&c=$consoleIDInput&f=2&s=$sortBy'>Show Incomplete Only</a>";
-                    else
-                        echo "Show Incomplete Only";
+                        if( $showCompleteGames != 1 )
+                            echo "<a href='/gameList.php?d=$dev&c=$consoleIDInput&f=1&s=$sortBy'>Show Complete Only</a> | ";
+                        else
+                            echo "Show Complete Only | ";
+
+                        if( $showCompleteGames != 2 )
+                            echo "<a href='/gameList.php?d=$dev&c=$consoleIDInput&f=2&s=$sortBy'>Show Incomplete Only</a>";
+                        else
+                            echo "Show Incomplete Only";
+                    }
 
                     echo "<table class='smalltable'><tbody>";
 
