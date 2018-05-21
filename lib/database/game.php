@@ -260,17 +260,22 @@ function GetGameAlternatives( $gameID )
     return $results;
 }
 
-//	11:13 15/04/2013
 function getGamesListWithNumAchievements( $consoleID, &$dataOut, $sortBy )
+{
+    return getGamesListByDev( NULL, $consoleID, $dataOut, $sortBy );
+}
+
+function getGamesListByDev( $dev = NULL, $consoleID, &$dataOut, $sortBy )
 {
     //	Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
     $whereCond = "WHERE ach.Flags=3 ";
 
     if( $consoleID != 0 )
-    {
-        $whereCond = "WHERE ach.Flags=3 AND gd.ConsoleID=$consoleID ";
-    }
+        $whereCond .= "AND gd.ConsoleID=$consoleID ";
+
+    if( $dev != NULL )
+        $whereCond .= "AND ach.Author='$dev' ";
 
     $query = "SELECT gd.Title, ach.GameID AS ID, ConsoleID, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints
 				FROM Achievements AS ach
@@ -288,39 +293,32 @@ function getGamesListWithNumAchievements( $consoleID, &$dataOut, $sortBy )
         $sortBy = 1;
     }
 
-    //echo $sortBy;
-
-    if( $sortBy == 1 )
+    switch( $sortBy )
     {
-        $query .= "ORDER BY gd.ConsoleID, Title ";
-    }
-    else if( $sortBy == 2 )
-    {
-        $query .= "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ";
-    }
-    else if( $sortBy == 3 )
-    {
-        $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ";
-    }
-    else if( $sortBy == 4 )
-    {
-        $query .= "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
-    }
-    else if( $sortBy == 11 )
-    {
-        $query .= "ORDER BY gd.ConsoleID, Title DESC ";
-    }
-    else if( $sortBy == 12 )
-    {
-        $query .= "ORDER BY gd.ConsoleID, NumAchievements ASC, Title ";
-    }
-    else if( $sortBy == 13 )
-    {
-        $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable, Title ";
-    }
-    else if( $sortBy == 14 )
-    {
-        $query .= "ORDER BY NumLBs, gd.ConsoleID, MaxPointsAvailable, Title ";
+        case 1:
+            $query .= "ORDER BY gd.ConsoleID, Title ";
+            break;
+        case 2:
+            $query .= "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ";
+            break;
+        case 3:
+            $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ";
+            break;
+        case 4:
+            $query .= "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
+            break;
+        case 11:
+            $query .= "ORDER BY gd.ConsoleID, Title DESC ";
+            break;
+        case 12:
+            $query .= "ORDER BY gd.ConsoleID, NumAchievements ASC, Title ";
+            break;
+        case 13:
+            $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable, Title ";
+            break;
+        case 14:
+            $query .= "ORDER BY NumLBs, gd.ConsoleID, MaxPointsAvailable, Title ";
+            break;
     }
 
     $numGamesFound = 0;
