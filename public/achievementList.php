@@ -227,7 +227,7 @@ RenderDocType();
                 echo "<form method='get' action='/achievementList.php'>";
                 echo "<input type='hidden' name='s' value='$sortBy'>";
                 echo "<input type='hidden' name='p' value='$params'>";
-                echo "<input size='28' name='d' type='text' class='searchboxgamecompareuser' />";
+                echo "<input size='28' name='d' type='text' />";
                 echo "&nbsp;<input type='submit' value='Select' />";
                 echo "</form>";
             }
