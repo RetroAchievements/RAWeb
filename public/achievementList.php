@@ -15,6 +15,7 @@ $offset = seekGET( 'o', 0 );
 settype( $offset, 'integer' );
 $params = seekGET( 'p', 0 );
 settype( $params, 'integer' );
+$dev = seekGET( 'd' );
 
 if( $user == NULL )
     $params = 0;
@@ -23,8 +24,11 @@ $flags = NULL;
 if( $params != 0 )
     $flags = 3; // achievements from Core set only
 
+$dev_param = NULL;
+if ( $dev != NULL ) $dev_param .= "&d=$dev";
+
 $sortBy = seekGET( 's', 1 );
-$achCount = getAchievementsList( $consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags );
+$achCount = getAchievementsListByDev( $dev, $consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags );
 
 //var_dump( $achData );
 
@@ -60,12 +64,15 @@ RenderDocType();
 
                 echo "<div class='detaillist'>";
 
-                echo "<h3 class='longheader'>Achievement List</h3>";
+                echo "<h3 class='longheader'>";
+                if ( $dev != NULL)
+                    echo "<a href='/User/$dev'>$dev</a>'s ";
+                echo "Achievement List</h3>";
 
                 echo "Showing:</br>";
 
                 echo "&nbsp;- ";
-                echo $params !== 0 ? "<a href='/achievementList.php?s=$sortBy&p=0'>" : "<b>";
+                echo $params !== 0 ? "<a href='/achievementList.php?s=$sortBy&p=0$dev_param'>" : "<b>";
                 echo "All achievements";
                 echo $params !== 0 ? "</a>" : "</b>";
                 echo "<br/>";
@@ -73,19 +80,19 @@ RenderDocType();
                 if( $user !== NULL )
                 {
                     echo "&nbsp;- ";
-                    echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3'>" : "<b>";
+                    echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
                     echo "Only achievements in the Core Set";
                     echo $params !== 3 ? "</a>" : "</b>";
                     echo "<br/>";
 
                     echo "&nbsp;- ";
-                    echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1'>" : "<b>";
+                    echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";
                     echo "Only my earned achievements";
                     echo $params !== 1 ? "</a>" : "</b>";
                     echo "<br/>";
 
                     echo "&nbsp;- ";
-                    echo $params !== 2 ? "<a href='/achievementList.php?s=$sortBy&p=2'>" : "<b>";
+                    echo $params !== 2 ? "<a href='/achievementList.php?s=$sortBy&p=2$dev_param'>" : "<b>";
                     echo "Achievements I haven't yet won";
                     echo $params !== 2 ? "</a>" : "</b>";
                     echo "<br/>";
@@ -113,16 +120,16 @@ RenderDocType();
                 $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
                 $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
 
-                echo "<th><a href='/achievementList.php?s=$sort1&p=$params'>Title</a>$mark1</th>";
+                echo "<th><a href='/achievementList.php?s=$sort1&p=$params$dev_param'>Title</a>$mark1</th>";
                 //if(!$mobileBrowser)
-                echo "<th><a href='/achievementList.php?s=$sort2&p=$params'>Desc.</a>$mark2</th>";
-                echo "<th><a href='/achievementList.php?s=$sort3&p=$params'>Points</a>$mark3 ";
-                echo "<span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params'>Retro Ratio</a>$mark4)</span></th>";
+                echo "<th><a href='/achievementList.php?s=$sort2&p=$params$dev_param'>Desc.</a>$mark2</th>";
+                echo "<th><a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
+                echo "<span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span></th>";
                 //if(!$mobileBrowser)
-                //echo "<th><a href='/achievementList.php?s=$sort5&p=$params'>Author</a>$mark5</th>";
-                echo "<th><a href='/achievementList.php?s=$sort6&p=$params'>Game</a>$mark6</th>";
-                echo "<th><a href='/achievementList.php?s=$sort7&p=$params'>Added</a>$mark7</th>";
-                echo "<th><a href='/achievementList.php?s=$sort8&p=$params'>Modified</a>$mark8</th>";
+                //echo "<th><a href='/achievementList.php?s=$sort5&p=$params$dev_param'>Author</a>$mark5</th>";
+                echo "<th><a href='/achievementList.php?s=$sort6&p=$params$dev_param'>Game</a>$mark6</th>";
+                echo "<th><a href='/achievementList.php?s=$sort7&p=$params$dev_param'>Added</a>$mark7</th>";
+                echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
 
                 $achCount = 0;
 
@@ -196,13 +203,13 @@ RenderDocType();
                 if( $offset > 0 )
                 {
                     $prevOffset = $offset - $maxCount;
-                    echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset&amp;p=$params'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param'>&lt; Previous $maxCount</a> - ";
                 }
                 if( $achCount == $maxCount )
                 {
                     //	Max number fetched, i.e. there are more. Can goto next 25.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset&amp;p=$params'>Next $maxCount &gt;</a>";
+                    echo "<a href='/achievementList.php?s=$sortBy&o=$nextOffset&p=$params$dev_param'>Next $maxCount &gt;</a>";
                 }
                 echo "</div>";
                 ?>
@@ -211,7 +218,22 @@ RenderDocType();
         </div>
 
         <div id='rightcontainer'>
-<?php RenderRecentlyUploadedComponent( 10 ); ?>
+            <?php
+            if( $user !== NULL )
+            {
+                echo "<h3>Developer</h3>";
+                echo "</br>";
+                echo "See achievements created by a developer:<br/>";
+                echo "<form method='get' action='/achievementList.php'>";
+                echo "<input type='hidden' name='s' value='$sortBy'>";
+                echo "<input type='hidden' name='p' value='$params'>";
+                echo "<input size='28' name='d' type='text' class='searchboxgamecompareuser' />";
+                echo "&nbsp;<input type='submit' value='Select' />";
+                echo "</form>";
+            }
+
+            RenderRecentlyUploadedComponent( 10 );
+            ?>
         </div>
 
     </div>
@@ -220,4 +242,3 @@ RenderDocType();
 
 </body>
 </html>
-

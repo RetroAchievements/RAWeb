@@ -93,8 +93,13 @@ function GetAchievementData( $id )
     }
 }
 
-//	23:18 23/04/2013
 function getAchievementsList( $consoleIDInput, $user, $sortBy, $params, $count, $offset, &$dataOut, $achFlags = 3 )
+{
+    return getAchievementsListByDev( NULL, $consoleIDInput, $user, $sortBy, $params, $count, $offset, $dataOut, $achFlags );
+}
+
+
+function getAchievementsListByDev( $dev = NULL, $consoleIDInput, $user, $sortBy, $params, $count, $offset, &$dataOut, $achFlags = 3 )
 {
     settype( $sortBy, 'integer' );
 
@@ -128,6 +133,11 @@ function getAchievementsList( $consoleIDInput, $user, $sortBy, $params, $count, 
         else
         {
             //	Ignore
+        }
+
+        if( isset( $dev ) )
+        {
+            $query .= "AND ach.Author = '$dev' ";
         }
     }
 

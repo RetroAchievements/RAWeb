@@ -337,6 +337,7 @@ foreach( $arrayToUse as $dayInfo )
             {
                 echo "<strong>Developer Stats:</strong><br/>";
                 echo "$userPage's achievements have been won <b>$contribCount</b> times by other users, awarding a total of <b>$contribYield</b> points.<br/><br/>";
+                echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a>";
             }
 
             echo "</div>"; //usersummary
