@@ -207,7 +207,7 @@ RenderDocType();
                 echo "<input type='hidden' name='s' value='$sortBy'>";
                 echo "<input type='hidden' name='c' value='$consoleIDInput'>";
                 echo "<input type='hidden' name='f' value='$showCompleteGames'>";
-                echo "<input size='28' name='d' type='text' class='searchboxgamecompareuser' />";
+                echo "<input size='28' name='d' type='text' />";
                 echo "&nbsp;<input type='submit' value='Select' />";
                 echo "</form>";
             }
