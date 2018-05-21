@@ -218,18 +218,21 @@ RenderDocType();
         </div>
 
         <div id='rightcontainer'>
-            <?php RenderRecentlyUploadedComponent( 10 );
+            <?php
+            if( $user !== NULL )
+            {
+                echo "<h3>Developer</h3>";
+                echo "</br>";
+                echo "See achievements created by a developer:<br/>";
+                echo "<form method='get' action='/achievementList.php'>";
+                echo "<input type='hidden' name='s' value='$sortBy'>";
+                echo "<input type='hidden' name='p' value='$params'>";
+                echo "<input size='28' name='d' type='text' class='searchboxgamecompareuser' />";
+                echo "&nbsp;<input type='submit' value='Select' />";
+                echo "</form>";
+            }
 
-            echo "<h3>Developer</h3>";
-            echo "</br>";
-            echo "See achievements created by a developer:<br/>";
-
-            echo "<form method='get' action='/achievementList.php'>";
-            echo "<input type='hidden' name='s' value='$sortBy'>";
-            echo "<input type='hidden' name='p' value='$params'>";
-            echo "<input size='28' name='d' type='text' class='searchboxgamecompareuser' />";
-            echo "&nbsp;<input type='submit' value='Select' />";
-            echo "</form>";
+            RenderRecentlyUploadedComponent( 10 );
             ?>
         </div>
 
