@@ -42,14 +42,21 @@ RenderDocType();
 
             <?php
             echo "<div class=\"navpath\">";
-            if( $requestedConsole == "" )
+            if( $dev != NULL )
             {
-                echo "<b>All Games</b>";
+                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/User/$dev'>$dev</a> &raquo; Achievement Sets</b>";
             }
-            else //if( $requestedConsole != "" )
+            else
             {
-                echo "<a href=\"/gameList.php\">All Games</a>";
-                echo " &raquo; <b>$requestedConsole games</b></a>";
+                if( $requestedConsole == "" )
+                {
+                    echo "<b>All Games</b>";
+                }
+                else //if( $requestedConsole != "" )
+                {
+                    echo "<a href=\"/gameList.php\">All Games</a>";
+                    echo " &raquo; <b>$requestedConsole games</b></a>";
+                }
             }
             echo "</div>";
 
@@ -74,13 +81,10 @@ RenderDocType();
                     if( $dataExists == FALSE )
                         continue;
 
-                    if( $dev != NULL)
+                    echo "<h3 class='longheader'>$consoleName games with achievements:</h3>";
+
+                    if( $dev == NULL)
                     {
-                        echo "<h3 class='longheader'>$consoleName games with achievements by <a href='/User/$dev'>$dev</a>:</h3>";
-                    }
-                    else
-                    {
-                        echo "<h3 class='longheader'>$consoleName games with achievements:</h3>";
                         if( $showCompleteGames == 0 )
                             echo "<h4>All games</h4>";
                         else if( $showCompleteGames == 1 )
