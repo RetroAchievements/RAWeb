@@ -1485,52 +1485,61 @@ function getControlPanelUserInfo( $user, &$libraryOut )
 
 function getUserList( $sortBy, $offset, $count, &$dataOut, $requestedBy )
 {
+    return getUserListByPerms( $sortBy, $offset, $count, $dataOut, $requestedBy, NULL );
+}
+
+function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy , &$perms = NULL)
+{
     settype( $offset, 'integer' );
     settype( $count, 'integer' );
+
+    $permsFilter = NULL;
+    if( $perms != NULL)
+    {
+        settype( $perms, 'integer' );
+        if( $perms >= -2 && $perms <= 4 ) // details about the numbers in src/Permissions.php
+            $permsFilter = "AND ua.Permissions = $perms ";
+        else
+            $perms = 99;
+    }
 
     settype( $sortBy, 'integer' );
     if( $sortBy < 1 || $sortBy > 6 )
         $sortBy = 1;
 
-    if( $sortBy == 1 )
+    switch( $sortBy )
     {
-        //	Default sort:
-        $orderBy = "ua.User ASC ";
+        case 1:
+            //	Default sort:
+            $orderBy = "ua.User ASC ";
+            break;
+        case 2:
+            //	RAPoints
+            $orderBy = "ua.RAPoints DESC ";
+            break;
+        case 3:
+            //	NumAwarded
+            $orderBy = "NumAwarded DESC ";
+            break;
+        case 4:
+            //	Default sort: inverse
+            $orderBy = "ua.User DESC ";
+            break;
+        case 5:
+            //	RAPoints inverse
+            $orderBy = "ua.RAPoints ASC ";
+            break;
+        case 6:
+            //	NumAwarded inverse
+            $orderBy = "NumAwarded ASC ";
+            break;
     }
-    else if( $sortBy == 2 )
-    {
-        //	RAPoints
-        $orderBy = "ua.RAPoints DESC ";
-    }
-    else if( $sortBy == 3 )
-    {
-        //	NumAwarded
-        $orderBy = "NumAwarded DESC ";
-    }
-    else if( $sortBy == 4 )
-    {
-        //	Default sort: inverse
-        $orderBy = "ua.User DESC ";
-    }
-    else if( $sortBy == 5 )
-    {
-        //	RAPoints inverse
-        $orderBy = "ua.RAPoints ASC ";
-    }
-    else if( $sortBy == 6 )
-    {
-        //	NumAwarded inverse
-        $orderBy = "NumAwarded ASC ";
-    }
-    else
-    {
-        //	Default sort:
-        $orderBy = "ua.User ";
-    }
+
     $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded
 				FROM UserAccounts AS ua
 				LEFT JOIN Awarded AS aw ON aw.User=ua.User
                 WHERE !ua.Untracked || ua.User = \"$requestedBy\"
+                $permsFilter
 				GROUP BY ua.User
 				ORDER BY $orderBy
 				LIMIT $offset, $count";

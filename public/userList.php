@@ -5,9 +5,15 @@ $sortBy = seekGet( 's' );
 $offset = seekGet( 'o' );
 $maxCount = 25;
 
+$perms = seekGet( 'p' );
+
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
-$userCount = getUserList( $sortBy, $offset, $maxCount, $userListData, $user );
+$userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+
+$permissionName = NULL;
+if( $perms >= -2 && $perms <= 4 ) // details about the numbers in src/Permissions.php
+    $permissionName = PermissionsToString( $perms );
 
 $pageTitle = "User List";
 
@@ -30,12 +36,34 @@ RenderDocType();
 
             <?php
             echo "<div class='navpath'>";
-            echo "<b>All Users</b>";
-            echo "</div>";
+            echo "<b>All Users";
+
+            if( $permissionName != NULL )
+                echo " &raquo; $permissionName";
+
+            echo "</b></div>";
 
             echo "<div class='largelist'>";
-
             echo "<h2 class='longheader'>User List:</h2>";
+
+            echo "<p>Filter: ";
+
+            if( $permissionName == NULL )
+                echo "<b>All Users</b>";
+            else
+                echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
+
+            for( $i = -2; $i <= 4; $i++ ) // details about the numbers in src/Permissions.php
+            {
+                echo " | ";
+
+                if( $i == $perms && is_int( $perms ) )
+                    echo "<b>" . PermissionsToString( $i ) . "</b>";
+                else
+                    echo "<a href='/userList.php?s=$sortBy&p=$i'>" . PermissionsToString( $i ) . "</a>";
+            }
+            echo "</p>";
+
             echo "<table class='smalltable'><tbody>";
 
             $sort1 = ($sortBy == 1) ? 4 : 1;
