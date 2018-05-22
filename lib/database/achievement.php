@@ -140,6 +140,10 @@ function getAchievementsListByDev( $dev = NULL, $consoleIDInput, $user, $sortBy,
             $query .= "AND ach.Author = '$dev' ";
         }
     }
+    else if( isset( $dev ) )
+    {
+    	$query .= "WHERE ach.Author = '$dev' ";
+    }
 
     switch( $sortBy )
     {
