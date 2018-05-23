@@ -121,8 +121,9 @@ RenderDocType();
                 echo "<table><tbody>";
 
                 echo "<th>ID</th>";
-                echo "<th>Game</th>";
                 echo "<th>Achievement</th>";
+                echo "<th>Game</th>";
+                echo "<th>Developer</th>";
                 echo "<th>Reporter</th>";
                 echo "<th>Reported At</th>";
                 echo "<th colspan=2>Ticket State</th>";
@@ -138,6 +139,7 @@ RenderDocType();
                     $achID = $nextTicket[ 'AchievementID' ];
                     $achTitle = $nextTicket[ 'AchievementTitle' ];
                     $achDesc = $nextTicket[ 'AchievementDesc' ];
+                    $achAuthor = $nextTicket[ 'AchievementAuthor' ];
                     $achPoints = $nextTicket[ 'Points' ];
                     $achBadgeName = $nextTicket[ 'BadgeName' ];
                     $gameID = $nextTicket[ 'GameID' ];
@@ -164,12 +166,16 @@ RenderDocType();
                     echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
                     echo "</td>";
 
+                    echo "<td style='min-width:25%'>";
+                    echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
+                    echo "</td>";
+
                     echo "<td>";
                     echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameBadge, $consoleName );
                     echo "</td>";
 
-                    echo "<td style='min-width:25%'>";
-                    echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
+                    echo "<td>";
+                    echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
                     echo "</td>";
 
                     echo "<td>";
@@ -186,11 +192,7 @@ RenderDocType();
 
                     echo "<td>";
                     $reportStates = array( "Closed", "Open", "Resolved" );
-                    echo $reportStates[ $tickState ];
-                    echo "</td>";
-
-                    echo "<td>";
-                    echo "<div style='float:right;'><a href='/ticketmanager.php?i=$ticketID'>Show&nbsp;&nbsp;</a></div>";
+                    echo "<a href='/ticketmanager.php?i=$ticketID'>" . $reportStates[ $tickState ] . "</a>";
                     echo "</td>";
 
                     echo "</tr>";
@@ -436,4 +438,3 @@ RenderDocType();
 
 </body>
 </html>
-
