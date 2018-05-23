@@ -106,7 +106,7 @@ RenderDocType();
                 $sort2 = ($sortBy == 2) ? 12 : 2;
                 $sort3 = ($sortBy == 3) ? 13 : 3;
                 $sort4 = ($sortBy == 4) ? 14 : 4;
-                //$sort5 = ($sortBy==5) ? 15 : 5;
+                $sort5 = ($sortBy == 5) ? 15 : 5;
                 $sort6 = ($sortBy == 6) ? 16 : 6;
                 $sort7 = ($sortBy == 7) ? 17 : 7;
                 $sort8 = ($sortBy == 8) ? 18 : 8;
@@ -115,21 +115,26 @@ RenderDocType();
                 $mark2 = ($sortBy % 10 == 2) ? '&nbsp;*' : '';
                 $mark3 = ($sortBy % 10 == 3) ? '&nbsp;*' : '';
                 $mark4 = ($sortBy % 10 == 4) ? '&nbsp;*' : '';
-                //$mark5 = ($sortBy%10==5) ? '&nbsp;*' : '';
+                $mark5 = ($sortBy % 10 == 5) ? '&nbsp;*' : '';
                 $mark6 = ($sortBy % 10 == 6) ? '&nbsp;*' : '';
                 $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
                 $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
 
                 echo "<th><a href='/achievementList.php?s=$sort1&p=$params$dev_param'>Title</a>$mark1</th>";
-                //if(!$mobileBrowser)
                 echo "<th><a href='/achievementList.php?s=$sort2&p=$params$dev_param'>Desc.</a>$mark2</th>";
-                echo "<th><a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
-                echo "<span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span></th>";
-                //if(!$mobileBrowser)
-                //echo "<th><a href='/achievementList.php?s=$sort5&p=$params$dev_param'>Author</a>$mark5</th>";
+
+                if(!$mobileBrowser)
+                {
+                    echo "<th><a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
+                    echo "<span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span></th>";
+                    echo "<th><a href='/achievementList.php?s=$sort5&p=$params$dev_param'>Author</a>$mark5</th>";
+                }
+
                 echo "<th><a href='/achievementList.php?s=$sort6&p=$params$dev_param'>Game</a>$mark6</th>";
                 echo "<th><a href='/achievementList.php?s=$sort7&p=$params$dev_param'>Added</a>$mark7</th>";
-                echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
+
+                if(!$mobileBrowser)
+                    echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
 
                 $achCount = 0;
 
@@ -161,25 +166,22 @@ RenderDocType();
                     echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
                     echo "</td>";
 
-                    //if(!$mobileBrowser)
-                    {
-                        //echo "<td style='min-width:25%'>";
-                        echo "<td>";
-                        echo "$achDesc";
-                        echo "</td>";
-                    }
-
+                    //echo "<td style='min-width:25%'>";
                     echo "<td>";
-                    echo "$achPoints ";
-                    echo "<span class='TrueRatio'>($achTruePoints)</span>";
+                    echo "$achDesc";
                     echo "</td>";
 
-                    //if(!$mobileBrowser)
-                    //{
-                    //	echo "<td>";
-                    //	echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
-                    //	echo "</td>";
-                    //}
+                    if(!$mobileBrowser)
+                    {
+                        echo "<td>";
+                        echo "$achPoints ";
+                        echo "<span class='TrueRatio'>($achTruePoints)</span>";
+                        echo "</td>";
+
+                        echo "<td>";
+                        echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
+                        echo "</td>";
+                    }
 
                     echo "<td>";
                     echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, TRUE, 32 );
@@ -189,9 +191,12 @@ RenderDocType();
                     echo "<span class='smalldate'>" . getNiceDate( strtotime( $achDateCreated ) ) . "</span>";
                     echo "</td>";
 
-                    echo "<td>";
-                    echo "<span class='smalldate'>" . getNiceDate( strtotime( $achDateModified ) ) . "</span>";
-                    echo "</td>";
+                    if(!$mobileBrowser)
+                    {
+                        echo "<td>";
+                        echo "<span class='smalldate'>" . getNiceDate( strtotime( $achDateModified ) ) . "</span>";
+                        echo "</td>";
+                    }
 
                     echo "</tr>";
                 }
