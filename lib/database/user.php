@@ -1497,7 +1497,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
     if( $perms != NULL)
     {
         settype( $perms, 'integer' );
-        if( $perms >= -2 && $perms <= 4 ) // details about the numbers in src/Permissions.php
+        if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin )
             $permsFilter = "AND ua.Permissions = $perms ";
         else
             $perms = 99;

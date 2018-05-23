@@ -12,7 +12,7 @@ RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $per
 $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
 
 $permissionName = NULL;
-if( $perms >= -2 && $perms <= 4 ) // details about the numbers in src/Permissions.php
+if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin ) 
     $permissionName = PermissionsToString( $perms );
 
 $pageTitle = "User List";
@@ -53,7 +53,7 @@ RenderDocType();
             else
                 echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
 
-            for( $i = -2; $i <= 4; $i++ ) // details about the numbers in src/Permissions.php
+            for( $i = \RA\Permissions::Spam; $i <= \RA\Permissions::Admin; $i++ )
             {
                 echo " | ";
 
