@@ -126,7 +126,7 @@
 <?php
 	RenderErrorCodeWarning( 'left', $errorCode );
 	RenderDeveloperStats( $user, $type );
-	echo "<h3>Users Online</h3>";
+	//echo "<h3>Users Online</h3>";
 	//echo "<div id='chart_usersonline'></div>";
 ?>	
 </div>
