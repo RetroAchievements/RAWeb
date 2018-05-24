@@ -1536,7 +1536,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
     $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded
 				FROM UserAccounts AS ua
 				LEFT JOIN Awarded AS aw ON aw.User=ua.User
-                WHERE !ua.Untracked || ua.User = \"$requestedBy\"
+                WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" )
                 $permsFilter
 				GROUP BY ua.User
 				ORDER BY $orderBy
