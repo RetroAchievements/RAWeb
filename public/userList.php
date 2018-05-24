@@ -53,7 +53,7 @@ RenderDocType();
             else
                 echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
 
-            for( $i = \RA\Permissions::Banned; $i <= \RA\Permissions::Admin; $i++ )
+            for( $i = \RA\Permissions::Unregistered; $i <= \RA\Permissions::Admin; $i++ )
             {
                 echo " | ";
 
