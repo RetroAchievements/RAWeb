@@ -331,8 +331,7 @@ function countOpenTicketsByDev( $dev ) {
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = \"$dev\" AND tick.ReportState = 1
-        ;"
+        WHERE ach.Author = \"$dev\" AND tick.ReportState = 1";
 
     return s_mysql_query( $query );
 }
