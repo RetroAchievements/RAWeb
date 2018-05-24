@@ -165,7 +165,7 @@ RenderDocType();
                     $consoleName = $nextTicket[ 'ConsoleName' ];
                     $reportType = $nextTicket[ 'ReportType' ];
                     $reportNotes = $nextTicket[ 'ReportNotes' ];
-                    $tickState = $nextTicket[ 'ReportState' ];
+                    $reportState = $nextTicket[ 'ReportState' ];
 
                     $reportedAt = $nextTicket[ 'ReportedAt' ];
                     $niceReportedAt = getNiceDate( strtotime( $reportedAt ) );
@@ -184,7 +184,7 @@ RenderDocType();
                     echo "</td>";
                     
                     echo "<td>";
-                    echo $reportStates[ $tickState ];
+                    echo $reportStates[ $reportState ];
                     echo "</td>";
 
 
@@ -274,7 +274,7 @@ RenderDocType();
                 echo "</td>";
                     
                 echo "<td>";
-                echo $reportStates[ $tickState ];
+                echo $reportStates[ $reportState ];
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
@@ -314,15 +314,6 @@ RenderDocType();
                 echo "</td>";
                 echo "<td colspan='6'>";
                 echo ( $reportType == 1 ) ? "<b>Triggered at wrong time</b>" : "<b>Doesn't Trigger</b>";
-                echo "</td>";
-                echo "</tr>";
-
-                echo "<tr>";
-                echo "<td>";
-                echo "State: ";
-                echo "</td>";
-                echo "<td colspan='6'>";
-                echo ( $reportState == 1 ) ? "Unresolved" : ( ( $reportState == 2 ) ? "<b>Resolved: fixed</b>" : "<b>Resolved: will not fix</b>" );
                 echo "</td>";
                 echo "</tr>";
 
