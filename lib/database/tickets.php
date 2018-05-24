@@ -327,11 +327,20 @@ function countOpenTicketsByDev( $dev ) {
     $dev = mysqli_real_escape_string( $db, $dev );
 
     $query = "
-        SELECT count(*)
+        SELECT count(*) as count
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = \"$dev\" AND tick.ReportState = 1";
+        WHERE ach.Author = '$dev' AND tick.ReportState = 1";
 
-    return s_mysql_query( $query );
+    $dbResult = s_mysql_query( $query );
+
+    if( $dbResult !== FALSE )
+    {
+        return mysqli_fetch_assoc( $dbResult )['count'];
+    }
+    else
+    {
+        return FALSE;
+    }
 }
