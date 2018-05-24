@@ -10,6 +10,7 @@ $offset = seekGET( 'o', 0 );
 $ticketID = seekGET( 'i', 0 );
 settype( $ticketID, 'integer' );
 
+$reportStates = array( "Closed", "Open", "Resolved" );
 $ticketState = seekGET( 't', 1 );
 
 if( $ticketID != 0 )
@@ -78,7 +79,23 @@ RenderDocType();
             <?php
             echo "<div class='navpath'>";
             if( $ticketID == 0 )
-                echo "<b>$pageTitle</b>";
+            {
+                echo "<b>";
+                if( $ticketState == 0 )
+                    echo "All ";
+                if( $ticketState == 1 || $ticketState == 2 )
+                    echo $reportStates[ $ticketState ];
+
+                echo "Tickets</b>";
+                if( !empty( $assignedToUser ) )
+                    echo " &raquo; <a href='/User/$assignedToUser'>$assignedToUser</a>";
+                if( !empty( $gameIDGiven ) )
+                {
+                    getGameTitleFromID( $gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $allData);
+                    echo " &raquo; <a href='/Game/$gameIDGiven'>$gameTitle ($consoleName)</a>";
+                }
+
+            }
             else
             {
                 echo "<a href='/ticketmanager.php'>Open Tickets</a>";
@@ -167,7 +184,6 @@ RenderDocType();
                     echo "</td>";
                     
                     echo "<td>";
-                    $reportStates = array( "Closed", "Open", "Resolved" );
                     echo $reportStates[ $tickState ];
                     echo "</td>";
 
@@ -223,6 +239,7 @@ RenderDocType();
                 $achID = $nextTicket[ 'AchievementID' ];
                 $achTitle = $nextTicket[ 'AchievementTitle' ];
                 $achDesc = $nextTicket[ 'AchievementDesc' ];
+                $achAuthor = $nextTicket[ 'AchievementAuthor' ];
                 $achPoints = $nextTicket[ 'Points' ];
                 $achBadgeName = $nextTicket[ 'BadgeName' ];
                 $gameID = $nextTicket[ 'GameID' ];
@@ -243,8 +260,10 @@ RenderDocType();
                 echo "<table><tbody>";
 
                 echo "<th>ID</th>";
-                echo "<th>Game</th>";
+                echo "<th>Status</th>";
                 echo "<th>Achievement</th>";
+                echo "<th>Game</th>";
+                echo "<th>Developer</th>";
                 echo "<th>Reporter</th>";
                 echo "<th>Reported At</th>";
 
@@ -253,13 +272,21 @@ RenderDocType();
                 echo "<td>";
                 echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
                 echo "</td>";
+                    
+                echo "<td>";
+                echo $reportStates[ $tickState ];
+                echo "</td>";
+
+                echo "<td style='min-width:25%'>";
+                echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
+                echo "</td>";
 
                 echo "<td style='min-width:25%'>";
                 echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameBadge, $consoleName, TRUE, 32 );
                 echo "</td>";
 
-                echo "<td style='min-width:25%'>";
-                echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
+                echo "<td>";
+                echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
                 echo "</td>";
 
                 echo "<td>";
