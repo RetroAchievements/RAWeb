@@ -73,9 +73,9 @@ RenderDocType();
             if( ($sortBy == 2 ) )
                 echo "<th>Rank</th>";
 
-            echo "<th colspan='2'><a href=\"/userList.php?s=$sort1\">User</a></th>";
-            echo "<th><a href=\"/userList.php?s=$sort2\">Points</a></th>";
-            echo "<th><a href=\"/userList.php?s=$sort3\">Num Achievements Earned</a></th>";
+            echo "<th colspan='2'><a href=\"/userList.php?s=$sort1&p=$perms\">User</a></th>";
+            echo "<th><a href=\"/userList.php?s=$sort2&p=$perms\">Points</a></th>";
+            echo "<th><a href=\"/userList.php?s=$sort3&p=$perms\">Num Achievements Earned</a></th>";
 
             $userCount = 0;
             foreach( $userListData as $userEntry )
@@ -118,13 +118,13 @@ RenderDocType();
             if( $offset > 0 )
             {
                 $prevOffset = $offset - $maxCount;
-                echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms'>&lt; Previous $maxCount</a> - ";
             }
             if( $userCount == $maxCount )
             {
                 //	Max number fetched, i.e. there are more. Can goto next 25.
                 $nextOffset = $offset + $maxCount;
-                echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
+                echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms'>Next $maxCount &gt;</a>";
             }
             echo "</div>";
 
@@ -139,4 +139,3 @@ RenderDocType();
 
 </body>
 </html>
-
