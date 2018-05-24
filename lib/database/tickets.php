@@ -222,7 +222,7 @@ function getAllTickets( $offset = 0, $limit = 50, $assignedToUser = NULL, $given
 function getTicket( $ticketID )
 {
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
-				ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
+				ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
 				tick.ReportedAt, tick.ReportType, tick.ReportState, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
 			  FROM Ticket AS tick
 			  LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
