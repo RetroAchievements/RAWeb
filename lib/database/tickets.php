@@ -317,3 +317,30 @@ function updateTicket( $user, $ticketID, $ticketVal )
         return FALSE;
     }
 }
+
+function countOpenTicketsByDev( $dev ) {
+    if( $dev == NULL )
+        return NULL;
+
+    global $db;
+
+    $dev = mysqli_real_escape_string( $db, $dev );
+
+    $query = "
+        SELECT count(*) as count
+        FROM Ticket AS tick
+        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
+        LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
+        WHERE ach.Author = '$dev' AND tick.ReportState = 1";
+
+    $dbResult = s_mysql_query( $query );
+
+    if( $dbResult !== FALSE )
+    {
+        return mysqli_fetch_assoc( $dbResult )['count'];
+    }
+    else
+    {
+        return FALSE;
+    }
+}
