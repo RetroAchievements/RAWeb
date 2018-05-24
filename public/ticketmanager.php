@@ -10,7 +10,7 @@ $offset = seekGET( 'o', 0 );
 $ticketID = seekGET( 'i', 0 );
 settype( $ticketID, 'integer' );
 
-$reportStates = array( "Closed", "Open", "Resolved" );
+$reportStates = ["Closed", "Open", "Resolved"];
 $ticketState = seekGET( 't', 1 );
 
 if( $ticketID != 0 )
@@ -303,7 +303,7 @@ RenderDocType();
                 echo "<td>";
                 echo "Notes: ";
                 echo "</td>";
-                echo "<td colspan='4'>";
+                echo "<td colspan='6'>";
                 echo "<code>$reportNotes</code>";
                 echo "</td>";
                 echo "</tr>";
@@ -312,7 +312,7 @@ RenderDocType();
                 echo "<td>";
                 echo "Report Type: ";
                 echo "</td>";
-                echo "<td colspan='4'>";
+                echo "<td colspan='6'>";
                 echo ( $reportType == 1 ) ? "<b>Triggered at wrong time</b>" : "<b>Doesn't Trigger</b>";
                 echo "</td>";
                 echo "</tr>";
@@ -321,7 +321,7 @@ RenderDocType();
                 echo "<td>";
                 echo "State: ";
                 echo "</td>";
-                echo "<td colspan='4'>";
+                echo "<td colspan='6'>";
                 echo ( $reportState == 1 ) ? "Unresolved" : ( ( $reportState == 2 ) ? "<b>Resolved: fixed</b>" : "<b>Resolved: will not fix</b>" );
                 echo "</td>";
                 echo "</tr>";
@@ -334,7 +334,7 @@ RenderDocType();
                     echo "Developer:";
                     echo "</td>";
 
-                    echo "<td colspan='4'>";
+                    echo "<td colspan='6'>";
                     echo "<div class='smallicon'>";
                     echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket www.retroachievements.org/ticketmanager.php?i=$ticketID ";
@@ -350,7 +350,7 @@ RenderDocType();
                     {
                         echo "<tr>";
 
-                        echo "<td></td><td colspan='4'>";
+                        echo "<td></td><td colspan='6'>";
                         echo "<div class='smallicon'>";
                         echo "<span>";
                         echo "<a href='requestupdateticket.php?u=$user&amp;i=$ticketID&amp;v=2'>Resolve as fixed</a>";
@@ -362,7 +362,7 @@ RenderDocType();
 
                         echo "<tr>";
 
-                        echo "<td></td><td colspan='4'>";
+                        echo "<td></td><td colspan='6'>";
                         echo "<div class='smallicon'>";
                         echo "<span>";
                         echo "<a href='requestupdateticket.php?u=$user&amp;i=$ticketID&amp;v=0'>Demote achievement to unofficial</a>";
@@ -376,7 +376,7 @@ RenderDocType();
                 }
 
                 echo "<tr>";
-                echo "<td></td><td colspan='4'>";
+                echo "<td></td><td colspan='6'>";
                 echo "<div class='temp'>";
                 echo "<a href='ticketmanager.php?g=$gameID&t=1'>View other tickets for this game</a>";
                 echo "</div>";
@@ -389,7 +389,7 @@ RenderDocType();
                     if( $numOpenTickets > 0 )
                     {
                         echo "<tr>";
-                        echo "<td></td><td colspan='4'>";
+                        echo "<td></td><td colspan='6'>";
                         echo "Found $numOpenTickets other open tickets for this achievement: ";
 
                         foreach( $altTicketData as $nextTicket )
@@ -410,7 +410,7 @@ RenderDocType();
                     if( $numClosedTickets > 0 )
                     {
                         echo "<tr>";
-                        echo "<td></td><td colspan='4'>";
+                        echo "<td></td><td colspan='6'>";
                         echo "Found $numClosedTickets closed tickets for this achievement: ";
 
                         foreach( $altTicketData as $nextTicket )
@@ -433,7 +433,7 @@ RenderDocType();
                 else
                 {
                     echo "<tr>";
-                    echo "<td></td><td colspan='4'>";
+                    echo "<td></td><td colspan='6'>";
                     echo "<div class='temp'>";
                     echo "No other tickets found for this achievement";
                     echo "</div>";
