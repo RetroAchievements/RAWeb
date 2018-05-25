@@ -33,9 +33,9 @@
 <div id='mainpage'>
 
 <div id='leftcontainer'>
+<h3>Developer Stats</h3>
 <?php
-	RenderErrorCodeWarning( 'left', $errorCode );
-	//RenderDeveloperStats( $user, $type );
+    RenderErrorCodeWarning( 'left', $errorCode );
     $devStatsList = GetDeveloperStatsFull( 100, $type );
 
     echo "<div class='rightfloat'>* = ordered by</div>";
