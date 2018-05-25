@@ -84,7 +84,7 @@ RenderDocType();
                 if( $ticketState == 0 )
                     echo "All ";
                 if( $ticketState == 1 || $ticketState == 2 )
-                    echo $reportStates[ $ticketState ];
+                    echo $reportStates[ $ticketState ] . " ";
 
                 echo "Tickets</b>";
                 if( !empty( $assignedToUser ) )
