@@ -1732,6 +1732,65 @@ function GetDeveloperStats( $count, $type )
     return $retVal;
 }
 
+function GetDeveloperStatsFull( $count, $sortBy )
+{
+    settype( $sortBy, 'integer' );
+    settype( $count, 'integer' );
+
+    switch( $sortBy )
+    {
+        case 0: // number of achievements
+            $order = "Achievements";
+            break;
+        case 1: // number of points allocated
+            $order = "ContribYield";
+            break;
+        case 2: // number of achievements won by others
+            $order = "ContribCount";
+            break;
+        case 3: // number of achievements
+            $order = "OpenTickets";
+            break;
+        default:
+            $order = "Achievements";
+    }
+
+    $query = "
+    SELECT
+        ua.User as Author,
+        ContribCount,
+        ContribYield,
+        COUNT(ach.ID) as Achievements,
+        COUNT(tick.ID) as OpenTickets
+    FROM
+        UserAccounts AS ua
+    LEFT JOIN
+        Achievements AS ach ON (ach.Author = ua.User AND ach.Flags = 3)
+    LEFT JOIN
+        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState = 1)
+    WHERE
+        ContribCount > 0 AND ContribYield > 0
+    GROUP BY
+        ua.User
+    ORDER BY
+        $order DESC,
+        OpenTickets ASC
+    LIMIT 0, $count";
+
+    $dbResult = s_mysql_query( $query );
+    if( $dbResult !== FALSE )
+    {
+        while( $nextData = mysqli_fetch_assoc( $dbResult ) )
+            $retVal[] = $nextData;
+    }
+    else
+    {
+        error_log( __FUNCTION__ . " failed?! $offset, $limit" );
+    }
+
+    return $retVal;
+}
+
 function GetUserFields( $username, $fields )
 {
     $fieldsCSV = implode( ",", $fields );
