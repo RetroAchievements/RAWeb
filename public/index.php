@@ -293,7 +293,7 @@ else
 
             RenderActivePlayersComponent();
             RenderAOTWComponent( $staticData[ 'Event_AOTW_AchievementID' ], $staticData[ 'Event_AOTW_ForumID' ] );
-            RenderTwitchTVStream();
+            //RenderTwitchTVStream();
             RenderChat( $user, 320, '', true );
 
             if( $user !== NULL )
