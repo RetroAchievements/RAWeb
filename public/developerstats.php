@@ -61,9 +61,9 @@
         echo "</div></td>";
 
         echo "<td>" . $devStats[ 'OpenTickets' ] . "</td>";
+        echo "<td>" . $devStats[ 'Achievements' ] . "</td>";
         echo "<td>" . $devStats[ 'ContribCount' ] . "</td>";
         echo "<td>" . $devStats[ 'ContribYield' ] . "</td>";
-        echo "<td>" . $devStats[ 'Achievements' ] . "</td>";
 
     }
     echo "</tbody></table>";
