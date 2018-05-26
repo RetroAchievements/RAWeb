@@ -38,12 +38,23 @@ if( $ticketID != 0 )
     $numClosedTickets = ( count( $altTicketData ) - $numOpenTickets ) - 1;
 }
 
+$gamesTableFlag = 0;
+$gameIDGiven = 0;
 if( $ticketID == 0 )
 {
-    $assignedToUser = seekGET( 'u', NULL );
-    $gameIDGiven = seekGET( 'g', NULL );
-    $achievementIDGiven = seekGET( 'a', NULL );
-    $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
+    $gamesTableFlag = seekGET( 'f' );
+    if( $gamesTableFlag == 1 )
+    {
+        $count = seekGET( 'c', 20 );
+        $ticketData = gamesSortedByOpenTickets( $count );
+    }
+    else
+    {
+        $assignedToUser = seekGET( 'u', NULL );
+        $gameIDGiven = seekGET( 'g', NULL );
+        $achievementIDGiven = seekGET( 'a', NULL );
+        $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
+    }
 }
 //var_dump( $ticketData );
 
@@ -78,7 +89,11 @@ RenderDocType();
         <div class='left'>
             <?php
             echo "<div class='navpath'>";
-            if( $ticketID == 0 )
+            if( $gamesTableFlag == 1 )
+            {
+                echo "<b><a href='/ticketmanager.php'>Open Tickets</a></b> &raquo; <b>Games With Open Tickets</b>";
+            }
+            else if( $ticketID == 0 )
             {
                 echo "<b>";
                 if( $ticketState == 0 )
@@ -103,12 +118,55 @@ RenderDocType();
             }
             echo "</div>";
 
-            echo "<h3 class='longheader'>$pageTitle</h3>";
+            if( $gamesTableFlag == 1 )
+                echo "<h3>Top " . count( $ticketData ) . " Games Sorted By Most Outstanding Tickets</h3>";
+            else
+                echo "<h3 class='longheader'>$pageTitle</h3>";
 
             echo "<div class='detaillist'>";
 
-            if( $ticketID == 0 )
+            if( $gamesTableFlag == 1 )
             {
+                echo "<p><b>If you're a developer and find games that you love in this list, consider helping to resolve their tickets.</b></p>";
+                echo "<table><tbody>";
+
+                echo "<th>Game</th>";
+                echo "<th>Number of Open Tickets</th>";
+
+                $rowCount = 0;
+
+                foreach( $ticketData as $nextTicket )
+                {
+                    $gameID = $nextTicket[ 'GameID' ];
+                    $gameTitle = $nextTicket[ 'GameTitle' ];
+                    $gameBadge = $nextTicket[ 'GameIcon' ];
+                    $consoleName = $nextTicket[ 'Console' ];
+                    $gameTitle = $nextTicket[ 'GameTitle' ];
+                    $openTickets = $nextTicket[ 'OpenTickets' ];
+
+                    if( $rowCount++ % 2 == 0 )
+                        echo "<tr>";
+                    else
+                        echo "<tr class='alt'>";
+
+                    echo "<td>";
+                    echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameBadge, $consoleName );
+                    echo "</td>";
+                    //echo "<td><a href='/Game/$gameID'>$gameTitle</a></td>";
+                    echo "<td><a href='/ticketmanager.php?t=1&g=$gameID'>$openTickets</a></td>";
+
+                    echo "</tr>";
+                }
+                echo "</tbody></table>";
+            }
+            else if( $ticketID == 0 )
+            {
+                if( !empty( $gameIDGiven ) )
+                {
+                    echo "<p><b>Viewing tickets for:</b> <a href='/Game/$gameIDGiven'>$gameTitle ($consoleName)</a>";
+                    echo " | <b><a href='/ticketmanager.php?t=1&u=$user'>Clear Filter</a></b></p>";
+                }
+
                 echo "Viewing: ";
                 if( $assignedToUser !== $user && $ticketState == 0 )
                     echo "<b>All Tickets</b> | ";
@@ -130,10 +188,6 @@ RenderDocType();
                 else
                     echo "<a href='/ticketmanager.php?t=1&u=$user$gameIDQuery'>My Open Tickets</a> | ";
 
-                if( !empty( $gameIDGiven ) )
-                {
-                    echo "</br>Viewing Game ID: $gameIDGiven <a href='/ticketmanager.php?t=1&u=$user'>Clear Filter</a> ";
-                }
 
                 echo "<table><tbody>";
 
