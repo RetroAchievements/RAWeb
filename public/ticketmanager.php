@@ -127,7 +127,7 @@ RenderDocType();
 
             if( $gamesTableFlag == 1 )
             {
-                echo "<p><b>If you're a dev and find games that you love in this list, consider helping to resolve their tickets.</b></p>";
+                echo "<p><b>If you're a developer and find games that you love in this list, consider helping to resolve their tickets.</b></p>";
                 echo "<table><tbody>";
 
                 echo "<th>Game</th>";
