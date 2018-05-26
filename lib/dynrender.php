@@ -772,6 +772,7 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";	    
         echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
         echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
+        echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
         echo "<li><a href='/viewtopic.php?t=394'>Official To-Do List</a></li>";
         echo "</ul>";
