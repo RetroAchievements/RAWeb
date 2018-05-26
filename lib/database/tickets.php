@@ -344,3 +344,47 @@ function countOpenTicketsByDev( $dev ) {
         return FALSE;
     }
 }
+
+function gamesSortedByOpenTickets( $count )
+{
+    settype( $count, 'integer' );
+    if( $count == 0 )
+        $count = 20;
+
+    $query = "
+        SELECT
+            gd.ID AS GameID,
+            gd.Title AS GameTitle,
+            gd.ImageIcon AS GameIcon,
+            cons.Name AS Console,
+            COUNT(*) as OpenTickets
+        FROM
+            Ticket AS tick
+        LEFT JOIN
+            Achievements AS ach ON ach.ID = tick.AchievementID
+        LEFT JOIN
+            GameData AS gd ON gd.ID = ach.GameID
+        LEFT JOIN
+            Console AS cons ON cons.ID = gd.ConsoleID
+        WHERE
+            tick.ReportState = 1
+        GROUP BY
+            gd.Title
+        ORDER BY
+            OpenTickets DESC
+        LIMIT 0, $count";
+
+    $dbResult = s_mysql_query( $query );
+    if( $dbResult !== FALSE )
+    {
+        while( $nextData = mysqli_fetch_assoc( $dbResult ) )
+            $retVal[] = $nextData;
+    }
+    else
+    {
+        error_log( __FUNCTION__ . " failed?!" );
+    }
+
+    return $retVal;
+
+}
