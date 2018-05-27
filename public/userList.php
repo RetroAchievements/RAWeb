@@ -19,7 +19,7 @@ if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
     else
         $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms );
 }
-else if( $perms < \RA\Permissions::Registered || $perms > \RA\Permissions::Admin )
+else if( $perms < \RA\Permissions::Unregistered || $perms > \RA\Permissions::Admin )
     $perms = 1;
 
 $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
