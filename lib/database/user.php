@@ -1497,16 +1497,17 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
 
     $whereQuery = NULL;
     $permsFilter = NULL;
-    if( $perms != NULL)
-    {
-        settype( $perms, 'integer' );
-        if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Unregistered || $perms == \RA\Permissions::SuperUser )
-            $permsFilter = "ua.Permissions = $perms ";
-        else if( $perms >= \RA\Permissions::Registered && $perms <= \RA\Permissions::Admin )
-            $permsFilter = "ua.Permissions >= $perms ";
-        else if( $showUntracked ) // if reach this point, show only untracked users
-            $whereQuery = "WHERE ua.Untracked ";
-    }
+
+    if( $perms == NULL)
+        $perms = \RA\Permissions::Registered;
+
+    settype( $perms, 'integer' );
+    if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Unregistered || $perms == \RA\Permissions::SuperUser )
+        $permsFilter = "ua.Permissions = $perms ";
+    else if( $perms >= \RA\Permissions::Registered && $perms <= \RA\Permissions::Admin )
+        $permsFilter = "ua.Permissions >= $perms ";
+    else if( $showUntracked ) // if reach this point, show only untracked users
+        $whereQuery = "WHERE ua.Untracked ";
 
     if( $showUntracked )
     {
