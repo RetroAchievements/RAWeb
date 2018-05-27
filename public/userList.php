@@ -17,10 +17,12 @@ if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
     if( $showUntracked )
         $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms, TRUE);
     else
-        $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+        $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms );
 }
+else if( $perms >= \RA\Permissions::Registered && $perms <= \RA\Permissions::Admin ) 
+    $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms );
 else
-    $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+    $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, \RA\Permissions::Registered );
 
 $permissionName = NULL;
 if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin ) 
@@ -52,7 +54,12 @@ RenderDocType();
             echo "<b>All Users";
 
             if( $permissionName != NULL )
+            {
                 echo " &raquo; $permissionName";
+                if( $showUntracked && $permissionName != "Untracked" )
+                    echo " (including Untracked)";
+            }
+
 
             echo "</b></div>";
 
@@ -61,16 +68,21 @@ RenderDocType();
 
             echo "<p>Filter: ";
 
-            if( $permissionName == NULL )
-                echo "<b>All Users</b>";
-            else
-                echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
+            //if( $permissionName == NULL )
+            //    echo "<b>All Users</b>";
+            //else
+            //    echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
 
-            for( $i = \RA\Permissions::Unregistered; $i <= \RA\Permissions::Admin; $i++ )
+            if( $perms == \RA\Permissions::Unregistered )
+                echo "<b>Unregistered</b>";
+            else
+                echo "<a href='/userList.php?s=$sortBy&p=0'>Unregistered</a>";
+
+            for( $i = \RA\Permissions::Registered; $i <= \RA\Permissions::Admin; $i++ )
             {
                 echo " | ";
 
-                if( $i == $perms && is_int( $perms ) )
+                if( !$showUntracked && $i == $perms && is_int( $perms ) )
                     echo "<b>" . PermissionsToString( $i ) . "</b>";
                 else
                     echo "<a href='/userList.php?s=$sortBy&p=$i'>" . PermissionsToString( $i ) . "</a>";
@@ -108,9 +120,9 @@ RenderDocType();
             if( ($sortBy == 2 ) )
                 echo "<th>Rank</th>";
 
-            echo "<th colspan='2'><a href=\"/userList.php?s=$sort1&p=$perms\">User</a></th>";
-            echo "<th><a href=\"/userList.php?s=$sort2&p=$perms\">Points</a></th>";
-            echo "<th><a href=\"/userList.php?s=$sort3&p=$perms\">Num Achievements Earned</a></th>";
+            echo "<th colspan='2'><a href='/userList.php?s=$sort1&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>User</a></th>";
+            echo "<th><a href='/userList.php?s=$sort2&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Points</a></th>";
+            echo "<th><a href='/userList.php?s=$sort3&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Num Achievements Earned</a></th>";
 
             $userCount = 0;
             foreach( $userListData as $userEntry )
