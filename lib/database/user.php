@@ -1485,23 +1485,33 @@ function getControlPanelUserInfo( $user, &$libraryOut )
 
 function getUserList( $sortBy, $offset, $count, &$dataOut, $requestedBy )
 {
-    return getUserListByPerms( $sortBy, $offset, $count, $dataOut, $requestedBy, NULL );
+    return getUserListByPerms( $sortBy, $offset, $count, $dataOut, $requestedBy, NULL , FALSE );
 }
 
-function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy , &$perms = NULL)
+function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy , &$perms = NULL, $showUntracked = FALSE )
 {
     settype( $offset, 'integer' );
     settype( $count, 'integer' );
+    settype( $showUntracked, 'boolean' );
 
+    $whereQuery = NULL;
     $permsFilter = NULL;
     if( $perms != NULL)
     {
         settype( $perms, 'integer' );
         if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Unregistered || $perms == \RA\Permissions::SuperUser )
-            $permsFilter = "AND ua.Permissions = $perms ";
+            $permsFilter = "ua.Permissions = $perms ";
         else if( $perms >= \RA\Permissions::Registered && $perms <= \RA\Permissions::Admin )
-            $permsFilter = "AND ua.Permissions >= $perms ";
+            $permsFilter = "ua.Permissions >= $perms ";
+        else if( $showUntracked == TRUE ) // if reach this point, show only untracked users
+            $whereQuery = "WHERE ua.Untracked ";
     }
+
+    if( $showUntracked == TRUE && $whereQuery == NULL )
+        $whereQuery = "WHERE $permsFilter ";
+    else
+        $whereQuery = "WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" ) AND $permsFilter";
+
 
     settype( $sortBy, 'integer' );
     if( $sortBy < 1 || $sortBy > 6 )
@@ -1538,8 +1548,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
     $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded
 				FROM UserAccounts AS ua
 				LEFT JOIN Awarded AS aw ON aw.User=ua.User
-                WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" )
-                $permsFilter
+                $whereQuery
 				GROUP BY ua.User
 				ORDER BY $orderBy
 				LIMIT $offset, $count";

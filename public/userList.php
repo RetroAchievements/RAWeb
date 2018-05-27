@@ -9,11 +9,24 @@ $perms = seekGet( 'p' );
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
-$userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+$showUntracked = FALSE;
+if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
+{
+    $showUntracked = seekGET( 'u' );
+    settype( $showUntracked, 'boolean' );
+    if( $showUntracked )
+        $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms, TRUE);
+    else
+        $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+}
+else
+    $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
 
 $permissionName = NULL;
 if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin ) 
     $permissionName = PermissionsToString( $perms );
+else if( $showUntracked && $perms = -99 ) // meleu: using -99 magic number for untracked (I know, it's sloppy)
+    $permissionName = "Untracked";
 
 $pageTitle = "User List";
 
@@ -62,7 +75,29 @@ RenderDocType();
                 else
                     echo "<a href='/userList.php?s=$sortBy&p=$i'>" . PermissionsToString( $i ) . "</a>";
             }
-            echo "</p>";
+           echo "</p>";
+
+            if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
+            {
+                echo "<p>";
+                echo "Filters for admins (always includes Untracked users):<br>";
+                if( $permissionName == "Untracked" )
+                    echo "<b>All Untracked users</b>";
+                else
+                    echo "<a href='/userList.php?s=$sortBy&u=1&p=-99'>All Untracked users</a>";
+
+                for( $i = \RA\Permissions::Spam; $i <= \RA\Permissions::Admin; $i++ )
+                {
+                    echo " | ";
+
+                    if( $i == $perms && is_int( $perms ) )
+                        echo "<b>" . PermissionsToString( $i ) . "</b>";
+                    else
+                        echo "<a href='/userList.php?s=$sortBy&u=1&p=$i'>" . PermissionsToString( $i ) . "</a>";
+                }
+                echo "</p>";
+            }
+
 
             echo "<table class='smalltable'><tbody>";
 
