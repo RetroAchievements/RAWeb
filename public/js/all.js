@@ -521,6 +521,7 @@ $('.searchuser').val(ui.item.id);
         });
         };
         $('#devboxcontent').hide();
+        $('#userinfoboxcontent').hide();
         $('.msgPayload').hide();
         $('#managevids').hide();
         $('#chatinput').width('75%');
