@@ -471,6 +471,9 @@ $numGridlines = $numAchievements;
                 echo "<div style='clear:both;'></div>";
                 echo "</br>";
 
+                if( isset( $user ) )
+                    echo "<p><a href='/linkedhashes.php?g=$gameID'><b>View the list of hashes linked to this game</b></a></p>";
+
                 if( isset( $user ) && $permissions >= 2 )
                 {
                     echo "<div class='devbox'>";
