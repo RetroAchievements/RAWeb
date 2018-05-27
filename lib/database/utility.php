@@ -827,33 +827,43 @@ function requestModifyGame( $author, $gameID, $field, $value )
     global $db;
 
     settype( $field, 'integer' );
-    if( $field == 1 ) //	Title
+    switch( $field )
     {
-        if( !isset( $value ) || strlen( $value ) < 2 )
-        {
-            log_email( "bad data $author, $gameID, $field, $value" );
-            return FALSE;
-        }
+        case 1: // Title
+            if( !isset( $value ) || strlen( $value ) < 2 )
+            {
+                log_email( "bad data $author, $gameID, $field, $value" );
+                return FALSE;
+            }
+    
+            $newTitle = str_replace( "'", "''", $value );
+            $newTitle = mysqli_real_escape_string( $db, $newTitle );
+            //$newTitle = str_replace( "/", "&#47;", $newTitle );
+            //$newTitle = str_replace( "\\", "&#92;", $newTitle );
+    
+            $query = "UPDATE GameData SET Title='$newTitle' WHERE ID=$gameID";
+            log_sql( "$user: $query" );
+    
+            $dbResult = mysqli_query( $db, $query );
+    
+            return ( $dbResult !== FALSE );
+            break;
 
-        $newTitle = str_replace( "'", "''", $value );
-        $newTitle = mysqli_real_escape_string( $db, $newTitle );
-        //$newTitle = str_replace( "/", "&#47;", $newTitle );
-        //$newTitle = str_replace( "\\", "&#92;", $newTitle );
+        case 2: // GameHashTable
+            $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
+            log_sql( "$user: $query" );
+            $dbResult = s_mysql_query( $query );
 
-        $query = "UPDATE GameData SET Title='$newTitle' WHERE ID=$gameID";
-        log_sql( "$user: $query" );
+            return ( $dbResult !== FALSE );
+            break;
 
-        $dbResult = mysqli_query( $db, $query );
-
-        return ( $dbResult !== FALSE );
-    }
-    else if( $field == 2 ) //	GameHashTable
-    {
-        $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
-        log_sql( "$user: $query" );
-        $dbResult = s_mysql_query( $query );
-
-        return ( $dbResult !== FALSE );
+        case 3: // delete a single hash entry
+            $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$value'";
+            log_sql( "$user: $query" );
+            $dbResult = s_mysql_query( $query );
+    
+            return ( $dbResult !== FALSE );
+            break;
     }
 
     return FALSE;

@@ -61,39 +61,51 @@ RenderDocType();
     <div id="mainpage">
         <div class='left'>
 
-            <h2>Unlink Game Entry</h2>
+            <h2>Unlink Hashes</h2>
 
             <?php
             echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, FALSE, 96 );
             echo "</br></br>";
 
-            echo "Unlinking game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName.<br/>";
             echo "Use this tool when an incorrect link has been made to a game, i.e. when you load a Super Mario Kart ROM, and the achievements for Super Mario World get loaded.<br/>";
-            echo "By clicking unlink, all links to this game ($gameTitle) will be removed. A new link will be requested when the ROM is next loaded in the emulator.<br/><br/>";
 
+            echo "<br/><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help you to sort it.</div><br/>";
+
+            echo "<h4><b>Unlink a single hash</b></h4>";
             echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following MD5s:<br/><br/>";
-
-            echo "<ul>";
+            echo "<form method=post action='requestmodifygame.php'>";
+            echo "<input type='hidden' name='u' VALUE='$user'>";
+            echo "<input type='hidden' name='g' VALUE='$gameID'>";
+            echo "<input type='hidden' name='f' VALUE='3'>";
             for( $i = 0; $i < $numLinks; $i++ )
             {
-                echo "<li><code>" . $hashList[ $i ] . "</code></li>";
+                echo "<label>";
+                echo "<input type='radio' name='v' VALUE='". $hashList[ $i ] ."' ". ( $i == 0 ? "required" : "" ) .">";
+                echo " <code>". $hashList[ $i ] ."</code><br>";
+                echo "</label>";
             }
-            echo "</ul>";
-
             echo "<br/>";
+            echo "<input type='submit' value='Unlink selected entry'>";
+            echo "</form>";
+            echo "<br/>";
+
+            echo "<h4><b>Unlink all hashes</b></h4>";
+
+            echo "<p><b>WARNING: By clicking 'UNLINK ALL', all hashes linked to $gameTitle will be removed.</b></p>";
+
+            echo "<form method=post action='requestmodifygame.php'>";
+            echo "<input type='hidden' name='u' VALUE='$user'>";
+            echo "<input type='hidden' name='g' VALUE='$gameID'>";
+            echo "<input type='hidden' name='f' VALUE='2'>";
+            echo "<input type='hidden' name='v' VALUE='1'>";
+            echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='UNLINK ALL!'>";
+            echo "</form>";
+            echo "<br/>";
+
+            echo "A new link will be requested when the ROM is next loaded in the emulator.<br/><br/>";
 
             echo "Please note, no achievements will be deleted. However all entries that link to this game will be removed.<br/>";
             echo "To restore the achievements, simply load up the game in the emulator and select the entry from the drop-down list.<br/><br/>";
-
-            echo "<FORM method=post action='requestmodifygame.php'>";
-            echo "<INPUT TYPE='hidden' NAME='u' VALUE='$user' />";
-            echo "<INPUT TYPE='hidden' NAME='g' VALUE='$gameID' />";
-            echo "<INPUT TYPE='hidden' NAME='f' VALUE='2' />";
-            echo "<INPUT TYPE='hidden' NAME='v' VALUE='1' />";
-            echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='Submit' />";
-            echo "</FORM>";
-
-            echo "<br/><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=Scott&s=Attempt%20to%20Unlink%20a%20title'>leave me a message</a> and I'll help sort it.</div>";
             ?>
             <br/>
         </div>
