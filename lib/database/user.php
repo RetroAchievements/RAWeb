@@ -1558,7 +1558,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
 				LIMIT $offset, $count";
 
     $numFound = 0;
-var_dump($query);
+
     $dbResult = s_mysql_query( $query );
     if( $dbResult !== FALSE )
     {
