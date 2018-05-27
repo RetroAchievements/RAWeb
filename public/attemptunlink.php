@@ -73,32 +73,33 @@ RenderDocType();
 
             echo "<h4><b>Unlink a single hash</b></h4>";
             echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following MD5s:<br/><br/>";
-
-            echo "<FORM method=post action='requestmodifygame.php'>";
-            echo "<INPUT TYPE='hidden' NAME='u' VALUE='$user' />";
-            echo "<INPUT TYPE='hidden' NAME='g' VALUE='$gameID' />";
-            echo "<INPUT TYPE='hidden' NAME='f' VALUE='3' />";
+            echo "<form method=post action='requestmodifygame.php'>";
+            echo "<input type='hidden' name='u' VALUE='$user'>";
+            echo "<input type='hidden' name='g' VALUE='$gameID'>";
+            echo "<input type='hidden' name='f' VALUE='3'>";
             for( $i = 0; $i < $numLinks; $i++ )
             {
-                echo "<INPUT TYPE='radio' NAME='v' VALUE='". $hashList[ $i ] ."' />";
-                echo " <code>". $hashList[ $i ] ."</code><br/>";
+                echo "<label>";
+                echo "<input type='radio' name='v' VALUE='". $hashList[ $i ] ."' ". ( $i == 0 ? "required" : "" ) .">";
+                echo " <code>". $hashList[ $i ] ."</code><br>";
+                echo "</label>";
             }
             echo "<br/>";
-            echo "<INPUT TYPE='submit' VALUE='Unlink selected entry' />";
-            echo "</FORM>";
+            echo "<input type='submit' value='Unlink selected entry'>";
+            echo "</form>";
             echo "<br/>";
 
             echo "<h4><b>Unlink all hashes</b></h4>";
 
             echo "<p><b>WARNING: By clicking 'UNLINK ALL', all hashes linked to $gameTitle will be removed.</b></p>";
 
-            echo "<FORM method=post action='requestmodifygame.php'>";
-            echo "<INPUT TYPE='hidden' NAME='u' VALUE='$user' />";
-            echo "<INPUT TYPE='hidden' NAME='g' VALUE='$gameID' />";
-            echo "<INPUT TYPE='hidden' NAME='f' VALUE='2' />";
-            echo "<INPUT TYPE='hidden' NAME='v' VALUE='1' />";
-            echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='UNLINK ALL!' />";
-            echo "</FORM>";
+            echo "<form method=post action='requestmodifygame.php'>";
+            echo "<input type='hidden' name='u' VALUE='$user'>";
+            echo "<input type='hidden' name='g' VALUE='$gameID'>";
+            echo "<input type='hidden' name='f' VALUE='2'>";
+            echo "<input type='hidden' name='v' VALUE='1'>";
+            echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='UNLINK ALL!'>";
+            echo "</form>";
             echo "<br/>";
 
             echo "A new link will be requested when the ROM is next loaded in the emulator.<br/><br/>";
