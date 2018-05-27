@@ -1494,6 +1494,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
     settype( $count, 'integer' );
     settype( $showUntracked, 'boolean' );
 
+
     $whereQuery = NULL;
     $permsFilter = NULL;
     if( $perms != NULL)
@@ -1503,12 +1504,15 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
             $permsFilter = "ua.Permissions = $perms ";
         else if( $perms >= \RA\Permissions::Registered && $perms <= \RA\Permissions::Admin )
             $permsFilter = "ua.Permissions >= $perms ";
-        else if( $showUntracked == TRUE ) // if reach this point, show only untracked users
+        else if( $showUntracked ) // if reach this point, show only untracked users
             $whereQuery = "WHERE ua.Untracked ";
     }
 
-    if( $showUntracked == TRUE && $whereQuery == NULL )
-        $whereQuery = "WHERE $permsFilter ";
+    if( $showUntracked )
+    {
+        if( $whereQuery == NULL )
+            $whereQuery = "WHERE $permsFilter ";
+    }
     else
         $whereQuery = "WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" ) AND $permsFilter";
 
@@ -1554,7 +1558,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
 				LIMIT $offset, $count";
 
     $numFound = 0;
-
+var_dump($query);
     $dbResult = s_mysql_query( $query );
     if( $dbResult !== FALSE )
     {

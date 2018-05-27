@@ -90,7 +90,7 @@ RenderDocType();
                 {
                     echo " | ";
 
-                    if( $i == $perms && is_int( $perms ) )
+                    if( $showUntracked && $i == $perms && is_int( $perms ) )
                         echo "<b>" . PermissionsToString( $i ) . "</b>";
                     else
                         echo "<a href='/userList.php?s=$sortBy&u=1&p=$i'>" . PermissionsToString( $i ) . "</a>";
@@ -153,13 +153,13 @@ RenderDocType();
             if( $offset > 0 )
             {
                 $prevOffset = $offset - $maxCount;
-                echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms'>&lt; Previous $maxCount</a> - ";
+                echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>&lt; Previous $maxCount</a> - ";
             }
             if( $userCount == $maxCount )
             {
                 //	Max number fetched, i.e. there are more. Can goto next 25.
                 $nextOffset = $offset + $maxCount;
-                echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms'>Next $maxCount &gt;</a>";
+                echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Next $maxCount &gt;</a>";
             }
             echo "</div>";
 
