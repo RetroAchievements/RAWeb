@@ -1217,3 +1217,29 @@ function GetMD5List( $consoleID )
 
     return $retVal;
 }
+
+function getHashListByGameID( $gameID )
+{
+    settype( $gameID, 'integer' );
+    if( $gameID < 1 )
+        return FALSE;
+
+    $query = "
+    SELECT MD5 AS hash
+    FROM GameHashLibrary
+    WHERE GameID = $gameID";
+
+    $dbResult = s_mysql_query( $query );
+    if( $dbResult !== FALSE )
+    {
+        while( $nextData = mysqli_fetch_assoc( $dbResult ) )
+            $retVal[] = $nextData;
+    }
+    else
+    {
+        err_log( __FUNCTION__ . " failed?!" );
+    }
+
+    return $retVal;
+}
+
