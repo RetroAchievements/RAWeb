@@ -100,6 +100,7 @@ RenderDocType( TRUE );
                             <option>RASnes9x</option>
                             <option>RAVBA</option>
                             <option>RAPCEngine</option>
+                            <option>RAMeka</option>
                             <option>RAProject64</option>
                             <option>RALibRetro</option>
                             <option>RetroArch</option>
