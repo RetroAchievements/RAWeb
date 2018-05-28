@@ -5,7 +5,7 @@ $sortBy = seekGet( 's' );
 $offset = seekGet( 'o' );
 $maxCount = 25;
 
-$perms = seekGet( 'p' );
+$perms = seekGet( 'p', 1 );
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
