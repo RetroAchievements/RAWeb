@@ -1552,7 +1552,7 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
             break;
     }
 
-    $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded
+    $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded, ua.LastLogin
 				FROM UserAccounts AS ua
 				LEFT JOIN Awarded AS aw ON aw.User=ua.User
                 $whereQuery
