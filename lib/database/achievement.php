@@ -413,6 +413,12 @@ function AddEarnedAchievementJSON( $user, $achIDToAward, $isHardcore, $validatio
             $retVal[ 'Success' ] = FALSE;
             $retVal[ 'Error' ] = "User data cannot be found for $user";
         }
+        else if( $achData[ 'Flags' ] == 5 ) // Unofficial achievement
+        {
+            // should we return TRUE? does it affect something in the emulator's end?
+            $retVal[ 'Success' ] = FALSE;
+            $retVal[ 'Error' ] = "Unofficial achievements aren't registered on the RetroAchievements.org database";
+        }
         else
         {
             $hasAwardTypes = HasAward( $user, $achIDToAward );
