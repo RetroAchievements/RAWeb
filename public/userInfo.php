@@ -335,10 +335,11 @@ foreach( $arrayToUse as $dayInfo )
             $contribYield = $userMassData[ 'ContribYield' ];
             if( $contribCount > 0 )
             {
-                echo "<strong>Developer Stats:</strong><br/>";
-                echo "$userPage's achievements have been won <b>$contribCount</b> times by other users, awarding a total of <b>$contribYield</b> points.<br/>";
+                echo "<strong>$userPage Developer Stats:</strong><br/>";
                 echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br/>";
-                echo "$userPage has <a href='/ticketmanager.php?u=$userPage'><b>" . countOpenTicketsByDev( $userPage ) . "</b> open tickets</a>.<br/>";
+                echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . countOpenTicketsByDev( $userPage ) . "</b></a><br>";
+                echo "Achievements won by others: <b>$contribCount</b><br>";
+                echo "Points awarded to others: <b>$contribYield</b><br>";
             }
 
             echo "</div>"; //usersummary
