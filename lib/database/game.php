@@ -99,11 +99,19 @@ function getGameTitleFromID( $gameID, &$gameTitle, &$consoleID, &$consoleName, &
     return $gameTitle;
 }
 
-//	00:11 19/12/2013
 function getGameMetadata( $gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = NULL )
+{
+    return getGameMetadataByFlags( $gameID, $user, $achievementDataOut, $gameDataOut, $sortBy, $user2, NULL );
+}
+
+function getGameMetadataByFlags( $gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = NULL, $flags = 0 )
 {
     settype( $gameID, 'integer' );
     settype( $sortBy, 'integer' );
+    settype( $flags, 'integer' );
+
+    // flag = 5 -> Unofficial / flag = 3 -> Core
+    $flags = $flags != 5 ? 3 : 5;
 
     $orderBy = "ORDER BY ach.DisplayOrder, ach.ID ASC ";
 
@@ -121,7 +129,7 @@ function getGameMetadata( $gameID, $user, &$achievementDataOut, &$gameDataOut, $
 	//		  FROM Achievements AS ach
 	//		  LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
     //          LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-	//		  WHERE ( !IFNULL( ua.Untracked, FALSE ) || ua.User = \"$user\" ) AND ach.GameID = $gameID AND ach.Flags = 3
+	//		  WHERE ( !IFNULL( ua.Untracked, FALSE ) || ua.User = \"$user\" ) AND ach.GameID = $gameID AND ach.Flags = $flags
 	//		  GROUP BY ach.ID
 	//		  $orderBy";	
 	
@@ -132,7 +140,7 @@ function getGameMetadata( $gameID, $user, &$achievementDataOut, &$gameDataOut, $
 					FROM Achievements AS ach
 					LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
 					LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-					WHERE ach.GameID = $gameID AND ach.Flags = 3
+					WHERE ach.GameID = $gameID AND ach.Flags = $flags
 					GROUP BY ach.ID
 					$orderBy";
 
@@ -179,7 +187,7 @@ function getGameMetadata( $gameID, $user, &$achievementDataOut, &$gameDataOut, $
         $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
 				  FROM Awarded AS aw
 				  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-				  WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.User = '$user'";
+				  WHERE ach.GameID = $gameID AND ach.Flags = $flags AND aw.User = '$user'";
 
         $dbResult = s_mysql_query( $query );
         if( $dbResult !== FALSE )
