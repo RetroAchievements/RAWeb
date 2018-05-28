@@ -123,6 +123,7 @@ RenderDocType();
             echo "<th colspan='2'><a href='/userList.php?s=$sort1&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>User</a></th>";
             echo "<th><a href='/userList.php?s=$sort2&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Points</a></th>";
             echo "<th><a href='/userList.php?s=$sort3&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Num Achievements Earned</a></th>";
+            echo "<th>Last Login</th>";
 
             $userCount = 0;
             foreach( $userListData as $userEntry )
@@ -136,6 +137,7 @@ RenderDocType();
                 $userBadge = "<a href=\"/User/" . $nextUser . "\"><img src=\"/UserPic/" . $nextUser . ".png\" width=32 height=32 alt=\"" . $nextUser . "\"></img></a>";
                 $totalPoints = $userEntry[ 'RAPoints' ];
                 $totalEarned = $userEntry[ 'NumAwarded' ];
+                $lastLogin = getNiceDate( strtotime( $userEntry[ 'LastLogin' ] ) );
 
                 if( ($sortBy == 2 ) )
                 {
@@ -156,6 +158,8 @@ RenderDocType();
                 echo "<td>$totalPoints</td>";
 
                 echo "<td>$totalEarned</td>";
+
+                echo "<td>$lastLogin</td>";
 
                 echo "</tr>";
             }
