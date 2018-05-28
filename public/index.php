@@ -290,6 +290,7 @@ else
 
             RenderDocsComponent();
             RenderCurrentlyOnlineComponent( NULL );
+            echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
 
             RenderActivePlayersComponent();
             RenderAOTWComponent( $staticData[ 'Event_AOTW_AchievementID' ], $staticData[ 'Event_AOTW_ForumID' ] );
@@ -304,10 +305,8 @@ else
             RenderScoreLeaderboardComponent( $user, $points, FALSE, 5 );
             //RenderMostPopularTitles( 7, 0, $mostPopularCount );
             RenderRecentForumPostsComponent( 4 );
-            RenderStaticDataComponent( $staticData );
-            echo "<h3>Users Online</h3>";
-            echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
             RenderRecentlyUploadedComponent( 5 );
+            RenderStaticDataComponent( $staticData );
 
             //RenderTwitterFeed();
             //echo "<h3>Development Progress</h3>";
