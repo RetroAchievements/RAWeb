@@ -22,16 +22,22 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
 
 $errorCode = seekGET( 'e' );
 
+$flags = 3; // achievements from the Core set
 $defaultSort = 1;
 if( isset( $user ) )
+{
     $defaultSort = 13;
+    if( $permissions >= \RA\Permissions::Developer )
+    {
+        $flags = seekGET( 'f' );
+        settype( $flags, 'integer' );
+    }
+}
 $sortBy = seekGET( 's', $defaultSort );
 
 if( !isset( $user ) && ( $sortBy == 3 || $sortBy == 13 ) )
     $sortBy = 1;
 
-$flags = seekGET( 'f' );
-settype( $flags, 'integer' );
 
 $numAchievements = getGameMetadataByFlags( $gameID, $user, $achievementData, $gameData, $sortBy, NULL, $flags );
 $gameAlts = GetGameAlternatives( $gameID );
@@ -598,7 +604,10 @@ $numGridlines = $numAchievements;
                 }
 
                 if( $flags == 5 )
+                {
                     echo "<h4><b>Unofficial</b> Achievements</h4>";
+                    echo "<a href='/Game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
+                }
                 else
                     echo "<h4>Achievements</h4>";
 
