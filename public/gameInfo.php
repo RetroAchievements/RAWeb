@@ -426,7 +426,13 @@ $numGridlines = $numAchievements;
                 echo "<div class='navpath'>";
                 echo "<a href='/gameList.php'>All Games</a>";
                 echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-                echo " &raquo; <b>$gameTitle</b>";
+                if( $flags == 5 )
+                {
+                    echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
+                    echo " &raquo; <b>Unofficial Achievements</b>";
+                }
+                else
+                    echo " &raquo; <b>$gameTitle</b>";
                 echo "</div>";
 
                 //	Dump all page info:

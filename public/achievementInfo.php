@@ -163,6 +163,8 @@ RenderDocType( TRUE );
 
             echo "<p class='smalldata'>";
             echo "<small>";
+            if( $achFlags == 5 )
+                echo "<b>Unofficial Achievement</b><br>";
             echo "Created by <a href='/User/$author'>$author</a> on: $niceDateCreated<br/>Last modified: $niceDateModified<br/>";
             echo "</small>";
             echo "</p>";
