@@ -49,7 +49,7 @@ RenderDocType();
             echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, FALSE, 96 );
             echo "</br></br>";
 
-            echo "<b>Hashes are used to confirm if two copies of a file are identical. We use it to assure the player is using the same ROM as the achievement developer, or a compatible one.</b><br>";
+            echo "<p><b>Hashes are used to confirm if two copies of a file are identical. We use it to assure the player is using the same ROM as the achievement developer, or a compatible one.</b></p>";
             echo "Currently this game has <b>". count( $hashes ) ."</b> unique ROM(s) registered for it with the following MD5s:<br/><br/>";
 
             echo "<ul>";
