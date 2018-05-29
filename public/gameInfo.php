@@ -483,20 +483,20 @@ $numGridlines = $numAchievements;
                 echo "<div style='clear:both;'></div>";
                 echo "</br>";
 
-                if( isset( $user ) )
-                    echo "<p><a href='/linkedhashes.php?g=$gameID'><b>View the list of hashes linked to this game</b></a></p>";
-
-                if( isset( $user ) && $permissions >= 2 )
+                if( isset( $user ) && $permissions >= \RA\Permissions::Developer )
                 {
+                    echo "<p style='text-align:center'>";
+                    if( $flags == 5 )
+                        echo "<b><a href='/Game/$gameID'>Core</a> | Unofficial</b>";
+                    else
+                        echo "<b>Core | <a href='/gameInfo.php?ID=$gameID&f=5'>Unofficial</a></b>";
+                    echo "</p>";
+
                     echo "<div class='devbox'>";
                     echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Dev (Click to show):</span><br/>";
                     echo "<div id='devboxcontent'>";
                     echo "<ul>";
                     echo "<li><a href='/achievementinspector.php?g=$gameID'>Manage Achievements</a></li>";
-                    if( $flags == 5 )
-                        echo "<li><a href='/Game/$gameID'>View Core Achievements</a></li>";
-                    else
-                        echo "<li><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
                     echo "<li><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></li>";
                     if( $numAchievements == 0 )
                         echo "<li><a href='/attemptmerge.php?g=$gameID'>Merge Game</a></li>";
@@ -606,17 +606,12 @@ $numGridlines = $numAchievements;
                     echo "</div>";
                 }
 
+                echo "<h4>";
                 if( $flags == 5 )
-                {
-                    echo "<h4><b>Unofficial</b> Achievements</h4>";
-                    echo "<a href='/Game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
-                    echo "There are <b>$numAchievements</b> <b>Unofficial</b> achievements worth <b>$totalPossible</b> points.<br/>";
-                }
-                else
-                {
-                    echo "<h4>Achievements</h4>";
-                    echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
-                }
+                    echo "<b>Unofficial</b> ";
+                echo "Achievements</h4>";
+                echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+
                 if( $numAchievements > 0 )
                 {
                     echo "<b>Authors:</b> ";
@@ -872,15 +867,15 @@ $numGridlines = $numAchievements;
             if( isset( $user ) )
             {
                 echo "<h3>More Info</h3>";
-                echo "About \"$gameTitle ($consoleName)\":<br>";
+                echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
                 echo "<ul>";
                 echo "<li>- <a href='/viewtopic.php?t=$forumTopicID'>Official forum topic</a></li>";
                 echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
                 echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
-                if( $flags == 5 )
-                    echo "<li>- <a href='/game/$gameid'>view core achievements</a></li>";
-                else
-                    echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
+                //if( $flags == 5 )
+                    //echo "<li>- <a href='/Game/$gameID'>View Core Achievements</a></li>";
+                //else
+                    //echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
                 echo "</ul><br>";
             }
 
