@@ -22,16 +22,13 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
 
 $errorCode = seekGET( 'e' );
 
-$flags = 3; // achievements from the Core set
+$flags = seekGET( 'f', 3 ); // flags = 3 means Core achievements
+settype( $flags, 'integer' );
+
 $defaultSort = 1;
 if( isset( $user ) )
 {
     $defaultSort = 13;
-    if( $permissions >= \RA\Permissions::Developer )
-    {
-        $flags = seekGET( 'f' );
-        settype( $flags, 'integer' );
-    }
 }
 $sortBy = seekGET( 's', $defaultSort );
 
@@ -613,11 +610,13 @@ $numGridlines = $numAchievements;
                 {
                     echo "<h4><b>Unofficial</b> Achievements</h4>";
                     echo "<a href='/Game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
+                    echo "There are <b>$numAchievements</b> <b>Unofficial</b> achievements worth <b>$totalPossible</b> points.<br/>";
                 }
                 else
+                {
                     echo "<h4>Achievements</h4>";
-
-                echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                    echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                }
                 if( $numAchievements > 0 )
                 {
                     echo "<b>Authors:</b> ";
@@ -869,6 +868,21 @@ $numGridlines = $numAchievements;
             <?php
             //	Render game box art
             RenderBoxArt( $gameData[ 'ImageBoxArt' ] );
+
+            if( isset( $user ) )
+            {
+                echo "<h3>More Info</h3>";
+                echo "About \"$gameTitle ($consoleName)\":<br>";
+                echo "<ul>";
+                echo "<li>- <a href='/viewtopic.php?t=$forumTopicID'>Official forum topic</a></li>";
+                echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
+                echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
+                if( $flags == 5 )
+                    echo "<li>- <a href='/game/$gameid'>view core achievements</a></li>";
+                else
+                    echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
+                echo "</ul><br>";
+            }
 
             if( count( $gameAlts ) > 0 )
                 RenderGameAlts( $gameAlts );
