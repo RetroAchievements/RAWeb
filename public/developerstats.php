@@ -43,8 +43,8 @@
     echo "<th>Developer</th>";
     echo "<th>" . ($type == 3 ? "*" : "") . "<a href='/developerstats.php?t=3'>Open Tickets</a></th>";
     echo "<th>" . ($type == 0 ? "*" : "") . "<a href='/developerstats.php?'>Achievements</a></th>";
-    echo "<th>" . ($type == 1 ? "*" : "") . "<a href='/developerstats.php?t=1'>Achievements won by others</a></th>";
-    echo "<th>" . ($type == 2 ? "*" : "") . "<a href='/developerstats.php?t=2'>Points awarded to others</a></th>";
+    echo "<th>" . ($type == 2 ? "*" : "") . "<a href='/developerstats.php?t=2'>Achievements won by others</a></th>";
+    echo "<th>" . ($type == 1 ? "*" : "") . "<a href='/developerstats.php?t=1'>Points awarded to others</a></th>";
     
     $userCount = 0;
     foreach( $devStatsList as $devStats )
