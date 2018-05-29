@@ -413,6 +413,11 @@ function AddEarnedAchievementJSON( $user, $achIDToAward, $isHardcore, $validatio
             $retVal[ 'Success' ] = FALSE;
             $retVal[ 'Error' ] = "User data cannot be found for $user";
         }
+        else if( $achData[ 'Flags' ] == 5 ) // do not award Unofficial achievements
+        {
+            $retVal[ 'Success' ] = FALSE;
+            $retVal[ 'Error' ] = "Unofficial achievements aren't registered on the RetroAchievements.org database";
+        }
         else
         {
             $hasAwardTypes = HasAward( $user, $achIDToAward );
