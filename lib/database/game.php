@@ -311,14 +311,38 @@ function GetGameAlternatives( $gameID )
 
 function getGamesListWithNumAchievements( $consoleID, &$dataOut, $sortBy )
 {
-    return getGamesListByDev( NULL, $consoleID, $dataOut, $sortBy );
+    return getGamesListByDev( NULL, $consoleID, $dataOut, $sortBy, FALSE );
 }
 
-function getGamesListByDev( $dev = NULL, $consoleID, &$dataOut, $sortBy )
+function getGamesListByDev( $dev = NULL, $consoleID, &$dataOut, $sortBy, $ticketsFlag = FALSE )
 {
     //	Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
     $whereCond = "WHERE ach.Flags=3 ";
+
+    if( $ticketsFlag )
+    {
+        $selectTickets = ", ticks.OpenTickets";
+        $joinTicketsTable = "
+        LEFT JOIN (
+            SELECT
+                ach.GameID,
+                count( DISTINCT tick.ID ) AS OpenTickets
+            FROM
+                Ticket AS tick
+            LEFT JOIN
+                Achievements AS ach ON ach.ID = tick.AchievementID
+            WHERE
+                tick.ReportState = 1
+            GROUP BY
+                ach.GameID
+        ) as ticks ON ticks.GameID = ach.GameID ";
+    }
+    else
+    {
+        $selectTickets = NULL;
+        $joinTicketsTable = NULL;
+    }
 
     if( $consoleID != 0 )
         $whereCond .= "AND gd.ConsoleID=$consoleID ";
@@ -326,9 +350,10 @@ function getGamesListByDev( $dev = NULL, $consoleID, &$dataOut, $sortBy )
     if( $dev != NULL )
         $whereCond .= "AND ach.Author='$dev' ";
 
-    $query = "SELECT gd.Title, ach.GameID AS ID, ConsoleID, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints
+    $query = "SELECT gd.Title, ach.GameID AS ID, ConsoleID, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets
 				FROM Achievements AS ach
 				LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = ach.GameID
+                $joinTicketsTable
 				INNER JOIN GameData AS gd on gd.ID = ach.GameID
 				$whereCond
 				GROUP BY ach.GameID ";
@@ -347,26 +372,46 @@ function getGamesListByDev( $dev = NULL, $consoleID, &$dataOut, $sortBy )
         case 1:
             $query .= "ORDER BY gd.ConsoleID, Title ";
             break;
-        case 2:
-            $query .= "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ";
-            break;
-        case 3:
-            $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ";
-            break;
-        case 4:
-            $query .= "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
-            break;
         case 11:
             $query .= "ORDER BY gd.ConsoleID, Title DESC ";
+            break;
+
+        case 2:
+            $query .= "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ";
             break;
         case 12:
             $query .= "ORDER BY gd.ConsoleID, NumAchievements ASC, Title ";
             break;
+
+        case 3:
+            $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ";
+            break;
         case 13:
             $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable, Title ";
             break;
+
+        case 4:
+            $query .= "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
+            break;
         case 14:
             $query .= "ORDER BY NumLBs, gd.ConsoleID, MaxPointsAvailable, Title ";
+            break;
+
+        case 5:
+            if( $ticketsFlag )
+                $query .= "ORDER BY OpenTickets DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
+            else
+                $query .= "ORDER BY gd.ConsoleID, Title ";
+            break;
+        case 15:
+            if( $ticketsFlag )
+                $query .= "ORDER BY OpenTickets, gd.ConsoleID, MaxPointsAvailable, Title ";
+            else
+                $query .= "ORDER BY gd.ConsoleID, Title DESC ";
+            break;
+
+        default:
+            $query .= "ORDER BY gd.ConsoleID, Title ";
             break;
     }
 

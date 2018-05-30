@@ -9,9 +9,6 @@ settype( $showCompleteGames, 'integer' );
 
 $sortBy = seekGET( 's', 0 );
 $dev = seekGET( 'd' );
-$gamesCount = getGamesListByDev( $dev, $consoleIDInput, $gamesList, $sortBy );
-
-//echo $gamesCount;
 
 $requestedConsole = "";
 if( $consoleIDInput !== 0 )
@@ -20,6 +17,12 @@ if( $consoleIDInput !== 0 )
 }
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
+
+$showTickets = ( isset( $user ) && $permissions >= \RA\Permissions::Developer );
+if( $showTickets )
+    $gamesCount = getGamesListByDev( $dev, $consoleIDInput, $gamesList, $sortBy, TRUE );
+else
+    $gamesCount = getGamesListByDev( $dev, $consoleIDInput, $gamesList, $sortBy, FALSE );
 
 $pageTitle = "Supported Games" . $requestedConsole;
 
@@ -114,18 +117,25 @@ RenderDocType();
                     $sort2 = ($sortBy == 2) ? 12 : 2;
                     $sort3 = ($sortBy == 3) ? 13 : 3;
                     $sort4 = ($sortBy == 4) ? 14 : 4;
+                    $sort5 = ($sortBy == 5) ? 15 : 5;
 
                     echo "<tr>";
                     echo "<th><a href='/gameList.php?s=$sort1&d=$dev&c=$consoleIDInput'>Title</a></th>";
-                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort2&d=$dev&c=$consoleIDInput'>Num Achieve-ments</a></th>";
-                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort3&d=$dev&c=$consoleIDInput'>Points Available</a></th>";
-                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort4&d=$dev&c=$consoleIDInput'>Leader-boards Available</a></th>";
+                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort2&d=$dev&c=$consoleIDInput'>Achieve-ments</a></th>";
+                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort3&d=$dev&c=$consoleIDInput'>Points</a></th>";
+                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort4&d=$dev&c=$consoleIDInput'>Leader-boards</a></th>";
+
+                    if( $showTickets )
+                        echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort5&d=$dev&c=$consoleIDInput'>Open Tickets</a></th>";
                     echo "</tr>";
 
                     $gameCount = 0;
                     $pointsTally = 0;
                     $achievementsTally = 0;
                     $truePointsTally = 0;
+                    $lbCount = 0;
+                    if( $showTickets )
+                        $ticketsCount = 0;
 
                     $MaxGamePoints = 400;
 
@@ -155,10 +165,26 @@ RenderDocType();
 
                             echo "<td>$numAchievements</td>";
                             echo "<td>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
+
                             if( $numLBs > 0 )
+                            {
                                 echo "<td><a href=\"game/$gameID\">$numLBs</a></td>";
+                                $lbCount += $numLBs;
+                            }
                             else
                                 echo "<td>-</td>";
+
+                            if( $showTickets )
+                            {
+                                $openTickets = $gameEntry[ 'OpenTickets' ];
+                                if( $openTickets > 0 )
+                                {
+                                    echo "<td><a href=\"ticketmanager.php?g=$gameID\">$openTickets</a></td>";
+                                    $ticketsCount += $openTickets;
+                                }
+                                else
+                                    echo "<td>-</td>";
+                            }
 
                             echo "</tr>";
 
@@ -175,6 +201,9 @@ RenderDocType();
                     echo "<td><b>Totals: $gameCount games</b></td>";
                     echo "<td><b>$achievementsTally</b></td>";
                     echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
+                    echo "<td><b>$lbCount</b></td>";
+                    if( $showTickets )
+                        echo "<td><b>$ticketsCount</b></td>";
                     echo "<td></td>";
 
                     echo "</tr>";
