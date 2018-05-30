@@ -113,7 +113,48 @@ function getGameMetadataByFlags( $gameID, $user, &$achievementDataOut, &$gameDat
     // flag = 5 -> Unofficial / flag = 3 -> Core
     $flags = $flags != 5 ? 3 : 5;
 
-    $orderBy = "ORDER BY ach.DisplayOrder, ach.ID ASC ";
+    switch( $sortBy )
+    {
+        case 1: // display order defined by the developer
+            $orderBy = "ORDER BY ach.DisplayOrder, ach.ID ASC ";
+            break;
+        case 11:
+            $orderBy = "ORDER BY ach.DisplayOrder DESC, ach.ID DESC ";
+            break;
+
+        case 2: // won by X users
+            $orderBy = "ORDER BY NumAwarded, ach.ID ASC ";
+            break;
+        case 12:
+            $orderBy = "ORDER BY NumAwarded DESC, ach.ID DESC ";
+            break;
+
+        // meleu: 3 and 13 should sort by the date the user won the cheevo
+        //        but it's not trivial to implement (requires tweaks on SQL query).
+        //case 3: // date the user won
+            //$orderBy = " ";
+            //break;
+        //case 13:
+            //$orderBy = " ";
+            //break;
+
+        case 4: // points
+            $orderBy = "ORDER BY ach.Points, ach.ID ASC ";
+            break;
+        case 14:
+            $orderBy = "ORDER BY ach.Points DESC, ach.ID DESC ";
+            break;
+
+        case 5: // Title
+            $orderBy = "ORDER BY ach.Title, ach.ID ASC ";
+            break;
+        case 15:
+            $orderBy = "ORDER BY ach.Title DESC, ach.ID DESC ";
+            break;
+
+        default:
+            $orderBy = "ORDER BY ach.DisplayOrder, ach.ID ASC ";
+    }
 
     $gameDataOut = getGameData( $gameID );
 

@@ -741,8 +741,9 @@ $numGridlines = $numAchievements;
 
                     echo "<a href='/Game/$gameID?s=$sort1'>Normal$mark1</a> - ";
                     echo "<a href='/Game/$gameID?s=$sort2'>Won By$mark2</a> - ";
-                    if( isset( $user ) )
-                        echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
+                    // meleu: sorting by "date won" isn't implemented yet.
+                    //if( isset( $user ) )
+                    //    echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
                     echo "<a href='/Game/$gameID?s=$sort4'>Points$mark4</a> - ";
                     echo "<a href='/Game/$gameID?s=$sort5'>Title$mark5</a>";
 
