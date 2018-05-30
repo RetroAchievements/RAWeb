@@ -93,13 +93,13 @@
 		echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
 		//if( isset( $user ) && $permissions >= 1 )
-		if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
+		if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Admin ) )
 		{
 			echo "<div class='devbox'>";
 			echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Options (Click to show):</span><br/>";
 			echo "<div id='devboxcontent'>";
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
+			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Admin ) )
 			{
 				echo "<li>Change Topic Title:</li>";
 				echo "<form action='requestmodifytopic.php' method='post' >";
@@ -109,10 +109,7 @@
 				echo "&nbsp;";
 				echo "<input type='submit' name='submit' value='Submit' size='37' />";
 				echo "</form>";
-			}
-			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
-			{
+
 				echo "<li>Delete Topic:</li>";
 				echo "<form action='requestmodifytopic.php' method='post' >";
 				echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
@@ -121,10 +118,7 @@
 				echo "&nbsp;";
 				echo "<input type='submit' name='submit' value='Delete Permanently' size='37' />";
 				echo "</form>";
-			}
 			
-			if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Developer ) )
-			{
 				$selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
 				$selected1 = ( $thisTopicPermissions == 1 ) ? 'selected' : '';
 				$selected2 = ( $thisTopicPermissions == 2 ) ? 'selected' : '';
@@ -393,4 +387,3 @@
 
 </body>
 </html>
-
