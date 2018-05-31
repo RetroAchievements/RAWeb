@@ -2658,9 +2658,23 @@ function linkifyBasicURLs( $text )
     //	http://stackoverflow.com/questions/833469/regular-expression-for-url
     //$pattern = "(\s)((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)";
     //$pattern = '((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)';
-    $pattern = '(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,63}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?';
 
-    $text = preg_replace_callback( '/' . $pattern . '/', 'cb_linkifySelective', $text );
+    // meleu: commented this in 31-May-2018
+    //$pattern = '(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,63}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?';
+    //$text = preg_replace_callback( '/' . $pattern . '/', 'cb_linkifySelective', $text );
+
+    // meleu: applying some tricks I learned in
+    // https://stackoverflow.com/questions/12538358/
+    // NOTE: using '~' instead of '/' to enclose the regex
+    $text = preg_replace(
+        '~(https?://[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
+        ' <a href="$1" target="_blank">$1</a> ',
+        $text);
+    $text = preg_replace(
+        '~(\s|^)(www\.[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
+        ' <a target="_blank" href="http://$2">$2</a> ',
+        $text);
+
     return $text;
 }
 
@@ -2674,9 +2688,17 @@ function parseTopicCommentPHPBB( $commentIn )
     //$comment = preg_replace( '/(\\[url=http:\\/\\/)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
     //$comment = preg_replace( '/(\\[url=)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
     //
-    $comment = preg_replace( '/(\\[url=http:\\/\\/)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '${2}', $comment );
-    $comment = preg_replace( '/(\\[url=)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '${2}', $comment );
-    //
+
+    // NOTE: using '~' instead of '/' to enclose the regex
+    $comment = preg_replace(
+        '~\[url=(https?://.+)\](.+)\[/url\]~i',
+        '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'$1\'>$2</a>',
+        $comment );
+    $comment = preg_replace(
+        '~\[url=(.+)\](.+)\[/url\]~i',
+        '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'http://$1\'>$2</a>',
+        $comment );
+
     //	[b]
     $comment = preg_replace( '/\\[b\\](.*?)\\[\\/b\\]/i', '<b>${1}</b>', $comment );
     //	[i]
@@ -2694,6 +2716,7 @@ function parseTopicCommentPHPBB( $commentIn )
     $comment = preg_replace_callback( '/(\\[game=)(.*?)(\\])/i', 'cb_injectGamePHPBB', $comment );
     //	[video]
     //error_log( $comment );
+
     $comment = linkifyYouTubeURLs( $comment );
     $comment = linkifyTwitchURLs( $comment );
     $comment = linkifyBasicURLs( $comment );
