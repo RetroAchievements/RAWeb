@@ -485,23 +485,25 @@ $numGridlines = $numAchievements;
 
                 if( isset( $user ) && $permissions >= \RA\Permissions::Developer )
                 {
-                    echo "<p style='text-align:center'>";
-                    if( $flags == 5 )
-                        echo "<b><a href='/Game/$gameID'>Core</a> | Unofficial</b>";
-                    else
-                        echo "<b>Core | <a href='/gameInfo.php?ID=$gameID&f=5'>Unofficial</a></b>";
-                    echo "</p>";
-
                     echo "<div class='devbox'>";
                     echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Dev (Click to show):</span><br/>";
                     echo "<div id='devboxcontent'>";
                     echo "<ul>";
+
+                    if( $flags == 5 )
+                        echo "<li><a href='/Game/$gameID'>View Core Achievements</a></li>";
+                    else
+                        echo "<li><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
+
                     echo "<li><a href='/achievementinspector.php?g=$gameID'>Manage Achievements</a></li>";
                     echo "<li><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></li>";
+
                     if( $numAchievements == 0 )
                         echo "<li><a href='/attemptmerge.php?g=$gameID'>Merge Game</a></li>";
+
                     echo "<li><a href='/attemptrename.php?g=$gameID'>Rename Game</a></li>";
                     echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
+
                     if( $numLeaderboards == 0 )
                         echo "<li><a href='/requestcreatenewlb.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
                     echo "<li><a href='/request.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
@@ -606,11 +608,17 @@ $numGridlines = $numAchievements;
                     echo "</div>";
                 }
 
-                echo "<h4>";
                 if( $flags == 5 )
-                    echo "<b>Unofficial</b> ";
-                echo "Achievements</h4>";
-                echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                {
+                    echo "<h4><b>Unofficial</b> Achievements</h4>";
+                    echo "<a href='/Game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
+                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                }
+                else
+                {
+                    echo "<h4>Achievements</h4>";
+                    echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                }
 
                 if( $numAchievements > 0 )
                 {
