@@ -58,13 +58,6 @@ if( $ticketID == 0 )
 }
 //var_dump( $ticketData );
 
-$gameIDQuery = "";
-
-if( $gameIDGiven != NULL )
-{
-    $gameIDQuery = "&g=$gameIDGiven";
-}
-
 $pageTitle = "Open Tickets";
 
 if( $ticketID !== 0 )
@@ -161,32 +154,55 @@ RenderDocType();
             }
             else if( $ticketID == 0 )
             {
-                if( !empty( $gameIDGiven ) )
-                {
-                    echo "<p><b>Viewing tickets for:</b> <a href='/Game/$gameIDGiven'>$gameTitle ($consoleName)</a>";
-                    echo " | <b><a href='/ticketmanager.php?t=1&u=$user'>Clear Filter</a></b></p>";
-                }
+                echo "<h4>Filters</h4>";
 
-                echo "Viewing: ";
-                if( $assignedToUser !== $user && $ticketState == 0 )
+                echo "<p><b>Ticket State:</b> "; 
+                if( $ticketState == 0 )
                     echo "<b>All Tickets</b> | ";
                 else
-                    echo "<a href='/ticketmanager.php?t=0$gameIDQuery'>All Tickets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=0&g=$gameIDGiven&u=$assignedToUser'>All Tickets</a> | ";
 
-                if( $assignedToUser !== $user && $ticketState == 1 )
+                if( $ticketState == 1 )
                     echo "<b>Open Tickets</b> | ";
                 else
-                    echo "<a href='/ticketmanager.php?t=1$gameIDQuery'>Open Tickets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=1&g=$gameIDGiven&u=$assignedToUser'>Open Tickets</a> | ";
 
-                if( $assignedToUser == $user && $ticketState == 0 )
-                    echo "<b>All My Tickets</b> | ";
+                if( $ticketState == 2 )
+                    echo "<b>Resolved Tickets</b>";
                 else
-                    echo "<a href='/ticketmanager.php?t=0&u=$user$gameIDQuery'>All My Tickets</a> | ";
+                    echo "<a href='/ticketmanager.php?t=2&g=$gameIDGiven&u=$assignedToUser'>Resolved Tickets</a>";
 
-                if( $assignedToUser == $user && $ticketState == 1 )
-                    echo "<b>My Open Tickets</b> | ";
-                else
-                    echo "<a href='/ticketmanager.php?t=1&u=$user$gameIDQuery'>My Open Tickets</a> | ";
+                echo "</p>";
+
+                if( isset( $user ) || !empty( $assignedToUser ) )
+                {
+                    echo "<p><b>Developer:</b> ";
+                    if( isset( $user ) )
+                    {
+                        if( $assignedToUser == $user )
+                            echo "<b>$user</b> | ";
+                        else
+                            echo "<a href='/ticketmanager.php?t=$ticketState&u=$user&g=$gameIDGiven'>$user</a> | ";
+                    }
+
+                    if( !empty( $assignedToUser ) && $assignedToUser !== $user )
+                            echo "<b>$assignedToUser</b> | ";
+
+                    if( !empty( $assignedToUser ) )
+                        echo "<a href='/ticketmanager.php?t=$ticketState&g=$gameIDGiven'>Clear Filter</a>";
+                    else
+                        echo "<b>Clear Filter</b>";
+                    echo "</p>";
+                }
+
+
+
+                if( !empty( $gameIDGiven ) )
+                {
+                    echo "<p><b>Game:</b> $gameTitle ($consoleName)";
+                    echo " | <a href='/ticketmanager.php?t=$ticketState&u=$assignedToUser'>Clear Filter</a></p>";
+                }
+
 
 
                 echo "<table><tbody>";
