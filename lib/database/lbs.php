@@ -58,7 +58,7 @@ function SubmitLeaderboardEntryJSON( $user, $lbID, $newEntry, $validation )
 					LeaderboardID=LeaderboardID,
 					UserID=UserID,
 					Score=IF( ( VALUES(Score) $comparisonOp Score ), VALUES(Score), Score ),
-					DateSubmitted=IF( ( VALUES(Score) $comparisonOp Score ), NOW(), DateSubmitted )";
+					DateSubmitted=IF( ( VALUES(Score) $comparisonOp Score ), VALUES(DateSubmitted), NOW() )";
 
         log_sql( $query );
         $dbResult = s_mysql_query( $query );
