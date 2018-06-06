@@ -45,7 +45,7 @@ if( $ticketID == 0 )
     $gamesTableFlag = seekGET( 'f' );
     if( $gamesTableFlag == 1 )
     {
-        $count = seekGET( 'c', 20 );
+        $count = seekGET( 'c', 50 );
         $ticketData = gamesSortedByOpenTickets( $count );
     }
     else
