@@ -223,19 +223,20 @@ if( $credentialsOK )
             break;
 
         case "setpassword":
-            $username = seekPOSTorGET( 'u' );
-            $newPassword = seekPOSTorGET( 'p' );
-            //error_log( "SetPassword, " . $username . ", " . $newPassword );
-            $success = changePassword( $username, $newPassword );
-
-            //  If changed OK, auto-login - doesn't appear to work?
-            //if( validateUser( $username, $newPassword, $fbUser, 0 ) )
-            //{
-            //    generateCookie( $user, $cookie );
-            //}
-
-            $response[ 'Success' ] = $success;
-            $response[ 'Cookie' ] = $cookie;
+            // $username = seekPOSTorGET( 'u' );
+            // $newPassword = seekPOSTorGET( 'p' );
+            // //error_log( "SetPassword, " . $username . ", " . $newPassword );
+            // $success = changePassword( $username, $newPassword );
+            //
+            // //  If changed OK, auto-login - doesn't appear to work?
+            // //if( validateUser( $username, $newPassword, $fbUser, 0 ) )
+            // //{
+            // //    generateCookie( $user, $cookie );
+            // //}
+            // $response[ 'Success' ] = $success;
+            // $response[ 'Cookie' ] = $cookie;
+            $response[ 'Success' ] = false;
+            $response[ 'Error' ] = 'Deprecated';
             break;
 
         case "score":
