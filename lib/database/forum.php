@@ -521,7 +521,7 @@ function getRecentForumPosts( $offset, $count, $numMessageChars, &$dataOut )
 		LEFT JOIN Forum AS f ON f.ID = ft.ForumID
 		LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
 		ORDER BY LatestComments.DateCreated DESC
-		LIMIT $offset, $count";
+		LIMIT 0, $count";
 	
 	$dbResult = s_mysql_query( $query );
 	if( $dbResult !== FALSE )
