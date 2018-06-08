@@ -145,7 +145,6 @@ RenderDocType();
                     echo "<td>";
                     echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameBadge, $consoleName );
                     echo "</td>";
-                    //echo "<td><a href='/Game/$gameID'>$gameTitle</a></td>";
                     echo "<td><a href='/ticketmanager.php?t=1&g=$gameID'>$openTickets</a></td>";
 
                     echo "</tr>";
@@ -268,10 +267,12 @@ RenderDocType();
 
                     echo "<td>";
                     echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
+                    echo "<a href='/User/$achAuthor'>$achAuthor</a>";
                     echo "</td>";
 
                     echo "<td>";
                     echo GetUserAndTooltipDiv( $reportedBy, NULL, NULL, NULL, NULL, TRUE );
+                    echo "<a href='/User/$reportedBy'>$reportedBy</a>";
                     echo "</td>";
 
                     echo "<td>";
@@ -352,15 +353,17 @@ RenderDocType();
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
-                echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameBadge, $consoleName, TRUE, 32 );
+                echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameBadge, $consoleName );
                 echo "</td>";
 
                 echo "<td>";
                 echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
+                echo "<a href='/User/$achAuthor'>$achAuthor</a>";
                 echo "</td>";
 
                 echo "<td>";
                 echo GetUserAndTooltipDiv( $reportedBy, NULL, NULL, NULL, NULL, TRUE );
+                echo "<a href='/User/$reportedBy'>$reportedBy</a>";
                 echo "</td>";
 
                 echo "<td>";
