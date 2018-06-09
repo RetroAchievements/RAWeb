@@ -110,12 +110,16 @@ RenderDocType( TRUE );
                     </td>
                 </tr>
                 <tr class="alt">
-                    <td>Checksum:
-                        <br>
-                        <small>(Optional)</small>
-                    </td>
+                    <td>Checksum:</td>
                     <td>
-                        <input type="text" name="note[checksum]" id="checksum" size="30">
+                        <select name="note[checksum]" id="checksum" required>
+                            <option value="Unknown">I don't know.</option>
+                            <?php
+                            foreach( getHashListByGameID( $gameID ) as $listKey => $hashArray )
+                                foreach( $hashArray as $hashKey => $hash )
+                                    echo "<option value='$hash'>$hash</option>";
+                            ?>
+                        </select>
                     </td>
                 </tr>
                 <tr>
