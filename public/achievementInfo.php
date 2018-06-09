@@ -173,8 +173,11 @@ RenderDocType( TRUE );
 
             if( isset( $user ) && $permissions >= 1 )
             {
-              echo " - ";
-              echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+                echo "<br>";
+                $countTickets = countOpenTicketsByAchievement( $achievementID );
+                if( $countTickets > 0 )
+                    echo "<small><a href='/ticketmanager.php?a=$achievementID'>This achievement has $countTickets open tickets</a></small><br>";
+                echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
             }
             echo "<br/><br/><br/><br/>";
 

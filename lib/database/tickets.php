@@ -345,6 +345,29 @@ function countOpenTicketsByDev( $dev ) {
     }
 }
 
+function countOpenTicketsByAchievement( $achievementID )
+{
+    settype( $achievementID, 'integer' );
+    if( $achievementID <= 0 )
+        return FALSE;
+
+    $query = "
+        SELECT COUNT(*) as count
+        FROM Ticket
+        WHERE AchievementID = $achievementID AND ReportState = 1";
+
+    $dbResult = s_mysql_query( $query );
+
+    if( $dbResult !== FALSE )
+    {
+        return mysqli_fetch_assoc( $dbResult )['count'];
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
 function gamesSortedByOpenTickets( $count )
 {
     settype( $count, 'integer' );

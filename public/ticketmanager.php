@@ -52,7 +52,15 @@ if( $ticketID == 0 )
     {
         $assignedToUser = seekGET( 'u', NULL );
         $gameIDGiven = seekGET( 'g', NULL );
+
         $achievementIDGiven = seekGET( 'a', NULL );
+        if( $achievementIDGiven > 0 )
+        {
+            $achievementData = GetAchievementData( $achievementIDGiven);
+            $achievementTitle = $achievementData[ 'Title' ];
+            $gameIDGiven = $achievementData[ 'GameID' ]; // overwrite the given game ID
+        }
+
         $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
     }
 }
@@ -100,7 +108,9 @@ RenderDocType();
                 if( !empty( $gameIDGiven ) )
                 {
                     getGameTitleFromID( $gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $allData);
-                    echo " &raquo; <a href='/Game/$gameIDGiven'>$gameTitle ($consoleName)</a>";
+                    echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
+                    if( !empty( $achievementIDGiven ) )
+                        echo " &raquo; $achievementTitle";
                 }
 
             }
@@ -194,15 +204,19 @@ RenderDocType();
                     echo "</p>";
                 }
 
-
-
                 if( !empty( $gameIDGiven ) )
                 {
-                    echo "<p><b>Game:</b> $gameTitle ($consoleName)";
+                    echo "<p><b>Game</b>";
+                    if( !empty( $achievementIDGiven ) )
+                    {
+                        echo "<b>/Achievement</b>: ";
+                        echo "<a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
+                        echo " | <b>$achievementTitle</b>";
+                    }
+                    else
+                        echo ": <b>$gameTitle ($consoleName)</b>";
                     echo " | <a href='/ticketmanager.php?t=$ticketState&u=$assignedToUser'>Clear Filter</a></p>";
                 }
-
-
 
                 echo "<table><tbody>";
 
