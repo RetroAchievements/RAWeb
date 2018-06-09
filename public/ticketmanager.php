@@ -556,50 +556,30 @@ RenderDocType();
 
                     echo "<form method=post action='ticketmanager.php?i=$ticketID'>";
                     echo "<input type='hidden' name='i' value='$ticketID'>";
+
+                    echo "<select name='action' required>";
+                    echo "<option value='' disabled selected hidden>Choose an action...</option>";
                     if( $reportState == 1 )
                     {
                         if( $user == $reportedBy ) // only the reporter can close as a mistaken report
-                        {
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='closed-mistaken' required> Close - Mistaken report</input>";
-                            echo "</label><br>";
-                        }
+                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
 
                         if( $permissions >= \RA\Permissions::Developer )
                         {
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='resolved' required> Resolve as fixed (add comments about your fix below)</input>";
-                            echo "</label><br>";
-
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='demoted'> Demote achievement to Unofficial</input>";
-                            echo "</label><br>";
-
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='not-enough-info'> Close - Not enough information</input>";
-                            echo "</label><br>";
-
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='wrong-rom'> Close - Wrong ROM</input>";
-                            echo "</label><br>";
-
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='network'> Close - Network problems</input>";
-                            echo "</label><br>";
-
-                            echo "<label>";
-                            echo "<input type='radio' name='action' value='closed-other'> Close - Another reason (add comments below)</input>";
-                            echo "</label><br>";
+                            echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
+                            echo "<option value='demoted'>Demote achievement to Unofficial</option>";
+                            echo "<option value='not-enough-info'>Close - Not enough information</option>";
+                            echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
+                            echo "<option value='network'>Close - Network problems</option>";
+                            echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     }
-                    else
-                    {
-                        echo "<label>";
-                        echo "<input type='radio' name='action' value='reopen' required> Reopen this ticket</input>";
-                        echo "</label><br>";
-                    }
+                    else // ticket is not open
+                        echo "<option value='reopen'>Reopen this ticket</option>";
 
-                    echo "<input type='submit' value='Perform action'>";
+                    echo "</select>";
+
+                    echo " <input type='submit' value='Perform action'>";
                     echo "</form>";
 
                     echo "</span>";
