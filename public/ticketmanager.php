@@ -533,7 +533,8 @@ RenderDocType();
                 {
                     echo "<tr>";
 
-                    echo "<td></td><td colspan='6'>";
+                    echo "<td>Reporter:</td>";
+                    echo "<td colspan='6'>";
                     echo "<div class='smallicon'>";
                     echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket www.retroachievements.org/ticketmanager.php?i=$ticketID ";
@@ -542,9 +543,23 @@ RenderDocType();
                     echo "</span>";
                     echo "</div>";
                     echo "</td>";
-
                     echo "</tr>";
                 }
+
+                echo "<tr>";
+                echo "<td></td><td colspan='6'>";
+
+                $userAwarded = getUserUnlockAchievement( $reportedBy, $achID, $unlockData );
+                if( $userAwarded )
+                {
+                    echo "$reportedBy earned this achievement at ". getNiceDate( strtotime( $unlockData[0][ 'Date' ] ) );
+                    if( $unlockData[0][ 'Date' ] >= $reportedAt )
+                        echo " (after the report).";
+                    else
+                        echo " (before the report).";
+                }
+                else
+                    echo "$reportedBy did not earn this achievement.";
 
                 if( $user == $reportedBy || $permissions >= \RA\Permissions::Developer )
                 {
@@ -554,6 +569,7 @@ RenderDocType();
                     echo "<div class='smallicon'>";
                     echo "<span>";
 
+                    echo "<b>Please, add some comments about the action you're going to take.</b><br>";
                     echo "<form method=post action='ticketmanager.php?i=$ticketID'>";
                     echo "<input type='hidden' name='i' value='$ticketID'>";
 
@@ -568,9 +584,9 @@ RenderDocType();
                         {
                             echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
                             echo "<option value='demoted'>Demote achievement to Unofficial</option>";
+                            echo "<option value='network'>Close - Network problems</option>";
                             echo "<option value='not-enough-info'>Close - Not enough information</option>";
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
-                            echo "<option value='network'>Close - Network problems</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     }
