@@ -129,12 +129,14 @@ function getGameMetadataByFlags( $gameID, $user, &$achievementDataOut, &$gameDat
             $orderBy = "ORDER BY NumAwarded DESC, ach.ID DESC ";
             break;
 
-        case 3: // date the user won
-            $orderBy = "ORDER BY aw.Date, ach.ID ASC ";
-            break;
-        case 13:
-            $orderBy = "ORDER BY aw.Date DESC, ach.ID DESC ";
-            break;
+        // meleu: 3 and 13 should sort by the date the user won the cheevo
+        //        but it's not trivial to implement (requires tweaks on SQL query).
+        //case 3: // date the user won
+            //$orderBy = " ";
+            //break;
+        //case 13:
+            //$orderBy = " ";
+            //break;
 
         case 4: // points
             $orderBy = "ORDER BY ach.Points, ach.ID ASC ";
@@ -172,41 +174,16 @@ function getGameMetadataByFlags( $gameID, $user, &$achievementDataOut, &$gameDat
 	//		  GROUP BY ach.ID
 	//		  $orderBy";	
 	
-    $query = "
-    SELECT
-        ach.ID, 
-        IF(
-            IFNULL(!ua.Untracked, FALSE) || ua.User = '$user',
-            ( COUNT( aw.AchievementID ) - SUM( IFNULL( aw.HardcoreMode, 0 ) ) ),
-            0
-        ) AS NumAwarded, 
-        IF(
-            IFNULL(!ua.Untracked, FALSE) || ua.User = '$user',
-            ( SUM( IFNULL( aw.HardcoreMode, 0 ) ) ),
-            0
-        ) AS NumAwardedHardcore, 
-        ach.Title,
-        ach.Description,
-        ach.Points,
-        ach.TrueRatio,
-        ach.Author,
-        ach.DateModified,
-        ach.DateCreated,
-        ach.BadgeName,
-        ach.DisplayOrder,
-        ach.MemAddr,
-        aw.Date AS DateAwarded
-    FROM
-        Achievements AS ach
-    LEFT JOIN
-        Awarded AS aw ON aw.AchievementID = ach.ID
-    LEFT JOIN
-        UserAccounts AS ua ON ua.User = aw.User
-    WHERE
-        ach.GameID = $gameID AND ach.Flags = $flags
-    GROUP BY
-        ach.ID
-    $orderBy";
+    $query = "SELECT ach.ID, 
+				IF( IFNULL(!ua.Untracked, FALSE) || ua.User = '$user', ( COUNT( aw.AchievementID ) - SUM( IFNULL( aw.HardcoreMode, 0 ) ) ), 0 ) AS NumAwarded, 
+				IF( IFNULL(!ua.Untracked, FALSE) || ua.User = '$user', ( SUM( IFNULL( aw.HardcoreMode, 0 ) ) ), 0 ) AS NumAwardedHardcore, 
+				ach.Title, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateModified, ach.DateCreated, ach.BadgeName, ach.DisplayOrder, ach.MemAddr
+					FROM Achievements AS ach
+					LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+					LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+					WHERE ach.GameID = $gameID AND ach.Flags = $flags
+					GROUP BY ach.ID
+					$orderBy";
 
     //echo $query;
 
@@ -1359,3 +1336,4 @@ function getHashListByGameID( $gameID )
 
     return $retVal;
 }
+
