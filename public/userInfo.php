@@ -17,10 +17,7 @@ if( ctype_alnum( $userPage ) == FALSE )
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
-$maxNumRecentAchievementsToFetch = seekGET( 'a', 10 );
 $maxNumGamesToFetch = seekGET( 'g', 5 );
-
-$numRecentAchievements = getRecentlyEarnedAchievements( $maxNumRecentAchievementsToFetch, $userPage, $achievementDataOut );
 
 //	Get general info
 getUserPageInfo( $userPage, $userMassData, $maxNumGamesToFetch, 100, $user );
