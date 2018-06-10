@@ -25,7 +25,16 @@ $errorCode = seekGET( 'e' );
 $flags = seekGET( 'f', 3 ); // flags = 3 means Core achievements
 settype( $flags, 'integer' );
 
-$sortBy = seekGET( 's', 1 );
+$defaultSort = 1;
+if( isset( $user ) )
+{
+    $defaultSort = 13;
+}
+$sortBy = seekGET( 's', $defaultSort );
+
+if( !isset( $user ) && ( $sortBy == 3 || $sortBy == 13 ) )
+    $sortBy = 1;
+
 
 $numAchievements = getGameMetadataByFlags( $gameID, $user, $achievementData, $gameData, $sortBy, NULL, $flags );
 $gameAlts = GetGameAlternatives( $gameID );
@@ -735,8 +744,8 @@ $numGridlines = $numAchievements;
                     echo "<a href='/Game/$gameID?s=$sort1'>Normal$mark1</a> - ";
                     echo "<a href='/Game/$gameID?s=$sort2'>Won By$mark2</a> - ";
                     // meleu: sorting by "date won" isn't implemented yet.
-                    if( isset( $user ) )
-                        echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
+                    //if( isset( $user ) )
+                    //    echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
                     echo "<a href='/Game/$gameID?s=$sort4'>Points$mark4</a> - ";
                     echo "<a href='/Game/$gameID?s=$sort5'>Title$mark5</a>";
 
