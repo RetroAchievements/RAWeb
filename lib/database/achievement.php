@@ -778,6 +778,8 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
     $desc = str_replace( "/", "_", $desc );
     $title = str_replace( "\\", "_", $title );
     $desc = str_replace( "\\", "_", $desc );
+    $title = preg_replace('/[^\x20-\x7e]/', '_', $title);
+    $desc = preg_replace('/[^\x20-\x7e]/', '_', $desc);
 
     //	Assume authorised!
     if( !isset( $idInOut ) || $idInOut == 0 )
