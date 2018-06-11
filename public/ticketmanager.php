@@ -549,8 +549,7 @@ RenderDocType();
                 echo "<tr>";
                 echo "<td></td><td colspan='6'>";
 
-                $userAwarded = getUserUnlockAchievement( $reportedBy, $achID, $unlockData );
-                if( $userAwarded )
+                if( getUserUnlockAchievement( $reportedBy, $achID, $unlockData ) )
                 {
                     echo "$reportedBy earned this achievement at ". getNiceDate( strtotime( $unlockData[0][ 'Date' ] ) );
                     if( $unlockData[0][ 'Date' ] >= $reportedAt )
