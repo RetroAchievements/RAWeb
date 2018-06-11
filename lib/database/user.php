@@ -845,6 +845,26 @@ function getUserStats( $user )
 
 }
 
+function getUserUnlockAchievement( $user, $achievementID, &$dataOut )
+{
+    $query = "SELECT ach.ID, aw.HardcoreMode, aw.Date
+        FROM Achievements AS ach
+        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
+        WHERE ach.ID = '$achievementID' AND aw.User = '$user'";
+
+    $dbResult = s_mysql_query( $query );
+
+    $dataOut = array();
+
+    if( $dbResult === FALSE )
+        return FALSE;
+
+    while( $data = mysqli_fetch_assoc( $dbResult ) )
+        $dataOut[] = $data;
+
+    return count( $dataOut );
+}
+
 function getUserUnlocksDetailed( $user, $gameID, &$dataOut )
 {
     $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode

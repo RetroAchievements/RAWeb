@@ -245,12 +245,17 @@ function getTicket( $ticketID )
     }
 }
 
-function updateTicket( $user, $ticketID, $ticketVal )
+function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
 {
     $userID = getUserIDFromUser( $user );
+
+    $resolvedFields = "";
+    if( $ticketVal != 1 )
+        $resolvedFields = ", ResolvedAt=NOW(), ResolvedByUserID=$userID ";
+
     $query = "UPDATE Ticket
-			  SET ReportState=$ticketVal, ResolvedAt=NOW(), ResolvedByUserID=$userID
-			  WHERE ID=$ticketID";
+              SET ReportState=$ticketVal $resolvedFields
+              WHERE ID=$ticketID";
 
     log_sql( $query );
 
@@ -264,33 +269,45 @@ function updateTicket( $user, $ticketID, $ticketVal )
         $gameTitle = $ticketData[ 'GameTitle' ];
         $consoleName = $ticketData[ 'ConsoleName' ];
 
-        if( $ticketVal == 0 )
+        switch( $ticketVal )
         {
-            //	Resolution was to please demote:
-            updateAchievementFlags( $achID, 5 );
+            case 0:
+                $status = "Closed";
+                if( $reason == "Demoted" )
+                    updateAchievementFlags( $achID, 5 );
+                $comment = "\"$user\" closed this ticket. Reason: \"$reason\".";
+                break;
+
+            case 1: // Open
+                $status = "Open";
+                $comment = "\"$user\" reopened this ticket.";
+                break;
+
+            case 2: // Resolved
+                $status = "Resolved";
+                $comment = "\"$user\" resolved this ticket as fixed.";
+                break;
         }
 
-        $resolution = ($ticketVal == 2) ? "fixed" : "removed";
-
-        addArticleComment( "Server", 7, $ticketID, "Resolved as $resolution by $user" );
+        addArticleComment( $user, 7, $ticketID, $comment );
 
         getAccountDetails( $userReporter, $reporterData );
         $email = $reporterData[ 'EmailAddress' ];
 
         $emailTitle = "Ticket status changed";
-        $link = "<a href='http://retroachievements.org/ticketmanager.php?i=$ticketID'>here</a>";
 
-        $msg = "Hello $userReporter!<br/>" .
-                "<br/>" .
-                "$achTitle - $gameTitle ($consoleName)</br>" .
-                "<br/>" .
-                "The above achievement you reported as broken has been marked '$resolution' by $user.</br>" .
-                "<br/>" .
-                "Click $link to view the ticket<br/>" .
-                "<br/>" .
+        $msg = "Hello $userReporter!<br>" .
+                "<br>" .
+                "$achTitle - $gameTitle ($consoleName)<br>" .
+                "<br>" .
+                "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
+                "<br>Comment: $comment" .
+                "<br>" .
+                "Click <a href='http://retroachievements.org/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
+                "<br>" .
                 "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
-                "<br/>" .
-                "-- Your friends at RetroAchievements.org<br/>";
+                "<br>" .
+                "-- Your friends at RetroAchievements.org<br>";
 
 
         if( IsAtHome() )

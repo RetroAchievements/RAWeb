@@ -7,7 +7,7 @@ $maxCount = 100;
 $count = seekGET( 'c', $maxCount );
 $offset = seekGET( 'o', 0 );
 
-$ticketID = seekGET( 'i', 0 );
+$ticketID = seekPOSTorGET( 'i', 0 );
 settype( $ticketID, 'integer' );
 
 $reportStates = ["Closed", "Open", "Resolved"];
@@ -20,6 +20,80 @@ if( $ticketID != 0 )
     {
         $ticketID = 0;
         $errorCode = 'notfound';
+    }
+
+    $action = seekPOSTorGET( 'action', NULL );
+    $reason = NULL;
+    switch( $action )
+    {
+        case "closed-mistaken":
+            $ticketState = 0;
+            $reason = "Mistaken report";
+            break;
+
+        case "resolved":
+            if( $permissions >= \RA\Permissions::Developer )
+                $ticketState = 2;
+            break;
+
+        case "demoted":
+            if( $permissions >= \RA\Permissions::Developer )
+            {
+                $ticketState = 0;
+                $reason = "Demoted";
+            }
+            break;
+
+        case "not-enough-info":
+            if( $permissions >= \RA\Permissions::Developer )
+            {
+                $ticketState = 0;
+                $reason = "Not enough information";
+            }
+            break;
+
+        case "wrong-rom":
+            if( $permissions >= \RA\Permissions::Developer )
+            {
+                $ticketState = 0;
+                $reason = "Wrong ROM";
+            }
+            break;
+
+        case "network":
+            if( $permissions >= \RA\Permissions::Developer )
+            {
+                $ticketState = 0;
+                $reason = "Network problems";
+            }
+            break;
+
+        case "closed-other":
+            if( $permissions >= \RA\Permissions::Developer )
+            {
+                $ticketState = 0;
+                $reason = "See the comments";
+            }
+            break;
+
+        case "reopen":
+            $ticketState = 1;
+            break;
+
+        default:
+            $action = NULL;
+            break;
+    }
+
+    if( $action != NULL &&
+        $ticketState != $ticketData[ 'ReportState' ] &&
+        (   $permissions >= \RA\Permissions::Developer ||
+            $user == $ticketData[ 'ReportedBy' ]
+        )
+    )
+    {
+            updateTicket( $user, $ticketID, $ticketState, $reason );
+            $ticketData = getTicket( $ticketID );
     }
 
     $numArticleComments = getArticleComments( 7, $ticketID, 0, 20, $commentData );
@@ -165,7 +239,7 @@ RenderDocType();
             {
                 echo "<h4>Filters</h4>";
 
-                echo "<p><b>Ticket State:</b> "; 
+                echo "<p><b>Ticket State:</b> ";
                 if( $ticketState == 0 )
                     echo "<b>All Tickets</b> | ";
                 else
@@ -265,7 +339,7 @@ RenderDocType();
                     echo "<td>";
                     echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
                     echo "</td>";
-                    
+
                     echo "<td>";
                     echo $reportStates[ $reportState ];
                     echo "</td>";
@@ -357,7 +431,7 @@ RenderDocType();
                 echo "<td>";
                 echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
                 echo "</td>";
-                    
+
                 echo "<td>";
                 echo $reportStates[ $reportState ];
                 echo "</td>";
@@ -404,55 +478,6 @@ RenderDocType();
                 echo "</td>";
                 echo "</tr>";
 
-                if( $permissions >= \RA\Permissions::Developer )
-                {
-                    echo "<tr>";
-
-                    echo "<td>";
-                    echo "Developer:";
-                    echo "</td>";
-
-                    echo "<td colspan='6'>";
-                    echo "<div class='smallicon'>";
-                    echo "<span>";
-                    $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket www.retroachievements.org/ticketmanager.php?i=$ticketID ";
-                    $msgPayload = rawurlencode( $msgPayload );
-                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20($gameTitle)&amp;p=$msgPayload'>Contact $reportedBy</a>";
-                    echo "</span>";
-                    echo "</div>";
-                    echo "</td>";
-
-                    echo "</tr>";
-
-                    if( $reportState == 1 )
-                    {
-                        echo "<tr>";
-
-                        echo "<td></td><td colspan='6'>";
-                        echo "<div class='smallicon'>";
-                        echo "<span>";
-                        echo "<a href='requestupdateticket.php?u=$user&amp;i=$ticketID&amp;v=2'>Resolve as fixed</a>";
-                        echo "</span>";
-                        echo "</div>";
-                        echo "</td>";
-
-                        echo "</tr>";
-
-                        echo "<tr>";
-
-                        echo "<td></td><td colspan='6'>";
-                        echo "<div class='smallicon'>";
-                        echo "<span>";
-                        echo "<a href='requestupdateticket.php?u=$user&amp;i=$ticketID&amp;v=0'>Demote achievement to unofficial</a>";
-                        //echo "<a href='/requestupdateachievement.php?a=$achID&amp;f=3&amp;u=$user&amp;v=5'>Demote achievement to unofficial</a>";
-                        echo "</span>";
-                        echo "</div>";
-                        echo "</td>";
-
-                        echo "</tr>";
-                    }
-                }
-
                 echo "<tr>";
                 echo "<td></td><td colspan='6'>";
                 echo "<div class='temp'>";
@@ -460,7 +485,6 @@ RenderDocType();
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
-
 
                 if( $numOpenTickets > 0 || $numClosedTickets > 0 )
                 {
@@ -518,6 +542,81 @@ RenderDocType();
                     echo "</td>";
                     echo "</tr>";
                 }
+
+                if( $permissions >= \RA\Permissions::Developer )
+                {
+                    echo "<tr>";
+
+                    echo "<td>Reporter:</td>";
+                    echo "<td colspan='6'>";
+                    echo "<div class='smallicon'>";
+                    echo "<span>";
+                    $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket www.retroachievements.org/ticketmanager.php?i=$ticketID ";
+                    $msgPayload = rawurlencode( $msgPayload );
+                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20($gameTitle)&amp;p=$msgPayload'>Contact the reporter - $reportedBy</a>";
+                    echo "</span>";
+                    echo "</div>";
+                    echo "</td>";
+                    echo "</tr>";
+                }
+
+                echo "<tr>";
+                echo "<td></td><td colspan='6'>";
+
+                if( getUserUnlockAchievement( $reportedBy, $achID, $unlockData ) )
+                {
+                    echo "$reportedBy earned this achievement at ". getNiceDate( strtotime( $unlockData[0][ 'Date' ] ) );
+                    if( $unlockData[0][ 'Date' ] >= $reportedAt )
+                        echo " (after the report).";
+                    else
+                        echo " (before the report).";
+                }
+                else
+                    echo "$reportedBy did not earn this achievement.";
+
+                if( $user == $reportedBy || $permissions >= \RA\Permissions::Developer )
+                {
+                    echo "<tr>";
+
+                    echo "<td>Action: </td><td colspan='6'>";
+                    echo "<div class='smallicon'>";
+                    echo "<span>";
+
+                    echo "<b>Please, add some comments about the action you're going to take.</b><br>";
+                    echo "<form method=post action='ticketmanager.php?i=$ticketID'>";
+                    echo "<input type='hidden' name='i' value='$ticketID'>";
+
+                    echo "<select name='action' required>";
+                    echo "<option value='' disabled selected hidden>Choose an action...</option>";
+                    if( $reportState == 1 )
+                    {
+                        if( $user == $reportedBy ) // only the reporter can close as a mistaken report
+                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
+
+                        if( $permissions >= \RA\Permissions::Developer )
+                        {
+                            echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
+                            echo "<option value='demoted'>Demote achievement to Unofficial</option>";
+                            echo "<option value='network'>Close - Network problems</option>";
+                            echo "<option value='not-enough-info'>Close - Not enough information</option>";
+                            echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
+                            echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
+                        }
+                    }
+                    else // ticket is not open
+                        echo "<option value='reopen'>Reopen this ticket</option>";
+
+                    echo "</select>";
+
+                    echo " <input type='submit' value='Perform action'>";
+                    echo "</form>";
+
+                    echo "</span>";
+                    echo "</div>";
+                    echo "</td>";
+                    echo "</tr>";
+                }
+
 
                 echo "<tr>";
                 echo "<td colspan='5'>";
