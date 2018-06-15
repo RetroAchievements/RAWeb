@@ -276,7 +276,7 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
                 if( $reason == "Demoted" )
                     if( updateAchievementFlags( $achID, 5 ) )
                     {
-                        addArticleComment( $user, 2, $achID,
+                        addArticleComment( "Server", 2, $achID,
                             "\"$user\" demoted this achievement to Unofficial via
                             <a href='/ticketmanager.php?i=$ticketID'>ticket $ticketID</a>." );
                     }

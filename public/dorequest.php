@@ -422,7 +422,7 @@ if( $credentialsOK )
             $response[ 'Error' ] = $errorOut;
 
             if( $response[ 'Success' ] )
-                addArticleComment( $user, 2, $achievementID, "\"$user\" edited this achievement." );
+                addArticleComment( "Server", 2, $achievementID, "\"$user\" edited this achievement." );
 
             break;
 
