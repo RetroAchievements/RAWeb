@@ -89,23 +89,27 @@ RenderDocType();
             echo "</form>";
             echo "<br/>";
 
-            echo "<h4><b>Unlink all hashes</b></h4>";
+            /**
+             * UPDATE: do not allow dangerous actions anymore until proper failovers are in place
+             * See commit df7c534c04ae1029e0f9517717f3b13a9008713d
+             */
+            //echo "<h4><b>Unlink all hashes</b></h4>";
 
-            echo "<p><b>WARNING: By clicking 'UNLINK ALL', all hashes linked to $gameTitle will be removed.</b></p>";
+            //echo "<p><b>WARNING: By clicking 'UNLINK ALL', all hashes linked to $gameTitle will be removed.</b></p>";
 
-            echo "<form method=post action='requestmodifygame.php'>";
-            echo "<input type='hidden' name='u' VALUE='$user'>";
-            echo "<input type='hidden' name='g' VALUE='$gameID'>";
-            echo "<input type='hidden' name='f' VALUE='2'>";
-            echo "<input type='hidden' name='v' VALUE='1'>";
-            echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='UNLINK ALL!'>";
-            echo "</form>";
-            echo "<br/>";
+            //echo "<form method=post action='requestmodifygame.php'>";
+            //echo "<input type='hidden' name='u' VALUE='$user'>";
+            //echo "<input type='hidden' name='g' VALUE='$gameID'>";
+            //echo "<input type='hidden' name='f' VALUE='2'>";
+            //echo "<input type='hidden' name='v' VALUE='1'>";
+            //echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='UNLINK ALL!'>";
+            //echo "</form>";
+            //echo "<br/>";
 
-            echo "A new link will be requested when the ROM is next loaded in the emulator.<br/><br/>";
+            //echo "A new link will be requested when the ROM is next loaded in the emulator.<br/><br/>";
 
-            echo "Please note, no achievements will be deleted. However all entries that link to this game will be removed.<br/>";
-            echo "To restore the achievements, simply load up the game in the emulator and select the entry from the drop-down list.<br/><br/>";
+            //echo "Please note, no achievements will be deleted. However all entries that link to this game will be removed.<br/>";
+            //echo "To restore the achievements, simply load up the game in the emulator and select the entry from the drop-down list.<br/><br/>";
             ?>
             <br/>
         </div>
