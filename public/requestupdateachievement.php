@@ -62,7 +62,8 @@
 	{
 		if( updateAchievementFlags( $achID, $value ) )
 		{
-			header( "Location: http://" . AT_HOST . "/Achievement/$achID?e=changeok" );
+            header( "Location: http://" . AT_HOST . "/Achievement/$achID?e=changeok" );
+            addArticleComment( $user, 2, $achID, "\"$user\" demoted this achievement to Unofficial." );
 		}
 		else
 		{
