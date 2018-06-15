@@ -52,13 +52,33 @@ function SubmitLeaderboardEntryJSON( $user, $lbID, $newEntry, $validation )
 
         //	Read: IF the score VALUE provided $compares as "betterthan" the existing score, use the VALUE given, otherwise the existing Score.
         //	Also, if the score VALUE provided $compares as "betterthan" the existing score, use NOW(), otherwise the existing DateSubmitted.
-        $query = "INSERT INTO LeaderboardEntry
-					VALUES( '$lbID', (SELECT ID FROM UserAccounts WHERE User='$user'), '$newEntry', NOW() )
-				  ON DUPLICATE KEY UPDATE
-					LeaderboardID=LeaderboardID,
-					UserID=UserID,
-					Score=IF( ( VALUES(Score) $comparisonOp Score ), VALUES(Score), Score ),
-					DateSubmitted=IF( ( VALUES(Score) $comparisonOp Score ), VALUES(DateSubmitted), NOW() )";
+        $query = "
+        INSERT INTO
+            LeaderboardEntry
+        VALUES(
+            '$lbID',
+            (
+                SELECT ID
+                FROM UserAccounts
+                WHERE User='$user'
+            ),
+            '$newEntry',
+            NOW()
+        )
+        ON DUPLICATE KEY
+            UPDATE
+                LeaderboardID=LeaderboardID,
+                UserID=UserID,
+                Score=IF(
+                    ( VALUES(Score) $comparisonOp Score ),
+                    VALUES(Score),
+                    Score
+                ),
+                DateSubmitted=IF(
+                    ( VALUES(Score) $comparisonOp Score ),
+                    VALUES(DateSubmitted),
+                    DateSubmitted
+                )";
 
         log_sql( $query );
         $dbResult = s_mysql_query( $query );
