@@ -849,13 +849,16 @@ function requestModifyGame( $author, $gameID, $field, $value )
             return ( $dbResult !== FALSE );
             break;
 
-        case 2: // GameHashTable
-            $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
-            log_sql( "$user: $query" );
-            $dbResult = s_mysql_query( $query );
-
-            return ( $dbResult !== FALSE );
-            break;
+        /**
+         * UPDATE: do not allow dangerous actions anymore until proper failovers are in place
+         */
+        // case 2: // GameHashTable
+        //     $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
+        //     log_sql( "$user: $query" );
+        //     $dbResult = s_mysql_query( $query );
+        //
+        //     return ( $dbResult !== FALSE );
+        //     break;
 
         case 3: // delete a single hash entry
             $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$value'";
