@@ -2559,15 +2559,22 @@ function cb_injectGamePHPBB( $matches )
     return "";
 }
 
-//	13:52 05/11/2013
-//	http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
-function linkifyYouTubeURLs( $text )
+/**
+ * from http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
+ */
+function linkifyYouTubeURLs($text)
 {
-    global $mobileBrowser;
+    // http://www.youtube.com/v/YbKzgRwF91w
+    // http://www.youtube.com/watch?v=1zMHaHPXqqg
+    // http://youtu.be/-D06lkNS3-k
+    // https://youtu.be/66ohBw9O6NU
+    // https://www.youtube.com/embed/Fmwr6T2JHc4
+    // https://www.youtube.com/watch?v=1YiNYWpwn7o
+    // www.youtube.com/watch?v=Yjba9rvs4iU
 
     $pattern = '~
         # Match non-linked youtube URL in the wild. (Rev:20130823)
-        https?://         # Required scheme. Either http or https.
+        (?:https?://)?    # Optional scheme. Either http or https.
         (?:[0-9A-Z-]+\.)? # Optional subdomain.
         (?:               # Group host alternatives.
           youtu\.be/      # Either youtu.be,
@@ -2584,30 +2591,96 @@ function linkifyYouTubeURLs( $text )
           | </a>          # or inside <a> element text contents.
           )               # End recognized pre-linked alts.
         )                 # End negative lookahead assertion.
-        [?=&+%\w.-]*        # Consume any URL (query) remainder.
+        ([?=&+%\w.-]*)        # Consume any URL (query) remainder.
         ~ix';
 
-    $width = $mobileBrowser ? 250 : 400;
-    $height = $mobileBrowser ? 167 : 300;
-
     $text = preg_replace(
-            $pattern, '<span class=\'youtubeembed\'><iframe width="' . $width . '" height="' . $height . '" src="http://www.youtube-nocookie.com/embed/$1"></iframe></span>', $text );
+        $pattern,
+        '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="//www.youtube-nocookie.com/embed/$1" allowfullscreen></iframe></div>',
+        $text);
     return $text;
 }
 
-//	00:19 16/12/2013
-//	'http://www.twitch.tv/retroachievementsorg/c/3397073'
-//	http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
-function linkifyTwitchURLs( $text )
+function linkifyTwitchURLs($text)
 {
-    if( strpos( $text, "twitch.tv" ) !== FALSE )
-    {
-        $vidChapter = substr( $text, strrpos( $text, "/" ) + 1 );
-        $vidHeight = 300;
-        $text = "<object type='application/x-shockwave-flash' height='$vidHeight' width='100%' id='clip_embed_player_flash' data='http://www.twitch.tv/widgets/archive_embed_player.swf' ><param name='movie' value='http://www.twitch.tv/widgets/archive_embed_player.swf'><param name='allowScriptAccess' value='always'><param name='allowNetworking' value='all'><param name='allowFullScreen' value='true'><param name='flashvars' value='title=Embedded%20Video&amp;channel=retroachievementsorg&amp;auto_play=false&amp;start_volume=25&amp;chapter_id=$vidChapter'></object>";
+    // https://www.twitch.tv/videos/270709956
+    // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
+    // https://www.twitch.tv/gamingwithmist/v/40482810
+    // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
+
+    if (strpos($text, "twitch.tv") !== false) {
+        $vidChapter = substr($text, strrpos($text, "/") + 1);
+        $iframeUrl = '//player.twitch.tv/?video='.$vidChapter;
+        if (strpos($text, "twitch.tv/collections") !== false) {
+            $iframeUrl = '//player.twitch.tv/?collection='.$vidChapter;
+        }
+        if (strpos($text, "clips.twitch.tv") !== false) {
+            $iframeUrl = '//clips.twitch.tv/embed?clip='.$vidChapter;
+        }
+        $iframeUrl .= '&autoplay=false';
+        $text = '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="'.$iframeUrl.'" allowfullscreen></iframe></div>';
     }
 
     return $text;
+}
+
+/**
+ * see https://regex101.com/r/mQamDF/1
+ */
+function linkifyImgurURLs($text)
+{
+    // https://imgur.com/gallery/bciLIYm.gifv
+    // https://imgur.com/a/bciLIYm.gifv
+    // https://i.imgur.com/bciLIYm.gifv
+    // https://i.imgur.com/bciLIYm.webm
+    // https://i.imgur.com/bciLIYm.mp4
+
+    // https://imgur.com/gallery/bciLIYm -> no extension -> will be ignored (turns out as link)
+    // https://imgur.com/a/bciLIYm.gif -> replaced by gifv - potentially broken if it's a static image
+    // https://imgur.com/a/bciLIYm.jpg -> downloads as gif if original is a gif, potentially large :/ can't do much about that
+
+    $pattern = '~(?:https?://)?(?:[0-9a-z-]+\.)?imgur\.com(?:[\w/]*/)?(\w+)(\.\w+)?~ix';
+    // $text = 'https://i.imgur.com/bciLIYm https://i.imgur.com/bciLIYm.mp4 https://imgur.com/a/bciLIYm.gif';
+    preg_match_all($pattern, $text, $matches);
+    if (!count($matches[0])) {
+        return $text;
+    }
+    $replacements = [];
+    for ($i = 0; $i < count($matches[0]); $i++) {
+        $id = $matches[1][$i];
+        $extension = $matches[2][$i] ?? null;
+        $extension = $extension === '.gif' ? '.gifv' : $extension;
+        $replacements[$i] = $matches[0][$i];
+        if (in_array($extension, ['.gifv', '.mp4', '.webm'])) {
+            $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank"><div class="embed-responsive embed-responsive-16by9"><video controls class="embed-responsive-item"><source src="//i.imgur.com/' . $id . '.mp4" type="video/mp4"></video></div><div class="text-right mb-3"><small>view on imgur</small></div></a>';
+        } elseif (in_array($extension, ['.jpg', '.png', '.jpeg'])) {
+            $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank"><img class="img-fluid" src="//i.imgur.com/' . $id . '.jpg"><div class="text-right mb-3"><small>view on imgur</small></div></a>';
+        }
+    }
+    $text = preg_replace_array($pattern, $replacements, $text);
+    return $text;
+}
+
+/**
+ * laravel polyfill
+ */
+if (! function_exists('preg_replace_array')) {
+    /**
+     * Replace a given pattern with each value in the array in sequentially.
+     *
+     * @param  string  $pattern
+     * @param  array   $replacements
+     * @param  string  $subject
+     * @return string
+     */
+    function preg_replace_array($pattern, array $replacements, $subject)
+    {
+        return preg_replace_callback($pattern, function () use (&$replacements) {
+            foreach ($replacements as $key => $value) {
+                return array_shift($replacements);
+            }
+        }, $subject);
+    }
 }
 
 function cb_linkifySelective( $matches )
@@ -2678,8 +2751,12 @@ function linkifyBasicURLs( $text )
     return $text;
 }
 
-//	17:05 18/04/2013
-function parseTopicCommentPHPBB( $commentIn )
+/**
+ * @param      $commentIn
+ * @param bool $withImgur imgur url parsing requires the links to reliably point to mp4s - can't be static images
+ * @return null|string|string[]
+ */
+function parseTopicCommentPHPBB( $commentIn, $withImgur = false )
 {
     //	Parse and format tags
     $comment = $commentIn;
@@ -2719,6 +2796,9 @@ function parseTopicCommentPHPBB( $commentIn )
 
     $comment = linkifyYouTubeURLs( $comment );
     $comment = linkifyTwitchURLs( $comment );
+    if($withImgur) {
+        $comment = linkifyImgurURLs($comment);
+    }
     $comment = linkifyBasicURLs( $comment );
 
     //global $autolink;

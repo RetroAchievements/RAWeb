@@ -1203,6 +1203,7 @@ function updateAchievementDisplayID( $achID, $newID )
 
 function updateAchievementEmbedVideo( $achID, $newURL )
 {
+    $newURL = strip_tags($newURL);
     $query = "UPDATE Achievements SET AssocVideo = '$newURL' WHERE ID = $achID";
     log_sql( $query );
     global $db;

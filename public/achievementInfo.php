@@ -187,7 +187,7 @@ RenderDocType( TRUE );
                 echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Dev (Click to show):</span><br/>";
                 echo "<div id='devboxcontent'>";
 
-                echo "<li>Set embedded video URL (Youtube or Twitch URLs accepted):</li>";
+                echo "<li>Set embedded video URL:</li>";
                 echo "<table><tbody>";
                 echo "<input type='hidden' name='a' value='$achievementID' />";
                 echo "<input type='hidden' name='f' value='2' />";
@@ -195,6 +195,33 @@ RenderDocType( TRUE );
                 echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /></br></br>";
+                echo "<div style='clear:both;'></div>";
+                ?>
+                Examples for accepted formats:<br>
+                <p style="margin-bottom: 20px; float: left; clear: both;">
+                    <small style="width:50%; word-break: break-word; float: left">
+                        https://www.youtube.com/v/ID<br>
+                        https://www.youtube.com/watch?v=ID<br>
+                        https://youtu.be/ID<br>
+                        https://www.youtube.com/embed/ID<br>
+                        https://www.youtube.com/watch?v=ID<br>
+                        www.youtube.com/watch?v=ID<br>
+                        https://www.twitch.tv/videos/ID<br>
+                        https://www.twitch.tv/collections/ID<br>
+                        https://www.twitch.tv/ID/v/ID<br>
+                        https://clips.twitch.tv/ID<br>
+                    </small>
+                    <small style="width:50%; word-break: break-word; float: left">
+                        https://imgur.com/gallery/ID -> turns out as link without extension<br>
+                        https://imgur.com/a/ID.gif -> will use .gifv instead<br>
+                        https://imgur.com/gallery/ID.gifv<br>
+                        https://imgur.com/a/ID.gifv<br>
+                        https://i.imgur.com/ID.gifv<br>
+                        https://i.imgur.com/ID.webm<br>
+                        https://i.imgur.com/ID.mp4<br>
+                    </small>
+                </p>
+                <?php
                 echo "<div style='clear:both;'></div>";
 
                 if( $achFlags == 3 )
@@ -217,7 +244,7 @@ RenderDocType( TRUE );
 
             if( $embedVidURL !== "" )
             {
-                echo linkifyTwitchURLs( linkifyYouTubeURLs( $embedVidURL ) );
+                echo parseTopicCommentPHPBB($embedVidURL, true);
             }
 
             //	Comments:

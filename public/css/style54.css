@@ -952,3 +952,40 @@ div.rating a.starlit {
     height: 37px;
     max-height: 37px;
 }
+
+/* bootstrap 4 polyfills */
+
+.embed-responsive .embed-responsive-item, .embed-responsive iframe, .embed-responsive embed, .embed-responsive object, .embed-responsive video {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.embed-responsive {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+.embed-responsive-16by9::before {
+    padding-top: 56.25%;
+}
+
+.embed-responsive::before {
+    display: block;
+    content: "";
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.mb-3, .my-3 {
+    margin-bottom: 1rem !important;
+}
