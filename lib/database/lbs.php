@@ -69,15 +69,15 @@ function SubmitLeaderboardEntryJSON( $user, $lbID, $newEntry, $validation )
             UPDATE
                 LeaderboardID=LeaderboardID,
                 UserID=UserID,
-                Score=IF(
-                    ( VALUES(Score) $comparisonOp Score ),
-                    VALUES(Score),
-                    Score
-                ),
                 DateSubmitted=IF(
                     ( VALUES(Score) $comparisonOp Score ),
                     VALUES(DateSubmitted),
                     DateSubmitted
+		),
+                Score=IF(
+                    ( VALUES(Score) $comparisonOp Score ),
+                    VALUES(Score),
+                    Score
                 )";
 
         log_sql( $query );
