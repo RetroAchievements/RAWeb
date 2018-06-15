@@ -274,7 +274,12 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
             case 0:
                 $status = "Closed";
                 if( $reason == "Demoted" )
-                    updateAchievementFlags( $achID, 5 );
+                    if( updateAchievementFlags( $achID, 5 ) )
+                    {
+                        addArticleComment( $user, 2, $achID,
+                            "\"$user\" demoted this achievement to Unofficial via
+                            <a href='/ticketmanager.php?i=$ticketID'>ticket $ticketID</a>." );
+                    }
                 $comment = "Ticket closed. Reason: \"$reason\".";
                 break;
 

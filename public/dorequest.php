@@ -420,6 +420,10 @@ if( $credentialsOK )
             $response[ 'Success' ] = UploadNewAchievement( $user, $gameID, $newTitle, $newDesc, ' ', ' ', ' ', $newPoints, $newMemString, $newFlags, $achievementID, $newBadge, $errorOut );
             $response[ 'AchievementID' ] = $achievementID;
             $response[ 'Error' ] = $errorOut;
+
+            if( $response[ 'Success' ] )
+                addArticleComment( $user, 2, $achievementID, "\"$user\" edited this achievement." );
+
             break;
 
         default:
