@@ -63,15 +63,9 @@
 		if( updateAchievementFlags( $achID, $value ) )
 		{
             header( "Location: http://" . AT_HOST . "/Achievement/$achID?e=changeok" );
-
-            if( $value == 3 )
-                addArticleComment( $user, 2, $achID, "\"$user\" promoted this achievement to the Core set." );
-            else if( $value == 5 )
-                addArticleComment( $user, 2, $achID, "\"$user\" demoted this achievement to Unofficial." );
-
-        }
-        else
-        {
+		}
+		else
+		{
 			error_log( "requestupdateachievement.php failed?! 3" . var_dump( $_POST ) );
 			echo "FAILED!";
 		}
