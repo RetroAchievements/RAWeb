@@ -499,7 +499,7 @@ function addArticleComment( $user, $articleType, $articleID, $commentPayload )
         error_log( __FUNCTION__ . " Comment on Achievement... notifying author and thread" );
 
         //	Get achievement's original author:
-        $achievementData = getAchievementMetadata( $articleID );
+        $achievementData = getAchievementMetadataJSON( $articleID );
         informAllSubscribersAboutActivity( $user, $achievementData[ 'Author' ], $articleID, $articleType );
     }
     else if( $articleType == 3 ) //	User
