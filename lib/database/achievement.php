@@ -793,6 +793,7 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
             postActivity( $author, \RA\ActivityType::UploadAchievement, $idInOut );
 
             static_addnewachievement( $idInOut );
+            addArticleComment( "Server", 2, $idInOut, "\"$author\" uploaded this achievement." );
 
             error_log( __FUNCTION__ . " $author uploaded new achievement: $idInOut, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, $badge" );
 
@@ -860,6 +861,16 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
                 static_setlastupdatedachievement( $idInOut );
 
                 postActivity( $author, \RA\ActivityType::EditAchievement, $idInOut );
+
+                if( $changingAchSet )
+                {
+                    if( $type == 3 )
+                        addArticleComment( "Server", 2, $idInOut, "\"$author\" promoted this achievement to the Core set." );
+                    else if( $type == 5 )
+                        addArticleComment( "Server", 2, $idInOut, "\"$author\" demoted this achievement to Unofficial." );
+                }
+                else
+                    addArticleComment( "Server", 2, $idInOut, "\"$author\" edited this achievement." );
 
                 return true;
             }
