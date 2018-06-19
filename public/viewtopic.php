@@ -93,7 +93,7 @@
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
         //if( isset( $user ) && $permissions >= 1 )
-        if( ( $thisTopicAuthor == $user ) || ( $permissions >= \RA\Permissions::Admin ) )
+        if( isset( $user ) && ( $thisTopicAuthor == $user || $permissions >= \RA\Permissions::Admin ) )
         {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Options (Click to show):</span><br/>";
