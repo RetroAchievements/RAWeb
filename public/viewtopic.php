@@ -108,35 +108,38 @@
             echo "<input type='submit' name='submit' value='Submit' size='37' />";
             echo "</form>";
 
-            echo "<li>Delete Topic:</li>";
-            echo "<form action='requestmodifytopic.php' method='post' >";
-            echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
-            echo "<input type='hidden' name='t' value='$thisTopicID' />";
-            echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "' />";
-            echo "&nbsp;";
-            echo "<input type='submit' name='submit' value='Delete Permanently' size='37' />";
-            echo "</form>";
+            if( $permissions >= \RA\Permissions::Admin )
+            {
+                echo "<li>Delete Topic:</li>";
+                echo "<form action='requestmodifytopic.php' method='post' >";
+                echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
+                echo "<input type='hidden' name='t' value='$thisTopicID' />";
+                echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "' />";
+                echo "&nbsp;";
+                echo "<input type='submit' name='submit' value='Delete Permanently' size='37' />";
+                echo "</form>";
 
-            $selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
-            $selected1 = ( $thisTopicPermissions == 1 ) ? 'selected' : '';
-            $selected2 = ( $thisTopicPermissions == 2 ) ? 'selected' : '';
-            $selected3 = ( $thisTopicPermissions == 3 ) ? 'selected' : '';
-            $selected4 = ( $thisTopicPermissions == 4 ) ? 'selected' : '';
+                $selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
+                $selected1 = ( $thisTopicPermissions == 1 ) ? 'selected' : '';
+                $selected2 = ( $thisTopicPermissions == 2 ) ? 'selected' : '';
+                $selected3 = ( $thisTopicPermissions == 3 ) ? 'selected' : '';
+                $selected4 = ( $thisTopicPermissions == 4 ) ? 'selected' : '';
 
-            echo "<li>Restrict Topic:</li>";
-            echo "<form action='requestmodifytopic.php' method='post' >";
-            echo "<select name='v'>";
-            echo "<option value='0' $selected0>Unregistered</option>";
-            echo "<option value='1' $selected1>Registered</option>";
-            echo "<option value='2' $selected2>Super User</option>";
-            echo "<option value='3' $selected3>Developer</option>";
-            echo "<option value='4' $selected4>Admin</option>";
-            echo "</select>";
-            echo "<input type='hidden' name='t' value='$thisTopicID' />";
-            echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "' />";
-            echo "&nbsp;";
-            echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37' />";
-            echo "</form>";
+                echo "<li>Restrict Topic:</li>";
+                echo "<form action='requestmodifytopic.php' method='post' >";
+                echo "<select name='v'>";
+                echo "<option value='0' $selected0>Unregistered</option>";
+                echo "<option value='1' $selected1>Registered</option>";
+                echo "<option value='2' $selected2>Super User</option>";
+                echo "<option value='3' $selected3>Developer</option>";
+                echo "<option value='4' $selected4>Admin</option>";
+                echo "</select>";
+                echo "<input type='hidden' name='t' value='$thisTopicID' />";
+                echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "' />";
+                echo "&nbsp;";
+                echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37' />";
+                echo "</form>";
+            }
 
             // TBD: Report offensive content
             // TBD: Subscribe to this topic
