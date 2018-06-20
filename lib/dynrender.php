@@ -2385,7 +2385,7 @@ function RenderTutorialComponent()
 
 function RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID )
 {
-    if( isset( $forumTopicID ) && ( $forumTopicID != 0 ) )
+    if( isset( $forumTopicID ) && $forumTopicID != 0 && getTopicDetails( $forumTopicID, $topicData ) )
     {
         echo "<b>Forum Topic:</b> <a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
         echo "<br/>";
