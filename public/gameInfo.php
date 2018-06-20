@@ -558,6 +558,18 @@ $numGridlines = $numAchievements;
                     echo "</form>";
                     echo "</li>";
 
+                    if( $permissions >= \RA\Permissions::Admin )
+                    {
+                        echo "<tr><td>";
+                        echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                        echo "New Forum Topic ID:";
+                        echo "<input type='hidden' name='i' value='$gameID' />";
+                        echo "<input type='text' name='f' size='20'/>";
+                        echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
+                        echo "</form>";
+                        echo "</td></tr>";
+                    }
+
                     echo "<li>Similar Games</li>";
                     echo "<table><tbody>";
                     if( count( $gameAlts ) > 0 )
