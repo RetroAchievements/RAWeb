@@ -275,17 +275,17 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
                 $status = "Closed";
                 if( $reason == "Demoted" )
                     updateAchievementFlags( $achID, 5 );
-                $comment = "Ticket closed by \"$user\". Reason: \"$reason\".";
+                $comment = "Ticket closed by $user. Reason: \"$reason\".";
                 break;
 
             case 1: // Open
                 $status = "Open";
-                $comment = "Ticket reopened by \"$user\".";
+                $comment = "Ticket reopened by $user.";
                 break;
 
             case 2: // Resolved
                 $status = "Resolved";
-                $comment = "Ticket resolved as fixed by \"$user\".";
+                $comment = "Ticket resolved as fixed by $user.";
                 break;
         }
 
