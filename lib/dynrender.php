@@ -2387,17 +2387,13 @@ function RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopic
 {
     if( isset( $forumTopicID ) && $forumTopicID != 0 && getTopicDetails( $forumTopicID, $topicData ) )
     {
-        echo "<b>Forum Topic:</b> <a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
-        echo "<br/>";
-        echo "<br/>";
+        echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
     }
     else
     {
-        echo "<b>Forum Topic:</b> None";
+        echo "None";
         if( isset( $user ) )
             echo " - <a href='/generategameforumtopic.php?u=$user&c=$cookie&g=$gameID'>Click to create official forum topic</a>";
-        echo "<br/>";
-        echo "<br/>";
     }
 }
 

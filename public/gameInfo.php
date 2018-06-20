@@ -871,7 +871,9 @@ $numGridlines = $numAchievements;
                 }
                 echo "</tbody></table>";
 
+                echo "<b>Forum Topic: </b>";
                 RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
+                echo "<br><br>";
 
                 //	Render article comments
                 $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
@@ -890,7 +892,9 @@ $numGridlines = $numAchievements;
                 echo "<h3>More Info</h3>";
                 echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
                 echo "<ul>";
-                echo "<li>- <a href='/viewtopic.php?t=$forumTopicID'>Official forum topic</a></li>";
+                echo "<li>- ";
+                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
+                echo "</li>";
                 echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
                 echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
                 //if( $flags == 5 )

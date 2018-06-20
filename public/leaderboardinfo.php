@@ -228,7 +228,9 @@ RenderDocType( TRUE );
                 $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
                 RenderCommentsComponent( $user, $numArticleComments, $commentData, $lbID, 6, $forceAllowDeleteComments );
 
+                echo "<b>Forum Topic: </b>";
                 RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
+                echo "<br><br>";
                 ?>
             </div>
 
