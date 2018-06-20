@@ -275,21 +275,21 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
                 $status = "Closed";
                 if( $reason == "Demoted" )
                     updateAchievementFlags( $achID, 5 );
-                $comment = "Ticket closed. Reason: \"$reason\".";
+                $comment = "Ticket closed by \"$user\". Reason: \"$reason\".";
                 break;
 
             case 1: // Open
                 $status = "Open";
-                $comment = "Ticket reopened.";
+                $comment = "Ticket reopened by \"$user\".";
                 break;
 
             case 2: // Resolved
                 $status = "Resolved";
-                $comment = "Ticket resolved as fixed.";
+                $comment = "Ticket resolved as fixed by \"$user\".";
                 break;
         }
 
-        addArticleComment( $user, 7, $ticketID, $comment );
+        addArticleComment( "Server", 7, $ticketID, $comment );
 
         getAccountDetails( $userReporter, $reporterData );
         $email = $reporterData[ 'EmailAddress' ];
