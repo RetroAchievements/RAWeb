@@ -13,11 +13,13 @@
         exit;
     }
 
-    if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
-    {
-        header( "location: http://" . AT_HOST . "/forum.php?e=unknowntopic2" );
-        exit;
-    }
+    getTopicDetails( $requestedTopicID, $topicData );
+    // temporary workaround to fix some game's forum topics
+    //if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
+    //{
+        //header( "location: http://" . AT_HOST . "/forum.php?e=unknowntopic2" );
+        //exit;
+    //}
 
     if( $permissions < $topicData['RequiredPermissions'] )
     {
