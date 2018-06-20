@@ -155,11 +155,11 @@ function getTopicDetails( $topicID, &$topicDataOut )
     {
         //error_log( __FUNCTION__ . " $topicID, " . mysqli_num_rows( $dbResult ) );
         $topicDataOut = mysqli_fetch_assoc( $dbResult );
-        return TRUE;
+        return $topicDataOut['ID'] == $topicID;
     }
     else
     {
-        $topicNameOut = NULL;
+        $topicDataOut = NULL;
         return FALSE;
     }
 }

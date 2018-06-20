@@ -13,6 +13,9 @@
 	
 	$newGameAlt = seekPOST( 'n' );
 	$removeGameAlt = seekPOST( 'm' );
+
+	$newForumTopic = seekPOST( 'f' );
+    settype( $newForumTopic, 'integer' );
 	
 	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser ) )
 	{
@@ -36,6 +39,19 @@
 			header( "location: http://" . AT_HOST . "/Game/$gameID?e=ok" );
 			exit;
 		}
+        else if( isset( $newForumTopic ) )
+        {
+            if( requestModifyGameForumTopic( $gameID, $newForumTopic ) )
+            {
+			    header( "location: http://" . AT_HOST . "/Game/$gameID?e=ok" );
+			    exit;
+            }
+            else
+            {
+			    header( "location: http://" . AT_HOST . "/Game/$gameID?e=error" );
+                exit;
+            }
+        }
 		else
 		{
 			//	unknown?

@@ -702,6 +702,36 @@ function requestModifyGameAlt( $gameID, $toAdd = null, $toRemove = null )
     }
 }
 
+function requestModifyGameForumTopic( $gameID, $newForumTopic )
+{
+    settype( $gameID, 'integer' );
+    settype( $newForumTopic, 'integer' );
+
+    if( $gameID == 0 || $newForumTopic == 0 ) return FALSE;
+
+    if( getTopicDetails( $newForumTopic, $topicData ) )
+    {
+        global $db;
+        $query = "
+            UPDATE GameData AS gd
+            SET gd.ForumTopicID = '$newForumTopic'
+            WHERE gd.ID = $gameID";
+
+        if( mysqli_query( $db, $query ) )
+        {
+            error_log( __FUNCTION__ . " OK! GameID: $gameID, new ForumTopicID: $newForumTopic" );
+            return TRUE;
+        }
+        else
+        {
+            log_email( __FUNCTION__ . " went wrong. GameID: $gameID, new ForumTopicID: $newForumTopic" );
+            log_email( $query );
+            return FALSE;
+        }
+    }
+    return FALSE;
+}
+
 //	20:52 06/12/2013
 function getAchievementDistribution( $gameID, $hardcore )
 {
