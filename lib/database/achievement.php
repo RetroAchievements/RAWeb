@@ -771,7 +771,13 @@ function UploadNewAchievement( $author, $gameID, $title, $desc, $progress, $prog
 		$errorOut = "Tutorial: Achievement upload! This reply is happening on the server, to say that we have successfully received your achievement data.";
 		return FALSE;
 	}
-	
+
+    if( $type == 3 && !isValidConsoleID( GetGameData( $gameID )['ConsoleID'] ) )
+    {
+        $errorOut = "You cannot promote achievements for a game from an unsupported console.";
+        return FALSE;
+    }
+
     $title = str_replace( "'", "''", $title );
     $desc = str_replace( "'", "''", $desc );
     $title = str_replace( "/", "_", $title );

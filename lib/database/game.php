@@ -1389,3 +1389,27 @@ function getHashListByGameID( $gameID )
 
     return $retVal;
 }
+
+function isValidConsoleID( $consoleID ) {
+    switch( $consoleID )
+    {
+        case 1: // Mega Drive/Genesis
+        case 2: // N64
+        case 3: // Super Nintendo
+        case 4: // Gameboy
+        case 5: // Gameboy Advance
+        case 6: // Gameboy Color
+        case 7: // NES
+        case 8: // PC Engine
+        case 11: // Master System
+        case 13: // Atari Lynx
+        case 14: // Neo Geo Pocket
+        case 15: // Game Gear
+        case 25: // Atari 2600
+        case 27: // Arcade
+        case 28: // Virtual Boy
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
