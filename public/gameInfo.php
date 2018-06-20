@@ -593,7 +593,7 @@ $numGridlines = $numAchievements;
                     echo "</td></tr>";
                     echo "</tbody></table>";
 
-                    echo "<li>Update <a href='http://retroachievements.org/viewtopic.php?t=842'>Rich Presence</a> script:</li>";
+                    echo "<li>Update <a href='http://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script:</li>";
                     echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' value='$gameID' name='i'></input>";
                     echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea></br>";
