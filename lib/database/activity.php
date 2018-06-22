@@ -494,13 +494,19 @@ function addArticleComment( $user, $articleType, $articleID, $commentPayload )
         $activityData = getActivityMetadata( $articleID );
         informAllSubscribersAboutActivity( $user, $activityData[ 'User' ], $articleID, $articleType );
     }
-    else if( $articleType == 2 ) //	Achievement
+    else if( $articleType == 2 ) // Achievement
     {
         error_log( __FUNCTION__ . " Comment on Achievement... notifying author and thread" );
 
         //	Get achievement's original author:
         $achievementData = getAchievementMetadataJSON( $articleID );
-        informAllSubscribersAboutActivity( $user, $achievementData[ 'Author' ], $articleID, $articleType );
+
+        // if it's a message from the "Server" logging a change made by the Author,
+        // assume the Author is posting the activity (avoid spamming their mail box).
+        if( $user == "Server" && !strncmp( $achievementData['Author'] .' ', $commentPayload, strlen( $achievementData['Author'] ) +1 ) )
+            informAllSubscribersAboutActivity( $achievementData['Author'], $achievementData['Author'], $articleID, $articleType );
+        else
+            informAllSubscribersAboutActivity( $user, $achievementData['Author'], $articleID, $articleType );
     }
     else if( $articleType == 3 ) //	User
     {
