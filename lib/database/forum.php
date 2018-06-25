@@ -441,10 +441,12 @@ function generateGameForumTopic( $user, $gameID, &$forumTopicID )
 
     getGameMetaData( $gameID, $user, $achievementData, $gameData );
 
-    if( getTopicDetails( $gameData['ForumTopicID'], $dumbData ) )
+    if( isset( $gameData['ForumTopicID'] )
+        && $gameData['ForumTopicID'] != 0
+        && getTopicDetails( $gameData['ForumTopicID'], $dumbData ) )
     {
         // Bad times?!
-        error_log( __FUNCTION__ . ", $user trying to create a forum topic for $gameTitle when one already exists!" );
+        error_log( __FUNCTION__ . ", $user trying to create a forum topic for ". $gameData['Title'] ." when one already exists!" );
         return FALSE;
     }
 
