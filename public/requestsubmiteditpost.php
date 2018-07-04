@@ -13,7 +13,7 @@
 	$commentPayload = seekPOST( 'p' );
 	$commentID = seekPOST( 'i' );
 	
-	if( validateUser_cookie( $user, $cookie, 1 ) )
+	if( validateUser_cookie( $user, $cookie, 1, $permissions ) )
 	{
         if( getSingleTopicComment( $commentID, $commentData ) == FALSE )
         {

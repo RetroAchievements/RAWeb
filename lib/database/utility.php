@@ -41,7 +41,7 @@ function validateUser_app( &$user, $token, &$fbUser, $permissionRequired )
     return RA_ReadTokenCredentials( $user, $token, $pointsUnused, $truePointsUnused, $unreadMessagesUnused, $permissionsUnused, $permissionRequired );
 }
 
-function validateUser_cookie( &$user, $cookie, $permissionRequired )
+function validateUser_cookie( &$user, $cookie, $permissionRequired, &$permissions = 0 )
 {
     return validateFromCookie( $user, $points, $permissions, $permissionRequired );
 }
