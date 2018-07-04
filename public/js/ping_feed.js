@@ -3,7 +3,7 @@ var pingURL = "ping_feed.php";
 /* create XMLHttpRequest objects for updating the feed and getting the selected color */
 var xmlHttpGetFeed = createXmlHttpRequestObject();
 /* variables that establish how often to access the server */
-var updateIntervalFeed = 3000000; // how many miliseconds to wait to get new feed item (30000 = 30s)
+var updateIntervalFeed = 30000; // how many milliseconds to wait to get new feed item (30000 = 30s)
 /* initialize the messages cache */
 var cacheFeed = new Array();
 /* lastFeedID - the ID of the most recent feed feed item */
