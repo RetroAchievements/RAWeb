@@ -15,8 +15,20 @@
 	
 	if( validateUser_cookie( $user, $cookie, 1 ) )
 	{
-		if( editTopicComment( $commentID, $commentPayload ) )
-		{
+        if( getSingleTopicComment( $commentID, $commentData ) == FALSE )
+        {
+            header( "location: http://" . AT_HOST . "/forum.php?e=unknowncomment" );
+            exit;
+        }
+
+        if( $user != $commentData['Author'] && $permissions != \RA\Permissions::Admin )
+        {
+            header( "Location: http://" . AT_HOST . "?e=nopermission" );
+            exit;
+        }
+
+        if( editTopicComment( $commentID, $commentPayload ) )
+        {
 			//	Good!
 			//error_log( "HOST: " );
 			//error_log( AT_HOST );

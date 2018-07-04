@@ -25,6 +25,13 @@
 		header( "location: http://" . AT_HOST . "/forum.php?e=unknowncomment" );
 		exit;
 	}
+
+    if( $user != $commentData['Author'] && $permissions != \RA\Permissions::Admin )
+    {
+        header( "Location: http://" . AT_HOST . "?e=nopermission" );
+        exit;
+    }
+	
 	
 	if( getTopicDetails( $commentData['ForumTopicID'], $topicData ) == FALSE )
 	{
@@ -40,7 +47,7 @@
 	//$thisForumDescription = $topicData['ForumDescription'];
 	//$thisCategoryID = $topicData['CategoryID'];
 	//$thisCategoryName = $topicData['CategoryName'];
-	
+
 	$pageTitle = "Edit post: $thisTopicTitle";
 	
 	getCookie( $user, $cookieRaw );
