@@ -2476,11 +2476,11 @@ function RenderTitleTag( $title, $user )
 {
     echo "<title>";
 
+    if( $title !== NULL )
+        echo "$title - ";
+
     echo AT_HOST;
     //"RetroAchievements.org";
-
-    if( $title !== NULL )
-        echo " - $title";
 
     echo "</title>";
 
