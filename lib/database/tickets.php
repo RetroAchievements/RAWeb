@@ -321,7 +321,7 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
         else
         {
             error_log( __FUNCTION__ . " sending ticket resolution mail to $user at address $email" );
-            $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+            $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
             error_log( __FUNCTION__ . " return val: $retVal" );
         }
 

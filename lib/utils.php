@@ -62,7 +62,7 @@ function log_email( $logMessage )
     error_log( $fullmsg );
 
     //if( !IsAtHome() )
-    mail_utf8( "Scott@retroachievements.org", "RetroAchievements.org", "Scott@retroachievements.org", "Error Log", $fullmsg );
+    //mail_utf8( "Scott@retroachievements.org", "RetroAchievements.org", "noreply@retroachievements.org", "Error Log", $fullmsg );
 }
 
 function log_sql( $logMessage )
@@ -70,7 +70,7 @@ function log_sql( $logMessage )
     if( IsAtHome() )
         error_log( $logMessage . "\n", 3, "logs/queries.log" );
     else
-        error_log( $logMessage . "\n", 3, "/var/www/html/logs/queries.log" );
+        error_log( $logMessage . "\n", 3, getenv('DOC_ROOT')."logs/queries.log" );
 }
 
 function log_sql_fail()

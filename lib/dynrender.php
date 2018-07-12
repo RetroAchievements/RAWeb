@@ -728,7 +728,7 @@ function RenderToolbar( $user, $permissions = 0 )
 
     echo "<li><a href='#'>Site Pages</a>";
     echo "<ul>";
-    echo "<li><a href='/popularGames.php'>Popular Games</a></li>";
+    // echo "<li><a href='/popularGames.php'>Popular Games</a></li>";
     echo "<li><a href='/gameList.php'>Supported Games</a></li>";
     echo "<li><a href='/gameList.php?c=1'>- Mega Drive/Genesis</a></li>";
     echo "<li><a href='/gameList.php?c=11'>- Master System</a></li>";
@@ -1078,7 +1078,7 @@ function RenderErrorCodeWarning( $location, $errorCode )
         else if( $errorCode == "incorrectpassword" )
             echo "<div id='warning'>Incorrect User/Password! Please re-enter.</div>";
         else if( $errorCode == "accountissue" )
-            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='mailto:admin@retroachievements.org'>here</a> for more details.</div>";
+            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='http://retroachievements.org/user/RAdmin'>here</a> for more details.</div>";
         else if( $errorCode == "notloggedin" )
             echo "<div id='warning'>Please log in.</div>";
         else if( $errorCode == "resetok" )
@@ -1116,7 +1116,7 @@ function RenderErrorCodeWarning( $location, $errorCode )
         else if( $errorCode == 'delete_ok' )
             echo "<div id='warning'>Info: Deleted OK!</div>";
         else if( $errorCode == 'badcredentials' )
-            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='mailto:admin@retroachievements.org'>here</a> for more details.</div>";
+            echo "<div id='warning'>There appears to be a problem with your account. Please contact <a href='http://retroachievements.org/user/RAdmin'>RAdmin</a> for more details.</div>";
         else if( $errorCode == 'friendadded' )
             echo "<div id='warning'>Friend Added!</div>";
         else if( $errorCode == 'friendconfirmed' )

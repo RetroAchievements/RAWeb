@@ -65,7 +65,7 @@ function sendValidationEmail( $user, $email )
 
     error_log( __FUNCTION__ . " sending mail to $user at address $email" );
 
-    $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $subject, $msg );
+    $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $subject, $msg );
 
     error_log( __FUNCTION__ . " return val: $retVal" );
 
@@ -333,7 +333,7 @@ function sendFriendEmail( $user, $email, $type, $friend )
     else
     {
         error_log( __FUNCTION__ . " sending friend mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -418,7 +418,7 @@ function sendActivityEmail( $user, $email, $actID, $activityCommenter, $articleT
     else
     {
         error_log( __FUNCTION__ . " sending activity mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -459,7 +459,7 @@ function SendPrivateMessageEmail( $user, $email, $title, $contentIn, $fromUser )
     else
     {
         error_log( __FUNCTION__ . " sending activity mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -486,7 +486,7 @@ function SendPasswordResetEmail( $user, $email, $token )
     else
     {
         error_log( __FUNCTION__ . " sending activity mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
