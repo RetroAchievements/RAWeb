@@ -130,7 +130,7 @@ if( $dbResult !== FALSE )
         error_log( "Failed to send validation email to $user at $email" );
     }
 
-    if( copy( "/var/www/html/public/UserPic/_User.png", "/var/www/html/public/UserPic/$user.png" ) == FALSE )
+    if( copy( getenv('DOC_ROOT')."public/UserPic/_User.png", "/var/www/html/public/UserPic/$user.png" ) == FALSE )
     {
         error_log( "Failed to create user pic for user $user" );
         //log_sql_fail();

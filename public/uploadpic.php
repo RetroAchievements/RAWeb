@@ -100,7 +100,7 @@ else
     settype( $nextImageFilename, "integer" );
     $nextImageFilenameStr = str_pad( $nextImageFilename, 6, "0", STR_PAD_LEFT );
 
-    $destPath = "/var/www/html/public/Images/";
+    $destPath = getenv('DOC_ROOT')."public/Images/";
 
     $newImageFilename = $destPath . $nextImageFilenameStr . ".png";
 
