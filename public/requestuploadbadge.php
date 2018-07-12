@@ -9,12 +9,12 @@ return false;
 // function UploadToS3( $filenameSrc, $filenameDest )
 // {
 // 	$client = new S3Client([
-// 		'region' => getenv('AMAZON_S3_REGION'),
+// 		'region' => getenv('AWS_DEFAULT_REGION'),
 // 		'version' => 'latest'
 // 	]);
 //
 // 	$result = $client->putObject([
-// 		'Bucket' => getenv('AMAZON_S3_BUCKET'),
+// 		'Bucket' => getenv('AWS_BUCKET'),
 // 		'Key' => "$filenameDest",
 // 		'Body' => fopen($filenameSrc, 'r+'),
 // 	]);

@@ -30,7 +30,7 @@ use Aws\S3\S3Client;
 function UploadToS3( $filenameDest, $rawFile )
 {
     $client = new S3Client([
-		'region' => getenv('AMAZON_S3_REGION'),
+		'region' => getenv('AWS_DEFAULT_REGION'),
 		'version' => 'latest'
     ]);
 
@@ -39,7 +39,7 @@ function UploadToS3( $filenameDest, $rawFile )
     //$url = "s3://i.retroachievements.org/$filenameDest";
 
 	$result = $client->putObject([
-		'Bucket' => getenv('AMAZON_S3_BUCKET'),
+		'Bucket' => getenv('AWS_BUCKET'),
 		'Key' => "$filenameDest",
 		'Body' => fopen($filenameDest, 'r+'),
 	]);
