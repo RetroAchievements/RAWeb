@@ -1,5 +1,7 @@
 <?php
-//header('Maintenance. Please try again in a few minutes', true, 503);exit;
+// header(($_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1' ? 'HTTP/1.1' : 'HTTP/1.0') . ' 503 Service Unavailable', true, 503);
+// header("Retry-After: 3600");
+// die('Maintenance. Please try again in a few minutes');
 
 require_once( __DIR__ . '/../vendor/autoload.php' );
 
