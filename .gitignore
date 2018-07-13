@@ -33,5 +33,3 @@ nbproject
 /chat/node-gyp
 /chat/utf-8*
 /cronjobs/*.log
-/logs
-/RA_Integration.dll
