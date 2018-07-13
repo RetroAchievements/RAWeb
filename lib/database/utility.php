@@ -29,7 +29,7 @@ function validateUser( &$user, $pass, &$fbUser, $permissionRequired )
         }
         else
         {
-            error_log( __FUNCTION__ . " failed: passwords don't match for user:$user pass:" . $row[ 'SaltedPass' ] . ", but $pass was given." );
+            error_log( __FUNCTION__ . " failed: passwords don't match for user:$user pass:" . $row[ 'SaltedPass' ] );
             return FALSE;
         }
     }

@@ -66,7 +66,7 @@ for( $i = 0; $i < 48; $i++ )
 	if( count($playersOnlineArray) < $i )
 		continue;
 	
-    $players = $playersOnlineArray[ $i ];
+    $players = empty($playersOnlineArray[ $i ]) ? 0 : $playersOnlineArray[ $i ];
     settype( $players, 'integer' );
 
     if( $i != 0 )

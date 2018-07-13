@@ -68,16 +68,16 @@ function log_email( $logMessage )
 function log_sql( $logMessage )
 {
     if( IsAtHome() )
-        error_log( $logMessage . "\n", 3, "logs/queries.log" );
+        error_log( $logMessage . "\n", 3, "storage/logs/queries.log" );
     else
-        error_log( $logMessage . "\n", 3, getenv('DOC_ROOT')."logs/queries.log" );
+        error_log( $logMessage . "\n", 3, getenv('DOC_ROOT')."storage/logs/queries.log" );
 }
 
 function log_sql_fail()
 {
     global $db;
 
-    error_log( mysql_errno() . ": " . mysqli_error( $db ), 3, "logs/queries.log" );
+    error_log( mysql_errno() . ": " . mysqli_error( $db ), 3, "storage/logs/queries.log" );
     error_log( "SQL failed: " . mysqli_error( $db ) );
     log_email( "SQL failed: " . mysqli_error( $db ) );
 }
