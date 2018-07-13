@@ -1,5 +1,5 @@
 <?php
-//echo "Hold on..."; exit;
+//header('Maintenance. Please try again in a few minutes', true, 503);exit;
 
 require_once( __DIR__ . '/../vendor/autoload.php' );
 
