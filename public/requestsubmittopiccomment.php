@@ -3,7 +3,7 @@
 	
 	if( !ValidatePOSTChars( "tp" ) )
 	{
-		header( "Location: " . APP_URL . "/viewtopic.php?t=$topicID&e=invalidparams" );
+		header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams" );
 		exit;
 	}
 
@@ -16,7 +16,7 @@
 		if( submitTopicComment( $user, $topicID, $commentPayload, $newCommentID ) )
 		{
 			//	Good!
-			header( "Location: " . APP_URL . "/viewtopic.php?t=$topicID&c=$newCommentID" );
+			header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$newCommentID" );
 			exit;
 		}
 		else
@@ -24,7 +24,7 @@
 			error_log( __FILE__ );
 			error_log( "Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload" );
 			
-			header( "Location: " . APP_URL . "/viewtopic.php?t=$topicID&e=issuessubmitting" );
+			header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=issuessubmitting" );
 			exit;
 		}
 	}
@@ -33,7 +33,7 @@
 		error_log( __FILE__ );
 		error_log( "Issues: userin $userIn, topicID $topicID, payload: $commentPayload" );
 		log_email( "Issues: userin $userIn, topicID $topicID, payload: $commentPayload" );
-		header( "Location: " . APP_URL . "/viewtopic.php?t=$topicID&e=badcredentials" );
+		header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=badcredentials" );
 		exit;
 	}
 	

@@ -6,14 +6,14 @@
 		if( getAccountDetails( $user, $userDetails ) == FALSE )
 		{
 			//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-			header( "Location: " . APP_URL . "?e=accountissue" );
+			header( "Location: " . getenv('APP_URL') ."?e=accountissue" );
 			exit;
 		}
 	}
 	else
 	{
 		//	Immediate redirect if we cannot validate cookie!	//TBD: pass args?
-		header( "Location: " . APP_URL . "?e=notloggedin" );
+		header( "Location: " . getenv('APP_URL') ."?e=notloggedin" );
 		exit;
 	}
 	
@@ -22,13 +22,13 @@
 	
 	if( $requestedForumID == 0 )
 	{
-		header( "location: " . APP_URL . "/forum.php?e=unknownforum" );
+		header( "location: " . getenv('APP_URL') ."/forum.php?e=unknownforum" );
 		exit;
 	}
 	
 	if( getForumDetails( $requestedForumID, $forumData ) == FALSE )
 	{
-		header( "location: " . APP_URL . "/forum.php?e=unknownforum2" );
+		header( "location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2" );
 		exit;
 	}
 	

@@ -20,12 +20,12 @@
     {
         if( requestModifyGame( $author, $gameID, $field, $value ) )
         {
-            header( "location: " . APP_URL . "/Game/$gameID?e=modify_game_ok" );
+            header( "location: " . getenv('APP_URL') . "/Game/$gameID?e=modify_game_ok" );
             exit;
         }
         else
         {
-            header( "location: " . APP_URL . "/Game/$gameID?e=errors_in_modify_game" );
+            header( "location: " . getenv('APP_URL') . "/Game/$gameID?e=errors_in_modify_game" );
             exit;
         }
     }

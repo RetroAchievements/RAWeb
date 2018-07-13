@@ -27,7 +27,7 @@
 		}
 		else
 		{
-			header( "location: " . APP_URL . "/forum.php?e=unknownforum" );
+			header( "location: " . getenv('APP_URL') . "/forum.php?e=unknownforum" );
 			exit;
 		}
 		
@@ -45,7 +45,7 @@
 	{
 		if( getForumDetails( $requestedForumID, $forumDataOut ) == FALSE )
 		{
-			header( "location: " . APP_URL . "/forum.php?e=unknownforum2" );
+			header( "location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2" );
 			exit;
 		}
 		

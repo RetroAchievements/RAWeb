@@ -144,7 +144,7 @@ if( $dbResult !== FALSE )
     //validateEmailValidationString( $validationString, $user );
     //generateCookie( $user, $cookie );
     //	TBD: Check for messages, updates? etc
-    header( "Location: " . APP_URL . "/?e=validateEmailPlease" );
+    header( "Location: " . getenv('APP_URL') . "/?e=validateEmailPlease" );
 
     echo "Created $user successfully!<br/>";
 }

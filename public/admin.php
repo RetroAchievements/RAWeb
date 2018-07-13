@@ -3,7 +3,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header("Location: " . APP_URL);
+    header("Location: " . getenv('APP_URL'));
     exit;
 }
 

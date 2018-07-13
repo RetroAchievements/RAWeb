@@ -96,7 +96,7 @@ return false;
 //         {
 //             //	Done OK
 //             //echo 'OK';
-//             //header( "Location: " . APP_URL . "/manageuserpic.php?e=success" );
+//             //header( "Location: " . getenv('APP_URL') . "/manageuserpic.php?e=success" );
 //         }
 //     }
 //

@@ -4,7 +4,7 @@
 	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 	{
 		//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-		header( "Location: " . APP_URL );
+		header( "Location: " . getenv('APP_URL') );
 		exit;
 	}
 
@@ -22,7 +22,7 @@
 	else
 	{
 		//	Immediate redirect: this is pointless otherwise!
-		header( "Location: " . APP_URL );
+		header( "Location: " . getenv('APP_URL') );
 	}
 	
 	//var_dump( $gameData );

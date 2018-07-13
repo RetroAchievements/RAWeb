@@ -16,11 +16,11 @@
 	if( validateUser_cookie( $user, $cookie, 0 ) == TRUE )
 	{
 		$returnVal = ChangeFriendStatus( $user, $friend, $action );
-		header( "Location: " . APP_URL . "/User/$friend?e=$returnVal" );
+		header( "Location: " . getenv('APP_URL') . "/User/$friend?e=$returnVal" );
 	}
 	else
 	{
-		header( "Location: " . APP_URL . "/User/$friend?e=pleaselogin" );
+		header( "Location: " . getenv('APP_URL') . "/User/$friend?e=pleaselogin" );
 		//echo "INVALID USER/PASS!";
 	}
 ?>

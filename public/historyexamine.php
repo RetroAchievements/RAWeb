@@ -6,7 +6,7 @@
 	$userPage = seekGET( 'u', $user );
 	if( !isset( $userPage ) )
 	{
-		header( "Location: " . APP_URL . "?e=notloggedin" );
+		header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
 		exit;
 	}
 	

@@ -18,14 +18,14 @@
 		if( requestModifyTopic( $user, $permissions, $topicID, $field, $value ) )
 		{
 			if( $field == ModifyTopicField::DeleteTopic )
-				header( "location: " . APP_URL . "/forum.php?e=delete_ok" );
+				header( "location: " . getenv('APP_URL') . "/forum.php?e=delete_ok" );
 			else
-				header( "location: " . APP_URL . "/viewtopic.php?t=$topicID&e=modify_ok" );
+				header( "location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=modify_ok" );
 			exit;
 		}
 		else
 		{
-			header( "location: " . APP_URL . "/viewtopic.php?t=$topicID&e=errors_in_modify" );
+			header( "location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=errors_in_modify" );
 			exit;
 		}
 	}

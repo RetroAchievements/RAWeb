@@ -6,14 +6,14 @@
 		if( getAccountDetails( $user, $userDetails ) == FALSE )
 		{
 			//	Immediate redirect if we cannot validate user!
-			header( "Location: " . APP_URL . "?e=accountissue" );
+			header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
 			exit;
 		}
 	}
 	else
 	{
 		//	Immediate redirect if we cannot validate cookie!
-		header( "Location: " . APP_URL . "?e=notloggedin" );
+		header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
 		exit;
 	}
 	

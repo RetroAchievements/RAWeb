@@ -14,7 +14,7 @@ $newsCount = getLatestNewsHeaders( 0, 999, $newsData );
 if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser ) )
 {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header( "Location: " . APP_URL );
+    header( "Location: " . getenv('APP_URL') );
     exit;
 }
 ?>

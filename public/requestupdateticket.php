@@ -22,7 +22,7 @@
 		if( updateTicket( $user, $ticketID, $ticketVal ) )
 		{
 			//echo "OK";
-			header( "Location: " . APP_URL . "/ticketmanager.php?e=OK" );
+			header( "Location: " . getenv('APP_URL') . "/ticketmanager.php?e=OK" );
 		}
 		else
 		{

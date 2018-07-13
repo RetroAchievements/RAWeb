@@ -4,14 +4,14 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $userPage = seekGET( 'ID' );
 if( $userPage == NULL || strlen( $userPage ) == 0 )
 {
-    header( "Location: " . APP_URL );
+    header( "Location: " . getenv('APP_URL') );
     exit;
 }
 
 if( ctype_alnum( $userPage ) == FALSE )
 {
     //  NB. this is triggering for odd reasons? Why would a non-user hit this page?
-    header( "Location: " . APP_URL );
+    header( "Location: " . getenv('APP_URL') );
     exit;
 }
 

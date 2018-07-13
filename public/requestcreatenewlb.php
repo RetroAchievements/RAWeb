@@ -16,7 +16,7 @@
 		if( submitNewLeaderboard( $gameID, $lbID ) )
 		{
 			//	Good!
-			header( "Location: " . APP_URL . "/leaderboardList.php?g=$gameID&e=ok" );
+			header( "Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok" );
 			exit;
 		}
 		else
@@ -25,7 +25,7 @@
 			error_log( __FILE__ );
 			error_log( "Issues2: user $user, cookie $cookie, gameID $gameID" );
 			
-			header( "Location: " . APP_URL . "/leaderboardList.php&e=cannotcreate" );
+			header( "Location: " . getenv('APP_URL') . "/leaderboardList.php&e=cannotcreate" );
 			exit;
 		}
 	}
@@ -33,7 +33,7 @@
 	{
 		error_log( __FILE__ );
 		error_log( "Issues: user $user, cookie $cookie, $gameID" );
-		header( "Location: " . APP_URL . "/?e=badcredentials" );
+		header( "Location: " . getenv('APP_URL') . "/?e=badcredentials" );
 		exit;
 	}
 	

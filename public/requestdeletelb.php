@@ -20,7 +20,7 @@
 	{
 		if( requestDeleteLB( $lbID ) )
 		{
-			header( "Location: " . APP_URL . "/leaderboardList.php?e=deleteok&g=$gameID" );
+			header( "Location: " . getenv('APP_URL') . "/leaderboardList.php?e=deleteok&g=$gameID" );
 			exit;
 		}
 		else

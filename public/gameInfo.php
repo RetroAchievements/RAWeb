@@ -10,7 +10,7 @@ $gameID = seekGET( 'ID' );
 settype( $gameID, 'integer' );
 if( $gameID == NULL || $gameID == 0 )
 {
-    header( "Location: " . APP_URL . "?e=urlissue" );
+    header( "Location: " . getenv('APP_URL') . "?e=urlissue" );
     exit;
 }
 

@@ -3,7 +3,7 @@
 	
 	if( !ValidatePOSTChars( "u" ) )
 	{
-		header( "Location: " . APP_URL . "/controlpanel.php?e=invalidparams" );
+		header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=invalidparams" );
 		exit;
 	}
 
@@ -11,12 +11,12 @@
 	
 	if( recalcScore( $user ) )
 	{
-		header( "Location: " . APP_URL . "/controlpanel.php?e=recalc_ok" );
+		header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=recalc_ok" );
 		exit;
 	}
 	else
 	{
-		header( "Location: " . APP_URL . "/controlpanel.php?e=recalc_error" );
+		header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=recalc_error" );
 		exit;
 	}
 ?>

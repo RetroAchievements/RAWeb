@@ -4,7 +4,7 @@
 	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 	{
 		//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-		header( "Location: " . APP_URL );
+		header( "Location: " . getenv('APP_URL') );
 		exit;
 	}
 	
@@ -21,13 +21,13 @@
 		if( $gameData == NULL )
 		{
 			//	Immediate redirect: this is pointless otherwise!
-			header( "Location: " . APP_URL . "?e=unknowngame" );
+			header( "Location: " . getenv('APP_URL') . "?e=unknowngame" );
 		}
 	}
 	else
 	{
 		//	Immediate redirect: this is pointless otherwise!
-		header( "Location: " . APP_URL );
+		header( "Location: " . getenv('APP_URL') );
 	}
 	
 	$consoleName = $gameData['ConsoleName'];

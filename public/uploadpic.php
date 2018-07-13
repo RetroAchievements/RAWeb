@@ -35,14 +35,14 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
     if( getAccountDetails( $user, $userDetails ) == FALSE )
     {
         //	Immediate redirect if we cannot validate user!
-        header( "Location: " . APP_URL . "?e=accountissue" );
+        header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
         exit;
     }
 }
 else
 {
     //	Immediate redirect if we cannot validate cookie!
-    header( "Location: " . APP_URL . "?e=notloggedin" );
+    header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
     exit;
 }
 
@@ -177,7 +177,7 @@ else
 
         if( $uploadType == "NEWS" )
         {
-            //header( "Location: " . APP_URL . "/submitnews.php?e=uploadok&g=/$newImageFilename" );
+            //header( "Location: " . getenv('APP_URL') . "/submitnews.php?e=uploadok&g=/$newImageFilename" );
             echo "OK:/$newImageFilename";
             exit;
         }
@@ -213,7 +213,7 @@ else
                 error_log( "Logged image update $uploadType to game $returnID, to image /Images/$nextImageFilenameStr.png" );
             }
 
-            header( "Location: " . APP_URL . "/game/$returnID?e=uploadok" );
+            header( "Location: " . getenv('APP_URL') . "/game/$returnID?e=uploadok" );
             exit;
         }
     }
