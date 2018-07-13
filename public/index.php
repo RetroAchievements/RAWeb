@@ -169,7 +169,7 @@ $numGridlines = 24;
                 $("a:eq(0)", "#carouselpages")
                         .removeClass("off")
                         .addClass("on")
-                        .css("background-image", "url(http://i.retroachievements.org/Images/page-on.png)");
+                        .css("background-image", "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-on.png)");
 
                 $('.newstitle').css('opacity', 0.0).delay(500).fadeTo("slow", 1.0);
                 $('.newstext').css('opacity', 0.0).delay(900).fadeTo("slow", 1.0);
@@ -179,12 +179,12 @@ $numGridlines = 24;
             function pageLoaded(event, data) {
                 $("a.on", "#carouselpages")
                         .removeClass("on")
-                        .css("background-image", "url(http://i.retroachievements.org/Images/page-off.png)");
+                        .css("background-image", "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-off.png)");
 
                 $("a", "#carouselpages")
                         .eq(data.page)
                         .addClass("on")
-                        .css("background-image", "url(http://i.retroachievements.org/Images/page-on.png)");
+                        .css("background-image", "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-on.png)");
             }
 
             function onNext() {

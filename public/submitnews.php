@@ -88,7 +88,7 @@ function onUploadImageComplete( data )
 	if( data.substr( 0, 3 ) == "OK:" )
 	{
 		//alert( data );
-		$("#NewsImage").val( 'http://i.retroachievements.org' + data.substr( 3 ) );
+		$("#NewsImage").val( '<?php echo getenv('APP_STATIC_URL') ?>' + data.substr( 3 ) );
 		$('#NewsImagePreview').attr( 'src', $('#NewsImage').val() );
 	}
 	else
@@ -204,7 +204,7 @@ function onUploadImageComplete( data )
 			echo "Image: <input id='NewsImage' size='44' type='text' name='g' value='$newsImage' onchange=\"$('#NewsImagePreview').attr( 'src', $('#NewsImage').val() ); return false;\">";
 			echo "</td>";
 			echo "<td>";
-			echo "&nbsp;<img id='loadingicon' style='opacity: 0;' src='http://i.retroachievements.org/Images/loading.gif' alt='loading icon' />";
+			echo "&nbsp;<img id='loadingicon' style='opacity: 0;' src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' alt='loading icon' />";
 			echo "&nbsp;New image:";
 			echo "<input type='file' style='float: right;' name='file' id='uploadimagefile' onchange=\"return UploadImage();\" /> </br>";
 			echo "</td>";

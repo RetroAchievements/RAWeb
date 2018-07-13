@@ -573,7 +573,7 @@ foreach( $arrayToUse as $dayInfo )
                             }
 
                             echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, TRUE, TRUE, $unlockedStr, 48, $class );
-                            //echo "<a href='/Achievement/$achID'><img class='$class' src='http://i.retroachievements.org/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
+                            //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                         }
                     }
 

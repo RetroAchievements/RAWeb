@@ -40,13 +40,13 @@
 		
 		echo "<h2 class='longheader'>RSS Streams</h2>";
 		echo "<p>Please help yourself to the following streams. More will be added soon!<br/><br/>";
-		echo "<a href='/rss-news'><img src='http://i.retroachievements.org/Images/rss_icon.gif' width='41' height='13' />&nbsp;News Stream</a><br/>";
-		echo "<a href='/rss-newachievements'><img src='http://i.retroachievements.org/Images/rss_icon.gif' width='41' height='13' />&nbsp;Newly Created Achievements</a><br/>";
-		echo "<a href='/rss-activity'><img src='http://i.retroachievements.org/Images/rss_icon.gif' width='41' height='13' />&nbsp;Global Activity (Very busy!)</a><br/>";
-		echo "<a href='/rss-forum'><img src='http://i.retroachievements.org/Images/rss_icon.gif' width='41' height='13' />&nbsp;Forum Activity</a><br/>";
+		echo "<a href='/rss-news'><img src='" . getenv('APP_STATIC_URL') . "/Images/rss_icon.gif' width='41' height='13' />&nbsp;News Stream</a><br/>";
+		echo "<a href='/rss-newachievements'><img src='" . getenv('APP_STATIC_URL') . "/Images/rss_icon.gif' width='41' height='13' />&nbsp;Newly Created Achievements</a><br/>";
+		echo "<a href='/rss-activity'><img src='" . getenv('APP_STATIC_URL') . "/Images/rss_icon.gif' width='41' height='13' />&nbsp;Global Activity (Very busy!)</a><br/>";
+		echo "<a href='/rss-forum'><img src='" . getenv('APP_STATIC_URL') . "/Images/rss_icon.gif' width='41' height='13' />&nbsp;Forum Activity</a><br/>";
 		if( isset( $user ) )
 		{
-			echo "<a href='/rss-activity?u=$user'><img src='http://i.retroachievements.org/Images/rss_icon.gif' width='41' height='13' />&nbsp;$user's Friends Stream</a><br/>";
+			echo "<a href='/rss-activity?u=$user'><img src='" . getenv('APP_STATIC_URL') . "/Images/rss_icon.gif' width='41' height='13' />&nbsp;$user's Friends Stream</a><br/>";
 		}
 		echo "<br/></p>";
 		

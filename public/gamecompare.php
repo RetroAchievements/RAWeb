@@ -179,7 +179,7 @@
 			else
 			{
 				echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName . "_lock", TRUE, TRUE, "", $iconSize, "awardLocal" );
-				//echo "<img class='awardlocal' src='http://i.retroachievements.org/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='right' width='$iconSize' height='$iconSize'>";
+				//echo "<img class='awardlocal' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='right' width='$iconSize' height='$iconSize'>";
 			}
 			echo "</td>";
 			
@@ -220,7 +220,7 @@
 			else
 			{
 				echo "<div style='float:right;' >";
-				echo "<img class='awardremote' src='http://i.retroachievements.org/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
+				echo "<img class='awardremote' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
 				echo "</div>";
 			}
 			echo "</td>";

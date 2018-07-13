@@ -108,7 +108,7 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "<td></td>";
 
             if( $user !== NULL )
-                $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             $retHTML .= "</tr>";
             break;
 
@@ -139,7 +139,7 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "</td>";
 
             if( $user !== NULL )
-                $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             $retHTML .= "</tr>";
 
             break;
@@ -164,7 +164,7 @@ function getFeedItemHTML( $feedData, $user )
 
             $retHTML .= "</td>";
             if( $user !== NULL )
-                $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             $retHTML .= "</tr>";
             break;
 
@@ -193,7 +193,7 @@ function getFeedItemHTML( $feedData, $user )
 
                 $retHTML .= "</td>";
                 if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
                 $retHTML .= "</tr>";
             }
             break;
@@ -222,7 +222,7 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "</td>";
 
             if( $user !== NULL )
-                $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             $retHTML .= "</tr>";
             break;
 
@@ -250,7 +250,7 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "</td>";
 
             if( $user !== NULL )
-                $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             $retHTML .= "</tr>";
             break;
 
@@ -286,7 +286,7 @@ function getFeedItemHTML( $feedData, $user )
 
 
                 if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
                 $retHTML .= "</tr>";
             }
 
@@ -319,7 +319,7 @@ function getFeedItemHTML( $feedData, $user )
 
                 $retHTML .= "</td>";
                 if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
                 $retHTML .= "</tr>";
             }
             break;
@@ -353,7 +353,7 @@ function getFeedItemHTML( $feedData, $user )
 
                 $retHTML .= "</td>";
                 if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
                 $retHTML .= "</tr>";
             }
             break;
@@ -448,7 +448,7 @@ function RenderFeedComponent( $user )
     echo "<table id='feed'><tbody>";
     echo "<tr id='feedloadingfirstrow'>";
     echo "<td class='chatcell'>";
-    echo "<img src='http://i.retroachievements.org/Images/loading.gif' width='16' height='16' alt='loading icon' />";
+    echo "<img src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
     echo "</td>";
     echo "<td class='chatcell'>";
     echo "</td>";
@@ -501,7 +501,7 @@ function RenderArticleEmptyComment( $articleType, $articleID )
 
     echo "<tr id='$rowID' class='feed_comment'>";
 
-    echo "<td></td><td></td><td></td><td></td><td class='editbutton'><img src='http://i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '$articleType' )\" /></td>";
+    echo "<td></td><td></td><td></td><td></td><td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '$articleType' )\" /></td>";
 
     echo "</tr>";
 }
@@ -516,7 +516,7 @@ function RenderArticleComment( $articleID, $user, $points, $motto, $comment, $su
     {
         $class = 'localuser';
 
-        $img = "<img src='http://i.retroachievements.org/Images/cross.png' width='16' height='16' alt='delete comment'/>";
+        $img = "<img src='" . getenv('APP_STATIC_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
@@ -538,7 +538,7 @@ function RenderCommentInputRow( $user, $rowIDStr, $artTypeID )
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
     $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250></textarea>";
     $formStr .= "&nbsp;";
-    $formStr .= "<img id='submitButton' src='http://i.retroachievements.org/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
+    $formStr .= "<img id='submitButton' src='" . getenv('APP_STATIC_URL') . "/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
 
     echo "<tr id='comment_$rowIDStr'><td></td><td class='iconscommentsingle'>$userImage</td><td colspan='3'>$formStr</td></tr>";
 }
@@ -616,7 +616,7 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
 
         echo "<a href='/logout.php?Redir=" . $_SERVER[ 'REQUEST_URI' ] . "'>logout</a><br/>";
 
-        $mailboxIcon = $unreadMessageCount > 0 ? 'http://i.retroachievements.org/Images/_MailUnread.png' : 'http://i.retroachievements.org/Images/_Mail.png';
+        $mailboxIcon = $unreadMessageCount > 0 ? getenv('APP_STATIC_URL') . '/Images/_MailUnread.png' : getenv('APP_STATIC_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
         echo "<img id='mailboxicon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";
@@ -826,18 +826,18 @@ function RenderFooter()
     echo "<div class='footericonset'>";
 
     //	W3
-    echo "<div class='footericon' >";
+    // echo "<div class='footericon' >";
     //echo "<p about='' resource='http://www.w3.org/TR/rdfa-syntax' rel='dc:conformsTo' xmlns:dc='http://purl.org/dc/terms/'>";
-    echo "<p>";
-    echo "<a href='http://validator.w3.org/check?uri=referer'><img src='http://www.w3.org/Icons/valid-xhtml-rdfa' alt='Valid XHTML + RDFa' height='31' width='88' /></a>";
-    echo "</p>";
-    echo "</div>";
+    // echo "<p>";
+    // echo "<a href='https://validator.w3.org/check?uri=referer'><img src='https://www.w3.org/Icons/valid-xhtml-rdfa' alt='Valid XHTML + RDFa' height='31' width='88' /></a>";
+    // echo "</p>";
+    // echo "</div>";
 
     //	CC License
     echo "<div class='footericon' >";
     echo "<p>";
     //echo "<span xmlns:dc='http://p0url.org/dc/elements/1.1/' href='http://purl.org/dc/dcmitype/InteractiveResource' property='dc:title' rel='dc:type' />";
-    echo "<a rel='license' href='http://creativecommons.org/licenses/by-nc-sa/2.0/uk/'><img alt='Creative Commons License' style='border-width:0' src='http://i.creativecommons.org/l/by-nc-sa/2.0/uk/88x31.png' /></a>";
+    echo "<a rel='license' href='https://creativecommons.org/licenses/by-nc-sa/2.0/uk/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-nc-sa/2.0/uk/88x31.png' /></a>";
     echo "</p>";
     echo "</div>";
 
@@ -1393,7 +1393,7 @@ function RenderSiteAwards( $userAwards )
             {
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . $developerCountBoundaries[ $awardData ] . " times!";
 
-                $imagepath = "http://i.retroachievements.org/Images/_Trophy" . $developerCountBoundaries[ $awardData ] . ".png";
+                $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . $developerCountBoundaries[ $awardData ] . ".png";
 
                 $linkdest = ''; //	TBD: referrals page?
             }
@@ -1402,17 +1402,17 @@ function RenderSiteAwards( $userAwards )
                 $tooltip = "Awarded for producing many valuable achievements, providing over " . $developerPointBoundaries[ $awardData ] . " points to the community!";
 
                 if( $awardData == 0 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00133.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00133.png";
                 else if( $awardData == 1 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00134.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00134.png";
                 else if( $awardData == 2 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00137.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00137.png";
                 else if( $awardData == 3 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00135.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00135.png";
                 else if( $awardData == 4 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00136.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00136.png";
                 else
-                    $imagepath = "http://i.retroachievements.org/Badge/00136.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00136.png";
 
                 $linkdest = ''; //	TBD: referrals page?
             }
@@ -1421,17 +1421,17 @@ function RenderSiteAwards( $userAwards )
                 $tooltip = "Referred $awardData members";
 
                 if( $awardData < 2 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00083.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
                 else if( $awardData < 3 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00083.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
                 else if( $awardData < 5 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00083.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
                 else if( $awardData < 10 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00083.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
                 else if( $awardData < 15 )
-                    $imagepath = "http://i.retroachievements.org/Badge/00083.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
                 else
-                    $imagepath = "http://i.retroachievements.org/Badge/00083.png";
+                    $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
 
                 $linkdest = ''; //	TBD: referrals page?
             }
@@ -1439,14 +1439,14 @@ function RenderSiteAwards( $userAwards )
             {
                 $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
 
-                $imagepath = "http://i.retroachievements.org/Images/_FBAssoc.png";
+                $imagepath = getenv('APP_STATIC_URL') . "/Images/_FBAssoc.png";
                 $linkdest = "/controlpanel.php#facebook";
             }
             else if( $awardType == 6 )  //  Patreon Supporter
             {
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 
-                $imagepath = 'http://i.retroachievements.org/Badge/PatreonBadge.png';
+                $imagepath = getenv('APP_STATIC_URL') . '/Badge/PatreonBadge.png';
                 $linkdest = 'https://www.patreon.com/retroachievements';
             }
             else
@@ -1737,7 +1737,7 @@ function RenderRecentlyAwardedComponent( $user, $points )
         $achDesc = $dataArray[ $i ][ 'Description' ];
         $achPoints = $dataArray[ $i ][ 'Points' ];
         $badgeName = $dataArray[ $i ][ 'BadgeName' ];
-        //$badgeFullPath = "http://i.retroachievements.org/Badge/" . $badgeName . ".png";
+        //$badgeFullPath = getenv('APP_STATIC_URL')."/Badge/" . $badgeName . ".png";
         $gameTitle = $dataArray[ $i ][ 'GameTitle' ];
         $gameID = $dataArray[ $i ][ 'GameID' ];
         $gameIcon = $dataArray[ $i ][ 'GameIcon' ];
@@ -1813,7 +1813,7 @@ function RenderRecentlyUploadedComponent( $numToFetch )
             $gameIcon = $nextData[ 'GameIcon' ];
             $achBadgeName = $nextData[ 'BadgeName' ];
             $consoleName = $nextData[ 'ConsoleName' ];
-            //$badgeFullPath = "/Badge/" . $achBadgeName . ".png";
+            //$badgeFullPath = getenv('APP_STATIC_URL')."/Badge/" . $achBadgeName . ".png";
 
             echo "<td>$dateAwarded $uploadedAt</td>";
             echo "<td style='width:50%'><div class='fixheightcell'>";
@@ -2258,8 +2258,8 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
     $userPicSize = 24;
 
     echo "<tr id='chatloadingfirstrow'>";
-    echo "<td class='chatcell'><img src='http://i.retroachievements.org/Images/loading.gif' width='16' height='16' alt='loading icon'/></td>";
-    //echo "<td class='chatcell'><img src='http://i.retroachievements.org/Images/tick.gif' width='16' height='16' alt='loading icon'/></td>";
+    echo "<td class='chatcell'><img src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon'/></td>";
+    //echo "<td class='chatcell'><img src='" . getenv('APP_STATIC_URL') . "/Images/tick.gif' width='16' height='16' alt='loading icon'/></td>";
     echo "<td class='chatcell'></td>";
     echo "<td class='chatcellmessage'>Loading chat...</td>";
     echo "</tr>";
@@ -2856,7 +2856,7 @@ function GetGameAndTooltipDiv( $gameID, $gameName, $gameIcon, $consoleName, $jus
     $displayable = "";
 
     if( $justText == FALSE )
-        $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='http://i.retroachievements.org$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='" . getenv('APP_STATIC_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
 
     if( $justImage == FALSE )
         $displayable .= "$gameName $consoleStr";
@@ -2931,7 +2931,7 @@ function GetAchievementAndTooltipDiv( $achID, $achName, $achDesc, $achPoints, $g
     $gameNameStr = str_replace( "'", "\'", $gameName );
 
     $tooltip = "<div id=\'objtooltip\'>" .
-            "<img src=\'http://i.retroachievements.org/Badge/$badgeName" . ".png\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' />" .
+            "<img src=\'" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . ".png\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' />" .
             "<b>$achNameStr ($achPoints)</b><br/>" .
             "<i>($gameNameStr)</i><br/>" .
             "<br/>" .
@@ -2948,7 +2948,7 @@ function GetAchievementAndTooltipDiv( $achID, $achName, $achDesc, $achPoints, $g
     if( $inclSmallBadge )
     {
         $smallBadgePath = "/Badge/$badgeName" . ".png";
-        $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"http://i.retroachievements.org$smallBadgePath\" alt='$achNameStr' title='$achNameStr' class='$imgclass' />";
+        $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('APP_STATIC_URL') . "$smallBadgePath\" alt='$achNameStr' title='$achNameStr' class='$imgclass' />";
 
         if( $smallBadgeOnly )
             $displayable = "";

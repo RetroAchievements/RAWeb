@@ -93,7 +93,7 @@
 						$achData = GetAchievementData( $nextID );
 						$badgeID = $achData['BadgeName'];
 						echo "<td>";
-						echo "<img src='http://i.retroachievements.org/Badge/" . str_pad($badgeID, 5, '0', STR_PAD_LEFT) . ".png' title='$nextTitle' alt='$nextTitle' width='32' height='32' />";
+						echo "<img src='" . getenv('APP_STATIC_URL') . "/Badge/" . str_pad($badgeID, 5, '0', STR_PAD_LEFT) . ".png' title='$nextTitle' alt='$nextTitle' width='32' height='32' />";
 						echo "</td>";
 						echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
 					}

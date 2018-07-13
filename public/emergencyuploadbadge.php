@@ -28,7 +28,7 @@ return false;
 //
 // 	$filename = sprintf( "%05d", $i );
 //
-// 	echo "<td><img src='http://i.retroachievements.org/Badge/" . $filename . ".png'><br/>$filename</td>";
+// 	echo "<td><img src='" . getenv('APP_STATIC_URL') . "/Badge/" . $filename . ".png'><br/>$filename</td>";
 //
 // 	$written++;
 // }
