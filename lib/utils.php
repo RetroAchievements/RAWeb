@@ -477,7 +477,7 @@ function IsMobileBrowser()
 function ParseCURLGetImage( $url )
 {
     $ch = curl_init( $url );
-    curl_setopt( $ch, CURLOPT_URL, "http://retroachievements.org/$url" );
+    curl_setopt( $ch, CURLOPT_URL, getenv('APP_URL')."/$url" );
     curl_setopt( $ch, CURLOPT_HEADER, FALSE );
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
     curl_setopt( $ch, CURLOPT_BINARYTRANSFER, TRUE );
@@ -491,7 +491,7 @@ function ParseCURLGetImage( $url )
 function ParseCURLPage( $url, $postString = "" )
 {
     $ch = curl_init();
-    curl_setopt( $ch, CURLOPT_URL, "http://retroachievements.org/$url" );
+    curl_setopt( $ch, CURLOPT_URL, getenv('APP_URL')."/$url" );
     curl_setopt( $ch, CURLOPT_POST, TRUE );
     curl_setopt( $ch, CURLOPT_POSTFIELDS, $postString );
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );

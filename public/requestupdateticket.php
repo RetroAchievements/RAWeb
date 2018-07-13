@@ -22,7 +22,7 @@
 		if( updateTicket( $user, $ticketID, $ticketVal ) )
 		{
 			//echo "OK";
-			header( "Location: http://" . AT_HOST . "/ticketmanager.php?e=OK" );
+			header( "Location: " . APP_URL . "/ticketmanager.php?e=OK" );
 		}
 		else
 		{

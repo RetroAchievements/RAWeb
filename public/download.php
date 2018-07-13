@@ -72,13 +72,13 @@ RenderDocType();
             <h2 class='longheader' id='rapce'>RAProject64: N64 Emulator</h2>
 
             <div class='largeicon'>
-                <span class='clickablebutton'><a href="http://retroachievements.org/viewtopic.php?t=4686">Download RAProject64</a></span>
+                <span class='clickablebutton'><a href="<?php echo getenv('APP_URL') ?>/viewtopic.php?t=4686">Download RAProject64</a></span>
             </div>
 
             <h2 class='longheader' id='ralibretro'>RALibretro: multi-emulator</h2>
 
             <div class='largeicon'>
-                <span class='clickablebutton'><a href="https://retroachievements.github.io/docs/RALibretro/">RALibretro</a></span>
+                <span class='clickablebutton'><a href="<?php echo getenv('APP_URL') ?>/docs/RALibretro/">RALibretro</a></span>
             </div>
 
             <h3>Source Code</h3>

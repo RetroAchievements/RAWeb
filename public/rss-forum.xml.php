@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-$site = 'http://www.retroachievements.org';
+$site = getenv('APP_URL');
 
 $dom = new DOMDocument( '1.0', 'UTF-8' );
 
@@ -20,7 +20,7 @@ $xmlRoot = $xmlRoot->appendChild( $xmlRoot2 );
 
 $xmlRoot->appendChild( $dom->createElement( 'title', 'RetroAchievements.org Forum feed' ) );
 $xmlRoot->appendChild( $dom->createElement( 'description', 'RetroAchievements.org, your home for achievements in classic games' ) );
-$xmlRoot->appendChild( $dom->createElement( 'link', 'http://www.RetroAchievements.org' ) );
+$xmlRoot->appendChild( $dom->createElement( 'link', getenv('APP_URL') ) );
 
 $numPostsFound = getRecentForumPosts( 0, 30, 120, $recentPostsData );
 //$feedData = array_reverse( $recentPostsData );
@@ -39,7 +39,7 @@ for( $i = 0; $i < $numPostsFound; $i++ )
     $user = $nextData[ 'Author' ];
     $userPicURL = "$site/UserPic/$user" . ".png";
     $date = date( "D, d M Y H:i:s O", strtotime( $nextData[ 'PostedAt' ] ) );
-    $link = 'http://www.retroachievements.org/viewtopic.php?t=' . $nextData[ 'ForumTopicID' ]; // . '&amp;c=' . $nextData['CommentID'];
+    $link = getenv('APP_URL').'/viewtopic.php?t=' . $nextData[ 'ForumTopicID' ]; // . '&amp;c=' . $nextData['CommentID'];
 
     $title = htmlspecialchars( $nextData[ 'ForumTopicTitle' ] );
     $payload = htmlspecialchars( $nextData[ 'ShortMsg' ] . "..." );

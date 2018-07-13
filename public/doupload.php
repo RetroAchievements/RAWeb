@@ -134,7 +134,7 @@ function UploadUserPic( $user, $filename, $rawImage )
         {
             //	Done OK
             //echo 'OK';
-            //header( "Location: http://" . AT_HOST . "/manageuserpic.php?e=success" );
+            //header( "Location: https://" . AT_HOST . "/manageuserpic.php?e=success" );
         }
     }
 

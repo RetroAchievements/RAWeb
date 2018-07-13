@@ -27,7 +27,7 @@
 		}
 		else
 		{
-			header( "location: http://" . AT_HOST . "/forum.php?e=unknownforum" );
+			header( "location: " . APP_URL . "/forum.php?e=unknownforum" );
 			exit;
 		}
 		
@@ -45,7 +45,7 @@
 	{
 		if( getForumDetails( $requestedForumID, $forumDataOut ) == FALSE )
 		{
-			header( "location: http://" . AT_HOST . "/forum.php?e=unknownforum2" );
+			header( "location: " . APP_URL . "/forum.php?e=unknownforum2" );
 			exit;
 		}
 		

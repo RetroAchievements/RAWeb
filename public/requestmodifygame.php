@@ -20,12 +20,12 @@
     {
         if( requestModifyGame( $author, $gameID, $field, $value ) )
         {
-            header( "location: http://" . AT_HOST . "/Game/$gameID?e=modify_game_ok" );
+            header( "location: " . APP_URL . "/Game/$gameID?e=modify_game_ok" );
             exit;
         }
         else
         {
-            header( "location: http://" . AT_HOST . "/Game/$gameID?e=errors_in_modify_game" );
+            header( "location: " . APP_URL . "/Game/$gameID?e=errors_in_modify_game" );
             exit;
         }
     }

@@ -13,7 +13,7 @@
 	{
 		//	Valid!
 		generateCookie( $user, $cookieOut );
-		header( "Location: http://retroachievements.org/?e=validatedEmail" );
+		header( "Location: ".getenv('APP_URL')."/?e=validatedEmail" );
 	}
 	else
 	{

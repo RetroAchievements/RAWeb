@@ -6,14 +6,14 @@
 		if( getAccountDetails( $user, $userDetails ) == FALSE )
 		{
 			//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-			header( "Location: http://" . AT_HOST . "?e=accountissue" );
+			header( "Location: " . APP_URL . "?e=accountissue" );
 			exit;
 		}
 	}
 	else
 	{
 		//	Immediate redirect if we cannot validate cookie!	//TBD: pass args?
-		header( "Location: http://" . AT_HOST . "?e=notloggedin" );
+		header( "Location: " . APP_URL . "?e=notloggedin" );
 		exit;
 	}
 	
@@ -22,20 +22,20 @@
 	
 	if( getSingleTopicComment( $requestedComment, $commentData ) == FALSE )
 	{
-		header( "location: http://" . AT_HOST . "/forum.php?e=unknowncomment" );
+		header( "location: " . APP_URL . "/forum.php?e=unknowncomment" );
 		exit;
 	}
 
     if( $user != $commentData['Author'] && $permissions != \RA\Permissions::Admin )
     {
-        header( "Location: http://" . AT_HOST . "?e=nopermission" );
+        header( "Location: " . APP_URL . "?e=nopermission" );
         exit;
     }
 	
 	
 	if( getTopicDetails( $commentData['ForumTopicID'], $topicData ) == FALSE )
 	{
-		header( "location: http://" . AT_HOST . "/forum.php?e=unknownforum2" );
+		header( "location: " . APP_URL . "/forum.php?e=unknownforum2" );
 		exit;
 	}
 	$existingComment = $commentData['Payload'];

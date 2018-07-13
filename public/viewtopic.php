@@ -9,7 +9,7 @@
 
     if( $requestedTopicID == 0 )
     {
-        header( "location: http://" . AT_HOST . "/forum.php?e=unknowntopic" );
+        header( "location: " . APP_URL . "/forum.php?e=unknowntopic" );
         exit;
     }
 
@@ -17,13 +17,13 @@
     // temporary workaround to fix some game's forum topics
     //if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
     //{
-        //header( "location: http://" . AT_HOST . "/forum.php?e=unknowntopic2" );
+        //header( "location: " . APP_URL . "/forum.php?e=unknowntopic2" );
         //exit;
     //}
 
     if( $permissions < $topicData['RequiredPermissions'] )
     {
-        header( "location: http://" . AT_HOST . "/forum.php?e=nopermission" );
+        header( "location: " . APP_URL . "/forum.php?e=nopermission" );
         exit;
     }
 
@@ -47,7 +47,7 @@
     // We CANNOT have a topic with no comments... this doesn't make sense.
     if( $commentList == NULL || count($commentList) == 0 )
     {
-        header( "location: http://" . AT_HOST . "/forum.php?e=unknowntopic3" );
+        header( "location: " . APP_URL . "/forum.php?e=unknowntopic3" );
         exit;
     }
 

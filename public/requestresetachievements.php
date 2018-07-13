@@ -29,12 +29,12 @@
 				//	Inject sneaky recalc:
 				recalcScore( $user );
 				echo "OK";
-				//header( "Location: http://" . AT_HOST . "/controlpanel.php?e=resetok" );
+				//header( "Location: https://" . AT_HOST . "/controlpanel.php?e=resetok" );
 			}
 			else
 			{
 				echo "ERROR!";
-				//header( "Location: http://" . AT_HOST . "/controlpanel.php?e=resetfailed" );
+				//header( "Location: https://" . AT_HOST . "/controlpanel.php?e=resetfailed" );
 			}
 		}
 		else
@@ -43,12 +43,12 @@
 			{
 				recalcScore( $user );
 				echo "OK";
-				//header( "Location: http://" . AT_HOST . "/controlpanel.php?e=resetok" );
+				//header( "Location: https://" . AT_HOST . "/controlpanel.php?e=resetok" );
 			}
 			else
 			{
 				echo "ERROR!";
-				//header( "Location: http://" . AT_HOST . "/controlpanel.php?e=resetfailed" );
+				//header( "Location: https://" . AT_HOST . "/controlpanel.php?e=resetfailed" );
 			}
 		}
 	}

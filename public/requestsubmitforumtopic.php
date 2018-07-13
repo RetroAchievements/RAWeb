@@ -5,7 +5,7 @@
 	
 	if( !ValidatePOSTChars( "ftp" ) )
 	{
-		header( "Location: http://" . AT_HOST . "/createtopic.php?f=$forumID&e=invalidparams" );
+		header( "Location: " . APP_URL . "/createtopic.php?f=$forumID&e=invalidparams" );
 		exit;
 	}
 
@@ -47,7 +47,7 @@
 		if( submitNewTopic( $user, $forumID, $topicTitle, $topicPayload, $topicID ) )
 		{
 			//	Good!
-			header( "Location: http://" . AT_HOST . "/viewtopic.php?t=$topicID" );
+			header( "Location: " . APP_URL . "/viewtopic.php?t=$topicID" );
 			exit;
 		}
 		else
@@ -55,7 +55,7 @@
 			error_log( __FILE__ );
 			error_log( "Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload" );
 			
-			header( "Location: http://" . AT_HOST . "/createtopic.php?e=issuessubmitting" );
+			header( "Location: " . APP_URL . "/createtopic.php?e=issuessubmitting" );
 			exit;
 		}
 	}
@@ -63,7 +63,7 @@
 	{
 		error_log( __FILE__ );
 		error_log( "Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload" );
-		header( "Location: http://" . AT_HOST . "/createtopic.php?e=badcredentials" );
+		header( "Location: " . APP_URL . "/createtopic.php?e=badcredentials" );
 		exit;
 	}
 	

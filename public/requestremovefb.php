@@ -15,7 +15,7 @@
 		if( $dbResult !== FALSE )
 		{
 			//	TBD: check this manually!?
-			header( "location: http://" . AT_HOST . "/controlpanel.php" );
+			header( "location: " . APP_URL . "/controlpanel.php" );
 			//echo "Updated Successfully! $user is no longer associated with facebook.";
 		}
 		else

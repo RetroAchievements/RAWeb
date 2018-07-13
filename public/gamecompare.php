@@ -262,7 +262,7 @@
 		
 		echo "<br/><br/>";
 		
-		//echo "<small><a href=\"http://retroachievements.org/wiki/index.php?title=$gameTitle\">Developer Wiki Link</a></small>";
+		//echo "<small><a href=\"//retroachievements.org/wiki/index.php?title=$gameTitle\">Developer Wiki Link</a></small>";
 		?>
 	 </div>
 </div>

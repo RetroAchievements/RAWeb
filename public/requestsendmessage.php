@@ -20,7 +20,7 @@
 	{
 		if( CreateNewMessage( $user, $recipient, $title, $payload ) )
 		{
-			header( "Location: http://" . AT_HOST . "/inbox.php?e=sentok" );
+			header( "Location: " . APP_URL . "/inbox.php?e=sentok" );
 			exit;
 			//echo "OK:Message sent to $recipient!";
 		}

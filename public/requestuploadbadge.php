@@ -96,7 +96,7 @@ return false;
 //         {
 //             //	Done OK
 //             //echo 'OK';
-//             //header( "Location: http://" . AT_HOST . "/manageuserpic.php?e=success" );
+//             //header( "Location: " . APP_URL . "/manageuserpic.php?e=success" );
 //         }
 //     }
 //

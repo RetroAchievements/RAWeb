@@ -5,12 +5,12 @@
 	{
 		error_log( __FILE__ );
 		error_log( "Cannot validate u input..." );
-		header( "Location: http://" . AT_HOST . "/index.php?e=baddata" );
+		header( "Location: " . APP_URL . "/index.php?e=baddata" );
 	}
 	
 	error_log( __FILE__ );
 		
 	$user = seekPOST('u');
 	RequestPasswordReset($user);
-	header( "Location: http://" . AT_HOST . "/index.php?e=checkyouremail" );
+	header( "Location: " . APP_URL . "/index.php?e=checkyouremail" );
 ?>

@@ -3,8 +3,10 @@ require_once( 'bootstrap.php' );
 /////////////////////////////////////////////////////////////////////////////////////////
 //	Dynamic Rendering
 //////////////////////////////////////////////////////////////////////////////////////////
-function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = 'http://www.retroachievements.org' )
+function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
 {
+    $site = $site ?? getenv('APP_URL');
+
     $retHTML = '';
 
     $actType = $feedData[ 'activitytype' ];
@@ -720,7 +722,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/forum.php?c=9'>- NES</a></li>";
     echo "<li><a href='/forum.php?c=10'>- PC Engine</a></li>";
     echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    echo "<li><a href='#' onclick=\"window.open('http://www.retroachievements.org/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
+    echo "<li><a href='#' onclick=\"window.open('".getenv('APP_URL')."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
 
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     echo "</ul>";
@@ -1078,7 +1080,7 @@ function RenderErrorCodeWarning( $location, $errorCode )
         else if( $errorCode == "incorrectpassword" )
             echo "<div id='warning'>Incorrect User/Password! Please re-enter.</div>";
         else if( $errorCode == "accountissue" )
-            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='http://retroachievements.org/user/RAdmin'>here</a> for more details.</div>";
+            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='".getenv('APP_URL')."/user/RAdmin'>here</a> for more details.</div>";
         else if( $errorCode == "notloggedin" )
             echo "<div id='warning'>Please log in.</div>";
         else if( $errorCode == "resetok" )
@@ -1116,7 +1118,7 @@ function RenderErrorCodeWarning( $location, $errorCode )
         else if( $errorCode == 'delete_ok' )
             echo "<div id='warning'>Info: Deleted OK!</div>";
         else if( $errorCode == 'badcredentials' )
-            echo "<div id='warning'>There appears to be a problem with your account. Please contact <a href='http://retroachievements.org/user/RAdmin'>RAdmin</a> for more details.</div>";
+            echo "<div id='warning'>There appears to be a problem with your account. Please contact <a href='".getenv('APP_URL')."/user/RAdmin'>RAdmin</a> for more details.</div>";
         else if( $errorCode == 'friendadded' )
             echo "<div id='warning'>Friend Added!</div>";
         else if( $errorCode == 'friendconfirmed' )
@@ -2304,7 +2306,7 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
 
     if( $addLinkToPopOut )
     {
-        echo "&nbsp;<a href='#' onclick=\"window.open('http://www.retroachievements.org/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
+        echo "&nbsp;<a href='#' onclick=\"window.open('".getenv('APP_URL')."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
     }
     echo "</div>";
 
@@ -2437,7 +2439,7 @@ function RenderSharedHeader( $user )
 		window.fbAsyncInit = function() {
 		  FB.init({
 			appId      : 490904194261313, // App ID
-			channelUrl : 'https://www.retroachievements.org/channel.php', // Channel File
+			channelUrl : '<?php echo getenv('APP_URL') ?>/channel.php', // Channel File
 			status     : true, // check login status
 			cookie     : true, // enable cookies to allow the server to access the session
 			xfbml      : true  // parse XFBML
@@ -2466,8 +2468,8 @@ function RenderSharedHeader( $user )
 function RenderFBMetadata( $title, $OGType, $imageURL, $thisURL, $description )
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='https://www.retroachievements.org/$imageURL' />\n";
-    echo "<meta property='og:url' content='https://www.retroachievements.org$thisURL' />\n";
+    echo "<meta property='og:image' content='".getenv('APP_URL')."/$imageURL' />\n";
+    echo "<meta property='og:url' content='".getenv('APP_URL')."$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
 }

@@ -6,7 +6,7 @@ RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $per
 $lbID = seekGET( 'i' );
 if( !isset( $lbID ) )
 {
-    header( "Location: http://" . AT_HOST . "?e=urlissue" );
+    header( "Location: " . APP_URL . "?e=urlissue" );
     exit;
 }
 

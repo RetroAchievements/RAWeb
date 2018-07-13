@@ -49,7 +49,7 @@
 		
 		if( updateAchievementEmbedVideo( $achID, $value ) )
 		{
-			//header( "Location: http://" . AT_HOST . "/Achievement/$achID?e=OK" );
+			//header( "Location: " . APP_URL . "/Achievement/$achID?e=OK" );
 			echo "OK";
 		}
 		else
@@ -62,7 +62,7 @@
 	{
 		if( updateAchievementFlags( $achID, $value ) )
 		{
-            header( "Location: http://" . AT_HOST . "/Achievement/$achID?e=changeok" );
+            header( "Location: " . APP_URL . "/Achievement/$achID?e=changeok" );
 
             if( $value == 3 )
                 addArticleComment( "Server", 2, $achID, "\"$user\" promoted this achievement to the Core set." );

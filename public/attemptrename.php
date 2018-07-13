@@ -4,7 +4,7 @@
 	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
 	{
 		//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-		header( "Location: http://" . AT_HOST );
+		header( "Location: " . APP_URL );
 		exit;
 	}
 	
@@ -21,13 +21,13 @@
 		if( $gameData == NULL )
 		{
 			//	Immediate redirect: this is pointless otherwise!
-			header( "Location: http://" . AT_HOST . "?e=unknowngame" );
+			header( "Location: " . APP_URL . "?e=unknowngame" );
 		}
 	}
 	else
 	{
 		//	Immediate redirect: this is pointless otherwise!
-		header( "Location: http://" . AT_HOST );
+		header( "Location: " . APP_URL );
 	}
 	
 	$consoleName = $gameData['ConsoleName'];

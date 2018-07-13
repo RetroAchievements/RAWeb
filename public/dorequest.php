@@ -254,7 +254,7 @@ if( $credentialsOK )
             {
                 //	Special case
                 $targetUser = seekPOSTorGET( 'i' );
-                $destURL = "http://retroachievements.org/UserPic/$targetUser" . ".png";
+                $destURL = getenv('APP_URL')."/UserPic/$targetUser" . ".png";
 
                 header( 'Content-type: image/png' );
                 readfile( $destURL );

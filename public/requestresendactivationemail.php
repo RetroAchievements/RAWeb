@@ -9,8 +9,8 @@
 	if( sendValidationEmail( $user, $emailAddr ) == FALSE )
 	{
 		error_log( __FILE__ . " cannot send validation email to this user!?" );
-		header( "Location: http://" . AT_HOST . "/?e=accountissue" );
+		header( "Location: " . APP_URL . "/?e=accountissue" );
 	}
 	
-	header( "Location: http://" . AT_HOST . "/?e=validateEmailPlease" );
+	header( "Location: " . APP_URL . "/?e=validateEmailPlease" );
 ?>
