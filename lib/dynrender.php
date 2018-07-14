@@ -569,8 +569,8 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
     echo '<div style="margin:auto;text-align:center;padding-top:10px;padding-bottom:10px;background-color:#5a2a2a;max-width:980px;min-width:800px;color:#c90;font-weight:bold;margin-bottom:10px">';
-    echo 'Scheduled maintenance (est. 1 hour) on ';
-    echo '<a style="text-decoration:underline" href="https://www.timeanddate.com/countdown/launch?iso=20180716T15&p0=1440&msg=retroachievements.org+Server+Maintenance&font=sanserif&csz=1">';
+    echo 'Scheduled server maintenance (est. 1 hour) on ';
+    echo '<a style="text-decoration:underline" target="_blank" href="https://www.timeanddate.com/countdown/launch?iso=20180716T15&p0=1440&msg=retroachievements.org+Server+Maintenance&font=sanserif&csz=1">';
     echo 'Monday, 16 July 2018, 15:00:00 (UTC time)';
     echo '</a>';
     echo '</div>';
