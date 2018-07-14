@@ -2430,6 +2430,15 @@ function RenderSharedHeader( $user )
     echo '<meta property="fb:app_id" content="490904194261313" />';
     echo "<meta name='viewport' content='width=device-width,user-scalable = no'/>\n";
 
+    echo '<meta name="theme-color" content="#2C2E30">';
+    // echo '<meta name="apple-mobile-web-app-capable" content="yes">';
+    // echo '<meta name="apple-mobile-web-app-status-bar-style" content="black">';
+    // echo '<meta name="apple-mobile-web-app-status-bar-style" content="black">';
+    echo '<meta name="msapplication-TileColor" content="#2C2E30">';
+    echo '<meta name="msapplication-TileImage" content="/favicon.png">';
+    echo '<link rel="shortcut icon" type="image/png" href="/favicon.png" sizes="16x16 32x32 64x64">';
+    echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
+
     echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css' type='text/css' />\n";
     echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js' type='text/javascript'></script>\n";
     echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js' type='text/javascript'></script>\n";
