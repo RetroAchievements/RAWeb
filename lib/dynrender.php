@@ -573,6 +573,8 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
     echo '<a style="text-decoration:underline" target="_blank" href="https://www.timeanddate.com/worldclock/fixedtime.html?msg=Server+Maintenance&iso=20180716T15&p1=1440&ah=1">';
     echo 'Monday, 16 July 2018, 15:00:00 (UTC time)';
     echo '</a>';
+    echo '<br>';
+    echo '<small>Note: This will be a server move. V2 will be released at a later date.</small>';
     echo '</div>';
 
     echo "<div id='title'>";
@@ -584,7 +586,7 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
     if( $user == FALSE )
     {
         echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
-        echo "<b>login</b> to " . AT_HOST . ":<br/>";
+        echo "<b>login</b> to " . getenv('APP_NAME') . ":<br/>";
 
         echo "<form method='post' action='/login.php'>";
         echo "<div>";
@@ -778,7 +780,7 @@ function RenderToolbar( $user, $permissions = 0 )
     {
         echo "<li><a href='#'>Developers</a>";
         echo "<ul>";
-        echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";	    
+        echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
         echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
         echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
@@ -1884,15 +1886,11 @@ function RenderDeveloperStats( $user, $type )
 function RenderDocsComponent()
 {
     echo "
-      <div class='component'>
-        <h3>Documentation</h3>
+      <div class='component' style='text-align: center'>
+        <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
-            Check our documentation site: <a href='http://docs.retroachievements.org/'>http://docs.retroachievements.org/</a>
-            <br/><br/>
-            Do you have questions? Check our <a href='http://docs.retroachievements.org/FAQ/'>FAQ</a>.
-            <br/><br/>
-            Do you wanna learn how to create achievements? Check our <a href='http://docs.retroachievements.org/Developer-docs'>Developer docs</a>.
+            Read the <a href='https://docs.retroachievements.org/' target='_blank'>Documentation</a> & <a href='http://docs.retroachievements.org/FAQ/' target='_blank'>FAQ</a>.
           </div>
         </div>
       </div>";
@@ -2484,7 +2482,7 @@ function RenderSharedHeader( $user )
 function RenderFBMetadata( $title, $OGType, $imageURL, $thisURL, $description )
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='".getenv('APP_URL')."/$imageURL' />\n";
+    echo "<meta property='og:image' content='".getenv('APP_STATIC_URL')."/$imageURL' />\n";
     echo "<meta property='og:url' content='".getenv('APP_URL')."$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
@@ -2872,7 +2870,7 @@ function GetGameAndTooltipDiv( $gameID, $gameName, $gameIcon, $consoleName, $jus
     $displayable = "";
 
     if( $justText == FALSE )
-        $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='" . getenv('APP_STATIC_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='" . getenv('APP_STATIC_URL') . "/$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
 
     if( $justImage == FALSE )
         $displayable .= "$gameName $consoleStr";
