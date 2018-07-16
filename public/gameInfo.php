@@ -286,7 +286,7 @@ $numGridlines = $numAchievements;
             $('.ratingachlabel').html("Rating: ...");
 
             $.ajax({
-                url: '/API/GetGameRating.php?i=' + gameID,
+                url: '/API/API_GetGameRating.php?i=' + gameID,
                 dataType: 'json',
                 success: function (results) {
                     results.GameID;
@@ -311,7 +311,7 @@ $numGridlines = $numAchievements;
         function SubmitRating(user, gameID, ratingObjectType, value)
         {
             $.ajax({
-                url: '/API/SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+                url: '/API/API_SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
                 dataType: 'json',
                 success: function (results) {
                     GetRating(<?php echo $gameID; ?>);
