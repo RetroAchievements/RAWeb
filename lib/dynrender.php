@@ -2457,7 +2457,7 @@ function RenderSharedHeader( $user )
 		window.fbAsyncInit = function() {
 		  FB.init({
 			appId      : 490904194261313, // App ID
-			channelUrl : '<?php echo getenv('APP_URL') ?>/channel.php', // Channel File
+			channelUrl : '" . getenv('APP_URL') . "/channel.php', // Channel File
 			status     : true, // check login status
 			cookie     : true, // enable cookies to allow the server to access the session
 			xfbml      : true  // parse XFBML
