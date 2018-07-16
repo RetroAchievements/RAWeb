@@ -445,7 +445,7 @@ function GetLeaderboardAndTooltipDiv(lbID, lbName, lbDesc, gameName, gameIcon, d
 //	01:36 31/12/2013
 function UpdateMailboxCount(messageCount)
         {
-        $('body').find("#mailboxicon").attr("src", (messageCount > 0) ? '/Images/_MailUnread.png' : 'http://i.retroachievements.org/Images/_Mail.png');
+        $('body').find("#mailboxicon").attr("src", (messageCount > 0) ? '/Images/_MailUnread.png' : '/Images/_Mail.png');
                 $('body').find("#mailboxcount").html(messageCount);
                 }
 
@@ -461,13 +461,13 @@ $(this).val(val.slice(0, maxlength));
 });
         function reloadTwitchContainer(videoID, vidWidth, vidHeight)
         {
-        var vidHTML = "<object type='application/x-shockwave-flash' height='" + vidHeight + "' width='" + vidWidth + "' id='live_embed_player_flash' data='http://www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg' bgcolor='#2A2A2A'><param name='allowFullScreen' value='true' /><param name='allowScriptAccess' value='always' /><param name='allowNetworking' value='all' /><param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' /><param name='flashvars' value='hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25' /></object>";
+        var vidHTML = "<object type='application/x-shockwave-flash' height='" + vidHeight + "' width='" + vidWidth + "' id='live_embed_player_flash' data='//www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg' bgcolor='#2A2A2A'><param name='allowFullScreen' value='true' /><param name='allowScriptAccess' value='always' /><param name='allowNetworking' value='all' /><param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' /><param name='flashvars' value='hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25' /></object>";
                 if (videoID !== 0 && archiveURLs[ videoID ] !== 0)
         {
         var vidTitle = archiveTitles[ videoID ];
                 var vidURL = archiveURLs[ videoID ];
                 var vidChapter = vidURL.substr(vidURL.lastIndexOf("/") + 1);
-                vidHTML = "<object type='application/x-shockwave-flash' height='" + vidHeight + "' width='" + vidWidth + "' id='clip_embed_player_flash' data='http://www.twitch.tv/widgets/archive_embed_player.swf' bgcolor='#2A2A2A' ><param name='movie' value='http://www.twitch.tv/widgets/archive_embed_player.swf'><param name='allowScriptAccess' value='always'><param name='allowNetworking' value='all'><param name='allowFullScreen' value='true'><param name='flashvars' value='title=" + vidTitle + "&amp;channel=retroachievementsorg&amp;auto_play=true&amp;start_volume=25&amp;chapter_id=" + vidChapter + "'></object>";
+                vidHTML = "<object type='application/x-shockwave-flash' height='" + vidHeight + "' width='" + vidWidth + "' id='clip_embed_player_flash' data='//www.twitch.tv/widgets/archive_embed_player.swf' bgcolor='#2A2A2A' ><param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'><param name='allowScriptAccess' value='always'><param name='allowNetworking' value='all'><param name='allowFullScreen' value='true'><param name='flashvars' value='title=" + vidTitle + "&amp;channel=retroachievementsorg&amp;auto_play=true&amp;start_volume=25&amp;chapter_id=" + vidChapter + "'></object>";
         }
 
         $('.streamvid').html(vidHTML);

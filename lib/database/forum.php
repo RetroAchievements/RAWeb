@@ -486,9 +486,9 @@ function generateGameForumTopic( $user, $gameID, &$forumTopicID )
     $urlSafeGameTitle = str_replace( " ", "+", "$gameTitle $consoleName" );
     $urlSafeGameTitle = str_replace( "'", "''", $urlSafeGameTitle );
 
-    $gameFAQsURL = "http://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
-    $longplaysURL = "http://www.google.com/search?q=site:www.longplays.org+$urlSafeGameTitle";
-    $wikipediaURL = "http://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
+    $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
+    $longplaysURL = "https://www.google.com/search?q=site:www.longplays.org+$urlSafeGameTitle";
+    $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
     $embedLongplayURL;
 
