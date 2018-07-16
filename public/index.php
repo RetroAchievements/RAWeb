@@ -5,8 +5,8 @@ RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $per
 	
 $playersOnlineArray = array();
 
-if (file_exists("../cronjobs/playersonline.log")) {
-	$playersOnlineCSV = file_get_contents("../cronjobs/playersonline.log");
+if (file_exists("../storage/logs/playersonline.log")) {
+	$playersOnlineCSV = file_get_contents("../storage/logs/playersonline.log");
 
 	$playersCSV = preg_split('/\n|\r\n?/', $playersOnlineCSV);
 
@@ -66,7 +66,7 @@ for( $i = 0; $i < 48; $i++ )
 	if( count($playersOnlineArray) < $i )
 		continue;
 	
-    $players = $playersOnlineArray[ $i ];
+    $players = empty($playersOnlineArray[ $i ]) ? 0 : $playersOnlineArray[ $i ];
     settype( $players, 'integer' );
 
     if( $i != 0 )
@@ -169,7 +169,7 @@ $numGridlines = 24;
                 $("a:eq(0)", "#carouselpages")
                         .removeClass("off")
                         .addClass("on")
-                        .css("background-image", "url(http://i.retroachievements.org/Images/page-on.png)");
+                        .css("background-image", "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-on.png)");
 
                 $('.newstitle').css('opacity', 0.0).delay(500).fadeTo("slow", 1.0);
                 $('.newstext').css('opacity', 0.0).delay(900).fadeTo("slow", 1.0);
@@ -179,12 +179,12 @@ $numGridlines = 24;
             function pageLoaded(event, data) {
                 $("a.on", "#carouselpages")
                         .removeClass("on")
-                        .css("background-image", "url(http://i.retroachievements.org/Images/page-off.png)");
+                        .css("background-image", "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-off.png)");
 
                 $("a", "#carouselpages")
                         .eq(data.page)
                         .addClass("on")
-                        .css("background-image", "url(http://i.retroachievements.org/Images/page-on.png)");
+                        .css("background-image", "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-on.png)");
             }
 
             function onNext() {
@@ -284,9 +284,9 @@ else
                 if( ! isset( $user ) ) RenderWelcomeComponent();
             }
 
-            echo '<div class=\'patron\'><a href=\'https://www.patreon.com/bePatron?u=5403777\' data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script></div>';
+            echo '<div class=\'patron\' style="margin-top: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank">Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
 
-            echo '<div class=\'discord\'><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\'><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
+            echo '<div class=\'discord\' style="margin-bottom: 10px"><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\' target="_blank"><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
 
             RenderDocsComponent();
             RenderCurrentlyOnlineComponent( NULL );

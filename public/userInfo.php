@@ -4,14 +4,14 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $userPage = seekGET( 'ID' );
 if( $userPage == NULL || strlen( $userPage ) == 0 )
 {
-    header( "Location: http://" . AT_HOST );
+    header( "Location: " . getenv('APP_URL') );
     exit;
 }
 
 if( ctype_alnum( $userPage ) == FALSE )
 {
     //  NB. this is triggering for odd reasons? Why would a non-user hit this page?
-    header( "Location: http://" . AT_HOST );
+    header( "Location: " . getenv('APP_URL') );
     exit;
 }
 
@@ -573,7 +573,7 @@ foreach( $arrayToUse as $dayInfo )
                             }
 
                             echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, TRUE, TRUE, $unlockedStr, 48, $class );
-                            //echo "<a href='/Achievement/$achID'><img class='$class' src='http://i.retroachievements.org/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
+                            //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                         }
                     }
 

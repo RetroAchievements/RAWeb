@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-$site = 'http://www.retroachievements.org';
+$site = getenv('APP_URL');
 
 $dom = new DOMDocument( '1.0', 'UTF-8' );
 
@@ -20,7 +20,7 @@ $xmlRoot = $xmlRoot->appendChild( $xmlRoot2 );
 
 $xmlRoot->appendChild( $dom->createElement( 'title', 'RetroAchievements.org Global Activity feed' ) );
 $xmlRoot->appendChild( $dom->createElement( 'description', 'RetroAchievements.org, your home for achievements in classic games' ) );
-$xmlRoot->appendChild( $dom->createElement( 'link', 'http://www.RetroAchievements.org' ) );
+$xmlRoot->appendChild( $dom->createElement( 'link', getenv('APP_URL') ) );
 
 $user = seekGET( 'u', NULL );
 $feedtype = isset( $user ) ? 'friends' : 'global';
@@ -41,7 +41,7 @@ for( $i = 0; $i < $numArticles; $i++ )
     $user = $nextData[ 'User' ];
     $userPicURL = "$site/UserPic/$user" . ".png";
     $date = date( "D, d M Y H:i:s O", $nextData[ 'timestamp' ] );
-    $link = 'http://www.retroachievements.org/feed.php?a=' . $nextData[ 'ID' ];
+    $link = getenv('APP_URL').'/feed.php?a=' . $nextData[ 'ID' ];
 
     $title = getFeedItemTitle( $feedData[ $i ], false );
 
@@ -60,10 +60,10 @@ for( $i = 0; $i < $numArticles; $i++ )
         $lastID = $feedData[ $i ][ 'ID' ];
 
     //$payload contains relative URLs, which need converting to absolute URLs
-    $payload = str_replace( "href='/", "href='http://www.retroachievements.org/", $payload );
-    $payload = str_replace( "href=\"/", "href=\"http://www.retroachievements.org/", $payload );
-    $payload = str_replace( "src='/", "src='http://www.retroachievements.org/", $payload );
-    $payload = str_replace( "src=\"/", "src=\"http://www.retroachievements.org/", $payload );
+    $payload = str_replace( "href='/", "href='".getenv('APP_URL')."/", $payload );
+    $payload = str_replace( "href=\"/", "href=\"".getenv('APP_URL')."/", $payload );
+    $payload = str_replace( "src='/", "src='".getenv('APP_URL')."/", $payload );
+    $payload = str_replace( "src=\"/", "src=\"".getenv('APP_URL')."/", $payload );
 
     //	Strip tags from title (incl html markup :S)
     //	?!

@@ -179,22 +179,22 @@ if( $credentialsOK )
             switch( $consoleID )
             {
                 case 1:
-                    $response[ 'LatestVersion' ] = ParseCURLPage( "LatestRAGensVersion.html" );
+                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAGensVersion.html" )));
                     break;
                 case 2:
-                    $response[ 'LatestVersion' ] = ParseCURLPage( "LatestRAP64Version.html" );
+                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAP64Version.html" )));
                     break;
                 case 3:
-                    $response[ 'LatestVersion' ] = ParseCURLPage( "LatestRASnesVersion.html" );
+                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRASnesVersion.html" )));
                     break;
                 case 4:
-                    $response[ 'LatestVersion' ] = ParseCURLPage( "LatestRAVBAVersion.html" );
+                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAVBAVersion.html" )));
                     break;
                 case 7:
-                    $response[ 'LatestVersion' ] = ParseCURLPage( "LatestRANESVersion.html" );
+                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRANESVersion.html" )));
                     break;
                 case 8:
-                    $response[ 'LatestVersion' ] = ParseCURLPage( "LatestRAPCEVersion.html" );
+                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAPCEVersion.html" )));
                     break;
                 default:
                     DoRequestError( "Unknown client! (ConsoleID: " . $consoleID . ")" );
@@ -254,7 +254,7 @@ if( $credentialsOK )
             {
                 //	Special case
                 $targetUser = seekPOSTorGET( 'i' );
-                $destURL = "http://retroachievements.org/UserPic/$targetUser" . ".png";
+                $destURL = getenv('APP_URL')."/UserPic/$targetUser" . ".png";
 
                 header( 'Content-type: image/png' );
                 readfile( $destURL );
@@ -266,7 +266,7 @@ if( $credentialsOK )
                 //	DO NOT USE: access URL directly please!
                 //	Special case
                 $badgeURI = seekPOSTorGET( 'i' );
-                $destURL = "http://i.retroachievements.org/Badge/$badgeURI" . ".png";
+                $destURL = getenv('APP_STATIC_URL') . "/Badge/$badgeURI" . ".png";
 
                 header( 'Content-type: image/png' );
                 readfile( $destURL );

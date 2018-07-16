@@ -16,7 +16,7 @@
 	{
 		if( DeleteMessage( $user, $messageID ) )
 		{
-			header( "Location: http://" . AT_HOST . "/inbox.php?e=deleteok" );
+			header( "Location: " . getenv('APP_URL') . "/inbox.php?e=deleteok" );
 			exit;
 		}
 		else

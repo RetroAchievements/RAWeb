@@ -6,12 +6,12 @@ use Aws\S3\S3Client;
 function UploadToS3( $filenameSrc, $filenameDest )
 {
 	$client = new S3Client([
-		'region' => getenv('AMAZON_S3_REGION'),
+		'region' => getenv('AWS_DEFAULT_REGION'),
 		'version' => 'latest'
 	]);
 
 	$result = $client->putObject([
-		'Bucket' => getenv('AMAZON_S3_BUCKET'),
+		'Bucket' => getenv('AWS_BUCKET'),
 		'Key' => "$filenameDest",
 		'Body' => fopen($filenameSrc, 'r+')
 	]);
@@ -35,14 +35,14 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
     if( getAccountDetails( $user, $userDetails ) == FALSE )
     {
         //	Immediate redirect if we cannot validate user!
-        header( "Location: http://" . AT_HOST . "?e=accountissue" );
+        header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
         exit;
     }
 }
 else
 {
     //	Immediate redirect if we cannot validate cookie!
-    header( "Location: http://" . AT_HOST . "?e=notloggedin" );
+    header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
     exit;
 }
 
@@ -100,7 +100,7 @@ else
     settype( $nextImageFilename, "integer" );
     $nextImageFilenameStr = str_pad( $nextImageFilename, 6, "0", STR_PAD_LEFT );
 
-    $destPath = "/var/www/html/public/Images/";
+    $destPath = getenv('DOC_ROOT')."public/Images/";
 
     $newImageFilename = $destPath . $nextImageFilenameStr . ".png";
 
@@ -177,7 +177,7 @@ else
 
         if( $uploadType == "NEWS" )
         {
-            //header( "Location: http://" . AT_HOST . "/submitnews.php?e=uploadok&g=/$newImageFilename" );
+            //header( "Location: " . getenv('APP_URL') . "/submitnews.php?e=uploadok&g=/$newImageFilename" );
             echo "OK:/$newImageFilename";
             exit;
         }
@@ -213,7 +213,7 @@ else
                 error_log( "Logged image update $uploadType to game $returnID, to image /Images/$nextImageFilenameStr.png" );
             }
 
-            header( "Location: http://" . AT_HOST . "/game/$returnID?e=uploadok" );
+            header( "Location: " . getenv('APP_URL') . "/game/$returnID?e=uploadok" );
             exit;
         }
     }

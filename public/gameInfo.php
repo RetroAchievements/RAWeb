@@ -10,7 +10,7 @@ $gameID = seekGET( 'ID' );
 settype( $gameID, 'integer' );
 if( $gameID == NULL || $gameID == 0 )
 {
-    header( "Location: http://" . AT_HOST . "?e=urlissue" );
+    header( "Location: " . getenv('APP_URL') . "?e=urlissue" );
     exit;
 }
 
@@ -286,7 +286,7 @@ $numGridlines = $numAchievements;
             $('.ratingachlabel').html("Rating: ...");
 
             $.ajax({
-                url: 'http://retroachievements.org/API/API_GetGameRating.php?i=' + gameID,
+                url: '/API/API_GetGameRating.php?i=' + gameID,
                 dataType: 'json',
                 success: function (results) {
                     results.GameID;
@@ -311,7 +311,7 @@ $numGridlines = $numAchievements;
         function SubmitRating(user, gameID, ratingObjectType, value)
         {
             $.ajax({
-                url: 'http://retroachievements.org/API/API_SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+                url: '/API/API_SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
                 dataType: 'json',
                 success: function (results) {
                     GetRating(<?php echo $gameID; ?>);

@@ -107,7 +107,7 @@ $dbResult = s_mysql_query( $query );
 
 if( $dbResult !== FALSE && mysqli_num_rows( $dbResult ) == 1 )
 {
-    error_log( "requestcreateuser.php failed 6 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 6 - $user $email $email2 " );
     echo "That username is already taken...<br/>";
 
     //log_sql_fail();
@@ -130,7 +130,7 @@ if( $dbResult !== FALSE )
         error_log( "Failed to send validation email to $user at $email" );
     }
 
-    if( copy( "/var/www/html/public/UserPic/_User.png", "/var/www/html/public/UserPic/$user.png" ) == FALSE )
+    if( copy( getenv('DOC_ROOT')."public/UserPic/_User.png", getenv('DOC_ROOT')."public/UserPic/$user.png" ) == FALSE )
     {
         error_log( "Failed to create user pic for user $user" );
         //log_sql_fail();
@@ -144,7 +144,7 @@ if( $dbResult !== FALSE )
     //validateEmailValidationString( $validationString, $user );
     //generateCookie( $user, $cookie );
     //	TBD: Check for messages, updates? etc
-    header( "Location: http://" . AT_HOST . "/?e=validateEmailPlease" );
+    header( "Location: " . getenv('APP_URL') . "/?e=validateEmailPlease" );
 
     echo "Created $user successfully!<br/>";
 }

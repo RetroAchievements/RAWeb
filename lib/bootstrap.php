@@ -35,6 +35,7 @@ function IsAtHome()
 
 try {
 	$db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    mysqli_set_charset($db, 'latin1');
 } catch (Exception $exception) {
 	if (getenv('APP_ENV') === 'local') {
 		throw $exception;

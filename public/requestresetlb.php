@@ -17,12 +17,12 @@
 	{
 		requestResetLB( $lbid );
 		
-		header( "location: http://" . AT_HOST . "/leaderboardinfo.php?i=$lbid&e=success" );
+		header( "location: " . getenv('APP_URL') . "/leaderboardinfo.php?i=$lbid&e=success" );
 		exit;
 	}
 	else
 	{
-		header( "location: http://" . AT_HOST . "/leaderboardinfo.php?i=$lbid&e=failed" );
+		header( "location: " . getenv('APP_URL') . "/leaderboardinfo.php?i=$lbid&e=failed" );
 		exit;
 	}
 ?>

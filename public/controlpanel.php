@@ -6,14 +6,14 @@
 		if( getAccountDetails( $user, $userDetails ) == FALSE )
 		{
 			//	Immediate redirect if we cannot validate user!
-			header( "Location: http://" . AT_HOST . "?e=accountissue" );
+			header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
 			exit;
 		}
 	}
 	else
 	{
 		//	Immediate redirect if we cannot validate cookie!
-		header( "Location: http://" . AT_HOST . "?e=notloggedin" );
+		header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
 		exit;
 	}
 	
@@ -56,7 +56,7 @@
 		var posting = $.post( "/requestuserplayedgames.php", { u: '<?php echo $user; ?>' } );
 		posting.done( OnGetAllResettableGamesList );
 		
-		$( '#loadingiconreset' ).attr( 'src', 'http://i.retroachievements.org/Images/loading.gif' ).fadeTo( 100, 1.0 );
+		$( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
 	}
 	
 	function OnGetAllResettableGamesList( data )
@@ -87,7 +87,7 @@
 			
 			$( '#resetgameselector' ).html( htmlToAdd );
 		
-			$( '#loadingiconreset' ).attr( 'src', 'http://i.retroachievements.org/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
+			$( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
 		}
 		
 		ResetFetchAwarded();
@@ -182,7 +182,7 @@
 		}
 		
 		$( '#warning' ).html( 'Status: Updating...' );
-		$( '#loadingiconreset' ).attr( 'src', 'http://i.retroachievements.org/Images/loading.gif' ).fadeTo( 100, 1.0 );
+		$( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
 	}
 	
 	function onResetComplete( data )
@@ -193,7 +193,7 @@
 		}
 		else
 		{
-			$( '#loadingiconreset' ).attr( 'src', 'http://i.retroachievements.org/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
+			$( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
 			//window.location = '/controlpanel.php?e=resetok';
 			if( $( '#resetachievementscontainer' ).children('option').length > 2 )
 				ResetFetchAwarded();			//	Just reset ach. list
@@ -213,7 +213,7 @@
 				newUserPrefs += (1<<i);
 		}
 		
-		$('#loadingicon').attr( 'src', 'http://i.retroachievements.org/Images/loading.gif' ).fadeTo( 100, 1.0 );
+		$('#loadingicon').attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
 		var posting = $.post( "/requestchangesiteprefs.php", { u: '<?php echo $user; ?>', p: newUserPrefs } );
 		posting.done( OnChangeUserPrefs );
 	}
@@ -221,7 +221,7 @@
 	function OnChangeUserPrefs( object )
 	{
 		//console.log( object )
-		$('#loadingicon').attr( 'src', 'http://i.retroachievements.org/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
+		$('#loadingicon').attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
 	}
 	
 	function DoChangeFBUserPrefs()
@@ -234,7 +234,7 @@
 				newUserPrefs += (1<<i);
 		}
 		
-		$('#loadingiconfb').attr( 'src', 'http://i.retroachievements.org/Images/loading.gif' ).fadeTo( 100, 1.0 );
+		$('#loadingiconfb').attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
 		var posting = $.post( "/requestchangefb.php", { u: '<?php echo $user; ?>', p: newUserPrefs } );
 		posting.done( OnChangeFBUserPrefs );
 	}
@@ -243,7 +243,7 @@
 	{
 		console.log( object )
 		if( object == 'OK' )
-			$('#loadingiconfb').attr( 'src', 'http://i.retroachievements.org/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
+			$('#loadingiconfb').attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png' ).delay( 750 ).fadeTo( "slow", 0.0 );
 	}
 	
 	function UploadNewAvatar()
@@ -495,7 +495,7 @@
 		
 		</tbody></table>
 		
-		<img id='loadingiconfb' style='opacity: 0; float: right;' src='http://i.retroachievements.org/Images/loading.gif' width='16' height='16' alt='loading icon' />
+		<img id='loadingiconfb' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon' />
 		
 		<br/>
 		<h4>Unlink Facebook</h4>
@@ -561,7 +561,7 @@
 	
 	</tbody></table>
 	
-	<img id='loadingicon' style='opacity: 0; float: right;' src='http://i.retroachievements.org/Images/loading.gif' width='16' height='16' alt='loading icon' />
+	<img id='loadingicon' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon' />
 	
 	</div>
 
@@ -666,7 +666,7 @@
 		echo "<input value='Reset Progress for selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
 		echo "</form>";
 		
-		echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='http://i.retroachievements.org/Images/loading.gif' width='16' height='16' alt='loading icon' />";
+		echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
 		
 		echo "<br/>";
 	?>
@@ -702,7 +702,7 @@
 	New image should be less than 1MB, png/jpeg/gif supported.</br>
 	</br>
 	<input style='padding: 4px;' type='file' name='file' id='uploadimagefile' onchange='return UploadNewAvatar();' />
-	<img id='loadingiconavatar' style='opacity: 0; float: right;' src='http://i.retroachievements.org/Images/loading.gif' width='16' height='16' alt='loading icon' />
+	<img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon' />
 		
 	
 	</div>

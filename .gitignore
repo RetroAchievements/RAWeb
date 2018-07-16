@@ -28,10 +28,7 @@ nbproject
 /public/bin
 /public/Latest*
 /public/*Iter.txt
-/public/RA_Integration.dll
+/public/*.dll
 
 /chat/node-gyp
 /chat/utf-8*
-/cronjobs/*.log
-/logs
-/RA_Integration.dll

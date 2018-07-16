@@ -15,11 +15,11 @@
 	
 	if( mergeGameID( $user, $oldGameID, $newGameID ) )
 	{
-		header( "Location: http://" . AT_HOST . "/Game/$newGameID?e=merge_success" );
+		header( "Location: " . getenv('APP_URL') ."/Game/$newGameID?e=merge_success" );
 	}
 	else
 	{
-		header( "Location: http://" . AT_HOST . "/Game/$newGameID?e=merge_failed" );
+		header( "Location: " . getenv('APP_URL') ."/Game/$newGameID?e=merge_failed" );
 	}
 	
 ?>

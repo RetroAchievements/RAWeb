@@ -95,7 +95,7 @@
 
 			$achBadgeName = $achievementEntry['BadgeName'];
 			$achDisplayOrder = $achievementEntry['DisplayOrder'];
-      		$achBadgeFile = "http://i.retroachievements.org/Badge/$achBadgeName" . ".png";
+      		$achBadgeFile = getenv('APP_STATIC_URL') . "/Badge/$achBadgeName" . ".png";
 
 			echo "<tr>";
 			

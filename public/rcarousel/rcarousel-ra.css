@@ -15,7 +15,7 @@
 #ui-carousel-next, #ui-carousel-prev {
 	width: 60px;
 	height: 240px;
-	background: url(http://i.retroachievements.org/Images/arrow-left.png) center center no-repeat;
+	background: url('/Images/arrow-left.png') center center no-repeat;
 	display: block;
 	position: absolute;
 	top: 0;
@@ -24,7 +24,7 @@
 
 #ui-carousel-next {
 	right: 0;
-	background-image: url(http://i.retroachievements.org/Images/arrow-right.png);
+	background-image: url('/Images/arrow-right.png');
 }
 
 #ui-carousel-prev {
@@ -61,7 +61,7 @@
 }
 	
 .bullet {
-	background: url(http://i.retroachievements.org/Images/page-off.png) center center no-repeat;
+	background: url('/Images/page-off.png') center center no-repeat;
 	display: block;
 	width: 18px;
 	height: 18px;

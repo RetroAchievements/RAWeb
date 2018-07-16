@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-$site = 'http://www.retroachievements.org';
+$site = getenv('APP_URL');
 
 $dom = new DOMDocument( '1.0', 'UTF-8' );
 
@@ -20,7 +20,7 @@ $xmlRoot->appendChild( $xmlns );
 
 $xmlRoot->appendChild( $dom->createElement( 'title', 'RetroAchievements.org New Achievements feed' ) );
 $xmlRoot->appendChild( $dom->createElement( 'description', 'RetroAchievements.org, your home for achievements in classic games' ) );
-$xmlRoot->appendChild( $dom->createElement( 'link', 'http://www.RetroAchievements.org' ) );
+$xmlRoot->appendChild( $dom->createElement( 'link', getenv('APP_URL') ) );
 
 $numArticles = getLatestNewAchievements( 40, $feedData );
 
@@ -38,13 +38,13 @@ for( $i = 0; $i < $numArticles; $i++ )
     $achTitle = $nextData[ 'Title' ];
     $achBadge = $nextData[ 'BadgeName' ];
     $achPoints = $nextData[ 'Points' ];
-    $badgeURL = "http://www.retroachievements.org/Badge/" . $achBadge . ".png";
+    $badgeURL = getenv('APP_URL')."/Badge/" . $achBadge . ".png";
     $gameID = $nextData[ 'GameID' ];
     $gameTitle = $nextData[ 'GameTitle' ];
     $consoleName = $nextData[ 'ConsoleName' ];
 
     $date = date( "D, d M Y H:i:s O", $nextData[ 'timestamp' ] );
-    $link = 'http://www.retroachievements.org/achievement/' . $nextData[ 'ID' ];
+    $link = getenv('APP_URL').'/achievement/' . $nextData[ 'ID' ];
     $simpleTitle = "$achTitle ($achPoints) ($gameTitle, $consoleName)";
     $payloadWithLinks = "<a href='$site/Achievement/$achID'>$achTitle</a> ($achPoints) has been added for <a href='$site/Game/$gameID'>$gameTitle</a> ($consoleName)";
 
@@ -57,10 +57,10 @@ for( $i = 0; $i < $numArticles; $i++ )
         $lastID = $nextData[ 'ID' ];
 
     //$payload contains relative URLs, which need converting to absolute URLs
-    $payload = str_replace( "href='/", "href='http://www.retroachievements.org/", $payload );
-    $payload = str_replace( "href=\"/", "href=\"http://www.retroachievements.org/", $payload );
-    $payload = str_replace( "src='/", "src='http://www.retroachievements.org/", $payload );
-    $payload = str_replace( "src=\"/", "src=\"http://www.retroachievements.org/", $payload );
+    $payload = str_replace( "href='/", "href='".getenv('APP_URL')."/", $payload );
+    $payload = str_replace( "href=\"/", "href=\"".getenv('APP_URL')."/", $payload );
+    $payload = str_replace( "src='/", "src='".getenv('APP_URL')."/", $payload );
+    $payload = str_replace( "src=\"/", "src=\"".getenv('APP_URL')."/", $payload );
 
     //	Strip tags from title (incl html markup :S)
     //	?!

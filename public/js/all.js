@@ -80,7 +80,7 @@ var shortMonths = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep
                 var formStr = "";
                 formStr += "<textarea id=\"commentTextarea\" rows=2 cols=36 name=\"c\" maxlength=250></textarea>";
                 formStr += "&nbsp;";
-                formStr += "<img id=\"submitButton\" src=\"http://i.retroachievements.org/Images/Submit.png\" alt=\"Submit\" style=\"cursor: pointer;\" onclick=\"processComment( '" + activityVar + "', '" + articleType + "' )\">";
+                formStr += "<img id=\"submitButton\" src=\"https://static.retroachievements.org/Images/Submit.png\" alt=\"Submit\" style=\"cursor: pointer;\" onclick=\"processComment( '" + activityVar + "', '" + articleType + "' )\">";
                 var d = new Date();
                 var dateStr = "";
                 dateStr += d.getDate();
@@ -144,7 +144,7 @@ function processComment(activityVar, articleType)
                                                 var submitButton = commentRow.find("#submitButton");
                                                 if (submitButton.exists())
                                                 {
-                                                submitButton.attr("src", "http://i.retroachievements.org/Images/loading.gif"); //	Change to 'loading' gif
+                                                submitButton.attr("src", "/Images/loading.gif"); //	Change to 'loading' gif
                                                         submitButton.attr("onclick", ""); //	stop being able to click this
                                                         submitButton.css("cursor", ""); //	stop being able to see a finger pointer
                                                         }
@@ -332,7 +332,7 @@ function GetAchievementAndTooltipDiv(achID, achName, achDesc, achPoints, gameNam
                 //gameName = replaceAll( "\"", "\\&apos;", gameName );
 
                 var tooltip = "<div id=\'objtooltip\'>" +
-                "<img src=\'http://i.retroachievements.org/Badge/" + badgeName + ".png\' width=" + tooltipImageSize + " height=" + tooltipImageSize + " />" +
+                "<img src=\'https://static.retroachievements.org/Badge/" + badgeName + ".png\' width=" + tooltipImageSize + " height=" + tooltipImageSize + " />" +
                 "<b>" + achName + " (" + achPoints.toString() + ")</b><br/>" +
                 "<i>(" + gameName + ")</i><br/>" +
                 "<br/>" +
@@ -346,7 +346,7 @@ function GetAchievementAndTooltipDiv(achID, achName, achDesc, achPoints, gameNam
                 var displayable = achName + " (" + achPoints.toString() + ")";
                 if (inclSmallBadge)
                 {
-                smallBadgePath = "http://i.retroachievements.org/Badge/" + badgeName + ".png";
+                smallBadgePath = "https://static.retroachievements.org/Badge/" + badgeName + ".png";
                         smallBadge = "<img width='32' height='32' style='floatimg' src='" + smallBadgePath + "' alt=\"" + achName + "\" title=\"" + achName + "\" class='badgeimg' />";
                         if (smallBadgeOnly)
                         displayable = "";
@@ -445,7 +445,7 @@ function GetLeaderboardAndTooltipDiv(lbID, lbName, lbDesc, gameName, gameIcon, d
 //	01:36 31/12/2013
 function UpdateMailboxCount(messageCount)
         {
-        $('body').find("#mailboxicon").attr("src", (messageCount > 0) ? 'http://i.retroachievements.org/Images/_MailUnread.png' : 'http://i.retroachievements.org/Images/_Mail.png');
+        $('body').find("#mailboxicon").attr("src", (messageCount > 0) ? '/Images/_MailUnread.png' : 'http://i.retroachievements.org/Images/_Mail.png');
                 $('body').find("#mailboxcount").html(messageCount);
                 }
 

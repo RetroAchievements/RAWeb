@@ -21,7 +21,7 @@ $xmlRoot->appendChild( $xmlns );
 
 $xmlRoot->appendChild( $dom->createElement( 'title', 'RetroAchievements.org news feed' ) );
 $xmlRoot->appendChild( $dom->createElement( 'description', 'RetroAchievements.org, your home for achievements in classic games' ) );
-$xmlRoot->appendChild( $dom->createElement( 'link', 'http://www.RetroAchievements.org' ) );
+$xmlRoot->appendChild( $dom->createElement( 'link', getenv('APP_URL') ) );
 
 $numNews = getLatestNewsHeaders( 0, 20, $newsData );
 
@@ -34,7 +34,7 @@ for( $i = 0; $i < $numNews; $i++ )
     $newsDate = date( "D, d M Y H:i:s O", $newsData[ $i ][ 'TimePosted' ] );
     $newsImage = $newsData[ $i ][ 'Image' ];
     $newsAuthor = $newsData[ $i ][ 'Author' ];
-    $newsLink = 'http://www.retroachievements.org';
+    $newsLink = getenv('APP_URL');
     $newsTitle = "<![CDATA[" . htmlspecialchars( $newsData[ $i ][ 'Title' ] ) . "]]>";
 
     //	Image first?
@@ -45,10 +45,10 @@ for( $i = 0; $i < $numNews; $i++ )
     $newsPayload = "<![CDATA[" . htmlspecialchars( $payload ) . "]]>";
 
     //$newsPayload contains relative URLs, which need converting to absolute URLs
-    $newsPayload = str_replace( "href='/", "href='http://www.retroachievements.org/", $newsPayload );
-    $newsPayload = str_replace( "href=\"/", "href=\"http://www.retroachievements.org/", $newsPayload );
-    $newsPayload = str_replace( "src='/", "src='http://www.retroachievements.org/", $newsPayload );
-    $newsPayload = str_replace( "src=\"/", "src=\"http://www.retroachievements.org/", $newsPayload );
+    $newsPayload = str_replace( "href='/", "href='".getenv('APP_URL')."/", $newsPayload );
+    $newsPayload = str_replace( "href=\"/", "href=\"".getenv('APP_URL')."/", $newsPayload );
+    $newsPayload = str_replace( "src='/", "src='".getenv('APP_URL')."/", $newsPayload );
+    $newsPayload = str_replace( "src=\"/", "src=\"".getenv('APP_URL')."/", $newsPayload );
 
     //	Strip tags from title (incl html markup :S)
     //	?!

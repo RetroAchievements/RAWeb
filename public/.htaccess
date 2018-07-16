@@ -23,8 +23,8 @@ RewriteRule ^achievement/([0-9]*)(.*) achievementInfo.php?ID=$1&$2 [QSA,NC,L]
 RewriteRule ^user/(.*)?(.*)$ userInfo.php?ID=$1&$2 [QSA,NC,L]
 RewriteRule ^game/([0-9]*)(.*) gameInfo.php?ID=$1&$2 [QSA,NC,L]
 
-RewriteRule ^Images/(.*) http://i.retroachievements.org/Images/$1 [NC,L]
-RewriteRule ^Badge/(.*) http://i.retroachievements.org/Badge/$1 [NC,L]
+RewriteRule ^Images/(.*) https://static.retroachievements.org/Images/$1 [NC,L]
+RewriteRule ^Badge/(.*) https://static.retroachievements.org/Badge/$1 [NC,L]
 
 RewriteRule ^rss-news$ rss-news.xml.php [NC,L]
 RewriteRule ^rss-newachievements$ rss-newachievements.xml.php [NC,L]
@@ -34,6 +34,6 @@ RewriteRule ^rss-forum$ rss-forum.xml.php [NC,L]
 RewriteRule ^api.retroachievements.org/(.*) retroachievements.org/API/$1 [NC,L]
 
 RewriteCond %{HTTP_HOST} ^www.retroachievements.org$ [NC]
-RewriteRule ^(.*)$ http://retroachievements.org/$1 [R=301,L]
+RewriteRule ^(.*)$ https://retroachievements.org/$1 [R=301,L]
 
 #RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]

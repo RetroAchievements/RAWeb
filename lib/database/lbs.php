@@ -290,7 +290,7 @@ function GetLeaderboardRankingJSON( $user, $lbID )
 {
     $retVal = array();
 
-    $query = "SELECT COUNT(*) AS Rank,
+    $query = "SELECT COUNT(*) AS UserRank,
 				(SELECT ld.LowerIsBetter FROM LeaderboardDef AS ld WHERE ld.ID=$lbID) AS LowerIsBetter,
 				(SELECT COUNT(*) AS NumEntries FROM LeaderboardEntry AS le WHERE le.LeaderboardID=$lbID) AS NumEntries
 			  FROM LeaderboardEntry AS lbe
@@ -307,9 +307,9 @@ function GetLeaderboardRankingJSON( $user, $lbID )
         //	Top position yields '0', which we should change to '1' for '1st'
         //	Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
         if( $retVal[ 'LowerIsBetter' ] == 1 )
-            $retVal[ 'Rank' ] = ( $retVal[ 'NumEntries' ] - $retVal[ 'Rank' ] );
+            $retVal[ 'Rank' ] = ( $retVal[ 'NumEntries' ] - $retVal[ 'UserRank' ] );
         else
-            $retVal[ 'Rank' ] += 1;      //	0=1st place.
+            $retVal[ 'Rank' ] = $retVal[ 'UserRank' ] + 1;      //	0=1st place.
     }
 
     return $retVal;
@@ -319,7 +319,7 @@ function GetLeaderboardRankingJSON( $user, $lbID )
 function getLeaderboardRanking( $user, $lbID, &$rankOut, &$totalEntries )
 {
     $query = "SELECT
-			  COUNT(*) AS Rank,
+			  COUNT(*) AS UserRank,
 			  (SELECT ld.LowerIsBetter FROM LeaderboardDef AS ld WHERE ld.ID=$lbID) AS LowerIsBetter,
 			  (SELECT COUNT(*) AS NumEntries FROM LeaderboardEntry AS le WHERE le.LeaderboardID=$lbID) AS NumEntries
 			  FROM LeaderboardEntry AS lbe
@@ -332,7 +332,7 @@ function getLeaderboardRanking( $user, $lbID, &$rankOut, &$totalEntries )
     {
         $db_entry = mysqli_fetch_assoc( $dbResult );
 
-        $rankOut = $db_entry[ 'Rank' ];
+        $rankOut = $db_entry[ 'UserRank' ];
         $totalEntries = $db_entry[ 'NumEntries' ];
 
         //	Query actually gives 'how many players are below me in the list.'

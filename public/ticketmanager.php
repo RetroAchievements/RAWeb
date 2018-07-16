@@ -551,7 +551,7 @@ RenderDocType();
                     echo "<td colspan='6'>";
                     echo "<div class='smallicon'>";
                     echo "<span>";
-                    $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket www.retroachievements.org/ticketmanager.php?i=$ticketID ";
+                    $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
                     $msgPayload = rawurlencode( $msgPayload );
                     echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20($gameTitle)&amp;p=$msgPayload'>Contact the reporter - $reportedBy</a>";
                     echo "</span>";

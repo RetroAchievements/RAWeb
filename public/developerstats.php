@@ -3,7 +3,7 @@
 	
 	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 	
-	$playersOnlineCSV = file_get_contents( "./cronjobs/playersonline.log" );
+	$playersOnlineCSV = file_get_contents( "./storage/logs/playersonline.log" );
 	$playersCSV = preg_split('/\n|\r\n?/', $playersOnlineCSV);
 	
 	$staticData = getStaticData();

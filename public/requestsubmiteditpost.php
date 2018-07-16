@@ -3,7 +3,7 @@
 	
 	if( !ValidatePOSTChars( "uctpi" ) )
 	{
-		header( "Location: http://" . AT_HOST . "/viewtopic.php?t=$topicID&e=invalidparams" );
+		header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams" );
 		exit;
 	}
 
@@ -17,13 +17,13 @@
 	{
         if( getSingleTopicComment( $commentID, $commentData ) == FALSE )
         {
-            header( "location: http://" . AT_HOST . "/forum.php?e=unknowncomment" );
+            header( "location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment" );
             exit;
         }
 
         if( $user != $commentData['Author'] && $permissions != \RA\Permissions::Admin )
         {
-            header( "Location: http://" . AT_HOST . "?e=nopermission" );
+            header( "Location: " . getenv('APP_URL') . "?e=nopermission" );
             exit;
         }
 
@@ -31,8 +31,8 @@
         {
 			//	Good!
 			//error_log( "HOST: " );
-			//error_log( AT_HOST );
-			header( "Location: http://" . AT_HOST . "/viewtopic.php?t=$topicID&c=$commentID" );
+			//error_log( getenv('APP_URL') );
+			header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$commentID" );
 			exit;
 		}
 		else
@@ -40,7 +40,7 @@
 			error_log( __FILE__ );
 			error_log( "Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload" );
 			
-			header( "Location: http://" . AT_HOST . "/viewtopic.php?t=$topicID&e=issuessubmitting" );
+			header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=issuessubmitting" );
 			exit;
 		}
 	}
@@ -48,7 +48,7 @@
 	{
 		error_log( __FILE__ );
 		error_log( "Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload" );
-		header( "Location: http://" . AT_HOST . "/viewtopic.php?t=$topicID&e=badcredentials" );
+		header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=badcredentials" );
 		exit;
 	}
 	

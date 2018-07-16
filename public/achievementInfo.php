@@ -9,7 +9,7 @@ settype( $achievementID, 'integer' );
 if( $achievementID == 0 ||
         getAchievementMetadata( $achievementID, $dataOut ) == false )
 {
-    header( "Location: http://" . AT_HOST . "?e=unknownachievement" );
+    header( "Location: " . getenv('APP_URL') . "?e=unknownachievement" );
     exit;
 }
 
@@ -62,7 +62,7 @@ RenderDocType( TRUE );
 
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader( $user ); ?>
-    <?php RenderFBMetadata( "$achievementTitle in $gameTitle ($consoleName)", "achievement", "http://i.retroachievements.org/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc" ); ?>
+    <?php RenderFBMetadata( "$achievementTitle in $gameTitle ($consoleName)", "achievement", getenv('APP_STATIC_URL') . "/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc" ); ?>
     <?php RenderTitleTag( $pageTitle, $user ); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -123,7 +123,7 @@ RenderDocType( TRUE );
             echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
             $fileSuffix = ( $user == "" || ($achievedLocal == FALSE) ) ? "_lock.png" : ".png";
-            $badgeFullPath = "http://i.retroachievements.org/Badge/" . $badgeName . $fileSuffix;
+            $badgeFullPath = getenv('APP_STATIC_URL') . "/Badge/" . $badgeName . $fileSuffix;
 
             echo "<table class='nicebox'><tbody>";
 

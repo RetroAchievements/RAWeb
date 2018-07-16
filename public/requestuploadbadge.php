@@ -9,12 +9,12 @@ return false;
 // function UploadToS3( $filenameSrc, $filenameDest )
 // {
 // 	$client = new S3Client([
-// 		'region' => getenv('AMAZON_S3_REGION'),
+// 		'region' => getenv('AWS_DEFAULT_REGION'),
 // 		'version' => 'latest'
 // 	]);
 //
 // 	$result = $client->putObject([
-// 		'Bucket' => getenv('AMAZON_S3_BUCKET'),
+// 		'Bucket' => getenv('AWS_BUCKET'),
 // 		'Key' => "$filenameDest",
 // 		'Body' => fopen($filenameSrc, 'r+'),
 // 	]);
@@ -72,7 +72,7 @@ return false;
 //         if( IsAtHome() )
 //             $existingUserFile = "UserPic/$user.png";
 //         else
-//             $existingUserFile = "/var/www/html/public/UserPic/$user.png";
+//             $existingUserFile = getenv('DOC_ROOT')."public/UserPic/$user.png";
 //
 //         $existingImage = imagecreatefrompng( $existingUserFile );
 //         $blackRect = imagecreatetruecolor( 64, 64 )
@@ -96,7 +96,7 @@ return false;
 //         {
 //             //	Done OK
 //             //echo 'OK';
-//             //header( "Location: http://" . AT_HOST . "/manageuserpic.php?e=success" );
+//             //header( "Location: " . getenv('APP_URL') . "/manageuserpic.php?e=success" );
 //         }
 //     }
 //

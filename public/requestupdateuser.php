@@ -27,7 +27,7 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
         if( $response[ 'Success' ] )
         {
             error_log( "$user updated $targetUser to $value OK!!" );
-            header( "Location: http://" . AT_HOST . "/User/$targetUser?e=OK" );
+            header( "Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK" );
         }
         else
         {
@@ -41,7 +41,7 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
         if( setAccountForumPostAuth( $user, $permissions, $targetUser, $value ) )
         {
             error_log( "$user updated $targetUser to $value OK!!" );
-            header( "Location: http://" . AT_HOST . "/User/$targetUser?e=OK" );
+            header( "Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK" );
         }
         else
         {
@@ -57,13 +57,13 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
 
         $hasBadge = !$hasBadge;
         error_log( "$user updated $targetUser to Patreon Status $hasBadge OK!!" );
-        header( "Location: http://" . AT_HOST . "/User/$targetUser?e=OK" );
+        header( "Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK" );
     }
     else if( $propertyType == 3 )   //  Toggle 'Untracked' status
     {
         SetUserTrackedStatus( $targetUser, $value );
         error_log( "SetUserTrackedStatus, $targetUser => $value" );
-        header( "Location: http://" . AT_HOST . "/User/$targetUser?e=OK" );
+        header( "Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK" );
     }
 }
 else

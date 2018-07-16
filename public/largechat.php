@@ -5,7 +5,7 @@
 	if( getAccountDetails( $user, $userDetails ) == FALSE )
 	{
 		//	Immediate redirect if we cannot validate user!
-		header( "Location: http://" . AT_HOST . "?e=accountissue" );
+		header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
 		exit;
 	}
 	

@@ -6,7 +6,7 @@
 	
 	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Unregistered ) )
 	{
-		header( "Location: http://" . AT_HOST . "?e=notloggedin" );
+		header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
 		exit;
 	}
 	
@@ -179,7 +179,7 @@
 			else
 			{
 				echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName . "_lock", TRUE, TRUE, "", $iconSize, "awardLocal" );
-				//echo "<img class='awardlocal' src='http://i.retroachievements.org/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='right' width='$iconSize' height='$iconSize'>";
+				//echo "<img class='awardlocal' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='right' width='$iconSize' height='$iconSize'>";
 			}
 			echo "</td>";
 			
@@ -220,7 +220,7 @@
 			else
 			{
 				echo "<div style='float:right;' >";
-				echo "<img class='awardremote' src='http://i.retroachievements.org/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
+				echo "<img class='awardremote' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
 				echo "</div>";
 			}
 			echo "</td>";
@@ -262,7 +262,7 @@
 		
 		echo "<br/><br/>";
 		
-		//echo "<small><a href=\"http://retroachievements.org/wiki/index.php?title=$gameTitle\">Developer Wiki Link</a></small>";
+		//echo "<small><a href=\"//retroachievements.org/wiki/index.php?title=$gameTitle\">Developer Wiki Link</a></small>";
 		?>
 	 </div>
 </div>

@@ -2,7 +2,7 @@
 
 class RetroAchievements
 {
-	const API_URL = 'http://retroachievements.org/API/';
+	const API_URL = 'https://retroachievements.org/API/';
 	
 	public $ra_user;
 	public $ra_api_key;

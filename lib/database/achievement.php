@@ -696,14 +696,14 @@ function AddEarnedAchievement( $userIn, $validation, $achIDToAward, $fbUser, &$n
                             }
                             else
                             {
-                                //$wallMsg = "I just earned  $title  on $game for $points points on www.RetroAchievements.org!";
-                                //$linkTo = "http://www.retroachievements.org/Users/$User.html";
-                                //$linkTo = "http://www.retroachievements.org/";
+                                //$wallMsg = "I just earned  $title  on $game for $points points on RetroAchievements.org!";
+                                //$linkTo = "https://retroachievements.org/Users/$User.html";
+                                //$linkTo = getenv('APP_URL');
                                 //$linkTo = '';
                                 //$params = array(
                                 //	'access_token'=>'490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw',
-                                //	'url'=>'http://www.retroachievements.org/',
-                                //	'image'=>'http://www.retroachievements.org/Trophy1-96.png',
+                                //	'url'=>getenv('APP_URL'),
+                                //	'image'=>getenv('APP_URL').'/Trophy1-96.png',
                                 //	'message'=>$wallMsg,
                                 //	'link'=>$linkTo,
                                 //	'caption'=>$title,
@@ -713,7 +713,7 @@ function AddEarnedAchievement( $userIn, $validation, $achIDToAward, $fbUser, &$n
                                 $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
                                 $params = array(
                                     'access_token' => $access_token,
-                                    'achievement' => "http://www.retroachievements.org/Achievement/$achIDToAward" );
+                                    'achievement' => getenv('APP_URL')."/Achievement/$achIDToAward" );
 
                                 try
                                 {

@@ -62,22 +62,22 @@ function log_email( $logMessage )
     error_log( $fullmsg );
 
     //if( !IsAtHome() )
-    mail_utf8( "Scott@retroachievements.org", "RetroAchievements.org", "Scott@retroachievements.org", "Error Log", $fullmsg );
+    //mail_utf8( "Scott@retroachievements.org", "RetroAchievements.org", "noreply@retroachievements.org", "Error Log", $fullmsg );
 }
 
 function log_sql( $logMessage )
 {
     if( IsAtHome() )
-        error_log( $logMessage . "\n", 3, "logs/queries.log" );
+        error_log( $logMessage . "\n", 3, "storage/logs/queries.log" );
     else
-        error_log( $logMessage . "\n", 3, "/var/www/html/logs/queries.log" );
+        error_log( $logMessage . "\n", 3, getenv('DOC_ROOT')."storage/logs/queries.log" );
 }
 
 function log_sql_fail()
 {
     global $db;
 
-    error_log( mysql_errno() . ": " . mysqli_error( $db ), 3, "logs/queries.log" );
+    error_log( mysql_errno() . ": " . mysqli_error( $db ), 3, "storage/logs/queries.log" );
     error_log( "SQL failed: " . mysqli_error( $db ) );
     log_email( "SQL failed: " . mysqli_error( $db ) );
 }
@@ -477,7 +477,7 @@ function IsMobileBrowser()
 function ParseCURLGetImage( $url )
 {
     $ch = curl_init( $url );
-    curl_setopt( $ch, CURLOPT_URL, "http://retroachievements.org/$url" );
+    curl_setopt( $ch, CURLOPT_URL, getenv('APP_URL')."/$url" );
     curl_setopt( $ch, CURLOPT_HEADER, FALSE );
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
     curl_setopt( $ch, CURLOPT_BINARYTRANSFER, TRUE );
@@ -491,7 +491,7 @@ function ParseCURLGetImage( $url )
 function ParseCURLPage( $url, $postString = "" )
 {
     $ch = curl_init();
-    curl_setopt( $ch, CURLOPT_URL, "http://retroachievements.org/$url" );
+    curl_setopt( $ch, CURLOPT_URL, getenv('APP_URL')."/$url" );
     curl_setopt( $ch, CURLOPT_POST, TRUE );
     curl_setopt( $ch, CURLOPT_POSTFIELDS, $postString );
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );

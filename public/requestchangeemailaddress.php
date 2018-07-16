@@ -8,7 +8,7 @@
 		echo "FAILED";
 		error_log( __FILE__ );
 		error_log( "Cannot validate efcu input..." );
-		header( "Location: http://" . AT_HOST . "/controlpanel.php?e=e_baddata" );
+		header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_baddata" );
 	}
 	
 	$email = $_POST["e"];
@@ -21,11 +21,11 @@
 	
 	if( $email !== $email2 )
 	{
-		header( "Location: http://" . AT_HOST . "/controlpanel.php?e=e_notmatch" );
+		header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_notmatch" );
 	}
 	else if( filter_var( $email, FILTER_VALIDATE_EMAIL ) == FALSE )
 	{
-		header( "Location: http://" . AT_HOST . "/controlpanel.php?e=e_badnewemail" );
+		header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badnewemail" );
 	}
 	else
 	{
@@ -38,18 +38,18 @@
 				error_log( __FILE__ );
 				error_log( "$user changed email to $email" );
 				
-				header( "Location: http://" . AT_HOST . "/controlpanel.php?e=e_changeok" );
+				header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_changeok" );
 			}
 			else
 			{
 				error_log( __FILE__ );
 				error_log( "$email,$email2,$user,$cookie" );
-				header( "Location: http://" . AT_HOST . "/controlpanel.php?e=e_generalerror" );
+				header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_generalerror" );
 			}
 		}
 		else
 		{
-			header( "Location: http://" . AT_HOST . "/controlpanel.php?e=e_badcredentials" );
+			header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badcredentials" );
 		}
 	}
 ?>

@@ -31,6 +31,8 @@ abstract class FBUserPref
 //////////////////////////////////////////////////////////////////////////////////////////
 function mail_utf8( $to, $from_user, $from_email, $subject = '(No subject)', $message = '' )
 {
+    return true;
+
     $from_user = "=?UTF-8?B?" . base64_encode( $from_user ) . "?=";
     $subject = "=?UTF-8?B?" . base64_encode( $subject ) . "?=";
     $headers = "From: $from_user <$from_email>\r\n" .
@@ -46,12 +48,12 @@ function sendValidationEmail( $user, $email )
 {
     //	This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailValidationString( $user );
-    $strEmailLink = "http://retroachievements.org/validateEmail.php?v=$strValidation";
+    $strEmailLink = getenv('APP_URL')."/validateEmail.php?v=$strValidation";
 
     //$subject = "RetroAchievements.org - Confirm Email: $user";
     $subject = "Welcome to RetroAchievements.org, $user";
 
-    $msg = "You or someone using your email address has attempted to sign up for an account at <a href='http://retroachievements.org'>RetroAchievements.org</a><br/>" .
+    $msg = "You or someone using your email address has attempted to sign up for an account at <a href='".getenv('APP_URL')."'>RetroAchievements.org</a><br/>" .
             "<br/>" .
             "If this was you, please click the following link to confirm this email address and complete sign up:<br/>" .
             "<br/>" .
@@ -61,11 +63,11 @@ function sendValidationEmail( $user, $email )
             "<br/>" .
             "Thanks! And hope to see you on the forums!<br/>" .
             "<br/>" .
-            "-- Your friends at <a href='http://retroachievements.org'>RetroAchievements.org</a><br/>";
+            "-- Your friends at <a href='".getenv('APP_URL')."'>RetroAchievements.org</a><br/>";
 
     error_log( __FUNCTION__ . " sending mail to $user at address $email" );
 
-    $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $subject, $msg );
+    $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $subject, $msg );
 
     error_log( __FUNCTION__ . " return val: $retVal" );
 
@@ -300,13 +302,13 @@ function sendFriendEmail( $user, $email, $type, $friend )
     {
         $emailTitle = "New Friend Request from $friend";
         $emailReason = "sent you a friend request";
-        $link = "<a href='http://retroachievements.org/User/$friend'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/User/$friend'>here</a>";
     }
     else if( $type == 1 ) //	Friend request confirmed
     {
         $emailTitle = "New Friend confirmed: $friend";
         $emailReason = "confirmed your friend request";
-        $link = "<a href='http://retroachievements.org/User/$friend'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/User/$friend'>here</a>";
     }
     else
     {
@@ -333,7 +335,7 @@ function sendFriendEmail( $user, $email, $type, $friend )
     else
     {
         error_log( __FUNCTION__ . " sending friend mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -356,13 +358,13 @@ function sendActivityEmail( $user, $email, $actID, $activityCommenter, $articleT
     if( $articleType == 1 ) //	Game (wall)
     {
         $emailTitle = "New Game Wall Comment from $activityCommenter";
-        $link = "<a href='http://retroachievements.org/Game/$actID'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/Game/$actID'>here</a>";
         $activityDescription = "A game wall discussion you've commented in";
     }
     else if( $articleType == 2 ) //	Achievement: sending mail to person who authored an achievement
     {
         $emailTitle = "New Achievement Comment from $activityCommenter";
-        $link = "<a href='http://retroachievements.org/achievement/$actID'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/achievement/$actID'>here</a>";
         $activityDescription = "An achievement you created";
         if( isset( $threadInvolved ) )
             $activityDescription = "An achievement page discussion you've commented in";
@@ -370,7 +372,7 @@ function sendActivityEmail( $user, $email, $actID, $activityCommenter, $articleT
     else if( $articleType == 3 ) //	User (wall)
     {
         $emailTitle = "New User Wall Comment from $activityCommenter";
-        $link = "<a href='http://retroachievements.org/User/$altURLTarget'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/User/$altURLTarget'>here</a>";
         $activityDescription = "Your user wall";
         if( isset( $threadInvolved ) )
             $activityDescription = "A user wall discussion you've commented in";
@@ -378,13 +380,13 @@ function sendActivityEmail( $user, $email, $actID, $activityCommenter, $articleT
     else if( $articleType == 6 ) //	Forum thread
     {
         $emailTitle = "New Forum Comment from $activityCommenter";
-        $link = "<a href='http://retroachievements.org/$altURLTarget'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/$altURLTarget'>here</a>";
         $activityDescription = "A forum thread you've commented in";
     }
     else if( $articleType == 7 ) //	Ticket
     {
         $emailTitle = "New Ticket Comment from $activityCommenter";
-        $link = "<a href='http://retroachievements.org/ticketmanager.php?i=$actID'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/ticketmanager.php?i=$actID'>here</a>";
         $activityDescription = "A ticket you've reported";
         if( isset( $threadInvolved ) )
             $activityDescription = "A ticket you've commented on";
@@ -393,7 +395,7 @@ function sendActivityEmail( $user, $email, $actID, $activityCommenter, $articleT
     {
         //	Also used for Generic text:
         $emailTitle = "New Activity Comment from $activityCommenter";
-        $link = "<a href='http://retroachievements.org/feed.php?a=$actID'>here</a>";
+        $link = "<a href='".getenv('APP_URL')."/feed.php?a=$actID'>here</a>";
         $activityDescription = "Your latest activity";
         if( isset( $threadInvolved ) )
             $activityDescription = "A thread you've commented in";
@@ -418,7 +420,7 @@ function sendActivityEmail( $user, $email, $actID, $activityCommenter, $articleT
     else
     {
         error_log( __FUNCTION__ . " sending activity mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -437,7 +439,7 @@ function SendPrivateMessageEmail( $user, $email, $title, $contentIn, $fromUser )
 
     //	Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
-    $link = "<a href='http://retroachievements.org/inbox.php'>here</a>";
+    $link = "<a href='".getenv('APP_URL')."/inbox.php'>here</a>";
 
     $msg = "Hello $user!<br/>" .
             "You have received a new private message from $fromUser.<br/><br/>" .
@@ -459,7 +461,7 @@ function SendPrivateMessageEmail( $user, $email, $title, $contentIn, $fromUser )
     else
     {
         error_log( __FUNCTION__ . " sending activity mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -469,7 +471,7 @@ function SendPrivateMessageEmail( $user, $email, $title, $contentIn, $fromUser )
 function SendPasswordResetEmail( $user, $email, $token )
 {
     $emailTitle = "Password Reset Request";
-    $link = "<a href='http://retroachievements.org/resetPassword.php?u=$user&amp;t=$token'>Confirm Your Email Address</a>";
+    $link = "<a href='".getenv('APP_URL')."/resetPassword.php?u=$user&amp;t=$token'>Confirm Your Email Address</a>";
 
     $msg = "Hello $user!<br/>" .
             "Your account has requested a password reset:<br/>" .
@@ -486,7 +488,7 @@ function SendPasswordResetEmail( $user, $email, $token )
     else
     {
         error_log( __FUNCTION__ . " sending activity mail to $user at address $email" );
-        $retVal = mail_utf8( $email, "RetroAchievements.org", "Scott@retroachievements.org", $emailTitle, $msg );
+        $retVal = mail_utf8( $email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg );
         error_log( __FUNCTION__ . " return val: $retVal" );
     }
 
@@ -1025,7 +1027,7 @@ function GetScore( $user )
 //	19:52 02/02/2014s
 function getUserRank( $user )
 {
-    $query = "  SELECT ( COUNT(*) + 1 ) AS Rank
+    $query = "  SELECT ( COUNT(*) + 1 ) AS UserRank
 				FROM UserAccounts AS ua
 				RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints
 				WHERE ua.User = '$user'";
@@ -1034,7 +1036,7 @@ function getUserRank( $user )
     if( $dbResult !== FALSE )
     {
         $data = mysqli_fetch_assoc( $dbResult );
-        return $data[ 'Rank' ];
+        return $data[ 'UserRank' ];
     }
 
     error_log( $query );

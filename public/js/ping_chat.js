@@ -181,6 +181,10 @@ function onClose(evt)
 /* this function initiates the chat; it executes when the chat page loads */
 function init_chat( maxMsgs ) 
 {
+	if(!document.getElementById("chatinput")) {
+		return;
+	}
+
 	// prevents the autofill function from starting
 	document.getElementById("chatinput").setAttribute("autocomplete", "off");
 	
