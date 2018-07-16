@@ -2246,6 +2246,10 @@ function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos 
 
 function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut = false )
 {
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        return '';
+    }
+
     $location = "component $chatboxat";
 
     $isLargeChat = ($chatboxat == 'left');
