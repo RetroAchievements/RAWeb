@@ -1170,7 +1170,7 @@ function RenderLoginComponent( $user, $points, $errorCode, $inline = FALSE )
     {
         echo "<h3>login</h3>";
         echo "<div class='infobox'>";
-        echo "<b>login</b> to " . AT_HOST . ":<br/>";
+        echo "<b>login</b> to " . getenv('APP_NAME') . ":<br/>";
 
         echo "<form method='post' action='/login.php'>";
         echo "<div>";
@@ -2497,7 +2497,7 @@ function RenderTitleTag( $title, $user )
     if( $title !== NULL )
         echo "$title - ";
 
-    echo AT_HOST;
+    echo getenv('APP_NAME');
     //"RetroAchievements.org";
 
     echo "</title>";
