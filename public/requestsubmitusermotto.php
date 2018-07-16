@@ -3,7 +3,7 @@
 	
 	if( !ValidatePOSTChars( "ucm" ) )
 	{
-		header( "Location: http://" . AT_HOST . "?e=invalidparams" );
+		header( "Location: " . getenv('APP_URL') . "?e=invalidparams" );
 		exit;
 	}
 
@@ -43,5 +43,5 @@
 		$changeErrorCode = "changeerror";
 	}
 	
-	header( "Location: http://" . AT_HOST . "/controlpanel.php?e=$changeErrorCode" );
+	header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=$changeErrorCode" );
 ?>

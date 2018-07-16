@@ -6,7 +6,7 @@
 	
 	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Unregistered ) )
 	{
-		header( "Location: http://" . AT_HOST . "?e=notloggedin" );
+		header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
 		exit;
 	}
 	

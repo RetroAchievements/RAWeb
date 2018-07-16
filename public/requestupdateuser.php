@@ -63,7 +63,7 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
     {
         SetUserTrackedStatus( $targetUser, $value );
         error_log( "SetUserTrackedStatus, $targetUser => $value" );
-        header( "Location: http://" . AT_HOST . "/User/$targetUser?e=OK" );
+        header( "Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK" );
     }
 }
 else

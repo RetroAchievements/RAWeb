@@ -33,14 +33,14 @@ if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, 
     if( getAccountDetails( $user, $userDetails ) == FALSE )
     {
         //	Immediate redirect if we cannot validate user!
-        header( "Location: http://" . AT_HOST . "?e=accountissue" );
+        header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
         exit;
     }
 }
 else
 {
     //	Immediate redirect if we cannot validate cookie!
-    header( "Location: http://" . AT_HOST . "?e=notloggedin" );
+    header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
     exit;
 }
 
@@ -227,7 +227,7 @@ if( $success )
                 error_log( "Logged image update $uploadType to game $returnID, to image /$newImageFilename" );
             }
 
-            header( "Location: http://" . AT_HOST . "/game/$returnID?e=uploadok" );
+            header( "Location: " . getenv('APP_URL') . "/game/$returnID?e=uploadok" );
             exit;
         }
     }

@@ -5,5 +5,5 @@
 	RA_ClearCookie( 'RA_Cookie' );
 	
 	$redir = $_GET['Redir'];
-	header( "Location: http://" . AT_HOST . $redir );
+	header( "Location: " . getenv('APP_URL') . $redir );
 ?>

@@ -31,7 +31,7 @@
         {
 			//	Good!
 			//error_log( "HOST: " );
-			//error_log( AT_HOST );
+			//error_log( getenv('APP_URL') );
 			header( "Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$commentID" );
 			exit;
 		}

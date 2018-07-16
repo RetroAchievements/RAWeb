@@ -10,7 +10,7 @@ settype( $achievementID, 'integer' );
 if( $achievementID == 0 ||
         getAchievementMetadata( $achievementID, $dataOut ) == false )
 {
-    header( "Location: http://" . AT_HOST . "?e=unknownachievement" );
+    header( "Location: " . getenv('APP_URL') . "?e=unknownachievement" );
     exit;
 }
 

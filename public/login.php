@@ -21,16 +21,16 @@ if( validateUser( $user, $pass, $fbUser, 0 ) )
     //	Remove 'notloggedin'
     $redir = str_replace( "e=notloggedin", "", $redir );
 
-    header( "Location: http://" . AT_HOST . "$redir" );
+    header( "Location: " . getenv('APP_URL') . "$redir" );
 }
 else
 {
     if( isset( $redir ) && stristr( $redir, "?" ) )
     {
-        header( "Location: http://" . AT_HOST . "$redir&e=incorrectpassword" ); //	if redir has a query string, append errorcode!
+        header( "Location: " . getenv('APP_URL') . "$redir&e=incorrectpassword" ); //	if redir has a query string, append errorcode!
     }
     else
     {
-        header( "Location: http://" . AT_HOST . "$redir?e=incorrectpassword" );
+        header( "Location: " . getenv('APP_URL') . "$redir?e=incorrectpassword" );
     }
 }

@@ -32,9 +32,9 @@ if (isset($_POST['note'])) {
 if (validateUser_cookie($user, $cookie, 0) == true) {
     $success = submitNewTickets($user, $achievementID, $problemType, $note, $msgOut);
     if ($msgOut == "FAILED!") {
-        header("Location: http://" . AT_HOST . "/Achievement/$achievementID?e=issue_failed");
+        header("Location: " . getenv('APP_URL') . "/Achievement/$achievementID?e=issue_failed");
     } else {
-        header("Location: http://" . AT_HOST . "/Achievement/$achievementID?e=issue_submitted");
+        header("Location: " . getenv('APP_URL') . "/Achievement/$achievementID?e=issue_submitted");
     }
 
     echo $msgOut;
