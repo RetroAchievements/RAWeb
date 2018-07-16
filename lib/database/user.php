@@ -1027,7 +1027,7 @@ function GetScore( $user )
 //	19:52 02/02/2014s
 function getUserRank( $user )
 {
-    $query = "  SELECT ( COUNT(*) + 1 ) AS Rank
+    $query = "  SELECT ( COUNT(*) + 1 ) AS UserRank
 				FROM UserAccounts AS ua
 				RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints
 				WHERE ua.User = '$user'";
@@ -1036,7 +1036,7 @@ function getUserRank( $user )
     if( $dbResult !== FALSE )
     {
         $data = mysqli_fetch_assoc( $dbResult );
-        return $data[ 'Rank' ];
+        return $data[ 'UserRank' ];
     }
 
     error_log( $query );
