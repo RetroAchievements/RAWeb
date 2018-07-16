@@ -284,9 +284,9 @@ else
                 if( ! isset( $user ) ) RenderWelcomeComponent();
             }
 
-            echo '<div class=\'patron\'><a href=\'https://www.patreon.com/bePatron?u=5403777\' data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script></div>';
+            echo '<div class=\'patron\' style="margin-top: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank">Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
 
-            echo '<div class=\'discord\'><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\'><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
+            echo '<div class=\'discord\' style="margin-bottom: 10px"><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\' target="_blank"><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
 
             RenderDocsComponent();
             RenderCurrentlyOnlineComponent( NULL );
