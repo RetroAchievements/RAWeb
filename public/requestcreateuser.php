@@ -12,14 +12,14 @@ $email2 = $_POST[ "f" ];
 
 if( ctype_alnum( $user ) == FALSE )
 {
-    error_log( "requestcreateuser.php failed 1 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 1 - $user $email $email2 " );
     echo "Username ($user) must consist only of letters or numbers. Please retry.<br/>";
     return FALSE;
 }
 
 if( strlen( $user ) > 20 )
 {
-    error_log( "requestcreateuser.php failed 2 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 2 - $user $email $email2 " );
     echo "Username can be a maximum of 20 characters. Please retry.<br/>";
     //log_sql_fail();
     return FALSE;
@@ -27,7 +27,7 @@ if( strlen( $user ) > 20 )
 
 if( strlen( $user ) < 2 )
 {
-    error_log( "requestcreateuser.php failed 3 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 3 - $user $email $email2 " );
     echo "Username must be at least 2 characters. Please retry.<br/>";
     //log_sql_fail();
     return FALSE;
@@ -35,7 +35,7 @@ if( strlen( $user ) < 2 )
 
 if( strlen( $pass ) < 2 )
 {
-    error_log( "requestcreateuser.php failed 3.5 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 3.5 - $user $email $email2 " );
     echo "Password must be at least 2 characters. Please retry.<br/>";
     //log_sql_fail();
     return FALSE;
@@ -43,7 +43,7 @@ if( strlen( $pass ) < 2 )
 
 if( $email !== $email2 )
 {
-    error_log( "requestcreateuser.php failed 4 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 4 - $user $email $email2 " );
     echo "Emails do not match... please retry.<br/>";
     //log_sql_fail();
     return FALSE;
@@ -51,7 +51,7 @@ if( $email !== $email2 )
 
 if( !checkEmail( $email ) )
 {
-    error_log( "requestcreateuser.php failed 5 - $user $pass $email $email2 " );
+    error_log( "requestcreateuser.php failed 5 - $user $email $email2 " );
     echo "Email is not valid... please retry.<br/>";
     //log_sql_fail();
     return FALSE;
@@ -79,17 +79,17 @@ else
     $resultJSON = json_decode( $result, true );
 
     error_log( $result );
-    error_log( $resultJSON );
+    // error_log( $resultJSON );
 
     if( array_key_exists( 'success', $resultJSON ) && $resultJSON[ 'success' ] != true )
     {
-        error_log( "requestcreateuser.php failed 6 - $user $pass $email $email2 " );
+        error_log( "requestcreateuser.php failed 6 - $user $email $email2 " );
         echo "Captcha field failed!... please retry.<br/>";
         return false;
     }
     else
     {
-        error_log( "requestcreateuser.php passed! ($user $pass $email $email2) " );
+        error_log( "requestcreateuser.php passed! ($user $email $email2) " );
     }
 }
 
