@@ -78,7 +78,9 @@ RenderDocType();
             <h2 class='longheader' id='ralibretro'>RALibretro: multi-emulator</h2>
 
             <div class='largeicon'>
-                <span class='clickablebutton'><a href="https://docs.retroachievements.org/RALibretro/">RALibretro</a></span>
+                <span class='clickablebutton'>
+                    <a href="https://docs.retroachievements.org/RALibretro/" target="_blank">RALibretro</a>
+                </span>
             </div>
 
             <h3>Source Code</h3>
