@@ -464,7 +464,7 @@
 		$loggedIn = RenderFBDialog( $fbUser, $fbRealName, $fbURL, $user );
 		if( $fbUser !== 0 )
 		{
-			echo "<image class='rightfloat' src='http://graph.facebook.com/$fbUser/picture?type=square' width='50' height='50'>";
+			echo "<image class='rightfloat' src='https://graph.facebook.com/$fbUser/picture?type=square' width='50' height='50'>";
 			echo "Logged in as: ";
 			echo "<a href='$fbURL'>$fbRealName</a><br/>";
 		}
@@ -501,7 +501,7 @@
 		<h4>Unlink Facebook</h4>
 		Click <a href="/requestremovefb.php?u=<?php echo $user;?>">here</a> to remove Facebook from your RetroAchievements account. 
 		Please note you will also need to remove permissions from within Facebook to fully disassociate this app, 
-		by visiting <a href="http://www.facebook.com/settings?tab=applications">this page</a> on Facebook.
+		by visiting <a href="https://www.facebook.com/settings?tab=applications">this page</a> on Facebook.
 		<br/><br/>
 	<?php 
 		} 

@@ -78,7 +78,7 @@ RenderDocType();
             <h2 class='longheader' id='ralibretro'>RALibretro: multi-emulator</h2>
 
             <div class='largeicon'>
-                <span class='clickablebutton'><a href="<?php echo getenv('APP_URL') ?>/docs/RALibretro/">RALibretro</a></span>
+                <span class='clickablebutton'><a href="https://docs.retroachievements.org/RALibretro/">RALibretro</a></span>
             </div>
 
             <h3>Source Code</h3>
@@ -89,8 +89,8 @@ RenderDocType();
                     There are no copyright-protected ROMs available for download on RetroAchievements.org.
                     It is illegal to possess any ROMs that you did not yourself make the backup copy of.
                     RAGens is only for use with backup Mega Drive/Genesis ROMs that you legally own.
-                    RetroAchievements recommends the use of a <a href='http://www.Retrode.com'>Retrode</a> to legitimately obtain backup ROM files of games you own.
-                    For more information, please see <a href="http://www.gamefaqs.com/features/help/entry.html?cat=24">GameFAQs explanation</a> or search the web to learn more.<br/></small></p>
+                    RetroAchievements recommends the use of a <a href='https://www.Retrode.com'>Retrode</a> to legitimately obtain backup ROM files of games you own.
+                    For more information, please see <a href="https://www.gamefaqs.com/features/help/entry.html?cat=24">GameFAQs explanation</a> or search the web to learn more.<br/></small></p>
 
             <br/>
 

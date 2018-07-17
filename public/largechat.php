@@ -85,7 +85,7 @@ function onPostComplete( data )
 		
 		if( $mobileSetting == 1 )
 		{
-			echo "<iframe id='player' type='text/html' width='620' height='378' src='http://www.twitch.tv/".getenv('TWITCH_CHANNEL')."/hls' frameborder='0'></iframe>";
+			echo "<iframe id='player' type='text/html' width='620' height='378' src='//www.twitch.tv/".getenv('TWITCH_CHANNEL')."/hls' frameborder='0'></iframe>";
 		}
 		
 		if( $permissions > 1 )
@@ -117,7 +117,7 @@ function onPostComplete( data )
 			//echo "<form method='post'>";
 			echo "</br>";
 			echo "<ul>";
-			echo "<li><a href='http://www.twitch.tv/".getenv('TWITCH_CHANNEL')."/dashboard'>Dashboard on Twitch.tv - select game on this page!</a></li>";
+			echo "<li><a href='//www.twitch.tv/".getenv('TWITCH_CHANNEL')."/dashboard'>Dashboard on Twitch.tv - select game on this page!</a></li>";
 			echo "<li>Add/Modify Video:</br>";
 			echo "&nbsp;ID: <input type='text' name='i' size='2' value='$vidID' readonly>&nbsp; ";
 			echo "Title: <input id='videourltitle' type='text' name='t' style='width: 50%;' value='$vidTitle' >&nbsp; ";

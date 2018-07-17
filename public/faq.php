@@ -65,19 +65,19 @@
 		
 		Here's an example of RAGens, playing Streets of Rage 2. You will see two leaderboard attempt counters (bottom-right), one achievement popping and finally the overlay (press ESC):</br>
 		
-		<img src='http://i.imgur.com/p2y9bDH.gif' width='644' height='480' />
+		<img src='https://i.imgur.com/p2y9bDH.gif' width='644' height='480' />
 		</p>
 		";
 		
 		echo "<h4 class='longheader' id='faq2'>Where can I find ROMs?</h4>";
-		echo "<p>Not here. Unfortunately it is illegal to host or distribute copyright ROMs. To extract the ROM file from your cartridges, you can use a tool such as the <a href='http://www.retrode.org/'>Retrode</a> or similar, then you can use the ROM file with our emulators. <a href='http://www.coolrom.com'>Other</a> <a href='http://www.freeroms.com'>websites</a> host ROM files that you could use with our emulators, but we do not condone downloading or playing ROMs for games you do not own.</p>";
+		echo "<p>Not here. Unfortunately it is illegal to host or distribute copyright ROMs. To extract the ROM file from your cartridges, you can use a tool such as the <a href='https://www.retrode.org/'>Retrode</a> or similar, then you can use the ROM file with our emulators. <a href='http://www.coolrom.com'>Other</a> <a href='http://www.freeroms.com'>websites</a> host ROM files that you could use with our emulators, but we do not condone downloading or playing ROMs for games you do not own.</p>";
 		
 		echo "<h4 class='longheader' id='faq3'>How do I use the emulator?</h4>";
 		echo "<p>Please download the emulator of your choice from <a href='/download.php'>the download page</a>, log in using your username and password, then load a ROM and play! See the following video for a demonstration:<br/><br/>";
 		
 		//	Using RA
 		echo '
-		<object type="application/x-shockwave-flash" style="width:600px; height:400px;" data="https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><param name="movie" value="http://www.youtube.com/v/rKY2mZjurJw?hl=en&amp;fs=1" /></object><br/>
+		<object type="application/x-shockwave-flash" style="width:600px; height:400px;" data="https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><param name="movie" value="https://www.youtube.com/v/rKY2mZjurJw?hl=en&amp;fs=1" /></object><br/>
 		';
 		
 		echo "</p>";
@@ -94,7 +94,7 @@
 		echo "<p>Please don't hesitate to ask if you need help, don't struggle! The most important thing is to make sure you're enjoying whatever it is you're doing. If you're not having fun, don't do it. But if you get frustrated and want to persist, just drop a message on the <a href='".getenv('APP_URL')."/forum.php?c=7'>forums</a> or in our <a href='https://discord.gg/TdfC3r7'>Discord server</a> and someone will get back to you shortly.</p>";
 
 		echo "<h4 class='longheader' id='faq7'>These emulators are GPL protected! Where is the source code?</h4>";
-		echo "<p>That is correct! We fully support the open-source initiative, and welcome any changes to the source that builds either emulators or the RA toolset. Please visit <a href='http://sourceforge.net/projects/retroachievers/'>our page on SourceForge</a> and help yourself to the source code. All emulators build with Visual Studio Community 2013 and <a href='http://www.microsoft.com/en-gb/download/details.aspx?id=5770'>Microsoft DirectX SDK (June 2008)</a>. Why do we use such an old DirectX SDK? Some of the emulators were built in early 2000s, and utilise DirectDraw; this is the latest version of DirectX that will support all emulators.</p>";
+		echo "<p>That is correct! We fully support the open-source initiative, and welcome any changes to the source that builds either emulators or the RA toolset. Please visit <a href='https://sourceforge.net/projects/retroachievers/'>our page on SourceForge</a> and help yourself to the source code. All emulators build with Visual Studio Community 2013 and <a href='http://www.microsoft.com/en-gb/download/details.aspx?id=5770'>Microsoft DirectX SDK (June 2008)</a>. Why do we use such an old DirectX SDK? Some of the emulators were built in early 2000s, and utilise DirectDraw; this is the latest version of DirectX that will support all emulators.</p>";
 		
 		echo "<h4 class='longheader' id='faq8'>My welcome email has gone missing!</h4>";
 		echo "<p>Unfortunately sometimes the welcome email has been known to go missing. If this happens, please log in with your username/password you registered with, then visit your settings page. At the top you'll find the option to resend your registration email. If you still have trouble after this point, please drop a message to <a href='/user/RAdmin'>RAdmin</a> and we'll get back to you as soon we can!</p>";
@@ -104,7 +104,7 @@
 		
 		//	Reporting broken achievements
 		echo '
-		<object type="application/x-shockwave-flash" style="width:600px; height:400px;" data="https://www.youtube-nocookie.com/v/TTHbm700Y-Y?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><param name="movie" value="http://www.youtube.com/v/TTHbm700Y-Y?hl=en&amp;fs=1" /></object><br/>
+		<object type="application/x-shockwave-flash" style="width:600px; height:400px;" data="https://www.youtube-nocookie.com/v/TTHbm700Y-Y?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><param name="movie" value="https://www.youtube.com/v/TTHbm700Y-Y?hl=en&amp;fs=1" /></object><br/>
 		';
 		
 		echo "<h4 class='longheader' id='faq10'>I want to stream on my twitch channel/make a fan site/buy a T-Shirt with RetroAchievements!</h4>";

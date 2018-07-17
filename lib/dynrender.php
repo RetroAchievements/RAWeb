@@ -475,7 +475,7 @@ function RenderDemoVideosComponent()
     echo "<h4>Using RAGens</h4>";
 
     echo "<div class='videocontainer' >";
-    echo "<iframe style='border:0;' width='$width' height='$height' src='http://www.youtube.com/embed/rKY2mZjurJw' allowfullscreen></iframe>";
+    echo "<iframe style='border:0;' width='$width' height='$height' src='//www.youtube.com/embed/rKY2mZjurJw' allowfullscreen></iframe>";
     //echo "<iframe src='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' frameborder='0' allowfullscreen></iframe>";
     //echo "<object data='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' style='width:300px;'></object>";
     echo "</div>";
@@ -483,8 +483,8 @@ function RenderDemoVideosComponent()
     echo "<h4>Finding Memory Addresses</h4>";
 
     echo "<div class='videocontainer' >";
-    echo "<object type='application/x-shockwave-flash' width='$width' height='$height' data='http://www.twitch.tv/widgets/archive_embed_player.swf' id='clip_embed_player_flash' >
-		<param name='movie' value='http://www.twitch.tv/widgets/archive_embed_player.swf' />
+    echo "<object type='application/x-shockwave-flash' width='$width' height='$height' data='//www.twitch.tv/widgets/archive_embed_player.swf' id='clip_embed_player_flash' >
+		<param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf' />
 		<param name='allowScriptAccess' value='always' />
 		<param name='allowNetworking' value='all' />
 		<param name='flashvars' value='auto_play=false&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;title=Finding%2BMemory%2BAddresses&amp;chapter_id=2674100&amp;start_volume=25' />
@@ -568,14 +568,14 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
 
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
-    echo '<div style="margin:auto;text-align:center;padding-top:10px;padding-bottom:10px;background-color:#5a2a2a;max-width:980px;min-width:800px;color:#c90;font-weight:bold;margin-bottom:10px">';
-    echo 'Server maintenance happened on ';
-    // echo '<a style="text-decoration:underline" target="_blank" href="https://www.timeanddate.com/worldclock/fixedtime.html?msg=Server+Maintenance&iso=20180716T15&p1=1440&ah=1">';
-    echo 'Monday, 16 July 2018, 15:00 - 15:15 (UTC time)';
-    // echo '</a>';
-    echo '<br>';
-    echo '<small>Welcome to the new server.</small>';
-    echo '</div>';
+    // echo '<div style="margin:auto;text-align:center;padding-top:10px;padding-bottom:10px;background-color:#5a2a2a;max-width:980px;min-width:800px;color:#c90;font-weight:bold;margin-bottom:10px">';
+    // echo 'Server maintenance happened on ';
+    // // echo '<a style="text-decoration:underline" target="_blank" href="https://www.timeanddate.com/worldclock/fixedtime.html?msg=Server+Maintenance&iso=20180716T15&p1=1440&ah=1">';
+    // echo 'Monday, 16 July 2018, 15:00 - 15:15 (UTC time)';
+    // // echo '</a>';
+    // echo '<br>';
+    // echo '<small>Welcome to the new server.</small>';
+    // echo '</div>';
 
     echo "<div id='title'>";
 
@@ -671,8 +671,8 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "<li><a href='/admin.php'>Admin Tools</a></li>";
     }
 
-    echo "<li><a href='http://docs.retroachievements.org/'>Documentation</a></li>";
-    echo "<li><a href='http://docs.retroachievements.org/FAQ/'>- FAQ</a></li>";
+    echo "<li><a href='https://docs.retroachievements.org/'>Documentation</a></li>";
+    echo "<li><a href='https://docs.retroachievements.org/FAQ/'>- FAQ</a></li>";
 
     echo "</ul>";
     echo "</li>";
@@ -2180,8 +2180,8 @@ function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos 
         $vidChapter = substr( $vidURL, strrpos( $vidURL, "/" ) + 1 );
 
         //<object type="application/x-shockwave-flash" height="378" width="620" id="live_embed_player_flash" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg" bgcolor="#000000"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="allowNetworking" value="all" /><param name="movie" value="http://www.twitch.tv/widgets/live_embed_player.swf" /><param name="flashvars" value="hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25" /></object><a href="http://www.twitch.tv/retroachievementsorg" style="padding:2px 0px 4px; display:block; width:345px; font-weight:normal; font-size:10px;text-decoration:underline; text-align:center;">Watch live video from RetroAchievementsOrg on www.twitch.tv</a>
-        $videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='clip_embed_player_flash' data='http://www.twitch.tv/widgets/archive_embed_player.swf'>
-        	<param name='movie' value='http://www.twitch.tv/widgets/archive_embed_player.swf'>
+        $videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='clip_embed_player_flash' data='//www.twitch.tv/widgets/archive_embed_player.swf'>
+        	<param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'>
         	<param name='allowScriptAccess' value='always'>
         	<param name='allowNetworking' value='all'>
         	<param name='allowFullScreen' value='true'>
@@ -2198,7 +2198,7 @@ function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos 
             $muted = 'true';
         }
 
-        $videoHTML = '<iframe src="http://player.twitch.tv/?channel='.getenv('TWITCH_CHANNEL').'&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+        $videoHTML = '<iframe src="//player.twitch.tv/?channel='.getenv('TWITCH_CHANNEL').'&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
 
         //$videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='live_embed_player_flash' data='http://www.twitch.tv/widgets/live_embed_player.swf?channel=".getenv('TWITCH_CHANNEL')."'>
         //	<param name='allowFullScreen' value='true' />
@@ -2217,7 +2217,7 @@ function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos 
     //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
     //echo "</div>";
 
-    echo "<span class='clickablebutton'><a href='http://www.twitch.tv/".getenv('TWITCH_CHANNEL')."' class='trk'>see us on twitch.tv</a></span><span class='morebutton'><a style='float:right' href='/largechat.php'>RA Cinema</a></span>";
+    echo "<span class='clickablebutton'><a href='//www.twitch.tv/".getenv('TWITCH_CHANNEL')."' class='trk'>see us on twitch.tv</a></span><span class='morebutton'><a style='float:right' href='/largechat.php'>RA Cinema</a></span>";
 
     if( $componentPos == 'left' )
     {
@@ -2389,7 +2389,7 @@ function RenderTutorialComponent()
     echo "<h3>How Do I Play?</h3>";
     echo "<p><a href='/'>RetroAchievements</a> provides emulators for your PC where you can earn achievements while you play games!</p>";
     echo "<p><i>\"...like Xbox Live&trade; for emulation!\"</i></p>";
-    echo "<p><a href='/download.php'>Download an emulator</a> for your chosen console, <a href='http://www.retrode.com/'>find</a> some <a href='http://www.lmgtfy.com/?q=download+mega+drive+roms'>ROMs</a> and join the fun!</p>";
+    echo "<p><a href='/download.php'>Download an emulator</a> for your chosen console, <a href='//www.retrode.com/'>find</a> some <a href='//www.lmgtfy.com/?q=download+mega+drive+roms'>ROMs</a> and join the fun!</p>";
 
     echo "</div>";
 }
@@ -2412,7 +2412,7 @@ function RenderDocType( $isOpenGraphPage = FALSE )
 {
     echo "<!doctype html>";
     //echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
-    echo "<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
+    echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
     if( $isOpenGraphPage )
         echo "prefix=\"og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#\" ";
@@ -2731,7 +2731,7 @@ function cb_linkifySelective( $matches )
 
         if( strpos( $url, 'http://' ) === FALSE && strpos( $url, 'https://' ) === FALSE )
         {
-            $actualURL = "http://" . $url; //	Prepend http://
+            $actualURL = "https://" . $url; //	Prepend http://
         }
 
         return '<a onmouseover=" Tip( \'' . $url . '\' ) " onmouseout=\'UnTip()\' href=\'' . $actualURL . '\'>' . $url . '</a>';
@@ -2761,7 +2761,7 @@ function linkifyBasicURLs( $text )
         $text);
     $text = preg_replace(
         '~(\s|^)(www\.[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
-        ' <a target="_blank" href="http://$2">$2</a> ',
+        ' <a target="_blank" href="https://$2">$2</a> ',
         $text);
 
     return $text;
@@ -2789,7 +2789,7 @@ function parseTopicCommentPHPBB( $commentIn, $withImgur = false )
         $comment );
     $comment = preg_replace(
         '~\[url=(.+)\](.+)\[/url\]~i',
-        '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'http://$1\'>$2</a>',
+        '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'https://$1\'>$2</a>',
         $comment );
 
     //	[b]
