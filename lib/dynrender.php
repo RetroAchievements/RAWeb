@@ -2486,7 +2486,7 @@ function RenderSharedHeader( $user )
 function RenderFBMetadata( $title, $OGType, $imageURL, $thisURL, $description )
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='".getenv('APP_STATIC_URL')."/$imageURL' />\n";
+    echo "<meta property='og:image' content='".getenv('APP_STATIC_URL')."$imageURL' />\n";
     echo "<meta property='og:url' content='".getenv('APP_URL')."$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
@@ -2874,7 +2874,7 @@ function GetGameAndTooltipDiv( $gameID, $gameName, $gameIcon, $consoleName, $jus
     $displayable = "";
 
     if( $justText == FALSE )
-        $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='" . getenv('APP_STATIC_URL') . "/$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='" . getenv('APP_STATIC_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
 
     if( $justImage == FALSE )
         $displayable .= "$gameName $consoleStr";

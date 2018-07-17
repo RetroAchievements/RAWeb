@@ -80,7 +80,7 @@ var shortMonths = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep
                 var formStr = "";
                 formStr += "<textarea id=\"commentTextarea\" rows=2 cols=36 name=\"c\" maxlength=250></textarea>";
                 formStr += "&nbsp;";
-                formStr += "<img id=\"submitButton\" src=\"https://static.retroachievements.org/Images/Submit.png\" alt=\"Submit\" style=\"cursor: pointer;\" onclick=\"processComment( '" + activityVar + "', '" + articleType + "' )\">";
+                formStr += "<img id=\"submitButton\" src=\"https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/Submit.png\" alt=\"Submit\" style=\"cursor: pointer;\" onclick=\"processComment( '" + activityVar + "', '" + articleType + "' )\">";
                 var d = new Date();
                 var dateStr = "";
                 dateStr += d.getDate();
@@ -332,7 +332,7 @@ function GetAchievementAndTooltipDiv(achID, achName, achDesc, achPoints, gameNam
                 //gameName = replaceAll( "\"", "\\&apos;", gameName );
 
                 var tooltip = "<div id=\'objtooltip\'>" +
-                "<img src=\'https://static.retroachievements.org/Badge/" + badgeName + ".png\' width=" + tooltipImageSize + " height=" + tooltipImageSize + " />" +
+                "<img src=\'https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/" + badgeName + ".png\' width=" + tooltipImageSize + " height=" + tooltipImageSize + " />" +
                 "<b>" + achName + " (" + achPoints.toString() + ")</b><br/>" +
                 "<i>(" + gameName + ")</i><br/>" +
                 "<br/>" +
@@ -346,7 +346,7 @@ function GetAchievementAndTooltipDiv(achID, achName, achDesc, achPoints, gameNam
                 var displayable = achName + " (" + achPoints.toString() + ")";
                 if (inclSmallBadge)
                 {
-                smallBadgePath = "https://static.retroachievements.org/Badge/" + badgeName + ".png";
+                smallBadgePath = "https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/" + badgeName + ".png";
                         smallBadge = "<img width='32' height='32' style='floatimg' src='" + smallBadgePath + "' alt=\"" + achName + "\" title=\"" + achName + "\" class='badgeimg' />";
                         if (smallBadgeOnly)
                         displayable = "";

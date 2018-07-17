@@ -137,7 +137,7 @@ function refreshFeed( friendsOnly )
 		friendsOnly = false;
 	
 	$("#feed tbody").empty();
-	$("#feed tbody").html( "<tr id='feedloadingfirstrow'><td class='chatcell'><img src='https://static.retroachievements.org/Images/loading.gif' width='16' height='16'/></td><td class='chatcell'></td><td class='chatcellmessage'>Loading feed...</td></tr>" );
+	$("#feed tbody").html( "<tr id='feedloadingfirstrow'><td class='chatcell'><img src='https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/loading.gif' width='16' height='16'/></td><td class='chatcell'></td><td class='chatcellmessage'>Loading feed...</td></tr>" );
 	
 	cacheFeed = [];
 	
@@ -609,8 +609,8 @@ function pushFeedItem( feedItemID, timestamp, acttype, user, userPoints, userMot
 	var localUser = RA_ReadCookie('RA_User');
 	if( localUser !== null )
 		//	Discrepancy between article type and activity type: feed activity is always article type 5!!
-		//insertRowHtml += "<td class='editbutton'><img src='https://static.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '" + acttype.toString() + "' )\" /></td>";
-		insertRowHtml += "<td class='editbutton'><img src='https://static.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '5' )\" /></td>";
+		//insertRowHtml += "<td class='editbutton'><img src='https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '" + acttype.toString() + "' )\" /></td>";
+		insertRowHtml += "<td class='editbutton'><img src='https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '5' )\" /></td>";
 		
 	insertRowHtml += "</tr>";
 	
