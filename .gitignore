@@ -32,3 +32,5 @@ nbproject
 
 /chat/node-gyp
 /chat/utf-8*
+cronjobs/playersonline.log
+cronjobs/cronlog.log
