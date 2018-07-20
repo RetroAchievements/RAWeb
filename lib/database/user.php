@@ -557,11 +557,11 @@ function generateAppToken( $user, &$tokenOut )
 
 function login_appWithToken( $user, $pass, &$tokenInOut, &$scoreOut, &$messagesOut )
 {
-    //error_log( __FUNCTION__ . "user:$user, pass:$pass, tokenInOut:$tokenInOut" );
+    //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
 
     if( !isset( $user ) || $user == FALSE || strlen( $user ) < 2 )
     {
-        error_log( __FUNCTION__ . " username failed: user:$user, pass:$pass, tokenInOut:$tokenInOut" );
+        error_log( __FUNCTION__ . " username failed: user:$user, tokenInOut:$tokenInOut" );
         return 0;
     }
 
@@ -583,7 +583,7 @@ function login_appWithToken( $user, $pass, &$tokenInOut, &$scoreOut, &$messagesO
     }
     else
     {
-        error_log( __FUNCTION__ . " token and pass failed: user:$user, pass:$pass, tokenInOut:$tokenInOut" );
+        error_log( __FUNCTION__ . " token and pass failed: user:$user, tokenInOut:$tokenInOut" );
         return 0;
     }
 
@@ -638,13 +638,13 @@ function login_appWithToken( $user, $pass, &$tokenInOut, &$scoreOut, &$messagesO
         }
         else
         {
-            error_log( __FUNCTION__ . " failed5: user:$user, pass:$pass, tokenInOut:$tokenInOut" );
+            error_log( __FUNCTION__ . " failed5: user:$user, tokenInOut:$tokenInOut" );
             return 0;
         }
     }
     else
     {
-        error_log( __FUNCTION__ . " failed4: user:$user, pass:$pass, tokenInOut:$tokenInOut" );
+        error_log( __FUNCTION__ . " failed4: user:$user, tokenInOut:$tokenInOut" );
         return 0;
     }
 }
