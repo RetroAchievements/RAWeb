@@ -407,7 +407,8 @@
 			echo "<a href='/APIDemo.php'>API Key:</a>";
 			echo "</td>";
 			echo "<td>";
-			echo "<input size='60' readonly type='text' value='$apiKey' /></td>";
+			echo "<input size='60' readonly type='text' value='$apiKey' />";
+			echo "Note: this is your <em>personal</em> API Key. Handle it with care.";
 			echo "</td>";
 			echo "</tr>";
 		}
