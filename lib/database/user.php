@@ -31,6 +31,10 @@ abstract class FBUserPref
 //////////////////////////////////////////////////////////////////////////////////////////
 function mail_utf8( $to, $from_user, $from_email, $subject = '(No subject)', $message = '' )
 {
+    if(empty($to)) {
+        return false;
+    }
+
     if(getenv('MAIL_DRIVER') === 'ses') {
         // let amazon ses handle mail sending
         return mail_ses($to, $subject, $message);
