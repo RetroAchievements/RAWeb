@@ -12,7 +12,11 @@ $gameID = seekGET( 'g' );
 $targetUser = seekGET( 'u' );
 getGameMetadata( $gameID, $targetUser, $achData, $gameData );
 
+foreach ($achData as &$achievement) {
+    $achievement['MemAddr'] = md5($achievement['MemAddr']);
+}
 $gameData['Achievements'] = $achData;
+$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch']);
 
 $gameData['NumAwardedToUser'] = 0;
 $gameData['NumAwardedToUserHardcore'] = 0;

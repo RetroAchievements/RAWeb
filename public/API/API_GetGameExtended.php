@@ -11,6 +11,10 @@ if( !ValidateAPIKey( seekGET( 'z' ), seekGET( 'y' ) ) )
 $gameID = seekGET( 'i' );
 getGameMetadata( $gameID, NULL, $achData, $gameData );
 
+foreach ($achData as &$achievement) {
+    $achievement['MemAddr'] = md5($achievement['MemAddr']);
+}
 $gameData['Achievements'] = $achData;
+$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch']);
 
 echo json_encode( $gameData );
