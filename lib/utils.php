@@ -150,6 +150,19 @@ function s_mysql_query( $query )
     }
 }
 
+function utf8ize($d) {
+    if (is_array($d) || is_object($d)) {
+        foreach ($d as &$v) $v = utf8ize($v);
+    } else {
+        $enc   = mb_detect_encoding($d);
+
+        $value = iconv($enc, 'UTF-8', $d);
+        return $value;
+    }
+
+    return $d;
+}
+
 function rand_string( $length )
 {
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
