@@ -40,9 +40,8 @@ function GetGameData( $gameID )
 			  WHERE gd.ID = $gameID";
 
     $dbResult = s_mysql_query( $query );
-    if( $dbResult !== FALSE )
+    if( $retVal = mysqli_fetch_assoc( $dbResult ) )
     {
-        $retVal = mysqli_fetch_assoc( $dbResult );
         settype( $retVal[ 'ID' ], 'integer' );
         settype( $retVal[ 'ConsoleID' ], 'integer' );
         settype( $retVal[ 'Flags' ], 'integer' );

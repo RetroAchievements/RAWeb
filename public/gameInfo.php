@@ -37,6 +37,13 @@ if( !isset( $user ) && ( $sortBy == 3 || $sortBy == 13 ) )
 
 
 $numAchievements = getGameMetadataByFlags( $gameID, $user, $achievementData, $gameData, $sortBy, NULL, $flags );
+
+if( !isset($gameData) )
+{
+	echo "Invalid game ID!";
+	exit;
+}
+
 $gameAlts = GetGameAlternatives( $gameID );
 
 $numDistinctPlayersCasual = $gameData[ 'NumDistinctPlayersCasual' ];
