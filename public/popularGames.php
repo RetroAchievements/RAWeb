@@ -1,4 +1,7 @@
-<?php 
+<?php
+
+header('Location: '.getenv('APP_URL'));
+
 	require_once __DIR__ . '/../lib/bootstrap.php';
 
 	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );

@@ -14,15 +14,17 @@ if( isset( $user ) && $permissions >= \RA\Permissions::Admin )
 {
     $showUntracked = seekGET( 'u' );
     settype( $showUntracked, 'boolean' );
-    if( $showUntracked )
+    if( $showUntracked ) {
         $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms, TRUE);
-    else
+    }
+    else {
         $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user, $perms );
+    }
 }
-else if( $perms < \RA\Permissions::Unregistered || $perms > \RA\Permissions::Admin )
+else if( $perms < \RA\Permissions::Unregistered || $perms > \RA\Permissions::Admin ) {
     $perms = 1;
-
-$userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+    $userCount = getUserListByPerms( $sortBy, $offset, $maxCount, $userListData, $user , $perms );
+}
 
 $permissionName = NULL;
 if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin ) 
