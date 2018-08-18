@@ -7,6 +7,9 @@ function validateUser( &$user, $pass, &$fbUser, $permissionRequired )
 {
     //	Note: avoid this wherever possible!! Requires raw use of user's password!
 
+    if( !IsValidUsername($user) )
+        return FALSE;
+
     $query = "SELECT User, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query( $query );
     if( $result == FALSE )
@@ -50,7 +53,7 @@ function validateFromCookie( &$userOut, &$pointsOut, &$permissionsOut, $permissi
 {
     $userOut = RA_ReadCookie( "RA_User" );
     $cookie = RA_ReadCookie( "RA_Cookie" );
-    if( strlen( $userOut ) < 2 || strlen( $cookie ) < 2 )
+    if( strlen( $userOut ) < 2 || strlen( $cookie ) < 2 || !IsValidUsername($userOut) )
     {
         //	There is no cookie
         return FALSE;
@@ -100,7 +103,7 @@ function RA_ReadCookieCredentials( &$userOut, &$pointsOut, &$truePointsOut, &$un
     $unreadMessagesOut = 0;
     $permissionOut = 0;
 
-    if( strlen( $userOut ) < 2 || strlen( $cookie ) < 10 )
+    if( strlen( $userOut ) < 2 || strlen( $cookie ) < 10 || !IsValidUsername($userOut) )
     {
         RA_ClearCookie( 'RA_User' );
         RA_ClearCookie( 'RA_Cookie' );
@@ -160,6 +163,10 @@ function RA_ReadTokenCredentials( &$userOut, $token, &$pointsOut, &$truePointsOu
     if( $userOut == NULL || $userOut == '' )
     {
         error_log( __FUNCTION__ . " failed: no user given: $userOut, $token " );
+        return FALSE;
+    }
+    if( !IsValidUsername($userOut) )
+    {
         return FALSE;
     }
 
@@ -298,6 +305,11 @@ function generateAPIKey( $user )
 
 function GetAPIKey( $user )
 {
+    if( !IsValidUsername($user) )
+    {
+        return FALSE;
+    }
+
     $query = "SELECT APIKey FROM UserAccounts AS ua
 		WHERE ua.User = '$user' AND ua.Permissions >= 1";
 
@@ -327,7 +339,7 @@ function LogSuccessfulAPIAccess( $user )
 
 function ValidateAPIKey( $user, $key )
 {
-    if( strlen( $key ) < 20 )
+    if( strlen( $key ) < 20 || !IsValidUsername($user) )
         return FALSE;
 
     $query = "SELECT COUNT(*)
