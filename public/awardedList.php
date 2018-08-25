@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-header('Location: '.getenv('APP_URL'));
-exit;
 
 	$consoleList = getConsoleList();
 	$consoleIDInput = seekGET( 'i', 0 );
