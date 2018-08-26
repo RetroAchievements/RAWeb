@@ -1252,6 +1252,7 @@ function getCommonlyEarnedAchievements( $consoleID, $offset, $count, &$dataOut )
 			LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
 			$subquery
 			GROUP BY ach.ID
+			ORDER BY NumTimesAwarded DESC
 			LIMIT $offset, $count";
 
     $dbResult = s_mysql_query( $query );
