@@ -845,7 +845,7 @@ function RenderFooter()
     //	CC License
     echo "<div class='footericon' >";
     echo "<p>";
-    //echo "<span xmlns:dc='http://p0url.org/dc/elements/1.1/' href='http://purl.org/dc/dcmitype/InteractiveResource' property='dc:title' rel='dc:type' />";
+    //echo "<span xmlns:dc='http://purl.org/dc/elements/1.1/' href='http://purl.org/dc/dcmitype/InteractiveResource' property='dc:title' rel='dc:type' />";
     echo "<a rel='license' href='https://creativecommons.org/licenses/by-nc-sa/2.0/uk/' target='_blank'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-nc-sa/2.0/uk/88x31.png' /></a>";
     echo "</p>";
     echo "</div>";
@@ -1890,7 +1890,7 @@ function RenderDocsComponent()
         <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
-            Read the <a href='https://docs.retroachievements.org/' target='_blank'>Documentation</a> & <a href='http://docs.retroachievements.org/FAQ/' target='_blank'>FAQ</a>.
+            Read the <a href='https://docs.retroachievements.org/' target='_blank'>Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank'>FAQ</a>.
           </div>
         </div>
       </div>";
