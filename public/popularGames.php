@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
-header('Location: '.getenv('APP_URL'));
-exit;
 
 	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
@@ -43,17 +41,17 @@ exit;
 		
 		echo "<h3 class='longheader'>$pageTitle</h3>";
 		
-		echo "Show: | ";
-		
-		if( $method==0 ) 	echo "by number of awards given";
-		else 				echo "<a href='/popularGames.php?p=0'>by number of awards given</a>";
-			
-		echo " | ";
-			
-		if( $method==1 )	echo "by unique members played ";
-		else				echo "<a href='/popularGames.php?p=1'>by unique members played</a> ";
-		
-		echo " | ";
+		// echo "Show: | ";
+		//
+		// if( $method==0 ) 	echo "by number of awards given";
+		// else 				echo "<a href='/popularGames.php?p=0'>by number of awards given</a>";
+		//
+		// echo " | ";
+		//
+		// if( $method==1 )	echo "by unique members played ";
+		// else				echo "<a href='/popularGames.php?p=1'>by unique members played</a> ";
+		//
+		// echo " | ";
 			
 		echo "<table class='smalltable xsmall'><tbody>";
 		

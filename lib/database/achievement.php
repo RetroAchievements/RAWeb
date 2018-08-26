@@ -1245,17 +1245,14 @@ function getCommonlyEarnedAchievements( $consoleID, $offset, $count, &$dataOut )
     if( isset( $consoleID ) && $consoleID > 0 )
         $subquery = "WHERE cons.ID = $consoleID ";
 
-    $query = "SELECT COUNT(*) AS NumTimesAwarded, ach.Title AS AchievementTitle, ach.ID, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ID AS GameID, cons.Name AS ConsoleName
-			FROM Awarded AS aw
-			LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+    $query = "SELECT COALESCE(aw.cnt,0) AS NumTimesAwarded, ach.Title AS AchievementTitle, ach.ID, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ID AS GameID, cons.Name AS ConsoleName
+			FROM Achievements AS ach
+			LEFT OUTER JOIN (SELECT AchievementID, count(*) cnt FROM Awarded GROUP BY AchievementID) aw ON ach.ID = aw.AchievementID
 			LEFT JOIN GameData gd ON gd.ID = ach.GameID
 			LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
 			$subquery
 			GROUP BY ach.ID
-			ORDER BY NumTimesAwarded DESC
 			LIMIT $offset, $count";
-
-    //echo $query;
 
     $dbResult = s_mysql_query( $query );
     if( $dbResult !== FALSE )
