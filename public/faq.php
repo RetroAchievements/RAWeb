@@ -70,7 +70,7 @@
 		";
 		
 		echo "<h4 class='longheader' id='faq2'>Where can I find ROMs?</h4>";
-		echo "<p>Not here. Unfortunately it is illegal to host or distribute copyright ROMs. To extract the ROM file from your cartridges, you can use a tool such as the <a href='https://www.retrode.org/'>Retrode</a> or similar, then you can use the ROM file with our emulators. <a href='http://www.coolrom.com'>Other</a> <a href='http://www.freeroms.com'>websites</a> host ROM files that you could use with our emulators, but we do not condone downloading or playing ROMs for games you do not own.</p>";
+		echo "<p>Not here. Unfortunately it is illegal to host or distribute copyright ROMs. To extract the ROM file from your cartridges, you can use a tool such as the <a href='https://www.retrode.org/'>Retrode</a> or similar, then you can use the ROM file with our emulators. Other websites host ROM files that you could use with our emulators, but we do not condone downloading or playing ROMs for games you do not own.</p>";
 		
 		echo "<h4 class='longheader' id='faq3'>How do I use the emulator?</h4>";
 		echo "<p>Please download the emulator of your choice from <a href='/download.php'>the download page</a>, log in using your username and password, then load a ROM and play! See the following video for a demonstration:<br/><br/>";
