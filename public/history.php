@@ -30,6 +30,35 @@ getUserActivityRange( $userPage, $userSignedUp, $unused );
 $userAwards = getUsersSiteAwards( $userPage );
 $userCompletedGamesList = getUsersCompletedGamesAndMax( $userPage );
 
+$userCompletedGames = [];
+
+//	Merge all elements of $userCompletedGamesList into one unique list
+for ($i = 0; $i < count($userCompletedGamesList); $i++) {
+    $gameID = $userCompletedGamesList[$i]['GameID'];
+
+    if ($userCompletedGamesList[$i]['HardcoreMode'] == 0) {
+        $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
+    }
+
+    $userCompletedGames[$gameID]['NumAwardedHC'] = 0; //	Update this later, but fill in for now
+}
+
+for ($i = 0; $i < count($userCompletedGamesList); $i++) {
+    $gameID = $userCompletedGamesList[$i]['GameID'];
+    if ($userCompletedGamesList[$i]['HardcoreMode'] == 1) {
+        $userCompletedGames[$gameID]['NumAwardedHC'] = $userCompletedGamesList[$i]['NumAwarded'];
+    }
+}
+
+function scorePctCompare($a, $b)
+{
+    return $a['PctWon'] < $b['PctWon'];
+}
+
+usort($userCompletedGames, "scorePctCompare");
+
+$userCompletedGamesList = $userCompletedGames;
+
 $userAwardsGames = Array();
 $userAwardsOther = Array();
 for( $i = 0; $i < count( $userAwards ); $i++ )
