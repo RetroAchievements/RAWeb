@@ -11,19 +11,18 @@ if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount,
 $gameID = seekGET( 'g' );
 $errorCode = seekGET( 'e' );
 
+settype($gameID, 'integer');
+
 $achievementList = array();
 $gamesList = array();
 
-$gameIDSpecified = ( isset( $gameID ) && $gameID != 0 );
-if( $gameIDSpecified )
-{
-    getGameMetadata( $gameID, $user, $achievementData, $gameData );
-}
-else
+if(empty($gameID))
 {
     //	Immediate redirect: this is pointless otherwise!
     header( "Location: " . getenv('APP_URL') );
 }
+
+getGameMetadata( $gameID, $user, $achievementData, $gameData );
 
 $query = "SELECT MD5 FROM GameHashLibrary WHERE GameID=$gameID";
 $dbResult = s_mysql_query( $query );
