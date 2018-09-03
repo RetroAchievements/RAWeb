@@ -1,41 +1,39 @@
 <?php
-	require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
-	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
-	{
-		//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-		header( "Location: " . getenv('APP_URL') );
-		exit;
-	}
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions,
+    \RA\Permissions::Developer)) {
+    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
 
-	$gameID = seekGET( 'g' );
-	$errorCode = seekGET( 'e' );
-	
-	$achievementList = array();
-	$gamesList = array();
-	
-	$gameIDSpecified = ( isset( $gameID ) && $gameID != 0 );
-	if( $gameIDSpecified )
-	{
-		getGameMetadata( $gameID, $user, $achievementData, $gameData );
-	}
-	else
-	{
-		//	Immediate redirect: this is pointless otherwise!
-		header( "Location: " . getenv('APP_URL') );
-	}
-	
-	//var_dump( $gameData );
-	$gameTitle = $gameData['Title'];
-	$consoleName = $gameData['ConsoleName'];
-	$consoleID = $gameData['ConsoleID'];
-	$gameIcon = $gameData['ImageIcon'];
-	
-	$pageTitle = "Merge Game Entry ($consoleName)";
-	
-	$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
-	//var_dump( $gamesList );
-	RenderDocType();
+$gameID = seekGET('g');
+$errorCode = seekGET('e');
+
+settype($gameID, 'integer');
+
+$achievementList = [];
+$gamesList = [];
+
+if (empty($gameID)) {
+    //	Immediate redirect: this is pointless otherwise!
+    header("Location: " . getenv('APP_URL'));
+}
+
+getGameMetadata($gameID, $user, $achievementData, $gameData);
+
+//var_dump( $gameData );
+$gameTitle = $gameData['Title'];
+$consoleName = $gameData['ConsoleName'];
+$consoleID = $gameData['ConsoleID'];
+$gameIcon = $gameData['ImageIcon'];
+
+$pageTitle = "Merge Game Entry ($consoleName)";
+
+$numGames = getGamesListWithNumAchievements($consoleID, $gamesList, 0);
+//var_dump( $gamesList );
+RenderDocType();
 ?>
 
 <head>

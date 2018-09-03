@@ -1,45 +1,43 @@
 <?php
-	require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
-	if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
-	{
-		//	Immediate redirect if we cannot validate user!	//TBD: pass args?
-		header( "Location: " . getenv('APP_URL') );
-		exit;
-	}
-	
-	$gameID = seekGET( 'g' );
-	$errorCode = seekGET( 'e' );
-	
-	$achievementList = array();
-	$gamesList = array();
-	
-	$gameIDSpecified = ( isset( $gameID ) && $gameID != 0 );
-	if( $gameIDSpecified )
-	{
-		getGameMetadata( $gameID, $user, $achievementData, $gameData );
-		if( $gameData == NULL )
-		{
-			//	Immediate redirect: this is pointless otherwise!
-			header( "Location: " . getenv('APP_URL') . "?e=unknowngame" );
-		}
-	}
-	else
-	{
-		//	Immediate redirect: this is pointless otherwise!
-		header( "Location: " . getenv('APP_URL') );
-	}
-	
-	$consoleName = $gameData['ConsoleName'];
-	$consoleID = $gameData['ConsoleID'];
-	$gameTitle = $gameData['Title'];
-	$gameIcon = $gameData['ImageIcon'];
-	
-	$pageTitle = "Rename Game Entry ($consoleName)";
-	
-	//$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
-	//var_dump( $gamesList );
-	RenderDocType();
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions,
+    \RA\Permissions::Developer)) {
+    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
+
+$gameID = seekGET('g');
+$errorCode = seekGET('e');
+
+settype($gameID, 'integer');
+
+$achievementList = [];
+$gamesList = [];
+
+if(empty($gameID)) {
+    //	Immediate redirect: this is pointless otherwise!
+    header("Location: " . getenv('APP_URL'));
+}
+
+getGameMetadata($gameID, $user, $achievementData, $gameData);
+
+if(empty($gameData)) {
+    //	Immediate redirect: this is pointless otherwise!
+    header("Location: " . getenv('APP_URL') . "?e=unknowngame");
+}
+
+$consoleName = $gameData['ConsoleName'];
+$consoleID = $gameData['ConsoleID'];
+$gameTitle = $gameData['Title'];
+$gameIcon = $gameData['ImageIcon'];
+
+$pageTitle = "Rename Game Entry ($consoleName)";
+
+//$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
+//var_dump( $gamesList );
+RenderDocType();
 ?>
 
 <head>
