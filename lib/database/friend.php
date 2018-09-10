@@ -404,11 +404,12 @@ function GetFriendList( $user )
 {
 	$friendList = array();
 	
-	$query = "SELECT f.Friend, ua.RAPoints, ua.RichPresenceMsg AS LastSeen
+	$query = "SELECT f.Friend, ua.RAPoints, ua.RichPresenceMsg AS LastSeen, ua.ID
 			  FROM Friends AS f
 			  LEFT JOIN UserAccounts AS ua ON ua.User = f.Friend
 			  WHERE f.User='$user'
-			  ORDER BY ua.LastActivityID DESC ";
+			  AND ua.ID IS NOT NULL
+			  ORDER BY ua.LastActivityID DESC";
 	
 	$dbResult = s_mysql_query( $query );
 	if( $dbResult == FALSE )
