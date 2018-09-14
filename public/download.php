@@ -2,10 +2,13 @@
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $latestRAGensVer = file_get_contents( "./LatestRAGensVersion.html" );
+$latestRAMekaVer = file_get_contents( "./LatestRAMekaVersion.html" );
+$latestRANesVer = file_get_contents( "./LatestRANESVersion.html" );
+$latestRAP64Ver = file_get_contents( "./LatestRAP64Version.html" );
+$latestRAPCEVer = file_get_contents( "./LatestRAPCEVersion.html" );
+$latestRAPSXVer = file_get_contents( "./LatestRAPSXVersion.html" );
 $latestRASnesVer = file_get_contents( "./LatestRASnesVersion.html" );
 $latestRAVBAVer = file_get_contents( "./LatestRAVBAVersion.html" );
-$latestRANesVer = file_get_contents( "./LatestRANESVersion.html" );
-$latestRAPCEVer = file_get_contents( "./LatestRAPCEVersion.html" );
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
@@ -61,14 +64,14 @@ RenderDocType();
             <h2 class='longheader' id='rameka'>RAMeka: Master System/Game Gear Emulator</h2>
 
             <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RAMeka.zip">Download RAMeka</a></span><!-- (<?php echo $latestRAMekaVer; ?> for Windows) -->
+                <span class='clickablebutton'><a href="/bin/RAMeka.zip">Download RAMeka</a></span> (<?php echo $latestRAMekaVer; ?> for Windows)
             </div>
 
             <br/>
             <h2 class='longheader' id='rap64'>RAProject64: N64 Emulator</h2>
 
             <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RAP64.zip">Download RAP64</a></span><!-- (<?php echo $latestRAP64Ver; ?> for Windows) -->
+                <span class='clickablebutton'><a href="/bin/RAP64.zip">Download RAP64</a></span> (<?php echo $latestRAP64Ver; ?> for Windows)
             </div>
 
             <br/>
