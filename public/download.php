@@ -32,54 +32,66 @@ RenderDocType();
     <div id="mainpage">
         <div id='leftcontainer' >
 
-            <h2 class='longheader' id='ragens'>RAGens: Mega Drive/Genesis Emulator</h2>
-
-            <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RAGens.zip">Download RAGens</a></span> (<?php echo $latestRAGensVer; ?> for Windows)
-            </div>
-
-            <br/>
-
-            <h2 class='longheader' id='rasnes9x'>RASnes9x: SNES Emulator</h2>
-
-            <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RASnes9x.zip">Download RASnes9x</a></span> (<?php echo $latestRASnesVer; ?> for Windows)
-            </div>
-
-            <br/>
-            <h2 class='longheader' id='ravba'>RAVBA: Gameboy/GBA Emulator</h2>
-
-            <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RAVBA.zip">Download RAVBA</a></span> (<?php echo $latestRAVBAVer; ?> for Windows)
-            </div>
-
-            <br/>
-            <h2 class='longheader' id='ranes'>RANes: NES Emulator</h2>
-
-            <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RANes.zip">Download RANes</a></span> (<?php echo $latestRANesVer; ?> for Windows)
-            </div>
-
-            <br/>
-            <h2 class='longheader' id='rameka'>RAMeka: Master System/Game Gear Emulator</h2>
-
-            <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RAMeka.zip">Download RAMeka</a></span> (<?php echo $latestRAMekaVer; ?> for Windows)
-            </div>
-
-            <br/>
-            <h2 class='longheader' id='rap64'>RAProject64: N64 Emulator</h2>
-
-            <div class='largeicon'>
-                <span class='clickablebutton'><a href="/bin/RAP64.zip">Download RAP64</a></span> (<?php echo $latestRAP64Ver; ?> for Windows)
-            </div>
-
-            <br/>
-            <h2 class='longheader' id='ralibretro'>RALibretro: multi-emulator</h2>
+            <h2 class='longheader' id='ragens'>Mega Drive/Genesis Emulator</h2>
 
             <div class='largeicon'>
                 <span class='clickablebutton'>
-                    <a href="https://docs.retroachievements.org/RALibretro/" target="_blank">RALibretro</a>
+                    <a href="/bin/RAGens.zip">Download RAGens <?php echo $latestRAGensVer; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+
+            <h2 class='longheader' id='rasnes9x'>SNES Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RASnes9x.zip">Download RASnes9x v<?php echo $latestRASnesVer; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='ravba'>Gameboy/GBA Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RAVBA.zip">Download RAVBA v<?php echo $latestRAVBAVer; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='ranes'>NES Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RANes.zip">Download RANes v<?php echo $latestRANesVer; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='rameka'>Master System/Game Gear Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RAMeka.zip">Download RAMeka v<?php echo $latestRAMekaVer; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='rap64'>N64 Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RAP64.zip">Download RAP64 v<?php echo $latestRAP64Ver; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='ralibretro'>RALibretro Multi Emulator for Development</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="https://docs.retroachievements.org/RALibretro/" target="_blank">RALibretro Docs</a>
                 </span>
             </div>
 
