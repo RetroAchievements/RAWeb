@@ -36,7 +36,7 @@ RenderDocType();
 
             <div class='largeicon'>
                 <span class='clickablebutton'>
-                    <a href="/bin/RAGens.zip">Download RAGens <?php echo $latestRAGensVer; ?> for Windows</a>
+                    <a href="/bin/RAGens.zip">Download RAGens v<?php echo $latestRAGensVer; ?> for Windows</a>
                 </span>
             </div>
 
