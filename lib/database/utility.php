@@ -1267,10 +1267,10 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
             $res .= "\n  <td> (". $hits .") </td>";
             $res .= "\n</tr>\n";
         }
-        $res .= "<tr><td colspan=10><ul>";
+        $res .= "<tr><td colspan=10><ul><small>";
         foreach( $codeNotes as $nextCodeNote )
             $res .= "<li>". $nextCodeNote ."</li>\n";
-        $res .= "</ul></td></tr>";
+        $res .= "</small></ul></td></tr>";
     }
     $res .= "\n</table>\n";
 
