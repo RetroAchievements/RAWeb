@@ -1155,107 +1155,124 @@ function multiexplode( $delimiters, $string )
 
 function GetAchievementPatchReadableHTML( $mem, $memNotes )
 {
-    //var_dump( $memNotes );
+    $tableHeader = '
+    <tr>
+      <th>ID</th>
+      <th>Special?</th>
+      <th>Type</th>
+      <th>Size</th>
+      <th>Memory</th>
+      <th>Cmp</th>
+      <th>Type</th>
+      <th>Size</th>
+      <th>Mem/Val</th>
+      <th>Hits</th>
+    </tr>';
 
-    $outputStr = "<ul>";
+    $specialFlags = [
+        'R' => 'Reset If',
+        'P' => 'Pause If',
+        'A' => 'Add Source',
+        'B' => 'Sub Source',
+        'C' => 'Add Hits',
+        ''  => ''
+    ];
 
-    $memArray = explode( "_", $mem );
+    $memSize = [
+        '0xM' => 'Bit0',
+        '0xN' => 'Bit1',
+        '0xO' => 'Bit2',
+        '0xP' => 'Bit3',
+        '0xQ' => 'Bit4',
+        '0xR' => 'Bit5',
+        '0xS' => 'Bit6',
+        '0xT' => 'Bit7',
+        '0xL' => 'Lower4',
+        '0xU' => 'Upper4',
+        '0xH' => '8-bit',
+        '0x ' => '16-bit',
+        '0x'  => '16-bit',
+        '0xX' => '32-bit',
+        '' => ''
+    ];
 
-    $numItems = count( $memArray );
-    for( $i = 0; $i < $numItems; $i++ )
-    {
-        $memString = $memArray[ $i ];
+    $memTypes = [
+        'd' => 'Delta',
+        'm' => 'Mem',
+        'v' => 'Value',
+        ''  => ''
+    ];
 
-        $firstDot = strpos( $memString, "." );
-        $lastDot = strrpos( $memString, "." );
+    // kudos to user "stt" for showing that it's possible to parse MemAddr with regex
+    $operandRegex = '(d)?('. implode('|', array_keys($memSize)) .'|)?([0-9a-f]*)';
+    $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(=|<|<=|>|>=|!=)'. $operandRegex .'(?:\\.(\\d+)\\.)?/';
 
-        if( $firstDot !== FALSE && $firstDot !== $lastDot )
-        {
-            $memString[ $firstDot ] = "(";
-            $memString[ $lastDot ] = ")";
-        }
+    $res = "\n<table>";
 
-        //	Basic swaps complete: now output both parts:
+    // separating CoreGroup and AltGroups
+    $groups = preg_split("/(?<!0x)S/", $mem);
+    for($i = 0; $i < count($groups); $i++) {
+        $res .= "<tr><td colspan=10><p style='text-align: center'><strong>";
+        $res .= $i === 0 ? "Core Group" : "Alt Group $i";
+        $res .= "</p></strong></td></tr>\n";
+        $res .= $tableHeader;
 
-        $chunks = multiexplode( array( "<=", ">=", "!=" ), $memString );
-        if( count( $chunks ) == 1 )
-            $chunks = multiexplode( array( "<", ">", "=" ), $memString );
+        $codeNotes = [];
+        // iterating through the requirements
+        $reqs = explode('_', $groups[$i]);
+        for($j = 0; $j < count($reqs); $j++) {
+            preg_match_all($memRegex, $reqs[$j], $parsedReq);
+            $flag =         $parsedReq[1][0];
+            $lType =        $parsedReq[2][0];
+            $lSize =        $parsedReq[3][0];
+            $lMemory = '0x'. $parsedReq[4][0];
+            $cmp =          $parsedReq[5][0];
+            $rType =        $parsedReq[6][0];
+            $rSize =        $parsedReq[7][0];
+            $rMemVal =      $parsedReq[8][0];
+            $rMemVal = '0x'. ($rSize ? $rMemVal : dechex($rMemVal));
+            $hits =         $parsedReq[9][0];
 
-        $dataMemNotes = array();
+            $hits = $hits ? $hits : "0";
+            if( $lType !== "d" )
+                $lType = $lSize === '' ? 'v' : 'm';
+            if( $rType !== "d" )
+                $rType = $rSize === '' ? 'v' : 'm';
 
-        foreach( $chunks as &$chunkData )
-        {
-            $strData = $chunkData;
-            $prefix = "";
-            if( strpos( $strData, "R:" ) === 0 )
-                $prefix = "Reset If: ";
-            else if( strpos( $strData, "d0x" ) !== FALSE )
-                $prefix = "Delta: ";
-
-            $iter = strpos( $strData, "0x" );
-            if( $iter !== FALSE && $strData[ $iter ] == '0' && $strData[ $iter + 1 ] == 'x' )
+            $lTooltip = $rTooltip = NULL;
+            foreach( $memNotes as $nextMemNote )
             {
-                $iter += 2;
-                $sizeChar = strtoupper( $strData[ $iter ] );
-                $sizeString = SizeTypeToString( $sizeChar, $iter );
-                $rawAddr = substr( $strData, $iter );
-
-                $rawAddr6bit = "0x" . str_pad( $rawAddr, 6, "0", STR_PAD_LEFT );
-                foreach( $memNotes as $nextMemNote )
-                {
-                    if( $nextMemNote[ 'Address' ] == $rawAddr6bit )
-                        $dataMemNotes[] = "0x$rawAddr = " . htmlspecialchars( $nextMemNote[ 'Note' ] );
+                if( $nextMemNote['Address'] === $lMemory ) {
+                    $lTooltip = " title=\"". htmlspecialchars($nextMemNote['Note']) ."\"";
+                    $codeNotes[$lMemory] = '<strong><u>'. $lMemory .'</u></strong>: '. htmlspecialchars($nextMemNote['Note']);
                 }
 
-                $strData = $prefix . $sizeString . "0x" . $rawAddr; //	Can we do this?
+                if( $rSize && $nextMemNote['Address'] === $rMemVal ) {
+                    $rTooltip = " title=\"". htmlspecialchars($nextMemNote['Note']) ."\"";
+                    $codeNotes[$rMemVal] = '<strong><u>'. $rMemVal .'</u></strong>: '. htmlspecialchars($nextMemNote['Note']);
+                }
+
+                if( $lTooltip && $rTooltip) break;
             }
-            else
-            {
-                //	Keep as-is! This is just a value!
-                //$strData = $sizeString . "0x" . substr( $strData, $iter+1 );	//	Can we do this?
-            }
 
-            $chunkData = $strData;
+            $res .= "\n<tr>\n  <td>". ($j + 1) ."</td>";
+            $res .= "\n  <td> ". $specialFlags[$flag]   ." </td>";
+            $res .= "\n  <td> ". $memTypes[$lType]      ." </td>";
+            $res .= "\n  <td> ". $memSize[$lSize]       ." </td>";
+            $res .= "\n  <td". $lTooltip ."> ". $lMemory ." </td>";
+            $res .= "\n  <td> ". $cmp                   ." </td>";
+            $res .= "\n  <td> ". $memTypes[$rType]      ." </td>";
+            $res .= "\n  <td> ". $memSize[$rSize]       ." </td>";
+            $res .= "\n  <td". $rTooltip ."> ". $rMemVal ." </td>";
+            $res .= "\n  <td> (". $hits .") </td>";
+            $res .= "\n</tr>\n";
         }
-
-        //	Find the comparison operator
-        $opChars = "";
-        $opIter = 0;
-        //	Find first offset of a comparison op
-        while( $memString[ $opIter ] != '<' && $memString[ $opIter ] != '>' && $memString[ $opIter ] != '=' && $memString[ $opIter ] != '!' && $opIter < 50 )
-            $opIter++;
-
-        //	Copy out necessary chars
-        $opChars = $memString[ $opIter ];
-        if( $memString[ $opIter + 1 ] == "=" )
-            $opChars .= "=";
-
-        $firstAddrInFull = $chunks[ 0 ];
-        $comparisonOpInFull = ComparisonOpToString( $opChars );
-        $secondAddrInFull = $chunks[ 1 ];
-
-        $outputStr .= "<li>";
-        $outputStr .= "<b>";
-        $outputStr .= $firstAddrInFull;
-        $outputStr .= "</b>";
-        $outputStr .= $comparisonOpInFull;
-        $outputStr .= "<b>";
-        $outputStr .= $secondAddrInFull;
-        $outputStr .= "</b>";
-        $outputStr .= "</li>";
-        if( count( $dataMemNotes ) > 0 )
-        {
-            $outputStr .= "<li><small>&nbsp;-&nbsp;&nbsp;";
-            foreach( $dataMemNotes as $memNote )
-                $outputStr .= "( " . htmlspecialchars( $memNote ) . " )";
-            $outputStr .= "</small></li>";
-        }
-
-        //if( $i < $numItems-1 )
-        //	$outputStr .= " and ";
+        $res .= "<tr><td colspan=10><ul>";
+        foreach( $codeNotes as $nextCodeNote )
+            $res .= "<li>". $nextCodeNote ."</li>\n";
+        $res .= "</ul></td></tr>";
     }
+    $res .= "\n</table>\n";
 
-    $outputStr .= "</ul>";
-
-    return $outputStr;
+    return $res;
 }
