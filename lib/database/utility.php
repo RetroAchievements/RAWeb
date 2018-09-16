@@ -1225,12 +1225,12 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
             $flag =         $parsedReq[1][0];
             $lType =        $parsedReq[2][0];
             $lSize =        $parsedReq[3][0];
-            $lMemory = '0x'. $parsedReq[4][0];
+            $lMemory = '0x'. str_pad($parsedReq[4][0], 6, '0', STR_PAD_LEFT);
             $cmp =          $parsedReq[5][0];
             $rType =        $parsedReq[6][0];
             $rSize =        $parsedReq[7][0];
             $rMemVal =      $parsedReq[8][0];
-            $rMemVal = '0x'. ($rSize ? $rMemVal : dechex($rMemVal));
+            $rMemVal = '0x'. str_pad(($rSize ? $rMemVal : dechex($rMemVal)), 6, '0', STR_PAD_LEFT);
             $hits =         $parsedReq[9][0];
 
             $hits = $hits ? $hits : "0";
