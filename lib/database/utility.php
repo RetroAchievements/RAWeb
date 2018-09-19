@@ -1205,7 +1205,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
 
     // kudos to user "stt" for showing that it's possible to parse MemAddr with regex
     $operandRegex = '(d)?('. implode('|', array_keys($memSize)) .'|)?([0-9a-f]*)';
-    $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(=|<|<=|>|>=|!=)'. $operandRegex .'(?:\\.(\\d+)\\.)?/';
+    $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(<=|>=|<|>|=|!=)'. $operandRegex .'(?:\\.(\\d+)\\.)?/';
 
     $res = "\n<table>";
 
