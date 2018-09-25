@@ -15,6 +15,7 @@ if ($errorCode == -1) {
     $response['Error'] = "Automatic login failed (token expired), please login manually!\n";
 } else {
     if ($errorCode == 1) {
+        getAccountDetails($user, $userDetails);
         $response['Success'] = true;
         $response['User'] = $user;
         $response['Token'] = $token;
