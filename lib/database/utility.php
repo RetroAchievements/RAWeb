@@ -1190,9 +1190,9 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
         '0xL' => 'Lower4',
         '0xU' => 'Upper4',
         '0xH' => '8-bit',
+        '0xX' => '32-bit',
         '0x ' => '16-bit',
         '0x'  => '16-bit',
-        '0xX' => '32-bit',
         '' => ''
     ];
 
@@ -1204,7 +1204,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
     ];
 
     // kudos to user "stt" for showing that it's possible to parse MemAddr with regex
-    $operandRegex = '(d)?('. implode('|', array_keys($memSize)) .'|)?([0-9a-f]*)';
+    $operandRegex = '(d)?('. implode('|', array_keys($memSize)) .')?([0-9a-f]*)';
     $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(<=|>=|<|>|=|!=)'. $operandRegex .'(?:\\.(\\d+)\\.)?/';
 
     $res = "\n<table>";
@@ -1260,7 +1260,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
             $res .= "\n  <td> ". $memTypes[$lType]      ." </td>";
             $res .= "\n  <td> ". $memSize[$lSize]       ." </td>";
             $res .= "\n  <td". $lTooltip ."> ". $lMemory ." </td>";
-            $res .= "\n  <td> ". $cmp                   ." </td>";
+            $res .= "\n  <td> ". htmlspecialchars($cmp) ." </td>";
             $res .= "\n  <td> ". $memTypes[$rType]      ." </td>";
             $res .= "\n  <td> ". $memSize[$rSize]       ." </td>";
             $res .= "\n  <td". $rTooltip ."> ". $rMemVal ." </td>";
