@@ -233,7 +233,7 @@ RenderDocType( TRUE );
 
                 echo "<div>";
                 echo "<li>Mem:</li>";
-                echo "<code>$achMem</code>";
+                echo "<code>". htmlspecialchars( $achMem ) ."</code>";
                 echo "<li>Mem explained:</li>";
                 echo "<code>" . GetAchievementPatchReadableHTML( $achMem, $codeNotes ) . "</code>";
                 echo "</div>";
