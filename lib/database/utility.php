@@ -1190,7 +1190,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
         '0xL' => 'Lower4',
         '0xU' => 'Upper4',
         '0xH' => '8-bit',
-        '0xX' => '32-bit',
+        '0xX' => '32-bit', // needs to be before the 16bits below to make the RegEx work
         '0x ' => '16-bit',
         '0x'  => '16-bit',
         '' => ''
@@ -1205,7 +1205,11 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
 
     // kudos to user "stt" for showing that it's possible to parse MemAddr with regex
     $operandRegex = '(d)?('. implode('|', array_keys($memSize)) .')?([0-9a-f]*)';
-    $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(<=|>=|<|>|=|!=)'. $operandRegex .'(?:\\.(\\d+)\\.)?/';
+    $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(<=|>=|<|>|=|!=)'. $operandRegex .'(?:[(.](\\d+)[).])?/';
+    // memRegex is this monster:
+    // (?:([RPABC]):)?(d)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xX|0x |0x|)?([0-9a-f]*)(<=|>=|<|>|=|!=)(d)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xX|0x |0x|)?([0-9a-f]*)(?:[(.](\d+)[).])?
+    // I was about to add comments explaining this long RegEx, but realized that the best way
+    // is to copy the regex string and paste it in the proper field at https://regex101.com/
 
     $res = "\n<table>";
 
