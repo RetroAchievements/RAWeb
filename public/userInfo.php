@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-$userPage = seekGET( 'ID' );
+$userPage = strip_tags(seekGET( 'ID' ));
 if( $userPage == NULL || strlen( $userPage ) == 0 )
 {
     header( "Location: " . getenv('APP_URL') );
