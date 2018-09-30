@@ -332,7 +332,7 @@ foreach( $arrayToUse as $dayInfo )
                 echo "<div class='mottocontainer'>Last seen ";
                 if (!empty($userMassData['LastGameID'])) {
                     $game = GetGameData($userMassData['LastGameID']);
-                    echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false, 22);
+                    echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false, 22). '<br>';
                 }
                 echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
             }
