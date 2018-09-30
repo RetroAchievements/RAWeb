@@ -328,8 +328,13 @@ foreach( $arrayToUse as $dayInfo )
                 echo "Site Rank: <a href='/userList.php?s=2'>$userRank</a> / $totalUsers users (Top $rankPct%)<br/><br/>";
             }
 
-            if(!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
-                echo "<div class='mottocontainer'>Last seen: <code>". $userMassData['RichPresenceMsg']. "</code></div>";
+            if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
+                echo "<div class='mottocontainer'>Last seen ";
+                if (!empty($userMassData['LastGameID'])) {
+                    $game = GetGameData($userMassData['LastGameID']);
+                    echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false, 22);
+                }
+                echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
             }
 
             $contribCount = $userMassData[ 'ContribCount' ];
