@@ -328,6 +328,10 @@ foreach( $arrayToUse as $dayInfo )
                 echo "Site Rank: <a href='/userList.php?s=2'>$userRank</a> / $totalUsers users (Top $rankPct%)<br/><br/>";
             }
 
+            if(!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
+                echo "<div class='mottocontainer'>Last seen: <code>". $userMassData['RichPresenceMsg']. "</code></div>";
+            }
+
             $contribCount = $userMassData[ 'ContribCount' ];
             $contribYield = $userMassData[ 'ContribYield' ];
             if( $contribCount > 0 )

@@ -692,7 +692,7 @@ function getAccountDetails( &$user, &$dataOut )
         return false;
     }
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked
+    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg
 				FROM UserAccounts
 				WHERE User='$user'";
 
@@ -1408,6 +1408,7 @@ function getUserPageInfo( $user, &$libraryOut, $numGames, $numRecentAchievements
 
     getAccountDetails( $user, $userInfo ); //	Necessary?
 
+    $libraryOut[ 'RichPresenceMsg' ] = $userInfo[ 'RichPresenceMsg' ];
     $libraryOut[ 'ContribCount' ] = $userInfo[ 'ContribCount' ];
     $libraryOut[ 'ContribYield' ] = $userInfo[ 'ContribYield' ];
     $libraryOut[ 'TotalPoints' ] = $userInfo[ 'RAPoints' ];
