@@ -163,10 +163,15 @@ if( $credentialsOK )
             break;
 
         case "gameslist":
-            $consoleID = seekPOSTorGET( 'c' );
+            $consoleID = seekPOSTorGET( 'c', 0, 'integer' );
             //error_log( "gameslist..." );
             $response[ 'Response' ] = GetGamesListDataNamesOnly( $consoleID );
             //error_log( count( $response['Response'] ) );
+            break;
+
+        case "officialgameslist":
+            $consoleID = seekPOSTorGET( 'c', 0, 'integer' );
+            $response[ 'Response' ] = GetGamesListDataNamesOnly( $consoleID, TRUE );
             break;
 
         case "hashlibrary":

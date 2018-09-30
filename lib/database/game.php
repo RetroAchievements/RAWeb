@@ -458,20 +458,28 @@ function getGamesListByDev( $dev = NULL, $consoleID, &$dataOut, $sortBy, $ticket
 }
 
 //	14:01 30/10/2014
-function GetGamesListData( $consoleID )
+function GetGamesListData( $consoleID, $officialFlag = FALSE )
 {
     $retVal = array();
 
-    //	Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
+    $leftJoinAch = "";
     $whereClause = "";
+    if( $officialFlag ) {
+        $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
+        $whereClause = "WHERE ach.Flags=3 ";
+    }
+
+    //	Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
     if( isset( $consoleID ) && $consoleID != 0 )
     {
-        $whereClause = "WHERE ConsoleID=$consoleID ";
+        $whereClause .= $officialFlag ? "AND " : "WHERE ";
+        $whereClause .= "ConsoleID=$consoleID ";
     }
 
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, gd.ImageIcon, c.Name as ConsoleName
 			  FROM GameData AS gd
-			  LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+			  $leftJoinAch
 			  $whereClause
 			  ORDER BY ConsoleID, Title";
 
@@ -493,11 +501,11 @@ function GetGamesList( $consoleID, &$dataOut )
     return count( $dataOut );
 }
 
-function GetGamesListDataNamesOnly( $consoleID )
+function GetGamesListDataNamesOnly( $consoleID, $officialFlag = FALSE )
 {
     $retval = array();
 
-    $data = GetGamesListData( $consoleID );
+    $data = GetGamesListData( $consoleID, $officialFlag );
 
     foreach( $data as $element )
     {
