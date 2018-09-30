@@ -421,8 +421,7 @@ function GetFriendList( $user )
 	{	
 		while( $db_entry = mysqli_fetch_assoc( $dbResult ) )
 		{
-			if( !isset( $db_entry["LastSeen"] ) || $db_entry["LastSeen"] == "" )
-				$db_entry["LastSeen"] = "_";
+            $db_entry["LastSeen"] = empty($db_entry["LastSeen"]) || $db_entry['LastSeen'] === 'Unknown' ? "_" : strip_tags($db_entry["LastSeen"]);
 		
 			$friendList[] = $db_entry;
 		}

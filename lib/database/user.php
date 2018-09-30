@@ -1408,7 +1408,7 @@ function getUserPageInfo( $user, &$libraryOut, $numGames, $numRecentAchievements
 
     getAccountDetails( $user, $userInfo ); //	Necessary?
 
-    $libraryOut[ 'RichPresenceMsg' ] = $userInfo[ 'RichPresenceMsg' ];
+    $libraryOut[ 'RichPresenceMsg' ] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : strip_tags($userInfo['RichPresenceMsg']);
     $libraryOut[ 'LastGameID' ] = $userInfo[ 'LastGameID' ];
     $libraryOut[ 'ContribCount' ] = $userInfo[ 'ContribCount' ];
     $libraryOut[ 'ContribYield' ] = $userInfo[ 'ContribYield' ];
