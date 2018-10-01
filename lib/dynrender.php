@@ -2315,7 +2315,7 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
 
     if( $addLinkToPopOut )
     {
-        echo "&nbsp;<a href='#' onclick=\"window.open('".getenv('APP_URL')."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
+        echo "&nbsp;<a href='#' onclick=\"window.open('".str_replace('https:', 'http:', getenv('APP_URL'))."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
     }
     echo "</div>";
 
