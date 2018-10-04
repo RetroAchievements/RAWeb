@@ -229,7 +229,7 @@ RenderDocType( TRUE );
                 else if( $achFlags == 5 )
                     echo "<li>State: Unofficial</li>";
 
-                echo "<div id='warning'>Status: OK!</div>";
+                echo "<li> Achievement ID: ". $achievementID ."</li>";
 
                 echo "<div>";
                 echo "<li>Mem:</li>";
@@ -321,3 +321,4 @@ RenderDocType( TRUE );
 
 </body>
 </html>
+

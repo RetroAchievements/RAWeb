@@ -1229,14 +1229,15 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
             $flag =         $parsedReq[1][0];
             $lType =        $parsedReq[2][0];
             $lSize =        $parsedReq[3][0];
-            $lMemory = '0x'. str_pad($parsedReq[4][0], 6, '0', STR_PAD_LEFT);
+            $lMemory =      $parsedReq[4][0];
             $cmp =          $parsedReq[5][0];
             $rType =        $parsedReq[6][0];
             $rSize =        $parsedReq[7][0];
             $rMemVal =      $parsedReq[8][0];
-            $rMemVal = '0x'. str_pad(($rSize ? $rMemVal : dechex($rMemVal)), 6, '0', STR_PAD_LEFT);
             $hits =         $parsedReq[9][0];
 
+            $lMemory = '0x'. str_pad(($lSize ? $lMemory : dechex($lMemory)), 6, '0', STR_PAD_LEFT);
+            $rMemVal = '0x'. str_pad(($rSize ? $rMemVal : dechex($rMemVal)), 6, '0', STR_PAD_LEFT);
             $hits = $hits ? $hits : "0";
             if( $lType !== "d" )
                 $lType = $lSize === '' ? 'v' : 'm';
@@ -1264,11 +1265,15 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
             $res .= "\n  <td> ". $memTypes[$lType]      ." </td>";
             $res .= "\n  <td> ". $memSize[$lSize]       ." </td>";
             $res .= "\n  <td". $lTooltip ."> ". $lMemory ." </td>";
-            $res .= "\n  <td> ". htmlspecialchars($cmp) ." </td>";
-            $res .= "\n  <td> ". $memTypes[$rType]      ." </td>";
-            $res .= "\n  <td> ". $memSize[$rSize]       ." </td>";
-            $res .= "\n  <td". $rTooltip ."> ". $rMemVal ." </td>";
-            $res .= "\n  <td> (". $hits .") </td>";
+            if( $flag == 'A' || $flag == 'B' || $flag == 'C' ) {
+                $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
+            } else {
+                $res .= "\n  <td> ". htmlspecialchars($cmp) ." </td>";
+                $res .= "\n  <td> ". $memTypes[$rType]      ." </td>";
+                $res .= "\n  <td> ". $memSize[$rSize]       ." </td>";
+                $res .= "\n  <td". $rTooltip ."> ". $rMemVal ." </td>";
+                $res .= "\n  <td> (". $hits .") </td>";
+            }
             $res .= "\n</tr>\n";
         }
         $res .= "<tr><td colspan=10><ul><small>";
@@ -1280,3 +1285,4 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
 
     return $res;
 }
+
