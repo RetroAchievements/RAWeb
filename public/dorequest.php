@@ -180,30 +180,73 @@ if( $credentialsOK )
             break;
 
         case "latestclient":
+            $emulatorID = seekPOSTorGET( 'e' );
             $consoleID = seekPOSTorGET( 'c' );
-            switch( $consoleID )
+            if( isset( $emulatorID ) )
             {
-                case 1:
-                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAGensVersion.html" )));
-                    break;
-                case 2:
-                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAP64Version.html" )));
-                    break;
-                case 3:
-                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRASnesVersion.html" )));
-                    break;
-                case 4:
-                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAVBAVersion.html" )));
-                    break;
-                case 7:
-                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRANESVersion.html" )));
-                    break;
-                case 8:
-                    $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( "LatestRAPCEVersion.html" )));
-                    break;
-                default:
-                    DoRequestError( "Unknown client! (ConsoleID: " . $consoleID . ")" );
-                    break;
+                switch( $emulatorID )
+                {
+                    case \RA\Emulators::RAGens:
+                        $versionFile = "LatestRAGensVersion.html";
+                        break;
+                    case \RA\Emulators::RAP64:
+                        $versionFile = "LatestRAP64Version.html";
+                        break;
+                    case \RA\Emulators::RASnes9x:
+                        $versionFile = "LatestRASnesVersion.html";
+                        break;
+                    case \RA\Emulators::RAVBA:
+                        $versionFile = "LatestRAVBAVersion.html";
+                        break;
+                    case \RA\Emulators::RANes:
+                        $versionFile = "LatestRANesVersion.html";
+                        break;
+                    case \RA\Emulators::RAPCE:
+                        $versionFile = "LatestRAPCEVersion.html";
+                        break;
+                    case \RA\Emulators::RALibretro:
+                        $versionFile = "LatestRALibretroVersion.html";
+                        break;
+                    case \RA\Emulators::RAMeka:
+                        $versionFile = "LatestRAMekaVersion.html";
+                        break;
+                    default:
+                        $versionFile = NULL;
+                }
+            }
+            else
+            {
+                switch( $consoleID ) // keeping the previous logic
+                {
+                    case 1:
+                        $versionFile = "LatestRAGensVersion.html";
+                        break;
+                    case 2:
+                        $versionFile = "LatestRAP64Version.html";
+                        break;
+                    case 3:
+                        $versionFile = "LatestRASnesVersion.html";
+                        break;
+                    case 4:
+                        $versionFile = "LatestRAVBAVersion.html";
+                        break;
+                    case 7:
+                        $versionFile = "LatestRANesVersion.html";
+                        break;
+                    case 8:
+                        $versionFile = "LatestRAPCEVersion.html";
+                        break;
+                    default:
+                        $versionFile = NULL;
+                }
+            }
+            if( $versionFile )
+            {
+                $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( $versionFile )));
+            }
+            else
+            {
+                DoRequestError( "Unknown client! (ConsoleID: " . $consoleID . ", EmulatorID: " . $emulatorID . ")" );
             }
             break;
 
