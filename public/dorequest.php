@@ -199,7 +199,7 @@ if( $credentialsOK )
                         $versionFile = "LatestRAVBAVersion.html";
                         break;
                     case \RA\Emulators::RANes:
-                        $versionFile = "LatestRANesVersion.html";
+                        $versionFile = "LatestRANESVersion.html";
                         break;
                     case \RA\Emulators::RAPCE:
                         $versionFile = "LatestRAPCEVersion.html";
@@ -212,11 +212,12 @@ if( $credentialsOK )
                         break;
                     default:
                         $versionFile = NULL;
+                        $errMsg = "EmulatorID: $emulatorID";
                 }
             }
             else
             {
-                switch( $consoleID ) // keeping the previous logic
+                switch( $consoleID ) // keeping the previous behavior
                 {
                     case 1:
                         $versionFile = "LatestRAGensVersion.html";
@@ -231,22 +232,30 @@ if( $credentialsOK )
                         $versionFile = "LatestRAVBAVersion.html";
                         break;
                     case 7:
-                        $versionFile = "LatestRANesVersion.html";
+                        $versionFile = "LatestRANESVersion.html";
                         break;
                     case 8:
                         $versionFile = "LatestRAPCEVersion.html";
                         break;
+                    case 11:
+                        $versionFile = "LatestRAMekaVersion.html";
+                        break;
+                    case 25:
+                        $versionFile = "LatestRALibretroVersion.html";
+                        break;
                     default:
                         $versionFile = NULL;
+                        $errMsg = "ConsoleID: $consoleID";
                 }
             }
-            if( $versionFile )
+            if( file_exists( $versionFile ) )
             {
                 $response[ 'LatestVersion' ] = trim(preg_replace('/\s\s+/', ' ', file_get_contents( $versionFile )));
             }
             else
             {
-                DoRequestError( "Unknown client! (ConsoleID: " . $consoleID . ", EmulatorID: " . $emulatorID . ")" );
+                $errMsg = $errMsg ?? "File not found: $versionFile";
+                DoRequestError( "Unknown client! (" . $errMsg . ")" );
             }
             break;
 
