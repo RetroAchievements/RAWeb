@@ -6,7 +6,6 @@ $latestRAMekaVer = file_get_contents( "./LatestRAMekaVersion.html" );
 $latestRANesVer = file_get_contents( "./LatestRANESVersion.html" );
 $latestRAP64Ver = file_get_contents( "./LatestRAP64Version.html" );
 $latestRAPCEVer = file_get_contents( "./LatestRAPCEVersion.html" );
-$latestRAPSXVer = file_get_contents( "./LatestRAPSXVersion.html" );
 $latestRASnesVer = file_get_contents( "./LatestRASnesVersion.html" );
 $latestRAVBAVer = file_get_contents( "./LatestRAVBAVersion.html" );
 $latestRALibretroVer = file_get_contents( "./LatestRALibretroVersion.html" );
@@ -88,7 +87,7 @@ RenderDocType();
             </div>
 
             <br/>
-            <h2 class='longheader' id='ralibretro'>RALibretro Multi Emulator for Development</h2>
+            <h2 class='longheader' id='ralibretro'>RALibretro Multi Emulator - achievement creation</h2>
 
             <div class='largeicon'>
                 <span class='clickablebutton'>
@@ -97,9 +96,27 @@ RenderDocType();
             </div>
 
             <br/>
-            <h3>Source Code</h3>
-            <p>The vast majority of the code for these emulators is GPL protected, and as such all source code for these emulators is GPL alike, and publically available at the following URL: <a href='https://github.com/RetroAchievements/RAEmus'>https://github.com/RetroAchievements/RAEmus</a></p>
+            <h2 class='longheader' id='retroarch'>RetroArch - only for playing</h2>
+            <p>
+                The official RetroAchievements.org emulators are all Windows-based. For other operating systems - such as Linux (which includes <a href="https://retropie.org.uk/">RetroPie</a>, <a href="https://www.recalbox.com">Recalbox</a> and <a href="https://www.lakka.tv">lakka</a>), Mac, Android, PlayStation Vita, Wii U, and, of course, even Windows - you can use RetroArch:
+                <br>
+                <a href="https://retroarch.com">https://retroarch.com</a>
+                <br>
+                <br>
+                You can also find <a href="https://docs.retroachievements.org/FAQ/#retroarch-emulators">more info about RetroArch on our FAQ</a>.
+                <br>
+                <br>
+                <strong>Note: although we have some members contributing in the RetroArch front, keep in mind that RetroArch is maintained by <a href="https://github.com/libretro/">another team</a>.</strong>
+            </p>
 
+            <br/>
+            <h3>Source Code</h3>
+            <p>The vast majority of the code for these emulators is GPL protected, and as such all source code for these emulators is GPL alike, and publically available.
+            <br>
+            Standalone Emulators repository: <a href='https://github.com/RetroAchievements/RAEmus'>https://github.com/RetroAchievements/RAEmus</a>
+            <br>
+            RALibretro repository: <a href='https://github.com/RetroAchievements/RALibretro'>https://github.com/RetroAchievements/RALibretro</a>
+            </p>
             <br/>
             <h3>Legal</h3>
             <p><small>RetroAchievements.org does not condone or supply any copyright-protected ROMs to be used in conjunction with the emulator supplied within.
