@@ -9,6 +9,7 @@ $latestRAPCEVer = file_get_contents( "./LatestRAPCEVersion.html" );
 $latestRAPSXVer = file_get_contents( "./LatestRAPSXVersion.html" );
 $latestRASnesVer = file_get_contents( "./LatestRASnesVersion.html" );
 $latestRAVBAVer = file_get_contents( "./LatestRAVBAVersion.html" );
+$latestRALibretroVer = file_get_contents( "./LatestRALibretroVersion.html" );
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
@@ -91,7 +92,7 @@ RenderDocType();
 
             <div class='largeicon'>
                 <span class='clickablebutton'>
-                    <a href="https://docs.retroachievements.org/RALibretro/" target="_blank">RALibretro Docs</a>
+                    <a href="/bin/RALibretro.zip">Download RALibretro v<?php echo $latestRALibretroVer; ?> for Windows</a>
                 </span>
             </div>
 
