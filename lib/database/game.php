@@ -1430,7 +1430,7 @@ function isValidConsoleID( $consoleID ) {
         case 25: // Atari 2600
         case 27: // Arcade
         case 28: // Virtual Boy
-        case 32: // Events (not an actual console)
+        case 23: // Events (not an actual console)
         case 51: // Atari7800
             return TRUE;
         default:
