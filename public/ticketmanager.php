@@ -616,7 +616,18 @@ RenderDocType();
                     echo "</td>";
                     echo "</tr>";
                 }
-
+                if( getAchievementMetadata( $achID, $dataOut ) )
+                {
+                    getCodeNotes( $gameID, $codeNotes );
+                    $achMem = $dataOut[ 'MemAddr' ];
+                    echo "<tr><td colspan='5'>";
+                    echo "<li>Achievement ID: ". $achID ."</li>";
+                    echo "<div>";
+                    echo "<li>Achievement logic:</li>";
+                    echo "<code>" . GetAchievementPatchReadableHTML( $achMem, $codeNotes ) . "</code>";
+                    echo "</div>";
+                    echo "</td></tr>
+                }
 
                 echo "<tr>";
                 echo "<td colspan='5'>";
