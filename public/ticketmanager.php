@@ -616,19 +616,6 @@ RenderDocType();
                     echo "</td>";
                     echo "</tr>";
                 }
-                if( getAchievementMetadata( $achID, $dataOut ) )
-                {
-                    getCodeNotes( $gameID, $codeNotes );
-                    $achMem = $dataOut[ 'MemAddr' ];
-                    echo "<tr><td colspan='5'>";
-                    echo "<li>Achievement ID: ". $achID ."</li>";
-                    echo "<div>";
-                    echo "<li>Achievement logic:</li>";
-                    echo "<code>" . GetAchievementPatchReadableHTML( $achMem, $codeNotes ) . "</code>";
-                    echo "</div>";
-                    echo "</td></tr>
-                }
-
                 echo "<tr>";
                 echo "<td colspan='5'>";
                 echo "<div class='commentscomponent'>";
@@ -643,6 +630,28 @@ RenderDocType();
 
                 echo "</tbody></table>";
                 echo "</div>";
+
+                if( $permissions >= \RA\Permissions::Developer && getAchievementMetadata( $achID, $dataOut ) )
+                {
+                    getCodeNotes( $gameID, $codeNotes );
+                    $achMem = $dataOut[ 'MemAddr' ];
+                    echo "<div class='devbox'>";
+                    echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Click to show achievement logic:</span><br/>";
+                    echo "<div id='devboxcontent'>";
+
+                    echo "<div style='clear:both;'></div>";
+                    echo "<li> Achievement ID: ". $achID ."</li>";
+                    echo "<div>";
+                    echo "<li>Mem:</li>";
+                    echo "<code>". htmlspecialchars( $achMem ) ."</code>";
+                    echo "<li>Mem explained:</li>";
+                    echo "<code>" . GetAchievementPatchReadableHTML( $achMem, $codeNotes ) . "</code>";
+                    echo "</div>";
+
+                    echo "</div>"; //   devboxcontent
+                    echo "</div>"; //   devbox
+                }
+
             }
             echo "</div>";
             ?>
