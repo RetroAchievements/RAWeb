@@ -35,8 +35,6 @@ $numArticleComments = getArticleComments( 3, $userPageID, 0, 100, $commentData )
 //	Get user's feed
 //$numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
 //	Get user's site awards
-//	Get static data (used for rank)
-$staticData = getStaticData();
 
 //	Squash any duplicate site awards (completed/mastered) into one list
 $userAwardsGames = Array();
@@ -315,18 +313,22 @@ foreach( $arrayToUse as $dayInfo )
             echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br/>";
             echo "Average Completion: <b>$avgPctWon%</b><br/>";
 
-            $totalUsers = $staticData[ 'NumRegisteredUsers' ];
-
-            $rankPct = sprintf( "%1.0f", ( ( $userRank / $totalUsers ) * 100.0 ) + 1.0 );
-
+            echo "Site Rank: ";
             if( $userIsUntracked )
             {
-                echo "Site Rank: <b>Untracked</b><br/><br/>";
+                echo "<b>Untracked</b>";
+            }
+            else if( $userTruePoints <= 0 )
+            {
+                echo "<i>This user has not earned any points.</i>";
             }
             else
             {
-                echo "Site Rank: <a href='/userList.php?s=2'>$userRank</a> / $totalUsers users (Top $rankPct%)<br/><br/>";
+                $countRankedUsers = countRankedUsers();
+                $rankPct = sprintf( "%1.0f", ( ( $userRank / $countRankedUsers ) * 100.0 ) + 1.0 );
+                echo "<a href='/userList.php?s=2'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
             }
+            echo "<br/><br/>";
 
             if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
                 echo "<div class='mottocontainer'>Last seen ";

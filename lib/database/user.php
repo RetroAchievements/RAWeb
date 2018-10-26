@@ -1052,6 +1052,24 @@ function getUserRank( $user )
     return 0;
 }
 
+function countRankedUsers()
+{
+    $query = "
+        SELECT COUNT(*) AS count
+        FROM UserAccounts as ua
+        WHERE ua.RAPoints > 0 ";
+
+    $dbResult = s_mysql_query( $query );
+    if( $dbResult !== FALSE )
+    {
+        return mysqli_fetch_assoc( $dbResult )['count'];
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
 function updateAchievementVote( $achID, $posDiff, $negDiff )
 {
     //	Tell achievement $achID that it's vote count has been changed by $posDiff and $negDiff
