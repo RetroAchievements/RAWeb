@@ -2,7 +2,7 @@
 require_once( 'bootstrap.php' );
 /////////////////////////////////////////////////////////////////////////////////////////
 //	Dynamic Rendering
-//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
 {
     $site = $site ?? getenv('APP_URL');
@@ -36,34 +36,40 @@ function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
 
     switch( $actType )
     {
-        case 0: //	misc
-            $retHTML = 'Unknown';
-            break;
-        case 1: //	achievement
+        case 1: // earned achievement
             $retHTML .= "$user earned $achTitle ($achPoints) in $gameTitle";
             break;
-        case 2: //	login
+        case 2: // login
             $retHTML .= "$user logged in";
             break;
-        case 3: //	start playing game
+        case 3: // start playing
             $retHTML .= "$user started playing $gameTitle ($console)";
             break;
-        case 4: //	upload ach
+        case 4: // upload achievement
             $retHTML = "$user uploaded a new achievement: $achTitle ($achPoints) for $gameTitle ($console)";
             break;
-        case 5: //	modify ach
-            $retHTML = "$user made improvements to: $achTitle ($achPoints) for $gameTitle ($console)";
+        case 5: // edit achievement
+            $retHTML = "$user edited $achTitle ($achPoints) for $gameTitle ($console)";
             break;
-        case 6: //	complete game
+        case 6: // complete game
             $retHTML = "$user completed $gameTitle ($console)";
             break;
-        case 7: //	submit new record
+        case 7: // submit new record
             $retHTML = "$user submitted " . GetFormattedLeaderboardEntry( $nextLBFormat, $nextLBScore ) . " for $nextLBName on $gameTitle ($console)";
             break;
-        case 8: //	updated record
+        case 8: // update new record
             $entryType = ( strcmp( $nextLBFormat, 'TIME' ) == 0 || strcmp( $nextLBFormat, 'TIMESECS' ) == 0 ) ? "time" : "score";
             $retHTML = "$user improved their $entryType: " . GetFormattedLeaderboardEntry( $nextLBFormat, $nextLBScore ) . " for $nextLBName on $gameTitle ($console)";
             break;
+        case 9: // open ticket
+            $retHTML = "$user opened a ticket for $achTitle ($achPoints) - $gameTitle ($console)";
+            break;
+        case 10: // close ticket
+            $retHTML = "$user closed a ticket for $achTitle ($achPoints) - $gameTitle ($console)";
+            break;
+        case 0:
+        default:
+            $retHTML = 'Unknown';
     }
 
     return $retHTML;
@@ -244,7 +250,7 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "<td class='feed_dev2'>";
 
             $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
-            $retHTML .= " made improvements to: ";
+            $retHTML .= " edited ";
             $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, FALSE );
 
             $retHTML .= "</td>";
@@ -256,106 +262,128 @@ function getFeedItemHTML( $feedData, $user )
 
 
         case 6: //	complete game
-            {
-                $retHTML .= "<tr id='$rowID' class='feed_completegame'>";
-                $retHTML .= $dateCell;
+            $retHTML .= "<tr id='$rowID' class='feed_completegame'>";
+            $retHTML .= $dateCell;
 
-                //	Images:
-                $retHTML .= "<td class='icons'>";
+            //	Images:
+            $retHTML .= "<td class='icons'>";
 
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
 
-                $retHTML .= "</td>";
+            $retHTML .= "</td>";
 
-                //	Content:
-                $retHTML .= "<td class='feed_completegame'>";
+            //	Content:
+            $retHTML .= "<td class='feed_completegame'>";
 
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
-                if( $nextData2 == 1 )
-                    $retHTML .= " MASTERED ";
-                else
-                    $retHTML .= " completed ";
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            if( $nextData2 == 1 )
+                $retHTML .= " MASTERED ";
+            else
+                $retHTML .= " completed ";
 
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
 
-                if( $nextData2 == 1 )
-                    $retHTML .= " (HARDCORE)";
+            if( $nextData2 == 1 )
+                $retHTML .= " (HARDCORE)";
 
-                $retHTML .= "</td>";
+            $retHTML .= "</td>";
 
 
-                if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
-                $retHTML .= "</tr>";
-            }
+            if( $user !== NULL )
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            $retHTML .= "</tr>";
 
             break;
 
 
         case 7: //	submit new record
-            {
-                $retHTML .= "<tr id='$rowID' class='feed_submitrecord'>";
-                $retHTML .= $dateCell;
+            $retHTML .= "<tr id='$rowID' class='feed_submitrecord'>";
+            $retHTML .= $dateCell;
 
-                //	Images:
-                $retHTML .= "<td class='icons'>";
+            //	Images:
+            $retHTML .= "<td class='icons'>";
 
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
 
-                $retHTML .= "</td>";
+            $retHTML .= "</td>";
 
-                //	Content:
-                $retHTML .= "<td class='feed_submitrecord'>";
+            //	Content:
+            $retHTML .= "<td class='feed_submitrecord'>";
 
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
-                $retHTML .= " submitted ";
-                $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, GetFormattedLeaderboardEntry( $nextLBFormat, $nextData2 ) );
-                $retHTML .= " for ";
-                $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, $nextLBName );
-                $retHTML .= " on ";
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= " submitted ";
+            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, GetFormattedLeaderboardEntry( $nextLBFormat, $nextData2 ) );
+            $retHTML .= " for ";
+            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, $nextLBName );
+            $retHTML .= " on ";
+            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
 
-                $retHTML .= "</td>";
-                if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
-                $retHTML .= "</tr>";
-            }
+            $retHTML .= "</td>";
+            if( $user !== NULL )
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            $retHTML .= "</tr>";
             break;
 
 
         case 8: //	updated record
-            {
-                $retHTML .= "<tr id='$rowID' class='feed_updaterecord'>";
-                $retHTML .= $dateCell;
+            $retHTML .= "<tr id='$rowID' class='feed_updaterecord'>";
+            $retHTML .= $dateCell;
 
-                //	Images:
-                $retHTML .= "<td class='icons'>";
+            //	Images:
+            $retHTML .= "<td class='icons'>";
 
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
 
-                $retHTML .= "</td>";
+            $retHTML .= "</td>";
 
-                //	Content:
-                $retHTML .= "<td class='feed_updaterecord'>";
+            //	Content:
+            $retHTML .= "<td class='feed_updaterecord'>";
 
-                $entryType = ( strcmp( $nextLBFormat, 'TIME' ) == 0 || strcmp( $nextLBFormat, 'TIMESECS' ) == 0 ) ? "time" : "score";
+            $entryType = ( strcmp( $nextLBFormat, 'TIME' ) == 0 || strcmp( $nextLBFormat, 'TIMESECS' ) == 0 ) ? "time" : "score";
 
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
-                $retHTML .= " improved their $entryType: ";
-                $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, GetFormattedLeaderboardEntry( $nextLBFormat, $nextData2 ) );
-                $retHTML .= " for ";
-                $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, $nextLBName );
-                $retHTML .= " on ";
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= " improved their $entryType: ";
+            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, GetFormattedLeaderboardEntry( $nextLBFormat, $nextData2 ) );
+            $retHTML .= " for ";
+            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, $nextLBName );
+            $retHTML .= " on ";
+            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
 
-                $retHTML .= "</td>";
-                if( $user !== NULL )
-                    $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
-                $retHTML .= "</tr>";
-            }
+            $retHTML .= "</td>";
+            if( $user !== NULL )
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            $retHTML .= "</tr>";
+            break;
+
+
+        case 9: // open ticket
+        case 10: // close ticket
+            $retHTML .= "<tr id='$rowID' class='feed_dev2'>";
+            $retHTML .= $dateCell;
+
+            //	Images:
+            $retHTML .= "<td class='icons'>";
+
+            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, TRUE, TRUE );
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+
+            $retHTML .= "</td>";
+
+            //	Content:
+            $retHTML .= "<td class='feed_dev2'>";
+
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= ( $nextActivityType == 9 ? " opened " : " closed " ) . " a ticket for ";
+            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, FALSE );
+
+            $retHTML .= "</td>";
+
+            if( $user !== NULL )
+                $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            $retHTML .= "</tr>";
             break;
     }
 
@@ -2315,7 +2343,7 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
 
     if( $addLinkToPopOut )
     {
-        echo "&nbsp;<a href='#' onclick=\"window.open('".str_replace('https:', 'http:', getenv('APP_URL'))."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
+        echo "&nbsp;<a href='#' onclick=\"window.open('".getenv('APP_URL')."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
     }
     echo "</div>";
 

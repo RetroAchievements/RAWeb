@@ -13,4 +13,6 @@ abstract class ActivityType
 	const CompleteGame = 6;
 	const NewLeaderboardEntry = 7;
 	const ImprovedLeaderboardEntry = 8;
+	const OpenedTicket = 9;
+	const ClosedTicket = 10;
 }

@@ -63,6 +63,7 @@ This ticket will be raised and will be available for all developers to inspect a
 
 Thanks!";
                 CreateNewMessage( $userSubmitter, $achData[ 'Author' ], "Bug Report ($gameTitle)", $bugReportMessage );
+                postActivity( $userSubmitter, \RA\ActivityType::OpenedTicket, $achID );
             }
 
             $idsAdded++;
@@ -138,6 +139,7 @@ This ticket will be raised and will be available for all developers to inspect a
 
 Thanks!";
                 CreateNewMessage( $userSubmitter, $achData[ 'Author' ], "Bug Report ($gameTitle)", $bugReportMessage );
+                postActivity( $userSubmitter, \RA\ActivityType::OpenedTicket, $achID );
             }
 
             $idsAdded++;
@@ -276,16 +278,19 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
                 if( $reason == "Demoted" )
                     updateAchievementFlags( $achID, 5 );
                 $comment = "Ticket closed by $user. Reason: \"$reason\".";
+		postActivity( $userReporter, \RA\ActivityType::ClosedTicket, $achID );
                 break;
 
             case 1: // Open
                 $status = "Open";
                 $comment = "Ticket reopened by $user.";
+		postActivity( $userReporter, \RA\ActivityType::OpenedTicket, $achID );
                 break;
 
             case 2: // Resolved
                 $status = "Resolved";
                 $comment = "Ticket resolved as fixed by $user.";
+		postActivity( $userReporter, \RA\ActivityType::ClosedTicket, $achID );
                 break;
         }
 
