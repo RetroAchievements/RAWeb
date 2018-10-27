@@ -278,19 +278,19 @@ function updateTicket( $user, $ticketID, $ticketVal, $reason = NULL )
                 if( $reason == "Demoted" )
                     updateAchievementFlags( $achID, 5 );
                 $comment = "Ticket closed by $user. Reason: \"$reason\".";
-		postActivity( $userReporter, \RA\ActivityType::ClosedTicket, $achID );
+                postActivity( $user, \RA\ActivityType::ClosedTicket, $achID );
                 break;
 
             case 1: // Open
                 $status = "Open";
                 $comment = "Ticket reopened by $user.";
-		postActivity( $userReporter, \RA\ActivityType::OpenedTicket, $achID );
+                postActivity( $user, \RA\ActivityType::OpenedTicket, $achID );
                 break;
 
             case 2: // Resolved
                 $status = "Resolved";
                 $comment = "Ticket resolved as fixed by $user.";
-		postActivity( $userReporter, \RA\ActivityType::ClosedTicket, $achID );
+                postActivity( $user, \RA\ActivityType::ClosedTicket, $achID );
                 break;
         }
 
