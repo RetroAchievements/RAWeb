@@ -385,6 +385,25 @@ function countOpenTicketsByAchievement( $achievementID )
     }
 }
 
+function countOpenTickets()
+{
+    $query = "
+        SELECT COUNT(*) as count
+        FROM Ticket
+        WHERE ReportState = 1";
+
+    $dbResult = s_mysql_query( $query );
+
+    if( $dbResult !== FALSE )
+    {
+        return mysqli_fetch_assoc( $dbResult )['count'];
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
 function gamesSortedByOpenTickets( $count )
 {
     settype( $count, 'integer' );

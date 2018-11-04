@@ -246,7 +246,7 @@ RenderDocType();
                     echo "<a href='/ticketmanager.php?t=0&g=$gameIDGiven&u=$assignedToUser'>All Tickets</a> | ";
 
                 if( $ticketState == 1 )
-                    echo "<b>Open Tickets</b> | ";
+                    echo "<b>Open Tickets (". countOpenTickets() .")</b> | ";
                 else
                     echo "<a href='/ticketmanager.php?t=1&g=$gameIDGiven&u=$assignedToUser'>Open Tickets</a> | ";
 
