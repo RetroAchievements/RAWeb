@@ -409,7 +409,7 @@ function gamesSortedByOpenTickets( $count )
         WHERE
             tick.ReportState = 1
         GROUP BY
-            gd.Title
+            gd.ID
         ORDER BY
             OpenTickets DESC
         LIMIT 0, $count";
