@@ -1832,6 +1832,7 @@ function GetDeveloperStatsFull( $count, $sortBy )
     $query = "
     SELECT
         ua.User AS Author,
+        Permissions,
         ContribCount,
         ContribYield,
         COUNT(ach.ID) AS Achievements,
