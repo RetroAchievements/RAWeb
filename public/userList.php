@@ -110,9 +110,10 @@ RenderDocType();
 
             echo "<table class='smalltable'><tbody>";
 
-            $sort1 = ($sortBy == 1) ? 4 : 1;
-            $sort2 = ($sortBy == 2) ? 5 : 2;
-            $sort3 = ($sortBy == 3) ? 6 : 3;
+            $sort1 = ($sortBy == 1) ? 11 : 1;
+            $sort2 = ($sortBy == 2) ? 12 : 2;
+            $sort3 = ($sortBy == 3) ? 13 : 3;
+            $sort4 = ($sortBy == 4) ? 14 : 4;
 
             if( ($sortBy == 2 ) )
                 echo "<th>Rank</th>";
@@ -120,7 +121,7 @@ RenderDocType();
             echo "<th colspan='2'><a href='/userList.php?s=$sort1&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>User</a></th>";
             echo "<th><a href='/userList.php?s=$sort2&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Points</a></th>";
             echo "<th><a href='/userList.php?s=$sort3&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Num Achievements Earned</a></th>";
-            echo "<th>Last Login</th>";
+            echo "<th><a href='/userList.php?s=$sort4&p=$perms". ( $showUntracked ? "&u=1" : '' ) ."'>Last Login</a></th>";
 
             $userCount = 0;
             foreach( $userListData as $userEntry )

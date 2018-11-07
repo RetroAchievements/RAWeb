@@ -1570,35 +1570,38 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
 
 
     settype( $sortBy, 'integer' );
-    if( $sortBy < 1 || $sortBy > 6 )
-        $sortBy = 1;
-
     switch( $sortBy )
     {
-        case 1:
-            //	Default sort:
+        case 1: // Default sort:
             $orderBy = "ua.User ASC ";
             break;
-        case 2:
-            //	RAPoints
-            $orderBy = "ua.RAPoints DESC ";
-            break;
-        case 3:
-            //	NumAwarded
-            $orderBy = "NumAwarded DESC ";
-            break;
-        case 4:
-            //	Default sort: inverse
+        case 11:
             $orderBy = "ua.User DESC ";
             break;
-        case 5:
-            //	RAPoints inverse
+
+        case 2: // RAPoints
+            $orderBy = "ua.RAPoints DESC ";
+            break;
+        case 12:
             $orderBy = "ua.RAPoints ASC ";
             break;
-        case 6:
-            //	NumAwarded inverse
+
+        case 3: // NumAwarded
+            $orderBy = "NumAwarded DESC ";
+            break;
+        case 13:
             $orderBy = "NumAwarded ASC ";
             break;
+
+        case 4: // LastLogin
+            $orderBy = "ua.LastLogin DESC ";
+            break;
+        case 14:
+            $orderBy = "ua.LastLogin ASC ";
+            break;
+
+        default:
+            $orderBy = "ua.User ASC ";
     }
 
     $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded, ua.LastLogin
