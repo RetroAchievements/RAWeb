@@ -43,8 +43,10 @@
     echo "<th>Developer</th>";
     echo "<th>" . ($type == 3 ? "*" : "") . "<a href='/developerstats.php?t=3'>Open Tickets</a></th>";
     echo "<th>" . ($type == 0 ? "*" : "") . "<a href='/developerstats.php?'>Achievements</a></th>";
+    echo "<th>" . ($type == 4 ? "*" : "") . "<a href='/developerstats.php?t=4'>Ticket Ratio (%)</a></th>";
     echo "<th>" . ($type == 2 ? "*" : "") . "<a href='/developerstats.php?t=2'>Achievements won by others</a></th>";
     echo "<th>" . ($type == 1 ? "*" : "") . "<a href='/developerstats.php?t=1'>Points awarded to others</a></th>";
+    //echo "<th>" . ($type == 5 ? "*" : "") . "<a href='/developerstats.php?t=5'>Last Login</a></th>";
     
     $userCount = 0;
     foreach( $devStatsList as $devStats )
@@ -62,9 +64,10 @@
 
         echo "<td>" . $devStats[ 'OpenTickets' ] . "</td>";
         echo "<td>" . $devStats[ 'Achievements' ] . "</td>";
+        echo "<td>" . number_format( $devStats[ 'TicketRatio' ] * 100, 2 ) . "</td>";
         echo "<td>" . $devStats[ 'ContribCount' ] . "</td>";
         echo "<td>" . $devStats[ 'ContribYield' ] . "</td>";
-
+        //echo "<td>" . getNiceDate( strtotime( $devStats[ 'LastLogin' ] ) ) . "</td>";
     }
     echo "</tbody></table>";
 ?>	

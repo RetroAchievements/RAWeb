@@ -1806,29 +1806,35 @@ function GetDeveloperStatsFull( $count, $sortBy )
 
     switch( $sortBy )
     {
-        case 0: // number of achievements
-            $order = "Achievements";
-            break;
         case 1: // number of points allocated
             $order = "ContribYield";
             break;
         case 2: // number of achievements won by others
             $order = "ContribCount";
             break;
-        case 3: // number of achievements
+        case 3:
             $order = "OpenTickets";
             break;
+        case 4:
+            $order = "TicketRatio";
+            break;
+        case 5:
+            $order = "LastLogin";
+            break;
+        case 0:
         default:
             $order = "Achievements";
     }
 
     $query = "
     SELECT
-        ua.User as Author,
+        ua.User AS Author,
         ContribCount,
         ContribYield,
-        COUNT(ach.ID) as Achievements,
-        COUNT(tick.ID) as OpenTickets
+        COUNT(ach.ID) AS Achievements,
+        COUNT(tick.ID) AS OpenTickets,
+        COUNT(tick.ID)/COUNT(ach.ID) AS TicketRatio,
+        LastLogin
     FROM
         UserAccounts AS ua
     LEFT JOIN
@@ -1844,7 +1850,9 @@ function GetDeveloperStatsFull( $count, $sortBy )
         OpenTickets ASC
     LIMIT 0, $count";
 
-    $dbResult = s_mysql_query( $query );
+    global $db;
+    $dbResult = mysqli_query( $db, $query );
+
     if( $dbResult !== FALSE )
     {
         while( $nextData = mysqli_fetch_assoc( $dbResult ) )
@@ -1852,7 +1860,8 @@ function GetDeveloperStatsFull( $count, $sortBy )
     }
     else
     {
-        error_log( __FUNCTION__ . " failed?! $offset, $limit" );
+        error_log( __FUNCTION__ . " failed?! $count" );
+        $retVal =  FALSE;
     }
 
     return $retVal;
