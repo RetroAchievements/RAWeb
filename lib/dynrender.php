@@ -596,15 +596,6 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
 
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
-    // echo '<div style="margin:auto;text-align:center;padding-top:10px;padding-bottom:10px;background-color:#5a2a2a;max-width:980px;min-width:800px;color:#c90;font-weight:bold;margin-bottom:10px">';
-    // echo 'Server maintenance happened on ';
-    // // echo '<a style="text-decoration:underline" target="_blank" href="https://www.timeanddate.com/worldclock/fixedtime.html?msg=Server+Maintenance&iso=20180716T15&p1=1440&ah=1">';
-    // echo 'Monday, 16 July 2018, 15:00 - 15:15 (UTC time)';
-    // // echo '</a>';
-    // echo '<br>';
-    // echo '<small>Welcome to the new server.</small>';
-    // echo '</div>';
-
     echo "<div id='title'>";
 
     echo "<div id='logocontainer'><a id='logo' href='/'>&nbsp;</a></div>";
