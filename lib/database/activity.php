@@ -146,28 +146,20 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             break;
 
         case \RA\ActivityType::UploadAchievement:
-            //	upload achievement
-            $achID = $customMsg;
-            $achievementName = getAchievementTitle( $achID, $gameTitle, $gameID );
-
-            //$achievementName 	= str_replace( "'", "''", $achievementName );
-            //$gameTitle 			= str_replace( "'", "''", $gameTitle );
-
-            $achievementLink = "<a href='/Achievement/$achID'>$achievementName</a>";
-            $achievementLink = str_replace( "'", "''", $achievementLink );
-
-            $query .= "(NOW(), $activity, '$user', '$achID', NULL)";
-            break;
-
         case \RA\ActivityType::EditAchievement:
-            //	commit achievement changes
+        case \RA\ActivityType::OpenedTicket:
+        case \RA\ActivityType::ClosedTicket:
             $achID = $customMsg;
             $achievementName = getAchievementTitle( $achID, $gameTitle, $gameID );
 
-            //$achievementName 	= str_replace( "'", "''", $achievementName );d
-            //$gameTitle 			= str_replace( "'", "''", $gameTitle );
-
-            $achievementLink = "<a href='/Achievement/$achID'>$achievementName</a>";
+            if( $activity == \RA\ActivityType::OpenedTicket || $activity == \RA\ActivityType::ClosedTicket )
+            {
+                $achievementLink = "<a href='/ticketmanager.php?a=$achID&t=1'>$achievementName</a>";
+            }
+            else
+            {
+                $achievementLink = "<a href='/Achievement/$achID'>$achievementName</a>";
+            }
             $achievementLink = str_replace( "'", "''", $achievementLink );
 
             $query .= "(NOW(), $activity, '$user', '$achID', NULL)";
@@ -187,26 +179,7 @@ function postActivity( $userIn, $activity, $customMsg, $isalt = NULL )
             break;
 
         case \RA\ActivityType::NewLeaderboardEntry:
-            //	New LB Entry
-            $lbID = $customMsg[ 'LBID' ];
-            $lbTitle = $customMsg[ 'LBTitle' ];
-            $score = $customMsg[ 'Score' ];
-            $gameID = $customMsg[ 'GameID' ];
-            $scoreFormatted = $customMsg[ 'ScoreFormatted' ];
-            getGameTitleFromID( $gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData );
-
-            $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
-            $gameLink = str_replace( "'", "''", $gameLink );
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
-            $lbLinkScore = str_replace( "'", "''", $lbLinkScore );
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a>";
-            $lbLinkTitle = str_replace( "'", "''", $lbLinkTitle );
-
-            $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
-            break;
-
         case \RA\ActivityType::ImprovedLeaderboardEntry:
-            //	Updated LB Entry
             $lbID = $customMsg[ 'LBID' ];
             $lbTitle = $customMsg[ 'LBTitle' ];
             $score = $customMsg[ 'Score' ];
@@ -588,7 +561,9 @@ function getFeed( $user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $t
 	LEFT JOIN Achievements AS ach ON
 		( activitytype = 1 AND ach.ID = InnerTable.data ) OR
 		( activitytype = 4 AND ach.ID = InnerTable.data ) OR
-		( activitytype = 5 AND ach.ID = InnerTable.data )
+		( activitytype = 5 AND ach.ID = InnerTable.data ) OR
+		( activitytype = 9 AND ach.ID = InnerTable.data ) OR
+		( activitytype = 10 AND ach.ID = InnerTable.data )
 	LEFT JOIN GameData AS gd ON
 		( activitytype = 1 AND gd.ID = ach.GameID ) OR
 		( activitytype = 3 AND gd.ID = InnerTable.data ) OR
@@ -596,7 +571,9 @@ function getFeed( $user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $t
 		( activitytype = 5 AND gd.ID = ach.GameID ) OR
 		( activitytype = 6 AND gd.ID = InnerTable.data ) OR
 		( activitytype = 7 AND gd.ID = lb.GameID ) OR
-		( activitytype = 8 AND gd.ID = lb.GameID )
+		( activitytype = 8 AND gd.ID = lb.GameID ) OR
+		( activitytype = 9 AND gd.ID = ach.GameID ) OR
+		( activitytype = 10 AND gd.ID = ach.GameID )
 	LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
 	LEFT JOIN Comment AS c ON c.ArticleID = InnerTable.ID
 	LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
