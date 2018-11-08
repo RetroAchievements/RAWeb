@@ -62,10 +62,10 @@ function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
             $retHTML = "$user improved their $entryType: " . GetFormattedLeaderboardEntry( $nextLBFormat, $nextLBScore ) . " for $nextLBName on $gameTitle ($console)";
             break;
         case 9: // open ticket
-            $retHTML = "$user opened a ticket for $achTitle ($achPoints) - $gameTitle ($console)";
+            $retHTML = "$user opened a ticket for $achTitle ($achPoints) in $gameTitle ($console)";
             break;
         case 10: // close ticket
-            $retHTML = "$user closed a ticket for $achTitle ($achPoints) - $gameTitle ($console)";
+            $retHTML = "$user closed a ticket for $achTitle ($achPoints) in $gameTitle ($console)";
             break;
         case 0:
         default:
