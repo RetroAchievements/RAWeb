@@ -574,6 +574,25 @@ function pushFeedItem( feedItemID, timestamp, acttype, user, userPoints, userMot
 		rowData += GetGameAndTooltipDiv( gameID, gameTitle, gameIcon, consoleName );
 		
 		break;
+
+    case 9:  // Opened a ticket
+    case 10: // Closed a ticket
+        rowClass = 'feed_dev2';
+
+        rowIcon1 = GetAchievementAndTooltipDiv( data, achTitle, achDesc, achPoints, gameTitle, achBadge, true, true );
+        rowIcon2 = GetUserAndTooltipDiv( user, userPoints, userMotto, true, "" );
+
+        rowData = GetUserAndTooltipDiv( user, userPoints, userMotto, false, "" );
+        rowData += ( acttype == 9 ? " opened " : " closed " ) + "a ticket for ";
+        rowData += GetAchievementAndTooltipDiv( data, achTitle, achDesc, achPoints, gameTitle, achBadge, false, false );
+
+        if( data2 == 1 )
+            rowData += " (HARDCORE)";
+
+        rowData += " in ";
+        rowData += GetGameAndTooltipDiv( gameID, gameTitle, gameIcon, consoleName );
+
+        break;
 	}
 	
 	var d = new Date( parseInt( timestamp )*1000 );	//	In UTC
