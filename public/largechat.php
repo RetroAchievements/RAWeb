@@ -74,7 +74,7 @@ function onPostComplete( data )
 	}
 }
 </script>
-<?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode ); ?>
+<?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions ); ?>
 <?php RenderToolbar( $user, $permissions ); ?>
 
 <div id="mainpage">

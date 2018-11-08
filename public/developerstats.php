@@ -26,7 +26,7 @@
 <body>
 
 <?php
-	RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode );
+	RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions );
 	RenderToolbar( $user, $permissions );
 ?>
 
