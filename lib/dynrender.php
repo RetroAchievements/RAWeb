@@ -586,7 +586,7 @@ function RenderPHPBBIcons()
     echo "</div>";
 }
 
-function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode )
+function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0 )
 {
     settype( $truePoints, 'integer' );
     //	js tooltip code is basically on every page:
@@ -652,6 +652,17 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
         echo "<span id='mailboxcount'>$unreadMessageCount</span>";
         echo ")";
         echo "</a>";
+
+        if( $permissions >= 3 ) // 3 == Developer
+        {
+            $openTickets = countOpenTicketsByDev( $user );
+            if( $openTickets > 0 )
+            {
+                echo " - <a href='/ticketmanager.php?u=$user'>";
+                echo "<font color='red'>Open Tickets: <strong>$openTickets</strong></font>";
+                echo "</a>";
+            }
+        }
 
         echo "</p>";
 
