@@ -659,7 +659,7 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
             if( $openTickets > 0 )
             {
                 echo " - <a href='/ticketmanager.php?u=$user'>";
-                echo "<font color='red'>Open Tickets: <strong>$openTickets</strong></font>";
+                echo "<font color='red'>Tickets: <strong>$openTickets</strong></font>";
                 echo "</a>";
             }
         }
