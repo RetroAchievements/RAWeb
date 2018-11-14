@@ -192,18 +192,18 @@ function getAllTickets( $offset = 0, $limit = 50, $assignedToUser = NULL, $given
     }
 
     settype( $getUnofficial, 'boolean' );
-    $unofficialCond = $getUnofficial ? " AND ach.Flags = 5" : "";
+    $unofficialCond = $getUnofficial ? " AND ach.Flags <> 3" : "";
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
 				ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
 				tick.ReportedAt, tick.ReportType, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
 			  FROM Ticket AS tick
-			  LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID $unofficialCond
+			  LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
 			  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
 			  LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
 			  LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
 			  LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-			  WHERE $innerCond
+			  WHERE $innerCond $unofficialCond
 			  ORDER BY tick.ID DESC
 			  LIMIT $offset, $limit";
 
@@ -392,12 +392,23 @@ function countOpenTicketsByAchievement( $achievementID )
     }
 }
 
-function countOpenTickets()
+function countOpenTickets( $unofficialFlag = FALSE )
 {
-    $query = "
-        SELECT COUNT(*) as count
-        FROM Ticket
-        WHERE ReportState = 1";
+    if( $unofficialFlag === TRUE )
+    {
+        $query = "
+            SELECT count(*) as count
+            FROM Ticket AS tick
+            LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
+            WHERE tick.ReportState = 1 AND ach.Flags <> 3";
+    }
+    else
+    {
+        $query = "
+            SELECT COUNT(*) as count
+            FROM Ticket
+            WHERE ReportState = 1";
+    }
 
     $dbResult = s_mysql_query( $query );
 
