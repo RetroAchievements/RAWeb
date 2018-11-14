@@ -135,7 +135,10 @@ if( $ticketID == 0 )
             $gameIDGiven = $achievementData[ 'GameID' ]; // overwrite the given game ID
         }
 
-        $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
+        if( $gamesTableFlag == 5 )
+            $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState, TRUE );
+        else
+            $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
     }
 }
 //var_dump( $ticketData );
