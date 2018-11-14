@@ -135,7 +135,10 @@ if( $ticketID == 0 )
             $gameIDGiven = $achievementData[ 'GameID' ]; // overwrite the given game ID
         }
 
-        $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
+        if( $gamesTableFlag == 5 )
+            $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState, TRUE );
+        else
+            $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
     }
 }
 //var_dump( $ticketData );
@@ -245,7 +248,7 @@ RenderDocType();
                 else
                     echo "<a href='/ticketmanager.php?t=0&g=$gameIDGiven&u=$assignedToUser'>All Tickets</a> | ";
 
-                if( $ticketState == 1 )
+                if( $ticketState == 1 && $gamesTableFlag != 5 )
                     echo "<b>Open Tickets (". countOpenTickets() .")</b> | ";
                 else
                     echo "<a href='/ticketmanager.php?t=1&g=$gameIDGiven&u=$assignedToUser'>Open Tickets</a> | ";
@@ -254,6 +257,9 @@ RenderDocType();
                     echo "<b>Resolved Tickets</b>";
                 else
                     echo "<a href='/ticketmanager.php?t=2&g=$gameIDGiven&u=$assignedToUser'>Resolved Tickets</a>";
+
+                if( $gamesTableFlag == 5 )
+                    echo " | <b>Open Tickets for Unofficial (". countOpenTickets( TRUE ) .")</b>";
 
                 echo "</p>";
 
