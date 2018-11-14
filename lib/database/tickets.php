@@ -163,7 +163,7 @@ Thanks!";
     return ( $errorsEncountered == FALSE );
 }
 
-function getAllTickets( $offset = 0, $limit = 50, $assignedToUser = NULL, $givenGameID = NULL, $givenAchievementID = NULL, $ticketState = 1 )
+function getAllTickets( $offset = 0, $limit = 50, $assignedToUser = NULL, $givenGameID = NULL, $givenAchievementID = NULL, $ticketState = 1, $getUnofficial = FALSE )
 {
     global $db;
 
@@ -191,12 +191,14 @@ function getAllTickets( $offset = 0, $limit = 50, $assignedToUser = NULL, $given
         $innerCond .= " AND tick.AchievementID = $givenAchievementID";
     }
 
+    settype( $getUnofficial, 'boolean' );
+    $unofficialCond = $getUnofficial ? " AND ach.Flags = 5" : "";
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
 				ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
 				tick.ReportedAt, tick.ReportType, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
 			  FROM Ticket AS tick
-			  LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
+			  LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID $unofficialCond
 			  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
 			  LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
 			  LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
