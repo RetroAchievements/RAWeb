@@ -1,8 +1,4 @@
 <?php
-/**
- * NOTE: deprecated until v2
- */
-return;
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 error_log(__FUNCTION__);
@@ -36,14 +32,17 @@ if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0) == true) {
             //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed" );
         }
     } else {
-        if (resetAchievements($user, $gameID) > 0) {
-            recalcScore($user);
-            echo "OK";
-            //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetok" );
-        } else {
-            echo "ERROR!";
-            //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed" );
-        }
+        /**
+         * NOTE: deprecated until v2
+         */
+        // if (resetAchievements($user, $gameID) > 0) {
+        //     recalcScore($user);
+        //     echo "OK";
+        //     //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetok" );
+        // } else {
+        echo "ERROR!";
+        //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed" );
+        // }
     }
 } else {
     echo "FAILED";
