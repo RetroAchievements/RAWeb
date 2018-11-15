@@ -33,16 +33,20 @@ if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0) == true) {
         }
     } else {
         /**
-         * NOTE: deprecated until v2
+         * NOTE: full reset deprecated until v2
          */
-        // if (resetAchievements($user, $gameID) > 0) {
-        //     recalcScore($user);
-        //     echo "OK";
-        //     //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetok" );
-        // } else {
-        echo "ERROR!";
-        //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed" );
-        // }
+        if (empty($gameID)) {
+            echo "ERROR!";
+            header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed");
+        }
+        if (resetAchievements($user, $gameID) > 0) {
+            recalcScore($user);
+            echo "OK";
+            header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetok" );
+        } else {
+            echo "ERROR!";
+            header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed");
+        }
     }
 } else {
     echo "FAILED";
