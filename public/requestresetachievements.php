@@ -26,10 +26,8 @@ if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0) == true) {
             //	Inject sneaky recalc:
             recalcScore($user);
             echo "OK";
-            //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetok" );
         } else {
             echo "ERROR!";
-            //header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed" );
         }
     } else {
         /**
@@ -37,15 +35,12 @@ if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0) == true) {
          */
         if (empty($gameID)) {
             echo "ERROR!";
-            header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed");
         }
         if (resetAchievements($user, $gameID) > 0) {
             recalcScore($user);
             echo "OK";
-            header( "Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetok" );
         } else {
             echo "ERROR!";
-            header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=resetfailed");
         }
     }
 } else {
