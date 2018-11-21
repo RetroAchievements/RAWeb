@@ -173,7 +173,7 @@ function getAllTickets( $offset = 0, $limit = 50, $assignedToUser = NULL, $given
     settype( $givenAchievementID, 'integer' );
 
     $innerCond = "TRUE";
-    if( !empty( $assignedToUser ) )
+    if( !empty( $assignedToUser ) && IsValidUsername( $assignedToUser ) )
     {
         $assignedToUser = mysqli_real_escape_string( $db, $assignedToUser );
         $innerCond .= " AND ach.Author = '$assignedToUser'";
