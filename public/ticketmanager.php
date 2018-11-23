@@ -156,6 +156,7 @@ RenderDocType();
 
 <head>
     <?php RenderSharedHeader( $user ); ?>
+    <?php RenderFBMetaData( $pageTitle, "tickets", $gameData[ 'ImageIcon' ], "/Game/$gameID", "Tickets for $gameTitle ($consoleName)" ); ?>
     <?php RenderTitleTag( $pageTitle, $user ); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
