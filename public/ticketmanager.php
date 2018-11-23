@@ -143,7 +143,9 @@ if( $ticketID == 0 )
             $ticketData = getAllTickets( $offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState );
     }
 }
-//var_dump( $ticketData );
+
+if( !empty( $gameIDGiven ) )
+    getGameTitleFromID( $gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
 
 $pageTitle = "Open Tickets";
 
@@ -156,7 +158,7 @@ RenderDocType();
 
 <head>
     <?php RenderSharedHeader( $user ); ?>
-    <?php RenderFBMetaData( $pageTitle, "tickets", $gameData[ 'ImageIcon' ], "/Game/$gameID", "Tickets for $gameTitle ($consoleName)" ); ?>
+    <?php RenderFBMetaData( $pageTitle, "tickets", $gameData[ 'ImageIcon' ], "/Game/$gameIDGiven", "Tickets for $gameTitle ($consoleName)" ); ?>
     <?php RenderTitleTag( $pageTitle, $user ); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -187,7 +189,6 @@ RenderDocType();
                     echo " &raquo; <a href='/User/$assignedToUser'>$assignedToUser</a>";
                 if( !empty( $gameIDGiven ) )
                 {
-                    getGameTitleFromID( $gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $allData);
                     echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
                     if( !empty( $achievementIDGiven ) )
                         echo " &raquo; $achievementTitle";
