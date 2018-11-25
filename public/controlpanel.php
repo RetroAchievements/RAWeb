@@ -673,10 +673,10 @@
 	?>
 	</div>
 
+    <?php /*
 	<div class='component'>
 	<h3>Reset All Achievements</h3>
         <p>Please send a message to <a href="https://retroachievements.org/createmessage.php?t=RAdmin">RAdmin</a> to request a reset of your achievement progress or reset games individually above.</p>
-    <?php /*
     NOTE: deprecated - will be restored inv2
 	Enter password to confirm! Please note: this is <b>not</b> reversible!
 	<form method=post action="requestresetachievements.php">
@@ -684,8 +684,8 @@
 	<INPUT TYPE="password" NAME="p" VALUE="">
 	<INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
 	</form>
-    */ ?>
 	</div>
+    */ ?>
 
 
 </div>
