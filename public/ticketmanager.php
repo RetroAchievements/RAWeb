@@ -260,7 +260,10 @@ RenderDocType();
                     echo "<a href='/ticketmanager.php?t=0&g=$gameIDGiven&u=$assignedToUser'>All Tickets</a> | ";
 
                 if( $ticketState == 1 && $gamesTableFlag != 5 )
-                    echo "<b>Open Tickets (". countOpenTickets() .")</b> | ";
+                {
+                    $openTicketsCount = countOpenTickets();
+                    echo "<b>Open Tickets (". $openTicketsCount .")</b> | ";
+                }
                 else
                     echo "<a href='/ticketmanager.php?t=1&g=$gameIDGiven&u=$assignedToUser'>Open Tickets</a> | ";
 
@@ -398,6 +401,7 @@ RenderDocType();
                 if( $offset > 0 )
                 {
                     $prevOffset = $offset - $maxCount;
+                    echo "<a href='/ticketmanager.php?u=$assignedToUser&amp;t=$ticketState'>First</a> - ";
                     echo "<a href='/ticketmanager.php?o=$prevOffset&amp;u=$assignedToUser&amp;t=$ticketState'>&lt; Previous $maxCount</a> - ";
                 }
                 if( $rowCount == $maxCount )
@@ -405,6 +409,8 @@ RenderDocType();
                     //	Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
                     echo "<a href='/ticketmanager.php?o=$nextOffset&amp;u=$assignedToUser&amp;t=$ticketState'>Next $maxCount &gt;</a>";
+                    if( $ticketState == 1 && $gamesTableFlag != 5 )
+                        echo " - <a href='/ticketmanager.php?o=". ($openTicketsCount - 99) ."&amp;u=$assignedToUser&amp;t=$ticketState'>Last</a>";
                 }
                 echo "</div>";
             }
