@@ -161,7 +161,7 @@ RenderDocType();
     RenderSharedHeader( $user );
 
     if( !empty( $gameIDGiven ) )
-        RenderFBMetaData( $pageTitle, "tickets", $gameData[ 'ImageIcon' ], "/Game/$gameIDGiven", "Tickets for $gameTitle ($consoleName)" );
+        RenderFBMetaData( $pageTitle, "tickets", "/Badge/". $gameData[ 'ImageIcon' ] .".png", "/Game/$gameIDGiven", "Tickets for $gameTitle ($consoleName)" );
     else if( $ticketID !== 0 && $ticketData )
         RenderFBMetaData( $pageTitle, "tickets", "/Badge/". $ticketData[ 'BadgeName' ] .".png", "/achievement/". $ticketData[ 'AchievementID' ], "Tickets for '". $ticketData[ 'AchievementTitle' ] ."' - ". $ticketData[ 'GameTitle' ] ." (". $ticketData[ 'ConsoleName' ] .")" );
 
