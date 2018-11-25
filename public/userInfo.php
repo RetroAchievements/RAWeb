@@ -223,7 +223,7 @@ foreach( $arrayToUse as $dayInfo )
     }
 
     $nextDay = $dayInfo[ 'Day' ];
-    $nextMonth = $dayInfo[ 'Month' ] - 1;
+    $nextMonth = $dayInfo[ 'Month' ];
     $nextYear = $dayInfo[ 'Year' ];
 
     $dateStr = "$nextDay/$nextMonth";

@@ -116,7 +116,7 @@ foreach( $userScoreData as $dayInfo )
         echo ", ";
 
     $nextDay = $dayInfo[ 'Day' ];
-    $nextMonth = $dayInfo[ 'Month' ] - 1; //	js date is fussy
+    $nextMonth = $dayInfo[ 'Month' ];
     $nextYear = $dayInfo[ 'Year' ];
     $nextDate = $dayInfo[ 'Date' ];
 
