@@ -157,10 +157,17 @@ RenderDocType();
 ?>
 
 <head>
-    <?php RenderSharedHeader( $user ); ?>
-    <?php RenderFBMetaData( $pageTitle, "tickets", $gameData[ 'ImageIcon' ], "/Game/$gameIDGiven", "Tickets for $gameTitle ($consoleName)" ); ?>
-    <?php RenderTitleTag( $pageTitle, $user ); ?>
-    <?php RenderGoogleTracking(); ?>
+    <?php
+    RenderSharedHeader( $user );
+
+    if( !empty( $gameIDGiven ) )
+        RenderFBMetaData( $pageTitle, "tickets", $gameData[ 'ImageIcon' ], "/Game/$gameIDGiven", "Tickets for $gameTitle ($consoleName)" );
+    else if( $ticketID !== 0 && $ticketData )
+        RenderFBMetaData( $pageTitle, "tickets", "/Badge/". $ticketData[ 'BadgeName' ] .".png", "/achievement/". $ticketData[ 'AchievementID' ], "Tickets for '". $ticketData[ 'AchievementTitle' ] ."' - ". $ticketData[ 'GameTitle' ] ." (". $ticketData[ 'ConsoleName' ] .")" );
+
+    RenderTitleTag( $pageTitle, $user );
+    RenderGoogleTracking();
+    ?>
 </head>
 
 <body>
