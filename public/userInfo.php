@@ -104,6 +104,9 @@ for( $i = 0; $i < count( $userCompletedGamesList ); $i++ )
 
 function scorePctCompare( $a, $b )
 {
+    if (empty($a['PctWon']) || empty($b['PctWon'])) {
+        return 0;
+    }
     return $a[ 'PctWon' ] < $b[ 'PctWon' ];
 }
 
@@ -136,13 +139,13 @@ for( $i = 0; $i < count( $userAwards ); $i++ )
         $nextAward[ 'Incomplete' ] = 0;
         foreach( $userCompletedGamesList as $nextGame )
         {
-            if( $nextGame[ 'GameID' ] == $nextAward[ 'AwardData' ] )
-            {
+            // if( $nextGame[ 'GameID' ] == $nextAward[ 'AwardData' ] )
+            // {
                 //	I have this game listed as a game I've got awards for, do I have the same number
                 //	 of completed awards as there are possible achievements?	//NB> FLAWED!!! DOESNT CATER FOR HARDCORE
                 //if( $nextGame['NumAwarded'] < $nextGame['MaxPossible'] )
                 //	$nextAward['Incomplete'] = 1;
-            }
+            // }
         }
     }
 }
