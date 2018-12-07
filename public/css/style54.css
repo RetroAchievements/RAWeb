@@ -222,8 +222,8 @@ td, tr, img {
     text-align: right;
     padding-right: 10px;
     padding-left: 300px;
-    padding-bottom: 10px;
-    padding-top: 10px;
+    /*padding-bottom: 10px;*/
+    /*padding-top: 10px;*/
     /*background-color: #1a1a1a; */
     max-width: 688px;
 }
@@ -242,22 +242,23 @@ td, tr, img {
     margin: auto;
     max-width: 980px;
     min-width: 800px;
-    height: 108px;
-    /*height: 175px;*/
+    /*height: 108px;*/
+    height: 175px;
     position: relative;
     background-color: rgb(42, 42, 42);
 }
 
 #logo {
-    background-image: url('/Images/RA_Logo10.png');
-    /*background-image: url('/Images/RA_Logo10_Xmas.gif');*/
+    /*background-image: url('/Images/RA_Logo10.png');*/
+    background-image: url('/Images/RA_Logo10_Xmas.gif');
     background-color: rgb(42,42,42);
     background-repeat: no-repeat;
     float: left;
     margin: 6px;
     width: 535px;
     max-width: 535px;
-    height: 130px;
+    /*height: 130px;*/
+    height: 193px;
     position: absolute;
 }
 
