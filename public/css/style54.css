@@ -243,7 +243,7 @@ td, tr, img {
     max-width: 980px;
     min-width: 800px;
     /*height: 108px;*/
-    height: 175px;
+    height: 155px;
     position: relative;
     background-color: rgb(42, 42, 42);
 }
@@ -258,7 +258,7 @@ td, tr, img {
     width: 535px;
     max-width: 535px;
     /*height: 130px;*/
-    height: 193px;
+    height: 145px;
     position: absolute;
 }
 
