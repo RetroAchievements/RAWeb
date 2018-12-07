@@ -23,7 +23,7 @@ if (isset($_SERVER["SERVER_NAME"])) {
     define("AT_HOST_DOT", null);
 }
 
-define("CSS_FILE", "/css/style54.css");
+define("CSS_FILE", "/css/style54.css?xmas");
 
 define("DUMP_SQL", false);
 define("PROFILE_SQL", false);
