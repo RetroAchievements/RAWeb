@@ -873,14 +873,6 @@ function RenderFooter()
     // echo "</p>";
     // echo "</div>";
 
-    //	CC License
-    echo "<div class='footericon' >";
-    echo "<p>";
-    //echo "<span xmlns:dc='http://purl.org/dc/elements/1.1/' href='http://purl.org/dc/dcmitype/InteractiveResource' property='dc:title' rel='dc:type' />";
-    echo "<a rel='license' href='https://creativecommons.org/licenses/by-nc-sa/2.0/uk/' target='_blank'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-nc-sa/2.0/uk/88x31.png' /></a>";
-    echo "</p>";
-    echo "</div>";
-
     //	My TM
     echo "<div class='footertext'>";
     echo "<p style='font-size: x-small;'>";
