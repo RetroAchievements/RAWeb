@@ -130,7 +130,7 @@ function RA_ReadCookieCredentials( &$userOut, &$pointsOut, &$truePointsOut, &$un
     {
         $dbResult = mysqli_fetch_array( $result );
         $serverCookie = $dbResult[ 'cookie' ];
-        if( strcmp( $serverCookie, $cookie ) !== 0 )
+        if( strcmp( $serverCookie, $cookie ) !== 0 || $dbResult[ 'Permissions' ] == -1 )
         {
             RA_ClearCookie( 'RA_User' );
             RA_ClearCookie( 'RA_Cookie' );
