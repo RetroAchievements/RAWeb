@@ -505,9 +505,6 @@ $numGridlines = $numAchievements;
                     echo "<li><a href='/achievementinspector.php?g=$gameID'>Manage Achievements</a></li>";
                     echo "<li><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></li>";
 
-                    if( $numAchievements == 0 )
-                        echo "<li><a href='/attemptmerge.php?g=$gameID'>Merge Game</a></li>";
-
                     echo "<li><a href='/attemptrename.php?g=$gameID'>Rename Game</a></li>";
                     echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
 
