@@ -239,26 +239,34 @@ td, tr, img {
 }
 
 #title {
+    /*xmas*/
+    /*height: 155px;*/
+
+    /*normal*/
+    height: 108px;
+
     margin: auto;
     max-width: 980px;
     min-width: 800px;
-    /*height: 108px;*/
-    height: 155px;
     position: relative;
     background-color: rgb(42, 42, 42);
 }
 
 #logo {
-    /*background-image: url('/Images/RA_Logo10.png');*/
-    background-image: url('/Images/RA_Logo10_Xmas.gif');
+    /*xmas*/
+    /*background-image: url('/Images/RA_Logo10_Xmas.gif');*/
+    /*height: 145px;*/
+
+    /*normal*/
+    background-image: url('/Images/RA_Logo10.png');
+    height: 130px;
+
     background-color: rgb(42,42,42);
     background-repeat: no-repeat;
     float: left;
     margin: 6px;
     width: 535px;
     max-width: 535px;
-    /*height: 130px;*/
-    height: 145px;
     position: absolute;
 }
 
