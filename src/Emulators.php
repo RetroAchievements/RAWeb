@@ -16,4 +16,5 @@ abstract class Emulators
     const RAPCE = 6;
     const RALibretro = 7;
     const RAMeka = 8;
+    const RAQUASI88 = 9;
 }
