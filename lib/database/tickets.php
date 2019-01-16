@@ -1,7 +1,19 @@
 <?php
 require_once( __DIR__ . '/../bootstrap.php' );
+
+function isUserAllowedToSubmitTickets( $user ) {
+    return IsValidUsername( $user )
+        && getUserActivityRange( $user, $firstLogin, $lastLogin )
+        && time() - $firstLogin > 86400 // 86400 seconds = 1 day
+        && getAccountDetails( $user, $userInfo )
+        && $userInfo[ 'LastGameID' ];
+}
+
 function SubmitNewTicketsJSON( $userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5 )
 {
+    if( !isUserAllowedToSubmitTickets( $user ) )
+        return false;
+
     global $db;
 
     $note = mysqli_real_escape_string( $db, $noteIn );
@@ -80,6 +92,9 @@ Thanks!";
 
 function SubmitNewTickets( $userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut )
 {
+    if( !isUserAllowedToSubmitTickets( $user ) )
+        return false;
+
     global $db;
     $note = mysqli_real_escape_string( $db, $noteIn );
 
