@@ -2807,11 +2807,11 @@ function parseTopicCommentPHPBB( $commentIn, $withImgur = false )
 
     // NOTE: using '~' instead of '/' to enclose the regex
     $comment = preg_replace(
-        '~\[url=(https?://.+)\](.+)\[/url\]~i',
+        '~\[url=(https?://[^\]]+)\]((?!\[/url\])[\s\w]+)\[/url\]~ig',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'$1\'>$2</a>',
         $comment );
     $comment = preg_replace(
-        '~\[url=(.+)\](.+)\[/url\]~i',
+        '~\[url=([^\]]+)\]((?!\[/url\])[\s\w]+)\[/url\]~ig',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'https://$1\'>$2</a>',
         $comment );
 
