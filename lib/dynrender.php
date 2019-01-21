@@ -3279,9 +3279,6 @@ function RenderCodeNotes( $codeNotes )
     $noteCount = 0;
     foreach( $codeNotes as $nextCodeNote )
     {
-        if( strlen( $nextCodeNote[ 'Note' ] ) <= 2 )
-            continue;
-
         echo "<tr>";
 
         $addr = $nextCodeNote[ 'Address' ];
