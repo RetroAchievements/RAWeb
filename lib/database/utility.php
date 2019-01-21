@@ -645,6 +645,13 @@ function getCodeNotes( $gameID, &$codeNotesOut )
     }
 }
 
+/**
+ * @param $user
+ * @param $gameID
+ * @param $address
+ * @param $note
+ * @return bool
+ */
 function SubmitCodeNote2( $user, $gameID, $address, $note )
 {
 	//	Hack for 'development tutorial game'
@@ -655,8 +662,11 @@ function SubmitCodeNote2( $user, $gameID, $address, $note )
 	
     global $db;
 
-    if( !isset( $user ) || !isset( $gameID ) || !isset( $address ) )
-        return FALSE;
+    $note = trim($note);
+
+    if (!isset($user) || !isset($gameID) || !isset($address) || empty($note)) {
+        return false;
+    }
 
     $userID = getUserIDFromUser( $user );
 
@@ -677,6 +687,15 @@ function SubmitCodeNote2( $user, $gameID, $address, $note )
 }
 
 //	21:55 30/04/2013
+/**
+ * @param $user
+ * @param $gameID
+ * @param $address
+ * @param $note
+ * @return bool
+ * @deprecated
+ * @see SubmitCodeNote2()
+ */
 function SubmitCodeNote( $user, $gameID, $address, $note )
 {
 	//	Hack for 'development tutorial game'

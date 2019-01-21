@@ -3276,17 +3276,14 @@ function RenderCodeNotes( $codeNotes )
 
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 
-    $noteCount = 0;
-    foreach( $codeNotes as $nextCodeNote )
-    {
+    foreach ($codeNotes as $nextCodeNote) {
         echo "<tr>";
 
-        $addr = $nextCodeNote[ 'Address' ];
-        $addrInt = hexdec( $addr );
+        $addr = $nextCodeNote['Address'];
+        $addrInt = hexdec($addr);
 
-        $addrFormatted = sprintf( "%04x", $addrInt );
-        //$memNote = str_replace( "\n", "<br/>", $nextCodeNote['Note'] );
-        $memNote = nl2br( $nextCodeNote[ 'Note' ] );
+        $addrFormatted = sprintf("%04x", $addrInt);
+        $memNote = nl2br($nextCodeNote['Note']);
 
         echo "<td style='width: 25%;'>";
         echo "<code>0x$addrFormatted</code>";
@@ -3297,7 +3294,7 @@ function RenderCodeNotes( $codeNotes )
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextCodeNote[ 'User' ], NULL, NULL, NULL, NULL, TRUE );
+        echo GetUserAndTooltipDiv($nextCodeNote['User'], null, null, null, null, true);
         echo "</td>";
 
         echo "</tr>";

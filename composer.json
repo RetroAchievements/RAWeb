@@ -1,18 +1,19 @@
 {
-	"name": "retroachievements/retroachivements-web",
-	"description": "The Web Server backend to run RetroAchievements.org",
-	"type": "project",
-	"require": {
-		"asika/autolink": "1.*",
-		"vlucas/phpdotenv": "^2.4",
-		"aws/aws-sdk-php": "^3.52"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "^6"
-	},
-	"autoload": {
-		"psr-4": {
-			"RA\\": "src/"
-		}
-	}
+    "name": "retroachievements/retroachivements-web",
+    "description": "The Web Server backend to run RetroAchievements.org",
+    "type": "project",
+    "require": {
+        "asika/autolink": "1.*",
+        "vlucas/phpdotenv": "^2.4",
+        "aws/aws-sdk-php": "^3.52",
+        "ext-mysqli": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6"
+    },
+    "autoload": {
+        "psr-4": {
+            "RA\\": "src/"
+        }
+    }
 }
