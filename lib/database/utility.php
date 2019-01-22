@@ -662,9 +662,7 @@ function SubmitCodeNote2( $user, $gameID, $address, $note )
 	
     global $db;
 
-    $note = trim($note);
-
-    if (!isset($user) || !isset($gameID) || !isset($address) || empty($note)) {
+    if (!isset($user) || !isset($gameID) || !isset($address)) {
         return false;
     }
 

@@ -3277,6 +3277,10 @@ function RenderCodeNotes( $codeNotes )
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 
     foreach ($codeNotes as $nextCodeNote) {
+        if (empty(trim($nextCodeNote['Note']))) {
+            continue;
+        }
+
         echo "<tr>";
 
         $addr = $nextCodeNote['Address'];
