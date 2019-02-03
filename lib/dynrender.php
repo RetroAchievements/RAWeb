@@ -787,6 +787,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/gameList.php?c=14'>- Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=25'>- Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>- Atari 7800</a></li>";
+    echo "<li><a href='/gameList.php?c=44'>- ColecoVision</a></li>";
     echo "<li><a href='/gameList.php?c=27'>- Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=47'>- PC-8000/8800</a></li>";
     echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
@@ -2808,11 +2809,11 @@ function parseTopicCommentPHPBB( $commentIn, $withImgur = false )
 
     // NOTE: using '~' instead of '/' to enclose the regex
     $comment = preg_replace(
-        '~\[url=(https?://.+)\](.+)\[/url\]~i',
+        '~\[url=(https?://[^\]]+)\](.*?)(\[/url\])~i',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'$1\'>$2</a>',
         $comment );
     $comment = preg_replace(
-        '~\[url=(.+)\](.+)\[/url\]~i',
+        '~\[url=([^\]]+)\](.*?)(\[/url\])~i',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'https://$1\'>$2</a>',
         $comment );
 
@@ -3277,20 +3278,18 @@ function RenderCodeNotes( $codeNotes )
 
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 
-    $noteCount = 0;
-    foreach( $codeNotes as $nextCodeNote )
-    {
-        if( strlen( $nextCodeNote[ 'Note' ] ) <= 2 )
+    foreach ($codeNotes as $nextCodeNote) {
+        if (empty(trim($nextCodeNote['Note']))) {
             continue;
+        }
 
         echo "<tr>";
 
-        $addr = $nextCodeNote[ 'Address' ];
-        $addrInt = hexdec( $addr );
+        $addr = $nextCodeNote['Address'];
+        $addrInt = hexdec($addr);
 
-        $addrFormatted = sprintf( "%04x", $addrInt );
-        //$memNote = str_replace( "\n", "<br/>", $nextCodeNote['Note'] );
-        $memNote = nl2br( $nextCodeNote[ 'Note' ] );
+        $addrFormatted = sprintf("%04x", $addrInt);
+        $memNote = nl2br($nextCodeNote['Note']);
 
         echo "<td style='width: 25%;'>";
         echo "<code>0x$addrFormatted</code>";
@@ -3301,7 +3300,7 @@ function RenderCodeNotes( $codeNotes )
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextCodeNote[ 'User' ], NULL, NULL, NULL, NULL, TRUE );
+        echo GetUserAndTooltipDiv($nextCodeNote['User'], null, null, null, null, true);
         echo "</td>";
 
         echo "</tr>";
