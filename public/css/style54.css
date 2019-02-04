@@ -601,9 +601,10 @@ td, tr, img {
 #innermenu ul li:hover ul{
     margin:0 0 0 3px;
     padding:0;
-    background-image:url('/Images/dropdown.gif');
-    background-repeat:no-repeat;
-    background-position:bottom left;
+    background-color: #BEBEBE;
+    /*background-image:url('/Images/dropdown.gif');*/
+    /*background-repeat:no-repeat;*/
+    /*background-position:bottom left;*/
     padding: 0px 0px 6px 0px;
 }
 
