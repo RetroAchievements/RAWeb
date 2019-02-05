@@ -111,7 +111,7 @@ RenderDocType();
 
             <br/>
             <h3>Source Code</h3>
-            <p>The vast majority of the code for these emulators is GPL protected, and as such all source code for these emulators is GPL alike, and publically available.
+            <p>All RetroAchievements emulators are released as free software. Licensing terms for usage and distribution of derivative works may vary depending on the emulator. Please consult the license information of each one for more details.
             <br>
             Standalone Emulators repository: <a href='https://github.com/RetroAchievements/RAEmus'>https://github.com/RetroAchievements/RAEmus</a>
             <br>
