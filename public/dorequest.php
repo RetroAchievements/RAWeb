@@ -210,6 +210,9 @@ if( $credentialsOK )
                     case \RA\Emulators::RAMeka:
                         $versionFile = "LatestRAMekaVersion.html";
                         break;
+                    case \RA\Emulators::RAQUASI88:
+                        $versionFile = "LatestRAQUASI88Version.html";
+                        break;
                     default:
                         $versionFile = NULL;
                         $errMsg = "EmulatorID: $emulatorID";
@@ -242,6 +245,9 @@ if( $credentialsOK )
                         break;
                     case 25:
                         $versionFile = "LatestRALibretroVersion.html";
+                        break;
+                    case 47:
+                        $versionFile = "LatestRAQUASI88Version.html";
                         break;
                     default:
                         $versionFile = NULL;

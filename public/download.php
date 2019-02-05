@@ -9,6 +9,7 @@ $latestRAPCEVer = file_get_contents( "./LatestRAPCEVersion.html" );
 $latestRASnesVer = file_get_contents( "./LatestRASnesVersion.html" );
 $latestRAVBAVer = file_get_contents( "./LatestRAVBAVersion.html" );
 $latestRALibretroVer = file_get_contents( "./LatestRALibretroVersion.html" );
+$latestRAQUASI88Ver = file_get_contents( "./LatestRAQUASI88Version.html" );
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
@@ -92,6 +93,15 @@ RenderDocType();
             <div class='largeicon'>
                 <span class='clickablebutton'>
                     <a href="/bin/RALibretro.zip">Download RALibretro v<?php echo $latestRALibretroVer; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='raquasi88'>NEC PC-8000/8800 Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RAQUASI88.zip">Download RAQUASI88 v<?php echo $latestRAQUASI88Ver; ?> for Windows</a>
                 </span>
             </div>
 
