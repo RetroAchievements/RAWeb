@@ -450,25 +450,9 @@ $numGridlines = $numAchievements;
 
                 echo "<table class='iconheader'><tbody>";
                 echo "<tr>";
-                echo "<td style='width:64px;' ><img src='$imageIcon' title='$pageTitle' width='64' height='64'/></td>";
-                echo "<td><h3 class='longheader'>$pageTitle</h3></td>";
-                echo "</tr>";
-                echo "</tbody></table>";
-
-                echo "<div class='gamescreenshots'>";
-                echo "<table><tbody>";
-                echo "<tr>";
-                echo "<td>";
-                echo "<img src='$imageTitle' width='$screenshotWidth' height='$screenshotHeight' />";
-                echo "</td>";
-                echo "<td>";
-                echo "<img src='$imageIngame' width='$screenshotWidth' height='$screenshotHeight'/>";
-                echo "</td>";
-                echo "</tr>";
-                echo "</tbody></table>";
-                echo "</div>";
-
-                echo "<table class='gameinfo'><tbody>";
+                echo "<td style='width:110px;' ><img src='$imageIcon' title='$pageTitle' width='96' height='96'/></td>";
+                echo "<td><h3 class='longheader'>$pageTitle</h3>
+		echo "<table class='gameinfo'><tbody>";
                 echo "<tr>";
                 echo "<td>Developer:</td>";
                 echo "<td><b>$developer</b></td>";
@@ -485,7 +469,22 @@ $numGridlines = $numAchievements;
                 echo "<td>First released:</td>";
                 echo "<td><b>$released</b></td>";
                 echo "</tr>";
+                echo "</tbody></table>";</td>";
+                echo "</tr>";
                 echo "</tbody></table>";
+
+                echo "<div class='gamescreenshots'>";
+                echo "<table><tbody>";
+                echo "<tr>";
+                echo "<td>";
+                echo "<img src='$imageTitle' width='$screenshotWidth' height='$screenshotHeight' />";
+                echo "</td>";
+                echo "<td>";
+                echo "<img src='$imageIngame' width='$screenshotWidth' height='$screenshotHeight'/>";
+                echo "</td>";
+                echo "</tr>";
+                echo "</tbody></table>";
+                echo "</div>";
 
                 echo "<div style='clear:both;'></div>";
                 echo "</br>";
