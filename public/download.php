@@ -70,7 +70,7 @@ RenderDocType();
             </div>
 
             <br/>
-            <h2 class='longheader' id='rameka'>Master System/Game Gear Emulator</h2>
+            <h2 class='longheader' id='rameka'>Master System/Game Gear/ColecoVision Emulator</h2>
 
             <div class='largeicon'>
                 <span class='clickablebutton'>
