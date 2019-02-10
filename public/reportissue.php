@@ -102,6 +102,7 @@ RenderDocType( TRUE );
                             <option>RAPCEngine</option>
                             <option>RAMeka</option>
                             <option>RAProject64</option>
+                            <option>RAQUASI88</option>
                             <option>RALibRetro</option>
                             <option>RetroArch</option>
                         </select>
