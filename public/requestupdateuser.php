@@ -18,7 +18,7 @@ else
 settype( $propertyType, 'integer' );
 settype( $value, 'integer' );
 
-if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
+if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin ) )
 {
     if( $propertyType == 0 ) //	account permissions
     {
