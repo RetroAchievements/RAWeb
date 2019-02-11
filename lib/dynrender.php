@@ -797,7 +797,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/leaderboardList.php'>Leaderboards List</a></li>";
     echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
     echo "<li><a href='/searchresults.php'>Search the site</a></li>";
-    echo "<li><a href='https://github.com/RetroAchievements/RASuite'>Source Code (GPL)</a></li>";
+    echo "<li><a href='https://github.com/RetroAchievements/'>Source Code</a></li>";
     echo "<li><a href='/APIDemo.php'>Web API</a></li>";
     echo "<li><a href='/rss.php'>RSS Feeds</a></li>";
     echo "</ul>";
