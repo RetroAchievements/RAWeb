@@ -773,6 +773,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/gameList.php'>Supported Games</a></li>";
     echo "<li><a href='/gameList.php?c=1'>- Mega Drive/Genesis</a></li>";
     echo "<li><a href='/gameList.php?c=11'>- Master System</a></li>";
+    echo "<li><a href='/gameList.php?c=33'>- SG-1000</a></li>";
     echo "<li><a href='/gameList.php?c=15'>- Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=3'>- Super Nintendo</a></li>";
     echo "<li><a href='/gameList.php?c=4'>- Gameboy</a></li>";
@@ -783,10 +784,10 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/gameList.php?c=28'>- Virtual Boy</a></li>";
     echo "<li><a href='/gameList.php?c=8'>- PC Engine</a></li>";
     //echo "<li><a href='/gameList.php?c=12'>- PS1</a></li>";
-    echo "<li><a href='/gameList.php?c=13'>- Atari Lynx</a></li>";
     echo "<li><a href='/gameList.php?c=14'>- Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=25'>- Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>- Atari 7800</a></li>";
+    echo "<li><a href='/gameList.php?c=13'>- Atari Lynx</a></li>";
     echo "<li><a href='/gameList.php?c=44'>- ColecoVision</a></li>";
     echo "<li><a href='/gameList.php?c=27'>- Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=47'>- PC-8000/8800</a></li>";
