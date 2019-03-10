@@ -2420,7 +2420,7 @@ function RenderTutorialComponent()
     echo "</div>";
 }
 
-function RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID )
+function RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions = 0 )
 {
     if( isset( $forumTopicID ) && $forumTopicID != 0 && getTopicDetails( $forumTopicID, $topicData ) )
     {
@@ -2429,7 +2429,7 @@ function RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopic
     else
     {
         echo "None";
-        if( isset( $user ) )
+        if( isset( $user ) && $permissions >= 3 ) // 3 == Developer
             echo " - <a href='/generategameforumtopic.php?u=$user&c=$cookie&g=$gameID'>Click to create official forum topic</a>";
     }
 }
