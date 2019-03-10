@@ -33,6 +33,14 @@ RenderDocType();
     <div id="mainpage">
         <div id='leftcontainer' >
 
+            <h2 class='longheader'>Note About Upgrading</h2>
+            <p>
+                If you were brought to this page because the emulator told you
+                that a new version is available, download the new version and
+                extract it over the existing folder. This way you won't lose
+                any save files that you may have.
+            </p>
+
             <h2 class='longheader' id='ragens'>Mega Drive/Genesis Emulator</h2>
 
             <div class='largeicon'>
