@@ -229,7 +229,7 @@ RenderDocType( TRUE );
                 RenderCommentsComponent( $user, $numArticleComments, $commentData, $lbID, 6, $forceAllowDeleteComments );
 
                 echo "<b>Forum Topic: </b>";
-                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
+                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions );
                 echo "<br><br>";
                 ?>
             </div>

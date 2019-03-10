@@ -876,7 +876,7 @@ $numGridlines = $numAchievements;
                 echo "</tbody></table>";
 
                 echo "<b>Forum Topic: </b>";
-                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
+                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions );
                 echo "<br><br>";
 
                 //	Render article comments
@@ -897,7 +897,7 @@ $numGridlines = $numAchievements;
                 echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
                 echo "<ul>";
                 echo "<li>- ";
-                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID );
+                RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions );
                 echo "</li>";
                 echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
                 echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
