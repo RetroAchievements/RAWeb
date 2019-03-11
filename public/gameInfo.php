@@ -451,8 +451,8 @@ $numGridlines = $numAchievements;
                 echo "<table class='iconheader'><tbody>";
                 echo "<tr>";
                 echo "<td style='width:110px;' ><img src='$imageIcon' title='$pageTitle' width='96' height='96'/></td>";
-                echo "<td><h3 class='longheader'>$pageTitle</h3>
-		echo "<table class='gameinfo'><tbody>";
+                echo "<td><h3 class='longheader'>$pageTitle</h3>";
+		        echo "<table class='gameinfo'><tbody>";
                 echo "<tr>";
                 echo "<td>Developer:</td>";
                 echo "<td><b>$developer</b></td>";
@@ -469,7 +469,7 @@ $numGridlines = $numAchievements;
                 echo "<td>First released:</td>";
                 echo "<td><b>$released</b></td>";
                 echo "</tr>";
-                echo "</tbody></table>";</td>";
+                echo "</tbody></table>";
                 echo "</tr>";
                 echo "</tbody></table>";
 
