@@ -1608,7 +1608,6 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
                 (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded    			
                 FROM UserAccounts AS ua
                 $whereQuery
-    			GROUP BY ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin
     			ORDER BY $orderBy
     			LIMIT $offset, $count";
 
