@@ -1604,13 +1604,13 @@ function getUserListByPerms( $sortBy, $offset, $count, &$dataOut, $requestedBy ,
             $orderBy = "ua.User ASC ";
     }
 
-    $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, COUNT(aw.AchievementID) As NumAwarded, ua.LastLogin
-				FROM UserAccounts AS ua
-				LEFT JOIN Awarded AS aw ON aw.User=ua.User
+    $query = "	SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
+                (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded    			
+                FROM UserAccounts AS ua
                 $whereQuery
-				GROUP BY ua.User
-				ORDER BY $orderBy
-				LIMIT $offset, $count";
+    			GROUP BY ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin
+    			ORDER BY $orderBy
+    			LIMIT $offset, $count";
 
     $numFound = 0;
 
