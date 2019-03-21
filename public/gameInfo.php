@@ -448,10 +448,11 @@ $numGridlines = $numAchievements;
                 $imageTitle = $gameData[ 'ImageTitle' ];
                 $imageIngame = $gameData[ 'ImageIngame' ];
 
+                echo "<h3 class='longheader'>$pageTitle</h3>";
                 echo "<table class='iconheader'><tbody>";
                 echo "<tr>";
-                echo "<td style='width:110px;' ><img src='$imageIcon' title='$pageTitle' width='96' height='96'/></td>";
-                echo "<td><h3 class='longheader'>$pageTitle</h3>";
+                echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitle' width='96' height='96'/></td>";
+                echo "<td>";
 		        echo "<table class='gameinfo'><tbody>";
                 echo "<tr>";
                 echo "<td>Developer:</td>";
