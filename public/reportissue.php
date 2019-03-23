@@ -54,8 +54,8 @@ RenderDocType( TRUE );
         <div class="navpath">
             <a href="/gameList.php">All Games</a>
             &raquo; <a href="/gameList.php?c=<?php echo $consoleName ?>"><?php echo $consoleName ?></a>
-            &raquo; <a href="/Game/<?php echo $gameTitle ?>"><?php echo $gameTitle ?></a>
-            &raquo; <a href="/Achievement/<?php echo $achievementTitle ?>"><?php echo $achievementTitle ?></a>
+            &raquo; <a href="/Game/<?php echo $gameID ?>"><?php echo $gameTitle ?></a>
+            &raquo; <a href="/Achievement/<?php echo $achievementID ?>"><?php echo $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>
 
