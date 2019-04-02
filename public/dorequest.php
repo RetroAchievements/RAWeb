@@ -213,6 +213,9 @@ if( $credentialsOK )
                     case \RA\Emulators::RAQUASI88:
                         $versionFile = "LatestRAQUASI88Version.html";
                         break;
+                    case \RA\Emulators::RAppleWin:
+                        $versionFile = "LatestRAppleWinVersion.html";
+                        break;
                     default:
                         $versionFile = NULL;
                         $errMsg = "EmulatorID: $emulatorID";
@@ -245,6 +248,9 @@ if( $credentialsOK )
                         break;
                     case 25:
                         $versionFile = "LatestRALibretroVersion.html";
+                        break;
+                    case 38:
+                        $versionFile = "LatestRAppleWinVersion.html";
                         break;
                     case 47:
                         $versionFile = "LatestRAQUASI88Version.html";

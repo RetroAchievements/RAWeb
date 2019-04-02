@@ -791,6 +791,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/gameList.php?c=44'>- ColecoVision</a></li>";
     echo "<li><a href='/gameList.php?c=27'>- Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=47'>- PC-8000/8800</a></li>";
+    echo "<li><a href='/gameList.php?c=38'>- RAppleWin</a></li>";
     echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
     echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
     echo "<li><a href='/userList.php'>User List</a></li>";
