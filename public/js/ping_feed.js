@@ -259,7 +259,9 @@ function readFeed()
 		xmlHttpGetFeed.responseText.indexOf("error:") >= 0 || 
 		xmlHttpGetFeed.responseXML == null )
 	{
-		throw( xmlHttpGetFeed.responseText.length == 0 ? "Void server response." : xmlHttpGetFeed.responseText );
+		// throw( xmlHttpGetFeed.responseText.length == 0 ? "Void server response." : xmlHttpGetFeed.responseText );
+		console.error(xmlHttpGetFeed.responseText.length == 0 ? "Void server response." : xmlHttpGetFeed.responseText);
+		return;
 	}
 
 	var response = xmlHttpGetFeed.responseXML.documentElement;

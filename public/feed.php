@@ -1,4 +1,7 @@
-<?php 
+<?php
+header( "Location: " . getenv('APP_URL') );
+return;
+
 	require_once __DIR__ . '/../lib/bootstrap.php';
 	
 	$errorCode = seekGET( 'e' );

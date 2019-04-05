@@ -688,7 +688,7 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
     }
 
-    echo "<li><a href='/feed.php?g=1'>Global Feed</a></li>";
+    // echo "<li><a href='/feed.php?g=1'>Global Feed</a></li>";
 
     //	SU:
     if( $permissions >= 2 )

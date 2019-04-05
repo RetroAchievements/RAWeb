@@ -138,7 +138,7 @@ $numGridlines = 24;
 <body>
 
     <script type='text/javascript' src="js/ping_chat.js"></script>
-    <script type='text/javascript' src="js/ping_feed.js"></script>
+<!--    <script type='text/javascript' src="js/ping_feed.js"></script>-->
 
     <script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
     <script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
@@ -243,7 +243,8 @@ $numGridlines = 24;
 <?php
 if( $mobileBrowser == FALSE )
 {
-    echo "init_chat(50); init_feed();";
+    // echo "init_chat(50); init_feed();";
+    echo "init_chat(50);";
 }
 else
 {
@@ -271,7 +272,7 @@ else
             {
                 if( ! isset( $user ) ) RenderWelcomeComponent();
                 RenderNewsComponent();
-                RenderFeedComponent( $user );
+                // RenderFeedComponent( $user );
                 //RenderDemoVideosComponent();
             }
             ?>

@@ -1,4 +1,7 @@
 <?php
+echo '<response></response>';
+return;
+
 // reference the file containing the Chat class
 require_once __DIR__ . '/../lib/bootstrap.php' ;
 // retrieve the operation to be performed

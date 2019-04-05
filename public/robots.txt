@@ -1,2 +1,14 @@
 User-agent: *
 Disallow: /createaccount.php
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: SemrushBot-SA
+Disallow: /
+
+User-Agent: The Knowledge AI
+Disallow: /

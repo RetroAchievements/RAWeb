@@ -86,7 +86,7 @@ function onOpen(evt)
 {
 	clearInterval( webSocketReconnectIntervalID );
 	
-	console.log("WebSocket open... ");
+	console.info("WebSocket open... ");
 	var obj = $("#chatloadingfirstrow");
 	obj[0].innerHTML = "<tr><td colspan='4'>Connected!</td></tr>";
 	//	request most recent messages
@@ -135,19 +135,19 @@ function onChatMessage(timestamp, user, message, withSound)
 
 function onMessage(evt)
 {
-	console.log("Recv: " + evt.data);
+	// console.log("Recv: " + evt.data);
 	var msgData = JSON.parse(evt.data);	//{ user, message }
 	
 	if( msgData.type == "history" )
 	{
 		var history = msgData.data;
-		console.log( msgData.data );
+		// console.log( msgData.data );
 		
 		for( var i = 0; i < history.length; ++i )
 		{
 			var innerMsg = history[i];
 			//var innerMsg = JSON.parse(history[i]);
-			console.log(innerMsg);
+			// console.log(innerMsg);
 			onChatMessage( innerMsg.timestamp, innerMsg.user, innerMsg.message, false );
 		}
 		scroll_chatcontainer();	
@@ -165,14 +165,14 @@ function onMessage(evt)
 
 function onError(evt)
 {
-	console.log("WebSocket issue... " + evt.data);
+	console.error("WebSocket issue... " + evt.data);
 	clearInterval( webSocketReconnectIntervalID );
 	webSocketReconnectIntervalID = setInterval(attemptConnectWebSocket, 5000);
 }
 
 function onClose(evt)
 {
-	console.log("Chat WebSocket closed... " + evt.data);
+	console.warn("Chat WebSocket closed... " + evt.data);
 	//alert("WebSocket closed..." );
 	clearInterval( webSocketReconnectIntervalID );
 	webSocketReconnectIntervalID = setInterval(attemptConnectWebSocket, 5000);
@@ -212,7 +212,7 @@ function sendMessage() {
 	
 	var jsonMsg = JSON.stringify( {user:theUser, message:theMessage, timestamp:d} );
 	ws.send( jsonMsg );
-	console.log( "sent: " + theUser + ": " + theMessage );
+	// console.log( "sent: " + theUser + ": " + theMessage );
 	
 	// var posting = $.post( "ping_chat.php", { 
 		// mode: 'SendAndRetrieveNew', 
