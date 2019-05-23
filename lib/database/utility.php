@@ -1192,6 +1192,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
         'A' => 'Add Source',
         'B' => 'Sub Source',
         'C' => 'Add Hits',
+	'N' => 'And Next',
         ''  => ''
     ];
 
@@ -1215,6 +1216,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
 
     $memTypes = [
         'd' => 'Delta',
+	'p' => 'Prior',
         'm' => 'Mem',
         'v' => 'Value',
         ''  => ''
