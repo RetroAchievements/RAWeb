@@ -1192,7 +1192,7 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
         'A' => 'Add Source',
         'B' => 'Sub Source',
         'C' => 'Add Hits',
-	'N' => 'And Next',
+        'N' => 'And Next',
         ''  => ''
     ];
 
@@ -1216,14 +1216,14 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
 
     $memTypes = [
         'd' => 'Delta',
-	'p' => 'Prior',
+        'p' => 'Prior',
         'm' => 'Mem',
         'v' => 'Value',
         ''  => ''
     ];
 
     // kudos to user "stt" for showing that it's possible to parse MemAddr with regex
-    $operandRegex = '(d)?('. implode('|', array_keys($memSize)) .')?([0-9a-f]*)';
+    $operandRegex = '(d|p)?('. implode('|', array_keys($memSize)) .')?([0-9a-f]*)';
     $memRegex = '/(?:(['. implode('', array_keys($specialFlags)) .']):)?'. $operandRegex .'(<=|>=|<|>|=|!=)'. $operandRegex .'(?:[(.](\\d+)[).])?/';
     // memRegex is this monster:
     // (?:([RPABC]):)?(d)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xX|0x |0x|)?([0-9a-f]*)(<=|>=|<|>|=|!=)(d)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xX|0x |0x|)?([0-9a-f]*)(?:[(.](\d+)[).])?
@@ -1258,9 +1258,9 @@ function GetAchievementPatchReadableHTML( $mem, $memNotes )
             $lMemory = '0x'. str_pad(($lSize ? $lMemory : dechex($lMemory)), 6, '0', STR_PAD_LEFT);
             $rMemVal = '0x'. str_pad(($rSize ? $rMemVal : dechex($rMemVal)), 6, '0', STR_PAD_LEFT);
             $hits = $hits ? $hits : "0";
-            if( $lType !== "d" )
+            if( $lType !== "d" && $lType !== "p" )
                 $lType = $lSize === '' ? 'v' : 'm';
-            if( $rType !== "d" )
+            if( $rType !== "d" && $rType !== "p" )
                 $rType = $rSize === '' ? 'v' : 'm';
 
             $lTooltip = $rTooltip = NULL;
