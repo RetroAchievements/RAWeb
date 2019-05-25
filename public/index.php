@@ -275,6 +275,9 @@ else
                 // RenderFeedComponent( $user );
                 //RenderDemoVideosComponent();
                 RenderRecentlyUploadedComponent( 5 );
+                RenderActivePlayersComponent();
+                RenderCurrentlyOnlineComponent( NULL );
+                echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
                 RenderRecentForumPostsComponent( 4 );
             }
             ?>
@@ -303,9 +306,6 @@ else
             }
 
             //RenderMostPopularTitles( 7, 0, $mostPopularCount );
-            RenderActivePlayersComponent();
-            RenderCurrentlyOnlineComponent( NULL );
-            echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
             RenderScoreLeaderboardComponent( $user, $points, FALSE, 5 );
             RenderStaticDataComponent( $staticData );
 
