@@ -1864,7 +1864,7 @@ function RenderRecentlyUploadedComponent( $numToFetch )
         echo "</tbody></table>";
         echo "<br/>";
 
-        echo "<div class='rightalign'><a href='/achievementList.php?s=17'>more...</a></div>";
+        echo "<div class='morebutton'><a href='/achievementList.php?s=17'>more...</a></div>";
 
         echo "</div>";
     }

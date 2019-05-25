@@ -274,11 +274,8 @@ else
                 RenderNewsComponent();
                 // RenderFeedComponent( $user );
                 //RenderDemoVideosComponent();
-
-                RenderCurrentlyOnlineComponent( NULL );
-                echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
-
-                RenderActivePlayersComponent();
+                RenderRecentlyUploadedComponent( 5 );
+                RenderRecentForumPostsComponent( 4 );
             }
             ?>
         </div>
@@ -306,9 +303,10 @@ else
             }
 
             //RenderMostPopularTitles( 7, 0, $mostPopularCount );
-            RenderRecentlyUploadedComponent( 5 );
+            RenderActivePlayersComponent();
+            RenderCurrentlyOnlineComponent( NULL );
+            echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
             RenderScoreLeaderboardComponent( $user, $points, FALSE, 5 );
-            RenderRecentForumPostsComponent( 4 );
             RenderStaticDataComponent( $staticData );
 
             //RenderTwitterFeed();
