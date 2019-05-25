@@ -188,15 +188,14 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetFeedFor\' class=\'longheader\' onclick="$(\'#GetFeedForDiv\').toggle(500); return false;" >Scott\'s latest feed (last 10 activities):</h3>';
-echo '<div class=\'CodeDiv\' id=\'GetFeedForDiv\'>';
-echo '<code>$data = $RAConn->GetFeedFor( \'Scott\', 10 );</code>';
-$data = $RAConn->GetFeedFor( 'Scott', 10 );
-new \RA\dBug( $data );
-echo "<a href='#'>Back to top</a>";
-echo ProfileStamp( NULL, true );
-echo '</div>';
-
+// echo '<h3 id=\'GetFeedFor\' class=\'longheader\' onclick="$(\'#GetFeedForDiv\').toggle(500); return false;" >Scott\'s latest feed (last 10 activities):</h3>';
+// echo '<div class=\'CodeDiv\' id=\'GetFeedForDiv\'>';
+// echo '<code>$data = $RAConn->GetFeedFor( \'Scott\', 10 );</code>';
+// $data = $RAConn->GetFeedFor( 'Scott', 10 );
+// new \RA\dBug( $data );
+// echo "<a href='#'>Back to top</a>";
+// echo ProfileStamp( NULL, true );
+// echo '</div>';
 
 echo '<h3 id=\'GetAchievementsEarnedOnDay\' class=\'longheader\' onclick="$(\'#GetAchievementsEarnedOnDayDiv\').toggle(500); return false;" >Get Achievements Earned by Scott on January 4th 2014:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetAchievementsEarnedOnDayDiv\'>';
