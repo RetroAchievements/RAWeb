@@ -1,4 +1,10 @@
 <?php
+/**
+ * exit early - no more feeds in v1
+ */
+echo json_encode(['success' => false]);
+return;
+
 //	Internal: this is not public-facing!
 require_once __DIR__ . '/../../lib/bootstrap.php';
 

@@ -6,7 +6,8 @@
         "asika/autolink": "1.*",
         "vlucas/phpdotenv": "^2.4",
         "aws/aws-sdk-php": "^3.52",
-        "ext-mysqli": "*"
+        "ext-mysqli": "*",
+        "ext-gd": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^6"

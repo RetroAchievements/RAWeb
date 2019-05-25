@@ -22,6 +22,13 @@ $xmlRoot->appendChild( $dom->createElement( 'title', 'RetroAchievements.org Glob
 $xmlRoot->appendChild( $dom->createElement( 'description', 'RetroAchievements.org, your home for achievements in classic games' ) );
 $xmlRoot->appendChild( $dom->createElement( 'link', getenv('APP_URL') ) );
 
+/**
+ * exit early - no more feeds in v1
+ */
+header( 'Content-type: text/xml' );
+echo html_entity_decode( $dom->saveXML() );
+return;
+
 $user = seekGET( 'u', NULL );
 $feedtype = isset( $user ) ? 'friends' : 'global';
 $numArticles = getFeed( $user, 40, 0, $feedData, 0, $feedtype );
