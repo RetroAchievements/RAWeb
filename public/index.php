@@ -274,6 +274,11 @@ else
                 RenderNewsComponent();
                 // RenderFeedComponent( $user );
                 //RenderDemoVideosComponent();
+
+                RenderCurrentlyOnlineComponent( NULL );
+                echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
+
+                RenderActivePlayersComponent();
             }
             ?>
         </div>
@@ -290,10 +295,7 @@ else
             echo '<div class=\'discord\' style="margin-bottom: 10px"><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\' target="_blank"><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
 
             RenderDocsComponent();
-            RenderCurrentlyOnlineComponent( NULL );
-            echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
 
-            RenderActivePlayersComponent();
             RenderAOTWComponent( $staticData[ 'Event_AOTW_AchievementID' ], $staticData[ 'Event_AOTW_ForumID' ] );
             //RenderTwitchTVStream();
             RenderChat( $user, 320, '', true );
@@ -303,10 +305,10 @@ else
                 RenderScoreLeaderboardComponent( $user, $points, TRUE, 5 );
             }
 
-            RenderScoreLeaderboardComponent( $user, $points, FALSE, 5 );
             //RenderMostPopularTitles( 7, 0, $mostPopularCount );
-            RenderRecentForumPostsComponent( 4 );
             RenderRecentlyUploadedComponent( 5 );
+            RenderScoreLeaderboardComponent( $user, $points, FALSE, 5 );
+            RenderRecentForumPostsComponent( 4 );
             RenderStaticDataComponent( $staticData );
 
             //RenderTwitterFeed();
