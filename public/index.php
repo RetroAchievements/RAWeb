@@ -255,74 +255,53 @@ else
 
         //]]>
     </script>
-
     <script type="text/javascript" src="js/jquery.githubRepoWidget.js"></script>
 
     <?php
     RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions );
     RenderToolbar( $user, $permissions );
     ?>
-
     <div id='mainpage'>
-
         <div id='leftcontainer'>
             <?php
             RenderErrorCodeWarning( 'left', $errorCode );
-            if( !$mobileBrowser )
-            {
-                if( ! isset( $user ) ) RenderWelcomeComponent();
-                RenderNewsComponent();
-                // RenderFeedComponent( $user );
-                //RenderDemoVideosComponent();
-                RenderRecentlyUploadedComponent( 5 );
-                RenderActivePlayersComponent();
-                RenderCurrentlyOnlineComponent( NULL );
-                echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
-                RenderRecentForumPostsComponent( 4 );
+            if (!isset($user)) {
+                RenderWelcomeComponent();
             }
+            RenderNewsComponent();
+            //RenderFeedComponent( $user );
+            //RenderDemoVideosComponent();
+            RenderRecentlyUploadedComponent( 5 );
+            RenderActivePlayersComponent();
+            RenderCurrentlyOnlineComponent( NULL );
+            echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
+            RenderRecentForumPostsComponent( 4 );
             ?>
         </div>
-
         <div id='rightcontainer'>
             <?php
-            if( $mobileBrowser )
-            {
-                if( ! isset( $user ) ) RenderWelcomeComponent();
-            }
-
             echo '<div class=\'patron\' style="margin-top: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank">Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
-
             echo '<div class=\'discord\' style="margin-bottom: 10px"><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\' target="_blank"><img alt="Join us on Discord!" style="width:172px; display: block; margin: 0 auto;" src="https://s3.amazonaws.com/uploads.uservoice.com/logo/design_setting/294519/original/Discord-Logo_Wordmark-White.png?1445475649"></a></div>';
-
             RenderDocsComponent();
-
             RenderAOTWComponent( $staticData[ 'Event_AOTW_AchievementID' ], $staticData[ 'Event_AOTW_ForumID' ] );
             //RenderTwitchTVStream();
             RenderChat( $user, 320, '', true );
-
             if( $user !== NULL )
             {
                 RenderScoreLeaderboardComponent( $user, $points, TRUE, 5 );
             }
-
             //RenderMostPopularTitles( 7, 0, $mostPopularCount );
             RenderScoreLeaderboardComponent( $user, $points, FALSE, 5 );
             RenderStaticDataComponent( $staticData );
-
             //RenderTwitterFeed();
             //echo "<h3>Development Progress</h3>";
             //echo "<div class='github-widget' data-repo='RetroAchievements/RASuite'></div>";
-
-            if( $mobileBrowser )
-            {
-                //RenderDemoVideosComponent();
-            }
+            // if( $mobileBrowser ) {
+            //     RenderDemoVideosComponent();
+            // }
             ?>
         </div>
-
     </div>
-
     <?php RenderFooter(); ?>
-
 </body>
 </html>
