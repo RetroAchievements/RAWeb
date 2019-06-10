@@ -1,41 +1,39 @@
 <?php
-require_once( 'bootstrap.php' );
+require_once('bootstrap.php');
 /////////////////////////////////////////////////////////////////////////////////////////
-//	Dynamic Rendering
+//    Dynamic Rendering
 /////////////////////////////////////////////////////////////////////////////////////////
-function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
+function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null)
 {
     $site = $site ?? getenv('APP_URL');
 
     $retHTML = '';
 
-    $actType = $feedData[ 'activitytype' ];
-    $user = $feedData[ 'User' ];
-    $timestamp = $feedData[ 'timestamp' ];
-    $achID = $feedData[ 'data' ]; //	intentional: blind data, dual use
-    $achTitle = $feedData[ 'AchTitle' ];
-    $achPoints = $feedData[ 'AchPoints' ];
-    $gameID = $feedData[ 'GameID' ];
-    $gameTitle = $feedData[ 'GameTitle' ];
-    $console = $feedData[ 'ConsoleName' ];
+    $actType = $feedData['activitytype'];
+    $user = $feedData['User'];
+    $timestamp = $feedData['timestamp'];
+    $achID = $feedData['data']; //    intentional: blind data, dual use
+    $achTitle = $feedData['AchTitle'];
+    $achPoints = $feedData['AchPoints'];
+    $gameID = $feedData['GameID'];
+    $gameTitle = $feedData['GameTitle'];
+    $console = $feedData['ConsoleName'];
 
-    //	LB only:
-    $nextLBID = $feedData[ 'data' ];
-    $nextLBScore = $feedData[ 'data2' ];
-    $nextLBName = $feedData[ 'LBTitle' ];
-    $nextLBFormat = $feedData[ 'LBFormat' ];
+    //    LB only:
+    $nextLBID = $feedData['data'];
+    $nextLBScore = $feedData['data2'];
+    $nextLBName = $feedData['LBTitle'];
+    $nextLBFormat = $feedData['LBFormat'];
 
-    //	Inject hyperlinks:
-    if( $withHyperlinks )
-    {
+    //    Inject hyperlinks:
+    if ($withHyperlinks) {
         $user = "<a href='$site/User/$user'>$user</a>";
         $achTitle = "<a href='$site/Achievement/$achID'>$achTitle</a>";
         $gameTitle = "<a href='$site/Game/$gameID'>$gameTitle</a>";
         $nextLBName = "<a href='$site/leaderboardinfo.php?i=$nextLBID'>$nextLBName</a>";
     }
 
-    switch( $actType )
-    {
+    switch ($actType) {
         case 1: // earned achievement
             $retHTML .= "$user earned $achTitle ($achPoints) in $gameTitle";
             break;
@@ -55,11 +53,14 @@ function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
             $retHTML = "$user completed $gameTitle ($console)";
             break;
         case 7: // submit new record
-            $retHTML = "$user submitted " . GetFormattedLeaderboardEntry( $nextLBFormat, $nextLBScore ) . " for $nextLBName on $gameTitle ($console)";
+            $retHTML = "$user submitted " . GetFormattedLeaderboardEntry($nextLBFormat,
+                    $nextLBScore) . " for $nextLBName on $gameTitle ($console)";
             break;
         case 8: // update new record
-            $entryType = ( strcmp( $nextLBFormat, 'TIME' ) == 0 || strcmp( $nextLBFormat, 'TIMESECS' ) == 0 ) ? "time" : "score";
-            $retHTML = "$user improved their $entryType: " . GetFormattedLeaderboardEntry( $nextLBFormat, $nextLBScore ) . " for $nextLBName on $gameTitle ($console)";
+            $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp($nextLBFormat,
+                    'TIMESECS') == 0) ? "time" : "score";
+            $retHTML = "$user improved their $entryType: " . GetFormattedLeaderboardEntry($nextLBFormat,
+                    $nextLBScore) . " for $nextLBName on $gameTitle ($console)";
             break;
         case 9: // open ticket
             $retHTML = "$user opened a ticket for $achTitle ($achPoints) in $gameTitle ($console)";
@@ -75,37 +76,36 @@ function getFeedItemTitle( $feedData, $withHyperlinks = true, $site = null )
     return $retHTML;
 }
 
-function getFeedItemHTML( $feedData, $user )
+function getFeedItemHTML($feedData, $user)
 {
     $retHTML = '';
 
-    //	WILL ALWAYS BE PRESENT in feedData. Note: in SQL order
-    $nextID = $feedData[ 'ID' ];
-    $nextTimestamp = $feedData[ 'timestamp' ];
-    $nextActivityType = $feedData[ 'activitytype' ];
-    $nextUser = $feedData[ 'User' ];
-    $nextUserPoints = $feedData[ 'RAPoints' ];
-    $nextUserMotto = $feedData[ 'Motto' ];
-    $nextData = $feedData[ 'data' ];
-    $nextData2 = $feedData[ 'data2' ];
-    $nextGameTitle = $feedData[ 'GameTitle' ];
-    $nextGameID = $feedData[ 'GameID' ];
-    $nextGameIcon = $feedData[ 'GameIcon' ];
-    $nextConsoleName = $feedData[ 'ConsoleName' ];
-    $nextAchTitle = $feedData[ 'AchTitle' ];
-    $nextAchDesc = $feedData[ 'AchDesc' ];
-    $nextAchPoints = $feedData[ 'AchPoints' ];
-    $nextAchBadge = $feedData[ 'AchBadge' ];
-    $nextLBName = $feedData[ 'LBTitle' ];
-    $nextLBDesc = $feedData[ 'LBDesc' ];
-    $nextLBFormat = $feedData[ 'LBFormat' ];
+    //    WILL ALWAYS BE PRESENT in feedData. Note: in SQL order
+    $nextID = $feedData['ID'];
+    $nextTimestamp = $feedData['timestamp'];
+    $nextActivityType = $feedData['activitytype'];
+    $nextUser = $feedData['User'];
+    $nextUserPoints = $feedData['RAPoints'];
+    $nextUserMotto = $feedData['Motto'];
+    $nextData = $feedData['data'];
+    $nextData2 = $feedData['data2'];
+    $nextGameTitle = $feedData['GameTitle'];
+    $nextGameID = $feedData['GameID'];
+    $nextGameIcon = $feedData['GameIcon'];
+    $nextConsoleName = $feedData['ConsoleName'];
+    $nextAchTitle = $feedData['AchTitle'];
+    $nextAchDesc = $feedData['AchDesc'];
+    $nextAchPoints = $feedData['AchPoints'];
+    $nextAchBadge = $feedData['AchBadge'];
+    $nextLBName = $feedData['LBTitle'];
+    $nextLBDesc = $feedData['LBDesc'];
+    $nextLBFormat = $feedData['LBFormat'];
 
     $rowID = "art_$nextID";
-    $dateCell = "<td class='date'><small>&nbsp;" . date( "H:i ", $nextTimestamp ) . "&nbsp;</small></td>";
+    $dateCell = "<td class='date'><small>&nbsp;" . date("H:i ", $nextTimestamp) . "&nbsp;</small></td>";
 
-    switch( $nextActivityType )
-    {
-        case 0: //	misc
+    switch ($nextActivityType) {
+        case 0: //    misc
             $retHTML .= "<tr id='$rowID' class='feed_login'>";
             $retHTML .= $dateCell;
 
@@ -113,248 +113,275 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "</td>";
             $retHTML .= "<td></td>";
 
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
 
 
-        case 1: //	achievement
+        case 1: //    achievement
 
             $retHTML .= "<tr id='$rowID' class='feed_won'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, TRUE, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, true, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_won'>";
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
             $retHTML .= " earned ";
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, FALSE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, false);
 
-            if( isset( $nextData2 ) && $nextData2 == 1 )
+            if (isset($nextData2) && $nextData2 == 1) {
                 $retHTML .= " (HARDCORE)";
+            }
 
             $retHTML .= " in ";
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
+                true);
 
             $retHTML .= "</td>";
 
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
 
             break;
 
 
-        case 2: //	login
+        case 2: //    login
 
             $retHTML .= "<tr id='$rowID' class='feed_login'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
             $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/Images/LoginIcon32.png' width='32' height='32' class='badgeimg' />";
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_login'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
             $retHTML .= " logged in";
 
             $retHTML .= "</td>";
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
 
 
-        case 3: //	start playing game
+        case 3: //    start playing game
 
-            if( $nextGameTitle !== "UNRECOGNISED" )
-            {
+            if ($nextGameTitle !== "UNRECOGNISED") {
                 $retHTML .= "<tr id='$rowID' class='feed_startplay'>";
                 $retHTML .= $dateCell;
 
-                //	Images:
+                //    Images:
                 $retHTML .= "<td class='icons'>";
 
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+                $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
+                $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
                 $retHTML .= "</td>";
 
-                //	Content:
+                //    Content:
                 $retHTML .= "<td class='feed_startplay'>";
 
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+                $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
                 $retHTML .= " started playing ";
-                $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+                $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false,
+                    32, true);
 
                 $retHTML .= "</td>";
-                if( $user !== NULL )
+                if ($user !== null) {
                     $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                }
                 $retHTML .= "</tr>";
             }
             break;
 
 
-        case 4: //	upload ach
+        case 4: //    upload ach
 
             $retHTML .= "<tr id='$rowID' class='feed_dev1'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, TRUE, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, true, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_dev1'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
             $retHTML .= " uploaded a new achievement: ";
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, FALSE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, false);
 
             $retHTML .= "</td>";
 
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
 
 
-        case 5: //	modify ach
+        case 5: //    modify ach
 
             $retHTML .= "<tr id='$rowID' class='feed_dev2'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, TRUE, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, true, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
             $retHTML .= " edited ";
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, FALSE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, false);
 
             $retHTML .= "</td>";
 
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
 
 
-        case 6: //	complete game
+        case 6: //    complete game
             $retHTML .= "<tr id='$rowID' class='feed_completegame'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_completegame'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
-            if( $nextData2 == 1 )
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            if ($nextData2 == 1) {
                 $retHTML .= " MASTERED ";
-            else
+            } else {
                 $retHTML .= " completed ";
+            }
 
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
+                true);
 
-            if( $nextData2 == 1 )
+            if ($nextData2 == 1) {
                 $retHTML .= " (HARDCORE)";
+            }
 
             $retHTML .= "</td>";
 
 
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
 
             break;
 
 
-        case 7: //	submit new record
+        case 7: //    submit new record
             $retHTML .= "<tr id='$rowID' class='feed_submitrecord'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_submitrecord'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
             $retHTML .= " submitted ";
-            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, GetFormattedLeaderboardEntry( $nextLBFormat, $nextData2 ) );
+            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
+                GetFormattedLeaderboardEntry($nextLBFormat, $nextData2));
             $retHTML .= " for ";
-            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, $nextLBName );
+            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
+                $nextLBName);
             $retHTML .= " on ";
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
+                true);
 
             $retHTML .= "</td>";
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
 
 
-        case 8: //	updated record
+        case 8: //    updated record
             $retHTML .= "<tr id='$rowID' class='feed_updaterecord'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_updaterecord'>";
 
-            $entryType = ( strcmp( $nextLBFormat, 'TIME' ) == 0 || strcmp( $nextLBFormat, 'TIMESECS' ) == 0 ) ? "time" : "score";
+            $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp($nextLBFormat,
+                    'TIMESECS') == 0) ? "time" : "score";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
             $retHTML .= " improved their $entryType: ";
-            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, GetFormattedLeaderboardEntry( $nextLBFormat, $nextData2 ) );
+            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
+                GetFormattedLeaderboardEntry($nextLBFormat, $nextData2));
             $retHTML .= " for ";
-            $retHTML .= GetLeaderboardAndTooltipDiv( $nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon, $nextLBName );
+            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
+                $nextLBName);
             $retHTML .= " on ";
-            $retHTML .= GetGameAndTooltipDiv( $nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, FALSE, 32, TRUE );
+            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
+                true);
 
             $retHTML .= "</td>";
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
 
@@ -364,25 +391,28 @@ function getFeedItemHTML( $feedData, $user )
             $retHTML .= "<tr id='$rowID' class='feed_dev2'>";
             $retHTML .= $dateCell;
 
-            //	Images:
+            //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, TRUE, TRUE );
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, true, true);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
 
             $retHTML .= "</td>";
 
-            //	Content:
+            //    Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, $nextUserPoints, $nextUserMotto, NULL, NULL, FALSE );
-            $retHTML .= ( $nextActivityType == 9 ? " opened " : " closed " ) . " a ticket for ";
-            $retHTML .= GetAchievementAndTooltipDiv( $nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints, $nextGameTitle, $nextAchBadge, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= ($nextActivityType == 9 ? " opened " : " closed ") . " a ticket for ";
+            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
+                $nextGameTitle, $nextAchBadge, false);
 
             $retHTML .= "</td>";
 
-            if( $user !== NULL )
+            if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+            }
             $retHTML .= "</tr>";
             break;
     }
@@ -390,17 +420,17 @@ function getFeedItemHTML( $feedData, $user )
     return $retHTML;
 }
 
-function RenderFeedItem( $feedData, $user )
+function RenderFeedItem($feedData, $user)
 {
-    echo getFeedItemHTML( $feedData, $user );
+    echo getFeedItemHTML($feedData, $user);
 }
 
-//	23:22 06/04/2013
-function RenderFeedComment( $user, $comment, $submittedDate )
+//    23:22 06/04/2013
+function RenderFeedComment($user, $comment, $submittedDate)
 {
     echo "<tr class='feed_comment'>";
 
-    $niceDate = date( "d M\nG:i y ", strtotime( $submittedDate ) );
+    $niceDate = date("d M\nG:i y ", strtotime($submittedDate));
     //$fullDateHover = date( "d M\nH:i yy", strtotime( $submittedDate ) );
 
     echo "<td class='smalldate'>$niceDate</td><td class='iconscomment'><a href='/User/$user'><img alt='$user' title='$user' class='badgeimg' src='/UserPic/$user" . ".png' width='32' height='32' /></a></td><td colspan='3'>$comment</td>";
@@ -411,22 +441,24 @@ function RenderFeedComment( $user, $comment, $submittedDate )
 //
 function RenderWelcomeComponent()
 {
-    if( isset( $user ) ) return;
+    if (isset($user)) {
+        return;
+    }
 
     echo "
-	<div class='component welcome'>
-		<h2>Welcome!</h2>
-		<div id='Welcome'>
-			<p>
-			Were you the greatest in your day at Mega Drive or SNES games? Wanna prove it? Use our modified emulators and you will be awarded achievements as you play! Your progress will be tracked so you can compete with your friends to complete all your favourite classics to 100%: we provide the emulators for your Windows-based PC, all you need are the roms!<br/>
-			<a href='/Game/1'>Click here for an example:</a> which of these do you think you can get?
-			</p>
-		<br/>
-			<p style='clear:both; text-align:center'>
-			<a href='/download.php'><b>&gt;&gt;Download an emulator here!&lt;&lt;</b></a><br/>
-			</p>
-		</div>
-	</div>";
+    <div class='component welcome'>
+        <h2>Welcome!</h2>
+        <div id='Welcome'>
+            <p>
+            Were you the greatest in your day at Mega Drive or SNES games? Wanna prove it? Use our modified emulators and you will be awarded achievements as you play! Your progress will be tracked so you can compete with your friends to complete all your favourite classics to 100%: we provide the emulators for your Windows-based PC, all you need are the roms!<br/>
+            <a href='/Game/1'>Click here for an example:</a> which of these do you think you can get?
+            </p>
+        <br/>
+            <p style='clear:both; text-align:center'>
+            <a href='/download.php'><b>&gt;&gt;Download an emulator here!&lt;&lt;</b></a><br/>
+            </p>
+        </div>
+    </div>";
 }
 
 //
@@ -434,12 +466,13 @@ function RenderNewsComponent()
 {
     echo "<div class='left'>";
     echo "<h2>News</h2>";
-    $numNewsItems = getLatestNewsHeaders( 0, 10, $newsHeaders );
+    $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
     echo "<div id='carouselcontainer' style='height=300px;' >";
 
     echo "<div id='carousel'>";
-    for( $i = 0; $i < $numNewsItems; $i++ )
-        RenderNewsHeader( $newsHeaders[ $i ] );
+    for ($i = 0; $i < $numNewsItems; $i++) {
+        RenderNewsHeader($newsHeaders[$i]);
+    }
     echo "</div>";
 
     echo "<a href='#' id='ui-carousel-next'><span>next</span></a>";
@@ -453,23 +486,22 @@ function RenderNewsComponent()
 }
 
 //
-function RenderFeedComponent( $user )
+function RenderFeedComponent($user)
 {
     echo "<div class='left'>";
 
     echo "<div style='float:right;'>";
     $feedFriendsPrefs = 0;
-    if( isset( $user ) )
-    {
-        $feedFriendsPrefs = RA_ReadCookie( "RAPrefs_Feed" );
-        $selGlobal = ( $feedFriendsPrefs == 1 ) ? '' : 'checked';
-        $selFriends = ( $feedFriendsPrefs == 1 ) ? 'checked' : '';
+    if (isset($user)) {
+        $feedFriendsPrefs = RA_ReadCookie("RAPrefs_Feed");
+        $selGlobal = ($feedFriendsPrefs == 1) ? '' : 'checked';
+        $selFriends = ($feedFriendsPrefs == 1) ? 'checked' : '';
         echo "<input type='radio' name='feedpref' $selGlobal onclick=\"refreshFeed(false);\" > Global<br/>";
         echo "<input type='radio' name='feedpref' $selFriends onclick=\"refreshFeed(true);\" > Friends Only";
     }
     echo "</div>";
 
-    echo "<h2 id='globalfeedtitle'>" . ( $feedFriendsPrefs ? "Friends Feed" : "Global Feed" ) . "</h2>";
+    echo "<h2 id='globalfeedtitle'>" . ($feedFriendsPrefs ? "Friends Feed" : "Global Feed") . "</h2>";
 
     echo "<div id='globalfeed'>";
     echo "Here's a breakdown of what's been happening recently:";
@@ -512,18 +544,18 @@ function RenderDemoVideosComponent()
 
     echo "<div class='videocontainer' >";
     echo "<object type='application/x-shockwave-flash' width='$width' height='$height' data='//www.twitch.tv/widgets/archive_embed_player.swf' id='clip_embed_player_flash' >
-		<param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf' />
-		<param name='allowScriptAccess' value='always' />
-		<param name='allowNetworking' value='all' />
-		<param name='flashvars' value='auto_play=false&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;title=Finding%2BMemory%2BAddresses&amp;chapter_id=2674100&amp;start_volume=25' />
-		</object>";
+        <param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf' />
+        <param name='allowScriptAccess' value='always' />
+        <param name='allowNetworking' value='all' />
+        <param name='flashvars' value='auto_play=false&amp;channel=" . getenv('TWITCH_CHANNEL') . "&amp;title=Finding%2BMemory%2BAddresses&amp;chapter_id=2674100&amp;start_volume=25' />
+        </object>";
     echo "</div>";
 
     echo "</div>";
 }
 
-//	19:56 06/04/2013
-function RenderArticleEmptyComment( $articleType, $articleID )
+//    19:56 06/04/2013
+function RenderArticleEmptyComment($articleType, $articleID)
 {
     $rowID = "art_$articleID";
 
@@ -534,34 +566,43 @@ function RenderArticleEmptyComment( $articleType, $articleID )
     echo "</tr>";
 }
 
-//	19:56 06/04/2013
-function RenderArticleComment( $articleID, $user, $points, $motto, $comment, $submittedDate, $localUser, $articleTypeID, $commentID, $allowDelete )
-{
+//    19:56 06/04/2013
+function RenderArticleComment(
+    $articleID,
+    $user,
+    $points,
+    $motto,
+    $comment,
+    $submittedDate,
+    $localUser,
+    $articleTypeID,
+    $commentID,
+    $allowDelete
+) {
     $class = '';
     $deleteIcon = '';
 
-    if( $user == $localUser || $allowDelete )
-    {
+    if ($user == $localUser || $allowDelete) {
         $class = 'localuser';
 
         $img = "<img src='" . getenv('APP_STATIC_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
-        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
+        $deleteIcon = " href='#'>$img</a></div>";
     }
 
     $artCommentID = "artcomment_" . $articleID . "_" . $commentID;
     echo "<tr class='feed_comment $class' id='$artCommentID'>";
 
     //$niceDate = date( "d M\nH:i ", $submittedDate );
-    $niceDate = date( "j M\nG:i Y ", $submittedDate );
+    $niceDate = date("j M\nG:i Y ", $submittedDate);
 
     echo "<td alt='Test' class='smalldate'>$niceDate</td>";
-    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv( $user, $points, $motto, NULL, NULL, TRUE ) . "</td>";
+    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv($user, $points, $motto, null, null, true) . "</td>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";
 }
 
-function RenderCommentInputRow( $user, $rowIDStr, $artTypeID )
+function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
 {
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
     $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250></textarea>";
@@ -586,13 +627,13 @@ function RenderPHPBBIcons()
     echo "</div>";
 }
 
-function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0 )
+function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0)
 {
-    settype( $truePoints, 'integer' );
-    //	js tooltip code is basically on every page:
+    settype($truePoints, 'integer');
+    //    js tooltip code is basically on every page:
     echo "<script type='text/javascript' src='/js/wz_tooltip.js'></script>";
 
-    settype( $unreadMessageCount, "integer" );
+    settype($unreadMessageCount, "integer");
 
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
@@ -602,14 +643,13 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
 
     echo "<div class='login'>";
 
-    if( $user == FALSE )
-    {
+    if ($user == false) {
         echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br/>";
 
         echo "<form method='post' action='/login.php'>";
         echo "<div>";
-        echo "<input type='hidden' name='r' value='" . $_SERVER[ 'REQUEST_URI' ] . "' />";
+        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "' />";
         echo "<table><tbody>";
         echo "<tr>";
         echo "<td>User:&nbsp;</td>";
@@ -625,24 +665,22 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
         echo "</div>";
         echo "</form>";
 
-        if( !isset( $errorCode ) )
-        {
+        if (!isset($errorCode)) {
             echo "<div class='rightalign'>...or <a href='/createaccount.php'>create a new account</a></div>";
         }
 
         RenderThemeSelector();
-    }
-    else
-    {
+    } else {
         echo "<p>";
         echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic' />";
 
-        if( $errorCode == "validatedEmail" )
+        if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br/>";
-        else
+        } else {
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points) <span class='TrueRatio'>($truePoints)</span><br/>";
+        }
 
-        echo "<a href='/logout.php?Redir=" . $_SERVER[ 'REQUEST_URI' ] . "'>logout</a><br/>";
+        echo "<a href='/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br/>";
 
         $mailboxIcon = $unreadMessageCount > 0 ? getenv('APP_STATIC_URL') . '/Images/_MailUnread.png' : getenv('APP_STATIC_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
@@ -653,11 +691,10 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
         echo ")";
         echo "</a>";
 
-        if( $permissions >= 3 ) // 3 == Developer
+        if ($permissions >= 3) // 3 == Developer
         {
-            $openTickets = countOpenTicketsByDev( $user );
-            if( $openTickets > 0 )
-            {
+            $openTickets = countOpenTicketsByDev($user);
+            if ($openTickets > 0) {
                 echo " - <a href='/ticketmanager.php?u=$user'>";
                 echo "<font color='red'>Tickets: <strong>$openTickets</strong></font>";
                 echo "</a>";
@@ -666,7 +703,7 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
 
         echo "</p>";
 
-        RenderThemeSelector(); //	Only when logged in
+        RenderThemeSelector(); //    Only when logged in
     }
 
     echo "<br/>";
@@ -675,7 +712,7 @@ function RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $erro
     echo "</div>";
 }
 
-function RenderToolbar( $user, $permissions = 0 )
+function RenderToolbar($user, $permissions = 0)
 {
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
@@ -683,21 +720,18 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<ul>";
     echo "<li><a href='/'>Home</a></li>";
 
-    if( isset( $user ) && $user != "" )
-    {
+    if (isset($user) && $user != "") {
         echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
     }
 
     // echo "<li><a href='/feed.php?g=1'>Global Feed</a></li>";
 
-    //	SU:
-    if( $permissions >= 2 )
-    {
+    //    SU:
+    if ($permissions >= 2) {
         echo "<li><a href='/submitnews.php'>Submit News Article</a></li>";
     }
-    //	Admin:
-    if( $permissions >= 4 )
-    {
+    //    Admin:
+    if ($permissions >= 4) {
         echo "<li><a href='/admin.php'>Admin Tools</a></li>";
     }
 
@@ -714,8 +748,7 @@ function RenderToolbar( $user, $permissions = 0 )
     //echo "</ul>";
     echo "</li>";
 
-    if( isset( $user ) && $user != "" )
-    {
+    if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
         echo "<ul>";
         echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
@@ -728,15 +761,12 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "<li><a href='/logout.php'>Log Out</a></li>";
         echo "</ul>";
         echo "</li>";
-    }
-    else
-    {
+    } else {
         echo "<li><a href='/createaccount.php'>Create Account</a>";
         echo "</li>";
     }
 
-    if( isset( $user ) && $user != "" )
-    {
+    if (isset($user) && $user != "") {
         echo "<li><a href='#'>Messages</a>";
         echo "<ul>";
         echo "<li><a href='/inbox.php'>Inbox</a></li>";
@@ -761,7 +791,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "<li><a href='/forum.php?c=9'>- NES</a></li>";
     echo "<li><a href='/forum.php?c=10'>- PC Engine</a></li>";
     echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    echo "<li><a href='#' onclick=\"window.open('".getenv('APP_URL')."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
+    echo "<li><a href='#' onclick=\"window.open('" . getenv('APP_URL') . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
 
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     echo "</ul>";
@@ -810,8 +840,7 @@ function RenderToolbar( $user, $permissions = 0 )
     //echo "</ul>";
     echo "</li>";
 
-    if( $permissions >= 3 )
-    {
+    if ($permissions >= 3) {
         echo "<li><a href='#'>Developers</a>";
         echo "<ul>";
         echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
@@ -825,8 +854,7 @@ function RenderToolbar( $user, $permissions = 0 )
         echo "</li>";
     }
 
-    if( isset( $user ) && $user != "" )
-    {
+    if (isset($user) && $user != "") {
         echo "<li><a href='#'>Settings</a>";
         echo "<ul>";
         echo "<li><a href='/controlpanel.php'>My Settings</a></li>";
@@ -854,7 +882,7 @@ function RenderToolbar( $user, $permissions = 0 )
     echo "</form>";
 
     echo "</div>";
-    echo "<div style='clear:both;'></div>"; //	Makes it work with mobile browsers :)
+    echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
 }
 
 function RenderFooter()
@@ -863,12 +891,12 @@ function RenderFooter()
 
     echo "<div id='footer'>";
 
-    //	Inject fb like onto every page! muhahaha
+    //    Inject fb like onto every page! muhahaha
     //echo "<div class='fb-like' style='float:left'></div>";
 
     echo "<div class='footericonset'>";
 
-    //	W3
+    //    W3
     // echo "<div class='footericon' >";
     //echo "<p about='' resource='http://www.w3.org/TR/rdfa-syntax' rel='dc:conformsTo' xmlns:dc='http://purl.org/dc/terms/'>";
     // echo "<p>";
@@ -876,18 +904,19 @@ function RenderFooter()
     // echo "</p>";
     // echo "</div>";
 
-    //	My TM
+    //    My TM
     echo "<div class='footertext'>";
     echo "<p style='font-size: x-small;'>";
     echo "Content by <small><a href='http://www.immensegames.com' target='_blank'>Immense Games</a></small><br/>";
     //echo "<small>Last Updated July 2013</small>";
     global $g_numQueries;
     global $g_pageLoadAt;
-    $loadDuration = microtime( true ) - $g_pageLoadAt;
-    echo "Generated from $g_numQueries queries in " . sprintf( '%1.3f', ($loadDuration ) ) . " seconds";
+    $loadDuration = microtime(true) - $g_pageLoadAt;
+    echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
 
-    if( $loadDuration > 2.4 )
-        error_log( CurrentPageURL() . " - took " . sprintf( '%1.3f', $loadDuration ) . " to fetch!" );
+    if ($loadDuration > 2.4) {
+        error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
+    }
     echo "</p>";
 
     echo "</div>";
@@ -906,28 +935,26 @@ function RenderFBLoginPrompt()
 function RenderFBLogoutPrompt()
 {
     global $fbConn;
-    printf( "<a href='%s'>(logout)</a>", $fbConn->getLogoutUrl() );
+    printf("<a href='%s'>(logout)</a>", $fbConn->getLogoutUrl());
     //echo "<div id=\"fb-root\"></div><script type='text/javascript'>(function(d, s, id) {var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;  js = d.createElement(s); js.id = id;  js.src = \"//connect.facebook.net/en_GB/all.js#xfbml=1&appId=490904194261313\";  fjs.parentNode.insertBefore(js, fjs);}(document, 'script', 'facebook-jssdk'));</script>";
     //echo "<div class=\"fb-login-button\" scope=\"publish_stream\">Login with Facebook</div>";
 }
 
-function RenderFBDialog( $fbUser, &$fbRealNameOut, &$fbURLOut, $user )
+function RenderFBDialog($fbUser, &$fbRealNameOut, &$fbURLOut, $user)
 {
     $fbRealNameOut = "";
     $fbURLOut = "";
 
-    try
-    {
+    try {
         global $fbConn;
         global $fbConfig;
         //$access_token =
         //$access_token = '490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw';
         //$attemptLogin = FALSE;
 
-        if( $fbUser == 0 )
-        {
+        if ($fbUser == 0) {
             //echo "req. associate!<br/>";
-            ////	Attempt associate?
+            ////    Attempt associate?
             //$message = "/me/?access_token=$access_token";
             //$ret_obj = $fbConn->api($message,'GET');
             //if( $ret_obj )
@@ -936,23 +963,23 @@ function RenderFBDialog( $fbUser, &$fbRealNameOut, &$fbURLOut, $user )
             //$fbID = $ret_obj['id'];
             //if( $fbID !== 0 && $fbUser == 0 )
             //{
-            //	error_log( __FUNCTION__ . " warning: inconsistency found $fbID $fbUser" );
-            //	echo "inconsistency found $fbID $fbUser<br/>";
-            //	//	DB inconsistency: update our records!
-            //	if( associateFB( $user, $fbID ) )
-            //	{
-            //		error_log( __FUNCTION__ . " warning: associated $user, $fbID" );
-            //		echo "associate OK!<br/>";
-            //		$fbUser = $fbID;
-            //	}
-            //	else
-            //	{
-            //		RenderFBLoginPrompt();
-            //	}
+            //    error_log( __FUNCTION__ . " warning: inconsistency found $fbID $fbUser" );
+            //    echo "inconsistency found $fbID $fbUser<br/>";
+            //    //    DB inconsistency: update our records!
+            //    if( associateFB( $user, $fbID ) )
+            //    {
+            //        error_log( __FUNCTION__ . " warning: associated $user, $fbID" );
+            //        echo "associate OK!<br/>";
+            //        $fbUser = $fbID;
+            //    }
+            //    else
+            //    {
+            //        RenderFBLoginPrompt();
+            //    }
             //}
             //else
             //{
-            //		RenderFBLoginPrompt();
+            //        RenderFBLoginPrompt();
             //}
             //}
             //else
@@ -961,49 +988,45 @@ function RenderFBDialog( $fbUser, &$fbRealNameOut, &$fbURLOut, $user )
             //}
         }
 
-        if( $fbUser !== 0 )
-        {
-            $message = "/$fbUser/?access_token=" . $fbConfig[ 'appToken' ];
+        if ($fbUser !== 0) {
+            $message = "/$fbUser/?access_token=" . $fbConfig['appToken'];
             //echo "<br/>DEBUG:<br/>" . $message . "<br/>";
-            $ret_obj = $fbConn->api( $message, 'GET' );
-            if( $ret_obj )
-            {
-                $fbRealNameOut = $ret_obj[ 'name' ];
-                $fbURLOut = $ret_obj[ 'link' ];
+            $ret_obj = $fbConn->api($message, 'GET');
+            if ($ret_obj) {
+                $fbRealNameOut = $ret_obj['name'];
+                $fbURLOut = $ret_obj['link'];
                 //print_r( $ret_obj );
-                return TRUE;
+                return true;
             }
         }
-    }
-    catch( FacebookApiException $e )
-    {
-        error_log( "Facebook API Exception " . $e->getType() );
-        error_log( "Facebook API Exception Msg " . $e->getMessage() );
-        error_log( __FUNCTION__ . " catch: input $fbUser" );
+    } catch (FacebookApiException $e) {
+        error_log("Facebook API Exception " . $e->getType());
+        error_log("Facebook API Exception Msg " . $e->getMessage());
+        error_log(__FUNCTION__ . " catch: input $fbUser");
         RenderFBLoginPrompt();
     }
 
-    return FALSE;
+    return false;
 }
 
-function RenderNewsHeader( $newsData )
+function RenderNewsHeader($newsData)
 {
-    $dataID = $newsData[ 'ID' ];
-    $title = $newsData[ 'Title' ];
-    $payload = $newsData[ 'Payload' ];
-    $image = $newsData[ 'Image' ];
+    $dataID = $newsData['ID'];
+    $title = $newsData['Title'];
+    $payload = $newsData['Payload'];
+    $image = $newsData['Image'];
 
-    $link = htmlspecialchars( $newsData[ 'Link' ] );
+    $link = htmlspecialchars($newsData['Link']);
 
 
-    $author = $newsData[ 'Author' ];
-    $authorLink = GetUserAndTooltipDiv( $author, NULL, NULL, NULL, NULL, FALSE );
-    $timestampStr = date( "d M", $newsData[ 'TimePosted' ] );
-    $niceDate = getNiceDate( $newsData[ 'TimePosted' ] );
+    $author = $newsData['Author'];
+    $authorLink = GetUserAndTooltipDiv($author, null, null, null, null, false);
+    $timestampStr = date("d M", $newsData['TimePosted']);
+    $niceDate = getNiceDate($newsData['TimePosted']);
 
     //if( isset( $link ) )
     //else
-    //	echo "<h4>$title</h4>";
+    //    echo "<h4>$title</h4>";
 
     $zPos = $dataID;
     $zPos2 = $dataID + 10;
@@ -1012,20 +1035,20 @@ function RenderNewsHeader( $newsData )
     echo "<div>";
 
     //echo "<span id='NEWSIMG_" . $dataID . "' class='newsimage'><img style='position: absolute; right: 0px; top:0px; width: 100%; z-index:$zPos; opacity: 0.4' src='$image' align='right' /></span>";
-    //	BG
+    //    BG
     echo "<div class='newscontainer' style='background: url(\"$image\") repeat scroll; z-index:$zPos; opacity:0.5; width: 470px; height:222px; background-size: 100% auto;' >";
     echo "</div>";
 
     echo "<div class='news' >";
 
-    //	Title
+    //    Title
     echo "<h4 style='z-index:$zPos2; position: absolute; width: 460px; top:2px; left:10px; white-space: nowrap;' ><a class='newstitle shadowoutline' href='$link'>$title</a></h4>";
 
-    //	Text
+    //    Text
     //echo "<small>[" . $timestampStr . "] </small>";
     echo "<div class='newstext shadowoutline' style='z-index:$zPos2; position: absolute; width: 90%; top: 40px; left:10px;'>$payload</div>";
 
-    //	Author
+    //    Author
     echo "<div class='newsauthor shadowoutline' style='z-index:$zPos2; position: absolute; width: 470px; top: 196px; left:0px; text-align: right'>~~$authorLink, $niceDate</div>";
 
     echo "</div>";
@@ -1035,54 +1058,57 @@ function RenderNewsHeader( $newsData )
     echo "</div>";
 }
 
-function RenderCommentsComponent( $user, $numComments, $commentData, $articleID, $articleTypeID, $forceAllowDeleteComments )
-{
-    $userID = getUserIDFromUser( $user );
+function RenderCommentsComponent(
+    $user,
+    $numComments,
+    $commentData,
+    $articleID,
+    $articleTypeID,
+    $forceAllowDeleteComments
+) {
+    $userID = getUserIDFromUser($user);
 
     echo "<div class='commentscomponent'>";
 
-    if( $numComments == 0 )
+    if ($numComments == 0) {
         echo "No comments yet. Will you be the first?<br/>";
-    else
+    } else {
         echo "Recent comment(s):<br/>";
+    }
 
     echo "<table id='feed'><tbody>";
 
     $lastID = 0;
     $lastKnownDate = 'Init';
 
-    for( $i = 0; $i < $numComments; $i++ )
-    {
-        $nextTime = $commentData[ $i ][ 'Submitted' ];
+    for ($i = 0; $i < $numComments; $i++) {
+        $nextTime = $commentData[$i]['Submitted'];
 
-        $dow = date( "d/m", $nextTime );
-        if( $lastKnownDate == 'Init' )
-        {
+        $dow = date("d/m", $nextTime);
+        if ($lastKnownDate == 'Init') {
             $lastKnownDate = $dow;
             //echo "<tr><td class='date'>$dow:</td></tr>";
-        }
-        else if( $lastKnownDate !== $dow )
-        {
+        } elseif ($lastKnownDate !== $dow) {
             $lastKnownDate = $dow;
             //echo "<tr><td class='date'><br/>$dow:</td></tr>";
         }
 
-        if( $lastID != $commentData[ $i ][ 'ID' ] )
-        {
-            $lastID = $commentData[ $i ][ 'ID' ];
+        if ($lastID != $commentData[$i]['ID']) {
+            $lastID = $commentData[$i]['ID'];
         }
 
-        $canDeleteComments = ( $articleTypeID == 3 ) && ( $userID == $articleID );
+        $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID);
         $canDeleteComments |= $forceAllowDeleteComments;
 
-        RenderArticleComment( $articleID, $commentData[ $i ][ 'User' ], $commentData[ $i ][ 'RAPoints' ], $commentData[ $i ][ 'Motto' ], $commentData[ $i ][ 'CommentPayload' ], $commentData[ $i ][ 'Submitted' ], $user, $articleTypeID, $commentData[ $i ][ 'ID' ], $canDeleteComments );
+        RenderArticleComment($articleID, $commentData[$i]['User'], $commentData[$i]['RAPoints'],
+            $commentData[$i]['Motto'], $commentData[$i]['CommentPayload'], $commentData[$i]['Submitted'], $user,
+            $articleTypeID, $commentData[$i]['ID'], $canDeleteComments);
     }
 
-    if( isset( $user ) )
-    {
-        //	User comment input:
+    if (isset($user)) {
+        //    User comment input:
         $commentInputBoxID = 'art_' . $articleID;
-        RenderCommentInputRow( $user, $commentInputBoxID, $articleTypeID );
+        RenderCommentInputRow($user, $commentInputBoxID, $articleTypeID);
     }
 
     echo "</tbody></table>";
@@ -1091,118 +1117,118 @@ function RenderCommentsComponent( $user, $numComments, $commentData, $articleID,
     echo "</div>";
 }
 
-function RenderTopicCommentPayload( $payload )
+function RenderTopicCommentPayload($payload)
 {
-    //	TBD: interpret phpbb syntax and reinterpret as good HTML :)
+    //    TBD: interpret phpbb syntax and reinterpret as good HTML :)
 
-    $payload = parseTopicCommentPHPBB( $payload );
+    $payload = parseTopicCommentPHPBB($payload);
 
-    $formattedPayload = str_replace( "\n", "<br/>", $payload );
+    $formattedPayload = str_replace("\n", "<br/>", $payload);
     echo $formattedPayload;
 }
 
-function RenderErrorCodeWarning( $location, $errorCode )
+function RenderErrorCodeWarning($location, $errorCode)
 {
-    if( isset( $errorCode ) )
-    {
+    if (isset($errorCode)) {
         echo "<div class=$location>";
         echo "<h2>Information</h2>";
 
-        if( $errorCode == "validatedEmail" )
+        if ($errorCode == "validatedEmail") {
             echo "<div id='warning'>Email validated!</div>";
-        else if( $errorCode == "validateEmailPlease" )
+        } elseif ($errorCode == "validateEmailPlease") {
             echo "<div id='warning'>An email has been sent to the email address you supplied. Please click the link in that email.</div>";
-        else if( $errorCode == "incorrectpassword" )
+        } elseif ($errorCode == "incorrectpassword") {
             echo "<div id='warning'>Incorrect User/Password! Please re-enter.</div>";
-        else if( $errorCode == "accountissue" )
-            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='".getenv('APP_URL')."/user/RAdmin'>here</a> for more details.</div>";
-        else if( $errorCode == "notloggedin" )
+        } elseif ($errorCode == "accountissue") {
+            echo "<div id='warning'>There appears to be a problem with your account. Please contact the administrator <a href='" . getenv('APP_URL') . "/user/RAdmin'>here</a> for more details.</div>";
+        } elseif ($errorCode == "notloggedin") {
             echo "<div id='warning'>Please log in.</div>";
-        else if( $errorCode == "resetok" )
+        } elseif ($errorCode == "resetok") {
             echo "<div id='warning'>Reset was performed OK!</div>";
-        else if( $errorCode == "resetfailed" )
+        } elseif ($errorCode == "resetfailed") {
             echo "<div id='warning'>Problems encountered while performing reset. Do you have any achievements to reset?</div>";
-        else if( $errorCode == "modify_game_ok" )
+        } elseif ($errorCode == "modify_game_ok") {
             echo "<div id='warning'>Game modify successful!</div>";
-        else if( $errorCode == "errors_in_modify_game" )
+        } elseif ($errorCode == "errors_in_modify_game") {
             echo "<div id='warning'>Problems encountered while performing modification. Does the target game already exist? If so, try a merge instead on the target game title.</div>";
-        else if( $errorCode == "merge_success" )
+        } elseif ($errorCode == "merge_success") {
             echo "<div id='warning'>Game merge successful!</div>";
-        else if( $errorCode == "merge_failed" )
+        } elseif ($errorCode == "merge_failed") {
             echo "<div id='warning'>Problems encountered while performing merge. These errors have been reported and will be fixed soon... sorry!</div>";
-        else if( $errorCode == "recalc_ok" )
+        } elseif ($errorCode == "recalc_ok") {
             echo "<div id='warning'>Score recalculated! Your new score is shown at the top-right next to your avatar.</div>";
-        else if( $errorCode == 'changeerror' )
+        } elseif ($errorCode == 'changeerror') {
             echo "<div id='warning'>Warning: An error was encountered. Please check and try again.</div>";
-        else if( $errorCode == 'changeok' )
+        } elseif ($errorCode == 'changeok') {
             echo "<div id='warning'>Info: Change(s) made successfully!</div>";
-        else if( $errorCode == 'newspostsuccess' )
+        } elseif ($errorCode == 'newspostsuccess') {
             echo "<div id='warning'>Info: News post added/updated successfully!</div>";
-        else if( $errorCode == 'newspostfail' )
+        } elseif ($errorCode == 'newspostfail') {
             echo "<div id='warning'>Warning! Post not made successfully. Do you have correct permissions?</div>";
-        else if( $errorCode == 'uploadok' )
+        } elseif ($errorCode == 'uploadok') {
             echo "<div id='warning'>Info: Image upload OK!</div>";
-        else if( $errorCode == 'modify_ok' )
+        } elseif ($errorCode == 'modify_ok') {
             echo "<div id='warning'>Info: Modified OK!</div>";
-        else if( $errorCode == 'sentok' )
+        } elseif ($errorCode == 'sentok') {
             echo "<div id='warning'>Info: Message sent OK!</div>";
-        else if( $errorCode == 'deleteok' )
+        } elseif ($errorCode == 'deleteok') {
             echo "<div id='warning'>Info: Message deleted OK!</div>";
-        else if( $errorCode == 'success' )
+        } elseif ($errorCode == 'success') {
             echo "<div id='warning'>Info: Successful!</div>";
-        else if( $errorCode == 'delete_ok' )
+        } elseif ($errorCode == 'delete_ok') {
             echo "<div id='warning'>Info: Deleted OK!</div>";
-        else if( $errorCode == 'badcredentials' )
-            echo "<div id='warning'>There appears to be a problem with your account. Please contact <a href='".getenv('APP_URL')."/user/RAdmin'>RAdmin</a> for more details.</div>";
-        else if( $errorCode == 'friendadded' )
+        } elseif ($errorCode == 'badcredentials') {
+            echo "<div id='warning'>There appears to be a problem with your account. Please contact <a href='" . getenv('APP_URL') . "/user/RAdmin'>RAdmin</a> for more details.</div>";
+        } elseif ($errorCode == 'friendadded') {
             echo "<div id='warning'>Friend Added!</div>";
-        else if( $errorCode == 'friendconfirmed' )
+        } elseif ($errorCode == 'friendconfirmed') {
             echo "<div id='warning'>Friend Confirmed!</div>";
-        else if( $errorCode == 'friendrequested' )
+        } elseif ($errorCode == 'friendrequested') {
             echo "<div id='warning'>Friend Request sent!</div>";
-        else if( $errorCode == 'friendremoved' )
+        } elseif ($errorCode == 'friendremoved') {
             echo "<div id='warning'>Friend Removed.</div>";
-        else if( $errorCode == 'friendblocked' )
+        } elseif ($errorCode == 'friendblocked') {
             echo "<div id='warning'>User blocked.</div>";
-        else if( $errorCode == 'userunblocked' )
+        } elseif ($errorCode == 'userunblocked') {
             echo "<div id='warning'>User unblocked.</div>";
-        else if( $errorCode == 'newadded' )
+        } elseif ($errorCode == 'newadded') {
             echo "<div id='warning'>Friend request sent.</div>";
-        else if( $errorCode == 'OK' || $errorCode == 'ok' )
+        } elseif ($errorCode == 'OK' || $errorCode == 'ok') {
             echo "<div id='warning'>Performed OK!</div>";
-        else if( $errorCode == 'badpermissions' )
+        } elseif ($errorCode == 'badpermissions') {
             echo "<div id='warning'>You don't have permission to view this page! If this is incorrect, please leave a message in the forums.</div>";
-        else if( $errorCode == 'nopermission' )
+        } elseif ($errorCode == 'nopermission') {
             echo "<div id='warning'>You don't have permission to view this page! If this is incorrect, please leave a message in the forums.</div>";
-        else if( $errorCode == 'checkyouremail' )
+        } elseif ($errorCode == 'checkyouremail') {
             echo "<div id='warning'>Please check your email for further instructions.</div>";
-        else if( $errorCode == 'newpasswordset' )
+        } elseif ($errorCode == 'newpasswordset') {
             echo "<div id='warning'>New password accepted. Please log in.</div>";
-        else if( $errorCode == 'issue_submitted' )
+        } elseif ($errorCode == 'issue_submitted') {
             echo "<div id='warning'>Your issue ticket has been successfully submitted.</div>";
-        else if( $errorCode == 'issue_failed' )
+        } elseif ($errorCode == 'issue_failed') {
             echo "<div id='warning'>Sorry. There was an issue submitting your ticket.</div>";
+        }
 
         echo "</div>";
     }
 }
 
-function RenderLoginComponent( $user, $points, $errorCode, $inline = FALSE )
+function RenderLoginComponent($user, $points, $errorCode, $inline = false)
 {
-    if( $inline == TRUE )
+    if ($inline == true) {
         echo "<div class='both'><div class=''>";
-    else
+    } else {
         echo "<div class=''><div class=''>";
+    }
 
-    if( $user == FALSE )
-    {
+    if ($user == false) {
         echo "<h3>login</h3>";
         echo "<div class='infobox'>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br/>";
 
         echo "<form method='post' action='/login.php'>";
         echo "<div>";
-        echo "<input type='hidden' name='r' value='" . $_SERVER[ 'REQUEST_URI' ] . "' />";
+        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "' />";
         echo "<table style='logintable'><tbody>";
         echo "<tr>";
         echo "<td style='loginfieldscell'>User:&nbsp;</td>";
@@ -1221,21 +1247,20 @@ function RenderLoginComponent( $user, $points, $errorCode, $inline = FALSE )
         echo "or <a href='/createaccount.php'>create a new account</a><br/>";
 
         echo "</div>";
-    }
-    else
-    {
+    } else {
         echo "<h3>$user</h3>";
         echo "<div class='infobox'>";
 
         echo "<p>";
         echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='128' height='128' />";
 
-        if( $errorCode == "validatedEmail" )
+        if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br/>";
-        else
+        } else {
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points)<br/>";
+        }
 
-        echo "<a href='/logout.php?Redir=" . $_SERVER[ 'REQUEST_URI' ] . "'>logout</a><br/>";
+        echo "<a href='/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br/>";
 
         echo "</p>";
 
@@ -1246,36 +1271,34 @@ function RenderLoginComponent( $user, $points, $errorCode, $inline = FALSE )
     echo "</div>";
 }
 
-function RenderScoreLeaderboardComponent( $user, $points, $friendsOnly, $numToFetch = 10 )
+function RenderScoreLeaderboardComponent($user, $points, $friendsOnly, $numToFetch = 10)
 {
-    $count = getTopUsersByScore( $numToFetch, $dataArray, ($friendsOnly == TRUE) ? $user : NULL );
+    $count = getTopUsersByScore($numToFetch, $dataArray, ($friendsOnly == true) ? $user : null);
 
     echo "<div id='leaderboard' class='component' >";
 
-    if( $friendsOnly == TRUE )
-    {
+    if ($friendsOnly == true) {
         echo "<h3>Friends Leaderboard</h3>";
-        if( $count == 0 )
+        if ($count == 0) {
             echo "You don't appear to have friends registered here yet. Why not leave a comment on the <a href='/forum.php'>forums</a> or <a href='/userList.php'>browse the user pages</a> to find someone to add to your friend list?<br/>";
-    }
-    else
-    {
+        }
+    } else {
         echo "<h3>Global Leaderboard</h3>";
     }
 
-    $userRank = ( $user !== NULL ) ? $userRank = getUserRank( $user ) : 0;
+    $userRank = ($user !== null) ? $userRank = getUserRank($user) : 0;
 
     echo "<table><tbody>";
     echo "<tr><th>Rank</th><th colspan='2'>User</th><th>Points</th></tr>";
 
-    for( $i = 0; $i < $count; $i++ )
-    {
-        if( !isset( $dataArray[ $i ] ) )
+    for ($i = 0; $i < $count; $i++) {
+        if (!isset($dataArray[$i])) {
             continue;
+        }
 
-        $nextUser = $dataArray[ $i ][ 1 ];
-        $nextPoints = $dataArray[ $i ][ 2 ];
-        $nextTruePoints = $dataArray[ $i ][ 3 ];
+        $nextUser = $dataArray[$i][1];
+        $nextPoints = $dataArray[$i][2];
+        $nextTruePoints = $dataArray[$i][3];
 
         echo "<tr>";
         echo "<td class='rank'>" . ($i + 1) . "</td>";
@@ -1284,8 +1307,7 @@ function RenderScoreLeaderboardComponent( $user, $points, $friendsOnly, $numToFe
         echo "<td class='points'>$nextPoints<span class='TrueRatio'>  ($nextTruePoints)</span></td>";
         echo "</tr>";
     }
-    if( $user !== NULL && $friendsOnly == FALSE )
-    {
+    if ($user !== null && $friendsOnly == false) {
         echo "<tr>";
         echo "<td class='rank'> $userRank </td>";
         echo "<td><img alt='$user' title='$user' src='/UserPic/$user.png' width='32' height='32' /></td>";
@@ -1296,17 +1318,18 @@ function RenderScoreLeaderboardComponent( $user, $points, $friendsOnly, $numToFe
 
     echo "</tbody></table>";
 
-    if( $friendsOnly == FALSE )
+    if ($friendsOnly == false) {
         echo "<span class='morebutton'><a href='/userList.php?s=2'>more...</a></span>";
-    else
+    } else {
         echo "<span class='morebutton'><a href='/friends.php'>more...</a></span>";
+    }
 
     echo "</div>";
 }
 
-function RenderTopAchieversComponent( $gameTopAchievers )
+function RenderTopAchieversComponent($gameTopAchievers)
 {
-    $numItems = count( $gameTopAchievers );
+    $numItems = count($gameTopAchievers);
 
     echo "<div id='leaderboard' class='component' >";
 
@@ -1315,31 +1338,32 @@ function RenderTopAchieversComponent( $gameTopAchievers )
     echo "<table class='smalltable'><tbody>";
     echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Points</th></tr>";
 
-    for( $i = 0; $i < $numItems; $i++ )
-    {
-        if( !isset( $gameTopAchievers[ $i ] ) )
+    for ($i = 0; $i < $numItems; $i++) {
+        if (!isset($gameTopAchievers[$i])) {
             continue;
+        }
 
-        $nextUser = $gameTopAchievers[ $i ][ 'User' ];
-        $nextPoints = $gameTopAchievers[ $i ][ 'TotalScore' ];
-        $nextLastAward = $gameTopAchievers[ $i ][ 'LastAward' ];
+        $nextUser = $gameTopAchievers[$i]['User'];
+        $nextPoints = $gameTopAchievers[$i]['TotalScore'];
+        $nextLastAward = $gameTopAchievers[$i]['LastAward'];
 
-        //	Alternating colours for table :)
-        if( $i % 2 == 0 )
+        //    Alternating colours for table :)
+        if ($i % 2 == 0) {
             echo "<tr>";
-        else
+        } else {
             echo "<tr class='alt'>";
+        }
 
         echo "<td class='rank'>";
         echo $i + 1;
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextUser, NULL, NULL, NULL, NULL, TRUE );
+        echo GetUserAndTooltipDiv($nextUser, null, null, null, null, true);
         echo "</td>";
 
         echo "<td class='user'>";
-        echo GetUserAndTooltipDiv( $nextUser, NULL, NULL, NULL, NULL, FALSE );
+        echo GetUserAndTooltipDiv($nextUser, null, null, null, null, false);
         echo "</td>";
 
         echo "<td class='points'>";
@@ -1353,12 +1377,12 @@ function RenderTopAchieversComponent( $gameTopAchievers )
     echo "</div>";
 }
 
-function RenderSiteAwards( $userAwards )
+function RenderSiteAwards($userAwards)
 {
     $imageSize = 48;
     $numCols = 5;
 
-    $numItems = count( $userAwards );
+    $numItems = count($userAwards);
     //var_dump( $userAwards );
 
     echo "<div id='siteawards' class='component' >";
@@ -1372,135 +1396,123 @@ function RenderSiteAwards( $userAwards )
     global $developerCountBoundaries;
     global $developerPointBoundaries;
 
-    for( $i = 0; $i < $numItems / 3; $i++ )
-    {
-        // //	Alternating colours for table :)
+    for ($i = 0; $i < $numItems / 3; $i++) {
+        // //    Alternating colours for table :)
         // if( $i%2==0 )
         // echo "<tr>";
         // else
         // echo "<tr class='alt'>";
 
         echo "<tr>";
-        for( $j = 0; $j < $numCols; $j++ )
-        {
+        for ($j = 0; $j < $numCols; $j++) {
             $nOffs = ($i * $numCols) + $j;
-            if( $nOffs >= $numItems )
-            {
+            if ($nOffs >= $numItems) {
                 continue;
             }
 
-            $elem = $userAwards[ $nOffs ];
+            $elem = $userAwards[$nOffs];
 
             //$awardedAt = $elem[ 'AwardedAt' ];
-            $awardType = $elem[ 'AwardType' ];
-            settype( $awardType, 'integer' );
-            $awardData = $elem[ 'AwardData' ];
-            $awardDataExtra = $elem[ 'AwardDataExtra' ];
-            $awardGameTitle = $elem[ 'Title' ];
-            $awardGameConsole = $elem[ 'ConsoleName' ];
-            $awardGameImage = $elem[ 'ImageIcon' ];
+            $awardType = $elem['AwardType'];
+            settype($awardType, 'integer');
+            $awardData = $elem['AwardData'];
+            $awardDataExtra = $elem['AwardDataExtra'];
+            $awardGameTitle = $elem['Title'];
+            $awardGameConsole = $elem['ConsoleName'];
+            $awardGameImage = $elem['ImageIcon'];
             //$awardGameFlags = $elem[ 'Flags' ];
-            $awardButGameIsIncomplete = ( isset( $elem[ 'Incomplete' ] ) && $elem[ 'Incomplete' ] == 1 );
+            $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
 
-            if( $awardType == 1 )
-            {
+            if ($awardType == 1) {
                 //echo $awardDataExtra;
-                if( $awardDataExtra == '1' )
-                {
+                if ($awardDataExtra == '1') {
                     $tooltip = "MASTERED $awardGameTitle ($awardGameConsole)";
                     $imgclass = 'goldimage';
-                }
-                else
-                {
+                } else {
                     $tooltip = "Completed $awardGameTitle ($awardGameConsole)";
                 }
 
-                if( $awardButGameIsIncomplete )
-                {
+                if ($awardButGameIsIncomplete) {
                     $tooltip .= "...</br>but more achievements have been added!</br>Click here to find out what you're missing!";
                 }
 
                 $imagepath = $awardGameImage;
                 $linkdest = "/Game/$awardData";
-            }
-            else if( $awardType == 2 ) //	Developed a number of earned achievements
+            } elseif ($awardType == 2) //    Developed a number of earned achievements
             {
-                $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . $developerCountBoundaries[ $awardData ] . " times!";
+                $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . $developerCountBoundaries[$awardData] . " times!";
 
-                $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . $developerCountBoundaries[ $awardData ] . ".png";
+                $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . $developerCountBoundaries[$awardData] . ".png";
 
-                $linkdest = ''; //	TBD: referrals page?
-            }
-            else if( $awardType == 3 ) //	Yielded an amount of points earned by players
+                $linkdest = ''; //    TBD: referrals page?
+            } elseif ($awardType == 3) //    Yielded an amount of points earned by players
             {
-                $tooltip = "Awarded for producing many valuable achievements, providing over " . $developerPointBoundaries[ $awardData ] . " points to the community!";
+                $tooltip = "Awarded for producing many valuable achievements, providing over " . $developerPointBoundaries[$awardData] . " points to the community!";
 
-                if( $awardData == 0 )
+                if ($awardData == 0) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00133.png";
-                else if( $awardData == 1 )
+                } elseif ($awardData == 1) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00134.png";
-                else if( $awardData == 2 )
+                } elseif ($awardData == 2) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00137.png";
-                else if( $awardData == 3 )
+                } elseif ($awardData == 3) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00135.png";
-                else if( $awardData == 4 )
+                } elseif ($awardData == 4) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00136.png";
-                else
+                } else {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00136.png";
+                }
 
-                $linkdest = ''; //	TBD: referrals page?
-            }
-            else if( $awardType == 4 ) //	Referrals
+                $linkdest = ''; //    TBD: referrals page?
+            } elseif ($awardType == 4) //    Referrals
             {
                 $tooltip = "Referred $awardData members";
 
-                if( $awardData < 2 )
+                if ($awardData < 2) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
-                else if( $awardData < 3 )
+                } elseif ($awardData < 3) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
-                else if( $awardData < 5 )
+                } elseif ($awardData < 5) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
-                else if( $awardData < 10 )
+                } elseif ($awardData < 10) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
-                else if( $awardData < 15 )
+                } elseif ($awardData < 15) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
-                else
+                } else {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
+                }
 
-                $linkdest = ''; //	TBD: referrals page?
-            }
-            else if( $awardType == 5 ) //	Signed up for facebook!
+                $linkdest = ''; //    TBD: referrals page?
+            } elseif ($awardType == 5) //    Signed up for facebook!
             {
                 $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
 
                 $imagepath = getenv('APP_STATIC_URL') . "/Images/_FBAssoc.png";
                 $linkdest = "/controlpanel.php#facebook";
-            }
-            else if( $awardType == 6 )  //  Patreon Supporter
+            } elseif ($awardType == 6)  //  Patreon Supporter
             {
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 
                 $imagepath = getenv('APP_STATIC_URL') . '/Badge/PatreonBadge.png';
                 $linkdest = 'https://www.patreon.com/retroachievements';
-            }
-            else
-            {
-                error_log( "Unknown award type" . $awardType );
+            } else {
+                error_log("Unknown award type" . $awardType);
                 continue;
             }
 
             $displayable = "<a href=\"$linkdest\"><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" src=\"$imagepath\" width=\"$imageSize\" height=\"$imageSize\" /></a>";
             $tooltipImagePath = "$imagepath";
-            $tooltipImageSize = 96; //64;	//	screw that, lets make it big!
+            $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
             $tooltipTitle = "Site Award";
 
-            $textWithTooltip = WrapWithTooltip( $displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip );
+            $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle,
+                $tooltip);
 
             $newOverlayDiv = '';
-            if( $awardButGameIsIncomplete )
-            {
-                $newOverlayDiv = WrapWithTooltip( "<a href=\"$linkdest\"><div class=\"trophyimageincomplete\"></div></a>", $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip );
+            if ($awardButGameIsIncomplete) {
+                $newOverlayDiv = WrapWithTooltip("<a href=\"$linkdest\"><div class=\"trophyimageincomplete\"></div></a>",
+                    $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
             }
 
             echo "<td><div class='trophycontainer'><div class='trophyimage'>$textWithTooltip</div>$newOverlayDiv</div></td>";
@@ -1516,7 +1528,7 @@ function RenderSiteAwards( $userAwards )
     echo "</div>";
 }
 
-function RenderCompletedGamesList( $user, $userCompletedGamesList )
+function RenderCompletedGamesList($user, $userCompletedGamesList)
 {
     echo "<div id='completedgames' class='component' >";
 
@@ -1526,50 +1538,52 @@ function RenderCompletedGamesList( $user, $userCompletedGamesList )
     echo "<table class='smalltable'><tbody>";
     echo "<tr><th colspan='2'>Game</th><th>Completion</th></tr>";
 
-    $numItems = count( $userCompletedGamesList );
-    for( $i = 0; $i < $numItems; $i++ )
-    {
-        $nextGameID = $userCompletedGamesList[ $i ][ 'GameID' ];
-        $nextConsoleName = $userCompletedGamesList[ $i ][ 'ConsoleName' ];
-        $nextTitle = $userCompletedGamesList[ $i ][ 'Title' ];
-        $nextImageIcon = $userCompletedGamesList[ $i ][ 'ImageIcon' ];
+    $numItems = count($userCompletedGamesList);
+    for ($i = 0; $i < $numItems; $i++) {
+        $nextGameID = $userCompletedGamesList[$i]['GameID'];
+        $nextConsoleName = $userCompletedGamesList[$i]['ConsoleName'];
+        $nextTitle = $userCompletedGamesList[$i]['Title'];
+        $nextImageIcon = $userCompletedGamesList[$i]['ImageIcon'];
 
-        $nextMaxPossible = $userCompletedGamesList[ $i ][ 'MaxPossible' ];
+        $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
 
-        $nextNumAwarded = $userCompletedGamesList[ $i ][ 'NumAwarded' ];
-        if( $nextNumAwarded == 0 || $nextMaxPossible == 0 ) //	Ignore 0 (div by 0 anyway)
+        $nextNumAwarded = $userCompletedGamesList[$i]['NumAwarded'];
+        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) //    Ignore 0 (div by 0 anyway)
+        {
             continue;
+        }
 
-        $pctAwardedNormal = ( $nextNumAwarded / $nextMaxPossible ) * 100.0;
+        $pctAwardedNormal = ($nextNumAwarded / $nextMaxPossible) * 100.0;
 
-        $nextNumAwardedHC = isset( $userCompletedGamesList[ $i ][ 'NumAwardedHC' ] ) ? $userCompletedGamesList[ $i ][ 'NumAwardedHC' ] : 0;
-        $pctAwardedHC = ( $nextNumAwardedHC / $nextMaxPossible ) * 100.0;
-        $pctAwardedHCProportional = ( $nextNumAwardedHC / $nextNumAwarded ) * 100.0; //	This is given as a proportion of normal completion!
+        $nextNumAwardedHC = isset($userCompletedGamesList[$i]['NumAwardedHC']) ? $userCompletedGamesList[$i]['NumAwardedHC'] : 0;
+        $pctAwardedHC = ($nextNumAwardedHC / $nextMaxPossible) * 100.0;
+        $pctAwardedHCProportional = ($nextNumAwardedHC / $nextNumAwarded) * 100.0; //    This is given as a proportion of normal completion!
         //$nextTotalAwarded = $nextNumAwarded + $nextNumAwardedHC;
-        $nextTotalAwarded = $nextNumAwardedHC > $nextNumAwarded ? $nextNumAwardedHC : $nextNumAwarded; //	Just take largest
+        $nextTotalAwarded = $nextNumAwardedHC > $nextNumAwarded ? $nextNumAwardedHC : $nextNumAwarded; //    Just take largest
 
-        if( !isset( $nextMaxPossible ) )
+        if (!isset($nextMaxPossible)) {
             continue;
+        }
 
-        $nextPctAwarded = $userCompletedGamesList[ $i ][ 'PctWon' ] * 100.0;
+        $nextPctAwarded = $userCompletedGamesList[$i]['PctWon'] * 100.0;
         //$nextCompletionPct = sprintf( "%2.2f", $nextNumAwarded / $nextMaxPossible );
 
         echo "<tr>";
 
 
         $tooltipImagePath = "$nextImageIcon";
-        $tooltipImageSize = 96; //64;	//	screw that, lets make it big!
+        $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
         $tooltipTitle = "$nextTitle";
         //$tooltipTitle = str_replace( "'", "\'", $tooltipTitle );
         $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
-        $tooltip = sprintf( "%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100 );
+        $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
 
         $displayable = "<a href=\"/Game/$nextGameID\"><img alt=\"$tooltipTitle ($nextConsoleName)\" title=\"$tooltipTitle\" src=\"$nextImageIcon\" width=\"32\" height=\"32\" />";
-        $textWithTooltip = WrapWithTooltip( $displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip );
+        $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
 
         echo "<td class='gameimage'>$textWithTooltip</td>";
         $displayable = "<a href=\"/Game/$nextGameID\">$nextTitle</a>";
-        $textWithTooltip = WrapWithTooltip( $displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip );
+        $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
         echo "<td class=''>$textWithTooltip</td>";
         echo "<td class='progress'>";
 
@@ -1595,32 +1609,28 @@ function RenderCompletedGamesList( $user, $userCompletedGamesList )
     echo "</div>";
 }
 
-function RenderGameLeaderboardsComponent( $gameID, $lbData )
+function RenderGameLeaderboardsComponent($gameID, $lbData)
 {
-    $numLBs = count( $lbData );
+    $numLBs = count($lbData);
     echo "<div class='component'>";
     echo "<h3>Leaderboards</h3>";
 
-    if( $numLBs == 0 )
-    {
+    if ($numLBs == 0) {
         echo "No leaderboards found: why not suggest some for this game? ";
         echo "<div class='rightalign'><a href='/leaderboardList.php'>Leaderboard List</a></div>";
-    }
-    else
-    {
+    } else {
         echo "<table class='smalltable'><tbody>";
 
         $count = 0;
-        foreach( $lbData as $lbItem )
-        {
-            $lbID = $lbItem[ 'LeaderboardID' ];
-            $lbTitle = $lbItem[ 'Title' ];
-            $lbDesc = $lbItem[ 'Description' ];
-            $bestScoreUser = $lbItem[ 'User' ];
-            $bestScore = $lbItem[ 'Score' ];
-            $scoreFormat = $lbItem[ 'Format' ];
+        foreach ($lbData as $lbItem) {
+            $lbID = $lbItem['LeaderboardID'];
+            $lbTitle = $lbItem['Title'];
+            $lbDesc = $lbItem['Description'];
+            $bestScoreUser = $lbItem['User'];
+            $bestScore = $lbItem['Score'];
+            $scoreFormat = $lbItem['Format'];
 
-            //	Title
+            //    Title
             echo "<tr class='alt'>";
             echo "<td colspan='2'>";
             echo "<div class='fixheightcellsmaller'><a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a></div>";
@@ -1628,16 +1638,16 @@ function RenderGameLeaderboardsComponent( $gameID, $lbData )
             echo "</td>";
             echo "</tr>";
 
-            //	Score/Best entry
+            //    Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
             //echo "<a href='/User/" . $bestScoreUser . "'><img alt='$bestScoreUser' title='$bestScoreUser' src='/UserPic/$bestScoreUser.png' width='32' height='32' /></a>";
-            echo GetUserAndTooltipDiv( $bestScoreUser, NULL, NULL, NULL, NULL, TRUE );
-            echo GetUserAndTooltipDiv( $bestScoreUser, NULL, NULL, NULL, NULL, FALSE );
+            echo GetUserAndTooltipDiv($bestScoreUser, null, null, null, null, true);
+            echo GetUserAndTooltipDiv($bestScoreUser, null, null, null, null, false);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
-            echo GetFormattedLeaderboardEntry( $scoreFormat, $bestScore );
+            echo GetFormattedLeaderboardEntry($scoreFormat, $bestScore);
             echo "</a>";
             echo "</td>";
 
@@ -1654,28 +1664,28 @@ function RenderGameLeaderboardsComponent( $gameID, $lbData )
     echo "</div>";
 }
 
-function RenderGameCompare( $user, $gameID, $friendScores, $maxTotalPossibleForGame )
+function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame)
 {
     echo "<div id='gamecompare' class='component' >";
     echo "<h3>Friends</h3>";
-    if( isset( $friendScores ) )
-    {
+    if (isset($friendScores)) {
         echo "<div class='nicebox'>";
         echo "Compare to your friend:<br/>";
         echo "<table class='smalltable'><tbody>";
-        foreach( $friendScores as $friendScoreName => $friendData )
-        {
+        foreach ($friendScores as $friendScoreName => $friendData) {
             $link = "/gamecompare.php?ID=$gameID&f=$friendScoreName";
 
             echo "<tr>";
             echo "<td>";
-            echo GetUserAndTooltipDiv( $friendScoreName, $friendData[ 'RAPoints' ], $friendData[ 'Motto' ], $friendData[ 'RichPresenceMsg' ], $friendData[ 'LastUpdate' ], TRUE, $link );
-            echo GetUserAndTooltipDiv( $friendScoreName, $friendData[ 'RAPoints' ], $friendData[ 'Motto' ], $friendData[ 'RichPresenceMsg' ], $friendData[ 'LastUpdate' ], FALSE, $link );
+            echo GetUserAndTooltipDiv($friendScoreName, $friendData['RAPoints'], $friendData['Motto'],
+                $friendData['RichPresenceMsg'], $friendData['LastUpdate'], true, $link);
+            echo GetUserAndTooltipDiv($friendScoreName, $friendData['RAPoints'], $friendData['Motto'],
+                $friendData['RichPresenceMsg'], $friendData['LastUpdate'], false, $link);
             echo "</td>";
 
             echo "<td>";
             echo "<a href='$link'>";
-            echo $friendData[ 'TotalPoints' ] . "/$maxTotalPossibleForGame";
+            echo $friendData['TotalPoints'] . "/$maxTotalPossibleForGame";
             echo "</a>";
             echo "</td>";
 
@@ -1694,24 +1704,16 @@ function RenderGameCompare( $user, $gameID, $friendScores, $maxTotalPossibleForG
         echo "</form>";
 
         echo "</div>";
-    }
-    else
-    {
+    } else {
         echo "<div class='nicebox'>";
-        if( $totalFriends > 0 )
-        {
+        if ($totalFriends > 0) {
             echo "None of your friends appear to have won any achievements for $gameTitle!<br/>";
             echo "Brag about your achievements to them <a href='/friends.php'>on their user wall</a>!";
-        }
-        else
-        {
+        } else {
             echo "RetroAchievements is a lot more fun with friends!<br/><br/>";
-            if( $user == NULL )
-            {
+            if ($user == null) {
                 echo "<a href='/createaccount.php'>Create an account</a> or login and start earning achievements today!<br/>";
-            }
-            else
-            {
+            } else {
                 echo "Find friends to add <a href='/userList.php'>here</a>!<br/>";
                 echo "<br/>";
                 echo "or compare your progress in this game against any user:<br/>";
@@ -1728,14 +1730,14 @@ function RenderGameCompare( $user, $gameID, $friendScores, $maxTotalPossibleForG
     echo "</div>";
 }
 
-function RenderRecentlyAwardedComponent( $user, $points )
+function RenderRecentlyAwardedComponent($user, $points)
 {
     $componentHeight = 514;
     $style = "height:$componentHeight" . "px";
     echo "<div class='component' style='$style'>";
     echo "<h3>recently awarded</h3>";
 
-    $count = getRecentlyEarnedAchievements( 10, NULL, $dataArray );
+    $count = getRecentlyEarnedAchievements(10, null, $dataArray);
 
     $lastDate = '';
 
@@ -1744,39 +1746,39 @@ function RenderRecentlyAwardedComponent( $user, $points )
 
     $iter = 0;
 
-    for( $i = 0; $i < $count; $i++ )
-    {
-        $timestamp = strtotime( $dataArray[ $i ][ 'DateAwarded' ] );
-        $dateAwarded = date( "d M", $timestamp );
+    for ($i = 0; $i < $count; $i++) {
+        $timestamp = strtotime($dataArray[$i]['DateAwarded']);
+        $dateAwarded = date("d M", $timestamp);
 
-        if( date( "d", $timestamp ) == date( "d" ) )
+        if (date("d", $timestamp) == date("d")) {
             $dateAwarded = "Today";
-        else if( date( "d", $timestamp ) == ( date( "d" ) - 1 ) )
+        } elseif (date("d", $timestamp) == (date("d") - 1)) {
             $dateAwarded = "Y'day";
+        }
 
-        if( $lastDate !== $dateAwarded )
-        {
+        if ($lastDate !== $dateAwarded) {
             $lastDate = $dateAwarded;
         }
 
-        //	Alternating colours for table :)
-        if( $iter++ % 2 == 0 )
+        //    Alternating colours for table :)
+        if ($iter++ % 2 == 0) {
             echo "<tr>";
-        else
+        } else {
             echo "<tr class='alt'>";
+        }
 
-        $wonAt = date( "H:i", $timestamp );
-        $nextUser = $dataArray[ $i ][ 'User' ];
-        $achID = $dataArray[ $i ][ 'AchievementID' ];
-        $achTitle = $dataArray[ $i ][ 'Title' ];
-        $achDesc = $dataArray[ $i ][ 'Description' ];
-        $achPoints = $dataArray[ $i ][ 'Points' ];
-        $badgeName = $dataArray[ $i ][ 'BadgeName' ];
+        $wonAt = date("H:i", $timestamp);
+        $nextUser = $dataArray[$i]['User'];
+        $achID = $dataArray[$i]['AchievementID'];
+        $achTitle = $dataArray[$i]['Title'];
+        $achDesc = $dataArray[$i]['Description'];
+        $achPoints = $dataArray[$i]['Points'];
+        $badgeName = $dataArray[$i]['BadgeName'];
         //$badgeFullPath = getenv('APP_STATIC_URL')."/Badge/" . $badgeName . ".png";
-        $gameTitle = $dataArray[ $i ][ 'GameTitle' ];
-        $gameID = $dataArray[ $i ][ 'GameID' ];
-        $gameIcon = $dataArray[ $i ][ 'GameIcon' ];
-        $consoleTitle = $dataArray[ $i ][ 'ConsoleTitle' ];
+        $gameTitle = $dataArray[$i]['GameTitle'];
+        $gameID = $dataArray[$i]['GameID'];
+        $gameIcon = $dataArray[$i]['GameIcon'];
+        $consoleTitle = $dataArray[$i]['ConsoleTitle'];
 
         echo "<td>";
         echo "$dateAwarded $wonAt";
@@ -1784,15 +1786,15 @@ function RenderRecentlyAwardedComponent( $user, $points )
 
         echo "<td>";
         //echo "<a href='/User/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
-        echo GetUserAndTooltipDiv( $nextUser, NULL, NULL, NULL, NULL, TRUE );
+        echo GetUserAndTooltipDiv($nextUser, null, null, null, null, true);
         echo "</td>";
 
         echo "<td><div class='fixheightcell'>";
-        echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, TRUE );
+        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true);
         echo "</div></td>";
 
         echo "<td><div class='fixheightcell'>";
-        echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleTitle, TRUE );
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleTitle, true);
         echo "</div></td>";
 
         echo "</tr>";
@@ -1802,61 +1804,60 @@ function RenderRecentlyAwardedComponent( $user, $points )
     echo "</div>";
 }
 
-function RenderRecentlyUploadedComponent( $numToFetch )
+function RenderRecentlyUploadedComponent($numToFetch)
 {
     echo "<div class='component'>";
     echo "<h3>New Achievements</h3>";
 
-    $numFetched = getLatestNewAchievements( $numToFetch, $dataOut );
-    if( $numFetched > 0 )
-    {
+    $numFetched = getLatestNewAchievements($numToFetch, $dataOut);
+    if ($numFetched > 0) {
         echo "<table class='sidebar'><tbody>";
         echo "<tr><th>Added</th><th>Achievement</th><th>Game</th></tr>";
 
         $lastDate = '';
         $iter = 0;
 
-        for( $i = 0; $i < $numToFetch; $i++ )
-        {
-            $nextData = $dataOut[ $i ];
+        for ($i = 0; $i < $numToFetch; $i++) {
+            $nextData = $dataOut[$i];
 
-            $timestamp = strtotime( $nextData[ 'DateCreated' ] );
-            $dateAwarded = date( "d M", $timestamp );
+            $timestamp = strtotime($nextData['DateCreated']);
+            $dateAwarded = date("d M", $timestamp);
 
-            if( date( "d", $timestamp ) == date( "d" ) )
+            if (date("d", $timestamp) == date("d")) {
                 $dateAwarded = "Today";
-            else if( date( "d", $timestamp ) == ( date( "d" ) - 1 ) )
+            } elseif (date("d", $timestamp) == (date("d") - 1)) {
                 $dateAwarded = "Y'day";
+            }
 
-            if( $lastDate !== $dateAwarded )
-            {
+            if ($lastDate !== $dateAwarded) {
                 $lastDate = $dateAwarded;
             }
-            //	Alternating colours for table :)
-            if( $iter++ % 2 == 0 )
+            //    Alternating colours for table :)
+            if ($iter++ % 2 == 0) {
                 echo "<tr>";
-            else
+            } else {
                 echo "<tr class='alt'>";
+            }
 
-            $uploadedAt = date( "H:i", $timestamp );
-            $achID = $nextData[ 'ID' ];
-            $achTitle = $nextData[ 'Title' ];
-            $achDesc = $nextData[ 'Description' ];
-            $achPoints = $nextData[ 'Points' ];
-            $gameID = $nextData[ 'GameID' ];
-            $gameTitle = $nextData[ 'GameTitle' ];
-            $gameIcon = $nextData[ 'GameIcon' ];
-            $achBadgeName = $nextData[ 'BadgeName' ];
-            $consoleName = $nextData[ 'ConsoleName' ];
+            $uploadedAt = date("H:i", $timestamp);
+            $achID = $nextData['ID'];
+            $achTitle = $nextData['Title'];
+            $achDesc = $nextData['Description'];
+            $achPoints = $nextData['Points'];
+            $gameID = $nextData['GameID'];
+            $gameTitle = $nextData['GameTitle'];
+            $gameIcon = $nextData['GameIcon'];
+            $achBadgeName = $nextData['BadgeName'];
+            $consoleName = $nextData['ConsoleName'];
             //$badgeFullPath = getenv('APP_STATIC_URL')."/Badge/" . $achBadgeName . ".png";
 
             echo "<td>$dateAwarded $uploadedAt</td>";
             echo "<td style='width:50%'><div class='fixheightcell'>";
             //echo "<img title='$achTitle' alt='$achTitle' src='$badgeFullPath' width='32' height='32' />";
-            echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
+            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
             echo "</div></td>";
             echo "<td><div class='fixheightcell'>";
-            echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, TRUE );
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
             echo "</div></td>";
 
             echo "</tr>";
@@ -1870,33 +1871,31 @@ function RenderRecentlyUploadedComponent( $numToFetch )
     }
 }
 
-function RenderDeveloperStats( $user, $type )
+function RenderDeveloperStats($user, $type)
 {
     echo "<div class='component'>";
     echo "<h3>Developer Stats</h3>";
 
-    $devData = GetDeveloperStats( 99, $type );
-    if( count( $devData ) > 0 )
-    {
-        $tableType = ($type == 2) ? "Num Achievements Won By Others" : ( ($type == 1) ? "Num Points Allocated" : "Num Achievements Developed" );
+    $devData = GetDeveloperStats(99, $type);
+    if (count($devData) > 0) {
+        $tableType = ($type == 2) ? "Num Achievements Won By Others" : (($type == 1) ? "Num Points Allocated" : "Num Achievements Developed");
 
         echo "<table><tbody>";
         echo "<tr><th>Rank</th><th>Developer</th><th>$tableType</th></tr>";
 
-        for( $i = 0; $i < count( $devData ); $i++ )
-        {
-            $nextData = $devData[ $i ];
+        for ($i = 0; $i < count($devData); $i++) {
+            $nextData = $devData[$i];
 
             $rank = $i + 1;
-            $developer = $nextData[ 'Author' ];
-            $numAchievements = $nextData[ 'NumCreated' ];
+            $developer = $nextData['Author'];
+            $numAchievements = $nextData['NumCreated'];
 
             echo "<tr>";
             echo "<td>$rank</td>";
 
             echo "<td><div class='fixheightcell'>";
-            echo GetUserAndTooltipDiv( $developer, NULL, NULL, NULL, NULL, true );
-            echo GetUserAndTooltipDiv( $developer, NULL, NULL, NULL, NULL, false );
+            echo GetUserAndTooltipDiv($developer, null, null, null, null, true);
+            echo GetUserAndTooltipDiv($developer, null, null, null, null, false);
             echo "</div></td>";
 
             echo "<td>$numAchievements</td>";
@@ -1922,15 +1921,12 @@ function RenderDocsComponent()
       </div>";
 }
 
-function RenderCurrentlyOnlineComponent( $user )
+function RenderCurrentlyOnlineComponent($user)
 {
-    if( isset( $user ) )
-    {
-        //	not impl
-    }
-    else
-    {
-        //	global
+    if (isset($user)) {
+        //    not impl
+    } else {
+        //    global
 
         echo "<div class='component'>";
         echo "<h3>Currently Online</h3>";
@@ -1938,7 +1934,7 @@ function RenderCurrentlyOnlineComponent( $user )
 
         $playersArray = getCurrentlyOnlinePlayers();
 
-        $numPlayers = count( $playersArray );
+        $numPlayers = count($playersArray);
         echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
 
         //$numOutput = 0;
@@ -1948,7 +1944,7 @@ function RenderCurrentlyOnlineComponent( $user )
         //    {
         //        echo " and ";
         //    }
-        //    else if( $numOutput > 0 )
+        //    elseif( $numOutput > 0 )
         //    {
         //        echo ", ";
         //    }
@@ -1969,9 +1965,9 @@ function RenderActivePlayersComponent()
     echo "<h3>Active Players</h3>";
 
     echo "<div id='activeplayersbox' style='min-height: 54px'>";
-    //	fetch via ajaphp
+    //    fetch via ajaphp
     $playersArray = getCurrentlyOnlinePlayers();
-    $numPlayers = count( $playersArray );
+    $numPlayers = count($playersArray);
     echo "There are currently <strong>$numPlayers</strong> players online.<br/>";
     //$numOutput = 0;
     //foreach( $playersArray as $nextPlayer )
@@ -1980,7 +1976,7 @@ function RenderActivePlayersComponent()
     //    {
     //        echo " and ";
     //    }
-    //    else if( $numOutput > 0 )
+    //    elseif( $numOutput > 0 )
     //    {
     //        echo ", ";
     //    }
@@ -1994,33 +1990,34 @@ function RenderActivePlayersComponent()
     echo "</div>";
 }
 
-function RenderAOTWComponent( $achID, $forumTopicID )
+function RenderAOTWComponent($achID, $forumTopicID)
 {
-    if( !getAchievementMetadata( $achID, $achData ) )
+    if (!getAchievementMetadata($achID, $achData)) {
         return;
+    }
 
     echo "<div class='component aotwcomponent' >";
     echo "<h3>Achievement of the Week</h3>";
     echo "<div id='aotwbox' style='text-align:center;'>";
 
-    $gameID = $achData[ 'GameID' ];
-    $gameTitle = $achData[ 'GameTitle' ];
-    $gameIcon = $achData[ 'GameIcon' ];
-    $consoleName = $achData[ 'ConsoleName' ];
+    $gameID = $achData['GameID'];
+    $gameTitle = $achData['GameTitle'];
+    $gameIcon = $achData['GameIcon'];
+    $consoleName = $achData['ConsoleName'];
 
-    $achID = $achData[ 'AchievementID' ];
-    $achTitle = $achData[ 'AchievementTitle' ];
-    $achDesc = $achData[ 'Description' ];
-    $achBadgeName = $achData[ 'BadgeName' ];
-    $achPoints = $achData[ 'Points' ];
-    $achTruePoints = $achData[ 'TrueRatio' ];
+    $achID = $achData['AchievementID'];
+    $achTitle = $achData['AchievementTitle'];
+    $achDesc = $achData['Description'];
+    $achBadgeName = $achData['BadgeName'];
+    $achPoints = $achData['Points'];
+    $achTruePoints = $achData['TrueRatio'];
 
     echo "Achievement: ";
-    echo GetAchievementAndTooltipDiv( $achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, TRUE );
+    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
     echo "<br/>";
 
     echo "on Game: ";
-    echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, FALSE, 32 );
+    echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
     echo "<br/>";
 
     echo "<span class='clickablebutton'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
@@ -2030,49 +2027,49 @@ function RenderAOTWComponent( $achID, $forumTopicID )
     echo "</div>";
 }
 
-function RenderRecentForumPostsComponent( $numToFetch = 4 )
+function RenderRecentForumPostsComponent($numToFetch = 4)
 {
     echo "<div class='component' >";
     echo "<h3>Forum Activity</h3>";
 
-    if( getRecentForumPosts( 0, $numToFetch, 45, $recentPostData ) != 0 )
-    {
+    if (getRecentForumPosts(0, $numToFetch, 45, $recentPostData) != 0) {
         echo "<table class='recentforumposts'><tbody>";
         echo "<tr><th>At</th><th>User</th><th>Message</th><th>Topic</th></tr>";
 
         $lastDate = '';
         $iter = 0;
 
-        for( $i = 0; $i < $numToFetch; $i++ )
-        {
-            $nextData = $recentPostData[ $i ];
-            $timestamp = strtotime( $nextData[ 'PostedAt' ] );
-            $datePosted = date( "d M", $timestamp );
+        for ($i = 0; $i < $numToFetch; $i++) {
+            $nextData = $recentPostData[$i];
+            $timestamp = strtotime($nextData['PostedAt']);
+            $datePosted = date("d M", $timestamp);
 
-            if( date( "d", $timestamp ) == date( "d" ) )
+            if (date("d", $timestamp) == date("d")) {
                 $datePosted = "Today";
-            else if( date( "d", $timestamp ) == ( date( "d" ) - 1 ) )
+            } elseif (date("d", $timestamp) == (date("d") - 1)) {
                 $datePosted = "Y'day";
+            }
 
-            $postedAt = date( "H:i", $timestamp );
+            $postedAt = date("H:i", $timestamp);
 
-            if( $lastDate !== $datePosted )
+            if ($lastDate !== $datePosted) {
                 $lastDate = $datePosted;
+            }
 
             echo "<tr>";
 
-            $shortMsg = $nextData[ 'ShortMsg' ] . "...";
-            $author = $nextData[ 'Author' ];
-            $userPoints = $nextData[ 'RAPoints' ];
-            $userMotto = $nextData[ 'Motto' ];
-            $commentID = $nextData[ 'CommentID' ];
-            $forumTopicID = $nextData[ 'ForumTopicID' ];
-            $forumTopicTitle = $nextData[ 'ForumTopicTitle' ];
+            $shortMsg = $nextData['ShortMsg'] . "...";
+            $author = $nextData['Author'];
+            $userPoints = $nextData['RAPoints'];
+            $userMotto = $nextData['Motto'];
+            $commentID = $nextData['CommentID'];
+            $forumTopicID = $nextData['ForumTopicID'];
+            $forumTopicTitle = $nextData['ForumTopicTitle'];
 
             echo "<td>$datePosted $postedAt</td>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv( $author, $userPoints, $userMotto, NULL, NULL, TRUE );
+            echo GetUserAndTooltipDiv($author, $userPoints, $userMotto, null, null, true);
             echo "</td>";
 
             echo "<td class='recentforummsg'>$shortMsg<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID'>[view]</a></td>";
@@ -2085,11 +2082,9 @@ function RenderRecentForumPostsComponent( $numToFetch = 4 )
         }
 
         echo "</tbody></table>";
-    }
-    else
-    {
-        error_log( __FUNCTION__ );
-        error_log( "Cannot get latest forum posts!" );
+    } else {
+        error_log(__FUNCTION__);
+        error_log("Cannot get latest forum posts!");
     }
 
     echo "<span class='morebutton'><a href='/forumposthistory.php'>more...</a></span>";
@@ -2097,42 +2092,45 @@ function RenderRecentForumPostsComponent( $numToFetch = 4 )
     echo "</div>";
 }
 
-function RenderStaticDataComponent( $staticData )
+function RenderStaticDataComponent($staticData)
 {
     echo "<div class='component statistics'>";
     echo "<h3>Statistics</h3>";
 
-    $numGames = $staticData[ 'NumGames' ];
-    $numAchievements = $staticData[ 'NumAchievements' ];
-    $numAwarded = $staticData[ 'NumAwarded' ];
-    $numRegisteredPlayers = $staticData[ 'NumRegisteredUsers' ];
+    $numGames = $staticData['NumGames'];
+    $numAchievements = $staticData['NumAchievements'];
+    $numAwarded = $staticData['NumAwarded'];
+    $numRegisteredPlayers = $staticData['NumRegisteredUsers'];
 
     $avAwardedPerPlayer = 0;
-    if( $numRegisteredPlayers > 0 )
-        $avAwardedPerPlayer = sprintf( "%1.2f", ($numAwarded / $numRegisteredPlayers ) );
+    if ($numRegisteredPlayers > 0) {
+        $avAwardedPerPlayer = sprintf("%1.2f", ($numAwarded / $numRegisteredPlayers));
+    }
 
-    $lastRegisteredUser = $staticData[ 'LastRegisteredUser' ];
-    $lastRegisteredUserAt = $staticData[ 'LastRegisteredUserAt' ];
-    $lastAchievementEarnedID = $staticData[ 'LastAchievementEarnedID' ];
-    $lastAchievementEarnedTitle = $staticData[ 'LastAchievementEarnedTitle' ];
-    $lastAchievementEarnedByUser = $staticData[ 'LastAchievementEarnedByUser' ];
-    $lastAchievementEarnedAt = $staticData[ 'LastAchievementEarnedAt' ];
-    $totalPointsEarned = $staticData[ 'TotalPointsEarned' ];
+    $lastRegisteredUser = $staticData['LastRegisteredUser'];
+    $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
+    $lastAchievementEarnedID = $staticData['LastAchievementEarnedID'];
+    $lastAchievementEarnedTitle = $staticData['LastAchievementEarnedTitle'];
+    $lastAchievementEarnedByUser = $staticData['LastAchievementEarnedByUser'];
+    $lastAchievementEarnedAt = $staticData['LastAchievementEarnedAt'];
+    $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-    $nextGameToScanID = $staticData[ 'NextGameToScan' ];
-    $nextGameToScan = $staticData[ 'NextGameTitleToScan' ];
-    $nextGameToScanIcon = $staticData[ 'NextGameToScanIcon' ];
-    $nextGameConsoleToScan = $staticData[ 'NextGameToScanConsole' ];
+    $nextGameToScanID = $staticData['NextGameToScan'];
+    $nextGameToScan = $staticData['NextGameTitleToScan'];
+    $nextGameToScanIcon = $staticData['NextGameToScanIcon'];
+    $nextGameConsoleToScan = $staticData['NextGameToScanConsole'];
 
-    $nextUserToScan = $staticData[ 'NextUserToScan' ];
+    $nextUserToScan = $staticData['NextUserToScan'];
 
-    $niceRegisteredAt = date( "d M\nH:i", strtotime( $lastRegisteredUserAt ) );
+    $niceRegisteredAt = date("d M\nH:i", strtotime($lastRegisteredUserAt));
 
-    if( $lastRegisteredUser == NULL )
+    if ($lastRegisteredUser == null) {
         $lastRegisteredUser = "unknown";
+    }
 
-    if( $lastRegisteredUserAt == NULL )
+    if ($lastRegisteredUserAt == null) {
         $lastRegisteredUserAt = "unknown";
+    }
 
     echo "<div class='infobox'>";
     echo "There are ";
@@ -2154,7 +2152,7 @@ function RenderStaticDataComponent( $staticData )
     echo "<br/>";
 
     echo "The last registered user was ";
-    echo GetUserAndTooltipDiv( $lastRegisteredUser, NULL, NULL, NULL, NULL, FALSE );
+    echo GetUserAndTooltipDiv($lastRegisteredUser, null, null, null, null, false);
     //echo "<a href='/User/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br/>";
 
@@ -2176,63 +2174,57 @@ function RenderStaticDataComponent( $staticData )
     echo "</div>";
 }
 
-function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos = '', $overloadVideoID = 0 )
+function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos = '', $overloadVideoID = 0)
 {
     echo "<div class='component $componentPos stream' >";
     echo "<h3>Twitch Stream</h3>";
 
     $archiveURLs = array();
-    if( $componentPos == 'left' )
-    {
+    if ($componentPos == 'left') {
         $query = "SELECT *
-			FROM PlaylistVideo
-			ORDER BY Added DESC";
+            FROM PlaylistVideo
+            ORDER BY Added DESC";
 
-        $dbResult = s_mysql_query( $query );
+        $dbResult = s_mysql_query($query);
 
-        while( $nextData = mysqli_fetch_assoc( $dbResult ) )
-        {
-            $archiveURLs[ $nextData[ 'ID' ] ] = $nextData;
+        while ($nextData = mysqli_fetch_assoc($dbResult)) {
+            $archiveURLs[$nextData['ID']] = $nextData;
         }
     }
 
     //$chatWidth = 300;
     //$chatHeight = 335;
 
-    if( $overloadVideoID !== 0 && isset( $archiveURLs[ $overloadVideoID ] ) )
-    {
-        $vidTitle = htmlspecialchars( $archiveURLs[ $overloadVideoID ][ 'Title' ] );
-        $vidURL = $archiveURLs[ $overloadVideoID ][ 'Link' ];
-        $vidChapter = substr( $vidURL, strrpos( $vidURL, "/" ) + 1 );
+    if ($overloadVideoID !== 0 && isset($archiveURLs[$overloadVideoID])) {
+        $vidTitle = htmlspecialchars($archiveURLs[$overloadVideoID]['Title']);
+        $vidURL = $archiveURLs[$overloadVideoID]['Link'];
+        $vidChapter = substr($vidURL, strrpos($vidURL, "/") + 1);
 
         //<object type="application/x-shockwave-flash" height="378" width="620" id="live_embed_player_flash" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg" bgcolor="#000000"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="allowNetworking" value="all" /><param name="movie" value="http://www.twitch.tv/widgets/live_embed_player.swf" /><param name="flashvars" value="hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25" /></object><a href="http://www.twitch.tv/retroachievementsorg" style="padding:2px 0px 4px; display:block; width:345px; font-weight:normal; font-size:10px;text-decoration:underline; text-align:center;">Watch live video from RetroAchievementsOrg on www.twitch.tv</a>
         $videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='clip_embed_player_flash' data='//www.twitch.tv/widgets/archive_embed_player.swf'>
-        	<param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'>
-        	<param name='allowScriptAccess' value='always'>
-        	<param name='allowNetworking' value='all'>
-        	<param name='allowFullScreen' value='true'>
-        	<param name='flashvars' value='title=$vidTitle&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;auto_play=$autoplay&amp;start_volume=25&amp;chapter_id=$vidChapter'>
-        	</object>";
+            <param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'>
+            <param name='allowScriptAccess' value='always'>
+            <param name='allowNetworking' value='all'>
+            <param name='allowFullScreen' value='true'>
+            <param name='flashvars' value='title=$vidTitle&amp;channel=" . getenv('TWITCH_CHANNEL') . "&amp;auto_play=$autoplay&amp;start_volume=25&amp;chapter_id=$vidChapter'>
+            </object>";
 
         //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-    }
-    else
-    {
+    } else {
         $muted = 'false';
-        if( IsAtHome() )
-        {
+        if (IsAtHome()) {
             $muted = 'true';
         }
 
-        $videoHTML = '<iframe src="//player.twitch.tv/?channel='.getenv('TWITCH_CHANNEL').'&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+        $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
 
         //$videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='live_embed_player_flash' data='http://www.twitch.tv/widgets/live_embed_player.swf?channel=".getenv('TWITCH_CHANNEL')."'>
-        //	<param name='allowFullScreen' value='true' />
-        //	<param name='allowScriptAccess' value='always' />
-        //	<param name='allowNetworking' value='all' />
-        //	<param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' />
-        //	<param name='flashvars' value='hostname=www.twitch.tv&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;auto_play=$autoplay&amp;start_volume=25' />
-        //	</object>";
+        //    <param name='allowFullScreen' value='true' />
+        //    <param name='allowScriptAccess' value='always' />
+        //    <param name='allowNetworking' value='all' />
+        //    <param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' />
+        //    <param name='flashvars' value='hostname=www.twitch.tv&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;auto_play=$autoplay&amp;start_volume=25' />
+        //    </object>";
     }
 
     echo "<div class='streamvid'>";
@@ -2243,22 +2235,20 @@ function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos 
     //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
     //echo "</div>";
 
-    echo "<span class='clickablebutton'><a href='//www.twitch.tv/".getenv('TWITCH_CHANNEL')."' class='trk'>see us on twitch.tv</a></span><span class='morebutton'><a style='float:right' href='/largechat.php'>RA Cinema</a></span>";
+    echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span><span class='morebutton'><a style='float:right' href='/largechat.php'>RA Cinema</a></span>";
 
-    if( $componentPos == 'left' )
-    {
+    if ($componentPos == 'left') {
         echo "<form method='post' style='text-align:right; padding:4px 0px'>";
         echo "Currently Watching:&nbsp;";
         echo "<select name='g' onchange=\"reloadTwitchContainer( this.value, 600, 500 ); return false;\">";
         $selected = ($overloadVideoID == 0) ? 'selected' : '';
         echo "<option value='0' $selected>--Live--</option>";
-        foreach( $archiveURLs as $dataElementID => $dataElementObject )
-        {
-            $vidTime = $dataElementObject[ 'Added' ];
-            $niceDate = getNiceDate( strtotime( $vidTime ) );
-            $vidAuthor = $dataElementObject[ 'Author' ];
-            $vidTitle = $dataElementObject[ 'Title' ];
-            $vidID = $dataElementObject[ 'ID' ];
+        foreach ($archiveURLs as $dataElementID => $dataElementObject) {
+            $vidTime = $dataElementObject['Added'];
+            $niceDate = getNiceDate(strtotime($vidTime));
+            $vidAuthor = $dataElementObject['Author'];
+            $vidTitle = $dataElementObject['Title'];
+            $vidID = $dataElementObject['ID'];
             $name = "$vidTitle ($vidAuthor, $niceDate)";
             $selected = ($overloadVideoID == $vidID) ? 'selected' : '';
             echo "<option value='$dataElementID' $selected>$name</option>";
@@ -2270,7 +2260,7 @@ function RenderTwitchTVStream( $vidWidth = 300, $vidHeight = 260, $componentPos 
     echo "</div>";
 }
 
-function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut = false )
+function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut = false)
 {
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
         return '';
@@ -2308,8 +2298,7 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
     echo "<table><tbody>";
     echo "<tr>";
 
-    if( isset( $user ) )
-    {
+    if (isset($user)) {
         echo "<td class='chatcell'><a href='/User/$user'><img src='/UserPic/$user" . ".png' width='32' height='32'/></a></td>";
 
         echo "<td class='chatcell'>";
@@ -2318,9 +2307,7 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
         echo "&nbsp;<input type='button' value='Send' onclick='sendMessage();' />";
         echo "</div>";
         echo "</td>";
-    }
-    else
-    {
+    } else {
         echo "<td class='chatcell'><img src='/UserPic/_User.png' width='32' height='32' alt='default user pic'/></td>";
 
         echo "<td class='chatcell'>";
@@ -2339,9 +2326,8 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
     echo "<div class='rightalign'>Mute&nbsp;<input id='mutechat' type='checkbox' value='Mute' />";
 
 
-    if( $addLinkToPopOut )
-    {
-        echo "&nbsp;<a href='#' onclick=\"window.open('".getenv('APP_URL')."/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
+    if ($addLinkToPopOut) {
+        echo "&nbsp;<a href='#' onclick=\"window.open('" . getenv('APP_URL') . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
     }
     echo "</div>";
 
@@ -2350,7 +2336,7 @@ function RenderChat( $user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut
     echo "</div>";
 }
 
-function RenderBoxArt( $imagePath )
+function RenderBoxArt($imagePath)
 {
     echo "<div class='component gamescreenshots'>";
     echo "<h3>Box Art</h3>";
@@ -2362,30 +2348,29 @@ function RenderBoxArt( $imagePath )
     echo "</div>";
 }
 
-function RenderGameAlts( $gameAlts )
+function RenderGameAlts($gameAlts)
 {
     echo "<div class='component gamealts'>";
     echo "<h3>Similar Games</h3>";
     echo "Have you tried:</br>";
     echo "<table><tbody>";
-    foreach( $gameAlts as $nextGame )
-    {
+    foreach ($gameAlts as $nextGame) {
         echo "<tr>";
-        $gameID = $nextGame[ 'gameIDAlt' ];
-        $gameTitle = $nextGame[ 'Title' ];
-        $gameIcon = $nextGame[ 'ImageIcon' ];
-        $consoleName = $nextGame[ 'ConsoleName' ];
-        $points = $nextGame[ 'Points' ];
-        $totalTP = $nextGame[ 'TotalTruePoints' ];
-        settype( $points, 'integer' );
-        settype( $totalTP, 'integer' );
+        $gameID = $nextGame['gameIDAlt'];
+        $gameTitle = $nextGame['Title'];
+        $gameIcon = $nextGame['ImageIcon'];
+        $consoleName = $nextGame['ConsoleName'];
+        $points = $nextGame['Points'];
+        $totalTP = $nextGame['TotalTruePoints'];
+        settype($points, 'integer');
+        settype($totalTP, 'integer');
 
         echo "<td>";
-        echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, TRUE );
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
         echo "</td>";
 
         echo "<td>";
-        echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, FALSE, 32, TRUE );
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
         echo "</td>";
 
         echo "<td>";
@@ -2420,40 +2405,41 @@ function RenderTutorialComponent()
     echo "</div>";
 }
 
-function RenderLinkToGameForum( $user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions = 0 )
+function RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions = 0)
 {
-    if( isset( $forumTopicID ) && $forumTopicID != 0 && getTopicDetails( $forumTopicID, $topicData ) )
-    {
+    if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
         echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
-    }
-    else
-    {
+    } else {
         echo "No forum topic";
-        if( isset( $user ) && $permissions >= 3 ) // 3 == Developer
+        if (isset($user) && $permissions >= 3) // 3 == Developer
+        {
             echo " - <a href='/generategameforumtopic.php?u=$user&c=$cookie&g=$gameID'>Create the official forum topic for $gameTitle</a>";
+        }
     }
 }
 
-function RenderDocType( $isOpenGraphPage = FALSE )
+function RenderDocType($isOpenGraphPage = false)
 {
     echo "<!doctype html>";
     //echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
     echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
-    if( $isOpenGraphPage )
+    if ($isOpenGraphPage) {
         echo "prefix=\"og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#\" ";
+    }
 
     echo ">\n";
 }
 
-function RenderSharedHeader( $user )
+function RenderSharedHeader($user)
 {
     echo "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />\n";
     echo "<link href='https://fonts.googleapis.com/css?family=Rosario' rel='stylesheet' type='text/css' />\n";
     echo "<link rel='stylesheet' href='" . CSS_FILE . "' type='text/css' media='screen' />\n";
-    $customCSS = RA_ReadCookie( 'RAPrefs_CSS' );
-    if( $customCSS !== FALSE && strlen( $customCSS ) > 2 )
+    $customCSS = RA_ReadCookie('RAPrefs_CSS');
+    if ($customCSS !== false && strlen($customCSS) > 2) {
         echo "<link rel='stylesheet' href='$customCSS' type='text/css' media='screen' />\n";
+    }
 
     echo "<link rel='icon' type='image/png' href='/favicon.png' />\n";
     echo "<link rel='image_src' href='/Images/RA_Logo10.png' />\n";
@@ -2479,51 +2465,53 @@ function RenderSharedHeader( $user )
     echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js' type='text/javascript'></script>\n";
 
     echo "
-	<script type='text/javascript'>
-		window.fbAsyncInit = function() {
-		  FB.init({
-			appId      : 490904194261313, // App ID
-			channelUrl : '" . getenv('APP_URL') . "/channel.php', // Channel File
-			status     : true, // check login status
-			cookie     : true, // enable cookies to allow the server to access the session
-			xfbml      : true  // parse XFBML
-		  });
-		};
-		// Load the SDK Asynchronously
-		(function(d){
-		   var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-		   if (d.getElementById(id)) {return;}
-		   js = d.createElement('script'); js.id = id; js.async = true;
-		   js.src = \"//connect.facebook.net/en_US/all.js\";
-		   ref.parentNode.insertBefore(js, ref);
-		 }(document));
-	</script>\n";
+    <script type='text/javascript'>
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : 490904194261313, // App ID
+            channelUrl : '" . getenv('APP_URL') . "/channel.php', // Channel File
+            status     : true, // check login status
+            cookie     : true, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+          });
+        };
+        // Load the SDK Asynchronously
+        (function(d){
+           var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement('script'); js.id = id; js.async = true;
+           js.src = \"//connect.facebook.net/en_US/all.js\";
+           ref.parentNode.insertBefore(js, ref);
+         }(document));
+    </script>\n";
 
-    //	jQuery, and custom js
+    //    jQuery, and custom js
     //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script type='text/javascript' src='/js/jquery-ui-1.10.2.custom.min.js'></script>\n";
     echo "<script type='text/javascript' src='/js/all.js'></script>\n";
 
     global $mobileBrowser;
-    if( $mobileBrowser )
+    if ($mobileBrowser) {
         echo "<link rel='stylesheet' type='text/css' href='/css/_mobile.css'>";
+    }
 }
 
-function RenderFBMetadata( $title, $OGType, $imageURL, $thisURL, $description )
+function RenderFBMetadata($title, $OGType, $imageURL, $thisURL, $description)
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='".getenv('APP_STATIC_URL')."$imageURL' />\n";
-    echo "<meta property='og:url' content='".getenv('APP_URL')."$thisURL' />\n";
+    echo "<meta property='og:image' content='" . getenv('APP_STATIC_URL') . "$imageURL' />\n";
+    echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
 }
 
-function RenderTitleTag( $title, $user )
+function RenderTitleTag($title, $user)
 {
     echo "<title>";
 
-    if( $title !== NULL )
+    if ($title !== null) {
         echo "$title - ";
+    }
 
     echo getenv('APP_NAME');
     //"RetroAchievements.org";
@@ -2534,8 +2522,8 @@ function RenderTitleTag( $title, $user )
     //echo "<script src='js/snowstorm.js'></script>
     //<script>
     //$( function() {
-    //	//	Onload:
-    //	$('body').append( \"<img src='https://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
+    //    //    Onload:
+    //    $('body').append( \"<img src='https://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
     //});
     //</script>";
 }
@@ -2544,59 +2532,57 @@ function RenderGoogleTracking()
 {
     echo " <script type=\"text/javascript\">
 
-	var _gaq = _gaq || [];
-	_gaq.push(['_setAccount', 'UA-37462159-1']);
-	_gaq.push(['_trackPageview']);
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-37462159-1']);
+    _gaq.push(['_trackPageview']);
 
-	(function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	})();
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 
-	</script>";
+    </script>";
 }
 
-//	PHPBB-Style
-//	17:05 18/04/2013
-function cb_injectAchievementPHPBB( $matches )
+//    PHPBB-Style
+//    17:05 18/04/2013
+function cb_injectAchievementPHPBB($matches)
 {
-    if( count( $matches ) > 1 )
-    {
-        getAchievementMetadata( $matches[ 2 ], $achData );
-        $achID = $achData[ 'AchievementID' ];
-        $achName = $achData[ 'AchievementTitle' ];
-        $achDesc = $achData[ 'Description' ];
-        $achPoints = $achData[ 'Points' ];
-        $gameName = $achData[ 'GameTitle' ];
-        $badgeName = $achData[ 'BadgeName' ];
-        $consoleName = $achData[ 'ConsoleName' ];
+    if (count($matches) > 1) {
+        getAchievementMetadata($matches[2], $achData);
+        $achID = $achData['AchievementID'];
+        $achName = $achData['AchievementTitle'];
+        $achDesc = $achData['Description'];
+        $achPoints = $achData['Points'];
+        $gameName = $achData['GameTitle'];
+        $badgeName = $achData['BadgeName'];
+        $consoleName = $achData['ConsoleName'];
 
-        return GetAchievementAndTooltipDiv( $achID, $achName, $achDesc, $achPoints, $gameName, $badgeName, $consoleName, FALSE );
+        return GetAchievementAndTooltipDiv($achID, $achName, $achDesc, $achPoints, $gameName, $badgeName, $consoleName,
+            false);
     }
     return "";
 }
 
-//	17:05 18/04/2013
-function cb_injectUserPHPBB( $matches )
+//    17:05 18/04/2013
+function cb_injectUserPHPBB($matches)
 {
-    if( count( $matches ) > 1 )
-    {
-        $user = $matches[ 2 ];
-        return GetUserAndTooltipDiv( $user, NULL, NULL, NULL, NULL, FALSE );
+    if (count($matches) > 1) {
+        $user = $matches[2];
+        return GetUserAndTooltipDiv($user, null, null, null, null, false);
     }
     return "";
 }
 
-//	17:05 18/04/2013
-function cb_injectGamePHPBB( $matches )
+//    17:05 18/04/2013
+function cb_injectGamePHPBB($matches)
 {
-    if( count( $matches ) > 1 )
-    {
-        $gameID = $matches[ 2 ];
-        getGameTitleFromID( $gameID, $gameName, $consoleIDOut, $consoleName, $forumTopicID, $gameData );
+    if (count($matches) > 1) {
+        $gameID = $matches[2];
+        getGameTitleFromID($gameID, $gameName, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
-        return GetGameAndTooltipDiv( $gameID, $gameName, $gameData[ 'GameIcon' ], $consoleName );
+        return GetGameAndTooltipDiv($gameID, $gameName, $gameData['GameIcon'], $consoleName);
     }
     return "";
 }
@@ -2652,15 +2638,15 @@ function linkifyTwitchURLs($text)
 
     if (strpos($text, "twitch.tv") !== false) {
         $vidChapter = substr($text, strrpos($text, "/") + 1);
-        $iframeUrl = '//player.twitch.tv/?video='.$vidChapter;
+        $iframeUrl = '//player.twitch.tv/?video=' . $vidChapter;
         if (strpos($text, "twitch.tv/collections") !== false) {
-            $iframeUrl = '//player.twitch.tv/?collection='.$vidChapter;
+            $iframeUrl = '//player.twitch.tv/?collection=' . $vidChapter;
         }
         if (strpos($text, "clips.twitch.tv") !== false) {
-            $iframeUrl = '//clips.twitch.tv/embed?clip='.$vidChapter;
+            $iframeUrl = '//clips.twitch.tv/embed?clip=' . $vidChapter;
         }
         $iframeUrl .= '&autoplay=false';
-        $text = '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="'.$iframeUrl.'" allowfullscreen></iframe></div>';
+        $text = '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="' . $iframeUrl . '" allowfullscreen></iframe></div>';
     }
 
     return $text;
@@ -2706,13 +2692,13 @@ function linkifyImgurURLs($text)
 /**
  * laravel polyfill
  */
-if (! function_exists('preg_replace_array')) {
+if (!function_exists('preg_replace_array')) {
     /**
      * Replace a given pattern with each value in the array in sequentially.
      *
-     * @param  string  $pattern
-     * @param  array   $replacements
-     * @param  string  $subject
+     * @param string $pattern
+     * @param array $replacements
+     * @param string $subject
      * @return string
      */
     function preg_replace_array($pattern, array $replacements, $subject)
@@ -2725,7 +2711,7 @@ if (! function_exists('preg_replace_array')) {
     }
 }
 
-function cb_linkifySelective( $matches )
+function cb_linkifySelective($matches)
 {
     //error_log( count( $matches ) );
     //error_log( $matches[ 0 ] );
@@ -2735,42 +2721,35 @@ function cb_linkifySelective( $matches )
     //error_log( $matches[ 4 ] );
     //error_log( $matches[ 5 ] );
 
-    $url = $matches[ 0 ];
+    $url = $matches[0];
 
-    if( stripos( $url, 'youtube-nocookie' ) !== FALSE )
-    {
-        return $url; //	Ignore: these have been replaced above
-    }
-    else if( stripos( $url, 'www.twitch.tv' ) !== FALSE )
-    {
-        return $url; //	Ignore: these have been replaced above
-    }
-    else if( substr_compare( $url, '.png', -4 ) === 0 || substr_compare( $url, '.jpg', -4 ) === 0 || substr_compare( $url, '.jpeg', -5 ) === 0 )
-    {
-        return $url; //	Ignore: this is an image!
-    }
-    else
-    {
+    if (stripos($url, 'youtube-nocookie') !== false) {
+        return $url; //    Ignore: these have been replaced above
+    } elseif (stripos($url, 'www.twitch.tv') !== false) {
+        return $url; //    Ignore: these have been replaced above
+    } elseif (substr_compare($url, '.png', -4) === 0 || substr_compare($url, '.jpg', -4) === 0 || substr_compare($url,
+            '.jpeg', -5) === 0) {
+        return $url; //    Ignore: this is an image!
+    } else {
         $actualURL = $url;
         //if( strpos( $url, 'www' ) === 0 )
-        //    $actualURL = "http://" . $url; //	Prepend http://
+        //    $actualURL = "http://" . $url; //    Prepend http://
 
-        if( strpos( $url, 'http://' ) === FALSE && strpos( $url, 'https://' ) === FALSE )
-        {
-            $actualURL = "https://" . $url; //	Prepend http://
+        if (strpos($url, 'http://') === false && strpos($url, 'https://') === false) {
+            $actualURL = "https://" . $url; //    Prepend http://
         }
 
         return '<a onmouseover=" Tip( \'' . $url . '\' ) " onmouseout=\'UnTip()\' href=\'' . $actualURL . '\'>' . $url . '</a>';
     }
 }
 
-function linkifyBasicURLs( $text )
+function linkifyBasicURLs($text)
 {
     //$pattern = '@((https?://)?([-\w]+\.[-\w\.]+)+\w(:\d+)?(/([-\w/_\.]*(\?\S+)?)?)*)@';
     //$pattern = "/(?i)\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))/";
-    //$pattern = '@((?<=[^\"\'])https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@'; 	//	NOT preceded by ' or "
-    //$pattern = '@([^\'\"]https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@'; 	//	NOT preceded by ' or " - 22:33 22/02/2014
-    //	http://stackoverflow.com/questions/833469/regular-expression-for-url
+    //$pattern = '@((?<=[^\"\'])https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@';     //    NOT preceded by ' or "
+    //$pattern = '@([^\'\"]https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@';     //    NOT preceded by ' or " - 22:33 22/02/2014
+    //    http://stackoverflow.com/questions/833469/regular-expression-for-url
     //$pattern = "(\s)((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)";
     //$pattern = '((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)';
 
@@ -2798,12 +2777,12 @@ function linkifyBasicURLs( $text )
  * @param bool $withImgur imgur url parsing requires the links to reliably point to mp4s - can't be static images
  * @return null|string|string[]
  */
-function parseTopicCommentPHPBB( $commentIn, $withImgur = false )
+function parseTopicCommentPHPBB($commentIn, $withImgur = false)
 {
-    //	Parse and format tags
+    //    Parse and format tags
     $comment = $commentIn;
 
-    //	[url]
+    //    [url]
     //$comment = preg_replace( '/(\\[url=http:\\/\\/)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
     //$comment = preg_replace( '/(\\[url=)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
     //
@@ -2812,109 +2791,128 @@ function parseTopicCommentPHPBB( $commentIn, $withImgur = false )
     $comment = preg_replace(
         '~\[url=(https?://[^\]]+)\](.*?)(\[/url\])~i',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'$1\'>$2</a>',
-        $comment );
+        $comment);
     $comment = preg_replace(
         '~\[url=([^\]]+)\](.*?)(\[/url\])~i',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'https://$1\'>$2</a>',
-        $comment );
+        $comment);
 
-    //	[b]
-    $comment = preg_replace( '/\\[b\\](.*?)\\[\\/b\\]/i', '<b>${1}</b>', $comment );
-    //	[i]
-    $comment = preg_replace( '/\\[i\\](.*?)\\[\\/i\\]/i', '<i>${1}</i>', $comment );
-    //	[s]
-    $comment = preg_replace( '/\\[s\\](.*?)\\[\\/s\\]/i', '<s>${1}</s>', $comment );
+    //    [b]
+    $comment = preg_replace('/\\[b\\](.*?)\\[\\/b\\]/i', '<b>${1}</b>', $comment);
+    //    [i]
+    $comment = preg_replace('/\\[i\\](.*?)\\[\\/i\\]/i', '<i>${1}</i>', $comment);
+    //    [s]
+    $comment = preg_replace('/\\[s\\](.*?)\\[\\/s\\]/i', '<s>${1}</s>', $comment);
 
-    //	[img]
-    $comment = preg_replace( '/(\\[img=)(.*?)(\\])/i', '<img class=\'injectinlineimage\' src=\'${2}\' />', $comment );
-    //	[ach]
-    $comment = preg_replace_callback( '/(\\[ach=)(.*?)(\\])/i', 'cb_injectAchievementPHPBB', $comment );
-    //	[user]
-    $comment = preg_replace_callback( '/(\\[user=)(.*?)(\\])/i', 'cb_injectUserPHPBB', $comment );
-    //	[game]
-    $comment = preg_replace_callback( '/(\\[game=)(.*?)(\\])/i', 'cb_injectGamePHPBB', $comment );
-    //	[video]
+    //    [img]
+    $comment = preg_replace('/(\\[img=)(.*?)(\\])/i', '<img class=\'injectinlineimage\' src=\'${2}\' />', $comment);
+    //    [ach]
+    $comment = preg_replace_callback('/(\\[ach=)(.*?)(\\])/i', 'cb_injectAchievementPHPBB', $comment);
+    //    [user]
+    $comment = preg_replace_callback('/(\\[user=)(.*?)(\\])/i', 'cb_injectUserPHPBB', $comment);
+    //    [game]
+    $comment = preg_replace_callback('/(\\[game=)(.*?)(\\])/i', 'cb_injectGamePHPBB', $comment);
+    //    [video]
     //error_log( $comment );
 
-    $comment = linkifyYouTubeURLs( $comment );
-    $comment = linkifyTwitchURLs( $comment );
-    if($withImgur) {
+    $comment = linkifyYouTubeURLs($comment);
+    $comment = linkifyTwitchURLs($comment);
+    if ($withImgur) {
         $comment = linkifyImgurURLs($comment);
     }
-    $comment = linkifyBasicURLs( $comment );
+    $comment = linkifyBasicURLs($comment);
 
     //global $autolink;
     //$comment = $autolink->convert( $comment );
-    //	Debug:
+    //    Debug:
     //$comment = $commentIn . "<br/>" . $comment;
 
     return $comment;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PHPBB/Tooltip Rendering
+//    PHPBB/Tooltip Rendering
 //////////////////////////////////////////////////////////////////////////////////////////
-//	17:04 18/04/2013
-function WrapWithTooltip( $displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltipText )
+//    17:04 18/04/2013
+function WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltipText)
 {
-    $displayable = str_replace( "'", '&#39;', $displayable );
-    $tooltipText = str_replace( "'", '\\\'', $tooltipText );
+    $displayable = str_replace("'", '&#39;', $displayable);
+    $tooltipText = str_replace("'", '\\\'', $tooltipText);
 
     $tooltip = "<div id='objtooltip'>" .
-            "<img src='$tooltipImagePath' width='$tooltipImageSize' height='$tooltipImageSize' />" .
-            "<b>$tooltipTitle</b><br/>$tooltipText" .
-            "</div>";
+        "<img src='$tooltipImagePath' width='$tooltipImageSize' height='$tooltipImageSize' />" .
+        "<b>$tooltipTitle</b><br/>$tooltipText" .
+        "</div>";
 
-    $tooltip = str_replace( '<', '&lt;', $tooltip );
-    $tooltip = str_replace( '>', '&gt;', $tooltip );
+    $tooltip = str_replace('<', '&lt;', $tooltip);
+    $tooltip = str_replace('>', '&gt;', $tooltip);
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-            "$displayable" .
-            "</div>";
+        "$displayable" .
+        "</div>";
 }
 
-function GetGameAndTooltipDiv( $gameID, $gameName, $gameIcon, $consoleName, $justImage = FALSE, $imgSizeOverride = 32, $justText = FALSE )
-{
-    $gameNameStr = str_replace( "'", "\'", $gameName );
+function GetGameAndTooltipDiv(
+    $gameID,
+    $gameName,
+    $gameIcon,
+    $consoleName,
+    $justImage = false,
+    $imgSizeOverride = 32,
+    $justText = false
+) {
+    $gameNameStr = str_replace("'", "\'", $gameName);
 
     $tooltipIconSize = 64; //96;
 
     $consoleStr = '';
-    if( $consoleName !== NULL && strlen( $consoleName ) > 2 )
+    if ($consoleName !== null && strlen($consoleName) > 2) {
         $consoleStr = "($consoleName)";
+    }
 
-    $gameIcon = $gameIcon != NULL ? $gameIcon : "/Images/PlayingIcon32.png";
+    $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
 
     $tooltip = "<div id=\'objtooltip\'>" .
-            "<img src=\'$gameIcon\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' />" .
-            "<b>$gameNameStr</b><br/>" .
-            "$consoleStr" .
-            "</div>";
+        "<img src=\'$gameIcon\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' />" .
+        "<b>$gameNameStr</b><br/>" .
+        "$consoleStr" .
+        "</div>";
 
-    $tooltip = str_replace( '<', '&lt;', $tooltip );
-    $tooltip = str_replace( '>', '&gt;', $tooltip );
+    $tooltip = str_replace('<', '&lt;', $tooltip);
+    $tooltip = str_replace('>', '&gt;', $tooltip);
     //echo $tooltip;
     //$tooltip = str_replace( "'", "\\'", $tooltip );
     //echo $tooltip;
 
     $displayable = "";
 
-    if( $justText == FALSE )
+    if ($justText == false) {
         $displayable = "<img alt=\"$gameName\" title=\"$gameName\" src='" . getenv('APP_STATIC_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+    }
 
-    if( $justImage == FALSE )
+    if ($justImage == false) {
         $displayable .= "$gameName $consoleStr";
+    }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-            "<a href='/Game/$gameID'>" .
-            "$displayable" .
-            "</a>" .
-            "</div>";
+        "<a href='/Game/$gameID'>" .
+        "$displayable" .
+        "</a>" .
+        "</div>";
 }
 
-//	17:05 18/04/2013
-function GetUserAndTooltipDiv( $user, $points, $motto, $lastActivity, $lastActivityAt, $imageInstead, $customLink = NULL, $iconSizeDisplayable = 32, $iconClassDisplayable = 'badgeimg' )
-{
+//    17:05 18/04/2013
+function GetUserAndTooltipDiv(
+    $user,
+    $points,
+    $motto,
+    $lastActivity,
+    $lastActivityAt,
+    $imageInstead,
+    $customLink = null,
+    $iconSizeDisplayable = 32,
+    $iconClassDisplayable = 'badgeimg'
+) {
     $tooltipIconSize = 128; //96;
 
     $tooltip = "<div id=\'objtooltip\'>";
@@ -2925,19 +2923,18 @@ function GetUserAndTooltipDiv( $user, $points, $motto, $lastActivity, $lastActiv
     $tooltip .= "<td class=\'fixedtooltipcolright\'>";
     $tooltip .= "<b>$user</b>";
 
-    if( $points !== NULL )
+    if ($points !== null) {
         $tooltip .= "&nbsp;($points)";
+    }
 
-    if( $motto !== NULL && strlen( $motto ) > 2 )
-    {
-        $motto = str_replace( '\'', '\\\'', $motto );
-        $motto = str_replace( '"', '\\\'\\\'', $motto );
+    if ($motto !== null && strlen($motto) > 2) {
+        $motto = str_replace('\'', '\\\'', $motto);
+        $motto = str_replace('"', '\\\'\\\'', $motto);
         $tooltip .= "</br><span class=\'usermotto tooltip\'>$motto</span>";
     }
 
-    if( $lastActivity !== NULL )
-    {
-        $lastActAtNiceDate = getNiceDate( strtotime( $lastActivityAt ) );
+    if ($lastActivity !== null) {
+        $lastActAtNiceDate = getNiceDate(strtotime($lastActivityAt));
         $tooltip .= "<br/>Last seen: $lastActAtNiceDate<br/>$user $lastActivity";
     }
 
@@ -2946,107 +2943,118 @@ function GetUserAndTooltipDiv( $user, $points, $motto, $lastActivity, $lastActiv
     $tooltip .= "</tbody></table>";
     $tooltip .= "</div>";
 
-    $tooltip = htmlspecialchars( $tooltip );
+    $tooltip = htmlspecialchars($tooltip);
     //$tooltip = str_replace( '<', '&lt;', $tooltip );
     //$tooltip = str_replace( '>', '&gt;', $tooltip );
 
     $linkURL = "/User/$user";
-    if( isset( $customLink ) )
+    if (isset($customLink)) {
         $linkURL = $customLink;
+    }
 
     $displayable = $user;
-    if( $imageInstead == TRUE )
+    if ($imageInstead == true) {
         $displayable = "<img src='/UserPic/$user" . ".png' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='$user' title='$user' class='$iconClassDisplayable' />";
+    }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-            "<a href='$linkURL'>" .
-            "$displayable" .
-            "</a>" .
-            "</div>";
+        "<a href='$linkURL'>" .
+        "$displayable" .
+        "</a>" .
+        "</div>";
 }
 
-//	17:05 18/04/2013
-function GetAchievementAndTooltipDiv( $achID, $achName, $achDesc, $achPoints, $gameName, $badgeName, $inclSmallBadge = FALSE, $smallBadgeOnly = FALSE, $extraText = '', $smallBadgeSize = 32, $imgclass = 'badgeimg' )
-{
+//    17:05 18/04/2013
+function GetAchievementAndTooltipDiv(
+    $achID,
+    $achName,
+    $achDesc,
+    $achPoints,
+    $gameName,
+    $badgeName,
+    $inclSmallBadge = false,
+    $smallBadgeOnly = false,
+    $extraText = '',
+    $smallBadgeSize = 32,
+    $imgclass = 'badgeimg'
+) {
     $tooltipIconSize = 64; //96;
 
-    $achNameStr = str_replace( "'", "\'", $achName );
-    $achDescStr = str_replace( "'", "\'", $achDesc );
-    $gameNameStr = str_replace( "'", "\'", $gameName );
+    $achNameStr = str_replace("'", "\'", $achName);
+    $achDescStr = str_replace("'", "\'", $achDesc);
+    $gameNameStr = str_replace("'", "\'", $gameName);
 
     $tooltip = "<div id=\'objtooltip\'>" .
-            "<img src=\'" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . ".png\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' />" .
-            "<b>$achNameStr ($achPoints)</b><br/>" .
-            "<i>($gameNameStr)</i><br/>" .
-            "<br/>" .
-            "$achDescStr<br/>" .
-            "$extraText" .
-            "</div>";
+        "<img src=\'" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . ".png\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' />" .
+        "<b>$achNameStr ($achPoints)</b><br/>" .
+        "<i>($gameNameStr)</i><br/>" .
+        "<br/>" .
+        "$achDescStr<br/>" .
+        "$extraText" .
+        "</div>";
 
-    $tooltip = str_replace( '<', '&lt;', $tooltip );
-    $tooltip = str_replace( '>', '&gt;', $tooltip );
+    $tooltip = str_replace('<', '&lt;', $tooltip);
+    $tooltip = str_replace('>', '&gt;', $tooltip);
 
     $smallBadge = '';
     $displayable = "$achName ($achPoints)";
 
-    if( $inclSmallBadge )
-    {
+    if ($inclSmallBadge) {
         $smallBadgePath = "/Badge/$badgeName" . ".png";
         $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('APP_STATIC_URL') . "$smallBadgePath\" alt='$achNameStr' title='$achNameStr' class='$imgclass' />";
 
-        if( $smallBadgeOnly )
+        if ($smallBadgeOnly) {
             $displayable = "";
+        }
     }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-            "<a href='/Achievement/$achID'>" .
-            "$smallBadge" .
-            "$displayable" .
-            //"$achName ($achPoints) ($gameName)" .
-            "</a>" .
-            "</div>";
+        "<a href='/Achievement/$achID'>" .
+        "$smallBadge" .
+        "$displayable" .
+        //"$achName ($achPoints) ($gameName)" .
+        "</a>" .
+        "</div>";
 }
 
-//	11:24 27/06/2013
-function GetLeaderboardAndTooltipDiv( $lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable )
+//    11:24 27/06/2013
+function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable)
 {
     $tooltipIconSize = 64; //96;
 
-    $lbNameStr = str_replace( "'", "\'", $lbName );
-    $lbDescStr = str_replace( "'", "\'", $lbDesc );
-    $gameNameStr = str_replace( "'", "\'", $gameName );
+    $lbNameStr = str_replace("'", "\'", $lbName);
+    $lbDescStr = str_replace("'", "\'", $lbDesc);
+    $gameNameStr = str_replace("'", "\'", $gameName);
 
     $tooltip = "<div id=\'objtooltip\'>" .
-            "<img src=\'$gameIcon\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\ />" .
-            "<b>$lbNameStr</b><br/>" .
-            "<i>($gameNameStr)</i><br/>" .
-            "<br/>" .
-            "$lbDescStr<br/>" .
-            "</div>";
+        "<img src=\'$gameIcon\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\ />" .
+        "<b>$lbNameStr</b><br/>" .
+        "<i>($gameNameStr)</i><br/>" .
+        "<br/>" .
+        "$lbDescStr<br/>" .
+        "</div>";
 
-    $tooltip = str_replace( '<', '&lt;', $tooltip );
-    $tooltip = str_replace( '>', '&gt;', $tooltip );
+    $tooltip = str_replace('<', '&lt;', $tooltip);
+    $tooltip = str_replace('>', '&gt;', $tooltip);
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-            "<a href='/leaderboardinfo.php?i=$lbID'>" .
-            "$displayable" .
-            "</a>" .
-            "</div>";
+        "<a href='/leaderboardinfo.php?i=$lbID'>" .
+        "$displayable" .
+        "</a>" .
+        "</div>";
 }
 
 function RenderThemeSelector()
 {
-    $dirContent = scandir( './css/' );
+    $dirContent = scandir('./css/');
 
     $cssFileList = array();
-    foreach( $dirContent as $filename )
-    {
+    foreach ($dirContent as $filename) {
         //echo $filename;
-        $fileStart = strpos( $filename, "rac_" );
-        if( $fileStart !== FALSE )
-        {
-            $filename = substr( $filename, $fileStart + 4 );
-            $filename = substr( $filename, 0, strlen( $filename ) - 4 );
+        $fileStart = strpos($filename, "rac_");
+        if ($fileStart !== false) {
+            $filename = substr($filename, $fileStart + 4);
+            $filename = substr($filename, 0, strlen($filename) - 4);
             $cssFileList[] = $filename;
         }
     }
@@ -3055,11 +3063,10 @@ function RenderThemeSelector()
     //echo "<div class='themeselector' >";
     echo "<select id='themeselect' onchange='ResetTheme(); return false;'>";
 
-    $currentCustomCSS = RA_ReadCookie( 'RAPrefs_CSS' );
-    foreach( $cssFileList as $nextCSS )
-    {
+    $currentCustomCSS = RA_ReadCookie('RAPrefs_CSS');
+    foreach ($cssFileList as $nextCSS) {
         $cssFull = "/css/rac_" . $nextCSS . ".css";
-        $selected = ( strcmp( $currentCustomCSS, $cssFull ) == 0 ) ? 'selected' : '';
+        $selected = (strcmp($currentCustomCSS, $cssFull) == 0) ? 'selected' : '';
         echo "<option $selected value='$cssFull'>$nextCSS</option>";
     }
 
@@ -3271,7 +3278,7 @@ function RenderThemeSelector()
 // ";
 // }
 
-function RenderCodeNotes( $codeNotes )
+function RenderCodeNotes($codeNotes)
 {
     echo "<h3>Code Notes</h3>";
     echo "Code Notes found:";
@@ -3310,9 +3317,9 @@ function RenderCodeNotes( $codeNotes )
     echo "</tbody></table>";
 }
 
-function RenderMostPopularTitles( $daysRange = 7, $offset = 0, $count = 10 )
+function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
 {
-    $historyData = GetMostPopularTitles( $daysRange, $offset, $count );
+    $historyData = GetMostPopularTitles($daysRange, $offset, $count);
 
     echo "<div id='populargames' class='component' >";
 
@@ -3322,27 +3329,26 @@ function RenderMostPopularTitles( $daysRange = 7, $offset = 0, $count = 10 )
     echo "<table class='smalltable'><tbody>";
     echo "<tr><th colspan='2'>Game</th><th>Times Played</th></tr>";
 
-    $numItems = count( $historyData );
-    for( $i = 0; $i < $numItems; $i++ )
-    {
-        $nextData = $historyData[ $i ];
-        $nextID = $nextData[ 'ID' ];
-        $nextTitle = $nextData[ 'Title' ];
-        $nextIcon = $nextData[ 'ImageIcon' ];
-        $nextConsole = $nextData[ 'ConsoleName' ];
+    $numItems = count($historyData);
+    for ($i = 0; $i < $numItems; $i++) {
+        $nextData = $historyData[$i];
+        $nextID = $nextData['ID'];
+        $nextTitle = $nextData['Title'];
+        $nextIcon = $nextData['ImageIcon'];
+        $nextConsole = $nextData['ConsoleName'];
 
         echo "<tr>";
 
         echo "<td class='gameimage'>";
-        echo GetGameAndTooltipDiv( $nextID, $nextTitle, $nextIcon, $nextConsole, TRUE, 32, FALSE );
+        echo GetGameAndTooltipDiv($nextID, $nextTitle, $nextIcon, $nextConsole, true, 32, false);
         echo "</td>";
 
         echo "<td class='gametext'>";
-        echo GetGameAndTooltipDiv( $nextID, $nextTitle, $nextIcon, $nextConsole, FALSE, 32, TRUE );
+        echo GetGameAndTooltipDiv($nextID, $nextTitle, $nextIcon, $nextConsole, false, 32, true);
         echo "</td>";
 
         echo "<td class='sumtotal'>";
-        echo $nextData[ 'PlayedCount' ];
+        echo $nextData['PlayedCount'];
         echo "</td>";
 
         echo "</tr>";
