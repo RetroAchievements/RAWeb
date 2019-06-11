@@ -528,24 +528,38 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     ) AS InnerTable
 
     LEFT JOIN LeaderboardDef AS lb ON
-        ( activitytype = 7 AND InnerTable.data = lb.ID ) OR
-        ( activitytype = 8 AND InnerTable.data = lb.ID )
+    (
+        activitytype = 7
+        OR activitytype = 8
+        AND InnerTable.data = lb.ID
+    )
     LEFT JOIN Achievements AS ach ON
-        ( activitytype = 1 AND ach.ID = InnerTable.data ) OR
-        ( activitytype = 4 AND ach.ID = InnerTable.data ) OR
-        ( activitytype = 5 AND ach.ID = InnerTable.data ) OR
-        ( activitytype = 9 AND ach.ID = InnerTable.data ) OR
-        ( activitytype = 10 AND ach.ID = InnerTable.data )
+    (
+        activitytype = 1
+        OR activitytype = 4
+        OR activitytype = 5
+        OR activitytype = 9
+        OR activitytype = 10
+        AND ach.ID = InnerTable.data
+    )
     LEFT JOIN GameData AS gd ON
-        ( activitytype = 1 AND gd.ID = ach.GameID ) OR
-        ( activitytype = 3 AND gd.ID = InnerTable.data ) OR
-        ( activitytype = 4 AND gd.ID = ach.GameID ) OR
-        ( activitytype = 5 AND gd.ID = ach.GameID ) OR
-        ( activitytype = 6 AND gd.ID = InnerTable.data ) OR
-        ( activitytype = 7 AND gd.ID = lb.GameID ) OR
-        ( activitytype = 8 AND gd.ID = lb.GameID ) OR
-        ( activitytype = 9 AND gd.ID = ach.GameID ) OR
-        ( activitytype = 10 AND gd.ID = ach.GameID )
+    (
+        activitytype = 1
+        OR activitytype = 4 
+        OR activitytype = 5
+        OR activitytype = 9
+        OR activitytype = 10
+        AND gd.ID = ach.GameID
+    ) OR (
+        activitytype = 3
+        OR activitytype = 6
+        AND gd.ID = InnerTable.data
+    ) OR (
+        activitytype = 7
+        OR activitytype = 8
+        AND gd.ID = lb.GameID
+    )
+
     LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
     LEFT JOIN Comment AS c ON c.ArticleID = InnerTable.ID
     LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
