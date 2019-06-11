@@ -536,8 +536,6 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
         ORDER BY act.ID DESC
         LIMIT $offset, $maxMessages";
 
-    var_dump($query);
-
     //error_log( $query );
 
     $dbResult = s_mysql_query($query);
