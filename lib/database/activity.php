@@ -529,34 +529,34 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
     LEFT JOIN LeaderboardDef AS lb ON
     (
-        activitytype = 7
-        OR activitytype = 8
+        ( activitytype = 7
+          OR activitytype = 8 )
         AND InnerTable.data = lb.ID
     )
     LEFT JOIN Achievements AS ach ON
     (
-        activitytype = 1
-        OR activitytype = 4
-        OR activitytype = 5
-        OR activitytype = 9
-        OR activitytype = 10
+        ( activitytype = 1
+          OR activitytype = 4
+          OR activitytype = 5
+          OR activitytype = 9
+          OR activitytype = 10 )
         AND ach.ID = InnerTable.data
     )
     LEFT JOIN GameData AS gd ON
     (
-        activitytype = 1
-        OR activitytype = 4 
-        OR activitytype = 5
-        OR activitytype = 9
-        OR activitytype = 10
+        ( activitytype = 1
+          OR activitytype = 4 
+          OR activitytype = 5
+          OR activitytype = 9
+          OR activitytype = 10 )
         AND gd.ID = ach.GameID
     ) OR (
-        activitytype = 3
-        OR activitytype = 6
+        ( activitytype = 3
+          OR activitytype = 6 )
         AND gd.ID = InnerTable.data
     ) OR (
-        activitytype = 7
-        OR activitytype = 8
+        ( activitytype = 7
+          OR activitytype = 8 )
         AND gd.ID = lb.GameID
     )
 
