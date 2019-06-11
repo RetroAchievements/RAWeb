@@ -524,7 +524,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
             ua.User AS CommentUser, ua.Motto AS CommentMotto, ua.RAPoints AS CommentPoints, 
             c.Payload AS Comment, c.Submitted AS CommentPostedAt, c.ID AS CommentID
         FROM Activity AS act
-        LEFT JOIN UserAccounts AS ua ON ua.User = act.User
+        LEFT JOIN UserAccounts AS ua ON (ua.User = act.User AND (! ua.Untracked || ua.User = '$user'))
         LEFT JOIN LeaderboardDef AS lb ON (activitytype IN (7, 8) AND act.data = lb.ID)
         LEFT JOIN Achievements AS ach ON (activitytype IN (1, 4, 5, 9, 10) AND ach.ID = act.data)
         LEFT JOIN GameData AS gd ON (activitytype IN (1, 4, 5, 9, 10) AND gd.ID = ach.GameID) 
@@ -532,9 +532,18 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
                                         OR (activitytype IN (7, 8) AND gd.ID = lb.GameID)
         LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
         LEFT JOIN Comment AS c ON c.ArticleID = act.ID
-        WHERE ( !ua.Untracked || ua.User='$user' ) AND $subquery
+        WHERE $subquery
         ORDER BY act.ID DESC
         LIMIT $offset, $maxMessages";
+
+    // slow on mysql 8, slow on 7.5:
+    // WHERE ( !ua.Untracked || ua.User='$user' ) AND $subquery
+
+    // works on 7.5 and on 8
+    // LEFT JOIN UserAccounts AS ua ON (ua.User = act.User AND (!ua.Untracked || ua.User = '$user'))
+
+    // do not add anything user (ua) related to the WHERE clause or it will re-evaluate all entries again
+    // filter the results instead
 
     //error_log( $query );
 
