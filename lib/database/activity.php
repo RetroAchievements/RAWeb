@@ -500,6 +500,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
     if ($type == 'activity')      //    Find just this activity, ONLY!
     {
+        $offset = 0;
         $subquery = "act.ID = $latestFeedID ";
     } elseif ($type == 'friends')     //    User has been provided: find my friends!
     {
@@ -513,49 +514,29 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     }
 
     $query = "
-    SELECT InnerTable.ID, UNIX_TIMESTAMP(timestamp) AS timestamp, activitytype, InnerTable.User, uaLocal.RAPoints, uaLocal.Motto, data, data2, gd.Title AS GameTitle, gd.ID AS GameID, gd.ImageIcon AS GameIcon, cons.Name AS ConsoleName,
-        ach.Title AS AchTitle, ach.Description AS AchDesc, ach.Points AS AchPoints, ach.BadgeName AS AchBadge,
-        lb.Title AS LBTitle, lb.Description AS LBDesc, lb.Format AS LBFormat,
-        ua.User AS CommentUser, ua.Motto AS CommentMotto, ua.RAPoints AS CommentPoints, c.Payload AS Comment, UNIX_TIMESTAMP(c.Submitted) AS CommentPostedAt, c.ID AS CommentID
-    FROM
-    (
-        SELECT act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2
+        SELECT 
+            act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2, 
+            ua.RAPoints, ua.Motto,
+            gd.Title AS GameTitle, gd.ID AS GameID, gd.ImageIcon AS GameIcon,
+            cons.Name AS ConsoleName,
+            ach.Title AS AchTitle, ach.Description AS AchDesc, ach.Points AS AchPoints, ach.BadgeName AS AchBadge,
+            lb.Title AS LBTitle, lb.Description AS LBDesc, lb.Format AS LBFormat, 
+            ua.User AS CommentUser, ua.Motto AS CommentMotto, ua.RAPoints AS CommentPoints, 
+            c.Payload AS Comment, c.Submitted AS CommentPostedAt, c.ID AS CommentID
         FROM Activity AS act
         LEFT JOIN UserAccounts AS ua ON ua.User = act.User
-        WHERE ( !ua.Untracked || ua.User=\"$user\" ) AND $subquery
+        LEFT JOIN LeaderboardDef AS lb ON (activitytype IN (7, 8) AND act.data = lb.ID)
+        LEFT JOIN Achievements AS ach ON (activitytype IN (1, 4, 5, 9, 10) AND ach.ID = act.data)
+        LEFT JOIN GameData AS gd ON (activitytype IN (1, 4, 5, 9, 10) AND gd.ID = ach.GameID) 
+                                        OR (activitytype IN (3, 6) AND gd.ID = act.data) 
+                                        OR (activitytype IN (7, 8) AND gd.ID = lb.GameID)
+        LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
+        LEFT JOIN Comment AS c ON c.ArticleID = act.ID
+        WHERE ( !ua.Untracked || ua.User='$user' ) AND $subquery
         ORDER BY act.ID DESC
-        LIMIT $offset, $maxMessages
-    ) AS InnerTable
+        LIMIT $offset, $maxMessages";
 
-    LEFT JOIN LeaderboardDef AS lb ON
-    (
-        activitytype IN (7, 8)
-        AND InnerTable.data = lb.ID
-    )
-    LEFT JOIN Achievements AS ach ON
-    (
-        activitytype IN (1, 4, 5, 9, 10)
-        AND ach.ID = InnerTable.data
-    )
-    LEFT JOIN GameData AS gd ON
-    (
-        activitytype IN (1, 4, 5, 9, 10)
-        AND gd.ID = ach.GameID
-    ) OR (
-        activitytype IN (3, 6)
-        AND gd.ID = InnerTable.data
-    ) OR (
-        activitytype IN (7, 8)
-        AND gd.ID = lb.GameID
-    )
-
-    LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
-    LEFT JOIN Comment AS c ON c.ArticleID = InnerTable.ID
-    LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
-    LEFT JOIN UserAccounts AS uaLocal ON uaLocal.User = InnerTable.User
-
-    ORDER BY InnerTable.ID ASC, c.ID DESC
-    ";
+    var_dump($query);
 
     //error_log( $query );
 

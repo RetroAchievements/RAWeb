@@ -1,6 +1,6 @@
 <?php
-header("Location: " . getenv('APP_URL'));
-return;
+// header("Location: " . getenv('APP_URL'));
+// return;
 
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -14,6 +14,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 //    Max: last 50 messages:
 $maxMessages = 50;
+$numFeedItems = 0;
 
 if ($activityID !== null) {
     $numFeedItems = getFeed($user, $maxMessages, $offset, $feedData, $activityID, 'activity');
@@ -29,7 +30,7 @@ if ($activityID !== null) {
 //var_dump( $feedData );
 
 //    This page is unusual, in that the later items should appear at the top
-$feedData = array_reverse($feedData);
+// $feedData = array_reverse($feedData);
 
 if (isset($activityID)) {
     $pageTitle = "Activity";
