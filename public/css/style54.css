@@ -56,6 +56,14 @@ h1, h2, h3, h4 {
     background-repeat: no-repeat;
 }
 
+h3.longheader {
+    margin: 10px 0px;
+}
+
+h3 {
+    margin: 10px 0px 25px 0px
+}
+
 h4 {
     font-size: 1.5em;
     border-bottom-width:0px
@@ -998,4 +1006,18 @@ div.rating a.starlit {
 
 .mb-3, .my-3 {
     margin-bottom: 1rem !important;
+}
+
+/* Make completed/mastered badges appear larger on hover to show off artwork. */
+
+div#siteawards.component {
+    overflow: visible
+}
+
+div.trophyimage {
+    transition: all .2s;
+}
+
+div.trophyimage:hover {
+    transform: scale(2.0);
 }
