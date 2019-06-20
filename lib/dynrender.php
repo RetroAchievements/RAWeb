@@ -2212,7 +2212,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
         $muted = 'false';
-        if (IsAtHome()) {
+        if (isAtHome()) {
             $muted = 'true';
         }
 

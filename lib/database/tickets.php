@@ -170,7 +170,7 @@ function getAllTickets(
     settype($givenAchievementID, 'integer');
 
     $innerCond = "TRUE";
-    if (!empty($assignedToUser) && IsValidUsername($assignedToUser)) {
+    if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
         $assignedToUser = mysqli_real_escape_string($db, $assignedToUser);
         $innerCond .= " AND ach.Author = '$assignedToUser'";
     }
@@ -305,7 +305,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             "-- Your friends at RetroAchievements.org<br>";
 
 
-        if (IsAtHome()) {
+        if (isAtHome()) {
             error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
             error_log($email);
             error_log($emailTitle);

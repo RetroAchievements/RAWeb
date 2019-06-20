@@ -10,7 +10,7 @@
 	$passResetToken = seekGET('t');
 	if( isset( $passResetToken ) && isset( $user ) )
 	{
-		if( IsValidPasswordResetToken( $user, $passResetToken ) )
+		if( isValidPasswordResetToken( $user, $passResetToken ) )
 		{
 			$allowNewPasswordEntry = TRUE;
 		}

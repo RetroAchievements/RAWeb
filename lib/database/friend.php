@@ -3,7 +3,7 @@ require_once(__DIR__ . '/../bootstrap.php');
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //    Friend Functions
-function ChangeFriendStatus($user, $friend, $action)
+function changeFriendStatus($user, $friend, $action)
 {
     settype($action, 'integer');
 
@@ -231,7 +231,7 @@ function blockFriend($user, $friendToAdd)
     }
 }
 
-function IsFriendsWith($user, $friend)
+function isFriendsWith($user, $friend)
 {
     $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friend'";
     $dbResult = s_mysql_query($query);

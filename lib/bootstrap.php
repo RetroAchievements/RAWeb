@@ -28,7 +28,7 @@ define("CSS_FILE", "/css/style54.css?xmas");
 define("DUMP_SQL", false);
 define("PROFILE_SQL", false);
 
-function IsAtHome()
+function isAtHome()
 {
     //	Deprecated, no longer used.
     return false;

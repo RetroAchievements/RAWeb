@@ -7,7 +7,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 {
     //    Note: avoid this wherever possible!! Requires raw use of user's password!
 
-    if (!IsValidUsername($user)) {
+    if (!isValidUsername($user)) {
         return false;
     }
 
@@ -49,7 +49,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
 {
     $userOut = RA_ReadCookie("RA_User");
     $cookie = RA_ReadCookie("RA_Cookie");
-    if (strlen($userOut) < 2 || strlen($cookie) < 2 || !IsValidUsername($userOut)) {
+    if (strlen($userOut) < 2 || strlen($cookie) < 2 || !isValidUsername($userOut)) {
         //    There is no cookie
         return false;
     } else {
@@ -96,7 +96,7 @@ function RA_ReadCookieCredentials(
     $unreadMessagesOut = 0;
     $permissionOut = 0;
 
-    if (strlen($userOut) < 2 || strlen($cookie) < 10 || !IsValidUsername($userOut)) {
+    if (strlen($userOut) < 2 || strlen($cookie) < 10 || !isValidUsername($userOut)) {
         RA_ClearCookie('RA_User');
         RA_ClearCookie('RA_Cookie');
         $userOut = null;
@@ -158,7 +158,7 @@ function RA_ReadTokenCredentials(
         error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
     }
-    if (!IsValidUsername($userOut)) {
+    if (!isValidUsername($userOut)) {
         return false;
     }
 
@@ -283,7 +283,7 @@ function generateAPIKey($user)
 
 function GetAPIKey($user)
 {
-    if (!IsValidUsername($user)) {
+    if (!isValidUsername($user)) {
         return false;
     }
 
@@ -313,7 +313,7 @@ function LogSuccessfulAPIAccess($user)
 
 function ValidateAPIKey($user, $key)
 {
-    if (strlen($key) < 20 || !IsValidUsername($user)) {
+    if (strlen($key) < 20 || !isValidUsername($user)) {
         return false;
     }
 

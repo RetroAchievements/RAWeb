@@ -62,7 +62,7 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
 {
     $retVal = Array();
 
-    if (!IsValidUsername($user)) {
+    if (!isValidUsername($user)) {
         return $retVal;
     }
 
@@ -120,7 +120,7 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
 {
     $retVal = Array();
 
-    if (!IsValidUsername($user)) {
+    if (!isValidUsername($user)) {
         return $retVal;
     }
 

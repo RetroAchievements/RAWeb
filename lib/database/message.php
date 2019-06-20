@@ -5,7 +5,7 @@ require_once(__DIR__ . '/../bootstrap.php');
 //////////////////////////////////////////////////////////////////////////////////////////
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
-    //if( IsFriendsWith( $author, $destUser ) )    //    nah
+    //if( isFriendsWith( $author, $destUser ) )    //    nah
     {
         $messagePayload = nl2br($messagePayloadIn);
 

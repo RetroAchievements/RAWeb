@@ -293,7 +293,7 @@ function sendFriendEmail($user, $email, $type, $friend)
         "<br/>" .
         "-- Your friends at RetroAchievements.org<br/>";
 
-    if (IsAtHome()) {
+    if (isAtHome()) {
         error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
         error_log($email);
         error_log($emailTitle);
@@ -380,7 +380,7 @@ function sendActivityEmail(
         "<br/>" .
         "-- Your friends at RetroAchievements.org<br/>";
 
-    if (IsAtHome()) {
+    if (isAtHome()) {
         error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
         error_log($email);
         error_log($emailTitle);
@@ -417,7 +417,7 @@ function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
         "<br/>" .
         "-- Your friends at RetroAchievements.org<br/>";
 
-    if (IsAtHome()) {
+    if (isAtHome()) {
         error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
         error_log($email);
         error_log($emailTitle);
@@ -443,7 +443,7 @@ function SendPasswordResetEmail($user, $email, $token)
         "Thanks!<br/>" .
         "-- Your friends at RetroAchievements.org<br/>";
 
-    if (IsAtHome()) {
+    if (isAtHome()) {
         error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
         error_log("Email: " . $email . ", Title: " . $emailTitle . ", Msg: " . $msg);
         $retVal = true;
@@ -1488,7 +1488,7 @@ function getUsersCompletedGamesAndMax($user)
 {
     $retVal = Array();
 
-    if (!IsValidUsername($user)) {
+    if (!isValidUsername($user)) {
         return $retVal;
     }
 
@@ -1528,7 +1528,7 @@ function getUsersSiteAwards($user)
 {
     $retVal = Array();
 
-    if (!IsValidUsername($user)) {
+    if (!isValidUsername($user)) {
         return $retVal;
     }
 
@@ -1707,7 +1707,7 @@ function RemovePasswordResetToken($username, $passwordResetToken)
     return mysqli_affected_rows($db) == 1;
 }
 
-function IsValidPasswordResetToken($usernameIn, $passwordResetToken)
+function isValidPasswordResetToken($usernameIn, $passwordResetToken)
 {
     global $db;
 

@@ -102,7 +102,7 @@ switch( $requestType )
 			DoRequestError( "credentials failed!" );
 			break;
 		}
-		$returnVal = ChangeFriendStatus( $user, seekPOSTorGET( 'f' ), seekPOSTorGET( 'a' ) );
+		$returnVal = changeFriendStatus( $user, seekPOSTorGET( 'f' ), seekPOSTorGET( 'a' ) );
 		echo $returnVal;
 		
 		if( addFriend( $user, $newFriend ) )

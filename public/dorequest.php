@@ -383,7 +383,7 @@ if( $credentialsOK )
         case "modifyfriend":
             $friend = seekPOSTorGET( 'f' );
             $action = seekPOSTorGET( 'a' );
-            $response[ 'Response' ] = ChangeFriendStatus( $user, $friend, $action );
+            $response[ 'Response' ] = changeFriendStatus( $user, $friend, $action );
             break;
 
         case "patch":

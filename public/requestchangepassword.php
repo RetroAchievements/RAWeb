@@ -25,7 +25,7 @@
 	}
 	else
 	{
-		if( isset( $passResetToken ) && IsValidPasswordResetToken($user, $passResetToken) )
+		if( isset( $passResetToken ) && isValidPasswordResetToken($user, $passResetToken) )
 		{
 			RemovePasswordResetToken($user, $passResetToken);
 			

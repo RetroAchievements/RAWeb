@@ -102,7 +102,7 @@ function UploadUserPic( $user, $filename, $rawImage )
 
         $userPicDestSize = 128;
 
-        if( IsAtHome() )
+        if( isAtHome() )
             $existingUserFile = "UserPic/$user.png";
         else
             $existingUserFile = "./UserPic/$user.png";
