@@ -3,8 +3,24 @@
 use RA\ActivityType;
 
 require_once(__DIR__ . '/../bootstrap.php');
+
+function isAllowedToSubmitTickets($user) {
+    return isValidUsername($user)
+        && getUserActivityRange($user, $firstLogin, $lastLogin)
+        && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
+        && getAccountDetails($user, $userInfo)
+        && $userInfo['LastGameID'];
+}
+
 function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
 {
+    $returnMsg = [];
+
+    if (!isAllowedToSubmitTickets($userSubmitter)) {
+        $returnMsg['Success'] = false;
+        return $returnMsg;
+    }
+
     global $db;
 
     $note = mysqli_real_escape_string($db, $noteIn);
@@ -69,7 +85,6 @@ Thanks!";
         }
     }
 
-    $returnMsg = array();
     $returnMsg['Detected'] = $idsFound;
     $returnMsg['Added'] = $idsAdded;
     $returnMsg['Success'] = ($errorsEncountered == false);
@@ -79,6 +94,11 @@ Thanks!";
 
 function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut)
 {
+    if (!isAllowedToSubmitTickets($userSubmitter)) {
+        $summaryMsgOut = "FAILED!";
+        return false;
+    }
+
     global $db;
     $note = mysqli_real_escape_string($db, $noteIn);
 

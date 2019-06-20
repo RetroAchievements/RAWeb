@@ -1030,29 +1030,17 @@ function applyVote($user, $achID, $vote)
 
 function getUserActivityRange($user, &$firstLogin, &$lastLogin)
 {
-    //    00:45 27/02/2014 - removed redundant segments?
     $query = "SELECT MIN(act.timestamp) AS FirstLogin, MAX(act.timestamp) AS LastLogin
               FROM Activity AS act
               WHERE act.User = '$user' AND act.activitytype=2";
-
-    // $query      = "SELECT act.timestamp, act.lastupdate FROM Activity AS act
-    // WHERE act.ID = (
-    // SELECT MAX(ID) FROM Activity AS act     WHERE act.User = '$user' AND act.activitytype=2
-    // )
-    // OR    act.ID = (
-    // SELECT MIN(ID) FROM Activity AS act     WHERE act.User = '$user' AND act.activitytype=2
-    // )
-    // ORDER BY act.lastupdate ASC";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
         $firstLogin = $data['FirstLogin'];
         $lastLogin = $data['LastLogin'];
-        //$data = mysqli_fetch_assoc( $dbResult );
-        //$lastLogin = $data['lastupdate'];
 
-        return true;
+        return ($firstLogin !== null || $lastLogin !== null);
     }
 
     return false;
