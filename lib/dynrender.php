@@ -586,7 +586,7 @@ function RenderArticleComment(
         $class = 'localuser';
 
         $img = "<img src='" . getenv('APP_STATIC_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
-        $deleteIcon = " href='#'>$img</a></div>";
+        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
     $artCommentID = "artcomment_" . $articleID . "_" . $commentID;
