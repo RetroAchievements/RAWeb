@@ -3,7 +3,7 @@
 use RA\ActivityType;
 
 require_once(__DIR__ . '/../bootstrap.php');
-function SubmitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
+function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
 {
     global $db;
 
@@ -77,7 +77,7 @@ Thanks!";
     return $returnMsg;
 }
 
-function SubmitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut)
+function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut)
 {
     global $db;
     $note = mysqli_real_escape_string($db, $noteIn);
