@@ -907,7 +907,7 @@ function RenderFooter()
     //    My TM
     echo "<div class='footertext'>";
     echo "<p style='font-size: x-small;'>";
-    echo "Content by <small><a href='http://www.immensegames.com' target='_blank'>Immense Games</a></small><br/>";
+    echo "Content by <small><a href='http://www.immensegames.com' target='_blank' rel='noopener'>Immense Games</a></small><br/>";
     //echo "<small>Last Updated July 2013</small>";
     global $g_numQueries;
     global $g_pageLoadAt;
@@ -1915,7 +1915,7 @@ function RenderDocsComponent()
         <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
-            Read the <a href='https://docs.retroachievements.org/' target='_blank'>Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank'>FAQ</a>.
+            Read the <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
           </div>
         </div>
       </div>";
@@ -2680,9 +2680,9 @@ function linkifyImgurURLs($text)
         $extension = $extension === '.gif' ? '.gifv' : $extension;
         $replacements[$i] = $matches[0][$i];
         if (in_array($extension, ['.gifv', '.mp4', '.webm'])) {
-            $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank"><div class="embed-responsive embed-responsive-16by9"><video controls class="embed-responsive-item"><source src="//i.imgur.com/' . $id . '.mp4" type="video/mp4"></video></div><div class="text-right mb-3"><small>view on imgur</small></div></a>';
+            $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank" rel="noopener"><div class="embed-responsive embed-responsive-16by9"><video controls class="embed-responsive-item"><source src="//i.imgur.com/' . $id . '.mp4" type="video/mp4"></video></div><div class="text-right mb-3"><small>view on imgur</small></div></a>';
         } elseif (in_array($extension, ['.jpg', '.png', '.jpeg'])) {
-            $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank"><img class="img-fluid" src="//i.imgur.com/' . $id . '.jpg"><div class="text-right mb-3"><small>view on imgur</small></div></a>';
+            $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank" rel="noopener"><img class="img-fluid" src="//i.imgur.com/' . $id . '.jpg"><div class="text-right mb-3"><small>view on imgur</small></div></a>';
         }
     }
     $text = preg_replace_array($pattern, $replacements, $text);
@@ -2762,11 +2762,11 @@ function linkifyBasicURLs($text)
     // NOTE: using '~' instead of '/' to enclose the regex
     $text = preg_replace(
         '~(https?://[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
-        ' <a href="$1" target="_blank">$1</a> ',
+        ' <a href="$1" target="_blank" rel="noopener">$1</a> ',
         $text);
     $text = preg_replace(
         '~(\s|^)(www\.[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
-        ' <a target="_blank" href="https://$2">$2</a> ',
+        ' <a target="_blank" href="https://$2" rel="noopener">$2</a> ',
         $text);
 
     return $text;
