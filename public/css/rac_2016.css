@@ -67,14 +67,6 @@ h1, h2, h3, h4 {
     font-size: 2.0em;
 	background-repeat: no-repeat;
 }
-
-h3.longheader {
-    margin: 10px 0px;
-}
-
-h3 {
-    margin: 10px 0px 25px 0px
-}
 	
 h4 { 
 	font-size: 1.5em; 
@@ -118,18 +110,4 @@ h4 {
 	color: #eeeeff; 
 	margin-bottom: 0px; 
 	text-decoration: none; /* Removes underline from links */
-}
-
-/* Make completed/mastered badges larger on hover to show off artwork */
-
-div#siteawards.component {
-	overflow: visible
-}
-
-div.trophyimage {
-    transition: all .2s;
-}
-
-div.trophyimage:hover {
-    transform: scale(2.0);
 }
