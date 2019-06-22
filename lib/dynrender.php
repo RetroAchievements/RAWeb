@@ -586,7 +586,7 @@ function RenderArticleComment(
         $class = 'localuser';
 
         $img = "<img src='" . getenv('APP_STATIC_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
-        $deleteIcon = " href='#'>$img</a></div>";
+        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
     $artCommentID = "artcomment_" . $articleID . "_" . $commentID;
@@ -2212,7 +2212,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
         $muted = 'false';
-        if (IsAtHome()) {
+        if (isAtHome()) {
             $muted = 'true';
         }
 

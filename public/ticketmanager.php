@@ -125,7 +125,7 @@ if( $ticketID == 0 )
     else
     {
         $assignedToUser = seekGET( 'u', NULL );
-        if( !IsValidUsername( $assignedToUser ) )
+        if( !isValidUsername( $assignedToUser ) )
             $assignedToUser = NULL;
         $gameIDGiven = seekGET( 'g', NULL );
 

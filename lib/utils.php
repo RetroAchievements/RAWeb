@@ -61,13 +61,13 @@ function log_email( $logMessage )
     $fullmsg = $logMessage . "\n" . debug_string_backtrace();
     error_log( $fullmsg );
 
-    //if( !IsAtHome() )
+    //if( !isAtHome() )
     //mail_utf8( "Scott@retroachievements.org", "RetroAchievements.org", "noreply@retroachievements.org", "Error Log", $fullmsg );
 }
 
 function log_sql( $logMessage )
 {
-    if( IsAtHome() )
+    if( isAtHome() )
         error_log( $logMessage . "\n", 3, "storage/logs/queries.log" );
     else
         error_log( $logMessage . "\n", 3, getenv('DOC_ROOT')."storage/logs/queries.log" );
@@ -512,7 +512,7 @@ function ParseCURLPage( $url, $postString = "" )
     return $result;
 }
 
-function IsValidUsername( $userTest )
+function isValidUsername($userTest )
 {
     if( ctype_alnum( $userTest ) == FALSE )
     {

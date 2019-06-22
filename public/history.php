@@ -5,7 +5,7 @@ RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $per
 
 $userPage = seekGET( 'u', $user );
 
-if( !isset( $userPage ) || !IsValidUsername( $userPage ) )
+if( !isset( $userPage ) || !isValidUsername( $userPage ) )
 {
     header( "Location: " . getenv('APP_URL') ."?e=notloggedin" );
     exit;

@@ -69,7 +69,7 @@ return false;
 //         else if( $extension == 'bmp' )
 //             $tempImage = imagecreatefrombitmap( $tempFilename );
 //
-//         if( IsAtHome() )
+//         if( isAtHome() )
 //             $existingUserFile = "UserPic/$user.png";
 //         else
 //             $existingUserFile = getenv('DOC_ROOT')."public/UserPic/$user.png";

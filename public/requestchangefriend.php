@@ -15,7 +15,7 @@
 	
 	if( validateUser_cookie( $user, $cookie, 0 ) == TRUE )
 	{
-		$returnVal = ChangeFriendStatus( $user, $friend, $action );
+		$returnVal = changeFriendStatus( $user, $friend, $action );
 		header( "Location: " . getenv('APP_URL') . "/User/$friend?e=$returnVal" );
 	}
 	else

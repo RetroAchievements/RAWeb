@@ -3,8 +3,24 @@
 use RA\ActivityType;
 
 require_once(__DIR__ . '/../bootstrap.php');
-function SubmitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
+
+function isAllowedToSubmitTickets($user) {
+    return isValidUsername($user)
+        && getUserActivityRange($user, $firstLogin, $lastLogin)
+        && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
+        && getAccountDetails($user, $userInfo)
+        && $userInfo['LastGameID'];
+}
+
+function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
 {
+    $returnMsg = [];
+
+    if (!isAllowedToSubmitTickets($userSubmitter)) {
+        $returnMsg['Success'] = false;
+        return $returnMsg;
+    }
+
     global $db;
 
     $note = mysqli_real_escape_string($db, $noteIn);
@@ -69,7 +85,6 @@ Thanks!";
         }
     }
 
-    $returnMsg = array();
     $returnMsg['Detected'] = $idsFound;
     $returnMsg['Added'] = $idsAdded;
     $returnMsg['Success'] = ($errorsEncountered == false);
@@ -77,8 +92,13 @@ Thanks!";
     return $returnMsg;
 }
 
-function SubmitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut)
+function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut)
 {
+    if (!isAllowedToSubmitTickets($userSubmitter)) {
+        $summaryMsgOut = "FAILED!";
+        return false;
+    }
+
     global $db;
     $note = mysqli_real_escape_string($db, $noteIn);
 
@@ -170,7 +190,7 @@ function getAllTickets(
     settype($givenAchievementID, 'integer');
 
     $innerCond = "TRUE";
-    if (!empty($assignedToUser) && IsValidUsername($assignedToUser)) {
+    if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
         $assignedToUser = mysqli_real_escape_string($db, $assignedToUser);
         $innerCond .= " AND ach.Author = '$assignedToUser'";
     }
@@ -305,7 +325,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             "-- Your friends at RetroAchievements.org<br>";
 
 
-        if (IsAtHome()) {
+        if (isAtHome()) {
             error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
             error_log($email);
             error_log($emailTitle);

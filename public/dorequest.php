@@ -383,7 +383,7 @@ if( $credentialsOK )
         case "modifyfriend":
             $friend = seekPOSTorGET( 'f' );
             $action = seekPOSTorGET( 'a' );
-            $response[ 'Response' ] = ChangeFriendStatus( $user, $friend, $action );
+            $response[ 'Response' ] = changeFriendStatus( $user, $friend, $action );
             break;
 
         case "patch":
@@ -457,7 +457,7 @@ if( $credentialsOK )
             $problemType = seekPOSTorGET( 'p' );
             $comment = seekPOSTorGET( 'n' );
             $md5 = seekPOSTorGET( 'm' );
-            $response[ 'Response' ] = SubmitNewTicketsJSON( $user, $idCSV, $problemType, $comment, $md5 );
+            $response[ 'Response' ] = submitNewTicketsJSON( $user, $idCSV, $problemType, $comment, $md5 );
             $response[ 'Success' ] = $response[ 'Response' ][ 'Success' ]; //	Passthru
             if( isset( $response[ 'Response' ][ 'Error' ] ) )
                 $response[ 'Error' ] = $response[ 'Response' ][ 'Error' ];
