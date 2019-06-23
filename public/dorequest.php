@@ -60,7 +60,6 @@ switch( $requestType )
     case "submitgametitle":
     case "submitlbentry":
     case "unlocks":
-    case "uploadachievement":
         $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Registered );
         break;
 
@@ -68,10 +67,11 @@ switch( $requestType )
     case "submitcodenote":
     case "createnewlb":
     case "recalctrueratio":
+    case "uploadachievement":
         $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::JrDeveloper );
         break;
 
-    //	Developer status required:
+    //	Admin status required:
     case "removelbentry":
         $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Admin );
         break;
