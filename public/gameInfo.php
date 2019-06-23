@@ -485,7 +485,7 @@ RenderDocType(true);
             echo "<div style='clear:both;'></div>";
             echo "</br>";
 
-            if (isset($user) && $permissions >= Permissions::Developer) {
+            if (isset($user) && $permissions >= Permissions::JrDeveloper) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Dev (Click to show):</span><br/>";
                 echo "<div id='devboxcontent'>";
@@ -500,8 +500,10 @@ RenderDocType(true);
                 echo "<li><a href='/achievementinspector.php?g=$gameID'>Manage Achievements</a></li>";
                 echo "<li><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></li>";
 
-                echo "<li><a href='/attemptrename.php?g=$gameID'>Rename Game</a></li>";
-                echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
+                if (isset($user) && $permissions >= Permissions::Developer) {
+                    echo "<li><a href='/attemptrename.php?g=$gameID'>Rename Game</a></li>";
+                    echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
+                }
 
                 if ($numLeaderboards == 0) {
                     echo "<li><a href='/requestcreatenewlb.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";

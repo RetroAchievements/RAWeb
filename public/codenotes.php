@@ -33,7 +33,7 @@
 <?php echo "Game: " . GetGameAndTooltipDiv( $gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName'] ); ?>
 
 <?php
-if( isset( $gameData ) && isset( $user ) && $permissions >= 3 )
+if( isset( $gameData ) && isset( $user ) && $permissions >= 2 )
 {
 	RenderCodeNotes( $codeNotes );
 }

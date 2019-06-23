@@ -130,7 +130,7 @@ switch( $requestType )
 		break;
 			
 	case "createnewlb":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JrDeveloper ) )
 		{
 			DoRequestError( "credentials failed!" );
 			exit;
@@ -144,7 +144,7 @@ switch( $requestType )
 		break;
 	
 	case "recalctrueratio":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JrDeveloper ) )
 		{
 			DoRequestError( "credentials failed!" );
 			exit;
@@ -155,7 +155,7 @@ switch( $requestType )
 		break;
 		
 	case "removelbentry":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin ) )
 		{
 			DoRequestError( "credentials failed!" );
 			break;
@@ -169,7 +169,7 @@ switch( $requestType )
 		break;
 
 	case "removecomment":
-		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions ) )
+		if( !RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JrDeveloper ) )
 		{
 			DoRequestError( "credentials failed!" );
 			break;

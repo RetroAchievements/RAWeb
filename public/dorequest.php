@@ -57,7 +57,6 @@ switch( $requestType )
     case "postactivity":
     case "removecomment":
     case "richpresencepatch":
-    case "submitcodenote":
     case "submitgametitle":
     case "submitlbentry":
     case "unlocks":
@@ -65,11 +64,16 @@ switch( $requestType )
         $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Registered );
         break;
 
-    //	Developer status required:
+     //  Jr Developer status required:
+    case "submitcodenote":
     case "createnewlb":
     case "recalctrueratio":
+        $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::JrDeveloper );
+        break;
+
+    //	Developer status required:
     case "removelbentry":
-        $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Developer );
+        $credentialsOK = $validLogin && ( $permissions >= \RA\Permissions::Admin );
         break;
 
     default: //	Incl. Login!

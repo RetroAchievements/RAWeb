@@ -1374,7 +1374,7 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     $permsFilter = null;
 
     settype($perms, 'integer');
-    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::SuperUser) {
+    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JrDeveloper) {
         $permsFilter = "ua.Permissions = $perms ";
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
         $permsFilter = "ua.Permissions >= $perms ";

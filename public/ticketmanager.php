@@ -32,12 +32,12 @@ if( $ticketID != 0 )
             break;
 
         case "resolved":
-            if( $permissions >= \RA\Permissions::Developer )
+            if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
                 $ticketState = 2;
             break;
 
         case "demoted":
-            if( $permissions >= \RA\Permissions::Developer )
+            if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
             {
                 $ticketState = 0;
                 $reason = "Demoted";
@@ -45,7 +45,7 @@ if( $ticketID != 0 )
             break;
 
         case "not-enough-info":
-            if( $permissions >= \RA\Permissions::Developer )
+            if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
             {
                 $ticketState = 0;
                 $reason = "Not enough information";
@@ -53,7 +53,7 @@ if( $ticketID != 0 )
             break;
 
         case "wrong-rom":
-            if( $permissions >= \RA\Permissions::Developer )
+            if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
             {
                 $ticketState = 0;
                 $reason = "Wrong ROM";
@@ -61,7 +61,7 @@ if( $ticketID != 0 )
             break;
 
         case "network":
-            if( $permissions >= \RA\Permissions::Developer )
+            if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
             {
                 $ticketState = 0;
                 $reason = "Network problems";
@@ -69,7 +69,7 @@ if( $ticketID != 0 )
             break;
 
         case "closed-other":
-            if( $permissions >= \RA\Permissions::Developer )
+            if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
             {
                 $ticketState = 0;
                 $reason = "See the comments";
@@ -88,7 +88,7 @@ if( $ticketID != 0 )
     if( $action != NULL &&
         $ticketState != $ticketData[ 'ReportState' ] &&
         (   $permissions >= \RA\Permissions::Developer ||
-            $user == $ticketData[ 'ReportedBy' ]
+            $user == $ticketData[ 'ReportedBy' ] || \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user
         )
     )
     {
@@ -566,7 +566,7 @@ RenderDocType();
                     echo "</tr>";
                 }
 
-                if( $permissions >= \RA\Permissions::Developer )
+                if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
                 {
                     echo "<tr>";
 
@@ -597,7 +597,7 @@ RenderDocType();
                 else
                     echo "$reportedBy did not earn this achievement.";
 
-                if( $user == $reportedBy || $permissions >= \RA\Permissions::Developer )
+                if(($user == $reportedBy) || ($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
                 {
                     echo "<tr>";
 
@@ -616,7 +616,7 @@ RenderDocType();
                         if( $user == $reportedBy ) // only the reporter can close as a mistaken report
                             echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
 
-                        if( $permissions >= \RA\Permissions::Developer )
+                        if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user))
                         {
                             echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
                             echo "<option value='demoted'>Demote achievement to Unofficial</option>";
@@ -654,7 +654,7 @@ RenderDocType();
                 echo "</tbody></table>";
                 echo "</div>";
 
-                if( $permissions >= \RA\Permissions::Developer && getAchievementMetadata( $achID, $dataOut ) )
+                if(($permissions >= \RA\Permissions::Developer) || ($permissions == \RA\Permissions::JrDeveloper && $ticketData['AchievementAuthor'] == $user) && getAchievementMetadata( $achID, $dataOut ) )
                 {
                     getCodeNotes( $gameID, $codeNotes );
                     $achMem = $dataOut[ 'MemAddr' ];

@@ -12,7 +12,7 @@
 	
 	//	Double check cookie as well
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer ) && 
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin ) && 
 		($source == $user) )
 	{
 		requestResetLB( $lbid );

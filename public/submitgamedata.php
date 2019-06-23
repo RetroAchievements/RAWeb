@@ -17,7 +17,7 @@
 	$newForumTopic = seekPOST( 'f' );
     settype( $newForumTopic, 'integer' );
 	
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser ) )
+	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JrDeveloper ) )
 	{
 		if( isset( $richPresence ) )
 		{

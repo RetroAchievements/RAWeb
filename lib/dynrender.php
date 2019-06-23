@@ -691,7 +691,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         echo ")";
         echo "</a>";
 
-        if ($permissions >= 3) // 3 == Developer
+        if ($permissions >= 2) // 2 == Jr. Developer
         {
             $openTickets = countOpenTicketsByDev($user);
             if ($openTickets > 0) {
@@ -727,7 +727,7 @@ function RenderToolbar($user, $permissions = 0)
     // echo "<li><a href='/feed.php?g=1'>Global Feed</a></li>";
 
     //    SU:
-    if ($permissions >= 2) {
+    if ($permissions >= 3) {
         echo "<li><a href='/submitnews.php'>Submit News Article</a></li>";
     }
     //    Admin:
@@ -840,14 +840,20 @@ function RenderToolbar($user, $permissions = 0)
     //echo "</ul>";
     echo "</li>";
 
-    if ($permissions >= 3) {
+    if ($permissions >= 2) {
         echo "<li><a href='#'>Developers</a>";
         echo "<ul>";
         echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
-        echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
+        if ($permissions >= 3) {
+	        echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
+    	}
         echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
-        echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
-        echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
+        if ($permissions >= 3) {
+        	echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
+        }
+        if ($permissions >= 4) {
+        	echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
+    	}
         echo "<li><a href='/viewtopic.php?t=394'>Official To-Do List</a></li>";
         echo "</ul>";
 
