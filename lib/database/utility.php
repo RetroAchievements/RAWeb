@@ -366,7 +366,7 @@ function ValidateAPIKey($user, $key)
 // return $numFound;
 // }
 
-function GetGameNumUniquePlayersByAwards($gameID)
+function getGameNumUniquePlayersByAwards($gameID)
 {
     $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
               (
@@ -385,7 +385,7 @@ function GetGameNumUniquePlayersByAwards($gameID)
 }
 
 //    16:32 16/10/2014
-function GetAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
+function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
 {
     $retVal = array();
 
@@ -404,7 +404,7 @@ function GetAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
     settype($retVal['GameID'], 'integer');
 
     //    Fetch the total number of players for this game:
-    $retVal['TotalPlayers'] = GetGameNumUniquePlayersByAwards($retVal['GameID']);
+    $retVal['TotalPlayers'] = getGameNumUniquePlayersByAwards($retVal['GameID']);
     settype($retVal['TotalPlayers'], 'integer');
 
     $extraWhere = "";
@@ -548,7 +548,7 @@ function getStaticData()
     return null;
 }
 
-function GetCodeNotesData($gameID)
+function getCodeNotesData($gameID)
 {
     $codeNotesOut = array();
 
@@ -1058,7 +1058,7 @@ function multiexplode($delimiters, $string)
     return $launch;
 }
 
-function GetAchievementPatchReadableHTML($mem, $memNotes)
+function getAchievementPatchReadableHTML($mem, $memNotes)
 {
     $tableHeader = '
     <tr>

@@ -140,7 +140,7 @@ if( $credentialsOK )
             break;
 
         case "codenotes2":
-            $response[ 'CodeNotes' ] = GetCodeNotesData( $gameID );
+            $response[ 'CodeNotes' ] = getCodeNotesData( $gameID );
             $response[ 'GameID' ] = $gameID;
             //error_log( "codenotes2, $gameID" );
             break;
@@ -353,7 +353,7 @@ if( $credentialsOK )
             $response[ 'Count' ] = $count;
             $response[ 'FriendsOnly' ] = $friendsOnly;
             $response[ 'AchievementID' ] = $achievementID;
-            $response[ 'Response' ] = GetAchievementRecentWinnersData( $achievementID, $offset, $count, $user, $friendsOnly );
+            $response[ 'Response' ] = getAchievementRecentWinnersData( $achievementID, $offset, $count, $user, $friendsOnly );
             break;
 
         case "addfriend":
