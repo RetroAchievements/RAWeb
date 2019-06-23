@@ -437,16 +437,17 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
     }
 
     $gameTitle = $gameData['Title'];
+    $consoleName = $gameData['ConsoleName'];
 
     $topicTitle = $gameTitle;
 
     $nowTimestamp = time();
     $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
-    $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle $consoleName");
+    $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle ($consoleName)");
     $urlSafeGameTitle = str_replace("'", "''", $urlSafeGameTitle);
 
     $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
-    $longplaysURL = "https://www.google.com/search?q=site:www.longplays.org+$urlSafeGameTitle";
+    $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+$urlSafeGameTitle+longplay";
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
     $embedLongplayURL;
