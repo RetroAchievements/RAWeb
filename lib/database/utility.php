@@ -87,7 +87,8 @@ function RA_ReadCookieCredentials(
     &$unreadMessagesOut,
     &$permissionOut,
     $minPermissions = null
-) {
+)
+{
     //    Promise some values:
     $userOut = RA_ReadCookie('RA_User');
     $cookie = RA_ReadCookie('RA_Cookie');
@@ -153,7 +154,8 @@ function RA_ReadTokenCredentials(
     &$unreadMessagesOut,
     &$permissionOut,
     $permissionRequired = null
-) {
+)
+{
     if ($userOut == null || $userOut == '') {
         error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
@@ -611,7 +613,7 @@ function getCodeNotes($gameID, &$codeNotesOut)
  * @param $note
  * @return bool
  */
-function SubmitCodeNote2($user, $gameID, $address, $note)
+function submitCodeNote2($user, $gameID, $address, $note)
 {
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {
@@ -621,6 +623,20 @@ function SubmitCodeNote2($user, $gameID, $address, $note)
     global $db;
 
     if (!isset($user) || !isset($gameID) || !isset($address)) {
+        return false;
+    }
+
+    $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
+    $currentNotes = getCodeNotesData($gameID);
+    $i = array_search($addressHex, array_column($currentNotes, 'Address'));
+
+    if (
+        $i !== false
+        && getUserPermissions($user) < \RA\Permissions::Developer
+        && $currentNotes[$i]['User'] !== $user
+        && !empty($currentNotes[$i]['Note'])
+    )
+    {
         return false;
     }
 
@@ -650,9 +666,9 @@ function SubmitCodeNote2($user, $gameID, $address, $note)
  * @param $note
  * @return bool
  * @deprecated
- * @see SubmitCodeNote2()
+ * @see submitCodeNote2()
  */
-function SubmitCodeNote($user, $gameID, $address, $note)
+function submitCodeNote($user, $gameID, $address, $note)
 {
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {

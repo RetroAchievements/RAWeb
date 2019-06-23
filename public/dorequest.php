@@ -432,7 +432,7 @@ if( $credentialsOK )
         case "submitcodenote":
             $note = seekPOSTorGET( 'n' );
             $address = seekPOSTorGET( 'm', 0, 'integer' );
-            $response[ 'Success' ] = SubmitCodeNote2( $user, $gameID, $address, $note );
+            $response[ 'Success' ] = submitCodeNote2( $user, $gameID, $address, $note );
             $response[ 'GameID' ] = $gameID;     //	Repeat this back to the caller?
             $response[ 'Address' ] = $address;    //	Repeat this back to the caller?
             $response[ 'Note' ] = $note;      //	Repeat this back to the caller?
