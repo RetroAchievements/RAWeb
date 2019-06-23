@@ -20,7 +20,7 @@ return false;
 //
 // //	User privelidges to submit a code note:
 // if (validateUser_app($user, $token, $fbUser, 1)) {
-//     if (SubmitCodeNote($user, $gameID, $address, $note)) {
+//     if (submitCodeNote($user, $gameID, $address, $note)) {
 //         echo "OK";
 //     } else {
 //         echo "FAILED!";
