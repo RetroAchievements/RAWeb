@@ -1374,10 +1374,12 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     $permsFilter = null;
 
     settype($perms, 'integer');
-    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JrDeveloper) {
+    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered) {
         $permsFilter = "ua.Permissions = $perms ";
-    } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
+    } elseif ($perms >= Permissions::Registered) {
         $permsFilter = "ua.Permissions >= $perms ";
+    } elseif ($perms > Permissions::Registered && $perms <= Permissions::Root) {
+        $permsFilter = "ua.Permissions == $perms ";
     } else {
         if ($showUntracked) // if reach this point, show only untracked users
         {
