@@ -631,7 +631,7 @@ function submitCodeNote2($user, $gameID, $address, $note)
     $i = array_search($addressHex, array_column($currentNotes, 'Address'));
 
     if (
-        $i === false
+        $i !== false
         && getUserPermissions($user) < \RA\Permissions::Developer
         && $currentNotes[$i]['User'] !== $user
         && !empty($currentNotes[$i]['Note'])
