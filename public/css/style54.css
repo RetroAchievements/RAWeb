@@ -343,7 +343,7 @@ td, tr, img {
     background-color: #0a0a0a;
     color: #2a2a2a;
     font-size: 16px;
-    margin: 20px 0;
+    margin: 20px auto;
     border-top-style: solid;
     border-top-color: #0066cc;
     clear: both;
