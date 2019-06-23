@@ -10,6 +10,7 @@ $latestRASnesVer = file_get_contents( "./LatestRASnesVersion.html" );
 $latestRAVBAVer = file_get_contents( "./LatestRAVBAVersion.html" );
 $latestRALibretroVer = file_get_contents( "./LatestRALibretroVersion.html" );
 $latestRAQUASI88Ver = file_get_contents( "./LatestRAQUASI88Version.html" );
+$latestRAppleWinVer = file_get_contents( "./LatestRAppleWinVersion.html" );
 
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
@@ -110,6 +111,15 @@ RenderDocType();
             <div class='largeicon'>
                 <span class='clickablebutton'>
                     <a href="/bin/RAQUASI88.zip">Download RAQUASI88 v<?php echo $latestRAQUASI88Ver; ?> for Windows</a>
+                </span>
+            </div>
+
+            <br/>
+            <h2 class='longheader' id='rapplewin'>Apple II Emulator</h2>
+
+            <div class='largeicon'>
+                <span class='clickablebutton'>
+                    <a href="/bin/RAppleWin.zip">Download RAppleWin v<?php echo $latestRAppleWinVer; ?> for Windows</a>
                 </span>
             </div>
 
