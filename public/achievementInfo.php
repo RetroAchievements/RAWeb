@@ -226,6 +226,8 @@ if ($permissions >= 2) {
 
             if ($achFlags == 3 && (($permissions >= 3) || ($permissions == 2 && $dataOut['Author'] == $user))) {
                 echo "<li>State: Official&nbsp;<a href='/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
+            } elseif ($achFlags == 3) && ($permissions == 2 && $dataOut['Author'] != $user) {
+                echo "<li>State: Official</li>";
             } elseif ($achFlags == 5) {
                 echo "<li>State: Unofficial</li>";
             }
