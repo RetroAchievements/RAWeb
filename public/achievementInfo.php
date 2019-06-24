@@ -236,7 +236,7 @@ if ($permissions >= 2) {
             echo "<li>Mem:</li>";
             echo "<code>" . htmlspecialchars($achMem) . "</code>";
             echo "<li>Mem explained:</li>";
-            echo "<code>" . GetAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
+            echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
             echo "</div>";
 
             echo "</div>"; //    devboxcontent
