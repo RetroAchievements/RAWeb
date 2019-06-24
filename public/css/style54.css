@@ -83,7 +83,7 @@ a:hover {
 }
 
 #leftcontainer {
-    margin: 5px 350px 5px 0px; /* 350 is 300 width, plus 2*20 padding, plus 2*2 border, plus 6 spacing */
+    margin: 25px 350px 5px 0px; /* 350 is 300 width, plus 2*20 padding, plus 2*2 border, plus 6 spacing */
     padding: 5px 20px;
     display: block;
     border: 2px solid rgb(20, 20, 20);
@@ -246,6 +246,7 @@ td, tr, img {
     height: 108px;
 
     margin: auto;
+	padding: 10px 0px 25px 0px;
     max-width: 980px;
     min-width: 800px;
     position: relative;
@@ -261,7 +262,7 @@ td, tr, img {
     background-image: url('/Images/RA_Logo10.png');
     height: 130px;
 
-    background-repeat: no-repeat;
+    background-repeat: no-repeat!important; /* important only to not be overriden by subthemes*/
     float: left;
     margin: 6px;
     width: 535px;
