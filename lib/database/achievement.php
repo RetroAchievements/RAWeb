@@ -482,7 +482,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
 }
 
 //    01:09 23/02/2013
-function AddEarnedAchievement(
+function addEarnedAchievement(
     $userIn,
     $validation,
     $achIDToAward,

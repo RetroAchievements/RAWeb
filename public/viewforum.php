@@ -12,7 +12,7 @@
 	settype( $count, "integer" );
 	
 	$numUnofficialLinks = 0;
-	if( $permissions >= \RA\Permissions::Developer )
+	if( $permissions >= \RA\Permissions::Admin )
 	{
 		$unofficialLinks = getUnauthorisedForumLinks();
 		$numUnofficialLinks = count( $unofficialLinks );
@@ -20,7 +20,7 @@
 
 	if( $requestedForumID == 0 )
 	{
-		if( $permissions >= \RA\Permissions::Developer )
+		if( $permissions >= \RA\Permissions::Admin )
 		{
 			//	Continue
 			$viewingUnauthorisedForumLinks = true;
@@ -92,7 +92,7 @@
 		
 		if( $numUnofficialLinks > 0 )
 		{
-			echo "</br><a href='/viewforum.php?f=0'><b>Developer Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a></br>";
+			echo "</br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a></br>";
 		}
 	
 		//echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";

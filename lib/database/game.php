@@ -1288,6 +1288,7 @@ function isValidConsoleID($consoleID)
         case 28: // Virtual Boy
         case 23: // Events (not an actual console)
         case 33: // SG-1000
+        case 38: // Apple II
         case 44: // ColecoVision
         case 47: // PC-8800
         case 51: // Atari7800
