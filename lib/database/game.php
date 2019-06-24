@@ -30,7 +30,7 @@ function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
 }
 
 //    11:37 30/10/2014
-function GetGameData($gameID)
+function getGameData($gameID)
 {
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
               FROM GameData AS gd
@@ -99,7 +99,8 @@ function getGameMetadataByFlags(
     $sortBy = 0,
     $user2 = null,
     $flags = 0
-) {
+)
+{
     settype($gameID, 'integer');
     settype($sortBy, 'integer');
     settype($flags, 'integer');

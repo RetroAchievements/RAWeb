@@ -311,7 +311,7 @@ RenderDocType(true);
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
             echo "<div class='mottocontainer'>Last seen ";
             if (!empty($userMassData['LastGameID'])) {
-                $game = GetGameData($userMassData['LastGameID']);
+                $game = getGameData($userMassData['LastGameID']);
                 echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false,
                         22) . '<br>';
             }
