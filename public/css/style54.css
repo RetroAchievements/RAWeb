@@ -401,6 +401,7 @@ td, tr, img {
 
 #feed td{
     vertical-align: middle;
+	word-break: break-word;
 }
 
 #feed td.date{
