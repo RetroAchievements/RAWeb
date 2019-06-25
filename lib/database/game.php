@@ -14,7 +14,7 @@ function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== null) {
-        $db_entry = mysqli_fetch_assoc($dbResult);
+        $data = mysqli_fetch_assoc($dbResult);
         if ($data !== null) {
             $gameIDOut = $data['ID'];
             $gameTitleOut = $data['GameName'];
