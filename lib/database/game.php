@@ -633,15 +633,23 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
 {
     if (isset($toAdd)) {
         //Replace all non-numberic characters with comma so the string has a common delimiter.
-        $toAdd = preg_replace("/[^0-9]/", ",", $toAdd );
+        $toAdd = preg_replace("/[^0-9]+/", ",", $toAdd );
         $tok = strtok ($toAdd, ",");
-        while ($tok !== false && $tok > 0)
-        {
+        $valuesArray = [];
+        while ($tok !== false && $tok > 0) {
             settype($tok, 'integer');
-            $query = "INSERT INTO GameAlternatives VALUES ( $gameID, $tok ), ( $tok, $gameID )";
-            error_log("Added game alt, $gameID -> $tok");
-            s_mysql_query($query);
+            $valuesArray[] = "({$gameID}, {$tok}), ({$tok}, {$gameID})";
             $tok = strtok(",");
+        }
+
+        $values = implode(", ", $valuesArray);
+        if (!empty($values)) {
+            $query = "INSERT INTO GameAlternatives VALUES $values";
+            if (s_mysql_query($query)) {
+                error_log("Added game alt(s): $values");
+            } else {
+                error_log("FAILED to add game alt(s): $values");
+            }
         }
     }
 
