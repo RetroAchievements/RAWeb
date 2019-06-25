@@ -888,9 +888,9 @@ function RenderToolbar($user, $permissions = 0)
 
 function RenderFooter()
 {
-    echo "<div style='clear:all;'></div>";
+    echo "<div style='clear:both;'></div>";
 
-    echo "<div id='footer'>";
+    echo "<footer id='footer'>";
 
     //    Inject fb like onto every page! muhahaha
     //echo "<div class='fb-like' style='float:left'></div>";
@@ -906,10 +906,8 @@ function RenderFooter()
     // echo "</div>";
 
     //    My TM
-    echo "<div class='footertext'>";
-    echo "<p style='font-size: x-small;'>";
-    echo "Content by <small><a href='http://www.immensegames.com' target='_blank' rel='noopener'>Immense Games</a></small><br/>";
-    //echo "<small>Last Updated July 2013</small>";
+    echo "<p>";
+    echo "Content by <small><a href='http://www.immensegames.com' target='_blank'>Immense Games</a></small><br/>";
     global $g_numQueries;
     global $g_pageLoadAt;
     $loadDuration = microtime(true) - $g_pageLoadAt;
@@ -922,9 +920,7 @@ function RenderFooter()
 
     echo "</div>";
 
-    echo "</div>";
-
-    echo "</div>";
+    echo "</footer>";
 }
 
 function RenderFBLoginPrompt()
