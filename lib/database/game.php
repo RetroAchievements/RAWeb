@@ -1100,27 +1100,10 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
             error_log($query);
             error_log(__FUNCTION__ . " unsupported - submitting a game title for a game that already has an associated title.");
             return false;
-            //$data = mysqli_fetch_assoc($dbResult);
-            //$oldTitle = $data['Title'];
-            //$gameID = $data['GameID'];
-            ////    Update existing name
-            //$query = "UPDATE GameData SET Title='$title' WHERE ID='$gameID'";
-            //$dbResult = s_mysql_query( $query );
-            //if( $dbResult !== FALSE )
-            //{
-            //    error_log( __FUNCTION__ . " success: $user updated GameData GameID $gameID from $oldTitle to $title" );
-            //    return TRUE;
-            //}
-            //else
-            //{
-            //    error_log( $query );
-            //    error_log( __FUNCTION__ . " failed UPDATE2! $user, $md5 and $title" );
-            //    return FALSE;
-            //}
         }
     } else {
         error_log($query);
-        error_log(__FUNCTION__ . "failed SELECT! $user, $md5 and $title");
+        error_log(__FUNCTION__ . "failed SELECT! $user, $md5 and $titleIn");
         return false;
     }
 }
