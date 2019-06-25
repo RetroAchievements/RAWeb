@@ -440,7 +440,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
 
                         //    Update GameData
                         //    Removed: this needs rethinking! //##SD TBD
-                        //RecalculateTrueRatio( $gameID );    //    Heavy!
+                        //recalculateTrueRatio( $gameID );    //    Heavy!
                         //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
                         //    Select the NEW TA from this achievement, as it has just been recalc'd
                         $query = "SELECT TrueRatio
@@ -591,7 +591,7 @@ function addEarnedAchievement(
 
 
                     //    Update GameData
-                    RecalculateTrueRatio($gameID); //    Heavy!
+                    recalculateTrueRatio($gameID); //    Heavy!
                     //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
                     //    Select the NEW TA from this achievement, as it has just been recalc'd
                     $query = "SELECT TrueRatio FROM Achievements WHERE ID='$achIDToAward'";

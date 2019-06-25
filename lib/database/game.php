@@ -280,7 +280,7 @@ function getGameMetadataByFlags(
     return $numAchievements;
 }
 
-function GetGameAlternatives($gameID)
+function getGameAlternatives($gameID)
 {
     settype($gameID, 'integer');
 
@@ -428,7 +428,7 @@ function getGamesListByDev($dev = null, $consoleID, &$dataOut, $sortBy, $tickets
 }
 
 //    14:01 30/10/2014
-function GetGamesListData($consoleID, $officialFlag = false)
+function getGamesListData($consoleID, $officialFlag = false)
 {
     $retVal = array();
 
@@ -462,23 +462,23 @@ function GetGamesListData($consoleID, $officialFlag = false)
 }
 
 //    22:55 20/03/2013
-function GetGamesList($consoleID, &$dataOut)
+function getGamesList($consoleID, &$dataOut)
 {
-    $dataOut = GetGamesListData($consoleID);
+    $dataOut = getGamesListData($consoleID);
     return count($dataOut);
 }
 
-function GetGamesListDataNamesOnly($consoleID, $officialFlag = false)
+function getGamesListDataNamesOnly($consoleID, $officialFlag = false)
 {
     $retval = array();
 
-    $data = GetGamesListData($consoleID, $officialFlag);
+    $data = getGamesListData($consoleID, $officialFlag);
 
     foreach ($data as $element) {
         $retval[$element['ID']] = utf8_encode($element['Title']);
     }
 
-    error_log("GetGamesListDataNamesOnly: " . count($data) . ", " . count($retval));
+    error_log("getGamesListDataNamesOnly: " . count($data) . ", " . count($retval));
 
     return $retval;
 }
@@ -503,7 +503,7 @@ function getAllocatedForGame($gameID, &$allocatedPoints, &$numAchievements)
 }
 
 //    18:12 24/02/2013
-function GetGameIDFromMD5($md5)
+function getGameIDFromMD5($md5)
 {
     $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
     $dbResult = s_mysql_query($query);
@@ -521,7 +521,7 @@ function GetGameIDFromMD5($md5)
 }
 
 //    09:02 06/02/2015
-function GetAchievementIDs($gameID)
+function getAchievementIDs($gameID)
 {
     $retVal = array();
     settype($gameID, 'integer');
@@ -547,7 +547,7 @@ function GetAchievementIDs($gameID)
 }
 
 //    17:36 23/02/2013
-function GetGameIDFromTitle($gameTitleIn, $consoleID)
+function getGameIDFromTitle($gameTitleIn, $consoleID)
 {
     $gameTitle = str_replace("'", "''", $gameTitleIn);
     settype($consoleID, 'integer');
@@ -964,7 +964,7 @@ function createNewGame($title, $consoleID)
 }
 
 //    15:38 03/11/2014
-function SubmitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
+function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
 {
     settype($consoleID, 'integer');
 
@@ -1001,7 +1001,7 @@ function SubmitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
         $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
         $retVal['Success'] = false;
     } else {
-        $gameID = GetGameIDFromTitle($titleIn, $consoleID);
+        $gameID = getGameIDFromTitle($titleIn, $consoleID);
         if ($gameID == 0) {
             //    Remove single quotes, replace with double quotes:
             $title = str_replace("'", "''", $titleIn);
@@ -1150,7 +1150,7 @@ function requestModifyRichPresence($gameID, $dataIn)
     }
 }
 
-function GetRichPresencePatch($gameID, &$dataOut)
+function getRichPresencePatch($gameID, &$dataOut)
 {
     $query = "SELECT gd.RichPresencePatch FROM GameData AS gd WHERE gd.ID = $gameID ";
     $dbResult = s_mysql_query($query);
@@ -1165,7 +1165,7 @@ function GetRichPresencePatch($gameID, &$dataOut)
     }
 }
 
-function RecalculateTrueRatio($gameID)
+function recalculateTrueRatio($gameID)
 {
     $query = "SELECT ach.ID, ach.Points, COUNT(*) AS NumAchieved
               FROM Achievements AS ach
@@ -1232,7 +1232,7 @@ function RecalculateTrueRatio($gameID)
     }
 }
 
-function GetMD5List($consoleID)
+function getMD5List($consoleID)
 {
     $retVal = array();
 

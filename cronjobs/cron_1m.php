@@ -35,7 +35,7 @@ $staticData = getStaticData();
 
 $gameID = $staticData['NextGameToScan'];
 for ($i = 0; $i < 3; $i++) {
-    RecalculateTrueRatio($gameID);
+    recalculateTrueRatio($gameID);
     $gameID = GetNextHighestGameID($gameID);
 }
 static_setnextgametoscan($gameID);

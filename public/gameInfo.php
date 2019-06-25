@@ -44,7 +44,7 @@ if (!isset($gameData)) {
     exit;
 }
 
-$gameAlts = GetGameAlternatives($gameID);
+$gameAlts = getGameAlternatives($gameID);
 
 $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
 $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
