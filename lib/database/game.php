@@ -289,7 +289,8 @@ function GetGameAlternatives($gameID)
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID
               WHERE ga.gameID = $gameID AND IF( ISNULL(ach.Flags), TRUE, ach.Flags = 3 )
-              GROUP BY gd.ID ORDER BY gd.Title REGEXP '^[a-zA-Z0-9]' ASC, gd.Title";
+              GROUP BY gd.ID
+              ORDER BY gd.Title";
 
     $dbResult = s_mysql_query($query);
 
