@@ -30,7 +30,7 @@ function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
 }
 
 //    11:37 30/10/2014
-function GetGameData($gameID)
+function getGameData($gameID)
 {
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
               FROM GameData AS gd
@@ -99,7 +99,8 @@ function getGameMetadataByFlags(
     $sortBy = 0,
     $user2 = null,
     $flags = 0
-) {
+)
+{
     settype($gameID, 'integer');
     settype($sortBy, 'integer');
     settype($flags, 'integer');
@@ -1288,6 +1289,7 @@ function isValidConsoleID($consoleID)
         case 28: // Virtual Boy
         case 23: // Events (not an actual console)
         case 33: // SG-1000
+        case 38: // Apple II
         case 44: // ColecoVision
         case 47: // PC-8800
         case 51: // Atari7800

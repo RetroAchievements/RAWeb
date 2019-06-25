@@ -437,27 +437,23 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
     }
 
     $gameTitle = $gameData['Title'];
+    $consoleName = $gameData['ConsoleName'];
 
     $topicTitle = $gameTitle;
 
-    $nowTimestamp = time();
-    $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
     $urlSafeGameTitle = str_replace(" ", "+", "$gameTitle $consoleName");
     $urlSafeGameTitle = str_replace("'", "''", $urlSafeGameTitle);
 
     $gameFAQsURL = "https://www.google.com/search?q=site:www.gamefaqs.com+$urlSafeGameTitle";
-    $longplaysURL = "https://www.google.com/search?q=site:www.longplays.org+$urlSafeGameTitle";
+    $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+longplay+$urlSafeGameTitle";
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
-
-    $embedLongplayURL;
 
     $topicPayload = "Official Topic Post for discussion about [game=$gameID]\n" .
         "Created " . date("j M, Y H:i") . " by [user=$user]\n\n" .
         "[b]Resources:[/b]\n" .
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
         "[url=$longplaysURL]Longplay[/url]\n" .
-        "[url=$wikipediaURL]Wikipedia[/url]\n" .
-        $embedLongplayURL;
+        "[url=$wikipediaURL]Wikipedia[/url]\n";
 
     if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $forumTopicID)) {
         $query = "UPDATE GameData SET ForumTopicID = $forumTopicID 

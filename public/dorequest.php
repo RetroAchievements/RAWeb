@@ -140,7 +140,7 @@ if( $credentialsOK )
             break;
 
         case "codenotes2":
-            $response[ 'CodeNotes' ] = GetCodeNotesData( $gameID );
+            $response[ 'CodeNotes' ] = getCodeNotesData( $gameID );
             $response[ 'GameID' ] = $gameID;
             //error_log( "codenotes2, $gameID" );
             break;
@@ -213,6 +213,9 @@ if( $credentialsOK )
                     case \RA\Emulators::RAQUASI88:
                         $versionFile = "LatestRAQUASI88Version.html";
                         break;
+                    case \RA\Emulators::RAppleWin:
+                        $versionFile = "LatestRAppleWinVersion.html";
+                        break;
                     default:
                         $versionFile = NULL;
                         $errMsg = "EmulatorID: $emulatorID";
@@ -245,6 +248,9 @@ if( $credentialsOK )
                         break;
                     case 25:
                         $versionFile = "LatestRALibretroVersion.html";
+                        break;
+                    case 38:
+                        $versionFile = "LatestRAppleWinVersion.html";
                         break;
                     case 47:
                         $versionFile = "LatestRAQUASI88Version.html";
@@ -347,7 +353,7 @@ if( $credentialsOK )
             $response[ 'Count' ] = $count;
             $response[ 'FriendsOnly' ] = $friendsOnly;
             $response[ 'AchievementID' ] = $achievementID;
-            $response[ 'Response' ] = GetAchievementRecentWinnersData( $achievementID, $offset, $count, $user, $friendsOnly );
+            $response[ 'Response' ] = getAchievementRecentWinnersData( $achievementID, $offset, $count, $user, $friendsOnly );
             break;
 
         case "addfriend":
@@ -426,7 +432,7 @@ if( $credentialsOK )
         case "submitcodenote":
             $note = seekPOSTorGET( 'n' );
             $address = seekPOSTorGET( 'm', 0, 'integer' );
-            $response[ 'Success' ] = SubmitCodeNote2( $user, $gameID, $address, $note );
+            $response[ 'Success' ] = submitCodeNote2( $user, $gameID, $address, $note );
             $response[ 'GameID' ] = $gameID;     //	Repeat this back to the caller?
             $response[ 'Address' ] = $address;    //	Repeat this back to the caller?
             $response[ 'Note' ] = $note;      //	Repeat this back to the caller?

@@ -87,7 +87,8 @@ function RA_ReadCookieCredentials(
     &$unreadMessagesOut,
     &$permissionOut,
     $minPermissions = null
-) {
+)
+{
     //    Promise some values:
     $userOut = RA_ReadCookie('RA_User');
     $cookie = RA_ReadCookie('RA_Cookie');
@@ -153,7 +154,8 @@ function RA_ReadTokenCredentials(
     &$unreadMessagesOut,
     &$permissionOut,
     $permissionRequired = null
-) {
+)
+{
     if ($userOut == null || $userOut == '') {
         error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
@@ -366,7 +368,7 @@ function ValidateAPIKey($user, $key)
 // return $numFound;
 // }
 
-function GetGameNumUniquePlayersByAwards($gameID)
+function getGameNumUniquePlayersByAwards($gameID)
 {
     $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
               (
@@ -385,7 +387,7 @@ function GetGameNumUniquePlayersByAwards($gameID)
 }
 
 //    16:32 16/10/2014
-function GetAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
+function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
 {
     $retVal = array();
 
@@ -404,7 +406,7 @@ function GetAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
     settype($retVal['GameID'], 'integer');
 
     //    Fetch the total number of players for this game:
-    $retVal['TotalPlayers'] = GetGameNumUniquePlayersByAwards($retVal['GameID']);
+    $retVal['TotalPlayers'] = getGameNumUniquePlayersByAwards($retVal['GameID']);
     settype($retVal['TotalPlayers'], 'integer');
 
     $extraWhere = "";
@@ -548,7 +550,7 @@ function getStaticData()
     return null;
 }
 
-function GetCodeNotesData($gameID)
+function getCodeNotesData($gameID)
 {
     $codeNotesOut = array();
 
@@ -611,7 +613,7 @@ function getCodeNotes($gameID, &$codeNotesOut)
  * @param $note
  * @return bool
  */
-function SubmitCodeNote2($user, $gameID, $address, $note)
+function submitCodeNote2($user, $gameID, $address, $note)
 {
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {
@@ -621,6 +623,20 @@ function SubmitCodeNote2($user, $gameID, $address, $note)
     global $db;
 
     if (!isset($user) || !isset($gameID) || !isset($address)) {
+        return false;
+    }
+
+    $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
+    $currentNotes = getCodeNotesData($gameID);
+    $i = array_search($addressHex, array_column($currentNotes, 'Address'));
+
+    if (
+        $i !== false
+        && getUserPermissions($user) < \RA\Permissions::Developer
+        && $currentNotes[$i]['User'] !== $user
+        && !empty($currentNotes[$i]['Note'])
+    )
+    {
         return false;
     }
 
@@ -650,9 +666,9 @@ function SubmitCodeNote2($user, $gameID, $address, $note)
  * @param $note
  * @return bool
  * @deprecated
- * @see SubmitCodeNote2()
+ * @see submitCodeNote2()
  */
-function SubmitCodeNote($user, $gameID, $address, $note)
+function submitCodeNote($user, $gameID, $address, $note)
 {
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {
@@ -1058,7 +1074,7 @@ function multiexplode($delimiters, $string)
     return $launch;
 }
 
-function GetAchievementPatchReadableHTML($mem, $memNotes)
+function getAchievementPatchReadableHTML($mem, $memNotes)
 {
     $tableHeader = '
     <tr>
