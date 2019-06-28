@@ -514,9 +514,8 @@ td, tr, img {
 }
 
 #innermenu{
-    max-width: 980px;
-    min-width: 800px;
-    height: 42px; /* Relative to gfx */
+    max-width: 100%;
+    width: 980px;
     position:relative;
     z-index:1000;
     font-size:x-small;
@@ -553,6 +552,10 @@ td, tr, img {
     line-height: 20px;
 }
 
+#innermenu > ul > li{
+	height: 42px; /* Only for main menu elements for mobile to make tap space */
+}
+
 #innermenu ul li ul{
     display:none;
 }
@@ -570,6 +573,7 @@ td, tr, img {
     width:152px; /*152*/
     margin:0;
     padding:0;
+	z-index:100;
 }
 
 #innermenu ul li:hover ul li a.hassub{

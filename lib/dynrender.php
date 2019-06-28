@@ -881,6 +881,8 @@ function RenderToolbar($user, $permissions = 0)
     echo "<input type='submit' value='Search' />";
     echo "</div>";
     echo "</form>";
+	
+	echo '<br style="clear:both;">'; // to stretch height on mobile
 
     echo "</div>";
     echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
