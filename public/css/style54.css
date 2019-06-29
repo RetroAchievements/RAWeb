@@ -428,6 +428,7 @@ td, tr, img {
 #forums {
     font-size: small;
     line-height: 1.2em;
+	max-width: 100vw;
 }
 
 #forums a {
@@ -477,7 +478,6 @@ td, tr, img {
     background-color: #000000;
     padding: 6px 10px 10px;
     border-radius: 8px;
-    height: 0.7em;
     margin-top: 4px;
     margin-bottom: 4px;
     clear: both;
@@ -1000,7 +1000,7 @@ div.rating a.starlit {
   #mainpage {
 	grid-template-columns: 100%;
   }
-  #logocontainer{
+  #logocontainer {
 	float:none;
 	text-align:center;
   }
@@ -1018,5 +1018,8 @@ div.rating a.starlit {
 	max-width: 21em;
 	word-wrap: break-word;
 	font-size: small;
+  }
+  .gamescreenshots td {
+	display: inline-block;
   }
 }
