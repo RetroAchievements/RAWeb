@@ -317,8 +317,7 @@ function sendActivityEmail(
     $threadInvolved = null,
     $altURLTarget = null
 ) {
-    if ($user == $activityCommenter) {
-        error_log(__FUNCTION__ . " not sending mail: I wrote this! ($user == $activityCommenter)");
+    if ($user == $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
         return false;
     }
 
