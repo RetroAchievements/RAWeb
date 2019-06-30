@@ -101,6 +101,7 @@ RenderDocType( TRUE );
                             <option>RAVBA</option>
                             <option>RAPCEngine</option>
                             <option>RAMeka</option>
+                            <option>RAppleWin</option>
                             <option>RAProject64</option>
                             <option>RAQUASI88</option>
                             <option>RALibRetro</option>
