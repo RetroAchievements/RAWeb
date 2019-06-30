@@ -44,7 +44,7 @@ if (!isset($gameData)) {
     exit;
 }
 
-$gameAlts = GetGameAlternatives($gameID);
+$gameAlts = getGameAlternatives($gameID);
 
 $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
 $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
@@ -576,7 +576,7 @@ RenderDocType(true);
                     echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='i' value='$gameID' />";
 
-                    echo "To remove (game ID):";
+                    echo "To remove:";
                     echo "<select name='m'>";
                     echo "<option value='0' selected>-</option>";
 

@@ -10,4 +10,4 @@ if( !ValidateAPIKey( seekGET( 'z' ), seekGET( 'y' ) ) )
 
 $gameID = seekGET( 'i' );
 
-echo json_encode( GetAchievementIDs( $gameID ) );
+echo json_encode( getAchievementIDs( $gameID ) );

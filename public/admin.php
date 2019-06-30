@@ -299,7 +299,7 @@ if (seekGET('action') == 'regenapi') {
                         $gameIDs = explode(',', seekPOST('g'));
 
                         foreach ($gameIDs as $nextGameID) {
-                            $ids = GetAchievementIDs($nextGameID);
+                            $ids = getAchievementIDs($nextGameID);
 
                             foreach ($ids["AchievementIDs"] as $id) {
                                 echo "$id,";
@@ -332,7 +332,7 @@ if (seekGET('action') == 'regenapi') {
                                 for ($i = 1; $i <= $numGames; $i++) {
                                     error_log("Recalculating TA for Game ID: $i</br>");
                                     echo "Recalculating TA for Game ID: $i</br>";
-                                    RecalculateTrueRatio($i);
+                                    recalculateTrueRatio($i);
 
                                     ob_flush();
                                     flush();

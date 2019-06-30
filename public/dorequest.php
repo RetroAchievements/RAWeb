@@ -159,24 +159,24 @@ if( $credentialsOK )
 
         case "gameid":
             $md5 = seekPOSTorGET( 'm' );
-            $response[ 'GameID' ] = GetGameIDFromMD5( $md5 );
+            $response[ 'GameID' ] = getGameIDFromMD5( $md5 );
             break;
 
         case "gameslist":
             $consoleID = seekPOSTorGET( 'c', 0, 'integer' );
             //error_log( "gameslist..." );
-            $response[ 'Response' ] = GetGamesListDataNamesOnly( $consoleID );
+            $response[ 'Response' ] = getGamesListDataNamesOnly( $consoleID );
             //error_log( count( $response['Response'] ) );
             break;
 
         case "officialgameslist":
             $consoleID = seekPOSTorGET( 'c', 0, 'integer' );
-            $response[ 'Response' ] = GetGamesListDataNamesOnly( $consoleID, TRUE );
+            $response[ 'Response' ] = getGamesListDataNamesOnly( $consoleID, TRUE );
             break;
 
         case "hashlibrary":
             $consoleID = seekPOSTorGET( 'c', 0, 'integer' );
-            $response[ 'MD5List' ] = GetMD5List( $consoleID );
+            $response[ 'MD5List' ] = getMD5List( $consoleID );
             break;
 
         case "latestclient":
@@ -405,7 +405,7 @@ if( $credentialsOK )
             break;
 
         case "recalctrueratio":
-            $response[ 'Success' ] = RecalculateTrueRatio( $gameID );
+            $response[ 'Success' ] = recalculateTrueRatio( $gameID );
             break;
 
         case "removecomment":
@@ -425,7 +425,7 @@ if( $credentialsOK )
             break;
 
         case "richpresencepatch":
-            $response[ 'Success' ] = GetRichPresencePatch( $gameID, $richPresenceData );
+            $response[ 'Success' ] = getRichPresencePatch( $gameID, $richPresenceData );
             $response[ 'RichPresencePatch' ] = $richPresenceData;
             break;
 
@@ -442,7 +442,7 @@ if( $credentialsOK )
             $md5 = seekPOSTorGET( 'm' );
             $gameTitle = seekPOSTorGET( 'i' );
             $consoleID = seekPOSTorGET( 'c' );
-            $response[ 'Response' ] = SubmitNewGameTitleJSON( $user, $md5, $gameTitle, $consoleID );
+            $response[ 'Response' ] = submitNewGameTitleJSON( $user, $md5, $gameTitle, $consoleID );
             $response[ 'Success' ] = $response[ 'Response' ][ 'Success' ]; //	Passthru
             if( isset( $response[ 'Response' ][ 'Error' ] ) )
                 $response[ 'Error' ] = $response[ 'Response' ][ 'Error' ];

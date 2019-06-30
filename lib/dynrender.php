@@ -2191,22 +2191,19 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         }
     }
 
-    //$chatWidth = 300;
-    //$chatHeight = 335;
-
     if ($overloadVideoID !== 0 && isset($archiveURLs[$overloadVideoID])) {
         $vidTitle = htmlspecialchars($archiveURLs[$overloadVideoID]['Title']);
         $vidURL = $archiveURLs[$overloadVideoID]['Link'];
         $vidChapter = substr($vidURL, strrpos($vidURL, "/") + 1);
 
-        //<object type="application/x-shockwave-flash" height="378" width="620" id="live_embed_player_flash" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg" bgcolor="#000000"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="allowNetworking" value="all" /><param name="movie" value="http://www.twitch.tv/widgets/live_embed_player.swf" /><param name="flashvars" value="hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25" /></object><a href="http://www.twitch.tv/retroachievementsorg" style="padding:2px 0px 4px; display:block; width:345px; font-weight:normal; font-size:10px;text-decoration:underline; text-align:center;">Watch live video from RetroAchievementsOrg on www.twitch.tv</a>
-        $videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='clip_embed_player_flash' data='//www.twitch.tv/widgets/archive_embed_player.swf'>
-            <param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'>
-            <param name='allowScriptAccess' value='always'>
-            <param name='allowNetworking' value='all'>
-            <param name='allowFullScreen' value='true'>
-            <param name='flashvars' value='title=$vidTitle&amp;channel=" . getenv('TWITCH_CHANNEL') . "&amp;auto_play=$autoplay&amp;start_volume=25&amp;chapter_id=$vidChapter'>
-            </object>";
+		$videoHTML = '<iframe
+    src="https://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'"
+    height="'.$vidHeight.'"
+    width="'.$vidWidth.'"
+    frameborder="0"
+    scrolling="no"
+    allowfullscreen="true">
+</iframe>';
 
         //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
@@ -2216,30 +2213,26 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         }
 
         $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-
-        //$videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='live_embed_player_flash' data='http://www.twitch.tv/widgets/live_embed_player.swf?channel=".getenv('TWITCH_CHANNEL')."'>
-        //    <param name='allowFullScreen' value='true' />
-        //    <param name='allowScriptAccess' value='always' />
-        //    <param name='allowNetworking' value='all' />
-        //    <param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' />
-        //    <param name='flashvars' value='hostname=www.twitch.tv&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;auto_play=$autoplay&amp;start_volume=25' />
-        //    </object>";
     }
 
     echo "<div class='streamvid'>";
     echo $videoHTML;
     echo "</div>";
 
-    //echo "<div class='streamchat'>";
+	//$chatWidth = 300;
+    //$chatHeight = 335;
+    
+	//echo "<div class='streamchat'>";
     //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
     //echo "</div>";
 
-    echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span><span class='morebutton'><a style='float:right' href='/largechat.php'>RA Cinema</a></span>";
+    echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span>";
 
     if ($componentPos == 'left') {
-        echo "<form method='post' style='text-align:right; padding:4px 0px'>";
+        echo "<br /><br />";
+        echo "<form method='post'>";
         echo "Currently Watching:&nbsp;";
-        echo "<select name='g' onchange=\"reloadTwitchContainer( this.value, 600, 500 ); return false;\">";
+        echo "<select name='g' onchange=\"reloadTwitchContainer( this.value ); return false;\">";
         $selected = ($overloadVideoID == 0) ? 'selected' : '';
         echo "<option value='0' $selected>--Live--</option>";
         foreach ($archiveURLs as $dataElementID => $dataElementObject) {

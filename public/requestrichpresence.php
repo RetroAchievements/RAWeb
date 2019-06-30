@@ -11,7 +11,7 @@
 	$gameID = seekPOST( 'g' );
 	settype( $gameID, 'integer' );
 	
-	if( GetRichPresencePatch( $gameID, $dataOut ) )
+	if( getRichPresencePatch( $gameID, $dataOut ) )
 	{
 		echo $dataOut;
 		//echo "OK";
