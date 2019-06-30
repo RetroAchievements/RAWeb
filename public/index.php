@@ -206,7 +206,7 @@ $numGridlines = 24;
                             enabled: true,
                             interval: 7000
                         },
-                        width: <?php echo $mobileBrowser ? "220" : "480"; ?>,
+                        width: 480,
                         height: 220,
                         start: generatePages,
                         pageLoaded: pageLoaded,

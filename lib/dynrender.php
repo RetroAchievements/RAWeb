@@ -467,7 +467,7 @@ function RenderNewsComponent()
     echo "<div class='left'>";
     echo "<h2>News</h2>";
     $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
-    echo "<div id='carouselcontainer' style='height=300px;' >";
+    echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";
     for ($i = 0; $i < $numNewsItems; $i++) {
@@ -639,7 +639,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "<div id='title'>";
 
-    echo "<div id='logocontainer'><a id='logo' href='/'>&nbsp;</a></div>";
+    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo' /></a></div>";
 
     echo "<div class='login'>";
 
@@ -881,6 +881,8 @@ function RenderToolbar($user, $permissions = 0)
     echo "<input type='submit' value='Search' />";
     echo "</div>";
     echo "</form>";
+	
+	echo '<br style="clear:both;">'; // to stretch height on mobile
 
     echo "</div>";
     echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
@@ -2479,11 +2481,6 @@ function RenderSharedHeader($user)
     //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script type='text/javascript' src='/js/jquery-ui-1.10.2.custom.min.js'></script>\n";
     echo "<script type='text/javascript' src='/js/all.js'></script>\n";
-
-    global $mobileBrowser;
-    if ($mobileBrowser) {
-        echo "<link rel='stylesheet' type='text/css' href='/css/_mobile.css'>";
-    }
 }
 
 function RenderFBMetadata($title, $OGType, $imageURL, $thisURL, $description)

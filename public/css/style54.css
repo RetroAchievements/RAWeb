@@ -83,11 +83,11 @@ a:hover {
 }
 
 #leftcontainer {
-    margin: 25px 350px 5px 0px; /* 350 is 300 width, plus 2*20 padding, plus 2*2 border, plus 6 spacing */
     padding: 5px 20px;
     display: block;
     border: 2px solid rgb(20, 20, 20);
     border-radius: 8px;
+	align-self: start;
 
     background: #1a1a1a; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a2a2a', endColorstr='#1a1a1a'); /* for IE */
@@ -96,13 +96,9 @@ a:hover {
 }
 
 #rightcontainer {
-    right: 0px;
-    top: 0px;
-    position: absolute;
-    width: 300px;
+	align-self: start;
 
     padding: 5px 20px;
-    /*display: block; */
     border: 2px solid rgb(20, 20, 20);
     border-radius: 10px;
 
@@ -121,10 +117,9 @@ a:hover {
     min-width: 250px;
     max-width: 394px;
     float: right;
-    position: absolute;
     right: 0px;
     padding: 4px;
-    margin: 4px;
+    margin: 15px;
     border-radius: 8px;
     border: 2px solid rgb(20, 20, 20);
     background-color: rgb(26, 26, 26);
@@ -228,46 +223,38 @@ td, tr, img {
     max-width: 688px;
 }
 
-#mainpage
-{
-    padding: 0px;
-    min-width: 800px;
-    max-width: 980px;
+#mainpage {
+    padding: 25px 0;
+    width: 980px;
+	max-width: 100%;
     position: relative;
-    margin: 0px auto;
+    margin: 0 auto;
     min-height: 450px;
+	display:grid;
+	grid-template-columns: 625px 340px;
+	grid-column-gap: 15px;
+}
+
+#mainpage > .both{
+    grid-column: span 2;
 }
 
 #title {
-    /*xmas*/
-    /*height: 155px;*/
-
-    /*normal*/
-    height: 108px;
-
     margin: auto;
-	padding: 10px 0px 25px 0px;
-    max-width: 980px;
-    min-width: 800px;
+	padding: 15px 0px 25px 0px;
+    width: 980px;
+	max-width:100%;
     position: relative;
-    background-color: rgb(42, 42, 42);
 }
 
-#logo {
-    /*xmas*/
-    /*background-image: url('/Images/RA_Logo10_Xmas.gif');*/
-    /*height: 145px;*/
+#logocontainer{
+	float:left;
+	margin: 15px;
+}
 
-    /*normal*/
-    background-image: url('/Images/RA_Logo10.png');
-    height: 130px;
-
-    background-repeat: no-repeat!important; /* important only to not be overriden by subthemes*/
-    float: left;
-    margin: 6px;
+#logo > img{
     width: 535px;
-    max-width: 535px;
-    position: absolute;
+    max-width: 100%;
 }
 
 .videocontainer {
@@ -441,6 +428,7 @@ td, tr, img {
 #forums {
     font-size: small;
     line-height: 1.2em;
+	max-width: 100vw;
 }
 
 #forums a {
@@ -490,7 +478,6 @@ td, tr, img {
     background-color: #000000;
     padding: 6px 10px 10px;
     border-radius: 8px;
-    height: 0.7em;
     margin-top: 4px;
     margin-bottom: 4px;
     clear: both;
@@ -514,9 +501,8 @@ td, tr, img {
 }
 
 #innermenu{
-    max-width: 980px;
-    min-width: 800px;
-    height: 42px; /* Relative to gfx */
+    max-width: 100%;
+    width: 980px;
     position:relative;
     z-index:1000;
     font-size:x-small;
@@ -553,6 +539,10 @@ td, tr, img {
     line-height: 20px;
 }
 
+#innermenu > ul > li{
+	height: 42px; /* Only for main menu elements for mobile to make tap space */
+}
+
 #innermenu ul li ul{
     display:none;
 }
@@ -570,6 +560,7 @@ td, tr, img {
     width:152px; /*152*/
     margin:0;
     padding:0;
+	z-index:100;
 }
 
 #innermenu ul li:hover ul li a.hassub{
@@ -1002,4 +993,33 @@ div.rating a.starlit {
 
 .mb-3, .my-3 {
     margin-bottom: 1rem !important;
+}
+
+/* --- MOBILE STYLES --- */
+@media only screen and (max-width: 980px) {
+  #mainpage {
+	grid-template-columns: 100%;
+  }
+  #logocontainer {
+	float:none;
+	text-align:center;
+  }
+  .login {
+	float:none;
+  }
+  #topborder { 
+	max-width: inherit;
+	min-width: inherit;
+	padding: 0px;
+	margin: 0px;
+  }
+
+  .topiccommenttext {
+	max-width: 21em;
+	word-wrap: break-word;
+	font-size: small;
+  }
+  .gamescreenshots td {
+	display: inline-block;
+  }
 }
