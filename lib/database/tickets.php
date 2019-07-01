@@ -8,8 +8,8 @@ function isAllowedToSubmitTickets($user) {
     return isValidUsername($user)
         && getUserActivityRange($user, $firstLogin, $lastLogin)
         && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
-        && getAccountDetails($user, $userInfo)
-        && $userInfo['LastGameID'];
+        && getRecentlyPlayedGames($user, 0, 1, $userInfo)
+        && $userInfo[0]['GameID'];
 }
 
 function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
