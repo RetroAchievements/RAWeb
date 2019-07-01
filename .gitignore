@@ -29,6 +29,7 @@ nbproject
 /public/Latest*
 /public/*Iter.txt
 /public/*.dll
+/public/mtests.php
 
 /chat/node-gyp
 /chat/utf-8*
