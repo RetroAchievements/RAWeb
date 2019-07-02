@@ -249,6 +249,15 @@ function UpdateDisplayOrder(user, objID)
                 $("body").find("#warning").html("Status: updating...");
                 }
 
+function UpdateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID)
+        {
+        var inputText = $("body").find("#" + objID).val();
+                var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+                var posting = $.post("requestupdatesiteaward.php", { u: user, t: awardType, d: awardData, e: awardDataExtra, v: inputNum });
+                posting.done(onUpdateDisplayOrderComplete);
+                $("body").find("#warning").html("Status: updating...");
+                }
+
 function onUpdateDisplayOrderComplete(data)
         {
 //alert( data );

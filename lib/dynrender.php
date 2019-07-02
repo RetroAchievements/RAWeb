@@ -1421,6 +1421,7 @@ function RenderSiteAwards($userAwards)
             $awardGameTitle = $elem['Title'];
             $awardGameConsole = $elem['ConsoleName'];
             $awardGameImage = $elem['ImageIcon'];
+            $awardDate = getNiceDate( $elem['AwardedAt'] );
             //$awardGameFlags = $elem[ 'Flags' ];
             $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
@@ -1502,6 +1503,7 @@ function RenderSiteAwards($userAwards)
                 continue;
             }
 
+            $tooltip .= "\r\nAwarded on $awardDate";
             $displayable = "<a href=\"$linkdest\"><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" src=\"$imagepath\" width=\"$imageSize\" height=\"$imageSize\" /></a>";
             $tooltipImagePath = "$imagepath";
             $tooltipImageSize = 96; //64;    //    screw that, lets make it big!

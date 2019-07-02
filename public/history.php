@@ -59,23 +59,6 @@ usort($userCompletedGames, "scorePctCompare");
 
 $userCompletedGamesList = $userCompletedGames;
 
-$userAwardsGames = Array();
-$userAwardsOther = Array();
-for( $i = 0; $i < count( $userAwards ); $i++ )
-{
-    if( $userAwards[ $i ][ 'AwardType' ] == 1 )
-        $userAwardsGames[ $userAwards[ $i ][ 'AwardData' ] ] = $userAwards[ $i ]; //	squashes 'mastered' into 'completed'
-    else
-        $userAwardsOther[] = $userAwards[ $i ];
-}
-
-$userAwards = Array();
-foreach( $userAwardsGames as $nextUserAward )
-    $userAwards[] = $nextUserAward;
-foreach( $userAwardsOther as $nextUserAward )
-    $userAwards[] = $nextUserAward;
-
-
 //	the past week
 $userScoreData = getAwardedList( $userPage, 0, 1000 );
 
