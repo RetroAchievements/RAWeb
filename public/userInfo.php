@@ -37,28 +37,7 @@ $numArticleComments = getArticleComments(3, $userPageID, 0, 100, $commentData);
 //$numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
 //    Get user's site awards
 
-//    Squash any duplicate site awards (completed/mastered) into one list
-$userAwardsGames = Array();
-$userAwardsOther = Array();
-{
-    $userSiteAwards = getUsersSiteAwards($userPage);
-    for ($i = 0; $i < count($userSiteAwards); $i++) {
-        if ($userSiteAwards[$i]['AwardType'] == 1) {
-            $userAwardsGames[$userSiteAwards[$i]['AwardData']] = $userSiteAwards[$i]; //    squashes 'mastered' into 'completed'
-        } else {
-            $userAwardsOther[] = $userSiteAwards[$i];
-        }
-    }
-}
-
-$userAwards = Array();
-foreach ($userAwardsGames as $nextUserAward) {
-    $userAwards[] = $nextUserAward;
-}
-foreach ($userAwardsOther as $nextUserAward) {
-    $userAwards[] = $nextUserAward;
-}
-
+$userAwards = getUsersSiteAwards($userPage);
 
 //var_dump( $userAwards );
 //    Find out which games are causing 'invalid' or out of date site awards for completed games

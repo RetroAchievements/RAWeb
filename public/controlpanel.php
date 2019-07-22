@@ -708,10 +708,16 @@
 	</br>
 	<input style='padding: 4px;' type='file' name='file' id='uploadimagefile' onchange='return UploadNewAvatar();' />
 	<img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon' />
-		
-	
 	</div>
-	
+
+    <div class='component'>
+    <h3>Reorder Site Awards</h3>
+    <form method=post action="reorderSiteAwards.php">
+    <input TYPE="hidden" NAME="s" VALUE="<?php echo $user; ?>">
+    <input value="Reorder site awards" type='submit' size='37'>
+    </form>
+    </div>
+
 </div>
 
 <?php RenderFooter(); ?>

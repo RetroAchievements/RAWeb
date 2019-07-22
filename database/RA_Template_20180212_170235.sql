@@ -11,11 +11,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-
--- Dumping database structure for RACore
-CREATE DATABASE IF NOT EXISTS `RACore` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `RACore`;
-
 -- Dumping structure for table RACore.Achievements
 CREATE TABLE IF NOT EXISTS `Achievements` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Achievement ID',
