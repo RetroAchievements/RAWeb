@@ -15,6 +15,8 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 //    Max: last 50 messages:
 $maxMessages = 50;
 
+$feedData = [];
+$numFeedItems = 0;
 if ($activityID !== null) {
     $numFeedItems = getFeed($user, $maxMessages, $offset, $feedData, $activityID, 'activity');
 } elseif (isset($global)) {
