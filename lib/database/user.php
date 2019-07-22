@@ -1527,14 +1527,14 @@ function getUsersSiteAwards($user)
                   LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = 1 )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE saw.AwardType = 1 AND saw.User = '$user'
-                  GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
+                  GROUP BY saw.AwardType, saw.AwardData, saw.AwardDate, saw.AwardDataExtra, saw.DisplayOrder
     )
     UNION
     (
     SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
                   WHERE saw.AwardType > 1 AND saw.User = '$user'
-                  GROUP BY saw.AwardType
+                  GROUP BY saw.AwardType, saw.AwardType, saw.AwardDate, saw.AwardDataExtra, saw.DisplayOrder
     )
     ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
