@@ -77,7 +77,7 @@ function log_sql_fail()
 {
     global $db;
 
-    error_log( mysqli_errno($db) . ": " . mysqli_error( $db ), 3, "storage/logs/queries.log" );
+    error_log( mysqli_errno($db) . ": " . mysqli_error( $db ), 3, getenv('DOC_ROOT')."storage/logs/queries.log" );
     error_log( "SQL failed: " . mysqli_error( $db ) );
     log_email( "SQL failed: " . mysqli_error( $db ) );
 }
