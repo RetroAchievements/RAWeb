@@ -60,8 +60,8 @@ RenderDocType();
 </head>
 
 <body onload="init_chat(50);">
-<script type='text/javascript' src="/js/all.js"></script>
 <script type='text/javascript' src="/js/ping_chat.js"></script>
+<script type='text/javascript' src="/js/all.js?nc=<?php echo date('Y-m-d') ?>"></script>
 
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
