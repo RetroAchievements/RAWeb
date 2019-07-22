@@ -3,4 +3,4 @@
 -- This field will allow user to reorder their site awards.
 --
 
-ALTER TABLE `racore`.`siteawards` ADD COLUMN `DisplayOrder` SMALLINT(6) NOT NULL DEFAULT '0' COMMENT 'Display order to show site awards in' AFTER `AwardDataExtra`;
+ALTER TABLE `SiteAwards` ADD COLUMN `DisplayOrder` SMALLINT(6) NOT NULL DEFAULT '0' COMMENT 'Display order to show site awards in' AFTER `AwardDataExtra`;
