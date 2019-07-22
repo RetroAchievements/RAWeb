@@ -30,10 +30,20 @@
 
     error_log( "Warning: $user changing site award $awardData" );
 
-    $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
-             "AND AwardType = $awardType " .
-             "AND AwardData = $awardData " .
-             "AND AwardDataExtra = $awardDataExtra";
+    /**
+     * change display order for all entries if it's a "stacking" award type
+     */
+    if(in_array($awardType, [2,3])) {
+        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
+                 "AND AwardType = $awardType " .
+                 "AND AwardDataExtra = $awardDataExtra";
+    } else {
+        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
+                 "AND AwardType = $awardType " .
+                 "AND AwardData = $awardData " .
+                 "AND AwardDataExtra = $awardDataExtra";
+    }
+
     error_log($query);
 
     if ( s_mysql_query($query) )
