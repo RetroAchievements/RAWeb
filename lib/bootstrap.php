@@ -38,6 +38,7 @@ try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'),
         getenv('DB_PORT'));
     mysqli_set_charset($db, 'latin1');
+    mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
 } catch (Exception $exception) {
     if (getenv('APP_ENV') === 'local') {
         throw $exception;
