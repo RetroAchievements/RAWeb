@@ -744,7 +744,7 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
         SELECT 'Game' AS Type, gd.ID, CONCAT( '/Game/', gd.ID ) AS Target, gd.Title FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
         WHERE gd.Title LIKE '%$searchQuery%'
-        GROUP BY ach.GameID
+        GROUP BY gd.ID, gd.Title
     )
     UNION
     (
@@ -769,7 +769,7 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
         FROM ForumTopicComment AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
         WHERE ftc.Payload LIKE '%$searchQuery%'
-        GROUP BY ftc.ID DESC
+        GROUP BY ID, ftc.ID
     )
     UNION
     (
@@ -790,7 +790,6 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
         LEFT JOIN UserAccounts AS ua ON ( ua.ID = c.ArticleID )
         LEFT JOIN UserAccounts AS cua ON cua.ID = c.UserID
         WHERE c.Payload LIKE '%$searchQuery%'
-        GROUP BY c.Submitted DESC
     )
     LIMIT $offset, $count
     ";

@@ -15,6 +15,8 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 //    Max: last 50 messages:
 $maxMessages = 50;
 
+$feedData = [];
+$numFeedItems = 0;
 if ($activityID !== null) {
     $numFeedItems = getFeed($user, $maxMessages, $offset, $feedData, $activityID, 'activity');
 } elseif (isset($global)) {
@@ -58,8 +60,8 @@ RenderDocType();
 </head>
 
 <body onload="init_chat(50);">
-<script type='text/javascript' src="/js/all.js"></script>
 <script type='text/javascript' src="/js/ping_chat.js"></script>
+<script type='text/javascript' src="/js/all.js?nc=<?php echo date('Y-m-d') ?>"></script>
 
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>

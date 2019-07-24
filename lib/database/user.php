@@ -317,8 +317,7 @@ function sendActivityEmail(
     $threadInvolved = null,
     $altURLTarget = null
 ) {
-    if ($user == $activityCommenter) {
-        error_log(__FUNCTION__ . " not sending mail: I wrote this! ($user == $activityCommenter)");
+    if ($user == $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
         return false;
     }
 
@@ -1522,7 +1521,7 @@ function getUsersSiteAwards($user)
 
     $query = "
     (
-    SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, saw.AwardData, saw.AwardDataExtra, gd.Title, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+    SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
                   FROM SiteAwards AS saw
                   LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = 1 )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
@@ -1531,12 +1530,13 @@ function getUsersSiteAwards($user)
     )
     UNION
     (
-    SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, NULL, NULL, NULL, NULL
+    SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
                   WHERE saw.AwardType > 1 AND saw.User = '$user'
                   GROUP BY saw.AwardType
+
     )
-    ORDER BY AwardedAt, AwardType, AwardDataExtra ASC";
+    ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -1547,6 +1547,51 @@ function getUsersSiteAwards($user)
             $retVal[$numFound] = $db_entry;
             $numFound++;
         }
+
+        //Updated way to "squash" duplicate awards to work with the new site award ordering implementation
+        $completedGames = Array();
+        $masteredGames  = Array();
+
+        // Get a separate list of completed and mastered games
+        for ($i = 0; $i < count($retVal); $i++)
+        {
+            if ($retVal[$i]['AwardType'] == 1 &&
+                $retVal[$i]['AwardDataExtra'] == 1)
+            {
+                $masteredGames[] = $retVal[$i]['Title'];
+            }
+            elseif ($retVal[$i]['AwardType'] == 1 &&
+                    $retVal[$i]['AwardDataExtra'] == 0)
+            {
+                $completedGames[] = $retVal[$i]['Title'];
+            }
+        }
+
+        //Get a single list of games both completed and mastered
+        if (count($completedGames) > 0 && count($masteredGames) > 0)
+        {
+            $multiAwardGames = array_intersect($completedGames, $masteredGames);
+
+            //For games that have been both completed and mastered, remove the completed entry from the award array.
+            foreach($multiAwardGames as $game)
+            {
+                $index = 0;
+                foreach($retVal as $award)
+                {
+                    if(isset($award['Title']) &&
+                       $award['Title'] == $game &&
+                       $award['AwardDataExtra'] == 0)
+                    {
+                        $retVal[$index] = "";
+                        break;
+                    }
+                    $index++;
+                }
+            }
+        }
+
+        //Remove blank indexes
+        $retVal = array_values(array_filter($retVal));
     } else {
         log_email($query);
         log_email("failing");
@@ -1561,7 +1606,23 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
     //settype( $data, 'integer' );    //    nullable
     settype($dataExtra, 'integer');
 
-    $query = "INSERT INTO SiteAwards VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra' ) ON DUPLICATE KEY UPDATE AwardDate = NOW();";
+    $displayOrder = 0;
+    $query = "SELECT MAX( DisplayOrder ) FROM SiteAwards WHERE User = '$user'";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        error_log(__FUNCTION__);
+        error_log($query);
+    }
+    else
+    {
+        $dbData = mysqli_fetch_assoc($dbResult);
+        if (isset($dbData['MAX( DisplayOrder )']))
+        {
+            $displayOrder = $dbData['MAX( DisplayOrder )'] + 1;
+        }
+    }
+
+    $query = "INSERT INTO SiteAwards VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
     log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -1768,13 +1829,15 @@ function HasPatreonBadge($usernameIn)
 //
 function SetPatreonSupporter($usernameIn, $enable)
 {
-    if ($enable) {
-        $query = "INSERT INTO SiteAwards VALUES( NOW(), '$usernameIn', '6', '0', '0' )";
-    } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = '6'";
+    if ($enable)
+    {
+        AddSiteAward($usernameIn, 6, 0, 0);
     }
-
-    s_mysql_query($query);
+    else
+    {
+        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = '6'";
+        s_mysql_query($query);
+    }
 }
 
 function SetUserTrackedStatus($usernameIn, $isUntracked)

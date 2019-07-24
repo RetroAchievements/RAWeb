@@ -2,12 +2,6 @@
 	require_once __DIR__ . '/../lib/bootstrap.php';
 	
 	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
-	if( getAccountDetails( $user, $userDetails ) == FALSE )
-	{
-		//	Immediate redirect if we cannot validate user!
-		header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
-		exit;
-	}
 	
 	$errorCode = seekGET( 'e' );
 	$vidID = seekGET( 'v', 0 );
@@ -21,31 +15,31 @@
 	<?php RenderSharedHeader( $user ); ?>
 	<?php RenderTitleTag( $pageTitle, $user ); ?>
 	<?php RenderGoogleTracking(); ?>
-	<script type='text/javascript' src="/js/all.js"></script>
 	<script type='text/javascript' src="/js/ping_chat.js"></script>
+	<script type='text/javascript' src="/js/all.js?nc=<?php echo date('Y-m-d') ?>"></script>
 </head>
 
 <body onload="init_chat(250);">
 <script>
-//var archiveURLs = Array();
-//var archiveTitles = Array();
+var archiveURLs = Array();
+var archiveTitles = Array();
 
 <?php 
-	$query = "SELECT * 
-		FROM PlaylistVideo 
-		ORDER BY Added DESC";
-	
-	$dbResult = s_mysql_query( $query );
-	
-	while( $nextData = mysqli_fetch_assoc( $dbResult ) )
-	{
-		//$archiveURLs[ $nextData['ID'] ] = $nextData;
-		$nextID = $nextData['ID'];
-		$nextURL = $nextData['Link'];
-		$nextTitle = htmlspecialchars( $nextData['Title'] );
-		echo "archiveURLs[ $nextID ] = \"$nextURL\";";	//	Push this to JS
-		echo "archiveTitles[ $nextID ] = \"$nextTitle\";";
-	}
+$query = "SELECT * 
+	FROM PlaylistVideo 
+	ORDER BY Added DESC";
+
+$dbResult = s_mysql_query( $query );
+
+while( $nextData = mysqli_fetch_assoc( $dbResult ) )
+{
+	//$archiveURLs[ $nextData['ID'] ] = $nextData;
+	$nextID = $nextData['ID'];
+	$nextURL = $nextData['Link'];
+	$nextTitle = htmlspecialchars( $nextData['Title'] );
+	echo "archiveURLs[ $nextID ] = \"$nextURL\";";	//	Push this to JS
+	echo "archiveTitles[ $nextID ] = \"$nextTitle\";";
+}
 ?>
 
 function PostVideoLink()
@@ -74,6 +68,7 @@ function onPostComplete( data )
 	}
 }
 </script>
+
 <?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions ); ?>
 <?php RenderToolbar( $user, $permissions ); ?>
 

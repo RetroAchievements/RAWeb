@@ -150,7 +150,7 @@ switch( $requestType )
 			exit;
 		}
 		
-		RecalculateTrueRatio( $gameID );
+		recalculateTrueRatio( $gameID );
 		
 		break;
 		

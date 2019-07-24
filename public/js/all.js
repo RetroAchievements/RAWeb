@@ -249,6 +249,15 @@ function UpdateDisplayOrder(user, objID)
                 $("body").find("#warning").html("Status: updating...");
                 }
 
+function UpdateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID)
+        {
+        var inputText = $("body").find("#" + objID).val();
+                var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+                var posting = $.post("requestupdatesiteaward.php", { u: user, t: awardType, d: awardData, e: awardDataExtra, v: inputNum });
+                posting.done(onUpdateDisplayOrderComplete);
+                $("body").find("#warning").html("Status: updating...");
+                }
+
 function onUpdateDisplayOrderComplete(data)
         {
 //alert( data );
@@ -459,19 +468,19 @@ var maxlength = $(this).attr('maxlength');
 $(this).val(val.slice(0, maxlength));
         }
 });
-        function reloadTwitchContainer(videoID, vidWidth, vidHeight)
-        {
-        var vidHTML = "<object type='application/x-shockwave-flash' height='" + vidHeight + "' width='" + vidWidth + "' id='live_embed_player_flash' data='//www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg' bgcolor='#2A2A2A'><param name='allowFullScreen' value='true' /><param name='allowScriptAccess' value='always' /><param name='allowNetworking' value='all' /><param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' /><param name='flashvars' value='hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25' /></object>";
-                if (videoID !== 0 && archiveURLs[ videoID ] !== 0)
-        {
-        var vidTitle = archiveTitles[ videoID ];
-                var vidURL = archiveURLs[ videoID ];
-                var vidChapter = vidURL.substr(vidURL.lastIndexOf("/") + 1);
-                vidHTML = "<object type='application/x-shockwave-flash' height='" + vidHeight + "' width='" + vidWidth + "' id='clip_embed_player_flash' data='//www.twitch.tv/widgets/archive_embed_player.swf' bgcolor='#2A2A2A' ><param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'><param name='allowScriptAccess' value='always'><param name='allowNetworking' value='all'><param name='allowFullScreen' value='true'><param name='flashvars' value='title=" + vidTitle + "&amp;channel=retroachievementsorg&amp;auto_play=true&amp;start_volume=25&amp;chapter_id=" + vidChapter + "'></object>";
-        }
 
-        $('.streamvid').html(vidHTML);
-        }
+function reloadTwitchContainer(videoID){
+	var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+	console.log(videoID);
+	if (videoID != 0 && archiveURLs[ videoID ] != 0){
+		var vidTitle = archiveTitles[ videoID ];
+		var vidURL = archiveURLs[ videoID ];
+		vidURL = vidURL.split('/');
+		vidHTML = '<iframe src="https://player.twitch.tv/?video='+vidURL[vidURL.length-1]+'" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+	}
+
+	$('.streamvid').html(vidHTML);
+}
 
 jQuery(document).ready(function($) {
 $('#commentTextarea').watermark('Enter a comment here...');

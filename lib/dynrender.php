@@ -467,7 +467,7 @@ function RenderNewsComponent()
     echo "<div class='left'>";
     echo "<h2>News</h2>";
     $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
-    echo "<div id='carouselcontainer' style='height=300px;' >";
+    echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";
     for ($i = 0; $i < $numNewsItems; $i++) {
@@ -639,7 +639,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "<div id='title'>";
 
-    echo "<div id='logocontainer'><a id='logo' href='/'>&nbsp;</a></div>";
+    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo' /></a></div>";
 
     echo "<div class='login'>";
 
@@ -881,6 +881,8 @@ function RenderToolbar($user, $permissions = 0)
     echo "<input type='submit' value='Search' />";
     echo "</div>";
     echo "</form>";
+	
+	echo '<br style="clear:both;">'; // to stretch height on mobile
 
     echo "</div>";
     echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
@@ -888,9 +890,9 @@ function RenderToolbar($user, $permissions = 0)
 
 function RenderFooter()
 {
-    echo "<div style='clear:all;'></div>";
+    echo "<div style='clear:both;'></div>";
 
-    echo "<div id='footer'>";
+    echo "<footer id='footer'>";
 
     //    Inject fb like onto every page! muhahaha
     //echo "<div class='fb-like' style='float:left'></div>";
@@ -906,10 +908,8 @@ function RenderFooter()
     // echo "</div>";
 
     //    My TM
-    echo "<div class='footertext'>";
-    echo "<p style='font-size: x-small;'>";
-    echo "Content by <small><a href='http://www.immensegames.com' target='_blank' rel='noopener'>Immense Games</a></small><br/>";
-    //echo "<small>Last Updated July 2013</small>";
+    echo "<p>";
+    echo "Content by <small><a href='http://www.immensegames.com' target='_blank'>Immense Games</a></small><br/>";
     global $g_numQueries;
     global $g_pageLoadAt;
     $loadDuration = microtime(true) - $g_pageLoadAt;
@@ -922,9 +922,7 @@ function RenderFooter()
 
     echo "</div>";
 
-    echo "</div>";
-
-    echo "</div>";
+    echo "</footer>";
 }
 
 function RenderFBLoginPrompt()
@@ -1421,6 +1419,7 @@ function RenderSiteAwards($userAwards)
             $awardGameTitle = $elem['Title'];
             $awardGameConsole = $elem['ConsoleName'];
             $awardGameImage = $elem['ImageIcon'];
+            $awardDate = getNiceDate( $elem['AwardedAt'] );
             //$awardGameFlags = $elem[ 'Flags' ];
             $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
@@ -1502,6 +1501,7 @@ function RenderSiteAwards($userAwards)
                 continue;
             }
 
+            $tooltip .= "\r\nAwarded on $awardDate";
             $displayable = "<a href=\"$linkdest\"><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" src=\"$imagepath\" width=\"$imageSize\" height=\"$imageSize\" /></a>";
             $tooltipImagePath = "$imagepath";
             $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
@@ -2193,22 +2193,19 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         }
     }
 
-    //$chatWidth = 300;
-    //$chatHeight = 335;
-
     if ($overloadVideoID !== 0 && isset($archiveURLs[$overloadVideoID])) {
         $vidTitle = htmlspecialchars($archiveURLs[$overloadVideoID]['Title']);
         $vidURL = $archiveURLs[$overloadVideoID]['Link'];
         $vidChapter = substr($vidURL, strrpos($vidURL, "/") + 1);
 
-        //<object type="application/x-shockwave-flash" height="378" width="620" id="live_embed_player_flash" data="http://www.twitch.tv/widgets/live_embed_player.swf?channel=retroachievementsorg" bgcolor="#000000"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="allowNetworking" value="all" /><param name="movie" value="http://www.twitch.tv/widgets/live_embed_player.swf" /><param name="flashvars" value="hostname=www.twitch.tv&channel=retroachievementsorg&auto_play=true&start_volume=25" /></object><a href="http://www.twitch.tv/retroachievementsorg" style="padding:2px 0px 4px; display:block; width:345px; font-weight:normal; font-size:10px;text-decoration:underline; text-align:center;">Watch live video from RetroAchievementsOrg on www.twitch.tv</a>
-        $videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='clip_embed_player_flash' data='//www.twitch.tv/widgets/archive_embed_player.swf'>
-            <param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf'>
-            <param name='allowScriptAccess' value='always'>
-            <param name='allowNetworking' value='all'>
-            <param name='allowFullScreen' value='true'>
-            <param name='flashvars' value='title=$vidTitle&amp;channel=" . getenv('TWITCH_CHANNEL') . "&amp;auto_play=$autoplay&amp;start_volume=25&amp;chapter_id=$vidChapter'>
-            </object>";
+		$videoHTML = '<iframe
+    src="https://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'"
+    height="'.$vidHeight.'"
+    width="'.$vidWidth.'"
+    frameborder="0"
+    scrolling="no"
+    allowfullscreen="true">
+</iframe>';
 
         //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
@@ -2218,30 +2215,26 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         }
 
         $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-
-        //$videoHTML = "<object type='application/x-shockwave-flash' height='$vidHeight' width='$vidWidth' id='live_embed_player_flash' data='http://www.twitch.tv/widgets/live_embed_player.swf?channel=".getenv('TWITCH_CHANNEL')."'>
-        //    <param name='allowFullScreen' value='true' />
-        //    <param name='allowScriptAccess' value='always' />
-        //    <param name='allowNetworking' value='all' />
-        //    <param name='movie' value='http://www.twitch.tv/widgets/live_embed_player.swf' />
-        //    <param name='flashvars' value='hostname=www.twitch.tv&amp;channel=".getenv('TWITCH_CHANNEL')."&amp;auto_play=$autoplay&amp;start_volume=25' />
-        //    </object>";
     }
 
     echo "<div class='streamvid'>";
     echo $videoHTML;
     echo "</div>";
 
-    //echo "<div class='streamchat'>";
+	//$chatWidth = 300;
+    //$chatHeight = 335;
+    
+	//echo "<div class='streamchat'>";
     //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
     //echo "</div>";
 
-    echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span><span class='morebutton'><a style='float:right' href='/largechat.php'>RA Cinema</a></span>";
+    echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span>";
 
     if ($componentPos == 'left') {
-        echo "<form method='post' style='text-align:right; padding:4px 0px'>";
+        echo "<br /><br />";
+        echo "<form method='post'>";
         echo "Currently Watching:&nbsp;";
-        echo "<select name='g' onchange=\"reloadTwitchContainer( this.value, 600, 500 ); return false;\">";
+        echo "<select name='g' onchange=\"reloadTwitchContainer( this.value ); return false;\">";
         $selected = ($overloadVideoID == 0) ? 'selected' : '';
         echo "<option value='0' $selected>--Live--</option>";
         foreach ($archiveURLs as $dataElementID => $dataElementObject) {
@@ -2489,12 +2482,7 @@ function RenderSharedHeader($user)
     //    jQuery, and custom js
     //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script type='text/javascript' src='/js/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script type='text/javascript' src='/js/all.js'></script>\n";
-
-    global $mobileBrowser;
-    if ($mobileBrowser) {
-        echo "<link rel='stylesheet' type='text/css' href='/css/_mobile.css'>";
-    }
+    echo "<script type='text/javascript' src='/js/all.js?nc=".date('Y-m-d')."'></script>\n";
 }
 
 function RenderFBMetadata($title, $OGType, $imageURL, $thisURL, $description)

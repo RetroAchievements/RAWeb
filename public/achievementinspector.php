@@ -24,7 +24,7 @@
 	}
 	else
 	{
-		GetGamesList( 0, $gamesList );
+		getGamesList( 0, $gamesList );
 	}
 	
 	$pageTitle = "Manage Achievements";

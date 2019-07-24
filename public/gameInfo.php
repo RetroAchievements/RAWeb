@@ -44,7 +44,7 @@ if (!isset($gameData)) {
     exit;
 }
 
-$gameAlts = GetGameAlternatives($gameID);
+$gameAlts = getGameAlternatives($gameID);
 
 $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
 $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
@@ -160,7 +160,8 @@ RenderDocType(true);
         // Callback that creates and populates a data table,
         // instantiates the pie chart, passes in the data and
         // draws it.
-        function drawCharts() {
+        function drawCharts()
+        {
             var dataTotalScore = new google.visualization.DataTable();
 
             // Declare columns
@@ -168,50 +169,36 @@ RenderDocType(true);
             dataTotalScore.addColumn('number', 'Num Users');
 
             dataTotalScore.addRows([
-                <?php
-                $largestWonByCount = 0;
-                $count = 0;
-                for ($i = 1; $i <= $numAchievements; $i++) {
-                    if ($count++ > 0) {
-                        echo ", ";
-                    }
-                    $wonByUserCount = $achDist[$i];
+<?php
+$largestWonByCount = 0;
+$count = 0;
+for( $i = 1; $i <= $numAchievements; $i++ )
+{
+    if( $count++ > 0 )
+        echo ", ";
+    $wonByUserCount = $achDist[ $i ];
 
-                    if ($wonByUserCount > $largestWonByCount) {
-                        $largestWonByCount = $wonByUserCount;
-                    }
+    if( $wonByUserCount > $largestWonByCount )
+        $largestWonByCount = $wonByUserCount;
 
-                    echo "[ {v:$i, f:\"Earned $i achievement(s)\"}, $wonByUserCount ] ";
-                }
+    echo "[ {v:$i, f:\"Earned $i achievement(s)\"}, $wonByUserCount ] ";
+}
 
-                if ($largestWonByCount > 30) {
-                    $largestWonByCount = -2;
-                }
-                ?>
+if( $largestWonByCount > 30 )
+    $largestWonByCount = -2;
+?>
             ]);
 
-            <?php
-            $numGridlines = $numAchievements;
-            ?>
+<?php
+$numGridlines = $numAchievements;
+?>
 
             var optionsTotalScore = {
                 backgroundColor: 'transparent',
                 //title: 'Achievement Distribution',
                 titleTextStyle: {color: '#186DEE'}, //cc9900
-                hAxis: {
-                    textStyle: {color: '#186DEE'},
-                    gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'},
-                    minorGridlines: {count: 0},
-                    format: '#',
-                    slantedTextAngle: 90,
-                    maxAlternation: 0
-                },
-                vAxis: {
-                    textStyle: {color: '#186DEE'},
-                    gridlines: {count:<?php echo $largestWonByCount + 1; ?>},
-                    viewWindow: {min: 0},
-                    format: '#'
-                },
+                hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
+                vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
                 legend: {position: 'none'},
                 chartArea: {'width': '85%', 'height': '78%'},
                 height: 260,
@@ -219,7 +206,8 @@ RenderDocType(true);
                 pointSize: 4
             };
 
-            function resize() {
+            function resize()
+            {
                 chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
                 chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
 
@@ -243,7 +231,8 @@ RenderDocType(true);
         var lastKnownAchRating = 0;
         var lastKnownGameRating = 0;
 
-        function SetLitStars(container, numStars) {
+        function SetLitStars(container, numStars)
+        {
             $(container + ' a').removeClass('starlit');
             $(container + ' a').removeClass('starhalf');
 
@@ -258,26 +247,31 @@ RenderDocType(true);
             if (numStars >= 4.5)
                 $(container + ' a:first-child + a + a + a + a').addClass('starhalf');
 
-            if (numStars >= 1) {
+            if (numStars >= 1)
+            {
                 $(container + ' a:first-child').removeClass('starhalf');
                 $(container + ' a:first-child').addClass('starlit');
             }
-            if (numStars >= 2) {
+            if (numStars >= 2)
+            {
                 $(container + ' a:first-child + a').removeClass('starhalf');
                 $(container + ' a:first-child + a').addClass('starlit');
             }
 
-            if (numStars >= 3) {
+            if (numStars >= 3)
+            {
                 $(container + ' a:first-child + a + a').removeClass('starhalf');
                 $(container + ' a:first-child + a + a').addClass('starlit');
             }
 
-            if (numStars >= 4) {
+            if (numStars >= 4)
+            {
                 $(container + ' a:first-child + a + a + a').removeClass('starhalf');
                 $(container + ' a:first-child + a + a + a').addClass('starlit');
             }
 
-            if (numStars >= 5) {
+            if (numStars >= 5)
+            {
                 $(container + ' a:first-child + a + a + a + a').removeClass('starhalf');
                 $(container + ' a:first-child + a + a + a + a').addClass('starlit');
             }
@@ -314,7 +308,8 @@ RenderDocType(true);
             });
         }
 
-        function SubmitRating(user, gameID, ratingObjectType, value) {
+        function SubmitRating(user, gameID, ratingObjectType, value)
+        {
             $.ajax({
                 url: '/API/API_SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
                 dataType: 'json',
@@ -327,77 +322,79 @@ RenderDocType(true);
             });
         }
 
-        //    Onload:
+        //	Onload:
         $(function () {
 
-            //    Add these handlers onload, they don't exist yet
+            //	Add these handlers onload, they don't exist yet
             $('.starimg').hover(
-                function () {
-                    //    On hover
+                    function () {
+                        //	On hover
 
-                    if ($(this).parent().is($('#ratingach'))) {
-                        //    Ach:
-                        var numStars = 0;
-                        if ($(this).hasClass('1star'))
-                            numStars = 1;
-                        elseif($(this).hasClass('2star'));
-                        numStars = 2;
-                        elseif($(this).hasClass('3star'));
-                        numStars = 3;
-                        elseif($(this).hasClass('4star'));
-                        numStars = 4;
-                        elseif($(this).hasClass('5star'));
-                        numStars = 5;
+                        if ($(this).parent().is($('#ratingach')))
+                        {
+                            //	Ach:
+                            var numStars = 0;
+                            if ($(this).hasClass('1star'))
+                                numStars = 1;
+                            else if ($(this).hasClass('2star'))
+                                numStars = 2;
+                            else if ($(this).hasClass('3star'))
+                                numStars = 3;
+                            else if ($(this).hasClass('4star'))
+                                numStars = 4;
+                            else if ($(this).hasClass('5star'))
+                                numStars = 5;
 
-                        SetLitStars('#ratingach', numStars);
-                    } else {
-                        //    Game:
-                        var numStars = 0;
-                        if ($(this).hasClass('1star'))
-                            numStars = 1;
-                        elseif($(this).hasClass('2star'));
-                        numStars = 2;
-                        elseif($(this).hasClass('3star'));
-                        numStars = 3;
-                        elseif($(this).hasClass('4star'));
-                        numStars = 4;
-                        elseif($(this).hasClass('5star'));
-                        numStars = 5;
+                            SetLitStars('#ratingach', numStars);
+                        } else
+                        {
+                            //	Game:
+                            var numStars = 0;
+                            if ($(this).hasClass('1star'))
+                                numStars = 1;
+                            else if ($(this).hasClass('2star'))
+                                numStars = 2;
+                            else if ($(this).hasClass('3star'))
+                                numStars = 3;
+                            else if ($(this).hasClass('4star'))
+                                numStars = 4;
+                            else if ($(this).hasClass('5star'))
+                                numStars = 5;
 
-                        SetLitStars('#ratinggame', numStars);
-                    }
-                },
-                function () {
-                    //    On leave
-                    //GetRating( <?php echo $gameID; ?> );
-                });
+                            SetLitStars('#ratinggame', numStars);
+                        }
+                    },
+                    function () {
+                        //	On leave
+                        //GetRating( <?php echo $gameID; ?> );
+                    });
 
             $('.rating').hover(
-                function () {
-                    //    On hover
-                },
-                function () {
-                    //    On leave
-                    //GetRating( <?php echo $gameID; ?> );
-                    if ($(this).is($('#ratingach')))
-                        SetLitStars('#ratingach', lastKnownAchRating);
-                    else
-                        SetLitStars('#ratinggame', lastKnownGameRating);
-                });
+                    function () {
+                        //	On hover
+                    },
+                    function () {
+                        //	On leave
+                        //GetRating( <?php echo $gameID; ?> );
+                        if ($(this).is($('#ratingach')))
+                            SetLitStars('#ratingach', lastKnownAchRating);
+                        else
+                            SetLitStars('#ratinggame', lastKnownGameRating);
+                    });
 
             $('.starimg').click(function () {
 
                 var numStars = 0;
                 if ($(this).hasClass('1star'))
                     numStars = 1;
-                elseif($(this).hasClass('2star'));
-                numStars = 2;
-                elseif($(this).hasClass('3star'));
-                numStars = 3;
-                elseif($(this).hasClass('4star'));
-                numStars = 4;
-                elseif($(this).hasClass('5star'));
-                numStars = 5;
+                else if ($(this).hasClass('2star'))
+                    numStars = 2;
+                else if ($(this).hasClass('3star'))
+                    numStars = 3;
+                else if ($(this).hasClass('4star'))
+                    numStars = 4;
+                else if ($(this).hasClass('5star'))
+                    numStars = 5;
 
                 var ratingType = 1;
                 if ($(this).parent().is($('#ratingach')))
@@ -576,7 +573,7 @@ RenderDocType(true);
                     echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='i' value='$gameID' />";
 
-                    echo "To remove (game ID):";
+                    echo "To remove:";
                     echo "<select name='m'>";
                     echo "<option value='0' selected>-</option>";
 

@@ -408,7 +408,7 @@ RenderDocType();
                 {
                     //	Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='/ticketmanager.php?o=$nextOffset&amp;u=$assignedToUser&amp;t=$ticketState'>Next $maxCount &gt;</a>";
+                    echo "<a href='/ticketmanager.php?o=$nextOffset&amp;g=$gameIDGiven&amp;u=$assignedToUser&amp;t=$ticketState'>Next $maxCount &gt;</a>";
                     if( $ticketState == 1 && $gamesTableFlag != 5 )
                         echo " - <a href='/ticketmanager.php?o=". ($openTicketsCount - 99) ."&amp;u=$assignedToUser&amp;t=$ticketState'>Last</a>";
                 }

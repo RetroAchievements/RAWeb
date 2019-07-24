@@ -440,7 +440,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
 
                         //    Update GameData
                         //    Removed: this needs rethinking! //##SD TBD
-                        //RecalculateTrueRatio( $gameID );    //    Heavy!
+                        //recalculateTrueRatio( $gameID );    //    Heavy!
                         //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
                         //    Select the NEW TA from this achievement, as it has just been recalc'd
                         $query = "SELECT TrueRatio
@@ -591,7 +591,7 @@ function addEarnedAchievement(
 
 
                     //    Update GameData
-                    RecalculateTrueRatio($gameID); //    Heavy!
+                    recalculateTrueRatio($gameID); //    Heavy!
                     //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
                     //    Select the NEW TA from this achievement, as it has just been recalc'd
                     $query = "SELECT TrueRatio FROM Achievements WHERE ID='$achIDToAward'";
@@ -716,8 +716,8 @@ function UploadNewAchievement(
         return false;
     }
 
-    if ($type == 3 && !isValidConsoleID(GetGameData($gameID)['ConsoleID'])) {
-        $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . GetGameData($gameID)['ConsoleID'] . ").";
+    if ($type == 3 && !isValidConsoleID(getGameData($gameID)['ConsoleID'])) {
+        $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
         return false;
     }
 
@@ -984,7 +984,7 @@ function GetPatchData($gameID, $flags, $user)
         error_log(__FUNCTION__ . " cannot lookup game with gameID $gameID for user $user");
     } else {
         //$retVal['MinVer'] = "0.049";
-        $retVal = array_merge(GetGameData($gameID));
+        $retVal = array_merge(getGameData($gameID));
 
         $retVal['Achievements'] = GetAchievementsPatch($gameID, $flags);
         $retVal['Leaderboards'] = GetLBPatch($gameID);
