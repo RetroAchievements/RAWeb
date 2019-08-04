@@ -132,7 +132,6 @@ RenderDocType();
                     echo "<tr class=\"alt\">";
 
                 $nextUser = $userEntry[ 'User' ];
-                $userBadge = "<a href=\"/User/" . $nextUser . "\"><img src=\"/UserPic/" . $nextUser . ".png\" width=32 height=32 alt=\"" . $nextUser . "\"></img></a>";
                 $totalPoints = $userEntry[ 'RAPoints' ];
                 $totalEarned = $userEntry[ 'NumAwarded' ];
                 $lastLogin = getNiceDate( strtotime( $userEntry[ 'LastLogin' ] ) );
@@ -145,12 +144,10 @@ RenderDocType();
                 }
 
                 echo "<td>";
-                echo "$userBadge";
+                echo GetUserAndTooltipDiv( $nextUser, TRUE );
                 echo "</td>";
-
                 echo "<td class='user'>";
-                //echo "<a href=\"/User/$nextUser\">$nextUser</a>";
-                echo GetUserAndTooltipDiv( $nextUser, NULL, NULL, NULL, NULL, FALSE );
+                echo GetUserAndTooltipDiv( $nextUser, FALSE );
                 echo "</td>";
 
                 echo "<td>$totalPoints</td>";

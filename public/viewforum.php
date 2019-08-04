@@ -148,7 +148,7 @@
 			echo "<td class='unreadicon'><img src='" . getenv('APP_STATIC_URL') . "/Images/ForumTopicUnread32.gif' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
 			echo "<td class='topictitle'><a alt='Posted $nextTopicPostedNiceDate' title='Posted on $nextTopicPostedNiceDate' href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a><br/><div id='topicpreview'>$nextTopicPreview...</div></td>";
 			echo "<td class='author'>";
-			echo GetUserAndTooltipDiv( $nextTopicAuthor, NULL, NULL, NULL, NULL, $mobileBrowser );
+			echo GetUserAndTooltipDiv( $nextTopicAuthor, $mobileBrowser );
 			echo "</td>";
 			//echo "<td class='author'><div class='author'><a href='/User/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
 			echo "<td class='replies'>$nextTopicNumReplies</td>";
@@ -156,7 +156,7 @@
 			echo "<td class='lastpost'>";
 			echo "<div class='lastpost'>";
 			echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br/>";
-			echo GetUserAndTooltipDiv( $nextTopicLastCommentAuthor, NULL, NULL, NULL, NULL, $mobileBrowser );
+			echo GetUserAndTooltipDiv( $nextTopicLastCommentAuthor, $mobileBrowser );
 			//echo "<a href='/User/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
 			echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
 			echo "</div>";

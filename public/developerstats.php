@@ -58,8 +58,8 @@
 
         $dev = $devStats[ 'Author' ];
         echo "<td><div class='fixheightcell'>";
-        echo GetUserAndTooltipDiv( $dev, NULL, NULL, NULL, NULL, true );
-        echo GetUserAndTooltipDiv( $dev, NULL, NULL, NULL, NULL, false );
+        echo GetUserAndTooltipDiv( $dev, TRUE );
+        echo GetUserAndTooltipDiv( $dev, FALSE );
         if( $devStats[ 'Permissions' ] < \RA\Permissions::Developer )
             echo "<br><small>not-a-dev</small>";
         echo "</div></td>";

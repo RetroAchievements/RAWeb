@@ -177,10 +177,10 @@
 				echo "</td>";
 				
 				echo "<td style='width:34px'>";
-				echo GetUserAndTooltipDiv( $msgFrom, NULL, NULL, NULL, NULL, TRUE );
+				echo GetUserAndTooltipDiv( $msgFrom, TRUE );
 				echo "</td>";
 				echo "<td>";
-				echo GetUserAndTooltipDiv( $msgFrom, NULL, NULL, NULL, NULL, FALSE );
+				echo GetUserAndTooltipDiv( $msgFrom, FALSE );
 				echo "</td>";
 				
 				//echo "<td>" . $msgTo . "</td>";

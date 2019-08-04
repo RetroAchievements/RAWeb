@@ -1845,3 +1845,23 @@ function SetUserTrackedStatus($usernameIn, $isUntracked)
     $query = "UPDATE UserAccounts SET Untracked = $isUntracked WHERE User = \"$usernameIn\"";
     s_mysql_query($query);
 }
+
+/*
+ * Returns the information displayed in the usercard.
+ *
+ * user          - The user to get information for.
+ * &userCardInfo - Information to be dispaled in the user card.
+ */
+function getUserCardData($user, &$userCardInfo)
+{
+    getAccountDetails($user, $userInfo);
+    getUserActivityRange($user, $firstLogin, $lastLogin);
+
+    $userCardInfo['TotalPoints']     = $userInfo['RAPoints'];
+    $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
+    $userCardInfo['Permissions']     = $userInfo['Permissions'];
+    $userCardInfo['Motto']           = htmlspecialchars($userInfo['Motto']);
+    $userCardInfo['Rank']            = getUserRank($user);
+    $userCardInfo['LastLogin']       = $lastLogin;
+    $userCardInfo['MemberSince']     = $firstLogin;
+}

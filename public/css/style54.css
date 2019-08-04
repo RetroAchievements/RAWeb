@@ -789,6 +789,40 @@ th {
     background: white;
 }
 
+/* Usercard */
+.usercard {
+    background: white;
+    color: black;
+}
+
+.usercardavatar {
+    background: white;
+    width: 128px;
+    height: 128px;
+}
+
+.usercardusername {
+    background: white;
+    color: black;
+    font-size: 150%;
+    text-align: left;
+    font-weight: bold;
+}
+
+.usercardaccounttype {
+    background: white;
+    color: black;
+    font-size: 125%;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.usercardbasictext {
+    background: white;
+    color: black;
+    text-align: left;
+}
+
 .devbox {
     padding: 4px 0px;
 }

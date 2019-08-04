@@ -85,8 +85,6 @@ function getFeedItemHTML($feedData, $user)
     $nextTimestamp = $feedData['timestamp'];
     $nextActivityType = $feedData['activitytype'];
     $nextUser = $feedData['User'];
-    $nextUserPoints = $feedData['RAPoints'];
-    $nextUserMotto = $feedData['Motto'];
     $nextData = $feedData['data'];
     $nextData2 = $feedData['data2'];
     $nextGameTitle = $feedData['GameTitle'];
@@ -129,12 +127,12 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_won'>";
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= " earned ";
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, false);
@@ -165,13 +163,13 @@ function getFeedItemHTML($feedData, $user)
             //    Images:
             $retHTML .= "<td class='icons'>";
             $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/Images/LoginIcon32.png' width='32' height='32' class='badgeimg' />";
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_login'>";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= " logged in";
 
             $retHTML .= "</td>";
@@ -192,14 +190,14 @@ function getFeedItemHTML($feedData, $user)
                 $retHTML .= "<td class='icons'>";
 
                 $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-                $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+                $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
                 $retHTML .= "</td>";
 
                 //    Content:
                 $retHTML .= "<td class='feed_startplay'>";
 
-                $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+                $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
                 $retHTML .= " started playing ";
                 $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false,
                     32, true);
@@ -223,14 +221,14 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_dev1'>";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= " uploaded a new achievement: ";
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, false);
@@ -254,14 +252,14 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= " edited ";
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, false);
@@ -283,14 +281,14 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_completegame'>";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE);
             if ($nextData2 == 1) {
                 $retHTML .= " MASTERED ";
             } else {
@@ -323,14 +321,14 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_submitrecord'>";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= " submitted ";
             $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
                 GetFormattedLeaderboardEntry($nextLBFormat, $nextData2));
@@ -357,7 +355,7 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
             $retHTML .= "</td>";
 
@@ -367,7 +365,7 @@ function getFeedItemHTML($feedData, $user)
             $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp($nextLBFormat,
                     'TIMESECS') == 0) ? "time" : "score";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= " improved their $entryType: ";
             $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
                 GetFormattedLeaderboardEntry($nextLBFormat, $nextData2));
@@ -396,14 +394,14 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, true);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserAndTooltipDiv($nextUser, $nextUserPoints, $nextUserMotto, null, null, false);
+            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
             $retHTML .= ($nextActivityType == 9 ? " opened " : " closed ") . " a ticket for ";
             $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
                 $nextGameTitle, $nextAchBadge, false);
@@ -570,8 +568,6 @@ function RenderArticleEmptyComment($articleType, $articleID)
 function RenderArticleComment(
     $articleID,
     $user,
-    $points,
-    $motto,
     $comment,
     $submittedDate,
     $localUser,
@@ -596,7 +592,7 @@ function RenderArticleComment(
     $niceDate = date("j M\nG:i Y ", $submittedDate);
 
     echo "<td alt='Test' class='smalldate'>$niceDate</td>";
-    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv($user, $points, $motto, null, null, true) . "</td>";
+    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv( $user, TRUE ) . "</td>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";
@@ -1019,7 +1015,7 @@ function RenderNewsHeader($newsData)
 
 
     $author = $newsData['Author'];
-    $authorLink = GetUserAndTooltipDiv($author, null, null, null, null, false);
+    $authorLink = GetUserAndTooltipDiv( $author, FALSE );
     $timestampStr = date("d M", $newsData['TimePosted']);
     $niceDate = getNiceDate($newsData['TimePosted']);
 
@@ -1099,9 +1095,8 @@ function RenderCommentsComponent(
         $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID);
         $canDeleteComments |= $forceAllowDeleteComments;
 
-        RenderArticleComment($articleID, $commentData[$i]['User'], $commentData[$i]['RAPoints'],
-            $commentData[$i]['Motto'], $commentData[$i]['CommentPayload'], $commentData[$i]['Submitted'], $user,
-            $articleTypeID, $commentData[$i]['ID'], $canDeleteComments);
+        RenderArticleComment($articleID, $commentData[$i]['User'], $commentData[$i]['CommentPayload'],
+        $commentData[$i]['Submitted'], $user, $articleTypeID, $commentData[$i]['ID'], $canDeleteComments);
     }
 
     if (isset($user)) {
@@ -1301,16 +1296,26 @@ function RenderScoreLeaderboardComponent($user, $points, $friendsOnly, $numToFet
 
         echo "<tr>";
         echo "<td class='rank'>" . ($i + 1) . "</td>";
-        echo "<td class='userimage'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></td>";
-        echo "<td class='user'><div class='fixedsize'><a href='/User/$nextUser'>$nextUser</a></div></td>";
+        echo "<td>";
+        echo GetUserAndTooltipDiv( $nextUser, TRUE );
+        echo "</td>";
+
+        echo "<td>";
+        echo GetUserAndTooltipDiv( $nextUser, FALSE );
+        echo "</td>";
         echo "<td class='points'>$nextPoints<span class='TrueRatio'>  ($nextTruePoints)</span></td>";
         echo "</tr>";
     }
     if ($user !== null && $friendsOnly == false) {
         echo "<tr>";
         echo "<td class='rank'> $userRank </td>";
-        echo "<td><img alt='$user' title='$user' src='/UserPic/$user.png' width='32' height='32' /></td>";
-        echo "<td class='user'><a href='/User/$user'>$user</a></td>";
+        echo "<td>";
+        echo GetUserAndTooltipDiv( $user, TRUE );
+        echo "</td>";
+
+        echo "<td>";
+        echo GetUserAndTooltipDiv( $user, FALSE );
+        echo "</td>";
         echo "<td class='points'>$points</td>";
         echo "</tr>";
     }
@@ -1358,11 +1363,11 @@ function RenderTopAchieversComponent($gameTopAchievers)
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, null, null, null, null, true);
+        echo GetUserAndTooltipDiv( $nextUser, TRUE );
         echo "</td>";
 
         echo "<td class='user'>";
-        echo GetUserAndTooltipDiv($nextUser, null, null, null, null, false);
+        echo GetUserAndTooltipDiv( $nextUser, FALSE );
         echo "</td>";
 
         echo "<td class='points'>";
@@ -1643,8 +1648,8 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             echo "<tr class='altdark'>";
             echo "<td>";
             //echo "<a href='/User/" . $bestScoreUser . "'><img alt='$bestScoreUser' title='$bestScoreUser' src='/UserPic/$bestScoreUser.png' width='32' height='32' /></a>";
-            echo GetUserAndTooltipDiv($bestScoreUser, null, null, null, null, true);
-            echo GetUserAndTooltipDiv($bestScoreUser, null, null, null, null, false);
+            echo GetUserAndTooltipDiv( $bestScoreUser, TRUE );
+            echo GetUserAndTooltipDiv( $bestScoreUser, FALSE );
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
@@ -1678,10 +1683,8 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
 
             echo "<tr>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($friendScoreName, $friendData['RAPoints'], $friendData['Motto'],
-                $friendData['RichPresenceMsg'], $friendData['LastUpdate'], true, $link);
-            echo GetUserAndTooltipDiv($friendScoreName, $friendData['RAPoints'], $friendData['Motto'],
-                $friendData['RichPresenceMsg'], $friendData['LastUpdate'], false, $link);
+            echo GetUserAndTooltipDiv( $friendScoreName, TRUE, $link);
+            echo GetUserAndTooltipDiv( $friendScoreName, FALSE, $link);
             echo "</td>";
 
             echo "<td>";
@@ -1787,7 +1790,7 @@ function RenderRecentlyAwardedComponent($user, $points)
 
         echo "<td>";
         //echo "<a href='/User/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
-        echo GetUserAndTooltipDiv($nextUser, null, null, null, null, true);
+        echo GetUserAndTooltipDiv( $nextUser, TRUE );
         echo "</td>";
 
         echo "<td><div class='fixheightcell'>";
@@ -1895,8 +1898,8 @@ function RenderDeveloperStats($user, $type)
             echo "<td>$rank</td>";
 
             echo "<td><div class='fixheightcell'>";
-            echo GetUserAndTooltipDiv($developer, null, null, null, null, true);
-            echo GetUserAndTooltipDiv($developer, null, null, null, null, false);
+            echo GetUserAndTooltipDiv( $developer, TRUE );
+            echo GetUserAndTooltipDiv( $developer, FALSE );
             echo "</div></td>";
 
             echo "<td>$numAchievements</td>";
@@ -1949,7 +1952,7 @@ function RenderCurrentlyOnlineComponent($user)
         //    {
         //        echo ", ";
         //    }
-        //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], $nextPlayer[ 'RAPoints' ], NULL, $nextPlayer[ 'LastActivity' ], $nextPlayer[ 'LastActivityAt' ], FALSE );
+        //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
         //    $numOutput++;
         //}
 
@@ -1982,7 +1985,7 @@ function RenderActivePlayersComponent()
     //        echo ", ";
     //    }
     //
-    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], $nextPlayer[ 'RAPoints' ], NULL, $nextPlayer[ 'LastActivity' ], $nextPlayer[ 'LastActivityAt' ], FALSE );
+    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
     //    $numOutput++;
     //}
     echo "</div>";
@@ -2061,8 +2064,6 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
 
             $shortMsg = $nextData['ShortMsg'] . "...";
             $author = $nextData['Author'];
-            $userPoints = $nextData['RAPoints'];
-            $userMotto = $nextData['Motto'];
             $commentID = $nextData['CommentID'];
             $forumTopicID = $nextData['ForumTopicID'];
             $forumTopicTitle = $nextData['ForumTopicTitle'];
@@ -2070,7 +2071,7 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
             echo "<td>$datePosted $postedAt</td>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($author, $userPoints, $userMotto, null, null, true);
+            echo GetUserAndTooltipDiv( $author, TRUE );
             echo "</td>";
 
             echo "<td class='recentforummsg'>$shortMsg<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID'>[view]</a></td>";
@@ -2153,7 +2154,7 @@ function RenderStaticDataComponent($staticData)
     echo "<br/>";
 
     echo "The last registered user was ";
-    echo GetUserAndTooltipDiv($lastRegisteredUser, null, null, null, null, false);
+    echo GetUserAndTooltipDiv( $lastRegisteredUser, FALSE );
     //echo "<a href='/User/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br/>";
 
@@ -2162,7 +2163,7 @@ function RenderStaticDataComponent($staticData)
     //echo GetGameAndTooltipDiv( $nextGameToScanID, $nextGameToScan, $nextGameToScanIcon, $nextGameConsoleToScan, FALSE, 32, TRUE );
     //echo "<br/>";
     //echo "Next user to scan: ";
-    //echo GetUserAndTooltipDiv( $nextUserToScan, NULL, NULL, NULL, NULL, FALSE );
+    //echo GetUserAndTooltipDiv( $nextUserToScan, FALSE );
     //echo "The last achievement earned was ";
     //echo "<a href='/Achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
     //echo " by ";
@@ -2559,7 +2560,7 @@ function cb_injectUserPHPBB($matches)
 {
     if (count($matches) > 1) {
         $user = $matches[2];
-        return GetUserAndTooltipDiv($user, null, null, null, null, false);
+        return GetUserAndTooltipDiv( $user, FALSE );
     }
     return "";
 }
@@ -2890,51 +2891,91 @@ function GetGameAndTooltipDiv(
         "</div>";
 }
 
-//    17:05 18/04/2013
+/*
+ * Create the user and tooltip div that is shown when you hover over a username or user avatar.
+ *
+ * user                 - The user to get information on.
+ * imageInstead         - If true return the div for the user avatar, if false return the div for the username.
+ * customLink           - Custom link if passed in.
+ * iconSizeDisplayable  - Custom avatar size if passed in.
+ * iconClassDisplayable - Custom icon display class if passed in.
+ */
 function GetUserAndTooltipDiv(
     $user,
-    $points,
-    $motto,
-    $lastActivity,
-    $lastActivityAt,
     $imageInstead,
     $customLink = null,
     $iconSizeDisplayable = 32,
     $iconClassDisplayable = 'badgeimg'
 ) {
-    $tooltipIconSize = 128; //96;
 
-    $tooltip = "<div id=\'objtooltip\'>";
+    getUserCardData($user, $userCardInfo);
+    
+    $userMotto       = $userCardInfo['Motto'];
+    $userPoints      = $userCardInfo['TotalPoints'];
+    $userTruePoints  = $userCardInfo['TotalTruePoints'];
+    $userAccountType = PermissionsToString($userCardInfo['Permissions']);
+    $userRank        = $userCardInfo['Rank'];
+    $lastLogin       = getNiceDate(strtotime($userCardInfo['LastLogin']));
+    $memberSince     = getNiceDate(strtotime($userCardInfo['MemberSince']));
 
+    $tooltip  = "<div id=\'objtooltip\' class=\'usercard\'>";
     $tooltip .= "<table><tbody>";
-    $tooltip .= "<tr><td class=\'fixedtooltipcolleft\'><img src=\'/UserPic/" . $user . ".png\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\' /></td>";
+    $tooltip .= "<tr>";
+    $tooltip .= "<td class=\'usercardavatar\'><img src=\'/UserPic/" . $user . ".png\'/>";
+    $tooltip .= "<td class=\'usercard\'>";
+    $tooltip .= "<table><tbody>";
+    $tooltip .= "<tr>";
+    $tooltip .= "<td class=\'usercardusername\'>$user</td>";
+    $tooltip .= "<td class=\'usercardaccounttype\'>$userAccountType</td>";
+    $tooltip .= "</tr>";
 
-    $tooltip .= "<td class=\'fixedtooltipcolright\'>";
-    $tooltip .= "<b>$user</b>";
-
-    if ($points !== null) {
-        $tooltip .= "&nbsp;($points)";
+    //Add the user motto if it's set
+    if ($userMotto !== null && strlen($userMotto) > 2) {
+        $userMotto = str_replace('\'', '\\\'', $userMotto);
+        $userMotto = str_replace('"', '\\\'\\\'', $userMotto);
+        $tooltip .= "<tr>";
+        $tooltip .= "<td colspan=\'2\' height=\'32px\'><span class=\'usermotto tooltip\'>$userMotto</span></td>";
+        $tooltip .= "</tr>";
+    }
+    else
+    {
+        //Insert blank row to add whitespace where motto would be
+        $tooltip .= "<tr>";
+        $tooltip .= "<td height=\'24px\'></td>";
+        $tooltip .= "</tr>";
     }
 
-    if ($motto !== null && strlen($motto) > 2) {
-        $motto = str_replace('\'', '\\\'', $motto);
-        $motto = str_replace('"', '\\\'\\\'', $motto);
-        $tooltip .= "</br><span class=\'usermotto tooltip\'>$motto</span>";
+    //Add the user points if there are any
+    if ($userPoints !== null)
+    {  
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Points:</b> $userPoints ($userTruePoints)</td>";
+        $tooltip .= "</tr>";
+    }
+    else
+    {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Points:</b> 0</td>";
+        $tooltip .= "</tr>";
     }
 
-    if ($lastActivity !== null) {
-        $lastActAtNiceDate = getNiceDate(strtotime($lastActivityAt));
-        $tooltip .= "<br/>Last seen: $lastActAtNiceDate<br/>$user $lastActivity";
-    }
-
+    //Add the other user informaiton
+    $tooltip .= "<tr>";
+    $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
+    $tooltip .= "</tr>";
+    $tooltip .= "<tr>";
+    $tooltip .= "<td class=\'usercardbasictext\'><b>Last Login:</b> $lastLogin</td>";
+    $tooltip .= "</tr>";
+    $tooltip .= "<tr>";
+    $tooltip .= "<td class=\'usercardbasictext\'><b>Member Since:</b> $memberSince</td>";
+    $tooltip .= "</tr>";
+    $tooltip .= "</tbody></table>";
     $tooltip .= "</td>";
     $tooltip .= "</tr>";
     $tooltip .= "</tbody></table>";
     $tooltip .= "</div>";
 
     $tooltip = htmlspecialchars($tooltip);
-    //$tooltip = str_replace( '<', '&lt;', $tooltip );
-    //$tooltip = str_replace( '>', '&gt;', $tooltip );
 
     $linkURL = "/User/$user";
     if (isset($customLink)) {
@@ -3297,7 +3338,7 @@ function RenderCodeNotes($codeNotes)
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextCodeNote['User'], null, null, null, null, true);
+        echo GetUserAndTooltipDiv( $nextCodeNote['User'], TRUE );
         echo "</td>";
 
         echo "</tr>";

@@ -170,7 +170,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 			echo "</td>";
 			
 			//echo "<td>";
-			//echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, FALSE );
+			//echo GetUserAndTooltipDiv( $achAuthor, FALSE );
 			//echo "</td>";
 			
 			echo "<td>";

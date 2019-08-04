@@ -84,9 +84,11 @@
 					if( $nextType == 'User' )
 					{
 						echo "<td>";
-						echo GetUserAndTooltipDiv( $nextID, NULL, NULL, NULL, NULL, TRUE );
+						echo GetUserAndTooltipDiv( $nextID, TRUE );
 						echo "</td>";
-						echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
+						echo "<td>";
+						echo GetUserAndTooltipDiv( $nextID, FALSE );
+						echo "</td>";
 					}
 					else if( $nextType == 'Achievement' )
 					{
@@ -100,7 +102,7 @@
 					else if( $nextType == 'Forum Comment' || $nextType == 'Comment' )
 					{
 						echo "<td>";
-						echo GetUserAndTooltipDiv( $nextID, NULL, NULL, NULL, NULL, TRUE );
+						echo GetUserAndTooltipDiv( $nextID, TRUE );
 						echo "</td>";
 						echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
 					}
