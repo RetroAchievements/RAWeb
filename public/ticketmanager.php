@@ -374,13 +374,12 @@ RenderDocType();
                     echo "</td>";
 
                     echo "<td>";
-                    echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
-                    echo "<a href='/User/$achAuthor'>$achAuthor</a>";
+                    echo GetUserAndTooltipDiv( $achAuthor, TRUE );
+                    echo GetUserAndTooltipDiv( $achAuthor, FALSE );
                     echo "</td>";
-
                     echo "<td>";
-                    echo GetUserAndTooltipDiv( $reportedBy, NULL, NULL, NULL, NULL, TRUE );
-                    echo "<a href='/User/$reportedBy'>$reportedBy</a>";
+                    echo GetUserAndTooltipDiv( $reportedBy, TRUE );
+                    echo GetUserAndTooltipDiv( $reportedBy, FALSE );
                     echo "</td>";
 
                     echo "<td>";
@@ -468,13 +467,13 @@ RenderDocType();
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
-                echo "<a href='/User/$achAuthor'>$achAuthor</a>";
+                echo GetUserAndTooltipDiv( $achAuthor, TRUE );
+                echo GetUserAndTooltipDiv( $achAuthor, FALSE );
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv( $reportedBy, NULL, NULL, NULL, NULL, TRUE );
-                echo "<a href='/User/$reportedBy'>$reportedBy</a>";
+                echo GetUserAndTooltipDiv( $reportedBy, TRUE );
+                echo GetUserAndTooltipDiv( $reportedBy, FALSE );
                 echo "</td>";
 
                 echo "<td>";

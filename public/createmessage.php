@@ -100,7 +100,7 @@ $(function() {
 		if( $messageContextData !== NULL )
 		{
 			echo "In reply to ";
-			echo GetUserAndTooltipDiv( $messageContextData['UserFrom'], NULL, NULL, NULL, NULL, FALSE );
+			echo GetUserAndTooltipDiv( $messageContextData['UserFrom'], FALSE );
 			echo " who wrote:</br></br>";
 			echo "<div class='topiccommenttext'>" . parseTopicCommentPHPBB( $messageContextPayload ) . "</div>";
 		}

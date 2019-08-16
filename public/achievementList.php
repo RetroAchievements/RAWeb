@@ -185,7 +185,7 @@ RenderDocType();
                     echo "</td>";
 
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($achAuthor, null, null, null, null, true);
+                    echo GetUserAndTooltipDiv( $achAuthor, TRUE );
                     echo "</td>";
                 }
 

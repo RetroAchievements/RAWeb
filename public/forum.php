@@ -129,7 +129,7 @@
 			echo "<span class='smalldate'>$nextForumCreatedNiceDate</span><br/>";
 			if( isset( $nextForumLastPostAuthor ) && strlen( $nextForumLastPostAuthor ) > 1 )
 			{
-				echo GetUserAndTooltipDiv( $nextForumLastPostAuthor, NULL, NULL, NULL, NULL, TRUE );
+				echo GetUserAndTooltipDiv( $nextForumLastPostAuthor, TRUE );
 				//echo "<a href='/User/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
 				echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID'>[View]</a>";
 			}

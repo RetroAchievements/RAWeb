@@ -626,7 +626,7 @@ $numGridlines = $numAchievements;
             if ($numAchievements > 0) {
                 echo "<b>Authors:</b> ";
                 foreach ($authors as $author) {
-                    echo "<a href='/User/$author'>$author</a>";
+                    echo GetUserAndTooltipDiv( $author, FALSE );
                     if (next($authors) != null) {
                         echo ', ';
                     }
