@@ -162,29 +162,37 @@
 			achID = achID.substr( 1 );
 			isHardcore = 1;
 		}
-			
-		if( achID == 9999999 )
-		{
-			//	'All Achievements' selected: reset this game entirely!
-			var gameID = $( '#resetgameselector :selected' ).val();
-			//alert( "Game ID is " + gameID );
-			var posting = $.post( "/requestresetachievements.php", { u: '<?php echo $user; ?>', g: gameID } );
-			posting.done( onResetComplete );
-		}
-		else if( achID > 0 )
-		{
-			//	Particular achievement selected: reset just this achievement
-				
-			//alert( "Ach ID is " + achID );
-			//alert( "isHardcore is " + isHardcore );
-			var posting = $.post( "/requestresetachievements.php", { u: '<?php echo $user; ?>', a: achID, h: isHardcore } );
-			posting.done( onResetComplete );
-		}
-		
-		$( '#warning' ).html( 'Status: Updating...' );
-		$( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
-	}
-	
+
+        if( achID == 9999999 )
+        {
+            var gameName = $( '#resetgameselector :selected' ).text();
+            gameName = gameName.substr(0, gameName.lastIndexOf("(") - 1);
+
+            //Prompt user for confirmation if attempting to remove all achievement for a single game
+            if (confirm("Reset all achievements for " + gameName + "?"))
+            {
+                // 'All Achievements' selected: reset this game entirely!
+                var gameID = $( '#resetgameselector :selected' ).val();
+                //alert( "Game ID is " + gameID );
+                var posting = $.post( "/requestresetachievements.php", { u: '<?php echo $user; ?>', g: gameID } );
+                posting.done( onResetComplete );
+                $( '#warning' ).html( 'Status: Updating...' );
+                $( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
+            }
+        }
+        else if( achID > 0 )
+        {
+            // Particular achievement selected: reset just this achievement
+
+            //alert( "Ach ID is " + achID );
+            //alert( "isHardcore is " + isHardcore );
+            var posting = $.post( "/requestresetachievements.php", { u: '<?php echo $user; ?>', a: achID, h: isHardcore } );
+            posting.done( onResetComplete );
+            $( '#warning' ).html( 'Status: Updating...' );
+            $( '#loadingiconreset' ).attr( 'src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' ).fadeTo( 100, 1.0 );
+        }
+    }
+
 	function onResetComplete( data )
 	{
 		if( data.substr( 0, 2 ) !== "OK" )
@@ -655,21 +663,20 @@
 	<div class='component'>
 	<h3>Reset Game Progress</h3>
 	<?php
-		echo "Reset all achievements for a certain game:</br>";
-		
-		echo "<select id='resetgameselector' onchange=\"ResetFetchAwarded()\" >";
+		echo "<table><tbody>";
+        echo "<tr><td>Game:</td>";
+        echo "<td><select id='resetgameselector' onchange=\"ResetFetchAwarded()\" >";
 		echo "<option>--</option>";
-		echo "</select>";
-		echo "<div id='resetachievementscontrol'>";
+		echo "</select></td></tr>";
+        
+		echo "<tr><td>Achievement:</td>";
+        echo "<td><div id='resetachievementscontrol'>";
 		echo "<select id='resetachievementscontainer'></select>";	//	Filled by JS
-		echo "</div>";
+		echo "</div></td></tr>";
 		
-		echo "<input value='Reset Progress for selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
-		echo "</form>";
-		
+		echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
 		echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
-		
-		echo "<br/>";
+		echo "</tr></td></tbody></table>";
 	?>
 	</div>
 
