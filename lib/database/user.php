@@ -1855,13 +1855,13 @@ function SetUserTrackedStatus($usernameIn, $isUntracked)
 function getUserCardData($user, &$userCardInfo)
 {
     getAccountDetails($user, $userInfo);
-    getUserActivityRange($user, $firstLogin, $lastLogin);
+    // getUserActivityRange($user, $firstLogin, $lastLogin);
 
     $userCardInfo['TotalPoints']     = $userInfo['RAPoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $userCardInfo['Permissions']     = $userInfo['Permissions'];
     $userCardInfo['Motto']           = htmlspecialchars($userInfo['Motto']);
     $userCardInfo['Rank']            = getUserRank($user);
-    $userCardInfo['LastLogin']       = $lastLogin;
-    $userCardInfo['MemberSince']     = $firstLogin;
+    // $userCardInfo['LastLogin']       = $lastLogin;
+    // $userCardInfo['MemberSince']     = $firstLogin;
 }
