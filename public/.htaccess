@@ -23,8 +23,9 @@ RewriteRule ^achievement/([0-9]*)(.*) achievementInfo.php?ID=$1&$2 [QSA,NC,L]
 RewriteRule ^user/(.*)?(.*)$ userInfo.php?ID=$1&$2 [QSA,NC,L]
 RewriteRule ^game/([0-9]*)(.*) gameInfo.php?ID=$1&$2 [QSA,NC,L]
 
-RewriteRule ^Images/(.*) https://static.retroachievements.org/Images/$1 [NC,L]
-RewriteRule ^Badge/(.*) https://static.retroachievements.org/Badge/$1 [NC,L]
+# follow https://github.com/RetroAchievements/RAWeb/wiki/Getting-Started#add-image-assets to have the missing assets locally
+#RewriteRule ^Images/(.*) https://static.retroachievements.org/Images/$1 [NC,L]
+#RewriteRule ^Badge/(.*) https://static.retroachievements.org/Badge/$1 [NC,L]
 
 RewriteRule ^rss-news$ rss-news.xml.php [NC,L]
 RewriteRule ^rss-newachievements$ rss-newachievements.xml.php [NC,L]
