@@ -5,6 +5,11 @@ use Aws\S3\S3Client;
 
 function UploadToS3( $filenameSrc, $filenameDest )
 {
+    if (!getenv('AWS_ACCESS_KEY_ID')) {
+        // nothing to do here
+        return;
+    }
+
 	$client = new S3Client([
 		'region' => getenv('AWS_DEFAULT_REGION'),
 		'version' => 'latest'
