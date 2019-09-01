@@ -1280,6 +1280,7 @@ function isValidConsoleID($consoleID)
         case 7: // NES
         case 8: // PC Engine
         case 11: // Master System
+        case 12: // PlayStation
         case 13: // Atari Lynx
         case 14: // Neo Geo Pocket
         case 15: // Game Gear
