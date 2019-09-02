@@ -641,8 +641,8 @@ function onRefreshActivePlayers(data)
 {
     var playerList = JSON.parse(data)
     var numPlayersOnline = playerList.length;
-    var htmlTitle = "<div>There are currently <strong>" + numPlayersOnline + "</strong> players online:</div>";
-    $('#playersonlinebox').html(htmlTitle);
+    var htmlTitle = "<div>There are currently <strong>" + numPlayersOnline + "</strong> active players:</div>";
+    $('#playersactivebox').html(htmlTitle);
     $('#activeplayersbox').empty();
     var table = $('<table></table>').addClass('smalltable');
     var tbody = $('<tbody></tbody>');
