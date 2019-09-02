@@ -20,7 +20,7 @@ foreach ($ingameList as $playerIngame) {
     $mergedList[$playerIngame['User']]['InGame'] = true;
 }
 
-echo json_encode(utf8ize($mergedList));
+echo json_encode($mergedList);
 
 // $finalList = array();
 // foreach( $mergedList as $mergedItem )
