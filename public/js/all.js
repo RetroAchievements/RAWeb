@@ -406,7 +406,7 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText)
                 if (points !== null)
                 tooltip += "&nbsp;(" + points.toString() + ")";
                 //	Motto
-                if (motto !== null && motto.length > 2)
+                if (motto && motto.length > 2)
                 tooltip += "</br><span class='usermotto'>" + motto + "</span>";
                 if (extraText.length > 0)
                 tooltip += extraText;
