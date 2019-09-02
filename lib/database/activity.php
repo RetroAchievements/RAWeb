@@ -516,7 +516,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     SELECT InnerTable.ID, UNIX_TIMESTAMP(timestamp) AS timestamp, activitytype, InnerTable.User, uaLocal.RAPoints, uaLocal.Motto, data, data2, gd.Title AS GameTitle, gd.ID AS GameID, gd.ImageIcon AS GameIcon, cons.Name AS ConsoleName,
         ach.Title AS AchTitle, ach.Description AS AchDesc, ach.Points AS AchPoints, ach.BadgeName AS AchBadge,
         lb.Title AS LBTitle, lb.Description AS LBDesc, lb.Format AS LBFormat,
-        ua.User AS CommentUser, ua.Motto AS CommentMotto, ua.RAPoints AS CommentPoints, c.Payload AS Comment, UNIX_TIMESTAMP(c.Submitted) AS CommentPostedAt, c.ID AS CommentID
+        ua.User AS CommentUser, ua.RAPoints AS CommentPoints, c.Payload AS Comment, UNIX_TIMESTAMP(c.Submitted) AS CommentPostedAt, c.ID AS CommentID
     FROM
     (
         SELECT act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2
@@ -641,7 +641,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     $numArticleComments = 0;
 
     $query = "
-        SELECT ua.User, ua.RAPoints, ua.Motto, LatestComments.ID, LatestComments.UserID, LatestComments.Payload AS CommentPayload, UNIX_TIMESTAMP(LatestComments.Submitted) AS Submitted, LatestComments.Edited
+        SELECT ua.User, ua.RAPoints, LatestComments.ID, LatestComments.UserID, LatestComments.Payload AS CommentPayload, UNIX_TIMESTAMP(LatestComments.Submitted) AS Submitted, LatestComments.Edited
         FROM
         (
             SELECT c.ID, c.UserID, c.Payload, c.Submitted, c.Edited
@@ -676,7 +676,7 @@ function getCurrentlyOnlinePlayers()
     $playersFound = array();
 
     //    Select all users active in the last 10 minutes:
-    $query = "SELECT ua.User, ua.RAPoints, ua.Motto, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity
+    $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity
               FROM UserAccounts AS ua
               LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
               WHERE ua.LastLogin > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
@@ -703,7 +703,7 @@ function getLatestRichPresenceUpdates()
 
     $recentMinutes = 10;
 
-    $query = "SELECT ua.User, ua.RAPoints, ua.Motto, ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
+    $query = "SELECT ua.User, ua.RAPoints, ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
