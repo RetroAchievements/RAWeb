@@ -7,7 +7,8 @@
         "vlucas/phpdotenv": "^2.4",
         "aws/aws-sdk-php": "^3.52",
         "ext-mysqli": "*",
-        "ext-gd": "*"
+        "ext-gd": "*",
+        "ext-json": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^6"
