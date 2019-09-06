@@ -1282,7 +1282,7 @@ function isValidConsoleID($consoleID)
         // case 9: //
         // case 10: //
         case 11: // Master System
-        // case 12: // PlayStation
+        case 12: // PlayStation
         case 13: // Atari Lynx
         case 14: // Neo Geo Pocket
         case 15: // Game Gear

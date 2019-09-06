@@ -809,7 +809,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=2'>- N64</a></li>";
     echo "<li><a href='/gameList.php?c=28'>- Virtual Boy</a></li>";
     echo "<li><a href='/gameList.php?c=8'>- PC Engine</a></li>";
-    // echo "<li><a href='/gameList.php?c=12'>- PlayStation</a></li>";
+    echo "<li><a href='/gameList.php?c=12'>- PlayStation</a></li>";
     echo "<li><a href='/gameList.php?c=14'>- Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=25'>- Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>- Atari 7800</a></li>";
