@@ -278,10 +278,10 @@ else
             RenderRecentForumPostsComponent( 4 );
             ?>
         </div>
-        <div id='rightcontainer'>
+        <div id='rightcontainer' style="padding-top: 20px">
             <?php
-            echo '<div class=\'patron\' style="margin-top: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank" rel="noopener">Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
-            echo '<div class=\'discord\' style="margin-bottom: 10px"><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\' target="_blank" rel="noopener">Join us on Discord!</a></div>';
+            echo '<div class=\'btn-patron text-center\' style="margin-bottom: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank" rel="noopener">Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
+            echo '<div class=\'btn-discord text-center\' style="margin-bottom: 10px"><a href=\'https://discord.gg/'.getenv('DISCORD_INVITE_ID').'\' target="_blank" rel="noopener">Join us on Discord!</a></div>';
             RenderDocsComponent();
             RenderAOTWComponent( $staticData[ 'Event_AOTW_AchievementID' ], $staticData[ 'Event_AOTW_ForumID' ] );
             //RenderTwitchTVStream();
