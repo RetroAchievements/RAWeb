@@ -19,6 +19,7 @@ if( $consoleIDInput !== 0 )
 RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
 
 $showTickets = ( isset( $user ) && $permissions >= \RA\Permissions::Developer );
+$gamesList = [];
 if( $showTickets )
     $gamesCount = getGamesListByDev( $dev, $consoleIDInput, $gamesList, $sortBy, TRUE );
 else

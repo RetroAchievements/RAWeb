@@ -72,7 +72,7 @@
 			echo "<tr>";
 
 			echo "<td class='usericontd'>";
-			echo GetUserAndTooltipDiv( $postAuthor, null, null, NULL, NULL, TRUE );
+			echo GetUserAndTooltipDiv( $postAuthor, TRUE );
 			echo "</td>";
 
 			echo "<td class='forumposthistory message recentforummsg'><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br/>$postMessage...</td>";

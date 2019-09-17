@@ -166,7 +166,7 @@
 			echo "</td>";
 			
 			echo "<td>";
-			echo GetUserAndTooltipDiv( $achAuthor, NULL, NULL, NULL, NULL, TRUE );
+			echo GetUserAndTooltipDiv( $achAuthor, TRUE );
 			echo "</td>";
 			
 			echo "<td>";

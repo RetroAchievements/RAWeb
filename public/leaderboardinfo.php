@@ -184,8 +184,8 @@ RenderDocType(true);
                 echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
                 echo "<td class='lb_user'>";
-                echo GetUserAndTooltipDiv($nextUser, null, null, null, null, true);
-                echo GetUserAndTooltipDiv($nextUser, null, null, null, null, false);
+                echo GetUserAndTooltipDiv( $nextUser, TRUE );
+                echo GetUserAndTooltipDiv( $nextUser, FALSE );
                 echo "</td>";
 
                 echo "<td class='lb_result'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";

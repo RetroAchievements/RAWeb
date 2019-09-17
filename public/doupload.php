@@ -29,6 +29,11 @@ use Aws\S3\S3Client;
 
 function UploadToS3( $filenameDest, $rawFile )
 {
+    if (!getenv('AWS_ACCESS_KEY_ID')) {
+        // nothing to do here
+        return;
+    }
+
     $client = new S3Client([
 		'region' => getenv('AWS_DEFAULT_REGION'),
 		'version' => 'latest'
@@ -91,30 +96,54 @@ function UploadUserPic( $user, $filename, $rawImage )
     $success = file_put_contents( $tempFilename, $imageData );
     if( $success )
     {
-        if( $extension == 'png' )
-            $tempImage = imagecreatefrompng( $tempFilename );
-        else if( $extension == 'jpg' || $extension == 'jpeg' )
-            $tempImage = imagecreatefromjpeg( $tempFilename );
-        else if( $extension == 'gif' )
-            $tempImage = imagecreatefromgif( $tempFilename );
-        else if( $extension == 'bmp' )
-            $tempImage = imagecreatefrombitmap( $tempFilename );
-
         $userPicDestSize = 128;
 
         if( isAtHome() )
+        {
             $existingUserFile = "UserPic/$user.png";
+        }
         else
+        {
             $existingUserFile = "./UserPic/$user.png";
+        }
 
-        $newImage = imagecreatetruecolor( $userPicDestSize, $userPicDestSize );
-        //$existingImage = imagecreatefrompng( $existingUserFile );
-        //	Create a black rect, size 128x128
-        $blackRect = imagecreatetruecolor( $userPicDestSize, $userPicDestSize )
-                or die( 'Cannot Initialize new GD image stream' );
+        //Allow transparent backgrounds for .png and .gif files
+        if( $extension == 'png' || $extension == 'gif')
+        {
+            $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
+            $background = imagecolorallocatealpha($newImage , 0, 0, 0, 127);
+            imagecolortransparent($newImage, $background);
+            imagealphablending($newImage, false);
+            imagesavealpha($newImage, true);
+            if ($extension == 'png')
+            {
+                $tempImage = imagecreatefrompng( $tempFilename );
+            }
+            if ($extension == 'gif')
+            {
+                $tempImage = imagecreatefromgif( $tempFilename );
+            }
+            imagecopy( $newImage, $tempImage, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize );
+        }
+        else
+        {
+            if( $extension == 'jpg' || $extension == 'jpeg' )
+            {
+                $tempImage = imagecreatefromjpeg( $tempFilename );
+            }
+            else if( $extension == 'bmp' )
+            {
+                $tempImage = imagecreatefrombitmap( $tempFilename );
+            }
 
-        //	Copy the black rect onto our image
-        imagecopy( $newImage, $blackRect, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize );
+            $newImage = imagecreatetruecolor( $userPicDestSize, $userPicDestSize );
+            //	Create a black rect, size 128x128
+            $blackRect = imagecreatetruecolor( $userPicDestSize, $userPicDestSize )
+                    or die( 'Cannot Initialize new GD image stream' );
+
+            //	Copy the black rect onto our image
+            imagecopy( $newImage, $blackRect, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize );
+        }
 
         //	Reduce the input file size
         list($givenImageWidth, $givenImageHeight) = getimagesize( $tempFilename );

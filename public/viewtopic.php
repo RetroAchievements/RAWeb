@@ -217,7 +217,6 @@
             $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
             $nextCommentAuthorID = $commentData['AuthorID'];
-            $nextCommentUserPoints = $commentData['RAPoints'];
             $nextCommentDateCreated = $commentData['DateCreated'];
             $nextCommentDateModified = $commentData['DateModified'];
             $nextCommentAuthorised = $commentData['Authorised'];
@@ -261,9 +260,9 @@
                 echo "<tr>";
 
             echo "<td class='commentavatar'>";
-            echo GetUserAndTooltipDiv( $nextCommentAuthor, $nextCommentUserPoints, NULL, NULL, NULL, FALSE, NULL, 64 );
+            echo GetUserAndTooltipDiv( $nextCommentAuthor, FALSE, NULL, 64 );
             echo "</br>";
-            echo GetUserAndTooltipDiv( $nextCommentAuthor, $nextCommentUserPoints, NULL, NULL, NULL, TRUE, NULL, 64 );
+            echo GetUserAndTooltipDiv( $nextCommentAuthor, TRUE, NULL, 64 );
             echo "</td>";
 
             echo "<td class='commentpayload'>";
@@ -340,9 +339,9 @@
             echo "<tr>";
 
             echo "<td class='commentavatar'>";
-            echo GetUserAndTooltipDiv( $user, $points, NULL, NULL, NULL, FALSE, NULL, 64 );
+            echo GetUserAndTooltipDiv( $user, FALSE, NULL, 64 );
             echo "</br>";
-            echo GetUserAndTooltipDiv( $user, $points, NULL, NULL, NULL, TRUE, NULL, 64 );
+            echo GetUserAndTooltipDiv( $user, TRUE, NULL, 64 );
             echo "</td>";
 
             echo "<td class='fullwidth'>";

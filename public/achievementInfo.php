@@ -272,10 +272,10 @@ if ($permissions >= 2) {
                 echo "<tr>";
 
                 echo "<td style='width:34px'>";
-                echo GetUserAndTooltipDiv($userWinner, $userObject['RAPoints'], null, null, null, true);
+                echo GetUserAndTooltipDiv( $userWinner, TRUE );
                 echo "</td>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($userWinner, $userObject['RAPoints'], null, null, null, false);
+                echo GetUserAndTooltipDiv( $userWinner, FALSE );
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {
@@ -287,7 +287,7 @@ if ($permissions >= 2) {
 
                 //echo "<a href='/User/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
                 //var_dump( $userObject );
-                //echo GetUserAndTooltipDiv( $userObject['User'], $userObject['RAPoints'], NULL, NULL, NULL, FALSE );
+                //echo GetUserAndTooltipDiv( $userObject['User'], FALSE );
                 //echo " (" . $userObject['RAPoints'] . ")";
                 //echo "</td>";
 

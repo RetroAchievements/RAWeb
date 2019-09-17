@@ -59,15 +59,14 @@
 					echo "<tr class='alt'>";
 					
 				$nextFriendName = $friendEntry['Friend'];
-				$nextFriendPoints = $friendEntry['RAPoints'];
 				$nextFriendActivity = $friendEntry['LastSeen'];
 				
 				echo "<td>";
-				echo "<a href='/User/$nextFriendName'><img src='/UserPic/$nextFriendName.png' height='64' width='64'></a>";
+				echo GetUserAndTooltipDiv( $nextFriendName, TRUE, NULL, 64 );
 				echo "</td>";
-				
+
 				echo "<td>";
-				echo "<a href='/User/$nextFriendName'>$nextFriendName ($nextFriendPoints)</a>";
+				echo GetUserAndTooltipDiv( $nextFriendName, FALSE );
 				echo "</td>";
 				
 				echo "<td>";

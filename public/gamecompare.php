@@ -113,14 +113,14 @@
 		
 		echo "<th>";
 		echo "<a style='float: right' href='/User/$user'>$user</a><br/>";
-		echo "<img style='float: right' alt='$user' title='$user' src='/UserPic/$user.png' width='$iconSize' height='$iconSize' />";
+		echo GetUserAndTooltipDiv( $user, TRUE, NULL, $iconSize, "badgeimg rightfloat" );
 		echo "</th>";
 		
 		echo "<th><center>Achievement</center></th>";
 		
 		echo "<th>";
 		echo "<a style='float: left' href='/User/$user2'>$user2</a><br/>";
-		echo "<img style='float: left' alt='$user2' title='$user2' src='/UserPic/$user2.png' width='$iconSize' height='$iconSize' />";
+		echo GetUserAndTooltipDiv( $user2, TRUE, NULL, $iconSize );
 		echo "</th>";
 		
 		echo "</tr>";
@@ -233,7 +233,7 @@
 		
 		echo "<td>";
 		echo "<div style='float:right'>";
-		echo GetUserAndTooltipDiv( $user, NULL, NULL, NULL, NULL, TRUE, NULL, 48, "badgeimg rightfloat" );
+		echo GetUserAndTooltipDiv( $user, TRUE, NULL, $iconSize, "badgeimg rightfloat" );
 		echo "</div>";
 		echo "</td>";
 		
@@ -241,7 +241,7 @@
 		
 		echo "<td>";
 		echo "<div>";
-		echo GetUserAndTooltipDiv( $user2, NULL, NULL, NULL, NULL, TRUE, NULL, 48 );
+		echo GetUserAndTooltipDiv( $user2, TRUE, NULL, $iconSize );
 		echo "</div>";
 		echo "</td>";
 		
@@ -287,8 +287,8 @@
 				echo "<tr class='alt'>";
 			
 			echo "<td>";
-			echo GetUserAndTooltipDiv( $friendScoreName, $friendData['RAPoints'], $friendData['Motto'], "", $friendData['LastUpdate'], TRUE, $link );
-			echo GetUserAndTooltipDiv( $friendScoreName, $friendData['RAPoints'], $friendData['Motto'], "", $friendData['LastUpdate'], FALSE, $link );
+			echo GetUserAndTooltipDiv( $friendScoreName, TRUE, $link );
+			echo GetUserAndTooltipDiv( $friendScoreName, FALSE, $link );
 			echo "</td>";
 			
 			echo "<td>";

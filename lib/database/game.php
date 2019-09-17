@@ -1279,19 +1279,55 @@ function isValidConsoleID($consoleID)
         case 6: // Gameboy Color
         case 7: // NES
         case 8: // PC Engine
+        // case 9: //
+        // case 10: //
         case 11: // Master System
+        case 12: // PlayStation
         case 13: // Atari Lynx
         case 14: // Neo Geo Pocket
         case 15: // Game Gear
+        // case 16: //
+        // case 17: //
+        // case 18: //
+        // case 19: //
+        // case 20: //
+        // case 21: //
+        // case 22: //
+        // case 23: // Unused
+        // case 24: //
         case 25: // Atari 2600
+        // case 26: //
         case 27: // Arcade
         case 28: // Virtual Boy
-        case 23: // Events (not an actual console)
+        // case 29: //
+        // case 30: //
+        // case 31: //
+        // case 32: //
         case 33: // SG-1000
+        // case 34: //
+        // case 35: //
+        // case 36: //
+        // case 37: //
         case 38: // Apple II
+        // case 39: //
+        // case 40: //
+        // case 41: //
+        // case 42: //
+        // case 43: //
         case 44: // ColecoVision
+        // case 45: //
+        // case 46: //
         case 47: // PC-8800
+        // case 48: //
+        // case 49: //
+        // case 50: //
         case 51: // Atari7800
+        // case 52: //
+        // case 53: //
+        // case 54: //
+        // case 55: //
+        // case 100: // (not an actual console)
+        case 101: // Events (not an actual console)
             return true;
         default:
             return false;

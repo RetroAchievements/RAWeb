@@ -789,6 +789,40 @@ th {
     background: white;
 }
 
+/* Usercard */
+.usercard {
+    background: white;
+    color: black;
+}
+
+.usercardavatar {
+    background: white;
+    width: 128px;
+    height: 128px;
+}
+
+.usercardusername {
+    background: white;
+    color: black;
+    font-size: 150%;
+    text-align: left;
+    font-weight: bold;
+}
+
+.usercardaccounttype {
+    background: white;
+    color: black;
+    font-size: 125%;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.usercardbasictext {
+    background: white;
+    color: black;
+    text-align: left;
+}
+
 .devbox {
     padding: 4px 0px;
 }
@@ -952,11 +986,11 @@ div.rating a.starlit {
 #preload-02 { background: url('/Images/center_hassub.png') no-repeat -9999px -9999px; }
 #preload-03 { background: url('/Images/sub_hover.png') no-repeat -9999px -9999px; }
 
-.patron {
-    text-align: center;
-    height: 37px;
-    max-height: 37px;
-}
+/*.patron {*/
+/*    text-align: center;*/
+/*    height: 37px;*/
+/*    max-height: 37px;*/
+/*}*/
 
 /* bootstrap 4 polyfills */
 
@@ -985,6 +1019,10 @@ div.rating a.starlit {
 .embed-responsive::before {
     display: block;
     content: "";
+}
+
+.text-center {
+    text-align: center !important;
 }
 
 .text-right {
