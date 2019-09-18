@@ -22,8 +22,8 @@ if (ValidatePOSTChars("uafv")) {
     }
 }
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)) {
-    echo "FAILED!";
+if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)) {
+    echo "FAILED! Unauthenticaed";
     return;
 }
 

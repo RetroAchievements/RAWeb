@@ -3,12 +3,13 @@
     "description": "The Web Server backend to run RetroAchievements.org",
     "type": "project",
     "require": {
-        "asika/autolink": "1.*",
-        "vlucas/phpdotenv": "^2.4",
-        "aws/aws-sdk-php": "^3.52",
+        "php": "^7.1",
         "ext-mysqli": "*",
         "ext-gd": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "asika/autolink": "1.*",
+        "vlucas/phpdotenv": "^2.4",
+        "aws/aws-sdk-php": "^3.52"
     },
     "require-dev": {
         "phpunit/phpunit": "^6"
