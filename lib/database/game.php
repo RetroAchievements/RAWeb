@@ -1279,8 +1279,8 @@ function isValidConsoleID($consoleID)
         case 6: // Gameboy Color
         case 7: // NES
         case 8: // PC Engine
-        // case 9: //
-        // case 10: //
+        case 9: // Sega CD
+        case 10: // Sega 32X
         case 11: // Master System
         case 12: // PlayStation
         case 13: // Atari Lynx
