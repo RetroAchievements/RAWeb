@@ -29,6 +29,7 @@ nbproject
 /public/Latest*
 /public/*Iter.txt
 /public/*.dll
+/public/google*
 /public/mtests.php
 
 /chat/node-gyp

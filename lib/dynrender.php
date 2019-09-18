@@ -1970,11 +1970,13 @@ function RenderActivePlayersComponent()
     echo "<div class='component activeplayerscomponent' >";
     echo "<h3>Active Players</h3>";
 
+    echo "<div id='playersactivebox' style='margin-bottom: 7px'></div>";
+
     echo "<div id='activeplayersbox' style='min-height: 54px'>";
     //    fetch via ajaphp
-    $playersArray = getCurrentlyOnlinePlayers();
-    $numPlayers = count($playersArray);
-    echo "There are currently <strong>$numPlayers</strong> players online.<br/>";
+    // $playersArray = getCurrentlyOnlinePlayers();
+    // $numPlayers = count($playersArray);
+    // echo "There are currently <strong>$numPlayers</strong> players online.<br/>";
     //$numOutput = 0;
     //foreach( $playersArray as $nextPlayer )
     //{
