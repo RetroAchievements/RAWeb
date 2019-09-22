@@ -421,7 +421,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
                         $pointsToGive *= 2;
                     }
 
-                    $query = "UPDATE UserAccounts SET RAPoints=RAPoints+$pointsToGive WHERE User='$user'";
+                    $query = "UPDATE UserAccounts SET RAPoints=RAPoints+$pointsToGive, Updated=NOW() WHERE User='$user'";
                     //error_log( $query );
                     $dbResult = s_mysql_query($query);
                     if ($dbResult == false) {
@@ -853,14 +853,14 @@ function resetAchievements($user, $gameID)
 
         if (!isset($gameID) || $gameID == 0) {
             //    remove stored points if we're doing a total reset
-            $query = "UPDATE UserAccounts SET RAPoints='0' WHERE User='$user'";
+            $query = "UPDATE UserAccounts SET RAPoints='0', Updated=NOW() WHERE User='$user'";
             log_sql($query);
             if (s_mysql_query($query) == false) {
                 log_email(__FUNCTION__ . " Errors removing RAPoints for $user");
             }
         } elseif ($pointsToRemove > 0) {
             //    remove achieved points if we're doing a game reset
-            $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToRemove WHERE User='$user'";
+            $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToRemove, Updated=NOW() WHERE User='$user'";
             log_sql($query);
             if (s_mysql_query($query) == false) {
                 log_email(__FUNCTION__ . " Errors adjusting RAPoints for $user");
@@ -879,7 +879,7 @@ function resetSingleAchievement($user, $achID, $hardcoreMode)
     $achData = [];
     if (getAchievementMetadata($achID, $achData)) {
         $pointsToDeduct = $achData['Points'];
-        $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToDeduct WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToDeduct, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
             error_log($query);
