@@ -260,7 +260,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     $user = mysqli_real_escape_string($db, $user);
 
     $query = "UPDATE UserAccounts AS ua
-              SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW(), Updated=NOW()
+              SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
               WHERE ua.User = '$user' ";
 
     $dbResult = mysqli_query($db, $query); //    Allow direct: we have sanitized all variables
