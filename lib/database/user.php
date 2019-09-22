@@ -564,7 +564,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
 
                 $expDays = 30;
                 $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
-                $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr', Updated=NOW() WHERE User='$user'";
+                $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
                 log_sql($query);
                 s_mysql_query($query);
             }
