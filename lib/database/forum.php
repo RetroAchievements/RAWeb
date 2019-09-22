@@ -218,7 +218,7 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
 
     //$authFlags = getUserForumPostAuth( $user );
 
-    $query = "INSERT INTO ForumTopic VALUES ( NULL, $forumID, '$topicTitle', '$user', $userID, NOW(), 0, 0 )";
+    $query = "INSERT INTO ForumTopic (ForumID, Title, Author, AuthorID, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', '$user', $userID, NOW(), 0, 0 )";
     log_sql($query);
 
     global $db;
@@ -544,6 +544,7 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
 
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
+                    s_mysql_query("INSERT INTO DeletedModels SET ModelType='ForumTopic', ModelID=$topicID");
                     error_log("$user deleted forum topic $topicID ('" . $topicData['TopicTitle'] . "')");
                     return true;
                 } else {

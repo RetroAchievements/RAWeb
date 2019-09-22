@@ -986,7 +986,7 @@ function applyVote($user, $achID, $vote)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 0) {
         //    Vote not yet cast - add it newly!
-        $query = "INSERT INTO Votes VALUES ( '$user', '$achID', $vote )";
+        $query = "INSERT INTO Votes (User, AchievementID, Vote) VALUES ( '$user', '$achID', $vote )";
         log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -1622,7 +1622,8 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
         }
     }
 
-    $query = "INSERT INTO SiteAwards VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
+    $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder) 
+                            VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
     log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);

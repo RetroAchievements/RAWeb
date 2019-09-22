@@ -116,7 +116,8 @@ if( $dbResult !== FALSE && mysqli_num_rows( $dbResult ) == 1 )
 
 $saltedPass = md5( $pass . getenv('RA_PASSWORD_SALT') );
 
-$query = "INSERT INTO UserAccounts VALUES ( NULL, \"$user\", \"$saltedPass\", \"$email\", 0, 0, 0, 0, '', '', NULL, 63, null, 0, \"\", 0, 0, \"\", 0, 0, \"Unknown\", NULL, 0, 0, 0, 1, NULL, false, \"$email\")";
+$query = "INSERT INTO UserAccounts (User, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup) 
+VALUES ( \"$user\", \"$saltedPass\", \"$email\", 0, 0, 0, 0, '', '', NULL, 63, null, 0, \"\", 0, 0, \"\", 0, 0, \"Unknown\", NULL, 0, 0, 0, 1, NULL, false, \"$email\")";
 log_sql( $query );
 $dbResult = s_mysql_query( $query );
 
@@ -157,4 +158,3 @@ else
     //log_sql_fail();
     echo "Failed to create $user <br/>";
 }
-?>

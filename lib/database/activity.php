@@ -395,6 +395,7 @@ function RemoveComment($articleID, $commentID)
         log_sql_fail();
         return false;
     } else {
+        s_mysql_query("INSERT INTO DeletedModels SET ModelType='Comment', ModelID=$commentID");
         return (mysqli_affected_rows($db) > 0);
     }
 }

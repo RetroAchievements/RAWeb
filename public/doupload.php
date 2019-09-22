@@ -161,6 +161,10 @@ function UploadUserPic( $user, $filename, $rawImage )
         }
         else
         {
+            // touch user entry
+            global $db;
+            mysqli_query($db, "UPDATE UserAccounts SET Updated=NOW() WHERE User='$user'");
+
             //	Done OK
             //echo 'OK';
             //header( "Location: " . getenv('APP_URL') . "/manageuserpic.php?e=success" );
@@ -264,7 +268,7 @@ function UploadBadgeImage( $file )
 
         if( $success == FALSE )
         {
-            error_log( "UploadUserPic.php failed: Issues copying from $tempFileRawImage to $destBadgeFile" );
+            error_log( "UploadBadgeImage failed: Issues copying from $tempFileRawImage to $destBadgeFile" );
             $response[ 'Error' ] = "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         }
         else
@@ -326,6 +330,3 @@ switch( $requestType )
 
 settype( $response[ 'Success' ], 'boolean' );
 echo json_encode( $response );
-
-exit;
-?>

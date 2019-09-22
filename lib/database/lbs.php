@@ -163,8 +163,8 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
 
         if (mysqli_num_rows($dbResult) == 0) {
             //    No data found; add new element!
-            $query = "INSERT INTO LeaderboardEntry ";
-            $query .= "VALUES ( $lbID, (SELECT ID FROM UserAccounts WHERE User='$user'), $newEntry, NOW() ) ";
+            $query = "INSERT INTO LeaderboardEntry (LeaderboardID, UserID, Score, DateSubmitted) 
+                VALUES ( $lbID, (SELECT ID FROM UserAccounts WHERE User='$user'), $newEntry, NOW() )";
             log_sql($query);
 
             $dbResult = s_mysql_query($query);
@@ -682,7 +682,8 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef VALUES ( 0, $gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0, 0 )";
+    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
+                                VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0, 0)";
     log_sql($query);
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -719,7 +720,9 @@ function requestDeleteLB($lbID)
     $query = "DELETE FROM LeaderboardDef WHERE ID = $lbID";
 
     $dbResult = s_mysql_query($query);
-
+    if($dbResult !== false) {
+        s_mysql_query("INSERT INTO DeletedModels SET ModelType='LeaderboardDef', ModelID=$lbID");
+    }
     return ($dbResult !== false);
 }
 

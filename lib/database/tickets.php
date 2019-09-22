@@ -45,7 +45,8 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
 
         $idsFound++;
 
-        $query = "INSERT INTO Ticket( AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) VALUES( $achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
+        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
+                                VALUES ($achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
         log_sql($query);
 
         $dbResult = mysqli_query($db, $query); //    Unescaped?
@@ -122,7 +123,8 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
 
         $idsFound++;
 
-        $query = "INSERT INTO Ticket( AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) VALUES( $achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
+        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
+                                VALUES($achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
         log_sql($query);
 
         $dbResult = mysqli_query($db, $query); //    Unescaped?
