@@ -616,7 +616,7 @@ function getAccountDetails(&$user, &$dataOut)
         return false;
     }
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID
+    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created
                 FROM UserAccounts
                 WHERE User='$user'";
 
@@ -1249,15 +1249,17 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
 function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
 {
     $libraryOut = array();
-    getUserActivityRange($user, $firstLogin, $lastLogin);
-    $libraryOut['MemberSince'] = $firstLogin;
-    $libraryOut['LastLogin'] = $lastLogin;
+    // getUserActivityRange($user, $firstLogin, $lastLogin);
+    // $libraryOut['MemberSince'] = $firstLogin;
+    // $libraryOut['LastLogin'] = $lastLogin;
 
     $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     getAccountDetails($user, $userInfo); //    Necessary?
 
+    $libraryOut['MemberSince'] = $userInfo['Created'];
+    $libraryOut['LastActivity'] = $userInfo['LastLogin'];
     $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : strip_tags($userInfo['RichPresenceMsg']);
     $libraryOut['LastGameID'] = $userInfo['LastGameID'];
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
@@ -1863,6 +1865,6 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['Permissions']     = $userInfo['Permissions'];
     $userCardInfo['Motto']           = htmlspecialchars($userInfo['Motto']);
     $userCardInfo['Rank']            = getUserRank($user);
-    // $userCardInfo['LastLogin']       = $lastLogin;
-    // $userCardInfo['MemberSince']     = $firstLogin;
+    $userCardInfo['LastActivity']    = $userInfo['LastLogin'];
+    $userCardInfo['MemberSince']     = $userInfo['Created'];
 }

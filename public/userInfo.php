@@ -262,9 +262,10 @@ RenderDocType(true);
         echo "<br/>";
 
         $niceDateJoined = getNiceDate(strtotime($userMassData['MemberSince']));
-        $niceDateLogin = getNiceDate(strtotime($userMassData['LastLogin']));
+        // LastLogin is updated on any activity -> "LastActivity"
+        $niceDateLogin = getNiceDate(strtotime($userMassData['LastActivity']));
         echo "Member Since: $niceDateJoined<br/>";
-        echo "Last Login: $niceDateLogin<br/>";
+        echo "Last Activity: $niceDateLogin<br/>";
         echo "Account Type: <b>[" . PermissionsToString($userMassData['Permissions']) . "]</b><br/>";
         echo "<br/>";
 
