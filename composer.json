@@ -19,5 +19,8 @@
         "psr-4": {
             "RA\\": "src/"
         }
+    },
+    "scripts": {
+        "fix-cs": "vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix"
     }
 }
