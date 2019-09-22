@@ -12,7 +12,8 @@
         "aws/aws-sdk-php": "^3.52"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6"
+        "friendsofphp/php-cs-fixer": "^2.15",
+        "phpunit/phpunit": "^7.5"
     },
     "autoload": {
         "psr-4": {
