@@ -261,11 +261,15 @@ RenderDocType(true);
         }
         echo "<br/>";
 
-        $niceDateJoined = getNiceDate(strtotime($userMassData['MemberSince']));
+        $niceDateJoined = $userMassData['MemberSince'] ? getNiceDate(strtotime($userMassData['MemberSince'])) : null;
+        if ($niceDateJoined) {
+            echo "Member Since: $niceDateJoined<br>";
+        }
         // LastLogin is updated on any activity -> "LastActivity"
-        $niceDateLogin = getNiceDate(strtotime($userMassData['LastActivity']));
-        echo "Member Since: $niceDateJoined<br/>";
-        echo "Last Activity: $niceDateLogin<br/>";
+        $niceDateLogin = $userMassData['LastActivity'] ? getNiceDate(strtotime($userMassData['LastActivity'])) : null;
+        if ($niceDateLogin) {
+            echo "Last Activity: $niceDateLogin<br>";
+        }
         echo "Account Type: <b>[" . PermissionsToString($userMassData['Permissions']) . "]</b><br/>";
         echo "<br/>";
 

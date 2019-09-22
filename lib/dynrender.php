@@ -2919,8 +2919,8 @@ function GetUserAndTooltipDiv(
     $userTruePoints  = $userCardInfo['TotalTruePoints'];
     $userAccountType = PermissionsToString($userCardInfo['Permissions']);
     $userRank        = $userCardInfo['Rank'];
-    $lastLogin       = getNiceDate(strtotime($userCardInfo['LastActivity']));
-    $memberSince     = getNiceDate(strtotime($userCardInfo['MemberSince']), true);
+    $lastLogin       = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
+    $memberSince     = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
     $tooltip  = "<div id=\'objtooltip\' class=\'usercard\'>";
     $tooltip .= "<table><tbody>";
@@ -2967,12 +2967,16 @@ function GetUserAndTooltipDiv(
     $tooltip .= "<tr>";
     $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
     $tooltip .= "</tr>";
-    $tooltip .= "<tr>";
-    $tooltip .= "<td class=\'usercardbasictext\'><b>Last Activity:</b> $lastLogin</td>";
-    $tooltip .= "</tr>";
-    $tooltip .= "<tr>";
-    $tooltip .= "<td class=\'usercardbasictext\'><b>Member Since:</b> $memberSince</td>";
-    $tooltip .= "</tr>";
+    if ($lastLogin) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Last Activity:</b> $lastLogin</td>";
+        $tooltip .= "</tr>";
+    }
+    if ($memberSince) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Member Since:</b> $memberSince</td>";
+        $tooltip .= "</tr>";
+    }
     $tooltip .= "</tbody></table>";
     $tooltip .= "</td>";
     $tooltip .= "</tr>";
