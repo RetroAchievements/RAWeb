@@ -21,7 +21,7 @@
         if( $prefType == 'wall' )
         {
             $query = "UPDATE UserAccounts
-                SET UserWallActive=$value
+                SET UserWallActive=$value, Updated=NOW()
                 WHERE User='$user'";
 
             $dbResult = mysqli_query( $db, $query );

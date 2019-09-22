@@ -270,7 +270,7 @@ function generateAPIKey($user)
     $newKey = rand_string(32);
 
     $query = "UPDATE UserAccounts AS ua
-              SET ua.APIKey='$newKey'
+              SET ua.APIKey='$newKey', Updated=NOW()
               WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
@@ -869,7 +869,7 @@ function recalcScore($user)
                 SELECT SUM(ach.TrueRatio) FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE aw.User = '$user'
-                )
+                ), Updated=NOW()
               WHERE User = '$user' ";
 
     $dbResult = s_mysql_query($query);
@@ -909,7 +909,7 @@ function attributeDevelopmentAuthor($author, $points)
 
     //    Update the fact that this author made an achievement that just got earned.
     $query = "UPDATE UserAccounts AS ua
-              SET ua.ContribCount = ua.ContribCount+1, ua.ContribYield = ua.ContribYield + $points
+              SET ua.ContribCount = ua.ContribCount+1, ua.ContribYield = ua.ContribYield + $points, Updated=NOW()
               WHERE ua.User = '$author'";
 
     $dbResult = s_mysql_query($query);
@@ -953,7 +953,8 @@ function recalculateDevelopmentContributions($user)
                       SELECT SUM(ach.Points) AS achPoints
                       FROM Awarded AS aw
                       LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                      WHERE aw.User != ach.Author AND ach.Author = '$user' AND ach.Flags = 3 )
+                      WHERE aw.User != ach.Author AND ach.Author = '$user' AND ach.Flags = 3 ), 
+              Updated=NOW()
               WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);

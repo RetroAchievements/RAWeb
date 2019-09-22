@@ -211,7 +211,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
         //    Update UA
         global $db;
         $newActID = mysqli_insert_id($db);
-        $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
+        $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW(), Updated=NOW() WHERE ua.User = '$user'";
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
             log_sql_fail();
@@ -260,7 +260,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     $user = mysqli_real_escape_string($db, $user);
 
     $query = "UPDATE UserAccounts AS ua
-              SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
+              SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW(), Updated=NOW()
               WHERE ua.User = '$user' ";
 
     $dbResult = mysqli_query($db, $query); //    Allow direct: we have sanitized all variables

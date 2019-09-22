@@ -217,7 +217,7 @@ function UpdateCachedUnreadTotals($user)
             FROM Messages AS msg
             WHERE msg.UserTo = '$user' AND msg.Unread = 1
         ) InnerTable
-    ) WHERE ua.User = '$user'";
+    ), Updated=NOW() WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
