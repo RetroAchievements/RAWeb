@@ -803,6 +803,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=15'>- Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=9'>- Sega CD</a></li>";
     echo "<li><a href='/gameList.php?c=10'>- Sega 32X</a></li>";
+    echo "<li><a href='/gameList.php?c=39'>- Sega Saturn</a></li>";
     echo "<li><a href='/gameList.php?c=3'>- Super Nintendo</a></li>";
     echo "<li><a href='/gameList.php?c=4'>- Gameboy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>- Gameboy Color</a></li>";

@@ -1310,7 +1310,7 @@ function isValidConsoleID($consoleID)
         // case 36: //
         // case 37: //
         case 38: // Apple II
-        // case 39: //
+        case 39: // Saturn
         // case 40: //
         // case 41: //
         // case 42: //
