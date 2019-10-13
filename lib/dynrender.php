@@ -1116,12 +1116,7 @@ function RenderCommentsComponent(
 
 function RenderTopicCommentPayload($payload)
 {
-    //    TBD: interpret phpbb syntax and reinterpret as good HTML :)
-
-    $payload = parseTopicCommentPHPBB($payload);
-
-    $formattedPayload = str_replace("\n", "<br/>", $payload);
-    echo $formattedPayload;
+    echo parseTopicCommentPHPBB(nl2br($payload));
 }
 
 function RenderErrorCodeWarning($location, $errorCode)
