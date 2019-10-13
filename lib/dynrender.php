@@ -2579,7 +2579,7 @@ function cb_injectGamePHPBB($matches)
 
 function makeEmbeddedVideo($video_url)
 {
-    return '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="' . $video_url . '" allowfullscreen></iframe></div>';
+    return '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="' . $video_url . '" allowfullscreen></iframe></div>';
 }
 
 /**
