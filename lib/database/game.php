@@ -284,13 +284,14 @@ function getGameAlternatives($gameID)
 {
     settype($gameID, 'integer');
 
-    $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName, SUM(ach.Points) AS Points, gd.TotalTruePoints
+    $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName, 
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = 3) AS Points, 
+              gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID
-              WHERE ga.gameID = $gameID AND IF( ISNULL(ach.Flags), TRUE, ach.Flags = 3 )
-              GROUP BY gd.ID
+              WHERE ga.gameID = $gameID
+              GROUP BY gd.ID, gd.Title
               ORDER BY gd.Title";
 
     $dbResult = s_mysql_query($query);
