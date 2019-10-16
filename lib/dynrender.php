@@ -872,10 +872,12 @@ function RenderToolbar($user, $permissions = 0)
     //echo "</li>";
     echo "</ul>";
 
+    $searchQuery = seekGET( 's', NULL );
+
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' />";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' />";
     echo "&nbsp;";
     echo "<input type='submit' value='Search' />";
     echo "</div>";
