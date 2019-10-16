@@ -745,15 +745,64 @@ function RenderToolbar($user, $permissions = 0)
     echo "</li>";
 
     if (isset($user) && $user != "") {
+        echo "<li><a href='#'>Games</a>";
+        echo "<ul>";
+/// Consoles
+	///Atari	    
+    echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
+    echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
+	///Coleco
+    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+	///Nintendo
+    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
+    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
+	///Sega
+    echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
+    echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
+    echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
+    echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
+    echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
+    echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
+	///NEC
+    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
+	///Sony
+    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+	/// Arcade
+    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
+	/// Computers
+    echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
+    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
+	/// Handhelds
+    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
+    echo "<li><a href='/gameList.php?c=4'>Gameboy</a></li>";
+    echo "<li><a href='/gameList.php?c=6'>Gameboy Color</a></li>";
+    echo "<li><a href='/gameList.php?c=5'>Gameboy Advance</a></li>";
+    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
+    echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
+	//// Sorted Lists
+    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/gameList.php'>View All</a></li>";
+        echo "</ul>";
+        echo "</li>";
+    }
+
+    if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
         echo "<ul>";
         echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
         //echo "<li><a href='/feed.php?i=1'>My Feed</a></li>";
         //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
         echo "<li><a href='/friends.php'>Friends List</a></li>";
-        echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>My Best Awards</a></li>";
         echo "<li><a href='/history.php'>My Legacy</a></li>";
+	echo "<li><a href='/inbox.php'>Inbox</a></li>";
+        echo "<li><a href='/createmessage.php'>New Message</a></li>";
+        //echo "<li><a href='/sentitems.php'>Sent Items</a></li>";
+        //echo "<li><a href='/inbox.aspx?deleted=1'>Deleted Items</a></li>";
+        //echo "<li><a href='/archive.aspx'>Archived Inbox</a></li>";
+        //echo "<li><a href='/archivesent.aspx'>Archived Sent Items</a></li>";
         echo "<li><a href='/logout.php'>Log Out</a></li>";
         echo "</ul>";
         echo "</li>";
@@ -762,18 +811,7 @@ function RenderToolbar($user, $permissions = 0)
         echo "</li>";
     }
 
-    if (isset($user) && $user != "") {
-        echo "<li><a href='#'>Messages</a>";
-        echo "<ul>";
-        echo "<li><a href='/inbox.php'>Inbox</a></li>";
-        echo "<li><a href='/createmessage.php'>New Message</a></li>";
-        //echo "<li><a href='/sentitems.php'>Sent Items</a></li>";
-        //echo "<li><a href='/inbox.aspx?deleted=1'>Deleted Items</a></li>";
-        //echo "<li><a href='/archive.aspx'>Archived Inbox</a></li>";
-        //echo "<li><a href='/archivesent.aspx'>Archived Sent Items</a></li>";
-        echo "</ul>";
-        echo "</li>";
-    }
+
 
     echo "<li><a href='#'>Forums</a>";
     echo "<ul>";
@@ -795,37 +833,12 @@ function RenderToolbar($user, $permissions = 0)
 
     echo "<li><a href='#'>Site Pages</a>";
     echo "<ul>";
-    echo "<li><a href='/popularGames.php'>Popular Games</a></li>";
-    echo "<li><a href='/gameList.php'>Supported Games</a></li>";
-    echo "<li><a href='/gameList.php?c=1'>- Mega Drive/Genesis</a></li>";
-    echo "<li><a href='/gameList.php?c=11'>- Master System</a></li>";
-    echo "<li><a href='/gameList.php?c=33'>- SG-1000</a></li>";
-    echo "<li><a href='/gameList.php?c=15'>- Game Gear</a></li>";
-    echo "<li><a href='/gameList.php?c=9'>- Sega CD</a></li>";
-    echo "<li><a href='/gameList.php?c=10'>- Sega 32X</a></li>";
-    echo "<li><a href='/gameList.php?c=39'>- Sega Saturn</a></li>";
-    echo "<li><a href='/gameList.php?c=3'>- Super Nintendo</a></li>";
-    echo "<li><a href='/gameList.php?c=4'>- Gameboy</a></li>";
-    echo "<li><a href='/gameList.php?c=6'>- Gameboy Color</a></li>";
-    echo "<li><a href='/gameList.php?c=5'>- Gameboy Advance</a></li>";
-    echo "<li><a href='/gameList.php?c=7'>- NES</a></li>";
-    echo "<li><a href='/gameList.php?c=2'>- N64</a></li>";
-    echo "<li><a href='/gameList.php?c=28'>- Virtual Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=8'>- PC Engine</a></li>";
-    echo "<li><a href='/gameList.php?c=12'>- PlayStation</a></li>";
-    echo "<li><a href='/gameList.php?c=14'>- Neo Geo Pocket</a></li>";
-    echo "<li><a href='/gameList.php?c=25'>- Atari 2600</a></li>";
-    echo "<li><a href='/gameList.php?c=51'>- Atari 7800</a></li>";
-    echo "<li><a href='/gameList.php?c=13'>- Atari Lynx</a></li>";
-    echo "<li><a href='/gameList.php?c=44'>- ColecoVision</a></li>";
-    echo "<li><a href='/gameList.php?c=27'>- Arcade</a></li>";
-    echo "<li><a href='/gameList.php?c=47'>- PC-8000/8800</a></li>";
-    echo "<li><a href='/gameList.php?c=38'>- Apple II</a></li>";
-    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
-    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
-    echo "<li><a href='/userList.php'>User List</a></li>";
     echo "<li><a href='/achievementList.php'>Achievements List</a></li>";
+    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
+    echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
+    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
     echo "<li><a href='/leaderboardList.php'>Leaderboards List</a></li>";
+    echo "<li><a href='/userList.php'>User List</a></li>";
     echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
     echo "<li><a href='/searchresults.php'>Search the site</a></li>";
     echo "<li><a href='https://github.com/RetroAchievements/'>Source Code</a></li>";
@@ -848,9 +861,7 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
-        echo "<li><a href='/viewtopic.php?t=394'>Official To-Do List</a></li>";
-        echo "</ul>";
-
+    	echo "</ul>";
         echo "</li>";
     }
 
