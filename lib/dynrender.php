@@ -1201,6 +1201,8 @@ function RenderErrorCodeWarning($location, $errorCode)
             echo "<div id='warning'>Your issue ticket has been successfully submitted.</div>";
         } elseif ($errorCode == 'issue_failed') {
             echo "<div id='warning'>Sorry. There was an issue submitting your ticket.</div>";
+        } elseif ($errorCode == 'subscription_update_fail') {
+            echo "<div id='warning'>Failed to update topic subscription.</div>";
         }
 
         echo "</div>";

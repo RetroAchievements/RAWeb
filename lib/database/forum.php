@@ -336,14 +336,32 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
 function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 {
     //    $author has made a post in the topic $topicID
-    //    Find all people involved in this forum thread, and if they are not the author and prefer to 
-    //     hear about comments, let them know!
+    //    Find all people involved in this forum topic, and if they are not the author and prefer to 
+    //    hear about comments, let them know! Also notify users that have explicitly subscribed to
+    //    the topic.
 
-    $query = "SELECT ua.User, ua.EmailAddress FROM ForumTopicComment AS ftc
-                INNER JOIN ForumTopic AS ft ON ftc.ForumTopicID = ft.ID
-                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID AND (ua.websitePrefs & (1<<3) != 0) 
-                WHERE ft.ID = $topicID AND ua.User != '$author'
-                GROUP BY ua.ID ";
+    $query = "SELECT
+                ua.User, ua.EmailAddress
+              FROM
+                ForumTopicComment AS ftc
+                INNER JOIN UserAccounts AS ua
+                    ON ua.ID = ftc.AuthorID AND (ua.websitePrefs & (1<<3) != 0) 
+                LEFT JOIN ForumTopicSubscription AS sub
+                    ON sub.ForumTopicID = ftc.ForumTopicID AND sub.UserID = ftc.AuthorID
+              WHERE ftc.ForumTopicID = $topicID
+                AND ua.User != '$author'
+                AND COALESCE(sub.SubscriptionState, 1) = 1
+              GROUP BY ua.ID
+              UNION
+              SELECT
+                ua.User, ua.EmailAddress
+              FROM
+                ForumTopicSubscription AS sub
+                LEFT JOIN UserAccounts AS ua
+                    ON ua.ID = sub.UserID AND (ua.websitePrefs & (1<<3) != 0)
+              WHERE sub.ForumTopicID = $topicID
+                AND sub.SubscriptionState = 1
+                AND ua.User != '$author'";
 
     $dbResult = s_mysql_query($query);
 
@@ -618,4 +636,51 @@ function AuthoriseAllForumPosts($user)
         error_log($query);
         return false;
     }
+}
+
+function updateForumTopicSubscription($topicID, $userID, $subscriptionState)
+{
+    $stateInt = ($subscriptionState ? 1 : 0);
+    $query = "INSERT INTO ForumTopicSubscription(ForumTopicID, UserID, SubscriptionState)
+              VALUES ($topicID, $userID, b'$stateInt')
+              ON DUPLICATE KEY UPDATE SubscriptionState = b'$stateInt'";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false)
+    {
+        global $db;
+        error_log(__FUNCTION__ . ": " . mysqli_error($db));
+        error_log($query);
+        return false;
+    }
+
+    return true;
+}
+
+function isUserSubscribedToForumTopic($topicID, $userID)
+{
+    // either there's an explicit subscription...
+    // ...or there's an implicit subscription without an explicit unsubscription 
+    $query = "SELECT 1
+              WHERE EXISTS (SELECT 1 FROM ForumTopicSubscription
+                            WHERE ForumTopiciD = $topicID AND UserID = $userID AND SubscriptionState = 1)
+                OR (
+                    EXISTS (SELECT 1 FROM ForumTopicComment
+                            WHERE ForumTopicID = $topicID AND AuthorID = $userID)
+                    AND NOT EXISTS (SELECT 1 FROM ForumTopicSubscription
+                                    WHERE ForumTopicID = $topicID AND UserID = $userID AND SubscriptionState = 0)
+                )";
+
+    global $db;
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false)
+    {
+        error_log(__FUNCTION__ . ": " . mysqli_error($db));
+        error_log($query);
+        return false;
+    }
+
+    $isSubscribed = mysqli_num_rows($dbResult) > 0;
+    mysqli_free_result($dbResult);
+    return $isSubscribed;
 }

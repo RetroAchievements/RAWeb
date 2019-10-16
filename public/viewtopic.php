@@ -1,7 +1,7 @@
 <?php 
     require_once __DIR__ . '/../lib/bootstrap.php';
 
-    RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
+    RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID );
 
     // Fetch topic ID
     $requestedTopicID = seekGET( 't', 0 );
@@ -65,6 +65,8 @@
 
     $pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
 
+    $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
+
     $errorCode = seekGET('e');
 
     RenderDocType();
@@ -93,6 +95,20 @@
         echo "</div>";
 
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
+
+        echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
+        echo "<form id='updatesubscription' action='requestupdatetopicsubscription.php' method='post'>";
+        echo "<input type='hidden' name='t' value='$thisTopicID'/>";
+        echo "<input type='hidden' name='operation' value='" . ($isSubscribed ? "unsubscribe" : "subscribe") . "'/>";
+        if (isset($gotoCommentID))
+            echo "<input type='hidden' name='c' value='$gotoCommentID'/>";
+        else if (isset($offset))
+            echo "<input type='hidden' name='o' value='$offset'/>";
+        echo "</form>";
+        echo "<a href='#' onclick='document.getElementById(\"updatesubscription\").submit(); return false;'>";
+        echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . " Topic)";
+        echo "</a>";
+        echo "</div>";
 
         //if( isset( $user ) && $permissions >= 1 )
         if( isset( $user ) && ( $thisTopicAuthor == $user || $permissions >= \RA\Permissions::Admin ) )
