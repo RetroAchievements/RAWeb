@@ -31,7 +31,7 @@
 	{
 		if( validateUser_cookie( $user, $cookie, 0 ) == TRUE )
 		{
-			$query = "UPDATE UserAccounts SET EmailAddress='$email' WHERE User='$user'";
+			$query = "UPDATE UserAccounts SET EmailAddress='$email', Updated=NOW() WHERE User='$user'";
 			$dbResult = s_mysql_query( $query );
 			if( $dbResult )
 			{

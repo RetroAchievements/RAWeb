@@ -270,7 +270,7 @@ function generateAPIKey($user)
     $newKey = rand_string(32);
 
     $query = "UPDATE UserAccounts AS ua
-              SET ua.APIKey='$newKey'
+              SET ua.APIKey='$newKey', Updated=NOW()
               WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
@@ -741,8 +741,9 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
 
     $query = "
     (
-        SELECT 'Game' AS Type, gd.ID, CONCAT( '/Game/', gd.ID ) AS Target, gd.Title FROM GameData AS gd
+        SELECT 'Game' AS Type, gd.ID, CONCAT( '/Game/', gd.ID ) AS Target, CONCAT(gd.Title, ' (', c.Name, ')') as Title FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
+        LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.Title LIKE '%$searchQuery%'
         GROUP BY gd.ID, gd.Title
     )

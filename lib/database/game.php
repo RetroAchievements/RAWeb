@@ -284,13 +284,14 @@ function getGameAlternatives($gameID)
 {
     settype($gameID, 'integer');
 
-    $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName, SUM(ach.Points) AS Points, gd.TotalTruePoints
+    $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName, 
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = 3) AS Points, 
+              gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID
-              WHERE ga.gameID = $gameID AND IF( ISNULL(ach.Flags), TRUE, ach.Flags = 3 )
-              GROUP BY gd.ID
+              WHERE ga.gameID = $gameID
+              GROUP BY gd.ID, gd.Title
               ORDER BY gd.Title";
 
     $dbResult = s_mysql_query($query);
@@ -646,7 +647,7 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
 
         $values = implode(", ", $valuesArray);
         if (!empty($values)) {
-            $query = "INSERT INTO GameAlternatives VALUES $values";
+            $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values";
             if (s_mysql_query($query)) {
                 error_log("Added game alt(s): $values");
             } else {
@@ -893,7 +894,7 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
         $data = mysqli_fetch_assoc($dbResult);
         if ($data['NumEntries'] == 0) {
             //    Add new name
-            $query = "INSERT INTO GameHashLibrary VALUES( '$md5', '$idOut' )";
+            $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
             log_sql($query);
             $dbResult = s_mysql_query($query);
             SQL_ASSERT($dbResult);
@@ -946,7 +947,8 @@ function createNewGame($title, $consoleID)
     settype($consoleID, 'integer');
     //$title = str_replace( "--", "-", $title );    //    subtle non-comment breaker
 
-    $query = "INSERT INTO GameData VALUES ( NULL, '$title', $consoleID, NULL, 0, '/Images/000001.png', '/Images/000002.png', '/Images/000002.png', '/Images/000002.png', NULL, NULL, NULL, NULL, 0, NULL, 0 )";
+    $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints) 
+                            VALUES ('$title', $consoleID, NULL, 0, '/Images/000001.png', '/Images/000002.png', '/Images/000002.png', '/Images/000002.png', NULL, NULL, NULL, NULL, 0, NULL, 0 )";
     log_sql($query);
 
     global $db;
@@ -1013,7 +1015,7 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
             //    The MD5 for this game doesn't yet exist in our DB. Insert a new game:
             $gameID = createNewGame($title, $consoleID);
             if ($gameID !== 0) {
-                $query = "INSERT INTO GameHashLibrary VALUES( '$md5', '$gameID' )";
+                $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
                 log_sql($query);
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
@@ -1034,7 +1036,7 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
             }
         } else {
             //    Adding md5 to an existing title ($gameID):
-            $query = "INSERT INTO GameHashLibrary VALUES( '$md5', '$gameID' )";
+            $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
             log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
@@ -1080,7 +1082,7 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
             $idOut = createNewGame($title, $consoleID);
 
             if ($idOut !== 0) {
-                $query = "INSERT INTO GameHashLibrary VALUES( '$md5', '$idOut' )";
+                $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
                 log_sql($query);
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
@@ -1279,8 +1281,8 @@ function isValidConsoleID($consoleID)
         case 6: // Gameboy Color
         case 7: // NES
         case 8: // PC Engine
-        // case 9: //
-        // case 10: //
+        case 9: // Sega CD
+        case 10: // Sega 32X
         case 11: // Master System
         case 12: // PlayStation
         case 13: // Atari Lynx
@@ -1309,7 +1311,7 @@ function isValidConsoleID($consoleID)
         // case 36: //
         // case 37: //
         case 38: // Apple II
-        // case 39: //
+        case 39: // Sega Saturn
         // case 40: //
         // case 41: //
         // case 42: //

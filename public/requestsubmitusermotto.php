@@ -19,7 +19,7 @@
 	{
 		$query = "
 			UPDATE UserAccounts
-			SET Motto='$newMotto'
+			SET Motto='$newMotto', Updated=NOW()
 			WHERE User='$user'";
 			
 		$dbResult = mysqli_query( $db, $query );

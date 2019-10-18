@@ -33,7 +33,7 @@ function changeFriendStatus($user, $friend, $action)
 
         if (!isset($localFriendState)) {
             //    Entry needs adding afresh:
-            $query = "INSERT INTO Friends VALUES ( '$user', '$friend', $action )";
+            $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ( '$user', '$friend', $action )";
             log_sql($query);
             $dbResult = s_mysql_query($query);
 

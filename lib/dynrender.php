@@ -801,6 +801,9 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=11'>- Master System</a></li>";
     echo "<li><a href='/gameList.php?c=33'>- SG-1000</a></li>";
     echo "<li><a href='/gameList.php?c=15'>- Game Gear</a></li>";
+    echo "<li><a href='/gameList.php?c=9'>- Sega CD</a></li>";
+    echo "<li><a href='/gameList.php?c=10'>- Sega 32X</a></li>";
+    echo "<li><a href='/gameList.php?c=39'>- Sega Saturn</a></li>";
     echo "<li><a href='/gameList.php?c=3'>- Super Nintendo</a></li>";
     echo "<li><a href='/gameList.php?c=4'>- Gameboy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>- Gameboy Color</a></li>";
@@ -869,10 +872,12 @@ function RenderToolbar($user, $permissions = 0)
     //echo "</li>";
     echo "</ul>";
 
+    $searchQuery = seekGET( 's', NULL );
+
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' />";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' />";
     echo "&nbsp;";
     echo "<input type='submit' value='Search' />";
     echo "</div>";
@@ -1113,12 +1118,7 @@ function RenderCommentsComponent(
 
 function RenderTopicCommentPayload($payload)
 {
-    //    TBD: interpret phpbb syntax and reinterpret as good HTML :)
-
-    $payload = parseTopicCommentPHPBB($payload);
-
-    $formattedPayload = str_replace("\n", "<br/>", $payload);
-    echo $formattedPayload;
+    echo parseTopicCommentPHPBB(nl2br($payload));
 }
 
 function RenderErrorCodeWarning($location, $errorCode)
@@ -2579,6 +2579,11 @@ function cb_injectGamePHPBB($matches)
     return "";
 }
 
+function makeEmbeddedVideo($video_url)
+{
+    return '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="' . $video_url . '" allowfullscreen></iframe></div>';
+}
+
 /**
  * from http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
  */
@@ -2614,31 +2619,32 @@ function linkifyYouTubeURLs($text)
         ([?=&+%\w.-]*)        # Consume any URL (query) remainder.
         ~ix';
 
-    $text = preg_replace(
-        $pattern,
-        '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="//www.youtube-nocookie.com/embed/$1" allowfullscreen></iframe></div>',
-        $text);
+    $text = preg_replace($pattern, makeEmbeddedVideo('//www.youtube-nocookie.com/embed/$1'), $text);
+
     return $text;
 }
 
 function linkifyTwitchURLs($text)
 {
-    // https://www.twitch.tv/videos/270709956
-    // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
-    // https://www.twitch.tv/gamingwithmist/v/40482810
-    // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
-
     if (strpos($text, "twitch.tv") !== false) {
-        $vidChapter = substr($text, strrpos($text, "/") + 1);
-        $iframeUrl = '//player.twitch.tv/?video=' . $vidChapter;
-        if (strpos($text, "twitch.tv/collections") !== false) {
-            $iframeUrl = '//player.twitch.tv/?collection=' . $vidChapter;
-        }
-        if (strpos($text, "clips.twitch.tv") !== false) {
-            $iframeUrl = '//clips.twitch.tv/embed?clip=' . $vidChapter;
-        }
-        $iframeUrl .= '&autoplay=false';
-        $text = '<div class="embed-responsive embed-responsive-16by9 mb-3"><iframe class="embed-responsive-item" src="' . $iframeUrl . '" allowfullscreen></iframe></div>';
+        // https://www.twitch.tv/videos/270709956
+        // https://www.twitch.tv/gamingwithmist/v/40482810
+        $text = preg_replace(
+            '~(?:https?://)?(?:www.)?twitch.tv/(?:videos|[^/]+/v)/([0-9]+)~i',
+            makeEmbeddedVideo('//player.twitch.tv/?video=$1&autoplay=false'),
+            $text);
+
+        // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
+        $text = preg_replace(
+            '~(?:https?://)?(?:www.)?twitch.tv/collections/([a-z0-9]+)~i',
+            makeEmbeddedVideo('//player.twitch.tv/?collection=$1&autoplay=false'),
+            $text);
+
+        // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
+        $text = preg_replace(
+            '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
+            makeEmbeddedVideo('//clips.twitch.tv/embed?clip=$1&autoplay=false'),
+            $text);
     }
 
     return $text;
@@ -2779,6 +2785,12 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     //$comment = preg_replace( '/(\\[url=)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
     //
 
+    $comment = linkifyYouTubeURLs($comment);
+    $comment = linkifyTwitchURLs($comment);
+    if ($withImgur) {
+        $comment = linkifyImgurURLs($comment);
+    }
+
     // NOTE: using '~' instead of '/' to enclose the regex
     $comment = preg_replace(
         '~\[url=(https?://[^\]]+)\](.*?)(\[/url\])~i',
@@ -2807,11 +2819,6 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     //    [video]
     //error_log( $comment );
 
-    $comment = linkifyYouTubeURLs($comment);
-    $comment = linkifyTwitchURLs($comment);
-    if ($withImgur) {
-        $comment = linkifyImgurURLs($comment);
-    }
     $comment = linkifyBasicURLs($comment);
 
     //global $autolink;
@@ -2917,8 +2924,8 @@ function GetUserAndTooltipDiv(
     $userTruePoints  = $userCardInfo['TotalTruePoints'];
     $userAccountType = PermissionsToString($userCardInfo['Permissions']);
     $userRank        = $userCardInfo['Rank'];
-    // $lastLogin       = getNiceDate(strtotime($userCardInfo['LastLogin']));
-    // $memberSince     = getNiceDate(strtotime($userCardInfo['MemberSince']));
+    $lastLogin       = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
+    $memberSince     = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
     $tooltip  = "<div id=\'objtooltip\' class=\'usercard\'>";
     $tooltip .= "<table><tbody>";
@@ -2965,12 +2972,16 @@ function GetUserAndTooltipDiv(
     $tooltip .= "<tr>";
     $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
     $tooltip .= "</tr>";
-    // $tooltip .= "<tr>";
-    // $tooltip .= "<td class=\'usercardbasictext\'><b>Last Login:</b> $lastLogin</td>";
-    // $tooltip .= "</tr>";
-    // $tooltip .= "<tr>";
-    // $tooltip .= "<td class=\'usercardbasictext\'><b>Member Since:</b> $memberSince</td>";
-    // $tooltip .= "</tr>";
+    if ($lastLogin) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Last Activity:</b> $lastLogin</td>";
+        $tooltip .= "</tr>";
+    }
+    if ($memberSince) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Member Since:</b> $memberSince</td>";
+        $tooltip .= "</tr>";
+    }
     $tooltip .= "</tbody></table>";
     $tooltip .= "</td>";
     $tooltip .= "</tr>";

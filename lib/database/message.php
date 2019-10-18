@@ -217,7 +217,7 @@ function UpdateCachedUnreadTotals($user)
             FROM Messages AS msg
             WHERE msg.UserTo = '$user' AND msg.Unread = 1
         ) InnerTable
-    ) WHERE ua.User = '$user'";
+    ), Updated=NOW() WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
@@ -259,7 +259,9 @@ function DeleteMessage($user, $messageID)
 
         $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
         $dbResult = s_mysql_query($query);
-
+        if($dbResult !== false) {
+            s_mysql_query("INSERT INTO DeletedModels SET ModelType='Messages', ModelID=$messageID");
+        }
         return ($dbResult !== false);
     }
 }

@@ -52,7 +52,8 @@ function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
             error_log(__FUNCTION__ . " failed! $id, $title, $payload");
         }
     } else {
-        $query = "INSERT INTO News VALUES ( NULL, NOW(), '$title', '$payload', '$author', '$link', '$imageURL' )";
+        $query = "INSERT INTO News (Timestamp, Title, Payload, Author, Link, Image) 
+                    VALUES (NOW(), '$title', '$payload', '$author', '$link', '$imageURL')";
         log_sql($query);
         $dbResult = mysqli_query($db, $query);
 

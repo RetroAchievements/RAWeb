@@ -17,7 +17,7 @@
 		exit;
 	}
 	
-	$query = "UPDATE UserAccounts SET fbPrefs='$prefs' WHERE User='$user'";
+	$query = "UPDATE UserAccounts SET fbPrefs='$prefs', Updated=NOW() WHERE User='$user'";
 	
 	log_sql( $query );
 	$dbResult = s_mysql_query( $query );

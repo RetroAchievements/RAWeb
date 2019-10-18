@@ -127,7 +127,7 @@ function SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $destUser, $
         $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!";
         $retVal['Success'] = false;
     } else {
-        $query = "UPDATE UserAccounts SET Permissions = $newPermissions WHERE User='$destUser'";
+        $query = "UPDATE UserAccounts SET Permissions = $newPermissions, Updated=NOW() WHERE User='$destUser'";
         log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
@@ -155,7 +155,7 @@ function setAccountPermissions($sourceUser, $sourcePermissions, $user, $permissi
         error_log(__FUNCTION__ . " failed: person who is not Scott trying to set a user's permissions to admin");
         return false;
     } else {
-        $query = "UPDATE UserAccounts SET Permissions = $permissions WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET Permissions = $permissions, Updated=NOW() WHERE User='$user'";
         log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -174,7 +174,7 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
 
     if ($permissions == 0) {
         //    This user is a spam user: remove all their posts and set their account as banned.
-        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
         log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -189,7 +189,7 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
             return false;
         }
     } elseif ($permissions == 1) {
-        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
         log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -465,7 +465,7 @@ function generateCookie($user, &$cookie)
 
     $cookie = rand_string(16);
 
-    $query = "UPDATE UserAccounts SET cookie='$cookie' WHERE User='$user'";
+    $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
 
     log_sql($query);
     $result = s_mysql_query($query);
@@ -492,7 +492,7 @@ function generateAppToken($user, &$tokenOut)
 
     $expDays = 30;
     $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
-    $query = "UPDATE UserAccounts SET appToken='$newToken', appTokenExpiry='$expiryStr' WHERE User='$user'";
+    $query = "UPDATE UserAccounts SET appToken='$newToken', appTokenExpiry='$expiryStr', Updated=NOW() WHERE User='$user'";
 
     log_sql($query);
     $result = s_mysql_query($query);
@@ -616,7 +616,7 @@ function getAccountDetails(&$user, &$dataOut)
         return false;
     }
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID
+    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created
                 FROM UserAccounts
                 WHERE User='$user'";
 
@@ -654,7 +654,7 @@ function changePassword($user, $pass)
         return false;
     }
 
-    $query = "UPDATE UserAccounts SET SaltedPass='$saltedHash' WHERE user='$user'";
+    $query = "UPDATE UserAccounts SET SaltedPass='$saltedHash', Updated=NOW() WHERE user='$user'";
     log_sql($query);
     if (s_mysql_query($query) == true) {
         return true;
@@ -668,7 +668,7 @@ function changePassword($user, $pass)
 function associateFB($user, $fbUser)
 {
     //    TBD: Sanitise!
-    $query = "UPDATE UserAccounts SET fbUser='$fbUser' WHERE User='$user'";
+    $query = "UPDATE UserAccounts SET fbUser='$fbUser', Updated=NOW() WHERE User='$user'";
     //echo $query;
     log_sql($query);
     if (s_mysql_query($query) == false) {
@@ -676,7 +676,7 @@ function associateFB($user, $fbUser)
         error_log(__FUNCTION__ . " failed: user:$user and fbUser:$fbUser passed");
         return false;
     } else {
-        // $query = "UPDATE UserAccounts SET fbPrefs=1 WHERE User='$user'";
+        // $query = "UPDATE UserAccounts SET fbPrefs=1, Updated=NOW() WHERE User='$user'";
         // log_sql( $query );
         // if( s_mysql_query( $query ) == FALSE )
         // {
@@ -986,7 +986,7 @@ function applyVote($user, $achID, $vote)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 0) {
         //    Vote not yet cast - add it newly!
-        $query = "INSERT INTO Votes VALUES ( '$user', '$achID', $vote )";
+        $query = "INSERT INTO Votes (User, AchievementID, Vote) VALUES ( '$user', '$achID', $vote )";
         log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -1249,15 +1249,17 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
 function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
 {
     $libraryOut = array();
-    getUserActivityRange($user, $firstLogin, $lastLogin);
-    $libraryOut['MemberSince'] = $firstLogin;
-    $libraryOut['LastLogin'] = $lastLogin;
+    // getUserActivityRange($user, $firstLogin, $lastLogin);
+    // $libraryOut['MemberSince'] = $firstLogin;
+    // $libraryOut['LastLogin'] = $lastLogin;
 
     $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     getAccountDetails($user, $userInfo); //    Necessary?
 
+    $libraryOut['MemberSince'] = $userInfo['Created'];
+    $libraryOut['LastActivity'] = $userInfo['LastLogin'];
     $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : strip_tags($userInfo['RichPresenceMsg']);
     $libraryOut['LastGameID'] = $userInfo['LastGameID'];
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
@@ -1622,7 +1624,8 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
         }
     }
 
-    $query = "INSERT INTO SiteAwards VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
+    $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder) 
+                            VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
     log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -1803,7 +1806,7 @@ function RequestPasswordReset($usernameIn)
     $newToken = rand_string(20);
 
     $query = "UPDATE UserAccounts AS ua
-              SET ua.PasswordResetToken = '$newToken'
+              SET ua.PasswordResetToken = '$newToken', Updated=NOW()
               WHERE ua.User='$username'";
 
     $dbResult = s_mysql_query($query);
@@ -1842,7 +1845,7 @@ function SetPatreonSupporter($usernameIn, $enable)
 
 function SetUserTrackedStatus($usernameIn, $isUntracked)
 {
-    $query = "UPDATE UserAccounts SET Untracked = $isUntracked WHERE User = \"$usernameIn\"";
+    $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = \"$usernameIn\"";
     s_mysql_query($query);
 }
 
@@ -1862,6 +1865,6 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['Permissions']     = $userInfo['Permissions'];
     $userCardInfo['Motto']           = htmlspecialchars($userInfo['Motto']);
     $userCardInfo['Rank']            = getUserRank($user);
-    // $userCardInfo['LastLogin']       = $lastLogin;
-    // $userCardInfo['MemberSince']     = $firstLogin;
+    $userCardInfo['LastActivity']    = $userInfo['LastLogin'];
+    $userCardInfo['MemberSince']     = $userInfo['Created'];
 }

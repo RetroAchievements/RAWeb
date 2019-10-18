@@ -227,7 +227,7 @@ if ($permissions >= 2) {
             if ($achFlags == 3) {
                 echo "<li>State: Official&nbsp;<a href='/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
             } elseif ($achFlags == 5) {
-                echo "<li>State: Unofficial</li>";
+                echo "<li>State: Unofficial&nbsp;<a href='/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
             }
 
             echo "<li> Achievement ID: " . $achievementID . "</li>";
