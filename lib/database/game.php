@@ -1302,8 +1302,6 @@ function getHashList($offset, $count, $searchedHash)
         h.Created DESC
     LIMIT $offset, $count";
 
-    var_dump($query);
-
     global $db;
     $dbResult = mysqli_query($db, $query);
 
