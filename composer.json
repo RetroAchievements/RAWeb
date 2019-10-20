@@ -2,6 +2,11 @@
     "name": "retroachievements/retroachivements-web",
     "description": "The Web Server backend to run RetroAchievements.org",
     "type": "project",
+    "config": {
+        "platform": {
+            "php": "7.1"
+        }
+    },
     "require": {
         "php": "^7.1",
         "ext-mysqli": "*",
