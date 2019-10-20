@@ -1280,7 +1280,7 @@ function getHashList($offset, $count, $searchedHash)
     {
         $offset = 0;
         $count = 1;
-        $searchQuery =" WHERE hash.MD5 LIKE '" . $searchedHash . "'";
+        $searchQuery =" WHERE h.MD5='" . $searchedHash . "'";
     }
 
     $query = "

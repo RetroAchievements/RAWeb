@@ -46,9 +46,9 @@ RenderToolbar($user, $permissions);
 
         echo "<div class='searchbox longer'>";
         echo "<form action='/latesthasheslinked.php' method='get'>";
-        echo "<input size='50' name='h' type='text' class='searchboxinput' value='$searchedHash' />";
+        echo "<input size='50' name='h' value='$searchedHash' />";
         echo "&nbsp;&nbsp;";
-        echo "<input type='submit' value='Search' />";
+        echo "<input type='submit' value='Search Hash' />";
         echo "</form>";
         if (is_null($hashList) || !is_null($searchedHash)) {
             echo "<br>";
