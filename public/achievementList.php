@@ -13,18 +13,24 @@ $count = seekGET('c', $maxCount);
 settype($count, 'integer');
 $offset = seekGET('o', 0);
 settype($offset, 'integer');
-$params = seekGET('p', 0);
+$params = seekGET('p', 3);
 settype($params, 'integer');
 $dev = seekGET('d');
 
 if ($user == null) {
-    $params = 0;
+    $params = 3;
 }
 
 $flags = null;
-if ($params != 0) {
-    $flags = 3;
-} // achievements from Core set only
+switch ($params) {
+    case 5:
+        $flags = 5;
+        break;
+    case 3:
+    default:
+        $flags = 3;
+        break;
+}
 
 $dev_param = null;
 if ($dev != null) {
@@ -78,16 +84,16 @@ RenderDocType();
 
             echo "Showing:</br>";
 
-             echo "&nbsp;- ";
-             echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
-             echo "Only achievements in the Core Set";
-             echo $params !== 3 ? "</a>" : "</b>";
-             echo "<br/>";
+            echo "&nbsp;- ";
+            echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
+            echo "Only achievements in Core Sets";
+            echo $params !== 3 ? "</a>" : "</b>";
+            echo "<br/>";
 
             if ($user !== null) {
                 echo "&nbsp;- ";
                 echo $params !== 5 ? "<a href='/achievementList.php?s=$sortBy&p=5$dev_param'>" : "<b>";
-                echo "Only achievements in the Unofficial Set";
+                echo "Only achievements in Unofficial Sets";
                 echo $params !== 5 ? "</a>" : "</b>";
                 echo "<br/>";
 
