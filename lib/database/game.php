@@ -1270,6 +1270,84 @@ function getHashListByGameID($gameID)
     return $retVal;
 }
 
+/*
+ * Gets the list of hashes and hash information from the databased using the input offset and count.
+ */
+function getHashList($offset, $count, $searchedHash)
+{
+    $searchQuery = "";
+    if (!is_null($searchedHash) || $searchedHash != "")
+    {
+        $offset = 0;
+        $count = 1;
+        $searchQuery ="
+        WHERE
+            hash.MD5 LIKE '" . $searchedHash . "'";
+    }
+
+    $query = "
+    SELECT
+        hash.MD5 as Hash,
+        hash.GameID as GameID,
+        hash.Created as DateAdded,
+        game.Title as GameTitle,
+        game.ImageIcon as GameIcon,
+        system.name as ConsoleName
+    FROM
+        gamehashlibrary AS hash
+    LEFT JOIN
+        gamedata AS game ON (hash.GameID = game.ID)
+    LEFT JOIN
+        console AS system ON (game.consoleID = system.ID)
+        " . $searchQuery . "
+    ORDER BY
+        DateAdded DESC
+    LIMIT $offset, $count";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+
+    $retVal = NULL;
+
+    if ($dbResult !== false)
+    {
+        while ($nextData = mysqli_fetch_assoc($dbResult))
+        {
+            $retVal[] = $nextData;
+        }
+    }
+    else
+    {
+        error_log(__FUNCTION__ . " failed?! $count");
+        $retVal = false;
+    }
+
+    return $retVal;
+}
+
+/*
+ * Gets the total number of hashes in the databse.
+ */
+function getTotalHashes()
+{
+    $query = "
+    SELECT
+        COUNT(*) AS TotalHashes
+    FROM gamehashlibrary;";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+
+    if ($dbResult !== false)
+    {
+        return mysqli_fetch_assoc($dbResult)['TotalHashes'];
+    }
+    else
+    {
+        return false;
+    }
+}
+
 function isValidConsoleID($consoleID)
 {
     switch ($consoleID) {
