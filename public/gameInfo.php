@@ -16,7 +16,7 @@ if ($gameID == null || $gameID == 0) {
     exit;
 }
 
-$friendScores = Array();
+$friendScores = [];
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
@@ -35,7 +35,6 @@ $sortBy = seekGET('s', $defaultSort);
 if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
-
 
 $numAchievements = getGameMetadataByFlags($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags);
 
@@ -93,24 +92,27 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $screenshotWidth = 200;
 $screenshotHeight = 133;
-if ($consoleID == 1) //md
-{
-    $screenshotHeight = 150; //129;
-} elseif ($consoleID == 3) //snes
-{
-    $screenshotHeight = 175;
-} elseif ($consoleID == 4) //gb
-{
-    $screenshotHeight = 180;
-} elseif ($consoleID == 5) // gba
-{
-    $screenshotHeight = 133;
-} elseif ($consoleID == 6) // gbc
-{
-    $screenshotHeight = 180;
+switch ($consoleID) {
+    case 1: // md
+        $screenshotHeight = 150;
+        break;
+    case 3: // snes
+        $screenshotHeight = 175;
+        break;
+    case 4: // gb
+        $screenshotHeight = 180;
+        break;
+    case 5: // gba
+        $screenshotHeight = 133;
+        break;
+    case 6: // gbc
+        $screenshotHeight = 180;
+        break;
+    default:
+        break;
 }
 
-//    Quickly calculate earned/potential
+// Quickly calculate earned/potential
 $totalEarnedCasual = 0;
 $totalEarnedHardcore = 0;
 $numEarnedCasual = 0;
@@ -120,20 +122,16 @@ $totalPossible = 0;
 $totalEarnedTrueRatio = 0;
 $totalPossibleTrueRatio = 0;
 
-$authorName = Array();
-$authorCount = Array();
+$authorName = [];
+$authorCount = [];
 if (isset($achievementData)) {
-    //var_dump( $achievementData );
     foreach ($achievementData as &$nextAch) {
-        //Add author to array if it's not already there and initialize achievement count for that author.
-        if (!in_array($nextAch['Author'], $authorName))
-        {
+        // Add author to array if it's not already there and initialize achievement count for that author.
+        if (!in_array($nextAch['Author'], $authorName)) {
             $authorName[strtolower($nextAch['Author'])] = $nextAch['Author'];
             $authorCount[strtolower($nextAch['Author'])] = 1;
-        }
-        //If auther is already in array then increment the achievement count for that author.
-        else
-        {
+        } // If author is already in array then increment the achievement count for that author.
+        else {
             $authorCount[strtolower($nextAch['Author'])]++;
         }
 
@@ -150,11 +148,10 @@ if (isset($achievementData)) {
             $totalEarnedHardcore += $nextAch['Points'];
         }
     }
-    //Combine arrays and sort by achievement count.
+    // Combine arrays and sort by achievement count.
     $authorInfo = array_combine($authorName, $authorCount);
     array_multisort($authorCount, SORT_DESC, $authorInfo);
 }
-
 
 RenderDocType(true);
 ?>
@@ -641,17 +638,13 @@ $numGridlines = $numAchievements;
                 echo "<b>Authors:</b> ";
                 $numItems = count($authorInfo);
                 $i = 0;
-                foreach ($authorInfo as $author => $achievementCount)
-                {
-                    echo GetUserAndTooltipDiv( $author, FALSE );
+                foreach ($authorInfo as $author => $achievementCount) {
+                    echo GetUserAndTooltipDiv($author, false);
                     echo " (" . $achievementCount . ")";
-                    if (++$i === $numItems)
-                    {
-                            echo '.';
-                    }
-                    else
-                    {
-                            echo ', ';
+                    if (++$i === $numItems) {
+                        echo '.';
+                    } else {
+                        echo ', ';
                     }
                 }
                 echo "<br/>";
