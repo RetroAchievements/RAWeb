@@ -120,11 +120,23 @@ $totalPossible = 0;
 $totalEarnedTrueRatio = 0;
 $totalPossibleTrueRatio = 0;
 
-$authors = [];
+$authorName = Array();
+$authorCount = Array();
 if (isset($achievementData)) {
     //var_dump( $achievementData );
     foreach ($achievementData as &$nextAch) {
-        $authors[strtolower($nextAch['Author'])] = $nextAch['Author'];
+        //Add author to array if it's not already there and initialize achievement count for that author.
+        if (!in_array($nextAch['Author'], $authorName))
+        {
+            $authorName[strtolower($nextAch['Author'])] = $nextAch['Author'];
+            $authorCount[strtolower($nextAch['Author'])] = 1;
+        }
+        //If auther is already in array then increment the achievement count for that author.
+        else
+        {
+            $authorCount[strtolower($nextAch['Author'])]++;
+        }
+
         $totalPossible += $nextAch['Points'];
         $totalPossibleTrueRatio += $nextAch['TrueRatio'];
 
@@ -138,7 +150,9 @@ if (isset($achievementData)) {
             $totalEarnedHardcore += $nextAch['Points'];
         }
     }
-    ksort($authors);
+    //Combine arrays and sort by achievement count.
+    $authorInfo = array_combine($authorName, $authorCount);
+    array_multisort($authorCount, SORT_DESC, $authorInfo);
 }
 
 
@@ -625,10 +639,19 @@ $numGridlines = $numAchievements;
 
             if ($numAchievements > 0) {
                 echo "<b>Authors:</b> ";
-                foreach ($authors as $author) {
+                $numItems = count($authorInfo);
+                $i = 0;
+                foreach ($authorInfo as $author => $achievementCount)
+                {
                     echo GetUserAndTooltipDiv( $author, FALSE );
-                    if (next($authors) != null) {
-                        echo ', ';
+                    echo " (" . $achievementCount . ")";
+                    if (++$i === $numItems)
+                    {
+                            echo '.';
+                    }
+                    else
+                    {
+                            echo ', ';
                     }
                 }
                 echo "<br/>";
