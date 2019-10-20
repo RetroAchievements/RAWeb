@@ -78,17 +78,17 @@ RenderDocType();
 
             echo "Showing:</br>";
 
-            echo "&nbsp;- ";
-            echo $params !== 0 ? "<a href='/achievementList.php?s=$sortBy&p=0$dev_param'>" : "<b>";
-            echo "All achievements";
-            echo $params !== 0 ? "</a>" : "</b>";
-            echo "<br/>";
+             echo "&nbsp;- ";
+             echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
+             echo "Only achievements in the Core Set";
+             echo $params !== 3 ? "</a>" : "</b>";
+             echo "<br/>";
 
             if ($user !== null) {
                 echo "&nbsp;- ";
-                echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
-                echo "Only achievements in the Core Set";
-                echo $params !== 3 ? "</a>" : "</b>";
+                echo $params !== 5 ? "<a href='/achievementList.php?s=$sortBy&p=5$dev_param'>" : "<b>";
+                echo "Only achievements in the Unofficial Set";
+                echo $params !== 5 ? "</a>" : "</b>";
                 echo "<br/>";
 
                 echo "&nbsp;- ";
