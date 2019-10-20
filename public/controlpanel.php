@@ -47,7 +47,7 @@
 	<?php RenderSharedHeader( $user ); ?>
 	<?php RenderTitleTag( $pageTitle, $user ); ?>
 	<?php RenderGoogleTracking(); ?>
-	<script type='text/javascript' src="/js/all.js?nc=<?php echo date('Y-m-d') ?>"></script>
+	<script type='text/javascript' src="/js/all.js?v=<?php echo VERSION ?>"></script>
 	<script>
 	function GetAllResettableGamesList()
 	{

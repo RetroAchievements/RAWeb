@@ -15,8 +15,8 @@
 	<?php RenderSharedHeader( $user ); ?>
 	<?php RenderTitleTag( $pageTitle, $user ); ?>
 	<?php RenderGoogleTracking(); ?>
-	<script type='text/javascript' src="/js/ping_chat.js"></script>
-	<script type='text/javascript' src="/js/all.js?nc=<?php echo date('Y-m-d') ?>"></script>
+	<script type='text/javascript' src="/js/ping_chat.js?v=<?php echo VERSION ?>"></script>
+	<script type='text/javascript' src="/js/all.js?v=<?php echo VERSION ?>"></script>
 </head>
 
 <body onload="init_chat(250);">
