@@ -1280,34 +1280,34 @@ function getHashList($offset, $count, $searchedHash)
     {
         $offset = 0;
         $count = 1;
-        $searchQuery ="
-        WHERE
-            hash.MD5 LIKE '" . $searchedHash . "'";
+        $searchQuery =" WHERE hash.MD5 LIKE '" . $searchedHash . "'";
     }
 
     $query = "
     SELECT
-        hash.MD5 as Hash,
-        hash.GameID as GameID,
-        hash.Created as DateAdded,
-        game.Title as GameTitle,
-        game.ImageIcon as GameIcon,
-        system.name as ConsoleName
+        h.MD5 as Hash,
+        h.GameID as GameID,
+        h.Created as DateAdded,
+        gd.Title as GameTitle,
+        gd.ImageIcon as GameIcon,
+        c.name as ConsoleName
     FROM
-        gamehashlibrary AS hash
+        GameHashLibrary h
     LEFT JOIN
-        gamedata AS game ON (hash.GameID = game.ID)
+        GameData gd ON (h.GameID = gd.ID)
     LEFT JOIN
-        console AS system ON (game.consoleID = system.ID)
-        " . $searchQuery . "
+        Console c ON (gd.ConsoleID = c.ID)
+    " . $searchQuery . "
     ORDER BY
-        DateAdded DESC
+        h.Created DESC
     LIMIT $offset, $count";
+
+    var_dump($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    $retVal = NULL;
+    $retVal = [];
 
     if ($dbResult !== false)
     {
@@ -1319,7 +1319,6 @@ function getHashList($offset, $count, $searchedHash)
     else
     {
         error_log(__FUNCTION__ . " failed?! $count");
-        $retVal = false;
     }
 
     return $retVal;
