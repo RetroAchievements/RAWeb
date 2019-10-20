@@ -833,6 +833,7 @@ th {
 .spoiler {
     border-style: inset;
     border-width: 3px;
+    padding: 2px;
     display: none;
 }
 
