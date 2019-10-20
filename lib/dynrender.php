@@ -710,127 +710,68 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
 function RenderToolbar($user, $permissions = 0)
 {
-    echo "<div id='innermenu'>";
-    echo "<ul id='menuholder'>";
-    echo "<li><a href='#'>Home</a>";
+    echo "<li><a href='#'>Games</a>";
     echo "<ul>";
-    echo "<li><a href='/'>Home</a></li>";
-
-    if (isset($user) && $user != "") {
-        echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
-    }
-
-    // echo "<li><a href='/feed.php?g=1'>Global Feed</a></li>";
-
-    //    SU:
-    if ($permissions >= 2) {
-        echo "<li><a href='/submitnews.php'>Submit News Article</a></li>";
-    }
-    //    Admin:
-    if ($permissions >= 4) {
-        echo "<li><a href='/admin.php'>Admin Tools</a></li>";
-    }
-
-    echo "<li><a href='https://docs.retroachievements.org/'>Documentation</a></li>";
-    echo "<li><a href='https://docs.retroachievements.org/FAQ/'>- FAQ</a></li>";
-
-    echo "</ul>";
-    echo "</li>";
-
-    echo "<li><a href='/download.php'>Download</a>";
-    //echo "<ul>";
-    //echo "<li><a href='/download.php'>RAGens (Mega Drive)</a></li>";
-    //echo "<li><a href='/download.php'>RASnes9x (SNES)</a></li>";
-    //echo "</ul>";
-    echo "</li>";
-
-    if (isset($user) && $user != "") {
-        echo "<li><a href='#'>My Pages</a>";
-        echo "<ul>";
-        echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
-        //echo "<li><a href='/feed.php?i=1'>My Feed</a></li>";
-        //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
-        echo "<li><a href='/friends.php'>Friends List</a></li>";
-        echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
-        echo "<li><a href='/achievementList.php?s=14&p=1'>My Best Awards</a></li>";
-        echo "<li><a href='/history.php'>My Legacy</a></li>";
-        echo "<li><a href='/logout.php'>Log Out</a></li>";
+///Atari	    
+    echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
+    echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
+///Coleco
+    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+///Nintendo
+    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
+    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
+///Sega
+    echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
+    echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
+    echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
+    echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
+    echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
+    echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
+///NEC
+    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
+///Sony
+    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+/// Arcade
+    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
+/// Computers
+    echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
+    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
+/// Handhelds
+    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
+    echo "<li><a href='/gameList.php?c=4'>Gameboy</a></li>";
+    echo "<li><a href='/gameList.php?c=6'>Gameboy Color</a></li>";
+    echo "<li><a href='/gameList.php?c=5'>Gameboy Advance</a></li>";
+    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
+    echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
+//// Sorted Lists
+    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/gameList.php'>View All</a></li>";
         echo "</ul>";
         echo "</li>";
-    } else {
-        echo "<li><a href='/createaccount.php'>Create Account</a>";
-        echo "</li>";
-    }
 
-    if (isset($user) && $user != "") {
-        echo "<li><a href='#'>Messages</a>";
-        echo "<ul>";
-        echo "<li><a href='/inbox.php'>Inbox</a></li>";
-        echo "<li><a href='/createmessage.php'>New Message</a></li>";
-        //echo "<li><a href='/sentitems.php'>Sent Items</a></li>";
-        //echo "<li><a href='/inbox.aspx?deleted=1'>Deleted Items</a></li>";
-        //echo "<li><a href='/archive.aspx'>Archived Inbox</a></li>";
-        //echo "<li><a href='/archivesent.aspx'>Archived Sent Items</a></li>";
-        echo "</ul>";
-        echo "</li>";
-    }
-
-    echo "<li><a href='#'>Forums</a>";
+    echo "<li><a href='#'>Community</a>";
     echo "<ul>";
     echo "<li><a href='/forum.php'>Forums</a></li>";
     echo "<li><a href='/forum.php?c=1'>- Community</a></li>";
     echo "<li><a href='/viewforum.php?f=25'>+- Competitions</a></li>";
     echo "<li><a href='/forum.php?c=7'>- Developers</a></li>";
-    echo "<li><a href='/forum.php?c=2'>- Mega Drive/Genesis</a></li>";
-    echo "<li><a href='/forum.php?c=6'>- SNES</a></li>";
-    echo "<li><a href='/forum.php?c=8'>- Gameboy/GBA</a></li>";
-    echo "<li><a href='/forum.php?c=9'>- NES</a></li>";
-    echo "<li><a href='/forum.php?c=10'>- PC Engine</a></li>";
-    echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    echo "<li><a href='#' onclick=\"window.open('" . getenv('APP_URL') . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
-
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
+    //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
+    echo "<li><a href='#' onclick=\"window.open('" . getenv('APP_URL') . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
+    echo "<li><a href='/userList.php'>User List</a></li>";
+    echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
+    echo "<li><a href='/leaderboardList.php'>Leaderboards List</a></li>";
     echo "</ul>";
     echo "</li>";
 
-    echo "<li><a href='#'>Site Pages</a>";
+    echo "<li><a href='#'>Achievements</a>";
     echo "<ul>";
-    echo "<li><a href='/popularGames.php'>Popular Games</a></li>";
-    echo "<li><a href='/gameList.php'>Supported Games</a></li>";
-    echo "<li><a href='/gameList.php?c=1'>- Mega Drive/Genesis</a></li>";
-    echo "<li><a href='/gameList.php?c=11'>- Master System</a></li>";
-    echo "<li><a href='/gameList.php?c=33'>- SG-1000</a></li>";
-    echo "<li><a href='/gameList.php?c=15'>- Game Gear</a></li>";
-    echo "<li><a href='/gameList.php?c=9'>- Sega CD</a></li>";
-    echo "<li><a href='/gameList.php?c=10'>- Sega 32X</a></li>";
-    echo "<li><a href='/gameList.php?c=39'>- Sega Saturn</a></li>";
-    echo "<li><a href='/gameList.php?c=3'>- Super Nintendo</a></li>";
-    echo "<li><a href='/gameList.php?c=4'>- Gameboy</a></li>";
-    echo "<li><a href='/gameList.php?c=6'>- Gameboy Color</a></li>";
-    echo "<li><a href='/gameList.php?c=5'>- Gameboy Advance</a></li>";
-    echo "<li><a href='/gameList.php?c=7'>- NES</a></li>";
-    echo "<li><a href='/gameList.php?c=2'>- N64</a></li>";
-    echo "<li><a href='/gameList.php?c=28'>- Virtual Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=8'>- PC Engine</a></li>";
-    echo "<li><a href='/gameList.php?c=12'>- PlayStation</a></li>";
-    echo "<li><a href='/gameList.php?c=14'>- Neo Geo Pocket</a></li>";
-    echo "<li><a href='/gameList.php?c=25'>- Atari 2600</a></li>";
-    echo "<li><a href='/gameList.php?c=51'>- Atari 7800</a></li>";
-    echo "<li><a href='/gameList.php?c=13'>- Atari Lynx</a></li>";
-    echo "<li><a href='/gameList.php?c=44'>- ColecoVision</a></li>";
-    echo "<li><a href='/gameList.php?c=27'>- Arcade</a></li>";
-    echo "<li><a href='/gameList.php?c=47'>- PC-8000/8800</a></li>";
-    echo "<li><a href='/gameList.php?c=38'>- Apple II</a></li>";
-    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
-    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
-    echo "<li><a href='/userList.php'>User List</a></li>";
     echo "<li><a href='/achievementList.php'>Achievements List</a></li>";
-    echo "<li><a href='/leaderboardList.php'>Leaderboards List</a></li>";
-    echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
-    echo "<li><a href='/searchresults.php'>Search the site</a></li>";
-    echo "<li><a href='https://github.com/RetroAchievements/'>Source Code</a></li>";
-    echo "<li><a href='/APIDemo.php'>Web API</a></li>";
-    echo "<li><a href='/rss.php'>RSS Feeds</a></li>";
+    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
+    echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
+    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
     echo "</ul>";
     //echo "</li>";
     //echo "<li><a href='/leaderboards.aspx'>Statistics</a>";
@@ -839,30 +780,52 @@ function RenderToolbar($user, $permissions = 0)
     //echo "<li><a href='/userleaderboards.aspx'>User Leaderboards</a></li>";
     //echo "</ul>";
     echo "</li>";
-
+}
     if ($permissions >= 3) {
         echo "<li><a href='#'>Developers</a>";
         echo "<ul>";
-        echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
         echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
         echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
-        echo "<li><a href='/viewtopic.php?t=394'>Official To-Do List</a></li>";
-        echo "</ul>";
-
+    	echo "</ul>";
         echo "</li>";
     }
 
     if (isset($user) && $user != "") {
-        echo "<li><a href='#'>Settings</a>";
+        echo "<li><a href='#'>My Pages</a>";
         echo "<ul>";
+        echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
+        //echo "<li><a href='/feed.php?i=1'>My Feed</a></li>";
+        //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
+        echo "<li><a href='/friends.php'>Friends List</a></li>";
+        echo "<li><a href='/achievementList.php?s=14&p=1'>My Best Awards</a></li>";
+        echo "<li><a href='/history.php'>My Legacy</a></li>";
+	echo "<li><a href='/inbox.php'>Inbox</a></li>";
+        echo "<li><a href='/createmessage.php'>New Message</a></li>";
         echo "<li><a href='/controlpanel.php'>My Settings</a></li>";
         //echo "<li><a href='/customizehomepage.php'>My Homepage</a></li>";
         //echo "<li><a href='/facebook.php'>Facebook Settings</a></li>";
         //echo "<li><a href='/changeemail.php'>Change Email Address</a></li>";
         //echo "<li><a href='/changepassword.php'>Change Password</a></li>";
+        //echo "<li><a href='/sentitems.php'>Sent Items</a></li>";
+        //echo "<li><a href='/inbox.aspx?deleted=1'>Deleted Items</a></li>";
+        //echo "<li><a href='/archive.aspx'>Archived Inbox</a></li>";
+        //echo "<li><a href='/archivesent.aspx'>Archived Sent Items</a></li>";
+        echo "<li><a href='/logout.php'>Log Out</a></li>";
+    }
+    //    SU:
+    if ($permissions >= 2) {
+        echo "<li><a href='/submitnews.php'>Submit News Article</a></li>";
+    }
+    //    Admin:
+    if ($permissions >= 4) {
+        echo "<li><a href='/admin.php'>Admin Tools</a></li>";
+    }
         echo "</ul>";
+        echo "</li>";
+      else {
+        echo "<li><a href='/createaccount.php'>Create Account</a>";
         echo "</li>";
     }
     //echo "<li><a href='/news.aspx'>Useful Links</a>";
@@ -870,7 +833,13 @@ function RenderToolbar($user, $permissions = 0)
     //echo "<li><a href='/gopro.aspx' title='Upgrade to Pro account'>Pro account</a></li>";
     //echo "</ul>";
     //echo "</li>";
-    echo "</ul>";
+    echo "<li><a href='/download.php'>Download</a>";
+    //echo "<ul>";
+    //echo "<li><a href='/download.php'>RAGens (Mega Drive)</a></li>";
+    //echo "<li><a href='/download.php'>RASnes9x (SNES)</a></li>";
+    //echo "</ul>";
+    echo "</li>";
+    }
 
     $searchQuery = seekGET( 's', NULL );
 
@@ -910,6 +879,9 @@ function RenderFooter()
 
     //    My TM
     echo "<p>";
+    echo "<small><a href='https://github.com/RetroAchievements' target='_blank'>Source Code</a></small><br/>";
+    echo "<small><a href='/APIDemo.php'>Web API</a></small><br/>";
+    echo "<small><a href='/rss.php'>RSS Feeds</a><br/>;
     echo "Content by <small><a href='http://www.immensegames.com' target='_blank'>Immense Games</a></small><br/>";
     global $g_numQueries;
     global $g_pageLoadAt;
