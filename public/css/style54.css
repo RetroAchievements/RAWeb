@@ -329,7 +329,7 @@ td, tr, img {
     max-width: 980px;
     background-color: #0a0a0a;
     color: #2a2a2a;
-    font-size: 16px;
+    font-size: 12px;
     margin: 20px auto;
     border-top-style: solid;
     border-top-color: #0066cc;
@@ -337,11 +337,31 @@ td, tr, img {
 	box-sizing: border-box;
 }
 
-#footer p{
+#footer h4 {
+    margin-top: 0;
+}
+
+#footer > div {
+    margin-bottom: 10px;
+}
+
+@media (min-width: 700px) {
+    #footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    #footer > div {
+        margin: 0;
+    }
+}
+
+#footer p {
 	font-size: x-small;
 	background-color:transparent;
 	color:#555;
 }
+
 
 .feed_login{color: #666666; }
 .feed_won{color: #993311; }
@@ -512,27 +532,29 @@ td, tr, img {
 	background-color:#111;
 }
 
-#innermenu ul li a{
+#innermenu > ul > li > a{
     display:block;
     text-decoration:none;
     color:#eee;
     /*font-weight:bold;*/
-    width:72px;
+    /*width:72px;*/
     height:42px;
     line-height:37px;
     text-align:center;
     border-bottom:0;
     overflow:hidden;
-    padding-left:1px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
-#innermenu ul{
+#innermenu > ul{
     padding:0;
     margin:0;
     list-style:none;
+    padding-left: 8px;
 }
 
-#innermenu ul li{
+#innermenu > ul > li{
     float:left;
     position:relative;
     height: 22px;
@@ -543,86 +565,88 @@ td, tr, img {
 	height: 42px; /* Only for main menu elements for mobile to make tap space */
 }
 
-#innermenu ul li ul{
-    display:none;
+#innermenu > ul > li > ul {
+    display: none;
+    position: absolute;
+    top: 42px;
+    left: 0;
+    margin: 0;
+    z-index: 100;
 }
 
-#innermenu ul li:hover a{
+#innermenu > ul > li > ul > li:last-child {
+    margin-bottom: 4px;
+}
+
+#innermenu > ul > li:hover > a{
     color:#000;
 	background-color:#bebebe;
 }
 
-#innermenu ul li:hover ul{
-    display:block;
-    position:absolute;
-    top:42px;
-    left:0;
-    width:152px; /*152*/
-    margin:0;
-    padding:0;
-	z-index:100;
+#innermenu > ul > li:hover > ul {
+    display: block;
 }
 
-#innermenu ul li:hover ul li a.hassub{
+#innermenu > ul > li:hover > ul > li > a.hassub{
     color:#fff;
 }
 
-#innermenu ul li:hover ul li:hover a.hassub{
+#innermenu > ul > li:hover > ul > li:hover > a.hassub{
     color:#fff;
     font-style:italic;
 }
 
-#innermenu ul li:hover ul li ul{
+#innermenu > ul > li:hover > ul > li > ul{
     display:none;
 }
 
-#innermenu ul li a img{
+#innermenu > ul > li > a > img{
     position:relative;
     top:4px;
     left:2px
 }
 
-#innermenu ul li:hover ul li a{
-    background-image:none;
+#innermenu > ul > li:hover > ul > li > a{
+    /*background-image:none;*/
     display:block;
-    height:28px;
-    line-height:26px;
     color:#000;
-    width:142px;
+    line-height: 1.4em;
+    width:150px;
     text-align:left;
     margin:0;
-    padding:0 0 0 11px;
+    padding: 4px 12px;
     /*font-weight:bold;*/
 }
 
-#innermenu ul li:hover ul{
+#innermenu > ul > li:hover > ul{
     padding:0;
     background-color: #BEBEBE;
     /*background-image:url('/Images/dropdown.gif');*/
     /*background-repeat:no-repeat;*/
     /*background-position:bottom left;*/
-    padding: 0px 0px 6px 0px;
+    /*padding: 0px 0px 6px 0px;*/
 }
 
-#innermenu ul li:hover a.nosub{
-    background-image:url('/Images/center_nosub.png')
+#innermenu > ul > li:hover > a.nosub{
+    /*background-image:url('/Images/center_nosub.png')*/
 }
 
-#innermenu ul li:hover a{
+#innermenu > ul > li:hover > a{
     position:relative;
 }
 
-#innermenu ul li:hover ul .selected{
+#innermenu > ul > li:hover > ul > .selected{
     background-image:url('/Images/sub_active.png');
     margin-right:1px;
 }
 
-#innermenu ul li:hover ul li a:hover{
-    color:#fff;
-    background-image:url('/Images/sub_hover.png');
+#innermenu > ul > li:hover > ul > li > a:hover{
+    color: #fff;
+    background: #333;
+    /*background-image:url('/Images/sub_hover.png');*/
 }
 
-#innermenu ul li:hover ul li:hover ul{
+#innermenu > ul > li:hover > ul > li:hover > ul{
     display:block;
     position:absolute;
     left:105px;
@@ -946,10 +970,6 @@ small {
 span.hardcore {
     color: rgb(222, 0, 0);
     font-size: 120%;
-}
-
-.footericonset {
-    display: flex;
 }
 
 .pointer {

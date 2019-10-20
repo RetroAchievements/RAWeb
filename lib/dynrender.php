@@ -710,46 +710,57 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
 function RenderToolbar($user, $permissions = 0)
 {
+    echo "<div id='innermenu'>";
+    echo "<ul id='menuholder'>";
     echo "<li><a href='#'>Games</a>";
     echo "<ul>";
-///Atari	    
+    //// Sorted Lists
+    echo "<li><a href='/gameList.php'>All Games</a></li>";
+    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    ///Atari
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
-///Coleco
+    ///Coleco
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
-///Nintendo
+    ///Nintendo
     echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
     echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
     echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
     echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
-///Sega
+    ///Sega
     echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
     echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
     echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
     echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
-///NEC
+    ///NEC
     echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
-///Sony
+    ///Sony
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
-/// Arcade
+    /// Arcade
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
-/// Computers
+    /// Computers
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
     echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
-/// Handhelds
+    /// Handhelds
     echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
     echo "<li><a href='/gameList.php?c=4'>Gameboy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>Gameboy Color</a></li>";
     echo "<li><a href='/gameList.php?c=5'>Gameboy Advance</a></li>";
     echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
-//// Sorted Lists
-    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
-    echo "<li><a href='/gameList.php'>View All</a></li>";
-        echo "</ul>";
-        echo "</li>";
+    echo "</ul>";
+    echo "</li>";
+
+    echo "<li><a href='#'>Achievements</a>";
+    echo "<ul>";
+    echo "<li><a href='/achievementList.php'>All Achievements</a></li>";
+    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
+    echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
+    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
+    echo "</ul>";
+    echo "</li>";
 
     echo "<li><a href='#'>Community</a>";
     echo "<ul>";
@@ -760,89 +771,54 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
     echo "<li><a href='#' onclick=\"window.open('" . getenv('APP_URL') . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
-    echo "<li><a href='/userList.php'>User List</a></li>";
-    echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
-    echo "<li><a href='/leaderboardList.php'>Leaderboards List</a></li>";
+    echo "<li><a href='/userList.php'>Users</a></li>";
+    echo "<li><a href='/developerstats.php'>Developers</a></li>";
+    echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "</ul>";
     echo "</li>";
 
-    echo "<li><a href='#'>Achievements</a>";
-    echo "<ul>";
-    echo "<li><a href='/achievementList.php'>Achievements List</a></li>";
-    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
-    echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
-    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
-    echo "</ul>";
-    //echo "</li>";
-    //echo "<li><a href='/leaderboards.aspx'>Statistics</a>";
-    //echo "<ul>";
-    //echo "<li><a href='/siteleaderboards.aspx'>Site Leaderboards</a></li>";
-    //echo "<li><a href='/userleaderboards.aspx'>User Leaderboards</a></li>";
-    //echo "</ul>";
-    echo "</li>";
-}
-    if ($permissions >= 3) {
-        echo "<li><a href='#'>Developers</a>";
-        echo "<ul>";
-        echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
-        echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
-        echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
-        echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
-    	echo "</ul>";
-        echo "</li>";
-    }
+    echo "<li><a href='/download.php'>Download</a></li>";
+
 
     if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
         echo "<ul>";
-        echo "<li><a href='/User/$user'>$user's Homepage</a></li>";
+        echo "<li><a href='/User/$user'>My Profile</a></li>";
         //echo "<li><a href='/feed.php?i=1'>My Feed</a></li>";
         //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
-        echo "<li><a href='/friends.php'>Friends List</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>My Best Awards</a></li>";
         echo "<li><a href='/history.php'>My Legacy</a></li>";
-	echo "<li><a href='/inbox.php'>Inbox</a></li>";
-        echo "<li><a href='/createmessage.php'>New Message</a></li>";
+        echo "<li><a href='/friends.php'>Friends List</a></li>";
+        echo "<li><a href='/inbox.php'>Messages</a></li>";
+        // echo "<li><a href='/createmessage.php'>New Message</a></li>";
         echo "<li><a href='/controlpanel.php'>My Settings</a></li>";
-        //echo "<li><a href='/customizehomepage.php'>My Homepage</a></li>";
-        //echo "<li><a href='/facebook.php'>Facebook Settings</a></li>";
-        //echo "<li><a href='/changeemail.php'>Change Email Address</a></li>";
-        //echo "<li><a href='/changepassword.php'>Change Password</a></li>";
-        //echo "<li><a href='/sentitems.php'>Sent Items</a></li>";
-        //echo "<li><a href='/inbox.aspx?deleted=1'>Deleted Items</a></li>";
-        //echo "<li><a href='/archive.aspx'>Archived Inbox</a></li>";
-        //echo "<li><a href='/archivesent.aspx'>Archived Sent Items</a></li>";
         echo "<li><a href='/logout.php'>Log Out</a></li>";
-    }
-    //    SU:
-    if ($permissions >= 2) {
-        echo "<li><a href='/submitnews.php'>Submit News Article</a></li>";
-    }
-    //    Admin:
-    if ($permissions >= 4) {
-        echo "<li><a href='/admin.php'>Admin Tools</a></li>";
-    }
         echo "</ul>";
         echo "</li>";
-      else {
-        echo "<li><a href='/createaccount.php'>Create Account</a>";
-        echo "</li>";
+    } else {
+        echo "<li><a href='/createaccount.php'>Create Account</a></li>";
     }
-    //echo "<li><a href='/news.aspx'>Useful Links</a>";
-    //echo "<ul>";
-    //echo "<li><a href='/gopro.aspx' title='Upgrade to Pro account'>Pro account</a></li>";
-    //echo "</ul>";
-    //echo "</li>";
-    echo "<li><a href='/download.php'>Download</a>";
-    //echo "<ul>";
-    //echo "<li><a href='/download.php'>RAGens (Mega Drive)</a></li>";
-    //echo "<li><a href='/download.php'>RASnes9x (SNES)</a></li>";
-    //echo "</ul>";
-    echo "</li>";
+
+    if ($permissions >= 2) {
+        echo "<li><a href='#'>Manage</a>";
+        echo "<ul>";
+        // SU
+        echo "<li><a href='/submitnews.php'>News Articles</a></li>";
+        if ($permissions >= 3) {
+            echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
+            echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
+            echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
+            echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
+        }
+        // Admin
+        if ($permissions >= 4) {
+            echo "<li><a href='/admin.php'>Admin Tools</a></li>";
+        }
+        echo "</ul>";
+        echo "</li>";
     }
 
     $searchQuery = seekGET( 's', NULL );
-
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
@@ -851,7 +827,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<input type='submit' value='Search' />";
     echo "</div>";
     echo "</form>";
-	
+
 	echo '<br style="clear:both;">'; // to stretch height on mobile
 
     echo "</div>";
@@ -864,36 +840,50 @@ function RenderFooter()
 
     echo "<footer id='footer'>";
 
-    //    Inject fb like onto every page! muhahaha
-    //echo "<div class='fb-like' style='float:left'></div>";
-
-    echo "<div class='footericonset'>";
-
-    //    W3
-    // echo "<div class='footericon' >";
-    //echo "<p about='' resource='http://www.w3.org/TR/rdfa-syntax' rel='dc:conformsTo' xmlns:dc='http://purl.org/dc/terms/'>";
-    // echo "<p>";
-    // echo "<a href='https://validator.w3.org/check?uri=referer'><img src='https://www.w3.org/Icons/valid-xhtml-rdfa' alt='Valid XHTML + RDFa' height='31' width='88' /></a>";
-    // echo "</p>";
-    // echo "</div>";
-
-    //    My TM
-    echo "<p>";
-    echo "<small><a href='https://github.com/RetroAchievements' target='_blank'>Source Code</a></small><br/>";
-    echo "<small><a href='/APIDemo.php'>Web API</a></small><br/>";
-    echo "<small><a href='/rss.php'>RSS Feeds</a><br/>;
-    echo "Content by <small><a href='http://www.immensegames.com' target='_blank'>Immense Games</a></small><br/>";
-    global $g_numQueries;
-    global $g_pageLoadAt;
-    $loadDuration = microtime(true) - $g_pageLoadAt;
-    echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
-
-    if ($loadDuration > 2.4) {
-        error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
-    }
-    echo "</p>";
-
+    echo "<div>";
+    echo "<h4>RetroAchievements</h4>";
+    echo "<div><a href='/achievementList.php'>Achievements</a></div>";
+    echo "<div><a href='/leaderboardList.php'>Leaderboards</a></div>";
+    echo "<div><a href='/gameList.php'>Games</a></div>";
     echo "</div>";
+
+    echo "<div>";
+    echo "<h4>Documentation</h4>";
+    echo "<div><a href='https://docs.retroachievements.org/Developers-Code-of-Conduct/' target='_blank'>Developers Code of Conduct</a></div>";
+    echo "<div><a href='https://docs.retroachievements.org/Users-Code-of-Conduct/' target='_blank'>Users Code of Conduct</a></div>";
+    echo "<div><a href='https://docs.retroachievements.org/FAQ/' target='_blank'>FAQ</a></div>";
+    echo "<div><a href='/APIDemo.php'>API</a></div>";
+    echo "</div>";
+
+    echo "<div>";
+    echo "<h4>Community</h4>";
+    echo "<div><a href='/forum.php'>Forums</a></div>";
+    echo "<div><a href='/userList.php'>Users</a></div>";
+    echo "<div><a href='/developerstats.php'>Developers</a></div>";
+    echo "</div>";
+
+    echo "<div>";
+    echo "<h4>Connect</h4>";
+    echo "<div><a href='https://www.patreon.com/bePatron?u=5403777' target='_blank'>Patreon</a></div>";
+    echo "<div><a href='https://discord.gg/dq2E4hE' target='_blank'>Discord</a></div>";
+    echo "<div><a href='https://github.com/RetroAchievements' target='_blank'>GitHub</a></div>";
+    echo "<div><a href='https://twitch.tv/retroachievementsorg' target='_blank'>Twitch</a></div>";
+    echo "<div><a href='https://facebook.com/RetroAchievementsPC/' target='_blank'>Facebook</a></div>";
+    echo "<div><a href='https://twitter.com/retrocheevos' target='_blank'>Twitter</a></div>";
+    echo "<div><a href='/rss.php'>RSS</a></div>";
+    echo "</div>";
+
+    // echo "<div>Content by <a href='http://www.immensegames.com' target='_blank'>Immense Games</a></div>";
+
+    // global $g_numQueries;
+    // global $g_pageLoadAt;
+    // $loadDuration = microtime(true) - $g_pageLoadAt;
+    // echo "<p>";
+    // echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
+    // if ($loadDuration > 2.4) {
+    //     error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
+    // }
+    // echo "</p>";
 
     echo "</footer>";
 }
