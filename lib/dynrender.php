@@ -717,6 +717,7 @@ function RenderToolbar($user, $permissions = 0)
     //// Sorted Lists
     echo "<li><a href='/gameList.php'>All Games</a></li>";
     echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li class='divider'></li>";
     ///Atari
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
@@ -756,6 +757,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='#'>Achievements</a>";
     echo "<ul>";
     echo "<li><a href='/achievementList.php'>All Achievements</a></li>";
+    echo "<li class='divider'></li>";
     echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
     echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
     echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
@@ -769,13 +771,18 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/viewforum.php?f=25'>+- Competitions</a></li>";
     echo "<li><a href='/forum.php?c=7'>- Developers</a></li>";
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
+    echo "<li class='divider'></li>";
     //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
     echo "<li><a href='#' onclick=\"window.open('" .
         str_replace('https', 'http', getenv('APP_URL')) .
         "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
+    echo "<li class='divider'></li>";
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
+    echo "<li class='divider'></li>";
+    echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
+    echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
     echo "</ul>";
     echo "</li>";
 
@@ -793,7 +800,9 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li><a href='/friends.php'>Friends List</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         // echo "<li><a href='/createmessage.php'>New Message</a></li>";
+        echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>My Settings</a></li>";
+        echo "<li class='divider'></li>";
         echo "<li><a href='/logout.php'>Log Out</a></li>";
         echo "</ul>";
         echo "</li>";
@@ -806,15 +815,18 @@ function RenderToolbar($user, $permissions = 0)
         echo "<ul>";
         // SU
         echo "<li><a href='/submitnews.php'>News Articles</a></li>";
-        if ($permissions >= 3) {
-            echo "<li><a href='/achievementinspector.php'>Ach. Inspector</a></li>";
+        if ($permissions >= Permissions::Developer) {
+            echo "<li class='divider'></li>";
             echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
-            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
             echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
-            echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
+            echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
+            echo "<li class='divider'></li>";
+            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         }
         // Admin
         if ($permissions >= 4) {
+            echo "<li class='divider'></li>";
+            echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
             echo "<li><a href='/admin.php'>Admin Tools</a></li>";
         }
         echo "</ul>";
