@@ -26,7 +26,7 @@
 		exit;
 	}
 
-    if( $user != $commentData['Author'] && $permissions != \RA\Permissions::Admin )
+    if( $user != $commentData['Author'] && $permissions < \RA\Permissions::Admin )
     {
         header( "Location: " . getenv('APP_URL') . "?e=nopermission" );
         exit;
