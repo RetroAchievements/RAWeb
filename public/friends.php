@@ -87,12 +87,17 @@
 		}
 		?>
 </div>
-<div id="rightcontainer"> 
-</div>
+<div id="rightcontainer">
+    <?php
+        if( $user !== NULL )
+        {
+            RenderScoreLeaderboardComponent( $user, $points, TRUE );
+        }
+    ?>
+</div>	
 </div>	
   
 <?php RenderFooter(); ?>
-
 </body>
 </html>
 

@@ -68,7 +68,7 @@
 <?php RenderToolbar( $user, $permissions ); ?>
 
 <div id="mainpage">
-	<div id="forums" class="both">
+	<div id="fullcontainer">
 		
 		<?php
 		echo "<div class='navpath'>";

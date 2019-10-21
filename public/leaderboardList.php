@@ -111,8 +111,16 @@ function onUpdateComplete( data )
 <?php RenderToolbar( $user, $permissions ); ?>
 
 <div id="mainpage">
-<div id='leftcontainer'>
-<?php	
+<?php
+    if(count( $codeNotes ) > 0)
+    {
+        echo "<div id='leftcontainer'>";
+    }
+    else
+    {
+        echo "<div id='fullcontainer'>";
+    }
+
 	echo "<div class='left'>";
 		echo "<div class='navpath'>";
 		if( $gameID != 0 )
@@ -452,18 +460,15 @@ function onUpdateComplete( data )
 	</div> 
 </div>
 
-<div id='rightcontainer'>
-	<?php /*RenderRecentlyUploadedComponent( 10 );*/ ?>
-	
-	<?php
-	echo "<div class='right'>";
-		if( isset( $gameData ) && isset( $user ) && $permissions >= 3 )
-		{
-			RenderCodeNotes( $codeNotes );
-		}
-	echo "</div>";
+
+<?php
+    if(count( $codeNotes ) > 0 && $permissions >= 3)
+    {
+        echo "<div id='rightcontainer'>";
+        RenderCodeNotes( $codeNotes );
+        echo "</div>";
+    }
 ?>
-</div>
 
 
 </div>

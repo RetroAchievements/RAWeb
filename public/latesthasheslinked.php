@@ -38,7 +38,7 @@ RenderToolbar($user, $permissions);
 
 <div id='mainpage'>
 
-    <div id='leftcontainer'>
+    <div id='fullcontainer'>
         <?php
         RenderErrorCodeWarning('left', $errorCode);
 

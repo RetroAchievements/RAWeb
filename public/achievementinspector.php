@@ -44,7 +44,14 @@
 
 <div id="mainpage">
 	<?php
-	echo "<div id='leftcontainer'>";
+    if( count( $codeNotes ) > 0 )
+    {
+        echo "<div id='leftcontainer'>";
+    }
+    else
+    {
+        echo "<div id='fullcontainer'>";
+    }
 	echo "<div id='warning' class='rightfloat'>Status: OK!</div>";
 	
 	echo "<h2 class='longheader'>Achievement Inspector</h2>";
@@ -125,7 +132,9 @@
 	else
 	{
 		echo "<h3>Pick a game to modify:</h3>";
-		
+        
+        echo "<table><tbody>";
+
 		$lastConsole = 'NULL';
 		foreach( $gamesList as $gameEntry )
 		{
@@ -135,35 +144,38 @@
 			
 			if( $lastConsole == 'NULL' )
 			{
-				echo "$console:<select class='gameselector' onchange='window.location = \"/achievementinspector.php?g=\" + this.options[this.selectedIndex].value'><option>--</option>";
+                echo "<tr><td>$console:</td>";
+                echo "<td><select class='gameselector' onchange='window.location = \"/achievementinspector.php?g=\" + this.options[this.selectedIndex].value'><option>--</option>";
 				$lastConsole = $console;
 			}
 			else if( $lastConsole !== $console )
 			{
-				echo "</select><br/>$console:<select class='gameselector' onchange='window.location = \"/achievementinspector.php?g=\" + this.options[this.selectedIndex].value'><option>--</option>";
+                echo "<tr><td></select>$console:</td>";
+                echo "<td><select class='gameselector' onchange='window.location = \"/achievementinspector.php?g=\" + this.options[this.selectedIndex].value'><option>--</option>";
 				$lastConsole = $console;
 			}
 			
 			echo "<option value='$gameID'>$gameTitle</option>";
 			echo "<a href=\"/achievementinspector.php?g=$gameID\">$gameTitle</a><br/>";
-			
-			
 		}
-		echo "</select>";
+        echo "</td>";
+        echo "</select>";
+        echo "</tbody></table>";
 	}
 	
 	echo "</div>";
 	
-	echo "<div id='rightcontainer'>";
-	
 	if( count( $codeNotes ) > 0 )
-		RenderCodeNotes( $codeNotes );
-		
-	echo "</div>";
+    {
+        echo "<div id='rightcontainer'>";
+        RenderCodeNotes( $codeNotes );
+        echo "</div>";
+    }
+
 	?>
 </div>
 
-<?php RenderFooter(); ?>	
+<?php RenderFooter(); ?>
 
 </body>
 </html>

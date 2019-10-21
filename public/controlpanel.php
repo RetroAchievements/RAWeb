@@ -727,7 +727,9 @@
 
 </div>
 
-<?php RenderFooter(); ?>
+</div>
+    <?php RenderFooter(); ?>
+</div>
 
 </body>
 </html>

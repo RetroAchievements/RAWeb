@@ -73,20 +73,24 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 		// else echo "</b>";
 		// echo "<br/>";
 		
-		echo "Show: ";
+		echo "<p>Show: ";
 		
 		echo "<a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=0'>All consoles</a>";
 		
 		foreach( $consoleList as $nextConsoleID => $nextConsoleName )
 		{
 			if( $nextConsoleID == $consoleIDInput )
-				echo ", <b>$nextConsoleName</b>";
-			else
-				echo ", <a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=$nextConsoleID'>$nextConsoleName</a>";
-		}
-		
-		echo "<br/>";
-		
+            {
+                echo " | <b>$nextConsoleName</b>";
+            }
+            else
+            {
+                echo " | <a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=$nextConsoleID'>$nextConsoleName</a>";
+            }
+        
+
+        echo "</p>";
+
 		// if( $user !== NULL )
 		// {
 			// echo "&nbsp;- ";
