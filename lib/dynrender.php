@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once('bootstrap.php');
 /////////////////////////////////////////////////////////////////////////////////////////
 //    Dynamic Rendering
@@ -687,7 +690,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         echo ")";
         echo "</a>";
 
-        if ($permissions >= 3) // 3 == Developer
+        if ($permissions >= Permissions::Developer)
         {
             $openTickets = countOpenTicketsByDev($user);
             if ($openTickets > 0) {
@@ -810,7 +813,7 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li><a href='/createaccount.php'>Create Account</a></li>";
     }
 
-    if ($permissions >= 2) {
+    if ($permissions >= Permissions::SuperUser) {
         echo "<li><a href='#'>Manage</a>";
         echo "<ul>";
         // SU
@@ -824,7 +827,7 @@ function RenderToolbar($user, $permissions = 0)
             echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         }
         // Admin
-        if ($permissions >= 4) {
+        if ($permissions >= Permissions::Admin) {
             echo "<li class='divider'></li>";
             echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
             echo "<li><a href='/admin.php'>Admin Tools</a></li>";
@@ -2385,7 +2388,7 @@ function RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicI
         echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
     } else {
         echo "No forum topic";
-        if (isset($user) && $permissions >= 3) // 3 == Developer
+        if (isset($user) && $permissions >= Permissions::Developer)
         {
             echo " - <a href='/generategameforumtopic.php?u=$user&c=$cookie&g=$gameID'>Create the official forum topic for $gameTitle</a>";
         }
