@@ -21,7 +21,7 @@
 <?php RenderToolbar( $user, $permissions ); ?>
 
 <div id="mainpage">
-	<div id="achievement" class="left">
+	<div id="fullcontainer">
 		<h3>create account</h3>
 		<div class="infobox">
 			<form method=post action="requestcreateuser.php">

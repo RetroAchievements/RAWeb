@@ -82,7 +82,7 @@
 
 <div id="mainpage">
     <?php RenderErrorCodeWarning( 'both', $errorCode ); ?>
-    <div id="fullcontainer" class="both">
+    <div id="fullcontainer">
 
         <?php
         echo "<div class='navpath'>";

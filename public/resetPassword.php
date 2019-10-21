@@ -32,7 +32,7 @@
 <?php RenderToolbar( $user, 0 ); ?>
 
 <div id="mainpage">
-	<div id="passwordreset" class="left">
+	<div id="fullcontainer">
 		
 		<?php
 		echo "<div class='navpath'>";
