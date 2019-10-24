@@ -2808,7 +2808,7 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     //    [s]
     $comment = preg_replace('/\\[s\\](.*?)\\[\\/s\\]/is', '<s>${1}</s>', $comment);
     //    [code]
-    $comment = preg_replace('/\\[code\\](.*?)\\[\\/code\\]/is', '<div class=\'codetags\';><code>${1}</code></div>', $comment);
+    $comment = preg_replace('/\\[code\\](?:<br.*?>)?(.*?)\\[\\/code\\]/is', '<pre class=\'codetags\'>${1}</pre>', $comment);
     $comment = preg_replace("/\r\n|\r|\n/", '', $comment);
     //    [img]
     $comment = preg_replace('/(\\[img=)(.*?)(\\])/i', '<img class=\'injectinlineimage\' src=\'${2}\' />', $comment);
@@ -2819,7 +2819,7 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     //    [game]
     $comment = preg_replace_callback('/(\\[game=)(.*?)(\\])/i', 'cb_injectGamePHPBB', $comment);
     //    [spoiler]
-    $comment = preg_replace_callback('/\\[spoiler\\](.*?)\\[\\/spoiler\\]/is', 'cb_injectSpoilerPHPBB', $comment);
+    $comment = preg_replace_callback('/\\[spoiler\\](?:<br.*?>)?(.*?)\\[\\/spoiler\\]/is', 'cb_injectSpoilerPHPBB', $comment);
     //    [video]
     //error_log( $comment );
 
