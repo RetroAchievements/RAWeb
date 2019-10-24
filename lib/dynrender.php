@@ -616,12 +616,15 @@ function RenderPHPBBIcons()
     echo "<div class='buttoncollection'>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[b]\", \"[/b]\")'><b>b</b></a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[i]\", \"[/i]\")'><i>i</i></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[u]\", \"[/u]\")'><u>u</u></a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[s]\", \"[/s]\")'><s>&nbsp;s&nbsp;</s></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[code]\", \"[/code]\")'><code>code</code></a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[img=\", \"]\")'>img</a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[url=\", \"]Link[/url]\")'>url</a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[ach=\", \"]\")'>ach</a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[game=\", \"]\")'>game</a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[user=\", \"]\")'>user</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[spoiler]\", \"[/spoiler]\")'>spoiler</a></span>";
 
     echo "</div>";
 }
@@ -2559,6 +2562,21 @@ function cb_injectGamePHPBB($matches)
     return "";
 }
 
+function cb_injectSpoilerPHPBB($matches)
+{
+    if (count($matches) > 0) {
+        $id = uniqid();
+        $spoilerBox = "<div class='devbox'>";
+        $spoilerBox .= "<span onclick=\"$('#spoiler_" . $id . "').toggle(500); return false;\">Spoiler (Click to show):</span><br/>";
+        $spoilerBox .= "<div class='spoiler' id='spoiler_" . $id . "'>";
+        $spoilerBox .= $matches[1];
+        $spoilerBox .= "</div>";
+        $spoilerBox .= "</div>";
+        return $spoilerBox;
+    }
+    return "";
+}
+
 function makeEmbeddedVideo($video_url)
 {
     return '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="' . $video_url . '" allowfullscreen></iframe></div>';
@@ -2782,12 +2800,16 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
         $comment);
 
     //    [b]
-    $comment = preg_replace('/\\[b\\](.*?)\\[\\/b\\]/i', '<b>${1}</b>', $comment);
+    $comment = preg_replace('/\\[b\\](.*?)\\[\\/b\\]/is', '<b>${1}</b>', $comment);
     //    [i]
-    $comment = preg_replace('/\\[i\\](.*?)\\[\\/i\\]/i', '<i>${1}</i>', $comment);
+    $comment = preg_replace('/\\[i\\](.*?)\\[\\/i\\]/is', '<i>${1}</i>', $comment);
+    //    [u]
+    $comment = preg_replace('/\\[u\\](.*?)\\[\\/u\\]/is', '<u>${1}</u>', $comment);
     //    [s]
-    $comment = preg_replace('/\\[s\\](.*?)\\[\\/s\\]/i', '<s>${1}</s>', $comment);
-
+    $comment = preg_replace('/\\[s\\](.*?)\\[\\/s\\]/is', '<s>${1}</s>', $comment);
+    //    [code]
+    $comment = preg_replace('/\\[code\\](.*?)\\[\\/code\\]/is', '<div class=\'codetags\';><code>${1}</code></div>', $comment);
+    $comment = preg_replace("/\r\n|\r|\n/", '', $comment);
     //    [img]
     $comment = preg_replace('/(\\[img=)(.*?)(\\])/i', '<img class=\'injectinlineimage\' src=\'${2}\' />', $comment);
     //    [ach]
@@ -2796,6 +2818,8 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     $comment = preg_replace_callback('/(\\[user=)(.*?)(\\])/i', 'cb_injectUserPHPBB', $comment);
     //    [game]
     $comment = preg_replace_callback('/(\\[game=)(.*?)(\\])/i', 'cb_injectGamePHPBB', $comment);
+    //    [spoiler]
+    $comment = preg_replace_callback('/\\[spoiler\\](.*?)\\[\\/spoiler\\]/is', 'cb_injectSpoilerPHPBB', $comment);
     //    [video]
     //error_log( $comment );
 

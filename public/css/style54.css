@@ -875,6 +875,19 @@ th {
     border-bottom: 2px dashed;
 }
 
+.spoiler {
+    border-style: inset;
+    border-width: 3px;
+    padding: 2px;
+    display: none;
+}
+
+.codetags {
+    border-style: solid;
+    border-width: 1px;
+    padding: 2px;
+}
+
 .leftfloat {
     float: left;
 }
@@ -903,6 +916,7 @@ pre, code, .code {
     font-family: monospace;
     font-size: medium;
     word-break: break-word;
+    white-space: pre;
 }
 
 .badgeimg {
