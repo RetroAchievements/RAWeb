@@ -87,7 +87,7 @@ function onPostComplete( data )
 		{
 			echo "<div class='left'>";
 			
-			echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Extra (click to show):</span>";
+			echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Extra (click to show):</span>";
 			
 			echo "<div id='devboxcontent'>";
 			

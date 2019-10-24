@@ -1,71 +1,63 @@
-<?php 
-	require_once __DIR__ . '/../lib/bootstrap.php';
-	
-	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
-	
-	$requestedForumID = seekGET( 'f', NULL );
-	$offset = seekGET( 'o', 0 );
-	$count = seekGET( 'c', 25 );
-	
-	settype( $requestedForumID, "integer" );
-	settype( $offset, "integer" );
-	settype( $count, "integer" );
-	
-	$numUnofficialLinks = 0;
-	if( $permissions >= \RA\Permissions::Admin )
-	{
-		$unofficialLinks = getUnauthorisedForumLinks();
-		$numUnofficialLinks = count( $unofficialLinks );
-	}
+<?php
+require_once __DIR__ . '/../lib/bootstrap.php';
 
-	if( $requestedForumID == 0 )
-	{
-		if( $permissions >= \RA\Permissions::Admin )
-		{
-			//	Continue
-			$viewingUnauthorisedForumLinks = true;
-		}
-		else
-		{
-			header( "location: " . getenv('APP_URL') . "/forum.php?e=unknownforum" );
-			exit;
-		}
-		
-		$thisForumID = 0;
-		$thisForumTitle = "Unauthorised Links";
-		$thisForumDescription = "Unauthorised Links";
-		$thisCategoryID = 0;
-		$thisCategoryName = "Unauthorised Links";
-	
-		$topicList = getUnauthorisedForumLinks();
-	
-		$requestedForum = "Unauthorised Links";
-	}
-	else
-	{
-		if( getForumDetails( $requestedForumID, $forumDataOut ) == FALSE )
-		{
-			header( "location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2" );
-			exit;
-		}
-		
-		$thisForumID = $forumDataOut['ID'];
-		$thisForumTitle = $forumDataOut['ForumTitle'];
-		$thisForumDescription = $forumDataOut['ForumDescription'];
-		$thisCategoryID = $forumDataOut['CategoryID'];
-		$thisCategoryName = $forumDataOut['CategoryName'];
-	
-		$topicList = getForumTopics( $requestedForumID, $offset, $count );
-	
-		$requestedForum = $thisForumTitle;
-	}
-	
-	$errorCode = seekGET('e');
-	$mobileBrowser = IsMobileBrowser();
+RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-	$pageTitle = "View forum: $thisForumTitle";
-	
-	RenderDocType();
+$requestedForumID = seekGET('f', null);
+$offset = seekGET('o', 0);
+$count = seekGET('c', 25);
+
+settype($requestedForumID, "integer");
+settype($offset, "integer");
+settype($count, "integer");
+
+$numUnofficialLinks = 0;
+if ($permissions >= \RA\Permissions::Admin) {
+    $unofficialLinks = getUnauthorisedForumLinks();
+    $numUnofficialLinks = count($unofficialLinks);
+}
+
+if ($requestedForumID == 0) {
+    if ($permissions >= \RA\Permissions::Admin) {
+        //	Continue
+        $viewingUnauthorisedForumLinks = true;
+    } else {
+        header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
+        exit;
+    }
+
+    $thisForumID = 0;
+    $thisForumTitle = "Unauthorised Links";
+    $thisForumDescription = "Unauthorised Links";
+    $thisCategoryID = 0;
+    $thisCategoryName = "Unauthorised Links";
+
+    $topicList = getUnauthorisedForumLinks();
+
+    $requestedForum = "Unauthorised Links";
+} else {
+    if (getForumDetails($requestedForumID, $forumDataOut) == false) {
+        header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
+        exit;
+    }
+
+    $thisForumID = $forumDataOut['ID'];
+    $thisForumTitle = $forumDataOut['ForumTitle'];
+    $thisForumDescription = $forumDataOut['ForumDescription'];
+    $thisCategoryID = $forumDataOut['CategoryID'];
+    $thisCategoryName = $forumDataOut['CategoryName'];
+
+    $topicList = getForumTopics($requestedForumID, $offset, $count);
+
+    $requestedForum = $thisForumTitle;
+}
+
+$errorCode = seekGET('e');
+$mobileBrowser = IsMobileBrowser();
+
+$pageTitle = "View forum: $thisForumTitle";
+
+RenderDocType();
 ?>
 
 <head>

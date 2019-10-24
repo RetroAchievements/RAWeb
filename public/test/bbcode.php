@@ -5,8 +5,30 @@ $username = 'luchaos';
 $user = GetUserData($username);
 
 $payload = <<<EOF
-Hello
+[code]inline code[/code]
 
+[code]
+multi
+line
+code
+[b]formatting works in code?[/b]
+[/code]
+
+[code]starting same line
+multi
+line
+code
+[b]formatting works in code?[/b]
+[/code]
+Text in-between without leading or trailing extra lines
+[code]
+[b]formatting works in code?[/b]
+[/code]
+[spoiler]test
+test
+test
+[b]test[/b]
+[/spoiler]
 twitch.tv
 twitch.tv/retroachievements
 www.twitch.tv/rcheevos

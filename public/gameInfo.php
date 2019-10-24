@@ -495,7 +495,7 @@ $numGridlines = $numAchievements;
 
             if (isset($user) && $permissions >= Permissions::Developer) {
                 echo "<div class='devbox'>";
-                echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Dev (Click to show):</span><br/>";
+                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br/>";
                 echo "<div id='devboxcontent'>";
                 echo "<ul>";
 

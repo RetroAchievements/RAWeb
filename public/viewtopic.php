@@ -82,7 +82,7 @@
 
 <div id="mainpage">
     <?php RenderErrorCodeWarning( 'both', $errorCode ); ?>
-    <div id="forums" class="both">
+    <div id="fullcontainer">
 
         <?php
         echo "<div class='navpath'>";
@@ -98,7 +98,7 @@
         if( isset( $user ) && ( $thisTopicAuthor == $user || $permissions >= \RA\Permissions::Admin ) )
         {
             echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Options (Click to show):</span><br/>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br/>";
             echo "<div id='devboxcontent'>";
 
             echo "<li>Change Topic Title:</li>";

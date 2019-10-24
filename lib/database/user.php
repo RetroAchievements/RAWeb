@@ -957,7 +957,7 @@ function updateAchievementVote($achID, $posDiff, $negDiff)
 {
     //    Tell achievement $achID that it's vote count has been changed by $posDiff and $negDiff
 
-    $query = "UPDATE Achievements SET VotesPos=VotesPos+$posDiff, VotesNeg=VotesNeg+$negDiff WHERE ID=$achID";
+    $query = "UPDATE Achievements SET VotesPos=VotesPos+$posDiff, VotesNeg=VotesNeg+$negDiff, Updated=NOW() WHERE ID=$achID";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         error_log($query);

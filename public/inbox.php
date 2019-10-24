@@ -34,7 +34,7 @@
 <script>
 	function MarkAsRead( msgID )
 	{
-		$("body").find( '#msgInline' + msgID ).toggle(300);
+		$("body").find( '#msgInline' + msgID ).toggle();
 		
 		//	If was unread
 		var unread = $( '#msgInlineTitle' + msgID + ' span.unreadmsgtitle' );
@@ -82,7 +82,7 @@
 		if( data.substr( 0, 3 ) == 'OK:' )
 		{
 			var msgID = data.substr( 3 );
-			$( '#msgInline' + msgID ).toggle(300);
+			$( '#msgInline' + msgID ).toggle();
 			var titleID = "#msgInlineTitle" + msgID;
 			
 			if( $("body").find( titleID ).find('span').contents().exists() == false )
@@ -238,12 +238,12 @@
 			
 		?>
 	</div>
-	
+	</div>
 	<div id='rightcontainer'>
-	<?php
-	//	Right
-	RenderScoreLeaderboardComponent( $user, $points, TRUE );
-	?>
+        <?php
+        //	Right
+        RenderScoreLeaderboardComponent( $user, $points, TRUE );
+        ?>
 	</div>
 </div>
 

@@ -77,7 +77,7 @@ echo "</ul>";
 
 echo "</div>";
 
-echo '<h3 id=\'ctor\' class=\'longheader\' onclick="$(\'#ctorDiv\').toggle(500); return false;" >Initialize Connection to RetroAchievements:</h3>';
+echo '<h3 id=\'ctor\' class=\'longheader\' onclick="$(\'#ctorDiv\').toggle(); return false;" >Initialize Connection to RetroAchievements:</h3>';
 echo '<div class=\'CodeDiv\' id=\'ctorDiv\'>';
 echo '<p>First, you must take a copy of the RA_API.php file, store it on your server, and in the file you wish to use, create an instance of the RetroAchievements object.
 		 This only needs to be done once per pageload. ';
@@ -93,7 +93,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetTopTenUsers\' class=\'longheader\' onclick="$(\'#GetTopTenUsersDiv\').toggle(500); return false;" >Get Top Ten Users by Points:</h3>';
+echo '<h3 id=\'GetTopTenUsers\' class=\'longheader\' onclick="$(\'#GetTopTenUsersDiv\').toggle(); return false;" >Get Top Ten Users by Points:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetTopTenUsersDiv\'>';
 echo "<p>Next, simply call one of the available functions to use it. Here we fetch the top 10 users on the global leaderboards:</p>";
 echo '<code>$data = $RAConn->GetTopTenUsers();</code><br/>';
@@ -105,7 +105,7 @@ echo ProfileStamp( NULL, true );
 echo '</div>';
 
 
-echo '<h3 id=\'GetConsoleIDs\' class=\'longheader\' onclick="$(\'#GetConsoleIDsDiv\').toggle(500); return false;" >Get Console IDs:</h3>';
+echo '<h3 id=\'GetConsoleIDs\' class=\'longheader\' onclick="$(\'#GetConsoleIDsDiv\').toggle(); return false;" >Get Console IDs:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetConsoleIDsDiv\'>';
 echo '<code>$data = $RAConn->GetConsoleIDs();</code><br/>';
 $data = $RAConn->GetConsoleIDs();
@@ -115,7 +115,7 @@ echo ProfileStamp( NULL, true );
 echo '</div>';
 
 
-echo '<h3 id=\'GetGameList\' class=\'longheader\' onclick="$(\'#GetGameListDiv\').toggle(500); return false;" >Get List of all Registered Original Gameboy Games (Console ID 4):</h3>';
+echo '<h3 id=\'GetGameList\' class=\'longheader\' onclick="$(\'#GetGameListDiv\').toggle(); return false;" >Get List of all Registered Original Gameboy Games (Console ID 4):</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetGameListDiv\'>';
 echo '<code>$data = $RAConn->GetGameList( 4 );</code>';
 $data = $RAConn->GetGameList( 4 );
@@ -124,7 +124,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetGameInfo\' class=\'longheader\' onclick="$(\'#GetGameInfoDiv\').toggle(500); return false;" >Basic game information for Super Mario Land (GB) (Game ID 504):</h3>';
+echo '<h3 id=\'GetGameInfo\' class=\'longheader\' onclick="$(\'#GetGameInfoDiv\').toggle(); return false;" >Basic game information for Super Mario Land (GB) (Game ID 504):</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetGameInfoDiv\'>';
 echo '<code>$data = $RAConn->GetGameInfo( 504 );</code>';
 $data = $RAConn->GetGameInfo( 504 );
@@ -133,7 +133,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetGameInfoExtended\' class=\'longheader\' onclick="$(\'#GetGameInfoExtendedDiv\').toggle(500); return false;" >Full game information for Super Mario Land (GB) (Game ID 504):</h3>';
+echo '<h3 id=\'GetGameInfoExtended\' class=\'longheader\' onclick="$(\'#GetGameInfoExtendedDiv\').toggle(); return false;" >Full game information for Super Mario Land (GB) (Game ID 504):</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetGameInfoExtendedDiv\'>';
 echo '<code>$data = $RAConn->GetGameInfoExtended( 504 );</code>';
 $data = $RAConn->GetGameInfoExtended( 504 );
@@ -142,7 +142,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetGameInfoAndUserProgress\' class=\'longheader\' onclick="$(\'#GetGameInfoAndUserProgressDiv\').toggle(500); return false;" >Complete summary of Scott\'s progress in game ID 3:</h3>';
+echo '<h3 id=\'GetGameInfoAndUserProgress\' class=\'longheader\' onclick="$(\'#GetGameInfoAndUserProgressDiv\').toggle(); return false;" >Complete summary of Scott\'s progress in game ID 3:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetGameInfoAndUserProgressDiv\'>';
 echo '<code>$data = $RAConn->GetGameInfoAndUserProgress( \'Scott\', 3 );</code>';
 $data = $RAConn->GetGameInfoAndUserProgress( 'Scott', 3 );
@@ -152,7 +152,7 @@ echo ProfileStamp( NULL, true );
 echo '</div>';
 
 
-echo '<h3 id=\'GetUserRankAndScore\' class=\'longheader\' onclick="$(\'#GetUserRankAndScoreDiv\').toggle(500); return false;" >Scott\'s global rank and score:</h3>';
+echo '<h3 id=\'GetUserRankAndScore\' class=\'longheader\' onclick="$(\'#GetUserRankAndScoreDiv\').toggle(); return false;" >Scott\'s global rank and score:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetUserRankAndScoreDiv\'>';
 echo '<code>$data = $RAConn->GetUserRankAndScore( \'Scott\' );</code>';
 $data = $RAConn->GetUserRankAndScore( 'Scott' );
@@ -161,7 +161,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetUserRecentlyPlayedGames\' class=\'longheader\' onclick="$(\'#GetUserRecentlyPlayedGamesDiv\').toggle(500); return false;" >Scott\'s 10 most recently played games:</h3>';
+echo '<h3 id=\'GetUserRecentlyPlayedGames\' class=\'longheader\' onclick="$(\'#GetUserRecentlyPlayedGamesDiv\').toggle(); return false;" >Scott\'s 10 most recently played games:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetUserRecentlyPlayedGamesDiv\'>';
 echo '<code>$data = $RAConn->GetUserRecentlyPlayedGames( \'Scott\' );</code>';
 $data = $RAConn->GetUserRecentlyPlayedGames( 'Scott', 10 );
@@ -170,7 +170,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetUserProgress\' class=\'longheader\' onclick="$(\'#GetUserProgressDiv\').toggle(500); return false;" >Scott\'s progress on games with IDs 2, 3 and 75:</h3>';
+echo '<h3 id=\'GetUserProgress\' class=\'longheader\' onclick="$(\'#GetUserProgressDiv\').toggle(); return false;" >Scott\'s progress on games with IDs 2, 3 and 75:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetUserProgressDiv\'>';
 echo '<code>$data = $RAConn->GetUserProgress( \'Scott\', \'2, 3, 75\' );</code>';
 $data = $RAConn->GetUserProgress( 'Scott', '2, 3, 75' );
@@ -179,7 +179,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetUserSummary\' class=\'longheader\' onclick="$(\'#GetUserSummaryDiv\').toggle(500); return false;" >User summary of Scott, and 3 most recently played games:</h3>';
+echo '<h3 id=\'GetUserSummary\' class=\'longheader\' onclick="$(\'#GetUserSummaryDiv\').toggle(); return false;" >User summary of Scott, and 3 most recently played games:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetUserSummaryDiv\'>';
 echo '<code>$data = $RAConn->GetUserSummary( \'Scott\', 3 );</code>';
 $data = $RAConn->GetUserSummary( 'Scott', 3 );
@@ -188,7 +188,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-// echo '<h3 id=\'GetFeedFor\' class=\'longheader\' onclick="$(\'#GetFeedForDiv\').toggle(500); return false;" >Scott\'s latest feed (last 10 activities):</h3>';
+// echo '<h3 id=\'GetFeedFor\' class=\'longheader\' onclick="$(\'#GetFeedForDiv\').toggle(); return false;" >Scott\'s latest feed (last 10 activities):</h3>';
 // echo '<div class=\'CodeDiv\' id=\'GetFeedForDiv\'>';
 // echo '<code>$data = $RAConn->GetFeedFor( \'Scott\', 10 );</code>';
 // $data = $RAConn->GetFeedFor( 'Scott', 10 );
@@ -197,7 +197,7 @@ echo '</div>';
 // echo ProfileStamp( NULL, true );
 // echo '</div>';
 
-echo '<h3 id=\'GetAchievementsEarnedOnDay\' class=\'longheader\' onclick="$(\'#GetAchievementsEarnedOnDayDiv\').toggle(500); return false;" >Get Achievements Earned by Scott on January 4th 2014:</h3>';
+echo '<h3 id=\'GetAchievementsEarnedOnDay\' class=\'longheader\' onclick="$(\'#GetAchievementsEarnedOnDayDiv\').toggle(); return false;" >Get Achievements Earned by Scott on January 4th 2014:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetAchievementsEarnedOnDayDiv\'>';
 echo '<code>$data = $RAConn->GetAchievementsEarnedOnDay( \'Scott\', \'2014-01-04\' );</code>';
 $data = $RAConn->GetAchievementsEarnedOnDay( 'Scott', '2014-01-04' );
@@ -206,7 +206,7 @@ echo "<a href='#'>Back to top</a>";
 echo ProfileStamp( NULL, true );
 echo '</div>';
 
-echo '<h3 id=\'GetAchievementsEarnedBetween\' class=\'longheader\' onclick="$(\'#GetAchievementsEarnedBetweenDiv\').toggle(500); return false;" >Get Achievements Earned by Scott overnight on New Years Eve:</h3>';
+echo '<h3 id=\'GetAchievementsEarnedBetween\' class=\'longheader\' onclick="$(\'#GetAchievementsEarnedBetweenDiv\').toggle(); return false;" >Get Achievements Earned by Scott overnight on New Years Eve:</h3>';
 echo '<div class=\'CodeDiv\' id=\'GetAchievementsEarnedBetweenDiv\'>';
 echo '<code>$data = $RAConn->GetAchievementsEarnedBetween( \'Scott\', \'2013-12-31 20:00:00\', \'2014-01-01 04:00:00\' );</code>';
 $data = $RAConn->GetAchievementsEarnedBetween( 'Scott', '2013-12-31 20:00:00', '2014-01-01 04:00:00' );

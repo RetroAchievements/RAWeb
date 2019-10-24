@@ -44,7 +44,7 @@ RenderDocType();
     <?php RenderToolbar( $user, $permissions ); ?>
 
     <div id="mainpage">
-        <div id="userlist" class="left">
+        <div id="fullcontainer">
 
             <?php
             echo "<div class='navpath'>";

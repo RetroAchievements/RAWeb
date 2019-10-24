@@ -176,7 +176,7 @@ RenderDocType();
 
     <div id="mainpage">
         <?php RenderErrorCodeWarning( 'left', $errorCode ); ?>
-        <div class='left'>
+        <div id="fullcontainer">
             <?php
             echo "<div class='navpath'>";
             if( $gamesTableFlag == 1 )
@@ -658,7 +658,7 @@ RenderDocType();
                     getCodeNotes( $gameID, $codeNotes );
                     $achMem = $dataOut[ 'MemAddr' ];
                     echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Click to show achievement logic:</span><br/>";
+                    echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Click to show achievement logic:</span><br/>";
                     echo "<div id='devboxcontent'>";
 
                     echo "<div style='clear:both;'></div>";

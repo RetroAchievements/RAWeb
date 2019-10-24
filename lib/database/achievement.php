@@ -772,7 +772,7 @@ function UploadNewAchievement(
                 }
             }
 
-            $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$type, DateModified=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
+            $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$type, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
             log_sql($query);
 
             if (s_mysql_query($query) !== false) {
@@ -1109,7 +1109,7 @@ function getPatch($gameID, $flags, $user, $andLeaderboards)
 
 function updateAchievementDisplayID($achID, $newID)
 {
-    $query = "UPDATE Achievements SET DisplayOrder = $newID WHERE ID = $achID";
+    $query = "UPDATE Achievements SET DisplayOrder = $newID, Updated=NOW() WHERE ID = $achID";
     log_sql($query);
     $dbResult = s_mysql_query($query);
 
@@ -1119,7 +1119,7 @@ function updateAchievementDisplayID($achID, $newID)
 function updateAchievementEmbedVideo($achID, $newURL)
 {
     $newURL = strip_tags($newURL);
-    $query = "UPDATE Achievements SET AssocVideo = '$newURL' WHERE ID = $achID";
+    $query = "UPDATE Achievements SET AssocVideo = '$newURL', Updated=NOW() WHERE ID = $achID";
     log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -1129,7 +1129,7 @@ function updateAchievementEmbedVideo($achID, $newURL)
 
 function updateAchievementFlags($achID, $newFlags)
 {
-    $query = "UPDATE Achievements SET Flags = '$newFlags' WHERE ID = $achID";
+    $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID = $achID";
     log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);

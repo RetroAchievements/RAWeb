@@ -82,12 +82,26 @@ a:hover {
     text-decoration: none; /* Removes underline from links */
 }
 
+#fullcontainer {
+    padding: 5px 20px;
+    display: block;
+    border: 2px solid rgb(20, 20, 20);
+    border-radius: 8px;
+    align-self: start;
+    grid-column: span 2;
+
+    background: #1a1a1a; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a2a2a', endColorstr='#1a1a1a'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#2a2a2a), to(#1a1a1a)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #2a2a2a,  #1a1a1a); /* for firefox 3.6+ */
+}
+
 #leftcontainer {
     padding: 5px 20px;
     display: block;
     border: 2px solid rgb(20, 20, 20);
     border-radius: 8px;
-	align-self: start;
+    align-self: start;
 
     background: #1a1a1a; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a2a2a', endColorstr='#1a1a1a'); /* for IE */
@@ -96,11 +110,10 @@ a:hover {
 }
 
 #rightcontainer {
-	align-self: start;
-
     padding: 5px 20px;
     border: 2px solid rgb(20, 20, 20);
     border-radius: 10px;
+    align-self: start;
 
     background: #1a1a1a; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1a1a1a', endColorstr='#2a2a2a'); /* for IE */
@@ -856,10 +869,34 @@ th {
 }
 
 .devbox {
-    padding: 4px 0px;
+    padding: 4px 0;
+    /* for rendering spoilers within bbcode */
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
 }
+
 .devbox span {
-    border-bottom: 2px dashed;
+    border-bottom: 1px dashed;
+}
+
+.devbox > div, .codetags {
+    border-style: solid;
+    border-width: 1px;
+    padding: 8px 12px;
+    /*
+    for rendering codetag within bbcode
+    and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
+    */
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.devbox > .spoiler {
+    display: none;
+    border-style: dashed;
+    margin-top: 0;
 }
 
 .leftfloat {
@@ -890,6 +927,7 @@ pre, code, .code {
     font-family: monospace;
     font-size: medium;
     word-break: break-word;
+    white-space: pre;
 }
 
 .badgeimg {

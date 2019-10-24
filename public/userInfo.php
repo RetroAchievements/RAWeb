@@ -352,7 +352,7 @@ RenderDocType(true);
 
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Admin (Click to show):</span><br/>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br/>";
             echo "<div id='devboxcontent'>";
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {

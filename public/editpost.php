@@ -1,17 +1,13 @@
 <?php 
 	require_once __DIR__ . '/../lib/bootstrap.php';
 
-	if( RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions ) )
-	{
-		if( getAccountDetails( $user, $userDetails ) == FALSE )
-		{
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+    if (getAccountDetails($user, $userDetails) == false) {
 			//	Immediate redirect if we cannot validate user!	//TBD: pass args?
 			header( "Location: " . getenv('APP_URL') . "?e=accountissue" );
 			exit;
 		}
-	}
-	else
-	{
+} else {
 		//	Immediate redirect if we cannot validate cookie!	//TBD: pass args?
 		header( "Location: " . getenv('APP_URL') . "?e=notloggedin" );
 		exit;
@@ -20,21 +16,18 @@
 	$requestedComment = seekGet( 'c', 0 );
 	settype( $$requestedComment, "integer" );
 	
-	if( getSingleTopicComment( $requestedComment, $commentData ) == FALSE )
-	{
+if (getSingleTopicComment($requestedComment, $commentData) == false) {
 		header( "location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment" );
 		exit;
 	}
 
-    if( $user != $commentData['Author'] && $permissions < \RA\Permissions::Admin )
-    {
+if ($user != $commentData['Author'] && $permissions < \RA\Permissions::Admin) {
         header( "Location: " . getenv('APP_URL') . "?e=nopermission" );
         exit;
     }
 	
 	
-	if( getTopicDetails( $commentData['ForumTopicID'], $topicData ) == FALSE )
-	{
+if (getTopicDetails($commentData['ForumTopicID'], $topicData) == false) {
 		header( "location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2" );
 		exit;
 	}
@@ -68,7 +61,7 @@
 <?php RenderToolbar( $user, $permissions ); ?>
 
 <div id="mainpage">
-	<div id="forums" class="both">
+	<div id="fullcontainer">
 		
 		<?php
 		echo "<div class='navpath'>";
