@@ -3071,9 +3071,8 @@ function RenderThemeSelector()
 {
     $dirContent = scandir('./css/');
 
-    $cssFileList = array();
+    $cssFileList = [];
     foreach ($dirContent as $filename) {
-        //echo $filename;
         $fileStart = strpos($filename, "rac_");
         if ($fileStart !== false) {
             $filename = substr($filename, $fileStart + 4);
@@ -3082,32 +3081,16 @@ function RenderThemeSelector()
         }
     }
 
+    $currentCustomCSS = RA_ReadCookie('RAPrefs_CSS') ;
+    $currentCustomCSS = $currentCustomCSS ?: '/css/rac_blank.css';
 
-    //echo "<div class='themeselector' >";
     echo "<select id='themeselect' onchange='ResetTheme(); return false;'>";
-
-    $currentCustomCSS = RA_ReadCookie('RAPrefs_CSS');
     foreach ($cssFileList as $nextCSS) {
         $cssFull = "/css/rac_" . $nextCSS . ".css";
         $selected = (strcmp($currentCustomCSS, $cssFull) == 0) ? 'selected' : '';
         echo "<option $selected value='$cssFull'>$nextCSS</option>";
     }
-
-    // $cssList = Array();
-    // $cssList['None'] = '/css/rac_blank.css';
-    // $cssList['MLP'] = '/css/rac_pony.css';
-    // $cssList['Red'] = '/css/rac_red.css';
-    // $cssList['Green'] = '/css/rac_green.css';
-    // $cssList['Mobile'] = '/css/rac_mobile.css';
-    // $currentCustomCSS = RA_ReadCookie( 'RAPrefs_CSS' );
-    // foreach( $cssList as $cssName => $cssURL )
-    // {
-    // $selected = ( strcmp( $currentCustomCSS, $cssURL ) == 0 ) ? 'selected' : '';
-    // echo "<option $selected value='$cssURL'>$cssName</option>";
-    // }
-
     echo "</select>";
-    //echo "</div>";
 }
 
 // function RenderCarouselScript()
