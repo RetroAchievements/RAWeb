@@ -878,6 +878,7 @@ th {
 
 .devbox span {
     border-bottom: 1px dashed;
+    cursor: pointer;
 }
 
 .devbox > div, .codetags {
