@@ -24,14 +24,11 @@ Text in-between without leading or trailing extra lines
 [code]
 [b]formatting works in code?[/b]
 [/code]
-
-[spoiler]
-test
+[spoiler]test
 test
 test
 [b]test[/b]
 [/spoiler]
-
 twitch.tv
 twitch.tv/retroachievements
 www.twitch.tv/rcheevos

@@ -869,23 +869,34 @@ th {
 }
 
 .devbox {
-    padding: 4px 0px;
+    padding: 4px 0;
+    /* for rendering spoilers within bbcode */
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
 }
+
 .devbox span {
-    border-bottom: 2px dashed;
+    border-bottom: 1px dashed;
 }
 
-.spoiler {
-    border-style: inset;
-    border-width: 3px;
-    padding: 2px;
-    display: none;
-}
-
-.codetags {
+.devbox > div, .codetags {
     border-style: solid;
     border-width: 1px;
-    padding: 2px;
+    padding: 8px 12px;
+    /*
+    for rendering codetag within bbcode
+    and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
+    */
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.devbox > .spoiler {
+    display: none;
+    border-style: dashed;
+    margin-top: 0;
 }
 
 .leftfloat {
