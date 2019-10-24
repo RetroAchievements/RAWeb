@@ -176,7 +176,7 @@ RenderDocType();
 
     <div id="mainpage">
         <?php RenderErrorCodeWarning( 'left', $errorCode ); ?>
-        <div class='left'>
+        <div id="fullcontainer">
             <?php
             echo "<div class='navpath'>";
             if( $gamesTableFlag == 1 )

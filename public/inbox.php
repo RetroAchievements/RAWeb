@@ -238,12 +238,12 @@
 			
 		?>
 	</div>
-	
+	</div>
 	<div id='rightcontainer'>
-	<?php
-	//	Right
-	RenderScoreLeaderboardComponent( $user, $points, TRUE );
-	?>
+        <?php
+        //	Right
+        RenderScoreLeaderboardComponent( $user, $points, TRUE );
+        ?>
 	</div>
 </div>
 

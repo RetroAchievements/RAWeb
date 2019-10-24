@@ -82,12 +82,26 @@ a:hover {
     text-decoration: none; /* Removes underline from links */
 }
 
+#fullcontainer {
+    padding: 5px 20px;
+    display: block;
+    border: 2px solid rgb(20, 20, 20);
+    border-radius: 8px;
+    align-self: start;
+    grid-column: span 2;
+
+    background: #1a1a1a; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a2a2a', endColorstr='#1a1a1a'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#2a2a2a), to(#1a1a1a)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #2a2a2a,  #1a1a1a); /* for firefox 3.6+ */
+}
+
 #leftcontainer {
     padding: 5px 20px;
     display: block;
     border: 2px solid rgb(20, 20, 20);
     border-radius: 8px;
-	align-self: start;
+    align-self: start;
 
     background: #1a1a1a; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a2a2a', endColorstr='#1a1a1a'); /* for IE */
@@ -96,11 +110,10 @@ a:hover {
 }
 
 #rightcontainer {
-	align-self: start;
-
     padding: 5px 20px;
     border: 2px solid rgb(20, 20, 20);
     border-radius: 10px;
+    align-self: start;
 
     background: #1a1a1a; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1a1a1a', endColorstr='#2a2a2a'); /* for IE */

@@ -451,7 +451,7 @@ function getGamesListData($consoleID, $officialFlag = false)
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               $leftJoinAch
               $whereClause
-              ORDER BY ConsoleID, Title";
+              ORDER BY ConsoleName, Title";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {

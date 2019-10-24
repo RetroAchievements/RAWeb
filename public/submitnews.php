@@ -121,7 +121,7 @@ function onUploadImageComplete( data )
 	
 	RenderErrorCodeWarning( 'left', $errorCode );
 	
-	echo "<div id='rsslist' class='left'>";
+	echo "<div id='fullcontainer'>";
 		
 		echo "<div class='navpath'>";
 		echo "<b>$pageTitle</b>";

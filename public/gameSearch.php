@@ -50,17 +50,23 @@
 
 		echo "<p>Showing: games by largest RetroRatio:</p>";
 		
-		echo "<p>Filter: ";
+		echo "<p>Show: ";
 		
 		foreach( $consoleList as $nextConsoleID => $nextConsoleName )
 		{
 			if( $nextConsoleID > 0 )
+            {
 				echo " | ";
+            }
 			
 			if( $nextConsoleID == $consoleID )
+            {
 				echo "<b>$nextConsoleName</b>";
+            }
 			else
+            {
 				echo "<a href='gameSearch.php?o=0&amp;p=$method&amp;i=$nextConsoleID'>$nextConsoleName</a>";
+            }
 		}
 		
 		echo "</p>";
