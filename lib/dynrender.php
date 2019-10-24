@@ -2567,7 +2567,7 @@ function cb_injectSpoilerPHPBB($matches)
     if (count($matches) > 0) {
         $id = uniqid(rand(10000,99999));
         $spoilerBox = "<div class='devbox'>";
-        $spoilerBox .= "<span onclick=\"$('#spoiler_" . $id . "').toggle(500); return false;\">Spoiler (Click to show):</span><br/>";
+        $spoilerBox .= "<span onclick=\"$('#spoiler_" . $id . "').toggle(); return false;\">Spoiler (Click to show):</span><br/>";
         $spoilerBox .= "<div class='spoiler' id='spoiler_" . $id . "'>";
         $spoilerBox .= $matches[1];
         $spoilerBox .= "</div>";

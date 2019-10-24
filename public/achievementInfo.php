@@ -184,7 +184,7 @@ if ($permissions >= 2) {
 
         if (isset($user) && $permissions >= 2) {
             echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(500); return false;\">Dev (Click to show):</span><br/>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br/>";
             echo "<div id='devboxcontent'>";
 
             echo "<li>Set embedded video URL:</li>";
