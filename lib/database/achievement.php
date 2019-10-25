@@ -149,6 +149,10 @@ function getAchievementsListByDev(
         $query .= "WHERE ach.Author = '$dev' ";
     }
 
+    if ($params > 0 && $user !== null) {
+        $query .= "GROUP BY ach.ID ";
+    }
+
     switch ($sortBy) {
         case 0:
         case 1:
