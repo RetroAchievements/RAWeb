@@ -839,7 +839,10 @@ function RenderToolbar($user, $permissions = 0)
         echo "</li>";
     }
 
-    $searchQuery = seekGET( 's', NULL );
+    $searchQuery = null;
+    if($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
+        $searchQuery = seekGET( 's', NULL );
+    }
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
