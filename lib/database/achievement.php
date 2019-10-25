@@ -100,13 +100,11 @@ function GetAchievementData($id)
 
 function getAchievementsList($consoleIDInput, $user, $sortBy, $params, $count, $offset, &$dataOut, $achFlags = 3)
 {
-    return getAchievementsListByDev(null, $consoleIDInput, $user, $sortBy, $params, $count, $offset, $dataOut,
-        $achFlags);
+    return getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $dataOut, $achFlags);
 }
 
 
 function getAchievementsListByDev(
-    $dev = null,
     $consoleIDInput,
     $user,
     $sortBy,
@@ -114,7 +112,8 @@ function getAchievementsListByDev(
     $count,
     $offset,
     &$dataOut,
-    $achFlags = 3
+    $achFlags = 3,
+    $dev = null
 ) {
     settype($sortBy, 'integer');
 

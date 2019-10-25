@@ -38,7 +38,7 @@ if ($dev != null) {
 }
 
 $sortBy = seekGET('s', 1);
-$achCount = getAchievementsListByDev($dev, $consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags);
+$achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 //var_dump( $achData );
 
