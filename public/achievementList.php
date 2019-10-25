@@ -37,7 +37,7 @@ if ($dev != null) {
     $dev_param .= "&d=$dev";
 }
 
-$sortBy = seekGET('s', 1);
+$sortBy = seekGET('s', 17);
 $achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 //var_dump( $achData );
