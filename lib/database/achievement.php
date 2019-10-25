@@ -133,7 +133,7 @@ function getAchievementsListByDev(
 
     if (isset($achFlags)) {
         settype($achFlags, 'integer');
-        $query .= "WHERE ach.Flags=$achFlags AND ach.TrueRatio > 0 ";
+        $query .= "WHERE ach.Flags=$achFlags ";
 
         if ($params == 1) {
             $query .= "AND ( !ISNULL( aw.User ) ) AND aw.HardcoreMode = 0 ";
