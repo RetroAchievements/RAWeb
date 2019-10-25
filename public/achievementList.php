@@ -132,12 +132,12 @@ RenderDocType();
 
             $sort1 = ($sortBy == 1) ? 11 : 1;
             $sort2 = ($sortBy == 2) ? 12 : 2;
-            $sort3 = ($sortBy == 3) ? 13 : 3;
+            $sort3 = ($sortBy == 13) ? 3 : 13;
             $sort4 = ($sortBy == 4) ? 14 : 4;
             $sort5 = ($sortBy == 5) ? 15 : 5;
             $sort6 = ($sortBy == 6) ? 16 : 6;
-            $sort7 = ($sortBy == 7) ? 17 : 7;
-            $sort8 = ($sortBy == 8) ? 18 : 8;
+            $sort7 = ($sortBy == 17) ? 7 : 17;
+            $sort8 = ($sortBy == 18) ? 8 : 18;
 
             $mark1 = ($sortBy % 10 == 1) ? '&nbsp;*' : '';
             $mark2 = ($sortBy % 10 == 2) ? '&nbsp;*' : '';
