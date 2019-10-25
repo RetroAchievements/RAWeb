@@ -37,8 +37,8 @@ if ($dev != null) {
     $dev_param .= "&d=$dev";
 }
 
-$sortBy = seekGET('s', 1);
-$achCount = getAchievementsListByDev($dev, $consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags);
+$sortBy = seekGET('s', 17);
+$achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 //var_dump( $achData );
 
@@ -65,7 +65,7 @@ RenderDocType();
 <?php RenderToolbar($user, $permissions); ?>
 
 <div id='mainpage'>
-    <div id='leftcontainer'>
+    <div id='fullcontainer'>
         <div class='left'>
             <?php
             echo "<div class='navpath'>";
@@ -82,7 +82,8 @@ RenderDocType();
             }
             echo "Achievement List</h3>";
 
-            echo "Showing:</br>";
+            echo "<div class='d-flex flex-wrap justify-content-between'>";
+            echo "<div>";
 
             echo "&nbsp;- ";
             echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
@@ -109,6 +110,21 @@ RenderDocType();
                 echo $params !== 2 ? "</a>" : "</b>";
                 echo "<br/>";
             }
+            echo "</div>";
+
+            if ($user !== null) {
+                echo "<div>";
+                echo "Filter by developer:<br/>";
+                echo "<form method='get' action='/achievementList.php'>";
+                echo "<input type='hidden' name='s' value='$sortBy'>";
+                echo "<input type='hidden' name='p' value='$params'>";
+                echo "<input size='28' name='d' type='text' value='$dev'>";
+                echo "&nbsp;<input type='submit' value='Select' >";
+                echo "</form>";
+                echo "</div>";
+            }
+
+            echo "</div>";
 
             echo "<div class='rightfloat'>* = ordered by</div>";
 
@@ -231,23 +247,11 @@ RenderDocType();
         </div>
     </div>
 
+    <?php /*
     <div id='rightcontainer'>
-        <?php
-        if ($user !== null) {
-            echo "<h3>Developer</h3>";
-            echo "</br>";
-            echo "See achievements created by a developer:<br/>";
-            echo "<form method='get' action='/achievementList.php'>";
-            echo "<input type='hidden' name='s' value='$sortBy'>";
-            echo "<input type='hidden' name='p' value='$params'>";
-            echo "<input size='28' name='d' type='text' />";
-            echo "&nbsp;<input type='submit' value='Select' />";
-            echo "</form>";
-        }
-
-        RenderRecentlyUploadedComponent(10);
-        ?>
+        <?php RenderRecentlyUploadedComponent(10); ?>
     </div>
+    */?>
 
 </div>
 
