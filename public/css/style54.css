@@ -928,7 +928,7 @@ pre, code, .code {
     font-family: monospace;
     font-size: medium;
     word-break: break-word;
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 .badgeimg {
