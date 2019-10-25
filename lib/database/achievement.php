@@ -120,11 +120,13 @@ function getAchievementsListByDev(
     $achCount = 0;
 
     $innerJoin = "";
-    if ($params > 0 && $user !== null) {
-        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'";
-    }
+    // if ($params > 0 && $user !== null) {
+    //     $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'";
+    // }
 
-    $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName
+    $query = "SELECT 
+                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, 
+                    gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName
                 FROM Achievements AS ach
                 $innerJoin
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -149,9 +151,9 @@ function getAchievementsListByDev(
         $query .= "WHERE ach.Author = '$dev' ";
     }
 
-    if ($params > 0 && $user !== null) {
-        $query .= "GROUP BY ach.ID ";
-    }
+    // if ($params > 0 && $user !== null) {
+    //     $query .= "GROUP BY ach.ID ";
+    // }
 
     switch ($sortBy) {
         case 0:
