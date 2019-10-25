@@ -87,7 +87,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
             {
                 echo " | <a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=$nextConsoleID'>$nextConsoleName</a>";
             }
-        
+        }
 
         echo "</p>";
 
