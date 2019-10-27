@@ -351,9 +351,10 @@ td, tr, img {
 #footer {
     padding: 15px;
     max-width: 980px;
-    background-color: #0a0a0a;
-    color: #2a2a2a;
+    background-color: #151515;
+    color: #3a3a3a;
     font-size: 12px;
+    line-height: 1.6;
     margin: 20px auto;
     border-top-style: solid;
     border-top-color: #0066cc;
@@ -379,13 +380,6 @@ td, tr, img {
         margin: 0;
     }
 }
-
-#footer p {
-	font-size: x-small;
-	background-color:transparent;
-	color:#555;
-}
-
 
 .feed_login{color: #666666; }
 .feed_won{color: #993311; }
