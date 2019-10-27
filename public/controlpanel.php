@@ -450,7 +450,7 @@
             echo "Remove all comments from my User Wall: ";
 			echo "</td>";
 			echo "<td>";
-			echo "<form method='POST' action='requestsubmituserprefs.php'>";
+			echo "<form method='POST' action='requestsubmituserprefs.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
 			echo "<input type='hidden' name='u' value='$user'>";
 			echo "<input type='hidden' name='c' value='$cookie'>";
 			echo "<input type='hidden' name='t' value='cleanwall'>";
