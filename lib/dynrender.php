@@ -670,8 +670,6 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         if (!isset($errorCode)) {
             echo "<div class='rightalign'>...or <a href='/createaccount.php'>create a new account</a></div>";
         }
-
-        RenderThemeSelector();
     } else {
         echo "<p>";
         echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic' />";
@@ -704,8 +702,6 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
 
         echo "</p>";
-
-        RenderThemeSelector(); //    Only when logged in
     }
 
     echo "<br/>";
@@ -852,10 +848,15 @@ function RenderToolbar($user, $permissions = 0)
     echo "</div>";
     echo "</form>";
 
+    echo "<div class='searchbox'>";
+    RenderThemeSelector();
+    echo "</div>";
+
 	echo '<br style="clear:both;">'; // to stretch height on mobile
 
     echo "</div>";
     echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
+    echo "</ul>";
 }
 
 function RenderFooter()
