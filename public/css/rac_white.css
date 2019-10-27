@@ -9,10 +9,6 @@ a {
 	background: rgb(222, 222, 222);
 }
 
-#logo {
-	background-image: url("/Images/RA_Logo10.png");
-}
-
 #rightcontainer {
 	background: rgb(248, 248, 248);
 }
@@ -50,5 +46,5 @@ body {
 	line-height: 1.3em;
 	
 	background: rgb(248, 248, 248);
-	font-family: 'Rosario', arial, sans-serif;
+	/*font-family: 'Rosario', arial, sans-serif;*/
 }
