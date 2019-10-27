@@ -203,7 +203,7 @@
 				echo "<div class='buttoncollection rightfloat'>";
 				echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
 				echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgFrom&amp;i=$msgID'>Reply</a></span>";
-				echo "<span class='rightalign clickablebutton'><a href='/requestdeletemessage.php?u=$user&amp;c=$cookieRaw&amp;m=$msgID'>Delete</a></span>";
+				echo "<span class='rightalign clickablebutton'><a href='/requestdeletemessage.php?u=$user&amp;c=$cookieRaw&amp;m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
 				echo "</div>";
 				
 				echo "</td>";
