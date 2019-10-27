@@ -380,20 +380,19 @@ function onUpdateComplete( data )
 				echo "<div style='float:left;' >";
 				echo "&#124;";
 				echo "&nbsp;";
-				echo "<a href='requestdeletelb.php?u=$user&amp;i=$lbID&g=$gameID'>Permanently Delete?</a>";
+				echo "<a href='requestdeletelb.php?u=$user&amp;i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Permanently Delete?</a>";
 				echo "&nbsp;";
 				echo "&#124;";
 				echo "&nbsp;";
-				
-				if( $lbNumEntries > 0 )
-					echo "<a href='requestresetlb.php?u=$user&amp;i=$lbID'>Reset all $lbNumEntries entries?</a>";
-				else
-					echo "0 entries";
-					
+                if ($lbNumEntries > 0) {
+                    echo "<a href='requestresetlb.php?u=$user&amp;i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset all $lbNumEntries entries?</a>";
+                } else {
+                    echo "0 entries";
+                }
 				echo "&nbsp;";
 				echo "&#124;";
-				
 				echo "</div>";
+
 				echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></input></div>";
 				
 				echo "</td>";
