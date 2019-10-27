@@ -500,6 +500,9 @@ $(function () {
 });
 
 function removeComment(artID, commentID) {
+    if (!confirm('Ary you sure you want to permanently delete this comment?')) {
+        return false;
+    }
 
     var posting = $.post("/dorequest.php", {r: "removecomment", a: artID, c: commentID});
     posting.done(onRemoveComment);
