@@ -2417,8 +2417,8 @@ function RenderDocType($isOpenGraphPage = false)
 
 function RenderSharedHeader($user)
 {
-    echo "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />\n";
-    echo "<link href='https://fonts.googleapis.com/css?family=Rosario' rel='stylesheet' type='text/css' />\n";
+    // echo "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css' />\n";
+    // echo "<link href='https://fonts.googleapis.com/css?family=Rosario' rel='stylesheet' type='text/css' />\n";
     echo "<link rel='stylesheet' href='" . CSS_FILE . "' type='text/css' media='screen' />\n";
     $customCSS = RA_ReadCookie('RAPrefs_CSS');
     if ($customCSS !== false && strlen($customCSS) > 2) {
