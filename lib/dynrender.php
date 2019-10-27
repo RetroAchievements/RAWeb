@@ -2472,7 +2472,7 @@ function RenderSharedHeader($user)
     //    jQuery, and custom js
     //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script type='text/javascript' src='/js/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script type='text/javascript' src='/js/all.js?nc=".date('Y-m-d')."'></script>\n";
+    echo "<script type='text/javascript' src='/js/all.js?v=".VERSION."'></script>\n";
 }
 
 function RenderFBMetadata($title, $OGType, $imageURL, $thisURL, $description)
