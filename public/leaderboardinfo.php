@@ -98,7 +98,7 @@ RenderDocType(true);
                 echo "<table><tbody>";
                 if (count($lbData['Entries']) > 0) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/request.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/request.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo "<input type='hidden' name='r' value='removelbentry' />";
                     echo "<input type='hidden' name='l' value='$lbID' />";
                     echo "<input type='hidden' name='b' value='true' />";
