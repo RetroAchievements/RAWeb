@@ -1,4 +1,3 @@
-
 /*
  Watermark v3.1.4 (August 13, 2012) plugin for jQuery
  http://jquery-watermark.googlecode.com/
@@ -12,633 +11,578 @@
         }
 
 /* creates an XMLHttpRequest instance */
-function createXmlHttpRequestObject()
-        {
-// will store the reference to the XMLHttpRequest object
-        var xmlHttp;
-                // this should work for all browsers except IE6 and older
-                try
-                {
-// try to create XMLHttpRequest object
-                xmlHttp = new XMLHttpRequest();
-                        }
-        catch (e)
-                {
-// assume IE6 or older
-                var XmlHttpVersions = new Array("MSXML2.XMLHTTP.6.0",
-                        "MSXML2.XMLHTTP.5.0",
-                        "MSXML2.XMLHTTP.4.0",
-                        "MSXML2.XMLHTTP.3.0",
-                        "MSXML2.XMLHTTP",
-                        "Microsoft.XMLHTTP");
-                        // try every prog id until one works
-                        for (var i = 0; i < XmlHttpVersions.length && !xmlHttp; i++)
-                        {
-                        try
-                                {
-// try to create XMLHttpRequest object
-                                xmlHttp = new ActiveXObject(XmlHttpVersions[i]);
-                                        }
-                        catch (e) {}
-                        }
-                }
-// return the created object or display an error message
-        if (!xmlHttp)
-                alert("Error creating the XMLHttpRequest object.");
-                else
-                return xmlHttp;
-                }
+function createXmlHttpRequestObject() {
+    // will store the reference to the XMLHttpRequest object
+    var xmlHttp;
+    // this should work for all browsers except IE6 and older
+    try {
+        // try to create XMLHttpRequest object
+        xmlHttp = new XMLHttpRequest();
+    } catch (e) {
+        // assume IE6 or older
+        var XmlHttpVersions = new Array("MSXML2.XMLHTTP.6.0",
+            "MSXML2.XMLHTTP.5.0",
+            "MSXML2.XMLHTTP.4.0",
+            "MSXML2.XMLHTTP.3.0",
+            "MSXML2.XMLHTTP",
+            "Microsoft.XMLHTTP");
+        // try every prog id until one works
+        for (var i = 0; i < XmlHttpVersions.length && !xmlHttp; i++) {
+            try {
+                // try to create XMLHttpRequest object
+                xmlHttp = new ActiveXObject(XmlHttpVersions[i]);
+            } catch (e) {
+            }
+        }
+    }
+    // return the created object or display an error message
+    if (!xmlHttp)
+        alert("Error creating the XMLHttpRequest object.");
+    else
+        return xmlHttp;
+}
 
 //Math.max(b,Math.min(c,a));}
 //(function(){Math.clamp=function(a,b,c){return })();
 
 function RA_ReadCookie(name) {
-var nameEQ = name + "=";
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-var c = ca[i];
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
         while (c.charAt(0) == ' ') c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
 }
-return null;
-        }
 
-var shortMonths = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
-        function insertEditForm(activityVar, articleType)
-        {
-        var user = RA_ReadCookie('RA_User');
-                if (user !== null)
-        {
+var shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function insertEditForm(activityVar, articleType) {
+    var user = RA_ReadCookie('RA_User');
+    if (user !== null) {
         var rowID = "comment_" + activityVar;
-                //alert( rowID );
-                var commentRow = $("body").find("#" + rowID);
-                if (!commentRow.exists())
-        {
-        //alert( user );
-        //alert( activityVar );
-        var userImage = "<img id=\"badgeimg\" src=\"/UserPic/" + user + ".png\" width=32 height=32>";
-                var formStr = "";
-                formStr += "<textarea id=\"commentTextarea\" rows=2 cols=36 name=\"c\" maxlength=250></textarea>";
-                formStr += "&nbsp;";
-                formStr += "<img id=\"submitButton\" src=\"https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/Submit.png\" alt=\"Submit\" style=\"cursor: pointer;\" onclick=\"processComment( '" + activityVar + "', '" + articleType + "' )\">";
-                var d = new Date();
-                var dateStr = "";
-                dateStr += d.getDate();
-                dateStr += " ";
-                dateStr += shortMonths[d.getMonth()];
-                dateStr += "<br>";
-                dateStr += ("0" + d.getUTCHours()).slice( - 2);
-                dateStr += ":";
-                dateStr += ("0" + d.getUTCMinutes()).slice( - 2);
-                var editRow = "<tr id=" + rowID + "><td class=\"smalldate\">" + dateStr + "</td><td class=\"iconscomment\" colspan=\"2\">" + userImage + "</td><td colspan=\"3\">" + formStr + "</td></tr>";
-                var lastComment = $("body").find("#" + activityVar);
-                //	Insert this AFTER the last comment for this article.
-                while (1)
-        {
-        var nextComment = lastComment.next();
+        //alert( rowID );
+        var commentRow = $("body").find("#" + rowID);
+        if (!commentRow.exists()) {
+            //alert( user );
+            //alert( activityVar );
+            var userImage = "<img id=\"badgeimg\" src=\"/UserPic/" + user + ".png\" width=32 height=32>";
+            var formStr = "";
+            formStr += "<textarea id=\"commentTextarea\" rows=2 cols=36 name=\"c\" maxlength=250></textarea>";
+            formStr += "&nbsp;";
+            formStr += "<img id=\"submitButton\" src=\"https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/Submit.png\" alt=\"Submit\" style=\"cursor: pointer;\" onclick=\"processComment( '" + activityVar + "', '" + articleType + "' )\">";
+            var d = new Date();
+            var dateStr = "";
+            dateStr += d.getDate();
+            dateStr += " ";
+            dateStr += shortMonths[d.getMonth()];
+            dateStr += "<br>";
+            dateStr += ("0" + d.getUTCHours()).slice(-2);
+            dateStr += ":";
+            dateStr += ("0" + d.getUTCMinutes()).slice(-2);
+            var editRow = "<tr id=" + rowID + "><td class=\"smalldate\">" + dateStr + "</td><td class=\"iconscomment\" colspan=\"2\">" + userImage + "</td><td colspan=\"3\">" + formStr + "</td></tr>";
+            var lastComment = $("body").find("#" + activityVar);
+            //	Insert this AFTER the last comment for this article.
+            while (1) {
+                var nextComment = lastComment.next();
                 if (nextComment.hasClass("feed_comment"))
-                lastComment = lastComment.next();
+                    lastComment = lastComment.next();
                 else
-                break;
+                    break;
+            }
+
+            lastComment.after(editRow);
+            var insertedRow = lastComment.next("tr");
+            var commentTextarea = insertedRow.find("#commentTextarea");
+            commentTextarea.focus();
+            commentTextarea.val("");
+            commentTextarea.watermark('Enter a comment here...');
+        } else {
+            commentRow.remove();
+        }
+    }
+}
+
+function processComment(activityVar, articleType) {
+    var user = RA_ReadCookie('RA_User');
+    if (user !== null) {
+        var rowID = "comment_" + activityVar;
+        //alert( rowID );
+        var commentRow = $("body").find("#" + rowID);
+        if (commentRow.exists()) {
+            var textBox = commentRow.find("#commentTextarea");
+            if (textBox.exists()) {
+                var comment = textBox.val();
+                if (comment.length > 0) {
+                    //var safeComment = comment;	//	Removed!
+                    var safeComment = strip_tags(comment);
+                    //var safeComment = comment.replace( /<|>/g, '_' );
+                    //alert( comment );
+                    //alert( safeComment );
+
+                    //	Note: using substr on activityVar, because it will be in the format art_213 etc.
+                    var posting = $.post("/requestpostcomment.php", {u: user, a: activityVar.substr(4), c: safeComment, t: articleType});
+                    posting.done(onCommentSuccess);
+                    var submitButton = commentRow.find("#submitButton");
+                    if (submitButton.exists()) {
+                        submitButton.attr("src", "/Images/loading.gif"); //	Change to 'loading' gif
+                        submitButton.attr("onclick", ""); //	stop being able to click this
+                        submitButton.css("cursor", ""); //	stop being able to see a finger pointer
+                    }
+
+                    //textBox.hide();
+                } else {
+                    alert("Comment is empty");
+                }
+            } else {
+                alert("Cannot find textBox #commentTextarea");
+            }
+        } else {
+            alert("Cannot find commentRow" + "#" + rowID);
+        }
+    }
+}
+
+function onCommentSuccess(data) {
+    if (data.substring(0, 6) == "FAILED") {
+        alert("Failed to post comment! Please try again, or later. Sorry!");
+        return;
+    }
+
+    var sPath = window.location.pathname;
+    if (sPath.substr(0, 5).toLowerCase() == '/game') {
+        location.reload();
+        return;
+    } else if (sPath.substr(0, 12).toLowerCase() == "/achievement") {
+        location.reload();
+        return;
+    } else if (sPath.substr(0, 5).toLowerCase() == "/user") {
+        location.reload();
+        return;
+    }
+
+    var commentRow = $("body").find("#comment_art_" + data);
+    if (commentRow.exists()) {
+        //	Embed as proper comment instead!
+        commentRow.addClass("feed_comment");
+        commentRow.removeAttr("id");
+        var textBox = commentRow.find("#commentTextarea");
+        if (textBox.exists()) {
+            var comment = textBox.val();
+            //var safeComment = comment.replace( /<|>/g, '_' );
+            var safeComment = strip_tags(comment);
+            //var safeComment = comment;	//	Removed!
+
+            textBox.after(safeComment);
+            //	Set its container to commenttext
+            textBox.parent().addClass("commenttext");
+            textBox.remove();
         }
 
-        lastComment.after(editRow);
-                var insertedRow = lastComment.next("tr");
-                var commentTextarea = insertedRow.find("#commentTextarea");
-                commentTextarea.focus();
-                commentTextarea.val("");
-                commentTextarea.watermark('Enter a comment here...');
+        var submitButton = commentRow.find("#submitButton");
+        if (submitButton.exists()) {
+            submitButton.remove();
         }
-        else
-        {
-        commentRow.remove();
+    }
+}
+
+function GetParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.search);
+    if (results == null)
+        return "";
+    else
+        return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function FocusOnArticleID(id) {
+    $('#art_' + id).scrollIntoView();
+    //var x = document.getElementById( "act_" + id );
+    //if( x ) { x.scrollIntoView(); }
+}
+
+function UpdateDisplayOrder(user, objID) {
+    var inputText = $("body").find("#" + objID).val();
+    var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+    var posting = $.post("requestupdateachievement.php", {u: user, a: objID.substr(4), f: 1, v: inputNum});
+    posting.done(onUpdateDisplayOrderComplete);
+    $("body").find("#warning").html("Status: updating...");
+}
+
+function UpdateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID) {
+    var inputText = $("body").find("#" + objID).val();
+    var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+    var posting = $.post("requestupdatesiteaward.php", {u: user, t: awardType, d: awardData, e: awardDataExtra, v: inputNum});
+    posting.done(onUpdateDisplayOrderComplete);
+    $("body").find("#warning").html("Status: updating...");
+}
+
+function onUpdateDisplayOrderComplete(data) {
+    //alert( data );
+    if (data !== "OK") {
+        $("body").find("#warning").html("Status: Errors..." + data);
+        //alert( data );
+    } else {
+        $("body").find("#warning").html("Status: OK!");
+    }
+}
+
+function strip_tags(html) {
+    //PROCESS STRING
+    if (arguments.length < 3) {
+        html = html.replace(/<\/?(?!\!)[^>]*>/gi, '');
+    } else {
+        var allowed = arguments[1];
+        var specified = eval("[" + arguments[2] + "]");
+        if (allowed) {
+            var regex = '</?(?!(' + specified.join('|') + '))\b[^>]*>';
+            html = html.replace(new RegExp(regex, 'gi'), '');
+        } else {
+            var regex = '</?(' + specified.join('|') + ')\b[^>]*>';
+            html = html.replace(new RegExp(regex, 'gi'), '');
         }
-        }
-        }
+    }
 
-function processComment(activityVar, articleType)
-        {
-        var user = RA_ReadCookie('RA_User');
-                if (user !== null)
-                {
-                var rowID = "comment_" + activityVar;
-                        //alert( rowID );
-                        var commentRow = $("body").find("#" + rowID);
-                        if (commentRow.exists())
-                        {
-                        var textBox = commentRow.find("#commentTextarea");
-                                if (textBox.exists())
-                                {
-                                var comment = textBox.val();
-                                        if (comment.length > 0)
-                                        {
-//var safeComment = comment;	//	Removed!
-                                        var safeComment = strip_tags(comment);
-                                                //var safeComment = comment.replace( /<|>/g, '_' );
-                                                //alert( comment );
-                                                //alert( safeComment );
-
-                                                //	Note: using substr on activityVar, because it will be in the format art_213 etc.
-                                                var posting = $.post("/requestpostcomment.php", { u: user, a: activityVar.substr(4), c: safeComment, t: articleType });
-                                                posting.done(onCommentSuccess);
-                                                var submitButton = commentRow.find("#submitButton");
-                                                if (submitButton.exists())
-                                                {
-                                                submitButton.attr("src", "/Images/loading.gif"); //	Change to 'loading' gif
-                                                        submitButton.attr("onclick", ""); //	stop being able to click this
-                                                        submitButton.css("cursor", ""); //	stop being able to see a finger pointer
-                                                        }
-
-//textBox.hide();
-                                        }
-                                else
-                                        {
-                                        alert("Comment is empty");
-                                                }
-                                }
-                        else
-                                {
-                                alert("Cannot find textBox #commentTextarea");
-                                        }
-                        }
-                else
-                        {
-                        alert("Cannot find commentRow" + "#" + rowID);
-                                }
-                }
-        }
-
-function onCommentSuccess(data)
-        {
-        if (data.substring(0, 6) == "FAILED")
-                {
-                alert("Failed to post comment! Please try again, or later. Sorry!");
-                        return;
-                        }
-
-        var sPath = window.location.pathname;
-                if (sPath.substr(0, 5).toLowerCase() == '/game')
-                {
-                location.reload();
-                        return;
-                        }
-        else if (sPath.substr(0, 12).toLowerCase() == "/achievement")
-                {
-                location.reload();
-                        return;
-                        }
-        else if (sPath.substr(0, 5).toLowerCase() == "/user")
-                {
-                location.reload();
-                        return;
-                        }
-
-        var commentRow = $("body").find("#comment_art_" + data);
-                if (commentRow.exists())
-                {
-//	Embed as proper comment instead!
-                commentRow.addClass("feed_comment");
-                        commentRow.removeAttr("id");
-                        var textBox = commentRow.find("#commentTextarea");
-                        if (textBox.exists())
-                        {
-                        var comment = textBox.val();
-                                //var safeComment = comment.replace( /<|>/g, '_' );
-                                var safeComment = strip_tags(comment);
-                                //var safeComment = comment;	//	Removed!
-
-                                textBox.after(safeComment);
-                                //	Set its container to commenttext
-                                textBox.parent().addClass("commenttext");
-                                textBox.remove();
-                                }
-
-                var submitButton = commentRow.find("#submitButton");
-                        if (submitButton.exists())
-                        {
-                        submitButton.remove();
-                                }
-                }
-        }
-
-function GetParameterByName(name)
-        {
-        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-                var regexS = "[\\?&]" + name + "=([^&#]*)";
-                var regex = new RegExp(regexS);
-                var results = regex.exec(window.location.search);
-                if (results == null)
-                return "";
-                else
-                return decodeURIComponent(results[1].replace(/\+/g, " "));
-                }
-
-function FocusOnArticleID(id)
-        {
-        $('#art_' + id).scrollIntoView();
-                //var x = document.getElementById( "act_" + id );
-                //if( x ) { x.scrollIntoView(); }
-                }
-
-function UpdateDisplayOrder(user, objID)
-        {
-        var inputText = $("body").find("#" + objID).val();
-                var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
-                var posting = $.post("requestupdateachievement.php", { u: user, a: objID.substr(4), f: 1, v: inputNum });
-                posting.done(onUpdateDisplayOrderComplete);
-                $("body").find("#warning").html("Status: updating...");
-                }
-
-function UpdateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID)
-        {
-        var inputText = $("body").find("#" + objID).val();
-                var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
-                var posting = $.post("requestupdatesiteaward.php", { u: user, t: awardType, d: awardData, e: awardDataExtra, v: inputNum });
-                posting.done(onUpdateDisplayOrderComplete);
-                $("body").find("#warning").html("Status: updating...");
-                }
-
-function onUpdateDisplayOrderComplete(data)
-        {
-//alert( data );
-        if (data !== "OK")
-                {
-                $("body").find("#warning").html("Status: Errors..." + data);
-                        //alert( data );
-                        }
-        else
-                {
-                $("body").find("#warning").html("Status: OK!");
-                        }
-        }
-
-function strip_tags(html)
-        {
-//PROCESS STRING
-        if (arguments.length < 3)
-                {
-                html = html.replace(/<\/?(?!\!)[^>]*>/gi, '');
-                        }
-        else
-                {
-                var allowed = arguments[1];
-                        var specified = eval("[" + arguments[2] + "]");
-                        if (allowed){
-                var regex = '</?(?!(' + specified.join('|') + '))\b[^>]*>';
-                        html = html.replace(new RegExp(regex, 'gi'), '');
-                        } else{
-                var regex = '</?(' + specified.join('|') + ')\b[^>]*>';
-                        html = html.replace(new RegExp(regex, 'gi'), '');
-                        }
-                }
-
-        return html;
-                }
+    return html;
+}
 
 /* Pads a number with 0s */
-function pad(n, width, z)
-        {
-        z = z || '0';
-                n = n + '';
-                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-                }
+function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
 
-function injectphpbb(start, end)
-        {
-        var commentTextarea = document.getElementById('commentTextarea');
-                if (commentTextarea != undefined)
-                {
-//	Something's selected: wrap it
-                var startPos = commentTextarea.selectionStart;
-                        var endPos = commentTextarea.selectionEnd;
-                        selectedText = commentTextarea.value.substring(startPos, endPos)
+function injectphpbb(start, end) {
+    var commentTextarea = document.getElementById('commentTextarea');
+    if (commentTextarea != undefined) {
+        //	Something's selected: wrap it
+        var startPos = commentTextarea.selectionStart;
+        var endPos = commentTextarea.selectionEnd;
+        selectedText = commentTextarea.value.substring(startPos, endPos)
 
-                        var textBeforeSelection = commentTextarea.value.substr(0, commentTextarea.selectionStart);
-                        var textAfterSelection = commentTextarea.value.substr(commentTextarea.selectionEnd, commentTextarea.value.length);
-                        commentTextarea.value = textBeforeSelection + start + selectedText + end + textAfterSelection;
-                        }
-        else
-                {
-//	Nothing selected, just inject at the end of the message
-                commentTextarea.value += start;
-                        commentTextarea.value += ' ';
-                        commentTextarea.value += end;
-                        }
+        var textBeforeSelection = commentTextarea.value.substr(0, commentTextarea.selectionStart);
+        var textAfterSelection = commentTextarea.value.substr(commentTextarea.selectionEnd, commentTextarea.value.length);
+        commentTextarea.value = textBeforeSelection + start + selectedText + end + textAfterSelection;
+    } else {
+        //	Nothing selected, just inject at the end of the message
+        commentTextarea.value += start;
+        commentTextarea.value += ' ';
+        commentTextarea.value += end;
+    }
 
-        commentTextarea.focus();
-                }
+    commentTextarea.focus();
+}
 
-function replaceAll(find, replace, str)
-        {
-        return str.replace(new RegExp(find, 'g'), replace);
-                }
+function replaceAll(find, replace, str) {
+    return str.replace(new RegExp(find, 'g'), replace);
+}
 
-function GetAchievementAndTooltipDiv(achID, achName, achDesc, achPoints, gameName, badgeName, inclSmallBadge, smallBadgeOnly)
-        {
-        var tooltipImageSize = 64;
-                //achName = replaceAll( "\"", "\\&apos;", achName );
-                //achDesc = replaceAll( "\"", "\\&apos;", achDesc );
-                //gameName = replaceAll( "\"", "\\&apos;", gameName );
+function GetAchievementAndTooltipDiv(achID, achName, achDesc, achPoints, gameName, badgeName, inclSmallBadge, smallBadgeOnly) {
+    var tooltipImageSize = 64;
+    //achName = replaceAll( "\"", "\\&apos;", achName );
+    //achDesc = replaceAll( "\"", "\\&apos;", achDesc );
+    //gameName = replaceAll( "\"", "\\&apos;", gameName );
 
-                var tooltip = "<div id=\'objtooltip\'>" +
-                "<img src=\'https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/" + badgeName + ".png\' width=" + tooltipImageSize + " height=" + tooltipImageSize + " />" +
-                "<b>" + achName + " (" + achPoints.toString() + ")</b><br/>" +
-                "<i>(" + gameName + ")</i><br/>" +
-                "<br/>" +
-                achDesc + "<br/>" +
-                "</div>";
-                tooltip = replaceAll('<', '&lt;', tooltip);
-                tooltip = replaceAll('>', '&gt;', tooltip);
-                tooltip = replaceAll("\'", "\\\'", tooltip);
-                tooltip = replaceAll("\"", "&quot;", tooltip);
-                var smallBadge = '';
-                var displayable = achName + " (" + achPoints.toString() + ")";
-                if (inclSmallBadge)
-                {
-                smallBadgePath = "https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/" + badgeName + ".png";
-                        smallBadge = "<img width='32' height='32' style='floatimg' src='" + smallBadgePath + "' alt=\"" + achName + "\" title=\"" + achName + "\" class='badgeimg' />";
-                        if (smallBadgeOnly)
-                        displayable = "";
-                        }
+    var tooltip = "<div id=\'objtooltip\'>" +
+        "<img src=\'https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/" + badgeName + ".png\' width=" + tooltipImageSize + " height=" + tooltipImageSize + " />" +
+        "<b>" + achName + " (" + achPoints.toString() + ")</b><br/>" +
+        "<i>(" + gameName + ")</i><br/>" +
+        "<br/>" +
+        achDesc + "<br/>" +
+        "</div>";
+    tooltip = replaceAll('<', '&lt;', tooltip);
+    tooltip = replaceAll('>', '&gt;', tooltip);
+    tooltip = replaceAll("\'", "\\\'", tooltip);
+    tooltip = replaceAll("\"", "&quot;", tooltip);
+    var smallBadge = '';
+    var displayable = achName + " (" + achPoints.toString() + ")";
+    if (inclSmallBadge) {
+        smallBadgePath = "https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/" + badgeName + ".png";
+        smallBadge = "<img width='32' height='32' style='floatimg' src='" + smallBadgePath + "' alt=\"" + achName + "\" title=\"" + achName + "\" class='badgeimg' />";
+        if (smallBadgeOnly)
+            displayable = "";
+    }
 
-        return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
-                "<a href='/Achievement/" + achID + "'>" +
-                smallBadge +
-                displayable +
-                "</a>" +
-                "</div>";
-                }
+    return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
+        "<a href='/Achievement/" + achID + "'>" +
+        smallBadge +
+        displayable +
+        "</a>" +
+        "</div>";
+}
 
-function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageInstead)
-        {
-        var tooltipImageSize = 64;
-                var consoleStr = "(" + consoleName + ")";
-                var tooltip = "<div id=\'objtooltip\'>" +
-                "<img src=\'" + gameIcon + "\' width=\'" + tooltipImageSize + "\' height=\'" + tooltipImageSize + "\' />" +
-                "<b>" + gameTitle + "</b><br/>" +
-                consoleStr +
-                "</div>";
-                tooltip = replaceAll('<', '&lt;', tooltip);
-                tooltip = replaceAll('>', '&gt;', tooltip);
-                tooltip = replaceAll("\'", "\\\'", tooltip);
-                tooltip = replaceAll("\"", "&quot;", tooltip);
-                var displayable = gameTitle + " " + consoleStr;
-                if (imageInstead)
-                displayable = "<img alt=\"started playing " + gameTitle + "\" title=\"Started playing " + gameTitle + "\" src='" + gameIcon + "' width='32' height='32' class='badgeimg' />";
-                return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
-                "<a href='/Game/" + gameID.toString() + "'>" +
-                displayable +
-                "</a>" +
-                "</div>";
-                }
+function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageInstead) {
+    var tooltipImageSize = 64;
+    var consoleStr = "(" + consoleName + ")";
+    var tooltip = "<div id=\'objtooltip\'>" +
+        "<img src=\'" + gameIcon + "\' width=\'" + tooltipImageSize + "\' height=\'" + tooltipImageSize + "\' />" +
+        "<b>" + gameTitle + "</b><br/>" +
+        consoleStr +
+        "</div>";
+    tooltip = replaceAll('<', '&lt;', tooltip);
+    tooltip = replaceAll('>', '&gt;', tooltip);
+    tooltip = replaceAll("\'", "\\\'", tooltip);
+    tooltip = replaceAll("\"", "&quot;", tooltip);
+    var displayable = gameTitle + " " + consoleStr;
+    if (imageInstead)
+        displayable = "<img alt=\"started playing " + gameTitle + "\" title=\"Started playing " + gameTitle + "\" src='" + gameIcon + "' width='32' height='32' class='badgeimg' />";
+    return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
+        "<a href='/Game/" + gameID.toString() + "'>" +
+        displayable +
+        "</a>" +
+        "</div>";
+}
 
-function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText)
-        {
-        var tooltipImageSize = 128;
-                var tooltip = "<div id=\'objtooltip\'>";
-                tooltip += "<table><tbody>";
-                tooltip += "<tr>";
-                //	Image
-                tooltip += "<td class='fixedtooltipcolleft'><img src='/UserPic/" + user + ".png' width=\'" + tooltipImageSize + "\' height=\'" + tooltipImageSize + "\' /></td>";
-                //	Username (points)
-                tooltip += "<td class='fixedtooltipcolright'>";
-                tooltip += "<b>" + user + "</b>";
-                if (points !== null)
-                tooltip += "&nbsp;(" + points.toString() + ")";
-                //	Motto
-                if (motto && motto.length > 2)
-                tooltip += "</br><span class='usermotto'>" + motto + "</span>";
-                if (extraText.length > 0)
-                tooltip += extraText;
-                tooltip += "</td>";
-                tooltip += "</tr>";
-                tooltip += "</tbody></table>";
-                tooltip += "</div>";
-                //tooltip = escapeHtml( tooltip );
+function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
+    var tooltipImageSize = 128;
+    var tooltip = "<div id=\'objtooltip\'>";
+    tooltip += "<table><tbody>";
+    tooltip += "<tr>";
+    //	Image
+    tooltip += "<td class='fixedtooltipcolleft'><img src='/UserPic/" + user + ".png' width=\'" + tooltipImageSize + "\' height=\'" + tooltipImageSize + "\' /></td>";
+    //	Username (points)
+    tooltip += "<td class='fixedtooltipcolright'>";
+    tooltip += "<b>" + user + "</b>";
+    if (points !== null)
+        tooltip += "&nbsp;(" + points.toString() + ")";
+    //	Motto
+    if (motto && motto.length > 2)
+        tooltip += "</br><span class='usermotto'>" + motto + "</span>";
+    if (extraText.length > 0)
+        tooltip += extraText;
+    tooltip += "</td>";
+    tooltip += "</tr>";
+    tooltip += "</tbody></table>";
+    tooltip += "</div>";
+    //tooltip = escapeHtml( tooltip );
 
-                tooltip = replaceAll('<', '&lt;', tooltip);
-                tooltip = replaceAll('>', '&gt;', tooltip);
-                tooltip = replaceAll("\'", "\\\'", tooltip); //&#039;
-                tooltip = replaceAll("\"", "&quot;", tooltip);
-                var displayable = user;
-                if (imageInstead)
-                displayable = "<img src='/UserPic/" + user + ".png' width='32' height='32' alt='" + user + "' title='" + user + "' class='badgeimg' />";
-                return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
-                "<a href='/User/" + user + "'>" +
-                displayable +
-                "</a>" +
-                "</div>";
-                }
+    tooltip = replaceAll('<', '&lt;', tooltip);
+    tooltip = replaceAll('>', '&gt;', tooltip);
+    tooltip = replaceAll("\'", "\\\'", tooltip); //&#039;
+    tooltip = replaceAll("\"", "&quot;", tooltip);
+    var displayable = user;
+    if (imageInstead)
+        displayable = "<img src='/UserPic/" + user + ".png' width='32' height='32' alt='" + user + "' title='" + user + "' class='badgeimg' />";
+    return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
+        "<a href='/User/" + user + "'>" +
+        displayable +
+        "</a>" +
+        "</div>";
+}
 
-function GetLeaderboardAndTooltipDiv(lbID, lbName, lbDesc, gameName, gameIcon, displayable)
-        {
-        var tooltipImageSize = 64;
-                var tooltip = "<div id=\'objtooltip\'>" +
-                "<img src=\'" + gameIcon + "\' width=\'" + tooltipImageSize + "\' height=\'" + tooltipImageSize + "\' />" +
-                "<b>" + lbName + "</b><br/>" +
-                "<i>(" + gameName + ")</i><br/>" +
-                "<br/>" +
-                lbDesc + "<br/>" +
-                "</div>";
-                tooltip = replaceAll('<', '&lt;', tooltip);
-                tooltip = replaceAll('>', '&gt;', tooltip);
-                tooltip = replaceAll("\'", "\\\'", tooltip);
-                tooltip = replaceAll("\"", "&quot;", tooltip);
-                return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
-                "<a href='/leaderboardinfo.php?i=" + lbID + "'>" +
-                displayable +
-                "</a>" +
-                "</div>";
-                }
+function GetLeaderboardAndTooltipDiv(lbID, lbName, lbDesc, gameName, gameIcon, displayable) {
+    var tooltipImageSize = 64;
+    var tooltip = "<div id=\'objtooltip\'>" +
+        "<img src=\'" + gameIcon + "\' width=\'" + tooltipImageSize + "\' height=\'" + tooltipImageSize + "\' />" +
+        "<b>" + lbName + "</b><br/>" +
+        "<i>(" + gameName + ")</i><br/>" +
+        "<br/>" +
+        lbDesc + "<br/>" +
+        "</div>";
+    tooltip = replaceAll('<', '&lt;', tooltip);
+    tooltip = replaceAll('>', '&gt;', tooltip);
+    tooltip = replaceAll("\'", "\\\'", tooltip);
+    tooltip = replaceAll("\"", "&quot;", tooltip);
+    return "<div class='bb_inline' onmouseover=\"Tip('" + tooltip + "')\" onmouseout=\"UnTip()\" >" +
+        "<a href='/leaderboardinfo.php?i=" + lbID + "'>" +
+        displayable +
+        "</a>" +
+        "</div>";
+}
 
 //	01:36 31/12/2013
-function UpdateMailboxCount(messageCount)
-        {
-        $('body').find("#mailboxicon").attr("src", (messageCount > 0) ? '/Images/_MailUnread.png' : '/Images/_Mail.png');
-                $('body').find("#mailboxcount").html(messageCount);
-                }
-
-$('#commentTextarea').on('keyup', function() {
-// Store the maxlength and value of the field.
-var maxlength = $(this).attr('maxlength');
-        var val = $(this).val();
-        var vallength = val.length;
-        // Trim the field if it has content over the maxlength.
-        if (vallength > maxlength) {
-$(this).val(val.slice(0, maxlength));
-        }
-});
-
-function reloadTwitchContainer(videoID){
-	var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-	console.log(videoID);
-	if (videoID != 0 && archiveURLs[ videoID ] != 0){
-		var vidTitle = archiveTitles[ videoID ];
-		var vidURL = archiveURLs[ videoID ];
-		vidURL = vidURL.split('/');
-		vidHTML = '<iframe src="https://player.twitch.tv/?video='+vidURL[vidURL.length-1]+'" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-	}
-
-	$('.streamvid').html(vidHTML);
+function UpdateMailboxCount(messageCount) {
+    $('body').find("#mailboxicon").attr("src", (messageCount > 0) ? '/Images/_MailUnread.png' : '/Images/_Mail.png');
+    $('body').find("#mailboxcount").html(messageCount);
 }
 
-jQuery(document).ready(function($) {
-$('#commentTextarea').watermark('Enter a comment here...');
-        $('.messageTextarea').watermark('Enter your message here...');
-        $('.searchboxinput').watermark('Search the site...');
-        $('.passwordresetusernameinput').watermark('Enter Username...');
-        $('.searchboxgamecompareuser').watermark('Enter User...');
-        $('#chatinput').watermark('Enter a comment here...');
-        $('#chatinput:disabled').watermark('Please log in to join the chat!');
-        $('.searchboxinput').autocomplete({source:'/requestsearch.php', minLength:2});
-        $('.searchboxinput').autocomplete({select: function(event, ui) { return false; } });
-        $('.searchboxinput').on("autocompleteselect", function(event, ui) {
-window.location = ui.item.mylink;
-        return false;
-        });
-        $('.searchboxgamecompareuser').autocomplete({source:'/requestsearch.php?p=gamecompare', minLength:2});
-        $('.searchboxgamecompareuser').autocomplete({select: function(event, ui) { return false; } });
-        $('.searchboxgamecompareuser').on("autocompleteselect", function(event, ui) {
+$('#commentTextarea').on('keyup', function () {
+    // Store the maxlength and value of the field.
+    var maxlength = $(this).attr('maxlength');
+    var val = $(this).val();
+    var vallength = val.length;
+    // Trim the field if it has content over the maxlength.
+    if (vallength > maxlength) {
+        $(this).val(val.slice(0, maxlength));
+    }
+});
 
-var gameID = GetParameterByName("ID");
+function reloadTwitchContainer(videoID) {
+    var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+    console.log(videoID);
+    if (videoID != 0 && archiveURLs[videoID] != 0) {
+        var vidTitle = archiveTitles[videoID];
+        var vidURL = archiveURLs[videoID];
+        vidURL = vidURL.split('/');
+        vidHTML = '<iframe src="https://player.twitch.tv/?video=' + vidURL[vidURL.length - 1] + '" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+    }
+
+    $('.streamvid').html(vidHTML);
+}
+
+jQuery(document).ready(function ($) {
+    $('#commentTextarea').watermark('Enter a comment here...');
+    $('.messageTextarea').watermark('Enter your message here...');
+    $('.searchboxinput').watermark('Search the site...');
+    $('.passwordresetusernameinput').watermark('Enter Username...');
+    $('.searchboxgamecompareuser').watermark('Enter User...');
+    $('#chatinput').watermark('Enter a comment here...');
+    $('#chatinput:disabled').watermark('Please log in to join the chat!');
+    $('.searchboxinput').autocomplete({source: '/requestsearch.php', minLength: 2});
+    $('.searchboxinput').autocomplete({
+        select: function (event, ui) {
+            return false;
+        }
+    });
+    $('.searchboxinput').on("autocompleteselect", function (event, ui) {
+        window.location = ui.item.mylink;
+        return false;
+    });
+    $('.searchboxgamecompareuser').autocomplete({source: '/requestsearch.php?p=gamecompare', minLength: 2});
+    $('.searchboxgamecompareuser').autocomplete({
+        select: function (event, ui) {
+            return false;
+        }
+    });
+    $('.searchboxgamecompareuser').on("autocompleteselect", function (event, ui) {
+
+        var gameID = GetParameterByName("ID");
         if (window.location.pathname.substring(0, 6) == '/Game/')
-        gameID = window.location.pathname.substring(6);
+            gameID = window.location.pathname.substring(6);
         window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.id;
         return false;
-        });
-        $('.searchuser').autocomplete({source:'/requestsearch.php?p=user', minLength:2});
-        $('.searchuser').autocomplete({select: function(event, ui) {
+    });
+    $('.searchuser').autocomplete({source: '/requestsearch.php?p=user', minLength: 2});
+    $('.searchuser').autocomplete({
+        select: function (event, ui) {
 
-var TABKEY = 9;
-        if (event.keyCode == TABKEY)
-        {
-        $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
-                }
-return false;
+            var TABKEY = 9;
+            if (event.keyCode == TABKEY) {
+                $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
+            }
+            return false;
         }
-});
-        $('.searchuser').on("autocompleteselect", function(event, ui) {
+    });
+    $('.searchuser').on("autocompleteselect", function (event, ui) {
 
-$('.searchuser').val(ui.item.id);
+        $('.searchuser').val(ui.item.id);
         $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
         return false;
-        });
-// duplicated code?
-        function repeat_fade($element, delay, duration) {
+    });
+
+    // duplicated code?
+    function repeat_fade($element, delay, duration) {
         $element.delay(delay).fadeToggle(duration, function () {
-        run_animation($element, delay, duration);
+            run_animation($element, delay, duration);
         });
-        };
-        $('#devboxcontent').hide();
-        $('.msgPayload').hide();
-        $('#managevids').hide();
-        $('#chatinput').width('75%');
-        $('#commentTextarea').width('75%');
-        $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
-        });
-        $(function () {
-        function repeat_fade($element, delay, duration) {
+    }
+
+    $('#devboxcontent').hide();
+    $('.msgPayload').hide();
+    $('#managevids').hide();
+    $('#chatinput').width('75%');
+    $('#commentTextarea').width('75%');
+    $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
+});
+
+$(function () {
+    function repeat_fade($element, delay, duration) {
         $element.delay(delay).fadeToggle(duration, function () {
-        repeat_fade($element, delay, duration);
+            repeat_fade($element, delay, duration);
         });
-        }
-        repeat_fade($('.trophyimageincomplete'), 200, 300);
-        });
-        function removeComment(artID, commentID)
-        {
-        var posting = $.post("/dorequest.php", { r: "removecomment", a: artID, c: commentID });
-                posting.done(onRemoveComment);
-        }
+    }
 
-function onRemoveComment(data)
-        {
-        var result = $.parseJSON(data)
-                if (result.Success)
-                {
-                $('#artcomment_' + result.ArtID + '_' + result.CommentID).hide(400, function(event) {});
-                        }
-//alert( result.Success );
-        }
+    repeat_fade($('.trophyimageincomplete'), 200, 300);
+});
 
-function ResetTheme()
-        {
-//	Unload all themes...
-        var allLinks = document.getElementsByTagName('link');
-                var numLinks = allLinks.length;
-                for (var i = 0; i < numLinks; i++)
-                {
-                var nextLink = allLinks[i];
-                        if (nextLink.rel == "stylesheet")
-                        {
-                        if (nextLink.href.indexOf('css/rac') != - 1)
-                                nextLink.disabled = true;
-                                }
-                }
+function removeComment(artID, commentID) {
 
-//	Then load the one you selected:
-        var cssToLoad = $('#themeselect :selected').val();
-                var cssLink = $("<link rel='stylesheet' type='text/css' href='" + cssToLoad + "'>");
-                $("head").append(cssLink);
-                RA_SetCookie('RAPrefs_CSS', cssToLoad);
-                }
-
-function RA_SetCookie(cookiename, value)
-        {
-//	Finally persist as a cookie
-        var days = 30;
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                var expires = "; expires=" + date.toGMTString();
-                document.cookie = cookiename + "=" + value + expires;
-                }
-
-function refreshOnlinePlayers()
-{
-    var posting = $.post( "/requestcurrentlyonlinelist.php" );
-    posting.done( onRefreshOnlinePlayers );
-
-    $('#playersonlinebox').fadeTo( "fast", 0.0 );
-    $('#playersonline-update').fadeTo( "fast", 0.0 );
+    var posting = $.post("/dorequest.php", {r: "removecomment", a: artID, c: commentID});
+    posting.done(onRemoveComment);
 }
 
-function onRefreshOnlinePlayers( data )
-{
-    var playerList = $.parseJSON( data );
+function onRemoveComment(data) {
+    var result = $.parseJSON(data);
+    if (result.Success) {
+        $('#artcomment_' + result.ArtID + '_' + result.CommentID).hide();
+    }
+    //alert( result.Success );
+}
+
+function ResetTheme() {
+    //	Unload all themes...
+    var allLinks = document.getElementsByTagName('link');
+    var numLinks = allLinks.length;
+    for (var i = 0; i < numLinks; i++) {
+        var nextLink = allLinks[i];
+        if (nextLink.rel == "stylesheet") {
+            if (nextLink.href.indexOf('css/rac') != -1)
+                nextLink.disabled = true;
+        }
+    }
+
+    //	Then load the one you selected:
+    var cssToLoad = $('#themeselect :selected').val();
+    var cssLink = $("<link rel='stylesheet' type='text/css' href='" + cssToLoad + "'>");
+    $("head").append(cssLink);
+    RA_SetCookie('RAPrefs_CSS', cssToLoad);
+}
+
+function RA_SetCookie(cookiename, value) {
+    //	Finally persist as a cookie
+    var days = 30;
+    var date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    var expires = "; expires=" + date.toGMTString();
+    document.cookie = cookiename + "=" + value + expires;
+}
+
+function refreshOnlinePlayers() {
+    var posting = $.post("/requestcurrentlyonlinelist.php");
+    posting.done(onRefreshOnlinePlayers);
+
+    $('#playersonlinebox').fadeTo("fast", 0.0);
+    $('#playersonline-update').fadeTo("fast", 0.0);
+}
+
+function onRefreshOnlinePlayers(data) {
+    var playerList = $.parseJSON(data);
     var numPlayersOnline = playerList.length;
 
     var htmlOut = "<div>There are currently <strong>" + numPlayersOnline + "</strong> players online:</div>";
 
-    for( var i = 0; i < numPlayersOnline; ++i )
-    {
+    for (var i = 0; i < numPlayersOnline; ++i) {
         var player = playerList[i];
 
-        if( i > 0 && i == numPlayersOnline-1 )	//	last but one:
+        if (i > 0 && i == numPlayersOnline - 1)	//	last but one:
             htmlOut += " and ";
-        else if( i > 0 )
+        else if (i > 0)
             htmlOut += ", ";
 
         var extraText = "<br/>" + player.LastActivityAt + ": " + player.User + " " + player.LastActivity;
-            htmlOut += GetUserAndTooltipDiv( player.User, player.RAPoints, player.Motto, false, extraText );
+        htmlOut += GetUserAndTooltipDiv(player.User, player.RAPoints, player.Motto, false, extraText);
     }
 
     d = new Date();
 
-    $('#playersonlinebox').html( htmlOut );
-    $('#playersonlinebox').fadeTo( "fast", 1.0 );
-    $('#playersonline-update').html( "Last updated at " + d.toLocaleTimeString() );
-    $('#playersonline-update').fadeTo( "fast", 0.5 );
+    $('#playersonlinebox').html(htmlOut);
+    $('#playersonlinebox').fadeTo("fast", 1.0);
+    $('#playersonline-update').html("Last updated at " + d.toLocaleTimeString());
+    $('#playersonline-update').fadeTo("fast", 0.5);
 }
 
-function refreshActivePlayers()
-{
+function refreshActivePlayers() {
     var posting = $.post("/requestcurrentlyactiveplayers.php");
     posting.done(onRefreshActivePlayers);
     $('#activeplayersbox').fadeTo("fast", 0.0);
     $('#activeplayers-update').fadeTo("fast", 0.0);
 }
 
-function onRefreshActivePlayers(data)
-{
+function onRefreshActivePlayers(data) {
     var playerList = JSON.parse(data)
     var numPlayersOnline = playerList.length;
     var htmlTitle = "<div>There are currently <strong>" + numPlayersOnline + "</strong> active players:</div>";
@@ -653,21 +597,17 @@ function onRefreshActivePlayers(data)
     tbody.append(headers);
     table.append(tbody);
 
-    for (var i = 0; i < numPlayersOnline; ++i)
-    {
+    for (var i = 0; i < numPlayersOnline; ++i) {
         var player = playerList[i];
         var userStamp = GetUserAndTooltipDiv(player.User, player.RAPoints, player.Motto, true, '');
         var userElement = $('<td></td>').append(userStamp);
         var gameElement;
         var activityElement;
 
-        if (player.InGame)
-        {
+        if (player.InGame) {
             gameElement = $('<td></td>').append(GetGameAndTooltipDiv(player.GameID, player.GameTitle, player.GameIcon, player.ConsoleName, true));
             activityElement = $('<td></td>').text(player.RichPresenceMsg);
-        }
-        else
-        {
+        } else {
             gameElement = $('<td></td>').append("None");
             activityElement = $('<td></td>').append("Just Browsing");
         }
