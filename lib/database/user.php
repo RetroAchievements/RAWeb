@@ -394,6 +394,22 @@ function sendActivityEmail(
     return $retVal;
 }
 
+function sendRAEmail($to, $header, $body)
+{
+    $body = stripslashes(nl2br($body));
+
+    if (isAtHome())
+    {
+        error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
+        error_log($email);
+        error_log($header);
+        error_log($body);
+        return true;
+    }
+
+    return mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $header, $body);
+}
+
 function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
 {
     if ($user == $fromUser) {

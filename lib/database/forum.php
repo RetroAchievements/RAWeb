@@ -340,43 +340,24 @@ function notifyUsersAboutForumActivity($topicID, $author, $commentID)
     //    hear about comments, let them know! Also notify users that have explicitly subscribed to
     //    the topic.
 
-    $query = "SELECT
-                ua.User, ua.EmailAddress
-              FROM
-                ForumTopicComment AS ftc
-                INNER JOIN UserAccounts AS ua
-                    ON ua.ID = ftc.AuthorID AND (ua.websitePrefs & (1<<3) != 0) 
-                LEFT JOIN ForumTopicSubscription AS sub
-                    ON sub.ForumTopicID = ftc.ForumTopicID AND sub.UserID = ftc.AuthorID
-              WHERE ftc.ForumTopicID = $topicID
-                AND ua.User != '$author'
-                AND COALESCE(sub.SubscriptionState, 1) = 1
-              GROUP BY ua.ID
-              UNION
-              SELECT
-                ua.User, ua.EmailAddress
-              FROM
-                ForumTopicSubscription AS sub
-                LEFT JOIN UserAccounts AS ua
-                    ON ua.ID = sub.UserID AND (ua.websitePrefs & (1<<3) != 0)
-              WHERE sub.ForumTopicID = $topicID
-                AND sub.SubscriptionState = 1
-                AND ua.User != '$author'";
+    $subscribers = getSubscribersOf(
+        \RA\SubscriptionSubjectType::ForumTopic,
+        $topicID,
+        (1 << 3),
+        "
+            SELECT DISTINCT ua.*
+            FROM
+                ForumTopicComment as ftc
+                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
+            WHERE
+                ftc.ForumTopicID = $topicID
+        "
+    );
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $nextUser = $db_entry['User'];
-            $nextEmail = $db_entry['EmailAddress'];
-
-            $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
-
-            sendActivityEmail($nextUser, $nextEmail, $topicID, $author, 6, null, $urlTarget);
-        }
-    } else {
-        error_log($query);
-        error_log(__FUNCTION__ . "wtf!! Can't notify anybody");
+    $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
+    foreach ($subscribers as $sub)
+    {
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, 6, null, $urlTarget);
     }
 }
 
@@ -638,49 +619,12 @@ function AuthoriseAllForumPosts($user)
     }
 }
 
-function updateForumTopicSubscription($topicID, $userID, $subscriptionState)
-{
-    $stateInt = ($subscriptionState ? 1 : 0);
-    $query = "INSERT INTO ForumTopicSubscription(ForumTopicID, UserID, SubscriptionState)
-              VALUES ($topicID, $userID, b'$stateInt')
-              ON DUPLICATE KEY UPDATE SubscriptionState = b'$stateInt'";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false)
-    {
-        global $db;
-        error_log(__FUNCTION__ . ": " . mysqli_error($db));
-        error_log($query);
-        return false;
-    }
-
-    return true;
-}
-
 function isUserSubscribedToForumTopic($topicID, $userID)
 {
-    // either there's an explicit subscription...
-    // ...or there's an implicit subscription without an explicit unsubscription 
-    $query = "SELECT 1
-              WHERE EXISTS (SELECT 1 FROM ForumTopicSubscription
-                            WHERE ForumTopiciD = $topicID AND UserID = $userID AND SubscriptionState = 1)
-                OR (
-                    EXISTS (SELECT 1 FROM ForumTopicComment
-                            WHERE ForumTopicID = $topicID AND AuthorID = $userID)
-                    AND NOT EXISTS (SELECT 1 FROM ForumTopicSubscription
-                                    WHERE ForumTopicID = $topicID AND UserID = $userID AND SubscriptionState = 0)
-                )";
-
-    global $db;
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false)
-    {
-        error_log(__FUNCTION__ . ": " . mysqli_error($db));
-        error_log($query);
-        return false;
-    }
-
-    $isSubscribed = mysqli_num_rows($dbResult) > 0;
-    mysqli_free_result($dbResult);
-    return $isSubscribed;
+    return isUserSubscribedTo(
+        \RA\SubscriptionSubjectType::ForumTopic,
+        $topicID,
+        $userID,
+        "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND AuthorID = $userID"
+    );
 }

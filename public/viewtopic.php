@@ -97,16 +97,10 @@
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
         echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
-        echo "<form id='updatesubscription' action='requestupdatetopicsubscription.php' method='post'>";
-        echo "<input type='hidden' name='t' value='$thisTopicID'/>";
-        echo "<input type='hidden' name='operation' value='" . ($isSubscribed ? "unsubscribe" : "subscribe") . "'/>";
-        if (isset($gotoCommentID))
-            echo "<input type='hidden' name='c' value='$gotoCommentID'/>";
-        else if (isset($offset))
-            echo "<input type='hidden' name='o' value='$offset'/>";
-        echo "</form>";
-        echo "<a href='#' onclick='document.getElementById(\"updatesubscription\").submit(); return false;'>";
-        echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . " Topic)";
+        RenderUpdateSubscriptionForm("updatetopicsubscription", \RA\SubscriptionSubjectType::ForumTopic,
+                                     $thisTopicID, $isSubscribed);
+        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
+        echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
         echo "</a>";
         echo "</div>";
 

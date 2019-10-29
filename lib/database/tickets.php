@@ -67,9 +67,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
 
                 $problemTypeStr = ($reportType == 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
-                $bugReportMessage = "Hi, $achAuthor!
-[user=$userSubmitter] would like to report a bug with an achievement you've created:
-Achievement: [ach=$achID] ($achTitle)
+                $bugReportDetails = "Achievement: [ach=$achID] ($achTitle)
 Game: [game=$gameID] ($gameTitle)
 Problem: $problemTypeStr
 Comment: $note
@@ -78,8 +76,26 @@ This ticket will be raised and will be available for all developers to inspect a
 " . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID
 
 Thanks!";
+                $bugReportMessage = "Hi, $achAuthor!
+[user=$userSubmitter] would like to report a bug with an achievement you've created:
+$bugReportDetails";
+
                 CreateNewMessage($userSubmitter, $achData['Author'], "Bug Report ($gameTitle)", $bugReportMessage);
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
+
+                // notify subscribers other than the achievement's author
+                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+                $emailHeader = "Bug Report ($gameTitle)";
+                foreach ($subscribers as $sub)
+                {
+                    if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter)
+                    {
+                        $emailBody = "Hi, " . $sub['User'] . "!
+[user=$userSubmitter] would like to report a bug with an achievement you're subscribed to:
+$bugReportDetails";
+                        sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
+                    }
+                }
             }
 
             $idsAdded++;
@@ -144,9 +160,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
 
                 $problemTypeStr = ($reportType == 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
-                $bugReportMessage = "Hi, $achAuthor!\r\n
-[user=$userSubmitter] would like to report a bug with an achievement you've created:
-Achievement: [ach=$achID]
+                $bugReportDetails = "Achievement: [ach=$achID]
 Game: [game=$gameID]
 Problem: $problemTypeStr
 Comment: $note
@@ -155,8 +169,26 @@ This ticket will be raised and will be available for all developers to inspect a
 " . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID
 
 Thanks!";
+
+                $bugReportMessage = "Hi, $achAuthor!\r\n
+[user=$userSubmitter] would like to report a bug with an achievement you've created:
+$bugReportDetails";
                 CreateNewMessage($userSubmitter, $achData['Author'], "Bug Report ($gameTitle)", $bugReportMessage);
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
+
+                // notify subscribers other than the achievement's author
+                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+                $emailHeader = "Bug Report ($gameTitle)";
+                foreach ($subscribers as $sub)
+                {
+                    if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter)
+                    {
+                        $emailBody = "Hi, " . $sub['User'] . "!\r\n
+[user=$userSubmitter] would like to report a bug with an achievement you're subscribed to':
+$bugReportDetails";
+                        sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
+                    }
+                }
             }
 
             $idsAdded++;
