@@ -2,6 +2,7 @@
 namespace RA;
 
 //	Dynamic typing, misc usage
+// user SubjectType instead - it matches article types
 abstract class ObjectType
 {
 	const Game = 1;

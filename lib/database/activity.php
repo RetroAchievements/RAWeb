@@ -2,6 +2,7 @@
 
 use RA\ActivityType;
 use RA\ObjectType;
+use RA\SubjectType;
 
 require_once(__DIR__ . '/../bootstrap.php');
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -272,77 +273,14 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     return true;
 }
 
-function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor)
+//     00:08 19/03/2013
+function getActivityMetadata($activityID)
 {
-    $subscribers = [];
-    $subjectAuthor = null;
-    $altURLTarget = null;
+    $query = "SELECT * FROM Activity
+              WHERE ID='$activityID'";
 
-    switch ($articleType)
-    {
-        case 1:  // Game wall
-        {
-            $subscribers = getSubscribersOfGameWall($articleID);
-            break;
-        }
-
-        case 2:  // Achievement
-        {
-            $achievementData = getAchievementMetadataJSON($articleID);
-
-            $subscribers = getSubscribersOfAchievement(
-                    $articleID, $achievementData['GameID'], $achievementData['Author']);
-
-            // if it's a message from the "Server" logging a change made by the Author,
-            // assume the Author is posting the activity (avoid spamming their mail box).
-            if ($user == "Server" && !strncmp($achievementData['Author'] . ' ',
-                                              $commentPayload, strlen($achievementData['Author']) + 1))
-            {
-                $activityAuthor = $achievementData['Author'];
-            }
-
-            $subjectAuthor = $achievementData['Author'];
-
-            break;
-        }
-
-        case 3:  // User wall
-        {
-            $wallUserData = getUserMetadataFromID($articleID);
-            $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
-            $subjectAuthor = $wallUserData['User'];
-            $altURLTarget = $wallUserData['User'];
-            break;
-        }
-
-        case 5:  // Activity (feed)
-        {
-            $activityData = getActivityMetadata($articleID);
-            $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
-            $subjectAuthor = $activityData['User'];
-            break;
-        }
-
-        case 7:  // Ticket
-        {
-            $ticketData = getTicket($articleID);
-            $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
-            $subjectAuthor = $ticketData['ReportedBy'];
-            break;
-        }
-
-        default:
-            break;
-    }
-
-    foreach ($subscribers as $sub)
-    {
-        $isThirdParty = ($sub['User'] != $activityAuthor
-                         && (is_null($subjectAuthor) || $sub['User'] != $subjectAuthor));
-
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $articleID,
-                          $activityAuthor, $articleType, $isThirdParty, $altURLTarget);
-    }
+    $dbResult = s_mysql_query($query);
+    return mysqli_fetch_assoc($dbResult);
 }
 
 //  08/19/2014 13:13:04
@@ -401,9 +339,113 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload)
     return true;
 }
 
-function getSubscribersOfArticle($articleType, $articleID, $reqWebsitePrefs,
-                                 $subjectAuthor = null, $noExplicitSubscriptions = false)
+function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor)
 {
+    $subscribers = [];
+    $subjectAuthor = null;
+    $altURLTarget = null;
+
+    switch ($articleType) {
+        case SubjectType::Game:
+            $subscribers = getSubscribersOfGameWall($articleID);
+            break;
+
+        case SubjectType::Achievement:
+            $achievementData = getAchievementMetadataJSON($articleID);
+
+            $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
+
+            // if it's a message from the "Server" logging a change made by the Author,
+            // assume the Author is posting the activity (avoid spamming their mail box).
+            // TODO: something's missing here
+            if ($user == "Server" && !strncmp($achievementData['Author'] . ' ', $commentPayload, strlen($achievementData['Author']) + 1)) {
+                $activityAuthor = $achievementData['Author'];
+            }
+
+            $subjectAuthor = $achievementData['Author'];
+
+            break;
+
+        case SubjectType::User:  // User wall
+            $wallUserData = getUserMetadataFromID($articleID);
+            $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
+            $subjectAuthor = $wallUserData['User'];
+            $altURLTarget = $wallUserData['User'];
+            break;
+
+        case SubjectType::News:  // News
+            break;
+
+        case SubjectType::Activity:  // Activity (feed)
+            $activityData = getActivityMetadata($articleID);
+            $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
+            $subjectAuthor = $activityData['User'];
+            break;
+
+        case SubjectType::Leaderboard:  // Leaderboard
+            break;
+
+        case SubjectType::AchievementTicket:  // Ticket
+            $ticketData = getTicket($articleID);
+            $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
+            $subjectAuthor = $ticketData['ReportedBy'];
+            break;
+
+        default:
+            break;
+    }
+
+    foreach ($subscribers as $subscriber) {
+        $isThirdParty = ($subscriber['User'] != $activityAuthor && (is_null($subjectAuthor) || $subscriber['User'] != $subjectAuthor));
+
+        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $isThirdParty, $altURLTarget);
+    }
+}
+
+function getSubscribersOfGameWall($gameID)
+{
+    return getSubscribersOfArticle(1, $gameID, (1 << 1));
+}
+
+function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor)
+{
+    // users directly subscribed to the achievement
+    $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
+
+    // devs subscribed to the achievement through the game
+    $gameAchievementsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0));
+
+    return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
+}
+
+function getSubscribersOfUserWall($userID, $userName)
+{
+    return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
+}
+
+function getSubscribersOfFeedActivity($activityID, $author)
+{
+    return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
+}
+
+function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
+{
+    // users directly subscribed to the ticket
+    $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
+
+    // devs subscribed to the ticket through the game
+    $gameTicketsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+
+    return mergeSubscribers($ticketSubs, $gameTicketsSubs);
+}
+
+function getSubscribersOfArticle(
+    $articleType,
+    $articleID,
+    $reqWebsitePrefs,
+    $subjectAuthor = null,
+    $noExplicitSubscriptions = false
+) {
     $websitePrefsFilter = ($noExplicitSubscriptions !== true
         ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
 
@@ -425,11 +467,9 @@ function getSubscribersOfArticle($articleType, $articleID, $reqWebsitePrefs,
         $authorQry
     ";
 
-    if ($noExplicitSubscriptions)
-    {
+    if ($noExplicitSubscriptions) {
         $dbResult = s_mysql_query($qry);
-        if ($dbResult === false)
-        {
+        if ($dbResult === false) {
             error_log($qry);
             return [];
         }
@@ -438,8 +478,7 @@ function getSubscribersOfArticle($articleType, $articleID, $reqWebsitePrefs,
     }
 
     $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
-    if (is_null($subjectType))
-    {
+    if (is_null($subjectType)) {
         return [];
     }
 
@@ -449,61 +488,6 @@ function getSubscribersOfArticle($articleType, $articleID, $reqWebsitePrefs,
         (1 << 0),  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
         $qry
     );
-}
-
-function getSubscribersOfGameWall($gameID)
-{
-    return getSubscribersOfArticle(1, $gameID, (1 << 1));
-}
-
-function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor)
-{
-    // users directly subscribed to the achievement
-    $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
-
-    // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(
-        \RA\SubscriptionSubjectType::GameAchievements,
-        $gameID,
-        (1 << 0)
-    );
-
-    return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
-}
-
-function getSubscribersOfUserWall($userID, $userName)
-{
-    return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
-}
-
-function getSubscribersOfFeedActivity($activityID, $author)
-{
-    return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
-}
-
-function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
-{
-    // users directly subscribed to the ticket
-    $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
-
-    // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(
-        \RA\SubscriptionSubjectType::GameTickets,
-        $gameID,
-        (1 << 1)
-    );
-
-    return mergeSubscribers($ticketSubs, $gameTicketsSubs);
-}
-
-//     00:08 19/03/2013
-function getActivityMetadata($activityID)
-{
-    $query = "SELECT * FROM Activity
-              WHERE ID='$activityID'";
-
-    $dbResult = s_mysql_query($query);
-    return mysqli_fetch_assoc($dbResult);
 }
 
 //    00:08 19/03/2013
@@ -572,7 +556,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = array();
+        $dataOut = [];
 
         $i = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -650,7 +634,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     //    6 = LB
     //    7 = Ticket
 
-    $dataOut = array();
+    $dataOut = [];
 
     $numArticleComments = 0;
 
@@ -686,8 +670,8 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
 function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
 {
     $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
-    if (is_null($subjectType))
-    {
+
+    if (is_null($subjectType)) {
         return false;
     }
 
@@ -712,7 +696,7 @@ function getCurrentlyOnlinePlayers()
 {
     $recentMinutes = 10;
 
-    $playersFound = array();
+    $playersFound = [];
 
     //    Select all users active in the last 10 minutes:
     $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity
@@ -738,7 +722,7 @@ function getCurrentlyOnlinePlayers()
 
 function getLatestRichPresenceUpdates()
 {
-    $playersFound = array();
+    $playersFound = [];
 
     $recentMinutes = 10;
 
@@ -793,7 +777,7 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
 
 function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
 {
-    $data = array();
+    $data = [];
 
     $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName
 FROM Activity AS act
