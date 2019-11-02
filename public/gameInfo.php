@@ -17,7 +17,7 @@ if ($gameID == null || $gameID == 0) {
 }
 
 $friendScores = [];
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
 
@@ -517,6 +517,22 @@ $numGridlines = $numAchievements;
                 echo "<li><a href='/request.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
                 echo "<li><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></li>";
                 echo "<li><a href='/codenotes.php?g=$gameID'>Code Notes</a>";
+
+                $isSubscribedToTickets = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameTickets, $gameID, $userID);
+                echo "<li>";
+                RenderUpdateSubscriptionForm("updateticketssub", \RA\SubscriptionSubjectType::GameTickets,
+                                             $gameID, $isSubscribedToTickets);
+                echo "<a href='#' onclick='document.getElementById(\"updateticketssub\").submit(); return false;'>";
+                echo ($isSubscribedToTickets ? "Unsubscribe from" : "Subscribe to") . " Tickets";
+                echo "</a></li>";
+
+                $isSubscribedToAchievements = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameAchievements, $gameID, $userID);
+                echo "<li>";
+                RenderUpdateSubscriptionForm("updateachievementssub", \RA\SubscriptionSubjectType::GameAchievements,
+                                             $gameID, $isSubscribedToAchievements);
+                echo "<a href='#' onclick='document.getElementById(\"updateachievementssub\").submit(); return false;'>";
+                echo ($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
+                echo "</a></li>";
 
                 echo "</br>";
 

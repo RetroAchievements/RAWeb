@@ -1057,10 +1057,27 @@ function RenderCommentsComponent(
 
     echo "<div class='commentscomponent'>";
 
+    echo "<div class='leftfloat'>";
     if ($numComments == 0) {
         echo "No comments yet. Will you be the first?<br/>";
     } else {
         echo "Recent comment(s):<br/>";
+    }
+    echo "</div>";
+
+    if (isset($user))
+    {
+        $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleTypeID);
+        if (!is_null($subjectType))
+        {
+            $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
+            echo "<div class='smalltext rightfloat'>";
+            RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed);
+            echo "<a href='#' onclick='document.getElementById(\"updatesubscription\").submit(); return false;'>";
+            echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+            echo "</a>";
+            echo "</div>";
+        }
     }
 
     echo "<table id='feed'><tbody>";
@@ -1188,6 +1205,8 @@ function RenderErrorCodeWarning($location, $errorCode)
             echo "<div id='warning'>Your issue ticket has been successfully submitted.</div>";
         } elseif ($errorCode == 'issue_failed') {
             echo "<div id='warning'>Sorry. There was an issue submitting your ticket.</div>";
+        } elseif ($errorCode == 'subscription_update_fail') {
+            echo "<div id='warning'>Failed to update topic subscription.</div>";
         }
 
         echo "</div>";
@@ -3391,4 +3410,14 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
     echo "</div>";
 
     echo "</div>";
+}
+
+function RenderUpdateSubscriptionForm($formID, $subjectType, $subjectID, $isSubscribed)
+{
+    echo "<form id='$formID' action='/requestupdatesubscription.php' method='post'>";
+    echo "<input type='hidden' name='return_url' value='" . $_SERVER["REQUEST_URI"] . "'/>";
+    echo "<input type='hidden' name='subject_type' value='$subjectType'/>";
+    echo "<input type='hidden' name='subject_id' value='$subjectID'/>";
+    echo "<input type='hidden' name='operation' value='" . ($isSubscribed ? "unsubscribe" : "subscribe") . "'/>";
+    echo "</form>";
 }

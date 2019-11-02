@@ -23,7 +23,7 @@ if (isset($_SERVER["SERVER_NAME"])) {
     define("AT_HOST_DOT", null);
 }
 
-define("VERSION", "1.20.0");
+define("VERSION", "1.21.0");
 
 define("CSS_FILE", "/css/style54.css?v=" . VERSION);
 
@@ -101,5 +101,6 @@ require_once('database/activity.php');        //	activity system
 require_once('database/history.php');        //	historical data access
 require_once('database/utility.php');        //	db access utilities
 require_once('database/rating.php');            //	rating functions
+require_once('database/subscription.php');
 
 $mobileBrowser = IsMobileBrowser();

@@ -2,6 +2,7 @@
 
 use RA\ActivityType;
 use RA\ObjectType;
+use RA\SubjectType;
 
 require_once(__DIR__ . '/../bootstrap.php');
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -272,109 +273,14 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     return true;
 }
 
-//    13:33 27/04/2013
-function informAllSubscribersAboutActivity($activityAuthor, $threadAuthor, $articleID, $articleType)
+//     00:08 19/03/2013
+function getActivityMetadata($activityID)
 {
-    $requiredSubscription = 0;
-    $altURLTarget = null;
+    $query = "SELECT * FROM Activity
+              WHERE ID='$activityID'";
 
-    //    $articleType
-    //    1 = Game
-    //    2 = Achievement
-    //    3 = User
-    //    4 = News (unused)
-    //    5 = feed Activity
-    //    6 = LB
-    //    7 = Ticket
-
-    if ($articleType == 1)   //    Game
-    {
-        //    None
-        $requiredSubscription = (1 << 1);  //    Matches Achievement
-        //    Fetch all users that have also commented on this game:
-        $query = "SELECT DISTINCT ua.User, ua.EmailAddress, ua.websitePrefs
-                  FROM Comment AS c
-                  INNER JOIN UserAccounts AS ua ON ua.ID = c.UserID
-                  WHERE c.ArticleID=$articleID AND c.ArticleType=1 ";
-    } elseif ($articleType == 2)   //    Achievement
-    {
-        $requiredSubscription = (1 << 1);
-
-        //    Walks a thread and emails all users that are subscribed to updates
-        //    Fetch all users that are involved in this thread:
-        $query = "SELECT DISTINCT ua.User, ua.EmailAddress, ua.websitePrefs
-                  FROM Comment AS c
-                  INNER JOIN UserAccounts AS ua ON ua.ID = c.UserID
-                  WHERE ( c.ArticleID=$articleID AND c.ArticleType=$articleType ) OR ua.User = '$threadAuthor'";
-    } elseif ($articleType == 3)   //    User
-    {
-        $requiredSubscription = (1 << 2);
-        $altURLTarget = $threadAuthor; //    Override: this means we should provide a link to the target user's wall instead!
-        //    Walks a thread and emails all users that are subscribed to updates
-        //    Fetch all users that are involved in this thread:
-        $query = "SELECT DISTINCT ua.User, ua.EmailAddress, ua.websitePrefs
-                  FROM Comment AS c
-                  INNER JOIN UserAccounts AS ua ON ua.ID = c.UserID
-                  WHERE ( c.ArticleID=$articleID AND c.ArticleType=$articleType ) OR ua.User = '$threadAuthor'";
-    } elseif ($articleType == 4)   //    News
-    {
-        //    None (me?)
-        error_log(__FUNCTION__ . " cannot deal with articleType $articleType (News)");
-        return;
-    } elseif ($articleType == 5)     //    Activity (feed)
-    {
-        $requiredSubscription = (1 << 0);
-
-        //    Walks a thread and emails all users that are subscribed to updates
-        //    Fetch all users that are involved in this thread:
-        $query = "SELECT DISTINCT ua.User, ua.EmailAddress, ua.websitePrefs
-                  FROM Comment AS c
-                  INNER JOIN UserAccounts AS ua ON ua.ID = c.UserID
-                  WHERE ( c.ArticleID=$articleID AND c.ArticleType=$articleType ) OR ua.User = '$threadAuthor'";
-    } elseif ($articleType == 7)     //    Ticket
-    {
-        $requiredSubscription = (1 << 1);  //    Matches Achievement (?)
-        //    Walks a thread and emails all users that are subscribed to updates
-        //    Fetch all users that are involved in this thread:
-        $query = "SELECT DISTINCT ua.User, ua.EmailAddress, ua.websitePrefs
-                  FROM Comment AS c
-                  INNER JOIN UserAccounts AS ua ON ua.ID = c.UserID
-                  WHERE ( c.ArticleID=$articleID AND c.ArticleType=$articleType ) OR ua.User = '$threadAuthor'";
-    } else {
-        log_email(__FUNCTION__ . " cannot deal with articleType $articleType (Unknown)");
-        return;
-    }
-
-    //error_log( $query );
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        //    Foreach person who has commented on this thread, if they want it, send them an email.
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            if ($data !== false) {
-                if ((($data['websitePrefs'] & (1 << 0)) !== 0) || $articleType == 7) //    Always receive ticket emails :P
-                {
-                    $justInvolvedInThread = null;
-                    if (($data['User'] != $threadAuthor) && ($data['User'] != $activityAuthor)) {
-                        $justInvolvedInThread = true;
-                    }
-
-                    sendActivityEmail($data['User'], $data['EmailAddress'], $articleID, $activityAuthor, $articleType,
-                        $justInvolvedInThread, $altURLTarget);
-                } else {
-                    error_log("Not sending email to " . $data['User'] . ", prefs are " . $data['websitePrefs']);
-                }
-            } else {
-                error_log($query);
-                error_log(__FUNCTION__ . "error: $activityAuthor, $articleID, $commentPayload");
-            }
-        }
-
-        return true;
-    } else {
-        error_log($query);
-        error_log(__FUNCTION__ . "error2: $activityAuthor, $articleID, $commentPayload");
-        return false;
-    }
+    return mysqli_fetch_assoc($dbResult);
 }
 
 //  08/19/2014 13:13:04
@@ -428,69 +334,160 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload)
     }
 
     //    Inform Subscribers of this comment:
-
-    if ($articleType == 5)   //    Activity
-    {
-        error_log(__FUNCTION__ . " Comment on Activity... notifying author and thread");
-
-        //    Get activity's original author:
-        $activityData = getActivityMetadata($articleID);
-        informAllSubscribersAboutActivity($user, $activityData['User'], $articleID, $articleType);
-    } elseif ($articleType == 2) // Achievement
-    {
-        error_log(__FUNCTION__ . " Comment on Achievement... notifying author and thread");
-
-        //    Get achievement's original author:
-        $achievementData = getAchievementMetadataJSON($articleID);
-
-        // if it's a message from the "Server" logging a change made by the Author,
-        // assume the Author is posting the activity (avoid spamming their mail box).
-        if ($user == "Server" && !strncmp($achievementData['Author'] . ' ', $commentPayload,
-                strlen($achievementData['Author']) + 1)) {
-            informAllSubscribersAboutActivity($achievementData['Author'], $achievementData['Author'], $articleID,
-                $articleType);
-        } else {
-            informAllSubscribersAboutActivity($user, $achievementData['Author'], $articleID, $articleType);
-        }
-    } elseif ($articleType == 3) //    User
-    {
-        error_log(__FUNCTION__ . " Comment on User... notifying author and thread");
-
-        //    $articleID          = ID of the User who's page we've written on.
-        //    $userData['User']     = the name of the user who's wall has just been written on.
-        //    $user                 = the user who has just written on this wall.
-        //    Get
-        $userData = getUserMetadataFromID($articleID);
-        informAllSubscribersAboutActivity($user, $userData['User'], $articleID, $articleType);
-    } elseif ($articleType == 4) //    News
-    {
-        //    Not interested in any further activity at this stage.
-        error_log(__FUNCTION__ . " Comment on News article... notify nobody? ");
-    } elseif ($articleType == 1) //    Game
-    {
-        //log_sql_fail();
-        getGameTitleFromID($articleID, $gameName, $consoleID, $consoleName, $forumTopicID, $gameData);
-        //    $user commented on $gameName, which is game ID $articleID (type 1).
-        informAllSubscribersAboutActivity($user, $gameName, $articleID, $articleType);
-        //error_log( __FUNCTION__ . " Comment on Game... notify nobody? " );
-    } elseif ($articleType == 7) //    Ticket
-    {
-        //    $user commented on ticket $articleID
-        $ticketData = getTicket($articleID);
-        informAllSubscribersAboutActivity($user, $ticketData['ReportedBy'], $articleID, $articleType);
-    }
+    informAllSubscribersAboutActivity($articleType, $articleID, $user);
 
     return true;
 }
 
-//     00:08 19/03/2013
-function getActivityMetadata($activityID)
+function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor)
 {
-    $query = "SELECT * FROM Activity
-              WHERE ID='$activityID'";
+    $subscribers = [];
+    $subjectAuthor = null;
+    $altURLTarget = null;
 
-    $dbResult = s_mysql_query($query);
-    return mysqli_fetch_assoc($dbResult);
+    switch ($articleType) {
+        case SubjectType::Game:
+            $subscribers = getSubscribersOfGameWall($articleID);
+            break;
+
+        case SubjectType::Achievement:
+            $achievementData = getAchievementMetadataJSON($articleID);
+
+            $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
+
+            // if it's a message from the "Server" logging a change made by the Author,
+            // assume the Author is posting the activity (avoid spamming their mail box).
+            // TODO: something's missing here
+            if ($user == "Server" && !strncmp($achievementData['Author'] . ' ', $commentPayload, strlen($achievementData['Author']) + 1)) {
+                $activityAuthor = $achievementData['Author'];
+            }
+
+            $subjectAuthor = $achievementData['Author'];
+
+            break;
+
+        case SubjectType::User:  // User wall
+            $wallUserData = getUserMetadataFromID($articleID);
+            $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
+            $subjectAuthor = $wallUserData['User'];
+            $altURLTarget = $wallUserData['User'];
+            break;
+
+        case SubjectType::News:  // News
+            break;
+
+        case SubjectType::Activity:  // Activity (feed)
+            $activityData = getActivityMetadata($articleID);
+            $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
+            $subjectAuthor = $activityData['User'];
+            break;
+
+        case SubjectType::Leaderboard:  // Leaderboard
+            break;
+
+        case SubjectType::AchievementTicket:  // Ticket
+            $ticketData = getTicket($articleID);
+            $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
+            $subjectAuthor = $ticketData['ReportedBy'];
+            break;
+
+        default:
+            break;
+    }
+
+    foreach ($subscribers as $subscriber) {
+        $isThirdParty = ($subscriber['User'] != $activityAuthor && (is_null($subjectAuthor) || $subscriber['User'] != $subjectAuthor));
+
+        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $isThirdParty, $altURLTarget);
+    }
+}
+
+function getSubscribersOfGameWall($gameID)
+{
+    return getSubscribersOfArticle(1, $gameID, (1 << 1));
+}
+
+function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor)
+{
+    // users directly subscribed to the achievement
+    $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
+
+    // devs subscribed to the achievement through the game
+    $gameAchievementsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0));
+
+    return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
+}
+
+function getSubscribersOfUserWall($userID, $userName)
+{
+    return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
+}
+
+function getSubscribersOfFeedActivity($activityID, $author)
+{
+    return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
+}
+
+function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
+{
+    // users directly subscribed to the ticket
+    $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
+
+    // devs subscribed to the ticket through the game
+    $gameTicketsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+
+    return mergeSubscribers($ticketSubs, $gameTicketsSubs);
+}
+
+function getSubscribersOfArticle(
+    $articleType,
+    $articleID,
+    $reqWebsitePrefs,
+    $subjectAuthor = null,
+    $noExplicitSubscriptions = false
+) {
+    $websitePrefsFilter = ($noExplicitSubscriptions !== true
+        ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
+
+    $authorQry = (is_null($subjectAuthor) ? "" : "
+        UNION
+        SELECT _ua.*
+        FROM UserAccounts as _ua
+        WHERE _ua.User = '$subjectAuthor'
+              $websitePrefsFilter
+    ");
+
+    $qry = "
+        SELECT DISTINCT _ua.*
+        FROM Comment AS _c
+        INNER JOIN UserAccounts as _ua ON _ua.ID = _c.UserID
+        WHERE _c.ArticleType = $articleType
+              AND _c.ArticleID = $articleID
+              $websitePrefsFilter
+        $authorQry
+    ";
+
+    if ($noExplicitSubscriptions) {
+        $dbResult = s_mysql_query($qry);
+        if ($dbResult === false) {
+            error_log($qry);
+            return [];
+        }
+
+        return mysqli_fetch_all($dbResult, MYSQLI_ASSOC);
+    }
+
+    $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
+    if (is_null($subjectType)) {
+        return [];
+    }
+
+    return getSubscribersOf(
+        $subjectType,
+        $articleID,
+        (1 << 0),  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
+        $qry
+    );
 }
 
 //    00:08 19/03/2013
@@ -559,7 +556,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = array();
+        $dataOut = [];
 
         $i = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -637,7 +634,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     //    6 = LB
     //    7 = Ticket
 
-    $dataOut = array();
+    $dataOut = [];
 
     $numArticleComments = 0;
 
@@ -670,11 +667,36 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     return $numArticleComments;
 }
 
+function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
+{
+    $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
+
+    if (is_null($subjectType)) {
+        return false;
+    }
+
+    return isUserSubscribedTo(
+        $subjectType,
+        $articleID,
+        $userID,
+        "
+            SELECT DISTINCT ua.*
+            FROM
+                Comment AS c
+                LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
+            WHERE
+                c.ArticleType = $articleType
+                AND c.ArticleID = $articleID
+                AND c.UserID = $userID
+        "
+    );
+}
+
 function getCurrentlyOnlinePlayers()
 {
     $recentMinutes = 10;
 
-    $playersFound = array();
+    $playersFound = [];
 
     //    Select all users active in the last 10 minutes:
     $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity
@@ -700,7 +722,7 @@ function getCurrentlyOnlinePlayers()
 
 function getLatestRichPresenceUpdates()
 {
-    $playersFound = array();
+    $playersFound = [];
 
     $recentMinutes = 10;
 
@@ -755,7 +777,7 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
 
 function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
 {
-    $data = array();
+    $data = [];
 
     $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName
 FROM Activity AS act

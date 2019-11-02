@@ -86,7 +86,8 @@ function RA_ReadCookieCredentials(
     &$truePointsOut,
     &$unreadMessagesOut,
     &$permissionOut,
-    $minPermissions = null
+    $minPermissions = null,
+    &$userIDOut = null
 )
 {
     //    Promise some values:
@@ -105,7 +106,7 @@ function RA_ReadCookieCredentials(
         return false;
     }
 
-    $query = "SELECT ua.cookie, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions
+    $query = "SELECT ua.cookie, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions, ua.ID
               FROM UserAccounts AS ua
               WHERE User='$userOut'";
 
@@ -135,6 +136,7 @@ function RA_ReadCookieCredentials(
             $unreadMessagesOut = $dbResult['UnreadMessageCount'];
             $truePointsOut = $dbResult['TrueRAPoints'];
             $permissionOut = $dbResult['Permissions'];
+            $userIDOut = $dbResult['ID'];
 
             //    Only compare if requested, otherwise return true meaning 'logged in'
             if (isset($minPermissions)) {
