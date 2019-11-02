@@ -336,29 +336,28 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
 function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 {
     //    $author has made a post in the topic $topicID
-    //    Find all people involved in this forum thread, and if they are not the author and prefer to 
-    //     hear about comments, let them know!
+    //    Find all people involved in this forum topic, and if they are not the author and prefer to 
+    //    hear about comments, let them know! Also notify users that have explicitly subscribed to
+    //    the topic.
 
-    $query = "SELECT ua.User, ua.EmailAddress FROM ForumTopicComment AS ftc
-                INNER JOIN ForumTopic AS ft ON ftc.ForumTopicID = ft.ID
-                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID AND (ua.websitePrefs & (1<<3) != 0) 
-                WHERE ft.ID = $topicID AND ua.User != '$author'
-                GROUP BY ua.ID ";
+    $subscribers = getSubscribersOf(
+        \RA\SubscriptionSubjectType::ForumTopic,
+        $topicID,
+        (1 << 3),
+        "
+            SELECT DISTINCT ua.*
+            FROM
+                ForumTopicComment as ftc
+                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
+            WHERE
+                ftc.ForumTopicID = $topicID
+        "
+    );
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $nextUser = $db_entry['User'];
-            $nextEmail = $db_entry['EmailAddress'];
-
-            $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
-
-            sendActivityEmail($nextUser, $nextEmail, $topicID, $author, 6, null, $urlTarget);
-        }
-    } else {
-        error_log($query);
-        error_log(__FUNCTION__ . "wtf!! Can't notify anybody");
+    $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
+    foreach ($subscribers as $sub)
+    {
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, 6, null, $urlTarget);
     }
 }
 
@@ -618,4 +617,14 @@ function AuthoriseAllForumPosts($user)
         error_log($query);
         return false;
     }
+}
+
+function isUserSubscribedToForumTopic($topicID, $userID)
+{
+    return isUserSubscribedTo(
+        \RA\SubscriptionSubjectType::ForumTopic,
+        $topicID,
+        $userID,
+        "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND AuthorID = $userID"
+    );
 }

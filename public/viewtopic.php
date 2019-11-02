@@ -1,7 +1,7 @@
 <?php 
     require_once __DIR__ . '/../lib/bootstrap.php';
 
-    RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
+    RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID );
 
     // Fetch topic ID
     $requestedTopicID = seekGET( 't', 0 );
@@ -65,6 +65,8 @@
 
     $pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
 
+    $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
+
     $errorCode = seekGET('e');
 
     RenderDocType();
@@ -93,6 +95,14 @@
         echo "</div>";
 
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
+
+        echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
+        RenderUpdateSubscriptionForm("updatetopicsubscription", \RA\SubscriptionSubjectType::ForumTopic,
+                                     $thisTopicID, $isSubscribed);
+        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
+        echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+        echo "</a>";
+        echo "</div>";
 
         //if( isset( $user ) && $permissions >= 1 )
         if( isset( $user ) && ( $thisTopicAuthor == $user || $permissions >= \RA\Permissions::Admin ) )
