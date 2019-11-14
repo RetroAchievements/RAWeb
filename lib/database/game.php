@@ -1364,14 +1364,14 @@ function isValidConsoleID($consoleID)
         case 14: // Neo Geo Pocket
         case 15: // Game Gear
         // case 16: //
-        // case 17: //
+        case 17: // Atari Jaguar
         // case 18: //
         // case 19: //
         // case 20: //
         // case 21: //
         // case 22: //
         // case 23: // Unused
-        // case 24: //
+        case 24: // Pokemon Mini
         case 25: // Atari 2600
         // case 26: //
         case 27: // Arcade
@@ -1400,7 +1400,7 @@ function isValidConsoleID($consoleID)
         // case 50: //
         case 51: // Atari7800
         // case 52: //
-        // case 53: //
+        case 53: // WonderSwan
         // case 54: //
         // case 55: //
         // case 100: // (not an actual console)
