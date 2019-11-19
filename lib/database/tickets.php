@@ -177,7 +177,7 @@ $bugReportDetails";
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
 
                 // notify subscribers other than the achievement's author
-                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /*(1 << 1)*/);
                 $emailHeader = "Bug Report ($gameTitle)";
                 foreach ($subscribers as $sub)
                 {
@@ -338,7 +338,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
                 break;
         }
 
-        addArticleComment("Server", 7, $ticketID, $comment);
+        addArticleComment("Server", 7, $ticketID, $comment, $user);
 
         getAccountDetails($userReporter, $reporterData);
         $email = $reporterData['EmailAddress'];

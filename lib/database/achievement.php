@@ -746,7 +746,7 @@ function UploadNewAchievement(
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
             static_addnewachievement($idInOut);
-            addArticleComment("Server", 2, $idInOut, "$author uploaded this achievement.");
+            addArticleComment("Server", 2, $idInOut, "$author uploaded this achievement.", $author);
 
             error_log(__FUNCTION__ . " $author uploaded new achievement: $idInOut, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, $badge");
 
@@ -805,12 +805,12 @@ function UploadNewAchievement(
 
                 if ($changingAchSet) {
                     if ($type == 3) {
-                        addArticleComment("Server", 2, $idInOut, "$author promoted this achievement to the Core set.");
+                        addArticleComment("Server", 2, $idInOut, "$author promoted this achievement to the Core set.", $author);
                     } elseif ($type == 5) {
-                        addArticleComment("Server", 2, $idInOut, "$author demoted this achievement to Unofficial.");
+                        addArticleComment("Server", 2, $idInOut, "$author demoted this achievement to Unofficial.", $author);
                     }
                 } else {
-                    addArticleComment("Server", 2, $idInOut, "$author edited this achievement.");
+                    addArticleComment("Server", 2, $idInOut, "$author edited this achievement.", $author);
                 }
 
                 return true;

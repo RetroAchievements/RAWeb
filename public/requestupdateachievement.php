@@ -69,7 +69,7 @@ switch ($field) {
             if ($value == 5) {
                 $commentText = 'demoted this achievement to Unofficial';
             }
-            addArticleComment("Server", 2, $achID, "\"$user\" $commentText.");
+            addArticleComment("Server", 2, $achID, "\"$user\" $commentText.", $user);
         } else {
             error_log("requestupdateachievement.php failed?! 3" . var_dump($_POST));
             echo "FAILED!";
