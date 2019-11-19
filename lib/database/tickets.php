@@ -338,7 +338,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
                 break;
         }
 
-        addArticleComment("Server", 7, $ticketID, $comment);
+        addArticleComment("Server", 7, $ticketID, $comment, $user);
 
         getAccountDetails($userReporter, $reporterData);
         $email = $reporterData['EmailAddress'];
