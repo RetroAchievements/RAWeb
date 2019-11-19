@@ -408,7 +408,7 @@ function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor
     $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
 
     // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0));
+    $gameAchievementsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /*(1 << 1)*/);
 
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
@@ -429,7 +429,7 @@ function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
     $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
 
     // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+    $gameTicketsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /*(1 << 1)*/);
 
     return mergeSubscribers($ticketSubs, $gameTicketsSubs);
 }

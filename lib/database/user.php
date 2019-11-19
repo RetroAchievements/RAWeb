@@ -401,13 +401,13 @@ function sendRAEmail($to, $header, $body)
     if (isAtHome())
     {
         error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-        error_log($email);
+        error_log($to);
         error_log($header);
         error_log($body);
         return true;
     }
 
-    return mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $header, $body);
+    return mail_utf8($to, "RetroAchievements.org", "noreply@retroachievements.org", $header, $body);
 }
 
 function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
