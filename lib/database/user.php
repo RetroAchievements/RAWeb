@@ -1576,12 +1576,12 @@ function getUsersSiteAwards($user)
             if ($retVal[$i]['AwardType'] == 1 &&
                 $retVal[$i]['AwardDataExtra'] == 1)
             {
-                $masteredGames[] = $retVal[$i]['Title'];
+                $masteredGames[] = $retVal[$i]['AwardData'];
             }
             elseif ($retVal[$i]['AwardType'] == 1 &&
                     $retVal[$i]['AwardDataExtra'] == 0)
             {
-                $completedGames[] = $retVal[$i]['Title'];
+                $completedGames[] = $retVal[$i]['AwardData'];
             }
         }
 
@@ -1596,8 +1596,8 @@ function getUsersSiteAwards($user)
                 $index = 0;
                 foreach($retVal as $award)
                 {
-                    if(isset($award['Title']) &&
-                       $award['Title'] == $game &&
+                    if(isset($award['AwardData']) &&
+                       $award['AwardData'] == $game &&
                        $award['AwardDataExtra'] == 0)
                     {
                         $retVal[$index] = "";
