@@ -91,26 +91,6 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 //var_dump( $lbData );
 
 $screenshotWidth = 200;
-$screenshotHeight = 133;
-switch ($consoleID) {
-    case 1: // md
-        $screenshotHeight = 150;
-        break;
-    case 3: // snes
-        $screenshotHeight = 175;
-        break;
-    case 4: // gb
-        $screenshotHeight = 180;
-        break;
-    case 5: // gba
-        $screenshotHeight = 133;
-        break;
-    case 6: // gbc
-        $screenshotHeight = 180;
-        break;
-    default:
-        break;
-}
 
 // Quickly calculate earned/potential
 $totalEarnedCasual = 0;
@@ -481,10 +461,10 @@ $numGridlines = $numAchievements;
             echo "<table><tbody>";
             echo "<tr>";
             echo "<td>";
-            echo "<img src='$imageTitle' width='$screenshotWidth' height='$screenshotHeight' />";
+            echo "<img src='$imageTitle' width='$screenshotWidth' />";
             echo "</td>";
             echo "<td>";
-            echo "<img src='$imageIngame' width='$screenshotWidth' height='$screenshotHeight'/>";
+            echo "<img src='$imageIngame' width='$screenshotWidth' />";
             echo "</td>";
             echo "</tr>";
             echo "</tbody></table>";
