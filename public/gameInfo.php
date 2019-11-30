@@ -91,6 +91,7 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 //var_dump( $lbData );
 
 $screenshotWidth = 200;
+$screenshotMaxHeight = 240; // corresponds to the DS screen aspect ratio
 
 // Quickly calculate earned/potential
 $totalEarnedCasual = 0;
@@ -461,10 +462,10 @@ $numGridlines = $numAchievements;
             echo "<table><tbody>";
             echo "<tr>";
             echo "<td>";
-            echo "<img src='$imageTitle' width='$screenshotWidth' />";
+            echo "<img src='$imageTitle' width='$screenshotWidth' style='max-height:$screenshotMaxHeight;' />";
             echo "</td>";
             echo "<td>";
-            echo "<img src='$imageIngame' width='$screenshotWidth' />";
+            echo "<img src='$imageIngame' width='$screenshotWidth' style='max-height:$screenshotMaxHeight;' />";
             echo "</td>";
             echo "</tr>";
             echo "</tbody></table>";
