@@ -1099,6 +1099,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         'B' => 'Sub Source',
         'C' => 'Add Hits',
         'N' => 'And Next',
+        'M' => 'Measured',
+        'I' => 'Add Address',
         '' => ''
     ];
 
@@ -1114,6 +1116,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         '0xL' => 'Lower4',
         '0xU' => 'Upper4',
         '0xH' => '8-bit',
+        '0xW' => '24-bit',
         '0xX' => '32-bit', // needs to be before the 16bits below to make the RegEx work
         '0x ' => '16-bit',
         '0x' => '16-bit',
