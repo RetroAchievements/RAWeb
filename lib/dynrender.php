@@ -753,7 +753,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
     echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
-    echo "<li><a href='/gameList.php?c=18">Nintendo DS</a></li>";
+    echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
     echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
