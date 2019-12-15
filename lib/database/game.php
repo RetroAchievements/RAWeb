@@ -1365,7 +1365,7 @@ function isValidConsoleID($consoleID)
         case 15: // Game Gear
         // case 16: //
         case 17: // Atari Jaguar
-        // case 18: //
+        case 18: // Nintendo DS
         // case 19: //
         // case 20: //
         // case 21: //

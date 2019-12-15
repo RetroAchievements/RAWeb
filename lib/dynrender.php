@@ -723,6 +723,7 @@ function RenderToolbar($user, $permissions = 0)
     ///Atari
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
+    ///echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
     ///Coleco
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
     ///Nintendo
@@ -735,7 +736,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
     echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
-    echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
+    ///echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
     ///NEC
     echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
@@ -748,12 +749,14 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
     /// Handhelds
     echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
-    echo "<li><a href='/gameList.php?c=4'>Gameboy</a></li>";
-    echo "<li><a href='/gameList.php?c=6'>Gameboy Color</a></li>";
-    echo "<li><a href='/gameList.php?c=5'>Gameboy Advance</a></li>";
+    ///echo "<li><a href='/gameList.php?c=53">WonderSwan</a></li>";
+    echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
+    echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
+    echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
+    echo "<li><a href='/gameList.php?c=18">Nintendo DS</a></li>:;
+    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
-    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "</ul>";
     echo "</li>";
 
