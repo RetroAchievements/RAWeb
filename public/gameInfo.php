@@ -414,7 +414,93 @@ $numGridlines = $numAchievements;
                 SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars);
             });
 
-            GetRating(<?php echo $gameID; ?>);
+            if ($('.rating').length)
+            {
+                GetRating(<?php echo $gameID; ?>);
+            }
+
+        });
+
+        /*
+         * Displays set request information
+         */
+        function getSetRequestInformation(user, gameID)
+        {
+            $.ajax(
+            {
+                url: '/API/API_GetSetRequests.php?i=' + gameID + '&u=' + user,
+                dataType: 'json',
+                success: function (results)
+                {
+                    var remaining = parseInt(results.remaining);
+                    var gameTotal = parseInt(results.gameRequests);
+                    var thisGame = results.requestedThisGame;
+
+                    $('.gameRequestsLabel').html("Set Requests: <a href='/setRequestors.php?g=" + gameID + "'>" + gameTotal + "</a>");
+                    $('.userRequestsLabel').html("User Requests Remaining: <a href='/setRequestList.php?u=" + user + "'>" + remaining + "</a>");
+                    
+                    //If the user has not requested a set for this game
+                    if (thisGame == 0)
+                    {
+                        if (remaining <= 0)
+                        {
+                            $('.setRequestLabel').html("<h4>No Requests Remaining</h4>");
+
+                            //Remove clickable text
+                            $(".setRequestLabel").each(function()
+                            {
+                                $("<h4>" + $(this).html() + "</h4>").replaceAll(this);
+                            });
+                        }
+                        else
+                        {
+                            $('.setRequestLabel').html("<h4>Request Set</h4>");
+                        }
+                    }
+                    else
+                    {
+                        $('.setRequestLabel').html("<h4>Withdraw Request</h4>");
+                    }
+
+                },
+                error: function (temp, temp1, temp2)
+                {
+                    alert("Error " + temp + temp1 + temp2);
+                }
+            });
+        }
+
+        /*
+         * Submits a set requets
+         */
+        function submitSetRequest(user, gameID)
+        {
+            $.ajax(
+            {
+                url: '/API/API_SetSetRequest.php?i=' + gameID + '&u=' + user,
+                dataType: 'json',
+                success: function (results)
+                {
+                    getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
+                },
+                error: function (temp, temp1, temp2)
+                {
+                    alert("Error " + temp + temp1 + temp2);
+                }
+            });
+        }
+
+        $(function ()
+        {
+            $('.setRequestLabel').click(function ()
+            {
+                submitSetRequest('<?php echo $user; ?>', <?php echo $gameID; ?>);
+            });
+
+            if ($('.setRequestLabel').length)
+            {
+                getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
+            }
 
         });
 
@@ -733,6 +819,20 @@ $numGridlines = $numAchievements;
                 echo "</div>";
                 echo "</br>";
             }
+            
+            //Only show set request option for logged in users, games without achievements, and core achievement page
+            if ($user !== null && $numAchievements == 0 && $flags != 5)
+            {
+                echo "</br>";
+                echo "<div style='float: right; clear: both;'>";
+                echo "<div>";
+                echo "<a class='setRequestLabel'>Request Set</a>";
+                echo "</div>";
+                echo "<span class='gameRequestsLabel'>?</span>";
+                echo "</br>";
+                echo "<span class='userRequestsLabel'>?</span>";
+                echo "</div>";
+            }
 
             /* if( $user !== NULL && $numAchievements > 0 )
               {
@@ -924,6 +1024,10 @@ $numGridlines = $numAchievements;
             echo "</li>";
             echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
             echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
+            if ($numAchievements == 0)
+            {
+                echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
+            }
             //if( $flags == 5 )
             //echo "<li>- <a href='/Game/$gameID'>View Core Achievements</a></li>";
             //else

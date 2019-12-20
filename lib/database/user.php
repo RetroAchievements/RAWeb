@@ -1884,3 +1884,180 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['LastActivity']    = $userInfo['LastLogin'];
     $userCardInfo['MemberSince']     = $userInfo['Created'];
 }
+
+/*
+ * Gets a list of set requests made by a given user.
+ *
+ * user - The user to get a list of set requests from.
+ */
+function getUserRequestList($user)
+{
+    $retVal = [];
+
+    $query = "
+        SELECT
+            sr.GameID as GameID,
+            gd.Title as GameTitle,
+            gd.ImageIcon as GameIcon,
+            c.name as ConsoleName
+        FROM
+            SETREQUEST sr
+        LEFT JOIN
+            GameData gd ON (sr.GameID = gd.ID)
+        LEFT JOIN
+            Console c ON (gd.ConsoleID = c.ID)
+        WHERE
+            sr.user = '$user'
+        ORDER BY
+            GameTitle ASC";
+
+    error_log($query);
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false)
+    {
+        while ($nextData = mysqli_fetch_assoc($dbResult))
+        {
+            $retVal[] = $nextData;
+        }
+    }
+    else
+    {
+        error_log(__FUNCTION__ . " failed?! $count");
+    }
+
+    return $retVal;
+}
+
+/*
+ * Gets the total and remaining set requests left for the given user.
+ *
+ * user   - The user to get set request information for.
+ * list   - Input list of set requests.
+ * gameID - The game to check if a the user has made a set request for.
+ */
+function getUserRequestsInformation($user, $list, $gameID = -1)
+{
+    $requests = [];
+    $requests['total'] = 0;
+    $requests['used'] = 0;
+    $requests['requestedThisGame'] = 0;
+    $points = GetScore($user);
+
+    //Determine how many requests the user can make
+    if ($points >= 5000)
+    {
+        $requests['total']++;
+    }
+    if ($points >= 10000)
+    {
+        $requests['total']++;
+    }
+    if ($points >= 15000)
+    {
+        $requests['total']++;
+    }
+    if ($points >= 20000)
+    {
+        $requests['total']++;
+        $requests['total'] += floor(($points - 20000) / 10000);
+    }
+
+    //Cap the allowed set requests at 20
+    if ($requests['total'] > 20)
+    {
+        $requests['total'] = 20;
+    }
+
+    //Determine how many of the users current requests are still valid.
+    //Requests made for games that now have achievements do no count towards a used request
+    foreach ($list as $request)
+    {
+        //If the game does not have achievements then it couns as a legit request
+        if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0)
+        {
+            $requests['used']++;
+        }
+
+        //Determine if we have made a request for the input game
+        if ($request['GameID'] == $gameID)
+        {
+            $requests['requestedThisGame'] = 1;
+        }
+    }
+
+    $requests['remaining'] = $requests['total'] - $requests['used'];
+
+    return $requests;
+}
+
+/*
+ * Togles a user set request.
+ * If the user has not requested the set then add an entry to the database.
+ * If the user has requested the set then remove it from the database.
+ *
+ * user      - The user to toggle a set request for.
+ * gameID    - The game to toggle a set request for.
+ * remaining - Remaining set requests for the user.
+ */
+function toggleSetRequest($user, $gameID, $remaining)
+{
+    $query = "
+        SELECT
+            COUNT(*) FROM SETREQUEST 
+        WHERE
+            User = '$user'
+        AND
+            GameID = '$gameID'";
+
+    error_log($query);
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false)
+    {
+        if (mysqli_fetch_assoc($dbResult)['COUNT(*)'] == 1)
+        {
+            $query2 = "
+                DELETE
+                    FROM SETREQUEST
+                WHERE
+                    (`User` = '$user')
+                AND
+                    (`GameID` = '$gameID')";
+
+            error_log($query2);
+            if ( s_mysql_query($query2) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            //Only insert a set request if the user has some available
+            if ($remaining > 0)
+            {
+                $query2 = "
+                    INSERT
+                        INTO SETREQUEST (`User`, `GameID`)
+                    VALUES ('$user', '$gameID')";
+                error_log($query2);
+                if ( s_mysql_query($query2) )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
