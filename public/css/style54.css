@@ -1054,6 +1054,11 @@ div.rating a.starlit {
     background: url('/Images/star_full.png') no-repeat 0 0px;
 }
 
+
+a.setRequestLabel {
+    cursor: pointer;
+}
+
 #preload-01 { background: url('/Images/dropdown.gif') no-repeat -9999px -9999px; }
 #preload-02 { background: url('/Images/center_hassub.png') no-repeat -9999px -9999px; }
 #preload-03 { background: url('/Images/sub_hover.png') no-repeat -9999px -9999px; }

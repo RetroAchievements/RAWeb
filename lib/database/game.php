@@ -1410,3 +1410,143 @@ function isValidConsoleID($consoleID)
             return false;
     }
 }
+
+/*
+ * Gets the number of set requests for a given game.
+ *
+ * gameID - The game to get the number of set requests for.
+ */
+function getSetRequestCount($gameID)
+{
+    settype($gameID, 'integer');
+    if ($gameID < 1)
+    {
+        return false;
+    }
+
+    $query = "SELECT COUNT(*) AS Request FROM
+                SETREQUEST
+                WHERE GameID = $gameID";
+
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false)
+    {
+        return mysqli_fetch_assoc($dbResult)['Request'];
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+ * Gets a list of set requestors for a given game.
+ *
+ * gameID - The game to get set requestors for.
+ */
+function getSetRequestorsList($gameID)
+{
+    $retVal = [];
+    
+    settype($gameID, 'integer');
+    
+    if ($gameID < 1)
+    {
+        return false;
+    }
+
+    $query = "
+        SELECT
+            User AS Requestor
+        FROM
+            SetRequest
+        WHERE
+            GameID = $gameID";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false)
+    {
+        while ($nextData = mysqli_fetch_assoc($dbResult))
+        {
+            $retVal[] = $nextData;
+        }
+    }
+    else
+    {
+        err_log(__FUNCTION__ . " failed?!");
+    }
+
+    return $retVal;
+}
+
+/*
+ * Gets a list of the most requested sets.
+ *
+ * offset - Offset starting position for returned games.
+ * count  - Number of games to return.
+ */
+function getMostRequestedSetsList($offset, $count)
+{
+    $retVal = [];
+
+    $query = "
+        SELECT
+            COUNT(*) AS Requests,
+            sr.GameID as GameID,
+            gd.Title as GameTitle,
+            gd.ImageIcon as GameIcon,
+            c.name as ConsoleName
+        FROM
+            SETREQUEST sr
+        LEFT JOIN
+            GameData gd ON (sr.GameID = gd.ID)
+        LEFT JOIN
+            Console c ON (gd.ConsoleID = c.ID)
+        GROUP BY
+            sr.GameID
+        ORDER BY
+            Requests DESC, gd.Title
+        LIMIT
+            $offset, $count";
+
+    error_log($query);
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false)
+    {
+        while ($nextData = mysqli_fetch_assoc($dbResult))
+        {
+            $retVal[] = $nextData;
+        }
+    }
+    else
+    {
+        error_log(__FUNCTION__ . " failed?!");
+    }
+
+    return $retVal;
+}
+
+/*
+ * Gets the number of setless games with at least one set request.
+ */
+function getGamesWithRequests()
+{
+    $query = "
+        SELECT
+            COUNT(DISTINCT GameID) AS Games
+        FROM
+            SETREQUEST";
+
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false)
+    {
+        return mysqli_fetch_assoc($dbResult)['Games'];
+    }
+    else
+    {
+        return false;
+    }
+}

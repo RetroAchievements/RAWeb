@@ -803,6 +803,7 @@ function RenderToolbar($user, $permissions = 0)
         //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>My Best Awards</a></li>";
         echo "<li><a href='/history.php'>My Legacy</a></li>";
+        echo "<li><a href='/setRequestList.php?u=$user'>My Requested Sets</a></li>";
         echo "<li><a href='/friends.php'>Friends List</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         // echo "<li><a href='/createmessage.php'>New Message</a></li>";
@@ -826,6 +827,7 @@ function RenderToolbar($user, $permissions = 0)
             echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
             echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
             echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
+            echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
             echo "<li class='divider'></li>";
             echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         }
