@@ -81,26 +81,27 @@ $developerPointBoundaries = [
     70000,
 ];
 
-require_once('utils.php');                //	general utilities
+require_once('utils.php');
 require_once('permissions.php');
 require_once('recaptchalib.php');
-require_once('dynrender.php');            //	dynamic rendering
+require_once('dynrender.php');
 require_once('mail.php');
 
-require_once('database/achievement.php');    //	achievement interfaces
-require_once('database/game.php');            //	game interfaces
-require_once('database/lbs.php');            //	leaderboard interfaces
-require_once('database/user.php');            //	user interfaces
-require_once('database/friend.php');            //	friend system
-require_once('database/message.php');        //	messaging system
-require_once('database/static.php');            //	static data interfaces
-require_once('database/news.php');            //	news interfaces
-require_once('database/forum.php');            //	forum interfaces
-require_once('database/tickets.php');        //	ticketing interfacing for bug reports
-require_once('database/activity.php');        //	activity system
-require_once('database/history.php');        //	historical data access
-require_once('database/utility.php');        //	db access utilities
-require_once('database/rating.php');            //	rating functions
+require_once('database/achievement.php');
+require_once('database/game.php');
+require_once('database/lbs.php'); // leaderboards
+require_once('database/user.php');
+require_once('database/friend.php');
+require_once('database/message.php');
+require_once('database/static.php');
+require_once('database/news.php');
+require_once('database/forum.php');
+require_once('database/tickets.php');
+require_once('database/activity.php');
+require_once('database/history.php');
+require_once('database/utility.php');
+require_once('database/release.php');
+require_once('database/rating.php');
 require_once('database/subscription.php');
 
 $mobileBrowser = IsMobileBrowser();

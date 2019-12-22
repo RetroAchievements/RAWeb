@@ -721,7 +721,7 @@ function UploadNewAchievement(
         return false;
     }
 
-    if ($type == 3 && !isValidConsoleID(getGameData($gameID)['ConsoleID'])) {
+    if ($type == 3 && !isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
         return false;
     }

@@ -11,7 +11,7 @@ abstract class Emulators
     const RAP64 = 1;
     const RASnes9x = 2;
     const RAVBA = 3;
-    // const RA_Nester = 4; // unused
+    const RANester = 4; // unused
     const RANes = 5;
     const RAPCE = 6;
     const RALibretro = 7;
