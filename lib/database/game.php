@@ -1411,17 +1411,19 @@ function isValidConsoleID($consoleID)
     }
 }
 
-/*
+/**
  * Gets the number of set requests for a given game.
- *
  * gameID - The game to get the number of set requests for.
+ *
+ * @param $gameID
+ * @return int
  */
 function getSetRequestCount($gameID)
 {
     settype($gameID, 'integer');
     if ($gameID < 1)
     {
-        return false;
+        return 0;
     }
 
     $query = "SELECT COUNT(*) AS Request FROM
@@ -1432,11 +1434,11 @@ function getSetRequestCount($gameID)
 
     if ($dbResult !== false)
     {
-        return mysqli_fetch_assoc($dbResult)['Request'];
+        return (int)(mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
     }
     else
     {
-        return false;
+        return 0;
     }
 }
 
