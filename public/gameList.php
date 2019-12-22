@@ -63,8 +63,7 @@ RenderDocType();
                     <form action="/gameList.php">
                         <input type="hidden" name="s" value="<?= $sortBy ?>">
                         <input type="hidden" name="c" value="<?= $consoleIDInput ?>">
-                        <input type="hidden" name="f" value="<?= $showCompleteGames ?>">
-                        <input size="28" name="d" type="text" value="">
+                        <input size="28" name="d" type="text" value="<?= $dev ?>">
                         &nbsp;
                         <input type="submit" value="Select">
                     </form>
