@@ -1,72 +1,83 @@
 <?php
+
+use RA\Emulators;
+
 return [
     'integration' => [
         'minimum_version' => '0',
         'latest_version' => '0',
         'latest_version_url' => 'bin/RA_Integration.dll',
-        'latest_version_url_x64' => 'bin/RA_Integration-x64.dll',
+        // 'latest_version_url_x64' => 'bin/RA_Integration-x64.dll',
     ],
     'emulators' => [
-        \RA\Emulators::RALibretro => [
+        Emulators::RALibretro => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RALibretro.zip',
             'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'LibRetro',
+            'handle' => 'RALibRetro',
             'active' => true,
-            'integration_id' => \RA\Emulators::RALibretro,
-            'link' => 'https://retroachievements.github.io/RALibretro/',
-            'description' => 'RALibretro is a multi-emulator that can be used to develop RetroAchievements. Find out more about RALibRetro and development of achievements in the docs.',
+            'integration_id' => Emulators::RALibretro,
+            'link' => 'https://docs.retroachievements.org/RALibretro/',
+            'description' => 'RALibRetro is a multi-emulator that can be used for achievements development.',
             'systems' => [
+                1, // Genesis/Mega Drive
+                2, // Nintendo 64
+                3, // SNES
             ],
         ],
-        \RA\Emulators::RAGens => [
+        Emulators::RAGens => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAGens.zip',
-            'latest_version_url_x64' => 'bin/RAGens-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAGens-x64.zip',
             'name' => 'Gens',
+            'handle' => 'RAGens',
             'active' => true,
-            'integration_id' => \RA\Emulators::RAGens,
+            'integration_id' => Emulators::RAGens,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
-                1, // Mega Drive
+                1, // Genesis/Mega Drive
             ],
         ],
-        \RA\Emulators::RAP64 => [
+        Emulators::RAP64 => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAP64.zip',
-            'latest_version_url_x64' => 'bin/RAP64-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAP64-x64.zip',
             'name' => 'Project64',
+            'handle' => 'RAP64',
             'active' => true,
-            'integration_id' => \RA\Emulators::RAP64,
+            'integration_id' => Emulators::RAP64,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 2, // Nintendo 64
             ],
         ],
-        \RA\Emulators::RASnes9x => [
+        Emulators::RASnes9x => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RASnes9x.zip',
-            'latest_version_url_x64' => 'bin/RASnes9x-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RASnes9x-x64.zip',
             'name' => 'Snes9x',
+            'handle' => 'RASnes9x',
             'active' => true,
-            'integration_id' => \RA\Emulators::RASnes9x,
+            'integration_id' => Emulators::RASnes9x,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 3, // SNES
             ],
         ],
-        \RA\Emulators::RAVBA => [
+        Emulators::RAVBA => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAVBA.zip',
-            'latest_version_url_x64' => 'bin/RAVBA-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAVBA-x64.zip',
             'name' => 'VisualBoyAdvance',
+            'handle' => 'RAVBA',
             'active' => true,
-            'integration_id' => \RA\Emulators::RAVBA,
+            'integration_id' => Emulators::RAVBA,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 4, // Game Boy
@@ -74,53 +85,57 @@ return [
                 6, // Game Boy Color
             ],
         ],
-        \RA\Emulators::RANester => [
+        Emulators::RANester => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RANester.zip',
-            'latest_version_url_x64' => 'bin/RANester-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RANester-x64.zip',
             'name' => 'Nester',
+            'handle' => 'RANester',
             'active' => false,
-            'integration_id' => \RA\Emulators::RANester,
+            'integration_id' => Emulators::RANester,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 7, // NES
             ],
         ],
-        \RA\Emulators::RANes => [
+        Emulators::RANes => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RANes.zip',
-            'latest_version_url_x64' => 'bin/RANes-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RANes-x64.zip',
             'name' => 'FCEUX',
+            'handle' => 'RANes',
             'active' => true,
-            'integration_id' => \RA\Emulators::RANes,
+            'integration_id' => Emulators::RANes,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 7, // NES, Famicom, Famicom Disk System (FDS), and Dendy
             ],
         ],
-        \RA\Emulators::RAPCE => [
+        Emulators::RAPCE => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAPCE.zip',
-            'latest_version_url_x64' => 'bin/RAPCE-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAPCE-x64.zip',
             'name' => 'PCE',
+            'handle' => 'RAPCE',
             'active' => false,
-            'integration_id' => \RA\Emulators::RAPCE,
+            'integration_id' => Emulators::RAPCE,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 8, // PC Engine/TurboGrafx
             ],
         ],
-        \RA\Emulators::RAMeka => [
+        Emulators::RAMeka => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAMeka.zip',
-            'latest_version_url_x64' => 'bin/RAMeka-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAMeka-x64.zip',
             'name' => 'Meka',
+            'handle' => 'RAMeka',
             'active' => true,
-            'integration_id' => \RA\Emulators::RAMeka,
+            'integration_id' => Emulators::RAMeka,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 11, // Master System
@@ -128,27 +143,29 @@ return [
                 44, // ColecoVision
             ],
         ],
-        \RA\Emulators::RAQUASI88 => [
+        Emulators::RAQUASI88 => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAQUASI88.zip',
-            'latest_version_url_x64' => 'bin/RAQUASI88-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAQUASI88-x64.zip',
             'name' => 'Quasi88',
+            'handle' => 'RAQUASI88',
             'active' => true,
-            'integration_id' => \RA\Emulators::RAQUASI88,
+            'integration_id' => Emulators::RAQUASI88,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 47, // PC-8000/8800
             ],
         ],
-        \RA\Emulators::RAppleWin => [
+        Emulators::RAppleWin => [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RAppleWin.zip',
-            'latest_version_url_x64' => 'bin/RAppleWin-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RAppleWin-x64.zip',
             'name' => 'AppleWin',
+            'handle' => 'RAppleWin',
             'active' => true,
-            'integration_id' => \RA\Emulators::RAppleWin,
+            'integration_id' => Emulators::RAppleWin,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
             'systems' => [
                 38, // Apple II
@@ -177,6 +194,8 @@ return [
                 13, // Lynx (Cores: Handy, Beetle Handy)
                 28, // Virtual Boy (Cores: Beetle VB)
             ],
+            'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
+Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
         ],
     ],
 ];
