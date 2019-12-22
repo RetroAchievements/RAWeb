@@ -1923,7 +1923,7 @@ function getUserRequestList($user)
     }
     else
     {
-        error_log(__FUNCTION__ . " failed?! $count");
+        error_log(__FUNCTION__ . " failed?!");
     }
 
     return $retVal;
