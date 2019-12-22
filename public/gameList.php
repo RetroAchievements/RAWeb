@@ -87,7 +87,11 @@ RenderDocType();
                     if (!$dataExists) {
                         continue;
                     }
-                    echo "<h3 class='longheader'>$consoleName games with achievements:</h3>";
+                    echo "<h3 class='longheader'>";
+                    echo "<a href='gameList.php?c=$consoleID'>";
+                    echo "$consoleName games";
+                    echo "</a>";
+                    echo "</h3>";
 
                     echo "<table class='smalltable'><tbody>";
 
