@@ -562,6 +562,7 @@ td, tr, img {
     text-decoration:none;
     color:#eee;
     /*font-weight:bold;*/
+    font-size: 110%;
     /*width:72px;*/
     height:42px;
     line-height:37px;
