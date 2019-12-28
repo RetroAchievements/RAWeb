@@ -1098,6 +1098,16 @@ a.setRequestLabel {
     content: "";
 }
 
+.text-nowrap {
+    white-space: nowrap !important;
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .text-center {
     text-align: center !important;
 }
