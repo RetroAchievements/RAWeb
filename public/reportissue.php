@@ -1,56 +1,55 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
-$cookieRaw = RA_ReadCookie( 'RA_Cookie' );
+RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+$cookieRaw = RA_ReadCookie('RA_Cookie');
 
-$achievementID  = seekGET( 'i', 0 );
-settype( $achievementID, 'integer' );
+$achievementID = seekGET('i', 0);
+settype($achievementID, 'integer');
 
-if( $achievementID == 0 ||
-        getAchievementMetadata( $achievementID, $dataOut ) == false )
-{
-    header( "Location: " . getenv('APP_URL') . "?e=unknownachievement" );
+if ($achievementID == 0 ||
+    getAchievementMetadata($achievementID, $dataOut) == false) {
+    header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
     exit;
 }
 
-$achievementTitle = $dataOut[ 'AchievementTitle' ];
-$desc = $dataOut[ 'Description' ];
-$gameTitle = $dataOut[ 'GameTitle' ];
-$achPoints = $dataOut[ 'Points' ];
-$achBadgeName = $dataOut[ 'BadgeName' ];
-$consoleID = $dataOut[ 'ConsoleID' ];
-$consoleName = $dataOut[ 'ConsoleName' ];
-$gameID = $dataOut[ 'GameID' ];
-$gameBadge = $dataOut[ 'GameIcon' ];
+$emulators = getActiveEmulatorReleases();
 
-$errorCode = seekGET( 'e' );
+$achievementTitle = $dataOut['AchievementTitle'];
+$desc = $dataOut['Description'];
+$gameTitle = $dataOut['GameTitle'];
+$achPoints = $dataOut['Points'];
+$achBadgeName = $dataOut['BadgeName'];
+$consoleID = $dataOut['ConsoleID'];
+$consoleName = $dataOut['ConsoleName'];
+$gameID = $dataOut['GameID'];
+$gameBadge = $dataOut['GameIcon'];
+
+$errorCode = seekGET('e');
 
 $pageTitle = "Report Broken Achievement";
 
-RenderDocType( TRUE );
+RenderDocType(true);
 ?>
-
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader( $user ); ?>
-    <?php RenderTitleTag( $pageTitle, $user ); ?>
+    <?php RenderSharedHeader($user); ?>
+    <?php RenderTitleTag($pageTitle, $user); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
-
 <body>
 <script type="text/javascript">
-    function displayCore() {
-        if (document.getElementById('emulator').value == 'RetroArch') {
-            document.getElementById('core').style.display = '';
-        } else {
-            document.getElementById('core').style.display = 'none';
-        }
+  function displayCore() {
+    if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
+      document.getElementById('core-row').style.display = ''
+    } else {
+      document.getElementById('core-row').style.display = 'none'
     }
+  }
 </script>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div id="leftcontainer">
+    <div id="fullcontainer">
         <div class="navpath">
             <a href="/gameList.php">All Games</a>
             &raquo; <a href="/gameList.php?c=<?php echo $consoleName ?>"><?php echo $consoleName ?></a>
@@ -65,9 +64,9 @@ RenderDocType( TRUE );
             <input type="hidden" value="<?php echo $user ?>" name="u">
             <input type="hidden" value="<?php echo $cookieRaw ?>" name="c">
             <input type="hidden" value="<?php echo $achievementID ?>" name="i">
-            <table class="smalltable">
+            <table>
                 <tbody>
-                <tr class="alt">
+                <tr>
                     <td>Game:</td>
                     <td style="width:80%">
                         <?php echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName, false) ?>
@@ -81,9 +80,9 @@ RenderDocType( TRUE );
                     </td>
                 </tr>
                 <tr class="alt">
-                    <td>Issue:</td>
+                    <td><label for="issue">Issue:</label></td>
                     <td>
-                        <select name="p" required>
+                        <select name="p" id="issue" required>
                             <option value="" disabled selected hidden>Select your issue...</option>
                             <option value="1">Triggered at wrong time</option>
                             <option value="2">Doesn't Trigger</option>
@@ -91,41 +90,42 @@ RenderDocType( TRUE );
                     </td>
                 </tr>
                 <tr>
-                    <td>Emulator:</td>
+                    <td><label for="emulator">Emulator:</label></td>
                     <td>
-                        <select name="note[emulator]" id="emulator" onclick="displayCore()" required>
+                        <select name="note[emulator]" id="emulator" onchange="displayCore()" required>
                             <option value="" disabled selected hidden>Select your emulator...</option>
-                            <option>RAGens</option>
-                            <option>RANes</option>
-                            <option>RASnes9x</option>
-                            <option>RAVBA</option>
-                            <option>RAPCEngine</option>
-                            <option>RAMeka</option>
-                            <option>RAppleWin</option>
-                            <option>RAProject64</option>
-                            <option>RAQUASI88</option>
-                            <option>RALibRetro</option>
-                            <option>RetroArch</option>
+                            <?php foreach ($emulators as $emulator): ?>
+                                <option><?= $emulator['handle'] ?></option>
+                            <?php endforeach ?>
                         </select>
-                        <br><input type="text" name="note[core]" id="core" placeholder="Please input the Core used."
-                                   style="display: none">
                     </td>
                 </tr>
-                <tr class="alt">
-                    <td>Checksum:</td>
+                <tr id="core-row" style="display: none">
+                    <td>
+                        <label for="core">Core:</label>
+                    </td>
+                    <td>
+                        <input type="text" name="note[core]" id="core" placeholder="Which core did you use?"
+                               style="width:100%;margin-top: 3px">
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="checksum">Checksum:</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
                             <?php
-                            foreach( getHashListByGameID( $gameID ) as $listKey => $hashArray )
-                                foreach( $hashArray as $hashKey => $hash )
+                            foreach (getHashListByGameID($gameID) as $listKey => $hashArray) {
+                                foreach ($hashArray as $hashKey => $hash) {
                                     echo "<option value='$hash'>$hash</option>";
+                                }
+                            }
                             ?>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td>Description:</td>
+                    <td><label for="description">Description:</label></td>
                     <td colspan="2">
                         <textarea class="requiredinput fullwidth forum" name="note[description]" id="description"
                                   style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
@@ -141,9 +141,6 @@ RenderDocType( TRUE );
                 </tbody>
             </table>
         </form>
-    </div>
-    <div id="rightcontainer">
-        <?php RenderScoreLeaderboardComponent($user, $points, true); ?>
     </div>
 </div>
 <?php RenderFooter(); ?>
