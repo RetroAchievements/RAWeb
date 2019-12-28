@@ -14,7 +14,7 @@ return [
             'minimum_version' => '0',
             'latest_version' => '0',
             'latest_version_url' => 'bin/RALibretro.zip',
-            'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
+            // 'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'LibRetro',
             'handle' => 'RALibRetro',
             'active' => true,
