@@ -23,7 +23,7 @@ if (isset($_SERVER["SERVER_NAME"])) {
     define("AT_HOST_DOT", null);
 }
 
-define("VERSION", "1.26.4");
+define("VERSION", "1.27.0");
 
 define("CSS_FILE", "/css/style54.css?v=" . VERSION);
 
