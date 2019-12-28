@@ -40,13 +40,13 @@ RenderDocType( TRUE );
 
 <body>
 <script type="text/javascript">
-    function displayCore() {
-        if (document.getElementById('emulator').value == 'RetroArch') {
-            document.getElementById('core').style.display = '';
-        } else {
-            document.getElementById('core').style.display = 'none';
-        }
+  function displayCore() {
+    if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
+      document.getElementById('core-row').style.display = ''
+    } else {
+      document.getElementById('core-row').style.display = 'none'
     }
+  }
 </script>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
 <?php RenderToolbar($user, $permissions); ?>
