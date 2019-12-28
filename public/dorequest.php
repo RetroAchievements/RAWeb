@@ -187,7 +187,7 @@ if ($credentialsOK) {
             $response['MinimumVersion'] = $emulator['minimum_version'] ?? null;
             $response['LatestVersion'] = $emulator['latest_version'] ?? null;
             $response['LatestVersionUrl'] = getenv('APP_URL') . '/' . $emulator['latest_version_url'] ?? null;
-            $response['LatestVersionUrlX64'] = getenv('APP_URL') . '/' . $emulator['latest_version_url_x64'] ?? null;
+            $response['LatestVersionUrlX64'] = ($emulator['latest_version_url_x64'] ?? null) ? getenv('APP_URL') . '/' . $emulator['latest_version_url_x64'] : null;
             break;
 
         case "latestintegration":
@@ -199,7 +199,7 @@ if ($credentialsOK) {
             $response['MinimumVersion'] = $integration['minimum_version'] ?? null;
             $response['LatestVersion'] = $integration['latest_version'] ?? null;
             $response['LatestVersionUrl'] = getenv('APP_URL') . '/' . $integration['latest_version_url'] ?? null;
-            $response['LatestVersionUrlX64'] = getenv('APP_URL') . '/' . $integration['latest_version_url_x64'] ?? null;
+            $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null) ? getenv('APP_URL') . '/' . $integration['latest_version_url_x64'] : null;
             break;
 
         case "news":
