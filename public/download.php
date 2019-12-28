@@ -43,7 +43,7 @@ RenderDocType();
                     <a class="" href="<?= $emulator['link'] ?>" target="_blank">Documentation</a>
                 <?php endif ?>
             </div>
-            <div class="mb-3" style="display: flex; justify-content: space-between; flex-direction: row">
+            <div class="mb-3" style="display: flex; justify-content: space-between; flex-direction: row; align-items: start">
                 <div style="flex-grow: 1">
                     <?php if (!empty($emulator['systems'])): ?>
                         <b>Supported Systems:</b><br>
@@ -57,7 +57,7 @@ RenderDocType();
                     <?php endif ?>
                 </div>
                 <?php if ($emulator['latest_version_url_x64'] ?? false): ?>
-                    <p class="mb-1 text-right" style="margin-right: 0.5rem">
+                    <p class="mb-1 text-right text-nowrap" style="margin-right: 0.5rem">
                         <a style="" href="<?= getenv('APP_URL') . '/' . $emulator['latest_version_url_x64'] ?>">
                             Download v<?= $emulator['latest_version'] ?> x64<br>
                             <small>Windows</small>
@@ -65,7 +65,7 @@ RenderDocType();
                     </p>
                 <?php endif ?>
                 <?php if ($emulator['latest_version_url'] ?? false): ?>
-                    <p class="mb-1 text-right">
+                    <p class="mb-1 text-right text-nowrap">
                         <a style="" href="<?= getenv('APP_URL') . '/' . $emulator['latest_version_url'] ?>">
                             Download v<?= $emulator['latest_version'] ?> x86<br>
                             <small>Windows</small>
