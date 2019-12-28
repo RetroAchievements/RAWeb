@@ -5,7 +5,7 @@ namespace RA;
 abstract class Emulators
 {
     // reference for the numbers used here:
-    // https://github.com/RetroAchievements/RAIntegration/blob/master/src/RA_Interface.h
+    // https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
     // enum EmulatorID
     const RAGens = 0;
     const RAP64 = 1;
