@@ -23,6 +23,7 @@ $consoleID = $dataOut[ 'ConsoleID' ];
 $consoleName = $dataOut[ 'ConsoleName' ];
 $gameID = $dataOut[ 'GameID' ];
 $gameBadge = $dataOut[ 'GameIcon' ];
+$emulators = getActiveEmulatorReleases();
 
 $errorCode = seekGET( 'e' );
 
@@ -91,21 +92,13 @@ RenderDocType( TRUE );
                     </td>
                 </tr>
                 <tr>
-                    <td>Emulator:</td>
+                    <td><label for="emulator">Emulator:</label></td>
                     <td>
-                        <select name="note[emulator]" id="emulator" onclick="displayCore()" required>
+                        <select name="note[emulator]" id="emulator" onchange="displayCore()" required>
                             <option value="" disabled selected hidden>Select your emulator...</option>
-                            <option>RAGens</option>
-                            <option>RANes</option>
-                            <option>RASnes9x</option>
-                            <option>RAVBA</option>
-                            <option>RAPCEngine</option>
-                            <option>RAMeka</option>
-                            <option>RAppleWin</option>
-                            <option>RAProject64</option>
-                            <option>RAQUASI88</option>
-                            <option>RALibRetro</option>
-                            <option>RetroArch</option>
+                            <?php foreach ($emulators as $emulator): ?>
+                                <option><?= $emulator['handle'] ?></option>
+                            <?php endforeach ?>
                         </select>
                         <br><input type="text" name="note[core]" id="core" placeholder="Please input the Core used."
                                    style="display: none">
