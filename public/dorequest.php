@@ -183,11 +183,11 @@ if ($credentialsOK) {
                 DoRequestError("Unknown client");
                 break;
             }
-
+            $baseDownloadUrl = str_replace('https', 'http', getenv('APP_URL')) . '/';
             $response['MinimumVersion'] = $emulator['minimum_version'] ?? null;
             $response['LatestVersion'] = $emulator['latest_version'] ?? null;
-            $response['LatestVersionUrl'] = getenv('APP_URL') . '/' . $emulator['latest_version_url'] ?? null;
-            $response['LatestVersionUrlX64'] = ($emulator['latest_version_url_x64'] ?? null) ? str_replace('https', 'http', getenv('APP_URL')) . '/' . $emulator['latest_version_url_x64'] : null;
+            $response['LatestVersionUrl'] = $baseDownloadUrl . $emulator['latest_version_url'] ?? null;
+            $response['LatestVersionUrlX64'] = ($emulator['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $emulator['latest_version_url_x64'] : null;
             break;
 
         case "latestintegration":
@@ -196,10 +196,11 @@ if ($credentialsOK) {
                 DoRequestError("Unknown client");
                 break;
             }
+            $baseDownloadUrl = str_replace('https', 'http', getenv('APP_URL')) . '/';
             $response['MinimumVersion'] = $integration['minimum_version'] ?? null;
             $response['LatestVersion'] = $integration['latest_version'] ?? null;
-            $response['LatestVersionUrl'] = getenv('APP_URL') . '/' . $integration['latest_version_url'] ?? null;
-            $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null) ? str_replace('https', 'http', getenv('APP_URL')) . '/' . $integration['latest_version_url_x64'] : null;
+            $response['LatestVersionUrl'] = $baseDownloadUrl . $integration['latest_version_url'] ?? null;
+            $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $integration['latest_version_url_x64'] : null;
             break;
 
         case "news":
