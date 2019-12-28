@@ -152,7 +152,7 @@ return [
             'handle' => 'RAQUASI88',
             'active' => true,
             'integration_id' => Emulators::RAQUASI88,
-            'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'link' => 'https://docs.retroachievements.org/RAQUASI88/',
             'systems' => [
                 47, // PC-8000/8800
             ],
