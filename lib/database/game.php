@@ -1361,7 +1361,7 @@ function getSetRequestCount($gameID)
     }
 
     $query = "SELECT COUNT(*) AS Request FROM
-                SETREQUEST
+                SetRequest
                 WHERE GameID = $gameID";
 
     $dbResult = s_mysql_query($query);
@@ -1434,7 +1434,7 @@ function getMostRequestedSetsList($offset, $count)
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName
         FROM
-            SETREQUEST sr
+            SetRequest sr
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
@@ -1473,7 +1473,7 @@ function getGamesWithRequests()
         SELECT
             COUNT(DISTINCT GameID) AS Games
         FROM
-            SETREQUEST";
+            SetRequest";
 
     $dbResult = s_mysql_query($query);
 

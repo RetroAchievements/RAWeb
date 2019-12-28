@@ -1901,7 +1901,7 @@ function getUserRequestList($user)
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName
         FROM
-            SETREQUEST sr
+            SetRequest sr
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
@@ -2004,7 +2004,7 @@ function toggleSetRequest($user, $gameID, $remaining)
 {
     $query = "
         SELECT
-            COUNT(*) FROM SETREQUEST 
+            COUNT(*) FROM SetRequest 
         WHERE
             User = '$user'
         AND
@@ -2019,7 +2019,7 @@ function toggleSetRequest($user, $gameID, $remaining)
         {
             $query2 = "
                 DELETE
-                    FROM SETREQUEST
+                    FROM SetRequest
                 WHERE
                     (`User` = '$user')
                 AND
@@ -2042,7 +2042,7 @@ function toggleSetRequest($user, $gameID, $remaining)
             {
                 $query2 = "
                     INSERT
-                        INTO SETREQUEST (`User`, `GameID`)
+                        INTO SetRequest (`User`, `GameID`)
                     VALUES ('$user', '$gameID')";
                 error_log($query2);
                 if ( s_mysql_query($query2) )
