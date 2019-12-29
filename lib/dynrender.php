@@ -719,6 +719,7 @@ function RenderToolbar($user, $permissions = 0)
     //// Sorted Lists
     echo "<li><a href='/gameList.php'>All Games</a></li>";
     echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "<li class='divider'></li>";
     ///Atari
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
