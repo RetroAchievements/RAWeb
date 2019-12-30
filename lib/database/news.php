@@ -1,12 +1,7 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    News 
-//////////////////////////////////////////////////////////////////////////////////////////
-//    18:25 16/10/2014
 function GetLatestNewsData($offset, $count)
 {
-    $retVal = array();
+    $retVal = [];
 
     $query = "SELECT ID, UNIX_TIMESTAMP(Timestamp) AS TimePosted, Title, Payload, Author, Link, Image
               FROM News
@@ -23,7 +18,9 @@ function GetLatestNewsData($offset, $count)
     return $retVal;
 }
 
-//    Deprecated
+/**
+ * @deprecated
+ */
 function getLatestNewsHeaders($offset, $numItems, &$dataOut)
 {
     $dataOut = GetLatestNewsData($offset, $numItems);
@@ -32,7 +29,6 @@ function getLatestNewsHeaders($offset, $numItems, &$dataOut)
 
 function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
 {
-    //    Sanitise:
     global $db;
     $payload = mysqli_real_escape_string($db, $payload);
     $link = mysqli_real_escape_string($db, $link);

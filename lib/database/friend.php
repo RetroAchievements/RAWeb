@@ -1,8 +1,4 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Friend Functions
 function changeFriendStatus($user, $friend, $action)
 {
     settype($action, 'integer');
@@ -249,7 +245,7 @@ function isFriendsWith($user, $friend)
 
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
 {
-    $friendScoresOut = Array();
+    $friendScoresOut = [];
     //    Subquery one: select all friends this user has added:
     //    Subquery two: select all achievements associated with this game:
 
@@ -341,7 +337,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
 
 function GetFriendList($user)
 {
-    $friendList = array();
+    $friendList = [];
 
     $query = "SELECT f.Friend, ua.RAPoints, ua.RichPresenceMsg AS LastSeen, ua.ID
               FROM Friends AS f

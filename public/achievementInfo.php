@@ -1,8 +1,7 @@
 <?php
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
-
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -54,60 +53,47 @@ getCodeNotes($gameID, $codeNotes);
 
 $errorCode = seekGET('e');
 
-$pageTitle = $achievementTitle;
-
-RenderDocType(true);
+RenderHtmlStart(true);
 ?>
-
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderFBMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement",
+    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement",
         "/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
+    <?php RenderTitleTag($achievementTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
 
 <body>
-
-<?php
-if ($permissions >= 2) {
-    ?>
-    <script>
-        function PostEmbedUpdate() {
-            var url = $("body").find("#embedurlinput").val();
-            url = replaceAll("http", "_http_", url);
-
-            var posting = $.post("/requestupdateachievement.php", {
-                u: '<?php echo $user; ?>',
-                a: <?php echo $achievementID; ?>,
-                f: 2,
-                v: url
-            });
-            posting.done(onUpdateEmbedComplete);
-            $("body").find("#warning").html("Status: Updating...");
-        }
-
-        function onUpdateEmbedComplete(data) {
-            if (data !== "OK") {
-                $("body").find("#warning").html("Status: Errors...");
-            } else {
-                $("body").find("#warning").html("Status: Loading...");
-                window.location.reload();
-            }
-        }
-    </script>
-
-    <?php
-}
-?>
-
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
+<?php if ($permissions >= 2): ?>
+    <script>
+      function PostEmbedUpdate() {
+        var url = $('body').find('#embedurlinput').val()
+        url = replaceAll('http', '_http_', url)
 
+        var posting = $.post('/request/requestupdateachievement.php', {
+          u: '<?php echo $user; ?>',
+          a: <?php echo $achievementID; ?>,
+          f: 2,
+          v: url
+        })
+        posting.done(onUpdateEmbedComplete)
+        $('body').find('#warning').html('Status: Updating...')
+      }
+
+      function onUpdateEmbedComplete(data) {
+        if (data !== 'OK') {
+          $('body').find('#warning').html('Status: Errors...')
+        } else {
+          $('body').find('#warning').html('Status: Loading...')
+          window.location.reload()
+        }
+      }
+    </script>
+<?php endif ?>
 <div id="mainpage">
-
     <div id='leftcontainer'>
-
         <?php
         RenderErrorCodeWarning('left', $errorCode);
 
@@ -140,10 +126,10 @@ if ($permissions >= 2) {
 
         if ($achievedLocal) {
             $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
-            echo "<small style='float: right; text-align: right;' class='smalldate'>unlocked on<br/>$niceDateWon</small>";
+            echo "<small style='float: right; text-align: right;' class='smalldate'>unlocked on<br>$niceDateWon</small>";
         }
-        echo "<a href='/Achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br/>";
-        echo "$desc<br/>";
+        echo "<a href='/Achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "$desc<br>";
 
         echo "</div>"; //achievemententry
         echo "</td>";
@@ -166,7 +152,7 @@ if ($permissions >= 2) {
         if ($achFlags == 5) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by <a href='/User/$author'>$author</a> on: $niceDateCreated<br/>Last modified: $niceDateModified<br/>";
+        echo "Created by <a href='/User/$author'>$author</a> on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -180,11 +166,11 @@ if ($permissions >= 2) {
             }
             echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
         }
-        echo "<br/><br/><br/><br/>";
+        echo "<br><br><br><br>";
 
         if (isset($user) && $permissions >= 2) {
             echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br/>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 
             echo "<li>Set embedded video URL:</li>";
@@ -194,7 +180,7 @@ if ($permissions >= 2) {
             echo "<input type='hidden' name='u' value='$user' />";
             echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
             echo "</tbody></table>";
-            echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /></br></br>";
+            echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
             echo "<div style='clear:both;'></div>";
             ?>
             Examples for accepted formats:<br>
@@ -225,9 +211,9 @@ if ($permissions >= 2) {
             echo "<div style='clear:both;'></div>";
 
             if ($achFlags == 3) {
-                echo "<li>State: Official&nbsp;<a href='/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
+                echo "<li>State: Official&nbsp;<a href='/request/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
             } elseif ($achFlags == 5) {
-                echo "<li>State: Unofficial&nbsp;<a href='/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                echo "<li>State: Unofficial&nbsp;<a href='/request/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
             }
 
             echo "<li> Achievement ID: " . $achievementID . "</li>";
@@ -257,9 +243,9 @@ if ($permissions >= 2) {
         echo "<h3>Winners</h3>";
 
         if (count($winnerInfo) == 0) {
-            echo "Nobody yet! Will you be the first?!<br/>";
+            echo "Nobody yet! Will you be the first?!<br>";
         } else {
-            echo "<table class='smalltable'><tbody>";
+            echo "<table><tbody>";
             echo "<tr><th colspan='2'>User</th><th>Hardcore?</th><th>Earned On</th></tr>";
             $iter = 0;
             foreach ($winnerInfo as $userWinner => $userObject) {
@@ -272,10 +258,10 @@ if ($permissions >= 2) {
                 echo "<tr>";
 
                 echo "<td style='width:34px'>";
-                echo GetUserAndTooltipDiv( $userWinner, TRUE );
+                echo GetUserAndTooltipDiv($userWinner, true);
                 echo "</td>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv( $userWinner, FALSE );
+                echo GetUserAndTooltipDiv($userWinner, false);
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {
@@ -303,20 +289,16 @@ if ($permissions >= 2) {
 
         echo "</div>"; //RecentWinners;
         ?>
-    </div>    <!-- leftcontainer -->
-
+    </div>
     <div id='rightcontainer'>
         <?php
         if ($user !== null) {
             RenderScoreLeaderboardComponent($user, $points, true);
         }
-
         RenderGameLeaderboardsComponent($gameID, $lbData);
         ?>
     </div>
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

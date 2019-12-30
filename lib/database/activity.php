@@ -1,14 +1,8 @@
 <?php
-
 use RA\ActivityType;
 use RA\ObjectType;
 use RA\SubjectType;
 
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Activity/Feed
-//////////////////////////////////////////////////////////////////////////////////////////
-//    01:00 23/02/2013
 function getMostRecentActivity($user, $type, $data)
 {
     $innerClause = "Activity.user = '$user'";
@@ -35,7 +29,6 @@ function getMostRecentActivity($user, $type, $data)
     return mysqli_fetch_assoc($dbResult);
 }
 
-//    01:01 23/02/2013
 function updateActivity($activityID)
 {
     //    Update the last update value of given activity
@@ -51,7 +44,6 @@ function updateActivity($activityID)
     }
 }
 
-//    08:17 22/09/2014
 function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 {
     settype($isHardcore, 'integer');
@@ -67,7 +59,6 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
     return (mysqli_num_rows($dbResult) > 0);
 }
 
-//    01:04 23/02/2013
 function postActivity($userIn, $activity, $customMsg, $isalt = null)
 {
     $user = correctUserCase($userIn);
@@ -101,7 +92,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
         case ActivityType::Login:
             //    login
             $lastLoginActivity = getMostRecentActivity($user, $activity, null);
-            if (isset($lastLoginActivity)) {
+            if ($lastLoginActivity) {
                 $nowTimestamp = time();
                 $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
                 $diff = $nowTimestamp - $lastLoginTimestamp;
@@ -112,7 +103,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
                     return;
                 }
             }
-
             $query .= "(NOW(), $activity, '$user', NULL, NULL)";
             break;
 
@@ -245,7 +235,6 @@ function userActivityPing($user)
     return true;
 }
 
-//    23:13 12/01/2014
 function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 {
     if (!isset($user) || strlen($user) < 2) {
@@ -273,7 +262,6 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     return true;
 }
 
-//     00:08 19/03/2013
 function getActivityMetadata($activityID)
 {
     $query = "SELECT * FROM Activity
@@ -283,7 +271,6 @@ function getActivityMetadata($activityID)
     return mysqli_fetch_assoc($dbResult);
 }
 
-//  08/19/2014 13:13:04
 function RemoveComment($articleID, $commentID)
 {
     settype($articleID, 'integer');
@@ -306,7 +293,6 @@ function RemoveComment($articleID, $commentID)
     }
 }
 
-//    20:05 06/04/2013
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
 {
     //    Note: $user is the person who just made a comment.
@@ -485,7 +471,6 @@ function getSubscribersOfArticle(
     );
 }
 
-//    00:08 19/03/2013
 function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global')
 {
     settype($maxMessages, "integer");
@@ -568,7 +553,6 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     return 0;
 }
 
-//01:50 22/03/2013
 function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
 {
     // $query = "SELECT g.ID AS GameID, g.ConsoleID, c.Name AS ConsoleName, g.Title, MAX(act.lastupdate) AS LastPlayed, g.ImageIcon
@@ -604,6 +588,7 @@ LIMIT $offset, $count";
 
     $numFound = 0;
 
+    $dataOut = [];
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$numFound] = $data;
@@ -709,7 +694,7 @@ function getCurrentlyOnlinePlayers()
         }
     } else {
         error_log($query);
-        error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
+        error_log(__FUNCTION__ . " failed3");
     }
 
     return $playersFound;

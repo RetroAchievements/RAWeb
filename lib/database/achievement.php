@@ -1,13 +1,7 @@
 <?php
-
 use RA\ActivityType;
 use RA\Permissions;
 
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Achievement Accessors
-//////////////////////////////////////////////////////////////////////////////////////////
-//    00:54 21/03/2013
 function getAchievementFeedData(
     $id,
     &$titleOut,
@@ -51,7 +45,6 @@ function getAchievementFeedData(
     return true;
 }
 
-//    00:52 23/02/2013
 function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
 {
     settype($id, "integer");
@@ -81,7 +74,6 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
     return $data['Title'];
 }
 
-//    08:22 04/11/2014
 function GetAchievementData($id)
 {
     settype($id, "integer");
@@ -210,6 +202,7 @@ function getAchievementsListByDev(
     $query .= "LIMIT $offset, $count ";
 
     //error_log( $query );
+    $dataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -248,14 +241,12 @@ function GetAchievementMetadataJSON($achID)
     return $retVal;
 }
 
-//    01:16 23/02/2013
 function GetAchievementMetadata($achievementID, &$dataOut)
 {
     $dataOut = GetAchievementMetadataJSON($achievementID);
     return (count($dataOut) > 0);
 }
 
-//    00:59 23/02/2013
 function getAchievementBadgeFilename($id)
 {
     $query = "SELECT BadgeName FROM Achievements WHERE ID = '$id'";
@@ -302,7 +293,7 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 
 function HasAward($user, $achIDToAward)
 {
-    $retVal = array();
+    $retVal = [];
     $retVal['HasRegular'] = false;
     $retVal['HasHardcore'] = false;
 
@@ -368,7 +359,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
     settype($achIDToAward, 'integer');
     settype($isHardcore, 'integer');
 
-    $retVal = array();
+    $retVal = [];
     $retVal['Success'] = true;
 
     if (!ValidationPass($validationKey, $user, $achIDToAward)) {
@@ -471,7 +462,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
 
                         testFullyCompletedGame($user, $achIDToAward, $isHardcore);
 
-                        $socialData = array();
+                        $socialData = [];
                         $socialData['User'] = $user;
                         $socialData['Points'] = $userData['RAPoints'] + $pointsToGive;
                         $socialData['AchievementData'] = $achData; //Passthru
@@ -486,7 +477,6 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
     return $retVal;
 }
 
-//    01:09 23/02/2013
 function addEarnedAchievement(
     $userIn,
     $validation,
@@ -650,15 +640,15 @@ function addEarnedAchievement(
                                 //    'description'=>$desc );
 
                                 $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
-                                $params = array(
+                                $params = [
                                     'access_token' => $access_token,
-                                    'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward"
-                                );
+                                    'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward",
+                                ];
 
                                 try {
                                     //$ret_obj = $fbConn->api( "/$fbUser/feed", 'POST', $params );
                                     $message = "/$fbUser/retroachievements:earn?access_token=$access_token";
-                                    //echo "<br/>DEBUG:<br/>" . $message . "<br/>" . $params . "<br/>";
+                                    //echo "<br>DEBUG:<br>" . $message . "<br>" . $params . "<br>";
 
                                     $ret_obj = $fbConn->api($message, 'POST', $params);
                                     //echo '<pre>Post ID: ' . $ret_obj['id'] . '</pre>';
@@ -673,17 +663,17 @@ function addEarnedAchievement(
                                     // just ask the user to login again here.
                                     //$login_url = $fbConn->getLoginUrl( array( 'scope' => 'publish_stream' ) );
                                     //global $config;
-                                    //echo $login_url . "<br/>";
-                                    //echo $config['appId'] . "<br/>";
-                                    //echo $config['secret'] . "<br/>";
-                                    //echo $config['cookie'] . "<br/>";
+                                    //echo $login_url . "<br>";
+                                    //echo $config['appId'] . "<br>";
+                                    //echo $config['secret'] . "<br>";
+                                    //echo $config['cookie'] . "<br>";
                                     //echo "fbConn " . fbConn!==FALSE;
-                                    //echo 'Please <a href="' . $login_url . '">login.</a><br/>';
+                                    //echo 'Please <a href="' . $login_url . '">login.</a><br>';
                                     error_log($e->getType());
                                     error_log($e->getMessage());
 
-                                    //echo "ERROR: " . $e->getType() . "<br/>";
-                                    //echo "ERROR: " . $e->getMessage() . "<br/>";
+                                    //echo "ERROR: " . $e->getType() . "<br>";
+                                    //echo "ERROR: " . $e->getMessage() . "<br>";
                                     //echo ":FBER";    //    Error!
                                     error_log(__FUNCTION__ . " failed: fbConn->api exception: $user, $achIDToAward, $fbUser, $points");
                                     echo ":FBER"; //    Posted OK!
@@ -699,7 +689,6 @@ function addEarnedAchievement(
     return $returnVal;
 }
 
-//    18:27 23/02/2013
 function UploadNewAchievement(
     $author,
     $gameID,
@@ -828,7 +817,6 @@ function UploadNewAchievement(
     }
 }
 
-//    17:47 14/05/2013
 function resetAchievements($user, $gameID)
 {
     //$query = "SELECT COUNT(*) AS NumAchievements FROM Awarded WHERE User='$user'";
@@ -855,7 +843,7 @@ function resetAchievements($user, $gameID)
         global $db;
         $numRowsDeleted = mysqli_affected_rows($db);
         error_log(__FUNCTION__ . " Success - deleted $numRowsDeleted achievements for $user.");
-        //echo "SUCCESS! Deleted " . $numRowsDeleted . " achievements.<br/>";
+        //echo "SUCCESS! Deleted " . $numRowsDeleted . " achievements.<br>";
 
         if (!isset($gameID) || $gameID == 0) {
             //    remove stored points if we're doing a total reset
@@ -874,7 +862,7 @@ function resetAchievements($user, $gameID)
         }
     } else {
         error_log(__FUNCTION__ . " Delete op failed (no permissions?)!");
-        //echo "Delete op failed (no permissions?)!<br/>";
+        //echo "Delete op failed (no permissions?)!<br>";
     }
 
     return $numRowsDeleted;
@@ -944,7 +932,7 @@ function getRecentlyEarnedAchievements($count, $user, &$dataOut)
 
 function GetAchievementsPatch($gameID, $flags)
 {
-    $retVal = array();
+    $retVal = [];
 
     $flagsCond = "TRUE";
     if ($flags != 0) {
@@ -978,13 +966,12 @@ function GetAchievementsPatch($gameID, $flags)
     return $retVal;
 }
 
-//    11:31 30/10/2014
 function GetPatchData($gameID, $flags, $user)
 {
     settype($gameID, 'integer');
     settype($flags, 'integer');
 
-    $retVal = array();
+    $retVal = [];
 
     if ($gameID == 0) {
         error_log(__FUNCTION__ . " cannot lookup game with gameID $gameID for user $user");
@@ -998,7 +985,6 @@ function GetPatchData($gameID, $flags, $user)
     return $retVal;
 }
 
-//    01:43 23/02/2013
 function getPatch($gameID, $flags, $user, $andLeaderboards)
 {
     settype($gameID, 'integer');
@@ -1162,7 +1148,7 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = array();
+        $dataOut = [];
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[] = $db_entry;
         }
@@ -1172,5 +1158,216 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
         error_log(__FUNCTION__ . " failed: consoleID:$consoleID offset:$offset, count:$count");
         log_email("$offset... $count - " . $query);
         return true;
+    }
+}
+
+function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user)
+{
+    $winnerInfo = [];
+
+    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
+              FROM Awarded AS aw
+              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID AND aw.HardcoreMode = 0";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+    $numWinners = $data['NumEarned'];
+    $gameID = $data['GameID'];   //    Grab GameID at this point
+    //$query = "SELECT COUNT(*) FROM UserAccounts WHERE Permissions>0";
+    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
+              (
+                  SELECT ach.ID, COUNT(*) AS MaxAwarded
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  GROUP BY ach.ID
+              ) AS Inner1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $arrayResult = mysqli_fetch_assoc($dbResult);
+    $numPossibleWinners = $arrayResult['TotalPlayers'];
+
+    $numRecentWinners = 0;
+
+    //    Get recent winners, and their most recent activity:
+    $query = "SELECT aw.User, ua.RAPoints, aw.Date AS DateAwarded, aw.HardcoreMode
+              FROM Awarded AS aw
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID
+              ORDER BY aw.Date DESC
+              LIMIT 0, 100";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            if (isset($winnerInfo[$db_entry['User']]) && $winnerInfo[$db_entry['User']]['HardcoreMode'] == 1) {
+                //    Prefer this value
+                continue;
+            }
+
+            //    This will overwrite hardcore if found, in order; meaning the result will be
+            //    either hardcore has been earned ever, or not at all by this user
+            $winnerInfo[$db_entry['User']] = $db_entry;
+            $numRecentWinners++;
+        }
+    }
+
+    if ($user !== null && !array_key_exists($user, $winnerInfo)) {
+        //    Do the same again if I wasn't found:
+        $query = "SELECT aw.User, aw.Date AS DateAwarded, aw.HardcoreMode
+                  FROM Awarded AS aw
+                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                  WHERE aw.AchievementID=$achID AND aw.User='$user'
+                  ORDER BY aw.Date DESC, HardcoreMode ASC";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+                $winnerInfo[$db_entry['User']] = $db_entry;
+                $numRecentWinners++;
+            }
+        }
+    }
+
+    return true;
+}
+
+function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
+{
+    $retVal = [];
+
+    //    Fetch the number of times this has been earned whatsoever (excluding hardcore)
+    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
+              FROM Awarded AS aw
+              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+              WHERE AchievementID=$achID AND aw.HardcoreMode = 0";
+
+    $dbResult = s_mysql_query($query);
+    $data = mysqli_fetch_assoc($dbResult);
+
+    $retVal['NumEarned'] = $data['NumEarned'];
+    settype($retVal['NumEarned'], 'integer');
+    $retVal['GameID'] = $data['GameID'];
+    settype($retVal['GameID'], 'integer');
+
+    //    Fetch the total number of players for this game:
+    $retVal['TotalPlayers'] = getGameNumUniquePlayersByAwards($retVal['GameID']);
+    settype($retVal['TotalPlayers'], 'integer');
+
+    $extraWhere = "";
+    if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
+        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' ) ";
+    }
+
+    //    Get recent winners, and their most recent activity:
+    $query = "SELECT aw.User, ua.RAPoints, UNIX_TIMESTAMP(aw.Date) AS DateAwarded
+              FROM Awarded AS aw
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE AchievementID=$achID AND aw.HardcoreMode = 0 $extraWhere
+              ORDER BY aw.Date DESC
+              LIMIT $offset, $count";
+
+    $dbResult = s_mysql_query($query);
+    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+        //settype( $db_entry['HardcoreMode'], 'integer' );
+        settype($db_entry['RAPoints'], 'integer');
+        settype($db_entry['DateAwarded'], 'integer');
+        $retVal['RecentWinner'][] = $db_entry;
+    }
+
+    return $retVal;
+}
+
+function getGameNumUniquePlayersByAwards($gameID)
+{
+    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
+              (
+                  SELECT ach.ID, COUNT(*) AS MaxAwarded
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  GROUP BY ach.ID
+              ) AS Inner1";
+
+    $dbResult = s_mysql_query($query);
+    $data = mysqli_fetch_assoc($dbResult);
+
+    return $data['TotalPlayers'];
+}
+
+function recalculateTrueRatio($gameID)
+{
+    $query = "SELECT ach.ID, ach.Points, COUNT(*) AS NumAchieved
+              FROM Achievements AS ach
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 0
+              GROUP BY ach.ID";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        $achData = [];
+        $totalEarners = 0;
+        while ($nextData = mysqli_fetch_assoc($dbResult)) {
+            $achData[$nextData['ID']] = $nextData;
+            if ($nextData['NumAchieved'] > $totalEarners) {
+                $totalEarners = $nextData['NumAchieved'];
+            }
+
+            //error_log( "Added " . $achData[ $nextData['ID'] ]['ID'] );
+        }
+
+        if ($totalEarners == 0) // force all unachieved to be 1
+        {
+            $totalEarners = 1;
+        }
+
+        $ratioTotal = 0;
+
+        foreach ($achData as $nextAch) {
+            $achID = $nextAch['ID'];
+            $achPoints = $nextAch['Points'];
+            $numAchieved = $nextAch['NumAchieved'];
+
+            if ($numAchieved == 0) // force all unachieved to be 1
+            {
+                $numAchieved = 1;
+            }
+
+            $ratioFactor = 0.4;
+            $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($totalEarners / $numAchieved) * $ratioFactor));
+            $trueRatio = ( int )$newTrueRatio;
+
+            $ratioTotal += $trueRatio;
+
+            $query = "UPDATE Achievements AS ach
+                      SET ach.TrueRatio = $trueRatio
+                      WHERE ach.ID = $achID";
+            s_mysql_query($query);
+
+            //error_log( "TA: $achID -> $trueRatio" );
+        }
+
+        $query = "UPDATE GameData AS gd
+                  SET gd.TotalTruePoints = $ratioTotal
+                  WHERE gd.ID = $gameID";
+        s_mysql_query($query);
+
+        //error_log( __FUNCTION__ . " RECALCULATED " . count($achData) . " achievements for game ID $gameID ($ratioTotal)" );
+
+        return true;
+    } else {
+        return false;
     }
 }

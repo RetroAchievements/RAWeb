@@ -24,7 +24,6 @@ $awardAchievementID = seekPOST('a');
 $awardAchievementUser = seekPOST('u');
 $awardAchHardcore = seekPOST('h', 0);
 
-RenderDocType();
 function tailCustom($filepath, $lines = 1, $adaptive = true)
 {
 
@@ -99,12 +98,12 @@ if (seekGET('action') == 'regenapi') {
         }
     }
 
-    echo "REGENERATED $numRegens APIKEYS!</br>";
+    echo "REGENERATED $numRegens APIKEYS!<br>";
 } else {
     if (seekGET('action') == 'regenapione') {
         $targetUser = seekGET('t');
         $newKey = generateAPIKey($targetUser);
-        echo "New API Key for $targetUser: $newKey</br>";
+        echo "New API Key for $targetUser: $newKey<br>";
     } else {
         if (seekGET('action') == 'recalcdev') {
             $query = "SELECT User FROM UserAccounts";
@@ -118,13 +117,13 @@ if (seekGET('action') == 'regenapi') {
             $numRegens = 0;
             foreach ($userList as $nextTempUser) {
                 $valid = recalculateDevelopmentContributions($nextTempUser);
-                echo "$nextTempUser</br>";
+                echo "$nextTempUser<br>";
                 if ($valid) {
                     $numRegens++;
                 }
             }
 
-            echo "REGENERATED $numRegens developer contribution totals!</br>";
+            echo "REGENERATED $numRegens developer contribution totals!<br>";
         } else {
             if (seekGET('action') == 'reconstructsiteawards') {
                 $tgtPlayer = seekGET('t', null);
@@ -157,7 +156,7 @@ if (seekGET('action') == 'regenapi') {
                 for ($i = 0; $i < $numAccounts; $i++) {
                     $user = $userList[$i];
 
-                    echo "Updating $user...</br>";
+                    echo "Updating $user...<br>";
 
                     $query = "	SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon , aw.HardcoreMode
 						FROM Awarded AS aw
@@ -183,14 +182,14 @@ if (seekGET('action') == 'regenapi') {
                             // if( $nextElem['PctWon'] == 2.0 )
                             // {
                             // $gameTitle = $nextElem['Title'];
-                            // echo "Mastered $gameTitle</br>";
+                            // echo "Mastered $gameTitle<br>";
                             // //	Add award:
                             // AddSiteAward( $user, 1, $nextElem['GameID'], 1 );
                             // }
                             // if( $nextElem['PctWon'] >= 1.0 )	//noooo!!!!
                             // {
                             // $gameTitle = $nextElem['Title'];
-                            // echo "Completed $gameTitle</br>";
+                            // echo "Completed $gameTitle<br>";
                             // //	Add award:
                             // AddSiteAward( $user, 1, $nextElem['GameID'], 0 );
                             // }
@@ -203,7 +202,7 @@ if (seekGET('action') == 'regenapi') {
                                 if ($nextAward['PctWon'] == 1.0) {
                                     $gameTitle = $nextAward['Title'];
                                     $gameID = $nextAward['GameID'];
-                                    echo "MASTERED $gameTitle</br>";
+                                    echo "MASTERED $gameTitle<br>";
                                     //	Add award:
                                     AddSiteAward($user, 1, $gameID, 1);
 
@@ -220,7 +219,7 @@ if (seekGET('action') == 'regenapi') {
                                     $gameID = $nextAward['GameID'];
 
                                     if (!in_array($gameID, $awardAddedHC)) {
-                                        echo "Completed $gameTitle</br>";
+                                        echo "Completed $gameTitle<br>";
                                         //	Add award:
                                         AddSiteAward($user, 1, $gameID, 0);
                                     }
@@ -271,7 +270,7 @@ if (seekGET('action') == 'regenapi') {
 
                             for ($i = 0; $i < count($developerCountBoundaries); $i++) {
                                 if ($nextCount >= $developerCountBoundaries[$i]) {
-                                    //echo "$nextUser has $nextCount, greater than $developerCountBoundaries[  $i ], addaward!<br/>";
+                                    //echo "$nextUser has $nextCount, greater than $developerCountBoundaries[  $i ], addaward!<br>";
                                     //This developer has arrived at this point boundary!
                                     AddSiteAward($nextUser, 2, $i);
                                     $numRecalced++;
@@ -279,7 +278,7 @@ if (seekGET('action') == 'regenapi') {
                             }
                             for ($i = 0; $i < count($developerPointBoundaries); $i++) {
                                 if ($nextYield >= $developerPointBoundaries[$i]) {
-                                    //echo "$nextUser has yield of $nextYield, greater than $developerPointBoundaries[     $i ], addaward!<br/>";
+                                    //echo "$nextUser has yield of $nextYield, greater than $developerPointBoundaries[     $i ], addaward!<br>";
                                     //This developer is newly above this point boundary!
                                     AddSiteAward($nextUser, 3, $i);
                                     $numRecalced++;
@@ -287,12 +286,12 @@ if (seekGET('action') == 'regenapi') {
                             }
 
                             if (isset($nextFBUser) && strlen($nextFBUser) > 2) {
-                                echo "$nextUser has signed up for FB, add FB award!<br/>";
+                                echo "$nextUser has signed up for FB, add FB award!<br>";
                                 AddSiteAward($nextUser, 5, 0);
                             }
                         }
 
-                        echo "RECALCULATED $numRecalced site awards!</br>";
+                        echo "RECALCULATED $numRecalced site awards!<br>";
                     }
                 } else {
                     if (seekPOST('action') == 'getachids') {
@@ -317,7 +316,7 @@ if (seekGET('action') == 'regenapi') {
                                 foreach ($ids as $nextID) {
                                     if (addEarnedAchievement($awardAchievementUser, '', $nextID, 0, $newPointTotal,
                                         $awardAchHardcore, false)) {
-                                        echo " - Updated $awardAchievementUser's score to $newPointTotal!<br/>";
+                                        echo " - Updated $awardAchievementUser's score to $newPointTotal!<br>";
                                     }
                                 }
                             }
@@ -330,8 +329,8 @@ if (seekGET('action') == 'regenapi') {
                                 $data = mysqli_fetch_assoc($dbResult);
                                 $numGames = $data['MAX(ID)'];
                                 for ($i = 1; $i <= $numGames; $i++) {
-                                    error_log("Recalculating TA for Game ID: $i</br>");
-                                    echo "Recalculating TA for Game ID: $i</br>";
+                                    error_log("Recalculating TA for Game ID: $i<br>");
+                                    echo "Recalculating TA for Game ID: $i<br>";
                                     recalculateTrueRatio($i);
 
                                     ob_flush();
@@ -353,7 +352,7 @@ if (seekGET('action') == 'regenapi') {
                                     echo "Recalc players scores: " . count($userData) . " to process...";
 
                                     foreach ($userData as $nextUser) {
-                                        echo "Player: " . $nextUser['User'] . " recalc (was TA: " . $nextUser['TrueRAPoints'] . ")<br/>";
+                                        echo "Player: " . $nextUser['User'] . " recalc (was TA: " . $nextUser['TrueRAPoints'] . ")<br>";
                                         recalcScore($nextUser['User']);
 
                                         ob_flush();
@@ -399,7 +398,7 @@ if (seekGET('action') == 'regenapi') {
 
                                             echo "<a href='/admin.php?action=errorlog&c=50'>Last 50</a> - ";
                                             echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
-                                            echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a></br></br>";
+                                            echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
 
                                             $count = seekPOSTorGET('c', 20, 'integer');
                                             echo nl2br(tailCustom($errorlogpath, $count));
@@ -417,232 +416,67 @@ if (seekGET('action') == 'regenapi') {
 }
 
 $staticData = getStaticData();
+
+RenderHtmlStart();
+RenderHtmlHead('Global Tests');
 ?>
-
-<head>
-    <?php //RenderSharedHeader( $user );  ?>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1250">
-    <title>Global Tests</title>
-</head>
-
 <body>
-
-<h1>Admin Tools</h1>
-
-<?php
-echo "Account: <b>" . $user . "</b><br/>";
-echo "Account Type: <b>" . PermissionsToString($permissions) . "</b><br/>";
-
-if ($permissions >= \RA\Permissions::Root) {
-    echo "<h1>API Key</h1>";
-    echo "<a href='/admin.php?action=regenapi'>Regenerate ALL API Keys! (WARNING)</a><br/>";
-    echo "<a href='/admin.php?action=regenapione&amp;t=TestUser'>Regenerate API Key for TestUser</a><br/>";
-
-    echo "<a href='/admin.php?action=errorlog'>ERROR LOG</a><br/>";
-}
-
-if ($permissions >= \RA\Permissions::Root) {
-    echo "<h1>Achievement Inspection/Interaction</h1>";
-    echo "<a href='/admin.php?action=recalcdev'>Recalculate developer contribution totals! (1) (WARNING)</a><br/>";
-    echo "<a href='/admin.php?action=recalcsiteawards'>Recalculate site awards (developer contrib + FB)! (2) (WARNING)</a><br/>";
-    echo "<a href='/admin.php?action=reconstructsiteawards'>Reconstruct site awards (completed games)! (3) (WARNING)</a><br/>";
-}
-
-if ($permissions >= \RA\Permissions::Admin) {
-    echo "<h2>Get Game Achievement IDs</h2>";
-    echo "<form method='post' action='admin.php'>";
-    echo "Game ID<input type='text' name='g' value=''><br/>";
-    echo "<input type='hidden' name='action' value='getachids' />";
-    echo "<input type='submit' value='Submit'/>";
-    echo "</form>";
-}
-
-if ($permissions >= \RA\Permissions::Admin) {
-    echo "<h2>Award Achievement</h2>";
-    echo "<form method='post' action='admin.php'>";
-    echo "User To Receive Achievement	<input type='text' name='u' value='$awardAchievementUser'><br/>";
-    echo "Achievement ID				<input type='text' name='a' value='$awardAchievementID'><br/>";
-    $checked = ($awardAchHardcore == 1) ? 'checked' : '';
-    echo "Include hardcore?				<input type='checkbox' name='h' $checked value='1'><br/>";
-    echo "<input type='hidden' name='action' value='giveaward' />";
-    echo "<input type='submit' value='Submit'/>";
-    echo "</form>";
-}
-
-if ($permissions >= \RA\Permissions::Admin) {
-    $eventAchievementID = $staticData['Event_AOTW_AchievementID'];
-    $eventForumTopicID = $staticData['Event_AOTW_ForumID'];
-
-    echo "<h2>Update Event</h2>";
-    echo "<h3>Achievement of the Week</h3>";
-    echo "<form method='post' action='admin.php'>";
-    echo "Achievement ID<input type='text' name='a' value='$eventAchievementID'> <a href='/Achievement/$eventAchievementID'>Link</a><br/>";
-    echo "Forum Topic ID<input type='text' name='f' value='$eventForumTopicID'> <a href='/viewtopic.php?t=$eventForumTopicID'>Link</a><br/>";
-    echo "<input type='hidden' name='action' value='updatestaticdata' />";
-    echo "<input type='submit' value='Submit'/>";
-    echo "</form>";
-}
-
-if ($permissions >= \RA\Permissions::Root) { //TBD
-    ?>
-
-    <?php /*
-    <h2>Request Patch</h2>
-    <form method=post action="requestpatch.php" enctype="multipart/form-data">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $user; ?>"><br/>
-        Game<INPUT TYPE="text" NAME="g" VALUE="1"><br/>
-        Flags<INPUT TYPE="text" NAME="f" VALUE="3"><br/>
-        AndLeaderboard<INPUT TYPE="text" NAME="l" VALUE="1"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-    */ ?>
-
-    <h2>Request Leaderboard Entry</h2>
-    <form method=post action="requestsubmitlbentry.php" enctype="multipart/form-data">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $user; ?>"><br/>
-        Token<INPUT TYPE="text" NAME="t" VALUE="<Apptoken>"><br/>
-        LeaderboardID<INPUT TYPE="text" NAME="i" VALUE="1"><br/>
-        Validation<INPUT TYPE="text" NAME="v" VALUE="12101020102012"><br/>
-        Score<INPUT TYPE="text" NAME="s" VALUE="100"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-
-    <h2>Request Achievement Info</h2>
-    <form method=post action="requestachievementinfo.php" enctype="multipart/form-data">
-        ID<INPUT TYPE="text" NAME="a" VALUE="1"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-
-    <?php /*
-    <h2>Request Unlocks FROMAPP</h2>
-    <form method=post action="requestunlocks.php">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        Pass<INPUT TYPE="text" NAME="t" VALUE="<?php echo $appToken; ?>"><br/>
-        Checksum<INPUT TYPE="text" NAME="c" VALUE="9802"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit" SIZE='37'/>
-    </form>
-
-    <h2>Request All Game Titles</h2>
-    <form method=post action="requestallgametitles.php">
-        ConsoleID<INPUT 	TYPE="text" NAME="c" VALUE="1"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-
-    <h2>Request GameID from MD5</h2>
-    <form method=post action="requestgameid.php">
-        MD5<INPUT TYPE="text" NAME="m" VALUE=""><br/>
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-    */ ?>
-
-    <h2>Request Achievement FROMAPP</h2>
-    <form method=post action="requestachievement.php">
-        User <INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>" readonly="readonly"><br/>
-        AppToken<INPUT TYPE="text" NAME="t" VALUE="<?php echo $appToken; ?>" readonly="readonly"><br/>
-        ID <INPUT TYPE="text" NAME="a" VALUE="<?php echo $reqAchievementID; ?>" readonly="readonly"><br/>
-        Val <INPUT TYPE="text" NAME="v" VALUE="<?php echo md5($reqAchievementValidation); ?>" readonly="readonly"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-
-    <h2>Request Submit Alt FROMAPP</h2>
-    <form METHOD=post ACTION="requestsubmitalt.php">
-        User <INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        AppToken<INPUT TYPE="text" NAME="t" VALUE="<?php echo $appToken; ?>"><br/>
-        Checksum<INPUT TYPE="text" NAME="c" VALUE="9802"> (The current game)<br/>
-        GameDest<INPUT TYPE="text" NAME="g" VALUE="Sonic The Hedgehog"> (The exact name of the game that already exists)<br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit" SIZE='37'/>
-    </form>
-
-
-    <h2>Request Submit Game Title FROM APP</h2>
-    <form METHOD=post ACTION="requestsubmitgametitle.php">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        AppToken<INPUT TYPE="text" NAME="t" VALUE="<?php echo $appToken; ?>"><br/>
-        ConsoleID<INPUT TYPE="text" NAME="c" VALUE="1"><br/>
-        MD5 of ROM<INPUT TYPE="text" NAME="m" VALUE=""><br/>
-        Given Title<INPUT TYPE="text" NAME="g" VALUE=""><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit" SIZE='37'/>
-    </form>
-
-    <?php /*
-    <h2>Request Vote FROM APP</h2>
-    <form method=post action="requestvote.php">
-        AchievementID<INPUT TYPE="text" NAME="a" VALUE="12"><br/>
-        User		 <INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        Pass		 <INPUT TYPE="text" NAME="t" VALUE="<?php echo $appToken; ?>"><br/>
-        Vote		 <INPUT TYPE="text" NAME="v" VALUE="1"> -1 for no, 1 for yes<br/>
-        <input type="submit" name="submit" value="Submit" />
-    </form>
-
-    <h2>Request Upload Badge</h2>
-    <form method=post action="requestuploadbadge.php" enctype="multipart/form-data">
-        <label for="file">New badge (64px png pls):</label>
-        <input type="file" name="file"/><br/>
-        <input type="submit" value="Submit"/>
-    </form>
-    */ ?>
-
-    <h1>Logins</h1>
-
-    <?php /*
-    <h2>Request Login FROMAPP</h2>
-    <form method=post action="requestlogin.php">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        Pass<INPUT TYPE="text" NAME="p" VALUE="<?php echo $saltPass; ?>"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit" SIZE='37'/>
-    </form>
-    */ ?>
-
-    <h2>Request Login WEBSITE</h2>
-    <form method=post action="login.php">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        Pass<INPUT TYPE="text" NAME="p" VALUE="<?php echo $saltPass; ?>"><br/>
-        RedirTo<INPUT TYPE="text" NAME="r" VALUE="localhost"><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit" SIZE='37'/>
-    </form>
-
-
-    <h1>Messages</h1>
-
-    <h2>Request Message IDs WEBSITE</h2>
-    <form METHOD=post ACTION="requestmessageids.php">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        Pass<INPUT TYPE="text" NAME="p" VALUE="<?php echo $saltPass; ?>"><br/>
-        Type<INPUT TYPE="text" NAME="x" VALUE="Unread"><br/>
-        <INPUT VALUE="Fetch Message IDs" TYPE="submit" NAME="SUBMIT" SIZE='37'/>
-    </form>
-
-    <h2>Request Fetch Message WEBSITE</h2>
-    <form METHOD=post ACTION="requestfetchmessage.php">
-        User<INPUT TYPE="text" NAME="u" VALUE="<?php echo $testUser; ?>"><br/>
-        Pass<INPUT TYPE="text" NAME="p" VALUE="<?php echo $saltPass; ?>"><br/>
-        ID<INPUT TYPE="text" NAME="a" VALUE=""><br/>
-        <INPUT VALUE="Fetch Message" TYPE="submit" NAME="SUBMIT" SIZE='37'/>
-    </form>
-
-
-    <h1>Accounts</h1>
-
-    <h2>Request Create User</h2>
-    <form method=post action="requestcreateuser.php">
-        User <INPUT TYPE="text" NAME="u" VALUE=""><br/>
-        Pass <INPUT TYPE="text" NAME="p" VALUE=""><br/>
-        Email <INPUT TYPE="text" NAME="x" VALUE=""><br/>
-        Email2 <INPUT TYPE="text" NAME="y" VALUE=""><br/>
-        <INPUT TYPE="submit" NAME="SUBMIT" VALUE="Submit"/>
-    </form>
-
-
-    <h2>Request CodeNotes APP</h2>
-    <form method=post action="requestcodenotes.php">
-        GameID<INPUT TYPE="text" NAME="g" VALUE="1"><br/>
-        <INPUT value="Go" name="SUBMIT" type="submit" size='37'>
-    </form>
-
+<div id="fullcontainer">
+    <h1>Admin Tools</h1>
     <?php
-}
-?>
+    echo "Account: <b>" . $user . "</b><br>";
+    echo "Account Type: <b>" . PermissionsToString($permissions) . "</b><br>";
 
+    if ($permissions >= \RA\Permissions::Root) {
+        echo "<h1>API Key</h1>";
+        echo "<a href='/admin.php?action=regenapi'>Regenerate ALL API Keys! (WARNING)</a><br>";
+        echo "<a href='/admin.php?action=regenapione&amp;t=TestUser'>Regenerate API Key for TestUser</a><br>";
+
+        echo "<a href='/admin.php?action=errorlog'>ERROR LOG</a><br>";
+    }
+
+    if ($permissions >= \RA\Permissions::Root) {
+        echo "<h1>Achievement Inspection/Interaction</h1>";
+        echo "<a href='/admin.php?action=recalcdev'>Recalculate developer contribution totals! (1) (WARNING)</a><br>";
+        echo "<a href='/admin.php?action=recalcsiteawards'>Recalculate site awards (developer contrib + FB)! (2) (WARNING)</a><br>";
+        echo "<a href='/admin.php?action=reconstructsiteawards'>Reconstruct site awards (completed games)! (3) (WARNING)</a><br>";
+    }
+
+    if ($permissions >= \RA\Permissions::Admin) {
+        echo "<h2>Get Game Achievement IDs</h2>";
+        echo "<form method='post' action='admin.php'>";
+        echo "Game ID<input type='text' name='g' value=''><br>";
+        echo "<input type='hidden' name='action' value='getachids' />";
+        echo "<input type='submit' value='Submit'/>";
+        echo "</form>";
+    }
+
+    if ($permissions >= \RA\Permissions::Admin) {
+        echo "<h2>Award Achievement</h2>";
+        echo "<form method='post' action='admin.php'>";
+        echo "User To Receive Achievement	<input type='text' name='u' value='$awardAchievementUser'><br>";
+        echo "Achievement ID				<input type='text' name='a' value='$awardAchievementID'><br>";
+        $checked = ($awardAchHardcore == 1) ? 'checked' : '';
+        echo "Include hardcore?				<input type='checkbox' name='h' $checked value='1'><br>";
+        echo "<input type='hidden' name='action' value='giveaward' />";
+        echo "<input type='submit' value='Submit'/>";
+        echo "</form>";
+    }
+
+    if ($permissions >= \RA\Permissions::Admin) {
+        $eventAchievementID = $staticData['Event_AOTW_AchievementID'];
+        $eventForumTopicID = $staticData['Event_AOTW_ForumID'];
+
+        echo "<h2>Update Event</h2>";
+        echo "<h3>Achievement of the Week</h3>";
+        echo "<form method='post' action='admin.php'>";
+        echo "Achievement ID<input type='text' name='a' value='$eventAchievementID'> <a href='/Achievement/$eventAchievementID'>Link</a><br>";
+        echo "Forum Topic ID<input type='text' name='f' value='$eventForumTopicID'> <a href='/viewtopic.php?t=$eventForumTopicID'>Link</a><br>";
+        echo "<input type='hidden' name='action' value='updatestaticdata' />";
+        echo "<input type='submit' value='Submit'/>";
+        echo "</form>";
+    }
+    ?>
+</div>
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

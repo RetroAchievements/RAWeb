@@ -1,4 +1,5 @@
-<?php require_once __DIR__ . '/../lib/bootstrap.php';
+<?php
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 //	Auto login from app uses token. Standard login from app uses password.
 $user = seekPOST('u', null);
@@ -7,14 +8,14 @@ $token = seekPOST('t', null);
 
 $response = [];
 
-$errorCode = login_appWithToken($user, $pass, $token, $scoreOut, $messagesOut);
-settype($response['Success'], 'boolean');
+$responseCode = login_appWithToken($user, $pass, $token, $scoreOut, $messagesOut);
 
-if ($errorCode == -1) {
+if ($responseCode == -1) {
+    http_response_code(401);
     $response['Success'] = false;
-    $response['Error'] = "Automatic login failed (token expired), please login manually!\n";
+    $response['Error'] = "Automatic login failed (token expired), please login manually!";
 } else {
-    if ($errorCode == 1) {
+    if ($responseCode == 1) {
         getAccountDetails($user, $userDetails);
         $response['Success'] = true;
         $response['User'] = $user;
@@ -22,9 +23,10 @@ if ($errorCode == -1) {
         $response['Score'] = $scoreOut;
         $response['Messages'] = $messagesOut;
     } else {
+        http_response_code(401);
         $response['Success'] = false;
-        $response['Error'] = "Invalid User/Password combination. Please try again\n";
-        error_log("requestlogin failed: $pass, $token, $success");
+        $response['Error'] = "Invalid User/Password combination. Please try again";
+        error_log("requestlogin failed $user");
     }
 }
 

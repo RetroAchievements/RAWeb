@@ -2,8 +2,6 @@
 
 use RA\Emulators;
 
-require_once(__DIR__ . '/../bootstrap.php');
-
 /**
  * @param int $consoleId
  * @return bool
@@ -181,6 +179,9 @@ function getReleasesFromFile()
     return file_exists(__DIR__ . '/releases.php') ? require_once(__DIR__ . '/releases.php') : null;
 }
 
+/**
+ * @return array
+ */
 function getActiveEmulatorReleases()
 {
     $consoles = getConsoleList();

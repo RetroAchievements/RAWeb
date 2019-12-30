@@ -69,7 +69,7 @@
 
     $errorCode = seekGET('e');
 
-    RenderDocType();
+    RenderHtmlStart();
 ?>
 
 <head>
@@ -108,27 +108,24 @@
         if( isset( $user ) && ( $thisTopicAuthor == $user || $permissions >= \RA\Permissions::Admin ) )
         {
             echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br/>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 
-            echo "<li>Change Topic Title:</li>";
-            echo "<form action='requestmodifytopic.php' method='post' >";
+            echo "<div>Change Topic Title:</div>";
+            echo "<form action='/request/requestmodifytopic.php' method='post' >";
             echo "<input type='text' name='v' value='$thisTopicTitle' size='51' >";
-            echo "<input type='hidden' name='t' value='$thisTopicID' />";
-            echo "<input type='hidden' name='f' value='" . ModifyTopicField::ModifyTitle . "' />";
-            echo "&nbsp;";
-            echo "<input type='submit' name='submit' value='Submit' size='37' />";
+            echo "<input type='hidden' name='t' value='$thisTopicID'>";
+            echo "<input type='hidden' name='f' value='" . ModifyTopicField::ModifyTitle . "'>";
+            echo "<input type='submit' name='submit' value='Submit' size='37'>";
             echo "</form>";
 
             if( $permissions >= \RA\Permissions::Admin )
             {
-                echo "<li>Delete Topic:</li>";
-                echo "<form action='requestmodifytopic.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
+                echo "<div>Delete Topic:</div>";
                 echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
                 echo "<input type='hidden' name='t' value='$thisTopicID' />";
-                echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "' />";
-                echo "&nbsp;";
-                echo "<input type='submit' name='submit' value='Delete Permanently' size='37' />";
+                echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "'>";
+                echo "<input type='submit' name='submit' value='Delete Permanently' size='37'>";
                 echo "</form>";
 
                 $selected0 = ( $thisTopicPermissions == 0 ) ? 'selected' : '';
@@ -137,8 +134,8 @@
                 $selected3 = ( $thisTopicPermissions == 3 ) ? 'selected' : '';
                 $selected4 = ( $thisTopicPermissions == 4 ) ? 'selected' : '';
 
-                echo "<li>Restrict Topic:</li>";
-                echo "<form action='requestmodifytopic.php' method='post' >";
+                echo "<div>Restrict Topic:</div>";
+                echo "<form action='/request/requestmodifytopic.php' method='post' >";
                 echo "<select name='v'>";
                 echo "<option value='0' $selected0>Unregistered</option>";
                 echo "<option value='1' $selected1>Registered</option>";
@@ -146,10 +143,9 @@
                 echo "<option value='3' $selected3>Developer</option>";
                 echo "<option value='4' $selected4>Admin</option>";
                 echo "</select>";
-                echo "<input type='hidden' name='t' value='$thisTopicID' />";
-                echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "' />";
-                echo "&nbsp;";
-                echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37' />";
+                echo "<input type='hidden' name='t' value='$thisTopicID'>";
+                echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "'>";
+                echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37'>";
                 echo "</form>";
             }
 
@@ -171,7 +167,7 @@
             echo "</div>";
         }
 
-        echo "<table class='smalltable'><tbody>";
+        echo "<table><tbody>";
 
         if( $numTotalComments > $count )
         {
@@ -271,7 +267,7 @@
 
             echo "<td class='commentavatar'>";
             echo GetUserAndTooltipDiv( $nextCommentAuthor, FALSE, NULL, 64 );
-            echo "</br>";
+            echo "<br>";
             echo GetUserAndTooltipDiv( $nextCommentAuthor, TRUE, NULL, 64 );
             echo "</td>";
 
@@ -284,16 +280,16 @@
 
             if( $showDisclaimer )
             {
-                echo "<br/><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
+                echo "<br><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
                 if( $showAuthoriseTools )
                 {
-                    echo "<br/><a href='requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
-                    echo "<br/><a href='requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
+                    echo "<br><a href='/request/requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
+                    echo "<br><a href='/request/requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
                 }
             }
 
             if( $nextCommentDateModified !== NULL )
-                echo "<br/>Last Edit: $nextCommentDateModifiedNiceDate</div>";
+                echo "<br>Last Edit: $nextCommentDateModifiedNiceDate</div>";
             echo "</div>";
 
             echo "<div class='topiccommenttext'>";
@@ -350,7 +346,7 @@
 
             echo "<td class='commentavatar'>";
             echo GetUserAndTooltipDiv( $user, FALSE, NULL, 64 );
-            echo "</br>";
+            echo "<br>";
             echo GetUserAndTooltipDiv( $user, TRUE, NULL, 64 );
             echo "</td>";
 
@@ -361,8 +357,8 @@
             $defaultMessage = ( $permissions >= 1 ) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ( $permissions >= 1 ) ? "" : "disabled";
             
-            echo "<form action='requestsubmittopiccomment.php' method='post'>";
-            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p'>$defaultMessage</textarea><br/><br/>";
+            echo "<form action='/request/requestsubmittopiccomment.php' method='post'>";
+            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p'>$defaultMessage</textarea><br><br>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version
@@ -390,11 +386,11 @@
         }
 
         ?>
-        <br/>
+        <br>
     </div> 
 </div>
   
 <?php RenderFooter(); ?>
 
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

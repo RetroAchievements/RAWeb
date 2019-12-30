@@ -16,14 +16,14 @@ settype($gameID, 'integer');
 $achievementList = [];
 $gamesList = [];
 
-if(empty($gameID)) {
+if (empty($gameID)) {
     //	Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
 }
 
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
-if(empty($gameData)) {
+if (empty($gameData)) {
     //	Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL') . "?e=unknowngame");
 }
@@ -33,51 +33,38 @@ $consoleID = $gameData['ConsoleID'];
 $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 
-$pageTitle = "Rename Game Entry ($consoleName)";
-
 //$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
 //var_dump( $gamesList );
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Rename Game Entry ($consoleName)");
 ?>
-
-<head>
-	<?php RenderSharedHeader( $user ); ?>
-	<?php RenderTitleTag( $pageTitle, $user ); ?>
-	<?php RenderGoogleTracking(); ?>
-</head>
 <body>
-
-<?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions ); ?>
-<?php RenderToolbar( $user, $permissions ); ?>
-
+<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
+<?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-	<div class='left'>
-	
-	<h2>Rename Game Entry</h2>
+    <div class='left'>
+        <h2>Rename Game Entry</h2>
+        <?php
 
-	<?php
-	
-	echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName, FALSE, 96 );
-	echo "</br></br>";
-	
-	echo "Renaming game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName.<br/>";
-	echo "Please enter a new name below:<br/><br/>";
-	
-	echo "<FORM method=post action='requestmodifygame.php'>";
-	echo "<INPUT TYPE='hidden' NAME='u' VALUE='$user' />";
-	echo "<INPUT TYPE='hidden' NAME='g' VALUE='$gameID' />";
-	echo "<INPUT TYPE='hidden' NAME='f' VALUE='1' />";
-	echo "New Name: <INPUT TYPE='text' NAME='v' VALUE=\"$gameTitle\" size='60' />";
-	echo "&nbsp;<INPUT TYPE='submit' VALUE='Submit' />";
-	echo "</FORM>";
-	
-	echo "<br/><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=Scott&s=Attempt%20to%20Rename%20a%20title'>leave me a message</a> and I'll help sort it.</div>";
-	?>
-	<br/>
-	</div>
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
+        echo "<br><br>";
+
+        echo "Renaming game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName.<br>";
+        echo "Please enter a new name below:<br><br>";
+
+        echo "<FORM method=post action='/request/requestmodifygame.php'>";
+        echo "<INPUT TYPE='hidden' NAME='u' VALUE='$user' />";
+        echo "<INPUT TYPE='hidden' NAME='g' VALUE='$gameID' />";
+        echo "<INPUT TYPE='hidden' NAME='f' VALUE='1' />";
+        echo "New Name: <INPUT TYPE='text' NAME='v' VALUE=\"$gameTitle\" size='60' />";
+        echo "&nbsp;<INPUT TYPE='submit' VALUE='Submit' />";
+        echo "</FORM>";
+
+        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=Scott&s=Attempt%20to%20Rename%20a%20title'>leave me a message</a> and I'll help sort it.</div>";
+        ?>
+        <br>
+    </div>
 </div>
-
-<?php RenderFooter(); ?>	
-
+<?php RenderFooter(); ?>
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

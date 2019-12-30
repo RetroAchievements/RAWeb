@@ -1,6 +1,4 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-
 function getGameRating($gameID)
 {
     settype($gameID, 'integer');
@@ -14,7 +12,7 @@ function getGameRating($gameID)
     $dbResult = mysqli_query($db, $query);    //    NB. query has a forward slash in! Cannot use s_mysql_query
     SQL_ASSERT($dbResult);
 
-    $retVal = array();
+    $retVal = [];
     while ($nextRow = mysqli_fetch_array($dbResult)) {
         $retVal[$nextRow['RatingObjectType']] = $nextRow;
     }
@@ -51,7 +49,7 @@ LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
 
-    $retVal = array();
+    $retVal = [];
     while ($nextRow = mysqli_fetch_array($dbResult)) {
         $retVal[] = $nextRow;
     }

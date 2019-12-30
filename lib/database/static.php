@@ -1,12 +1,4 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Static Data stubs/functs
-//////////////////////////////////////////////////////////////////////////////////////////
-
-
-//    00:47 24/04/2013
 function static_addnewachievement($id)
 {
     $query = "UPDATE StaticData AS sd ";
@@ -20,7 +12,6 @@ function static_addnewachievement($id)
     }
 }
 
-//    00:47 24/04/2013
 function static_addnewgame($id)
 {
     $query = "UPDATE StaticData AS sd ";
@@ -34,7 +25,6 @@ function static_addnewgame($id)
     }
 }
 
-//    00:47 24/04/2013
 function static_addnewregistereduser($user)
 {
     $query = "UPDATE StaticData AS sd ";
@@ -48,7 +38,6 @@ function static_addnewregistereduser($user)
     }
 }
 
-//    00:47 24/04/2013
 function static_setlastearnedachievement($id, $user, $points)
 {
     $query = "UPDATE StaticData AS sd ";
@@ -62,7 +51,6 @@ function static_setlastearnedachievement($id, $user, $points)
     }
 }
 
-//    00:47 24/04/2013
 function static_setlastupdatedgame($id)
 {
     $query = "UPDATE StaticData AS sd ";
@@ -76,7 +64,6 @@ function static_setlastupdatedgame($id)
     }
 }
 
-//    00:49 24/04/2013
 function static_setlastupdatedachievement($id)
 {
     $query = "UPDATE StaticData AS sd ";
@@ -106,4 +93,24 @@ function static_setnextusertoscan($userID)
     $dbResult = s_mysql_query($query);
 
     SQL_ASSERT($dbResult);
+}
+
+function getStaticData()
+{
+    $query = "SELECT sd.*, ach.Title AS LastAchievementEarnedTitle, gd.Title AS NextGameTitleToScan, gd.ImageIcon AS NextGameToScanIcon, c.Name AS NextGameToScanConsole, ua.User AS NextUserToScan
+              FROM StaticData AS sd
+              LEFT JOIN Achievements AS ach ON ach.ID = sd.LastAchievementEarnedID
+              LEFT JOIN GameData AS gd ON gd.ID = sd.NextGameToScan
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = sd.NextUserIDToScan ";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult);
+    }
+
+    error_log(__FUNCTION__);
+    error_log($query);
+
+    return null;
 }

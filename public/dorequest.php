@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 // Syntax:
-// request.php?r=addfriend&<params> (Web)
-// request.php?r=addfriend&u=user&t=token&<params> (From App)
+// dorequest.php?r=addfriend&<params> (Web)
+// dorequest.php?r=addfriend&u=user&t=token&<params> (From App)
 
 $response = ['Success' => true];
 

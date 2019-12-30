@@ -47,23 +47,13 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$pageTitle = "Achievement List" . $requestedConsole;
-
 $errorCode = seekGET('e');
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>
-
-<head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
-    <?php RenderGoogleTracking(); ?>
-</head>
-
 <body>
-
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-
 <div id='mainpage'>
     <div id='fullcontainer'>
         <div class='left'>
@@ -85,36 +75,32 @@ RenderDocType();
             echo "<div class='d-flex flex-wrap justify-content-between'>";
             echo "<div>";
 
-            echo "&nbsp;- ";
             echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
-            echo "Only achievements in Core Sets";
+            echo "Achievements in Core Sets";
             echo $params !== 3 ? "</a>" : "</b>";
-            echo "<br/>";
+            echo "<br>";
 
             if ($user !== null) {
-                echo "&nbsp;- ";
                 echo $params !== 5 ? "<a href='/achievementList.php?s=$sortBy&p=5$dev_param'>" : "<b>";
-                echo "Only achievements in Unofficial Sets";
+                echo "Achievements in Unofficial Sets";
                 echo $params !== 5 ? "</a>" : "</b>";
-                echo "<br/>";
+                echo "<br>";
 
-                echo "&nbsp;- ";
                 echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";
-                echo "Only my earned achievements";
+                echo "My unlocked achievements";
                 echo $params !== 1 ? "</a>" : "</b>";
-                echo "<br/>";
+                echo "<br>";
 
-                echo "&nbsp;- ";
                 echo $params !== 2 ? "<a href='/achievementList.php?s=$sortBy&p=2$dev_param'>" : "<b>";
-                echo "Achievements I haven't yet won";
+                echo "Achievements I haven't yet unlocked";
                 echo $params !== 2 ? "</a>" : "</b>";
-                echo "<br/>";
+                echo "<br>";
             }
             echo "</div>";
 
             if ($user !== null) {
                 echo "<div>";
-                echo "Filter by developer:<br/>";
+                echo "Filter by developer:<br>";
                 echo "<form method='get' action='/achievementList.php'>";
                 echo "<input type='hidden' name='s' value='$sortBy'>";
                 echo "<input type='hidden' name='p' value='$params'>";
@@ -148,12 +134,18 @@ RenderDocType();
             $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
             $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
 
-            echo "<th><a href='/achievementList.php?s=$sort1&p=$params$dev_param'>Title</a>$mark1</th>";
-            echo "<th><a href='/achievementList.php?s=$sort2&p=$params$dev_param'>Desc.</a>$mark2</th>";
+            echo "<th></th>";
+            echo "<th>";
+            echo "<a href='/achievementList.php?s=$sort1&p=$params$dev_param'>Title</a>$mark1";
+            echo " / ";
+            echo "<a href='/achievementList.php?s=$sort2&p=$params$dev_param'>Desc.</a>$mark2";
+            echo "</th>";
 
             if (!$mobileBrowser) {
-                echo "<th><a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
-                echo "<span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span></th>";
+                echo "<th class='text-nowrap'>";
+                echo "<a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
+                echo "<br><span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span>";
+                echo "</th>";
                 echo "<th><a href='/achievementList.php?s=$sort5&p=$params$dev_param'>Author</a>$mark5</th>";
             }
 
@@ -184,20 +176,14 @@ RenderDocType();
                 $consoleID = $achEntry['ConsoleID'];
                 $consoleName = $achEntry['ConsoleName'];
 
-                if ($achCount++ % 2 == 0) {
-                    echo "<tr>";
-                } else {
-                    echo "<tr class='alt'>";
-                }
+                echo "<tr>";
 
-                echo "<td style='min-width:25%'>";
-                echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName,
-                    true);
-                echo "</td>";
-
-                //echo "<td style='min-width:25%'>";
                 echo "<td>";
-                echo "$achDesc";
+                echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, null, $gameTitle, $achBadgeName, true, true);
+                echo "</td>";
+                echo "<td class='fullwidth'>";
+                echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, null, $gameTitle, $achBadgeName, false);
+                echo "<br>$achDesc";
                 echo "</td>";
 
                 if (!$mobileBrowser) {
@@ -207,7 +193,7 @@ RenderDocType();
                     echo "</td>";
 
                     echo "<td>";
-                    echo GetUserAndTooltipDiv( $achAuthor, TRUE );
+                    echo GetUserAndTooltipDiv($achAuthor, true);
                     echo "</td>";
                 }
 
@@ -243,7 +229,7 @@ RenderDocType();
             }
             echo "</div>";
             ?>
-            <br/>
+            <br>
         </div>
     </div>
 
@@ -251,11 +237,9 @@ RenderDocType();
     <div id='rightcontainer'>
         <?php RenderRecentlyUploadedComponent(10); ?>
     </div>
-    */?>
+    */ ?>
 
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

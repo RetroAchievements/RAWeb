@@ -6,153 +6,121 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 $maxCount = 50;
 $offset = 0;
 
-$username = seekGET( 'u');
+$username = seekGET('u');
 $errorCode = seekGET('e');
 $count = seekGET('c', $maxCount);
 $offset = seekGET('o', $offset);
 $flag = seekGET('f', 0); //0 - display only active user set requests, else display all user set requests
-if ($offset < 0)
-{
+if ($offset < 0) {
     $offset = 0;
 }
 
-if (is_null($username))
-{
+if (is_null($username)) {
     $setRequestList = getMostRequestedSetsList($offset, $count);
     $totalRequestedGames = getGamesWithRequests();
-}
-else
-{
+} else {
     $setRequestList = getUserRequestList($username);
     $userSetRequestInformation = getUserRequestsInformation($username, $setRequestList);
 }
 
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Set Requests");
 ?>
-
-<head>
-    <!--Load the AJAX API-->
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <?php
-    RenderSharedHeader($user);
-    RenderTitleTag("Set Requests", $user);
-    RenderGoogleTracking();
-    ?>
-</head>
-
 <body>
-    <?php
-        RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-        RenderToolbar($user, $permissions);
-    ?>
-    <div id='mainpage'>
-        <div id='fullcontainer'>
-            <?php
-                RenderErrorCodeWarning('left', $errorCode);
-                
-                $gameCounter = 0;
+<?php
+RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
+RenderToolbar($user, $permissions);
+?>
+<div id='mainpage'>
+    <div id='fullcontainer'>
+        <?php
+        RenderErrorCodeWarning('left', $errorCode);
 
-                //Looking at most requested sets
-                if (is_null($username))
-                {
-                    echo "<h2 class='longheader'>Most Requested Sets</h2>";
-                    
-                    //Create table headers
-                    echo "<table class='smalltable'><tbody>";
-                    echo "<th>Game</th>";
-                    echo "<th>Requests</th>";
+        $gameCounter = 0;
 
-                    // Loop through each hash and display its information
-                    foreach ($setRequestList as $request)
-                    {   
-                        if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0)
-                        {
-                            echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
-                            
-                            echo "<td>";
-                            echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
-                            echo "</td>";
-                            echo "<td><a href='/setRequestors.php?g=".$request['GameID']."'>".$request['Requests']."</a></td>";
-                        }
-                    }
-                    echo "</tbody></table>";
-                    
-                    //Add page traversal links
-                    echo "<div class='rightalign row'>";
-                    if ($offset > 0)
-                    {
-                        $prevOffset = $offset - $maxCount;
-                        echo "<a href='/setRequestList.php'>First</a> - ";
-                        echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
-                    }
-                    if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount))
-                    {
-                        $nextOffset = $offset + $maxCount;
-                        echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
-                        echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
-                    }
-                    echo "</div>";
+        if (is_null($username)) {
+            //Looking at most requested sets
+            echo "<h2 class='longheader'>Most Requested Sets</h2>";
+
+            //Create table headers
+            echo "<table><tbody>";
+            echo "<th>Game</th>";
+            echo "<th>Requests</th>";
+
+            // Loop through each hash and display its information
+            foreach ($setRequestList as $request) {
+                if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+                    echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+
+                    echo "<td>";
+                    echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                    echo "</td>";
+                    echo "<td><a href='/setRequestors.php?g=" . $request['GameID'] . "'>" . $request['Requests'] . "</a></td>";
                 }
-                //Looking at the sets a specific user has requested
-                else
-                {
-                    echo "<h2 class='longheader'>$username's Requested Sets - "
-                        . $userSetRequestInformation['used'] . " of ". $userSetRequestInformation['total'] . " Requests Made</h2>";
-                    
-                    if ($flag == 0)
-                    {
-                        echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
-                    }
-                    else
-                    {
-                        echo "<a href='/setRequestList.php?u=$username'>View Active User Set Requests</a>";
-                    }
-                    echo "</br>";
-                    echo "</br>";
+            }
+            echo "</tbody></table>";
 
-                    //Create table headers
-                    echo "<table class='smalltable'><tbody>";
-                    echo "<th>Game</th>";
+            //Add page traversal links
+            echo "<div class='rightalign row'>";
+            if ($offset > 0) {
+                $prevOffset = $offset - $maxCount;
+                echo "<a href='/setRequestList.php'>First</a> - ";
+                echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+            }
+            if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
+                $nextOffset = $offset + $maxCount;
+                echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
+                echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
+            }
+            echo "</div>";
+        } else {
+            //Looking at the sets a specific user has requested
+            echo "<h2 class='longheader'>$username's Requested Sets - "
+                . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
-                    // Loop through each set request and display them if they do not have any acheivements
-                    foreach ($setRequestList as $request)
-                    {
-                        if ($flag == 0)
-                        {
-                            if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0)
-                            {
-                                echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
-                                
-                                echo "<td>";
-                                echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
-                                echo "</td>";
-                            }
-                        }
-                        else
-                        {
-                            if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0)
-                            {
-                                echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
-                                
-                                echo "<td>";
-                                echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
-                                echo "</td>";
-                            }
-                            else
-                            {
-                                echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
-                                
-                                echo "<td>";
-                                echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']) . " - Set Exists";
-                                echo "</td>";
-                            }
-                        }
+            if ($flag == 0) {
+                echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
+            } else {
+                echo "<a href='/setRequestList.php?u=$username'>View Active User Set Requests</a>";
+            }
+            echo "<br>";
+            echo "<br>";
+
+            //Create table headers
+            echo "<table><tbody>";
+            echo "<th>Game</th>";
+
+            // Loop through each set request and display them if they do not have any acheivements
+            foreach ($setRequestList as $request) {
+                if ($flag == 0) {
+                    if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+                        echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+
+                        echo "<td>";
+                        echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                        echo "</td>";
                     }
-                    echo "</tbody></table>";
+                } else {
+                    if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+                        echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+
+                        echo "<td>";
+                        echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                        echo "</td>";
+                    } else {
+                        echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+
+                        echo "<td>";
+                        echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']) . " - Set Exists";
+                        echo "</td>";
+                    }
                 }
-            ?>
-        </div>
+            }
+            echo "</tbody></table>";
+        }
+        ?>
     </div>
-    <?php RenderFooter(); ?>
+</div>
+<?php RenderFooter(); ?>
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

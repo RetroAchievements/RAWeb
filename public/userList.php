@@ -27,25 +27,15 @@ if( $perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin )
 else if( $showUntracked && $perms = -99 ) // meleu: using -99 magic number for untracked (I know, it's sloppy)
     $permissionName = "Untracked";
 
-$pageTitle = "User List";
-
 $errorCode = seekGET( 'e' );
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Users");
 ?>
-
-<head>
-    <?php RenderSharedHeader( $user ); ?>
-    <?php RenderTitleTag( $pageTitle, $user ); ?>
-    <?php RenderGoogleTracking(); ?>
-</head>
-
 <body>
     <?php RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions ); ?>
     <?php RenderToolbar( $user, $permissions ); ?>
-
     <div id="mainpage">
         <div id="fullcontainer">
-
             <?php
             echo "<div class='navpath'>";
             echo "<b>All Users";
@@ -108,7 +98,7 @@ RenderDocType();
             }
 
 
-            echo "<table class='smalltable'><tbody>";
+            echo "<table><tbody>";
 
             $sort1 = ($sortBy == 1) ? 11 : 1;
             $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -176,12 +166,9 @@ RenderDocType();
 
             echo "</div>";
             ?>
-
-            <br/>
+            <br>
         </div>
     </div>
-
     <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

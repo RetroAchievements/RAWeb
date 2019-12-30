@@ -7,16 +7,11 @@ $consoles = getConsoleList();
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $errorCode = seekGET('e');
-$pageTitle = "Download a client";
 $staticData = getStaticData();
 
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Download a client");
 ?>
-<head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
-    <?php RenderGoogleTracking(); ?>
-</head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
@@ -92,4 +87,4 @@ RenderDocType();
 </div>
 <?php RenderFooter(); ?>
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

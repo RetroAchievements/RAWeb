@@ -22,7 +22,7 @@
 	
 	$gameRatingData = getGamesByRating( 0, 999 );
 	
-	RenderDocType();
+	RenderHtmlStart();
 ?>
 
 <head>
@@ -90,7 +90,7 @@
 	}
 
 	echo "<h2>Most Voted</h2>";
-	echo "<table class='smalltable'><tbody>";
+	echo "<table><tbody>";
 	
 	echo "<tr>";
 	echo "<th>Game</th>";
@@ -131,4 +131,4 @@
 <?php RenderFooter(); ?>
 
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

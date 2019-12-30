@@ -41,7 +41,7 @@ app.set('port', 5000);
 //	for(i=0; i < times; i++)
 //		result += cool();
 	
-//	result += "</br><a href='/db'>DB</a>";
+//	result += "<br><a href='/db'>DB</a>";
 //	response.send(result);
 //});
 

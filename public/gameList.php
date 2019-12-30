@@ -25,16 +25,10 @@ if ($showTickets) {
     $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, false);
 }
 
-$pageTitle = "Supported Games" . $requestedConsole;
-
 $errorCode = seekGET('e');
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Supported Games" . $requestedConsole);
 ?>
-<head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
-    <?php RenderGoogleTracking(); ?>
-</head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
@@ -49,7 +43,7 @@ RenderDocType();
                     echo "<b>All Games</b>";
                 } else {
                     echo "<a href=\"/gameList.php\">All Games</a>";
-                    echo " &raquo; <b>$requestedConsole games</b></a>";
+                    echo " &raquo; <b>$requestedConsole</b></a>";
                 }
             }
             ?>
@@ -88,11 +82,11 @@ RenderDocType();
                     }
                     echo "<h3 class='longheader'>";
                     echo "<a href='gameList.php?c=$consoleID'>";
-                    echo "$consoleName games";
+                    echo "$consoleName";
                     echo "</a>";
                     echo "</h3>";
 
-                    echo "<table class='smalltable'><tbody>";
+                    echo "<table><tbody>";
 
                     $sort1 = ($sortBy == 1) ? 11 : 1;
                     $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -101,13 +95,14 @@ RenderDocType();
                     $sort5 = ($sortBy == 5) ? 15 : 5;
 
                     echo "<tr>";
+                    echo "<th></th>";
                     echo "<th><a href='/gameList.php?s=$sort1&d=$dev&c=$consoleIDInput'>Title</a></th>";
-                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort2&d=$dev&c=$consoleIDInput'>Achieve-ments</a></th>";
-                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort3&d=$dev&c=$consoleIDInput'>Points</a></th>";
-                    echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort4&d=$dev&c=$consoleIDInput'>Leader-boards</a></th>";
+                    echo "<th><a href='/gameList.php?s=$sort2&d=$dev&c=$consoleIDInput'>Achievements</a></th>";
+                    echo "<th><a href='/gameList.php?s=$sort3&d=$dev&c=$consoleIDInput'>Points</a></th>";
+                    echo "<th><a href='/gameList.php?s=$sort4&d=$dev&c=$consoleIDInput'>Leaderboards</a></th>";
 
                     if ($showTickets) {
-                        echo "<th class='smallthtitle'><a href='/gameList.php?s=$sort5&d=$dev&c=$consoleIDInput'>Open Tickets</a></th>";
+                        echo "<th class='text-nowrap'><a href='/gameList.php?s=$sort5&d=$dev&c=$consoleIDInput'>Open Tickets</a></th>";
                     }
                     echo "</tr>";
 
@@ -133,27 +128,30 @@ RenderDocType();
                             echo "<tr>";
 
                             echo "<td>";
-                            echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null);
+                            echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, true);
+                            echo "</td>";
+                            echo "<td class='fullwidth'>";
+                            echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, false, null, true);
                             echo "</td>";
 
                             echo "<td>$numAchievements</td>";
-                            echo "<td>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
+                            echo "<td class='text-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
 
+                            echo "<td class=''>";
                             if ($numLBs > 0) {
-                                echo "<td><a href=\"game/$gameID\">$numLBs</a></td>";
+                                echo "<a href=\"game/$gameID\">$numLBs</a>";
                                 $lbCount += $numLBs;
-                            } else {
-                                echo "<td>-</td>";
                             }
+                            echo "</td>";
 
                             if ($showTickets) {
                                 $openTickets = $gameEntry['OpenTickets'];
+                                echo "<td class=''>";
                                 if ($openTickets > 0) {
-                                    echo "<td><a href=\"ticketmanager.php?g=$gameID\">$openTickets</a></td>";
+                                    echo "<a href=\"ticketmanager.php?g=$gameID\">$openTickets</a>";
                                     $ticketsCount += $openTickets;
-                                } else {
-                                    echo "<td>-</td>";
                                 }
+                                echo "</td>";
                             }
 
                             echo "</tr>";
@@ -167,6 +165,7 @@ RenderDocType();
 
                     // Totals:
                     echo "<tr>";
+                    echo "<td></td>";
                     echo "<td><b>Totals: $gameCount games</b></td>";
                     echo "<td><b>$achievementsTally</b></td>";
                     echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
@@ -180,10 +179,10 @@ RenderDocType();
                 }
             }
             ?>
-            <br/>
+            <br>
         </div>
     </div>
 </div>
 <?php RenderFooter(); ?>
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

@@ -46,17 +46,15 @@ $numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);
 
 $errorCode = seekGET('e');
 
-RenderDocType(true);
+RenderHtmlStart(true);
 ?>
-
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderFBMetaData($pageTitle, "Leaderboard", "$gameIcon", "/leaderboardinfo.php?i=$lbID",
+    <?php RenderOpenGraphMetadata($pageTitle, "Leaderboard", "$gameIcon", "/leaderboardinfo.php?i=$lbID",
         "Leaderboard: $lbTitle ($gameTitle, $consoleName): "); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
+    <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
-
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
@@ -82,13 +80,13 @@ RenderDocType(true);
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "</div>";
 
-            echo "<br/>";
-            echo "<br/>";
-            echo "<br/>";
+            echo "<br>";
+            echo "<br>";
+            echo "<br>";
 
             if (isset($user) && $permissions >= 3) {
                 echo "<div class='devbox'>";
-                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br/>";
+                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
                 echo "<div id='devboxcontent'>";
 
                 echo "<ul>";
@@ -98,7 +96,7 @@ RenderDocType(true);
                 echo "<table><tbody>";
                 if (count($lbData['Entries']) > 0) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/request.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
+                    echo "<form method='post' action='/request/dorequest.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo "<input type='hidden' name='r' value='removelbentry' />";
                     echo "<input type='hidden' name='l' value='$lbID' />";
                     echo "<input type='hidden' name='b' value='true' />";
@@ -132,13 +130,13 @@ RenderDocType(true);
 
             //    Not implemented
             //if( $friendsOnly )
-            //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br/><br/>";
+            //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br><br>";
             //else
-            //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br/><br/>";
+            //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
 
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
-            echo "<table class='smalltable'><tbody>";
+            echo "<table><tbody>";
             echo "<tr><th>Rank</th><th>User</th><th>Result</th><th>Date Won</th></tr>";
 
             $numActualEntries = 0;
@@ -163,7 +161,7 @@ RenderDocType(true);
                 $lastEntry = ($resultsDrawn + 1 == $numEntries);
                 $userAppendedInResults = ($numEntries !== $count);
 
-                //echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)</br>";
+                //echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
                 if ($lastEntry && $isLocal && $userAppendedInResults) {
                     //    This is the local, outside-rank user at the end of the table
@@ -184,8 +182,8 @@ RenderDocType(true);
                 echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
                 echo "<td class='lb_user'>";
-                echo GetUserAndTooltipDiv( $nextUser, TRUE );
-                echo GetUserAndTooltipDiv( $nextUser, FALSE );
+                echo GetUserAndTooltipDiv($nextUser, true);
+                echo GetUserAndTooltipDiv($nextUser, false);
                 echo "</td>";
 
                 echo "<td class='lb_result'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";
@@ -197,10 +195,10 @@ RenderDocType(true);
                 $resultsDrawn++;
             }
 
-            echo "</tbody></table><br/>";
+            echo "</tbody></table><br>";
 
             if (!$localUserFound && isset($user)) {
-                echo "<div>You don't appear to be ranked for this leaderboard. Why not give it a go?</div><br/>";
+                echo "<div>You don't appear to be ranked for this leaderboard. Why not give it a go?</div><br>";
             }
 
             echo "<div class='rightalign row'>";
@@ -236,8 +234,6 @@ RenderDocType(true);
     </div>
 
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

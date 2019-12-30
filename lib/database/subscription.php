@@ -1,7 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/../bootstrap.php');
-
 /**
  * Update a subscription, i.e, either subscribe or unsubscribe a given user to or from a subject.
  *

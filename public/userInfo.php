@@ -150,89 +150,87 @@ $numScoreDataElements++;
 
 //var_dump( $userScoreData );
 
-RenderDocType(true);
+RenderHtmlStart(true);
 ?>
-
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-
-        // Load the Visualization API and the piechart package.
-        google.load('visualization', '1.0', {'packages': ['corechart']});
-
-        // Set a callback to run when the Google Visualization API is loaded.
-        google.setOnLoadCallback(drawCharts);
-
-        // Callback that creates and populates a data table,
-        // instantiates the pie chart, passes in the data and
-        // draws it.
-        function drawCharts() {
-            var dataRecentProgress = new google.visualization.DataTable();
-
-            // Declare columns
-            dataRecentProgress.addColumn('date', 'Date');    //    NOT date! this is non-continuous data
-            dataRecentProgress.addColumn('number', 'Score');
-
-            dataRecentProgress.addRows([
-                <?php
-                $arrayToUse = $userScoreData;
-
-                $count = 0;
-                foreach ($arrayToUse as $dayInfo) {
-                    if ($count++ > 0) {
-                        echo ", ";
-                    }
-
-                    $nextDay = $dayInfo['Day'];
-                    $nextMonth = $dayInfo['Month'];
-                    $nextYear = $dayInfo['Year'];
-
-                    $dateStr = "$nextDay/$nextMonth";
-                    //if( $nextYear != date( 'Y' ) )
-                    //    $dateStr = "$nextDay/$nextMonth/$nextYear";
-
-                    $value = $dayInfo['CumulScore'];
-
-                    //echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
-                    echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
-                }
-                ?>
-            ]);
-
-
-            var optionsRecentProcess = {
-                backgroundColor: 'transparent',
-                title: 'Recent Progress',
-                titleTextStyle: {color: '#186DEE'},
-                hAxis: {textStyle: {color: '#186DEE'}, slantedTextAngle: 90},
-                vAxis: {textStyle: {color: '#186DEE'}},
-                legend: {position: 'none'},
-                chartArea: {left: 42, width: 458, 'height': '100%'},
-                showRowNumber: false,
-                view: {columns: [0, 1]},
-                //height: 460,
-                colors: ['#cc9900']
-            };
-
-            function resize() {
-                chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'));
-                chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess);
-            }
-
-            window.onload = resize();
-            window.onresize = resize;
-        }
-    </script>
     <?php RenderSharedHeader($user); ?>
-    <?php RenderFBMetadata($userPage, "user", "/UserPic/$userPage" . ".png", "/User/$userPage",
+    <?php RenderOpenGraphMetadata($userPage, "user", "/UserPic/$userPage" . ".png", "/User/$userPage",
         "User page for $userPage"); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
+    <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
-
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.0', {'packages': ['corechart']});
+
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(drawCharts);
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  function drawCharts() {
+    var dataRecentProgress = new google.visualization.DataTable();
+
+    // Declare columns
+    dataRecentProgress.addColumn('date', 'Date');    //    NOT date! this is non-continuous data
+    dataRecentProgress.addColumn('number', 'Score');
+
+    dataRecentProgress.addRows([
+        <?php
+        $arrayToUse = $userScoreData;
+
+        $count = 0;
+        foreach ($arrayToUse as $dayInfo) {
+            if ($count++ > 0) {
+                echo ", ";
+            }
+
+            $nextDay = $dayInfo['Day'];
+            $nextMonth = $dayInfo['Month'];
+            $nextYear = $dayInfo['Year'];
+
+            $dateStr = "$nextDay/$nextMonth";
+            //if( $nextYear != date( 'Y' ) )
+            //    $dateStr = "$nextDay/$nextMonth/$nextYear";
+
+            $value = $dayInfo['CumulScore'];
+
+            //echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
+            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
+        }
+        ?>
+    ]);
+
+
+    var optionsRecentProcess = {
+      backgroundColor: 'transparent',
+      title: 'Recent Progress',
+      titleTextStyle: {color: '#186DEE'},
+      hAxis: {textStyle: {color: '#186DEE'}, slantedTextAngle: 90},
+      vAxis: {textStyle: {color: '#186DEE'}},
+      legend: {position: 'none'},
+      chartArea: {left: 42, width: 458, 'height': '100%'},
+      showRowNumber: false,
+      view: {columns: [0, 1]},
+      //height: 460,
+      colors: ['#cc9900']
+    };
+
+    function resize() {
+      chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'));
+      chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess);
+    }
+
+    window.onload = resize();
+    window.onresize = resize;
+  }
+</script>
 
 <div id="mainpage">
     <div id='leftcontainer'>
@@ -259,7 +257,7 @@ RenderDocType(true);
             echo "<span class='usermotto'>$userMotto</span>";
             echo "</div>"; //mottocontainer
         }
-        echo "<br/>";
+        echo "<br>";
 
         $niceDateJoined = $userMassData['MemberSince'] ? getNiceDate(strtotime($userMassData['MemberSince'])) : null;
         if ($niceDateJoined) {
@@ -270,15 +268,15 @@ RenderDocType(true);
         if ($niceDateLogin) {
             echo "Last Activity: $niceDateLogin<br>";
         }
-        echo "Account Type: <b>[" . PermissionsToString($userMassData['Permissions']) . "]</b><br/>";
-        echo "<br/>";
+        echo "Account Type: <b>[" . PermissionsToString($userMassData['Permissions']) . "]</b><br>";
+        echo "<br>";
 
         $retRatio = 0.0;
         if ($totalPoints > 0) {
             $retRatio = sprintf("%01.2f", $userTruePoints / $totalPoints);
         }
-        echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br/>";
-        echo "Average Completion: <b>$avgPctWon%</b><br/>";
+        echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
+        echo "Average Completion: <b>$avgPctWon%</b><br>";
 
         echo "Site Rank: ";
         if ($userIsUntracked) {
@@ -290,7 +288,7 @@ RenderDocType(true);
             $rankPct = sprintf("%1.0f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
             echo "<a href='/userList.php?s=2'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }
-        echo "<br/><br/>";
+        echo "<br><br>";
 
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
             echo "<div class='mottocontainer'>Last seen ";
@@ -305,8 +303,8 @@ RenderDocType(true);
         $contribCount = $userMassData['ContribCount'];
         $contribYield = $userMassData['ContribYield'];
         if ($contribCount > 0) {
-            echo "<strong>$userPage Developer Stats:</strong><br/>";
-            echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br/>";
+            echo "<strong>$userPage Developer Stats:</strong><br>";
+            echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
             echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . countOpenTicketsByDev($userPage) . "</b></a><br>";
             echo "Achievements won by others: <b>$contribCount</b><br>";
             echo "Points awarded to others: <b>$contribYield</b><br>";
@@ -321,27 +319,27 @@ RenderDocType(true);
 
             if ($userMassData['Friendship'] == 1) {
                 if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
                     //    They haven't accepted yet
-                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Cancel friend request</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Cancel friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == -1) {
                     //    They blocked us
-                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                 }
             } elseif ($userMassData['Friendship'] == 0) {
                 if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Confirm friend request</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Confirm friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Add friend</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Add friend</a></span>";
                 }
             }
 
             if ($userMassData['Friendship'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
             } else //if( $userMassData['Friendship'] == -1 )
             {
-                echo "<span class='clickablebutton'><a href='/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
@@ -352,12 +350,12 @@ RenderDocType(true);
 
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br/>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<li>Update Account Type:</li>";
-                echo "<form method='post' action='/requestupdateuser.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/requestupdateuser.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='0' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
 
@@ -376,37 +374,37 @@ RenderDocType(true);
                 }
                 echo "</select>";
 
-                echo "&nbsp;<input type='submit' style='float: right;' value='Do it!' /></br></br>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Do it!' /><br><br>";
                 echo "<div style='clear:all;'></div>";
-                echo "</form><br/>";
+                echo "</form><br>";
             }
 
             if (isset($user) && $permissions >= Permissions::Root) {
                 //  Me only
-                echo "<form method='post' action='/requestupdateuser.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/requestupdateuser.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='2' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
                 echo "<input type='hidden' name='v' value='0' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Patreon Supporter' /></br></br>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Patreon Supporter' /><br><br>";
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
             }
 
             if (isset($user) && $permissions >= Permissions::Admin) {
-                echo "<form method='post' action='/requestscorerecalculation.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/requestscorerecalculation.php' enctype='multipart/form-data'>";
                 echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Recalc Score Now' /></br></br>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Recalc Score Now' /><br><br>";
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
 
                 //$userIsUntracked
                 echo ($userIsUntracked == 1) ? "<b>Untracked User!</b>&nbsp;" : "Tracked User.&nbsp;";
                 $newValue = $userIsUntracked ? 0 : 1;
-                echo "<form method='post' action='/requestupdateuser.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/requestupdateuser.php' enctype='multipart/form-data'>";
                 echo "<input TYPE='hidden' NAME='p' VALUE='3' />";
                 echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
                 echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Tracked Status' /></br></br>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Tracked Status' /><br><br>";
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
             }
@@ -475,15 +473,15 @@ RenderDocType(true);
                 echo "</div>";
                 echo "</div>";
                 if ($pctComplete > 100.0) {
-                    echo "<b>$pctComplete%</b> complete<br/>";
+                    echo "<b>$pctComplete%</b> complete<br>";
                 } else {
-                    echo "$pctComplete% complete<br/>";
+                    echo "$pctComplete% complete<br>";
                 }
                 echo "</div>";
 
-                echo "<a href='/Game/$gameID'>$gameTitle ($consoleName)</a><br/>";
-                echo "Last played $gameLastPlayed<br/>";
-                echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br/>";
+                echo "<a href='/Game/$gameID'>$gameTitle ($consoleName)</a><br>";
+                echo "Last played $gameLastPlayed<br>";
+                echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br>";
 
                 //var_dump( $userMassData[ 'RecentAchievements' ] );
 
@@ -506,7 +504,7 @@ RenderDocType(true);
                         } else {
                             $unlockedStr = "<br clear=all>Unlocked: $achUnlockDate";
                             if ($achHardcore == 1) {
-                                $unlockedStr .= "</br>-=HARDCORE=-";
+                                $unlockedStr .= "<br>-=HARDCORE=-";
                                 $class = 'goldimage';
                             }
                         }
@@ -520,11 +518,11 @@ RenderDocType(true);
                 echo "</div>";
             }
 
-            echo "<br/>";
+            echo "<br>";
         }
 
         if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='rightalign'><a href='/User/$userPage&g=15'>more...</a></div><br/>";
+            echo "<div class='rightalign'><a href='/User/$userPage&g=15'>more...</a></div><br>";
         }
 
         echo "</div>"; //recentlyplayed
@@ -541,7 +539,6 @@ RenderDocType(true);
         echo "</div>";
         ?>
     </div>
-
     <div id='rightcontainer'>
         <?php
         RenderSiteAwards($userAwards);
@@ -557,12 +554,8 @@ RenderDocType(true);
             RenderScoreLeaderboardComponent($user, $points, true);
         }
         ?>
-
     </div>
-
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

@@ -1,8 +1,4 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Messages 
-//////////////////////////////////////////////////////////////////////////////////////////
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
     //if( isFriendsWith( $author, $destUser ) )    //    nah
@@ -136,7 +132,7 @@ function GetMessage($user, $id)
 
 function GetUnreadMessages($user, $offset, $count)
 {
-    $retval = array();
+    $retval = [];
 
     $query = "SELECT * FROM Messages AS msg
               WHERE msg.UserTo='$user' AND msg.Unread = 1
@@ -158,7 +154,7 @@ function GetUnreadMessages($user, $offset, $count)
 
 function GetAllMessages($user, $offset, $count, $unreadOnly)
 {
-    $retval = array();
+    $retval = [];
 
     $subQuery = '';
     if ($unreadOnly) {
@@ -186,7 +182,7 @@ function GetAllMessages($user, $offset, $count, $unreadOnly)
 
 function GetSentMessages($user, $offset, $count)
 {
-    $retval = array();
+    $retval = [];
 
     $query = "SELECT * FROM Messages AS msg
               WHERE msg.UserFrom='$user'
@@ -259,7 +255,7 @@ function DeleteMessage($user, $messageID)
 
         $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
         $dbResult = s_mysql_query($query);
-        if($dbResult !== false) {
+        if ($dbResult !== false) {
             s_mysql_query("INSERT INTO DeletedModels SET ModelType='Messages', ModelID=$messageID");
         }
         return ($dbResult !== false);

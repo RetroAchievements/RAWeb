@@ -1,19 +1,13 @@
 <?php
-
 use RA\Permissions;
-
-require_once(__DIR__ . '/../bootstrap.php');
 
 abstract class ModifyTopicField
 {
     const ModifyTitle = 0;
     const DeleteTopic = 1;
     const RequiredPermissions = 2;
-};
+}
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Forums
-//////////////////////////////////////////////////////////////////////////////////////////
 function getForumList($categoryID = 0)
 {
     // Specify NULL for all categories
@@ -35,7 +29,7 @@ function getForumList($categoryID = 0)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = Array();
+        $dataOut = [];
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -85,7 +79,7 @@ function getForumTopics($forumID, $offset, $count)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = Array();
+        $dataOut = [];
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -113,7 +107,7 @@ function getUnauthorisedForumLinks()
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = Array();
+        $dataOut = [];
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -140,8 +134,9 @@ function getTopicDetails($topicID, &$topicDataOut)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         //error_log( __FUNCTION__ . " $topicID, " . mysqli_num_rows( $dbResult ) );
+
         $topicDataOut = mysqli_fetch_assoc($dbResult);
-        return $topicDataOut['ID'] == $topicID;
+        return ($topicDataOut['ID'] ?? null) == $topicID;
     } else {
         $topicDataOut = null;
         return false;
@@ -171,7 +166,7 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = Array();
+        $dataOut = [];
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -355,8 +350,7 @@ function notifyUsersAboutForumActivity($topicID, $author, $commentID)
     );
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
-    foreach ($subscribers as $sub)
-    {
+    foreach ($subscribers as $sub) {
         sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, 6, null, $urlTarget);
     }
 }
@@ -489,7 +483,7 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = Array();
+        $dataOut = [];
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -579,6 +573,8 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
             }
             break;
     }
+
+    return false;
 }
 
 function RemoveUnauthorisedForumPosts($user)

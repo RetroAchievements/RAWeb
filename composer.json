@@ -9,6 +9,8 @@
     },
     "require": {
         "php": "^7.1",
+        "ext-curl": "*",
+        "ext-dom": "*",
         "ext-mysqli": "*",
         "ext-gd": "*",
         "ext-json": "*",
