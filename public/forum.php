@@ -129,9 +129,6 @@ RenderHtmlHead($pageTitle);
     </div>
     <div id='rightcontainer'>
         <?php
-        if ($user !== null) {
-            RenderScoreLeaderboardComponent($user, $points, true);
-        }
         RenderRecentForumPostsComponent(8);
         ?>
     </div>
