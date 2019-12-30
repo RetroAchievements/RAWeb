@@ -133,7 +133,7 @@ RenderHtmlHead($pageTitle);
         echo "<ul>";
         if (isset($gameID)) {
             echo "<li>";
-            echo "$user<a href='/request/requestcreatenewlb.php?u=%name&amp;c=%name&amp;g=%name'>Add New Leaderboard to $cookie$gameID" . $gameData['Title'] . "</a>";
+            echo "<a href='/request/requestcreatenewlb.php?u=$user&c=$cookie&g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a>";
             echo "</li>";
         } else {
             echo "<li>Add new leaderboard<br>";
