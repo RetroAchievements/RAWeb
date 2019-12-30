@@ -41,7 +41,7 @@ function seekPOSTorGET($key, $default = null, $type = null)
 
 function ValidatePOSTChars($charsIn)
 {
-    $numChars = strlen($charsIn);
+    $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
         if (!array_key_exists($charsIn[$i], $_POST)) {
             error_log(__FUNCTION__ . " failed, missing " . $charsIn[$i] . " in POST!");
@@ -54,7 +54,7 @@ function ValidatePOSTChars($charsIn)
 
 function ValidateGETChars($charsIn)
 {
-    $numChars = strlen($charsIn);
+    $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
         if (!array_key_exists($charsIn[$i], $_GET)) {
             error_log(__FUNCTION__ . " failed, missing " . $charsIn[$i] . " in GET!");
@@ -67,7 +67,7 @@ function ValidateGETChars($charsIn)
 
 function ValidatePOSTorGETChars($charsIn)
 {
-    $numChars = strlen($charsIn);
+    $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
         if (!array_key_exists($charsIn[$i], $_GET)) {
             if (!array_key_exists($charsIn[$i], $_POST)) {

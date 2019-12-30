@@ -25,7 +25,7 @@ if ($validLogin == false) {
 
 //  Infer from app
 if (isset($_FILES["file"]) && isset($_FILES["file"]["name"])) {
-    $requestType = substr($_FILES["file"]["name"], 0, -4);
+    $requestType = mb_substr($_FILES["file"]["name"], 0, -4);
     error_log("RT: " . $requestType);
 }
 //error_log( "doupload.php" );

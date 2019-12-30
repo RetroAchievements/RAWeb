@@ -1,7 +1,7 @@
 <?php
 $file = __DIR__ . "/../../lib/RA_API.php";
 $fp = @fopen($file, 'rb');
-if (strstr($_SERVER['HTTP_USER_AGENT'], "MSIE")) {
+if (mb_strstr($_SERVER['HTTP_USER_AGENT'], "MSIE")) {
     header('Content-Type: "application/octet-stream"');
     header('Content-Disposition: attachment; filename="RA_API.php"');
     header('Expires: 0');

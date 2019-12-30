@@ -17,19 +17,19 @@ if (ctype_alnum($user) == false) {
     return false;
 }
 
-if (strlen($user) > 20) {
+if (mb_strlen($user) > 20) {
     error_log("requestcreateuser.php failed 2 - $user $email $email2 ");
     echo "Username can be a maximum of 20 characters. Please retry.<br>";
     return false;
 }
 
-if (strlen($user) < 2) {
+if (mb_strlen($user) < 2) {
     error_log("requestcreateuser.php failed 3 - $user $email $email2 ");
     echo "Username must be at least 2 characters. Please retry.<br>";
     return false;
 }
 
-if (strlen($pass) < 2) {
+if (mb_strlen($pass) < 2) {
     error_log("requestcreateuser.php failed 3.5 - $user $email $email2 ");
     echo "Password must be at least 2 characters. Please retry.<br>";
     return false;

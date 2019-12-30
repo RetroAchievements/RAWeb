@@ -4,8 +4,8 @@
  * Update a subscription, i.e, either subscribe or unsubscribe a given user to or from a subject.
  *
  * @param string $subjectType subject type
- * @param integer $subjectID subject id
- * @param integer $userID user id
+ * @param int $subjectID subject id
+ * @param int $userID user id
  * @param bool $state whether the user is to be subscribed (true) or unsubscribed (false)
  * @return bool whether the update was successful
  */
@@ -33,16 +33,15 @@ function updateSubscription($subjectType, $subjectID, $userID, $state)
  * Checks whether a given user is subscribed to a subject, whether implicitly or explicitly.
  *
  * @param string $subjectType subject type
- * @param integer $subjectID subject id
- * @param integer $userID user id
+ * @param int $subjectID subject id
+ * @param int $userID user id
  * @param string $implicitSubscriptionQry optional sql query capable of identifying the existence of an implicit
  *                                         subscription to the subject (must be usable inside an EXISTS clause)
  * @return bool whether the user is subscribed to the subject
  */
 function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscriptionQry = null)
 {
-
-    if (is_null($implicitSubscriptionQry)) {
+    if ($implicitSubscriptionQry === null) {
         $query = "
             SELECT 1
             FROM Subscription
@@ -102,8 +101,8 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
  * Retrieves the list of users that are subscribed to a given subject either implicitly or explicitly.
  *
  * @param string $subjectType subject type
- * @param integer $subjectID subject id
- * @param integer $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
+ * @param int $subjectID subject id
+ * @param int $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
  * @param string $implicitSubscriptionQry sql query that returns the set of users that are implicitly subscribed to
  *                                        the subject (must return whole UserAccounts rows)
  * @return array of subscribers, each as an assoc array with "User" and "Email Address" keys
@@ -111,7 +110,8 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
 function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $implicitSubscriptionQry = null)
 {
     $websitePrefsFilter = (
-    is_null($reqWebsitePrefs) ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
+        $reqWebsitePrefs === null ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0"
+    );
 
     $explicitSubscriptionQry = "
         SELECT
@@ -128,7 +128,7 @@ function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $im
           $websitePrefsFilter
     ";
 
-    if (is_null($implicitSubscriptionQry)) {
+    if ($implicitSubscriptionQry === null) {
         $query = $explicitSubscriptionQry;
     } else {
         $query = "

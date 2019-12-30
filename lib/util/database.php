@@ -10,19 +10,19 @@ function SQL_ASSERT($dbResult)
 
 function sanitiseSQL($query)
 {
-    if (strrchr($query, ';') !== false) {
+    if (mb_strrchr($query, ';') !== false) {
         error_log(__FUNCTION__ . " failed(;): query:$query");
         return false;
     } else {
-        if (strrchr($query, '/') !== false) {
+        if (mb_strrchr($query, '/') !== false) {
             error_log(__FUNCTION__ . " failed(/): query:$query");
             return false;
         } else {
-            if (strrchr($query, '\\') !== false) {
+            if (mb_strrchr($query, '\\') !== false) {
                 error_log(__FUNCTION__ . " failed(\\): query:$query");
                 return false;
             } else {
-                if (strstr($query, "--") !== false) {
+                if (mb_strstr($query, "--") !== false) {
                     error_log(__FUNCTION__ . " failed(--): query:$query");
                     return false;
                 } else {

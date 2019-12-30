@@ -37,14 +37,14 @@ RenderToolbar($user, $permissions);
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search Hash' />";
         echo "</form>";
-        if (is_null($hashList) || !is_null($searchedHash)) {
+        if ($hashList === null || $searchedHash !== null) {
             echo "<br>";
             echo "<a href='/latesthasheslinked.php'>Return to Lastest Linked Hashes</a>";
         }
         echo "</div>";
 
-        if (!is_null($hashList)) {
-            if (is_null($searchedHash)) {
+        if ($hashList !== null) {
+            if ($searchedHash === null) {
                 echo "<h2 class='longheader'>Lastest Linked Hashes</h2>";
             } else {
                 echo "<h2 class='longheader'>Search Results</h2>";
@@ -71,7 +71,7 @@ RenderToolbar($user, $permissions);
             }
             echo "</tbody></table>";
 
-            if (is_null($searchedHash)) {
+            if ($searchedHash === null) {
                 echo "<div class='rightalign row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;

@@ -2,7 +2,7 @@
 /**
  * Gets a list of set requests made by a given user.
  *
- * @param string $user The user to get a list of set requests from.
+ * @param string $user the user to get a list of set requests from
  * @return array
  */
 function getUserRequestList($user)
@@ -43,9 +43,9 @@ function getUserRequestList($user)
 /**
  * Gets the total and remaining set requests left for the given user.
  *
- * @param string $user The user to get set request information for.
- * @param array $list Input list of set requests.
- * @param int $gameID The game to check if a the user has made a set request for.
+ * @param string $user the user to get set request information for
+ * @param array $list input list of set requests
+ * @param int $gameID the game to check if a the user has made a set request for
  * @return array
  */
 function getUserRequestsInformation($user, $list, $gameID = -1)
@@ -80,7 +80,7 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     //Requests made for games that now have achievements do no count towards a used request
     foreach ($list as $request) {
         //If the game does not have achievements then it couns as a legit request
-        if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+        if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
             $requests['used']++;
         }
 
@@ -100,9 +100,9 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
  * If the user has not requested the set then add an entry to the database.
  * If the user has requested the set then remove it from the database.
  *
- * @param string $user The user to toggle a set request for.
+ * @param string $user the user to toggle a set request for
  * @param int $gameID
- * @param int $remaining Remaining set requests for the user.
+ * @param int $remaining remaining set requests for the user
  * @return bool
  */
 function toggleSetRequest($user, $gameID, $remaining)
@@ -155,7 +155,7 @@ function toggleSetRequest($user, $gameID, $remaining)
 /**
  * Gets the number of set requests for a given game.
  *
- * @param int $gameID The game to get the number of set requests for.
+ * @param int $gameID the game to get the number of set requests for
  * @return int
  */
 function getSetRequestCount($gameID)
@@ -181,7 +181,7 @@ function getSetRequestCount($gameID)
 /**
  * Gets a list of set requestors for a given game.
  *
- * @param int $gameID The game to get set requestors for.
+ * @param int $gameID the game to get set requestors for
  * @return array|bool
  */
 function getSetRequestorsList($gameID)
@@ -218,8 +218,8 @@ function getSetRequestorsList($gameID)
 /**
  * Gets a list of the most requested sets.
  *
- * @param int $offset Offset starting position for returned games.
- * @param int $count Number of games to return.
+ * @param int $offset offset starting position for returned games
+ * @param int $count number of games to return
  * @return array
  */
 function getMostRequestedSetsList($offset, $count)

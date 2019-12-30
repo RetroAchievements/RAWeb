@@ -15,7 +15,7 @@ if ($offset < 0) {
     $offset = 0;
 }
 
-if (is_null($username)) {
+if ($username === null) {
     $setRequestList = getMostRequestedSetsList($offset, $count);
     $totalRequestedGames = getGamesWithRequests();
 } else {
@@ -38,7 +38,7 @@ RenderToolbar($user, $permissions);
 
         $gameCounter = 0;
 
-        if (is_null($username)) {
+        if ($username === null) {
             //Looking at most requested sets
             echo "<h2 class='longheader'>Most Requested Sets</h2>";
 
@@ -49,7 +49,7 @@ RenderToolbar($user, $permissions);
 
             // Loop through each hash and display its information
             foreach ($setRequestList as $request) {
-                if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+                if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
                     echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                     echo "<td>";
@@ -93,7 +93,7 @@ RenderToolbar($user, $permissions);
             // Loop through each set request and display them if they do not have any acheivements
             foreach ($setRequestList as $request) {
                 if ($flag == 0) {
-                    if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+                    if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";
@@ -101,7 +101,7 @@ RenderToolbar($user, $permissions);
                         echo "</td>";
                     }
                 } else {
-                    if (sizeof(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+                    if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";

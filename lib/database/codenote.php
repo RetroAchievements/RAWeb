@@ -102,7 +102,7 @@ function submitCodeNote2($user, $gameID, $address, $note)
 
     log_sql($query);
     $dbResult = mysqli_query($db, $query);
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 /**
@@ -126,7 +126,7 @@ function submitCodeNote($user, $gameID, $address, $note)
     $userID = getUserIDFromUser($user);
 
     //    turn '0x00000f' into '15'
-    $addressAsInt = hexdec(substr($address, 2));
+    $addressAsInt = hexdec(mb_substr($address, 2));
 
     //$note = str_replace( "'", "''", $note );
     $note = mysqli_real_escape_string($db, $note);

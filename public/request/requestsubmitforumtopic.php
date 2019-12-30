@@ -32,8 +32,8 @@ $bannedTitles = [
 
 $nextWord = $bannedTitles[0];
 foreach ($bannedTitles as $nextWord) {
-    $testTitle = strtolower($topicTitle);
-    if (strpos($testTitle, $nextWord) !== false) {
+    $testTitle = mb_strtolower($topicTitle);
+    if (mb_strpos($testTitle, $nextWord) !== false) {
         echo "Contains banned word: $nextWord (found in '$topicTitle').<br>Please try again.";
         exit;
     }

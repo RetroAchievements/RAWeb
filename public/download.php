@@ -27,8 +27,8 @@ RenderHtmlHead("Download a client");
         </p>
 
         <?php foreach ($emulators as $emulator): ?>
-            <h2 class="longheader" id="<?= strtolower($emulator['handle'] ?? null) ?>">
-                <a href="#<?= strtolower($emulator['handle'] ?? null) ?>"><?= $emulator['handle'] ?? null ?></a> <small>(<?= $emulator['name'] ?? null ?>)</small>
+            <h2 class="longheader" id="<?= mb_strtolower($emulator['handle'] ?? null) ?>">
+                <a href="#<?= mb_strtolower($emulator['handle'] ?? null) ?>"><?= $emulator['handle'] ?? null ?></a> <small>(<?= $emulator['name'] ?? null ?>)</small>
             </h2>
             <div class="mb-1">
                 <?php if ($emulator['description'] ?? false): ?>

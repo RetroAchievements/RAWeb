@@ -244,7 +244,7 @@ function GetAchievementMetadataJSON($achID)
 function GetAchievementMetadata($achievementID, &$dataOut)
 {
     $dataOut = GetAchievementMetadataJSON($achievementID);
-    return (count($dataOut) > 0);
+    return count($dataOut) > 0;
 }
 
 function getAchievementBadgeFilename($id)
@@ -288,7 +288,7 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 
     log_sql($query);
     $dbResult = s_mysql_query($query);
-    return ($dbResult !== false);    //    FALSE return value ALWAYS means error here.
+    return $dbResult !== false;    //    FALSE return value ALWAYS means error here.
 }
 
 function HasAward($user, $achIDToAward)
@@ -368,7 +368,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
     } elseif ($achIDToAward == 0) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Achievement ID is 0! Cannot award.";
-    } elseif (!isset($user) || strlen($user) < 2) {
+    } elseif (!isset($user) || mb_strlen($user) < 2) {
         $retVal['Success'] = false;
         $retVal['Error'] = "User is '$user', cannot award achievement.";
     } else {
@@ -381,8 +381,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
         } elseif ($userData == null) {
             $retVal['Success'] = false;
             $retVal['Error'] = "User data cannot be found for $user";
-        } elseif ($achData['Flags'] == 5) // do not award Unofficial achievements
-        {
+        } elseif ($achData['Flags'] == 5) { // do not award Unofficial achievements
             $retVal['Success'] = false;
             $retVal['Error'] = "Unofficial achievements aren't registered on the RetroAchievements.org database";
         } else {
@@ -780,7 +779,7 @@ function UploadNewAchievement(
                     if (s_mysql_query($query) !== false) {
                         global $db;
                         $rowsAffected = mysqli_affected_rows($db);
-                        //error_log( __FUNCTION__ . " removed $rowsAffected rows in Achieved" );
+                    //error_log( __FUNCTION__ . " removed $rowsAffected rows in Achieved" );
                         //great
                     } else {
                         //meh
@@ -993,16 +992,13 @@ function getPatch($gameID, $flags, $user, $andLeaderboards)
     getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopicID, $gameData);
 
     $minVer = "0.001";
-    if ($consoleID == 1) //    Mega Drive
-    {
+    if ($consoleID == 1) { //    Mega Drive
         $minVer = "0.042";
     } //"0.028";
-    elseif ($consoleID == 2) //    N64
-    {
+    elseif ($consoleID == 2) { //    N64
         $minVer = "0.008";
     } //??
-    elseif ($consoleID == 3) //    SNES
-    {
+    elseif ($consoleID == 3) { //    SNES
         $minVer = "0.008";
     }
 
@@ -1105,7 +1101,7 @@ function updateAchievementDisplayID($achID, $newID)
     log_sql($query);
     $dbResult = s_mysql_query($query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function updateAchievementEmbedVideo($achID, $newURL)
@@ -1116,7 +1112,7 @@ function updateAchievementEmbedVideo($achID, $newURL)
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function updateAchievementFlags($achID, $newFlags)
@@ -1126,7 +1122,7 @@ function updateAchievementFlags($achID, $newFlags)
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
@@ -1328,8 +1324,7 @@ function recalculateTrueRatio($gameID)
             //error_log( "Added " . $achData[ $nextData['ID'] ]['ID'] );
         }
 
-        if ($totalEarners == 0) // force all unachieved to be 1
-        {
+        if ($totalEarners == 0) { // force all unachieved to be 1
             $totalEarners = 1;
         }
 
@@ -1340,8 +1335,7 @@ function recalculateTrueRatio($gameID)
             $achPoints = $nextAch['Points'];
             $numAchieved = $nextAch['NumAchieved'];
 
-            if ($numAchieved == 0) // force all unachieved to be 1
-            {
+            if ($numAchieved == 0) { // force all unachieved to be 1
                 $numAchieved = 1;
             }
 

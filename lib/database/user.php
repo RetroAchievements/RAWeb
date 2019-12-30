@@ -6,27 +6,39 @@ use RA\Permissions;
 abstract class UserPref
 {
     const EmailOn_ActivityComment = 0;
-    const EmailOn_AchievementComment = 1;
-    const EmailOn_UserWallComment = 2;
-    const EmailOn_ForumReply = 3;
-    const EmailOn_AddFriend = 4;
-    const EmailOn_PrivateMessage = 5;
-    const EmailOn_Newsletter = 6;
-    const EmailOn_unused2 = 7;
-    const SiteMsgOn_ActivityComment = 8;
-    const SiteMsgOn_AchievementComment = 9;
-    const SiteMsgOn_UserWallComment = 10;
-    const SiteMsgOn_ForumReply = 11;
-    const SiteMsgOn_AddFriend = 12;
 
+    const EmailOn_AchievementComment = 1;
+
+    const EmailOn_UserWallComment = 2;
+
+    const EmailOn_ForumReply = 3;
+
+    const EmailOn_AddFriend = 4;
+
+    const EmailOn_PrivateMessage = 5;
+
+    const EmailOn_Newsletter = 6;
+
+    const EmailOn_unused2 = 7;
+
+    const SiteMsgOn_ActivityComment = 8;
+
+    const SiteMsgOn_AchievementComment = 9;
+
+    const SiteMsgOn_UserWallComment = 10;
+
+    const SiteMsgOn_ForumReply = 11;
+
+    const SiteMsgOn_AddFriend = 12;
 }
 
 abstract class FBUserPref
 {
     const PostFBOn_EarnAchievement = 0;
-    const PostFBOn_CompleteGame = 1;
-    const PostFBOn_UploadAchievement = 2;
 
+    const PostFBOn_CompleteGame = 1;
+
+    const PostFBOn_UploadAchievement = 2;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -147,8 +159,7 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
             error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
             return false;
         }
-    } else //    ?
-    {
+    } else { //    ?
         //    Unrecognised stuff
         error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
         return false;
@@ -254,20 +265,20 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
 {
     //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
 
-    if (!isset($user) || $user == false || strlen($user) < 2) {
+    if (!isset($user) || $user == false || mb_strlen($user) < 2) {
         error_log(__FUNCTION__ . " username failed: empty user");
         return 0;
     }
 
-    $passwordProvided = (isset($pass) && strlen($pass) >= 1);
-    $tokenProvided = (isset($tokenInOut) && strlen($tokenInOut) >= 1);
+    $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
+    $tokenProvided = (isset($tokenInOut) && mb_strlen($tokenInOut) >= 1);
 
     if ($passwordProvided) {
         //    Password provided:
         //    Note: Safer to receive a plaintext password: embedding any DB secret in-app is inexcusable!
         $saltedPass = md5($pass . getenv('RA_PASSWORD_SALT'));
         $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user' AND SaltedPass='$saltedPass'";
-        //error_log( $query );
+    //error_log( $query );
     } elseif ($tokenProvided) {
         //    Token provided:
         $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
@@ -299,8 +310,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
             //if( $passwordProvided )
             //    generateAppToken( $user, $tokenInOut );
             //    Against my better judgement... ##SD
-            if (strlen($data['appToken']) != 16)   //    Generate if new
-            {
+            if (mb_strlen($data['appToken']) != 16) {   //    Generate if new
                 generateAppToken($user, $tokenInOut);  //
             } else {
                 //    Return old token if not
@@ -356,7 +366,7 @@ function GetUserData($user)
 
 function getAccountDetails(&$user, &$dataOut)
 {
-    if (!isset($user) || strlen($user) < 2) {
+    if (!isset($user) || mb_strlen($user) < 2) {
         error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
@@ -394,7 +404,7 @@ function changePassword($user, $pass)
     //    Add salt
     $saltedHash = md5($pass . getenv('RA_PASSWORD_SALT'));
 
-    if (strrchr(' ', $saltedHash) || strlen($saltedHash) != 32) {
+    if (mb_strrchr(' ', $saltedHash) || mb_strlen($saltedHash) != 32) {
         error_log(__FUNCTION__ . " failed: new pass $pass contains invalid characters or is not 32 chars long!");
         return false;
     }
@@ -495,7 +505,6 @@ function getUserMetadataFromID($userID)
 
 function getUserStats($user)
 {
-
 }
 
 function getUserUnlockAchievement($user, $achievementID, &$dataOut)
@@ -778,7 +787,7 @@ function getUserActivityRange($user, &$firstLogin, &$lastLogin)
         $firstLogin = $data['FirstLogin'];
         $lastLogin = $data['LastLogin'];
 
-        return ($firstLogin !== null || $lastLogin !== null);
+        return $firstLogin !== null || $lastLogin !== null;
     }
 
     return false;
@@ -1045,8 +1054,7 @@ function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements,
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 if ($db_entry['Local'] == 1) {
                     $libraryOut['Friendship'] = $db_entry['Friendship'];
-                } else //if( $db_entry['Local'] == 0 )
-                {
+                } else { //if( $db_entry['Local'] == 0 )
                     $libraryOut['FriendReciprocation'] = $db_entry['Friendship'];
                 }
             }
@@ -1113,11 +1121,9 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
         $permsFilter = "ua.Permissions >= $perms ";
     } else {
-        if ($showUntracked) // if reach this point, show only untracked users
-        {
+        if ($showUntracked) { // if reach this point, show only untracked users
             $whereQuery = "WHERE ua.Untracked ";
-        } else // perms invalid and do not show untracked? get outta here!
-        {
+        } else { // perms invalid and do not show untracked? get outta here!
             return 0;
         }
     }
@@ -1508,8 +1514,8 @@ function SetUserTrackedStatus($usernameIn, $isUntracked)
 /**
  * Returns the information displayed in the usercard.
  *
- * @param string $user The user to get information for.
- * @param array $userCardInfo Information to be dispaled in the user card.
+ * @param string $user the user to get information for
+ * @param array $userCardInfo information to be dispaled in the user card
  */
 function getUserCardData($user, &$userCardInfo)
 {
@@ -1615,5 +1621,5 @@ function recalculateDevelopmentContributions($user)
 
     $dbResult = s_mysql_query($query);
 
-    return ($dbResult != false);
+    return $dbResult != false;
 }

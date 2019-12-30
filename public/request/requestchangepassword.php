@@ -13,8 +13,8 @@ $passResetToken = seekPOST('t');
 $newpass1 = seekPOST('x');
 $newpass2 = seekPOST('y');
 
-if (strlen($newpass1) < 2 ||
-    strlen($newpass2) < 2) {
+if (mb_strlen($newpass1) < 2 ||
+    mb_strlen($newpass2) < 2) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
 } else {
     if ($newpass1 !== $newpass2) {

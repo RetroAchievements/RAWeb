@@ -20,18 +20,18 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     if ($overloadVideoID !== 0 && isset($archiveURLs[$overloadVideoID])) {
         $vidTitle = htmlspecialchars($archiveURLs[$overloadVideoID]['Title']);
         $vidURL = $archiveURLs[$overloadVideoID]['Link'];
-        $vidChapter = substr($vidURL, strrpos($vidURL, "/") + 1);
+        $vidChapter = mb_substr($vidURL, mb_strrpos($vidURL, "/") + 1);
 
         $videoHTML = '<iframe
-    src="https://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'"
-    height="'.$vidHeight.'"
-    width="'.$vidWidth.'"
+    src="https://player.twitch.tv/?' . getenv('TWITCH_CHANNEL') . '"
+    height="' . $vidHeight . '"
+    width="' . $vidWidth . '"
     frameborder="0"
     scrolling="no"
     allowfullscreen="true">
 </iframe>';
 
-        //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+    //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
         $muted = 'false';
         if (isAtHome()) {

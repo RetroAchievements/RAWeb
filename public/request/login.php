@@ -21,7 +21,7 @@ if (validateUser($user, $pass, $fbUser, 0)) {
 
     header("Location: " . getenv('APP_URL') . "$redir");
 } else {
-    if (isset($redir) && stristr($redir, "?")) {
+    if (isset($redir) && mb_stristr($redir, "?")) {
         header("Location: " . getenv('APP_URL') . "$redir&e=incorrectpassword"); //	if redir has a query string, append errorcode!
     } else {
         header("Location: " . getenv('APP_URL') . "$redir?e=incorrectpassword");

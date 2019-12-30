@@ -39,7 +39,7 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
             echo "<td>$datePosted $postedAt</td>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv( $author, TRUE );
+            echo GetUserAndTooltipDiv($author, true);
             echo "</td>";
 
             echo "<td class='recentforummsg'>$shortMsg<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID'>[view]</a></td>";

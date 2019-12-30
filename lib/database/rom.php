@@ -81,7 +81,7 @@ function getGameIDFromMD5($md5)
 function getHashList($offset, $count, $searchedHash)
 {
     $searchQuery = "";
-    if (!is_null($searchedHash) || $searchedHash != "") {
+    if ($searchedHash !== null || $searchedHash != "") {
         $offset = 0;
         $count = 1;
         $searchQuery = " WHERE h.MD5='" . $searchedHash . "'";

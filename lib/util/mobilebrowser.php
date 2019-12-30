@@ -4,18 +4,18 @@ function IsMobileBrowser()
     $mobile_browser = '0';
 
     if (isset($_SERVER['HTTP_ACCEPT'])) {
-        if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') > 0) ||
+        if ((mb_strpos(mb_strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') > 0) ||
             ((isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])))) {
             $mobile_browser++;
         }
     }
 
     if (isset($_SERVER['HTTP_USER_AGENT'])) {
-        if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone|android)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
+        if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone|android)/i', mb_strtolower($_SERVER['HTTP_USER_AGENT']))) {
             $mobile_browser++;
         }
 
-        $mobile_ua = strtolower(substr($_SERVER['HTTP_USER_AGENT'], 0, 4));
+        $mobile_ua = mb_strtolower(mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 4));
         $mobile_agents = [
             'w3c ',
             'acs-',
@@ -114,7 +114,7 @@ function IsMobileBrowser()
     //    $mobile_browser++;
     //}
 
-    if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'windows') > 0)) {
+    if (isset($_SERVER['HTTP_USER_AGENT']) && (mb_strpos(mb_strtolower($_SERVER['HTTP_USER_AGENT']), 'windows') > 0)) {
         $mobile_browser = 0;
     }
 

@@ -17,7 +17,7 @@ if (validateUser_cookie($user, $cookie, 0) == true) {
     if (CreateNewMessage($user, $recipient, $title, $payload)) {
         header("Location: " . getenv('APP_URL') . "/inbox.php?e=sentok");
         exit;
-        //echo "OK:Message sent to $recipient!";
+    //echo "OK:Message sent to $recipient!";
     } else {
         echo "FAILED:Could not send message!";
     }

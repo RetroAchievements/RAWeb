@@ -5,6 +5,7 @@ class RetroAchievements
     const API_URL = 'https://retroachievements.org/API/';
 
     public $ra_user;
+
     public $ra_api_key;
 
     public function __construct($user, $api_key)
@@ -90,7 +91,4 @@ class RetroAchievements
         $dateTo = strtotime($dateEnd);
         return json_decode(self::GetRAURL("API_GetAchievementsEarnedBetween.php", "u=$user&f=$dateFrom&t=$dateTo"));
     }
-
 }
-
-;

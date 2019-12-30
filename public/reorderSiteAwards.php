@@ -79,14 +79,11 @@ RenderHtmlHead("Reorder Site Awards");
 
             $imagepath = $awardGameImage;
             $linkdest = "/Game/$awardData";
-        } elseif ($awardType == 2) //    Developed a number of earned achievements
-        {
+        } elseif ($awardType == 2) { //    Developed a number of earned achievements
             $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . $developerCountBoundaries[$awardData] . " times!";
             $awardTitle = "Achievements Earned by Others";
             $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . $developerCountBoundaries[$awardData] . ".png";
-
-        } elseif ($awardType == 3) //    Yielded an amount of points earned by players
-        {
+        } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
             $tooltip = "Awarded for producing many valuable achievements, providing over " . $developerPointBoundaries[$awardData] . " points to the community!";
             $awardTitle = "Achievement Points Earned by Others";
 
@@ -103,8 +100,7 @@ RenderHtmlHead("Reorder Site Awards");
             } else {
                 $imagepath = getenv('APP_STATIC_URL') . "/Badge/00136.png";
             }
-        } elseif ($awardType == 4) //    Referrals
-        {
+        } elseif ($awardType == 4) { //    Referrals
             $tooltip = "Referred $awardData members";
             $awardTitle = "Referral Award";
 
@@ -121,13 +117,11 @@ RenderHtmlHead("Reorder Site Awards");
             } else {
                 $imagepath = getenv('APP_STATIC_URL') . "/Badge/00083.png";
             }
-        } elseif ($awardType == 5) //    Signed up for facebook!
-        {
+        } elseif ($awardType == 5) { //    Signed up for facebook!
             $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
             $awardTitle = "Facebook Association";
             $imagepath = getenv('APP_STATIC_URL') . "/Images/_FBAssoc.png";
-        } elseif ($awardType == 6)  //  Patreon Supporter
-        {
+        } elseif ($awardType == 6) {  //  Patreon Supporter
             $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
             $awardTitle = "Patreon Supporter";
             $imagepath = getenv('APP_STATIC_URL') . '/Badge/PatreonBadge.png';

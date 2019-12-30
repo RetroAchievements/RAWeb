@@ -50,8 +50,13 @@ RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata($pageTitle, "Leaderboard", "$gameIcon", "/leaderboardinfo.php?i=$lbID",
-        "Leaderboard: $lbTitle ($gameTitle, $consoleName): "); ?>
+    <?php RenderOpenGraphMetadata(
+    $pageTitle,
+    "Leaderboard",
+    "$gameIcon",
+    "/leaderboardinfo.php?i=$lbID",
+    "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
+); ?>
     <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>

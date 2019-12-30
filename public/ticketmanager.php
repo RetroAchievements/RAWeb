@@ -80,7 +80,8 @@ if ($ticketID != 0) {
 
     if ($action != null &&
         $ticketState != $ticketData['ReportState'] &&
-        ($permissions >= \RA\Permissions::Developer ||
+        (
+            $permissions >= \RA\Permissions::Developer ||
             $user == $ticketData['ReportedBy']
         )
     ) {
@@ -177,7 +178,6 @@ RenderHtmlHead($pageTitle);
                         echo " &raquo; $achievementTitle";
                     }
                 }
-
             } else {
                 echo "<a href='/ticketmanager.php'>Open Tickets</a>";
                 echo " &raquo; <b>Ticket</b>";
@@ -573,8 +573,7 @@ RenderHtmlHead($pageTitle);
                     echo "<select name='action' required>";
                     echo "<option value='' disabled selected hidden>Choose an action...</option>";
                     if ($reportState == 1) {
-                        if ($user == $reportedBy) // only the reporter can close as a mistaken report
-                        {
+                        if ($user == $reportedBy) { // only the reporter can close as a mistaken report
                             echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
                         }
 
@@ -586,8 +585,7 @@ RenderHtmlHead($pageTitle);
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
-                    } else // ticket is not open
-                    {
+                    } else { // ticket is not open
                         echo "<option value='reopen'>Reopen this ticket</option>";
                     }
 
@@ -635,7 +633,6 @@ RenderHtmlHead($pageTitle);
                     echo "</div>"; //   devboxcontent
                     echo "</div>"; //   devbox
                 }
-
             }
         }
         echo "</div>";

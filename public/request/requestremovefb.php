@@ -11,7 +11,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     if ($dbResult !== false) {
         //	TBD: check this manually!?
         header("location: " . getenv('APP_URL') . "/controlpanel.php");
-        //echo "Updated Successfully! $user is no longer associated with facebook.";
+    //echo "Updated Successfully! $user is no longer associated with facebook.";
     } else {
         error_log($query);
         error_log("requestremovefb.php db access failed - update query fail!?");

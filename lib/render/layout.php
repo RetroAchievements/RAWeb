@@ -35,7 +35,7 @@ function RenderSharedHeader()
     echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' type='text/css' media='screen' />\n";
 
     $customCSS = RA_ReadCookie('RAPrefs_CSS');
-    if ($customCSS !== false && strlen($customCSS) > 2) {
+    if ($customCSS !== false && mb_strlen($customCSS) > 2) {
         echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' type='text/css' media='screen' />\n";
     }
 
@@ -391,10 +391,10 @@ function RenderThemeSelector()
 
     $cssFileList = [];
     foreach ($dirContent as $filename) {
-        $fileStart = strpos($filename, "rac_");
+        $fileStart = mb_strpos($filename, "rac_");
         if ($fileStart !== false) {
-            $filename = substr($filename, $fileStart + 4);
-            $filename = substr($filename, 0, strlen($filename) - 4);
+            $filename = mb_substr($filename, $fileStart + 4);
+            $filename = mb_substr($filename, 0, mb_strlen($filename) - 4);
             $cssFileList[] = $filename;
         }
     }
@@ -410,4 +410,3 @@ function RenderThemeSelector()
     }
     echo "</select>";
 }
-

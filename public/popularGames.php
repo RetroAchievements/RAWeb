@@ -76,7 +76,7 @@ RenderHtmlHead("Most Popular Games");
             echo "<tr>";
 
             echo "<td>";
-            echo ($count) + ($offset);
+            echo($count) + ($offset);
             echo "</td>";
 
             echo "<td style='min-width:30%'>";

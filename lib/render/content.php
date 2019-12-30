@@ -134,8 +134,8 @@ function RenderDeveloperStats($user, $type)
             echo "<td>$rank</td>";
 
             echo "<td><div class='fixheightcell'>";
-            echo GetUserAndTooltipDiv( $developer, TRUE );
-            echo GetUserAndTooltipDiv( $developer, FALSE );
+            echo GetUserAndTooltipDiv($developer, true);
+            echo GetUserAndTooltipDiv($developer, false);
             echo "</div></td>";
 
             echo "<td>$numAchievements</td>";

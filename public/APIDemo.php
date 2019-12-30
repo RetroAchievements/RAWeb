@@ -26,8 +26,8 @@ RenderHtmlHead("RetroAchievements API Demo (PHP)");
         // echo "This page will visually demonstrate some of the functionality of the RetroAchievements PHP API.";
         echo "Click <a href='/request/GetRA_API.php'>here</a> to download an example PHP API client class.";
         // echo "Once added, you will be able to create a <code>RetroAchievements</code>
-		// object and call functions on it, as demonstrated below. Note all <code>highlighted code</code> refers to a line of code in PHP.";
-		echo "Please note, this is a beta offering and only supports read-only access to data that can already be found on the site.";
+        // object and call functions on it, as demonstrated below. Note all <code>highlighted code</code> refers to a line of code in PHP.";
+        echo "Please note, this is a beta offering and only supports read-only access to data that can already be found on the site.";
         echo "No personal/user data can be accessed using this API beyond what is already publicly accessible for every user (username, avatar, motto and activity).";
         echo "</p>";
 
@@ -74,7 +74,7 @@ RenderHtmlHead("RetroAchievements API Demo (PHP)");
         echo '<div class=\'CodeDiv\' id=\'ctorDiv\'>';
         echo '<p>';
         // echo 'First, you must take a copy of the RA_API.php file, store it on your server, and in the file you wish to use, create an instance of the RetroAchievements object.
-		//  This only needs to be done once per pageload. ';
+        //  This only needs to be done once per pageload. ';
         if (isset($user)) {
             echo '<b>Note: YOUR unique username and API Key are shown in the example below. Please keep your API Key safe, and do not share it! It is unique to your user account.</b>';
         }

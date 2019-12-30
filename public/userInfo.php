@@ -5,7 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $userPage = strip_tags(seekGET('ID'));
-if ($userPage == null || strlen($userPage) == 0) {
+if ($userPage == null || mb_strlen($userPage) == 0) {
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -46,7 +46,7 @@ $userAwards = getUsersSiteAwards($userPage);
 $totalPctWon = 0.0;
 $numGamesFound = 0;
 
-$userCompletedGames = Array();
+$userCompletedGames = array();
 
 //    Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
@@ -127,8 +127,13 @@ $userPagePoints = getScore($userPage);
 
 $daysRecentProgressToShow = 14; //    fortnight
 
-$userScoreData = getAwardedList($userPage, 0, 1000,
-    date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow), date("Y-m-d H:i:s", time()));
+$userScoreData = getAwardedList(
+    $userPage,
+    0,
+    1000,
+    date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),
+    date("Y-m-d H:i:s", time())
+);
 
 //    Also add current.
 $numScoreDataElements = count($userScoreData);
@@ -154,8 +159,13 @@ RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata($userPage, "user", "/UserPic/$userPage" . ".png", "/User/$userPage",
-        "User page for $userPage"); ?>
+    <?php RenderOpenGraphMetadata(
+    $userPage,
+    "user",
+    "/UserPic/$userPage" . ".png",
+    "/User/$userPage",
+    "User page for $userPage"
+); ?>
     <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -252,7 +262,7 @@ RenderHtmlStart(true);
         echo "<span class='username'><a href='/User/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
         echo "</div>"; //username
 
-        if (isset($userMotto) && strlen($userMotto) > 1) {
+        if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
             echo "<span class='usermotto'>$userMotto</span>";
             echo "</div>"; //mottocontainer
@@ -294,8 +304,14 @@ RenderHtmlStart(true);
             echo "<div class='mottocontainer'>Last seen ";
             if (!empty($userMassData['LastGameID'])) {
                 $game = getGameData($userMassData['LastGameID']);
-                echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false,
-                        22) . '<br>';
+                echo ' in ' . GetGameAndTooltipDiv(
+                    $game['ID'],
+                    $game['Title'],
+                    $game['ImageIcon'],
+                    null,
+                    false,
+                    22
+                ) . '<br>';
             }
             echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
         }
@@ -337,8 +353,7 @@ RenderHtmlStart(true);
 
             if ($userMassData['Friendship'] !== -1) {
                 echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
-            } else //if( $userMassData['Friendship'] == -1 )
-            {
+            } else { //if( $userMassData['Friendship'] == -1 )
                 echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
@@ -462,8 +477,10 @@ RenderHtmlStart(true);
 
                     $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasualVal * 100.0);
                     $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
-                    $pctComplete = sprintf("%01.0f",
-                        (($numAchieved + $numAchievedHardcore) * 100.0 / $numPossibleAchievements));
+                    $pctComplete = sprintf(
+                        "%01.0f",
+                        (($numAchieved + $numAchievedHardcore) * 100.0 / $numPossibleAchievements)
+                    );
                 }
 
                 echo "<div class='progressbar'>";
@@ -509,8 +526,19 @@ RenderHtmlStart(true);
                             }
                         }
 
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle,
-                            $badgeName, true, true, $unlockedStr, 48, $class);
+                        echo GetAchievementAndTooltipDiv(
+                            $achID,
+                            $achTitle,
+                            $achDesc,
+                            $achPoints,
+                            $gameTitle,
+                            $badgeName,
+                            true,
+                            true,
+                            $unlockedStr,
+                            48,
+                            $class
+                        );
                         //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                     }
                 }
@@ -532,8 +560,14 @@ RenderHtmlStart(true);
         if ($userWallActive) {
             echo "<h4>User Wall</h4>";
             $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $userPageID, 3,
-                $forceAllowDeleteComments);
+            RenderCommentsComponent(
+                $user,
+                $numArticleComments,
+                $commentData,
+                $userPageID,
+                3,
+                $forceAllowDeleteComments
+            );
         }
 
         echo "</div>";

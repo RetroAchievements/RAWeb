@@ -20,7 +20,7 @@ function RA_SetCookie($cookieName, $cookieValue)
 
 function RA_CookieExists($cookieName)
 {
-    return (isset($_COOKIE) &&
+    return isset($_COOKIE) &&
         array_key_exists($cookieName, $_COOKIE) &&
-        $_COOKIE[$cookieName] !== false);
+        $_COOKIE[$cookieName] !== false;
 }

@@ -41,7 +41,7 @@ function UploadUserPic($user, $filename, $rawImage)
         $extension = end($segmentParts);
     }
 
-    $extension = strtolower($extension);
+    $extension = mb_strtolower($extension);
 
     //	Trim declaration
     $rawImage = str_replace('data:image/png;base64,', '', $rawImage);
@@ -109,7 +109,7 @@ function UploadUserPic($user, $filename, $rawImage)
         if ($success == false) {
             error_log("UploadUserPic failed: Issues copying from $tempFile to UserPic/$user.png");
             $response['Error'] = "Issues copying from $tempFile to UserPic/$user.png";
-            //echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
+        //echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         } else {
             // touch user entry
             global $db;
@@ -141,7 +141,7 @@ function UploadBadgeImage($file)
 
     $allowedExts = ["png", "jpeg", "jpg", "gif"];
     $filenameParts = explode(".", $filename);
-    $extension = strtolower(end($filenameParts));
+    $extension = mb_strtolower(end($filenameParts));
 
     if ($filesize > 1048576) {
         $response['Error'] = "Error: image too big ($filesize)! Must be smaller than 1mb!";

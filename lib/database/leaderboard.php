@@ -75,8 +75,7 @@ function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
                 //    (New) Entry added!
                 $retVal['BestScore'] = $newEntry;
                 postActivity($user, ActivityType::NewLeaderboardEntry, $scoreData);
-            } else //if( $numRowsAffected == 2 )
-            {
+            } else { //if( $numRowsAffected == 2 )
                 //    Improved Entry added!
                 $retVal['BestScore'] = $newEntry;
                 postActivity($user, ActivityType::ImprovedLeaderboardEntry, $scoreData);
@@ -676,7 +675,7 @@ function requestResetLB($lbID)
               WHERE LeaderboardID = $lbID";
     $dbResult = s_mysql_query($query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function requestDeleteLB($lbID)
@@ -690,7 +689,7 @@ function requestDeleteLB($lbID)
     if ($dbResult !== false) {
         s_mysql_query("INSERT INTO DeletedModels SET ModelType='LeaderboardDef', ModelID=$lbID");
     }
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function GetLBPatch($gameID)

@@ -59,7 +59,7 @@ function RenderStaticDataComponent($staticData)
     echo "<br>";
 
     echo "The last registered user was ";
-    echo GetUserAndTooltipDiv( $lastRegisteredUser, FALSE );
+    echo GetUserAndTooltipDiv($lastRegisteredUser, false);
     //echo "<a href='/User/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br>";
 

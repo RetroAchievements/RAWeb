@@ -31,7 +31,7 @@ if (explode(".", $filename) !== false) {
     $extension = end($segmentParts);
 }
 
-$extension = strtolower($extension);
+$extension = mb_strtolower($extension);
 
 //	Trim declaration
 $rawImage = str_replace('data:image/png;base64,', '', $rawImage);
@@ -82,13 +82,11 @@ if ($success) {
         $maxImageSizeWidth = 530;
         $maxImageSizeHeight = 280;
     } else {
-        if ($uploadType == "GAME_ICON") //	ICON
-        {
+        if ($uploadType == "GAME_ICON") { //	ICON
             $maxImageSizeWidth = 96;
             $maxImageSizeHeight = 96;
         } else {
-            if ($uploadType == "GAME_TITLE" || $uploadType == "GAME_INGAME")  //	Screenshot
-            {
+            if ($uploadType == "GAME_TITLE" || $uploadType == "GAME_INGAME") {  //	Screenshot
                 $maxImageSizeWidth = 320;
                 $maxImageSizeHeight = 240;
             } else {

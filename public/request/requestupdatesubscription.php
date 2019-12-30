@@ -7,7 +7,7 @@ $returnUrl = seekPOST("return_url");
 $subjectType = seekPOST("subject_type");
 $subjectID = seekPOST("subject_id");
 
-if (is_null($subjectType) || is_null($subjectID) || is_null($returnUrl)) {
+if ($subjectType === null || $subjectID === null || $returnUrl === null) {
     exit;
 }
 

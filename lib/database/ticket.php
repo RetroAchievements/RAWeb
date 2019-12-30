@@ -199,7 +199,7 @@ $bugReportDetails";
         $summaryMsgOut = "FAILED!";
     }
 
-    return ($errorsEncountered == false);
+    return $errorsEncountered == false;
 }
 
 function getAllTickets(

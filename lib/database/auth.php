@@ -21,7 +21,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
         if ($row['SaltedPass'] == $saltedHash) {
             $fbUser = $row['fbUser'];
             $user = $row['User'];
-            return ($row['Permissions'] >= $permissionRequired);
+            return $row['Permissions'] >= $permissionRequired;
         } else {
             error_log(__FUNCTION__ . " failed: passwords don't match for user:$user pass:" . $row['SaltedPass']);
             return false;
@@ -32,8 +32,15 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 function validateUser_app(&$user, $token, &$fbUser, $permissionRequired)
 {
     $fbUser = 0; //    TBD: Remove!
-    return RA_ReadTokenCredentials($user, $token, $pointsUnused, $truePointsUnused, $unreadMessagesUnused,
-        $permissionsUnused, $permissionRequired);
+    return RA_ReadTokenCredentials(
+        $user,
+        $token,
+        $pointsUnused,
+        $truePointsUnused,
+        $unreadMessagesUnused,
+        $permissionsUnused,
+        $permissionRequired
+    );
 }
 
 function validateUser_cookie(&$user, $cookie, $permissionRequired, &$permissions = 0)
@@ -45,7 +52,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
 {
     $userOut = RA_ReadCookie("RA_User");
     $cookie = RA_ReadCookie("RA_Cookie");
-    if (strlen($userOut) < 2 || strlen($cookie) < 2 || !isValidUsername($userOut)) {
+    if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 2 || !isValidUsername($userOut)) {
         //    There is no cookie
         return false;
     } else {
@@ -61,7 +68,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
                 $pointsOut = $data['RAPoints'];
                 $userOut = $data['User']; //    Case correction
                 $permissionsOut = $data['Permissions'];
-                return ($permissionsOut >= $permissionRequired);
+                return $permissionsOut >= $permissionRequired;
             } else {
                 error_log(__FUNCTION__ . " failed: cookie doesn't match for user:$userOut (given: $cookie, should be " . $data['cookie'] . ")");
                 return false;
@@ -93,7 +100,7 @@ function RA_ReadCookieCredentials(
     $unreadMessagesOut = 0;
     $permissionOut = 0;
 
-    if (strlen($userOut) < 2 || strlen($cookie) < 10 || !isValidUsername($userOut)) {
+    if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 10 || !isValidUsername($userOut)) {
         RA_ClearCookie('RA_User');
         RA_ClearCookie('RA_Cookie');
         $userOut = null;
@@ -135,7 +142,7 @@ function RA_ReadCookieCredentials(
 
             //    Only compare if requested, otherwise return true meaning 'logged in'
             if (isset($minPermissions)) {
-                return ($permissionOut >= $minPermissions);
+                return $permissionOut >= $minPermissions;
             } else {
                 return true;
             }
@@ -173,7 +180,7 @@ function RA_ReadTokenCredentials(
         if ($row['appToken'] == $token) {
             $userOut = $row['User']; //    Case correction
             if (isset($permissionRequired)) {
-                return ($permissionOut >= $permissionRequired);
+                return $permissionOut >= $permissionRequired;
             } else {
                 return true;
             }
@@ -244,7 +251,7 @@ function LogSuccessfulAPIAccess($user)
 
 function ValidateAPIKey($user, $key)
 {
-    if (strlen($key) < 20 || !isValidUsername($user)) {
+    if (mb_strlen($key) < 20 || !isValidUsername($user)) {
         return false;
     }
 
@@ -264,7 +271,7 @@ function ValidateAPIKey($user, $key)
     LogSuccessfulAPIAccess($user);
 
     $data = mysqli_fetch_assoc($dbResult);
-    return ($data['COUNT(*)'] != 0);
+    return $data['COUNT(*)'] != 0;
 }
 
 function RemovePasswordResetToken($username, $passwordResetToken)
@@ -285,7 +292,7 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken)
 
     $retVal = [];
 
-    if (strlen($passwordResetToken) == 20) {
+    if (mb_strlen($passwordResetToken) == 20) {
         $query = "SELECT * FROM UserAccounts AS ua "
             . "WHERE ua.User='$usernameIn' AND ua.PasswordResetToken='$passwordResetToken'";
 

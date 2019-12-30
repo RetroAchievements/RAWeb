@@ -111,9 +111,7 @@ RenderHtmlHead("Search");
                     echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
                 }
                 echo "</div>";
-
             }
-
         }
         ?>
         <br>

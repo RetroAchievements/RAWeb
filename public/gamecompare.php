@@ -55,7 +55,7 @@ if (isset($achievementData)) {
 }
 
 RenderHtmlStart();
-RenderHtmlHead( "Game Compare");
+RenderHtmlHead("Game Compare");
 ?>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>

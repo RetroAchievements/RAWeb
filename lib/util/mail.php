@@ -157,13 +157,11 @@ function sendFriendEmail($user, $email, $type, $friend)
     $link = '';
     $emailReason = '';
 
-    if ($type == 0) //    Requesting to be your friend
-    {
+    if ($type == 0) { //    Requesting to be your friend
         $emailTitle = "New Friend Request from $friend";
         $emailReason = "sent you a friend request";
         $link = "<a href='" . getenv('APP_URL') . "/User/$friend'>here</a>";
-    } elseif ($type == 1) //    Friend request confirmed
-    {
+    } elseif ($type == 1) { //    Friend request confirmed
         $emailTitle = "New Friend confirmed: $friend";
         $emailReason = "confirmed your friend request";
         $link = "<a href='" . getenv('APP_URL') . "/User/$friend'>here</a>";
@@ -213,42 +211,36 @@ function sendActivityEmail(
     $activityDescription = '';
 
 
-    if ($articleType == 1) //    Game (wall)
-    {
+    if ($articleType == 1) { //    Game (wall)
         $emailTitle = "New Game Wall Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/Game/$actID'>here</a>";
         $activityDescription = "A game wall discussion you've commented in";
-    } elseif ($articleType == 2) //    Achievement: sending mail to person who authored an achievement
-    {
+    } elseif ($articleType == 2) { //    Achievement: sending mail to person who authored an achievement
         $emailTitle = "New Achievement Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/achievement/$actID'>here</a>";
         $activityDescription = "An achievement you created";
         if (isset($threadInvolved)) {
             $activityDescription = "An achievement page discussion you've commented in";
         }
-    } elseif ($articleType == 3) //    User (wall)
-    {
+    } elseif ($articleType == 3) { //    User (wall)
         $emailTitle = "New User Wall Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/User/$altURLTarget'>here</a>";
         $activityDescription = "Your user wall";
         if (isset($threadInvolved)) {
             $activityDescription = "A user wall discussion you've commented in";
         }
-    } elseif ($articleType == 6) //    Forum thread
-    {
+    } elseif ($articleType == 6) { //    Forum thread
         $emailTitle = "New Forum Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/$altURLTarget'>here</a>";
         $activityDescription = "A forum thread you've commented in";
-    } elseif ($articleType == 7) //    Ticket
-    {
+    } elseif ($articleType == 7) { //    Ticket
         $emailTitle = "New Ticket Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$actID'>here</a>";
         $activityDescription = "A ticket you've reported";
         if (isset($threadInvolved)) {
             $activityDescription = "A ticket you've commented on";
         }
-    } else //if( $articleType == 5 )    //    Activity
-    {
+    } else { //if( $articleType == 5 )    //    Activity
         //    Also used for Generic text:
         $emailTitle = "New Activity Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/feed.php?a=$actID'>here</a>";

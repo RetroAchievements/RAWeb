@@ -52,4 +52,3 @@ static_setnextusertoscan($userID);
 
 $date = date('Y/m/d H:i:s');
 echo "[$date] cron_1m run, game ID now $gameID, user now at $userID ($user)\r\n";
-	

@@ -118,7 +118,7 @@ if ($credentialsOK) {
             } else {
                 echo "OK:$gameID:";
                 foreach ($codeNotesOut as $codeNote) {
-                    if (strlen($codeNote['Note']) > 2) {
+                    if (mb_strlen($codeNote['Note']) > 2) {
                         $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
                         echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";
                     }

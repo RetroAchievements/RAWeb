@@ -297,7 +297,7 @@ RenderHtmlHead($pageTitle);
             echo "<td colspan='4'>";
             $memChunks = explode("::", $lbMem);
             foreach ($memChunks as &$memChunk) {
-                $memChunk = substr($memChunk, 4);    //	Remove STA: CAN: SUB: and VAL:
+                $memChunk = mb_substr($memChunk, 4);    //	Remove STA: CAN: SUB: and VAL:
             }
             //var_dump( $memChunks );
             //echo "<input typ
@@ -415,10 +415,10 @@ RenderHtmlHead($pageTitle);
 
 <?php
 if (count($codeNotes) > 0 && $permissions >= 3) {
-    echo "<div id='rightcontainer'>";
-    RenderCodeNotes($codeNotes);
-    echo "</div>";
-}
+        echo "<div id='rightcontainer'>";
+        RenderCodeNotes($codeNotes);
+        echo "</div>";
+    }
 ?>
 
 </div>

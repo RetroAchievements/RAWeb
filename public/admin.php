@@ -17,8 +17,16 @@ $saltPass = md5($rawPass . getenv('RA_PASSWORD_SALT'));
 $appToken = "INbOEl5bviMEmU4b";
 
 $reqAchievementID = 1;
-$reqAchievementValidation = sprintf("%d,%d-%s.%s-%d132%s2A%slLIA", $reqAchievementID, (strlen($testUser) * 3) + 1,
-    $testUser, $appToken, $reqAchievementID, $testUser, "WOAHi2");
+$reqAchievementValidation = sprintf(
+    "%d,%d-%s.%s-%d132%s2A%slLIA",
+    $reqAchievementID,
+    (mb_strlen($testUser) * 3) + 1,
+    $testUser,
+    $appToken,
+    $reqAchievementID,
+    $testUser,
+    "WOAHi2"
+);
 
 $awardAchievementID = seekPOST('a');
 $awardAchievementUser = seekPOST('u');
@@ -64,16 +72,16 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
         $output = ($chunk = fread($f, $seek)) . $output;
 
         // Jump back to where we started reading
-        fseek($f, -strlen($chunk), SEEK_CUR);
+        fseek($f, -mb_strlen($chunk), SEEK_CUR);
 
         // Decrease our line counter
-        $lines -= substr_count($chunk, "\n");
+        $lines -= mb_substr_count($chunk, "\n");
     }
 
     while ($lines++ < 0) {
 
         // Find first newline and remove all text before that
-        $output = substr($output, strpos($output, "\n") + 1);
+        $output = mb_substr($output, mb_strpos($output, "\n") + 1);
     }
 
     // Close file and return
@@ -285,7 +293,7 @@ if (seekGET('action') == 'regenapi') {
                                 }
                             }
 
-                            if (isset($nextFBUser) && strlen($nextFBUser) > 2) {
+                            if (isset($nextFBUser) && mb_strlen($nextFBUser) > 2) {
                                 echo "$nextUser has signed up for FB, add FB award!<br>";
                                 AddSiteAward($nextUser, 5, 0);
                             }
@@ -314,8 +322,15 @@ if (seekGET('action') == 'regenapi') {
                             if (isset($awardAchievementID) && isset($awardAchievementUser)) {
                                 $ids = explode(',', $awardAchievementID);
                                 foreach ($ids as $nextID) {
-                                    if (addEarnedAchievement($awardAchievementUser, '', $nextID, 0, $newPointTotal,
-                                        $awardAchHardcore, false)) {
+                                    if (addEarnedAchievement(
+                                        $awardAchievementUser,
+                                        '',
+                                        $nextID,
+                                        0,
+                                        $newPointTotal,
+                                        $awardAchHardcore,
+                                        false
+                                    )) {
                                         echo " - Updated $awardAchievementUser's score to $newPointTotal!<br>";
                                     }
                                 }

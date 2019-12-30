@@ -28,7 +28,7 @@ function RenderCodeNotes($codeNotes)
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextCodeNote['User'], TRUE );
+        echo GetUserAndTooltipDiv($nextCodeNote['User'], true);
         echo "</td>";
 
         echo "</tr>";

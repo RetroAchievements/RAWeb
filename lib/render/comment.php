@@ -19,11 +19,9 @@ function RenderCommentsComponent(
     }
     echo "</div>";
 
-    if (isset($user))
-    {
+    if (isset($user)) {
         $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleTypeID);
-        if (!is_null($subjectType))
-        {
+        if ($subjectType !== null) {
             $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
             echo "<div class='smalltext rightfloat'>";
             RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed);
@@ -45,7 +43,7 @@ function RenderCommentsComponent(
         $dow = date("d/m", $nextTime);
         if ($lastKnownDate == 'Init') {
             $lastKnownDate = $dow;
-            //echo "<tr><td class='date'>$dow:</td></tr>";
+        //echo "<tr><td class='date'>$dow:</td></tr>";
         } elseif ($lastKnownDate !== $dow) {
             $lastKnownDate = $dow;
             //echo "<tr><td class='date'><br>$dow:</td></tr>";
@@ -58,8 +56,16 @@ function RenderCommentsComponent(
         $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID);
         $canDeleteComments |= $forceAllowDeleteComments;
 
-        RenderArticleComment($articleID, $commentData[$i]['User'], $commentData[$i]['CommentPayload'],
-            $commentData[$i]['Submitted'], $user, $articleTypeID, $commentData[$i]['ID'], $canDeleteComments);
+        RenderArticleComment(
+            $articleID,
+            $commentData[$i]['User'],
+            $commentData[$i]['CommentPayload'],
+            $commentData[$i]['Submitted'],
+            $user,
+            $articleTypeID,
+            $commentData[$i]['ID'],
+            $canDeleteComments
+        );
     }
 
     if (isset($user)) {
@@ -106,7 +112,7 @@ function RenderArticleComment(
     $niceDate = date("j M\nG:i Y ", $submittedDate);
 
     echo "<td alt='Test' class='smalldate'>$niceDate</td>";
-    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv( $user, TRUE ) . "</td>";
+    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv($user, true) . "</td>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";

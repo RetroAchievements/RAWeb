@@ -304,7 +304,7 @@ function getGamesListWithNumAchievements($consoleID, &$dataOut, $sortBy)
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy, false);
 }
 
-function getGamesListByDev($dev = null, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false)
+function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false)
 {
     //    Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
@@ -595,7 +595,7 @@ function requestModifyGameData($gameID, $developerIn, $publisherIn, $genreIn, $r
         error_log(__FUNCTION__ . " OK! GameID: $gameID, text: $developer, $publisher, $genre, $released");
     }
 
-    return ($dbResult != null);
+    return $dbResult != null;
 }
 
 function requestModifyGame($author, $gameID, $field, $value)
@@ -605,7 +605,7 @@ function requestModifyGame($author, $gameID, $field, $value)
     settype($field, 'integer');
     switch ($field) {
         case 1: // Title
-            if (!isset($value) || strlen($value) < 2) {
+            if (!isset($value) || mb_strlen($value) < 2) {
                 log_email("bad data $author, $gameID, $field, $value");
                 return false;
             }
@@ -620,7 +620,7 @@ function requestModifyGame($author, $gameID, $field, $value)
 
             $dbResult = mysqli_query($db, $query);
 
-            return ($dbResult !== false);
+            return $dbResult !== false;
             break;
 
         /**
@@ -639,7 +639,7 @@ function requestModifyGame($author, $gameID, $field, $value)
             log_sql("$user: $query");
             $dbResult = s_mysql_query($query);
 
-            return ($dbResult !== false);
+            return $dbResult !== false;
             break;
     }
 
@@ -886,7 +886,7 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
 //////////////////////////////////////////////////////////////////////////////////////////
 function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$idOut)
 {
-    if (!isset($md5) || strlen($md5) != 32) {
+    if (!isset($md5) || mb_strlen($md5) != 32) {
         log_email("invalid md5 provided ($md5) by $user, $gameTitleDest");
         return false;
     }
@@ -994,11 +994,11 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
         error_log(__FUNCTION__ . " User unset? Ignoring");
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
         $retVal['Success'] = false;
-    } elseif (strlen($md5) != 32) {
+    } elseif (mb_strlen($md5) != 32) {
         error_log(__FUNCTION__ . " Md5 unready? Ignoring");
         $retVal['Error'] = "MD5 provided ($md5) doesn't appear to be exactly 32 characters, this request is invalid.";
         $retVal['Success'] = false;
-    } elseif (strlen($titleIn) < 2) {
+    } elseif (mb_strlen($titleIn) < 2) {
         error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
@@ -1072,7 +1072,7 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
         return false;
     }
 
-    if (strlen($titleIn) < 2) {
+    if (mb_strlen($titleIn) < 2) {
         error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         return false;
     }

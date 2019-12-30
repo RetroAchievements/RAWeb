@@ -24,7 +24,7 @@ function GetGameAndTooltipDiv(
     $tooltipIconSize = 64; //96;
 
     $consoleStr = '';
-    if ($consoleName !== null && strlen($consoleName) > 2) {
+    if ($consoleName !== null && mb_strlen($consoleName) > 2) {
         $consoleStr = "($consoleName)";
     }
 
@@ -158,8 +158,7 @@ function RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicI
         echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
     } else {
         echo "No forum topic";
-        if (isset($user) && $permissions >= Permissions::Developer)
-        {
+        if (isset($user) && $permissions >= Permissions::Developer) {
             echo " - <a href='/request/generategameforumtopic.php?u=$user&c=$cookie&g=$gameID'>Create the official forum topic for $gameTitle</a>";
         }
     }

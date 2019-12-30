@@ -109,11 +109,11 @@ if (isset($achievementData)) {
     foreach ($achievementData as &$nextAch) {
         // Add author to array if it's not already there and initialize achievement count for that author.
         if (!in_array($nextAch['Author'], $authorName)) {
-            $authorName[strtolower($nextAch['Author'])] = $nextAch['Author'];
-            $authorCount[strtolower($nextAch['Author'])] = 1;
+            $authorName[mb_strtolower($nextAch['Author'])] = $nextAch['Author'];
+            $authorCount[mb_strtolower($nextAch['Author'])] = 1;
         } // If author is already in array then increment the achievement count for that author.
         else {
-            $authorCount[strtolower($nextAch['Author'])]++;
+            $authorCount[mb_strtolower($nextAch['Author'])]++;
         }
 
         $totalPossible += $nextAch['Points'];
@@ -138,8 +138,13 @@ RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/Game/$gameID",
-        "Game Info for $gameTitle ($consoleName)"); ?>
+    <?php RenderOpenGraphMetadata(
+    $pageTitle,
+    "game",
+    $gameData['ImageIcon'],
+    "/Game/$gameID",
+    "Game Info for $gameTitle ($consoleName)"
+); ?>
     <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -552,18 +557,26 @@ RenderHtmlStart(true);
 
                 $isSubscribedToTickets = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameTickets, $gameID, $userID);
                 echo "<li>";
-                RenderUpdateSubscriptionForm("updateticketssub", \RA\SubscriptionSubjectType::GameTickets,
-                    $gameID, $isSubscribedToTickets);
+                RenderUpdateSubscriptionForm(
+                    "updateticketssub",
+                    \RA\SubscriptionSubjectType::GameTickets,
+                    $gameID,
+                    $isSubscribedToTickets
+                );
                 echo "<a href='#' onclick='document.getElementById(\"updateticketssub\").submit(); return false;'>";
-                echo ($isSubscribedToTickets ? "Unsubscribe from" : "Subscribe to") . " Tickets";
+                echo($isSubscribedToTickets ? "Unsubscribe from" : "Subscribe to") . " Tickets";
                 echo "</a></li>";
 
                 $isSubscribedToAchievements = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameAchievements, $gameID, $userID);
                 echo "<li>";
-                RenderUpdateSubscriptionForm("updateachievementssub", \RA\SubscriptionSubjectType::GameAchievements,
-                    $gameID, $isSubscribedToAchievements);
+                RenderUpdateSubscriptionForm(
+                    "updateachievementssub",
+                    \RA\SubscriptionSubjectType::GameAchievements,
+                    $gameID,
+                    $isSubscribedToAchievements
+                );
                 echo "<a href='#' onclick='document.getElementById(\"updateachievementssub\").submit(); return false;'>";
-                echo ($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
+                echo($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
                 echo "</a></li>";
 
                 echo "<br>";
@@ -715,8 +728,10 @@ RenderHtmlStart(true);
                     $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
                     $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
 
-                    $pctComplete = sprintf("%01.0f",
-                        (($numEarnedCasual + $numEarnedHardcore) * 100.0 / $numAchievements));
+                    $pctComplete = sprintf(
+                        "%01.0f",
+                        (($numEarnedCasual + $numEarnedHardcore) * 100.0 / $numAchievements)
+                    );
                 }
 
                 echo "<div class='progressbar'>";
@@ -885,8 +900,19 @@ RenderHtmlStart(true);
                         echo "<div class='achievemententry'>";
 
                         echo "<div class='achievemententryicon'>";
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle,
-                            $achBadgeName, true, true, $tooltipText, 64, $imgClass);
+                        echo GetAchievementAndTooltipDiv(
+                            $achID,
+                            $achTitle,
+                            $achDesc,
+                            $achPoints,
+                            $gameTitle,
+                            $achBadgeName,
+                            true,
+                            true,
+                            $tooltipText,
+                            64,
+                            $imgClass
+                        );
                         echo "</div>";
 
                         $pctAwardedCasual = 0;
@@ -904,8 +930,10 @@ RenderHtmlStart(true);
                             $pctAwardedCasual = sprintf("%01.2f", $pctAwardedCasual * 100.0);
                             $pctAwardedHardcore = sprintf("%01.2f", $pctAwardedHardcoreProportion * 100.0);
 
-                            $pctComplete = sprintf("%01.2f",
-                                (($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual));
+                            $pctComplete = sprintf(
+                                "%01.2f",
+                                (($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual)
+                            );
                         }
 
                         echo "<div class='progressbar allusers'>";
@@ -922,8 +950,19 @@ RenderHtmlStart(true);
                         echo "</div>"; //progressbar
 
                         echo "<div class='achievementdata'>";
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle,
-                            $achBadgeName, false, false, "", 64, $imgClass);
+                        echo GetAchievementAndTooltipDiv(
+                            $achID,
+                            $achTitle,
+                            $achDesc,
+                            $achPoints,
+                            $gameTitle,
+                            $achBadgeName,
+                            false,
+                            false,
+                            "",
+                            64,
+                            $imgClass
+                        );
                         echo " <span class='TrueRatio'>($achTrueRatio)</span>";
                         echo "<br>";
                         echo "$achDesc<br>";

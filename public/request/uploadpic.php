@@ -22,13 +22,13 @@ $returnID = seekPOST('i', 0);
 settype($returnID, 'integer');
 
 $allowedExts = ["png", "jpeg", "jpg", "gif", "bmp"];
-$extension = strtolower(end(explode(".", $_FILES["file"]["name"])));
+$extension = mb_strtolower(end(explode(".", $_FILES["file"]["name"])));
 
 
 if ($_FILES["file"]["size"] > 1048576) {
     echo "Error: image too big! Must be smaller than 1mb!";
 } else {
-    if ($extension == null || strlen($extension) < 1) {
+    if ($extension == null || mb_strlen($extension) < 1) {
         echo "Error: no file detected. Did you pick a file for upload?";
     } else {
         if (!in_array($extension, $allowedExts)) {
@@ -75,13 +75,11 @@ if ($_FILES["file"]["size"] > 1048576) {
                         $maxImageSizeWidth = 160;
                         $maxImageSizeHeight = 160;
                     } else {
-                        if ($uploadType == "GAME_ICON") //	ICON
-                        {
+                        if ($uploadType == "GAME_ICON") { //	ICON
                             $maxImageSizeWidth = 96;
                             $maxImageSizeHeight = 96;
                         } else {
-                            if ($uploadType == "GAME_TITLE" || $uploadType == "GAME_INGAME")  //	Screenshot
-                            {
+                            if ($uploadType == "GAME_TITLE" || $uploadType == "GAME_INGAME") {  //	Screenshot
                                 $maxImageSizeWidth = 320;
                                 $maxImageSizeHeight = 240;
                             } else {

@@ -88,13 +88,20 @@ RenderHtmlHead($pageTitle);
 
                 if ($feedData[$i]['Comment'] !== null) {
                     while (($i < $numFeedItems) && $lastID == $feedData[$i]['ID']) {
-                        RenderArticleComment($feedData[$i]['ID'], $feedData[$i]['CommentUser'], $feedData[$i]['Comment'],
-                            $feedData[$i]['CommentPostedAt'], $user, 0, $feedData[$i]['CommentID'], false);
+                        RenderArticleComment(
+                            $feedData[$i]['ID'],
+                            $feedData[$i]['CommentUser'],
+                            $feedData[$i]['Comment'],
+                            $feedData[$i]['CommentPostedAt'],
+                            $user,
+                            0,
+                            $feedData[$i]['CommentID'],
+                            false
+                        );
                         $i++;
                     }
                     $i--;    //Note: we will have incorrectly incremented this if we read comments - the first comment has the same ID!
                 }
-
             }
             echo "</tbody></table>";
 

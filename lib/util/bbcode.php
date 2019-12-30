@@ -42,11 +42,13 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     $comment = preg_replace(
         '~\[url=(https?://[^\]]+)\](.*?)(\[/url\])~i',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'$1\'>$2</a>',
-        $comment);
+        $comment
+    );
     $comment = preg_replace(
         '~\[url=([^\]]+)\](.*?)(\[/url\])~i',
         '<a onmouseover=" Tip( \'$1\' )" onmouseout=\'UnTip()\' href=\'https://$1\'>$2</a>',
-        $comment);
+        $comment
+    );
 
     //    [b]
     $comment = preg_replace('/\\[b\\](.*?)\\[\\/b\\]/is', '<b>${1}</b>', $comment);
@@ -94,8 +96,16 @@ function cb_injectAchievementPHPBB($matches)
         $badgeName = $achData['BadgeName'];
         $consoleName = $achData['ConsoleName'];
 
-        return GetAchievementAndTooltipDiv($achID, $achName, $achDesc, $achPoints, $gameName, $badgeName, $consoleName,
-            false);
+        return GetAchievementAndTooltipDiv(
+            $achID,
+            $achName,
+            $achDesc,
+            $achPoints,
+            $gameName,
+            $badgeName,
+            $consoleName,
+            false
+        );
     }
     return "";
 }
@@ -105,7 +115,7 @@ function cb_injectUserPHPBB($matches)
 {
     if (count($matches) > 1) {
         $user = $matches[2];
-        return GetUserAndTooltipDiv( $user, FALSE );
+        return GetUserAndTooltipDiv($user, false);
     }
     return "";
 }
@@ -125,7 +135,7 @@ function cb_injectGamePHPBB($matches)
 function cb_injectSpoilerPHPBB($matches)
 {
     if (count($matches) > 0) {
-        $id = uniqid(rand(10000,99999));
+        $id = uniqid(mt_rand(10000, 99999));
         $spoilerBox = "<div class='devbox'>";
         $spoilerBox .= "<span onclick=\"$('#spoiler_" . $id . "').toggle(); return false;\">Spoiler (Click to show):</span><br>";
         $spoilerBox .= "<div class='spoiler' id='spoiler_" . $id . "'>";
@@ -144,6 +154,7 @@ function makeEmbeddedVideo($video_url)
 
 /**
  * from http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
+ * @param mixed $text
  */
 function linkifyYouTubeURLs($text)
 {
@@ -184,25 +195,28 @@ function linkifyYouTubeURLs($text)
 
 function linkifyTwitchURLs($text)
 {
-    if (strpos($text, "twitch.tv") !== false) {
+    if (mb_strpos($text, "twitch.tv") !== false) {
         // https://www.twitch.tv/videos/270709956
         // https://www.twitch.tv/gamingwithmist/v/40482810
         $text = preg_replace(
             '~(?:https?://)?(?:www.)?twitch.tv/(?:videos|[^/]+/v)/([0-9]+)~i',
             makeEmbeddedVideo('//player.twitch.tv/?video=$1&autoplay=false'),
-            $text);
+            $text
+        );
 
         // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
         $text = preg_replace(
             '~(?:https?://)?(?:www.)?twitch.tv/collections/([a-z0-9]+)~i',
             makeEmbeddedVideo('//player.twitch.tv/?collection=$1&autoplay=false'),
-            $text);
+            $text
+        );
 
         // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
         $text = preg_replace(
             '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
             makeEmbeddedVideo('//clips.twitch.tv/embed?clip=$1&autoplay=false'),
-            $text);
+            $text
+        );
     }
 
     return $text;
@@ -210,6 +224,7 @@ function linkifyTwitchURLs($text)
 
 /**
  * see https://regex101.com/r/mQamDF/1
+ * @param mixed $text
  */
 function linkifyImgurURLs($text)
 {
@@ -257,19 +272,22 @@ function cb_linkifySelective($matches)
 
     $url = $matches[0];
 
-    if (stripos($url, 'youtube-nocookie') !== false) {
+    if (mb_stripos($url, 'youtube-nocookie') !== false) {
         return $url; //    Ignore: these have been replaced above
-    } elseif (stripos($url, 'www.twitch.tv') !== false) {
+    } elseif (mb_stripos($url, 'www.twitch.tv') !== false) {
         return $url; //    Ignore: these have been replaced above
-    } elseif (substr_compare($url, '.png', -4) === 0 || substr_compare($url, '.jpg', -4) === 0 || substr_compare($url,
-            '.jpeg', -5) === 0) {
+    } elseif (substr_compare($url, '.png', -4) === 0 || substr_compare($url, '.jpg', -4) === 0 || substr_compare(
+        $url,
+        '.jpeg',
+        -5
+    ) === 0) {
         return $url; //    Ignore: this is an image!
     } else {
         $actualURL = $url;
         //if( strpos( $url, 'www' ) === 0 )
         //    $actualURL = "http://" . $url; //    Prepend http://
 
-        if (strpos($url, 'http://') === false && strpos($url, 'https://') === false) {
+        if (mb_strpos($url, 'http://') === false && mb_strpos($url, 'https://') === false) {
             $actualURL = "https://" . $url; //    Prepend http://
         }
 
@@ -297,11 +315,13 @@ function linkifyBasicURLs($text)
     $text = preg_replace(
         '~(https?://[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
         ' <a href="$1" target="_blank" rel="noopener">$1</a> ',
-        $text);
+        $text
+    );
     $text = preg_replace(
         '~(\s|^)(www\.[a-z0-9_./?=&#%:+(),-]+)(?![^<>]*>)~i',
         ' <a target="_blank" href="https://$2" rel="noopener">$2</a> ',
-        $text);
+        $text
+    );
 
     return $text;
 }

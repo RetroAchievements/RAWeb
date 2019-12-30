@@ -71,8 +71,8 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             echo "<tr class='altdark'>";
             echo "<td>";
             //echo "<a href='/User/" . $bestScoreUser . "'><img alt='$bestScoreUser' title='$bestScoreUser' src='/UserPic/$bestScoreUser.png' width='32' height='32' /></a>";
-            echo GetUserAndTooltipDiv( $bestScoreUser, TRUE );
-            echo GetUserAndTooltipDiv( $bestScoreUser, FALSE );
+            echo GetUserAndTooltipDiv($bestScoreUser, true);
+            echo GetUserAndTooltipDiv($bestScoreUser, false);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
@@ -125,11 +125,11 @@ function RenderScoreLeaderboardComponent($user, $points, $friendsOnly, $numToFet
         echo "<tr>";
         echo "<td class='rank'>" . ($i + 1) . "</td>";
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextUser, TRUE );
+        echo GetUserAndTooltipDiv($nextUser, true);
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextUser, FALSE );
+        echo GetUserAndTooltipDiv($nextUser, false);
         echo "</td>";
         echo "<td class='points'>$nextPoints<span class='TrueRatio'>  ($nextTruePoints)</span></td>";
         echo "</tr>";
@@ -138,11 +138,11 @@ function RenderScoreLeaderboardComponent($user, $points, $friendsOnly, $numToFet
         echo "<tr>";
         echo "<td class='rank'> $userRank </td>";
         echo "<td>";
-        echo GetUserAndTooltipDiv( $user, TRUE );
+        echo GetUserAndTooltipDiv($user, true);
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $user, FALSE );
+        echo GetUserAndTooltipDiv($user, false);
         echo "</td>";
         echo "<td class='points'>$points</td>";
         echo "</tr>";
@@ -191,11 +191,11 @@ function RenderTopAchieversComponent($gameTopAchievers)
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextUser, TRUE );
+        echo GetUserAndTooltipDiv($nextUser, true);
         echo "</td>";
 
         echo "<td class='user'>";
-        echo GetUserAndTooltipDiv( $nextUser, FALSE );
+        echo GetUserAndTooltipDiv($nextUser, false);
         echo "</td>";
 
         echo "<td class='points'>";

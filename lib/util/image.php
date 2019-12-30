@@ -76,7 +76,7 @@ function ConvertBMP2GD($src, $dest = false)
                         $p2 = chr($byte & 0x0F);
                         $gd_scan_line .= "$p1$p2";
                     }
-                    $gd_scan_line = substr($gd_scan_line, 0, $width);
+                    $gd_scan_line = mb_substr($gd_scan_line, 0, $width);
                 } else {
                     if ($bits == 1) {
                         $gd_scan_line = "";
@@ -93,7 +93,7 @@ function ConvertBMP2GD($src, $dest = false)
                             $p8 = chr(( int )(($byte & 0x01) != 0));
                             $gd_scan_line .= "$p1$p2$p3$p4$p5$p6$p7$p8";
                         }
-                        $gd_scan_line = substr($gd_scan_line, 0, $width);
+                        $gd_scan_line = mb_substr($gd_scan_line, 0, $width);
                     }
                 }
             }

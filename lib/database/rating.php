@@ -33,7 +33,7 @@ function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
     log_sql($query);
 
     $dbResult = s_mysql_query($query);
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function getGamesByRating($offset, $count)

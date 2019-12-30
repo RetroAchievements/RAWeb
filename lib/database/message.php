@@ -234,7 +234,7 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0)
         UpdateCachedUnreadTotals($user);
     }
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function DeleteMessage($user, $messageID)
@@ -258,6 +258,6 @@ function DeleteMessage($user, $messageID)
         if ($dbResult !== false) {
             s_mysql_query("INSERT INTO DeletedModels SET ModelType='Messages', ModelID=$messageID");
         }
-        return ($dbResult !== false);
+        return $dbResult !== false;
     }
 }

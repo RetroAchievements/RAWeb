@@ -20,6 +20,9 @@ function GetLatestNewsData($offset, $count)
 
 /**
  * @deprecated
+ * @param mixed $offset
+ * @param mixed $numItems
+ * @param mixed $dataOut
  */
 function getLatestNewsHeaders($offset, $numItems, &$dataOut)
 {

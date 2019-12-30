@@ -2,11 +2,11 @@
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  *
- * @param string $user The user to get information on.
- * @param bool $imageInstead If true return the div for the user avatar, if false return the div for the username.
- * @param null $customLink Custom link if passed in.
- * @param int $iconSizeDisplayable Custom avatar size if passed in.
- * @param string $iconClassDisplayable Custom icon display class if passed in.
+ * @param string $user the user to get information on
+ * @param bool $imageInstead if true return the div for the user avatar, if false return the div for the username
+ * @param null $customLink custom link if passed in
+ * @param int $iconSizeDisplayable custom avatar size if passed in
+ * @param string $iconClassDisplayable custom icon display class if passed in
  * @return string
  */
 function GetUserAndTooltipDiv(
@@ -42,7 +42,7 @@ function GetUserAndTooltipDiv(
     $tooltip .= "</tr>";
 
     //Add the user motto if it's set
-    if ($userMotto !== null && strlen($userMotto) > 2) {
+    if ($userMotto !== null && mb_strlen($userMotto) > 2) {
         $userMotto = str_replace('\'', '\\\'', $userMotto);
         $userMotto = str_replace('"', '\\\'\\\'', $userMotto);
         $tooltip .= "<tr>";
@@ -168,15 +168,13 @@ function RenderSiteAwards($userAwards)
 
                 $imagepath = $awardGameImage;
                 $linkdest = "/Game/$awardData";
-            } elseif ($awardType == 2) //    Developed a number of earned achievements
-            {
+            } elseif ($awardType == 2) { //    Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . $developerCountBoundaries[$awardData] . " times!";
 
                 $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . $developerCountBoundaries[$awardData] . ".png";
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 3) //    Yielded an amount of points earned by players
-            {
+            } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
                 $tooltip = "Awarded for producing many valuable achievements, providing over " . $developerPointBoundaries[$awardData] . " points to the community!";
 
                 if ($awardData == 0) {
@@ -194,8 +192,7 @@ function RenderSiteAwards($userAwards)
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 4) //    Referrals
-            {
+            } elseif ($awardType == 4) { //    Referrals
                 $tooltip = "Referred $awardData members";
 
                 if ($awardData < 2) {
@@ -213,14 +210,12 @@ function RenderSiteAwards($userAwards)
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 5) //    Signed up for facebook!
-            {
+            } elseif ($awardType == 5) { //    Signed up for facebook!
                 $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
 
                 $imagepath = getenv('APP_STATIC_URL') . "/Images/_FBAssoc.png";
                 $linkdest = "/controlpanel.php#facebook";
-            } elseif ($awardType == 6)  //  Patreon Supporter
-            {
+            } elseif ($awardType == 6) {  //  Patreon Supporter
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 
                 $imagepath = getenv('APP_STATIC_URL') . '/Badge/PatreonBadge.png';
@@ -277,8 +272,7 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
 
         $nextNumAwarded = $userCompletedGamesList[$i]['NumAwarded'];
-        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) //    Ignore 0 (div by 0 anyway)
-        {
+        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) { //    Ignore 0 (div by 0 anyway)
             continue;
         }
 

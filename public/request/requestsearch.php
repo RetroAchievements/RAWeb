@@ -93,8 +93,7 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
                     'mylink' => "/Achievement/$nextID",
                     'category' => "Achievements",
                 ];
-            } else //	$nextRow['Type'] == 3
-            {
+            } else { //	$nextRow['Type'] == 3
                 $dataOut[] = [
                     'label' => $nextTitle,
                     'id' => $nextID,

@@ -20,8 +20,7 @@ function changeFriendStatus($user, $friend, $action)
             if ($data['Local'] == 1) {
                 $localFriendState = $data['Friendship'];
                 settype($localFriendState, 'integer');
-            } else //if( $data['Local'] == 0 )
-            {
+            } else { //if( $data['Local'] == 0 )
                 $remoteFriendState = $data['Friendship'];
                 settype($remoteFriendState, 'integer');
             }
@@ -80,8 +79,7 @@ function changeFriendStatus($user, $friend, $action)
                 log_sql_fail();
                 return "issues1";
             }
-        } else //if( isset( $localFriendState ) )
-        {
+        } else { //if( isset( $localFriendState ) )
             //    My entry already exists in some form.
             if ($localFriendState == $action) {
                 //    No change:
@@ -240,7 +238,7 @@ function isFriendsWith($user, $friend)
         return false;
     }
 
-    return ($data['Friendship'] == '1');
+    return $data['Friendship'] == '1';
 }
 
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut)

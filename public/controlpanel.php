@@ -335,7 +335,7 @@ RenderHtmlHead("My Settings");
             echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' align='right' width='64' height='64'>";
             echo "<strong><a href='/User/$user'>$user</a></strong> ($points points)<br>";
             echo "Account: ($permissions) " . PermissionsToString($permissions) . "<br>";
-            if (isset($userMotto) && strlen($userMotto) > 1) {
+            if (isset($userMotto) && mb_strlen($userMotto) > 1) {
                 echo "<span class='usermotto'>$userMotto</span><br>";
             }
             echo "</p>";
@@ -499,60 +499,60 @@ RenderHtmlHead("My Settings");
 
                     <td>If someone comments on my activity:</td>
                     <td><input id='UserPref0' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_ActivityComment)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref8' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::SiteMsgOn_ActivityComment)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                 </tr>
                 <tr>
                     <td>If someone comments on an achievement I created:</td>
                     <td><input id='UserPref1' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_AchievementComment)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref9' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::SiteMsgOn_AchievementComment)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                 </tr>
                 <tr>
                     <td>If someone comments on my user wall:</td>
                     <td><input id='UserPref2' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_UserWallComment)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref10' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::SiteMsgOn_UserWallComment)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                 </tr>
                 <tr>
                     <td>If someone comments on a forum topic I'm involved in:</td>
                     <td><input id='UserPref3' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_ForumReply)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref11' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::SiteMsgOn_ForumReply)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                 </tr>
                 <tr>
                     <td>If someone adds me as a friend:</td>
                     <td><input id='UserPref4' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_AddFriend)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref12' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::SiteMsgOn_AddFriend)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                 </tr>
                 <tr>
                     <td>If someone sends me a private message:</td>
                     <td><input id='UserPref5' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref13' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled checked></td>
                 </tr>
                 <tr>
                     <td>With the weekly RA Newsletter:</td>
                     <td><input id='UserPref6' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?php if (BitSet($websitePrefs, UserPref::EmailOn_Newsletter)) {
-                            echo "checked";
-                        } ?> ></td>
+            echo "checked";
+        } ?> ></td>
                     <td><input id='UserPref14' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled></td>
                 </tr>
 
@@ -700,17 +700,17 @@ RenderHtmlHead("My Settings");
         </div>
 
         <?php /*
-	<div class='component'>
-	<h3>Reset All Achievements</h3>
+    <div class='component'>
+    <h3>Reset All Achievements</h3>
         <p>Please send a message to <a href="https://retroachievements.org/createmessage.php?t=RAdmin">RAdmin</a> to request a reset of your achievement progress or reset games individually above.</p>
     NOTE: deprecated - will be restored inv2
-	Enter password to confirm! Please note: this is <b>not</b> reversible!
-	<form method=post action="requestresetachievements.php">
-	<INPUT TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-	<INPUT TYPE="password" NAME="p" VALUE="">
-	<INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
-	</form>
-	</div>
+    Enter password to confirm! Please note: this is <b>not</b> reversible!
+    <form method=post action="requestresetachievements.php">
+    <INPUT TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
+    <INPUT TYPE="password" NAME="p" VALUE="">
+    <INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
+    </form>
+    </div>
     */ ?>
 
 

@@ -69,8 +69,15 @@ RenderHtmlHead("Report Broken Achievement");
                 <tr>
                     <td>Achievement:</td>
                     <td>
-                        <?php echo GetAchievementAndTooltipDiv($achievementID, $achievementTitle, $desc, $achPoints,
-                            $gameTitle, $achBadgeName, true) ?>
+                        <?php echo GetAchievementAndTooltipDiv(
+    $achievementID,
+    $achievementTitle,
+    $desc,
+    $achPoints,
+    $gameTitle,
+    $achBadgeName,
+    true
+) ?>
                     </td>
                 </tr>
                 <tr class="alt">

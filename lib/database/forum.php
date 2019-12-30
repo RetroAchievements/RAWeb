@@ -4,7 +4,9 @@ use RA\Permissions;
 abstract class ModifyTopicField
 {
     const ModifyTitle = 0;
+
     const DeleteTopic = 1;
+
     const RequiredPermissions = 2;
 }
 
@@ -136,7 +138,7 @@ function getTopicDetails($topicID, &$topicDataOut)
         //error_log( __FUNCTION__ . " $topicID, " . mysqli_num_rows( $dbResult ) );
 
         $topicDataOut = mysqli_fetch_assoc($dbResult);
-        return ($topicDataOut['ID'] ?? null) == $topicID;
+        return $topicID == ($topicDataOut['ID'] ?? null);
     } else {
         $topicDataOut = null;
         return false;
@@ -201,7 +203,7 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
 {
     $userID = getUserIDFromUser($user);
 
-    if (strlen($topicTitle) < 2) {
+    if (mb_strlen($topicTitle) < 2) {
         $topicTitle = "$user's topic";
     }
 
@@ -331,7 +333,7 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
 function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 {
     //    $author has made a post in the topic $topicID
-    //    Find all people involved in this forum topic, and if they are not the author and prefer to 
+    //    Find all people involved in this forum topic, and if they are not the author and prefer to
     //    hear about comments, let them know! Also notify users that have explicitly subscribed to
     //    the topic.
 
@@ -453,7 +455,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
                   WHERE ID=$gameID ";
 
         $dbResult = s_mysql_query($query);
-        return ($dbResult !== false);
+        return $dbResult !== false;
     } else {
         log_email(__FUNCTION__ . " failed :( $user, $gameID, $gameTitle )");
         return false;

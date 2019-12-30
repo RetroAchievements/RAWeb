@@ -30,7 +30,7 @@ function ProfileStamp($message = null, $echo = false)
             echo "PROFILE - " . CurrentPageURL() . " - took " . sprintf('%1.4f', ($_loadDuration)) . "s...";
         }
 
-        if (isset($message) && strlen($message) > 0) {
+        if (isset($message) && mb_strlen($message) > 0) {
             error_log(" - " . $message);
         }
         //return " <span style='font-size:x-small;'>(Generated in " . sprintf( '%1.4f', ($_loadDuration) ) . "s)</span>";

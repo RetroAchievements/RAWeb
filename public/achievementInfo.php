@@ -57,8 +57,13 @@ RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement",
-        "/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
+    <?php RenderOpenGraphMetadata(
+    "$achievementTitle in $gameTitle ($consoleName)",
+    "achievement",
+    "/Badge/$badgeName" . ".png",
+    "/Achievement/$achievementID",
+    "$gameTitle ($consoleName) - $desc"
+); ?>
     <?php RenderTitleTag($achievementTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -181,8 +186,7 @@ RenderHtmlStart(true);
             echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
             echo "</tbody></table>";
             echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
-            echo "<div style='clear:both;'></div>";
-            ?>
+            echo "<div style='clear:both;'></div>"; ?>
             Examples for accepted formats:<br>
             <p style="margin-bottom: 20px; float: left; clear: both;">
                 <small style="width:50%; word-break: break-word; float: left">

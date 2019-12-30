@@ -13,23 +13,17 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
         $sortBy = 1;
     }
 
-    if ($sortBy == 1)        //    Date, asc
-    {
+    if ($sortBy == 1) {        //    Date, asc
         $query .= "ORDER BY aw.Date DESC ";
-    } elseif ($sortBy == 2)    //    Num Awarded, asc
-    {
+    } elseif ($sortBy == 2) {    //    Num Awarded, asc
         $query .= "ORDER BY NumAwarded DESC ";
-    } elseif ($sortBy == 3)    //    Total Points earned, asc
-    {
+    } elseif ($sortBy == 3) {    //    Total Points earned, asc
         $query .= "ORDER BY TotalPointsEarned DESC ";
-    } elseif ($sortBy == 11)//    Date, desc
-    {
+    } elseif ($sortBy == 11) {//    Date, desc
         $query .= "ORDER BY aw.Date ASC ";
-    } elseif ($sortBy == 12)//    Num Awarded, desc
-    {
+    } elseif ($sortBy == 12) {//    Num Awarded, desc
         $query .= "ORDER BY NumAwarded ASC ";
-    } elseif ($sortBy == 13)//    Total Points earned, desc
-    {
+    } elseif ($sortBy == 13) {//    Total Points earned, desc
         $query .= "ORDER BY TotalPointsEarned ASC ";
     }
 

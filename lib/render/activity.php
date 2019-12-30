@@ -85,14 +85,20 @@ function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null)
             $retHTML = "$user completed $gameTitle ($console)";
             break;
         case 7: // submit new record
-            $retHTML = "$user submitted " . GetFormattedLeaderboardEntry($nextLBFormat,
-                    $nextLBScore) . " for $nextLBName on $gameTitle ($console)";
+            $retHTML = "$user submitted " . GetFormattedLeaderboardEntry(
+                $nextLBFormat,
+                $nextLBScore
+            ) . " for $nextLBName on $gameTitle ($console)";
             break;
         case 8: // update new record
-            $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp($nextLBFormat,
-                    'TIMESECS') == 0) ? "time" : "score";
-            $retHTML = "$user improved their $entryType: " . GetFormattedLeaderboardEntry($nextLBFormat,
-                    $nextLBScore) . " for $nextLBName on $gameTitle ($console)";
+            $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp(
+                $nextLBFormat,
+                'TIMESECS'
+            ) == 0) ? "time" : "score";
+            $retHTML = "$user improved their $entryType: " . GetFormattedLeaderboardEntry(
+                $nextLBFormat,
+                $nextLBScore
+            ) . " for $nextLBName on $gameTitle ($console)";
             break;
         case 9: // open ticket
             $retHTML = "$user opened a ticket for $achTitle ($achPoints) in $gameTitle ($console)";
@@ -157,25 +163,47 @@ function getFeedItemHTML($feedData, $user)
 
             //    Images:
             $retHTML .= "<td class='icons'>";
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                true,
+                true
+            );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_won'>";
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " earned ";
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, false);
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                false
+            );
 
             if (isset($nextData2) && $nextData2 == 1) {
                 $retHTML .= " (HARDCORE)";
             }
 
             $retHTML .= " in ";
-            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
-                true);
+            $retHTML .= GetGameAndTooltipDiv(
+                $nextGameID,
+                $nextGameTitle,
+                $nextGameIcon,
+                $nextConsoleName,
+                false,
+                32,
+                true
+            );
 
             $retHTML .= "</td>";
 
@@ -195,13 +223,13 @@ function getFeedItemHTML($feedData, $user)
             //    Images:
             $retHTML .= "<td class='icons'>";
             $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/Images/LoginIcon32.png' width='32' height='32' class='badgeimg' />";
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_login'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " logged in";
 
             $retHTML .= "</td>";
@@ -222,17 +250,24 @@ function getFeedItemHTML($feedData, $user)
                 $retHTML .= "<td class='icons'>";
 
                 $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+                $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
                 $retHTML .= "</td>";
 
                 //    Content:
                 $retHTML .= "<td class='feed_startplay'>";
 
-                $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+                $retHTML .= GetUserAndTooltipDiv($nextUser, false);
                 $retHTML .= " started playing ";
-                $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false,
-                    32, true);
+                $retHTML .= GetGameAndTooltipDiv(
+                    $nextGameID,
+                    $nextGameTitle,
+                    $nextGameIcon,
+                    $nextConsoleName,
+                    false,
+                    32,
+                    true
+                );
 
                 $retHTML .= "</td>";
                 if ($user !== null) {
@@ -251,19 +286,34 @@ function getFeedItemHTML($feedData, $user)
             //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                true,
+                true
+            );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_dev1'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " uploaded a new achievement: ";
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, false);
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                false
+            );
 
             $retHTML .= "</td>";
 
@@ -282,19 +332,34 @@ function getFeedItemHTML($feedData, $user)
             //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                true,
+                true
+            );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " edited ";
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, false);
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                false
+            );
 
             $retHTML .= "</td>";
 
@@ -313,22 +378,29 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_completegame'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE);
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             if ($nextData2 == 1) {
                 $retHTML .= " MASTERED ";
             } else {
                 $retHTML .= " completed ";
             }
 
-            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
-                true);
+            $retHTML .= GetGameAndTooltipDiv(
+                $nextGameID,
+                $nextGameTitle,
+                $nextGameIcon,
+                $nextConsoleName,
+                false,
+                32,
+                true
+            );
 
             if ($nextData2 == 1) {
                 $retHTML .= " (HARDCORE)";
@@ -353,23 +425,42 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_submitrecord'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " submitted ";
-            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
-                GetFormattedLeaderboardEntry($nextLBFormat, $nextData2));
+            $retHTML .= GetLeaderboardAndTooltipDiv(
+                $nextData,
+                $nextLBName,
+                $nextLBDesc,
+                $nextGameTitle,
+                $nextGameIcon,
+                GetFormattedLeaderboardEntry($nextLBFormat, $nextData2)
+            );
             $retHTML .= " for ";
-            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
-                $nextLBName);
+            $retHTML .= GetLeaderboardAndTooltipDiv(
+                $nextData,
+                $nextLBName,
+                $nextLBDesc,
+                $nextGameTitle,
+                $nextGameIcon,
+                $nextLBName
+            );
             $retHTML .= " on ";
-            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
-                true);
+            $retHTML .= GetGameAndTooltipDiv(
+                $nextGameID,
+                $nextGameTitle,
+                $nextGameIcon,
+                $nextConsoleName,
+                false,
+                32,
+                true
+            );
 
             $retHTML .= "</td>";
             if ($user !== null) {
@@ -387,26 +478,47 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_updaterecord'>";
 
-            $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp($nextLBFormat,
-                    'TIMESECS') == 0) ? "time" : "score";
+            $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp(
+                $nextLBFormat,
+                'TIMESECS'
+            ) == 0) ? "time" : "score";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " improved their $entryType: ";
-            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
-                GetFormattedLeaderboardEntry($nextLBFormat, $nextData2));
+            $retHTML .= GetLeaderboardAndTooltipDiv(
+                $nextData,
+                $nextLBName,
+                $nextLBDesc,
+                $nextGameTitle,
+                $nextGameIcon,
+                GetFormattedLeaderboardEntry($nextLBFormat, $nextData2)
+            );
             $retHTML .= " for ";
-            $retHTML .= GetLeaderboardAndTooltipDiv($nextData, $nextLBName, $nextLBDesc, $nextGameTitle, $nextGameIcon,
-                $nextLBName);
+            $retHTML .= GetLeaderboardAndTooltipDiv(
+                $nextData,
+                $nextLBName,
+                $nextLBDesc,
+                $nextGameTitle,
+                $nextGameIcon,
+                $nextLBName
+            );
             $retHTML .= " on ";
-            $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, false, 32,
-                true);
+            $retHTML .= GetGameAndTooltipDiv(
+                $nextGameID,
+                $nextGameTitle,
+                $nextGameIcon,
+                $nextConsoleName,
+                false,
+                32,
+                true
+            );
 
             $retHTML .= "</td>";
             if ($user !== null) {
@@ -424,19 +536,34 @@ function getFeedItemHTML($feedData, $user)
             //    Images:
             $retHTML .= "<td class='icons'>";
 
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, true, true);
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, TRUE );
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                true,
+                true
+            );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, true);
 
             $retHTML .= "</td>";
 
             //    Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserAndTooltipDiv( $nextUser, FALSE );
+            $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= ($nextActivityType == 9 ? " opened " : " closed ") . " a ticket for ";
-            $retHTML .= GetAchievementAndTooltipDiv($nextData, $nextAchTitle, $nextAchDesc, $nextAchPoints,
-                $nextGameTitle, $nextAchBadge, false);
+            $retHTML .= GetAchievementAndTooltipDiv(
+                $nextData,
+                $nextAchTitle,
+                $nextAchDesc,
+                $nextAchPoints,
+                $nextGameTitle,
+                $nextAchBadge,
+                false
+            );
 
             $retHTML .= "</td>";
 

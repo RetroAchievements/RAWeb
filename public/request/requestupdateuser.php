@@ -14,8 +14,7 @@ settype($propertyType, 'integer');
 settype($value, 'integer');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
-    if ($propertyType == 0) //	account permissions
-    {
+    if ($propertyType == 0) { //	account permissions
         $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
 
         if ($response['Success']) {
@@ -27,8 +26,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
             echo "Failed: " . $response['Error'];
         }
     } else {
-        if ($propertyType == 1) //	forum post permissions
-        {
+        if ($propertyType == 1) { //	forum post permissions
             if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
                 error_log("$user updated $targetUser to $value OK!!");
                 header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
@@ -38,8 +36,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
                 echo "FAILED!";
             }
         } else {
-            if ($propertyType == 2)   //  Toggle Patreon badge
-            {
+            if ($propertyType == 2) {   //  Toggle Patreon badge
                 $hasBadge = HasPatreonBadge($targetUser);
                 SetPatreonSupporter($targetUser, !$hasBadge);
 
@@ -47,8 +44,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
                 error_log("$user updated $targetUser to Patreon Status $hasBadge OK!!");
                 header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
             } else {
-                if ($propertyType == 3)   //  Toggle 'Untracked' status
-                {
+                if ($propertyType == 3) {   //  Toggle 'Untracked' status
                     SetUserTrackedStatus($targetUser, $value);
                     error_log("SetUserTrackedStatus, $targetUser => $value");
                     header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");

@@ -7,14 +7,14 @@ function isValidUsername($userTest)
         return false;
     }
 
-    if (strlen($userTest) > 20) {
+    if (mb_strlen($userTest) > 20) {
         //error_log( "requestcreateuser.php failed 2 - $user $pass $email $email2 " );
         //echo "Username can be a maximum of 20 characters. Please retry.<br>";
         //log_sql_fail();
         return false;
     }
 
-    if (strlen($userTest) < 2) {
+    if (mb_strlen($userTest) < 2) {
         return false;
     }
 
@@ -24,10 +24,10 @@ function isValidUsername($userTest)
 function rand_string($length)
 {
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    $size = strlen($chars);
+    $size = mb_strlen($chars);
     $str = '';
     for ($i = 0; $i < $length; $i++) {
-        $str .= $chars[rand(0, $size - 1)];
+        $str .= $chars[mt_rand(0, $size - 1)];
     }
 
     return $str;
