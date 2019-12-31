@@ -729,6 +729,7 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
               FROM Achievements AS ach
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE ach.Flags = 3
               ORDER BY DateCreated DESC
               LIMIT 0, $numToFetch ";
 
