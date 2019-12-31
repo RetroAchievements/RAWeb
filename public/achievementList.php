@@ -40,8 +40,6 @@ if ($dev != null) {
 $sortBy = seekGET('s', 17);
 $achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
-//var_dump( $achData );
-
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
@@ -91,10 +89,10 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
                 echo $params !== 1 ? "</a>" : "</b>";
                 echo "<br>";
 
-                echo $params !== 2 ? "<a href='/achievementList.php?s=$sortBy&p=2$dev_param'>" : "<b>";
-                echo "Achievements I haven't yet unlocked";
-                echo $params !== 2 ? "</a>" : "</b>";
-                echo "<br>";
+                // echo $params !== 2 ? "<a href='/achievementList.php?s=$sortBy&p=2$dev_param'>" : "<b>";
+                // echo "Achievements I haven't yet unlocked";
+                // echo $params !== 2 ? "</a>" : "</b>";
+                // echo "<br>";
             }
             echo "</div>";
 
@@ -155,8 +153,6 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             if (!$mobileBrowser) {
                 echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
             }
-
-            $achCount = 0;
 
             foreach ($achData as $achEntry) {
                 //$query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
@@ -232,13 +228,6 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             <br>
         </div>
     </div>
-
-    <?php /*
-    <div id='rightcontainer'>
-        <?php RenderRecentlyUploadedComponent(10); ?>
-    </div>
-    */ ?>
-
 </div>
 <?php RenderFooter(); ?>
 </body>
