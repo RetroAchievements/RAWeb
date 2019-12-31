@@ -21,7 +21,7 @@ RenderHtmlHead("Most Popular Games");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id='fullcontainer'>
         <?php
         echo "<div class='navpath'>";
         echo "<b>Most Popular Games</b>";
@@ -118,12 +118,8 @@ RenderHtmlHead("Most Popular Games");
             echo "<a href='/popularGames.php?o=$nextOffset&amp;p=$method'>Next $maxCount &gt;</a>";
         }
         echo "</div>";
-
         ?>
         <br>
-    </div>
-    <div id='rightcontainer'>
-        <?php RenderRecentlyUploadedComponent(10); ?>
     </div>
 </div>
 <?php RenderFooter(); ?>
