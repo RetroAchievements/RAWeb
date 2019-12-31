@@ -99,12 +99,6 @@ function RenderRecentlyUploadedComponent($numToFetch)
             if ($lastDate !== $dateAwarded) {
                 $lastDate = $dateAwarded;
             }
-            //    Alternating colours for table :)
-            if ($iter++ % 2 == 0) {
-                echo "<tr>";
-            } else {
-                echo "<tr>";
-            }
 
             $uploadedAt = date("H:i", $timestamp);
             $achID = $nextData['ID'];
@@ -118,6 +112,7 @@ function RenderRecentlyUploadedComponent($numToFetch)
             $consoleName = $nextData['ConsoleName'];
             //$badgeFullPath = getenv('APP_STATIC_URL')."/Badge/" . $achBadgeName . ".png";
 
+            echo "<tr>";
             echo "<td>$dateAwarded $uploadedAt</td>";
             echo "<td style='width:50%'><div class='fixheightcell'>";
             //echo "<img title='$achTitle' alt='$achTitle' src='$badgeFullPath' width='32' height='32' />";

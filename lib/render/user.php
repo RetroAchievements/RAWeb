@@ -125,12 +125,6 @@ function RenderSiteAwards($userAwards)
     global $developerPointBoundaries;
 
     for ($i = 0; $i < $numItems / 3; $i++) {
-        // //    Alternating colours for table :)
-        // if( $i%2==0 )
-        // echo "<tr>";
-        // else
-        // echo "<tr>";
-
         echo "<tr>";
         for ($j = 0; $j < $numCols; $j++) {
             $nOffs = ($i * $numCols) + $j;
@@ -364,12 +358,7 @@ function RenderRecentlyAwardedComponent($user, $points)
             $lastDate = $dateAwarded;
         }
 
-        //    Alternating colours for table :)
-        if ($iter++ % 2 == 0) {
-            echo "<tr>";
-        } else {
-            echo "<tr>";
-        }
+        echo "<tr>";
 
         $wonAt = date("H:i", $timestamp);
         $nextUser = $dataArray[$i]['User'];

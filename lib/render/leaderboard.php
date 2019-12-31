@@ -179,12 +179,7 @@ function RenderTopAchieversComponent($gameTopAchievers)
         $nextPoints = $gameTopAchievers[$i]['TotalScore'];
         $nextLastAward = $gameTopAchievers[$i]['LastAward'];
 
-        //    Alternating colours for table :)
-        if ($i % 2 == 0) {
-            echo "<tr>";
-        } else {
-            echo "<tr>";
-        }
+        echo "<tr>";
 
         echo "<td class='rank'>";
         echo $i + 1;

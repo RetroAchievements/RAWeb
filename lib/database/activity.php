@@ -733,8 +733,6 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
               ORDER BY DateCreated DESC
               LIMIT 0, $numToFetch ";
 
-    //echo $query;
-
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -742,7 +740,6 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
             $numFound++;
         }
     } else {
-        //log_email( __FUNCTION__ . " cannot deal with this function..." );
         error_log($query);
         error_log(__FUNCTION__ . " failed: $numToFetch");
     }
