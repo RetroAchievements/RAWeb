@@ -278,7 +278,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
         //    Note: Safer to receive a plaintext password: embedding any DB secret in-app is inexcusable!
         $saltedPass = md5($pass . getenv('RA_PASSWORD_SALT'));
         $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user' AND SaltedPass='$saltedPass'";
-    //error_log( $query );
+        //error_log( $query );
     } elseif ($tokenProvided) {
         //    Token provided:
         $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
@@ -1553,7 +1553,9 @@ function recalcScore($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        log_email(__FUNCTION__ . " failed for $user!");
+        // global $db;
+        // var_dump(mysqli_error($db));
+        // error_log(__FUNCTION__ . " failed for $user!");
         return false;
     } else {
         //error_log( __FUNCTION__ );
@@ -1578,9 +1580,8 @@ function attributeDevelopmentAuthor($author, $points)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        log_email($query);
         global $db;
-        log_email(mysqli_error($db));
+        error_log(mysqli_error($db));
     } else {
         //error_log( __FUNCTION__ . " $author, $points" );
 
