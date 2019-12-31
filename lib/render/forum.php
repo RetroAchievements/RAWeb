@@ -1,12 +1,14 @@
 <?php
 function RenderRecentForumPostsComponent($numToFetch = 4)
 {
-    echo "<div class='component' >";
+    echo "<div class='component'>";
     echo "<h3>Forum Activity</h3>";
 
     if (getRecentForumPosts(0, $numToFetch, 45, $recentPostData) != 0) {
-        echo "<table class='recentforumposts'><tbody>";
+        echo "<table class='recentforumposts'><thead>";
         echo "<tr><th>At</th><th>User</th><th>Message</th><th>Topic</th></tr>";
+        echo "</thead>";
+        echo "<tbody>";
 
         $lastDate = '';
 
@@ -48,7 +50,6 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
 
             echo "</tr>";
         }
-
         echo "</tbody></table>";
     } else {
         error_log(__FUNCTION__);
