@@ -9,10 +9,8 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
         echo "<tr><th>At</th><th>User</th><th>Message</th><th>Topic</th></tr>";
 
         $lastDate = '';
-        $iter = 0;
 
-        for ($i = 0; $i < $numToFetch; $i++) {
-            $nextData = $recentPostData[$i];
+        foreach ($recentPostData as $nextData) {
             $timestamp = strtotime($nextData['PostedAt']);
             $datePosted = date("d M", $timestamp);
 
