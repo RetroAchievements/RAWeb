@@ -49,14 +49,12 @@ RenderToolbar($user, $permissions);
 
             // Loop through each hash and display its information
             foreach ($setRequestList as $request) {
-                if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
-                    echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+                echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
-                    echo "<td>";
-                    echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
-                    echo "</td>";
-                    echo "<td><a href='/setRequestors.php?g=" . $request['GameID'] . "'>" . $request['Requests'] . "</a></td>";
-                }
+                echo "<td>";
+                echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                echo "</td>";
+                echo "<td><a href='/setRequestors.php?g=" . $request['GameID'] . "'>" . $request['Requests'] . "</a></td>";
             }
             echo "</tbody></table>";
 
