@@ -216,7 +216,7 @@ function getSetRequestorsList($gameID)
 }
 
 /**
- * Gets a list of the most requested sets.
+ * Gets a list of the most requested sets without core achievements.
  *
  * @param int $offset offset starting position for returned games
  * @param int $count number of games to return
@@ -239,6 +239,8 @@ function getMostRequestedSetsList($offset, $count)
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
+        WHERE 
+            sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
         GROUP BY
             sr.GameID
         ORDER BY
@@ -271,7 +273,9 @@ function getGamesWithRequests()
         SELECT
             COUNT(DISTINCT GameID) AS Games
         FROM
-            SetRequest";
+            SetRequest
+        WHERE
+             GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')";
 
     $dbResult = s_mysql_query($query);
 
