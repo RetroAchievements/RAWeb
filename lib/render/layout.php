@@ -215,7 +215,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
     /// Handhelds
     echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
-    ///echo "<li><a href='/gameList.php?c=53">WonderSwan</a></li>";
+    echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
     echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
     echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
