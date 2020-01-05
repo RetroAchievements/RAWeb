@@ -189,7 +189,7 @@ function RenderToolbar($user, $permissions = 0)
     ///Atari
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
-    ///echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
+    echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
     ///Coleco
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
     ///Nintendo
@@ -202,7 +202,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
     echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
-    ///echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
+    echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
     ///NEC
     echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
