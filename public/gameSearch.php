@@ -31,7 +31,7 @@ RenderHtmlHead("Game Search");
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
-        echo "<b>$pageTitle</b>";    //	NB. This will be a stub page
+        echo "<b>Game Search</b>";    //	NB. This will be a stub page
         echo "</div>";
 
         echo "<div class='detaillist'>";
