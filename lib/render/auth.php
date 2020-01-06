@@ -46,7 +46,7 @@ function RenderLoginComponent($user, $points, $errorCode, $inline = false)
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points)<br>";
         }
 
-        echo "<a href='/request/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
+        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
 
         echo "</p>";
 

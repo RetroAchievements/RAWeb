@@ -146,7 +146,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points) <span class='TrueRatio'>($truePoints)</span><br>";
         }
 
-        echo "<a href='/request/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
+        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
 
         $mailboxIcon = $unreadMessageCount > 0 ? getenv('APP_STATIC_URL') . '/Images/_MailUnread.png' : getenv('APP_STATIC_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
@@ -276,7 +276,7 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
         echo "<li class='divider'></li>";
-        echo "<li><a href='/request/logout.php'>Log Out</a></li>";
+        echo "<li><a href='/request/auth/logout.php'>Log Out</a></li>";
         echo "</ul>";
         echo "</li>";
     } else {
