@@ -342,8 +342,8 @@ function GetFriendList($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        log_sql_fail();
         // error_log(__FUNCTION__ . " failed: user:$user");
+        log_sql_fail();
     } else {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $db_entry["LastSeen"] = empty($db_entry["LastSeen"]) || $db_entry['LastSeen'] === 'Unknown' ? "_" : strip_tags($db_entry["LastSeen"]);

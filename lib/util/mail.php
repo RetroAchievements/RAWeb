@@ -54,9 +54,9 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
         $pool = new CommandPool($client, $commands, [
             'concurrency' => 10,
             'before'      => function (CommandInterface $cmd, $iteratorId) {
-                $a = $cmd->toArray();
                 // echo sprintf('About to send %d: %s' . PHP_EOL, $iteratorId, $a['Destination']['ToAddresses'][0]);
                 // error_log('About to send ' . $iteratorId . ': ' . $a['Destination']['ToAddresses'][0]);
+                $a = $cmd->toArray();
             },
             'fulfilled'   => function (ResultInterface $result, $iteratorId) use ($commands) {
                 // echo sprintf(

@@ -163,7 +163,7 @@ if ($_FILES["file"]["size"] > 1048576) {
 
                                 if ($dbResult == false) {
                                     log_sql_fail();
-                                    //log_email("uploadpic.php went wrong... $uploadType, $returnID");
+                                //log_email("uploadpic.php went wrong... $uploadType, $returnID");
                                 } else {
                                     // error_log("Logged image update $uploadType to game $returnID, to image /Images/$nextImageFilenameStr.png");
                                 }

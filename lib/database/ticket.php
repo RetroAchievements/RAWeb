@@ -53,9 +53,9 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
         // error_log(__FUNCTION__ . " produced insert id of $ticketID ");
 
         if ($dbResult == false) {
+            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
             $errorsEncountered = true;
             log_sql_fail();
-            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
         } else {
             //    Success
             if (GetAchievementMetadata($achID, $achData)) {
@@ -145,9 +145,9 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
         // error_log(__FUNCTION__ . " produced insert id of $ticketID ");
 
         if ($dbResult == false) {
+            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
             $errorsEncountered = true;
             log_sql_fail();
-            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
         } else {
             //    Success
             if (GetAchievementMetadata($achID, $achData)) {

@@ -83,7 +83,6 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
         ";
     }
 
-    global $db;
     $dbResult = s_mysql_query($query);
     if ($dbResult === false) {
         // error_log(__FUNCTION__ . ": " . mysqli_error($db));

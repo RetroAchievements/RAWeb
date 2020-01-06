@@ -10,4 +10,3 @@ function getFacebookConnection()
         'appToken' => getenv('FACEBOOK_APP_ID') . '|' . getenv('FACEBOOK_SECRET'),
     ]);
 }
-
