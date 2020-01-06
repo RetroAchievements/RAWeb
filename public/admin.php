@@ -89,345 +89,335 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
     return trim($output);
 }
 
-if (seekGET('action') == 'regenapi') {
-    $query = "SELECT User FROM UserAccounts";
-    $dbResult = s_mysql_query($query);
+$action = seekPOSTorGET('action');
 
-    $userList = '';
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $userList[] = $db_entry['User'];
-    }
+switch ($action) {
+    case 'regenapi':
+        $query = "SELECT User FROM UserAccounts";
+        $dbResult = s_mysql_query($query);
 
-    $numRegens = 0;
-    foreach ($userList as $nextTempUser) {
-        $newKey = generateAPIKey($nextTempUser);
-        if ($newKey !== "") {
-            $numRegens++;
+        $userList = '';
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $userList[] = $db_entry['User'];
         }
-    }
 
-    echo "REGENERATED $numRegens APIKEYS!<br>";
-} else {
-    if (seekGET('action') == 'regenapione') {
+        $numRegens = 0;
+        foreach ($userList as $nextTempUser) {
+            $newKey = generateAPIKey($nextTempUser);
+            if ($newKey !== "") {
+                $numRegens++;
+            }
+        }
+
+        echo "REGENERATED $numRegens APIKEYS!<br>";
+        break;
+    case 'regenapione':
         $targetUser = seekGET('t');
         $newKey = generateAPIKey($targetUser);
         echo "New API Key for $targetUser: $newKey<br>";
-    } else {
-        if (seekGET('action') == 'recalcdev') {
-            $query = "SELECT User FROM UserAccounts";
-            $dbResult = s_mysql_query($query);
+        break;
+    case 'recalcdev':
+        $query = "SELECT User FROM UserAccounts";
+        $dbResult = s_mysql_query($query);
 
-            $userList = '';
+        $userList = '';
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $userList[] = $db_entry['User'];
+        }
+
+        $numRegens = 0;
+        foreach ($userList as $nextTempUser) {
+            $valid = recalculateDevelopmentContributions($nextTempUser);
+            echo "$nextTempUser<br>";
+            if ($valid) {
+                $numRegens++;
+            }
+        }
+
+        echo "REGENERATED $numRegens developer contribution totals!<br>";
+        break;
+    case 'reconstructsiteawards':
+        $tgtPlayer = seekGET('t', null);
+
+        $query = "DELETE FROM SiteAwards WHERE AwardType = 1";
+        if ($tgtPlayer !== null) {
+            $query .= " AND User = '$tgtPlayer'";
+        }
+
+        $dbResult = s_mysql_query($query);
+
+        $query = "SELECT User FROM UserAccounts";
+        if ($tgtPlayer !== null) {
+            $query .= " WHERE User = '$tgtPlayer'";
+        }
+
+        $dbResult = s_mysql_query($query);
+
+        $userList = [];
+        if ($dbResult !== false) {
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 $userList[] = $db_entry['User'];
             }
-
-            $numRegens = 0;
-            foreach ($userList as $nextTempUser) {
-                $valid = recalculateDevelopmentContributions($nextTempUser);
-                echo "$nextTempUser<br>";
-                if ($valid) {
-                    $numRegens++;
-                }
-            }
-
-            echo "REGENERATED $numRegens developer contribution totals!<br>";
         } else {
-            if (seekGET('action') == 'reconstructsiteawards') {
-                $tgtPlayer = seekGET('t', null);
+            echo "Error accessing UserAccounts";
+            exit;
+        }
 
-                $query = "DELETE FROM SiteAwards WHERE AwardType = 1";
-                if ($tgtPlayer !== null) {
-                    $query .= " AND User = '$tgtPlayer'";
+        $numAccounts = count($userList);
+        for ($i = 0; $i < $numAccounts; $i++) {
+            $user = $userList[$i];
+
+            echo "Updating $user...<br>";
+
+            $query = "	SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon , aw.HardcoreMode
+                FROM Awarded AS aw
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                LEFT JOIN
+                    ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags=3 GROUP BY GameID )
+                    AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > 5
+                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+                WHERE aw.User='$user' AND ach.Flags = 3
+                GROUP BY ach.GameID, aw.HardcoreMode
+                ORDER BY PctWon DESC, inner1.MaxPossible DESC, gd.Title";
+
+            $dbResult = s_mysql_query($query);
+
+            if ($dbResult !== false) {
+                $listOfAwards = [];
+
+                while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+                    $listOfAwards[] = $db_entry;
+                    //$nextElem = $db_entry;
+                    //$nextGameID = $nextElem['GameID'];
+                    // if( $nextElem['PctWon'] == 2.0 )
+                    // {
+                    // $gameTitle = $nextElem['Title'];
+                    // echo "Mastered $gameTitle<br>";
+                    // //	Add award:
+                    // AddSiteAward( $user, 1, $nextElem['GameID'], 1 );
+                    // }
+                    // if( $nextElem['PctWon'] >= 1.0 )	//noooo!!!!
+                    // {
+                    // $gameTitle = $nextElem['Title'];
+                    // echo "Completed $gameTitle<br>";
+                    // //	Add award:
+                    // AddSiteAward( $user, 1, $nextElem['GameID'], 0 );
+                    // }
                 }
 
-                $dbResult = s_mysql_query($query);
+                $awardAddedHC = [];
 
-                $query = "SELECT User FROM UserAccounts";
-                if ($tgtPlayer !== null) {
-                    $query .= " WHERE User = '$tgtPlayer'";
-                }
+                foreach ($listOfAwards as $nextAward) {
+                    if ($nextAward['HardcoreMode'] == 1) {
+                        if ($nextAward['PctWon'] == 1.0) {
+                            $gameTitle = $nextAward['Title'];
+                            $gameID = $nextAward['GameID'];
+                            echo "MASTERED $gameTitle<br>";
+                            //	Add award:
+                            AddSiteAward($user, 1, $gameID, 1);
 
-                $dbResult = s_mysql_query($query);
-
-                $userList = [];
-                if ($dbResult !== false) {
-                    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                        $userList[] = $db_entry['User'];
-                    }
-                } else {
-                    echo "Error accessing UserAccounts";
-                    exit;
-                }
-
-                $numAccounts = count($userList);
-                for ($i = 0; $i < $numAccounts; $i++) {
-                    $user = $userList[$i];
-
-                    echo "Updating $user...<br>";
-
-                    $query = "	SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon , aw.HardcoreMode
-						FROM Awarded AS aw
-						LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-						LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-						LEFT JOIN
-							( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags=3 GROUP BY GameID )
-							AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > 5
-						LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-						WHERE aw.User='$user' AND ach.Flags = 3
-						GROUP BY ach.GameID, aw.HardcoreMode
-						ORDER BY PctWon DESC, inner1.MaxPossible DESC, gd.Title";
-
-                    $dbResult = s_mysql_query($query);
-
-                    if ($dbResult !== false) {
-                        $listOfAwards = [];
-
-                        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                            $listOfAwards[] = $db_entry;
-                            //$nextElem = $db_entry;
-                            //$nextGameID = $nextElem['GameID'];
-                            // if( $nextElem['PctWon'] == 2.0 )
-                            // {
-                            // $gameTitle = $nextElem['Title'];
-                            // echo "Mastered $gameTitle<br>";
-                            // //	Add award:
-                            // AddSiteAward( $user, 1, $nextElem['GameID'], 1 );
-                            // }
-                            // if( $nextElem['PctWon'] >= 1.0 )	//noooo!!!!
-                            // {
-                            // $gameTitle = $nextElem['Title'];
-                            // echo "Completed $gameTitle<br>";
-                            // //	Add award:
-                            // AddSiteAward( $user, 1, $nextElem['GameID'], 0 );
-                            // }
-                        }
-
-                        $awardAddedHC = [];
-
-                        foreach ($listOfAwards as $nextAward) {
-                            if ($nextAward['HardcoreMode'] == 1) {
-                                if ($nextAward['PctWon'] == 1.0) {
-                                    $gameTitle = $nextAward['Title'];
-                                    $gameID = $nextAward['GameID'];
-                                    echo "MASTERED $gameTitle<br>";
-                                    //	Add award:
-                                    AddSiteAward($user, 1, $gameID, 1);
-
-                                    $awardAddedHC[] = $gameID;
-                                }
-                            }
-                        }
-
-                        foreach ($listOfAwards as $nextAward) {
-                            if ($nextAward['HardcoreMode'] == 0) {
-                                //	Check it hasnt already been added as a non-HC award
-                                if ($nextAward['PctWon'] == 1.0) {
-                                    $gameTitle = $nextAward['Title'];
-                                    $gameID = $nextAward['GameID'];
-
-                                    if (!in_array($gameID, $awardAddedHC)) {
-                                        echo "Completed $gameTitle<br>";
-                                        //	Add award:
-                                        AddSiteAward($user, 1, $gameID, 0);
-                                    }
-                                }
-                            }
+                            $awardAddedHC[] = $gameID;
                         }
                     }
                 }
-            } else {
-                if (seekGET('action') == 'recalcsiteawards') {
-                    $tgtPlayer = seekGET('t', null);
-                    {
-                        $query = "DELETE FROM SiteAwards WHERE ( AwardType = 2 || AwardType = 3 || AwardType = 5 )";
-                        if ($tgtPlayer !== null) {
-                            $query .= " AND User = '$tgtPlayer'";
-                        }
 
-                        global $db;
-                        $unusedDBResult = mysqli_query($db, $query);
-                    }
-                    {
-                        $query = "SELECT User, ContribCount, ContribYield, fbUser FROM UserAccounts";
-                        if ($tgtPlayer !== null) {
-                            $query .= " WHERE User = '$tgtPlayer'";
-                        }
+                foreach ($listOfAwards as $nextAward) {
+                    if ($nextAward['HardcoreMode'] == 0) {
+                        //	Check it hasnt already been added as a non-HC award
+                        if ($nextAward['PctWon'] == 1.0) {
+                            $gameTitle = $nextAward['Title'];
+                            $gameID = $nextAward['GameID'];
 
-                        $dbResult = mysqli_query($db, $query);
-
-                        $userList = '';
-                        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                            $userList[] = [
-                                $db_entry['User'],
-                                $db_entry['ContribCount'],
-                                $db_entry['ContribYield'],
-                                $db_entry['fbUser'],
-                            ];
-                        }
-
-                        $numRecalced = 0;
-                        foreach ($userList as $nextTempUser) {
-                            global $developerCountBoundaries;
-                            global $developerPointBoundaries;
-
-                            $nextUser = $nextTempUser[0];
-                            $nextCount = $nextTempUser[1];
-                            $nextYield = $nextTempUser[2];
-                            $nextFBUser = $nextTempUser[3];
-
-                            for ($i = 0; $i < count($developerCountBoundaries); $i++) {
-                                if ($nextCount >= $developerCountBoundaries[$i]) {
-                                    //echo "$nextUser has $nextCount, greater than $developerCountBoundaries[  $i ], addaward!<br>";
-                                    //This developer has arrived at this point boundary!
-                                    AddSiteAward($nextUser, 2, $i);
-                                    $numRecalced++;
-                                }
-                            }
-                            for ($i = 0; $i < count($developerPointBoundaries); $i++) {
-                                if ($nextYield >= $developerPointBoundaries[$i]) {
-                                    //echo "$nextUser has yield of $nextYield, greater than $developerPointBoundaries[     $i ], addaward!<br>";
-                                    //This developer is newly above this point boundary!
-                                    AddSiteAward($nextUser, 3, $i);
-                                    $numRecalced++;
-                                }
-                            }
-
-                            if (isset($nextFBUser) && mb_strlen($nextFBUser) > 2) {
-                                echo "$nextUser has signed up for FB, add FB award!<br>";
-                                AddSiteAward($nextUser, 5, 0);
-                            }
-                        }
-
-                        echo "RECALCULATED $numRecalced site awards!<br>";
-                    }
-                } else {
-                    if (seekPOST('action') == 'getachids') {
-                        $gameIDs = explode(',', seekPOST('g'));
-
-                        foreach ($gameIDs as $nextGameID) {
-                            $ids = getAchievementIDs($nextGameID);
-
-                            foreach ($ids["AchievementIDs"] as $id) {
-                                echo "$id,";
-                            }
-                        }
-                    } else {
-                        if (seekPOST('action') == 'giveaward') {
-                            //	Debug award achievement:
-                            //$awardAchievementID 	= seekPOST( 'a' );
-                            //$awardAchievementUser = seekPOST( 'u' );
-                            //$awardAchHardcore 	= seekPOST( 'h', 0 );
-
-                            if (isset($awardAchievementID) && isset($awardAchievementUser)) {
-                                $ids = explode(',', $awardAchievementID);
-                                foreach ($ids as $nextID) {
-                                    if (addEarnedAchievement(
-                                        $awardAchievementUser,
-                                        '',
-                                        $nextID,
-                                        0,
-                                        $newPointTotal,
-                                        $awardAchHardcore,
-                                        false
-                                    )) {
-                                        echo " - Updated $awardAchievementUser's score to $newPointTotal!<br>";
-                                    }
-                                }
-                            }
-                        } else {
-                            if (seekGET('action') == 'recalctrueratio') {
-                                set_time_limit(3000);
-
-                                $query = "SELECT MAX(ID) FROM GameData";
-                                $dbResult = s_mysql_query($query);
-                                $data = mysqli_fetch_assoc($dbResult);
-                                $numGames = $data['MAX(ID)'];
-                                for ($i = 1; $i <= $numGames; $i++) {
-                                    error_log("Recalculating TA for Game ID: $i<br>");
-                                    echo "Recalculating TA for Game ID: $i<br>";
-                                    recalculateTrueRatio($i);
-
-                                    ob_flush();
-                                    flush();
-
-                                    //if( $i % 10 == 0 )
-                                    //	sleep( 1 );
-                                }
-
-                                error_log("Recalc'd TA for $numGames games!");
-                                echo "Recalc'd TA for $numGames games!";
-                                exit;
-                            } else {
-                                if (seekGET('action') == 'recalcplayerscores') {
-                                    set_time_limit(3000);
-
-                                    getUserList(1, 0, 99999, $userData, "");
-
-                                    echo "Recalc players scores: " . count($userData) . " to process...";
-
-                                    foreach ($userData as $nextUser) {
-                                        echo "Player: " . $nextUser['User'] . " recalc (was TA: " . $nextUser['TrueRAPoints'] . ")<br>";
-                                        recalcScore($nextUser['User']);
-
-                                        ob_flush();
-                                        flush();
-                                    }
-
-                                    error_log("Recalc'd TA for " . count($userData) . " players!");
-                                    echo "Recalc'd TA for " . count($userData) . " players!";
-                                    exit;
-                                } else {
-                                    if (seekPOSTorGET('action') == 'updatestaticdata') {
-                                        $achID = seekPOSTorGET('a', 0, 'integer');
-                                        $forumID = seekPOSTorGET('f', 0, 'integer');
-
-                                        //echo $achID;
-                                        //echo $forumID;
-
-                                        $query = "UPDATE StaticData SET
-			Event_AOTW_AchievementID='$achID',
-			Event_AOTW_ForumID='$forumID'";
-
-                                        s_mysql_query($query);
-                                        echo "Successfully updated static data!";
-                                    }
-                                    // else if( seekGET( 'action' ) == 'access_log' )
-                                    // {
-                                    // $accessLog = file_get_contents( "../../log/httpd/access_log" );
-                                    // echo $accessLog;
-                                    // exit;
-                                    // }
-                                    // else if( seekGET( 'action' ) == 'error_log' )
-                                    // {
-                                    // $log = file_get_contents( "../../log/httpd/error_log" );
-                                    // echo $log;
-                                    // exit;
-                                    // }
-                                    else {
-                                        if (seekPOSTorGET('action') == 'errorlog') {
-                                            $errorlogpath = "/var/log/httpd/error_log";
-
-                                            //$result = exec( "tail -n10 $errorlogpath");
-                                            //var_dump( $result );
-
-                                            echo "<a href='/admin.php?action=errorlog&c=50'>Last 50</a> - ";
-                                            echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
-                                            echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
-
-                                            $count = seekPOSTorGET('c', 20, 'integer');
-                                            echo nl2br(tailCustom($errorlogpath, $count));
-                                            exit;
-                                        }
-                                    }
-                                }
+                            if (!in_array($gameID, $awardAddedHC)) {
+                                echo "Completed $gameTitle<br>";
+                                //	Add award:
+                                AddSiteAward($user, 1, $gameID, 0);
                             }
                         }
                     }
                 }
             }
         }
-    }
+        break;
+    case 'recalcsiteawards':
+        $tgtPlayer = seekGET('t', null);
+        {
+            $query = "DELETE FROM SiteAwards WHERE ( AwardType = 2 || AwardType = 3 || AwardType = 5 )";
+            if ($tgtPlayer !== null) {
+                $query .= " AND User = '$tgtPlayer'";
+            }
+
+            global $db;
+            $unusedDBResult = mysqli_query($db, $query);
+        }
+        {
+            $query = "SELECT User, ContribCount, ContribYield, fbUser FROM UserAccounts";
+            if ($tgtPlayer !== null) {
+                $query .= " WHERE User = '$tgtPlayer'";
+            }
+
+            $dbResult = mysqli_query($db, $query);
+
+            $userList = '';
+            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+                $userList[] = [
+                    $db_entry['User'],
+                    $db_entry['ContribCount'],
+                    $db_entry['ContribYield'],
+                    $db_entry['fbUser'],
+                ];
+            }
+
+            $numRecalced = 0;
+            foreach ($userList as $nextTempUser) {
+                global $developerCountBoundaries;
+                global $developerPointBoundaries;
+
+                $nextUser = $nextTempUser[0];
+                $nextCount = $nextTempUser[1];
+                $nextYield = $nextTempUser[2];
+                $nextFBUser = $nextTempUser[3];
+
+                for ($i = 0; $i < count($developerCountBoundaries); $i++) {
+                    if ($nextCount >= $developerCountBoundaries[$i]) {
+                        //echo "$nextUser has $nextCount, greater than $developerCountBoundaries[  $i ], addaward!<br>";
+                        //This developer has arrived at this point boundary!
+                        AddSiteAward($nextUser, 2, $i);
+                        $numRecalced++;
+                    }
+                }
+                for ($i = 0; $i < count($developerPointBoundaries); $i++) {
+                    if ($nextYield >= $developerPointBoundaries[$i]) {
+                        //echo "$nextUser has yield of $nextYield, greater than $developerPointBoundaries[     $i ], addaward!<br>";
+                        //This developer is newly above this point boundary!
+                        AddSiteAward($nextUser, 3, $i);
+                        $numRecalced++;
+                    }
+                }
+
+                if (isset($nextFBUser) && mb_strlen($nextFBUser) > 2) {
+                    echo "$nextUser has signed up for FB, add FB award!<br>";
+                    AddSiteAward($nextUser, 5, 0);
+                }
+            }
+
+            echo "RECALCULATED $numRecalced site awards!<br>";
+        }
+        break;
+    case 'getachids':
+        $gameIDs = explode(',', seekPOST('g'));
+
+        foreach ($gameIDs as $nextGameID) {
+            $ids = getAchievementIDs($nextGameID);
+
+            foreach ($ids["AchievementIDs"] as $id) {
+                echo "$id,";
+            }
+        }
+        break;
+    case 'giveaward':
+        //	Debug award achievement:
+        //$awardAchievementID 	= seekPOST( 'a' );
+        //$awardAchievementUser = seekPOST( 'u' );
+        //$awardAchHardcore 	= seekPOST( 'h', 0 );
+
+        if (isset($awardAchievementID) && isset($awardAchievementUser)) {
+            $ids = explode(',', $awardAchievementID);
+            foreach ($ids as $nextID) {
+                if (addEarnedAchievement(
+                    $awardAchievementUser,
+                    '',
+                    $nextID,
+                    0,
+                    $newPointTotal,
+                    $awardAchHardcore,
+                    false
+                )) {
+                    echo " - Updated $awardAchievementUser's score to $newPointTotal!<br>";
+                }
+            }
+        }
+        break;
+    case 'recalctrueratio':
+        set_time_limit(3000);
+
+        $query = "SELECT MAX(ID) FROM GameData";
+        $dbResult = s_mysql_query($query);
+        $data = mysqli_fetch_assoc($dbResult);
+        $numGames = $data['MAX(ID)'];
+        for ($i = 1; $i <= $numGames; $i++) {
+            // error_log("Recalculating TA for Game ID: $i<br>");
+            echo "Recalculating TA for Game ID: $i<br>";
+            recalculateTrueRatio($i);
+
+            ob_flush();
+            flush();
+
+            //if( $i % 10 == 0 )
+            //	sleep( 1 );
+        }
+
+        // error_log("Recalc'd TA for $numGames games!");
+        echo "Recalc'd TA for $numGames games!";
+        exit;
+        break;
+    case 'recalcplayerscores':
+        set_time_limit(3000);
+
+        getUserList(1, 0, 99999, $userData, "");
+
+        echo "Recalc players scores: " . count($userData) . " to process...";
+
+        foreach ($userData as $nextUser) {
+            echo "Player: " . $nextUser['User'] . " recalc (was TA: " . $nextUser['TrueRAPoints'] . ")<br>";
+            recalcScore($nextUser['User']);
+
+            ob_flush();
+            flush();
+        }
+
+        // error_log("Recalc'd TA for " . count($userData) . " players!");
+        echo "Recalc'd TA for " . count($userData) . " players!";
+        exit;
+        break;
+    case 'updatestaticdata':
+        $achID = seekPOSTorGET('a', 0, 'integer');
+        $forumID = seekPOSTorGET('f', 0, 'integer');
+
+        //echo $achID;
+        //echo $forumID;
+
+        $query = "UPDATE StaticData SET
+Event_AOTW_AchievementID='$achID',
+Event_AOTW_ForumID='$forumID'";
+
+        s_mysql_query($query);
+        echo "Successfully updated static data!";
+        break;
+    // case 'access_log':
+    //     $accessLog = file_get_contents( "../../log/httpd/access_log" );
+    //     echo $accessLog;
+    //     exit;
+    // case 'error_log':
+    //     $log = file_get_contents( "../../log/httpd/error_log" );
+    //     echo $log;
+    //     exit;
+    //     break;
+    case 'errorlog':
+        $errorlogpath = "/var/log/httpd/error_log";
+
+        //$result = exec( "tail -n10 $errorlogpath");
+        //var_dump( $result );
+
+        echo "<a href='/admin.php?action=errorlog&c=50'>Last 50</a> - ";
+        echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
+        echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
+
+        $count = seekPOSTorGET('c', 20, 'integer');
+        echo nl2br(tailCustom($errorlogpath, $count));
+        exit;
+        break;
 }
 
 $staticData = getStaticData();
