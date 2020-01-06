@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
-$imageIterFilename = "ImageIter.txt";
+$imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
