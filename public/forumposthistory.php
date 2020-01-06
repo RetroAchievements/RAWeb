@@ -37,17 +37,16 @@ RenderHtmlHead("Forum Recent Posts");
 
             $forumIter = 0;
 
-            echo "<table style='table-layout:fixed;'>";
+            echo "<table>";
+            echo "<tbody>";
 
-            echo "<thead>";
             echo "<tr>";
+            echo "<th></th>";
             echo "<th>Author</th>";
             echo "<th class='fullwidth'>Message</th>";
-            echo "<th>Posted At</th>";
+            echo "<th class='text-nowrap'>Posted At</th>";
             echo "</tr>";
-            echo "</thead>";
 
-            echo "<tbody>";
             foreach ($recentPostsData as $topicPostData) {
                 //var_dump( $topicPostData );
 
@@ -64,8 +63,11 @@ RenderHtmlHead("Forum Recent Posts");
                 echo "<td>";
                 echo GetUserAndTooltipDiv($postAuthor, true);
                 echo "</td>";
+                echo "<td>";
+                echo GetUserAndTooltipDiv($postAuthor, false);
+                echo "</td>";
 
-                echo "<td class=''><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";
+                echo "<td><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";
                 echo "<td class='smalldate'>$nicePostTime</td>";
                 echo "</tr>";
             }
