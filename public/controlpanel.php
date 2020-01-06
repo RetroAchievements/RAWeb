@@ -438,15 +438,15 @@ RenderHtmlHead("My Settings");
                     <!--<tr><th>Action</th><th>Post on Facebook?</th></tr>-->
                     <tr>
                         <td>When I earn achievements:</td>
-                        <td><input id='FBUserPref0' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?php if (BitSet($fbPrefs, FBUserPref::PostFBOn_EarnAchievement) ? 'checked' : '' ?> ></td>
+                        <td><input id='FBUserPref0' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_EarnAchievement) ? 'checked' : '' ?> ></td>
                     </tr>
                     <tr>
                         <td>When I fully complete a game:</td>
-                        <td><input id='FBUserPref1' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?php if (BitSet($fbPrefs, FBUserPref::PostFBOn_CompleteGame) ? 'checked' : '' ?> ></td>
+                        <td><input id='FBUserPref1' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_CompleteGame) ? 'checked' : '' ?> ></td>
                     </tr>
                     <tr>
                         <td>When I upload an achievement:</td>
-                        <td><input id='FBUserPref2' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?php if (BitSet($fbPrefs, FBUserPref::PostFBOn_UploadAchievement) ? 'checked' : '' ?> ></td>
+                        <td><input id='FBUserPref2' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_UploadAchievement) ? 'checked' : '' ?> ></td>
                     </tr>
 
                     </tbody>
