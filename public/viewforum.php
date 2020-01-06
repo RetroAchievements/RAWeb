@@ -85,11 +85,11 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
             echo "<table><tbody>";
             echo "<tr class='forumsheader'>";
-            echo "<th colspan='2'>Topics</th>";
+            echo "<th colspan='2' class='fullwidth'>Topics</th>";
             echo "<th>Author</th>";
             echo "<th>Replies</th>";
             //echo "<th>Views</th>";
-            echo "<th>Last post</th>";
+            echo "<th class='text-nowrap'>Last post</th>";
             echo "</tr>";
 
             $topicCount = count($topicList);

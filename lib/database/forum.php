@@ -70,13 +70,13 @@ function getForumTopics($forumID, $offset, $count)
 {
     settype($forumID, "integer");
 
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 50 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
+    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
                 WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
-                GROUP BY ft.ID
+                GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 
     $dbResult = s_mysql_query($query);
@@ -98,13 +98,13 @@ function getForumTopics($forumID, $offset, $count)
 
 function getUnauthorisedForumLinks()
 {
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 50 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
+    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
                 WHERE ftc.Authorised = 0
-                GROUP BY ft.ID
+                GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 
     $dbResult = s_mysql_query($query);

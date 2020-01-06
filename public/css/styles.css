@@ -896,21 +896,20 @@ th {
 }
 
 .clickablebutton, .buttoncollection, .morebutton {
-  border-radius: 8px;
+  border-radius: 4px;
   background: black;
-  margin: 0.2em 0.0em;
   display: inline-block;
-  line-height: 2em;
-  padding: 0 .6em;
+  line-height: 1em;
+  padding: .4em .6em;
+}
+
+.morebutton {
+  float: right;
 }
 
 .buttoncollection {
   margin-top: 4px;
   margin-bottom: 4px;
-}
-
-.morebutton {
-  float: right;
 }
 
 .clickablebutton a {

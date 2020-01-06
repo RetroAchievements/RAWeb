@@ -262,7 +262,7 @@ RenderHtmlStart();
             echo GetUserAndTooltipDiv($nextCommentAuthor, true, null, 64);
             echo "</td>";
 
-            echo "<td class='commentpayload'>";
+            echo "<td class='commentpayload' id='$nextCommentID'>";
 
             echo "<div class='smalltext rightfloat'>Posted: $nextCommentDateCreatedNiceDate";
 
