@@ -45,7 +45,7 @@ body {
   background: #1a1a1a;
 }
 
-p {
+p, .embedded {
   padding: 8px;
   border-radius: 8px;
   background: rgb(22, 22, 22);
@@ -165,7 +165,7 @@ a:hover {
   min-width: 250px;
   max-width: 394px;
   float: right;
-  right: 0px;
+  right: 0;
   padding: 4px;
   margin: 15px;
   border-radius: 8px;
@@ -177,7 +177,7 @@ a:hover {
 
 .login p {
   margin: 10px;
-  padding: 0px;
+  padding: 0;
   background-color: rgb(26, 26, 26);
 }
 
@@ -199,7 +199,7 @@ a:hover {
 }
 
 .component {
-  margin: 0px 0px 20px 0px;
+  margin-bottom: 20px;
   overflow: hidden;
 }
 
@@ -288,7 +288,7 @@ td, tr, img {
 
 #title {
   margin: auto;
-  padding: 15px 0px 25px 0px;
+  padding: 15px 0 25px 0;
   width: 980px;
   max-width: 100%;
   position: relative;
@@ -314,7 +314,7 @@ td, tr, img {
   width: 124px;
   font-size: 0.9em;
   background-color: rgb(32, 32, 32);
-  border: 0px solid rgb(12, 12, 12);
+  border: 0 solid rgb(12, 12, 12);
   float: right;
   text-align: center;
 }
@@ -329,7 +329,7 @@ td, tr, img {
   height: 6px;
   width: inherit;
   background-color: rgb(204, 153, 0);
-  border-top: 0px solid;
+  border-top: 0 solid;
 }
 
 .progressbar.allusers {
@@ -602,13 +602,13 @@ td, tr, img {
 
 #forums a:visited {
   color: #cc9900;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   text-decoration: none; /* Removes underline from links */
 }
 
 #forums a:hover {
   color: #eeeeff;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   text-decoration: none; /* Removes underline from links */
 }
 
@@ -655,13 +655,13 @@ td, tr, img {
 
 .navpath a:visited {
   color: #cc9900;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   text-decoration: none; /* Removes underline from links */
 }
 
 .navpath a:hover {
   color: #eeeeff;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   text-decoration: none; /* Removes underline from links */
 }
 
@@ -778,7 +778,7 @@ td, tr, img {
   /*background-image:url('/Images/dropdown.gif');*/
   /*background-repeat:no-repeat;*/
   /*background-position:bottom left;*/
-  /*padding: 0px 0px 6px 0px;*/
+  /*padding: 0 0 6px 0;*/
 }
 
 #innermenu > ul > li:hover > a.nosub {
@@ -861,7 +861,7 @@ td, tr, img {
 
 .achievemententryicon {
   float: left;
-  padding: 0px 4px;
+  padding: 0 4px;
 }
 
 /* Table properties */
@@ -901,7 +901,7 @@ th {
   margin: 0.2em 0.0em;
   display: inline-block;
   line-height: 2em;
-  padding: 0px .6em;
+  padding: 0 .6em;
 }
 
 .buttoncollection {
@@ -916,11 +916,11 @@ th {
 .clickablebutton a {
   display: block;
   text-decoration: none;
-  /* padding: 0px 8px; */
+  /* padding: 0 8px; */
 }
 
 .mottocontainer {
-  padding: 8px 0px;
+  padding: 8px 0;
 }
 
 .usermotto {
@@ -1073,22 +1073,22 @@ pre, code, .code {
 
 .badgeimg {
   border: 2px solid transparent;
-  padding: 0px;
+  padding: 0;
 }
 
 .badgeimglarge {
   border: 2px solid transparent;
-  padding: 0px;
+  padding: 0;
 }
 
 .goldimage {
   border: 2px solid gold;
-  padding: 0px;
+  padding: 0;
 }
 
 .goldimagebig {
   border: 2px solid gold;
-  padding: 0px;
+  padding: 0;
 }
 
 #WzBoDy {
@@ -1106,16 +1106,7 @@ pre, code, .code {
   border-bottom: dashed 1px;
 }
 
-table.recentforumposts {
-  /*table-layout:fixed;*/
-}
-
 .recentforumposts td {
-  overflow: hidden;
-  word-wrap: break-word;
-}
-
-.recentforummsg {
   overflow: hidden;
   word-wrap: break-word;
 }
@@ -1155,11 +1146,11 @@ div.rating {
 }
 
 div.rating a {
-  background: url('/Images/star_empty.png') no-repeat 0 0px;
+  background: url('/Images/star_empty.png') no-repeat 0 0;
   width: 32px;
   height: 32px;
   display: block;
-  background-position: 0px 0px;
+  background-position: 0 0;
   float: left;
   overflow: hidden;
   text-indent: -999em;
@@ -1167,11 +1158,11 @@ div.rating a {
 }
 
 div.rating a.starhalf {
-  background: url('/Images/star_half.png') no-repeat 0 0px;
+  background: url('/Images/star_half.png') no-repeat 0 0;
 }
 
 div.rating a.starlit {
-  background: url('/Images/star_full.png') no-repeat 0 0px;
+  background: url('/Images/star_full.png') no-repeat 0 0;
 }
 
 
@@ -1312,8 +1303,8 @@ a.setRequestLabel {
   #topborder {
     max-width: inherit;
     min-width: inherit;
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
   }
 
   .topiccommenttext {
