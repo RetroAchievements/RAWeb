@@ -136,7 +136,7 @@ if ($success) {
         echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         exit;
     } else {
-        UploadToS3(__DIR__ . '/../../' . $newImageFilename, "Images/$nextImageFilenameStr.png");
+        UploadToS3(__DIR__ . '/../../' . $newImageFilename, $newImageFilename);
 
         //	Increment and save this new badge number for next time
         $thisImageIter = str_pad($nextImageFilename, 6, "0", STR_PAD_LEFT);

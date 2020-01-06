@@ -16,7 +16,7 @@ function UploadToS3($filenameSrc, $filenameDest)
 
     $result = $client->putObject([
         'Bucket' => getenv('AWS_BUCKET'),
-        'Key' => "$filenameDest",
+        'Key' => $filenameDest,
         'Body' => fopen($filenameSrc, 'r+'),
     ]);
 
@@ -221,8 +221,8 @@ function UploadBadgeImage($file)
                     // error_log("UploadBadgeImage failed: Issues copying from ? to $destBadgeFile");
                     $response['Error'] = "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
                 } else {
-                    UploadToS3(__DIR__ . '/../../public/' . $destBadgeFile, $newImage);
-                    UploadToS3(__DIR__ . '/../../public/' . $destBadgeFileLocked, $newImageLocked);
+                    UploadToS3(__DIR__ . '/../../public/' . $destBadgeFile, $destBadgeFile);
+                    UploadToS3(__DIR__ . '/../../public/' . $destBadgeFileLocked, $destBadgeFileLocked);
 
                     $newBadgeContent = str_pad($nextBadgeFilename, 5, "0", STR_PAD_LEFT);
                     //echo "OK:$newBadgeContent";
