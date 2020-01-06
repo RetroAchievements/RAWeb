@@ -115,7 +115,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br>";
 
-        echo "<form method='post' action='/request/login.php'>";
+        echo "<form method='post' action='/request/auth/login.php'>";
         echo "<div>";
         echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "' />";
         echo "<table><tbody>";

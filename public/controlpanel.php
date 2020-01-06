@@ -42,7 +42,7 @@ RenderHtmlHead("My Settings");
   function GetAllResettableGamesList() {
     $('#resetgameselector').empty()
 
-    var posting = $.post('/request/requestuserplayedgames.php', {u: '<?php echo $user; ?>'})
+    var posting = $.post('/request/user/list-games.php', {u: '<?php echo $user; ?>'})
     posting.done(OnGetAllResettableGamesList)
 
     $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0)
@@ -82,7 +82,7 @@ RenderHtmlHead("My Settings");
   function ResetFetchAwarded() {
     var gameID = parseInt($('#resetgameselector :selected').val())
     if (gameID > 0) {
-      var posting = $.post('/request/requestunlockssite.php', {u: '<?php echo $user; ?>', g: gameID})
+      var posting = $.post('/request/user/list-unlocks.php', {u: '<?php echo $user; ?>', g: gameID})
       posting.done(onFetchComplete)
       $('#resetachievementscontainer').empty()
       $('#warning').html('Status: Updating...')
@@ -145,7 +145,7 @@ RenderHtmlHead("My Settings");
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val()
         //alert( "Game ID is " + gameID );
-        var posting = $.post('/request/requestresetachievements.php', {u: '<?php echo $user; ?>', g: gameID})
+        var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', g: gameID})
         posting.done(onResetComplete)
         $('#warning').html('Status: Updating...')
         $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0)
@@ -155,7 +155,7 @@ RenderHtmlHead("My Settings");
 
       //alert( "Ach ID is " + achID );
       //alert( "isHardcore is " + isHardcore );
-      var posting = $.post('/request/requestresetachievements.php', {u: '<?php echo $user; ?>', a: achID, h: isHardcore})
+      var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', a: achID, h: isHardcore})
       posting.done(onResetComplete)
       $('#warning').html('Status: Updating...')
       $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0)
@@ -185,7 +185,7 @@ RenderHtmlHead("My Settings");
     }
 
     $('#loadingicon').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0)
-    var posting = $.post('/request/requestchangesiteprefs.php', {u: '<?php echo $user; ?>', p: newUserPrefs})
+    var posting = $.post('/request/user/update-notification.php', {u: '<?php echo $user; ?>', p: newUserPrefs})
     posting.done(OnChangeUserPrefs)
   }
 
@@ -203,7 +203,7 @@ RenderHtmlHead("My Settings");
     }
 
     $('#loadingiconfb').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0)
-    var posting = $.post('/request/requestchangefb.php', {u: '<?php echo $user; ?>', p: newUserPrefs})
+    var posting = $.post('/request/facebook/update.php', {u: '<?php echo $user; ?>', p: newUserPrefs})
     posting.done(OnChangeFBUserPrefs)
   }
 
@@ -243,7 +243,6 @@ RenderHtmlHead("My Settings");
 
   GetAllResettableGamesList()
 </script>
-<?php /*
 <?php if (getenv('FACEBOOK_APP_ID')): ?>
     <script>
       window.fbAsyncInit = function () {
@@ -264,7 +263,7 @@ RenderHtmlHead("My Settings");
           // Here we specify what we do with the response anytime this event occurs.
           if (response.status === 'connected') {
             FB.api('/me', function (response) {
-              var postingupdate = $.post('/request/requestassociatefb.php', {u: '<?php echo $user; ?>', f: response.id})
+              var postingupdate = $.post('/request/facebook/connect.php', {u: '<?php echo $user; ?>', f: response.id})
               postingupdate.done(function (data) {
                   console.log('FB associate: ' + data + '.')
 
@@ -319,7 +318,6 @@ RenderHtmlHead("My Settings");
       }(document))
     </script>
 <?php endif ?>
-*/?>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
@@ -341,7 +339,7 @@ RenderHtmlHead("My Settings");
             echo "</p>";
 
             if ($permissions == \RA\Permissions::Unregistered) {
-                echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/requestresendactivationemail.php?u=$user'>here</a> to resend your activation email!</div>";
+                echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
             ?>
 
@@ -357,7 +355,7 @@ RenderHtmlHead("My Settings");
                 echo "<tr>";
                 echo "<td>User Motto:</td>";
                 echo "<td>";
-                echo "<form method='POST' action='/request/requestsubmitusermotto.php'>";
+                echo "<form method='POST' action='/request/user/update-motto.php'>";
                 echo "<input type='text' name='m' value=\"$userMottoString\" size='50' maxlength='49' id='usermottoinput'/>";
                 echo "<input type='hidden' name='u' VALUE='$user'>";
                 echo "<input type='hidden' name='c' VALUE='$cookie'>";
@@ -387,7 +385,7 @@ RenderHtmlHead("My Settings");
                 echo "Allow Comments on my User Wall: ";
                 echo "</td>";
                 echo "<td>";
-                echo "<form method='POST' action='/request/requestsubmituserprefs.php'>";
+                echo "<form method='POST' action='/request/user/update-wall.php'>";
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
                 echo "<input type='checkbox' name='v' value='1' id='userwallactive' $checkedStr/>";
                 echo "<input type='hidden' name='u' value='$user'>";
@@ -404,7 +402,7 @@ RenderHtmlHead("My Settings");
                 echo "Remove all comments from my User Wall: ";
                 echo "</td>";
                 echo "<td>";
-                echo "<form method='POST' action='/request/requestsubmituserprefs.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
+                echo "<form method='POST' action='/request/user/update-wall.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
                 echo "<input type='hidden' name='u' value='$user'>";
                 echo "<input type='hidden' name='c' value='$cookie'>";
                 echo "<input type='hidden' name='t' value='cleanwall'>";
@@ -419,7 +417,6 @@ RenderHtmlHead("My Settings");
         }
         ?>
 
-        <?php /*
         <div class='component'>
             <h3>Facebook</h3>
 
@@ -468,7 +465,7 @@ RenderHtmlHead("My Settings");
 
                 <br>
                 <h4>Unlink Facebook</h4>
-                Click <a href="/request/requestremovefb.php?u=<?php echo $user; ?>">here</a> to remove Facebook from your RetroAchievements account.
+                Click <a href="/request/facebook/remove.php?u=<?php echo $user; ?>">here</a> to remove Facebook from your RetroAchievements account.
                                                                                      Please note you will also need to remove permissions from within Facebook to fully disassociate this app,
                                                                                      by visiting <a href="https://www.facebook.com/settings?tab=applications">this page</a> on Facebook.
                 <br><br>
@@ -480,9 +477,7 @@ RenderHtmlHead("My Settings");
                 echo "<br>";
             }
             ?>
-
         </div>
-        */ ?>
 
         <div class='component'>
             <h3>Notifications</h3>
@@ -588,7 +583,7 @@ RenderHtmlHead("My Settings");
             }
             ?>
 
-            <form method='post' action='/request/requestchangepassword.php'>
+            <form method='post' action='/request/user/update-password.php'>
 
                 <table id='controlpanelinput'>
                     <tbody>
@@ -643,7 +638,7 @@ RenderHtmlHead("My Settings");
             }
             ?>
 
-            <form method='post' action='/request/requestchangeemailaddress.php'>
+            <form method='post' action='/request/user/update-email.php'>
                 <table id='controlpanelinput'>
                     <tbody>
                     <tr>
@@ -700,19 +695,18 @@ RenderHtmlHead("My Settings");
         </div>
 
         <?php /*
-    <div class='component'>
-    <h3>Reset All Achievements</h3>
-        <p>Please send a message to <a href="https://retroachievements.org/createmessage.php?t=RAdmin">RAdmin</a> to request a reset of your achievement progress or reset games individually above.</p>
-    NOTE: deprecated - will be restored inv2
-    Enter password to confirm! Please note: this is <b>not</b> reversible!
-    <form method=post action="requestresetachievements.php">
-    <INPUT TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-    <INPUT TYPE="password" NAME="p" VALUE="">
-    <INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
-    </form>
-    </div>
-    */ ?>
-
+        <div class='component'>
+        <h3>Reset All Achievements</h3>
+            <p>Please send a message to <a href="/createmessage.php?t=RAdmin">RAdmin</a> to request a reset of your achievement progress or reset games individually above.</p>
+        NOTE: deprecated - will be restored inv2
+        Enter password to confirm! Please note: this is <b>not</b> reversible!
+        <form method=post action="requestresetachievements.php">
+        <INPUT TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
+        <INPUT TYPE="password" NAME="p" VALUE="">
+        <INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
+        </form>
+        </div>
+        */ ?>
 
     </div>
 
@@ -720,7 +714,7 @@ RenderHtmlHead("My Settings");
 
         <div class='component'>
             <h3>Request Score Recalculation</h3>
-            <form method=post action="/request/requestscorerecalculation.php">
+            <form method=post action="/request/user/recalculate-score.php">
                 <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
                 If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
                 <input value="Recalculate My Score" type='submit' size='37'>

@@ -58,7 +58,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
         echo "Renaming game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName.<br>";
         echo "Please enter a new name below:<br><br>";
 
-        echo "<FORM method=post action='/request/requestmodifygame.php'>";
+        echo "<FORM method=post action='/request/game/modify.php'>";
         echo "<INPUT TYPE='hidden' NAME='u' VALUE='$user' />";
         echo "<INPUT TYPE='hidden' NAME='g' VALUE='$gameID' />";
         echo "<INPUT TYPE='hidden' NAME='f' VALUE='1' />";

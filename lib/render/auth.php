@@ -12,7 +12,7 @@ function RenderLoginComponent($user, $points, $errorCode, $inline = false)
         echo "<div class='infobox'>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br>";
 
-        echo "<form method='post' action='/request/login.php'>";
+        echo "<form method='post' action='/request/auth/login.php'>";
         echo "<div>";
         echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "' />";
         echo "<table style='logintable'><tbody>";

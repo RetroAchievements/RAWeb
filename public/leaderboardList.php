@@ -74,7 +74,7 @@ RenderHtmlHead($pageTitle);
         var lbMem = 'STA:' + lbMem1 + '::CAN:' + lbMem2 + '::SUB:' + lbMem3 + '::VAL:' + lbMem4
         var lbLowerIsBetter = $('body').find('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0'
 
-        var posting = $.post('requestupdatelb.php', {u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder})
+        var posting = $.post('/request/leaderboard/update.php', {u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder})
         posting.done(onUpdateComplete)
 
         $('body').find('#warning').html('Status: updating...')
@@ -133,11 +133,11 @@ RenderHtmlHead($pageTitle);
         echo "<ul>";
         if (isset($gameID)) {
             echo "<li>";
-            echo "<a href='/request/requestcreatenewlb.php?u=$user&c=$cookie&g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a>";
+            echo "<a href='/request/leaderboard/create.php?u=$user&c=$cookie&g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a>";
             echo "</li>";
         } else {
             echo "<li>Add new leaderboard<br>";
-            echo "<form method='post' action='/request/requestcreatenewlb.php' >";
+            echo "<form method='post' action='/request/leaderboard/create.php' >";
             echo "<input type='hidden' name='u' value='$user' />";
             echo "<input type='hidden' name='c' value='$cookie' />";
             echo "<select name='g'>";
@@ -338,12 +338,12 @@ RenderHtmlHead($pageTitle);
             echo "<div style='float:left;' >";
             echo "&#124;";
             echo "&nbsp;";
-            echo "<a href='/request/requestdeletelb.php?u=$user&amp;i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Permanently Delete?</a>";
+            echo "<a href='/request/leaderboard/delete.php?u=$user&amp;i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Permanently Delete?</a>";
             echo "&nbsp;";
             echo "&#124;";
             echo "&nbsp;";
             if ($lbNumEntries > 0) {
-                echo "<a href='/request/requestresetlb.php?u=$user&amp;i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset all $lbNumEntries entries?</a>";
+                echo "<a href='/request/leaderboard/reset.php?u=$user&amp;i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset all $lbNumEntries entries?</a>";
             } else {
                 echo "0 entries";
             }

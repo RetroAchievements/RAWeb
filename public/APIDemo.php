@@ -24,7 +24,7 @@ RenderHtmlHead("RetroAchievements API Demo (PHP)");
 
         echo "<p>";
         // echo "This page will visually demonstrate some of the functionality of the RetroAchievements PHP API.";
-        echo "Click <a href='/request/GetRA_API.php'>here</a> to download an example PHP API client class.";
+        echo "Click <a href='/request/download-api-client.php'>here</a> to download an example PHP API client class.";
         // echo "Once added, you will be able to create a <code>RetroAchievements</code>
         // object and call functions on it, as demonstrated below. Note all <code>highlighted code</code> refers to a line of code in PHP.";
         echo "Please note, this is a beta offering and only supports read-only access to data that can already be found on the site.";

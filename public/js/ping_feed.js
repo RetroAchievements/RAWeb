@@ -1,5 +1,5 @@
 /* pingURL - URL for updating feed */
-var pingURL = 'ping_feed.php'
+var pingURL = '/request/feed/ping.php'
 /* create XMLHttpRequest objects for updating the feed and getting the selected color */
 var xmlHttpGetFeed = createXmlHttpRequestObject()
 /* variables that establish how often to access the server */

@@ -1,7 +1,7 @@
 <?php
 function RenderUpdateSubscriptionForm($formID, $subjectType, $subjectID, $isSubscribed)
 {
-    echo "<form id='$formID' action='/request/requestupdatesubscription.php' method='post'>";
+    echo "<form id='$formID' action='/request/user/update-subscription.php' method='post'>";
     echo "<input type='hidden' name='return_url' value='" . $_SERVER["REQUEST_URI"] . "'/>";
     echo "<input type='hidden' name='subject_type' value='$subjectType'/>";
     echo "<input type='hidden' name='subject_id' value='$subjectID'/>";

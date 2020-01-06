@@ -335,26 +335,26 @@ RenderHtmlStart(true);
 
             if ($userMassData['Friendship'] == 1) {
                 if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
                     //    They haven't accepted yet
-                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Cancel friend request</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Cancel friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == -1) {
                     //    They blocked us
-                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                 }
             } elseif ($userMassData['Friendship'] == 0) {
                 if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Confirm friend request</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Confirm friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Add friend</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=1'>Add friend</a></span>";
                 }
             }
 
             if ($userMassData['Friendship'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
             } else { //if( $userMassData['Friendship'] == -1 )
-                echo "<span class='clickablebutton'><a href='/request/requestchangefriend.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
@@ -370,7 +370,7 @@ RenderHtmlStart(true);
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<li>Update Account Type:</li>";
-                echo "<form method='post' action='/request/requestupdateuser.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='0' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
 
@@ -396,7 +396,7 @@ RenderHtmlStart(true);
 
             if (isset($user) && $permissions >= Permissions::Root) {
                 //  Me only
-                echo "<form method='post' action='/request/requestupdateuser.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='2' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
                 echo "<input type='hidden' name='v' value='0' />";
@@ -406,7 +406,7 @@ RenderHtmlStart(true);
             }
 
             if (isset($user) && $permissions >= Permissions::Admin) {
-                echo "<form method='post' action='/request/requestscorerecalculation.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/user/recalculate-score.php' enctype='multipart/form-data'>";
                 echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Recalc Score Now' /><br><br>";
                 echo "<div style='clear:all;'></div>";
@@ -415,7 +415,7 @@ RenderHtmlStart(true);
                 //$userIsUntracked
                 echo ($userIsUntracked == 1) ? "<b>Untracked User!</b>&nbsp;" : "Tracked User.&nbsp;";
                 $newValue = $userIsUntracked ? 0 : 1;
-                echo "<form method='post' action='/request/requestupdateuser.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input TYPE='hidden' NAME='p' VALUE='3' />";
                 echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
                 echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";

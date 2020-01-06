@@ -54,7 +54,7 @@ RenderHtmlHead("Report Broken Achievement");
 
         <h3 class="longheader"><?php echo $pageTitle ?></h3>
 
-        <form action="/request/requestsubmitwebticket.php" method="post">
+        <form action="/request/ticket/create.php" method="post">
             <input type="hidden" value="<?php echo $user ?>" name="u">
             <input type="hidden" value="<?php echo $cookieRaw ?>" name="c">
             <input type="hidden" value="<?php echo $achievementID ?>" name="i">

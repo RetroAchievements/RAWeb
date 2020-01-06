@@ -62,7 +62,7 @@ RenderHtmlHead("Edit post: $thisTopicTitle");
         echo "<table>";
         echo "<tbody>";
 
-        echo "<form action='/request/requestsubmiteditpost.php' method='post'>";
+        echo "<form action='/request/forum-topic/update.php' method='post'>";
         echo "<input type='hidden' value='$cookieRaw' name='c'></input>";
         echo "<input type='hidden' value='$requestedComment' name='i'></input>";
         echo "<input type='hidden' value='$thisTopicID' name='t'></input>";

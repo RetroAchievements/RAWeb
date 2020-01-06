@@ -16,7 +16,7 @@ RenderHtmlHead("Create Account");
     <div id="fullcontainer">
         <h3>Create Account</h3>
         <div class="infobox">
-            <form method=post action="/request/requestcreateuser.php">
+            <form method=post action="/request/auth/register.php">
                 <table class='paddedtable'>
                     <tbody>
                     <tr>

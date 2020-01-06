@@ -111,7 +111,7 @@
             echo "<div id='devboxcontent'>";
 
             echo "<div>Change Topic Title:</div>";
-            echo "<form action='/request/requestmodifytopic.php' method='post' >";
+            echo "<form action='/request/forum-topic/modify.php' method='post' >";
             echo "<input type='text' name='v' value='$thisTopicTitle' size='51' >";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input type='hidden' name='f' value='" . ModifyTopicField::ModifyTitle . "'>";
@@ -133,7 +133,7 @@
                 $selected4 = ($thisTopicPermissions == 4) ? 'selected' : '';
 
                 echo "<div>Restrict Topic:</div>";
-                echo "<form action='/request/requestmodifytopic.php' method='post' >";
+                echo "<form action='/request/forum-topic/modify.php' method='post' >";
                 echo "<select name='v'>";
                 echo "<option value='0' $selected0>Unregistered</option>";
                 echo "<option value='1' $selected1>Registered</option>";
@@ -273,8 +273,8 @@
             if ($showDisclaimer) {
                 echo "<br><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
                 if ($showAuthoriseTools) {
-                    echo "<br><a href='/request/requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
-                    echo "<br><a href='/request/requestupdateuser.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
+                    echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
+                    echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
                 }
             }
 
@@ -344,7 +344,7 @@
             $defaultMessage = ($permissions >= 1) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ($permissions >= 1) ? "" : "disabled";
 
-            echo "<form action='/request/requestsubmittopiccomment.php' method='post'>";
+            echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
             echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p'>$defaultMessage</textarea><br><br>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";

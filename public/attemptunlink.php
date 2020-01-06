@@ -60,7 +60,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
 
         echo "<h4><b>Unlink a single hash</b></h4>";
         echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following MD5s:<br><br>";
-        echo "<form method=post action='/request/requestmodifygame.php'>";
+        echo "<form method=post action='/request/game/modify.php'>";
         echo "<input type='hidden' name='u' VALUE='$user'>";
         echo "<input type='hidden' name='g' VALUE='$gameID'>";
         echo "<input type='hidden' name='f' VALUE='3'>";
@@ -83,7 +83,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
 
         //echo "<p><b>WARNING: By clicking 'UNLINK ALL', all hashes linked to $gameTitle will be removed.</b></p>";
 
-        //echo "<form method=post action='requestmodifygame.php'>";
+        //echo "<form method=post action='/request/game/modify.php'>";
         //echo "<input type='hidden' name='u' VALUE='$user'>";
         //echo "<input type='hidden' name='g' VALUE='$gameID'>";
         //echo "<input type='hidden' name='f' VALUE='2'>";

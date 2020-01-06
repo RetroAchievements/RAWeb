@@ -59,7 +59,7 @@ RenderHtmlHead("Create topic: $thisForumTitle");
         echo "<table>";
         echo "<tbody>";
 
-        echo "<form action='/request/requestsubmitforumtopic.php' method='post'>";
+        echo "<form action='/request/forum-topic/create.php' method='post'>";
         echo "<input type='hidden' value='$cookieRaw' name='c'>";
         echo "<input type='hidden' value='$requestedForumID' name='f'>";
         echo "<tr>" . "<td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";

@@ -207,7 +207,7 @@ function sendMessage() {
   ws.send(jsonMsg)
   // console.log( "sent: " + theUser + ": " + theMessage );
 
-  // var posting = $.post( "ping_chat.php", {
+  // var posting = $.post( "/request/chat/ping.php", {
   // mode: 'SendAndRetrieveNew',
   // id: encodeURIComponent(lastChatMessageID),
   // name: encodeURIComponent(theUser),
@@ -218,7 +218,7 @@ function sendMessage() {
 }
 
 // function requestNewMessages() {
-// var posting = $.post( "ping_chat.php", {
+// var posting = $.post( "/request/chat/ping.php", {
 // mode: 'RetrieveNew',
 // id: lastChatMessageID,
 // maxmsg: maxMessages

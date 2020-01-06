@@ -199,7 +199,7 @@ function processComment(activityVar, articleType) {
           //alert( safeComment );
 
           //	Note: using substr on activityVar, because it will be in the format art_213 etc.
-          var posting = $.post('/request/requestpostcomment.php', {u: user, a: activityVar.substr(4), c: safeComment, t: articleType})
+          var posting = $.post('/request/comment/create.php', {u: user, a: activityVar.substr(4), c: safeComment, t: articleType})
           posting.done(onCommentSuccess)
           var submitButton = commentRow.find('#submitButton')
           if (submitButton.exists()) {
@@ -284,7 +284,7 @@ function FocusOnArticleID(id) {
 function UpdateDisplayOrder(user, objID) {
   var inputText = $('body').find('#' + objID).val()
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000))
-  var posting = $.post('/request/requestupdateachievement.php', {u: user, a: objID.substr(4), f: 1, v: inputNum})
+  var posting = $.post('/request/achievement/update.php', {u: user, a: objID.substr(4), f: 1, v: inputNum})
   posting.done(onUpdateDisplayOrderComplete)
   $('body').find('#warning').html('Status: updating...')
 }
@@ -292,7 +292,7 @@ function UpdateDisplayOrder(user, objID) {
 function UpdateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID) {
   var inputText = $('body').find('#' + objID).val()
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000))
-  var posting = $.post('/request/requestupdatesiteaward.php', {u: user, t: awardType, d: awardData, e: awardDataExtra, v: inputNum})
+  var posting = $.post('/request/user/update-site-award.php', {u: user, t: awardType, d: awardData, e: awardDataExtra, v: inputNum})
   posting.done(onUpdateDisplayOrderComplete)
   $('body').find('#warning').html('Status: updating...')
 }
@@ -509,7 +509,7 @@ jQuery(document).ready(function ($) {
   $('.searchboxgamecompareuser').watermark('Enter User...')
   $('#chatinput').watermark('Enter a comment here...')
   $('#chatinput:disabled').watermark('Please log in to join the chat!')
-  $('.searchboxinput').autocomplete({source: '/request/requestsearch.php', minLength: 2})
+  $('.searchboxinput').autocomplete({source: '/request/search.php', minLength: 2})
   $('.searchboxinput').autocomplete({
     select: function (event, ui) {
       return false
@@ -519,7 +519,7 @@ jQuery(document).ready(function ($) {
     window.location = ui.item.mylink
     return false
   })
-  $('.searchboxgamecompareuser').autocomplete({source: '/request/requestsearch.php?p=gamecompare', minLength: 2})
+  $('.searchboxgamecompareuser').autocomplete({source: '/request/search.php?p=gamecompare', minLength: 2})
   $('.searchboxgamecompareuser').autocomplete({
     select: function (event, ui) {
       return false
@@ -533,7 +533,7 @@ jQuery(document).ready(function ($) {
     window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.id
     return false
   })
-  $('.searchuser').autocomplete({source: '/request/requestsearch.php?p=user', minLength: 2})
+  $('.searchuser').autocomplete({source: '/request/search.php?p=user', minLength: 2})
   $('.searchuser').autocomplete({
     select: function (event, ui) {
 
@@ -622,7 +622,7 @@ function RA_SetCookie(cookiename, value) {
 }
 
 function refreshOnlinePlayers() {
-  var posting = $.post('/request/requestcurrentlyonlinelist.php')
+  var posting = $.post('/request/user/list-currently-online.php')
   posting.done(onRefreshOnlinePlayers)
 
   $('#playersonlinebox').fadeTo('fast', 0.0)
@@ -656,7 +656,7 @@ function onRefreshOnlinePlayers(data) {
 }
 
 function refreshActivePlayers() {
-  var posting = $.post('/request/requestcurrentlyactiveplayers.php')
+  var posting = $.post('/request/user/list-currently-active.php')
   posting.done(onRefreshActivePlayers)
   $('#activeplayersbox').fadeTo('fast', 0.0)
   $('#activeplayers-update').fadeTo('fast', 0.0)

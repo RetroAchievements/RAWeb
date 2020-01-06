@@ -90,7 +90,7 @@ RenderHtmlHead("Send Message");
             echo "<table>";
             echo "<tbody>";
 
-            echo "<form class='messageform' action='/request/requestsendmessage.php' method='post'>";
+            echo "<form class='messageform' action='/request/message/send.php' method='post'>";
             echo "<input type='hidden' value='$user' name='u'></input>";
             echo "<input type='hidden' value='$cookieRaw' name='c'></input>";
             $destUser = mb_strlen($messageTo > 2) ? $messageTo : '_User';

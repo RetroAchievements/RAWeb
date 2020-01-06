@@ -49,7 +49,7 @@ RenderHtmlHead("Manage News");
 
     echo "<h2 class='longheader'>Upload news image</h2>";
     echo "160px max width or height! Image size will be scaled to fit.<br>";
-    echo "<form action='request/uploadpic.php' style='padding: 2px;' method='post' enctype='multipart/form-data'>";
+    echo "<form action='/request/uploadpic.php' style='padding: 2px;' method='post' enctype='multipart/form-data'>";
     echo "<label for='file'>New image:</label>";
     echo "<input type='file' name='file' id='file' />";
     echo "<input type='hidden' name='t' value='NEWS' />";
@@ -82,7 +82,7 @@ RenderHtmlHead("Manage News");
     ?>
     <br>
     <?php
-    echo "<form method='post' action='/request/requestmodifynews.php'>";
+    echo "<form method='post' action='/request/news/update.php'>";
 
     if (isset($newsArticleID) && $newsArticleID != 0) {
         echo "ID: <input type='text' name='i' size='2' value='$newsArticleID' readonly><br><br> ";

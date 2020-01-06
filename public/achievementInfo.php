@@ -77,7 +77,7 @@ RenderHtmlStart(true);
         var url = $('body').find('#embedurlinput').val()
         url = replaceAll('http', '_http_', url)
 
-        var posting = $.post('/request/requestupdateachievement.php', {
+        var posting = $.post('/request/achievement/update.php', {
           u: '<?php echo $user; ?>',
           a: <?php echo $achievementID; ?>,
           f: 2,
@@ -215,9 +215,9 @@ RenderHtmlStart(true);
             echo "<div style='clear:both;'></div>";
 
             if ($achFlags == 3) {
-                echo "<li>State: Official&nbsp;<a href='/request/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
+                echo "<li>State: Official&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
             } elseif ($achFlags == 5) {
-                echo "<li>State: Unofficial&nbsp;<a href='/request/requestupdateachievement.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                echo "<li>State: Unofficial&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
             }
 
             echo "<li> Achievement ID: " . $achievementID . "</li>";

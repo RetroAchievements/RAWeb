@@ -40,7 +40,7 @@ RenderHtmlHead("RA Cinema");
     var url = bodyTag.find('#videourlinput').val()
     url = replaceAll('http', '_http_', url)
 
-    var posting = $.post('/request/requestsubmitvid.php', {a: '<?php echo $user; ?>', i: <?php echo $vidID; ?>, t: title, l: url})
+    var posting = $.post('/request/playlist/update.php', {a: '<?php echo $user; ?>', i: <?php echo $vidID; ?>, t: title, l: url})
     posting.done(onPostComplete)
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
@@ -88,8 +88,6 @@ RenderHtmlHead("RA Cinema");
                 $vidAdded = $vidData['Added'];
             }
 
-            //echo "<form method='post' action='requestsubmitvid.php'>";
-            //echo "<form method='post'>";
             echo "<br>";
             echo "<ul>";
             echo "<li><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "/dashboard'>Dashboard on Twitch.tv - select game on this page!</a></li>";
@@ -101,7 +99,6 @@ RenderHtmlHead("RA Cinema");
             echo "<input type='submit' name='submit' size='37' style='float: right;' value='Submit!' onclick=\"PostVideoLink()\" />";
             echo "</ul>";
 
-            //echo "</form><br>";
             echo "</div>";
 
             echo "</div>";

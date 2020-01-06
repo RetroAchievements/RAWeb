@@ -38,7 +38,7 @@ RenderHtmlHead("Manage News");
 
     //alert( link );
 
-    var posting = $.post('/request/requestmodifynews.php', {a: author, p: payload, t: title, l: link, g: imageurl, i: <?php echo $newsArticleID; ?> })
+    var posting = $.post('/request/news/update.php', {a: author, p: payload, t: title, l: link, g: imageurl, i: <?php echo $newsArticleID; ?> })
     posting.done(onPostComplete)
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
@@ -61,7 +61,7 @@ RenderHtmlHead("Manage News");
 
       $('#loadingicon').fadeTo(100, 1.0)
 
-      $.post('/request/uploadpicinline.php', {t: 'NEWS', f: file.name.split('.').pop(), i: reader.result}, onUploadImageComplete)
+      $.post('/request/news/image-upload.php', {t: 'NEWS', f: file.name.split('.').pop(), i: reader.result}, onUploadImageComplete)
     }
 
     reader.readAsDataURL(file)
@@ -120,7 +120,6 @@ RenderHtmlHead("Manage News");
     echo "<select name='ab' onchange=\"if (this.selectedIndex >= 0) window.location = '/submitnews.php?n=' + this.value; return false;\" >";
 
     echo "<option value=0>--New Post--</option>";
-    //echo "<a href='/submitnews.php'>New Post</a><br>";
     for ($i = 0; $i < $newsCount; $i++) {
         $nextNews = $newsData[$i];
         $nextID = $nextNews['ID'];
@@ -139,8 +138,6 @@ RenderHtmlHead("Manage News");
     ?>
     <br>
     <?php
-    //echo "<form method='post' action='requestmodifynews.php'>";
-
     if (isset($newsArticleID) && $newsArticleID != 0) {
         echo "ID: <input type='text' name='i' size='2' value='$newsArticleID' readonly><br><br> ";
     }

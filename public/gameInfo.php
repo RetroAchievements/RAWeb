@@ -275,7 +275,7 @@ RenderHtmlStart(true);
     $('.ratingachlabel').html('Rating: ...')
 
     $.ajax({
-      url: '/request/API_GetGameRating.php?i=' + gameID,
+      url: '/request/game-rating/ratings.php?i=' + gameID,
       dataType: 'json',
       success: function (results) {
         results.GameID
@@ -299,7 +299,7 @@ RenderHtmlStart(true);
 
   function SubmitRating(user, gameID, ratingObjectType, value) {
     $.ajax({
-      url: '/request/API_SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+      url: '/request/game-rating/update.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
       dataType: 'json',
       success: function (results) {
         GetRating(<?php echo $gameID; ?>)
@@ -401,7 +401,7 @@ RenderHtmlStart(true);
   function getSetRequestInformation(user, gameID) {
     $.ajax(
       {
-        url: '/request/API_GetSetRequests.php?i=' + gameID + '&u=' + user,
+        url: '/request/set-request/list.php?i=' + gameID + '&u=' + user,
         dataType: 'json',
         success: function (results) {
           var remaining = parseInt(results.remaining)
@@ -440,7 +440,7 @@ RenderHtmlStart(true);
   function submitSetRequest(user, gameID) {
     $.ajax(
       {
-        url: '/request/API_SetSetRequest.php?i=' + gameID + '&u=' + user,
+        url: '/request/set-request/update.php?i=' + gameID + '&u=' + user,
         dataType: 'json',
         success: function (results) {
           getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>)
@@ -549,7 +549,7 @@ RenderHtmlStart(true);
                 echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
 
                 if ($numLeaderboards == 0) {
-                    echo "<li><a href='/request/requestcreatenewlb.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
+                    echo "<li><a href='/request/leaderboard/create.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
                 }
                 echo "<li><a href='/request/dorequest.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
                 echo "<li><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></li>";
@@ -582,7 +582,7 @@ RenderHtmlStart(true);
                 echo "<br>";
 
                 echo "<li>Update title screenshot</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_TITLE' />";
                 echo "<input type='file' name='file' id='file' />";
@@ -590,7 +590,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
 
                 echo "<li>Update ingame screenshot</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_INGAME' />";
                 echo "<input type='file' name='file' id='file' />";
@@ -598,7 +598,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
 
                 echo "<li>Update game icon</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_ICON' />";
                 echo "<input type='file' name='file' id='file' />";
@@ -606,7 +606,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
 
                 echo "<li>Update game boxart</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_BOXART' />";
                 echo "<input type='file' name='file' id='file' />";
@@ -614,7 +614,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
 
                 echo "<li>Update game details:<br>";
-                echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/game-update.php' enctype='multipart/form-data'>";
                 echo "<table><tbody>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'/></td></tr>";
@@ -629,7 +629,7 @@ RenderHtmlStart(true);
 
                 if ($permissions >= Permissions::Admin) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                     echo "New Forum Topic ID:";
                     echo "<input type='hidden' name='i' value='$gameID' />";
                     echo "<input type='text' name='f' size='20'/>";
@@ -642,7 +642,7 @@ RenderHtmlStart(true);
                 echo "<table><tbody>";
                 if (count($gameAlts) > 0) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='i' value='$gameID' />";
 
                     echo "To remove:";
@@ -662,7 +662,7 @@ RenderHtmlStart(true);
                 }
 
                 echo "<tr><td>";
-                echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                 echo "To add (game ID):";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='text' name='n' class='searchboxgame' size='20'/>";
@@ -672,7 +672,7 @@ RenderHtmlStart(true);
                 echo "</tbody></table>";
 
                 echo "<li>Update <a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script:</li>";
-                echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' value='$gameID' name='i'></input>";
                 echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea><br>";
                 echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
