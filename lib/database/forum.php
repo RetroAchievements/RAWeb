@@ -472,7 +472,6 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
             ORDER BY ftc.DateCreated DESC
             LIMIT $offset, $countPlusSpam
         ) AS LatestComments
-
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
         LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
