@@ -36,7 +36,7 @@ RenderHtmlHead("Game Search");
 
         echo "<div class='detaillist'>";
 
-        echo "<h3 class='longheader'>$pageTitle</h3>";
+        echo "<h3 class='longheader'>Game Search</h3>";
 
         echo "<p>Showing: games by largest RetroRatio:</p>";
 
