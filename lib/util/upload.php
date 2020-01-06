@@ -108,8 +108,8 @@ function UploadUserPic($user, $filename, $rawImage)
 
         if ($success == false) {
             // error_log("UploadUserPic failed: Issues copying to UserPic/$user.png");
+            //echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
             $response['Error'] = "Issues copying to UserPic/$user.png";
-        //echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         } else {
             // touch user entry
             global $db;
@@ -156,18 +156,13 @@ function UploadBadgeImage($file)
                     $response['Error'] = "Error: $fileerror<br>";
                 }
             } else {
-                $nextBadgeFilename = file_get_contents(__DIR__ ."/../../public/BadgeIter.txt");
+                $nextBadgeFilename = file_get_contents(__DIR__ . "/../../public/BadgeIter.txt");
                 settype($nextBadgeFilename, "integer");
 
                 //	Produce filenames
 
                 $newBadgeFilenameFormatted = str_pad($nextBadgeFilename, 5, "0", STR_PAD_LEFT);
 
-                $destBadgeFile = "Badge/" . "$newBadgeFilenameFormatted" . ".png";
-                $destBadgeFileLocked = "Badge/" . "$newBadgeFilenameFormatted" . "_lock.png";
-                //$destBadgeFileBig = "Badge/" . "$newBadgeFilenameFormatted" . "_big.png";
-                //$destBadgeFileSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_small.png";
-                //$destBadgeFileLockedSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_locksmall.png";
                 //	Fetch file and width/height
 
                 if ($extension == 'png') {
@@ -210,18 +205,24 @@ function UploadBadgeImage($file)
                 //imagefilter( $newSmallImageLocked, IMG_FILTER_CONTRAST, 20 );
                 ////imagefilter( $newSmallImageLocked, IMG_FILTER_GAUSSIAN_BLUR );
 
+                $destBadgeFile = "Badge/" . "$newBadgeFilenameFormatted" . ".png";
+                $destBadgeFileLocked = "Badge/" . "$newBadgeFilenameFormatted" . "_lock.png";
+                //$destBadgeFileBig = "Badge/" . "$newBadgeFilenameFormatted" . "_big.png";
+                //$destBadgeFileSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_small.png";
+                //$destBadgeFileLockedSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_locksmall.png";
+
                 $success = //imagepng( $newLargeImage, $destBadgeFileBig ) &&
                     //imagepng( $newSmallImage, $destBadgeFileSmall ) &&
                     //imagepng( $newSmallImageLocked, $destBadgeFileLockedSmall ) &&
-                    imagepng($newImage, $destBadgeFile) &&
-                    imagepng($newImageLocked, $destBadgeFileLocked);
+                    imagepng($newImage, __DIR__ . '/../../public/' . $destBadgeFile) &&
+                    imagepng($newImageLocked, __DIR__ . '/../../public/' . $destBadgeFileLocked);
 
                 if ($success == false) {
                     // error_log("UploadBadgeImage failed: Issues copying from ? to $destBadgeFile");
                     $response['Error'] = "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
                 } else {
-                    UploadToS3($destBadgeFile, $newImage);
-                    UploadToS3($destBadgeFileLocked, $newImageLocked);
+                    UploadToS3(__DIR__ . '/../../public/' . $destBadgeFile, $newImage);
+                    UploadToS3(__DIR__ . '/../../public/' . $destBadgeFileLocked, $newImageLocked);
 
                     $newBadgeContent = str_pad($nextBadgeFilename, 5, "0", STR_PAD_LEFT);
                     //echo "OK:$newBadgeContent";
@@ -229,7 +230,7 @@ function UploadBadgeImage($file)
 
                     //	Increment and save this new badge number for next time
                     $newBadgeContent = str_pad($nextBadgeFilename + 1, 5, "0", STR_PAD_LEFT);
-                    file_put_contents(__DIR__ ."/../../public/BadgeIter.txt", $newBadgeContent);
+                    file_put_contents(__DIR__ . "/../../public/BadgeIter.txt", $newBadgeContent);
                 }
             }
         }

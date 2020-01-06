@@ -70,8 +70,6 @@ if ($success) {
     settype($nextImageFilename, "integer");
     $nextImageFilenameStr = str_pad($nextImageFilename, 6, "0", STR_PAD_LEFT) . $targetExt;
 
-    $newImageFilename = "Images/$nextImageFilenameStr";
-
     [$width, $height] = getimagesize($tempFilename);
 
     //	Scale the resulting image to fit within the following limits:
@@ -124,10 +122,12 @@ if ($success) {
     $newImage = imagecreatetruecolor($targetWidth, $targetHeight);
     imagecopyresampled($newImage, $tempImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
 
+    $newImageFilename = "Images/$nextImageFilenameStr";
+
     if ($uploadType == "NEWS") {
-        $success = imagejpeg($newImage, $newImageFilename);
+        $success = imagejpeg($newImage, __DIR__ . '/../../' . $newImageFilename);
     } else {
-        $success = imagepng($newImage, $newImageFilename);
+        $success = imagepng($newImage, __DIR__ . '/../../' . $newImageFilename);
     }
 
 
@@ -136,7 +136,7 @@ if ($success) {
         echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         exit;
     } else {
-        UploadToS3($newImageFilename, "Images/$nextImageFilenameStr.png");
+        UploadToS3(__DIR__ . '/../../' . $newImageFilename, "Images/$nextImageFilenameStr.png");
 
         //	Increment and save this new badge number for next time
         $thisImageIter = str_pad($nextImageFilename, 6, "0", STR_PAD_LEFT);
