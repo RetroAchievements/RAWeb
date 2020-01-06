@@ -15,14 +15,6 @@ function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut 
         return;
     }
 
-    echo "<script src='/js/ping_chat.js'></script>";
-    echo "<script>";
-    echo "init_chat(50);";
-    // if (!IsMobileBrowser()) {
-    //     echo "init_feed();";
-    // }
-    echo "</script>";
-
     $location = "component $chatboxat";
 
     $isLargeChat = ($chatboxat == 'left');
@@ -91,4 +83,12 @@ function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut 
 
     //echo "<div id='tlkio' data-channel='retroachievements' data-theme='/css/chat.css' style='width:100%;height:400px;'></div><script async src='http://tlk.io/embed.js' type='text/javascript'></script>";
     echo "</div>";
+
+    echo "<script src='/js/ping_chat.js'></script>";
+    echo "<script>";
+    echo "init_chat(50);";
+    // if (!IsMobileBrowser()) {
+    //     echo "init_feed();";
+    // }
+    echo "</script>";
 }
