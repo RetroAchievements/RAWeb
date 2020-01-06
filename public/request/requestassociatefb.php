@@ -9,7 +9,7 @@ if (!isset($fbUserID)) {
     $fbUserID = $fbConn->getUser();
 }
 
-error_log("requestassociatefb.php called");
+// error_log("requestassociatefb.php called");
 
 try {
     //$fullCookie = $_COOKIE["RAPrefs"];
@@ -28,10 +28,10 @@ try {
     if (isset($user) && isset($fbUserID)) {
         if (associateFB($user, $fbUserID)) {
             //	Great
-            error_log("requestassociatefb.php - associate successful ($user, $fbUserID)");
+            // error_log("requestassociatefb.php - associate successful ($user, $fbUserID)");
             echo "OK";
         } else {
-            error_log("requestassociatefb.php - error1 ($user, $fbUserID)");
+            // error_log("requestassociatefb.php - error1 ($user, $fbUserID)");
             echo "FAILED1";
         }
     }

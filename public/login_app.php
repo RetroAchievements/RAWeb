@@ -26,7 +26,7 @@ if ($responseCode == -1) {
         http_response_code(401);
         $response['Success'] = false;
         $response['Error'] = "Invalid User/Password combination. Please try again";
-        error_log("requestlogin failed $user");
+        // error_log("requestlogin failed $user");
     }
 }
 

@@ -33,8 +33,8 @@ function getUserRequestList($user)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?!");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed?!");
+        log_sql_fail();
     }
 
     return $retVal;
@@ -127,7 +127,7 @@ function toggleSetRequest($user, $gameID, $remaining)
                 AND
                     (`GameID` = '$gameID')";
 
-            error_log($query2);
+            // error_log($query2);
             if (s_mysql_query($query2)) {
                 return true;
             } else {
@@ -140,7 +140,7 @@ function toggleSetRequest($user, $gameID, $remaining)
                     INSERT
                         INTO SetRequest (`User`, `GameID`)
                     VALUES ('$user', '$gameID')";
-                error_log($query2);
+                // error_log($query2);
                 if (s_mysql_query($query2)) {
                     return true;
                 } else {
@@ -208,8 +208,8 @@ function getSetRequestorsList($gameID)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?!");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed?!");
+        log_sql_fail();
     }
 
     return $retVal;
@@ -255,8 +255,8 @@ function getMostRequestedSetsList($offset, $count)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?!");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed?!");
+        log_sql_fail();
     }
 
     return $retVal;

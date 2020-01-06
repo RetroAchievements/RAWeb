@@ -126,7 +126,7 @@ RenderHtmlHead("Reorder Site Awards");
             $awardTitle = "Patreon Supporter";
             $imagepath = getenv('APP_STATIC_URL') . '/Badge/PatreonBadge.png';
         } else {
-            error_log("Unknown award type" . $awardType);
+            // error_log("Unknown award type" . $awardType);
             continue;
         }
 

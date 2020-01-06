@@ -46,16 +46,16 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
 
         $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
                                 VALUES ($achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
-        log_sql($query);
+        // log_sql($query);
 
         $dbResult = mysqli_query($db, $query); //    Unescaped?
         $ticketID = mysqli_insert_id($db);
-        error_log(__FUNCTION__ . " produced insert id of $ticketID ");
+        // error_log(__FUNCTION__ . " produced insert id of $ticketID ");
 
         if ($dbResult == false) {
             $errorsEncountered = true;
-            error_log($query);
-            error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
+            log_sql_fail();
+            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
         } else {
             //    Success
             if (GetAchievementMetadata($achID, $achData)) {
@@ -116,7 +116,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
     global $db;
     $note = mysqli_real_escape_string($db, $noteIn);
 
-    error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
+    // error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
 
     $submitterUserID = getUserIDFromUser($userSubmitter);
     settype($reportType, 'integer');
@@ -138,16 +138,16 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
 
         $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
                                 VALUES($achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
-        log_sql($query);
+        // log_sql($query);
 
         $dbResult = mysqli_query($db, $query); //    Unescaped?
         $ticketID = mysqli_insert_id($db);
-        error_log(__FUNCTION__ . " produced insert id of $ticketID ");
+        // error_log(__FUNCTION__ . " produced insert id of $ticketID ");
 
         if ($dbResult == false) {
             $errorsEncountered = true;
-            error_log($query);
-            error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
+            log_sql_fail();
+            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
         } else {
             //    Success
             if (GetAchievementMetadata($achID, $achData)) {
@@ -257,7 +257,7 @@ function getAllTickets(
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?! $offset, $limit");
+        // error_log(__FUNCTION__ . " failed?! $offset, $limit");
     }
 
     return $retVal;
@@ -281,7 +281,7 @@ function getTicket($ticketID)
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
     } else {
-        error_log(__FUNCTION__ . " failed?! $offset, $limit");
+        // error_log(__FUNCTION__ . " failed?! $offset, $limit");
         return false;
     }
 }
@@ -299,7 +299,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
               SET ReportState=$ticketVal $resolvedFields
               WHERE ID=$ticketID";
 
-    log_sql($query);
+    // log_sql($query);
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -355,21 +355,22 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
 
 
         if (isAtHome()) {
-            error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-            error_log($email);
-            error_log($emailTitle);
-            error_log($msg);
+            // error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
+            // error_log($email);
+            // error_log($emailTitle);
+            // error_log($msg);
             $retVal = true;
         } else {
-            error_log(__FUNCTION__ . " sending ticket resolution mail to $user at address $email");
+            // error_log(__FUNCTION__ . " sending ticket resolution mail to $user at address $email");
             $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-            error_log(__FUNCTION__ . " return val: $retVal");
+            // error_log(__FUNCTION__ . " return val: $retVal");
         }
 
 
         return true;
     } else {
-        error_log(__FUNCTION__ . " failed?! $user, $ticketID, $ticketVal");
+        // error_log(__FUNCTION__ . " failed?! $user, $ticketID, $ticketVal");
+        log_sql_fail();
         return false;
     }
 }
@@ -482,7 +483,7 @@ function gamesSortedByOpenTickets($count)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?!");
+        // error_log(__FUNCTION__ . " failed?!");
     }
 
     return $retVal;

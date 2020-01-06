@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
-error_log(__FUNCTION__);
+// error_log(__FUNCTION__);
 
 //	Sanitise!
 if (!ValidatePOSTChars("u")) {

@@ -16,11 +16,11 @@ if (validateUser_cookie($user, $cookie, 1)) {
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$forumTopicID");
     } else {
         //error_log( __FILE__ );
-        error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
+        // error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
         header("Location: " . getenv('APP_URL') . "/forum.php?e=issuessubmitting");
     }
 } else {
     //error_log( __FILE__ );
-    error_log("Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
+    // error_log("Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
     header("Location: " . getenv('APP_URL') . "/forum.php?e=badcredentials");
 }

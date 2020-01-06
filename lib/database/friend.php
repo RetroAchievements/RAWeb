@@ -29,7 +29,7 @@ function changeFriendStatus($user, $friend, $action)
         if (!isset($localFriendState)) {
             //    Entry needs adding afresh:
             $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ( '$user', '$friend', $action )";
-            log_sql($query);
+            // log_sql($query);
             $dbResult = s_mysql_query($query);
 
             if ($dbResult !== false) {
@@ -43,7 +43,7 @@ function changeFriendStatus($user, $friend, $action)
                                 //    Note reverse user and friend (perspective!)
                                 sendFriendEmail($friend, $friendData['EmailAddress'], 1, $user);
                             } else {
-                                error_log(__FUNCTION__ . " not sending $friend any email about this friend confirm, they don't want emails.");
+                                // error_log(__FUNCTION__ . " not sending $friend any email about this friend confirm, they don't want emails.");
                             }
                         }
 
@@ -65,11 +65,10 @@ function changeFriendStatus($user, $friend, $action)
                                 //    Note reverse user and friend (perspective!)
                                 sendFriendEmail($friend, $friendData['EmailAddress'], 0, $user);
                             } else {
-                                error_log(__FUNCTION__ . " friend request, $friend has elected not to have email about $user adding them as a friend");
+                                // error_log(__FUNCTION__ . " friend request, $friend has elected not to have email about $user adding them as a friend");
                             }
                         } else {
-                            error_log(__FUNCTION__ . " friend request, cannot get friend data!");
-                            log_sql_fail();
+                            // error_log(__FUNCTION__ . " friend request, cannot get friend data!");
                         }
 
                         return "friendrequested";
@@ -114,8 +113,7 @@ function changeFriendStatus($user, $friend, $action)
             }
         }
     } else {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
         log_sql_fail();
         return "sqlfail";
     }
@@ -132,7 +130,7 @@ function addFriend($user, $friendToAdd)
             //    New friend request
             //    Add as a confirmed friend for me
             $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ( '$user', '$friendToAdd', '1' )";
-            log_sql($query);
+            // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult == false) {
                 log_sql_fail();
@@ -140,7 +138,7 @@ function addFriend($user, $friendToAdd)
 
             //    Add as a pending friend for him
             $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ( '$friendToAdd', '$user', '0' )";
-            log_sql($query);
+            // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult == false) {
                 log_sql_fail();
@@ -149,12 +147,12 @@ function addFriend($user, $friendToAdd)
             return true;
         } else {
             //    Friend request already sent. To simply this, just fail, call "confirmFriend" instead!
-            error_log(__FUNCTION__ . " failed: friend request already sent from user:$user, friend to add:$friendToAdd (numRows: $numRows)");
+            // error_log(__FUNCTION__ . " failed: friend request already sent from user:$user, friend to add:$friendToAdd (numRows: $numRows)");
             return false;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: friend request query failed:$user, friend to add:$friendToAdd");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: friend request query failed:$user, friend to add:$friendToAdd");
         return false;
     }
 }
@@ -167,7 +165,7 @@ function confirmFriend($user, $friendToConfirm)
     if ($dbResult !== false) {
         $numRows = mysqli_num_rows($dbResult);
         if ($numRows > 1) {
-            error_log(__FUNCTION__ . " warning: something's screwed up, $user has more than 1 request to confirm from $friendToAdd");
+            // error_log(__FUNCTION__ . " warning: something's screwed up, $user has more than 1 request to confirm from $friendToAdd");
         }
 
         if ($numRows == 1) {
@@ -176,23 +174,22 @@ function confirmFriend($user, $friendToConfirm)
                 //    Accepted successfully :)
                 return true;
             } else {
-                error_log($query);
-                error_log(__FUNCTION__ . "query failed: user:$user, friend:$friendToConfirm");
+                log_sql_fail();
+                // error_log(__FUNCTION__ . "query failed: user:$user, friend:$friendToConfirm");
                 return false;
             }
         } else {
-            error_log($query);
-            error_log(__FUNCTION__ . " failed: no friendship to confirm? User:$user Friend:$friendToConfirm");
+            // error_log(__FUNCTION__ . " failed: no friendship to confirm? User:$user Friend:$friendToConfirm");
             return false;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: friend request query failed:$user, friend to add:$friendToAdd");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: friend request query failed:$user, friend to add:$friendToAdd");
         return false;
     }
 }
 
-function blockFriend($user, $friendToAdd)
+function blockFriend($user, $friendToConfirm)
 {
     $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friendToConfirm'";
     $dbResult = s_mysql_query($query);
@@ -200,7 +197,7 @@ function blockFriend($user, $friendToAdd)
     if ($dbResult !== false) {
         $numRows = mysqli_num_rows($dbResult);
         if ($numRows > 1) {
-            error_log(__FUNCTION__ . " warning: something's screwed up, $user has more than 1 entry with $friendToAdd");
+            // error_log(__FUNCTION__ . " warning: something's screwed up, $user has more than 1 entry with $friendToConfirm");
         }
 
         if ($numRows == 1) {
@@ -209,18 +206,17 @@ function blockFriend($user, $friendToAdd)
                 //    Accepted successfully :)
                 return true;
             } else {
-                error_log($query);
-                error_log(__FUNCTION__ . "query failed: user:$user, friend:$friendToConfirm");
+                log_sql_fail();
+                // error_log(__FUNCTION__ . "query failed: user:$user, friend:$friendToConfirm");
                 return false;
             }
         } else {
-            error_log($query);
-            error_log(__FUNCTION__ . " failed: no friendship to confirm? User:$user Friend:$friendToConfirm");
+            // error_log(__FUNCTION__ . " failed: no friendship to confirm? User:$user Friend:$friendToConfirm");
             return false;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: friend request query failed:$user, friend to add:$friendToAdd");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: friend request query failed:$user, friend to add:$friendToConfirm");
         return false;
     }
 }
@@ -250,8 +246,8 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
     //    Manual sanitisation, as we need to call multiple functions (and include semicolons)
     settype($gameID, 'integer');
     if (!ctype_alnum($user)) {
-        error_log(__FUNCTION__ . " called with dodgy looking user: $user");
-        log_email(__FUNCTION__ . "failed... user is $user");
+        // error_log(__FUNCTION__ . " called with dodgy looking user: $user");
+        //log_email(__FUNCTION__ . "failed... user is $user");
         return 0;
     }
 
@@ -323,8 +319,8 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
             $numFriends++;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
     }
 
     //s_mysql_query( "DROP VIEW _FriendList" );
@@ -346,8 +342,8 @@ function GetFriendList($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: user:$user");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: user:$user");
     } else {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $db_entry["LastSeen"] = empty($db_entry["LastSeen"]) || $db_entry['LastSeen'] === 'Unknown' ? "_" : strip_tags($db_entry["LastSeen"]);

@@ -38,8 +38,8 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
             $daysCount++;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
     }
 
     return $retVal;
@@ -85,8 +85,8 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
             $achCount++;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . " issues - cannot retrieve day's ach for this user?!");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . " issues - cannot retrieve day's ach for this user?!");
     }
 
     return $retVal;
@@ -168,8 +168,8 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
             $daysCount++;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
     }
 
     return $retVal;

@@ -54,7 +54,7 @@ function UploadUserPic($user, $filename, $rawImage)
 
     //$tempFilename = '/tmp/' . uniqid() . '.png';
     $tempFilename = tempnam(sys_get_temp_dir(), 'PIC');
-    error_log($tempFilename);
+    // error_log($tempFilename);
 
     $success = file_put_contents($tempFilename, $imageData);
     if ($success) {
@@ -107,8 +107,8 @@ function UploadUserPic($user, $filename, $rawImage)
         $success = imagepng($newImage, $existingUserFile);
 
         if ($success == false) {
-            error_log("UploadUserPic failed: Issues copying from $tempFile to UserPic/$user.png");
-            $response['Error'] = "Issues copying from $tempFile to UserPic/$user.png";
+            // error_log("UploadUserPic failed: Issues copying to UserPic/$user.png");
+            $response['Error'] = "Issues copying to UserPic/$user.png";
         //echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         } else {
             // touch user entry
@@ -127,7 +127,7 @@ function UploadUserPic($user, $filename, $rawImage)
 
 function UploadBadgeImage($file)
 {
-    error_log("UploadBadgeImage");
+    // error_log("UploadBadgeImage");
 
     $response = [];
 
@@ -217,7 +217,7 @@ function UploadBadgeImage($file)
                     imagepng($newImageLocked, $destBadgeFileLocked);
 
                 if ($success == false) {
-                    error_log("UploadBadgeImage failed: Issues copying from ? to $destBadgeFile");
+                    // error_log("UploadBadgeImage failed: Issues copying from ? to $destBadgeFile");
                     $response['Error'] = "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
                 } else {
                     UploadToS3($destBadgeFile, $newImage);

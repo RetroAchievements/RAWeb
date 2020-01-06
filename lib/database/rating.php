@@ -7,7 +7,7 @@ function getGameRating($gameID)
               WHERE r.RatingID = $gameID
               GROUP BY r.RatingObjectType";
 
-    log_sql($query);
+    // log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);    //    NB. query has a forward slash in! Cannot use s_mysql_query
     SQL_ASSERT($dbResult);
@@ -30,7 +30,7 @@ function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
               VALUES( '$user', $ratingType, $ratingID, $ratingValue )
               ON DUPLICATE KEY UPDATE RatingValue=VALUES(RatingValue)";
 
-    log_sql($query);
+    // log_sql($query);
 
     $dbResult = s_mysql_query($query);
     return $dbResult !== false;

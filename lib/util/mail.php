@@ -56,7 +56,7 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
             'before'      => function (CommandInterface $cmd, $iteratorId) {
                 $a = $cmd->toArray();
                 // echo sprintf('About to send %d: %s' . PHP_EOL, $iteratorId, $a['Destination']['ToAddresses'][0]);
-                error_log('About to send ' . $iteratorId . ': ' . $a['Destination']['ToAddresses'][0]);
+                // error_log('About to send ' . $iteratorId . ': ' . $a['Destination']['ToAddresses'][0]);
             },
             'fulfilled'   => function (ResultInterface $result, $iteratorId) use ($commands) {
                 // echo sprintf(
@@ -64,7 +64,7 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
                 //  $commands[$iteratorId]['x-message-id'],
                 //  $commands[$iteratorId]['Destination']['ToAddresses'][0]
                 // );
-                error_log('Completed ' . $commands[$iteratorId]['x-message-id'] . ' :' . $commands[$iteratorId]['Destination']['ToAddresses'][0]);
+                // error_log('Completed ' . $commands[$iteratorId]['x-message-id'] . ' :' . $commands[$iteratorId]['Destination']['ToAddresses'][0]);
             },
             'rejected'    => function (AwsException $reason, $iteratorId) use ($commands) {
                 // echo sprintf(
@@ -73,8 +73,8 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
                 //  $commands[$iteratorId]['Destination']['ToAddresses'][0]
                 // );
 
-                error_log('Reason : ' . $reason);
-                error_log('Amazon SES Failed Rejected:' . $commands[$iteratorId]['x-message-id'] . ' :' . $commands[$iteratorId]['Destination']['ToAddresses'][0]);
+                // error_log('Reason : ' . $reason);
+                // error_log('Amazon SES Failed Rejected:' . $commands[$iteratorId]['x-message-id'] . ' :' . $commands[$iteratorId]['Destination']['ToAddresses'][0]);
             },
         ]);
         // Initiate the pool transfers
@@ -86,7 +86,7 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
         return true;
     } catch (Exception $e) {
         // echo sprintf('Error: %s' . PHP_EOL, $e->getMessage());
-        error_log('Catch Block: Amazon SES Exception : ' . $e->getMessage());
+        error_log('Amazon SES Exception : ' . $e->getMessage());
         return false;
     }
 }
@@ -134,11 +134,11 @@ function sendValidationEmail($user, $email)
         "<br>" .
         "-- Your friends at <a href='" . getenv('APP_URL') . "'>RetroAchievements.org</a><br>";
 
-    error_log(__FUNCTION__ . " sending mail to $user at address $email");
+    // error_log(__FUNCTION__ . " sending mail to $user at address $email");
 
     $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $subject, $msg);
 
-    error_log(__FUNCTION__ . " return val: $retVal");
+    // error_log(__FUNCTION__ . " return val: $retVal");
 
     return $retVal;
 }
@@ -146,10 +146,10 @@ function sendValidationEmail($user, $email)
 function sendFriendEmail($user, $email, $type, $friend)
 {
     settype($type, 'integer');
-    error_log(__FUNCTION__ . " $user, $email, $type, $friend");
+    // error_log(__FUNCTION__ . " $user, $email, $type, $friend");
 
     if ($user == $friend) {
-        error_log(__FUNCTION__ . "not sending mail: what is happening... ( $user == $friend )");
+        // error_log(__FUNCTION__ . "not sending mail: what is happening... ( $user == $friend )");
         return false;
     }
 
@@ -166,7 +166,7 @@ function sendFriendEmail($user, $email, $type, $friend)
         $emailReason = "confirmed your friend request";
         $link = "<a href='" . getenv('APP_URL') . "/User/$friend'>here</a>";
     } else {
-        error_log(__FUNCTION__ . " bad times...");
+        // error_log(__FUNCTION__ . " bad times...");
         return false; //    must break early! No nonsense emails please!
     }
 
@@ -185,9 +185,9 @@ function sendFriendEmail($user, $email, $type, $friend)
         error_log($msg);
         $retVal = true;
     } else {
-        error_log(__FUNCTION__ . " sending friend mail to $user at address $email");
+        // error_log(__FUNCTION__ . " sending friend mail to $user at address $email");
         $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        error_log(__FUNCTION__ . " return val: $retVal");
+        // error_log(__FUNCTION__ . " return val: $retVal");
     }
 
     return $retVal;
@@ -265,9 +265,9 @@ function sendActivityEmail(
         error_log($msg);
         $retVal = true;
     } else {
-        error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
+        // error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
         $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        error_log(__FUNCTION__ . " return val: $retVal");
+        // error_log(__FUNCTION__ . " return val: $retVal");
     }
 
     return $retVal;
@@ -291,7 +291,7 @@ function sendRAEmail($to, $header, $body)
 function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
 {
     if ($user == $fromUser) {
-        error_log(__FUNCTION__ . " not sending mail: I wrote this! ($user == $fromUser)");
+        // error_log(__FUNCTION__ . " not sending mail: I wrote this! ($user == $fromUser)");
         return false;
     }
 
@@ -317,9 +317,9 @@ function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
         error_log($msg);
         $retVal = true;
     } else {
-        error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
+        // error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
         $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        error_log(__FUNCTION__ . " return val: $retVal");
+        // error_log(__FUNCTION__ . " return val: $retVal");
     }
 
     return $retVal;
@@ -341,9 +341,9 @@ function SendPasswordResetEmail($user, $email, $token)
         error_log("Email: " . $email . ", Title: " . $emailTitle . ", Msg: " . $msg);
         $retVal = true;
     } else {
-        error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
+        // error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
         $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        error_log(__FUNCTION__ . " return val: $retVal");
+        // error_log(__FUNCTION__ . " return val: $retVal");
     }
 
     return $retVal;

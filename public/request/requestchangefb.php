@@ -19,12 +19,12 @@ $query = "UPDATE UserAccounts SET fbPrefs='$prefs', Updated=NOW() WHERE User='$u
 
 $dbResult = s_mysql_query($query);
 if ($dbResult !== false) {
-    error_log($query);
-    error_log(__FILE__ . " user $user to FBPrefs: $prefs - associate successful!");
+    // error_log(__FILE__ . " user $user to FBPrefs: $prefs - associate successful!");
     echo "OK";
 } else {
-    error_log(__FILE__);
-    error_log($query);
-    error_log("issue with change fb?! $user, $prefs");
+    log_sql_fail();
+    // error_log(__FILE__);
+    // error_log($query);
+    // error_log("issue with change fb?! $user, $prefs");
     echo "ERROR";
 }

@@ -40,8 +40,8 @@ function getForumList($categoryID = 0)
         }
         return $dataOut;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return null;
     }
 }
@@ -59,8 +59,8 @@ function getForumDetails($forumID, &$forumDataOut)
         $forumDataOut = mysqli_fetch_assoc($dbResult);
         return true;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         $forumDataOut = null;
         return false;
     }
@@ -90,8 +90,8 @@ function getForumTopics($forumID, $offset, $count)
         }
         return $dataOut;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return null;
     }
 }
@@ -118,8 +118,8 @@ function getUnauthorisedForumLinks()
         }
         return $dataOut;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return null;
     }
 }
@@ -177,8 +177,8 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut)
         }
         return $dataOut;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return null;
     }
 }
@@ -216,7 +216,7 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
     //$authFlags = getUserForumPostAuth( $user );
 
     $query = "INSERT INTO ForumTopic (ForumID, Title, Author, AuthorID, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', '$user', $userID, NOW(), 0, 0 )";
-    log_sql($query);
+    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -230,15 +230,13 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
             return true;
         } else {
             log_sql_fail();
-            error_log(__FUNCTION__ . " struggled to post comment after adding new topic...");
-            error_log($query);
-            error_log("$user posted $topicPayload for topic ID $newTopicIDOut");
+            // error_log(__FUNCTION__ . " struggled to post comment after adding new topic...");
+            // error_log("$user posted $topicPayload for topic ID $newTopicIDOut");
             return false;
         }
     } else {
         log_sql_fail();
-        error_log($query);
-        error_log(__FUNCTION__ . " failed!");
+        // error_log(__FUNCTION__ . " failed!");
         return false;
     }
 }
@@ -247,12 +245,12 @@ function setLatestCommentInForumTopic($topicID, $commentID)
 {
     // Update ForumTopic table
     $query = "UPDATE ForumTopic SET LatestCommentID=$commentID WHERE ID=$topicID";
-    log_sql($query);
+    // log_sql($query);
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . " failed!");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed!");
+        log_sql_fail();
     }
 
     // Propogate to Forum table
@@ -261,12 +259,12 @@ function setLatestCommentInForumTopic($topicID, $commentID)
                 SET f.LatestCommentID = ft.LatestCommentID
                 WHERE ft.ID = $topicID ";
 
-    log_sql($query);
+    // log_sql($query);
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . " failed!");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed!");
+        log_sql_fail();
     }
 
     return true;
@@ -280,18 +278,17 @@ function editTopicComment($commentID, $newPayload)
     $newPayload = str_replace(">", "&gt;", $newPayload);
 
     $query = "UPDATE ForumTopicComment SET Payload = '$newPayload' WHERE ID=$commentID";
-    log_sql($query);
+    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);    //    TBD: unprotected to allow all characters..
     if ($dbResult !== false) {
         //error_log( __FUNCTION__ . " posted OK!" );
-        error_log(__FUNCTION__ . " ID $commentID now becomes $newPayload");
+        // error_log(__FUNCTION__ . " ID $commentID now becomes $newPayload");
         return true;
     } else {
         log_sql_fail();
-        error_log("$query");
-        error_log(__FUNCTION__ . " failed!");
+        // error_log(__FUNCTION__ . " failed!");
         return false;
     }
 }
@@ -309,7 +306,7 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
     $authFlags = getUserForumPostAuth($user);
 
     $query = "INSERT INTO ForumTopicComment VALUES ( NULL, $topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
-    log_sql($query);
+    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);    //    TBD: unprotected to allow all characters..
@@ -320,12 +317,11 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
         notifyUsersAboutForumActivity($topicID, $user, $newCommentIDOut);
 
         //error_log( __FUNCTION__ . " posted OK!" );
-        error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
+        // error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
         return true;
     } else {
         log_sql_fail();
-        error_log("$query");
-        error_log(__FUNCTION__ . " failed!");
+        // error_log(__FUNCTION__ . " failed!");
         return false;
     }
 }
@@ -401,7 +397,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
         && $gameData['ForumTopicID'] != 0
         && getTopicDetails($gameData['ForumTopicID'], $dumbData)) {
         // Bad times?!
-        error_log(__FUNCTION__ . ", $user trying to create a forum topic for " . $gameData['Title'] . " when one already exists!");
+        // error_log(__FUNCTION__ . ", $user trying to create a forum topic for " . $gameData['Title'] . " when one already exists!");
         return false;
     }
 
@@ -457,7 +453,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
         $dbResult = s_mysql_query($query);
         return $dbResult !== false;
     } else {
-        log_email(__FUNCTION__ . " failed :( $user, $gameID, $gameTitle )");
+        //log_email(__FUNCTION__ . " failed :( $user, $gameID, $gameTitle )");
         return false;
     }
 }
@@ -494,8 +490,8 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
         }
         return $numResults;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return null;
     }
 }
@@ -506,7 +502,7 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
     settype($topicID, 'integer');
 
     if (!getTopicDetails($topicID, $topicData)) {
-        error_log(__FUNCTION__ . " cannot process, $topicID doesn't exist?!");
+        // error_log(__FUNCTION__ . " cannot process, $topicID doesn't exist?!");
         return false;
     }
 
@@ -519,16 +515,15 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
 
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
-                    error_log("$user changed forum topic $topicID title from '" . $topicData['TopicTitle'] . "' to '$value'");
+                    // error_log("$user changed forum topic $topicID title from '" . $topicData['TopicTitle'] . "' to '$value'");
                     return true;
                 } else {
-                    error_log(__FUNCTION__ . " change title error");
-                    error_log($query);
+                    // error_log(__FUNCTION__ . " change title error");
+                    log_sql_fail();
                     return false;
                 }
             } else {
-                error_log(__FUNCTION__ . " change title... not enough permissions?!");
-                error_log($query);
+                // error_log(__FUNCTION__ . " change title... not enough permissions?!");
                 return false;
             }
             break;
@@ -540,16 +535,15 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
                     s_mysql_query("INSERT INTO DeletedModels SET ModelType='ForumTopic', ModelID=$topicID");
-                    error_log("$user deleted forum topic $topicID ('" . $topicData['TopicTitle'] . "')");
+                    // error_log("$user deleted forum topic $topicID ('" . $topicData['TopicTitle'] . "')");
                     return true;
                 } else {
-                    error_log(__FUNCTION__ . " delete error");
-                    error_log($query);
+                    // error_log(__FUNCTION__ . " delete error");
+                    log_sql_fail();
                     return false;
                 }
             } else {
-                error_log(__FUNCTION__ . " delete title... not enough permissions?!");
-                error_log($query);
+                // error_log(__FUNCTION__ . " delete title... not enough permissions?!");
                 return false;
             }
             break;
@@ -561,16 +555,15 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
 
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
-                    error_log("$user changed permissions for topic ID $topicID ('" . $topicData['TopicTitle'] . "') to $value");
+                    // error_log("$user changed permissions for topic ID $topicID ('" . $topicData['TopicTitle'] . "') to $value");
                     return true;
                 } else {
-                    error_log(__FUNCTION__ . " modify error");
-                    error_log($query);
+                    // error_log(__FUNCTION__ . " modify error");
+                    log_sql_fail();
                     return false;
                 }
             } else {
-                error_log(__FUNCTION__ . " modify topic... not enough permissions?!");
-                error_log($query);
+                // error_log(__FUNCTION__ . " modify topic... not enough permissions?!");
                 return false;
             }
             break;
@@ -587,12 +580,12 @@ function RemoveUnauthorisedForumPosts($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        log_email(__FUNCTION__ . " user's forum post comments have all been permanently removed!");
-        error_log("$user's posts have been removed!");
+        //log_email(__FUNCTION__ . " user's forum post comments have all been permanently removed!");
+        // error_log("$user's posts have been removed!");
         return true;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return false;
     }
 }
@@ -608,11 +601,11 @@ function AuthoriseAllForumPosts($user)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         //log_email( __FUNCTION__ . " user's forum post comments have all been authorised!" );
-        error_log("$user's posts have all been authorised!");
+        // error_log("$user's posts have all been authorised!");
         return true;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return false;
     }
 }

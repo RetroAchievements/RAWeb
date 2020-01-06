@@ -25,13 +25,13 @@ function ProfileStamp($message = null, $echo = false)
         $newTime = microtime(true);
         $_loadDuration = $newTime - $_profileTimer;
         $_profileTimer = $newTime;
-        error_log("PROFILE - " . CurrentPageURL() . " - took " . sprintf('%1.4f', ($_loadDuration)) . "s...");
+        // error_log("PROFILE - " . CurrentPageURL() . " - took " . sprintf('%1.4f', ($_loadDuration)) . "s...");
         if ($echo) {
             echo "PROFILE - " . CurrentPageURL() . " - took " . sprintf('%1.4f', ($_loadDuration)) . "s...";
         }
 
         if (isset($message) && mb_strlen($message) > 0) {
-            error_log(" - " . $message);
+            // error_log(" - " . $message);
         }
         //return " <span style='font-size:x-small;'>(Generated in " . sprintf( '%1.4f', ($_loadDuration) ) . "s)</span>";
     } else {

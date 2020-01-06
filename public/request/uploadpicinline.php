@@ -17,7 +17,7 @@ $allowedTypes = ["NEWS", "GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"
 $uploadType = seekPOST('t', "");
 
 if ($uploadType !== 'NEWS') {
-    error_log("Unsupported upload type!");
+    // error_log("Unsupported upload type!");
     return;
 }
 
@@ -132,7 +132,7 @@ if ($success) {
 
 
     if ($success == false) {
-        error_log("uploadpicinline.php failed: Issues copying to $newImageFilename");
+        // error_log("uploadpicinline.php failed: Issues copying to $newImageFilename");
         echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
         exit;
     } else {
@@ -177,11 +177,11 @@ if ($success) {
                 $dbResult = mysqli_query($db, $query);
 
                 if ($dbResult == false) {
-                    error_log($query);
-                    log_email("uploadpicinline.php went wrong... $uploadType, $returnID");
+                    log_sql_fail();
+                    //log_email("uploadpicinline.php went wrong... $uploadType, $returnID");
                 } else {
                     //error_log( $query );
-                    error_log("Logged image update $uploadType to game $returnID, to image /$newImageFilename");
+                    // error_log("Logged image update $uploadType to game $returnID, to image /$newImageFilename");
                 }
 
                 header("Location: " . getenv('APP_URL') . "/game/$returnID?e=uploadok");

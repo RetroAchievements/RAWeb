@@ -101,9 +101,9 @@ function RenderFBDialog($fbUser, &$fbRealNameOut, &$fbURLOut, $user)
             }
         }
     } catch (FacebookApiException $e) {
-        error_log("Facebook API Exception " . $e->getType());
-        error_log("Facebook API Exception Msg " . $e->getMessage());
-        error_log(__FUNCTION__ . " catch: input $fbUser");
+        // error_log("Facebook API Exception " . $e->getType());
+        // error_log("Facebook API Exception Msg " . $e->getMessage());
+        // error_log(__FUNCTION__ . " catch: input $fbUser");
         RenderFBLoginPrompt();
     }
 

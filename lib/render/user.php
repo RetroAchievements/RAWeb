@@ -215,7 +215,7 @@ function RenderSiteAwards($userAwards)
                 $imagepath = getenv('APP_STATIC_URL') . '/Badge/PatreonBadge.png';
                 $linkdest = 'https://www.patreon.com/retroachievements';
             } else {
-                error_log("Unknown award type" . $awardType);
+                // error_log("Unknown award type" . $awardType);
                 continue;
             }
 

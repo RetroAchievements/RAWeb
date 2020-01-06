@@ -30,15 +30,15 @@ if (validateUser_cookie($user, $cookie, 1, $permissions)) {
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$commentID");
         exit;
     } else {
-        error_log(__FILE__);
-        error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
+        // error_log(__FILE__);
+        // error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
 
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=issuessubmitting");
         exit;
     }
 } else {
-    error_log(__FILE__);
-    error_log("Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
+    // error_log(__FILE__);
+    // error_log("Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=badcredentials");
     exit;
 }

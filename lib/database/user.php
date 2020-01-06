@@ -51,7 +51,7 @@ function generateEmailValidationString($user)
     $expiry = time() + 60 * 60 * 24 * 7;
 
     $query = "INSERT INTO EmailConfirmations VALUES( '$user', '$emailCookie', $expiry )";
-    log_sql($query);
+    // log_sql($query);
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
         log_sql_fail();
@@ -76,25 +76,25 @@ function SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $destUser, $
 
     if ($destPermissions > $sourcePermissions) {
         //    Ignore: this person cannot be demoted by a lower-level member
-        error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Not allowed!");
+        // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Not allowed!");
         $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Not allowed!";
         $retVal['Success'] = false;
     } elseif (($newPermissions >= Permissions::Admin) && ($sourcePermissions != Permissions::Root)) {
         //    Ignore: cannot promote to admin unless you are root
-        error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!");
+        // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!");
         $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!";
         $retVal['Success'] = false;
     } else {
         $query = "UPDATE UserAccounts SET Permissions = $newPermissions, Updated=NOW() WHERE User='$destUser'";
-        log_sql($query);
+        // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
             //    Unrecognised user?
-            error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Cannot find user: '$destUser'!");
+            // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Cannot find user: '$destUser'!");
             $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Cannot find user: '$destUser'!";
             $retVal['Success'] = false;
         } else {
-            error_log(__FUNCTION__ . " success: $sourceUser ($sourcePermissions) changed $destUser ($destPermissions) to $newPermissions.");
+            // error_log(__FUNCTION__ . " success: $sourceUser ($sourcePermissions) changed $destUser ($destPermissions) to $newPermissions.");
         }
     }
 
@@ -106,20 +106,20 @@ function setAccountPermissions($sourceUser, $sourcePermissions, $user, $permissi
     $existingPermissions = getUserPermissions($user);
     if ($existingPermissions > $sourcePermissions) {
         //    Ignore: this person cannot be demoted by a lower-level member
-        error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $user ($existingPermissions) to $permissions??! not allowed!");
+        // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $user ($existingPermissions) to $permissions??! not allowed!");
         return false;
     } elseif (($permissions >= Permissions::Admin) && ($sourceUser != 'Scott')) {
-        error_log(__FUNCTION__ . " failed: person who is not Scott trying to set a user's permissions to admin");
+        // error_log(__FUNCTION__ . " failed: person who is not Scott trying to set a user's permissions to admin");
         return false;
     } else {
         $query = "UPDATE UserAccounts SET Permissions = $permissions, Updated=NOW() WHERE User='$user'";
-        log_sql($query);
+        // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             return true;
         } else {
             //    Unrecognised  user
-            error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
+            // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
             return false;
         }
     }
@@ -132,7 +132,7 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
     if ($permissions == 0) {
         //    This user is a spam user: remove all their posts and set their account as banned.
         $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
-        log_sql($query);
+        // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             //    Also ban the spammy user!
@@ -142,26 +142,26 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
             return true;
         } else {
             //    Unrecognised  user
-            error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
+            // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
             return false;
         }
     } elseif ($permissions == 1) {
         $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
-        log_sql($query);
+        // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             AuthoriseAllForumPosts($user);
 
-            error_log(__FUNCTION__ . " SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)");
+            // error_log(__FUNCTION__ . " SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)");
             return true;
         } else {
             //    Unrecognised  user
-            error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
+            // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
             return false;
         }
     } else { //    ?
         //    Unrecognised stuff
-        error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
+        // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
         return false;
     }
 }
@@ -176,7 +176,7 @@ function validateEmailValidationString($emailCookie, &$user)
             $data = mysqli_fetch_assoc($dbResult);
             $user = $data['User'];
             $query = "DELETE FROM EmailConfirmations WHERE User='$user' AND EmailCookie='$emailCookie'";
-            log_sql($query);
+            // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
                 $response = SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, 1);
@@ -184,30 +184,27 @@ function validateEmailValidationString($emailCookie, &$user)
                 if ($response['Success']) {
                     static_addnewregistereduser($user);
                     generateAPIKey($user);
-                    error_log(__FUNCTION__ . " SUCCESS: validated email address for $user");
+                    // error_log(__FUNCTION__ . " SUCCESS: validated email address for $user");
                     return true;
                 } else {
-                    log_sql_fail();
-                    error_log(__FUNCTION__ . " failed: cant set user's permissions to 1?? $user, $emailCookie - " . $response['Error']);
+                    // error_log(__FUNCTION__ . " failed: cant set user's permissions to 1?? $user, $emailCookie - " . $response['Error']);
                     return false;
                 }
             } else {
-                //    Error!
                 log_sql_fail();
-                error_log($query);
-                error_log(__FUNCTION__ . " failed: can't remove the email confirmation we just found??! $user, $emailCookie");
+                // error_log(__FUNCTION__ . " failed: can't remove the email confirmation we just found??! $user, $emailCookie");
                 return false;
             }
         } else {
             //    Unrecognised cookie or user
-            error_log($query);
-            error_log(__FUNCTION__ . " failed: $emailCookie num rows found:" . mysqli_num_rows($dbResult));
+            // log_sql_fail();
+            // error_log(__FUNCTION__ . " failed: $emailCookie num rows found:" . mysqli_num_rows($dbResult));
             return false;
         }
     } else {
         //    Unrecognised db query
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: $emailCookie !$dbResult");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: $emailCookie !$dbResult");
         return false;
     }
 }
@@ -215,7 +212,7 @@ function validateEmailValidationString($emailCookie, &$user)
 function generateCookie($user, &$cookie)
 {
     if (!isset($user) || $user == false) {
-        error_log(__FUNCTION__ . " failed: user:$user");
+        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
     //    Attempt to set a cookie on the server: if successful, set it locally.
@@ -224,14 +221,14 @@ function generateCookie($user, &$cookie)
 
     $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
 
-    log_sql($query);
+    // log_sql($query);
     $result = s_mysql_query($query);
     if ($result !== false) {
         RA_SetCookie('RA_User', $user);
         RA_SetCookie('RA_Cookie', $cookie);
         return true;
     } else {
-        error_log(__FUNCTION__ . " failed: cannot update DB: $query");
+        // error_log(__FUNCTION__ . " failed: cannot update DB: $query");
         RA_ClearCookie('RA_User');
         return false;
     }
@@ -240,7 +237,7 @@ function generateCookie($user, &$cookie)
 function generateAppToken($user, &$tokenOut)
 {
     if (!isset($user) || $user == false) {
-        error_log(__FUNCTION__ . " failed: user:$user");
+        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
     //    Attempt to set a token on the server: if successful, provide it.
@@ -251,7 +248,7 @@ function generateAppToken($user, &$tokenOut)
     $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
     $query = "UPDATE UserAccounts SET appToken='$newToken', appTokenExpiry='$expiryStr', Updated=NOW() WHERE User='$user'";
 
-    log_sql($query);
+    // log_sql($query);
     $result = s_mysql_query($query);
     if ($result !== false) {
         $tokenOut = $newToken;
@@ -266,7 +263,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
     //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
 
     if (!isset($user) || $user == false || mb_strlen($user) < 2) {
-        error_log(__FUNCTION__ . " username failed: empty user");
+        // error_log(__FUNCTION__ . " username failed: empty user");
         return 0;
     }
 
@@ -283,7 +280,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
         //    Token provided:
         $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
     } else {
-        error_log(__FUNCTION__ . " token and pass failed: user:$user, tokenInOut:$tokenInOut");
+        // error_log(__FUNCTION__ . " token and pass failed: user:$user, tokenInOut:$tokenInOut");
         return 0;
     }
 
@@ -298,7 +295,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
                 $expiry = $data['appTokenExpiry'];
                 if (time() > strtotime($expiry)) {
                     //    Expired!
-                    error_log(__FUNCTION__ . " failed6: user:$user, tokenInOut:$tokenInOut, $expiry, " . strtotime($expiry));
+                    // error_log(__FUNCTION__ . " failed6: user:$user, tokenInOut:$tokenInOut, $expiry, " . strtotime($expiry));
                     return -1;
                 }
             }
@@ -321,7 +318,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
                 $expDays = 30;
                 $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
                 $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
-                log_sql($query);
+                // log_sql($query);
                 s_mysql_query($query);
             }
 
@@ -329,11 +326,11 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
 
             return 1;
         } else {
-            error_log(__FUNCTION__ . " failed5: user:$user, tokenInOut:$tokenInOut");
+            // error_log(__FUNCTION__ . " failed5: user:$user, tokenInOut:$tokenInOut");
             return 0;
         }
     } else {
-        error_log(__FUNCTION__ . " failed4: user:$user, tokenInOut:$tokenInOut");
+        // error_log(__FUNCTION__ . " failed4: user:$user, tokenInOut:$tokenInOut");
         return 0;
     }
 }
@@ -356,8 +353,8 @@ function GetUserData($user)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false || mysqli_num_rows($dbResult) != 1) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: Achievement $id doesn't exist!");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: Achievement $id doesn't exist!");
         return null;
     } else {
         return mysqli_fetch_assoc($dbResult);
@@ -367,7 +364,7 @@ function GetUserData($user)
 function getAccountDetails(&$user, &$dataOut)
 {
     if (!isset($user) || mb_strlen($user) < 2) {
-        error_log(__FUNCTION__ . " failed: user:$user");
+        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
 
@@ -377,7 +374,7 @@ function getAccountDetails(&$user, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
-        error_log(__FUNCTION__ . " failed: user:$user, query:$query");
+        // error_log(__FUNCTION__ . " failed: user:$user, query:$query");
         return false;
     } else {
         $dataOut = mysqli_fetch_array($dbResult);
@@ -391,7 +388,7 @@ function getAccountDetailsFB($fbUser, &$details)
     $query = "SELECT User, EmailAddress, Permissions, RAPoints FROM UserAccounts WHERE fbUser='$fbUser'";
     $result = s_mysql_query($query);
     if ($result == false || mysqli_num_rows($dbResult) !== 1) {
-        error_log(__FUNCTION__ . " failed: fbUser:$fbUser, query:$query");
+        // error_log(__FUNCTION__ . " failed: fbUser:$fbUser, query:$query");
         return false;
     } else {
         $details = mysqli_fetch_array($result);
@@ -405,17 +402,17 @@ function changePassword($user, $pass)
     $saltedHash = md5($pass . getenv('RA_PASSWORD_SALT'));
 
     if (mb_strrchr(' ', $saltedHash) || mb_strlen($saltedHash) != 32) {
-        error_log(__FUNCTION__ . " failed: new pass $pass contains invalid characters or is not 32 chars long!");
+        // error_log(__FUNCTION__ . " failed: new pass $pass contains invalid characters or is not 32 chars long!");
         return false;
     }
 
     $query = "UPDATE UserAccounts SET SaltedPass='$saltedHash', Updated=NOW() WHERE user='$user'";
-    log_sql($query);
+    // log_sql($query);
     if (s_mysql_query($query) == true) {
         return true;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: user:$user");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
 }
@@ -425,10 +422,10 @@ function associateFB($user, $fbUser)
     //    TBD: Sanitise!
     $query = "UPDATE UserAccounts SET fbUser='$fbUser', Updated=NOW() WHERE User='$user'";
     //echo $query;
-    log_sql($query);
+    // log_sql($query);
     if (s_mysql_query($query) == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: user:$user and fbUser:$fbUser passed");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: user:$user and fbUser:$fbUser passed");
         return false;
     } else {
         // $query = "UPDATE UserAccounts SET fbPrefs=1, Updated=NOW() WHERE User='$user'";
@@ -453,7 +450,7 @@ function getFBUser($user, &$fbUserOut)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
-        error_log(__FUNCTION__ . " failed: user:$user");
+        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
@@ -471,7 +468,7 @@ function getUserIDFromUser($user)
         $data = mysqli_fetch_assoc($dbResult);
         return $data['ID'];
     } else {
-        error_log(__FUNCTION__ . " cannot find user $user.");
+        // error_log(__FUNCTION__ . " cannot find user $user.");
         return 0;
     }
 }
@@ -485,7 +482,7 @@ function getUserFromID($userID)
         $data = mysqli_fetch_assoc($dbResult);
         return $data['User'];
     } else {
-        error_log(__FUNCTION__ . " cannot find user $user.");
+        // error_log(__FUNCTION__ . " cannot find user $user.");
         return "";
     }
 }
@@ -498,7 +495,7 @@ function getUserMetadataFromID($userID)
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
     } else {
-        error_log(__FUNCTION__ . " cannot find user $user.");
+        // error_log(__FUNCTION__ . " cannot find user $user.");
         return 0;
     }
 }
@@ -628,8 +625,8 @@ function getUserForumPostAuth($user)
         $data = mysqli_fetch_assoc($dbResult);
         return $data['ManuallyVerified'];
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " issues! $userIn");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " issues! $userIn");
         return $userIn;
     }
 }
@@ -643,8 +640,8 @@ function correctUserCase($userIn)
         $data = mysqli_fetch_assoc($dbResult);
         return $data['User'];
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " issues! $userIn");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " issues! $userIn");
         return $userIn;
     }
 }
@@ -662,7 +659,7 @@ function GetScore($user)
         settype($points, 'integer');
         return $points;
     } else {
-        error_log(__FUNCTION__ . " failed: user:$user");
+        // error_log(__FUNCTION__ . " failed: user:$user");
         return 0;
     }
 }
@@ -680,8 +677,8 @@ function getUserRank($user)
         return $data['UserRank'];
     }
 
-    error_log($query);
-    error_log(__FUNCTION__ . " could not find $user in db?!");
+    log_sql_fail();
+    // error_log(__FUNCTION__ . " could not find $user in db?!");
 
     return 0;
 }
@@ -708,11 +705,10 @@ function updateAchievementVote($achID, $posDiff, $negDiff)
     $query = "UPDATE Achievements SET VotesPos=VotesPos+$posDiff, VotesNeg=VotesNeg+$negDiff, Updated=NOW() WHERE ID=$achID";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        error_log($query);
         return true;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed(;): achID:$achID, posDiff:$posDiff, negDiff:$negDiff");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed(;): achID:$achID, posDiff:$posDiff, negDiff:$negDiff");
         return false;
     }
 }
@@ -721,7 +717,7 @@ function applyVote($user, $achID, $vote)
 {
     settype($vote, 'integer');
     if ($vote != 1 && $vote != -1) {
-        error_log(__FUNCTION__ . " failed: illegal vote:$vote by user:$user, achID:$achID");
+        // error_log(__FUNCTION__ . " failed: illegal vote:$vote by user:$user, achID:$achID");
         return false;
     }
 
@@ -735,14 +731,13 @@ function applyVote($user, $achID, $vote)
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 0) {
         //    Vote not yet cast - add it newly!
         $query = "INSERT INTO Votes (User, AchievementID, Vote) VALUES ( '$user', '$achID', $vote )";
-        log_sql($query);
+        // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             return updateAchievementVote($achID, $posVote, $negVote);
         } else {
             log_sql_fail();
-            error_log($query);
-            error_log(__FUNCTION__ . " failed(;): user:$user, achID:$achID, vote:$vote");
+            // error_log(__FUNCTION__ . " failed(;): user:$user, achID:$achID, vote:$vote");
             return false;
         }
     } else {
@@ -751,7 +746,7 @@ function applyVote($user, $achID, $vote)
         $voteAlreadyCast = $data['Vote'];
         if ($voteAlreadyCast == $vote) {
             //    Vote already posted... ignore?
-            error_log(__FUNCTION__ . " warning: Identical vote already cast. ($user, $achID)");
+            // error_log(__FUNCTION__ . " warning: Identical vote already cast. ($user, $achID)");
             return true;
         } else {
             $query = "UPDATE Votes SET Vote=$vote WHERE User='$user' AND AchievementID='$achID'";
@@ -767,8 +762,8 @@ function applyVote($user, $achID, $vote)
                     return updateAchievementVote($achID, -1, 1);
                 }
             } else {
-                error_log($query);
-                error_log(__FUNCTION__ . " failed(;): user:$user, achID:$achID, vote:$vote");
+                log_sql_fail();
+                // error_log(__FUNCTION__ . " failed(;): user:$user, achID:$achID, vote:$vote");
                 return false;
             }
         }
@@ -817,7 +812,7 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . "buggered up somehow. $user, $gameIDsCSV");
+        // error_log(__FUNCTION__ . "buggered up somehow. $user, $gameIDsCSV");
         return 0;
     }
 
@@ -840,7 +835,7 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . "buggered up in the second part. $user, $gameIDsCSV");
+        // error_log(__FUNCTION__ . "buggered up in the second part. $user, $gameIDsCSV");
         return 0;
     }
 
@@ -922,9 +917,9 @@ function getUsersGameList($user, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        log_email(__FUNCTION__ . " failed with $user");
+        //log_email(__FUNCTION__ . " failed with $user");
 
-        error_log(__FUNCTION__ . "1 $user ");
+        // error_log(__FUNCTION__ . "1 $user ");
         return 0;
     }
 
@@ -944,8 +939,8 @@ function getUsersGameList($user, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        log_email($query);
-        error_log(__FUNCTION__ . "2 $user ");
+        //log_email($query);
+        // error_log(__FUNCTION__ . "2 $user ");
         return 0;
     }
 
@@ -985,7 +980,7 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
             $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
         }
     } else {
-        error_log(__FUNCTION__ . " something's gone wrong :( $user, $gameIDsCSV, $numAchievements");
+        // error_log(__FUNCTION__ . " something's gone wrong :( $user, $gameIDsCSV, $numAchievements");
     }
 }
 
@@ -1093,8 +1088,8 @@ function getControlPanelUserInfo($user, &$libraryOut)
 
         return true;
     } else {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
 
         return false;
     }
@@ -1187,8 +1182,8 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
             $numFound++;
         }
     } else {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
     }
 
     return $numFound;
@@ -1207,8 +1202,8 @@ function getUserPermissions($user)
     $query = "SELECT Permissions FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
         return 0;
     } else {
         $data = mysqli_fetch_assoc($dbResult);
@@ -1249,8 +1244,8 @@ function getUsersCompletedGamesAndMax($user)
             $gamesFound++;
         }
     } else {
-        log_email($query);
-        log_email("failing");
+        //log_email($query);
+        //log_email("failing");
     }
 
     return $retVal;
@@ -1330,8 +1325,8 @@ function getUsersSiteAwards($user)
         //Remove blank indexes
         $retVal = array_values(array_filter($retVal));
     } else {
-        log_email($query);
-        log_email("failing");
+        //log_email($query);
+        //log_email("failing");
     }
 
     return $retVal;
@@ -1347,8 +1342,8 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
     $query = "SELECT MAX( DisplayOrder ) FROM SiteAwards WHERE User = '$user'";
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
     } else {
         $dbData = mysqli_fetch_assoc($dbResult);
         if (isset($dbData['MAX( DisplayOrder )'])) {
@@ -1358,14 +1353,14 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
 
     $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder) 
                             VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
-    log_sql($query);
+    // log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
     if ($dbResult != null) {
         //error_log( "AddSiteAward OK! $user, $awardType, $data" );
         //log_email( __FUNCTION__ . " $user, $awardType, $data" );
     } else {
-        log_email("Failed AddSiteAward: $query");
+        //log_email("Failed AddSiteAward: $query");
     }
 }
 
@@ -1466,7 +1461,7 @@ function GetDeveloperStatsFull($count, $sortBy)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?! $count");
+        // error_log(__FUNCTION__ . " failed?! $count");
     }
 
     return $retVal;
@@ -1580,8 +1575,7 @@ function attributeDevelopmentAuthor($author, $points)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        global $db;
-        error_log(mysqli_error($db));
+        log_sql_fail();
     } else {
         //error_log( __FUNCTION__ . " $author, $points" );
 

@@ -10,7 +10,7 @@ $topicID = seekPOST('t');
 $field = seekPOST('f');
 $value = seekPOST('v');
 
-error_log("requestModifyTopic, " . $field . ", " . "$value");
+// error_log("requestModifyTopic, " . $field . ", " . "$value");
 
 if (validateFromCookie($user, $unused, $permissions, \RA\Permissions::Registered)) {
     if (requestModifyTopic($user, $permissions, $topicID, $field, $value)) {

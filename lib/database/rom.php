@@ -47,7 +47,7 @@ function getHashListByGameID($gameID)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?!");
+        // error_log(__FUNCTION__ . " failed?!");
     }
 
     return $retVal;
@@ -116,7 +116,7 @@ function getHashList($offset, $count, $searchedHash)
             $retVal[] = $nextData;
         }
     } else {
-        error_log(__FUNCTION__ . " failed?! $count");
+        // error_log(__FUNCTION__ . " failed?! $count");
     }
 
     return $retVal;

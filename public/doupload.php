@@ -26,7 +26,7 @@ if ($validLogin == false) {
 //  Infer from app
 if (isset($_FILES["file"]) && isset($_FILES["file"]["name"])) {
     $requestType = mb_substr($_FILES["file"]["name"], 0, -4);
-    error_log("RT: " . $requestType);
+    // error_log("RT: " . $requestType);
 }
 //error_log( "doupload.php" );
 //error_log( print_r( $_FILES, true ) );
@@ -46,7 +46,7 @@ switch ($requestType) {
         $errorMsg = "Unknown Request: '" . $requestType . "'";
         $response['Success'] = false;
         $response['Error'] = $errorMsg;
-        error_log("User: $user, Request$requestType: $errorMsg");
+        // error_log("User: $user, Request$requestType: $errorMsg");
         break;
 }
 

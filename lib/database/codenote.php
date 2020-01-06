@@ -19,8 +19,8 @@ function getCodeNotesData($gameID)
             $codeNotesOut[] = $db_entry;
         }
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
     }
 
     return $codeNotesOut;
@@ -48,8 +48,8 @@ function getCodeNotes($gameID, &$codeNotesOut)
         }
         return true;
     } else {
-        error_log(__FUNCTION__ . " error");
-        error_log($query);
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
         return false;
     }
 }
@@ -100,7 +100,7 @@ function submitCodeNote2($user, $gameID, $address, $note)
               VALUES( '$gameID', '$address', '$userID', '$note' )
               ON DUPLICATE KEY UPDATE AuthorID=VALUES(AuthorID), Note=VALUES(Note)";
 
-    log_sql($query);
+    // log_sql($query);
     $dbResult = mysqli_query($db, $query);
     return $dbResult !== false;
 }
@@ -138,7 +138,7 @@ function submitCodeNote($user, $gameID, $address, $note)
               SET cn.AuthorID = $userID, cn.Note = CONVERT(\"$note\" USING ASCII)
               WHERE cn.Address = $addressAsInt AND cn.GameID = $gameID ";
 
-    log_sql($query);
+    // log_sql($query);
 
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
@@ -146,13 +146,13 @@ function submitCodeNote($user, $gameID, $address, $note)
             //    Insert required
             $query = "INSERT INTO CodeNotes VALUES ( $gameID, $addressAsInt, $userID, CONVERT(\"$note\" USING ASCII) )";
 
-            log_sql($query);
+            // log_sql($query);
             global $db;
             $dbResult = mysqli_query($db, $query);
             if ($dbResult == false) {
                 //log_sql_fail();
-                error_log(__FUNCTION__ . " error2");
-                error_log($query);
+                // error_log(__FUNCTION__ . " error2");
+                log_sql_fail();
                 return false;
             } else {
                 //    Done :)
@@ -169,9 +169,8 @@ function submitCodeNote($user, $gameID, $address, $note)
             return true;
         }
     } else {
+        // error_log(__FUNCTION__ . " error1");
         log_sql_fail();
-        error_log(__FUNCTION__ . " error1");
-        error_log($query);
 
         return false;
     }

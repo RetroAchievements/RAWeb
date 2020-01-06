@@ -21,8 +21,8 @@ function getMostRecentActivity($user, $type, $data)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed! $user, $type, $data");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed! $user, $type, $data");
         return false;
     }
 
@@ -39,8 +39,8 @@ function updateActivity($activityID)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed! $activityID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed! $activityID");
     }
 }
 
@@ -224,7 +224,7 @@ function userActivityPing($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . " fucked up somehow for $user");
+        // error_log(__FUNCTION__ . " fucked up somehow for $user");
         //log_sql_fail();
         //log_email( __FUNCTION__ . " fucked up somehow for $user" );
         return false;
@@ -237,7 +237,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 {
     if (!isset($user) || mb_strlen($user) < 2) {
         //log_email( __FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)" );
-        error_log(__FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)");
+        // error_log(__FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)");
         return false;
     }
 
@@ -253,7 +253,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 
     $dbResult = mysqli_query($db, $query); //    Allow direct: we have sanitized all variables
     if ($dbResult == false) {
-        log_email(__FUNCTION__ . " fucked up somehow for $user");
+        //log_email(__FUNCTION__ . " fucked up somehow for $user");
         return false;
     }
 
@@ -277,7 +277,7 @@ function RemoveComment($articleID, $commentID)
     $query = "DELETE FROM Comment
               WHERE ArticleID = $articleID AND ID = $commentID";
 
-    log_sql($query);
+    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -297,7 +297,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
 
     $userID = getUserIDFromUser($user);
     if ($userID == 0) {
-        error_log(__FUNCTION__ . "error3: $user, $articleType, $articleID, $commentPayload");
+        // error_log(__FUNCTION__ . "error3: $user, $articleType, $articleID, $commentPayload");
         return false;
     }
 
@@ -308,7 +308,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     $commentPayload = mysqli_real_escape_string($db, $commentPayload);
 
     $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
-    log_sql($query);
+    // log_sql($query);
 
     $dbResult = mysqli_query($db, $query);
 
@@ -449,7 +449,7 @@ function getSubscribersOfArticle(
     if ($noExplicitSubscriptions) {
         $dbResult = s_mysql_query($qry);
         if ($dbResult === false) {
-            error_log($qry);
+            log_sql_fail();
             return [];
         }
 
@@ -540,8 +540,8 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
         return $i;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " Failed! user=$user");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " Failed! user=$user");
     }
 
     return 0;
@@ -590,8 +590,8 @@ LIMIT $offset, $count";
             $numFound++;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " had issues... $user, $offset, $count");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " had issues... $user, $offset, $count");
     }
 
     return $numFound;
@@ -631,8 +631,8 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
             $numArticleComments++;
         }
     } else {
-        error_log(__FUNCTION__ . " failed, $articleTypeID, $articleID, $offset, $count ");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed, $articleTypeID, $articleID, $offset, $count ");
+        log_sql_fail();
     }
 
     //    Fetch the last elements by submitted, but return them here in top-down order.
@@ -687,8 +687,8 @@ function getCurrentlyOnlinePlayers()
             $playersFound[] = $db_entry;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed3");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed3");
     }
 
     return $playersFound;
@@ -714,8 +714,8 @@ function getLatestRichPresenceUpdates()
             $playersFound[] = $db_entry;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
     }
 
     return $playersFound;
@@ -740,8 +740,8 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
             $numFound++;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: $numToFetch");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: $numToFetch");
     }
 
     return $numFound;

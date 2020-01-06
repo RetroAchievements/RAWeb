@@ -10,7 +10,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
     $query = "SELECT User, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
     if ($result == false) {
-        error_log(__FUNCTION__ . " failed: bad query: $query");
+        // error_log(__FUNCTION__ . " failed: bad query: $query");
         return false;
     } else {
         $row = mysqli_fetch_array($result);
@@ -23,7 +23,6 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
             $user = $row['User'];
             return $row['Permissions'] >= $permissionRequired;
         } else {
-            error_log(__FUNCTION__ . " failed: passwords don't match for user:$user pass:" . $row['SaltedPass']);
             return false;
         }
     }
@@ -60,7 +59,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
         $query = "SELECT User, cookie, RAPoints, Permissions FROM UserAccounts WHERE User='$userOut'";
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
-            error_log(__FUNCTION__ . " failed: bad query: $query");
+            // error_log(__FUNCTION__ . " failed: bad query: $query");
             return false;
         } else {
             $data = mysqli_fetch_array($dbResult);
@@ -70,7 +69,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
                 $permissionsOut = $data['Permissions'];
                 return $permissionsOut >= $permissionRequired;
             } else {
-                error_log(__FUNCTION__ . " failed: cookie doesn't match for user:$userOut (given: $cookie, should be " . $data['cookie'] . ")");
+                // error_log(__FUNCTION__ . " failed: cookie doesn't match for user:$userOut (given: $cookie, should be " . $data['cookie'] . ")");
                 return false;
             }
         }
@@ -160,7 +159,7 @@ function RA_ReadTokenCredentials(
     $permissionRequired = null
 ) {
     if ($userOut == null || $userOut == '') {
-        error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
+        // error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
     }
     if (!isValidUsername($userOut)) {
@@ -172,7 +171,7 @@ function RA_ReadTokenCredentials(
               WHERE User='$userOut'";
     $result = s_mysql_query($query);
     if ($result == false) {
-        error_log(__FUNCTION__ . " failed: bad query: $query");
+        // error_log(__FUNCTION__ . " failed: bad query: $query");
         return false;
     } else {
         $row = mysqli_fetch_array($result);
@@ -185,7 +184,7 @@ function RA_ReadTokenCredentials(
                 return true;
             }
         } else {
-            error_log(__FUNCTION__ . " failed: passwords don't match for user:$userOut (given: $token, should be " . $row['appToken'] . ")");
+            // error_log(__FUNCTION__ . " failed: passwords don't match for user:$userOut (given: $token, should be " . $row['appToken'] . ")");
             return false;
         }
     }
@@ -194,12 +193,12 @@ function RA_ReadTokenCredentials(
 function generateAPIKey($user)
 {
     if (!getAccountDetails($user, $userData)) {
-        error_log(__FUNCTION__ . " API Key gen fail 1: not a user?");
+        // error_log(__FUNCTION__ . " API Key gen fail 1: not a user?");
         return "";
     }
 
     if ($userData['Permissions'] < 1) {
-        error_log(__FUNCTION__ . " API Key gen fail 2: not a full account!");
+        // error_log(__FUNCTION__ . " API Key gen fail 2: not a full account!");
         return "";
     }
 
@@ -211,8 +210,8 @@ function generateAPIKey($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        log_email(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
-        error_log(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
+        //log_email(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
+        // error_log(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
         return "";
     }
 
@@ -230,9 +229,9 @@ function GetAPIKey($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__);
-        error_log("errors fetching API Key for $user!");
-        log_email(__FUNCTION__ . " cannot fetch API key for $user");
+        // error_log(__FUNCTION__);
+        // error_log("errors fetching API Key for $user!");
+        //log_email(__FUNCTION__ . " cannot fetch API key for $user");
         return "No API Key found!";
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
@@ -262,9 +261,9 @@ function ValidateAPIKey($user, $key)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        error_log(__FUNCTION__);
-        error_log("errors validating API Key for $user (given: $key)!");
-        log_email(__FUNCTION__ . " errors validating API Key for $user (given: $key)!");
+        // error_log(__FUNCTION__);
+        // error_log("errors validating API Key for $user (given: $key)!");
+        //log_email(__FUNCTION__ . " errors validating API Key for $user (given: $key)!");
         return false;
     }
 

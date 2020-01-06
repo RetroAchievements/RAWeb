@@ -18,17 +18,15 @@ if (validateUser_cookie($user, $cookie, 1)) {
 
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
-        error_log($query);
-        error_log(__FILE__ . " user $user to $newMotto - associate successful!");
+        // error_log(__FILE__ . " user $user to $newMotto - associate successful!");
         $changeErrorCode = "changeok";
     } else {
-        error_log(__FILE__);
-        error_log($query);
+        // error_log(__FILE__);
+        log_sql_fail();
         $changeErrorCode = "changeerror";
     }
 } else {
-    error_log(__FILE__);
-    error_log($query);
+    // error_log(__FILE__);
     $changeErrorCode = "changeerror";
 }
 

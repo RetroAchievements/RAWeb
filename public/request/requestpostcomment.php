@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
-error_log(__FILE__ . " called");
+// error_log(__FILE__ . " called");
 
 //	Sanitise!
 if (!ValidatePOSTChars("uact")) {
@@ -20,7 +20,7 @@ $commentPayload = seekPOST('c');
 $commentPayload = preg_replace('/[^(\x20-\x7F)]*/', '', $commentPayload);
 
 if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {
-    error_log(__FILE__ . " returning $articleID");
+    // error_log(__FILE__ . " returning $articleID");
     echo $articleID;
 } else {
     echo "FAILED!";

@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("uxy")) {
-    error_log(__FILE__);
-    error_log("Cannot validate uxy input...");
+    // error_log(__FILE__);
+    // error_log("Cannot validate uxy input...");
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=baddata");
 }
 

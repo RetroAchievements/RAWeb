@@ -12,37 +12,37 @@ $email = $_POST["e"];
 $email2 = $_POST["f"];
 
 if (ctype_alnum($user) == false) {
-    error_log("requestcreateuser.php failed 1 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 1 - $user $email $email2 ");
     echo "Username ($user) must consist only of letters or numbers. Please retry.<br>";
     return false;
 }
 
 if (mb_strlen($user) > 20) {
-    error_log("requestcreateuser.php failed 2 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 2 - $user $email $email2 ");
     echo "Username can be a maximum of 20 characters. Please retry.<br>";
     return false;
 }
 
 if (mb_strlen($user) < 2) {
-    error_log("requestcreateuser.php failed 3 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 3 - $user $email $email2 ");
     echo "Username must be at least 2 characters. Please retry.<br>";
     return false;
 }
 
 if (mb_strlen($pass) < 2) {
-    error_log("requestcreateuser.php failed 3.5 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 3.5 - $user $email $email2 ");
     echo "Password must be at least 2 characters. Please retry.<br>";
     return false;
 }
 
 if ($email !== $email2) {
-    error_log("requestcreateuser.php failed 4 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 4 - $user $email $email2 ");
     echo "Emails do not match... please retry.<br>";
     return false;
 }
 
 if (!checkEmail($email)) {
-    error_log("requestcreateuser.php failed 5 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 5 - $user $email $email2 ");
     echo "Email is not valid... please retry.<br>";
     return false;
 }
@@ -64,7 +64,7 @@ if (getenv('GOOGLE_RECAPTCHA_SECRET')) {
     $resultJSON = json_decode($result, true);
 
     if (array_key_exists('success', $resultJSON) && $resultJSON['success'] != true) {
-        error_log("requestcreateuser.php failed 6 - $user $email $email2 ");
+        // error_log("requestcreateuser.php failed 6 - $user $email $email2 ");
         echo "Captcha field failed!... please retry.<br>";
         return false;
     }
@@ -74,7 +74,7 @@ $query = "SELECT User FROM UserAccounts WHERE User='$user'";
 $dbResult = s_mysql_query($query);
 
 if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-    error_log("requestcreateuser.php failed 6 - $user $email $email2 ");
+    // error_log("requestcreateuser.php failed 6 - $user $email $email2 ");
     echo "That username is already taken...<br>";
 
     return false;
@@ -91,19 +91,18 @@ if ($dbResult !== false) {
     //generateCookie( $user, $cookie );
     // Create an email cookie and send them an email
     if (sendValidationEmail($user, $email) == false) {
-        error_log("Failed to send validation email to $user at $email");
+        // error_log("Failed to send validation email to $user at $email");
     }
 
     if (copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png") == false) {
-        error_log("Failed to create user pic for user $user");
+        // error_log("Failed to create user pic for user $user");
     }
 
     header("Location: " . getenv('APP_URL') . "/?e=validateEmailPlease");
 
     echo "Created $user successfully!<br>";
 } else {
-    error_log(mysqli_error($db));
-    error_log($query);
-    error_log("requestcreateuser.php - Failed to create user $user");
+    log_sql_fail();
+    // error_log("requestcreateuser.php - Failed to create user $user");
     echo "Failed to create $user <br>";
 }

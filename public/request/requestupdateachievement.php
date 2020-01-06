@@ -13,7 +13,7 @@ if (ValidatePOSTChars("uafv")) {
         $field = seekGET('f');
         $value = seekGET('v');
     } else {
-        error_log("FAILED access to requestupdateachievements.php");
+        // error_log("FAILED access to requestupdateachievements.php");
         echo "FAILED";
         return;
     }
@@ -27,7 +27,7 @@ if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer
 settype($achID, "integer");
 settype($field, "integer");
 
-error_log("Warning: $user changing achievement ID $achID, field $field");
+// error_log("Warning: $user changing achievement ID $achID, field $field");
 
 switch ($field) {
     case 1:
@@ -37,7 +37,7 @@ switch ($field) {
             echo "OK";
             return;
         }
-        error_log("requestupdateachievement.php failed?! 1" . var_dump($_POST));
+        // error_log("requestupdateachievement.php failed?! 1" . var_dump($_POST));
         echo "FAILED!";
         break;
     case 2:
@@ -48,7 +48,7 @@ switch ($field) {
             echo "OK";
             return;
         }
-        error_log("requestupdateachievement.php failed?! 2" . var_dump($_POST));
+        // error_log("requestupdateachievement.php failed?! 2" . var_dump($_POST));
         echo "FAILED!";
         break;
     case 3:
@@ -68,12 +68,12 @@ switch ($field) {
             }
             addArticleComment("Server", 2, $achID, "\"$user\" $commentText.", $user);
         } else {
-            error_log("requestupdateachievement.php failed?! 3" . var_dump($_POST));
+            // error_log("requestupdateachievement.php failed?! 3" . var_dump($_POST));
             echo "FAILED!";
         }
         break;
     default:
-        error_log("requestupdateachievement.php failed?!" . var_dump($_POST));
+        // error_log("requestupdateachievement.php failed?!" . var_dump($_POST));
         echo "FAILED!";
         break;
 }

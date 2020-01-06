@@ -20,9 +20,8 @@ function updateSubscription($subjectType, $subjectID, $userID, $state)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult === false) {
-        global $db;
-        error_log(__FUNCTION__ . ": " . mysqli_error($db));
-        error_log($query);
+        // error_log(__FUNCTION__ . ": " . mysqli_error($db));
+        log_sql_fail();
         return false;
     }
 
@@ -87,8 +86,8 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
     global $db;
     $dbResult = s_mysql_query($query);
     if ($dbResult === false) {
-        error_log(__FUNCTION__ . ": " . mysqli_error($db));
-        // error_log($query);
+        // error_log(__FUNCTION__ . ": " . mysqli_error($db));
+        log_sql_fail();
         return false;
     }
 
@@ -154,7 +153,7 @@ function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $im
     $dbResult = s_mysql_query($query);
 
     if ($dbResult === false) {
-        error_log($query);
+        log_sql_fail();
         return [];
     }
 

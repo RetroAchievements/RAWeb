@@ -100,18 +100,18 @@ if ($_FILES["file"]["size"] > 1048576) {
 
                     if ($targetWidth > $maxImageSizeWidth) {
                         $wScaling = 1.0 / ($targetWidth / $maxImageSizeWidth);
-                        error_log("WScaling is $wScaling, so width $targetWidth and height $targetHeight become...");
+                        // error_log("WScaling is $wScaling, so width $targetWidth and height $targetHeight become...");
                         $targetWidth = $targetWidth * $wScaling;
                         $targetHeight = $targetHeight * $wScaling;
-                        error_log("$targetWidth and $targetHeight");
+                        // error_log("$targetWidth and $targetHeight");
                     }
                     //	IF, after potentially being reduced, the height's still too big, scale again
                     if ($targetHeight > $maxImageSizeHeight) {
                         $vScaling = 1.0 / ($targetHeight / $maxImageSizeHeight);
-                        error_log("VScaling is $vScaling, so width $targetWidth and height $targetHeight become...");
+                        // error_log("VScaling is $vScaling, so width $targetWidth and height $targetHeight become...");
                         $targetWidth = $targetWidth * $vScaling;
                         $targetHeight = $targetHeight * $vScaling;
-                        error_log("$targetWidth and $targetHeight");
+                        // error_log("$targetWidth and $targetHeight");
                     }
 
                     $newImage = imagecreatetruecolor($targetWidth, $targetHeight);
@@ -120,7 +120,7 @@ if ($_FILES["file"]["size"] > 1048576) {
                     $success = imagepng($newImage, $newImageFilename);
 
                     if ($success == false) {
-                        error_log("uploadpic.php failed: Issues copying to $newImageFilename");
+                        // error_log("uploadpic.php failed: Issues copying to $newImageFilename");
                         echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
                         exit;
                     } else {
@@ -162,11 +162,10 @@ if ($_FILES["file"]["size"] > 1048576) {
                                 $dbResult = mysqli_query($db, $query);
 
                                 if ($dbResult == false) {
-                                    error_log($query);
-                                    log_email("uploadpic.php went wrong... $uploadType, $returnID");
+                                    log_sql_fail();
+                                    //log_email("uploadpic.php went wrong... $uploadType, $returnID");
                                 } else {
-                                    error_log($query);
-                                    error_log("Logged image update $uploadType to game $returnID, to image /Images/$nextImageFilenameStr.png");
+                                    // error_log("Logged image update $uploadType to game $returnID, to image /Images/$nextImageFilenameStr.png");
                                 }
 
                                 header("Location: " . getenv('APP_URL') . "/game/$returnID?e=uploadok");

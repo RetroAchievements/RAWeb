@@ -14,7 +14,7 @@ if (ValidatePOSTChars("utdev")) {
         $awardDataExtra = seekGET('e');
         $value = seekGET('v');
     } else {
-        error_log("FAILED access to requestupdatesiteaward.php");
+        // error_log("FAILED access to requestupdatesiteaward.php");
         echo "FAILED";
         return;
     }
@@ -43,6 +43,6 @@ if (in_array($awardType, [2, 3])) {
 if (s_mysql_query($query)) {
     echo "OK";
 } else {
-    error_log("requestupdatesiteaward.php failed?! 1" . var_dump($_POST));
+    // error_log("requestupdatesiteaward.php failed?! 1" . var_dump($_POST));
     echo "FAILED!";
 }

@@ -52,8 +52,8 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
         }
         echo "</tbody></table>";
     } else {
-        error_log(__FUNCTION__);
-        error_log("Cannot get latest forum posts!");
+        // error_log(__FUNCTION__);
+        // error_log("Cannot get latest forum posts!");
     }
 
     echo "<span class='morebutton'><a href='/forumposthistory.php'>more...</a></span>";

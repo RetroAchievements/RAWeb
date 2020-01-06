@@ -65,8 +65,7 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
     $dbResult = mysqli_query($db, $query);
 
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . " gone wrong!");
-        error_log($query);
+        // error_log(__FUNCTION__ . " gone wrong!");
         log_sql_fail();
     } else {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
