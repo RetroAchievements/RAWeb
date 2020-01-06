@@ -7,4 +7,3 @@ echo $date . "\r\n";
 //$output = shell_exec('crontab -l');
 //echo "<pre>$output</pre>";
 //error_log( "Cron Job Run!" );
-	

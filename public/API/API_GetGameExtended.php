@@ -1,15 +1,13 @@
 <?php
-//	Internal: this is not public-facing!
 require_once __DIR__ . '/../../lib/bootstrap.php';
- 
-if( !ValidateAPIKey( seekGET( 'z' ), seekGET( 'y' ) ) )
-{
-	echo "Invalid API Key";
-	exit;
+
+if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
+    echo "Invalid API Key";
+    exit;
 }
 
-$gameID = seekGET( 'i' );
-getGameMetadata( $gameID, NULL, $achData, $gameData );
+$gameID = seekGET('i');
+getGameMetadata($gameID, null, $achData, $gameData);
 
 foreach ($achData as &$achievement) {
     $achievement['MemAddr'] = md5($achievement['MemAddr']);
@@ -17,4 +15,4 @@ foreach ($achData as &$achievement) {
 $gameData['Achievements'] = $achData;
 $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch']);
 
-echo json_encode( $gameData );
+echo json_encode($gameData);

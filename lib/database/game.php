@@ -3,11 +3,6 @@
 use RA\ActivityType;
 use RA\Permissions;
 
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Game Accessors
-//////////////////////////////////////////////////////////////////////////////////////////
-//    00:21 23/02/2013
 function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
 {
     $query = "SELECT ID, GameName FROM GameData WHERE GameMD5='$md5Hash'";
@@ -20,16 +15,15 @@ function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
             $gameTitleOut = $data['GameName'];
             return true;
         } else {
-            error_log(__FUNCTION__ . " cannot find game with md5 ($md5Hash) in DB!");
+            // error_log(__FUNCTION__ . " cannot find game with md5 ($md5Hash) in DB!");
             return false;
         }
     } else {
-        error_log(__FUNCTION__ . " issues getting game with md5 ($md5Hash) from DB!");
+        // error_log(__FUNCTION__ . " issues getting game with md5 ($md5Hash) from DB!");
         return false;
     }
 }
 
-//    11:37 30/10/2014
 function getGameData($gameID)
 {
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
@@ -46,13 +40,12 @@ function getGameData($gameID)
         settype($retVal['IsFinal'], 'boolean');
         return $retVal;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " cannot find game with ID ($gameID) in DB!");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " cannot find game with ID ($gameID) in DB!");
         return null;
     }
 }
 
-//    00:48 23/02/2013
 function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData)
 {
     $gameTitle = "UNRECOGNISED";
@@ -74,12 +67,11 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
                 $forumTopicID = $data['ForumTopicID'];
                 $allData = $data;
             } else {
-                error_log($query);
-                error_log(__FUNCTION__ . " cannot find game with ID ($gameID) in DB!");
+                // error_log(__FUNCTION__ . " cannot find game with ID ($gameID) in DB!");
             }
         } else {
-            error_log($query);
-            error_log(__FUNCTION__ . " issues getting game with ID ($gameID) from DB!");
+            log_sql_fail();
+            // error_log(__FUNCTION__ . " issues getting game with ID ($gameID) from DB!");
         }
     }
 
@@ -99,8 +91,7 @@ function getGameMetadataByFlags(
     $sortBy = 0,
     $user2 = null,
     $flags = 0
-)
-{
+) {
     settype($gameID, 'integer');
     settype($sortBy, 'integer');
     settype($flags, 'integer');
@@ -153,7 +144,7 @@ function getGameMetadataByFlags(
     $gameDataOut = getGameData($gameID);
 
     if ($gameDataOut == null) {
-        error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
+        // error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
         return;
     }
 
@@ -207,6 +198,7 @@ function getGameMetadataByFlags(
     $numDistinctPlayersCasual = 0;
     $numDistinctPlayersHardcore = 0;
 
+    $achievementDataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -227,8 +219,8 @@ function getGameMetadataByFlags(
             $numAchievements++;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
         return;
     }
 
@@ -296,7 +288,7 @@ function getGameAlternatives($gameID)
 
     $dbResult = s_mysql_query($query);
 
-    $results = array();
+    $results = [];
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -312,7 +304,7 @@ function getGamesListWithNumAchievements($consoleID, &$dataOut, $sortBy)
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy, false);
 }
 
-function getGamesListByDev($dev = null, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false)
+function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false)
 {
     //    Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
@@ -365,6 +357,7 @@ function getGamesListByDev($dev = null, $consoleID, &$dataOut, $sortBy, $tickets
 
     switch ($sortBy) {
         case 1:
+        default:
             $query .= "ORDER BY gd.ConsoleID, Title ";
             break;
         case 11:
@@ -406,14 +399,11 @@ function getGamesListByDev($dev = null, $consoleID, &$dataOut, $sortBy, $tickets
                 $query .= "ORDER BY gd.ConsoleID, Title DESC ";
             }
             break;
-
-        default:
-            $query .= "ORDER BY gd.ConsoleID, Title ";
-            break;
     }
 
     $numGamesFound = 0;
 
+    $dataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -421,18 +411,15 @@ function getGamesListByDev($dev = null, $consoleID, &$dataOut, $sortBy, $tickets
             $numGamesFound++;
         }
     } else {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
     }
 
     return $numGamesFound;
 }
 
-//    14:01 30/10/2014
 function getGamesListData($consoleID, $officialFlag = false)
 {
-    $retVal = array();
-
     $leftJoinAch = "";
     $whereClause = "";
     if ($officialFlag) {
@@ -453,6 +440,7 @@ function getGamesListData($consoleID, $officialFlag = false)
               $whereClause
               ORDER BY ConsoleName, Title";
 
+    $retVal = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -462,7 +450,6 @@ function getGamesListData($consoleID, $officialFlag = false)
     return $retVal;
 }
 
-//    22:55 20/03/2013
 function getGamesList($consoleID, &$dataOut)
 {
     $dataOut = getGamesListData($consoleID);
@@ -471,7 +458,7 @@ function getGamesList($consoleID, &$dataOut)
 
 function getGamesListDataNamesOnly($consoleID, $officialFlag = false)
 {
-    $retval = array();
+    $retval = [];
 
     $data = getGamesListData($consoleID, $officialFlag);
 
@@ -479,12 +466,11 @@ function getGamesListDataNamesOnly($consoleID, $officialFlag = false)
         $retval[$element['ID']] = utf8_encode($element['Title']);
     }
 
-    error_log("getGamesListDataNamesOnly: " . count($data) . ", " . count($retval));
+    // error_log("getGamesListDataNamesOnly: " . count($data) . ", " . count($retval));
 
     return $retval;
 }
 
-//    14:11 18/04/2013
 function getAllocatedForGame($gameID, &$allocatedPoints, &$numAchievements)
 {
     $query = "SELECT SUM(ach.Points) AS AllocatedPoints, COUNT(ID) AS NumAchievements FROM Achievements AS ach ";
@@ -497,34 +483,15 @@ function getAllocatedForGame($gameID, &$allocatedPoints, &$numAchievements)
         $numAchievements = $data['NumAchievements'];
         return true;
     } else {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
         return false;
     }
 }
 
-//    18:12 24/02/2013
-function getGameIDFromMD5($md5)
-{
-    $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
-    $dbResult = s_mysql_query($query);
-
-    //error_log( $query );
-    if ($dbResult !== false && mysqli_num_rows($dbResult) >= 1) {
-        $data = mysqli_fetch_assoc($dbResult);
-        settype($data['GameID'], 'integer');
-
-        return $data['GameID'];
-    } else {
-        //error_log( __FUNCTION__ . " failed: could not find $md5!" );
-        return 0;
-    }
-}
-
-//    09:02 06/02/2015
 function getAchievementIDs($gameID)
 {
-    $retVal = array();
+    $retVal = [];
     settype($gameID, 'integer');
     $retVal['GameID'] = $gameID;
 
@@ -536,7 +503,7 @@ function getAchievementIDs($gameID)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $achIDs = array();
+        $achIDs = [];
         while ($data = mysqli_fetch_assoc($dbResult)) {
             settype($data['ID'], 'integer');
             $achIDs[] = $data['ID'];
@@ -547,7 +514,6 @@ function getAchievementIDs($gameID)
     return $retVal;
 }
 
-//    17:36 23/02/2013
 function getGameIDFromTitle($gameTitleIn, $consoleID)
 {
     $gameTitle = str_replace("'", "''", $gameTitleIn);
@@ -561,8 +527,8 @@ function getGameIDFromTitle($gameTitleIn, $consoleID)
         $data = mysqli_fetch_assoc($dbResult);
         return $data['ID'];
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: could not find $gameTitle!");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: could not find $gameTitle!");
         return 0;
     }
 }
@@ -571,8 +537,8 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
 {
     $achData = [];
     if (getAchievementMetadata($achID, $achData) == false) {
-        error_log(__FUNCTION__);
-        error_log("cannot get achievement metadata for $achID. This is MEGABAD!");
+        // error_log(__FUNCTION__);
+        // error_log("cannot get achievement metadata for $achID. This is MEGABAD!");
         return false;
     }
 
@@ -592,9 +558,7 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
             //error_log( __FUNCTION__ );
             //error_log( "$user earned EVERY achievement for game $gameID" );
             //    Test that this wasn't very recently posted!
-            if (RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
-                error_log("Recently posted about this: ignoring!");
-            } else {
+            if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
                 postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
             }
             return true;
@@ -602,8 +566,8 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
             return false;
         }
     } else {
-        error_log(__FUNCTION__);
-        error_log("broken1 with $achID, $gameID, $user. This is MEGABAD!");
+        // error_log(__FUNCTION__);
+        // error_log("broken1 with $achID, $gameID, $user. This is MEGABAD!");
         return false;
     }
 }
@@ -623,21 +587,70 @@ function requestModifyGameData($gameID, $developerIn, $publisherIn, $genreIn, $r
     $dbResult = mysqli_query($db, $query);
 
     if ($dbResult == false) {
-        log_email(__FUNCTION__ . " went wrong. GameID: $gameID, text: $developer, $publisher, $genre, $released ");
-        log_email($query);
+        // log_email(__FUNCTION__ . " went wrong. GameID: $gameID, text: $developer, $publisher, $genre, $released ");
+        // log_email($query);
+        log_sql_fail();
     } else {
-        error_log(__FUNCTION__ . " OK! GameID: $gameID, text: $developer, $publisher, $genre, $released");
+        // error_log(__FUNCTION__ . " OK! GameID: $gameID, text: $developer, $publisher, $genre, $released");
     }
 
-    return ($dbResult != null);
+    return $dbResult != null;
+}
+
+function requestModifyGame($author, $gameID, $field, $value)
+{
+    global $db;
+
+    settype($field, 'integer');
+    switch ($field) {
+        case 1: // Title
+            if (!isset($value) || mb_strlen($value) < 2) {
+                //log_email("bad data $author, $gameID, $field, $value");
+                return false;
+            }
+
+            $newTitle = str_replace("'", "''", $value);
+            $newTitle = mysqli_real_escape_string($db, $newTitle);
+            //$newTitle = str_replace( "/", "&#47;", $newTitle );
+            //$newTitle = str_replace( "\\", "&#92;", $newTitle );
+
+            $query = "UPDATE GameData SET Title='$newTitle' WHERE ID=$gameID";
+            // log_sql("$user: $query");
+
+            $dbResult = mysqli_query($db, $query);
+
+            return $dbResult !== false;
+            break;
+
+        /**
+         * UPDATE: do not allow dangerous actions anymore until proper failovers are in place
+         */
+        // case 2: // GameHashTable
+        //     $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
+        //     log_sql( "$user: $query" );
+        //     $dbResult = s_mysql_query( $query );
+        //
+        //     return ( $dbResult !== FALSE );
+        //     break;
+
+        case 3: // delete a single hash entry
+            $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$value'";
+            // log_sql("$user: $query");
+            $dbResult = s_mysql_query($query);
+
+            return $dbResult !== false;
+            break;
+    }
+
+    return false;
 }
 
 function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
 {
     if (isset($toAdd)) {
         //Replace all non-numberic characters with comma so the string has a common delimiter.
-        $toAdd = preg_replace("/[^0-9]+/", ",", $toAdd );
-        $tok = strtok ($toAdd, ",");
+        $toAdd = preg_replace("/[^0-9]+/", ",", $toAdd);
+        $tok = strtok($toAdd, ",");
         $valuesArray = [];
         while ($tok !== false && $tok > 0) {
             settype($tok, 'integer');
@@ -649,9 +662,9 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
         if (!empty($values)) {
             $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values";
             if (s_mysql_query($query)) {
-                error_log("Added game alt(s): $values");
+                // error_log("Added game alt(s): $values");
             } else {
-                error_log("FAILED to add game alt(s): $values");
+                // error_log("FAILED to add game alt(s): $values");
             }
         }
     }
@@ -660,7 +673,7 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
         settype($toRemove, 'integer');
         $query = "DELETE FROM GameAlternatives
                   WHERE ( gameID = $gameID AND gameIDAlt = $toRemove ) || ( gameID = $toRemove AND gameIDAlt = $gameID )";
-        error_log("Removed game alt, $gameID -> $toRemove");
+        // error_log("Removed game alt, $gameID -> $toRemove");
         s_mysql_query($query);
     }
 }
@@ -682,22 +695,21 @@ function requestModifyGameForumTopic($gameID, $newForumTopic)
             WHERE gd.ID = $gameID";
 
         if (mysqli_query($db, $query)) {
-            error_log(__FUNCTION__ . " OK! GameID: $gameID, new ForumTopicID: $newForumTopic");
+            // error_log(__FUNCTION__ . " OK! GameID: $gameID, new ForumTopicID: $newForumTopic");
             return true;
         } else {
-            log_email(__FUNCTION__ . " went wrong. GameID: $gameID, new ForumTopicID: $newForumTopic");
-            log_email($query);
+            //log_email(__FUNCTION__ . " went wrong. GameID: $gameID, new ForumTopicID: $newForumTopic");
+            //log_email($query);
             return false;
         }
     }
     return false;
 }
 
-//    20:52 06/12/2013
 function getAchievementDistribution($gameID, $hardcore)
 {
     settype($hardcore, 'integer');
-    $retval = array();
+    $retval = [];
 
     //    Returns an array of the number of players who have achieved each total, up to the max.
     $query = "
@@ -729,12 +741,11 @@ function getAchievementDistribution($gameID, $hardcore)
     return $retval;
 }
 
-//    01:09 08/12/2013
 function getMostPopularGames($offset, $count, $method)
 {
     settype($method, 'integer');
 
-    $retval = array();
+    $retval = [];
 
     if ($method == 0) {
         //    By num awards given:
@@ -789,12 +800,11 @@ function getMostPopularGames($offset, $count, $method)
     return $retval;
 }
 
-//    00:47 30/06/2014
 function getGameListSearch($offset, $count, $method, $consoleID = null)
 {
     settype($method, 'integer');
 
-    $retval = array();
+    $retval = [];
 
     if ($method == 0) {
         $where = '';
@@ -844,10 +854,9 @@ function getTotalUniquePlayers($gameID)
     return $data['UniquePlayers'];
 }
 
-//    13:40 08/12/2013
 function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
 {
-    $retval = Array();
+    $retval = [];
 
     $query = "    SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
                 FROM Awarded AS aw
@@ -876,15 +885,15 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
 //////////////////////////////////////////////////////////////////////////////////////////
 function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$idOut)
 {
-    if (!isset($md5) || strlen($md5) != 32) {
-        log_email("invalid md5 provided ($md5) by $user, $gameTitleDest");
+    if (!isset($md5) || mb_strlen($md5) != 32) {
+        //log_email("invalid md5 provided ($md5) by $user, $gameTitleDest");
         return false;
     }
 
     //    Redirect the given md5 to an existing gameID:
     $idOut = getGameIDFromTitle($gameTitleDest, $consoleID);
     if ($idOut == 0) {
-        log_email("CANNOT find this existing game title! ($user requested $md5 forward to '$gameTitleDest')");
+        //log_email("CANNOT find this existing game title! ($user requested $md5 forward to '$gameTitleDest')");
         return false;
     }
 
@@ -895,7 +904,7 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
         if ($data['NumEntries'] == 0) {
             //    Add new name
             $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
-            log_sql($query);
+            // log_sql($query);
             $dbResult = s_mysql_query($query);
             SQL_ASSERT($dbResult);
 
@@ -904,8 +913,7 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
                 return true;
             } else {
                 log_sql_fail();
-                error_log($query);
-                error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $idOut");
+                // error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $idOut");
                 return false;
             }
         } elseif ($data['NumEntries'] == 1) {
@@ -916,28 +924,26 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
                 $query = "UPDATE GameHashLibrary SET GameID='$idOut' WHERE MD5='$md5'";
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
-                    error_log(__FUNCTION__ . " success: $user updated $md5 from $existingRedirTo to $idOut");
+                    // error_log(__FUNCTION__ . " success: $user updated $md5 from $existingRedirTo to $idOut");
                     return true;
                 } else {
-                    error_log($query);
-                    error_log(__FUNCTION__ . " failed UPDATE! $user, $md5 and $idOut");
+                    log_sql_fail();
+                    // error_log(__FUNCTION__ . " failed UPDATE! $user, $md5 and $idOut");
                     return false;
                 }
             } else {
                 //    This exact entry is already here.
-                error_log($query);
-                error_log(__FUNCTION__ . " failed, already exists! $user, $md5 and $idOut");
+                // error_log(__FUNCTION__ . " failed, already exists! $user, $md5 and $idOut");
                 return false;
             }
         } else {
-            error_log($query);
             //error_log( __FUNCTION__ . " failed MULTIPLE ENTRIES IN GameHashLibrary! ( " .  $data['NumEntries'] . " ) $user, $md5 and $idOut" );
-            log_email(" failed MULTIPLE ENTRIES IN GameHashLibrary! ( " . $data['NumEntries'] . " ) $user, $md5 and $idOut");
+            //log_email(" failed MULTIPLE ENTRIES IN GameHashLibrary! ( " . $data['NumEntries'] . " ) $user, $md5 and $idOut");
             return false;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . "failed SELECT! $user, $md5 and $idOut");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . "failed SELECT! $user, $md5 and $idOut");
         return false;
     }
 }
@@ -949,7 +955,7 @@ function createNewGame($title, $consoleID)
 
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints) 
                             VALUES ('$title', $consoleID, NULL, 0, '/Images/000001.png', '/Images/000002.png', '/Images/000002.png', '/Images/000002.png', NULL, NULL, NULL, NULL, 0, NULL, 0 )";
-    log_sql($query);
+    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -960,19 +966,17 @@ function createNewGame($title, $consoleID)
     }
 
     log_sql_fail();
-    error_log($query);
-    error_log(__FUNCTION__ . "failed ($title)");
+    // error_log(__FUNCTION__ . "failed ($title)");
     return 0;
 }
 
-//    15:38 03/11/2014
 function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
 {
     settype($consoleID, 'integer');
 
-    error_log(__FUNCTION__ . " called with $user, $md5, $titleIn, $consoleID");
+    // error_log(__FUNCTION__ . " called with $user, $md5, $titleIn, $consoleID");
 
-    $retVal = array();
+    $retVal = [];
     $retVal['MD5'] = $md5;
     $retVal['ConsoleID'] = $consoleID;
     $retVal['GameID'] = 0;
@@ -982,23 +986,23 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
     $permissions = getUserPermissions($user);
 
     if (!isset($user)) {
-        error_log(__FUNCTION__ . " User unset? Ignoring");
+        // error_log(__FUNCTION__ . " User unset? Ignoring");
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
         $retVal['Success'] = false;
-    } elseif (strlen($md5) != 32) {
-        error_log(__FUNCTION__ . " Md5 unready? Ignoring");
+    } elseif (mb_strlen($md5) != 32) {
+        // error_log(__FUNCTION__ . " Md5 unready? Ignoring");
         $retVal['Error'] = "MD5 provided ($md5) doesn't appear to be exactly 32 characters, this request is invalid.";
         $retVal['Success'] = false;
-    } elseif (strlen($titleIn) < 2) {
-        error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
+    } elseif (mb_strlen($titleIn) < 2) {
+        // error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
     } elseif ($consoleID == 0) {
-        error_log(__FUNCTION__ . " cannot submitGameTitle, $consoleID is 0! What console is this for?");
+        // error_log(__FUNCTION__ . " cannot submitGameTitle, $consoleID is 0! What console is this for?");
         $retVal['Error'] = "Cannot submit game title, ConsoleID is 0! What console is this for?";
         $retVal['Success'] = false;
     } elseif ($permissions < Permissions::Developer) {
-        error_log(__FUNCTION__ . " Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)");
+        // error_log(__FUNCTION__ . " Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)");
         //$retVal[ 'Error' ] = "Cannot submit *new* game title, not allowed! Please apply in forums for 'developer' access.";
         $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
         $retVal['Success'] = false;
@@ -1009,42 +1013,41 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
             $title = str_replace("'", "''", $titleIn);
             $title = str_replace("/", "-", $title);
             $title = str_replace("\\", "-", $title);
-            error_log(__FUNCTION__ . " about to add $title (was $titleIn)");
+            // error_log(__FUNCTION__ . " about to add $title (was $titleIn)");
 
             //    New Game!
             //    The MD5 for this game doesn't yet exist in our DB. Insert a new game:
             $gameID = createNewGame($title, $consoleID);
             if ($gameID !== 0) {
                 $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
-                log_sql($query);
+                // log_sql($query);
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
-                    error_log(__FUNCTION__ . " success: $user added $md5, $gameID to GameHashLibrary, and $gameID, $title to GameData");
+                    // error_log(__FUNCTION__ . " success: $user added $md5, $gameID to GameHashLibrary, and $gameID, $title to GameData");
                     $retVal['GameID'] = $gameID;
                     $retVal['GameTitle'] = $title;
                 } else {
                     log_sql_fail();
-                    error_log($query);
-                    error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $title");
+                    // error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $title");
                     $retVal['Error'] = "Failed to add $md5 for '$title'";
                     $retVal['Success'] = false;
                 }
             } else {
-                log_email(__FUNCTION__ . "failed: cannot create game $title.");
+                //log_email(__FUNCTION__ . "failed: cannot create game $title.");
                 $retVal['Error'] = "Failed to create game title '$title'";
                 $retVal['Success'] = false;
             }
         } else {
             //    Adding md5 to an existing title ($gameID):
             $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
-            log_sql($query);
+            // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
-                error_log(__FUNCTION__ . " success: $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData");
+                // error_log(__FUNCTION__ . " success: $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData");
                 $retVal['GameID'] = $gameID;
                 $retVal['GameTitle'] = $titleIn;
             } else {
-                log_email(__FUNCTION__ . "failed: cannot insert duplicate md5 (already present?)");
+                //log_email(__FUNCTION__ . "failed: cannot insert duplicate md5 (already present?)");
                 $retVal['Error'] = "Failed to add duplicate md5 for '$titleIn' (already present?)";
                 $retVal['Success'] = false;
             }
@@ -1059,12 +1062,12 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
 function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
 {
     if ($consoleID == 0) {
-        error_log(__FUNCTION__ . " cannot submitGameTitle, $consoleID is 0! What console is this for?");
+        // error_log(__FUNCTION__ . " cannot submitGameTitle, $consoleID is 0! What console is this for?");
         return false;
     }
 
-    if (strlen($titleIn) < 2) {
-        error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
+    if (mb_strlen($titleIn) < 2) {
+        // error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         return false;
     }
 
@@ -1075,7 +1078,7 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
         $title = str_replace("'", "''", $titleIn);
         $title = str_replace("/", "-", $title);
         $title = str_replace("\\", "-", $title);
-        error_log(__FUNCTION__ . " about to add $title (was $titleIn)");
+        // error_log(__FUNCTION__ . " about to add $title (was $titleIn)");
 
         if (mysqli_num_rows($dbResult) == 0) {
             //    The MD5 for this game doesn't yet exist in our DB. Insert a new game:
@@ -1083,29 +1086,26 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
 
             if ($idOut !== 0) {
                 $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
-                log_sql($query);
+                // log_sql($query);
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
-                    error_log(__FUNCTION__ . " success: $user added $md5, $idOut to GameHashLibrary, and $idOut, $title to GameData");
+                    // error_log(__FUNCTION__ . " success: $user added $md5, $idOut to GameHashLibrary, and $idOut, $title to GameData");
                     return true;
                 } else {
                     log_sql_fail();
-                    error_log($query);
-                    error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $title");
+                    // error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $title");
                     return false;
                 }
             } else {
-                log_email(__FUNCTION__ . "failed: cannot create game $title.");
+                //log_email(__FUNCTION__ . "failed: cannot create game $title.");
             }
         } else {
-            log_sql_fail();
-            error_log($query);
-            error_log(__FUNCTION__ . " unsupported - submitting a game title for a game that already has an associated title.");
+            // error_log(__FUNCTION__ . " unsupported - submitting a game title for a game that already has an associated title.");
             return false;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . "failed SELECT! $user, $md5 and $titleIn");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . "failed SELECT! $user, $md5 and $titleIn");
         return false;
     }
 }
@@ -1123,13 +1123,13 @@ function requestModifyRichPresence($gameID, $dataIn)
     SQL_ASSERT($dbResult);
 
     if ($dbResult) {
-        error_log(__FUNCTION__);
-        error_log("$gameID RP is now $dataIn");
+        // error_log(__FUNCTION__);
+        // error_log("$gameID RP is now $dataIn");
 
         return true;
     } else {
-        error_log(__FUNCTION__);
-        error_log("$gameID - $dataIn");
+        // error_log(__FUNCTION__);
+        // error_log("$gameID - $dataIn");
 
         return false;
     }
@@ -1146,343 +1146,6 @@ function getRichPresencePatch($gameID, &$dataOut)
         $dataOut = $data['RichPresencePatch'];
         return true;
     } else {
-        return false;
-    }
-}
-
-function recalculateTrueRatio($gameID)
-{
-    $query = "SELECT ach.ID, ach.Points, COUNT(*) AS NumAchieved
-              FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 0
-              GROUP BY ach.ID";
-
-    $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
-
-    if ($dbResult !== false) {
-        $achData = Array();
-        $totalEarners = 0;
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $achData[$nextData['ID']] = $nextData;
-            if ($nextData['NumAchieved'] > $totalEarners) {
-                $totalEarners = $nextData['NumAchieved'];
-            }
-
-            //error_log( "Added " . $achData[ $nextData['ID'] ]['ID'] );
-        }
-
-        if ($totalEarners == 0) // force all unachieved to be 1
-        {
-            $totalEarners = 1;
-        }
-
-        $ratioTotal = 0;
-
-        foreach ($achData as $nextAch) {
-            $achID = $nextAch['ID'];
-            $achPoints = $nextAch['Points'];
-            $numAchieved = $nextAch['NumAchieved'];
-
-            if ($numAchieved == 0) // force all unachieved to be 1
-            {
-                $numAchieved = 1;
-            }
-
-            $ratioFactor = 0.4;
-            $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($totalEarners / $numAchieved) * $ratioFactor));
-            $trueRatio = ( int )$newTrueRatio;
-
-            $ratioTotal += $trueRatio;
-
-            $query = "UPDATE Achievements AS ach
-                      SET ach.TrueRatio = $trueRatio
-                      WHERE ach.ID = $achID";
-            s_mysql_query($query);
-
-            //error_log( "TA: $achID -> $trueRatio" );
-        }
-
-        $query = "UPDATE GameData AS gd
-                  SET gd.TotalTruePoints = $ratioTotal
-                  WHERE gd.ID = $gameID";
-        s_mysql_query($query);
-
-        //error_log( __FUNCTION__ . " RECALCULATED " . count($achData) . " achievements for game ID $gameID ($ratioTotal)" );
-
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function getMD5List($consoleID)
-{
-    $retVal = array();
-
-    settype($consoleID, 'integer');
-
-    $whereClause = "";
-    if ($consoleID > 0) {
-        $whereClause = "WHERE gd.ConsoleID = $consoleID ";
-    }
-
-    $query = "SELECT MD5, GameID
-              FROM GameHashLibrary AS ghl
-              LEFT JOIN GameData AS gd ON gd.ID = ghl.GameID
-              $whereClause
-              ORDER BY GameID ASC";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            settype($nextData['GameID'], 'integer');
-            $retVal[$nextData['MD5']] = $nextData['GameID'];
-            //echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
-        }
-    }
-
-    return $retVal;
-}
-
-function getHashListByGameID($gameID)
-{
-    settype($gameID, 'integer');
-    if ($gameID < 1) {
-        return false;
-    }
-
-    $query = "
-    SELECT MD5 AS hash
-    FROM GameHashLibrary
-    WHERE GameID = $gameID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    } else {
-        err_log(__FUNCTION__ . " failed?!");
-    }
-
-    return $retVal;
-}
-
-/*
- * Gets the list of hashes and hash information from the databased using the input offset and count.
- */
-function getHashList($offset, $count, $searchedHash)
-{
-    $searchQuery = "";
-    if (!is_null($searchedHash) || $searchedHash != "")
-    {
-        $offset = 0;
-        $count = 1;
-        $searchQuery =" WHERE h.MD5='" . $searchedHash . "'";
-    }
-
-    $query = "
-    SELECT
-        h.MD5 as Hash,
-        h.GameID as GameID,
-        h.Created as DateAdded,
-        gd.Title as GameTitle,
-        gd.ImageIcon as GameIcon,
-        c.name as ConsoleName
-    FROM
-        GameHashLibrary h
-    LEFT JOIN
-        GameData gd ON (h.GameID = gd.ID)
-    LEFT JOIN
-        Console c ON (gd.ConsoleID = c.ID)
-    " . $searchQuery . "
-    ORDER BY
-        h.Created DESC
-    LIMIT $offset, $count";
-
-    global $db;
-    $dbResult = mysqli_query($db, $query);
-
-    $retVal = [];
-
-    if ($dbResult !== false)
-    {
-        while ($nextData = mysqli_fetch_assoc($dbResult))
-        {
-            $retVal[] = $nextData;
-        }
-    }
-    else
-    {
-        error_log(__FUNCTION__ . " failed?! $count");
-    }
-
-    return $retVal;
-}
-
-/*
- * Gets the total number of hashes in the databse.
- */
-function getTotalHashes()
-{
-    $query = "
-    SELECT
-        COUNT(*) AS TotalHashes
-    FROM gamehashlibrary;";
-
-    global $db;
-    $dbResult = mysqli_query($db, $query);
-
-    if ($dbResult !== false)
-    {
-        return mysqli_fetch_assoc($dbResult)['TotalHashes'];
-    }
-    else
-    {
-        return false;
-    }
-}
-
-/**
- * Gets the number of set requests for a given game.
- * gameID - The game to get the number of set requests for.
- *
- * @param $gameID
- * @return int
- */
-function getSetRequestCount($gameID)
-{
-    settype($gameID, 'integer');
-    if ($gameID < 1)
-    {
-        return 0;
-    }
-
-    $query = "SELECT COUNT(*) AS Request FROM
-                SetRequest
-                WHERE GameID = $gameID";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false)
-    {
-        return (int)(mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-/*
- * Gets a list of set requestors for a given game.
- *
- * gameID - The game to get set requestors for.
- */
-function getSetRequestorsList($gameID)
-{
-    $retVal = [];
-    
-    settype($gameID, 'integer');
-    
-    if ($gameID < 1)
-    {
-        return false;
-    }
-
-    $query = "
-        SELECT
-            User AS Requestor
-        FROM
-            SetRequest
-        WHERE
-            GameID = $gameID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false)
-    {
-        while ($nextData = mysqli_fetch_assoc($dbResult))
-        {
-            $retVal[] = $nextData;
-        }
-    }
-    else
-    {
-        err_log(__FUNCTION__ . " failed?!");
-    }
-
-    return $retVal;
-}
-
-/*
- * Gets a list of the most requested sets.
- *
- * offset - Offset starting position for returned games.
- * count  - Number of games to return.
- */
-function getMostRequestedSetsList($offset, $count)
-{
-    $retVal = [];
-
-    $query = "
-        SELECT
-            COUNT(*) AS Requests,
-            sr.GameID as GameID,
-            gd.Title as GameTitle,
-            gd.ImageIcon as GameIcon,
-            c.name as ConsoleName
-        FROM
-            SetRequest sr
-        LEFT JOIN
-            GameData gd ON (sr.GameID = gd.ID)
-        LEFT JOIN
-            Console c ON (gd.ConsoleID = c.ID)
-        GROUP BY
-            sr.GameID
-        ORDER BY
-            Requests DESC, gd.Title
-        LIMIT
-            $offset, $count";
-
-    error_log($query);
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false)
-    {
-        while ($nextData = mysqli_fetch_assoc($dbResult))
-        {
-            $retVal[] = $nextData;
-        }
-    }
-    else
-    {
-        error_log(__FUNCTION__ . " failed?!");
-    }
-
-    return $retVal;
-}
-
-/*
- * Gets the number of setless games with at least one set request.
- */
-function getGamesWithRequests()
-{
-    $query = "
-        SELECT
-            COUNT(DISTINCT GameID) AS Games
-        FROM
-            SetRequest";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false)
-    {
-        return mysqli_fetch_assoc($dbResult)['Games'];
-    }
-    else
-    {
         return false;
     }
 }

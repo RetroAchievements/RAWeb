@@ -109,11 +109,11 @@ if (isset($achievementData)) {
     foreach ($achievementData as &$nextAch) {
         // Add author to array if it's not already there and initialize achievement count for that author.
         if (!in_array($nextAch['Author'], $authorName)) {
-            $authorName[strtolower($nextAch['Author'])] = $nextAch['Author'];
-            $authorCount[strtolower($nextAch['Author'])] = 1;
+            $authorName[mb_strtolower($nextAch['Author'])] = $nextAch['Author'];
+            $authorCount[mb_strtolower($nextAch['Author'])] = 1;
         } // If author is already in array then increment the achievement count for that author.
         else {
-            $authorCount[strtolower($nextAch['Author'])]++;
+            $authorCount[mb_strtolower($nextAch['Author'])]++;
         }
 
         $totalPossible += $nextAch['Points'];
@@ -134,364 +134,334 @@ if (isset($achievementData)) {
     array_multisort($authorCount, SORT_DESC, $authorInfo);
 }
 
-RenderDocType(true);
+RenderHtmlStart(true);
 ?>
-
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-
-    <!--Load the AJAX API-->
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-
-        // Load the Visualization API and the piechart package.
-        google.load('visualization', '1.0', {'packages': ['corechart']});
-
-        // Set a callback to run when the Google Visualization API is loaded.
-        google.setOnLoadCallback(drawCharts);
-
-        // Callback that creates and populates a data table,
-        // instantiates the pie chart, passes in the data and
-        // draws it.
-        function drawCharts()
-        {
-            var dataTotalScore = new google.visualization.DataTable();
-
-            // Declare columns
-            dataTotalScore.addColumn('number', 'Total Achievements Won');
-            dataTotalScore.addColumn('number', 'Num Users');
-
-            dataTotalScore.addRows([
-<?php
-$largestWonByCount = 0;
-$count = 0;
-for( $i = 1; $i <= $numAchievements; $i++ )
-{
-    if( $count++ > 0 )
-        echo ", ";
-    $wonByUserCount = $achDist[ $i ];
-
-    if( $wonByUserCount > $largestWonByCount )
-        $largestWonByCount = $wonByUserCount;
-
-    echo "[ {v:$i, f:\"Earned $i achievement(s)\"}, $wonByUserCount ] ";
-}
-
-if( $largestWonByCount > 30 )
-    $largestWonByCount = -2;
-?>
-            ]);
-
-<?php
-$numGridlines = $numAchievements;
-?>
-
-            var optionsTotalScore = {
-                backgroundColor: 'transparent',
-                //title: 'Achievement Distribution',
-                titleTextStyle: {color: '#186DEE'}, //cc9900
-                hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
-                vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
-                legend: {position: 'none'},
-                chartArea: {'width': '85%', 'height': '78%'},
-                height: 260,
-                colors: ['#cc9900'],
-                pointSize: 4
-            };
-
-            function resize()
-            {
-                chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
-                chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
-
-                //google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
-            }
-
-            window.onload = resize();
-            window.onresize = resize;
-        }
-
-    </script>
-
     <?php RenderSharedHeader($user); ?>
-    <?php RenderFBMetaData($pageTitle, "game", $gameData['ImageIcon'], "/Game/$gameID",
-        "Game Info for $gameTitle ($consoleName)"); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
+    <?php RenderOpenGraphMetadata(
+    $pageTitle,
+    "game",
+    $gameData['ImageIcon'],
+    "/Game/$gameID",
+    "Game Info for $gameTitle ($consoleName)"
+); ?>
+    <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
-
-    <script>
-
-        var lastKnownAchRating = 0;
-        var lastKnownGameRating = 0;
-
-        function SetLitStars(container, numStars)
-        {
-            $(container + ' a').removeClass('starlit');
-            $(container + ' a').removeClass('starhalf');
-
-            if (numStars >= 0.5)
-                $(container + ' a:first-child').addClass('starhalf');
-            if (numStars >= 1.5)
-                $(container + ' a:first-child + a').addClass('starhalf');
-            if (numStars >= 2.5)
-                $(container + ' a:first-child + a + a').addClass('starhalf');
-            if (numStars >= 3.5)
-                $(container + ' a:first-child + a + a + a').addClass('starhalf');
-            if (numStars >= 4.5)
-                $(container + ' a:first-child + a + a + a + a').addClass('starhalf');
-
-            if (numStars >= 1)
-            {
-                $(container + ' a:first-child').removeClass('starhalf');
-                $(container + ' a:first-child').addClass('starlit');
-            }
-            if (numStars >= 2)
-            {
-                $(container + ' a:first-child + a').removeClass('starhalf');
-                $(container + ' a:first-child + a').addClass('starlit');
-            }
-
-            if (numStars >= 3)
-            {
-                $(container + ' a:first-child + a + a').removeClass('starhalf');
-                $(container + ' a:first-child + a + a').addClass('starlit');
-            }
-
-            if (numStars >= 4)
-            {
-                $(container + ' a:first-child + a + a + a').removeClass('starhalf');
-                $(container + ' a:first-child + a + a + a').addClass('starlit');
-            }
-
-            if (numStars >= 5)
-            {
-                $(container + ' a:first-child + a + a + a + a').removeClass('starhalf');
-                $(container + ' a:first-child + a + a + a + a').addClass('starlit');
-            }
-        }
-
-        function GetRating(gameID) {
-
-            $('#ratinggame a').removeClass('starlit');
-            $('#ratingach a').removeClass('starlit');
-
-            $('.ratinggamelabel').html("Rating: ...");
-            $('.ratingachlabel').html("Rating: ...");
-
-            $.ajax({
-                url: '/API/API_GetGameRating.php?i=' + gameID,
-                dataType: 'json',
-                success: function (results) {
-                    results.GameID;
-                    lastKnownGameRating = parseFloat(results.Ratings['Game']);
-                    lastKnownAchRating = parseFloat(results.Ratings['Achievements']);
-                    var gameRatingNumVotes = results.Ratings['GameNumVotes'];
-                    var achRatingNumVotes = results.Ratings['AchievementsNumVotes'];
-
-                    SetLitStars('#ratinggame', lastKnownGameRating);
-                    SetLitStars('#ratingach', lastKnownAchRating);
-
-                    $('.ratinggamelabel').html("Rating: " + lastKnownGameRating.toFixed(2) + " (" + gameRatingNumVotes + " votes)");
-                    $('.ratingachlabel').html("Rating: " + lastKnownAchRating.toFixed(2) + " (" + achRatingNumVotes + " votes)");
-
-                },
-                error: function (temp, temp1, temp2) {
-                    alert("Error " + temp + temp1 + temp2);
-                }
-            });
-        }
-
-        function SubmitRating(user, gameID, ratingObjectType, value)
-        {
-            $.ajax({
-                url: '/API/API_SetGameRating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
-                dataType: 'json',
-                success: function (results) {
-                    GetRating(<?php echo $gameID; ?>);
-                },
-                error: function (temp, temp1, temp2) {
-                    alert("Error " + temp + temp1 + temp2);
-                }
-            });
-        }
-
-        //	Onload:
-        $(function () {
-
-            //	Add these handlers onload, they don't exist yet
-            $('.starimg').hover(
-                    function () {
-                        //	On hover
-
-                        if ($(this).parent().is($('#ratingach')))
-                        {
-                            //	Ach:
-                            var numStars = 0;
-                            if ($(this).hasClass('1star'))
-                                numStars = 1;
-                            else if ($(this).hasClass('2star'))
-                                numStars = 2;
-                            else if ($(this).hasClass('3star'))
-                                numStars = 3;
-                            else if ($(this).hasClass('4star'))
-                                numStars = 4;
-                            else if ($(this).hasClass('5star'))
-                                numStars = 5;
-
-                            SetLitStars('#ratingach', numStars);
-                        } else
-                        {
-                            //	Game:
-                            var numStars = 0;
-                            if ($(this).hasClass('1star'))
-                                numStars = 1;
-                            else if ($(this).hasClass('2star'))
-                                numStars = 2;
-                            else if ($(this).hasClass('3star'))
-                                numStars = 3;
-                            else if ($(this).hasClass('4star'))
-                                numStars = 4;
-                            else if ($(this).hasClass('5star'))
-                                numStars = 5;
-
-                            SetLitStars('#ratinggame', numStars);
-                        }
-                    },
-                    function () {
-                        //	On leave
-                        //GetRating( <?php echo $gameID; ?> );
-                    });
-
-            $('.rating').hover(
-                    function () {
-                        //	On hover
-                    },
-                    function () {
-                        //	On leave
-                        //GetRating( <?php echo $gameID; ?> );
-                        if ($(this).is($('#ratingach')))
-                            SetLitStars('#ratingach', lastKnownAchRating);
-                        else
-                            SetLitStars('#ratinggame', lastKnownGameRating);
-                    });
-
-            $('.starimg').click(function () {
-
-                var numStars = 0;
-                if ($(this).hasClass('1star'))
-                    numStars = 1;
-                else if ($(this).hasClass('2star'))
-                    numStars = 2;
-                else if ($(this).hasClass('3star'))
-                    numStars = 3;
-                else if ($(this).hasClass('4star'))
-                    numStars = 4;
-                else if ($(this).hasClass('5star'))
-                    numStars = 5;
-
-                var ratingType = 1;
-                if ($(this).parent().is($('#ratingach')))
-                    ratingType = 3;
-
-                SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars);
-            });
-
-            if ($('.rating').length)
-            {
-                GetRating(<?php echo $gameID; ?>);
-            }
-
-        });
-
-        /*
-         * Displays set request information
-         */
-        function getSetRequestInformation(user, gameID)
-        {
-            $.ajax(
-            {
-                url: '/API/API_GetSetRequests.php?i=' + gameID + '&u=' + user,
-                dataType: 'json',
-                success: function (results)
-                {
-                    var remaining = parseInt(results.remaining);
-                    var gameTotal = parseInt(results.gameRequests);
-                    var thisGame = results.requestedThisGame;
-
-                    $('.gameRequestsLabel').html("Set Requests: <a href='/setRequestors.php?g=" + gameID + "'>" + gameTotal + "</a>");
-                    $('.userRequestsLabel').html("User Requests Remaining: <a href='/setRequestList.php?u=" + user + "'>" + remaining + "</a>");
-                    
-                    //If the user has not requested a set for this game
-                    if (thisGame == 0)
-                    {
-                        if (remaining <= 0)
-                        {
-                            $('.setRequestLabel').html("<h4>No Requests Remaining</h4>");
-
-                            //Remove clickable text
-                            $(".setRequestLabel").each(function()
-                            {
-                                $("<h4>" + $(this).html() + "</h4>").replaceAll(this);
-                            });
-                        }
-                        else
-                        {
-                            $('.setRequestLabel').html("<h4>Request Set</h4>");
-                        }
-                    }
-                    else
-                    {
-                        $('.setRequestLabel').html("<h4>Withdraw Request</h4>");
-                    }
-
-                },
-                error: function (temp, temp1, temp2)
-                {
-                    alert("Error " + temp + temp1 + temp2);
-                }
-            });
-        }
-
-        /*
-         * Submits a set requets
-         */
-        function submitSetRequest(user, gameID)
-        {
-            $.ajax(
-            {
-                url: '/API/API_SetSetRequest.php?i=' + gameID + '&u=' + user,
-                dataType: 'json',
-                success: function (results)
-                {
-                    getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
-                },
-                error: function (temp, temp1, temp2)
-                {
-                    alert("Error " + temp + temp1 + temp2);
-                }
-            });
-        }
-
-        $(function ()
-        {
-            $('.setRequestLabel').click(function ()
-            {
-                submitSetRequest('<?php echo $user; ?>', <?php echo $gameID; ?>);
-            });
-
-            if ($('.setRequestLabel').length)
-            {
-                getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
-            }
-
-        });
-
-    </script>
 </head>
-
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.0', {'packages': ['corechart']})
 
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(drawCharts)
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  function drawCharts() {
+    var dataTotalScore = new google.visualization.DataTable()
+
+    // Declare columns
+    dataTotalScore.addColumn('number', 'Total Achievements Won')
+    dataTotalScore.addColumn('number', 'Num Users')
+
+    dataTotalScore.addRows([
+        <?php
+        $largestWonByCount = 0;
+        $count = 0;
+        for ($i = 1; $i <= $numAchievements; $i++) {
+            if ($count++ > 0) {
+                echo ", ";
+            }
+            $wonByUserCount = $achDist[$i];
+
+            if ($wonByUserCount > $largestWonByCount) {
+                $largestWonByCount = $wonByUserCount;
+            }
+
+            echo "[ {v:$i, f:\"Earned $i achievement(s)\"}, $wonByUserCount ] ";
+        }
+
+        if ($largestWonByCount > 30) {
+            $largestWonByCount = -2;
+        }
+        ?>
+    ])
+
+      <?php
+      $numGridlines = $numAchievements;
+      ?>
+
+    var optionsTotalScore = {
+      backgroundColor: 'transparent',
+      //title: 'Achievement Distribution',
+      titleTextStyle: {color: '#186DEE'}, //cc9900
+      hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
+      vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
+      legend: {position: 'none'},
+      chartArea: {'width': '85%', 'height': '78%'},
+      height: 260,
+      colors: ['#cc9900'],
+      pointSize: 4
+    }
+
+    function resize() {
+      chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'))
+      chartScoreProgress.draw(dataTotalScore, optionsTotalScore)
+
+      //google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
+    }
+
+    window.onload = resize()
+    window.onresize = resize
+  }
+
+</script>
+<script>
+
+  var lastKnownAchRating = 0
+  var lastKnownGameRating = 0
+
+  function SetLitStars(container, numStars) {
+    $(container + ' a').removeClass('starlit')
+    $(container + ' a').removeClass('starhalf')
+
+    if (numStars >= 0.5)
+      $(container + ' a:first-child').addClass('starhalf')
+    if (numStars >= 1.5)
+      $(container + ' a:first-child + a').addClass('starhalf')
+    if (numStars >= 2.5)
+      $(container + ' a:first-child + a + a').addClass('starhalf')
+    if (numStars >= 3.5)
+      $(container + ' a:first-child + a + a + a').addClass('starhalf')
+    if (numStars >= 4.5)
+      $(container + ' a:first-child + a + a + a + a').addClass('starhalf')
+
+    if (numStars >= 1) {
+      $(container + ' a:first-child').removeClass('starhalf')
+      $(container + ' a:first-child').addClass('starlit')
+    }
+    if (numStars >= 2) {
+      $(container + ' a:first-child + a').removeClass('starhalf')
+      $(container + ' a:first-child + a').addClass('starlit')
+    }
+
+    if (numStars >= 3) {
+      $(container + ' a:first-child + a + a').removeClass('starhalf')
+      $(container + ' a:first-child + a + a').addClass('starlit')
+    }
+
+    if (numStars >= 4) {
+      $(container + ' a:first-child + a + a + a').removeClass('starhalf')
+      $(container + ' a:first-child + a + a + a').addClass('starlit')
+    }
+
+    if (numStars >= 5) {
+      $(container + ' a:first-child + a + a + a + a').removeClass('starhalf')
+      $(container + ' a:first-child + a + a + a + a').addClass('starlit')
+    }
+  }
+
+  function GetRating(gameID) {
+
+    $('#ratinggame a').removeClass('starlit')
+    $('#ratingach a').removeClass('starlit')
+
+    $('.ratinggamelabel').html('Rating: ...')
+    $('.ratingachlabel').html('Rating: ...')
+
+    $.ajax({
+      url: '/request/game-rating/ratings.php?i=' + gameID,
+      dataType: 'json',
+      success: function (results) {
+        results.GameID
+        lastKnownGameRating = parseFloat(results.Ratings['Game'])
+        lastKnownAchRating = parseFloat(results.Ratings['Achievements'])
+        var gameRatingNumVotes = results.Ratings['GameNumVotes']
+        var achRatingNumVotes = results.Ratings['AchievementsNumVotes']
+
+        SetLitStars('#ratinggame', lastKnownGameRating)
+        SetLitStars('#ratingach', lastKnownAchRating)
+
+        $('.ratinggamelabel').html('Rating: ' + lastKnownGameRating.toFixed(2) + ' (' + gameRatingNumVotes + ' votes)')
+        $('.ratingachlabel').html('Rating: ' + lastKnownAchRating.toFixed(2) + ' (' + achRatingNumVotes + ' votes)')
+
+      },
+      error: function (temp, temp1, temp2) {
+        alert('Error ' + temp + temp1 + temp2)
+      }
+    })
+  }
+
+  function SubmitRating(user, gameID, ratingObjectType, value) {
+    $.ajax({
+      url: '/request/game-rating/update.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+      dataType: 'json',
+      success: function (results) {
+        GetRating(<?php echo $gameID; ?>)
+      },
+      error: function (temp, temp1, temp2) {
+        alert('Error ' + temp + temp1 + temp2)
+      }
+    })
+  }
+
+  //	Onload:
+  $(function () {
+
+    //	Add these handlers onload, they don't exist yet
+    $('.starimg').hover(
+      function () {
+        //	On hover
+
+        if ($(this).parent().is($('#ratingach'))) {
+          //	Ach:
+          var numStars = 0
+          if ($(this).hasClass('1star'))
+            numStars = 1
+          else if ($(this).hasClass('2star'))
+            numStars = 2
+          else if ($(this).hasClass('3star'))
+            numStars = 3
+          else if ($(this).hasClass('4star'))
+            numStars = 4
+          else if ($(this).hasClass('5star'))
+            numStars = 5
+
+          SetLitStars('#ratingach', numStars)
+        } else {
+          //	Game:
+          var numStars = 0
+          if ($(this).hasClass('1star'))
+            numStars = 1
+          else if ($(this).hasClass('2star'))
+            numStars = 2
+          else if ($(this).hasClass('3star'))
+            numStars = 3
+          else if ($(this).hasClass('4star'))
+            numStars = 4
+          else if ($(this).hasClass('5star'))
+            numStars = 5
+
+          SetLitStars('#ratinggame', numStars)
+        }
+      },
+      function () {
+        //	On leave
+        //GetRating( <?php echo $gameID; ?> );
+      })
+
+    $('.rating').hover(
+      function () {
+        //	On hover
+      },
+      function () {
+        //	On leave
+        //GetRating( <?php echo $gameID; ?> );
+        if ($(this).is($('#ratingach')))
+          SetLitStars('#ratingach', lastKnownAchRating)
+        else
+          SetLitStars('#ratinggame', lastKnownGameRating)
+      })
+
+    $('.starimg').click(function () {
+
+      var numStars = 0
+      if ($(this).hasClass('1star'))
+        numStars = 1
+      else if ($(this).hasClass('2star'))
+        numStars = 2
+      else if ($(this).hasClass('3star'))
+        numStars = 3
+      else if ($(this).hasClass('4star'))
+        numStars = 4
+      else if ($(this).hasClass('5star'))
+        numStars = 5
+
+      var ratingType = 1
+      if ($(this).parent().is($('#ratingach')))
+        ratingType = 3
+
+      SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars)
+    })
+
+    if ($('.rating').length) {
+      GetRating(<?php echo $gameID; ?>)
+    }
+
+  })
+
+  /*
+   * Displays set request information
+   */
+  function getSetRequestInformation(user, gameID) {
+    $.ajax(
+      {
+        url: '/request/set-request/list.php?i=' + gameID + '&u=' + user,
+        dataType: 'json',
+        success: function (results) {
+          var remaining = parseInt(results.remaining)
+          var gameTotal = parseInt(results.gameRequests)
+          var thisGame = results.requestedThisGame
+
+          $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>')
+          $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>')
+
+          //If the user has not requested a set for this game
+          if (thisGame == 0) {
+            if (remaining <= 0) {
+              $('.setRequestLabel').html('<h4>No Requests Remaining</h4>')
+
+              //Remove clickable text
+              $('.setRequestLabel').each(function () {
+                $('<h4>' + $(this).html() + '</h4>').replaceAll(this)
+              })
+            } else {
+              $('.setRequestLabel').html('<h4>Request Set</h4>')
+            }
+          } else {
+            $('.setRequestLabel').html('<h4>Withdraw Request</h4>')
+          }
+
+        },
+        error: function (temp, temp1, temp2) {
+          alert('Error ' + temp + temp1 + temp2)
+        }
+      })
+  }
+
+  /*
+   * Submits a set requets
+   */
+  function submitSetRequest(user, gameID) {
+    $.ajax(
+      {
+        url: '/request/set-request/update.php?i=' + gameID + '&u=' + user,
+        dataType: 'json',
+        success: function (results) {
+          getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>)
+        },
+        error: function (temp, temp1, temp2) {
+          alert('Error ' + temp + temp1 + temp2)
+        }
+      })
+  }
+
+  $(function () {
+    $('.setRequestLabel').click(function () {
+      submitSetRequest('<?php echo $user; ?>', <?php echo $gameID; ?>)
+    })
+
+    if ($('.setRequestLabel').length) {
+      getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>)
+    }
+
+  })
+</script>
 <div id="mainpage">
     <div id='leftcontainer'>
 
@@ -558,11 +528,11 @@ $numGridlines = $numAchievements;
             echo "</div>";
 
             echo "<div style='clear:both;'></div>";
-            echo "</br>";
+            echo "<br>";
 
             if (isset($user) && $permissions >= Permissions::Developer) {
                 echo "<div class='devbox'>";
-                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br/>";
+                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
                 echo "<div id='devboxcontent'>";
                 echo "<ul>";
 
@@ -579,64 +549,72 @@ $numGridlines = $numAchievements;
                 echo "<li><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></li>";
 
                 if ($numLeaderboards == 0) {
-                    echo "<li><a href='/requestcreatenewlb.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
+                    echo "<li><a href='/request/leaderboard/create.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
                 }
-                echo "<li><a href='/request.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
+                echo "<li><a href='/request/dorequest.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
                 echo "<li><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></li>";
                 echo "<li><a href='/codenotes.php?g=$gameID'>Code Notes</a>";
 
                 $isSubscribedToTickets = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameTickets, $gameID, $userID);
                 echo "<li>";
-                RenderUpdateSubscriptionForm("updateticketssub", \RA\SubscriptionSubjectType::GameTickets,
-                                             $gameID, $isSubscribedToTickets);
+                RenderUpdateSubscriptionForm(
+                    "updateticketssub",
+                    \RA\SubscriptionSubjectType::GameTickets,
+                    $gameID,
+                    $isSubscribedToTickets
+                );
                 echo "<a href='#' onclick='document.getElementById(\"updateticketssub\").submit(); return false;'>";
-                echo ($isSubscribedToTickets ? "Unsubscribe from" : "Subscribe to") . " Tickets";
+                echo($isSubscribedToTickets ? "Unsubscribe from" : "Subscribe to") . " Tickets";
                 echo "</a></li>";
 
                 $isSubscribedToAchievements = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameAchievements, $gameID, $userID);
                 echo "<li>";
-                RenderUpdateSubscriptionForm("updateachievementssub", \RA\SubscriptionSubjectType::GameAchievements,
-                                             $gameID, $isSubscribedToAchievements);
+                RenderUpdateSubscriptionForm(
+                    "updateachievementssub",
+                    \RA\SubscriptionSubjectType::GameAchievements,
+                    $gameID,
+                    $isSubscribedToAchievements
+                );
                 echo "<a href='#' onclick='document.getElementById(\"updateachievementssub\").submit(); return false;'>";
-                echo ($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
+                echo($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
                 echo "</a></li>";
 
-                echo "</br>";
+                echo "<br>";
 
                 echo "<li>Update title screenshot</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_TITLE' />";
                 echo "<input type='file' name='file' id='file' />";
                 echo "<input type='submit' name='submit' style='float: right;' value='Submit' />";
-                echo "</form><br/>";
+                echo "</form><br>";
 
                 echo "<li>Update ingame screenshot</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_INGAME' />";
                 echo "<input type='file' name='file' id='file' />";
                 echo "<input type='submit' name='submit' style='float: right;' value='Submit' />";
-                echo "</form><br/>";
+                echo "</form><br>";
 
                 echo "<li>Update game icon</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_ICON' />";
                 echo "<input type='file' name='file' id='file' />";
                 echo "<input type='submit' name='submit' style='float: right;' value='Submit' />";
-                echo "</form><br/>";
+                echo "</form><br>";
 
                 echo "<li>Update game boxart</li>";
-                echo "<form method='post' action='/uploadpic.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='hidden' name='t' value='GAME_BOXART' />";
                 echo "<input type='file' name='file' id='file' />";
                 echo "<input type='submit' name='submit' style='float: right;' value='Submit' />";
-                echo "</form><br/>";
+                echo "</form><br>";
 
-                echo "<li>Update game details:</br>";
-                echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                echo "<li>Update game details:<br>";
+                echo "<form method='post' action='/request/game-update.php' enctype='multipart/form-data'>";
                 echo "<table><tbody>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'/></td></tr>";
@@ -644,14 +622,14 @@ $numGridlines = $numAchievements;
                 echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='$genre' style='width:100%;'/></td></tr>";
                 echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value='$released' style='width:100%;'/></td></tr>";
                 echo "</tbody></table>";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' /></br></br>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' /><br><br>";
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
                 echo "</li>";
 
                 if ($permissions >= Permissions::Admin) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                     echo "New Forum Topic ID:";
                     echo "<input type='hidden' name='i' value='$gameID' />";
                     echo "<input type='text' name='f' size='20'/>";
@@ -664,7 +642,7 @@ $numGridlines = $numAchievements;
                 echo "<table><tbody>";
                 if (count($gameAlts) > 0) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                    echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='i' value='$gameID' />";
 
                     echo "To remove:";
@@ -684,7 +662,7 @@ $numGridlines = $numAchievements;
                 }
 
                 echo "<tr><td>";
-                echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                 echo "To add (game ID):";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<input type='text' name='n' class='searchboxgame' size='20'/>";
@@ -694,9 +672,9 @@ $numGridlines = $numAchievements;
                 echo "</tbody></table>";
 
                 echo "<li>Update <a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script:</li>";
-                echo "<form method='post' action='/submitgamedata.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' value='$gameID' name='i'></input>";
-                echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea></br>";
+                echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea><br>";
                 echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
                 echo "</form>";
                 echo "</li>";
@@ -711,10 +689,10 @@ $numGridlines = $numAchievements;
             if ($flags == 5) {
                 echo "<h4><b>Unofficial</b> Achievements</h4>";
                 echo "<a href='/Game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
-                echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
             } else {
                 echo "<h4>Achievements</h4>";
-                echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br/>";
+                echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
             }
 
             if ($numAchievements > 0) {
@@ -730,8 +708,8 @@ $numGridlines = $numAchievements;
                         echo ', ';
                     }
                 }
-                echo "<br/>";
-                echo "<br/>";
+                echo "<br>";
+                echo "<br>";
             }
 
             if (isset($user)) {
@@ -750,8 +728,10 @@ $numGridlines = $numAchievements;
                     $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
                     $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
 
-                    $pctComplete = sprintf("%01.0f",
-                        (($numEarnedCasual + $numEarnedHardcore) * 100.0 / $numAchievements));
+                    $pctComplete = sprintf(
+                        "%01.0f",
+                        (($numEarnedCasual + $numEarnedHardcore) * 100.0 / $numAchievements)
+                    );
                 }
 
                 echo "<div class='progressbar'>";
@@ -761,9 +741,9 @@ $numGridlines = $numAchievements;
                 echo "</div>";
                 echo "</div>";
                 if ($pctComplete > 100.0) {
-                    echo "<b>$pctComplete%</b> complete<br/>";
+                    echo "<b>$pctComplete%</b> complete<br>";
                 } else {
-                    echo "$pctComplete% complete<br/>";
+                    echo "$pctComplete% complete<br>";
                 }
                 echo "</div>";
             }
@@ -773,13 +753,13 @@ $numGridlines = $numAchievements;
                 if ($totalEarnedCasual > 0) {
                     echo ", worth <b>$totalEarnedCasual</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points";
                 }
-                echo ".<br/>";
+                echo ".<br>";
                 if ($numEarnedHardcore > 0) {
                     echo "<a href='/User/$user'>$user</a> has won <b>$numEarnedHardcore</b> HARDCORE achievements";
                     if ($totalEarnedHardcore > 0) {
                         echo ", worth a further <b>$totalEarnedHardcore</b> points";
                     }
-                    echo ".<br/>";
+                    echo ".<br>";
                 }
             }
 
@@ -798,19 +778,18 @@ $numGridlines = $numAchievements;
                 echo "<span class='ratinggamelabel'>?</span>";
 
                 echo "</div>";
-                echo "</br>";
+                echo "<br>";
             }
-            
+
             //Only show set request option for logged in users, games without achievements, and core achievement page
-            if ($user !== null && $numAchievements == 0 && $flags != 5)
-            {
-                echo "</br>";
+            if ($user !== null && $numAchievements == 0 && $flags != 5) {
+                echo "<br>";
                 echo "<div style='float: right; clear: both;'>";
                 echo "<div>";
                 echo "<a class='setRequestLabel'>Request Set</a>";
                 echo "</div>";
                 echo "<span class='gameRequestsLabel'>?</span>";
-                echo "</br>";
+                echo "<br>";
                 echo "<span class='userRequestsLabel'>?</span>";
                 echo "</div>";
             }
@@ -831,7 +810,7 @@ $numGridlines = $numAchievements;
               echo "<span class='ratingachlabel'>?</span>";
 
               echo "</div>";
-              echo "</br>";
+              echo "<br>";
               } */
 
             echo "<div style='clear: both;'>";
@@ -904,7 +883,7 @@ $numGridlines = $numAchievements;
                         $achDesc = str_replace('"', '\'', $achDesc);
 
                         $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
-                        $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '</br>-=HARDCORE=-' : '';
+                        $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
 
                         $wonBy = $nextAch['NumAwarded'];
                         $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
@@ -921,8 +900,19 @@ $numGridlines = $numAchievements;
                         echo "<div class='achievemententry'>";
 
                         echo "<div class='achievemententryicon'>";
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle,
-                            $achBadgeName, true, true, $tooltipText, 64, $imgClass);
+                        echo GetAchievementAndTooltipDiv(
+                            $achID,
+                            $achTitle,
+                            $achDesc,
+                            $achPoints,
+                            $gameTitle,
+                            $achBadgeName,
+                            true,
+                            true,
+                            $tooltipText,
+                            64,
+                            $imgClass
+                        );
                         echo "</div>";
 
                         $pctAwardedCasual = 0;
@@ -940,8 +930,10 @@ $numGridlines = $numAchievements;
                             $pctAwardedCasual = sprintf("%01.2f", $pctAwardedCasual * 100.0);
                             $pctAwardedHardcore = sprintf("%01.2f", $pctAwardedHardcoreProportion * 100.0);
 
-                            $pctComplete = sprintf("%01.2f",
-                                (($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual));
+                            $pctComplete = sprintf(
+                                "%01.2f",
+                                (($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual)
+                            );
                         }
 
                         echo "<div class='progressbar allusers'>";
@@ -951,22 +943,33 @@ $numGridlines = $numAchievements;
                         echo "</div>";
                         echo "</div>";
                         if ($wonByHardcore > 0) {
-                            echo "won by $wonBy <strong alt='HARDCORE'>($wonByHardcore)</strong> of $numDistinctPlayersCasual ($pctAwardedCasual%)<br/>";
+                            echo "won by $wonBy <strong alt='HARDCORE'>($wonByHardcore)</strong> of $numDistinctPlayersCasual ($pctAwardedCasual%)<br>";
                         } else {
-                            echo "won by $wonBy of $numDistinctPlayersCasual ($pctAwardedCasual%)<br/>";
+                            echo "won by $wonBy of $numDistinctPlayersCasual ($pctAwardedCasual%)<br>";
                         }
                         echo "</div>"; //progressbar
 
                         echo "<div class='achievementdata'>";
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle,
-                            $achBadgeName, false, false, "", 64, $imgClass);
+                        echo GetAchievementAndTooltipDiv(
+                            $achID,
+                            $achTitle,
+                            $achDesc,
+                            $achPoints,
+                            $gameTitle,
+                            $achBadgeName,
+                            false,
+                            false,
+                            "",
+                            64,
+                            $imgClass
+                        );
                         echo " <span class='TrueRatio'>($achTrueRatio)</span>";
-                        echo "<br/>";
-                        echo "$achDesc<br/>";
+                        echo "<br>";
+                        echo "$achDesc<br>";
                         echo "</div>";
 
                         if ($achieved) {
-                            echo "<div class='date smalltext'>unlocked on<br/>$dateAch<br/></div>";
+                            echo "<div class='date smalltext'>unlocked on<br>$dateAch<br></div>";
                         }
 
 
@@ -990,7 +993,6 @@ $numGridlines = $numAchievements;
             ?>
         </div>
     </div>
-
     <div id='rightcontainer'>
         <?php
         //    Render game box art
@@ -1005,8 +1007,7 @@ $numGridlines = $numAchievements;
             echo "</li>";
             echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
             echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
-            if ($numAchievements == 0)
-            {
+            if ($numAchievements == 0) {
                 echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
             }
             //if( $flags == 5 )
@@ -1034,12 +1035,8 @@ $numGridlines = $numAchievements;
         RenderTopAchieversComponent($gameTopAchievers);
         RenderGameLeaderboardsComponent($gameID, $lbData);
         ?>
-
     </div>
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
-
+<?php RenderHtmlEnd(); ?>

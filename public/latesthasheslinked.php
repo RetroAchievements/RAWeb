@@ -16,28 +16,15 @@ if ($offset < 0) {
 $hashList = getHashList($offset, $count, $searchedHash);
 $totalHashes = getTotalHashes();
 
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Hash List");
 ?>
-
-<head>
-    <!--Load the AJAX API-->
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <?php
-    RenderSharedHeader($user);
-    RenderTitleTag("Hash List", $user);
-    RenderGoogleTracking();
-    ?>
-</head>
-
 <body>
-
 <?php
 RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
 RenderToolbar($user, $permissions);
 ?>
-
 <div id='mainpage'>
-
     <div id='fullcontainer'>
         <?php
         RenderErrorCodeWarning('left', $errorCode);
@@ -50,27 +37,25 @@ RenderToolbar($user, $permissions);
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search Hash' />";
         echo "</form>";
-        if (is_null($hashList) || !is_null($searchedHash)) {
+        if ($hashList === null || $searchedHash !== null) {
             echo "<br>";
             echo "<a href='/latesthasheslinked.php'>Return to Lastest Linked Hashes</a>";
         }
         echo "</div>";
 
-        if (!is_null($hashList)) {
-            if (is_null($searchedHash)) {
+        if ($hashList !== null) {
+            if ($searchedHash === null) {
                 echo "<h2 class='longheader'>Lastest Linked Hashes</h2>";
             } else {
                 echo "<h2 class='longheader'>Search Results</h2>";
             }
-            //Create table headers
-            echo "<table class='smalltable'><tbody>";
+            echo "<table><tbody>";
             echo "<th>Hash</th>";
             echo "<th>Game</th>";
             echo "<th>Date Linked</th>";
 
             $hashCount = 0;
 
-            // Loop through each hash and display its information
             foreach ($hashList as $hash) {
                 if ($hashCount++ % 2 == 0) {
                     echo "<tr>";
@@ -86,8 +71,7 @@ RenderToolbar($user, $permissions);
             }
             echo "</tbody></table>";
 
-            //Add page traversal links
-            if (is_null($searchedHash)) {
+            if ($searchedHash === null) {
                 echo "<div class='rightalign row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
@@ -108,8 +92,6 @@ RenderToolbar($user, $permissions);
         ?>
     </div>
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

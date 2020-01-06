@@ -1,90 +1,71 @@
 <?php
-	require_once __DIR__ . '/../lib/bootstrap.php';
-	
-	RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
-	
-	$playersOnlineCSV = file_get_contents( "./storage/logs/playersonline.log" );
-	$playersCSV = preg_split('/\n|\r\n?/', $playersOnlineCSV);
-	
-	$staticData = getStaticData();
-	$errorCode = seekGET( 'e' );
-	$type = seekGET( 't', 0 );
-	
-	RenderDocType();
-?>
+require_once __DIR__ . '/../lib/bootstrap.php';
 
-<head>
-	<!--Load the AJAX API-->
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<?php
-	RenderSharedHeader( $user );
-	RenderTitleTag( "Developer Stats", $user );
-	RenderGoogleTracking();
-?>
-</head>
+RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
+$errorCode = seekGET('e');
+$type = seekGET('t', 0);
+
+RenderHtmlStart();
+RenderHtmlHead("Developer Stats");
+?>
 <body>
-
 <?php
-	RenderTitleBar( $user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions );
-	RenderToolbar( $user, $permissions );
+RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
+RenderToolbar($user, $permissions);
 ?>
-
 <div id='mainpage'>
+    <div id='fullcontainer'>
+        <h3>Developer Stats</h3>
+        <?php
+        RenderErrorCodeWarning('left', $errorCode);
+        $devStatsList = GetDeveloperStatsFull(100, $type);
 
-<div id='leftcontainer'>
-<h3>Developer Stats</h3>
-<?php
-    RenderErrorCodeWarning( 'left', $errorCode );
-    $devStatsList = GetDeveloperStatsFull( 100, $type );
+        echo "<div class='rightfloat'>* = ordered by</div>";
+        echo "<table><tbody>";
+        echo "<th></th>";
+        echo "<th><a href='/developerstats.php?t=6'>Name</a>" . ($type == 6 ? "*" : "") . "</th>";
+        echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=3'>Open Tickets</a>" . ($type == 3 ? "*" : "") . "</th>";
+        echo "<th class='text-right text-nowrap'><a href='/developerstats.php?'>Achievements</a>" . ($type == 0 ? "*" : "") . "</th>";
+        echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=4'>Ticket Ratio (%)</a>" . ($type == 4 ? "*" : "") . "</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=2' title='Achievements unlocked by others'>Yielded Unlocks</a>" . ($type == 2 ? "*" : "") . "</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=1' title='Points gained by others through achievement unlocks'>Yielded Points</a>" . ($type == 1 ? "*" : "") . "</th>";
+        // echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == 5 ? "*" : "") . "</th>";
 
-    echo "<div class='rightfloat'>* = ordered by</div>";
-    echo "<table class='smalltable'><tbody>";
-    echo "<th>Developer</th>";
-    echo "<th>" . ($type == 3 ? "*" : "") . "<a href='/developerstats.php?t=3'>Open Tickets</a></th>";
-    echo "<th>" . ($type == 0 ? "*" : "") . "<a href='/developerstats.php?'>Achievements</a></th>";
-    echo "<th>" . ($type == 4 ? "*" : "") . "<a href='/developerstats.php?t=4'>Ticket Ratio (%)</a></th>";
-    echo "<th>" . ($type == 2 ? "*" : "") . "<a href='/developerstats.php?t=2'>Achievements won by others</a></th>";
-    echo "<th>" . ($type == 1 ? "*" : "") . "<a href='/developerstats.php?t=1'>Points awarded to others</a></th>";
-    //echo "<th>" . ($type == 5 ? "*" : "") . "<a href='/developerstats.php?t=5'>Last Login</a></th>";
-    
-    $userCount = 0;
-    foreach( $devStatsList as $devStats )
-    {
-        if( $userCount++ % 2 == 0 )
-            echo "<tr>";
-        else
-            echo "<tr class=\"alt\">";
+        $userCount = 0;
+        foreach ($devStatsList as $devStats) {
+            if ($userCount++ % 2 == 0) {
+                echo "<tr>";
+            } else {
+                echo "<tr class=\"alt\">";
+            }
 
-        $dev = $devStats[ 'Author' ];
-        echo "<td><div class='fixheightcell'>";
-        echo GetUserAndTooltipDiv( $dev, TRUE );
-        echo GetUserAndTooltipDiv( $dev, FALSE );
-        if( $devStats[ 'Permissions' ] < \RA\Permissions::Developer )
-            echo "<br><small>not-a-dev</small>";
-        echo "</div></td>";
+            $dev = $devStats['Author'];
+            echo "<td class='text-nowrap'>";
+            echo GetUserAndTooltipDiv($dev, true);
+            echo "</td>";
+            echo "<td class='text-nowrap'><div class='fixheightcell'>";
+            echo GetUserAndTooltipDiv($dev, false);
+            echo "<br><small>";
+            if ($devStats['Permissions'] < \RA\Permissions::Developer) {
+                echo "Inactive";
+            } else {
+                echo "Active";
+            }
+            echo "</small>";
+            echo "</div></td>";
 
-        echo "<td>" . $devStats[ 'OpenTickets' ] . "</td>";
-        echo "<td>" . $devStats[ 'Achievements' ] . "</td>";
-        echo "<td>" . number_format( $devStats[ 'TicketRatio' ] * 100, 2 ) . "</td>";
-        echo "<td>" . $devStats[ 'ContribCount' ] . "</td>";
-        echo "<td>" . $devStats[ 'ContribYield' ] . "</td>";
-        //echo "<td>" . getNiceDate( strtotime( $devStats[ 'LastLogin' ] ) ) . "</td>";
-    }
-    echo "</tbody></table>";
-?>	
+            echo "<td class='text-right'>" . $devStats['OpenTickets'] . "</td>";
+            echo "<td class='text-right'>" . $devStats['Achievements'] . "</td>";
+            echo "<td class='text-right'>" . number_format($devStats['TicketRatio'] * 100, 2) . "</td>";
+            echo "<td class='text-right'>" . $devStats['ContribCount'] . "</td>";
+            echo "<td class='text-right'>" . $devStats['ContribYield'] . "</td>";
+            // echo "<td class='text-right smalldate'>" . getNiceDate( strtotime( $devStats[ 'LastLogin' ] ) ) . "</td>";
+        }
+        echo "</tbody></table>";
+        ?>
+    </div>
 </div>
-
-<div id='rightcontainer'>
-<?php
-	RenderStaticDataComponent( $staticData );
-	RenderRecentlyUploadedComponent( 10 );
-?>	
-</div>
-
-</div>
-
 <?php RenderFooter(); ?>
-
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

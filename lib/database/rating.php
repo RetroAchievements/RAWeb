@@ -1,6 +1,4 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-
 function getGameRating($gameID)
 {
     settype($gameID, 'integer');
@@ -9,12 +7,12 @@ function getGameRating($gameID)
               WHERE r.RatingID = $gameID
               GROUP BY r.RatingObjectType";
 
-    log_sql($query);
+    // log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);    //    NB. query has a forward slash in! Cannot use s_mysql_query
     SQL_ASSERT($dbResult);
 
-    $retVal = array();
+    $retVal = [];
     while ($nextRow = mysqli_fetch_array($dbResult)) {
         $retVal[$nextRow['RatingObjectType']] = $nextRow;
     }
@@ -32,10 +30,10 @@ function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
               VALUES( '$user', $ratingType, $ratingID, $ratingValue )
               ON DUPLICATE KEY UPDATE RatingValue=VALUES(RatingValue)";
 
-    log_sql($query);
+    // log_sql($query);
 
     $dbResult = s_mysql_query($query);
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function getGamesByRating($offset, $count)
@@ -51,7 +49,7 @@ LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
 
-    $retVal = array();
+    $retVal = [];
     while ($nextRow = mysqli_fetch_array($dbResult)) {
         $retVal[] = $nextRow;
     }

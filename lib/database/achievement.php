@@ -1,13 +1,7 @@
 <?php
-
 use RA\ActivityType;
 use RA\Permissions;
 
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Achievement Accessors
-//////////////////////////////////////////////////////////////////////////////////////////
-//    00:54 21/03/2013
 function getAchievementFeedData(
     $id,
     &$titleOut,
@@ -28,15 +22,15 @@ function getAchievementFeedData(
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed! $id");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed! $id");
         return false;
     }
 
     $data = mysqli_fetch_assoc($dbResult);
     if ($data == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed! $id");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed! $id");
         return false;
     }
 
@@ -51,7 +45,6 @@ function getAchievementFeedData(
     return true;
 }
 
-//    00:52 23/02/2013
 function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
 {
     settype($id, "integer");
@@ -63,15 +56,15 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " fail on query (id:$id)");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " fail on query (id:$id)");
         return "";
     }
 
     $data = mysqli_fetch_assoc($dbResult);
     if ($data == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " no results (id:$id)");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " no results (id:$id)");
         return "";
     }
 
@@ -81,7 +74,6 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
     return $data['Title'];
 }
 
-//    08:22 04/11/2014
 function GetAchievementData($id)
 {
     settype($id, "integer");
@@ -89,7 +81,7 @@ function GetAchievementData($id)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false || mysqli_num_rows($dbResult) != 1) {
-        error_log($query);
+        // log_sql_fail();
         error_log(__FUNCTION__ . " failed: Achievement $id doesn't exist!");
 
         return null;
@@ -120,9 +112,9 @@ function getAchievementsListByDev(
     $achCount = 0;
 
     $innerJoin = "";
-    // if ($params > 0 && $user !== null) {
-    //     $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'";
-    // }
+    if ($params > 0 && $user !== null) {
+        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'";
+    }
 
     $query = "SELECT 
                     ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, 
@@ -151,9 +143,9 @@ function getAchievementsListByDev(
         $query .= "WHERE ach.Author = '$dev' ";
     }
 
-    // if ($params > 0 && $user !== null) {
-    //     $query .= "GROUP BY ach.ID ";
-    // }
+    if ($params > 0 && $user !== null) {
+        $query .= "GROUP BY ach.ID ";
+    }
 
     switch ($sortBy) {
         case 0:
@@ -210,6 +202,7 @@ function getAchievementsListByDev(
     $query .= "LIMIT $offset, $count ";
 
     //error_log( $query );
+    $dataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -217,8 +210,8 @@ function getAchievementsListByDev(
             $achCount++;
         }
     } else {
-        error_log(__FUNCTION__);
-        error_log($query);
+        // error_log(__FUNCTION__);
+        log_sql_fail();
     }
 
     return $achCount;
@@ -241,29 +234,27 @@ function GetAchievementMetadataJSON($achID)
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
         $retVal = mysqli_fetch_assoc($dbResult);
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed1: ID $achID requested");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed1: ID $achID requested");
     }
 
     return $retVal;
 }
 
-//    01:16 23/02/2013
 function GetAchievementMetadata($achievementID, &$dataOut)
 {
     $dataOut = GetAchievementMetadataJSON($achievementID);
-    return (count($dataOut) > 0);
+    return count($dataOut) > 0;
 }
 
-//    00:59 23/02/2013
 function getAchievementBadgeFilename($id)
 {
     $query = "SELECT BadgeName FROM Achievements WHERE ID = '$id'";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " bad request for id: $id");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " bad request for id: $id");
         return "00000";
     }
 
@@ -295,14 +286,14 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
               ON DUPLICATE KEY
               UPDATE User=User, AchievementID=AchievementID, Date=Date, HardcoreMode=HardcoreMode";
 
-    log_sql($query);
+    // log_sql($query);
     $dbResult = s_mysql_query($query);
-    return ($dbResult !== false);    //    FALSE return value ALWAYS means error here.
+    return $dbResult !== false;    //    FALSE return value ALWAYS means error here.
 }
 
 function HasAward($user, $achIDToAward)
 {
-    $retVal = array();
+    $retVal = [];
     $retVal['HasRegular'] = false;
     $retVal['HasHardcore'] = false;
 
@@ -368,7 +359,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
     settype($achIDToAward, 'integer');
     settype($isHardcore, 'integer');
 
-    $retVal = array();
+    $retVal = [];
     $retVal['Success'] = true;
 
     if (!ValidationPass($validationKey, $user, $achIDToAward)) {
@@ -377,7 +368,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
     } elseif ($achIDToAward == 0) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Achievement ID is 0! Cannot award.";
-    } elseif (!isset($user) || strlen($user) < 2) {
+    } elseif (!isset($user) || mb_strlen($user) < 2) {
         $retVal['Success'] = false;
         $retVal['Error'] = "User is '$user', cannot award achievement.";
     } else {
@@ -390,8 +381,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
         } elseif ($userData == null) {
             $retVal['Success'] = false;
             $retVal['Error'] = "User data cannot be found for $user";
-        } elseif ($achData['Flags'] == 5) // do not award Unofficial achievements
-        {
+        } elseif ($achData['Flags'] == 5) { // do not award Unofficial achievements
             $retVal['Success'] = false;
             $retVal['Error'] = "Unofficial achievements aren't registered on the RetroAchievements.org database";
         } else {
@@ -471,7 +461,7 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
 
                         testFullyCompletedGame($user, $achIDToAward, $isHardcore);
 
-                        $socialData = array();
+                        $socialData = [];
                         $socialData['User'] = $user;
                         $socialData['Points'] = $userData['RAPoints'] + $pointsToGive;
                         $socialData['AchievementData'] = $achData; //Passthru
@@ -486,7 +476,6 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
     return $retVal;
 }
 
-//    01:09 23/02/2013
 function addEarnedAchievement(
     $userIn,
     $validation,
@@ -534,14 +523,14 @@ function addEarnedAchievement(
         $db_entry = mysqli_fetch_assoc($dbResult);
         if ($db_entry == false) {
             echo "FAILED: Could not read result from DB?";
-            error_log(__FUNCTION__ . " failed: Could not read result from DB! $user, $achIDToAward, $fbUser");
+            // error_log(__FUNCTION__ . " failed: Could not read result from DB! $user, $achIDToAward, $fbUser");
         } else {
             //    Add new achievement to Awarded:
             $gameID = $db_entry['GameID'];
             $achTrueRatio = $db_entry['TrueRatio'];
 
             $query = "INSERT INTO Awarded VALUES ( '$user', $achIDToAward, NOW(), $isHardcore ) ON DUPLICATE KEY UPDATE Date = NOW()";
-            log_sql($query);
+            // log_sql($query);
             if (s_mysql_query($query) == false) {
                 if ($silent == false) {
                     //    Note: this should still just work, now we have "ON DUPLICATE KEY UPDATE"
@@ -583,7 +572,7 @@ function addEarnedAchievement(
                 $newPointTotal = ($userPoints + $points);
 
                 $query = "UPDATE UserAccounts SET RAPoints=$newPointTotal, Updated=NOW() WHERE User='$user'";
-                log_sql($query);
+                // log_sql($query);
                 if (s_mysql_query($query) == false) {
                     //    Could not add points?!
                     echo "FAILED: cannot add points?!";
@@ -625,72 +614,72 @@ function addEarnedAchievement(
 
                     testFullyCompletedGame($user, $achIDToAward, $isHardcore);
 
-                    if ($silent == false) {
-                        if ($fbUser == 0) {
-                            echo ":FBNA"; //    Not associated
-                        } else {
-                            //    Attempt post on FB:
-                            global $fbConn;
-                            if ($fbConn == false) {
-                                echo ":FBDC"; //    Disconnected (?)
-                                error_log(__FUNCTION__ . " failed: cannot connect to FB? $user, $achIDToAward, $fbUser, $points");
-                            } else {
-                                //$wallMsg = "I just earned  $title  on $game for $points points on RetroAchievements.org!";
-                                //$linkTo = "https://retroachievements.org/Users/$User.html";
-                                //$linkTo = getenv('APP_URL');
-                                //$linkTo = '';
-                                //$params = array(
-                                //    'access_token'=>'490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw',
-                                //    'url'=>getenv('APP_URL'),
-                                //    'image'=>getenv('APP_URL').'/Trophy1-96.png',
-                                //    'message'=>$wallMsg,
-                                //    'link'=>$linkTo,
-                                //    'caption'=>$title,
-                                //    'title'=>$title,
-                                //    'description'=>$desc );
-
-                                $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
-                                $params = array(
-                                    'access_token' => $access_token,
-                                    'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward"
-                                );
-
-                                try {
-                                    //$ret_obj = $fbConn->api( "/$fbUser/feed", 'POST', $params );
-                                    $message = "/$fbUser/retroachievements:earn?access_token=$access_token";
-                                    //echo "<br/>DEBUG:<br/>" . $message . "<br/>" . $params . "<br/>";
-
-                                    $ret_obj = $fbConn->api($message, 'POST', $params);
-                                    //echo '<pre>Post ID: ' . $ret_obj['id'] . '</pre>';
-
-                                    error_log("Posted OK to FB for $user ($fbUser) $ret_obj");
-
-                                    echo ":FBOK"; //    Posted OK!
-                                } catch (FacebookApiException $e) {
-                                    // If the user is logged out, you can have a
-                                    // user ID even though the access token is invalid.
-                                    // In this case, we'll get an exception, so we'll
-                                    // just ask the user to login again here.
-                                    //$login_url = $fbConn->getLoginUrl( array( 'scope' => 'publish_stream' ) );
-                                    //global $config;
-                                    //echo $login_url . "<br/>";
-                                    //echo $config['appId'] . "<br/>";
-                                    //echo $config['secret'] . "<br/>";
-                                    //echo $config['cookie'] . "<br/>";
-                                    //echo "fbConn " . fbConn!==FALSE;
-                                    //echo 'Please <a href="' . $login_url . '">login.</a><br/>';
-                                    error_log($e->getType());
-                                    error_log($e->getMessage());
-
-                                    //echo "ERROR: " . $e->getType() . "<br/>";
-                                    //echo "ERROR: " . $e->getMessage() . "<br/>";
-                                    //echo ":FBER";    //    Error!
-                                    error_log(__FUNCTION__ . " failed: fbConn->api exception: $user, $achIDToAward, $fbUser, $points");
-                                    echo ":FBER"; //    Posted OK!
-                                }
-                            }
-                        }
-                    }
+                    // if ($silent == false) {
+                    //     if ($fbUser == 0) {
+                    //         echo ":FBNA"; //    Not associated
+                    //     } else {
+                    //         //    Attempt post on FB:
+                    //         global $fbConn;
+                    //         if ($fbConn == false) {
+                    //             echo ":FBDC"; //    Disconnected (?)
+                    //             // error_log(__FUNCTION__ . " failed: cannot connect to FB? $user, $achIDToAward, $fbUser, $points");
+                    //         } else {
+                    //             //$wallMsg = "I just earned  $title  on $game for $points points on RetroAchievements.org!";
+                    //             //$linkTo = "https://retroachievements.org/Users/$User.html";
+                    //             //$linkTo = getenv('APP_URL');
+                    //             //$linkTo = '';
+                    //             //$params = array(
+                    //             //    'access_token'=>'490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw',
+                    //             //    'url'=>getenv('APP_URL'),
+                    //             //    'image'=>getenv('APP_URL').'/Trophy1-96.png',
+                    //             //    'message'=>$wallMsg,
+                    //             //    'link'=>$linkTo,
+                    //             //    'caption'=>$title,
+                    //             //    'title'=>$title,
+                    //             //    'description'=>$desc );
+                    //
+                    //             $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
+                    //             $params = [
+                    //                 'access_token' => $access_token,
+                    //                 'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward",
+                    //             ];
+                    //
+                    //             try {
+                    //                 //$ret_obj = $fbConn->api( "/$fbUser/feed", 'POST', $params );
+                    //                 $message = "/$fbUser/retroachievements:earn?access_token=$access_token";
+                    //                 //echo "<br>DEBUG:<br>" . $message . "<br>" . $params . "<br>";
+                    //
+                    //                 $ret_obj = $fbConn->api($message, 'POST', $params);
+                    //                 //echo '<pre>Post ID: ' . $ret_obj['id'] . '</pre>';
+                    //
+                    //                 // error_log("Posted OK to FB for $user ($fbUser) $ret_obj");
+                    //
+                    //                 echo ":FBOK"; //    Posted OK!
+                    //             } catch (FacebookApiException $e) {
+                    //                 // If the user is logged out, you can have a
+                    //                 // user ID even though the access token is invalid.
+                    //                 // In this case, we'll get an exception, so we'll
+                    //                 // just ask the user to login again here.
+                    //                 //$login_url = $fbConn->getLoginUrl( array( 'scope' => 'publish_stream' ) );
+                    //                 //global $config;
+                    //                 //echo $login_url . "<br>";
+                    //                 //echo $config['appId'] . "<br>";
+                    //                 //echo $config['secret'] . "<br>";
+                    //                 //echo $config['cookie'] . "<br>";
+                    //                 //echo "fbConn " . fbConn!==FALSE;
+                    //                 //echo 'Please <a href="' . $login_url . '">login.</a><br>';
+                    //                 error_log($e->getType());
+                    //                 error_log($e->getMessage());
+                    //
+                    //                 //echo "ERROR: " . $e->getType() . "<br>";
+                    //                 //echo "ERROR: " . $e->getMessage() . "<br>";
+                    //                 //echo ":FBER";    //    Error!
+                    //                 error_log(__FUNCTION__ . " failed: fbConn->api exception: $user, $achIDToAward, $fbUser, $points");
+                    //                 echo ":FBER"; //    Posted OK!
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
             }
         }
@@ -699,7 +688,6 @@ function addEarnedAchievement(
     return $returnVal;
 }
 
-//    18:27 23/02/2013
 function UploadNewAchievement(
     $author,
     $gameID,
@@ -739,7 +727,7 @@ function UploadNewAchievement(
     if (!isset($idInOut) || $idInOut == 0) {
         $query = "INSERT INTO Achievements (ID, GameID, Title, Description, MemAddr, Progress, ProgressMax, ProgressFormat, Points, Flags, Author, DateCreated, DateModified, Updated, VotesPos, VotesNeg, BadgeName, DisplayOrder, AssocVideo, TrueRatio)
                 VALUES ( NULL, '$gameID', '$title', '$desc', '$mem', '$progress', '$progressMax', '$progressFmt', '$points', '$type', '$author', NOW(), NOW(), NOW(), 0, 0, '$badge', 0, NULL, 0 )";
-        log_sql($query);
+        // log_sql($query);
         if (s_mysql_query($query) !== false) {
             global $db;
             $idInOut = mysqli_insert_id($db);
@@ -748,13 +736,12 @@ function UploadNewAchievement(
             static_addnewachievement($idInOut);
             addArticleComment("Server", 2, $idInOut, "$author uploaded this achievement.", $author);
 
-            error_log(__FUNCTION__ . " $author uploaded new achievement: $idInOut, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, $badge");
+            // error_log(__FUNCTION__ . " $author uploaded new achievement: $idInOut, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, $badge");
 
             return true;
         } else {
             log_sql_fail();
-            error_log($query);
-            error_log(__FUNCTION__ . " failed: gameID:$gameID title:$title desc:$desc points:$points mem:$mem type:$type");
+            // error_log(__FUNCTION__ . " failed: gameID:$gameID title:$title desc:$desc points:$points mem:$mem type:$type");
 
             return false;
         }
@@ -770,7 +757,7 @@ function UploadNewAchievement(
             //if( ( $changingAchSet || $changingPoints ) && $type == 3 )
             if ($type == 3) {
                 $userPermissions = getUserPermissions($author);
-                error_log("changing ach set detected; user is $author, permissions is $userPermissions, target set is $type");
+                // error_log("changing ach set detected; user is $author, permissions is $userPermissions, target set is $type");
                 if ($userPermissions < Permissions::Developer) {
                     //  Must be developer to modify core!
                     $errorOut = "You must be a developer to modify values in Core! Please drop a message in the chat/forums to apply.";
@@ -779,7 +766,7 @@ function UploadNewAchievement(
             }
 
             $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$type, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
-            log_sql($query);
+            // log_sql($query);
 
             if (s_mysql_query($query) !== false) {
                 if ($changingAchSet || $changingPoints) {
@@ -791,7 +778,7 @@ function UploadNewAchievement(
                     if (s_mysql_query($query) !== false) {
                         global $db;
                         $rowsAffected = mysqli_affected_rows($db);
-                        //error_log( __FUNCTION__ . " removed $rowsAffected rows in Achieved" );
+                    //error_log( __FUNCTION__ . " removed $rowsAffected rows in Achieved" );
                         //great
                     } else {
                         //meh
@@ -815,20 +802,19 @@ function UploadNewAchievement(
 
                 return true;
             } else {
-                error_log($query);
-                error_log(__FUNCTION__ . " 3failed: gameID:$gameID title:$title desc:$desc points:$points mem:$mem type:$type ID:$idInOut");
+                log_sql_fail();
+                // error_log(__FUNCTION__ . " 3failed: gameID:$gameID title:$title desc:$desc points:$points mem:$mem type:$type ID:$idInOut");
 
                 return false;
             }
         } else {
-            error_log(__FUNCTION__ . " 2failed: ach to update doesn't exist? gameID:$gameID title:$title desc:$desc points:$points mem:$mem type:$type ID:$idInOut");
+            // error_log(__FUNCTION__ . " 2failed: ach to update doesn't exist? gameID:$gameID title:$title desc:$desc points:$points mem:$mem type:$type ID:$idInOut");
 
             return false;
         }
     }
 }
 
-//    17:47 14/05/2013
 function resetAchievements($user, $gameID)
 {
     //$query = "SELECT COUNT(*) AS NumAchievements FROM Awarded WHERE User='$user'";
@@ -850,31 +836,31 @@ function resetAchievements($user, $gameID)
 
     $numRowsDeleted = 0;
 
-    log_sql($query);
+    // log_sql($query);
     if (s_mysql_query($query) !== false) {
         global $db;
         $numRowsDeleted = mysqli_affected_rows($db);
-        error_log(__FUNCTION__ . " Success - deleted $numRowsDeleted achievements for $user.");
-        //echo "SUCCESS! Deleted " . $numRowsDeleted . " achievements.<br/>";
+        // error_log(__FUNCTION__ . " Success - deleted $numRowsDeleted achievements for $user.");
+        //echo "SUCCESS! Deleted " . $numRowsDeleted . " achievements.<br>";
 
         if (!isset($gameID) || $gameID == 0) {
             //    remove stored points if we're doing a total reset
             $query = "UPDATE UserAccounts SET RAPoints='0', Updated=NOW() WHERE User='$user'";
-            log_sql($query);
+            // log_sql($query);
             if (s_mysql_query($query) == false) {
-                log_email(__FUNCTION__ . " Errors removing RAPoints for $user");
+                //log_email(__FUNCTION__ . " Errors removing RAPoints for $user");
             }
         } elseif ($pointsToRemove > 0) {
             //    remove achieved points if we're doing a game reset
             $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToRemove, Updated=NOW() WHERE User='$user'";
-            log_sql($query);
+            // log_sql($query);
             if (s_mysql_query($query) == false) {
-                log_email(__FUNCTION__ . " Errors adjusting RAPoints for $user");
+                //log_email(__FUNCTION__ . " Errors adjusting RAPoints for $user");
             }
         }
     } else {
-        error_log(__FUNCTION__ . " Delete op failed (no permissions?)!");
-        //echo "Delete op failed (no permissions?)!<br/>";
+        // error_log(__FUNCTION__ . " Delete op failed (no permissions?)!");
+        //echo "Delete op failed (no permissions?)!<br>";
     }
 
     return $numRowsDeleted;
@@ -888,21 +874,21 @@ function resetSingleAchievement($user, $achID, $hardcoreMode)
         $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToDeduct, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
-            error_log($query);
-            error_log(__FUNCTION__ . " failed?! $user, $achID");
+            log_sql_fail();
+            // error_log(__FUNCTION__ . " failed?! $user, $achID");
         }
 
         $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID' AND HardcoreMode='$hardcoreMode'";
         $dbResult = s_mysql_query($query);
 
         if ($dbResult == false) {
-            error_log($query);
-            error_log(__FUNCTION__ . " failed?! $user, $achID");
+            log_sql_fail();
+            // error_log(__FUNCTION__ . " failed?! $user, $achID");
         }
 
         return true;
     } else {
-        error_log(__FUNCTION__ . " couldn't find achievement $achID!");
+        // error_log(__FUNCTION__ . " couldn't find achievement $achID!");
         return false;
     }
 }
@@ -929,8 +915,8 @@ function getRecentlyEarnedAchievements($count, $user, &$dataOut)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: no achievements found: count:$count user:$user query:$query");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: no achievements found: count:$count user:$user query:$query");
         return 0;
     } else {
         $i = 0;
@@ -944,7 +930,7 @@ function getRecentlyEarnedAchievements($count, $user, &$dataOut)
 
 function GetAchievementsPatch($gameID, $flags)
 {
-    $retVal = array();
+    $retVal = [];
 
     $flagsCond = "TRUE";
     if ($flags != 0) {
@@ -969,25 +955,22 @@ function GetAchievementsPatch($gameID, $flags)
             $retVal[] = $db_entry;
         }
     } else {
-        global $db;
-        error_log(mysqli_error($db));
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: gameID:$gameID flags:$flags");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: gameID:$gameID flags:$flags");
     }
 
     return $retVal;
 }
 
-//    11:31 30/10/2014
 function GetPatchData($gameID, $flags, $user)
 {
     settype($gameID, 'integer');
     settype($flags, 'integer');
 
-    $retVal = array();
+    $retVal = [];
 
     if ($gameID == 0) {
-        error_log(__FUNCTION__ . " cannot lookup game with gameID $gameID for user $user");
+        // error_log(__FUNCTION__ . " cannot lookup game with gameID $gameID for user $user");
     } else {
         //$retVal['MinVer'] = "0.049";
         $retVal = array_merge(getGameData($gameID));
@@ -998,7 +981,6 @@ function GetPatchData($gameID, $flags, $user)
     return $retVal;
 }
 
-//    01:43 23/02/2013
 function getPatch($gameID, $flags, $user, $andLeaderboards)
 {
     settype($gameID, 'integer');
@@ -1007,16 +989,13 @@ function getPatch($gameID, $flags, $user, $andLeaderboards)
     getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopicID, $gameData);
 
     $minVer = "0.001";
-    if ($consoleID == 1) //    Mega Drive
-    {
+    if ($consoleID == 1) { //    Mega Drive
         $minVer = "0.042";
     } //"0.028";
-    elseif ($consoleID == 2) //    N64
-    {
+    elseif ($consoleID == 2) { //    N64
         $minVer = "0.008";
     } //??
-    elseif ($consoleID == 3) //    SNES
-    {
+    elseif ($consoleID == 3) { //    SNES
         $minVer = "0.008";
     }
 
@@ -1024,8 +1003,8 @@ function getPatch($gameID, $flags, $user, $andLeaderboards)
     echo $gameTitle . "\n";
 
     if ($gameID == 0) {
-        error_log(__FUNCTION__ . " cannot lookup game with gameID $gameID for user $user");
-        return;
+        // error_log(__FUNCTION__ . " cannot lookup game with gameID $gameID for user $user");
+        return false;
     }
 
     $query = "SELECT ID, MemAddr, Title, Description, Progress, ProgressMax, ProgressFormat, Points, Author, DateModified, DateCreated, VotesPos, VotesNeg, BadgeName FROM Achievements ";
@@ -1106,8 +1085,8 @@ function getPatch($gameID, $flags, $user, $andLeaderboards)
 
         return true;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: user:$user flags:$flags gameID:$gameID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: user:$user flags:$flags gameID:$gameID");
 
         return false;
     }
@@ -1116,31 +1095,31 @@ function getPatch($gameID, $flags, $user, $andLeaderboards)
 function updateAchievementDisplayID($achID, $newID)
 {
     $query = "UPDATE Achievements SET DisplayOrder = $newID, Updated=NOW() WHERE ID = $achID";
-    log_sql($query);
+    // log_sql($query);
     $dbResult = s_mysql_query($query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function updateAchievementEmbedVideo($achID, $newURL)
 {
     $newURL = strip_tags($newURL);
     $query = "UPDATE Achievements SET AssocVideo = '$newURL', Updated=NOW() WHERE ID = $achID";
-    log_sql($query);
+    // log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function updateAchievementFlags($achID, $newFlags)
 {
     $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID = $achID";
-    log_sql($query);
+    // log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
@@ -1162,15 +1141,224 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $dataOut = array();
+        $dataOut = [];
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[] = $db_entry;
         }
         return true;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: consoleID:$consoleID offset:$offset, count:$count");
-        log_email("$offset... $count - " . $query);
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: consoleID:$consoleID offset:$offset, count:$count");
+        //log_email("$offset... $count - " . $query);
         return true;
+    }
+}
+
+function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user)
+{
+    $winnerInfo = [];
+
+    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
+              FROM Awarded AS aw
+              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID AND aw.HardcoreMode = 0";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+    $numWinners = $data['NumEarned'];
+    $gameID = $data['GameID'];   //    Grab GameID at this point
+    //$query = "SELECT COUNT(*) FROM UserAccounts WHERE Permissions>0";
+    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
+              (
+                  SELECT ach.ID, COUNT(*) AS MaxAwarded
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  GROUP BY ach.ID
+              ) AS Inner1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $arrayResult = mysqli_fetch_assoc($dbResult);
+    $numPossibleWinners = $arrayResult['TotalPlayers'];
+
+    $numRecentWinners = 0;
+
+    //    Get recent winners, and their most recent activity:
+    $query = "SELECT aw.User, ua.RAPoints, aw.Date AS DateAwarded, aw.HardcoreMode
+              FROM Awarded AS aw
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID
+              ORDER BY aw.Date DESC
+              LIMIT 0, 100";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            if (isset($winnerInfo[$db_entry['User']]) && $winnerInfo[$db_entry['User']]['HardcoreMode'] == 1) {
+                //    Prefer this value
+                continue;
+            }
+
+            //    This will overwrite hardcore if found, in order; meaning the result will be
+            //    either hardcore has been earned ever, or not at all by this user
+            $winnerInfo[$db_entry['User']] = $db_entry;
+            $numRecentWinners++;
+        }
+    }
+
+    if ($user !== null && !array_key_exists($user, $winnerInfo)) {
+        //    Do the same again if I wasn't found:
+        $query = "SELECT aw.User, aw.Date AS DateAwarded, aw.HardcoreMode
+                  FROM Awarded AS aw
+                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                  WHERE aw.AchievementID=$achID AND aw.User='$user'
+                  ORDER BY aw.Date DESC, HardcoreMode ASC";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+                $winnerInfo[$db_entry['User']] = $db_entry;
+                $numRecentWinners++;
+            }
+        }
+    }
+
+    return true;
+}
+
+function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
+{
+    $retVal = [];
+
+    //    Fetch the number of times this has been earned whatsoever (excluding hardcore)
+    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
+              FROM Awarded AS aw
+              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+              WHERE AchievementID=$achID AND aw.HardcoreMode = 0";
+
+    $dbResult = s_mysql_query($query);
+    $data = mysqli_fetch_assoc($dbResult);
+
+    $retVal['NumEarned'] = $data['NumEarned'];
+    settype($retVal['NumEarned'], 'integer');
+    $retVal['GameID'] = $data['GameID'];
+    settype($retVal['GameID'], 'integer');
+
+    //    Fetch the total number of players for this game:
+    $retVal['TotalPlayers'] = getGameNumUniquePlayersByAwards($retVal['GameID']);
+    settype($retVal['TotalPlayers'], 'integer');
+
+    $extraWhere = "";
+    if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
+        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' ) ";
+    }
+
+    //    Get recent winners, and their most recent activity:
+    $query = "SELECT aw.User, ua.RAPoints, UNIX_TIMESTAMP(aw.Date) AS DateAwarded
+              FROM Awarded AS aw
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE AchievementID=$achID AND aw.HardcoreMode = 0 $extraWhere
+              ORDER BY aw.Date DESC
+              LIMIT $offset, $count";
+
+    $dbResult = s_mysql_query($query);
+    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+        //settype( $db_entry['HardcoreMode'], 'integer' );
+        settype($db_entry['RAPoints'], 'integer');
+        settype($db_entry['DateAwarded'], 'integer');
+        $retVal['RecentWinner'][] = $db_entry;
+    }
+
+    return $retVal;
+}
+
+function getGameNumUniquePlayersByAwards($gameID)
+{
+    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
+              (
+                  SELECT ach.ID, COUNT(*) AS MaxAwarded
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  GROUP BY ach.ID
+              ) AS Inner1";
+
+    $dbResult = s_mysql_query($query);
+    $data = mysqli_fetch_assoc($dbResult);
+
+    return $data['TotalPlayers'];
+}
+
+function recalculateTrueRatio($gameID)
+{
+    $query = "SELECT ach.ID, ach.Points, COUNT(*) AS NumAchieved
+              FROM Achievements AS ach
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 0
+              GROUP BY ach.ID";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        $achData = [];
+        $totalEarners = 0;
+        while ($nextData = mysqli_fetch_assoc($dbResult)) {
+            $achData[$nextData['ID']] = $nextData;
+            if ($nextData['NumAchieved'] > $totalEarners) {
+                $totalEarners = $nextData['NumAchieved'];
+            }
+
+            //error_log( "Added " . $achData[ $nextData['ID'] ]['ID'] );
+        }
+
+        if ($totalEarners == 0) { // force all unachieved to be 1
+            $totalEarners = 1;
+        }
+
+        $ratioTotal = 0;
+
+        foreach ($achData as $nextAch) {
+            $achID = $nextAch['ID'];
+            $achPoints = $nextAch['Points'];
+            $numAchieved = $nextAch['NumAchieved'];
+
+            if ($numAchieved == 0) { // force all unachieved to be 1
+                $numAchieved = 1;
+            }
+
+            $ratioFactor = 0.4;
+            $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($totalEarners / $numAchieved) * $ratioFactor));
+            $trueRatio = ( int )$newTrueRatio;
+
+            $ratioTotal += $trueRatio;
+
+            $query = "UPDATE Achievements AS ach
+                      SET ach.TrueRatio = $trueRatio
+                      WHERE ach.ID = $achID";
+            s_mysql_query($query);
+
+            //error_log( "TA: $achID -> $trueRatio" );
+        }
+
+        $query = "UPDATE GameData AS gd
+                  SET gd.TotalTruePoints = $ratioTotal
+                  WHERE gd.ID = $gameID";
+        s_mysql_query($query);
+
+        //error_log( __FUNCTION__ . " RECALCULATED " . count($achData) . " achievements for game ID $gameID ($ratioTotal)" );
+
+        return true;
+    } else {
+        return false;
     }
 }

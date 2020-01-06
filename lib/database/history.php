@@ -1,14 +1,7 @@
 <?php
-require_once(__DIR__ . '/../bootstrap.php');
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//    History/Data Retrieval
-//////////////////////////////////////////////////////////////////////////////////////////
-//    19:06 10/07/2013
 function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
 {
-    $retVal = Array();
+    $retVal = [];
 
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned FROM Awarded AS aw ";
     $query .= "LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID ";
@@ -20,23 +13,17 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
         $sortBy = 1;
     }
 
-    if ($sortBy == 1)        //    Date, asc
-    {
+    if ($sortBy == 1) {        //    Date, asc
         $query .= "ORDER BY aw.Date DESC ";
-    } elseif ($sortBy == 2)    //    Num Awarded, asc
-    {
+    } elseif ($sortBy == 2) {    //    Num Awarded, asc
         $query .= "ORDER BY NumAwarded DESC ";
-    } elseif ($sortBy == 3)    //    Total Points earned, asc
-    {
+    } elseif ($sortBy == 3) {    //    Total Points earned, asc
         $query .= "ORDER BY TotalPointsEarned DESC ";
-    } elseif ($sortBy == 11)//    Date, desc
-    {
+    } elseif ($sortBy == 11) {//    Date, desc
         $query .= "ORDER BY aw.Date ASC ";
-    } elseif ($sortBy == 12)//    Num Awarded, desc
-    {
+    } elseif ($sortBy == 12) {//    Num Awarded, desc
         $query .= "ORDER BY NumAwarded ASC ";
-    } elseif ($sortBy == 13)//    Total Points earned, desc
-    {
+    } elseif ($sortBy == 13) {//    Total Points earned, desc
         $query .= "ORDER BY TotalPointsEarned ASC ";
     }
 
@@ -51,8 +38,8 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
             $daysCount++;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
     }
 
     return $retVal;
@@ -60,7 +47,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
 
 function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
 {
-    $retVal = Array();
+    $retVal = [];
 
     if (!isValidUsername($user)) {
         return $retVal;
@@ -98,14 +85,13 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
             $achCount++;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . " issues - cannot retrieve day's ach for this user?!");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . " issues - cannot retrieve day's ach for this user?!");
     }
 
     return $retVal;
 }
 
-///    08:41 11/07/2013
 function getAchievementsEarnedOnDay($dateInput, $user)
 {
     $dateStrStart = date("Y-m-d 00:00:00", $dateInput);
@@ -118,7 +104,7 @@ function getAchievementsEarnedOnDay($dateInput, $user)
 
 function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $dateTo = null)
 {
-    $retVal = Array();
+    $retVal = [];
 
     if (!isValidUsername($user)) {
         return $retVal;
@@ -182,10 +168,9 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
             $daysCount++;
         }
     } else {
-        error_log($query);
-        log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
+        log_sql_fail();
+        //log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
     }
-
 
     return $retVal;
 }

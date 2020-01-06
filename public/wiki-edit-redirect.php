@@ -1,9 +1,9 @@
 <?php
-if(empty($_GET['page'])) {
+if (empty($_GET['page'])) {
     return;
 }
 $page = pathinfo($_GET['page'])['filename'];
-if(empty($page)) {
+if (empty($page)) {
     return;
 }
 // path rewrites

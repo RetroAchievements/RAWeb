@@ -7,16 +7,11 @@ $consoles = getConsoleList();
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $errorCode = seekGET('e');
-$pageTitle = "Download a client";
 $staticData = getStaticData();
 
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead("Download a client");
 ?>
-<head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
-    <?php RenderGoogleTracking(); ?>
-</head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
@@ -32,8 +27,8 @@ RenderDocType();
         </p>
 
         <?php foreach ($emulators as $emulator): ?>
-            <h2 class="longheader" id="<?= strtolower($emulator['handle'] ?? null) ?>">
-                <a href="#<?= strtolower($emulator['handle'] ?? null) ?>"><?= $emulator['handle'] ?? null ?></a> <small>(<?= $emulator['name'] ?? null ?>)</small>
+            <h2 class="longheader" id="<?= mb_strtolower($emulator['handle'] ?? null) ?>">
+                <a href="#<?= mb_strtolower($emulator['handle'] ?? null) ?>"><?= $emulator['handle'] ?? null ?></a> <small>(<?= $emulator['name'] ?? null ?>)</small>
             </h2>
             <div class="mb-1">
                 <?php if ($emulator['description'] ?? false): ?>
@@ -92,4 +87,4 @@ RenderDocType();
 </div>
 <?php RenderFooter(); ?>
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 // Syntax:
-// request.php?r=addfriend&<params> (Web)
-// request.php?r=addfriend&u=user&t=token&<params> (From App)
+// dorequest.php?r=addfriend&<params> (Web)
+// dorequest.php?r=addfriend&u=user&t=token&<params> (From App)
 
 $response = ['Success' => true];
 
@@ -36,9 +36,9 @@ function DoRequestError($errorMsg)
     $response['Success'] = false;
     $response['Error'] = $errorMsg;
 
-    global $user;
-    global $requestType;
-    error_log("User: $user, Request: $requestType, Error: $errorMsg");
+    // global $user;
+    // global $requestType;
+    // error_log("User: $user, Request: $requestType, Error: $errorMsg");
 }
 
 // Early exit if we need a valid login
@@ -118,7 +118,7 @@ if ($credentialsOK) {
             } else {
                 echo "OK:$gameID:";
                 foreach ($codeNotesOut as $codeNote) {
-                    if (strlen($codeNote['Note']) > 2) {
+                    if (mb_strlen($codeNote['Note']) > 2) {
                         $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
                         echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";
                     }
@@ -218,7 +218,7 @@ if ($credentialsOK) {
 
         case "resetpassword":
             $username = seekPOSTorGET('u');
-            error_log("ResetPassword, " . $username);
+            // error_log("ResetPassword, " . $username);
             $response['Response'] = RequestPasswordReset($username);
             break;
 
@@ -341,7 +341,7 @@ if ($credentialsOK) {
         case "removecomment":
             $articleID = seekPOSTorGET('a', 0, 'integer');
             $commentID = seekPOSTorGET('c', 0, 'integer');
-            error_log("$user authorised removing comment $commentID, type $articleID");
+            // error_log("$user authorised removing comment $commentID, type $articleID");
             $response['Success'] = RemoveComment($articleID, $commentID);
             $response['ArtID'] = $articleID;
             $response['CommentID'] = $commentID;
@@ -350,7 +350,7 @@ if ($credentialsOK) {
         case "removelbentry":
             $lbID = seekPOSTorGET('l', 0, 'integer');
             $targetUser = seekPOSTorGET('t');
-            error_log("$user authorised dropping LB entry by $targetUser from LB $lbID");
+            // error_log("$user authorised dropping LB entry by $targetUser from LB $lbID");
             $response['Success'] = RemoveLeaderboardEntry($targetUser, $lbID);
             break;
 

@@ -43,25 +43,17 @@ if (isset($activityID)) {
     $pageTitle = "Activity Feed";
 }
 
-RenderDocType();
+RenderHtmlStart();
+RenderHtmlHead($pageTitle);
 ?>
-
-<head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
-    <script type='text/javascript'>
-        $(document).ready(function () {
-            FocusOnArticleID(GetParameterByName("a"));
-        });
-    </script>
-    <?php RenderGoogleTracking(); ?>
-    <link rel='alternate' type='application/rss+xml' title='Global Feed'
-          href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
-</head>
-
 <body onload="init_chat(50);">
+<link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
+<script type='text/javascript'>
+  $(document).ready(function () {
+    FocusOnArticleID(GetParameterByName('a'))
+  })
+</script>
 <script type='text/javascript' src="/js/ping_chat.js?v=<?php echo VERSION ?>"></script>
-<script type='text/javascript' src="/js/all.js?v=<?php echo VERSION ?>"></script>
 
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
@@ -86,7 +78,7 @@ RenderDocType();
                     echo "<tr><td class='date'>$dow:</td></tr>";
                 } elseif ($lastKnownDate !== $dow) {
                     $lastKnownDate = $dow;
-                    echo "<tr><td class='date'><br/>$dow:</td></tr>";
+                    echo "<tr><td class='date'><br>$dow:</td></tr>";
                 }
 
                 if ($lastID != $feedData[$i]['ID']) {
@@ -96,13 +88,20 @@ RenderDocType();
 
                 if ($feedData[$i]['Comment'] !== null) {
                     while (($i < $numFeedItems) && $lastID == $feedData[$i]['ID']) {
-                        RenderArticleComment( $feedData[$i]['ID'], $feedData[$i]['CommentUser'], $feedData[$i]['Comment'],
-                            $feedData[$i]['CommentPostedAt'], $user, 0, $feedData[$i]['CommentID'], false );
+                        RenderArticleComment(
+                            $feedData[$i]['ID'],
+                            $feedData[$i]['CommentUser'],
+                            $feedData[$i]['Comment'],
+                            $feedData[$i]['CommentPostedAt'],
+                            $user,
+                            0,
+                            $feedData[$i]['CommentID'],
+                            false
+                        );
                         $i++;
                     }
                     $i--;    //Note: we will have incorrectly incremented this if we read comments - the first comment has the same ID!
                 }
-
             }
             echo "</tbody></table>";
 
@@ -152,4 +151,4 @@ RenderDocType();
 <?php RenderFooter(); ?>
 
 </body>
-</html>
+<?php RenderHtmlEnd(); ?>

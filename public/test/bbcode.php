@@ -52,7 +52,7 @@ https://www.youtube.com/watch?v=Eldywk__eag
 www.example.org
 EOF;
 
-RenderDocType();
+RenderHtmlStart();
 RenderSharedHeader($user);
 ?>
 <body>

@@ -1,14 +1,8 @@
 <?php
-
 use RA\ActivityType;
 use RA\ObjectType;
 use RA\SubjectType;
 
-require_once(__DIR__ . '/../bootstrap.php');
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Activity/Feed
-//////////////////////////////////////////////////////////////////////////////////////////
-//    01:00 23/02/2013
 function getMostRecentActivity($user, $type, $data)
 {
     $innerClause = "Activity.user = '$user'";
@@ -27,15 +21,14 @@ function getMostRecentActivity($user, $type, $data)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed! $user, $type, $data");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed! $user, $type, $data");
         return false;
     }
 
     return mysqli_fetch_assoc($dbResult);
 }
 
-//    01:01 23/02/2013
 function updateActivity($activityID)
 {
     //    Update the last update value of given activity
@@ -46,12 +39,11 @@ function updateActivity($activityID)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed! $activityID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed! $activityID");
     }
 }
 
-//    08:17 22/09/2014
 function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 {
     settype($isHardcore, 'integer');
@@ -64,10 +56,9 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
     $dbResult = s_mysql_query($query);
 
     SQL_ASSERT($dbResult);
-    return (mysqli_num_rows($dbResult) > 0);
+    return mysqli_num_rows($dbResult) > 0;
 }
 
-//    01:04 23/02/2013
 function postActivity($userIn, $activity, $customMsg, $isalt = null)
 {
     $user = correctUserCase($userIn);
@@ -101,18 +92,16 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
         case ActivityType::Login:
             //    login
             $lastLoginActivity = getMostRecentActivity($user, $activity, null);
-            if (isset($lastLoginActivity)) {
+            if ($lastLoginActivity) {
                 $nowTimestamp = time();
                 $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
                 $diff = $nowTimestamp - $lastLoginTimestamp;
 
-                if ($diff < 60 * 60 * 6) //    6 hours
-                {
+                if ($diff < 60 * 60 * 6) { //    6 hours
                     //error_log( __FUNCTION__ . " new login activity from $user, duplicate of recent login " . ($diff/60) . " mins ago, so ignoring!" );
                     return;
                 }
             }
-
             $query .= "(NOW(), $activity, '$user', NULL, NULL)";
             break;
 
@@ -128,8 +117,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
                 $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
                 $diff = $nowTimestamp - $lastPlayedTimestamp;
 
-                if ($diff < 60 * 60 * 12) //    12 hours
-                {
+                if ($diff < 60 * 60 * 12) { //    12 hours
                     //error_log( __FUNCTION__ . " new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago. Updating db, but not posting!" );
 
                     updateActivity($lastPlayedActivityData['ID']);
@@ -219,12 +207,12 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
         }
     }
 
-    return ($dbResult !== false);
+    return $dbResult !== false;
 }
 
 function userActivityPing($user)
 {
-    if (!isset($user) || strlen($user) < 2) {
+    if (!isset($user) || mb_strlen($user) < 2) {
         //error_log( __FUNCTION__ . " fucked up somehow for $user" );
         //log_email( __FUNCTION__ . " fucked up" );
         return false;
@@ -236,7 +224,7 @@ function userActivityPing($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        error_log(__FUNCTION__ . " fucked up somehow for $user");
+        // error_log(__FUNCTION__ . " fucked up somehow for $user");
         //log_sql_fail();
         //log_email( __FUNCTION__ . " fucked up somehow for $user" );
         return false;
@@ -245,12 +233,11 @@ function userActivityPing($user)
     return true;
 }
 
-//    23:13 12/01/2014
 function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 {
-    if (!isset($user) || strlen($user) < 2) {
+    if (!isset($user) || mb_strlen($user) < 2) {
         //log_email( __FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)" );
-        error_log(__FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)");
+        // error_log(__FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)");
         return false;
     }
 
@@ -266,14 +253,13 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 
     $dbResult = mysqli_query($db, $query); //    Allow direct: we have sanitized all variables
     if ($dbResult == false) {
-        log_email(__FUNCTION__ . " fucked up somehow for $user");
+        //log_email(__FUNCTION__ . " fucked up somehow for $user");
         return false;
     }
 
     return true;
 }
 
-//     00:08 19/03/2013
 function getActivityMetadata($activityID)
 {
     $query = "SELECT * FROM Activity
@@ -283,7 +269,6 @@ function getActivityMetadata($activityID)
     return mysqli_fetch_assoc($dbResult);
 }
 
-//  08/19/2014 13:13:04
 function RemoveComment($articleID, $commentID)
 {
     settype($articleID, 'integer');
@@ -292,7 +277,7 @@ function RemoveComment($articleID, $commentID)
     $query = "DELETE FROM Comment
               WHERE ArticleID = $articleID AND ID = $commentID";
 
-    log_sql($query);
+    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
@@ -302,18 +287,17 @@ function RemoveComment($articleID, $commentID)
         return false;
     } else {
         s_mysql_query("INSERT INTO DeletedModels SET ModelType='Comment', ModelID=$commentID");
-        return (mysqli_affected_rows($db) > 0);
+        return mysqli_affected_rows($db) > 0;
     }
 }
 
-//    20:05 06/04/2013
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
 {
     //    Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
     if ($userID == 0) {
-        error_log(__FUNCTION__ . "error3: $user, $articleType, $articleID, $commentPayload");
+        // error_log(__FUNCTION__ . "error3: $user, $articleType, $articleID, $commentPayload");
         return false;
     }
 
@@ -324,7 +308,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     $commentPayload = mysqli_real_escape_string($db, $commentPayload);
 
     $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
-    log_sql($query);
+    // log_sql($query);
 
     $dbResult = mysqli_query($db, $query);
 
@@ -386,12 +370,12 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
     }
 
     // some comments are generated by the user "Server" on behalf of other users whom we don't want to notify
-    if (!is_null($onBehalfOfUser)) {
+    if ($onBehalfOfUser !== null) {
         $activityAuthor = $onBehalfOfUser;
     }
 
     foreach ($subscribers as $subscriber) {
-        $isThirdParty = ($subscriber['User'] != $activityAuthor && (is_null($subjectAuthor) || $subscriber['User'] != $subjectAuthor));
+        $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
         sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $isThirdParty, $altURLTarget);
     }
@@ -444,7 +428,7 @@ function getSubscribersOfArticle(
     $websitePrefsFilter = ($noExplicitSubscriptions !== true
         ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
 
-    $authorQry = (is_null($subjectAuthor) ? "" : "
+    $authorQry = ($subjectAuthor === null ? "" : "
         UNION
         SELECT _ua.*
         FROM UserAccounts as _ua
@@ -465,7 +449,7 @@ function getSubscribersOfArticle(
     if ($noExplicitSubscriptions) {
         $dbResult = s_mysql_query($qry);
         if ($dbResult === false) {
-            error_log($qry);
+            log_sql_fail();
             return [];
         }
 
@@ -473,7 +457,7 @@ function getSubscribersOfArticle(
     }
 
     $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
-    if (is_null($subjectType)) {
+    if ($subjectType === null) {
         return [];
     }
 
@@ -485,23 +469,18 @@ function getSubscribersOfArticle(
     );
 }
 
-//    00:08 19/03/2013
 function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global')
 {
     settype($maxMessages, "integer");
     settype($offset, "integer");
 
-    if ($type == 'activity')      //    Find just this activity, ONLY!
-    {
+    if ($type == 'activity') {      //    Find just this activity, ONLY!
         $subquery = "act.ID = $latestFeedID ";
-    } elseif ($type == 'friends')     //    User has been provided: find my friends!
-    {
+    } elseif ($type == 'friends') {     //    User has been provided: find my friends!
         $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' OR act.user IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$user' ) )";
-    } elseif ($type == 'individual')    //    User and 'individual', just this user's feed!
-    {
+    } elseif ($type == 'individual') {    //    User and 'individual', just this user's feed!
         $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' )";
-    } else //if( $type == 'global' )                    //    Otherwise, global feed
-    {
+    } else { //if( $type == 'global' )                    //    Otherwise, global feed
         $subquery = "act.ID > $latestFeedID ";
     }
 
@@ -561,14 +540,13 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
         return $i;
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " Failed! user=$user");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " Failed! user=$user");
     }
 
     return 0;
 }
 
-//01:50 22/03/2013
 function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
 {
     // $query = "SELECT g.ID AS GameID, g.ConsoleID, c.Name AS ConsoleName, g.Title, MAX(act.lastupdate) AS LastPlayed, g.ImageIcon
@@ -604,6 +582,7 @@ LIMIT $offset, $count";
 
     $numFound = 0;
 
+    $dataOut = [];
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$numFound] = $data;
@@ -611,8 +590,8 @@ LIMIT $offset, $count";
             $numFound++;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " had issues... $user, $offset, $count");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " had issues... $user, $offset, $count");
     }
 
     return $numFound;
@@ -652,8 +631,8 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
             $numArticleComments++;
         }
     } else {
-        error_log(__FUNCTION__ . " failed, $articleTypeID, $articleID, $offset, $count ");
-        error_log($query);
+        // error_log(__FUNCTION__ . " failed, $articleTypeID, $articleID, $offset, $count ");
+        log_sql_fail();
     }
 
     //    Fetch the last elements by submitted, but return them here in top-down order.
@@ -666,7 +645,7 @@ function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
 {
     $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
 
-    if (is_null($subjectType)) {
+    if ($subjectType === null) {
         return false;
     }
 
@@ -708,8 +687,8 @@ function getCurrentlyOnlinePlayers()
             $playersFound[] = $db_entry;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed3");
     }
 
     return $playersFound;
@@ -735,8 +714,8 @@ function getLatestRichPresenceUpdates()
             $playersFound[] = $db_entry;
         }
     } else {
-        error_log($query);
-        error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
     }
 
     return $playersFound;
@@ -750,10 +729,9 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
               FROM Achievements AS ach
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE ach.Flags = 3
               ORDER BY DateCreated DESC
               LIMIT 0, $numToFetch ";
-
-    //echo $query;
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -762,9 +740,8 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
             $numFound++;
         }
     } else {
-        //log_email( __FUNCTION__ . " cannot deal with this function..." );
-        error_log($query);
-        error_log(__FUNCTION__ . " failed: $numToFetch");
+        log_sql_fail();
+        // error_log(__FUNCTION__ . " failed: $numToFetch");
     }
 
     return $numFound;
