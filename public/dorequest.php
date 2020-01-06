@@ -107,7 +107,7 @@ if ($credentialsOK) {
 
         case "badgeiter":
             $response['FirstBadge'] = 80;
-            $response['NextBadge'] = file_get_contents(__DIR__ ."/BadgeIter.txt");
+            $response['NextBadge'] = file_get_contents(__DIR__ . "/BadgeIter.txt");
             settype($response['NextBadge'], 'integer');
             break;
 
