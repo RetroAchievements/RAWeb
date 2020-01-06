@@ -551,7 +551,7 @@ RenderHtmlStart(true);
                 if ($numLeaderboards == 0) {
                     echo "<li><a href='/request/leaderboard/create.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></li>";
                 }
-                echo "<li><a href='/request/dorequest.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
+                echo "<li><a href='/dorequest.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></li>";
                 echo "<li><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></li>";
                 echo "<li><a href='/codenotes.php?g=$gameID'>Code Notes</a>";
 
