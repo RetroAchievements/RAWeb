@@ -156,7 +156,7 @@ function UploadBadgeImage($file)
                     $response['Error'] = "Error: $fileerror<br>";
                 }
             } else {
-                $nextBadgeFilename = file_get_contents("BadgeIter.txt");
+                $nextBadgeFilename = file_get_contents(__DIR__ ."/../../public/BadgeIter.txt");
                 settype($nextBadgeFilename, "integer");
 
                 //	Produce filenames
@@ -229,7 +229,7 @@ function UploadBadgeImage($file)
 
                     //	Increment and save this new badge number for next time
                     $newBadgeContent = str_pad($nextBadgeFilename + 1, 5, "0", STR_PAD_LEFT);
-                    file_put_contents("BadgeIter.txt", $newBadgeContent);
+                    file_put_contents(__DIR__ ."/../../public/BadgeIter.txt", $newBadgeContent);
                 }
             }
         }

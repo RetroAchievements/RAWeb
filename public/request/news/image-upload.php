@@ -66,7 +66,7 @@ if ($success) {
 
     $targetExt = ($uploadType == "NEWS") ? ".jpg" : ".png";
 
-    $nextImageFilename = file_get_contents("ImageIter.txt");
+    $nextImageFilename = file_get_contents(__DIR__ . "/../../ImageIter.txt");
     settype($nextImageFilename, "integer");
     $nextImageFilenameStr = str_pad($nextImageFilename, 6, "0", STR_PAD_LEFT) . $targetExt;
 
@@ -141,7 +141,7 @@ if ($success) {
         //	Increment and save this new badge number for next time
         $thisImageIter = str_pad($nextImageFilename, 6, "0", STR_PAD_LEFT);
         $newImageIter = str_pad($nextImageFilename + 1, 6, "0", STR_PAD_LEFT);
-        file_put_contents("ImageIter.txt", $newImageIter);
+        file_put_contents(__DIR__ . "/../../ImageIter.txt", $newImageIter);
 
         //error_log( $tempFilename );
         unlink($tempFilename);
