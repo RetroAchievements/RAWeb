@@ -614,7 +614,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
 
                 echo "<li>Update game details:<br>";
-                echo "<form method='post' action='/request/game-update.php' enctype='multipart/form-data'>";
+                echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                 echo "<table><tbody>";
                 echo "<input type='hidden' name='i' value='$gameID' />";
                 echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'/></td></tr>";
