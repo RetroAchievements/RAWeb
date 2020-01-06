@@ -522,8 +522,8 @@ function addEarnedAchievement(
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
         if ($db_entry == false) {
-            echo "FAILED: Could not read result from DB?";
             // error_log(__FUNCTION__ . " failed: Could not read result from DB! $user, $achIDToAward, $fbUser");
+            echo "FAILED: Could not read result from DB?";
         } else {
             //    Add new achievement to Awarded:
             $gameID = $db_entry['GameID'];

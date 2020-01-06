@@ -178,7 +178,7 @@ if ($success) {
 
                 if ($dbResult == false) {
                     log_sql_fail();
-                    //log_email("uploadpicinline.php went wrong... $uploadType, $returnID");
+                //log_email("uploadpicinline.php went wrong... $uploadType, $returnID");
                 } else {
                     //error_log( $query );
                     // error_log("Logged image update $uploadType to game $returnID, to image /$newImageFilename");

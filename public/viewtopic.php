@@ -1,71 +1,71 @@
 <?php
-    require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
-    RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
+RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
 
-    // Fetch topic ID
-    $requestedTopicID = seekGET('t', 0);
-    settype($requestedTopicID, "integer");
+// Fetch topic ID
+$requestedTopicID = seekGET('t', 0);
+settype($requestedTopicID, "integer");
 
-    if ($requestedTopicID == 0) {
-        header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic");
-        exit;
-    }
+if ($requestedTopicID == 0) {
+    header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic");
+    exit;
+}
 
-    getTopicDetails($requestedTopicID, $topicData);
-    // temporary workaround to fix some game's forum topics
-    //if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
-    //{
-        //header( "location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic2" );
-        //exit;
-    //}
+getTopicDetails($requestedTopicID, $topicData);
+// temporary workaround to fix some game's forum topics
+//if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
+//{
+//header( "location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic2" );
+//exit;
+//}
 
-    if ($permissions < $topicData['RequiredPermissions']) {
-        header("location: " . getenv('APP_URL') . "/forum.php?e=nopermission");
-        exit;
-    }
+if ($permissions < $topicData['RequiredPermissions']) {
+    header("location: " . getenv('APP_URL') . "/forum.php?e=nopermission");
+    exit;
+}
 
-    // Fetch other params
-    $count = 15;
-    $offset = seekGET('o', 0);
-    settype($offset, "integer");
-    settype($count, "integer");
+// Fetch other params
+$count = 15;
+$offset = seekGET('o', 0);
+settype($offset, "integer");
+settype($count, "integer");
 
-    // Fetch 'goto comment' param if available
-    $gotoCommentID = seekGET('c', null);
-    if (isset($gotoCommentID)) {
-        // Override $offset, just find this comment and go to it.
-        getTopicCommentCommentOffset($requestedTopicID, $gotoCommentID, $count, $offset);
-    }
+// Fetch 'goto comment' param if available
+$gotoCommentID = seekGET('c', null);
+if (isset($gotoCommentID)) {
+    // Override $offset, just find this comment and go to it.
+    getTopicCommentCommentOffset($requestedTopicID, $gotoCommentID, $count, $offset);
+}
 
-    // Fetch comments
-    $commentList = getTopicComments($requestedTopicID, $offset, $count, $numTotalComments);
+// Fetch comments
+$commentList = getTopicComments($requestedTopicID, $offset, $count, $numTotalComments);
 
-    // We CANNOT have a topic with no comments... this doesn't make sense.
-    if ($commentList == null || count($commentList) == 0) {
-        header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic3");
-        exit;
-    }
+// We CANNOT have a topic with no comments... this doesn't make sense.
+if ($commentList == null || count($commentList) == 0) {
+    header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic3");
+    exit;
+}
 
-    $thisTopicID = $topicData['ID'];
-    settype($thisTopicID, 'integer');
-    //$thisTopicID = $requestedTopicID; //??!?
-    $thisTopicAuthor = $topicData['Author'];
-    $thisTopicAuthorID = $topicData['AuthorID'];
-    $thisTopicCategory = $topicData['Category'];
-    $thisTopicCategoryID = $topicData['CategoryID'];
-    $thisTopicForum = $topicData['Forum'];
-    $thisTopicForumID = $topicData['ForumID'];
-    $thisTopicTitle = $topicData['TopicTitle'];
-    $thisTopicPermissions = $topicData['RequiredPermissions'];
+$thisTopicID = $topicData['ID'];
+settype($thisTopicID, 'integer');
+//$thisTopicID = $requestedTopicID; //??!?
+$thisTopicAuthor = $topicData['Author'];
+$thisTopicAuthorID = $topicData['AuthorID'];
+$thisTopicCategory = $topicData['Category'];
+$thisTopicCategoryID = $topicData['CategoryID'];
+$thisTopicForum = $topicData['Forum'];
+$thisTopicForumID = $topicData['ForumID'];
+$thisTopicTitle = $topicData['TopicTitle'];
+$thisTopicPermissions = $topicData['RequiredPermissions'];
 
-    $pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
+$pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
 
-    $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
+$isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
-    $errorCode = seekGET('e');
+$errorCode = seekGET('e');
 
-    RenderHtmlStart();
+RenderHtmlStart();
 ?>
 
 <head>
@@ -100,7 +100,7 @@
             $isSubscribed
         );
         echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
-        echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+        echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
         echo "</a>";
         echo "</div>";
 
@@ -184,7 +184,7 @@
 
             for ($i = 0; $i < $numPages; $i++) {
                 $nextOffs = $i * $count;
-                $pageNum = $i+1;
+                $pageNum = $i + 1;
 
                 if ($nextOffs == $offset) {
                     echo "<span class='forumpagetab current'>$pageNum</span> ";
@@ -308,7 +308,7 @@
 
             for ($i = 0; $i < $numPages; $i++) {
                 $nextOffs = $i * $count;
-                $pageNum = $i+1;
+                $pageNum = $i + 1;
 
                 if ($nextOffs == $offset) {
                     echo "<span class='forumpagetab current'>$pageNum</span> ";
@@ -372,9 +372,9 @@
 
         ?>
         <br>
-    </div> 
+    </div>
 </div>
-  
+
 <?php RenderFooter(); ?>
 
 </body>

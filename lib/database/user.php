@@ -271,16 +271,14 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
     $tokenProvided = (isset($tokenInOut) && mb_strlen($tokenInOut) >= 1);
 
     if ($passwordProvided) {
-        //    Password provided:
-        //    Note: Safer to receive a plaintext password: embedding any DB secret in-app is inexcusable!
+        //error_log( $query );
         $saltedPass = md5($pass . getenv('RA_PASSWORD_SALT'));
         $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user' AND SaltedPass='$saltedPass'";
-        //error_log( $query );
     } elseif ($tokenProvided) {
         //    Token provided:
         $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
     } else {
-        // error_log(__FUNCTION__ . " token and pass failed: user:$user, tokenInOut:$tokenInOut");
+        // error_log(__FUNCTION__ . " token and pass failed: user:$user");
         return 0;
     }
 
