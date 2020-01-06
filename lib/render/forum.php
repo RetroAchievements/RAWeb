@@ -18,7 +18,6 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
 
             $postedAt = date("H:i", $timestamp);
 
-            echo "<div class='embedded mb-2'>";
 
             $shortMsg = $nextData['ShortMsg'] . "...";
             $author = $nextData['Author'];
@@ -26,6 +25,7 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
             $forumTopicID = $nextData['ForumTopicID'];
             $forumTopicTitle = $nextData['ForumTopicTitle'];
 
+            echo "<div class='embedded mb-1'>";
             echo "<div style='line-height: 1em;'>";
             echo GetUserAndTooltipDiv($author, true, null, 16);
             echo " ";
@@ -33,12 +33,10 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
             echo "<small>";
             echo " on <span class='smalldate' style='width: auto'>$datePosted $postedAt</span> in ";
             echo "</small>";
-            echo "<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID'>$forumTopicTitle</a><br>";
+            echo "<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
             echo "</div>";
-
             echo "<div class=''>$shortMsg</div>";
-            echo "<div class='text-right'><a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID'>[view]</a></div>";
-
+            echo "<div class='text-right'><a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>[view]</a></div>";
             echo "</div>";
         }
     }
