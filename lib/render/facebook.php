@@ -47,11 +47,7 @@ function RenderFBDialog($fbUser, &$fbRealNameOut, &$fbURLOut, $user)
     $fbURLOut = "";
 
     try {
-        global $fbConn;
-        global $fbConfig;
-        //$access_token =
-        //$access_token = '490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw';
-        //$attemptLogin = FALSE;
+        $fbConn = getFacebookConnection();
 
         if ($fbUser == 0) {
             //echo "req. associate!<br>";
@@ -90,7 +86,8 @@ function RenderFBDialog($fbUser, &$fbRealNameOut, &$fbURLOut, $user)
         }
 
         if ($fbUser !== 0) {
-            $message = "/$fbUser/?access_token=" . $fbConfig['appToken'];
+            // $message = "/$fbUser/?access_token=" . $fbConfig['appToken'];
+            $message = "/$fbUser/?access_token=" . $fbConn->getAccessToken();
             //echo "<br>DEBUG:<br>" . $message . "<br>";
             $ret_obj = $fbConn->api($message, 'GET');
             if ($ret_obj) {

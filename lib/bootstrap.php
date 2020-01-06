@@ -54,7 +54,7 @@ require_once(__DIR__ . '/util/database.php');
 require_once(__DIR__ . '/util/date.php');
 require_once(__DIR__ . '/util/debug.php');
 require_once(__DIR__ . '/util/environment.php');
-// require_once(__DIR__ . '/util/facebook/facebook.php');
+require_once(__DIR__ . '/util/facebook.php');
 require_once(__DIR__ . '/util/image.php');
 require_once(__DIR__ . '/util/log.php');
 require_once(__DIR__ . '/util/mail.php');
@@ -124,12 +124,6 @@ try {
 }
 
 // $mobileBrowser = IsMobileBrowser();
-
-// $fbConfig = [];
-// $fbConfig['appId'] = getenv('FACEBOOK_APP_ID');
-// $fbConfig['secret'] = getenv('FACEBOOK_SECRET');
-// $fbConfig['appToken'] = $fbConfig['appId'] . '|' . $fbConfig['secret'];
-// $fbConn = new Facebook($fbConfig);
 
 $developerCountBoundaries = [
     5,

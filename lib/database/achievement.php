@@ -614,72 +614,72 @@ function addEarnedAchievement(
 
                     testFullyCompletedGame($user, $achIDToAward, $isHardcore);
 
-                    if ($silent == false) {
-                        if ($fbUser == 0) {
-                            echo ":FBNA"; //    Not associated
-                        } else {
-                            //    Attempt post on FB:
-                            global $fbConn;
-                            if ($fbConn == false) {
-                                echo ":FBDC"; //    Disconnected (?)
-                                error_log(__FUNCTION__ . " failed: cannot connect to FB? $user, $achIDToAward, $fbUser, $points");
-                            } else {
-                                //$wallMsg = "I just earned  $title  on $game for $points points on RetroAchievements.org!";
-                                //$linkTo = "https://retroachievements.org/Users/$User.html";
-                                //$linkTo = getenv('APP_URL');
-                                //$linkTo = '';
-                                //$params = array(
-                                //    'access_token'=>'490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw',
-                                //    'url'=>getenv('APP_URL'),
-                                //    'image'=>getenv('APP_URL').'/Trophy1-96.png',
-                                //    'message'=>$wallMsg,
-                                //    'link'=>$linkTo,
-                                //    'caption'=>$title,
-                                //    'title'=>$title,
-                                //    'description'=>$desc );
-
-                                $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
-                                $params = [
-                                    'access_token' => $access_token,
-                                    'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward",
-                                ];
-
-                                try {
-                                    //$ret_obj = $fbConn->api( "/$fbUser/feed", 'POST', $params );
-                                    $message = "/$fbUser/retroachievements:earn?access_token=$access_token";
-                                    //echo "<br>DEBUG:<br>" . $message . "<br>" . $params . "<br>";
-
-                                    $ret_obj = $fbConn->api($message, 'POST', $params);
-                                    //echo '<pre>Post ID: ' . $ret_obj['id'] . '</pre>';
-
-                                    // error_log("Posted OK to FB for $user ($fbUser) $ret_obj");
-
-                                    echo ":FBOK"; //    Posted OK!
-                                } catch (FacebookApiException $e) {
-                                    // If the user is logged out, you can have a
-                                    // user ID even though the access token is invalid.
-                                    // In this case, we'll get an exception, so we'll
-                                    // just ask the user to login again here.
-                                    //$login_url = $fbConn->getLoginUrl( array( 'scope' => 'publish_stream' ) );
-                                    //global $config;
-                                    //echo $login_url . "<br>";
-                                    //echo $config['appId'] . "<br>";
-                                    //echo $config['secret'] . "<br>";
-                                    //echo $config['cookie'] . "<br>";
-                                    //echo "fbConn " . fbConn!==FALSE;
-                                    //echo 'Please <a href="' . $login_url . '">login.</a><br>';
-                                    error_log($e->getType());
-                                    error_log($e->getMessage());
-
-                                    //echo "ERROR: " . $e->getType() . "<br>";
-                                    //echo "ERROR: " . $e->getMessage() . "<br>";
-                                    //echo ":FBER";    //    Error!
-                                    error_log(__FUNCTION__ . " failed: fbConn->api exception: $user, $achIDToAward, $fbUser, $points");
-                                    echo ":FBER"; //    Posted OK!
-                                }
-                            }
-                        }
-                    }
+                    // if ($silent == false) {
+                    //     if ($fbUser == 0) {
+                    //         echo ":FBNA"; //    Not associated
+                    //     } else {
+                    //         //    Attempt post on FB:
+                    //         global $fbConn;
+                    //         if ($fbConn == false) {
+                    //             echo ":FBDC"; //    Disconnected (?)
+                    //             // error_log(__FUNCTION__ . " failed: cannot connect to FB? $user, $achIDToAward, $fbUser, $points");
+                    //         } else {
+                    //             //$wallMsg = "I just earned  $title  on $game for $points points on RetroAchievements.org!";
+                    //             //$linkTo = "https://retroachievements.org/Users/$User.html";
+                    //             //$linkTo = getenv('APP_URL');
+                    //             //$linkTo = '';
+                    //             //$params = array(
+                    //             //    'access_token'=>'490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw',
+                    //             //    'url'=>getenv('APP_URL'),
+                    //             //    'image'=>getenv('APP_URL').'/Trophy1-96.png',
+                    //             //    'message'=>$wallMsg,
+                    //             //    'link'=>$linkTo,
+                    //             //    'caption'=>$title,
+                    //             //    'title'=>$title,
+                    //             //    'description'=>$desc );
+                    //
+                    //             $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
+                    //             $params = [
+                    //                 'access_token' => $access_token,
+                    //                 'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward",
+                    //             ];
+                    //
+                    //             try {
+                    //                 //$ret_obj = $fbConn->api( "/$fbUser/feed", 'POST', $params );
+                    //                 $message = "/$fbUser/retroachievements:earn?access_token=$access_token";
+                    //                 //echo "<br>DEBUG:<br>" . $message . "<br>" . $params . "<br>";
+                    //
+                    //                 $ret_obj = $fbConn->api($message, 'POST', $params);
+                    //                 //echo '<pre>Post ID: ' . $ret_obj['id'] . '</pre>';
+                    //
+                    //                 // error_log("Posted OK to FB for $user ($fbUser) $ret_obj");
+                    //
+                    //                 echo ":FBOK"; //    Posted OK!
+                    //             } catch (FacebookApiException $e) {
+                    //                 // If the user is logged out, you can have a
+                    //                 // user ID even though the access token is invalid.
+                    //                 // In this case, we'll get an exception, so we'll
+                    //                 // just ask the user to login again here.
+                    //                 //$login_url = $fbConn->getLoginUrl( array( 'scope' => 'publish_stream' ) );
+                    //                 //global $config;
+                    //                 //echo $login_url . "<br>";
+                    //                 //echo $config['appId'] . "<br>";
+                    //                 //echo $config['secret'] . "<br>";
+                    //                 //echo $config['cookie'] . "<br>";
+                    //                 //echo "fbConn " . fbConn!==FALSE;
+                    //                 //echo 'Please <a href="' . $login_url . '">login.</a><br>';
+                    //                 error_log($e->getType());
+                    //                 error_log($e->getMessage());
+                    //
+                    //                 //echo "ERROR: " . $e->getType() . "<br>";
+                    //                 //echo "ERROR: " . $e->getMessage() . "<br>";
+                    //                 //echo ":FBER";    //    Error!
+                    //                 error_log(__FUNCTION__ . " failed: fbConn->api exception: $user, $achIDToAward, $fbUser, $points");
+                    //                 echo ":FBER"; //    Posted OK!
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
             }
         }

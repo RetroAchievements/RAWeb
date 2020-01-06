@@ -1,9 +1,13 @@
 <?php
 /**
- * @deprecated
- * @return bool
+ * @return Facebook
  */
-function isAtHome()
+function getFacebookConnection()
 {
-    return false;
+    return new Facebook([
+        'appId' => getenv('FACEBOOK_APP_ID'),
+        'secret' => getenv('FACEBOOK_SECRET'),
+        'appToken' => getenv('FACEBOOK_APP_ID') . '|' . getenv('FACEBOOK_SECRET'),
+    ]);
 }
+
