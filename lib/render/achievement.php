@@ -79,14 +79,9 @@ function RenderRecentlyUploadedComponent($numToFetch)
     $numFetched = getLatestNewAchievements($numToFetch, $dataOut);
     if ($numFetched > 0) {
         echo "<table class='sidebar'><tbody>";
-        echo "<tr><th>Added</th><th>Achievement</th><th>Game</th></tr>";
+        echo "<tr><th>Achievement</th><th>Game</th><th>Added</th></tr>";
 
-        $lastDate = '';
-        $iter = 0;
-
-        for ($i = 0; $i < $numToFetch; $i++) {
-            $nextData = $dataOut[$i];
-
+        foreach ($dataOut as $nextData) {
             $timestamp = strtotime($nextData['DateCreated']);
             $dateAwarded = date("d M", $timestamp);
 
@@ -94,10 +89,6 @@ function RenderRecentlyUploadedComponent($numToFetch)
                 $dateAwarded = "Today";
             } elseif (date("d", $timestamp) == (date("d") - 1)) {
                 $dateAwarded = "Y'day";
-            }
-
-            if ($lastDate !== $dateAwarded) {
-                $lastDate = $dateAwarded;
             }
 
             $uploadedAt = date("H:i", $timestamp);
@@ -110,18 +101,15 @@ function RenderRecentlyUploadedComponent($numToFetch)
             $gameIcon = $nextData['GameIcon'];
             $achBadgeName = $nextData['BadgeName'];
             $consoleName = $nextData['ConsoleName'];
-            //$badgeFullPath = getenv('APP_STATIC_URL')."/Badge/" . $achBadgeName . ".png";
 
             echo "<tr>";
-            echo "<td>$dateAwarded $uploadedAt</td>";
-            echo "<td style='width:50%'><div class='fixheightcell'>";
-            //echo "<img title='$achTitle' alt='$achTitle' src='$badgeFullPath' width='32' height='32' />";
+            echo "<td>";
             echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
-            echo "</div></td>";
+            echo "</td>";
             echo "<td><div class='fixheightcell'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
+            echo "<td class='smalldate'>$dateAwarded $uploadedAt</td>";
             echo "</div></td>";
-
             echo "</tr>";
         }
         echo "</tbody></table>";

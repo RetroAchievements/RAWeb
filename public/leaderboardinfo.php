@@ -98,35 +98,29 @@ RenderHtmlStart(true);
                 echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
 
                 echo "<li>Manage Entries</li>";
-                echo "<table><tbody>";
+                echo "<div>";
                 if (count($lbData['Entries']) > 0) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/dorequest.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
-                    echo "<input type='hidden' name='r' value='removelbentry' />";
+                    echo "<form method='post' action='/request/leaderboard/remove-entry.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo "<input type='hidden' name='l' value='$lbID' />";
                     echo "<input type='hidden' name='b' value='true' />";
 
-                    echo "Entry to remove:";
+                    echo "Remove Entry:";
                     echo "<select name='t'>";
                     echo "<option value='0' selected>-</option>";
-
-                    //for( $i = 0; $i < $numEntries; $i++ )
                     foreach ($lbData['Entries'] as $nextLBEntry) {
-                        //$nextLBEntry = $lbData['Entries'][$i];
-                        //$nextRank = $nextLBEntry['Rank'];
                         $nextUser = $nextLBEntry['User'];
                         $nextScore = $nextLBEntry['Score'];
-
                         $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
-
                         echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                     }
                     echo "</select>";
+
                     echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
                     echo "</form>";
                     echo "</td></tr>";
                 }
-                echo "</tbody></table>";
+                echo "</div>";
 
 
                 echo "</div>";
