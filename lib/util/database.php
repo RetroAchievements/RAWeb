@@ -41,15 +41,6 @@ function s_mysql_query($query)
     if (sanitiseSQL($query)) {
         global $g_numQueries;
         $g_numQueries++;
-
-        if (DUMP_SQL) {
-            echo "$query<br><br>";
-        }
-
-        if (PROFILE_SQL) {
-            ProfileStamp($query);
-        }
-
         return mysqli_query($db, $query);
     } else {
         return false;
