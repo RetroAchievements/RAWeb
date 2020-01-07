@@ -416,7 +416,7 @@ RenderHtmlHead("My Settings");
         }
         ?>
 
-        <?php if(getenv('FACEBOOK_APP_ID')): ?>
+        <?php if (getenv('FACEBOOK_APP_ID')): ?>
             <div class='component'>
                 <h3>Facebook</h3>
                 <?php
