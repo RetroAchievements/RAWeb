@@ -112,7 +112,7 @@ RenderHtmlHead("Manage News");
         // echo "<br>";
         // echo "</div>";
 
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
 
         echo "Select Existing or Create New:&nbsp;";
         echo "<select name='ab' onchange=\"if (this.selectedIndex >= 0) window.location = '/submitnews.php?n=' + this.value; return false;\" >";

@@ -34,7 +34,7 @@ RenderToolbar($user, $permissions);
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
 
         $gameCounter = 0;
 

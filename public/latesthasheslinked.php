@@ -27,7 +27,7 @@ RenderToolbar($user, $permissions);
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
 
         echo "<h2 class='longheader'>Search</h2>";
 

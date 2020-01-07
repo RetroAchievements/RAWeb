@@ -465,7 +465,7 @@ RenderHtmlStart(true);
 <div id="mainpage">
     <div id='leftcontainer'>
 
-        <?php RenderErrorCodeWarning('left', $errorCode); ?>
+        <?php RenderErrorCodeWarning($errorCode); ?>
         <div id="achievement" class="left">
             <?php
             echo "<div class='navpath'>";

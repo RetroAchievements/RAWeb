@@ -18,7 +18,7 @@ RenderToolbar($user, $permissions);
     <div id='fullcontainer'>
         <h3>Developer Stats</h3>
         <?php
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
         $devStatsList = GetDeveloperStatsFull(100, $type);
 
         echo "<div class='rightfloat'>* = ordered by</div>";

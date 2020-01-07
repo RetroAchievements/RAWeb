@@ -31,7 +31,7 @@ RenderHtmlHead($pageTitle);
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
     <div id='leftcontainer'>
-        <?php RenderErrorCodeWarning('left', $errorCode); ?>
+        <?php RenderErrorCodeWarning($errorCode); ?>
         <div id="forums" class="left">
 
             <?php
