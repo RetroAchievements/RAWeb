@@ -66,7 +66,7 @@ RenderHtmlStart(true);
 
 <div id="mainpage">
     <div id='leftcontainer'>
-        <?php RenderErrorCodeWarning('left', $errorCode); ?>
+        <?php RenderErrorCodeWarning($errorCode); ?>
 
         <div id="lbinfo" class="left">
             <?php

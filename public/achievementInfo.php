@@ -100,7 +100,7 @@ RenderHtmlStart(true);
 <div id="mainpage">
     <div id='leftcontainer'>
         <?php
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
 
         echo "<div id='achievement' class='left' >";
 

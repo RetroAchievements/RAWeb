@@ -79,7 +79,7 @@ RenderHtmlStart();
 <?php RenderToolbar($user, $permissions); ?>
 
 <div id="mainpage">
-    <?php RenderErrorCodeWarning('both', $errorCode); ?>
+    <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">
 
         <?php

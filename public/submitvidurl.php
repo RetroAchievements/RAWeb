@@ -28,7 +28,7 @@ RenderHtmlHead("Manage News");
 
     $activeNewsArticle = null;
 
-    RenderErrorCodeWarning('left', $errorCode);
+    RenderErrorCodeWarning($errorCode);
 
     echo "<div id='rsslist' class='left'>";
 

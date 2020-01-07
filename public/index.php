@@ -233,7 +233,7 @@ RenderToolbar($user, $permissions);
 <div id='mainpage'>
     <div id='leftcontainer'>
         <?php
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
         if (!isset($user)) {
             RenderWelcomeComponent();
         }

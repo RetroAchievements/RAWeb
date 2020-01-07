@@ -322,7 +322,7 @@ RenderHtmlHead("My Settings");
 <div id="mainpage">
     <div id="leftcontainer">
 
-        <?php RenderErrorCodeWarning('left', $errorCode); ?>
+        <?php RenderErrorCodeWarning($errorCode); ?>
 
         <div class='component'>
             <h2>User Details</h2>

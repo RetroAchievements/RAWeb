@@ -15,7 +15,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$allowedTypes = ["NEWS", "GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"]; //, "ACHIEVEMENT"
+$allowedGameImageTypes = ["GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"];
+$allowedTypes = array_merge(["NEWS"], $allowedGameImageTypes); //, "ACHIEVEMENT"
 $uploadType = seekPOST('t', "");
 
 $returnID = seekPOST('i', 0);
@@ -140,7 +141,7 @@ if ($uploadType == "NEWS") {
     exit;
 }
 
-if (in_array($uploadType, $allowedTypes)) {
+if (in_array($uploadType, $allowedGameImageTypes)) {
     // Associate new data, then return to game page:
     $param = '';
     switch ($uploadType) {

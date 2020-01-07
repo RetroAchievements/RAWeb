@@ -93,7 +93,7 @@ RenderHtmlHead('Inbox');
     <div id='fullcontainer'>
         <?php
         //	Left
-        RenderErrorCodeWarning('left', $errorCode);
+        RenderErrorCodeWarning($errorCode);
         ?>
 
         <div id="globalfeed" class="left">

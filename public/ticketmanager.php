@@ -152,7 +152,7 @@ RenderHtmlHead($pageTitle);
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <?php RenderErrorCodeWarning('left', $errorCode); ?>
+    <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
