@@ -275,7 +275,7 @@ RenderHtmlStart(true);
     $('.ratingachlabel').html('Rating: ...')
 
     $.ajax({
-      url: '/request/game-rating/ratings.php?i=' + gameID,
+      url: '/API/API_GetGameRating.php?i=' + gameID,
       dataType: 'json',
       success: function (results) {
         results.GameID
@@ -299,7 +299,7 @@ RenderHtmlStart(true);
 
   function SubmitRating(user, gameID, ratingObjectType, value) {
     $.ajax({
-      url: '/request/game-rating/update.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+      url: '/request/game/update-rating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
       dataType: 'json',
       success: function (results) {
         GetRating(<?php echo $gameID; ?>)

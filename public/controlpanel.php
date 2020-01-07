@@ -416,59 +416,62 @@ RenderHtmlHead("My Settings");
         }
         ?>
 
-        <div class='component'>
-            <h3>Facebook</h3>
-
-            <?php if ($fbUser !== "0") {
-            $loggedIn = RenderFBDialog($fbUser, $fbRealName, $fbURL, $user);
-            if ($fbUser !== 0) {
-                echo "<image class='rightfloat' src='https://graph.facebook.com/$fbUser/picture?type=square' width='50' height='50'>";
-                echo "Logged in as: ";
-                echo "<a href='$fbURL'>$fbRealName</a><br>";
-            }
-
-            if ($errorCode == 'associateOK') {
-                echo "<div id=\"warning\">Facebook associated OK, $fbRealName! Please confirm below what you would prefer to have cross-posted to your facebook wall:</div>";
-            } ?>
-                <br>
-                <h4>Facebook Preferences</h4>
-                When would you like RetroAchievements to automatically post on your Facebook wall?
-                <table>
-                    <tbody>
-                    <!--<tr><th>Action</th><th>Post on Facebook?</th></tr>-->
-                    <tr>
-                        <td>When I earn achievements:</td>
-                        <td><input id='FBUserPref0' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_EarnAchievement) ? 'checked' : '' ?> ></td>
-                    </tr>
-                    <tr>
-                        <td>When I fully complete a game:</td>
-                        <td><input id='FBUserPref1' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_CompleteGame) ? 'checked' : '' ?> ></td>
-                    </tr>
-                    <tr>
-                        <td>When I upload an achievement:</td>
-                        <td><input id='FBUserPref2' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_UploadAchievement) ? 'checked' : '' ?> ></td>
-                    </tr>
-
-                    </tbody>
-                </table>
-
-                <img id='loadingiconfb' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
-
-                <br>
-                <h4>Unlink Facebook</h4>
-                Click <a href="/request/facebook/remove.php?u=<?php echo $user; ?>">here</a> to remove Facebook from your RetroAchievements account.
-                                                                                     Please note you will also need to remove permissions from within Facebook to fully disassociate this app,
-                                                                                     by visiting <a href="https://www.facebook.com/settings?tab=applications">this page</a> on Facebook.
-                <br><br>
+        <?php if(getenv('FACEBOOK_APP_ID')): ?>
+            <div class='component'>
+                <h3>Facebook</h3>
                 <?php
-        } else {
-            echo "<fb:login-button show-faces='false' width='200' max-rows='1' data-perms='publish_actions'></fb:login-button>";
-            //RenderFBLoginPrompt();
-            //echo "<div class='fb-login-button' scope='publish_stream;publish_actions'>Login with Facebook</div>";
-            echo "<br>";
-        }
-            ?>
-        </div>
+                if ($fbUser !== "0") {
+                    $loggedIn = RenderFBDialog($fbUser, $fbRealName, $fbURL, $user);
+                    if ($fbUser !== 0) {
+                        echo "<image class='rightfloat' src='https://graph.facebook.com/$fbUser/picture?type=square' width='50' height='50'>";
+                        echo "Logged in as: ";
+                        echo "<a href='$fbURL'>$fbRealName</a><br>";
+                    }
+
+                    if ($errorCode == 'associateOK') {
+                        echo "<div id=\"warning\">Facebook associated OK, $fbRealName! Please confirm below what you would prefer to have cross-posted to your facebook wall:</div>";
+                    } ?>
+                    <br>
+                    <h4>Facebook Preferences</h4>
+                    When would you like RetroAchievements to automatically post on your Facebook wall?
+                    <table>
+                        <tbody>
+                        <!--<tr><th>Action</th><th>Post on Facebook?</th></tr>-->
+                        <tr>
+                            <td>When I earn achievements:</td>
+                            <td><input id='FBUserPref0' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_EarnAchievement) ? 'checked' : '' ?>></td>
+                        </tr>
+                        <tr>
+                            <td>When I fully complete a game:</td>
+                            <td><input id='FBUserPref1' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_CompleteGame) ? 'checked' : '' ?>></td>
+                        </tr>
+                        <tr>
+                            <td>When I upload an achievement:</td>
+                            <td><input id='FBUserPref2' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_UploadAchievement) ? 'checked' : '' ?>></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                    <img id='loadingiconfb' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
+
+                    <br>
+                    <h4>Unlink Facebook</h4>
+                    Click <a href="/request/facebook/remove.php?u=<?php echo $user; ?>">here</a>
+                    to remove Facebook from your RetroAchievements account.
+                    Please note you will also need to remove permissions from within Facebook to fully disassociate this app,
+                    by visiting <a href="https://www.facebook.com/settings?tab=applications">this page</a> on Facebook.
+                    <br><br>
+                    <?php
+                } else {
+                    echo "<fb:login-button show-faces='false' width='200' max-rows='1' data-perms='publish_actions'></fb:login-button>";
+                    //RenderFBLoginPrompt();
+                    //echo "<div class='fb-login-button' scope='publish_stream;publish_actions'>Login with Facebook</div>";
+                    echo "<br>";
+                }
+                ?>
+            </div>
+        <?php endif ?>
 
         <div class='component'>
             <h3>Notifications</h3>
@@ -489,32 +492,32 @@ RenderHtmlHead("My Settings");
                 </tr>
                 <tr>
                     <td>If someone comments on an achievement I created:</td>
-                    <td><input id='UserPref1' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_AchievementComment) ? 'checked' : '' ?> ></td>
-                    <td><input id='UserPref9' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_AchievementComment) ? 'checked' : '' ?> ></td>
+                    <td><input id='UserPref1' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_AchievementComment) ? 'checked' : '' ?>></td>
+                    <td><input id='UserPref9' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_AchievementComment) ? 'checked' : '' ?>></td>
                 </tr>
                 <tr>
                     <td>If someone comments on my user wall:</td>
-                    <td><input id='UserPref2' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_UserWallComment) ? 'checked' : '' ?> ></td>
-                    <td><input id='UserPref10' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_UserWallComment) ? 'checked' : '' ?> ></td>
+                    <td><input id='UserPref2' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_UserWallComment) ? 'checked' : '' ?>></td>
+                    <td><input id='UserPref10' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_UserWallComment) ? 'checked' : '' ?>></td>
                 </tr>
                 <tr>
                     <td>If someone comments on a forum topic I'm involved in:</td>
-                    <td><input id='UserPref3' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_ForumReply) ? 'checked' : '' ?> ></td>
-                    <td><input id='UserPref11' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_ForumReply) ? 'checked' : '' ?> ></td>
+                    <td><input id='UserPref3' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_ForumReply) ? 'checked' : '' ?>></td>
+                    <td><input id='UserPref11' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_ForumReply) ? 'checked' : '' ?>></td>
                 </tr>
                 <tr>
                     <td>If someone adds me as a friend:</td>
-                    <td><input id='UserPref4' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_AddFriend) ? 'checked' : '' ?> ></td>
-                    <td><input id='UserPref12' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_AddFriend) ? 'checked' : '' ?> ></td>
+                    <td><input id='UserPref4' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_AddFriend) ? 'checked' : '' ?>></td>
+                    <td><input id='UserPref12' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_AddFriend) ? 'checked' : '' ?>></td>
                 </tr>
                 <tr>
                     <td>If someone sends me a private message:</td>
-                    <td><input id='UserPref5' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage) ? 'checked' : '' ?> ></td>
+                    <td><input id='UserPref5' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage) ? 'checked' : '' ?>></td>
                     <td><input id='UserPref13' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled checked></td>
                 </tr>
                 <tr>
                     <td>With the weekly RA Newsletter:</td>
-                    <td><input id='UserPref6' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_Newsletter) ? 'checked' : '' ?> ></td>
+                    <td><input id='UserPref6' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_Newsletter) ? 'checked' : '' ?>></td>
                     <td><input id='UserPref14' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled></td>
                 </tr>
 
