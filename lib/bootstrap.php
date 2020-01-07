@@ -106,9 +106,6 @@ if (isset($_SERVER["SERVER_NAME"])) {
 
 define("VERSION", "1.30.1");
 
-define("DUMP_SQL", false);
-define("PROFILE_SQL", false);
-
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     mysqli_set_charset($db, 'latin1');
@@ -122,8 +119,6 @@ try {
         exit;
     }
 }
-
-// $mobileBrowser = IsMobileBrowser();
 
 $developerCountBoundaries = [
     5,

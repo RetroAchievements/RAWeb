@@ -91,15 +91,15 @@ RenderHtmlHead("Send Message");
             echo "<tbody>";
 
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
-            echo "<input type='hidden' value='$user' name='u'></input>";
-            echo "<input type='hidden' value='$cookieRaw' name='c'></input>";
+            echo "<input type='hidden' value='$user' name='u'>";
+            echo "<input type='hidden' value='$cookieRaw' name='c'>";
             $destUser = mb_strlen($messageTo > 2) ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";
-            echo "<td><input type='text' value='$messageTo' name='d' id='messagedest' onblur='onUserChange(); return false;' class='requiredinput searchuser'></input></td>";
+            echo "<td><input type='text' value='$messageTo' name='d' id='messagedest' onblur='onUserChange(); return false;' class='requiredinput searchuser'></td>";
             echo "<td style='width:10%'><img style='float:right' class='searchusericon' src='/UserPic/$destUser.png' width='64' height='64'/></td>";
             echo "</tr>";
-            echo "<tr>" . "<td>Title: </td><td colspan='2'><input class='requiredinput fullwidth' type='text' value='$messageContextTitle' name='t'></input></td></tr>";
+            echo "<tr>" . "<td>Title: </td><td colspan='2'><input class='requiredinput fullwidth' type='text' value='$messageContextTitle' name='t'></td></tr>";
             echo "<tr>" . "<td>Message:</td><td colspan='2'>";
 
             RenderPHPBBIcons();

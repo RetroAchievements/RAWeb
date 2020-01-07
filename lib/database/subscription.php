@@ -40,6 +40,10 @@ function updateSubscription($subjectType, $subjectID, $userID, $state)
  */
 function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscriptionQry = null)
 {
+    if (!$userID) {
+        return false;
+    }
+
     if ($implicitSubscriptionQry === null) {
         $query = "
             SELECT 1

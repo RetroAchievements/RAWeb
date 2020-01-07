@@ -1,13 +1,10 @@
 <?php
 /**
  * Copyright 2011 Facebook, Inc.
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
- *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,15 +17,15 @@ require_once "base_facebook.php";
  * Extends the BaseFacebook class with the intent of using
  * PHP sessions to store user ids and access tokens.
  */
-class Facebook extends BaseFacebook
+class facebook extends BaseFacebook
 {
     const FBSS_COOKIE_NAME = 'fbss';
 
     // We can set this to a high number because the main session
-  // expiration will trump this.
-  const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
+    // expiration will trump this.
+    const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
 
-  // Stores the shared session ID if one is set.
+    // Stores the shared session ID if one is set.
     protected $sharedSessionID;
 
     /**
@@ -55,7 +52,7 @@ class Facebook extends BaseFacebook
     }
 
     protected static $kSupportedKeys =
-    array('state', 'code', 'access_token', 'user_id');
+        ['state', 'code', 'access_token', 'user_id'];
 
     protected function initSharedSession()
     {
@@ -63,7 +60,7 @@ class Facebook extends BaseFacebook
         if (isset($_COOKIE[$cookie_name])) {
             $data = $this->parseSignedRequest($_COOKIE[$cookie_name]);
             if ($data && !empty($data['domain']) &&
-          self::isAllowedDomain($this->getHttpHost(), $data['domain'])) {
+                self::isAllowedDomain($this->getHttpHost(), $data['domain'])) {
                 // good case
                 $this->sharedSessionID = $data['id'];
                 return;
@@ -74,11 +71,11 @@ class Facebook extends BaseFacebook
         $base_domain = $this->getBaseDomain();
         $this->sharedSessionID = md5(uniqid(mt_rand(), true));
         $cookie_value = $this->makeSignedRequest(
-        array(
-        'domain' => $base_domain,
-        'id' => $this->sharedSessionID,
-      )
-    );
+            [
+                'domain' => $base_domain,
+                'id' => $this->sharedSessionID,
+            ]
+        );
         $_COOKIE[$cookie_name] = $cookie_value;
         if (!headers_sent()) {
             $expire = time() + self::FBSS_COOKIE_EXPIRE;
@@ -86,10 +83,10 @@ class Facebook extends BaseFacebook
         } else {
             // @codeCoverageIgnoreStart
             self::errorLog(
-          'Shared session ID cookie could not be set! You must ensure you ' .
-        'create the Facebook instance before headers have been sent. This ' .
-        'will cause authentication issues after the first request.'
-      );
+                'Shared session ID cookie could not be set! You must ensure you ' .
+                'create the Facebook instance before headers have been sent. This ' .
+                'will cause authentication issues after the first request.'
+            );
             // @codeCoverageIgnoreEnd
         }
     }
@@ -99,6 +96,7 @@ class Facebook extends BaseFacebook
      * methods.  The implementation uses PHP sessions to maintain
      * a store for authorization codes, user ids, CSRF states, and
      * access tokens.
+     *
      * @param mixed $key
      * @param mixed $value
      */
@@ -122,7 +120,7 @@ class Facebook extends BaseFacebook
 
         $session_var_name = $this->constructSessionVariableName($key);
         return isset($_SESSION[$session_var_name]) ?
-      $_SESSION[$session_var_name] : $default;
+            $_SESSION[$session_var_name] : $default;
     }
 
     protected function clearPersistentData($key)
@@ -161,7 +159,7 @@ class Facebook extends BaseFacebook
 
     protected function constructSessionVariableName($key)
     {
-        $parts = array('fb', $this->getAppId(), $key);
+        $parts = ['fb', $this->getAppId(), $key];
         if ($this->sharedSessionID) {
             array_unshift($parts, $this->sharedSessionID);
         }
