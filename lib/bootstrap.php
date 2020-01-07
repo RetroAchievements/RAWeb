@@ -104,7 +104,7 @@ if (isset($_SERVER["SERVER_NAME"])) {
     define("AT_HOST_DOT", null);
 }
 
-define("VERSION", "1.30.0");
+define("VERSION", "1.30.1");
 
 define("DUMP_SQL", false);
 define("PROFILE_SQL", false);
