@@ -1,6 +1,6 @@
 <?php
 /**
- * @param $errorCode
+ * @param string $errorCode
  * @return string
  */
 function RenderErrorCodeWarning($errorCode)
