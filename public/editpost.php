@@ -63,14 +63,14 @@ RenderHtmlHead("Edit post: $thisTopicTitle");
         echo "<tbody>";
 
         echo "<form action='/request/forum-topic/update.php' method='post'>";
-        echo "<input type='hidden' value='$cookieRaw' name='c'></input>";
-        echo "<input type='hidden' value='$requestedComment' name='i'></input>";
-        echo "<input type='hidden' value='$thisTopicID' name='t'></input>";
-        echo "<input type='hidden' value='$user' name='u'></input>";
-        //echo "<input type='hidden' value='$requestedForumID' name='f'></input>";
-        echo "<tr>" . "<td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></input></td></tr>";
-        echo "<tr>" . "<td>Topic:</td><td><input type='text' readonly class='fullwidth' value='$thisTopicTitle'></input></td></tr>";
-        echo "<tr>" . "<td>Author:</td><td><input type='text' readonly value='$thisAuthor'></input></td></tr>";
+        echo "<input type='hidden' value='$cookieRaw' name='c'>";
+        echo "<input type='hidden' value='$requestedComment' name='i'>";
+        echo "<input type='hidden' value='$thisTopicID' name='t'>";
+        echo "<input type='hidden' value='$user' name='u'>";
+        //echo "<input type='hidden' value='$requestedForumID' name='f'>";
+        echo "<tr>" . "<td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
+        echo "<tr>" . "<td>Topic:</td><td><input type='text' readonly class='fullwidth' value='$thisTopicTitle'></td></tr>";
+        echo "<tr>" . "<td>Author:</td><td><input type='text' readonly value='$thisAuthor'></td></tr>";
         echo "<tr>" . "<td>Message:</td><td>";
 
         RenderPHPBBIcons();

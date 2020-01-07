@@ -351,7 +351,7 @@ RenderHtmlHead($pageTitle);
             echo "&#124;";
             echo "</div>";
 
-            echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></input></div>";
+            echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
 
             echo "</td>";
 
