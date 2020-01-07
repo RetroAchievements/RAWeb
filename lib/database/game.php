@@ -143,9 +143,10 @@ function getGameMetadataByFlags(
 
     $gameDataOut = getGameData($gameID);
 
+    $achievementDataOut = [];
+
     if ($gameDataOut == null) {
-        // error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
-        return;
+        return 0;
     }
 
     //    Get all achievements data
@@ -198,7 +199,6 @@ function getGameMetadataByFlags(
     $numDistinctPlayersCasual = 0;
     $numDistinctPlayersHardcore = 0;
 
-    $achievementDataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -220,8 +220,7 @@ function getGameMetadataByFlags(
         }
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
-        return;
+        return 0;
     }
 
     //    Now find local information:

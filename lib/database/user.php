@@ -464,7 +464,7 @@ function getUserIDFromUser($user)
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['ID'];
+        return $data['ID'] ?? 0;
     } else {
         // error_log(__FUNCTION__ . " cannot find user $user.");
         return 0;
