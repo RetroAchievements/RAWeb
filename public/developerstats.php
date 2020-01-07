@@ -47,11 +47,8 @@ RenderToolbar($user, $permissions);
             echo "<td class='text-nowrap'><div class='fixheightcell'>";
             echo GetUserAndTooltipDiv($dev, false);
             echo "<br><small>";
-            if ($devStats['Permissions'] < \RA\Permissions::Developer) {
-                echo "Inactive";
-            } else {
-                echo "Active";
-            }
+            // echo $devStats['Permissions'] < \RA\Permissions::Developer ? "Inactive" : "Active";
+            echo $devStats['Permissions'] < \RA\Permissions::Developer ? "Inactive" : "";
             echo "</small>";
             echo "</div></td>";
 
