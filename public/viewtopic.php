@@ -120,6 +120,7 @@ RenderHtmlStart();
 
             if ($permissions >= \RA\Permissions::Admin) {
                 echo "<div>Delete Topic:</div>";
+                echo "<form action='/request/forum-topic/modify.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
                 echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
                 echo "<input type='hidden' name='t' value='$thisTopicID' />";
                 echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "'>";
