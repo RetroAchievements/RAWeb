@@ -48,7 +48,7 @@ function RenderErrorCodeWarning($errorCode)
         'validatedemail' => "Email validated!",
         'validateemailplease' => "An email has been sent to the email address you supplied. Please click the link in that email.",
     ];
-    $message = $errorMessages[strtolower($errorCode)] ?? null;
+    $message = $errorMessages[mb_strtolower($errorCode)] ?? null;
     if (!$message) {
         return '';
     }

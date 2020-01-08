@@ -143,9 +143,10 @@ function getGameMetadataByFlags(
 
     $gameDataOut = getGameData($gameID);
 
+    $achievementDataOut = [];
+
     if ($gameDataOut == null) {
-        // error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
-        return;
+        return 0;
     }
 
     //    Get all achievements data
@@ -198,7 +199,6 @@ function getGameMetadataByFlags(
     $numDistinctPlayersCasual = 0;
     $numDistinctPlayersHardcore = 0;
 
-    $achievementDataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -220,8 +220,7 @@ function getGameMetadataByFlags(
         }
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: cannot proceed with above query for user(s) $user:S");
-        return;
+        return 0;
     }
 
     //    Now find local information:
@@ -544,9 +543,9 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
 
     $gameID = $achData['GameID'];
 
-    $query = "SELECT COUNT(ach.ID) AS NumAwarded, COUNT(aw.AchievementID) AS NumAch FROM Achievements AS ach ";
-    $query .= "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore ";
-    $query .= "WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
+    $query = "SELECT COUNT(ach.ID) AS NumAwarded, COUNT(aw.AchievementID) AS NumAch FROM Achievements AS ach 
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
+              WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -858,15 +857,54 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
 {
     $retval = [];
 
-    $query = "    SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
+    $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" ) AND ach.Flags = 3 AND gd.ID = $gameID
+                WHERE ( !ua.Untracked OR ua.User = \"$requestedBy\" ) 
+                  AND ach.Flags = 3 
+                  AND gd.ID = $gameID
                 GROUP BY aw.User
                 ORDER BY TotalScore DESC, LastAward ASC
                 LIMIT $offset, $count";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $retval[] = $data;
+        }
+    }
+
+    return $retval;
+}
+
+function getGameRankAndScore($gameID, $requestedBy)
+{
+    if(empty($gameID)) {
+        return null;
+    }
+
+    if(empty($requestedBy)) {
+        return null;
+    }
+    $retval = [];
+
+    $query = "WITH data
+    AS (SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward,
+        ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank
+        FROM Awarded AS aw
+        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+        WHERE ( !ua.Untracked OR ua.User = '$requestedBy') 
+          AND ach.Flags = 3 
+          AND gd.ID = $gameID
+        GROUP BY aw.User
+        ORDER BY TotalScore DESC, LastAward ASC
+   ) SELECT * FROM data WHERE User = '$requestedBy'";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);

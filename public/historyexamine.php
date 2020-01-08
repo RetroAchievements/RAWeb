@@ -28,8 +28,6 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php
-        echo "<div class='left'>";
-
         echo "<div class='navpath'>";
         echo "<a href='/userList.php'>All Users</a>";
         echo " &raquo; <a href='/User/$userPage'>$userPage</a>";
@@ -169,9 +167,6 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         echo "Total earned on $dateStr: <strong>$pointsCount</strong> points, <strong>$achCount</strong> achievements.<br><br>";
         echo "<a href='/history.php?u=$userPage'>&laquo; Back to $userPage's Legacy</a><br><br>";
         echo "</div>";
-
-        echo "</div>";
-
         ?>
     </div>
 </div>

@@ -464,7 +464,7 @@ function getUserIDFromUser($user)
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['ID'];
+        return $data['ID'] ?? 0;
     } else {
         // error_log(__FUNCTION__ . " cannot find user $user.");
         return 0;
@@ -589,8 +589,8 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
     $query = "SELECT User, RAPoints, TrueRAPoints
               FROM UserAccounts AS ua
               $subquery
-              ORDER BY RAPoints
-              DESC LIMIT 0, $count ";
+              ORDER BY RAPoints DESC 
+              LIMIT 0, $count ";
 
     //echo $query;
 
@@ -664,7 +664,7 @@ function GetScore($user)
 
 function getUserRank($user)
 {
-    $query = "  SELECT ( COUNT(*) + 1 ) AS UserRank
+    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
                 FROM UserAccounts AS ua
                 RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints
                 WHERE ua.User = '$user'";
@@ -1065,7 +1065,7 @@ function getControlPanelUserInfo($user, &$libraryOut)
     //$libraryOut['MemberSince'] = $firstLogin;
     //$libraryOut['LastLogin'] = $lastLogin;
 
-    $query = "    SELECT gd.ID, c.Name AS ConsoleName, gd.Title AS GameTitle, COUNT(*) AS NumAwarded, Inner1.NumPossible
+    $query = "SELECT gd.ID, c.Name AS ConsoleName, gd.Title AS GameTitle, COUNT(*) AS NumAwarded, Inner1.NumPossible
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID

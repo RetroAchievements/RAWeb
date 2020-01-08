@@ -6,6 +6,9 @@ if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
     exit;
 }
 
-$data = getConsoleIDs();
+$gameId = seekGET('g');
+$username = seekGET('u');
 
-echo json_encode($data);
+$results = getGameRankAndScore($gameId, $username);
+
+echo json_encode($results);

@@ -6,7 +6,7 @@ if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
     exit;
 }
 
-$dataOut = array();
+$dataOut = [];
 $numFound = getTopUsersByScore(10, $dataOut, null);
 
 echo json_encode($dataOut);

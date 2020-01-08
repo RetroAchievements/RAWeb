@@ -10,7 +10,7 @@ $user = seekGET('u', null);
 $recentGamesPlayed = seekGET('g', 5);
 $recentAchievementsEarned = seekGET('a', 10);
 
-$retVal = array();
+$retVal = [];
 
 getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);
 
@@ -28,12 +28,12 @@ $retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID']);
 $lastUpdate = date("U", strtotime($retVal['LastActivity']['lastupdate']));
 $now = date("U");
 
-$status = ($lastUpdate+(10*60)) > $now ? "Online" : "Offline";
+$status = ($lastUpdate + (10 * 60)) > $now ? "Online" : "Offline";
 
 $retVal['Status'] = $status;
 
 //	Just from a security/polish point of view:
-unset($retVal['Friendship'] , $retVal['FriendReciprocation']);
+unset($retVal['Friendship'], $retVal['FriendReciprocation']);
 
 
 echo json_encode($retVal);

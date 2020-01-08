@@ -1,10 +1,6 @@
 <?php
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-//var_dump( $_POST );
-//exit;
-
-// Sanitise!
 if (!ValidatePOSTChars("ugfv")) {
     echo "FAILED";
     return;

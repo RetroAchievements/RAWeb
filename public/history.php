@@ -244,8 +244,6 @@ RenderHtmlHead("$userPage's Legacy");
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<div class='left'>";
-
         echo "<div class='navpath'>";
         echo "<a href='/userList.php'>All Users</a>";
         echo " &raquo; <a href='/User/$userPage'>$userPage</a>";
@@ -308,8 +306,6 @@ RenderHtmlHead("$userPage's Legacy");
         }
 
         echo "</tbody></table>";
-
-        echo "</div>";
         ?>
     </div>
 </div>

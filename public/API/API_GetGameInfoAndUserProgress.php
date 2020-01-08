@@ -11,10 +11,10 @@ $targetUser = seekGET('u');
 getGameMetadata($gameID, $targetUser, $achData, $gameData);
 
 foreach ($achData as &$achievement) {
-    $achievement['MemAddr'] = md5($achievement['MemAddr']);
+    $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
 }
 $gameData['Achievements'] = $achData;
-$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch']);
+$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
 $gameData['NumAwardedToUser'] = 0;
 $gameData['NumAwardedToUserHardcore'] = 0;
@@ -32,9 +32,9 @@ if (!empty($achData)) {
 
 $gameData['UserCompletion'] = 0;
 $gameData['UserCompletionHardcore'] = 0;
-if ($gameData['NumAchievements'] > 0) {
-    $gameData['UserCompletion'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUser']/$gameData['NumAchievements'])*100.0);
-    $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore']/$gameData['NumAchievements'])*100.0);
+if ($gameData['NumAchievements'] ?? false) {
+    $gameData['UserCompletion'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUser'] / $gameData['NumAchievements']) * 100.0);
+    $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
 }
 
 echo json_encode($gameData);

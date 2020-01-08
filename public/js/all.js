@@ -581,7 +581,7 @@ function removeComment(artID, commentID) {
     return false
   }
 
-  var posting = $.post('/dorequest.php', {r: 'removecomment', a: artID, c: commentID})
+  var posting = $.post('/request/comment/delete.php', {a: artID, c: commentID})
   posting.done(onRemoveComment)
 }
 

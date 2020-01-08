@@ -48,6 +48,11 @@ if (!checkEmail($email)) {
 }
 
 if (getenv('GOOGLE_RECAPTCHA_SECRET')) {
+    if (empty($_POST['g-recaptcha-response'])) {
+        // nope
+        return false;
+    }
+
     //$resp = recaptcha_check_answer( getenv('GOOGLE_RECAPTCHA_SECRET'),
     //								$_SERVER["REMOTE_ADDR"],
     //								$_POST["recaptcha_challenge_field"],

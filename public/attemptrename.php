@@ -48,11 +48,11 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div class='left'>
+    <div id="fullcontainer">
         <h2>Rename Game Entry</h2>
         <?php
 
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
         echo "<br><br>";
 
         echo "Renaming game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName.<br>";

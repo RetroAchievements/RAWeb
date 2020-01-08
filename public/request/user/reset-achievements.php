@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-// error_log(__FUNCTION__);
-
-//	Sanitise!
 if (!ValidatePOSTChars("u")) {
     echo "FAILED";
     return;
@@ -15,15 +12,17 @@ $gameID = seekPOST('g', null);
 $achID = seekPOST('a', null);
 $hardcoreMode = seekPOST('h', null);
 
+/**
+ * require password when resetting everything
+ */
 $requirePass = true;
 if (isset($gameID) || isset($achID)) {
     $requirePass = false;
 }
 
-if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0) == true) {
+if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0)) {
     if (isset($achID)) {
         if (resetSingleAchievement($user, $achID, $hardcoreMode)) {
-            //	Inject sneaky recalc:
             recalcScore($user);
             echo "OK";
         } else {
