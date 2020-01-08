@@ -48,7 +48,7 @@ if (!checkEmail($email)) {
 }
 
 if (getenv('GOOGLE_RECAPTCHA_SECRET')) {
-    if(empty($_POST['g-recaptcha-response'])) {
+    if (empty($_POST['g-recaptcha-response'])) {
         // nope
         return false;
     }
