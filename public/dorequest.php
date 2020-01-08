@@ -46,13 +46,13 @@ $credentialsOK = true;
 switch ($requestType) {
     // Registration required and user=local:
     case "achievementwondata":
-    case "addfriend":
+    // case "addfriend":
     case "awardachievement":
-    case "getfriendlist":
-    case "modifyfriend":
+    // case "getfriendlist":
+    // case "modifyfriend":
     case "patch":
     case "postactivity":
-    case "removecomment":
+    // case "removecomment":
     case "richpresencepatch":
     case "submitcodenote":
     case "submitgametitle":
@@ -63,11 +63,11 @@ switch ($requestType) {
         break;
 
     // Developer status required:
-    case "createnewlb":
-    case "recalctrueratio":
-    case "removelbentry":
-        $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Developer);
-        break;
+    // case "createnewlb":
+    // case "recalctrueratio":
+    // case "removelbentry":
+    //     $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Developer);
+    //     break;
 
     default: // Incl. Login!
         $credentialsOK = true; // None required
@@ -132,17 +132,15 @@ if ($credentialsOK) {
             //error_log( "codenotes2, $gameID" );
             break;
 
-        case "currentactivity": //requestcurrentlyactiveplayers
-            $response['CurrentActivity'] = getLatestRichPresenceUpdates();
-            break;
-
-        case "currentlyonline":
-            $response['CurrentlyOnline'] = getCurrentlyOnlinePlayers();
-            break;
-
-        case "developerstats":
-            $response['DeveloperStats'] = GetDeveloperStats(99, 0);
-            break;
+        // case "currentactivity": //requestcurrentlyactiveplayers
+        //     $response['CurrentActivity'] = getLatestRichPresenceUpdates();
+        //     break;
+        // case "currentlyonline":
+        //     $response['CurrentlyOnline'] = getCurrentlyOnlinePlayers();
+        //     break;
+        // case "developerstats":
+        //     $response['DeveloperStats'] = GetDeveloperStats(99, 0);
+        //     break;
 
         case "gameid":
             $md5 = seekPOSTorGET('m');
@@ -203,9 +201,9 @@ if ($credentialsOK) {
             $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $integration['latest_version_url_x64'] : null;
             break;
 
-        case "news":
-            $response['News'] = GetLatestNewsData($offset, $count);
-            break;
+        // case "news":
+        //     $response['News'] = GetLatestNewsData($offset, $count);
+        //     break;
 
         case "ping":
             $activityMessage = seekPOST('m', null);
@@ -216,63 +214,55 @@ if ($credentialsOK) {
             }
             break;
 
-        case "resetpassword":
-            $username = seekPOSTorGET('u');
-            // error_log("ResetPassword, " . $username);
-            $response['Response'] = RequestPasswordReset($username);
-            break;
-
-        case "setpassword":
-            // $username = seekPOSTorGET( 'u' );
-            // $newPassword = seekPOSTorGET( 'p' );
-            // //error_log( "SetPassword, " . $username . ", " . $newPassword );
-            // $success = changePassword( $username, $newPassword );
-            //
-            // //  If changed OK, auto-login - doesn't appear to work?
-            // //if( validateUser( $username, $newPassword, $fbUser, 0 ) )
-            // //{
-            // //    generateCookie( $user, $cookie );
-            // //}
-            // $response[ 'Success' ] = $success;
-            // $response[ 'Cookie' ] = $cookie;
-            DoRequestError('Deprecated');
-            break;
-
-        case "score":
-            $user = seekPOSTorGET('u');
-            $response['Score'] = GetScore($user);
-            $response['User'] = $user;
-            break;
-
-        case "staticdata":
-            $response['StaticData'] = getStaticData();
-            break;
-
-
-        case "userpic":
-        {
-            // Special case
-            $targetUser = seekPOSTorGET('i');
-            $destURL = getenv('APP_URL') . "/UserPic/$targetUser" . ".png";
-
-            header('Content-type: image/png');
-            readfile($destURL);
-            exit; // N.B.!
-        }
-
-        case "badge":
-        {
-            // DO NOT USE: access URL directly please!
-            // Special case
-            $badgeURI = seekPOSTorGET('i');
-            $destURL = getenv('APP_STATIC_URL') . "/Badge/$badgeURI" . ".png";
-
-            header('Content-type: image/png');
-            readfile($destURL);
-            exit; // N.B.!
-        }
-
-
+        // case "resetpassword":
+        //     $username = seekPOSTorGET('u');
+        //     // error_log("ResetPassword, " . $username);
+        //     $response['Response'] = RequestPasswordReset($username);
+        //     break;
+        // case "setpassword":
+        //     $username = seekPOSTorGET( 'u' );
+        //     $newPassword = seekPOSTorGET( 'p' );
+        //     //error_log( "SetPassword, " . $username . ", " . $newPassword );
+        //     $success = changePassword( $username, $newPassword );
+        //
+        //     //  If changed OK, auto-login - doesn't appear to work?
+        //     //if( validateUser( $username, $newPassword, $fbUser, 0 ) )
+        //     //{
+        //     //    generateCookie( $user, $cookie );
+        //     //}
+        //     $response[ 'Success' ] = $success;
+        //     $response[ 'Cookie' ] = $cookie;
+        //     DoRequestError('Deprecated');
+        //     break;
+        // case "score":
+        //     $user = seekPOSTorGET('u');
+        //     $response['Score'] = GetScore($user);
+        //     $response['User'] = $user;
+        //     break;
+        // case "staticdata":
+        //     $response['StaticData'] = getStaticData();
+        //     break;
+        // case "userpic":
+        // {
+        //     // Special case
+        //     $targetUser = seekPOSTorGET('i');
+        //     $destURL = getenv('APP_URL') . "/UserPic/$targetUser" . ".png";
+        //
+        //     header('Content-type: image/png');
+        //     readfile($destURL);
+        //     exit; // N.B.!
+        // }
+        // case "badge":
+        // {
+        //     // DO NOT USE: access URL directly please!
+        //     // Special case
+        //     $badgeURI = seekPOSTorGET('i');
+        //     $destURL = getenv('APP_STATIC_URL') . "/Badge/$badgeURI" . ".png";
+        //
+        //     header('Content-type: image/png');
+        //     readfile($destURL);
+        //     exit; // N.B.!
+        // }
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // User-based (require credentials):
@@ -286,10 +276,10 @@ if ($credentialsOK) {
             $response['Response'] = getAchievementRecentWinnersData($achievementID, $offset, $count, $user, $friendsOnly);
             break;
 
-        case "addfriend":
-            $newFriend = seekPOSTorGET('n');
-            $response['Success'] = AddFriend($user, $newFriend);
-            break;
+        // case "addfriend":
+        //     $newFriend = seekPOSTorGET('n');
+        //     $response['Success'] = AddFriend($user, $newFriend);
+        //     break;
 
         case "awardachievement":
             $validation = seekPOSTorGET('v');
@@ -301,14 +291,13 @@ if ($credentialsOK) {
             $response['AchievementID'] = $achIDToAward;
             break;
 
-        case "createnewlb":
-            $response['Success'] = SubmitNewLeaderboard($gameID, $lbID);
-            $response['NewLeaderboardID'] = $lbID;
-            break;
-
-        case "getfriendlist":
-            $response['Friends'] = GetFriendList($user);
-            break;
+        // case "createnewlb":
+        //     $response['Success'] = SubmitNewLeaderboard($gameID, $lbID);
+        //     $response['NewLeaderboardID'] = $lbID;
+        //     break;
+        // case "getfriendlist":
+        //     $response['Friends'] = GetFriendList($user);
+        //     break;
 
         case "lbinfo":
             $lbID = seekPOSTorGET('i', 0, 'integer');
@@ -316,11 +305,11 @@ if ($credentialsOK) {
             $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
             break;
 
-        case "modifyfriend":
-            $friend = seekPOSTorGET('f');
-            $action = seekPOSTorGET('a');
-            $response['Response'] = changeFriendStatus($user, $friend, $action);
-            break;
+        // case "modifyfriend":
+        //     $friend = seekPOSTorGET('f');
+        //     $action = seekPOSTorGET('a');
+        //     $response['Response'] = changeFriendStatus($user, $friend, $action);
+        //     break;
 
         case "patch":
             $flags = seekPOSTorGET('f', 0, 'integer');
@@ -334,25 +323,23 @@ if ($credentialsOK) {
             $response['Success'] = postActivity($user, $activityType, $activityMessage);
             break;
 
-        case "recalctrueratio":
-            $response['Success'] = recalculateTrueRatio($gameID);
-            break;
-
-        case "removecomment":
-            $articleID = seekPOSTorGET('a', 0, 'integer');
-            $commentID = seekPOSTorGET('c', 0, 'integer');
-            // error_log("$user authorised removing comment $commentID, type $articleID");
-            $response['Success'] = RemoveComment($articleID, $commentID);
-            $response['ArtID'] = $articleID;
-            $response['CommentID'] = $commentID;
-            break;
-
-        case "removelbentry":
-            $lbID = seekPOSTorGET('l', 0, 'integer');
-            $targetUser = seekPOSTorGET('t');
-            // error_log("$user authorised dropping LB entry by $targetUser from LB $lbID");
-            $response['Success'] = RemoveLeaderboardEntry($targetUser, $lbID);
-            break;
+        // case "recalctrueratio":
+        //     $response['Success'] = recalculateTrueRatio($gameID);
+        //     break;
+        // case "removecomment":
+        //     $articleID = seekPOSTorGET('a', 0, 'integer');
+        //     $commentID = seekPOSTorGET('c', 0, 'integer');
+        //     // error_log("$user authorised removing comment $commentID, type $articleID");
+        //     $response['Success'] = RemoveComment($articleID, $commentID);
+        //     $response['ArtID'] = $articleID;
+        //     $response['CommentID'] = $commentID;
+        //     break;
+        // case "removelbentry":
+        //     $lbID = seekPOSTorGET('l', 0, 'integer');
+        //     $targetUser = seekPOSTorGET('t');
+        //     // error_log("$user authorised dropping LB entry by $targetUser from LB $lbID");
+        //     $response['Success'] = RemoveLeaderboardEntry($targetUser, $lbID);
+        //     break;
 
         case "richpresencepatch":
             $response['Success'] = getRichPresencePatch($gameID, $richPresenceData);
