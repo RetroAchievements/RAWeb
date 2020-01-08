@@ -30,10 +30,6 @@ $reqAchievementValidation = sprintf(
     "WOAHi2"
 );
 
-$awardAchievementID = seekPOST('a');
-$awardAchievementUser = seekPOST('u');
-$awardAchHardcore = seekPOST('h', 0);
-
 function tailCustom($filepath, $lines = 1, $adaptive = true)
 {
 
@@ -92,7 +88,7 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
 }
 
 $action = seekPOSTorGET('action');
-
+$message = null;
 switch ($action) {
     // case 'regenapi':
     //     $query = "SELECT User FROM UserAccounts";
@@ -306,20 +302,15 @@ switch ($action) {
     //     break;
     case 'getachids':
         $gameIDs = explode(',', seekPOST('g'));
-
         foreach ($gameIDs as $nextGameID) {
             $ids = getAchievementIDs($nextGameID);
-
-            foreach ($ids["AchievementIDs"] as $id) {
-                echo "$id,";
-            }
+            $message = implode(', ', $ids["AchievementIDs"] ?? []);
         }
         break;
     case 'giveaward':
-        //	Debug award achievement:
-        //$awardAchievementID 	= seekPOST( 'a' );
-        //$awardAchievementUser = seekPOST( 'u' );
-        //$awardAchHardcore 	= seekPOST( 'h', 0 );
+        $awardAchievementID = seekPOST('a');
+        $awardAchievementUser = seekPOST('u');
+        $awardAchHardcore = seekPOST('h', 0);
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $ids = explode(',', $awardAchievementID);
@@ -331,9 +322,9 @@ switch ($action) {
                     0,
                     $newPointTotal,
                     $awardAchHardcore,
-                    false
+                    true
                 )) {
-                    echo " - Updated $awardAchievementUser's score to $newPointTotal!<br>";
+                    $message .= "Awarded achievement $nextID to $awardAchievementUser -  Updated score to $newPointTotal!<br>";
                 }
             }
         }
@@ -381,18 +372,23 @@ switch ($action) {
     //     exit;
     //     break;
     case 'updatestaticdata':
-        $achID = seekPOSTorGET('a', 0, 'integer');
-        $forumID = seekPOSTorGET('f', 0, 'integer');
-
-        //echo $achID;
-        //echo $forumID;
+        $aotwAchID = seekPOSTorGET('a', 0, 'integer');
+        $aotwForumID = seekPOSTorGET('f', 0, 'integer');
+        $aotwStartAt = seekPOSTorGET('s', null, 'string');
 
         $query = "UPDATE StaticData SET
-Event_AOTW_AchievementID='$achID',
-Event_AOTW_ForumID='$forumID'";
+            Event_AOTW_AchievementID='$aotwAchID',
+            Event_AOTW_ForumID='$aotwForumID',
+            Event_AOTW_StartAt='$aotwStartAt'";
 
-        s_mysql_query($query);
-        echo "Successfully updated static data!";
+        $result = s_mysql_query($query);
+
+        if($result) {
+            $message = "Successfully updated static data!";
+        } else {
+            $message = mysqli_error($db);
+        }
+
         break;
     // case 'access_log':
     //     $accessLog = file_get_contents( "../../log/httpd/access_log" );
@@ -422,69 +418,163 @@ Event_AOTW_ForumID='$forumID'";
 $staticData = getStaticData();
 
 RenderHtmlStart();
-RenderHtmlHead('Global Tests');
+RenderHtmlHead('Admin Tools');
 ?>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
+<script src="/vendor/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <div id="mainpage">
-    <div id="fullcontainer">
-        <h1>Admin Tools</h1>
-        <?php
-        echo "Account: <b>" . $user . "</b><br>";
-        echo "Account Type: <b>" . PermissionsToString($permissions) . "</b><br>";
 
-        // if ($permissions >= \RA\Permissions::Root) {
-        //     echo "<h1>API Key</h1>";
-        //     echo "<a href='/admin.php?action=regenapi'>Regenerate ALL API Keys! (WARNING)</a><br>";
-        //     echo "<a href='/admin.php?action=regenapione&amp;t=TestUser'>Regenerate API Key for TestUser</a><br>";
-        //
-        //     echo "<a href='/admin.php?action=errorlog'>ERROR LOG</a><br>";
-        // }
+    <?php if ($message): ?>
+        <div id="fullcontainer">
+            <?= $message ?>
+        </div>
+    <?php endif ?>
 
-        // if ($permissions >= \RA\Permissions::Root) {
-        //     echo "<h1>Achievement Inspection/Interaction</h1>";
-        //     echo "<a href='/admin.php?action=recalcdev'>Recalculate developer contribution totals! (1) (WARNING)</a><br>";
-        //     echo "<a href='/admin.php?action=recalcsiteawards'>Recalculate site awards (developer contrib + FB)! (2) (WARNING)</a><br>";
-        //     echo "<a href='/admin.php?action=reconstructsiteawards'>Reconstruct site awards (completed games)! (3) (WARNING)</a><br>";
-        // }
+    <?php
+    // if ($permissions >= \RA\Permissions::Root) :
+    //     echo "<h1>API Key</h1>";
+    //     echo "<a href='/admin.php?action=regenapi'>Regenerate ALL API Keys! (WARNING)</a><br>";
+    //     echo "<a href='/admin.php?action=regenapione&amp;t=TestUser'>Regenerate API Key for TestUser</a><br>";
+    //
+    //     echo "<a href='/admin.php?action=errorlog'>ERROR LOG</a><br>";
 
-        if ($permissions >= \RA\Permissions::Admin) {
-            echo "<h2>Get Game Achievement IDs</h2>";
-            echo "<form method='post' action='admin.php'>";
-            echo "Game ID<input type='text' name='g' value=''><br>";
-            echo "<input type='hidden' name='action' value='getachids' />";
-            echo "<input type='submit' value='Submit'/>";
-            echo "</form>";
-        }
+    //     echo "<h1>Achievement Inspection/Interaction</h1>";
+    //     echo "<a href='/admin.php?action=recalcdev'>Recalculate developer contribution totals! (1) (WARNING)</a><br>";
+    //     echo "<a href='/admin.php?action=recalcsiteawards'>Recalculate site awards (developer contrib + FB)! (2) (WARNING)</a><br>";
+    //     echo "<a href='/admin.php?action=reconstructsiteawards'>Reconstruct site awards (completed games)! (3) (WARNING)</a><br>";
+    // endif
+    ?>
+    <?php if ($permissions >= \RA\Permissions::Admin) : ?>
+        <div id="fullcontainer">
+            <h4>Get Game Achievement IDs</h4>
+            <form method='post' action='admin.php'>
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col class="fullwidth">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="achievements_game_id">Game ID</label>
+                        </td>
+                        <td>
+                            <input id='achievements_game_id' name='g'>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type='hidden' name='action' value='getachids'>
+                <input type='submit' value='Submit'>
+            </form>
+        </div>
 
-        if ($permissions >= \RA\Permissions::Admin) {
-            echo "<h2>Award Achievement</h2>";
-            echo "<form method='post' action='admin.php'>";
-            echo "User To Receive Achievement	<input type='text' name='u' value='$awardAchievementUser'><br>";
-            echo "Achievement ID				<input type='text' name='a' value='$awardAchievementID'><br>";
-            $checked = ($awardAchHardcore == 1) ? 'checked' : '';
-            echo "Include hardcore?				<input type='checkbox' name='h' $checked value='1'><br>";
-            echo "<input type='hidden' name='action' value='giveaward' />";
-            echo "<input type='submit' value='Submit'/>";
-            echo "</form>";
-        }
+        <div id='fullcontainer'>
+            <h4>Award Achievement</h4>
+            <form method='post' action='admin.php'>
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col class="fullwidth">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="award_achievement_user">User to receive achievement</label>
+                        </td>
+                        <td>
+                            <input id='award_achievement_user' name='u'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="award_achievement_id">Achievement ID</label>
+                        </td>
+                        <td>
+                            <input id='award_achievement_id' name='a'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="award_achievement_hardcore">Include hardcore?</label>
+                        </td>
+                        <td>
+                            <input id='award_achievement_hardcore' type='checkbox' name='h' value='1'>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type='hidden' name='action' value='giveaward'>
+                <input type='submit' value='Submit'>
+            </form>
+        </div>
 
-        if ($permissions >= \RA\Permissions::Admin) {
-            $eventAchievementID = $staticData['Event_AOTW_AchievementID'];
-            $eventForumTopicID = $staticData['Event_AOTW_ForumID'];
+        <div id='fullcontainer'>
+            <?php
+            $eventAotwAchievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
+            $eventAotwStartAt = $staticData['Event_AOTW_StartAt'] ?? null;
+            $eventAotwForumTopicID = $staticData['Event_AOTW_ForumID'] ?? null;
+            ?>
+            <h4>Achievement of the Week</h4>
+            <form method='post' action='admin.php'>
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col class="fullwidth">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='event_aotw_achievement_id'>Achievement ID</label>
+                        </td>
+                        <td>
+                            <input id='event_aotw_achievement_id' name='a' value='<?= $eventAotwAchievementID ?>'>
+                        </td>
+                        <td>
+                            <a href='/Achievement/<?= $eventAotwAchievementID ?>'>Link</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='event_aotw_start_at'>Start At (UTC time)</label>
+                        </td>
+                        <td>
+                            <input id='event_aotw_start_at' name='s' value='<?= $eventAotwStartAt ?>'>
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='event_aotw_forum_topic_id'>Forum Topic ID</label>
+                        </td>
+                        <td>
+                            <input id='event_aotw_forum_topic_id' name='f' value='<?= $eventAotwForumTopicID ?>'>
+                        </td>
+                        <td>
+                            <a href='/viewtopic.php?t=<?= $eventAotwForumTopicID ?>'>Link</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type='hidden' name='action' value='updatestaticdata'>
+                <input type='submit' value='Submit'>
+            </form>
 
-            echo "<h2>Update Event</h2>";
-            echo "<h3>Achievement of the Week</h3>";
-            echo "<form method='post' action='admin.php'>";
-            echo "Achievement ID<input type='text' name='a' value='$eventAchievementID'> <a href='/Achievement/$eventAchievementID'>Link</a><br>";
-            echo "Forum Topic ID<input type='text' name='f' value='$eventForumTopicID'> <a href='/viewtopic.php?t=$eventForumTopicID'>Link</a><br>";
-            echo "<input type='hidden' name='action' value='updatestaticdata' />";
-            echo "<input type='submit' value='Submit'/>";
-            echo "</form>";
-        }
-        ?>
-    </div>
+            <div id="aotw_entries"></div>
+
+            <script>
+              jQuery('#event_aotw_start_at').datetimepicker({
+                format: 'Y-m-d H:i:s',
+                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+              })
+            </script>
+        </div>
+    <?php endif ?>
 </div>
 <?php RenderFooter(); ?>
 </body>
