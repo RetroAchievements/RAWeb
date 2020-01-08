@@ -60,7 +60,7 @@ $consoleID = $gameData['ConsoleID'];
 $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
 
-//    Get the top ten players at this game:
+// Get the top ten players at this game:
 $gameTopAchievers = getGameTopAchievers($gameID, 0, 10, $user);
 
 $totalUniquePlayers = getTotalUniquePlayers($gameID);
@@ -79,7 +79,6 @@ for ($i = 1; $i <= $numAchievements; $i++) {
 }
 
 ksort($achDist);
-//var_dump( $achDist );
 
 $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
 
@@ -87,8 +86,6 @@ $pageTitle = "$gameTitle ($consoleName)";
 getCookie($user, $cookie);
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
-
-//var_dump( $lbData );
 
 $screenshotWidth = 200;
 $screenshotMaxHeight = 240; // corresponds to the DS screen aspect ratio
@@ -191,11 +188,7 @@ RenderHtmlStart(true);
         }
         ?>
     ])
-
-      <?php
-      $numGridlines = $numAchievements;
-      ?>
-
+      <?php $numGridlines = $numAchievements; ?>
     var optionsTotalScore = {
       backgroundColor: 'transparent',
       //title: 'Achievement Distribution',
@@ -222,7 +215,6 @@ RenderHtmlStart(true);
 
 </script>
 <script>
-
   var lastKnownAchRating = 0
   var lastKnownGameRating = 0
 
@@ -310,10 +302,10 @@ RenderHtmlStart(true);
     })
   }
 
-  //	Onload:
+  // Onload:
   $(function () {
 
-    //	Add these handlers onload, they don't exist yet
+    // Add these handlers onload, they don't exist yet
     $('.starimg').hover(
       function () {
         //	On hover
@@ -351,16 +343,16 @@ RenderHtmlStart(true);
         }
       },
       function () {
-        //	On leave
+        // On leave
         //GetRating( <?php echo $gameID; ?> );
       })
 
     $('.rating').hover(
       function () {
-        //	On hover
+        // On hover
       },
       function () {
-        //	On leave
+        // On leave
         //GetRating( <?php echo $gameID; ?> );
         if ($(this).is($('#ratingach')))
           SetLitStars('#ratingach', lastKnownAchRating)
@@ -395,7 +387,7 @@ RenderHtmlStart(true);
 
   })
 
-  /*
+  /**
    * Displays set request information
    */
   function getSetRequestInformation(user, gameID) {
@@ -434,7 +426,7 @@ RenderHtmlStart(true);
       })
   }
 
-  /*
+  /**
    * Submits a set requets
    */
   function submitSetRequest(user, gameID) {
@@ -479,7 +471,6 @@ RenderHtmlStart(true);
             }
             echo "</div>";
 
-            //    Dump all page info:
             $developer = $gameData['Developer'] != null ? $gameData['Developer'] : "Unknown";
             $publisher = $gameData['Publisher'] != null ? $gameData['Publisher'] : "Unknown";
             $genre = $gameData['Genre'] != null ? $gameData['Genre'] : "Unknown";
@@ -549,7 +540,7 @@ RenderHtmlStart(true);
                 if ($numLeaderboards == 0) {
                     echo "<div><a href='/request/leaderboard/create.php?u=$user&amp;c=$cookie&amp;g=$gameID'>Create First Leaderboard</a></div>";
                 }
-                echo "<div><a href='/dorequest.php?r=recalctrueratio&amp;g=$gameID&amp;b=1'>Recalculate True Ratios</a></div>";
+                echo "<div><a href='/request/game/recalculate-points-ratio.php?g=$gameID'>Recalculate True Ratios</a></div>";
                 echo "<div><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></div>";
                 echo "<div><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
 
@@ -773,7 +764,7 @@ RenderHtmlStart(true);
                 echo "<br>";
             }
 
-            //Only show set request option for logged in users, games without achievements, and core achievement page
+            // Only show set request option for logged in users, games without achievements, and core achievement page
             if ($user !== null && $numAchievements == 0 && $flags != 5) {
                 echo "<br>";
                 echo "<div style='float: right; clear: both;'>";
@@ -829,9 +820,10 @@ RenderHtmlStart(true);
 
                 echo "<a href='/Game/$gameID?s=$sort1'>Normal$mark1</a> - ";
                 echo "<a href='/Game/$gameID?s=$sort2'>Won By$mark2</a> - ";
-                // meleu: sorting by "date won" isn't implemented yet.
-                //if( isset( $user ) )
+                // TODO sorting by "date won" isn't implemented yet.
+                //if(isset($user)) {
                 //    echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
+                //}
                 echo "<a href='/Game/$gameID?s=$sort4'>Points$mark4</a> - ";
                 echo "<a href='/Game/$gameID?s=$sort5'>Title$mark5</a>";
 
@@ -844,18 +836,15 @@ RenderHtmlStart(true);
                 for ($i = 0; $i < 2; $i++) {
                     if ($i == 0 && $numEarnedCasual == 0) {
                         continue;
-                    } //    remove potential unnecessary empty table
-
-                    $numOutput = 0;
+                    }
 
                     foreach ($achievementData as &$nextAch) {
-                        //print_r( $nextAch );
-
                         $achieved = (isset($nextAch['DateEarned']));
 
                         if ($i == 0 && $achieved == false) {
                             continue;
-                        } elseif ($i == 1 && $achieved == true) {
+                        }
+                        if ($i == 1 && $achieved == true) {
                             continue;
                         }
 
@@ -888,7 +877,6 @@ RenderHtmlStart(true);
 
                         echo "<tr>";
                         echo "<td>";
-
                         echo "<div class='achievemententry'>";
 
                         echo "<div class='achievemententryicon'>";
@@ -963,13 +951,9 @@ RenderHtmlStart(true);
                         if ($achieved) {
                             echo "<div class='date smalltext'>unlocked on<br>$dateAch<br></div>";
                         }
-
-
                         echo "</div>"; //    achievemententry
                         echo "</td>";
-
                         echo "</tr>";
-                        $numOutput += 1;
                     }
                 }
             }
@@ -985,7 +969,6 @@ RenderHtmlStart(true);
     </div>
     <div id='rightcontainer'>
         <?php
-        //    Render game box art
         RenderBoxArt($gameData['ImageBoxArt']);
 
         if (isset($user)) {

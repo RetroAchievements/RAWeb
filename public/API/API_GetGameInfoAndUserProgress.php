@@ -32,9 +32,9 @@ if (!empty($achData)) {
 
 $gameData['UserCompletion'] = 0;
 $gameData['UserCompletionHardcore'] = 0;
-if ($gameData['NumAchievements'] > 0) {
-    $gameData['UserCompletion'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUser']/$gameData['NumAchievements'])*100.0);
-    $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore']/$gameData['NumAchievements'])*100.0);
+if ($gameData['NumAchievements'] ?? false) {
+    $gameData['UserCompletion'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUser'] / $gameData['NumAchievements']) * 100.0);
+    $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
 }
 
 echo json_encode($gameData);

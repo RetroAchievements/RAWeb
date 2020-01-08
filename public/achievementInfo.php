@@ -101,8 +101,7 @@ RenderHtmlStart(true);
     <div id='leftcontainer'>
         <?php
         RenderErrorCodeWarning($errorCode);
-
-        echo "<div id='achievement' class='left' >";
+        echo "<div id='achievement'>";
 
         echo "<div class='navpath'>";
         echo "<a href='/gameList.php'>All Games</a>";
@@ -243,7 +242,7 @@ RenderHtmlStart(true);
 
         echo "</div>"; //achievement
 
-        echo "<div id='recentwinners' class='left'>";
+        echo "<div>";
         echo "<h3>Winners</h3>";
 
         if (count($winnerInfo) == 0) {

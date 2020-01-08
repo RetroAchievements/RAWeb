@@ -19,117 +19,114 @@ RenderHtmlHead("Manage News");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-
 <div id="mainpage">
-    <?php
-    $yOffs = 0;
-    //RenderTwitchTVStream( $yOffs );
-    //RenderChat( $user, $yOffs );
+    <div id="fullcontainer">
+        <?php
+        $yOffs = 0;
+        //RenderTwitchTVStream( $yOffs );
+        //RenderChat( $user, $yOffs );
 
-    $activeNewsArticle = null;
+        $activeNewsArticle = null;
 
-    RenderErrorCodeWarning($errorCode);
+        RenderErrorCodeWarning($errorCode);
 
-    echo "<div id='rsslist' class='left'>";
+        echo "<div class='navpath'>";
+        echo "<b>$pageTitle</b>";
+        echo "</div>";
 
-    echo "<div class='navpath'>";
-    echo "<b>$pageTitle</b>";
-    echo "</div>";
+        echo "<div class='largelist'>"; //?
+        echo "<h2 class='longheader'>How to use</h2>";
+        echo "Here you can submit news to be viewed on the frontpage of the site. <b>Please</b> be considerate when posting, remember that " .
+            "it will displayed on the very front page of the website, and will be the first thing a new user (and existing users) will see.<br><br>" .
+            "First, it's recommended you find an associated image you can post along with the news post. You are welcome to upload " .
+            "any appropriate image using 'Upload news image' below, and RA will host it for you.<br><br>" .
+            "After a successful upload, you will return to this page with the image URL already added for you, along with a preview. " .
+            "Note that your image will be scaled to 160px maximum width and height. " .
+            "Next, pick an interesting title, and fill the article content with whatever you like!<br><br>";
+        echo "<br>";
 
-    echo "<div class='largelist'>"; //?
-    echo "<h2 class='longheader'>How to use</h2>";
-    echo "Here you can submit news to be viewed on the frontpage of the site. <b>Please</b> be considerate when posting, remember that " .
-        "it will displayed on the very front page of the website, and will be the first thing a new user (and existing users) will see.<br><br>" .
-        "First, it's recommended you find an associated image you can post along with the news post. You are welcome to upload " .
-        "any appropriate image using 'Upload news image' below, and RA will host it for you.<br><br>" .
-        "After a successful upload, you will return to this page with the image URL already added for you, along with a preview. " .
-        "Note that your image will be scaled to 160px maximum width and height. " .
-        "Next, pick an interesting title, and fill the article content with whatever you like!<br><br>";
-    echo "<br>";
+        echo "<h2 class='longheader'>Upload news image</h2>";
+        echo "160px max width or height! Image size will be scaled to fit.<br>";
+        echo "<form action='/request/uploadpic.php' style='padding: 2px;' method='post' enctype='multipart/form-data'>";
+        echo "<label for='file'>New image:</label>";
+        echo "<input type='file' name='file' id='file' />";
+        echo "<input type='hidden' name='t' value='NEWS' />";
+        echo "<input type='submit' name='submit' style='float: right;' value='Upload News Image' />";
+        echo "</form>";
+        echo "<br>";
+        echo "</div>";
 
-    echo "<h2 class='longheader'>Upload news image</h2>";
-    echo "160px max width or height! Image size will be scaled to fit.<br>";
-    echo "<form action='/request/uploadpic.php' style='padding: 2px;' method='post' enctype='multipart/form-data'>";
-    echo "<label for='file'>New image:</label>";
-    echo "<input type='file' name='file' id='file' />";
-    echo "<input type='hidden' name='t' value='NEWS' />";
-    echo "<input type='submit' name='submit' style='float: right;' value='Upload News Image' />";
-    echo "</form>";
-    echo "<br>";
-    echo "</div>";
+        echo "<h2 class='longheader'>Submit News</h2>";
 
-    echo "<h2 class='longheader'>Submit News</h2>";
+        echo "Select Existing or Create New:&nbsp;";
+        echo "<select name='ab' onchange=\"if (this.selectedIndex >= 0) window.location = '/submitnews.php?n=' + this.value; return false;\" >";
 
-    echo "Select Existing or Create New:&nbsp;";
-    echo "<select name='ab' onchange=\"if (this.selectedIndex >= 0) window.location = '/submitnews.php?n=' + this.value; return false;\" >";
+        echo "<option value=0>--New Post--</option>";
+        //echo "<a href='/submitnews.php'>New Post</a><br>";
+        for ($i = 0; $i < $newsCount; $i++) {
+            $nextNews = $newsData[$i];
+            $nextID = $nextNews['ID'];
+            $nextTitle = $nextNews['Title'];
 
-    echo "<option value=0>--New Post--</option>";
-    //echo "<a href='/submitnews.php'>New Post</a><br>";
-    for ($i = 0; $i < $newsCount; $i++) {
-        $nextNews = $newsData[$i];
-        $nextID = $nextNews['ID'];
-        $nextTitle = $nextNews['Title'];
+            $selected = ($nextID == $newsArticleID) ? "selected" : "";
 
-        $selected = ($nextID == $newsArticleID) ? "selected" : "";
+            echo "<option value='$nextID' $selected><a href='/submitnews.php?n=$nextID'>$nextID - $nextTitle</a></option>";
 
-        echo "<option value='$nextID' $selected><a href='/submitnews.php?n=$nextID'>$nextID - $nextTitle</a></option>";
-
-        if ($nextNews['ID'] == $newsArticleID) {
-            $activeNewsArticle = $nextNews;
+            if ($nextNews['ID'] == $newsArticleID) {
+                $activeNewsArticle = $nextNews;
+            }
         }
-    }
-    echo "</select><br>";
-    ?>
-    <br>
-    <?php
-    echo "<form method='post' action='/request/news/update.php'>";
+        echo "</select><br>";
+        ?>
+        <br>
+        <?php
+        echo "<form method='post' action='/request/news/update.php'>";
 
-    if (isset($newsArticleID) && $newsArticleID != 0) {
-        echo "ID: <input type='text' name='i' size='2' value='$newsArticleID' readonly><br><br> ";
-    }
+        if (isset($newsArticleID) && $newsArticleID != 0) {
+            echo "ID: <input type='text' name='i' size='2' value='$newsArticleID' readonly><br><br> ";
+        }
 
-    $newsTitle = "";
-    if (isset($activeNewsArticle)) {
-        $newsTitle = $activeNewsArticle['Title'];
-    }
+        $newsTitle = "";
+        if (isset($activeNewsArticle)) {
+            $newsTitle = $activeNewsArticle['Title'];
+        }
 
-    $newsContent = "";
-    if (isset($activeNewsArticle)) {
-        $newsContent = $activeNewsArticle['Payload'];
-    }
+        $newsContent = "";
+        if (isset($activeNewsArticle)) {
+            $newsContent = $activeNewsArticle['Payload'];
+        }
 
-    $newsAuthor = $user;
-    if (isset($activeNewsArticle)) {
-        $newsAuthor = $activeNewsArticle['Author'];
-    }
+        $newsAuthor = $user;
+        if (isset($activeNewsArticle)) {
+            $newsAuthor = $activeNewsArticle['Author'];
+        }
 
-    $newsLink = "";
-    if (isset($activeNewsArticle)) {
-        $newsLink = $activeNewsArticle['Link'];
-    }
+        $newsLink = "";
+        if (isset($activeNewsArticle)) {
+            $newsLink = $activeNewsArticle['Link'];
+        }
 
-    $newsImage = $newsImageInput;
-    if (isset($activeNewsArticle)) {
-        $newsImage = $activeNewsArticle['Image'];
-    }
+        $newsImage = $newsImageInput;
+        if (isset($activeNewsArticle)) {
+            $newsImage = $activeNewsArticle['Image'];
+        }
 
-    echo "Title: <input type='text' name='t' style='width: 100%;' value='$newsTitle' ><br>";
-    echo "<br>";
-    echo "Link (optional, IMPORTANT: REMOVE the 'http://' prefix!): <input type='text' name='l' style='width: 100%;' value='$newsLink'><br>";
-    echo "<br>";
-    echo "Image: <input type='text' name='g' style='width: 50%;' value='$newsImage'> ";
-    echo "Preview: <img src='$newsImage' /><br>";
-    echo "<br>";
-    echo "Article Content (most HTML supported): <br>";
-    echo "<textarea rows='10' cols='80' name='p' style='width: 100%;'>$newsContent</textarea><br>";
-    echo "<br>";
-    echo "<input type='submit' name='submit' size='37' style='float: right;' value='Submit News Article!' />";
-    echo "Author: <input type='text' name='a' value='$newsAuthor' readonly><br>";
+        echo "Title: <input type='text' name='t' style='width: 100%;' value='$newsTitle' ><br>";
+        echo "<br>";
+        echo "Link (optional, IMPORTANT: REMOVE the 'http://' prefix!): <input type='text' name='l' style='width: 100%;' value='$newsLink'><br>";
+        echo "<br>";
+        echo "Image: <input type='text' name='g' style='width: 50%;' value='$newsImage'> ";
+        echo "Preview: <img src='$newsImage' /><br>";
+        echo "<br>";
+        echo "Article Content (most HTML supported): <br>";
+        echo "<textarea rows='10' cols='80' name='p' style='width: 100%;'>$newsContent</textarea><br>";
+        echo "<br>";
+        echo "<input type='submit' name='submit' size='37' style='float: right;' value='Submit News Article!' />";
+        echo "Author: <input type='text' name='a' value='$newsAuthor' readonly><br>";
 
-    echo "</form><br>";
-    ?>
-
-    <br>
+        echo "</form><br>";
+        ?>
+    </div>
 </div>
 <?php RenderFooter(); ?>
 </body>

@@ -8,7 +8,7 @@ if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
 
 $user = seekGET('u', null);
 
-$retVal = array();
+$retVal = [];
 
 $retVal['Score'] = getScore($user);
 $retVal['Rank'] = getUserRank($user);

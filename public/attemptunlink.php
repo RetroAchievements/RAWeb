@@ -40,18 +40,17 @@ $gameIcon = $gameData['ImageIcon'];
 //$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
 //var_dump( $gamesList );
 RenderHtmlStart();
-RenderHtmlHead("Rename Game Entry ($consoleName)");
+RenderHtmlHead("Unlink Game Entry ($consoleName)");
 ?>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div class='left'>
-
+    <div id="fullcontainer">
         <h2>Unlink Hashes</h2>
 
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
         echo "<br><br>";
 
         echo "Use this tool when an incorrect link has been made to a game, i.e. when you load a Super Mario Kart ROM, and the achievements for Super Mario World get loaded.<br>";

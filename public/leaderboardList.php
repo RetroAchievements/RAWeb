@@ -99,7 +99,7 @@ RenderHtmlHead($pageTitle);
     } else {
         echo "<div id='fullcontainer'>";
     }
-    echo "<div class='left'>";
+    echo "<div>";
     echo "<div class='navpath'>";
     if ($gameID != 0) {
         echo "<a href='/leaderboardList.php'>Leaderboard List</a>";

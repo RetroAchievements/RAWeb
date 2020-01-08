@@ -45,12 +45,9 @@ RenderHtmlHead("Merge Game Entry ($consoleName)");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div class='left'>
-
+    <div id="fullcontainer">
         <h2>Merging Game Entry</h2>
-
         <?php
-
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
         echo "<br><br>";
         echo " Merging game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName with another entry for $consoleName.<br>";

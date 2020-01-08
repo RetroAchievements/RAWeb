@@ -66,10 +66,8 @@ RenderHtmlHead("RA Cinema");
         }
 
         if ($permissions > 1) {
-            echo "<div class='left'>";
-
+            echo "<div>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Extra (click to show):</span>";
-
             echo "<div id='devboxcontent'>";
 
             $vidTitle = "";
@@ -100,7 +98,6 @@ RenderHtmlHead("RA Cinema");
             echo "</ul>";
 
             echo "</div>";
-
             echo "</div>";
         }
         ?>

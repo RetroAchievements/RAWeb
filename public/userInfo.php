@@ -46,7 +46,7 @@ $userAwards = getUsersSiteAwards($userPage);
 $totalPctWon = 0.0;
 $numGamesFound = 0;
 
-$userCompletedGames = array();
+$userCompletedGames = [];
 
 //    Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
@@ -176,20 +176,20 @@ RenderHtmlStart(true);
 <script type="text/javascript">
 
   // Load the Visualization API and the piechart package.
-  google.load('visualization', '1.0', {'packages': ['corechart']});
+  google.load('visualization', '1.0', {'packages': ['corechart']})
 
   // Set a callback to run when the Google Visualization API is loaded.
-  google.setOnLoadCallback(drawCharts);
+  google.setOnLoadCallback(drawCharts)
 
   // Callback that creates and populates a data table,
   // instantiates the pie chart, passes in the data and
   // draws it.
   function drawCharts() {
-    var dataRecentProgress = new google.visualization.DataTable();
+    var dataRecentProgress = new google.visualization.DataTable()
 
     // Declare columns
-    dataRecentProgress.addColumn('date', 'Date');    //    NOT date! this is non-continuous data
-    dataRecentProgress.addColumn('number', 'Score');
+    dataRecentProgress.addColumn('date', 'Date')    //    NOT date! this is non-continuous data
+    dataRecentProgress.addColumn('number', 'Score')
 
     dataRecentProgress.addRows([
         <?php
@@ -215,7 +215,7 @@ RenderHtmlStart(true);
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
         ?>
-    ]);
+    ])
 
 
     var optionsRecentProcess = {
@@ -230,15 +230,15 @@ RenderHtmlStart(true);
       view: {columns: [0, 1]},
       //height: 460,
       colors: ['#cc9900']
-    };
-
-    function resize() {
-      chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'));
-      chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess);
     }
 
-    window.onload = resize();
-    window.onresize = resize;
+    function resize() {
+      chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'))
+      chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess)
+    }
+
+    window.onload = resize()
+    window.onresize = resize
   }
 </script>
 
