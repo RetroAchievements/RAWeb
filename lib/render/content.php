@@ -174,6 +174,10 @@ function RenderAOTWComponent($achID, $forumTopicID)
 
     echo "<div class='component aotwcomponent' >";
     echo "<h3>Achievement of the Week</h3>";
+
+    /**
+     * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementOfTheWeek instead
+     */
     echo "<div id='aotwbox' style='text-align:center;'>";
 
     $gameID = $achData['GameID'];

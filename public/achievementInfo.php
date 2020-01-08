@@ -241,7 +241,10 @@ RenderHtmlStart(true);
 
         echo "</div>"; //achievement
 
-        echo "<div>";
+        /**
+         * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
+         */
+        echo "<div id='recentwinners'>";
         echo "<h3>Winners</h3>";
 
         if (count($winnerInfo) == 0) {
