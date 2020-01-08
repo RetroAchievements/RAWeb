@@ -881,6 +881,43 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
     return $retval;
 }
 
+function getGameRankAndScore($gameID, $requestedBy)
+{
+    if(empty($gameID)) {
+        return null;
+    }
+
+    if(empty($requestedBy)) {
+        return null;
+    }
+    $retval = [];
+
+    $query = "WITH data
+    AS (SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward,
+        ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank
+        FROM Awarded AS aw
+        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+        WHERE ( !ua.Untracked OR ua.User = '$requestedBy') 
+          AND ach.Flags = 3 
+          AND gd.ID = $gameID
+        GROUP BY aw.User
+        ORDER BY TotalScore DESC, LastAward ASC
+   ) SELECT * FROM data WHERE User = '$requestedBy'";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $retval[] = $data;
+        }
+    }
+
+    return $retval;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //    Game Title and Alts (Dupe Handling)
 //////////////////////////////////////////////////////////////////////////////////////////
