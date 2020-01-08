@@ -50,9 +50,9 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
     settype($id, "integer");
 
     //    Updated: embed gametitle
-    $query = "SELECT a.Title, g.Title AS GameTitle, g.ID as GameID FROM Achievements AS a ";
-    $query .= "LEFT JOIN GameData AS g ON g.ID = a.GameID ";
-    $query .= "WHERE a.ID = '$id'";
+    $query = "SELECT a.Title, g.Title AS GameTitle, g.ID as GameID FROM Achievements AS a 
+                LEFT JOIN GameData AS g ON g.ID = a.GameID 
+                WHERE a.ID = '$id'";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {

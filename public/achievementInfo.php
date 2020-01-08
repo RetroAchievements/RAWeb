@@ -147,7 +147,6 @@ RenderHtmlStart(true);
             $recentWinnersPct = sprintf("%01.0f", 0);
         }
 
-
         $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
         $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
 
@@ -170,10 +169,10 @@ RenderHtmlStart(true);
             }
             echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
         }
-        echo "<br><br><br><br>";
+        echo "<br><br>";
 
         if (isset($user) && $permissions >= 2) {
-            echo "<div class='devbox'>";
+            echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 

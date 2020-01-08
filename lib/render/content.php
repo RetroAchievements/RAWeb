@@ -167,6 +167,7 @@ function RenderActivePlayersComponent()
 
 function RenderAOTWComponent($achID, $forumTopicID)
 {
+    $achData = [];
     if (!getAchievementMetadata($achID, $achData)) {
         return;
     }

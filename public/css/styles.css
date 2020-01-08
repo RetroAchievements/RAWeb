@@ -46,7 +46,8 @@ body {
 }
 
 p, .embedded {
-  padding: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
   border-radius: 8px;
   background: rgb(22, 22, 22);
   line-height: 1.4em;
@@ -54,7 +55,6 @@ p, .embedded {
 
 textarea, input {
   font-family: inherit;
-  font-size: 1.0em;
   border-radius: 4px;
   box-sizing: border-box;
   padding: 1px;
@@ -71,8 +71,13 @@ input[disabled='disabled'] {
   color: rgb(38, 38, 38);
 }
 
+input[type="submit"], button {
+  font-size: 12px;
+  padding: 1px 4px;
+}
+
 h1, h2, h3, h4 {
-  margin: 10px 0;
+  margin-bottom: 10px;
   padding: 0 0 3px;
   border-bottom-color: #1166dd;
   border-bottom-style: dotted;
@@ -107,7 +112,8 @@ a:hover {
 }
 
 #fullcontainer {
-  padding: 5px 20px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
   display: block;
   border: 2px solid rgb(20, 20, 20);
   border-radius: 8px;
@@ -121,7 +127,8 @@ a:hover {
 }
 
 #leftcontainer {
-  padding: 5px 20px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
   display: block;
   border: 2px solid rgb(20, 20, 20);
   border-radius: 8px;
@@ -134,7 +141,8 @@ a:hover {
 }
 
 #rightcontainer {
-  padding: 5px 20px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
   border: 2px solid rgb(20, 20, 20);
   border-radius: 10px;
   align-self: start;
@@ -167,7 +175,7 @@ a:hover {
   float: right;
   right: 0;
   padding: 4px;
-  margin: 15px;
+  margin: 15px 0 15px 15px;
   border-radius: 8px;
   border: 2px solid rgb(20, 20, 20);
   background-color: rgb(26, 26, 26);
@@ -641,9 +649,8 @@ td, tr, img {
   line-height: 100%;
   font-size: 12px;
   background-color: #000000;
-  padding: 6px 10px 10px;
-  border-radius: 8px;
-  margin-top: 4px;
+  padding: 6px 10px;
+  border-radius: 4px;
   margin-bottom: 4px;
   clear: both;
 }
