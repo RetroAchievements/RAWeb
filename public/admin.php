@@ -273,25 +273,22 @@ switch ($action) {
     //
     //         $numRecalced = 0;
     //         foreach ($userList as $nextTempUser) {
-    //             global $developerCountBoundaries;
-    //             global $developerPointBoundaries;
-    //
     //             $nextUser = $nextTempUser[0];
     //             $nextCount = $nextTempUser[1];
     //             $nextYield = $nextTempUser[2];
     //             $nextFBUser = $nextTempUser[3];
     //
-    //             for ($i = 0; $i < count($developerCountBoundaries); $i++) {
-    //                 if ($nextCount >= $developerCountBoundaries[$i]) {
-    //                     //echo "$nextUser has $nextCount, greater than $developerCountBoundaries[  $i ], addaward!<br>";
+    //             for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
+    //                 if ($nextCount >= RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
+    //                     //echo "$nextUser has $nextCount, greater than RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[  $i ], addaward!<br>";
     //                     //This developer has arrived at this point boundary!
     //                     AddSiteAward($nextUser, 2, $i);
     //                     $numRecalced++;
     //                 }
     //             }
-    //             for ($i = 0; $i < count($developerPointBoundaries); $i++) {
-    //                 if ($nextYield >= $developerPointBoundaries[$i]) {
-    //                     //echo "$nextUser has yield of $nextYield, greater than $developerPointBoundaries[     $i ], addaward!<br>";
+    //             for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
+    //                 if ($nextYield >= RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
+    //                     //echo "$nextUser has yield of $nextYield, greater than RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i], addaward!<br>";
     //                     //This developer is newly above this point boundary!
     //                     AddSiteAward($nextUser, 3, $i);
     //                     $numRecalced++;
