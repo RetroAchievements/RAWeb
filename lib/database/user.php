@@ -1577,17 +1577,14 @@ function attributeDevelopmentAuthor($author, $points)
     } else {
         //error_log( __FUNCTION__ . " $author, $points" );
 
-        global $developerCountBoundaries;
-        global $developerPointBoundaries;
-
-        for ($i = 0; $i < count($developerCountBoundaries); $i++) {
-            if ($oldContribCount < $developerCountBoundaries[$i] && $oldContribCount + 1 >= $developerCountBoundaries[$i]) {
+        for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
+            if ($oldContribCount < RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
                 //This developer has arrived at this point boundary!
                 AddSiteAward($author, 2, $i);
             }
         }
-        for ($i = 0; $i < count($developerPointBoundaries); $i++) {
-            if ($oldContribYield < $developerPointBoundaries[$i] && $oldContribYield + $points >= $developerPointBoundaries[$i]) {
+        for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
+            if ($oldContribYield < RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
                 //This developer is newly above this point boundary!
                 AddSiteAward($author, 3, $i);
             }

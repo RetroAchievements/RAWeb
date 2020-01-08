@@ -121,9 +121,6 @@ function RenderSiteAwards($userAwards)
 
     echo "<table class='siteawards'><tbody>";
 
-    global $developerCountBoundaries;
-    global $developerPointBoundaries;
-
     for ($i = 0; $i < $numItems / 3; $i++) {
         echo "<tr>";
         for ($j = 0; $j < $numCols; $j++) {
@@ -163,13 +160,13 @@ function RenderSiteAwards($userAwards)
                 $imagepath = $awardGameImage;
                 $linkdest = "/Game/$awardData";
             } elseif ($awardType == 2) { //    Developed a number of earned achievements
-                $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . $developerCountBoundaries[$awardData] . " times!";
+                $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
 
-                $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . $developerCountBoundaries[$awardData] . ".png";
+                $imagepath = getenv('APP_STATIC_URL') . "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
 
                 $linkdest = ''; //    TBD: referrals page?
             } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
-                $tooltip = "Awarded for producing many valuable achievements, providing over " . $developerPointBoundaries[$awardData] . " points to the community!";
+                $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
 
                 if ($awardData == 0) {
                     $imagepath = getenv('APP_STATIC_URL') . "/Badge/00133.png";

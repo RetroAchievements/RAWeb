@@ -104,7 +104,7 @@ if (isset($_SERVER["SERVER_NAME"])) {
     define("AT_HOST_DOT", null);
 }
 
-define("VERSION", "1.33.1");
+define("VERSION", "1.34.0");
 
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
@@ -119,41 +119,3 @@ try {
         exit;
     }
 }
-
-$developerCountBoundaries = [
-    5,
-    10,
-    50,
-    100,
-    200,
-    400,
-    600,
-    800,
-    1000,
-    2000,
-    3000,
-    4000,
-    5000,
-    6000,
-];
-$developerPointBoundaries = [
-    100,
-    200,
-    300,
-    500,
-    800,
-    1000,
-    1500,
-    2000,
-    3000,
-    4000,
-    5000,
-    10000,
-    15000,
-    20000,
-    30000,
-    40000,
-    50000,
-    60000,
-    70000,
-];
