@@ -1154,7 +1154,7 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
     }
 }
 
-function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user)
+function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user, $offset = 0, $limit = 50)
 {
     $winnerInfo = [];
 
@@ -1192,13 +1192,15 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
 
     $numRecentWinners = 0;
 
-    //    Get recent winners, and their most recent activity:
+    // Get recent winners, and their most recent activity:
     $query = "SELECT aw.User, ua.RAPoints, aw.Date AS DateAwarded, aw.HardcoreMode
               FROM Awarded AS aw
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID
-              ORDER BY aw.Date DESC
-              LIMIT 0, 100";
+              ORDER BY aw.Date DESC";
+
+    // double limit amount - still not correct this way
+    $query .= " LIMIT $offset, " . ($limit * 2);
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
