@@ -41,6 +41,11 @@ function DoRequestError($errorMsg)
     // error_log("User: $user, Request: $requestType, Error: $errorMsg");
 }
 
+/**
+ * RAIntegration implementation
+ * https://github.com/RetroAchievements/RAIntegration/blob/master/src/api/impl/ConnectedServer.cpp
+ */
+
 // Early exit if we need a valid login
 $credentialsOK = true;
 switch ($requestType) {
@@ -48,7 +53,7 @@ switch ($requestType) {
     case "achievementwondata":
     // case "addfriend":
     case "awardachievement":
-    // case "getfriendlist":
+    case "getfriendlist":
     // case "modifyfriend":
     case "patch":
     case "postactivity":
@@ -295,9 +300,10 @@ if ($credentialsOK) {
         //     $response['Success'] = SubmitNewLeaderboard($gameID, $lbID);
         //     $response['NewLeaderboardID'] = $lbID;
         //     break;
-        // case "getfriendlist":
-        //     $response['Friends'] = GetFriendList($user);
-        //     break;
+
+        case "getfriendlist":
+            $response['Friends'] = GetFriendList($user);
+            break;
 
         case "lbinfo":
             $lbID = seekPOSTorGET('i', 0, 'integer');
