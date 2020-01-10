@@ -1,14 +1,18 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-// Syntax:
-// dorequest.php?r=addfriend&<params> (Web)
-// dorequest.php?r=addfriend&u=user&t=token&<params> (From App)
+/**
+ * @usage
+ * dorequest.php?r=addfriend&<params> (Web)
+ * dorequest.php?r=addfriend&u=user&t=token&<params> (From App)
+ */
 
 $response = ['Success' => true];
 
-// AVOID A G O C - these are now strongly typed as INT!
-// Global RESERVED vars:
+/**
+ * AVOID A G O C - these are now strongly typed as INT!
+ * Global RESERVED vars:
+ */
 $requestType = seekPOSTorGET('r');
 $user = seekPOSTorGET('u');
 $token = seekPOSTorGET('t', null);
@@ -23,7 +27,9 @@ $errorCode = "OK";
 
 $validLogin = false;
 
-// Be aware that if token or cookie are invalid, $user will be invalidated (NULLED) by RA_ReadCookieCredentials!
+/**
+ * Be aware that if token or cookie are invalid, $user will be invalidated (NULLED) by RA_ReadCookieCredentials!
+ */
 if (isset($token) /* && strlen( $token ) == 16 */) {
     $validLogin = RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions);
 }
@@ -35,10 +41,6 @@ function DoRequestError($errorMsg)
     global $response;
     $response['Success'] = false;
     $response['Error'] = $errorMsg;
-
-    // global $user;
-    // global $requestType;
-    // error_log("User: $user, Request: $requestType, Error: $errorMsg");
 }
 
 /**
@@ -46,10 +48,14 @@ function DoRequestError($errorMsg)
  * https://github.com/RetroAchievements/RAIntegration/blob/master/src/api/impl/ConnectedServer.cpp
  */
 
-// Early exit if we need a valid login
+/**
+ * Early exit if we need a valid login
+ */
 $credentialsOK = true;
 switch ($requestType) {
-    // Registration required and user=local:
+    /**
+     * Registration required and user=local
+     */
     case "achievementwondata":
     // case "addfriend":
     case "awardachievement":
@@ -67,24 +73,28 @@ switch ($requestType) {
         $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Registered);
         break;
 
-    // Developer status required:
+    /**
+     * Developer status required
+     */
     // case "createnewlb":
     // case "recalctrueratio":
     // case "removelbentry":
     //     $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Developer);
     //     break;
 
-    default: // Incl. Login!
-        $credentialsOK = true; // None required
+    /**
+     * Anything else is public. Includes login
+     */
+    default:
+        $credentialsOK = true;
         break;
 }
 
 if ($credentialsOK) {
-    // Interrogate requirements:
     switch ($requestType) {
-        //////////////////////////////////////////////////////////////////////////////////////////
-        // Login (special)
-
+        /**
+         * Login
+         */
         case "login": // From App!
             $user = seekPOSTorGET('u');
             $rawPass = seekPOSTorGET('p');
@@ -96,15 +106,17 @@ if ($credentialsOK) {
                 $response['Score'] = $scoreOut;
                 $response['Messages'] = $messagesOut;
             } else {
-                // Token invalid or out of date
+                /**
+                 * Token invalid or out of date
+                 */
                 DoRequestError("Error with login! Please try again.");
             }
             break;
 
 
-        //////////////////////////////////////////////////////////////////////////////////////////
-        // Global, no permissions required:
-
+        /**
+         * Global, no permissions required
+         */
         case "allprogress":
             $consoleID = seekPOSTorGET('c');
             $response['Response'] = GetAllUserProgress($user, $consoleID);
@@ -154,9 +166,7 @@ if ($credentialsOK) {
 
         case "gameslist":
             $consoleID = seekPOSTorGET('c', 0, 'integer');
-            //error_log( "gameslist..." );
             $response['Response'] = getGamesListDataNamesOnly($consoleID);
-            //error_log( count( $response['Response'] ) );
             break;
 
         case "officialgameslist":
@@ -221,13 +231,11 @@ if ($credentialsOK) {
 
         // case "resetpassword":
         //     $username = seekPOSTorGET('u');
-        //     // error_log("ResetPassword, " . $username);
         //     $response['Response'] = RequestPasswordReset($username);
         //     break;
         // case "setpassword":
         //     $username = seekPOSTorGET( 'u' );
         //     $newPassword = seekPOSTorGET( 'p' );
-        //     //error_log( "SetPassword, " . $username . ", " . $newPassword );
         //     $success = changePassword( $username, $newPassword );
         //
         //     //  If changed OK, auto-login - doesn't appear to work?
@@ -247,6 +255,7 @@ if ($credentialsOK) {
         // case "staticdata":
         //     $response['StaticData'] = getStaticData();
         //     break;
+
         // case "userpic":
         // {
         //     // Special case
@@ -255,7 +264,7 @@ if ($credentialsOK) {
         //
         //     header('Content-type: image/png');
         //     readfile($destURL);
-        //     exit; // N.B.!
+        //     exit;
         // }
         // case "badge":
         // {
@@ -266,11 +275,13 @@ if ($credentialsOK) {
         //
         //     header('Content-type: image/png');
         //     readfile($destURL);
-        //     exit; // N.B.!
+        //     exit;
         // }
 
-        //////////////////////////////////////////////////////////////////////////////////////////
-        // User-based (require credentials):
+
+        /**
+         * User-based (require credentials)
+         */
 
         case "achievementwondata":
             $friendsOnly = seekPOSTorGET('f', 0, 'integer');
@@ -290,7 +301,9 @@ if ($credentialsOK) {
             $validation = seekPOSTorGET('v');
             $achIDToAward = seekPOSTorGET('a', 0, 'integer');
             $hardcore = seekPOSTorGET('h', 0, 'integer');
-            // Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
+            /**
+             * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
+             */
             $response = array_merge($response, AddEarnedAchievementJSON($user, $achIDToAward, $hardcore, $validation));
             $response['Score'] = GetScore($user);
             $response['AchievementID'] = $achIDToAward;
@@ -335,7 +348,6 @@ if ($credentialsOK) {
         // case "removecomment":
         //     $articleID = seekPOSTorGET('a', 0, 'integer');
         //     $commentID = seekPOSTorGET('c', 0, 'integer');
-        //     // error_log("$user authorised removing comment $commentID, type $articleID");
         //     $response['Success'] = RemoveComment($articleID, $commentID);
         //     $response['ArtID'] = $articleID;
         //     $response['CommentID'] = $commentID;
@@ -404,7 +416,6 @@ if ($credentialsOK) {
             break;
 
         case "uploadachievement":
-            // Needs completely redoing from the app side!
             $newTitle = seekPOSTorGET('n');
             $newDesc = seekPOSTorGET('d');
             $newPoints = seekPOSTorGET('z', 0, 'integer');
