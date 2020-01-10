@@ -31,7 +31,7 @@ $game = [
 
 getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user);
 
-usort($winnerInfo, function($a, $b){
+usort($winnerInfo, function ($a, $b) {
     return strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']);
 });
 

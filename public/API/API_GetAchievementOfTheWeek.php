@@ -36,22 +36,22 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user);
+getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 500);
 
 /**
  * reset unlocks if there is no start date to prevent listing invalid entries
  */
-if(empty($startAt)) {
+if (empty($startAt)) {
     $winnerInfo = [];
 }
 
-if(!empty($startAt)) {
-    $winnerInfo = array_filter($winnerInfo, function($unlock) use ($startAt) {
+if (!empty($startAt)) {
+    $winnerInfo = array_filter($winnerInfo, function ($unlock) use ($startAt) {
         return strtotime($unlock['DateAwarded']) >= strtotime($startAt);
     });
 }
 
-usort($winnerInfo, function($a, $b){
+usort($winnerInfo, function ($a, $b) {
     return strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']);
 });
 

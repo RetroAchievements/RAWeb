@@ -1,4 +1,5 @@
 <?php
+
 use RA\ActivityType;
 use RA\Permissions;
 
@@ -770,19 +771,19 @@ function UploadNewAchievement(
 
             if (s_mysql_query($query) !== false) {
                 if ($changingAchSet || $changingPoints) {
-                    //    When changing achievement set, all existing achievements that rely on this should be purged.
+                    // When changing achievement set, all existing achievements that rely on this should be purged.
                     //$query = "DELETE FROM Awarded WHERE ID='$idInOut'";
                     //error_log( $query );
                     // nah, that's a bit harsh... esp if you're changing something tiny like the badge!!
 
-                    if (s_mysql_query($query) !== false) {
-                        global $db;
-                        $rowsAffected = mysqli_affected_rows($db);
-                    //error_log( __FUNCTION__ . " removed $rowsAffected rows in Achieved" );
-                        //great
-                    } else {
-                        //meh
-                    }
+                    // if (s_mysql_query($query) !== false) {
+                    //     global $db;
+                    //     $rowsAffected = mysqli_affected_rows($db);
+                    //     error_log( __FUNCTION__ . " removed $rowsAffected rows in Achieved" );
+                    //     //great
+                    // } else {
+                    //     //meh
+                    // }
                 }
 
                 static_setlastupdatedgame($gameID);
@@ -1154,7 +1155,7 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
     }
 }
 
-function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user)
+function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user, $offset = 0, $limit = 50)
 {
     $winnerInfo = [];
 
@@ -1192,13 +1193,15 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
 
     $numRecentWinners = 0;
 
-    //    Get recent winners, and their most recent activity:
+    // Get recent winners, and their most recent activity:
     $query = "SELECT aw.User, ua.RAPoints, aw.Date AS DateAwarded, aw.HardcoreMode
               FROM Awarded AS aw
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID
-              ORDER BY aw.Date DESC
-              LIMIT 0, 100";
+              ORDER BY aw.Date DESC";
+
+    // double limit amount - still not correct this way
+    $query .= " LIMIT $offset, " . ($limit * 2);
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -1208,15 +1211,15 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
                 continue;
             }
 
-            //    This will overwrite hardcore if found, in order; meaning the result will be
-            //    either hardcore has been earned ever, or not at all by this user
+            // This will overwrite hardcore if found, in order; meaning the result will be
+            // either hardcore has been earned ever, or not at all by this user
             $winnerInfo[$db_entry['User']] = $db_entry;
             $numRecentWinners++;
         }
     }
 
     if ($user !== null && !array_key_exists($user, $winnerInfo)) {
-        //    Do the same again if I wasn't found:
+        // Do the same again if I wasn't found:
         $query = "SELECT aw.User, aw.Date AS DateAwarded, aw.HardcoreMode
                   FROM Awarded AS aw
                   LEFT JOIN UserAccounts AS ua ON ua.User = aw.User

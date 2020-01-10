@@ -1,7 +1,7 @@
 <?php
 function log_email($logMessage)
 {
-    if($logMessage) {
+    if ($logMessage) {
         error_log($logMessage);
     }
     // $fullmsg = $logMessage . "\n" . debug_string_backtrace();
@@ -11,7 +11,7 @@ function log_email($logMessage)
 
 function log_sql($logMessage)
 {
-    if($logMessage) {
+    if ($logMessage) {
         error_log($logMessage);
     }
 }
@@ -23,7 +23,7 @@ function log_sql_fail()
     // if(getenv('APP_DEBUG')) {
     //     throw new Exception($error);
     // }
-    if($error) {
+    if ($error) {
         error_log($error);
     }
 }

@@ -383,7 +383,7 @@ switch ($action) {
 
         $result = s_mysql_query($query);
 
-        if($result) {
+        if ($result) {
             $message = "Successfully updated static data!";
         } else {
             $message = mysqli_error($db);
