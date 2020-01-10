@@ -35,7 +35,7 @@ $numWinners = 0;
 $numPossibleWinners = 0;
 $numRecentWinners = 0;
 
-getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 20);
+getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
 
 $dateWonLocal = "";
 foreach ($winnerInfo as $userWon => $userObject) {
