@@ -176,15 +176,15 @@ function recaptcha_check_answer($privkey, $remoteip, $challenge, $response, $ext
     }
 
     $response = _recaptcha_http_post(
-            RECAPTCHA_VERIFY_SERVER,
-            "/recaptcha/api/verify",
-            array(
+        RECAPTCHA_VERIFY_SERVER,
+        "/recaptcha/api/verify",
+        array(
                                                  'privatekey' => $privkey,
                                                  'remoteip' => $remoteip,
                                                  'challenge' => $challenge,
                                                  'response' => $response,
                                                  ) + $extra_params
-        );
+    );
 
     $answers = explode("\n", $response [1]);
     $recaptcha_response = new ReCaptchaResponse();

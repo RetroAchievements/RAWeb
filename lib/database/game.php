@@ -604,7 +604,6 @@ function requestModifyGame($author, $gameID, $field, $value)
     switch ($field) {
         case 1: // Title
             if (!isset($value) || mb_strlen($value) < 2) {
-                //log_email("bad data $author, $gameID, $field, $value");
                 return false;
             }
 
@@ -622,7 +621,7 @@ function requestModifyGame($author, $gameID, $field, $value)
             break;
 
         /**
-         * UPDATE: do not allow dangerous actions anymore until proper failovers are in place
+         * UPDATE: do not allow destructive actions until proper failovers are in place
          */
         // case 2: // GameHashTable
         //     $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
@@ -862,7 +861,7 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE ( !ua.Untracked OR ua.User = \"$requestedBy\" ) 
+                WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
                   AND ach.Flags = 3 
                   AND gd.ID = $gameID
                 GROUP BY aw.User
@@ -1024,7 +1023,6 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
     $permissions = getUserPermissions($user);
 
     if (!isset($user)) {
-        // error_log(__FUNCTION__ . " User unset? Ignoring");
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
         $retVal['Success'] = false;
     } elseif (mb_strlen($md5) != 32) {
@@ -1036,12 +1034,15 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
     } elseif ($consoleID == 0) {
-        // error_log(__FUNCTION__ . " cannot submitGameTitle, $consoleID is 0! What console is this for?");
+        /**
+         * cannot submitGameTitle, $consoleID is 0! What console is this for?
+         */
         $retVal['Error'] = "Cannot submit game title, ConsoleID is 0! What console is this for?";
         $retVal['Success'] = false;
     } elseif ($permissions < Permissions::Developer) {
-        // error_log(__FUNCTION__ . " Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)");
-        //$retVal[ 'Error' ] = "Cannot submit *new* game title, not allowed! Please apply in forums for 'developer' access.";
+        /**
+         * Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)
+         */
         $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
         $retVal['Success'] = false;
     } else {
@@ -1051,41 +1052,49 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
             $title = str_replace("'", "''", $titleIn);
             $title = str_replace("/", "-", $title);
             $title = str_replace("\\", "-", $title);
-            // error_log(__FUNCTION__ . " about to add $title (was $titleIn)");
 
-            //    New Game!
-            //    The MD5 for this game doesn't yet exist in our DB. Insert a new game:
+            /**
+             * New Game!
+             * The MD5 for this game doesn't yet exist in our DB. Insert a new game:
+             */
             $gameID = createNewGame($title, $consoleID);
             if ($gameID !== 0) {
                 $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
-                // log_sql($query);
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
-                    // error_log(__FUNCTION__ . " success: $user added $md5, $gameID to GameHashLibrary, and $gameID, $title to GameData");
+                    /**
+                     * $user added $md5, $gameID to GameHashLibrary, and $gameID, $title to GameData
+                     */
                     $retVal['GameID'] = $gameID;
                     $retVal['GameTitle'] = $title;
                 } else {
                     log_sql_fail();
-                    // error_log(__FUNCTION__ . " failed INSERT! $user, $md5 and $title");
                     $retVal['Error'] = "Failed to add $md5 for '$title'";
                     $retVal['Success'] = false;
                 }
             } else {
-                //log_email(__FUNCTION__ . "failed: cannot create game $title.");
+                /**
+                 * cannot create game $title
+                 */
                 $retVal['Error'] = "Failed to create game title '$title'";
                 $retVal['Success'] = false;
             }
         } else {
-            //    Adding md5 to an existing title ($gameID):
+            /**
+             * Adding md5 to an existing title ($gameID)
+             */
             $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
-            // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
-                // error_log(__FUNCTION__ . " success: $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData");
+                /**
+                 * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
+                 */
                 $retVal['GameID'] = $gameID;
                 $retVal['GameTitle'] = $titleIn;
             } else {
-                //log_email(__FUNCTION__ . "failed: cannot insert duplicate md5 (already present?)");
+                /**
+                 * cannot insert duplicate md5 (already present?
+                 */
                 $retVal['Error'] = "Failed to add duplicate md5 for '$titleIn' (already present?)";
                 $retVal['Success'] = false;
             }
@@ -1154,7 +1163,7 @@ function requestModifyRichPresence($gameID, $dataIn)
 
     $dataIn = mysqli_real_escape_string($db, $dataIn);
 
-    $query = "UPDATE GameData SET RichPresencePatch=\"$dataIn\" WHERE ID=$gameID";
+    $query = "UPDATE GameData SET RichPresencePatch='$dataIn' WHERE ID=$gameID";
 
     global $db;
     $dbResult = mysqli_query($db, $query);

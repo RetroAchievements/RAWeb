@@ -6,7 +6,6 @@ require_once __DIR__ . '/../lib/bootstrap.php';
  * dorequest.php?r=addfriend&<params> (Web)
  * dorequest.php?r=addfriend&u=user&t=token&<params> (From App)
  */
-
 $response = ['Success' => true];
 
 /**
@@ -282,7 +281,6 @@ if ($credentialsOK) {
         /**
          * User-based (require credentials)
          */
-
         case "achievementwondata":
             $friendsOnly = seekPOSTorGET('f', 0, 'integer');
             $response['Offset'] = $offset;
