@@ -1,4 +1,5 @@
 <?php
+
 use RA\ActivityType;
 use RA\ObjectType;
 use RA\SubjectType;
@@ -61,19 +62,21 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 
 function postActivity($userIn, $activity, $customMsg, $isalt = null)
 {
+    global $db;
+
     $user = correctUserCase($userIn);
 
     userActivityPing($user);
 
-    //    Remove single quotes!
+    // Remove single quotes!
     $customMsg = str_replace("'", "''", $customMsg);
     $query = "INSERT INTO Activity (lastupdate, activitytype, user, data, data2) VALUES ";
 
     switch ($activity) {
         case ActivityType::EarnedAchivement:
-            //    earned an achievement
             $achID = $customMsg;
 
+            $achData = [];
             getAchievementMetadata($achID, $achData);
 
             $gameName = $achData['GameTitle'];
@@ -90,47 +93,61 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             break;
 
         case ActivityType::Login:
-            //    login
             $lastLoginActivity = getMostRecentActivity($user, $activity, null);
             if ($lastLoginActivity) {
                 $nowTimestamp = time();
                 $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
                 $diff = $nowTimestamp - $lastLoginTimestamp;
 
-                if ($diff < 60 * 60 * 6) { //    6 hours
-                    //error_log( __FUNCTION__ . " new login activity from $user, duplicate of recent login " . ($diff/60) . " mins ago, so ignoring!" );
-                    return;
+                /**
+                 * record login activity only every 6 hours
+                 */
+                if ($diff < 60 * 60 * 6) {
+                    /**
+                     * new login activity from $user, duplicate of recent login " . ($diff/60) . " mins ago,
+                     * ignoring!
+                     */
+                    return true;
                 }
             }
             $query .= "(NOW(), $activity, '$user', NULL, NULL)";
             break;
 
         case ActivityType::StartedPlaying:
-            //    start playing game
             $gameID = $customMsg;
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
-            //    Check for recent duplicate:
+            /**
+             * Check for recent duplicate:
+             */
             $lastPlayedActivityData = getMostRecentActivity($user, $activity, $gameID);
             if (isset($lastPlayedActivityData)) {
                 $nowTimestamp = time();
                 $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
                 $diff = $nowTimestamp - $lastPlayedTimestamp;
 
-                if ($diff < 60 * 60 * 12) { //    12 hours
-                    //error_log( __FUNCTION__ . " new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago. Updating db, but not posting!" );
-
+                /**
+                 * record game session activity only every 12 hours
+                 */
+                if ($diff < 60 * 60 * 12) {
+                    /**
+                     * new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago
+                     * Updating db, but not posting!
+                     */
                     updateActivity($lastPlayedActivityData['ID']);
-                    return;
+                    return true;
                 } else {
-                    //error_log( __FUNCTION__ . " recognises that $user has played $gameTitle recently, but longer than 12 hours ago (" . ($diff/60) . " mins) so still posting activity! $nowTimestamp - $lastPlayedTimestamp = $diff" );
+                    /**
+                     * recognises that $user has played $gameTitle recently, but longer than 12 hours ago (" . ($diff/60) . " mins) so still posting activity!
+                     * $nowTimestamp - $lastPlayedTimestamp = $diff
+                     */
                 }
             }
 
             $gameTitle = str_replace("'", "''", $gameTitle);
 
             $query .= "(NOW(), $activity, '$user', '$gameID', NULL)";
-            //error_log( $query );
+            error_log($query);
             break;
 
         case ActivityType::UploadAchievement:
@@ -182,23 +199,20 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
 
-        default: //ft
+        default:
         case ActivityType::Unknown:
             error_log(__FUNCTION__ . " received unknown activity: $activity");
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
             break;
     }
 
-    //error_log( __FUNCTION__ . " - " . $query );
-    //log_sql( $query );
-
-    global $db;
     $dbResult = mysqli_query($db, $query);
     if ($dbResult == false) {
         log_sql_fail();
     } else {
-        //    Update UA
-        global $db;
+        /**
+         * Update UserAccount
+         */
         $newActID = mysqli_insert_id($db);
         $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
         $dbResult = s_mysql_query($query);
@@ -213,8 +227,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
 function userActivityPing($user)
 {
     if (!isset($user) || mb_strlen($user) < 2) {
-        //error_log( __FUNCTION__ . " fucked up somehow for $user" );
-        //log_email( __FUNCTION__ . " fucked up" );
         return false;
     }
 
@@ -224,9 +236,7 @@ function userActivityPing($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        // error_log(__FUNCTION__ . " fucked up somehow for $user");
-        //log_sql_fail();
-        //log_email( __FUNCTION__ . " fucked up somehow for $user" );
+        log_sql_fail();
         return false;
     }
 
@@ -236,8 +246,6 @@ function userActivityPing($user)
 function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 {
     if (!isset($user) || mb_strlen($user) < 2) {
-        //log_email( __FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)" );
-        // error_log(__FUNCTION__ . " fucked up ($user, $gameID, $presenceMsg)");
         return false;
     }
 
@@ -251,9 +259,9 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
               SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
               WHERE ua.User = '$user' ";
 
-    $dbResult = mysqli_query($db, $query); //    Allow direct: we have sanitized all variables
+    $dbResult = mysqli_query($db, $query);
     if ($dbResult == false) {
-        //log_email(__FUNCTION__ . " fucked up somehow for $user");
+        log_sql_fail();
         return false;
     }
 
