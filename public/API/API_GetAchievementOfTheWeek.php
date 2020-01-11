@@ -19,17 +19,27 @@ if (empty($achievementID)) {
     return;
 }
 
-$gameId = null;
-$gameTitle = null;
-$achievementTitle = getAchievementTitle($achievementID, $gameTitle, $gameId);
+$achievementData = GetAchievementMetadataJSON($achievementID);
+
 $achievement = [
-    'ID' => $achievementID,
-    'Title' => $achievementTitle,
+    'ID' => $achievementData['AchievementID'] ?? null,
+    'Title' => $achievementData['AchievementTitle'] ?? null,
+    'Description' => $achievementData['Description'] ?? null,
+    'Points' => $achievementData['Points'] ?? null,
+    'TrueRatio' => $achievementData['TrueRatio'] ?? null,
+    'Author' => $achievementData['Author'] ?? null,
+    'DateCreated' => $achievementData['DateCreated'] ?? null,
+    'DateModified' => $achievementData['DateModified'] ?? null,
 ];
 
 $game = [
-    'ID' => $gameId,
-    'Title' => $gameTitle,
+    'ID' => $achievementData['GameID'] ?? null,
+    'Title' => $achievementData['GameTitle'] ?? null,
+];
+
+$console = [
+    'ID' => $achievementData['ConsoleID'] ?? null,
+    'Title' => $achievementData['ConsoleName'] ?? null,
 ];
 
 $forumTopic = [
@@ -57,6 +67,7 @@ usort($winnerInfo, function ($a, $b) {
 
 echo json_encode([
     'Achievement' => $achievement,
+    'Console' => $console,
     'ForumTopic' => $forumTopic,
     'Game' => $game,
     'StartAt' => $startAt,
