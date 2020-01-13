@@ -60,7 +60,7 @@ RenderToolbar($user, $permissions);
                 {
                     if ($selectedConsole == $console['ID'])
                     {
-                        echo "<option selected>" . getGamesWithRequests( $console['ID']) . " - " . $console['Name'] . "</option>";
+                        echo "<option selected>" . $totalRequestedGames . " - " . $console['Name'] . "</option>";
                     }
                     else
                     {
@@ -99,13 +99,13 @@ RenderToolbar($user, $permissions);
             echo "<div class='rightalign row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                echo "<a href='/setRequestList.php'>First</a> - ";
-                echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
+                echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
             }
             if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
                 $nextOffset = $offset + $maxCount;
-                echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
-                echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
+                echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
+                echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
             }
             echo "</div>";
         } else {

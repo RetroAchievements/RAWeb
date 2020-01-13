@@ -274,7 +274,7 @@ function getMostRequestedSetsList($console, $offset, $count)
 /**
  * Gets the number of set-less games with at least one set request.
  *
- * @param int $consoletem the console to get game count for
+ * @param int $console the console to get game count for
  * @return bool|mixed|string
  */
 function getGamesWithRequests($console)
