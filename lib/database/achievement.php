@@ -1367,10 +1367,10 @@ function recalculateTrueRatio($gameID)
 }
 
 /*
- * Gets the number of softcore and hardcore awarded for an achieveemnt since a given time.
+ * Gets the number of softcore and hardcore awards for an achieveemnt since a given time.
  *
- * @param int $id offset achievement to gets awards count for
- * @param string $date the date to get awards since
+ * @param int $id achievement to gets awards count for
+ * @param string $date the date to get awards count since
  * @return array
  */
 function getAwardsSince($id, $date)
