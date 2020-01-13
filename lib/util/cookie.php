@@ -1,7 +1,7 @@
 <?php
 function RA_ClearCookie($cookieName)
 {
-    return setcookie("$cookieName", "", 1, '/', AT_HOST_DOT);
+    RA_SetCookie($cookieName, '', 1);
 }
 
 function RA_ReadCookie($cookieName)
@@ -13,9 +13,16 @@ function RA_ReadCookie($cookieName)
     return null;
 }
 
-function RA_SetCookie($cookieName, $cookieValue)
+function RA_SetCookie($cookieName, $cookieValue, $expire = 0, $httponly = false)
 {
-    return setcookie("$cookieName", "$cookieValue", time() + 60 * 60 * 24 * 30, '/', AT_HOST_DOT);
+    return setcookie($cookieName, $cookieValue, [
+        'expires' => $expire,
+        'path' => '/',
+        'domain' => getenv('SESSION_DOMAIN') ?? '',
+        'samesite' => 'lax',
+        'secure' => getenv('SESSION_SECURE_COOKIE'),
+        'httponly' => $httponly,
+    ]);
 }
 
 function RA_CookieExists($cookieName)

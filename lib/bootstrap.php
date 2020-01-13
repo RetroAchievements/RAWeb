@@ -95,15 +95,6 @@ $_profileTimer = microtime(true);
 $_loadDuration = 0;
 ProfileStamp(); //Start ticking
 
-if (isset($_SERVER["SERVER_NAME"])) {
-    define("AT_HOST", ($_SERVER["SERVER_NAME"]));
-    //	Note: null domain should be used for localhost stuff (Chrome workaround)
-    define("AT_HOST_DOT", (mb_stristr($_SERVER["SERVER_NAME"], "retroachievements.org")) ? '.retroachievements.org' : null);
-} else {
-    define("AT_HOST", "Internal");
-    define("AT_HOST_DOT", null);
-}
-
 define("VERSION", "1.35.0");
 
 try {

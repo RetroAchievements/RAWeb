@@ -223,9 +223,11 @@ function generateCookie($user, &$cookie)
 
     // log_sql($query);
     $result = s_mysql_query($query);
+    $expDays = 7;
+    $expiry = time() + 60 * 60 * 24 * $expDays;
     if ($result !== false) {
-        RA_SetCookie('RA_User', $user);
-        RA_SetCookie('RA_Cookie', $cookie);
+        RA_SetCookie('RA_User', $user, $expiry, false);
+        RA_SetCookie('RA_Cookie', $cookie, $expiry, true);
         return true;
     } else {
         // error_log(__FUNCTION__ . " failed: cannot update DB: $query");
