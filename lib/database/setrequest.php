@@ -218,11 +218,12 @@ function getSetRequestorsList($gameID)
 /**
  * Gets a list of the most requested sets without core achievements.
  *
+ * @param int $console the console to get games for
  * @param int $offset offset starting position for returned games
  * @param int $count number of games to return
  * @return array
  */
-function getMostRequestedSetsList($offset, $count)
+function getMostRequestedSetsList($console, $offset, $count)
 {
     $retVal = [];
 
@@ -240,13 +241,21 @@ function getMostRequestedSetsList($offset, $count)
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
         WHERE 
-            sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
-        GROUP BY
-            sr.GameID
-        ORDER BY
-            Requests DESC, gd.Title
-        LIMIT
-            $offset, $count";
+            sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+
+        if ($console != null)
+        {
+            $query .= "
+                AND c.ID = '$console' ";
+        }
+
+        $query .= "
+            GROUP BY
+                sr.GameID
+            ORDER BY
+                Requests DESC, gd.Title
+            LIMIT
+                $offset, $count";
 
     $dbResult = s_mysql_query($query);
 
@@ -265,17 +274,30 @@ function getMostRequestedSetsList($offset, $count)
 /**
  * Gets the number of set-less games with at least one set request.
  *
+ * @param int $consoletem the console to get game count for
  * @return bool|mixed|string
  */
-function getGamesWithRequests()
+function getGamesWithRequests($console)
 {
     $query = "
         SELECT
-            COUNT(DISTINCT GameID) AS Games
+            COUNT(DISTINCT sr.GameID) AS Games,
+            sr.GameID as GameID,
+            c.name as ConsoleName
         FROM
-            SetRequest
+            SetRequest sr
+        LEFT JOIN
+            GameData gd ON (sr.GameID = gd.ID)
+        LEFT JOIN
+            Console c ON (gd.ConsoleID = c.ID)
         WHERE
-             GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')";
+             GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+
+        if ($console != null)
+        {
+            $query .= "
+                AND c.ID = '$console' ";
+        }
 
     $dbResult = s_mysql_query($query);
 
