@@ -7,10 +7,9 @@ RenderHtmlStart();
 <head>
     <?php RenderSharedHeader($user); ?>
 </head>
-<body onload="init_chat(50);">
+<body>
 <script type='text/javascript' src='/js/wz_tooltip.js'></script>
-<script type='text/javascript' src="js/ping_chat.js"></script>
-<div style='padding:0px 10px;'>
+<div style='padding:0 10px;'>
     <?php RenderChat($user, 420); ?>
 </div>
 </body>

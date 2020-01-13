@@ -46,14 +46,13 @@ if (isset($activityID)) {
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
-<body onload="init_chat(50);">
+<body>
 <link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
 <script type='text/javascript'>
   $(document).ready(function () {
     FocusOnArticleID(GetParameterByName('a'))
   })
 </script>
-<script type='text/javascript' src="/js/ping_chat.js?v=<?php echo VERSION ?>"></script>
 
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
