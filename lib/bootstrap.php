@@ -70,7 +70,7 @@ require_once(__DIR__ . '/util/utf8.php');
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-define("VERSION", "1.35.0");
+define("VERSION", "1.38.0");
 
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
