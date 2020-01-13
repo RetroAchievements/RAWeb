@@ -10,10 +10,9 @@ $mobileSetting = seekGET('m');
 RenderHtmlStart();
 RenderHtmlHead("RA Cinema");
 ?>
-<body onload="init_chat(250);">
+<body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type='text/javascript' src="/js/ping_chat.js?v=<?php echo VERSION ?>"></script>
 <script>
   var archiveURLs = Array()
   var archiveTitles = Array()
