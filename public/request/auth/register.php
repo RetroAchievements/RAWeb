@@ -53,18 +53,19 @@ if (getenv('GOOGLE_RECAPTCHA_SECRET')) {
         return false;
     }
 
-    //$resp = recaptcha_check_answer( getenv('GOOGLE_RECAPTCHA_SECRET'),
-    //								$_SERVER["REMOTE_ADDR"],
-    //								$_POST["recaptcha_challenge_field"],
-    //								$_POST["recaptcha_response_field"]);
-    //var_dump( $_POST );
-    //	Send $_POST['g-recaptcha-response'] to https://www.google.com/recaptcha/api/siteverify
+    //$resp = recaptcha_check_answer( getenv('GOOGLE_RECAPTCHA_SECRET'), $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+    // Send $_POST['g-recaptcha-response'] to https://www.google.com/recaptcha/api/siteverify
     $url = 'https://www.google.com/recaptcha/api/siteverify';
     $data = ['secret' => getenv('GOOGLE_RECAPTCHA_SECRET'), 'response' => $_POST['g-recaptcha-response']];
 
     // use key 'http' even if you send the request to https://...
-    $options = ['http' => ['header' => "Content-type: application/x-www-form-urlencoded\r\n", 'method' => 'POST', 'content' => http_build_query($data),],];
-    $context = stream_context_create($options);
+    $context = stream_context_create([
+        'http' => [
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method' => 'POST',
+            'content' => http_build_query($data),
+        ],
+    ]);
     $result = file_get_contents($url, false, $context);
     $resultJSON = json_decode($result, true);
 

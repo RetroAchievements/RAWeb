@@ -69,19 +69,10 @@ RenderHtmlHead("$userPage's Legacy");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<!--Load the AJAX API-->
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-
-  // Load the Visualization API and the piechart package.
   google.load('visualization', '1.0', {'packages': ['corechart']})
-
-  // Set a callback to run when the Google Visualization API is loaded.
   google.setOnLoadCallback(drawCharts)
-
-  // Callback that creates and populates a data table,
-  // instantiates the pie chart, passes in the data and
-  // draws it.
   function drawCharts() {
 
     var dataTotalScore = new google.visualization.DataTable()
@@ -205,9 +196,6 @@ RenderHtmlHead("$userPage's Legacy");
         } else {
           d.setFullYear(new Date().getFullYear(), month - 1, day)
         }
-
-        //alert( day + " " + month + " " + d.getTime() );
-
         window.location = '/historyexamine.php?d=' + parseInt(d.getTime() / 1000) + '&u=' + <?php echo "'$userPage'"; ?>;
       }
     }
