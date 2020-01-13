@@ -15,7 +15,7 @@ function RA_ReadCookie($cookieName)
 
 function RA_SetCookie($cookieName, $cookieValue, $expire = 0, $httponly = false)
 {
-    return setcookie ($cookieName, $cookieValue, $expire, $path = "/", getenv('SESSION_DOMAIN'), false, $httponly);
+    return setcookie($cookieName, $cookieValue, $expire, $path = "/", getenv('SESSION_DOMAIN'), false, $httponly);
     // return setcookie($cookieName, $cookieValue, [
     //     'expires' => $expire,
     //     'path' => '/',

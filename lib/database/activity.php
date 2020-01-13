@@ -147,7 +147,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $gameTitle = str_replace("'", "''", $gameTitle);
 
             $query .= "(NOW(), $activity, '$user', '$gameID', NULL)";
-            error_log($query);
             break;
 
         case ActivityType::UploadAchievement:
