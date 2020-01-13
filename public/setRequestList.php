@@ -47,8 +47,14 @@ RenderToolbar($user, $permissions);
         $gameCounter = 0;
 
         if ($username === null) {
-            //Looking at most requested sets
-            echo "<h2 class='longheader'>Most Requested Sets</h2>";
+            if ($selectedConsole != null)
+            {
+                echo "<h2 class='longheader'>Most Requested " . array_column($consoles, 'Name', 'ID')[$selectedConsole] . " Sets</h2>";
+            }
+            else
+            {
+                echo "<h2 class='longheader'>Most Requested Sets</h2>";
+            }
 
             echo "<div align='right'>";
             echo "Filter by console: ";
