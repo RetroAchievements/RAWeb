@@ -70,41 +70,7 @@ require_once(__DIR__ . '/util/utf8.php');
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-// // set the user error handler method to be error_handler
-// set_error_handler('error_handler', E_ALL);
-// // error handler function
-// function error_handler($errNo, $errStr, $errFile, $errLine)
-// {
-//     // clear any output that has already been generated
-//     if (ob_get_length()) {
-//         ob_clean();
-//     }
-//     // output the error message
-//     $error_message = 'ERRNO: ' . $errNo . chr(10) .
-//         'TEXT: ' . $errStr . chr(10) .
-//         'LOCATION: ' . $errFile .
-//         ', line ' . $errLine;
-//     echo $error_message;
-//     // prevent processing any more PHP scripts
-//     exit;
-// }
-
-$g_pageLoadAt = microtime(true);
-$g_numQueries = 0;
-$_profileTimer = microtime(true);
-$_loadDuration = 0;
-ProfileStamp(); //Start ticking
-
-if (isset($_SERVER["SERVER_NAME"])) {
-    define("AT_HOST", ($_SERVER["SERVER_NAME"]));
-    //	Note: null domain should be used for localhost stuff (Chrome workaround)
-    define("AT_HOST_DOT", (mb_stristr($_SERVER["SERVER_NAME"], "retroachievements.org")) ? '.retroachievements.org' : null);
-} else {
-    define("AT_HOST", "Internal");
-    define("AT_HOST_DOT", null);
-}
-
-define("VERSION", "1.35.0");
+define("VERSION", "1.38.0");
 
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));

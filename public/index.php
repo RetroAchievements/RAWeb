@@ -20,7 +20,7 @@ $staticData = getStaticData();
 $errorCode = seekGET('e');
 $mobileBrowser = IsMobileBrowser();
 
-RA_SetCookie("RA_MobileActive", "$mobileBrowser");
+RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
 // if ($mobileBrowser) {
 //if( !RA_CookieExists( 'RAPrefs_CSS' ) )
 //	RA_SetCookie( 'RAPrefs_CSS', '/css/rac_mobile.css' );
@@ -42,18 +42,10 @@ RenderToolbar($user, $permissions);
 <!--    <script type='text/javascript' src="js/ping_feed.js"></script>-->
 <script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
 <script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-
-  // Load the Visualization API and the piechart package.
   google.load('visualization', '1.0', {'packages': ['corechart']})
-
-  // Set a callback to run when the Google Visualization API is loaded.
   google.setOnLoadCallback(drawCharts)
-
-  // Callback that creates and populates a data table,
-  // instantiates the pie chart, passes in the data and
-  // draws it.
   function drawCharts() {
     var dataTotalScore = new google.visualization.DataTable()
 
@@ -66,20 +58,16 @@ RenderToolbar($user, $permissions);
         $largestWonByCount = 0;
         $count = 0;
         $now = date("Y/m/d G:0:0");
-        //error_log( $now );
-
         for ($i = 0; $i < 48; $i++) {
             if (count($playersOnlineArray) < $i) {
                 continue;
             }
-
             $players = empty($playersOnlineArray[$i]) ? 0 : $playersOnlineArray[$i];
             settype($players, 'integer');
 
             if ($i != 0) {
                 echo ", ";
             }
-
             $mins = $i * 30;
 
             $timestamp = strtotime("-$mins minutes", strtotime($now));
@@ -116,19 +104,12 @@ RenderToolbar($user, $permissions);
     function resize() {
       chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_usersonline'))
       chartScoreProgress.draw(dataTotalScore, optionsTotalScore)
-
       //google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
     }
 
-    function onload() {
-      resize()
-
-    }
-
-    window.onload = onload()
+    window.onload = resize()
     window.onresize = resize
   }
-
 </script>
 
 <script type="text/javascript">

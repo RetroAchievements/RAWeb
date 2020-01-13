@@ -212,20 +212,18 @@ function validateEmailValidationString($emailCookie, &$user)
 function generateCookie($user, &$cookie)
 {
     if (!isset($user) || $user == false) {
-        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
-    //    Attempt to set a cookie on the server: if successful, set it locally.
 
     $cookie = rand_string(16);
-
     $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
 
-    // log_sql($query);
     $result = s_mysql_query($query);
+    $expDays = 7;
+    $expiry = time() + 60 * 60 * 24 * $expDays;
     if ($result !== false) {
-        RA_SetCookie('RA_User', $user);
-        RA_SetCookie('RA_Cookie', $cookie);
+        RA_SetCookie('RA_User', $user, $expiry, false);
+        RA_SetCookie('RA_Cookie', $cookie, $expiry, true);
         return true;
     } else {
         // error_log(__FUNCTION__ . " failed: cannot update DB: $query");
@@ -237,18 +235,13 @@ function generateCookie($user, &$cookie)
 function generateAppToken($user, &$tokenOut)
 {
     if (!isset($user) || $user == false) {
-        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
-    //    Attempt to set a token on the server: if successful, provide it.
-
     $newToken = rand_string(16);
 
     $expDays = 30;
     $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
     $query = "UPDATE UserAccounts SET appToken='$newToken', appTokenExpiry='$expiryStr', Updated=NOW() WHERE User='$user'";
-
-    // log_sql($query);
     $result = s_mysql_query($query);
     if ($result !== false) {
         $tokenOut = $newToken;
