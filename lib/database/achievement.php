@@ -1365,3 +1365,35 @@ function recalculateTrueRatio($gameID)
         return false;
     }
 }
+
+/*
+ * Gets the number of softcore and hardcore awarded for an achieveemnt since a given time.
+ *
+ * @param int $id offset achievement to gets awards count for
+ * @param string $date the date to get awards since
+ * @return array
+ */
+function getAwardsSince($id, $date)
+{
+    settype($id, "integer");
+    settype($date, "string");
+
+    $query = "
+        SELECT
+            COALESCE(SUM(CASE WHEN HardcoreMode = 0 THEN 1 ELSE 0 END), 0) AS softcoreCount,
+            COALESCE(SUM(CASE WHEN HardcoreMode = 1 THEN 1 ELSE 0 END), 0) AS hardcoreCount
+        FROM
+            Awarded
+        WHERE
+            AchievementID = $id
+        AND
+            Date > '$date'";
+
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult);
+    } else {
+        return 0;
+    }
+}
