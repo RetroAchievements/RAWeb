@@ -670,16 +670,15 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
  * @param int $gameID the game to add new leaderboards to
  * @param int $leaderboardID the leaderboard to duplicate
  * @param int $duplicateNumber the number of times to duplicate the leaderboard
- * @return boolean
+ * @return bool
  */
 function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 {
-    settype($gameID,          'integer');
-    settype($leaderboardID,   'integer');
+    settype($gameID, 'integer');
+    settype($leaderboardID, 'integer');
     settype($duplicateNumber, 'integer');
 
-    if ($gameID == 0)
-    {
+    if ($gameID == 0) {
         return false;
     }
 
@@ -702,8 +701,7 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
             WHERE  ID = $leaderboardID";
 
     $dbResult = s_mysql_query($getQuery);
-    if ($dbResult !== false)
-    {
+    if ($dbResult !== false) {
         $db_entry = mysqli_fetch_assoc($dbResult);
 
         $lbMem           = $db_entry['Mem'];
@@ -712,26 +710,20 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
         $lbDescription   = $db_entry['Description'];
         $lbScoreType     = $db_entry['LowerIsBetter'];
         $lbDisplayOrder  = $db_entry['DisplayOrder'];
-    }
-    else
-    {
+    } else {
         return false;
     }
-    
+
     //Create the duplicate entries
-    for ($i = 1; $i <= $duplicateNumber; $i++)
-    {
+    for ($i = 1; $i <= $duplicateNumber; $i++) {
         $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
                                     VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i))";
         // log_sql($query);
         $dbResult = s_mysql_query($query);
-        if ($dbResult !== false)
-        {
+        if ($dbResult !== false) {
             global $db;
             mysqli_insert_id($db);
-        }
-        else
-        {
+        } else {
             return false;
         }
     }

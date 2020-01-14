@@ -15,21 +15,15 @@ if (!isset($user)) {
 }
 
 if (validateUser_cookie($user, $cookie, \RA\Permissions::Developer)) {
-    if (isset($leaderboardID) && isset($duplicateNumber))
-    {
-        if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber))
-        {
+    if (isset($leaderboardID) && isset($duplicateNumber)) {
+        if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)) {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");
             exit;
-        }
-        else
-        {
+        } else {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php&e=cannotcreate");
             exit;
         }
-    }
-    else
-    {
+    } else {
         if (submitNewLeaderboard($gameID, $lbID)) {
             //	Good!
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");

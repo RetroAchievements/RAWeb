@@ -27,7 +27,7 @@ if ($username === null) {
 //Get and srot the console list
 $consoles = getConsoleIDs();
 
-usort($consoles, function($a, $b) {
+usort($consoles, function ($a, $b) {
     return $a['Name'] <=> $b['Name'];
 });
 
@@ -47,12 +47,9 @@ RenderToolbar($user, $permissions);
         $gameCounter = 0;
 
         if ($username === null) {
-            if ($selectedConsole != null)
-            {
+            if ($selectedConsole != null) {
                 echo "<h2 class='longheader'>Most Requested " . array_column($consoles, 'Name', 'ID')[$selectedConsole] . " Sets</h2>";
-            }
-            else
-            {
+            } else {
                 echo "<h2 class='longheader'>Most Requested Sets</h2>";
             }
 
@@ -60,23 +57,16 @@ RenderToolbar($user, $permissions);
             echo "Filter by console: ";
             echo "<td><select class='gameselector' onchange='window.location = \"/setRequestList.php\" + this.options[this.selectedIndex].value'><option value=''>-- All Systems --</option>";
 
-            foreach ($consoles as $console)
-            {
-                if ($selectedConsole != null)
-                {
-                    if ($selectedConsole == $console['ID'])
-                    {
+            foreach ($consoles as $console) {
+                if ($selectedConsole != null) {
+                    if ($selectedConsole == $console['ID']) {
                         echo "<option selected>" . $totalRequestedGames . " - " . $console['Name'] . "</option>";
-                    }
-                    else
-                    {
-                        echo "<option value='?s=" . $console['ID'] . "'>" . getGamesWithRequests( $console['ID']) . " - " . $console['Name'] . "</option>";
+                    } else {
+                        echo "<option value='?s=" . $console['ID'] . "'>" . getGamesWithRequests($console['ID']) . " - " . $console['Name'] . "</option>";
                         echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
                     }
-                }
-                else
-                {
-                    echo "<option value='?s=" . $console['ID'] . "'>" . getGamesWithRequests( $console['ID']) . " - " . $console['Name'] . "</option>";
+                } else {
+                    echo "<option value='?s=" . $console['ID'] . "'>" . getGamesWithRequests($console['ID']) . " - " . $console['Name'] . "</option>";
                     echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
                 }
             }
