@@ -45,7 +45,7 @@ getCookie($user, $cookieRaw);
 $errorCode = seekGET('e');
 
 RenderHtmlStart();
-RenderHtmlHead("Edit post: $thisTopicTitle");
+RenderHtmlHead("Edit post");
 ?>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -57,7 +57,7 @@ RenderHtmlHead("Edit post: $thisTopicTitle");
         echo "<b>Edit Post</b>";
         echo "</div>";
 
-        echo "<h2 class='longheader'>$pageTitle</h2>";
+        echo "<h2 class='longheader'>Edit post</h2>";
 
         echo "<table>";
         echo "<tbody>";
