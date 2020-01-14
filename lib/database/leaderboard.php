@@ -699,7 +699,7 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
                    LowerIsBetter, 
                    (SELECT Max(DisplayOrder) FROM LeaderboardDef WHERE GameID = $gameID) AS DisplayOrder 
             FROM   LeaderboardDef 
-            WHERE  id = $leaderboardID";
+            WHERE  ID = $leaderboardID";
 
     $dbResult = s_mysql_query($getQuery);
     if ($dbResult !== false)
