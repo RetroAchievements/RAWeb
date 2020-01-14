@@ -651,7 +651,8 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
     $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
-                                VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0, 0)";
+                                VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
+                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp))";
     // log_sql($query);
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -661,6 +662,72 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
     } else {
         return false;
     }
+}
+
+/**
+ * Duplicates a leaderboard a specified number of times.
+ *
+ * @param int $gameID the game to add new leaderboards to
+ * @param int $leaderboardID the leaderboard to duplicate
+ * @param int $duplicateNumber the number of times to duplicate the leaderboard
+ * @return bool
+ */
+function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
+{
+    settype($gameID, 'integer');
+    settype($leaderboardID, 'integer');
+    settype($duplicateNumber, 'integer');
+
+    if ($gameID == 0) {
+        return false;
+    }
+
+    $lbMem          = null;
+    $lbFormat       = null;
+    $lbTitle        = null;
+    $lbDescription  = null;
+    $lbScoreType    = null;
+    $lbDisplayOrder = null;
+
+    //Get the leaderboard info to duplicate
+    $getQuery = "
+            SELECT Mem, 
+                   Format, 
+                   Title, 
+                   Description, 
+                   LowerIsBetter, 
+                   (SELECT Max(DisplayOrder) FROM LeaderboardDef WHERE GameID = $gameID) AS DisplayOrder 
+            FROM   LeaderboardDef 
+            WHERE  ID = $leaderboardID";
+
+    $dbResult = s_mysql_query($getQuery);
+    if ($dbResult !== false) {
+        $db_entry = mysqli_fetch_assoc($dbResult);
+
+        $lbMem           = $db_entry['Mem'];
+        $lbFormat        = $db_entry['Format'];
+        $lbTitle         = $db_entry['Title'];
+        $lbDescription   = $db_entry['Description'];
+        $lbScoreType     = $db_entry['LowerIsBetter'];
+        $lbDisplayOrder  = $db_entry['DisplayOrder'];
+    } else {
+        return false;
+    }
+
+    //Create the duplicate entries
+    for ($i = 1; $i <= $duplicateNumber; $i++) {
+        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
+                                    VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i))";
+        // log_sql($query);
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            global $db;
+            mysqli_insert_id($db);
+        } else {
+            return false;
+        }
+    }
+    return true;
 }
 
 function requestResetLB($lbID)

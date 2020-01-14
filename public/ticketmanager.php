@@ -529,6 +529,16 @@ RenderHtmlHead($pageTitle);
                     echo "</tr>";
                 }
 
+                echo "<tr>";
+                echo "<td></td><td colspan='6'>";
+                echo "<div class='temp'>";
+                $awardCount = getAwardsSince($achID, $reportedAt);
+                echo "This achievement has been earned " . $awardCount['softcoreCount'] . " <b>(" . $awardCount['hardcoreCount'] . ")</b> "
+                    . ($awardCount['hardcoreCount'] == 1 ? "time": "times") . " since this ticket was created.";
+                echo "</div>";
+                echo "</td>";
+                echo "</tr>";
+
                 if ($permissions >= \RA\Permissions::Developer) {
                     echo "<tr>";
 
