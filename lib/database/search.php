@@ -1,4 +1,5 @@
 <?php
+
 function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
 {
     global $db;

@@ -1,4 +1,5 @@
 <?php
+
 function RenderCommentsComponent(
     $user,
     $numComments,

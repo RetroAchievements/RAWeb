@@ -1,4 +1,5 @@
 <?php
+
 function RenderGoogleTracking()
 {
     $googleAnalyticsId = getenv('GOOGLE_ANALYTICS_ID');

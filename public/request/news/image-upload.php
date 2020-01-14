@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {

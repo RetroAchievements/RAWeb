@@ -1,4 +1,5 @@
 <?php
+
 function getNiceTime($timestamp, $locale = 'EN-GB')
 {
     setlocale(LC_ALL, $locale);

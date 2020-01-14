@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $articleID = seekPOSTorGET('a', 0, 'integer');

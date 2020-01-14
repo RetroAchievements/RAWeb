@@ -1,4 +1,5 @@
 <?php
+
 function requestModifyVid($author, &$id, $title, $link)
 {
     global $db;

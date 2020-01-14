@@ -1,4 +1,5 @@
 <?php
+
 function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame)
 {
     echo "<div id='gamecompare' class='component' >";

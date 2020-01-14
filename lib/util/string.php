@@ -1,4 +1,5 @@
 <?php
+
 function isValidUsername($userTest)
 {
     if (ctype_alnum($userTest) == false) {

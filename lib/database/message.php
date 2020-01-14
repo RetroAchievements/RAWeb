@@ -1,4 +1,5 @@
 <?php
+
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
     //if( isFriendsWith( $author, $destUser ) )    //    nah

@@ -1,4 +1,5 @@
 <?php
+
 function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 {
     //    Note: avoid this wherever possible!! Requires raw use of user's password!

@@ -1,4 +1,5 @@
 <?php
+
 $file = __DIR__ . "/../../lib/RA_API.php";
 $fp = @fopen($file, 'rb');
 if (mb_strstr($_SERVER['HTTP_USER_AGENT'], "MSIE")) {

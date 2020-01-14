@@ -1,4 +1,5 @@
 <?php
+
 function debug_string_backtrace()
 {
     ob_start();

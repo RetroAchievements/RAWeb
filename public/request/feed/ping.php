@@ -1,4 +1,5 @@
 <?php
+
 echo '<response></response>';
 return;
 // require_once __DIR__ . '/../../../lib/bootstrap.php';

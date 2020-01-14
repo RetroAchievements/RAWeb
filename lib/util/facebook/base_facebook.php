@@ -603,12 +603,12 @@ abstract class BaseFacebook
             'www',
             'dialog/oauth',
             array_merge(
-            array(
+                array(
                     'client_id' => $this->getAppId(),
                     'redirect_uri' => $currentUrl, // possibly overwritten
                     'state' => $this->state, ),
-            $params
-        )
+                $params
+            )
         );
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 function utf8ize($d)
 {
     if (is_array($d) || is_object($d)) {

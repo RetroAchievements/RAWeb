@@ -1,4 +1,5 @@
 <?php
+
 function seekGET($key, $default = null)
 {
     if ($_GET !== false && array_key_exists($key, $_GET)) {

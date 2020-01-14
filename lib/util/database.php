@@ -1,4 +1,5 @@
 <?php
+
 function SQL_ASSERT($dbResult)
 {
     if ($dbResult == false) {

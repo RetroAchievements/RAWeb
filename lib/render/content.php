@@ -1,4 +1,5 @@
 <?php
+
 function RenderTwitterFeed()
 {
     echo "<div class='component stream'>";

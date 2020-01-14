@@ -1,4 +1,5 @@
 <?php
+
 function changeFriendStatus($user, $friend, $action)
 {
     settype($action, 'integer');

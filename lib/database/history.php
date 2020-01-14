@@ -1,4 +1,5 @@
 <?php
+
 function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
 {
     $retVal = [];

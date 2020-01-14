@@ -1,4 +1,5 @@
 <?php
+
 // function WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltipText)
 // {
 //     $displayable = str_replace("'", '&#39;', $displayable);

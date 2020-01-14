@@ -1,4 +1,5 @@
 <?php
+
 use RA\Permissions;
 
 abstract class ModifyTopicField

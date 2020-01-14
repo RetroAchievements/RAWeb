@@ -1,4 +1,5 @@
 <?php
+
 function getGameRating($gameID)
 {
     settype($gameID, 'integer');

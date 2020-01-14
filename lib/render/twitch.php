@@ -1,4 +1,5 @@
 <?php
+
 function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos = '', $overloadVideoID = 0)
 {
     echo "<div class='component $componentPos stream' >";

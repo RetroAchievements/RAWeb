@@ -1,4 +1,5 @@
 <?php
+
 function RenderFeedComponent($user)
 {
     echo "<div class='left'>";

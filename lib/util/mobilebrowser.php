@@ -1,4 +1,5 @@
 <?php
+
 function IsMobileBrowser()
 {
     $mobile_browser = '0';

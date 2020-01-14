@@ -1,4 +1,5 @@
 <?php
+
 function RenderCodeNotes($codeNotes)
 {
     echo "<h3>Code Notes</h3>";

@@ -1,4 +1,5 @@
 <?php
+
 function RA_ClearCookie($cookieName)
 {
     RA_SetCookie($cookieName, '', 1);

@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";

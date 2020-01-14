@@ -1,4 +1,5 @@
 <?php
+
 function log_email($logMessage)
 {
     if ($logMessage) {

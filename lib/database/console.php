@@ -1,4 +1,5 @@
 <?php
+
 function getConsoleList()
 {
     $query = "SELECT ID, Name FROM Console";

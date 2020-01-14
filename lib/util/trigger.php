@@ -1,4 +1,5 @@
 <?php
+
 function SizeTypeToString($char, &$iter)
 {
     if ($char == 'H') {

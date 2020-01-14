@@ -1,4 +1,5 @@
 <?php
+
 function RenderFBScript()
 {
     $facebookAppId = getenv('FACEBOOK_APP_ID');

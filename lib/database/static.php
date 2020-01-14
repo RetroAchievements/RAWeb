@@ -1,4 +1,5 @@
 <?php
+
 function static_addnewachievement($id)
 {
     $query = "UPDATE StaticData AS sd ";

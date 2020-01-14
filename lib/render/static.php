@@ -1,4 +1,5 @@
 <?php
+
 function RenderStaticDataComponent($staticData)
 {
     echo "<div class='component statistics'>";

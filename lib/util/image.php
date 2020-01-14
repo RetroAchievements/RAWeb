@@ -1,4 +1,5 @@
 <?php
+
 function ConvertBMP2GD($src, $dest = false)
 {
     if (!($src_f = fopen($src, "rb"))) {

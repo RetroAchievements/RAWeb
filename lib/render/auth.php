@@ -1,4 +1,5 @@
 <?php
+
 function RenderLoginComponent($user, $points, $errorCode, $inline = false)
 {
     if ($inline == true) {

@@ -1,4 +1,5 @@
 <?php
+
 function RenderRecentForumPostsComponent($numToFetch = 4)
 {
     echo "<div class='component'>";

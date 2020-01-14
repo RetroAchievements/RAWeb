@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 RA_ClearCookie('RA_User');

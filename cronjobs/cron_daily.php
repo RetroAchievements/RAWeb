@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $date = date('Y/m/d H:i:s');

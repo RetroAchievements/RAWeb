@@ -1,4 +1,5 @@
 <?php
+
 function GetLatestNewsData($offset, $count)
 {
     $retVal = [];

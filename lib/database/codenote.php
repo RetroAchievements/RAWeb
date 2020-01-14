@@ -1,4 +1,5 @@
 <?php
+
 function getCodeNotesData($gameID)
 {
     $codeNotesOut = [];

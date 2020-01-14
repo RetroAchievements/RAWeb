@@ -1,4 +1,5 @@
 <?php
+
 function RenderPHPBBIcons()
 {
     echo "<div class='buttoncollection'>";

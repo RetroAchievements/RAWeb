@@ -10,4 +10,8 @@ If you discover a security vulnerability, please send an on-site message to [RAd
 
 ## Coding Style
 
-Follow the [PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/) for newly added code or portions of code that were modified.
+Follow the [PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/).
+
+Run `composer fix-cs` to fix most code style issues automatically. 
+
+Commit code style fixes separately from feature code.

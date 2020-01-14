@@ -1,4 +1,5 @@
 <?php
+
 function RenderUpdateSubscriptionForm($formID, $subjectType, $subjectID, $isSubscribed)
 {
     echo "<form id='$formID' action='/request/user/update-subscription.php' method='post'>";

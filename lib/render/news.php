@@ -1,4 +1,5 @@
 <?php
+
 function RenderNewsComponent()
 {
     echo "<div class='left'>";
