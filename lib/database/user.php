@@ -991,6 +991,9 @@ function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements,
     $libraryOut['LastActivity'] = $userInfo['LastLogin'];
     $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : strip_tags($userInfo['RichPresenceMsg']);
     $libraryOut['LastGameID'] = $userInfo['LastGameID'];
+    if($userInfo['LastGameID'] ?? null) {
+        $libraryOut['LastGame'] = getGameData($userInfo['LastGameID']);
+    }
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
     $libraryOut['ContribYield'] = $userInfo['ContribYield'];
     $libraryOut['TotalPoints'] = $userInfo['RAPoints'];
