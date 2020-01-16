@@ -28,6 +28,7 @@ $achievement = [
     'Author' => $achievementData['Author'] ?? null,
     'DateCreated' => $achievementData['DateCreated'] ?? null,
     'DateModified' => $achievementData['DateModified'] ?? null,
+    'MemAddr' => $achievementData['MemAddr'] ?? null,
 ];
 
 $game = [
