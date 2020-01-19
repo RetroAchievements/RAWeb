@@ -84,7 +84,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "<br>";
 
             echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";
-            echo "My unlocked achievements";
+            echo "My Unlocked Achievements";
             echo $params !== 1 ? "</a>" : "</b>";
             echo "<br>";
 
