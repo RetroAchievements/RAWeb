@@ -8,7 +8,7 @@ $offset = 0;
 
 $username = seekGET('u');
 $errorCode = seekGET('e');
-$selectedConsole = seekGET('s');
+$selectedConsole = seekGET('s', null);
 $count = seekGET('c', $maxCount);
 $offset = seekGET('o', $offset);
 $flag = seekGET('f', 0); //0 - display only active user set requests, else display all user set requests
@@ -95,13 +95,25 @@ RenderToolbar($user, $permissions);
             echo "<div class='rightalign row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
-                echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
+                if ($selectedConsole != null) {
+                    echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
+                    echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
+                }
+                else {
+                    echo "<a href='/setRequestList.php'>First</a> - ";
+                    echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                }
             }
             if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
                 $nextOffset = $offset + $maxCount;
-                echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
-                echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
+                if ($selectedConsole != null) {
+                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
+                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
+                }
+                else {
+                    echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
+                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
+                }
             }
             echo "</div>";
         } else {
