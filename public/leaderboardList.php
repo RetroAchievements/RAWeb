@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\Permissions;
+
 $consoleList = getConsoleList();
 $consoleIDInput = seekGET('c', 0);
 
@@ -123,7 +125,7 @@ RenderHtmlHead($pageTitle);
         echo "</div>";
     }
 
-    if (isset($user) && $permissions >= 3) {
+    if (isset($user) && $permissions >= Permissions::Developer) {
         $numGames = getGamesList(0, $gamesList);
 
         echo "<div class='devbox'>";
@@ -169,7 +171,7 @@ RenderHtmlHead($pageTitle);
         echo "</div>";
     }
 
-    if (isset($gameData) && isset($user) && $permissions >= 3) {
+    if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
         echo "<div id='warning'>Status: OK!</div>";
     }
 
@@ -210,7 +212,7 @@ RenderHtmlHead($pageTitle);
     $sort6 = ($sortBy == 6) ? 16 : 6;
     $sort7 = ($sortBy == 7) ? 17 : 7;
 
-    if (isset($gameData) && isset($user) && $permissions >= 3) {
+    if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
         echo "<th>ID</th>";
         echo "<th>Title/Description</th>";
         echo "<th>Type</th>";
@@ -251,7 +253,7 @@ RenderHtmlHead($pageTitle);
             echo "<tr>";
         }
 
-        if (isset($gameData) && isset($user) && $permissions >= 3) {
+        if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>$lbID</a>";
             echo "</td>";
@@ -401,7 +403,7 @@ RenderHtmlHead($pageTitle);
     }
 
     //	hack:
-    if (isset($gameData) && isset($user) && $permissions >= 3) {
+    if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
         $listCount /= 2;
     }
 
@@ -425,7 +427,7 @@ RenderHtmlHead($pageTitle);
 </div>
 
 <?php
-if (count($codeNotes) > 0 && $permissions >= 3) {
+if (count($codeNotes) > 0 && $permissions >= Permissions::Developer) {
         echo "<div id='rightcontainer'>";
         RenderCodeNotes($codeNotes);
         echo "</div>";

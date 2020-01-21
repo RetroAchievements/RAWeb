@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\Permissions;
+
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
         //	Immediate redirect if we cannot validate user!
@@ -344,12 +346,12 @@ RenderHtmlHead("My Settings");
 
         </div>
         <?php
-        if ($permissions > 0) {
+        if ($permissions >= Permissions::Registered) {
             echo "<div class='component'>";
             echo "<h3>Account Privileges</h3>";
             echo "<table><tbody>";
 
-            if ($permissions >= 1) {
+            if ($permissions >= Permissions::Registered) {
                 $userMottoString = isset($userMotto) ? $userMotto : "";
                 echo "<tr>";
                 echo "<td>User Motto:</td>";
@@ -374,11 +376,11 @@ RenderHtmlHead("My Settings");
                 echo "</tr>";
             }
 
-            if ($permissions >= 1) {
+            if ($permissions >= Permissions::Registered) {
                 echo "<tr><td>Twitch.tv streamkey:</td><td><input size='60' readonly type='text' value='live_46798798_5tO2CCgggTMoi5458BLKUADECNpOrq' /></td></tr>";
             }
 
-            if ($permissions >= 0) {
+            if ($permissions >= Permissions::Unregistered) {
                 echo "<tr>";
                 echo "<td>";
                 echo "Allow Comments on my User Wall: ";

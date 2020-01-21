@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\Permissions;
+
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
 
 // Fetch topic ID
@@ -104,8 +106,8 @@ RenderHtmlStart();
         echo "</a>";
         echo "</div>";
 
-        //if( isset( $user ) && $permissions >= 1 )
-        if (isset($user) && ($thisTopicAuthor == $user || $permissions >= \RA\Permissions::Admin)) {
+        //if( isset( $user ) && $permissions >= Permissions::Registered )
+        if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
@@ -118,7 +120,7 @@ RenderHtmlStart();
             echo "<input type='submit' name='submit' value='Submit' size='37'>";
             echo "</form>";
 
-            if ($permissions >= \RA\Permissions::Admin) {
+            if ($permissions >= Permissions::Admin) {
                 echo "<div>Delete Topic:</div>";
                 echo "<form action='/request/forum-topic/modify.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
                 echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
@@ -151,7 +153,7 @@ RenderHtmlStart();
             // TBD: Report offensive content
             // TBD: Subscribe to this topic
             // TBD: Make top-post wiki
-            // if( ( $thisTopicAuthor == $user ) || $permissions >= 3 )
+            // if( ( $thisTopicAuthor == $user ) || $permissions >= Permissions::Developer )
             // {
             // echo "<li>Delete Topic!</li>";
             // echo "<form action='requestmodifytopic.php' >";
@@ -239,7 +241,7 @@ RenderHtmlStart();
 
             if ($nextCommentAuthorised == 0) {
                 // Allow, only if this is MY comment (disclaimer: unofficial), or if I'm admin (disclaimer: unofficial, verify user?)
-                if ($permissions >= \RA\Permissions::Developer) {
+                if ($permissions >= Permissions::Developer) {
                     // Allow with disclaimer
                     $showDisclaimer = true;
                     $showAuthoriseTools = true;
@@ -267,7 +269,7 @@ RenderHtmlStart();
 
             echo "<div class='smalltext rightfloat'>Posted: $nextCommentDateCreatedNiceDate";
 
-            if (($user == $nextCommentAuthor) || ($permissions >= \RA\Permissions::Admin)) {
+            if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
                 echo "&nbsp;<a href='/editpost.php?c=$nextCommentID'>(Edit&nbsp;Post)</a>";
             }
 
@@ -342,8 +344,8 @@ RenderHtmlStart();
 
             RenderPHPBBIcons();
 
-            $defaultMessage = ($permissions >= 1) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
-            $inputEnabled = ($permissions >= 1) ? "" : "disabled";
+            $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
+            $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
             echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p'>$defaultMessage</textarea><br><br>";

@@ -71,7 +71,7 @@ RenderHtmlStart(true);
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<?php if ($permissions >= 2): ?>
+<?php if ($permissions >= Permissions::Developer): ?>
     <script>
       function PostEmbedUpdate() {
         var url = $('body').find('#embedurlinput').val()
@@ -161,7 +161,7 @@ RenderHtmlStart(true);
 
         echo "Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)";
 
-        if (isset($user) && $permissions >= 1) {
+        if (isset($user) && $permissions >= Permissions::Registered) {
             echo "<br>";
             $countTickets = countOpenTicketsByAchievement($achievementID);
             if ($countTickets > 0) {
@@ -171,7 +171,7 @@ RenderHtmlStart(true);
         }
         echo "<br><br>";
 
-        if (isset($user) && $permissions >= 2) {
+        if (isset($user) && $permissions >= Permissions::Developer) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";

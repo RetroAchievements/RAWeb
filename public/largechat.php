@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\Permissions;
+
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $errorCode = seekGET('e');
@@ -64,7 +66,7 @@ RenderHtmlHead("RA Cinema");
             echo "<iframe id='player' type='text/html' width='620' height='378' src='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "/hls' frameborder='0'></iframe>";
         }
 
-        if ($permissions > 1) {
+        if ($permissions >= Permissions::Developer) {
             echo "<div>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Extra (click to show):</span>";
             echo "<div id='devboxcontent'>";

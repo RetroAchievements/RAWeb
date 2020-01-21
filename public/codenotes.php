@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\Permissions;
+
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $gameID = seekGET('g', 1);
@@ -20,7 +22,7 @@ RenderHtmlHead('Code Notes');
     <div id="fullcontainer">
         <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
         <?php
-        if (isset($gameData) && isset($user) && $permissions >= 3) {
+        if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
             RenderCodeNotes($codeNotes);
         }
         ?>
