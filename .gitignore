@@ -13,7 +13,7 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
-.env*
+/.env*
 nbproject
 ._*
 .~lock.*
@@ -34,7 +34,5 @@ nbproject
 /public/google*
 /public/mtests.php
 
-/chat/node-gyp
-/chat/utf-8*
 cronjobs/playersonline.log
 cronjobs/cronlog.log
