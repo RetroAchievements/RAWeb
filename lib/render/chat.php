@@ -7,7 +7,7 @@
  */
 function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut = false)
 {
-    if (!getenv('CHAT_PORT')) {
+    if (!getenv('WEBSOCKET_PORT')) {
         return;
     }
 
