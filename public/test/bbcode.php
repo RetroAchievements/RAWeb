@@ -56,7 +56,7 @@ RenderHtmlStart();
 RenderSharedHeader($user);
 ?>
 <body>
-<script type='text/javascript' src='/js/wz_tooltip.js'></script>
+<script type='text/javascript' src='/vendor/wz_tooltip.js'></script>
 <div style="width: 360px; margin: auto">
     <?php RenderTopicCommentPayload($payload) ?>
 </div>

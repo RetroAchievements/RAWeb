@@ -210,7 +210,7 @@ RenderToolbar($user, $permissions);
   })
   //]]>
 </script>
-<script type="text/javascript" src="js/jquery.githubRepoWidget.js"></script>
+<script type="text/javascript" src="vendor/jquery.githubRepoWidget.js"></script>
 <div id='mainpage'>
     <div id='leftcontainer'>
         <?php

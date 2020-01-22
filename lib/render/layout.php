@@ -64,7 +64,8 @@ function RenderSharedHeader()
 
     //    jQuery, and custom js
     //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
-    //echo "<script type='text/javascript' src='/js/jquery-ui-1.10.2.custom.min.js'></script>\n";
+    //echo "<script type='text/javascript' src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
+    echo "<script type='text/javascript' src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
     echo "<script type='text/javascript' src='/js/all.js?v=" . VERSION . "'></script>\n";
 }
 
@@ -99,7 +100,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 {
     settype($truePoints, 'integer');
     //    js tooltip code is basically on every page:
-    echo "<script type='text/javascript' src='/js/wz_tooltip.js'></script>";
+    echo "<script src='/vendor/wz_tooltip.js'></script>";
 
     settype($unreadMessageCount, "integer");
 

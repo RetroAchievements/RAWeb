@@ -8,7 +8,7 @@ RenderHtmlStart();
     <?php RenderSharedHeader($user); ?>
 </head>
 <body>
-<script type='text/javascript' src='/js/wz_tooltip.js'></script>
+<script type='text/javascript' src='/vendor/wz_tooltip.js'></script>
 <div style='padding:0 10px;'>
     <?php RenderChat($user, 420); ?>
 </div>
