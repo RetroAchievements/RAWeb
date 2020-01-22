@@ -3,7 +3,9 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "lint": "eslint index.js"
+    "lint": "eslint index.js",
+    "lintfix": "eslint index.js --fix",
+    "fix-cs": "eslint index.js --fix"
   },
   "dependencies": {
     "cool-ascii-faces": "~1.3.x",
