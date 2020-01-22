@@ -16,8 +16,8 @@ RenderHtmlHead("RA Cinema");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <script>
-  var archiveURLs = Array()
-  var archiveTitles = Array()
+  var archiveURLs = [];
+  var archiveTitles = [];
   <?php
   $query = "SELECT * 
 	FROM PlaylistVideo 
@@ -36,28 +36,28 @@ RenderHtmlHead("RA Cinema");
   ?>
 
   function PostVideoLink() {
-    var bodyTag = $('body')
-    var title = bodyTag.find('#videourltitle').val()
-    var url = bodyTag.find('#videourlinput').val()
-    url = replaceAll('http', '_http_', url)
+    var bodyTag = $('body');
+    var title = bodyTag.find('#videourltitle').val();
+    var url = bodyTag.find('#videourlinput').val();
+    url = replaceAll('http', '_http_', url);
 
-    var posting = $.post('/request/playlist/update.php', {a: '<?php echo $user; ?>', i: <?php echo $vidID; ?>, t: title, l: url})
-    posting.done(onPostComplete)
+    var posting = $.post('/request/playlist/update.php', { a: '<?php echo $user; ?>', i: <?php echo $vidID; ?>, t: title, l: url });
+    posting.done(onPostComplete);
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
 
   function onPostComplete(data) {
-    alert(data)
+    alert(data);
     if (data !== 'OK') {
       //$("body").find( "#warning" ).html( "Status: Errors..." );
     } else {
       //$("body").find( "#warning" ).html( "Status: Loading..." );
-      window.location.reload()
+      window.location.reload();
     }
   }
 </script>
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
         <?php
         //	left
         RenderTwitchTVStream(600, 500, 'left', $vidID);
@@ -103,7 +103,7 @@ RenderHtmlHead("RA Cinema");
         }
         ?>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         //	right
         RenderChat($user, 490, 'right');

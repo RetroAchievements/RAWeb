@@ -57,13 +57,7 @@ RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata(
-    "$achievementTitle in $gameTitle ($consoleName)",
-    "achievement",
-    "/Badge/$badgeName" . ".png",
-    "/Achievement/$achievementID",
-    "$gameTitle ($consoleName) - $desc"
-); ?>
+    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
     <?php RenderTitleTag($achievementTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -74,31 +68,31 @@ RenderHtmlStart(true);
 <?php if ($permissions >= Permissions::Developer): ?>
     <script>
       function PostEmbedUpdate() {
-        var url = $('body').find('#embedurlinput').val()
-        url = replaceAll('http', '_http_', url)
+        var url = $('#embedurlinput').val();
+        url = replaceAll('http', '_http_', url);
 
         var posting = $.post('/request/achievement/update.php', {
           u: '<?php echo $user; ?>',
           a: <?php echo $achievementID; ?>,
           f: 2,
-          v: url
-        })
-        posting.done(onUpdateEmbedComplete)
-        $('body').find('#warning').html('Status: Updating...')
+          v: url,
+        });
+        posting.done(onUpdateEmbedComplete);
+        $('#warning').html('Status: Updating...');
       }
 
       function onUpdateEmbedComplete(data) {
         if (data !== 'OK') {
-          $('body').find('#warning').html('Status: Errors...')
+          $('#warning').html('Status: Errors...');
         } else {
-          $('body').find('#warning').html('Status: Loading...')
-          window.location.reload()
+          $('#warning').html('Status: Loading...');
+          window.location.reload();
         }
       }
     </script>
 <?php endif ?>
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
         <?php
         RenderErrorCodeWarning($errorCode);
         echo "<div id='achievement'>";
@@ -295,7 +289,7 @@ RenderHtmlStart(true);
         echo "</div>"; //RecentWinners;
         ?>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         if ($user !== null) {
             RenderScoreLeaderboardComponent($user, $points, true);

@@ -571,7 +571,7 @@ RenderHtmlHead('Admin Tools');
               jQuery('#event_aotw_start_at').datetimepicker({
                 format: 'Y-m-d H:i:s',
                 mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-              })
+              });
             </script>
         </div>
     <?php endif ?>

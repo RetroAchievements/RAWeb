@@ -44,33 +44,33 @@ RenderHtmlHead("Send Message");
     $(':submit').click(function (e) {
       $('.requiredinput').each(function () {
         if ($(this).val().length == 0) {
-          $(this).effect('highlight', {}, 2000)
-          e.preventDefault()
+          $(this).effect('highlight', {}, 2000);
+          e.preventDefault();
         }
-      })
-    })
+      });
+    });
 
     //	Focus on the first relevant field
     if ($('#messagedest').val().length == 0)
-      $('#messagedest').focus()
+      $('#messagedest').focus();
     else
-      $('#commentTextarea').focus()
-  })
+      $('#commentTextarea').focus();
+  });
 
   function onUserChange() {
-    var target = $('#messagedest').val()
+    var target = $('#messagedest').val();
     if (target.length > 2)
-      $('.searchusericon').attr('src', '/UserPic/' + target + '.png')
+      $('.searchusericon').attr('src', '/UserPic/' + target + '.png');
   }
 
-  $(document).ready(onUserChange)
+  $(document).ready(onUserChange);
 </script>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 
 <div id="mainpage">
     <div id='fullcontainer'>
-        <div id="forums" class="left">
+        <div id="forums">
 
             <?php
             echo "<div class='navpath'>";

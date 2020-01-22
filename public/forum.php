@@ -30,9 +30,9 @@ RenderHtmlHead($pageTitle);
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
         <?php RenderErrorCodeWarning($errorCode); ?>
-        <div id="forums" class="left">
+        <div id="forums">
 
             <?php
             echo "<div class='navpath'>";
@@ -128,7 +128,7 @@ RenderHtmlHead($pageTitle);
             <br>
         </div>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         RenderRecentForumPostsComponent(8);
         ?>

@@ -56,14 +56,14 @@ switch ($requestType) {
     /**
      * Registration required and user=local
      */
-    case "achievementwondata":
     // case "addfriend":
+    // case "modifyfriend":
+    // case "removecomment":
+    case "achievementwondata":
     case "awardachievement":
     case "getfriendlist":
-    // case "modifyfriend":
     case "patch":
     case "postactivity":
-    // case "removecomment":
     case "richpresencepatch":
     case "submitcodenote":
     case "submitgametitle":

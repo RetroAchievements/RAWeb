@@ -3,17 +3,17 @@
 function RenderPHPBBIcons()
 {
     echo "<div class='buttoncollection'>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[b]\", \"[/b]\")'><b>b</b></a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[i]\", \"[/i]\")'><i>i</i></a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[u]\", \"[/u]\")'><u>u</u></a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[s]\", \"[/s]\")'><s>&nbsp;s&nbsp;</s></a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[code]\", \"[/code]\")'><code>code</code></a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[img=\", \"]\")'>img</a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[url=\", \"]Link[/url]\")'>url</a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[ach=\", \"]\")'>ach</a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[game=\", \"]\")'>game</a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[user=\", \"]\")'>user</a></span>";
-    echo "<span class='clickablebutton'><a href='#a' onclick='injectphpbb(\"[spoiler]\", \"[/spoiler]\")'>spoiler</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[b]\", \"[/b]\")'><b>b</b></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[i]\", \"[/i]\")'><i>i</i></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[u]\", \"[/u]\")'><u>u</u></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[s]\", \"[/s]\")'><s>&nbsp;s&nbsp;</s></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[code]\", \"[/code]\")'><code>code</code></a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[img=\", \"]\")'>img</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[url=\", \"]Link[/url]\")'>url</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[ach=\", \"]\")'>ach</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[game=\", \"]\")'>game</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[user=\", \"]\")'>user</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[spoiler]\", \"[/spoiler]\")'>spoiler</a></span>";
 
     echo "</div>";
 }

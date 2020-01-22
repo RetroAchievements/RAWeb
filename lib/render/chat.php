@@ -85,9 +85,9 @@ function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut 
     echo "</div>";
     echo "<script src='/js/ping_chat.js?v=" . VERSION . "'></script>";
     echo "<script>";
-    echo "init_chat(50);";
+    echo "initChat(50);";
     // if (!IsMobileBrowser()) {
-    //     echo "init_feed();";
+    //     echo "initFeed();";
     // }
     echo "</script>";
 }

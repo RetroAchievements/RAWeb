@@ -65,10 +65,10 @@ RenderHtmlStart(true);
 <?php RenderToolbar($user, $permissions); ?>
 
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
         <?php RenderErrorCodeWarning($errorCode); ?>
 
-        <div id="lbinfo" class="left">
+        <div id="lbinfo">
             <?php
             echo "<div class='navpath'>";
             echo "<a href='/gameList.php'>All Games</a>";
@@ -226,7 +226,7 @@ RenderHtmlStart(true);
         </div>
 
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         RenderGameLeaderboardsComponent($gameID, $allGameLBData);
         ?>

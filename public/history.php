@@ -71,15 +71,16 @@ RenderHtmlHead("$userPage's Legacy");
 <?php RenderToolbar($user, $permissions); ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.load('visualization', '1.0', {'packages': ['corechart']})
-  google.setOnLoadCallback(drawCharts)
+  google.load('visualization', '1.0', { 'packages': ['corechart'] });
+  google.setOnLoadCallback(drawCharts);
+
   function drawCharts() {
 
-    var dataTotalScore = new google.visualization.DataTable()
+    var dataTotalScore = new google.visualization.DataTable();
 
     // Declare columns
-    dataTotalScore.addColumn('date', 'Date Earned')
-    dataTotalScore.addColumn('number', 'Total Score')
+    dataTotalScore.addColumn('date', 'Date Earned');
+    dataTotalScore.addColumn('number', 'Total Score');
 
     dataTotalScore.addRows([
         <?php
@@ -103,27 +104,25 @@ RenderHtmlHead("$userPage's Legacy");
             //echo "[ new Date( Date.parse( '$nextDate' ) ), $value]";
         }
         ?>
-    ])
-
+    ]);
 
     var optionsTotalScore = {
       backgroundColor: 'transparent',
       title: '<?php echo $sortByGraphName; ?>',
-      titleTextStyle: {color: '#186DEE'}, //cc9900
-      hAxis: {textStyle: {color: '#186DEE'}, slantedTextAngle: 90},
-      vAxis: {textStyle: {color: '#186DEE'}},
-      legend: {position: 'none'},
-      chartArea: {'width': '86%', 'height': '70%'},
+      titleTextStyle: { color: '#186DEE' }, //cc9900
+      hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
+      vAxis: { textStyle: { color: '#186DEE' } },
+      legend: { position: 'none' },
+      chartArea: { 'width': '86%', 'height': '70%' },
       height: 250,
-      colors: ['#cc9900']
-    }
+      colors: ['#cc9900'],
+    };
 
-
-    var dataBestDays = new google.visualization.DataTable()
+    var dataBestDays = new google.visualization.DataTable();
 
     // Declare columns
-    dataBestDays.addColumn('string', 'Date')	//	NOT date! this is non-continuous data
-    dataBestDays.addColumn('number', 'Points Earned')
+    dataBestDays.addColumn('string', 'Date');	//	NOT date! this is non-continuous data
+    dataBestDays.addColumn('number', 'Points Earned');
 
     dataBestDays.addRows([
         <?php
@@ -159,42 +158,40 @@ RenderHtmlHead("$userPage's Legacy");
             echo "[ '$dateStr', $value ]";
         }
         ?>
-    ])
-
+    ]);
 
     var optionsBestDays = {
       backgroundColor: 'transparent',
       title: '<?php echo $sortByGraphName; ?>',
-      titleTextStyle: {color: '#186DEE'},
-      hAxis: {textStyle: {color: '#186DEE'}, slantedTextAngle: 90},
-      vAxis: {textStyle: {color: '#186DEE'}},
-      legend: {position: 'none'},
-      chartArea: {'width': '90%', 'height': '70%'},
+      titleTextStyle: { color: '#186DEE' },
+      hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
+      vAxis: { textStyle: { color: '#186DEE' } },
+      legend: { position: 'none' },
+      chartArea: { 'width': '90%', 'height': '70%' },
       showRowNumber: false,
-      view: {columns: [0, 1]},
+      view: { columns: [0, 1] },
       height: 250,
-      colors: ['#cc9900']
-    }
+      colors: ['#cc9900'],
+    };
 
-
-    var chartBestDays
-    var chartScoreProgress
+    var chartBestDays;
+    var chartScoreProgress;
 
     function selectHandlerBestDays(e) {
       if (chartBestDays.getSelection().length >= 1) {
-        var dateAbbr = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0)
-        var firstSlashAt = dateAbbr.indexOf('/')
-        var secondSlashAt = dateAbbr.lastIndexOf('/')
+        var dateAbbr = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
+        var firstSlashAt = dateAbbr.indexOf('/');
+        var secondSlashAt = dateAbbr.lastIndexOf('/');
 
-        var d = new Date
+        var d = new Date;
 
-        var day = dateAbbr.split('/')[0]
-        var month = dateAbbr.split('/')[1]
+        var day = dateAbbr.split('/')[0];
+        var month = dateAbbr.split('/')[1];
 
         if (firstSlashAt != secondSlashAt) {
-          d.setFullYear(dateAbbr.split('/')[2], month - 1, day)
+          d.setFullYear(dateAbbr.split('/')[2], month - 1, day);
         } else {
-          d.setFullYear(new Date().getFullYear(), month - 1, day)
+          d.setFullYear(new Date().getFullYear(), month - 1, day);
         }
         window.location = '/historyexamine.php?d=' + parseInt(d.getTime() / 1000) + '&u=' + <?php echo "'$userPage'"; ?>;
       }
@@ -202,30 +199,30 @@ RenderHtmlHead("$userPage's Legacy");
 
     function selectHandlerScoreProgress(e) {
       if (chartScoreProgress.getSelection().length >= 1) {
-        var dateFormatted = dataTotalScore.getFormattedValue(chartScoreProgress.getSelection()[0].row, 0)
+        var dateFormatted = dataTotalScore.getFormattedValue(chartScoreProgress.getSelection()[0].row, 0);
 
-        var d = new Date(Date.parse(dateFormatted))
-        var dAdj = new Date(d.getTime() + 60000 * 60 * 12)	//	Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
+        var d = new Date(Date.parse(dateFormatted));
+        var dAdj = new Date(d.getTime() + 60000 * 60 * 12);	//	Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
 
-        var nUnix = parseInt(dAdj.getTime() / 1000)
+        var nUnix = parseInt(dAdj.getTime() / 1000);
 
         window.location = '/historyexamine.php?d=' + nUnix + '&u=' + <?php echo "'$userPage'"; ?>;
       }
     }
 
     function resize() {
-      chartBestDays = new google.visualization.ColumnChart(document.getElementById('chart_bestdays'))
-      chartBestDays.draw(dataBestDays, optionsBestDays)
+      chartBestDays = new google.visualization.ColumnChart(document.getElementById('chart_bestdays'));
+      chartBestDays.draw(dataBestDays, optionsBestDays);
 
-      chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_scoreprogress'))
-      chartScoreProgress.draw(dataTotalScore, optionsTotalScore)
+      chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_scoreprogress'));
+      chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
 
-      google.visualization.events.addListener(chartBestDays, 'select', selectHandlerBestDays)
-      google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress)
+      google.visualization.events.addListener(chartBestDays, 'select', selectHandlerBestDays);
+      google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress);
     }
 
-    window.onload = resize()
-    window.onresize = resize
+    window.onload = resize();
+    window.onresize = resize;
   }
 </script>
 

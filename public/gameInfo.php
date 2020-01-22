@@ -150,14 +150,15 @@ RenderHtmlStart(true);
 <?php RenderToolbar($user, $permissions); ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.load('visualization', '1.0', {'packages': ['corechart']})
-  google.setOnLoadCallback(drawCharts)
+  google.load('visualization', '1.0', { 'packages': ['corechart'] });
+  google.setOnLoadCallback(drawCharts);
+
   function drawCharts() {
-    var dataTotalScore = new google.visualization.DataTable()
+    var dataTotalScore = new google.visualization.DataTable();
 
     // Declare columns
-    dataTotalScore.addColumn('number', 'Total Achievements Won')
-    dataTotalScore.addColumn('number', 'Num Users')
+    dataTotalScore.addColumn('number', 'Total Achievements Won');
+    dataTotalScore.addColumn('number', 'Num Users');
 
     dataTotalScore.addRows([
         <?php
@@ -180,104 +181,104 @@ RenderHtmlStart(true);
             $largestWonByCount = -2;
         }
         ?>
-    ])
+    ]);
       <?php $numGridlines = $numAchievements; ?>
     var optionsTotalScore = {
       backgroundColor: 'transparent',
       //title: 'Achievement Distribution',
-      titleTextStyle: {color: '#186DEE'}, //cc9900
-      hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
-      vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
-      legend: {position: 'none'},
-      chartArea: {'width': '85%', 'height': '78%'},
+      titleTextStyle: { color: '#186DEE' }, //cc9900
+      hAxis: { textStyle: { color: '#186DEE' }, gridlines: { count:<?php echo $numGridlines; ?>, color: '#334433' }, minorGridlines: { count: 0 }, format: '#', slantedTextAngle: 90, maxAlternation: 0 },
+      vAxis: { textStyle: { color: '#186DEE' }, gridlines: { count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: { min: 0 }, format: '#' },
+      legend: { position: 'none' },
+      chartArea: { 'width': '85%', 'height': '78%' },
       height: 260,
       colors: ['#cc9900'],
-      pointSize: 4
-    }
+      pointSize: 4,
+    };
 
     function resize() {
-      chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'))
-      chartScoreProgress.draw(dataTotalScore, optionsTotalScore)
+      chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
+      chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
       //google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
     }
 
-    window.onload = resize()
-    window.onresize = resize
+    window.onload = resize();
+    window.onresize = resize;
   }
 </script>
 <script>
-  var lastKnownAchRating = 0
-  var lastKnownGameRating = 0
+  var lastKnownAchRating = 0;
+  var lastKnownGameRating = 0;
 
   function SetLitStars(container, numStars) {
-    $(container + ' a').removeClass('starlit')
-    $(container + ' a').removeClass('starhalf')
+    $(container + ' a').removeClass('starlit');
+    $(container + ' a').removeClass('starhalf');
 
     if (numStars >= 0.5)
-      $(container + ' a:first-child').addClass('starhalf')
+      $(container + ' a:first-child').addClass('starhalf');
     if (numStars >= 1.5)
-      $(container + ' a:first-child + a').addClass('starhalf')
+      $(container + ' a:first-child + a').addClass('starhalf');
     if (numStars >= 2.5)
-      $(container + ' a:first-child + a + a').addClass('starhalf')
+      $(container + ' a:first-child + a + a').addClass('starhalf');
     if (numStars >= 3.5)
-      $(container + ' a:first-child + a + a + a').addClass('starhalf')
+      $(container + ' a:first-child + a + a + a').addClass('starhalf');
     if (numStars >= 4.5)
-      $(container + ' a:first-child + a + a + a + a').addClass('starhalf')
+      $(container + ' a:first-child + a + a + a + a').addClass('starhalf');
 
     if (numStars >= 1) {
-      $(container + ' a:first-child').removeClass('starhalf')
-      $(container + ' a:first-child').addClass('starlit')
+      $(container + ' a:first-child').removeClass('starhalf');
+      $(container + ' a:first-child').addClass('starlit');
     }
     if (numStars >= 2) {
-      $(container + ' a:first-child + a').removeClass('starhalf')
-      $(container + ' a:first-child + a').addClass('starlit')
+      $(container + ' a:first-child + a').removeClass('starhalf');
+      $(container + ' a:first-child + a').addClass('starlit');
     }
 
     if (numStars >= 3) {
-      $(container + ' a:first-child + a + a').removeClass('starhalf')
-      $(container + ' a:first-child + a + a').addClass('starlit')
+      $(container + ' a:first-child + a + a').removeClass('starhalf');
+      $(container + ' a:first-child + a + a').addClass('starlit');
     }
 
     if (numStars >= 4) {
-      $(container + ' a:first-child + a + a + a').removeClass('starhalf')
-      $(container + ' a:first-child + a + a + a').addClass('starlit')
+      $(container + ' a:first-child + a + a + a').removeClass('starhalf');
+      $(container + ' a:first-child + a + a + a').addClass('starlit');
     }
 
     if (numStars >= 5) {
-      $(container + ' a:first-child + a + a + a + a').removeClass('starhalf')
-      $(container + ' a:first-child + a + a + a + a').addClass('starlit')
+      $(container + ' a:first-child + a + a + a + a').removeClass('starhalf');
+      $(container + ' a:first-child + a + a + a + a').addClass('starlit');
     }
   }
 
   function GetRating(gameID) {
 
-    $('#ratinggame a').removeClass('starlit')
-    $('#ratingach a').removeClass('starlit')
+    $('#ratinggame a').removeClass('starlit');
+    $('#ratingach a').removeClass('starlit');
 
-    $('.ratinggamelabel').html('Rating: ...')
-    $('.ratingachlabel').html('Rating: ...')
+    $('.ratinggamelabel').html('Rating: ...');
+    $('.ratingachlabel').html('Rating: ...');
 
     $.ajax({
       url: '/API/API_GetGameRating.php?i=' + gameID,
       dataType: 'json',
       success: function (results) {
-        results.GameID
-        lastKnownGameRating = parseFloat(results.Ratings['Game'])
-        lastKnownAchRating = parseFloat(results.Ratings['Achievements'])
-        var gameRatingNumVotes = results.Ratings['GameNumVotes']
-        var achRatingNumVotes = results.Ratings['AchievementsNumVotes']
+        results.GameID;
+        lastKnownGameRating = parseFloat(results.Ratings['Game']);
+        lastKnownAchRating = parseFloat(results.Ratings['Achievements']);
+        var gameRatingNumVotes = results.Ratings['GameNumVotes'];
+        var achRatingNumVotes = results.Ratings['AchievementsNumVotes'];
 
-        SetLitStars('#ratinggame', lastKnownGameRating)
-        SetLitStars('#ratingach', lastKnownAchRating)
+        SetLitStars('#ratinggame', lastKnownGameRating);
+        SetLitStars('#ratingach', lastKnownAchRating);
 
-        $('.ratinggamelabel').html('Rating: ' + lastKnownGameRating.toFixed(2) + ' (' + gameRatingNumVotes + ' votes)')
-        $('.ratingachlabel').html('Rating: ' + lastKnownAchRating.toFixed(2) + ' (' + achRatingNumVotes + ' votes)')
+        $('.ratinggamelabel').html('Rating: ' + lastKnownGameRating.toFixed(2) + ' (' + gameRatingNumVotes + ' votes)');
+        $('.ratingachlabel').html('Rating: ' + lastKnownAchRating.toFixed(2) + ' (' + achRatingNumVotes + ' votes)');
 
       },
       error: function (temp, temp1, temp2) {
-        alert('Error ' + temp + temp1 + temp2)
-      }
-    })
+        alert('Error ' + temp + temp1 + temp2);
+      },
+    });
   }
 
   function SubmitRating(user, gameID, ratingObjectType, value) {
@@ -285,12 +286,12 @@ RenderHtmlStart(true);
       url: '/request/game/update-rating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
       dataType: 'json',
       success: function (results) {
-        GetRating(<?php echo $gameID; ?>)
+        GetRating(<?php echo $gameID; ?>);
       },
       error: function (temp, temp1, temp2) {
-        alert('Error ' + temp + temp1 + temp2)
-      }
-    })
+        alert('Error ' + temp + temp1 + temp2);
+      },
+    });
   }
 
   // Onload:
@@ -303,40 +304,40 @@ RenderHtmlStart(true);
 
         if ($(this).parent().is($('#ratingach'))) {
           //	Ach:
-          var numStars = 0
+          var numStars = 0;
           if ($(this).hasClass('1star'))
-            numStars = 1
+            numStars = 1;
           else if ($(this).hasClass('2star'))
-            numStars = 2
+            numStars = 2;
           else if ($(this).hasClass('3star'))
-            numStars = 3
+            numStars = 3;
           else if ($(this).hasClass('4star'))
-            numStars = 4
+            numStars = 4;
           else if ($(this).hasClass('5star'))
-            numStars = 5
+            numStars = 5;
 
-          SetLitStars('#ratingach', numStars)
+          SetLitStars('#ratingach', numStars);
         } else {
           //	Game:
-          var numStars = 0
+          var numStars = 0;
           if ($(this).hasClass('1star'))
-            numStars = 1
+            numStars = 1;
           else if ($(this).hasClass('2star'))
-            numStars = 2
+            numStars = 2;
           else if ($(this).hasClass('3star'))
-            numStars = 3
+            numStars = 3;
           else if ($(this).hasClass('4star'))
-            numStars = 4
+            numStars = 4;
           else if ($(this).hasClass('5star'))
-            numStars = 5
+            numStars = 5;
 
-          SetLitStars('#ratinggame', numStars)
+          SetLitStars('#ratinggame', numStars);
         }
       },
       function () {
         // On leave
         //GetRating( <?php echo $gameID; ?> );
-      })
+      });
 
     $('.rating').hover(
       function () {
@@ -346,37 +347,37 @@ RenderHtmlStart(true);
         // On leave
         //GetRating( <?php echo $gameID; ?> );
         if ($(this).is($('#ratingach')))
-          SetLitStars('#ratingach', lastKnownAchRating)
+          SetLitStars('#ratingach', lastKnownAchRating);
         else
-          SetLitStars('#ratinggame', lastKnownGameRating)
-      })
+          SetLitStars('#ratinggame', lastKnownGameRating);
+      });
 
     $('.starimg').click(function () {
 
-      var numStars = 0
+      var numStars = 0;
       if ($(this).hasClass('1star'))
-        numStars = 1
+        numStars = 1;
       else if ($(this).hasClass('2star'))
-        numStars = 2
+        numStars = 2;
       else if ($(this).hasClass('3star'))
-        numStars = 3
+        numStars = 3;
       else if ($(this).hasClass('4star'))
-        numStars = 4
+        numStars = 4;
       else if ($(this).hasClass('5star'))
-        numStars = 5
+        numStars = 5;
 
-      var ratingType = 1
+      var ratingType = 1;
       if ($(this).parent().is($('#ratingach')))
-        ratingType = 3
+        ratingType = 3;
 
-      SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars)
-    })
+      SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars);
+    });
 
     if ($('.rating').length) {
-      GetRating(<?php echo $gameID; ?>)
+      GetRating(<?php echo $gameID; ?>);
     }
 
-  })
+  });
 
   /**
    * Displays set request information
@@ -387,34 +388,34 @@ RenderHtmlStart(true);
         url: '/request/set-request/list.php?i=' + gameID + '&u=' + user,
         dataType: 'json',
         success: function (results) {
-          var remaining = parseInt(results.remaining)
-          var gameTotal = parseInt(results.gameRequests)
-          var thisGame = results.requestedThisGame
+          var remaining = parseInt(results.remaining);
+          var gameTotal = parseInt(results.gameRequests);
+          var thisGame = results.requestedThisGame;
 
-          $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>')
-          $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>')
+          $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
+          $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
 
           //If the user has not requested a set for this game
           if (thisGame == 0) {
             if (remaining <= 0) {
-              $('.setRequestLabel').html('<h4>No Requests Remaining</h4>')
+              $('.setRequestLabel').html('<h4>No Requests Remaining</h4>');
 
               //Remove clickable text
               $('.setRequestLabel').each(function () {
-                $('<h4>' + $(this).html() + '</h4>').replaceAll(this)
-              })
+                $('<h4>' + $(this).html() + '</h4>').replaceAll(this);
+              });
             } else {
-              $('.setRequestLabel').html('<h4>Request Set</h4>')
+              $('.setRequestLabel').html('<h4>Request Set</h4>');
             }
           } else {
-            $('.setRequestLabel').html('<h4>Withdraw Request</h4>')
+            $('.setRequestLabel').html('<h4>Withdraw Request</h4>');
           }
 
         },
         error: function (temp, temp1, temp2) {
-          alert('Error ' + temp + temp1 + temp2)
-        }
-      })
+          alert('Error ' + temp + temp1 + temp2);
+        },
+      });
   }
 
   /**
@@ -426,30 +427,30 @@ RenderHtmlStart(true);
         url: '/request/set-request/update.php?i=' + gameID + '&u=' + user,
         dataType: 'json',
         success: function (results) {
-          getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>)
+          getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
         },
         error: function (temp, temp1, temp2) {
-          alert('Error ' + temp + temp1 + temp2)
-        }
-      })
+          alert('Error ' + temp + temp1 + temp2);
+        },
+      });
   }
 
   $(function () {
     $('.setRequestLabel').click(function () {
-      submitSetRequest('<?php echo $user; ?>', <?php echo $gameID; ?>)
-    })
+      submitSetRequest('<?php echo $user; ?>', <?php echo $gameID; ?>);
+    });
 
     if ($('.setRequestLabel').length) {
-      getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>)
+      getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
     }
 
-  })
+  });
 </script>
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
 
         <?php RenderErrorCodeWarning($errorCode); ?>
-        <div id="achievement" class="left">
+        <div id="achievement">
             <?php
             echo "<div class='navpath'>";
             echo "<a href='/gameList.php'>All Games</a>";
@@ -958,7 +959,7 @@ RenderHtmlStart(true);
             ?>
         </div>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         RenderBoxArt($gameData['ImageBoxArt']);
 

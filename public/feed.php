@@ -50,17 +50,17 @@ RenderHtmlHead($pageTitle);
 <link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
 <script type='text/javascript'>
   $(document).ready(function () {
-    FocusOnArticleID(GetParameterByName('a'))
-  })
+    focusOnArticleID(getParameterByName('a'));
+  });
 </script>
 
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
 
-        <div id="globalfeed" class="left">
+        <div id="globalfeed">
             <h2><?php echo $pageTitle; ?></h2>
             <?php
             echo "<table width='550' id='feed' style='width:100%' ><tbody>";
@@ -133,7 +133,7 @@ RenderHtmlHead($pageTitle);
 
     </div>
 
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         $yOffs = 0;
         RenderTwitchTVStream();

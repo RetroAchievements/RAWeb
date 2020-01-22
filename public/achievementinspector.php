@@ -98,7 +98,7 @@ RenderHtmlHead("Manage Achievements");
             echo "<td>$achPoints</td>";
             echo "<td><span class='smalldate'>$achCreated</span><br><span class='smalldate'>$achModified</span></td>";
             if ($modifyOK) {
-                echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"UpdateDisplayOrder('$user', 'ach_$achID')\" size='3' /></td>";
+                echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('$user', 'ach_$achID')\" size='3' /></td>";
             } else {
                 echo "<td>$achDisplayOrder</td>";
             }    //	Just remove the input
@@ -143,7 +143,6 @@ RenderHtmlHead("Manage Achievements");
         echo "</select>";
         echo "</tbody></table>";
     }
-
     echo "</div>";
 
     if (count($codeNotes) > 0) {
@@ -151,7 +150,6 @@ RenderHtmlHead("Manage Achievements");
         RenderCodeNotes($codeNotes);
         echo "</div>";
     }
-
     ?>
 </div>
 <?php RenderFooter(); ?>

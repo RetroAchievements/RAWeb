@@ -57,38 +57,38 @@ RenderHtmlHead($pageTitle);
 <?php RenderToolbar($user, $permissions); ?>
 <script>
   function ReloadLBPage() {
-    var gameID = $('#gameselector').val()
-    location.href = '/leaderboardList.php?g=' + gameID
+    var gameID = $('#gameselector').val();
+    location.href = '/leaderboardList.php?g=' + gameID;
   }
 </script>
 <?php if ($permissions >= \RA\Permissions::Developer): ?>
     <script>
       function UpdateLeaderboard(user, lbID) {
-        var lbTitle = $.trim($('body').find('#LB_' + lbID + '_Title').val())
-        var lbDesc = $.trim($('body').find('#LB_' + lbID + '_Desc').val())
-        var lbFormat = $.trim($('body').find('#LB_' + lbID + '_Format').val())
-        var lbDisplayOrder = $.trim($('body').find('#LB_' + lbID + '_DisplayOrder').val())
-        var lbMem1 = $.trim($('body').find('#LB_' + lbID + '_Mem1').val())
-        var lbMem2 = $.trim($('body').find('#LB_' + lbID + '_Mem2').val())
-        var lbMem3 = $.trim($('body').find('#LB_' + lbID + '_Mem3').val())
-        var lbMem4 = $.trim($('body').find('#LB_' + lbID + '_Mem4').val())
+        var lbTitle = $.trim($('#LB_' + lbID + '_Title').val());
+        var lbDesc = $.trim($('#LB_' + lbID + '_Desc').val());
+        var lbFormat = $.trim($('#LB_' + lbID + '_Format').val());
+        var lbDisplayOrder = $.trim($('#LB_' + lbID + '_DisplayOrder').val());
+        var lbMem1 = $.trim($('#LB_' + lbID + '_Mem1').val());
+        var lbMem2 = $.trim($('#LB_' + lbID + '_Mem2').val());
+        var lbMem3 = $.trim($('#LB_' + lbID + '_Mem3').val());
+        var lbMem4 = $.trim($('#LB_' + lbID + '_Mem4').val());
 
-        var lbMem = 'STA:' + lbMem1 + '::CAN:' + lbMem2 + '::SUB:' + lbMem3 + '::VAL:' + lbMem4
-        var lbLowerIsBetter = $('body').find('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0'
+        var lbMem = 'STA:' + lbMem1 + '::CAN:' + lbMem2 + '::SUB:' + lbMem3 + '::VAL:' + lbMem4;
+        var lbLowerIsBetter = $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0';
 
-        var posting = $.post('/request/leaderboard/update.php', {u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder})
-        posting.done(onUpdateComplete)
+        var posting = $.post('/request/leaderboard/update.php', { u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder });
+        posting.done(onUpdateComplete);
 
-        $('body').find('#warning').html('Status: updating...')
+        $('#warning').html('Status: updating...');
       }
 
       function onUpdateComplete(data) {
         //alert( data );
         if (data !== 'OK') {
-          $('body').find('#warning').html('Status: Errors...' + data)
+          $('#warning').html('Status: Errors...' + data);
           //alert( data );
         } else {
-          $('body').find('#warning').html('Status: OK!')
+          $('#warning').html('Status: OK!');
         }
       }
 

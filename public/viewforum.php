@@ -62,8 +62,8 @@ RenderHtmlHead("View forum: $thisForumTitle");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div id='leftcontainer'>
-        <div id="forums" class="left">
+    <div id="leftcontainer">
+        <div id="forums">
             <?php
             echo "<div class='navpath'>";
             echo "<a href='/forum.php'>Forum Index</a>";
@@ -152,7 +152,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "<br>";
 
             if ($permissions >= \RA\Permissions::Registered) {
-                echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
+                echo "<div class='rightlink'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
             } else {
                 echo "<div class='rightlink'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
             }
@@ -160,11 +160,9 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "<br>";
 
             ?>
-
-            <br>
         </div>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         if ($user !== null) {
             RenderScoreLeaderboardComponent($user, $points, true);

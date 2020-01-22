@@ -174,14 +174,15 @@ RenderHtmlStart(true);
 <?php RenderToolbar($user, $permissions); ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  google.load('visualization', '1.0', {'packages': ['corechart']})
-  google.setOnLoadCallback(drawCharts)
+  google.load('visualization', '1.0', { 'packages': ['corechart'] });
+  google.setOnLoadCallback(drawCharts);
+
   function drawCharts() {
-    var dataRecentProgress = new google.visualization.DataTable()
+    var dataRecentProgress = new google.visualization.DataTable();
 
     // Declare columns
-    dataRecentProgress.addColumn('date', 'Date')    //    NOT date! this is non-continuous data
-    dataRecentProgress.addColumn('number', 'Score')
+    dataRecentProgress.addColumn('date', 'Date');    //    NOT date! this is non-continuous data
+    dataRecentProgress.addColumn('number', 'Score');
 
     dataRecentProgress.addRows([
         <?php
@@ -207,35 +208,34 @@ RenderHtmlStart(true);
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
         ?>
-    ])
-
+    ]);
 
     var optionsRecentProcess = {
       backgroundColor: 'transparent',
       title: 'Recent Progress',
-      titleTextStyle: {color: '#186DEE'},
-      hAxis: {textStyle: {color: '#186DEE'}, slantedTextAngle: 90},
-      vAxis: {textStyle: {color: '#186DEE'}},
-      legend: {position: 'none'},
-      chartArea: {left: 42, width: 458, 'height': '100%'},
+      titleTextStyle: { color: '#186DEE' },
+      hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
+      vAxis: { textStyle: { color: '#186DEE' } },
+      legend: { position: 'none' },
+      chartArea: { left: 42, width: 458, 'height': '100%' },
       showRowNumber: false,
-      view: {columns: [0, 1]},
+      view: { columns: [0, 1] },
       //height: 460,
-      colors: ['#cc9900']
-    }
+      colors: ['#cc9900'],
+    };
 
     function resize() {
-      chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'))
-      chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess)
+      chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'));
+      chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess);
     }
 
-    window.onload = resize()
-    window.onresize = resize
+    window.onload = resize();
+    window.onresize = resize;
   }
 </script>
 
 <div id="mainpage">
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
         <?php
         RenderErrorCodeWarning($errorCode);
 
@@ -565,7 +565,7 @@ RenderHtmlStart(true);
         echo "</div>";
         ?>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         RenderSiteAwards($userAwards);
         RenderCompletedGamesList($userPage, $userCompletedGamesList);

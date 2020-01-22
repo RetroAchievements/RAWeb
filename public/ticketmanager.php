@@ -534,7 +534,7 @@ RenderHtmlHead($pageTitle);
                 echo "<div class='temp'>";
                 $awardCount = getAwardsSince($achID, $reportedAt);
                 echo "This achievement has been earned " . $awardCount['softcoreCount'] . " <b>(" . $awardCount['hardcoreCount'] . ")</b> "
-                    . ($awardCount['hardcoreCount'] == 1 ? "time": "times") . " since this ticket was created.";
+                    . ($awardCount['hardcoreCount'] == 1 ? "time" : "times") . " since this ticket was created.";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

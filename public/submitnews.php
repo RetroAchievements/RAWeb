@@ -22,24 +22,24 @@ RenderHtmlHead("Manage News");
 <?php RenderToolbar($user, $permissions); ?>
 <script>
   function onSubmitNews() {
-    var title = $('body').find('#NewsTitle').val()
-    title = replaceAll('http', '_http_', title)
+    var title = $('#NewsTitle').val();
+    title = replaceAll('http', '_http_', title);
 
-    var payload = $('body').find('#NewsPayload').val()
-    payload = replaceAll('http', '_http_', payload)
+    var payload = $('#NewsPayload').val();
+    payload = replaceAll('http', '_http_', payload);
 
-    var imageurl = $('body').find('#NewsImage').val()
-    imageurl = replaceAll('http', '_http_', imageurl)
+    var imageurl = $('#NewsImage').val();
+    imageurl = replaceAll('http', '_http_', imageurl);
 
-    var link = $('body').find('#NewsLink').val()
-    link = replaceAll('http', '_http_', link)
+    var link = $('#NewsLink').val();
+    link = replaceAll('http', '_http_', link);
 
-    var author = $('body').find('#NewsAuthor').val()
+    var author = $('#NewsAuthor').val();
 
     //alert( link );
 
-    var posting = $.post('/request/news/update.php', {a: author, p: payload, t: title, l: link, g: imageurl, i: <?php echo $newsArticleID; ?> })
-    posting.done(onPostComplete)
+    var posting = $.post('/request/news/update.php', { a: author, p: payload, t: title, l: link, g: imageurl, i: <?php echo $newsArticleID; ?> });
+    posting.done(onPostComplete);
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
 
@@ -48,35 +48,35 @@ RenderHtmlHead("Manage News");
       //$("body").find( "#warning" ).html( "Status: Errors..." );
     } else {
       //$("body").find( "#warning" ).html( "Status: Loading..." );
-      window.location = '/index.php?e=newspostsuccess'
+      window.location = '/index.php?e=newspostsuccess';
     }
   }
 
   function UploadImage() {
-    var photo = document.getElementById('uploadimagefile')
-    var file = photo.files[0]
+    var photo = document.getElementById('uploadimagefile');
+    var file = photo.files[0];
 
-    var reader = new FileReader()
+    var reader = new FileReader();
     reader.onload = function () {
 
-      $('#loadingicon').fadeTo(100, 1.0)
+      $('#loadingicon').fadeTo(100, 1.0);
 
-      $.post('/request/news/image-upload.php', {t: 'NEWS', f: file.name.split('.').pop(), i: reader.result}, onUploadImageComplete)
-    }
+      $.post('/request/news/image-upload.php', { t: 'NEWS', f: file.name.split('.').pop(), i: reader.result }, onUploadImageComplete);
+    };
 
-    reader.readAsDataURL(file)
-    return false
+    reader.readAsDataURL(file);
+    return false;
   }
 
   function onUploadImageComplete(data) {
-    $('#loadingicon').fadeTo(100, 0.0)
+    $('#loadingicon').fadeTo(100, 0.0);
 
     if (data.substr(0, 3) == 'OK:') {
       //alert( data );
-      $('#NewsImage').val('<?php echo getenv('APP_STATIC_URL') ?>' + data.substr(3))
-      $('#NewsImagePreview').attr('src', $('#NewsImage').val())
+      $('#NewsImage').val('<?php echo getenv('APP_STATIC_URL') ?>' + data.substr(3));
+      $('#NewsImagePreview').attr('src', $('#NewsImage').val());
     } else {
-      alert(data)
+      alert(data);
     }
   }
 </script>

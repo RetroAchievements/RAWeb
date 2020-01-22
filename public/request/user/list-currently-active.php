@@ -23,7 +23,7 @@ foreach ($ingameList as $playerIngame) {
 
 echo json_encode(array_values($mergedList), JSON_UNESCAPED_UNICODE);
 
-// $finalList = array();
+// $finalList = []];
 // foreach( $mergedList as $mergedItem )
 // {
 //     $finalList[] = $mergedItem;

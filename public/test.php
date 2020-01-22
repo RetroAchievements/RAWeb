@@ -40,20 +40,20 @@ RenderHtmlStart();
 
     <script>
       function OnHover() {
-        console.log('OnHover')
+        console.log('OnHover');
         //$(this).fadeIn();
-        $(this).fadeTo('fast', 1.0)
+        $(this).fadeTo('fast', 1.0);
       }
 
       function OnUnHover() {
-        console.log('OnUnHover')
-        $(this).fadeTo('fast', 0.6)
+        console.log('OnUnHover');
+        $(this).fadeTo('fast', 0.6);
       }
 
       $(document).ready(function () {
-        $('.gameicontest').fadeTo(0.0, 0.6)
-        $('.gameicontest').hover(OnHover, OnUnHover)
-      })
+        $('.gameicontest').fadeTo(0.0, 0.6);
+        $('.gameicontest').hover(OnHover, OnUnHover);
+      });
     </script>
 </head>
 <body>
@@ -62,7 +62,7 @@ RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $pe
 RenderToolbar($user, $permissions);
 ?>
 <div id='mainpage'>
-    <div id='leftcontainer'>
+    <div id="leftcontainer">
         <?php
         echo "<div>";
         foreach ($gameData as $nextGame) {
@@ -109,7 +109,7 @@ RenderToolbar($user, $permissions);
         ?>
     </div>
 
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
         <?php
         //RenderStaticDataComponent( $staticData );
         //RenderRecentlyUploadedComponent( 10 );

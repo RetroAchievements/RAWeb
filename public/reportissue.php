@@ -36,9 +36,9 @@ RenderHtmlHead("Report Broken Achievement");
 <script type="text/javascript">
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
-      document.getElementById('core-row').style.display = ''
+      document.getElementById('core-row').style.display = '';
     } else {
-      document.getElementById('core-row').style.display = 'none'
+      document.getElementById('core-row').style.display = 'none';
     }
   }
 </script>

@@ -22,7 +22,7 @@ RenderHtmlHead("Forum Recent Posts");
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
-        <div id="forums" class="left">
+        <div id="forums">
             <?php
             echo "<div class='navpath'>";
             echo "<a href='/forum.php'>Forum Index</a>";

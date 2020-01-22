@@ -13,7 +13,9 @@ parserOptions:
   ecmaVersion: 5
   sourceType: script
 
-#ignorePatterns:
+ignorePatterns:
+  - node_modules/
+  - public/vendor/
 
 rules:
   # some javascript functions are used within html attributes rendered within php

@@ -27,63 +27,63 @@ RenderHtmlHead('Inbox');
 <?php RenderToolbar($user, $permissions); ?>
 <script>
   function MarkAsRead(msgID) {
-    $('body').find('#msgInline' + msgID).toggle()
+    $('#msgInline' + msgID).toggle();
 
     //	If was unread
-    var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle')
+    var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle');
     if (unread.contents().exists()) {
-      var posting = $.post('/request/message/read.php', {u: '<?php echo $user; ?>', m: msgID, r: 0})
-      posting.done(onMarkAsRead)
+      var posting = $.post('/request/message/read.php', { u: '<?php echo $user; ?>', m: msgID, r: 0 });
+      posting.done(onMarkAsRead);
     }
   }
 
   function onMarkAsRead(data) {
     if (data.substr(0, 3) == 'OK:') {
-      var msgID = data.substr(3)
-      var titleID = '#msgInlineTitle' + msgID
-      if ($('body').find(titleID).find('span').contents().exists()) {
-        $('body').find(titleID).find('span').contents().unwrap()
+      var msgID = data.substr(3);
+      var titleID = '#msgInlineTitle' + msgID;
+      if ($(titleID).find('span').contents().exists()) {
+        $(titleID).find('span').contents().unwrap();
 
         //	Reduce the number of unread messages by 1
-        var numUnread = parseInt($('body').find('#messagecounttext').find('b').html())
-        numUnread = numUnread - 1
-        $('body').find('#messagecounttext').find('b').html(numUnread)
+        var numUnread = parseInt($('#messagecounttext').find('b').html());
+        numUnread = numUnread - 1;
+        $('#messagecounttext').find('b').html(numUnread);
 
-        UpdateMailboxCount(numUnread)
+        UpdateMailboxCount(numUnread);
 
         if (numUnread == 0) {
           if ($('#messagecountcontainer').find('big').contents().exists())
-            $('#messagecountcontainer').find('big').contents().unwrap()
+            $('#messagecountcontainer').find('big').contents().unwrap();
         }
       }
     }
   }
 
   function MarkAsUnread(msgID) {
-    var posting = $.post('/request/message/read.php', {u: '<?php echo $user; ?>', m: msgID, r: 1})
-    posting.done(onMarkAsUnread)
+    var posting = $.post('/request/message/read.php', { u: '<?php echo $user; ?>', m: msgID, r: 1 });
+    posting.done(onMarkAsUnread);
   }
 
   function onMarkAsUnread(data) {
     if (data.substr(0, 3) == 'OK:') {
-      var msgID = data.substr(3)
-      $('#msgInline' + msgID).toggle()
-      var titleID = '#msgInlineTitle' + msgID
+      var msgID = data.substr(3);
+      $('#msgInline' + msgID).toggle();
+      var titleID = '#msgInlineTitle' + msgID;
 
-      if ($('body').find(titleID).find('span').contents().exists() == false) {
-        $('body').find(titleID).contents().wrap('<span class=\'unreadmsgtitle\'>')
+      if ($(titleID).find('span').contents().exists() == false) {
+        $(titleID).contents().wrap('<span class=\'unreadmsgtitle\'>');
 
         //	Increase the number of unread messages by 1
-        var numUnread = parseInt($('body').find('#messagecounttext').find('b').html())
-        numUnread = numUnread + 1
-        $('body').find('#messagecounttext').find('b').html(numUnread)
+        var numUnread = parseInt($('#messagecounttext').find('b').html());
+        numUnread = numUnread + 1;
+        $('#messagecounttext').find('b').html(numUnread);
 
         if (numUnread > 0) {
           if ($('#messagecountcontainer').find('big').contents().exists() == false)
-            $('#messagecountcontainer').contents().wrap('<big>')
+            $('#messagecountcontainer').contents().wrap('<big>');
         }
 
-        UpdateMailboxCount(numUnread)
+        UpdateMailboxCount(numUnread);
       }
     }
   }
@@ -96,7 +96,7 @@ RenderHtmlHead('Inbox');
         RenderErrorCodeWarning($errorCode);
         ?>
 
-        <div id="globalfeed" class="left">
+        <div id="globalfeed">
             <?php
             echo "<h2>Inbox</h2>";
 

@@ -61,8 +61,8 @@ RenderHtmlHead("Game Compare");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
-    <div id='leftcontainer'>
-        <div id="gamecompare" class="left">
+    <div id="leftcontainer">
+        <div id="gamecompare">
             <?php
             echo "<div class='navpath'>";
             echo "<a href='/gameList.php'>All Games</a>";
@@ -250,7 +250,7 @@ RenderHtmlHead("Game Compare");
             ?>
         </div>
     </div>
-    <div id='rightcontainer'>
+    <div id="rightcontainer">
 
         <?php
         echo "<div id='gamecompare' class='right'>";
