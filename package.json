@@ -1,0 +1,14 @@
+{
+    "private": true,
+    "scripts": {
+        "lint": "eslint public/js/",
+        "lintfix": "eslint public/js/ --fix",
+        "fix-cs": "eslint public/js/ --fix"
+    },
+    "devDependencies": {
+        "eslint": "^6.8.0",
+        "eslint-config-airbnb-base": "^14.0.0",
+        "eslint-plugin-import": "^2.20.0"
+    },
+    "dependencies": {}
+}

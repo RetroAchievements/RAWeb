@@ -10,8 +10,17 @@ If you discover a security vulnerability, please send an on-site message to [RAd
 
 ## Coding Style
 
+Commit code style fixes separately from feature code.
+
+### PHP
+
 Follow the [PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/).
 
-Run `composer fix-cs` to fix most code style issues automatically. 
+Run `composer fix-cs` to fix most code style issues automatically.
+ 
+### JavaScript
 
-Commit code style fixes separately from feature code.
+Follow the [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript).
+
+Run `npm run fix-cs` to fix most code style issues automatically. 
+
