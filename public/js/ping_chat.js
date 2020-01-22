@@ -90,6 +90,13 @@ function attemptConnectWebSocket() {
     onError(evt);
   };
 
+  /**
+   * disconnect before reloading page or when closing page
+   */
+  window.onbeforeunload = function () {
+    ws.onclose = function () {}; // disable onclose handler first
+    ws.close();
+  };
 }
 
 function onOpen(evt) {
