@@ -17,7 +17,7 @@ if (isset($user)) {
 
 $maxCount = 25;
 
-$count = seekGET('c', $maxCount);
+$count = 25;
 $offset = seekGET('o', 0);
 
 $gameID = seekGET('g', null);
@@ -42,7 +42,7 @@ if ($gameID != 0) {
 //var_dump( $gameData );
 
 $requestedConsole = "";
-if ($consoleIDInput !== 0) {
+if ($consoleIDInput) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
@@ -56,9 +56,18 @@ RenderHtmlHead($pageTitle);
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <script>
-  function ReloadLBPage() {
-    var gameID = $('#gameselector').val();
-    location.href = '/leaderboardList.php?g=' + gameID;
+  function ReloadLBPageByConsole() {
+    var ID = $('#consoleselector').val();
+    location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
+  }
+
+  function ReloadLBPageByGame() {
+    var ID = $('#gameselector').val();
+    if (ID.indexOf('c_') === 0) {
+      location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
+      return;
+    }
+    location.href = '/leaderboardList.php?g=' + ID;
   }
 </script>
 <?php if ($permissions >= \RA\Permissions::Developer): ?>
@@ -186,17 +195,28 @@ RenderHtmlHead($pageTitle);
             }
         }
 
-        echo "Pick a game:";
-        echo "<select id='gameselector' onchange=\"ReloadLBPage();\">";
-        echo "<option>--</option>";
+        echo "<select id='consoleselector' onchange=\"ReloadLBPageByConsole()\">";
+        echo "<option value='c_'>" . ($consoleIDInput ? 'All Consoles' : 'Filter by Console') . "</option>";
         $lastConsoleName = '';
         foreach ($uniqueGameList as $gameID => $nextEntry) {
             if ($nextEntry['ConsoleName'] !== $lastConsoleName) {
                 $lastConsoleName = $nextEntry['ConsoleName'];
-                echo "<option>-= $lastConsoleName =-</option>";
+                $isSelected = $nextEntry['ConsoleID'] == $consoleIDInput;
+                echo "<option value='c_{$nextEntry['ConsoleID']}' " . ($isSelected ? 'selected' : '') . ">$lastConsoleName</option>";
             }
+        }
+        echo "</select>";
 
-            echo "<option value='$gameID'>" . $nextEntry['GameTitle'] . " (" . $nextEntry['ConsoleName'] . ") (" . $nextEntry['NumLeaderboards'] . " LBs) " . "</option>";
+        echo "<select id='gameselector' onchange=\"ReloadLBPageByGame()\">";
+        echo "<option>Pick a Game</option>";
+        $lastConsoleName = '';
+        foreach ($uniqueGameList as $gameID => $nextEntry) {
+            if (!$consoleIDInput && $nextEntry['ConsoleName'] !== $lastConsoleName) {
+                $lastConsoleName = $nextEntry['ConsoleName'];
+                $isSelected = $nextEntry['ConsoleID'] == $consoleIDInput;
+                echo "<option value='c_{$nextEntry['ConsoleID']}' " . ($isSelected ? 'selected' : '') . ">-= $lastConsoleName =-</option>";
+            }
+            echo "<option value='$gameID'> " . $nextEntry['GameTitle'] . " (" . $nextEntry['ConsoleName'] . ") (" . $nextEntry['NumLeaderboards'] . " LBs) " . "</option>";
         }
         echo "</select>";
     }

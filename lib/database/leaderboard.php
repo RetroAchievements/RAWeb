@@ -585,7 +585,19 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
             break;
     }
 
-    $query = "SELECT ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder, leInner.NumResults, ld.LowerIsBetter, gd.ID AS GameID, gd.ImageIcon AS GameIcon, gd.Title AS GameTitle, c.Name AS ConsoleName
+    $query = "SELECT ld.ID, 
+                     ld.Title, 
+                     ld.Description, 
+                     ld.Format, 
+                     ld.Mem, 
+                     ld.DisplayOrder, 
+                     leInner.NumResults, 
+                     ld.LowerIsBetter, 
+                     gd.ID AS GameID, 
+                     gd.ImageIcon AS GameIcon, 
+                     gd.Title AS GameTitle, 
+                     c.Name AS ConsoleName,
+                     c.ID AS ConsoleID
                 FROM LeaderboardDef AS ld
                 LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
                 LEFT JOIN
@@ -682,11 +694,11 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
         return false;
     }
 
-    $lbMem          = null;
-    $lbFormat       = null;
-    $lbTitle        = null;
-    $lbDescription  = null;
-    $lbScoreType    = null;
+    $lbMem = null;
+    $lbFormat = null;
+    $lbTitle = null;
+    $lbDescription = null;
+    $lbScoreType = null;
     $lbDisplayOrder = null;
 
     //Get the leaderboard info to duplicate
@@ -704,12 +716,12 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
     if ($dbResult !== false) {
         $db_entry = mysqli_fetch_assoc($dbResult);
 
-        $lbMem           = $db_entry['Mem'];
-        $lbFormat        = $db_entry['Format'];
-        $lbTitle         = $db_entry['Title'];
-        $lbDescription   = $db_entry['Description'];
-        $lbScoreType     = $db_entry['LowerIsBetter'];
-        $lbDisplayOrder  = $db_entry['DisplayOrder'];
+        $lbMem = $db_entry['Mem'];
+        $lbFormat = $db_entry['Format'];
+        $lbTitle = $db_entry['Title'];
+        $lbDescription = $db_entry['Description'];
+        $lbScoreType = $db_entry['LowerIsBetter'];
+        $lbDisplayOrder = $db_entry['DisplayOrder'];
     } else {
         return false;
     }
