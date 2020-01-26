@@ -22,4 +22,4 @@ $gameData['Ratings']['Achievements'] = $gameRating[\RA\ObjectType::Achievement][
 $gameData['Ratings']['GameNumVotes'] = $gameRating[\RA\ObjectType::Game]['NumVotes'];
 $gameData['Ratings']['AchievementsNumVotes'] = $gameRating[\RA\ObjectType::Achievement]['NumVotes'];
 
-echo json_encode($gameData);
+echo jsonp_encode($gameData);
