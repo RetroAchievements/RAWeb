@@ -12,4 +12,4 @@ $username = seekGET('u');
 
 $results = getGameRankAndScore($gameId, $username);
 
-echo json_encode($results);
+echo jsonp_encode($results);
