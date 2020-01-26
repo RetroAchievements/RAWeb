@@ -11,4 +11,4 @@ $consoleID = seekGET('i');
 
 getGamesList($consoleID, $dataOut);
 
-echo json_encode(utf8ize($dataOut));
+echo jsonp_encode(utf8ize($dataOut));
