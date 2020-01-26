@@ -12,4 +12,4 @@ $username = seekGET('u');
 
 $gameTopAchievers = getGameTopAchievers($gameId, 0, 10, $username);
 
-echo json_encode($gameTopAchievers);
+echo jsonp_encode($gameTopAchievers);
