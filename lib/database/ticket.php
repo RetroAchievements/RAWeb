@@ -247,7 +247,7 @@ function getAllTickets(
     if ($md5Cond === null) {
         return $retVal;
     }
-    
+
     //Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
     if ($emulatorCond === null) {
@@ -447,8 +447,8 @@ function countOpenTickets(
     $unofficialFlag = false,
     $ticketFilters = 2041, //2041 sets all filters active except for Closed and Resolved
     $assignedToUser = null,
-    $gameID = null)
-{
+    $gameID = null
+) {
     //State condition
     $stateCond = getStateCondition($ticketFilters);
     if ($stateCond === null) {
@@ -466,7 +466,7 @@ function countOpenTickets(
     if ($md5Cond === null) {
         return 0;
     }
-    
+
     //Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
     if ($emulatorCond === null) {
@@ -567,7 +567,7 @@ function getStateCondition($ticketFilters)
 
     if ($openTickets && $closedTickets && $resolvedTickets) {
         return "";
-    } else if ($openTickets || $closedTickets || $resolvedTickets) {
+    } elseif ($openTickets || $closedTickets || $resolvedTickets) {
         $stateCond = " AND tick.ReportState IN (";
         if ($openTickets) {
             $stateCond .= "1";
@@ -606,7 +606,7 @@ function getReportTypeCondition($ticketFilters)
 
     if ($triggeredTickets && $didNotTriggerTickets) {
         return "";
-    } else if ($triggeredTickets || $didNotTriggerTickets) {
+    } elseif ($triggeredTickets || $didNotTriggerTickets) {
         $reportTypeCond = " AND tick.ReportType IN (";
         if ($triggeredTickets) {
             $reportTypeCond .= "1";
@@ -638,7 +638,7 @@ function getMD5Condition($ticketFilters)
 
     if ($md5KnownTickets && $md5UnknownTickets) {
         return "";
-    } else if ($md5KnownTickets || $md5UnknownTickets) {
+    } elseif ($md5KnownTickets || $md5UnknownTickets) {
         $md5Cond = " AND (";
         if ($md5KnownTickets) {
             $md5Cond .= "tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}' ";
@@ -672,7 +672,7 @@ function getEmulatorCondition($ticketFilters)
 
     if ($raEmulatorTickets && $rarchKnownTickets && $rarchUnknownTickets && $emulatorUnknownTickets) {
         return "";
-    } else if ($raEmulatorTickets || $rarchKnownTickets || $rarchUnknownTickets || $emulatorUnknownTickets) {
+    } elseif ($raEmulatorTickets || $rarchKnownTickets || $rarchUnknownTickets || $emulatorUnknownTickets) {
         $emulatorCond = " AND (";
         if ($raEmulatorTickets) {
             $emulatorCond .= "tick.ReportNotes Like '%Emulator: RA%' ";

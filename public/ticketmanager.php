@@ -238,7 +238,7 @@ RenderHtmlHead($pageTitle);
             if ($ticketID == 0) {
                 echo "<h4>Filters - " . $filteredTicketsCount . " Ticket" . ($filteredTicketsCount == 1 ? "" : "s") . " Filtered</h4>";
                 echo "<div class='embedded mb-1'>";
-                
+
                 /*
                     Each filter is represented by a bit in the $ticketFilters variable.
                     This allows us to easily determine which filters are active as well as toggle them back and forth.
@@ -336,7 +336,7 @@ RenderHtmlHead($pageTitle);
                     echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 10)) . "'>Emulator Unknown</a>";
                 }
                 echo "</div>";
-                
+
                 //Clear Filter
                 if ($ticketFilters != $defaultFilter) {
                     echo "<div>";
