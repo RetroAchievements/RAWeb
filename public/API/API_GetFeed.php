@@ -34,4 +34,4 @@ if (isset($user)) {
 
 getFeed($user, $count, $offset, $feedData, 0, $type);
 
-echo json_encode($feedData);
+echo jsonp_encode($feedData);
