@@ -12,4 +12,4 @@ $gameCSV = seekGET('i', "");
 
 getUserProgress($user, $gameCSV, $data);
 
-echo json_encode($data);
+echo jsonp_encode($data);
