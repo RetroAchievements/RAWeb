@@ -46,7 +46,7 @@ usort($winnerInfo, function ($a, $b) {
     return strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']);
 });
 
-echo json_encode([
+echo jsonp_encode([
     'Achievement' => $achievement,
     'Console' => $console,
     'Game' => $game,
