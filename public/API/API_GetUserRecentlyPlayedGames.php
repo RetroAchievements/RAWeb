@@ -34,4 +34,4 @@ if (count($recentlyPlayedData) > 0) {
     $libraryOut['Awarded'] = $awardedData;
 }
 
-echo json_encode($recentlyPlayedData);
+echo jsonp_encode($recentlyPlayedData);
