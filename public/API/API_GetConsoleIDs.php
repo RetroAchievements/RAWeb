@@ -9,4 +9,4 @@ if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
 
 $data = getConsoleIDs();
 
-echo json_encode($data);
+echo jsonp_encode($data);
