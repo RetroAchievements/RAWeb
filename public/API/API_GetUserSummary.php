@@ -37,4 +37,4 @@ $retVal['Status'] = $status;
 unset($retVal['Friendship'], $retVal['FriendReciprocation']);
 
 
-echo json_encode($retVal);
+echo jsonp_encode($retVal);
