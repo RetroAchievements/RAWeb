@@ -14,4 +14,4 @@ $retVal = [];
 $retVal['Score'] = getScore($user);
 $retVal['Rank'] = getUserRank($user);
 
-echo json_encode($retVal);
+echo jsonp_encode($retVal);
