@@ -17,4 +17,4 @@ foreach ($data as &$nextData) {
     $nextData['GameURL'] = "/Game/" . $nextData['GameID'];
 }
 
-echo json_encode($data);
+echo jsonp_encode($data);
