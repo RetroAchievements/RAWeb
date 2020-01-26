@@ -9,9 +9,10 @@ $offset = seekGET('o', 0);
 
 $ticketID = seekPOSTorGET('i', 0);
 settype($ticketID, 'integer');
+$defaultFilter = 2041; //2041 sets all filters active except for Closed and Resolved
+$ticketFilters = seekGET('t', $defaultFilter);
 
 $reportStates = ["Closed", "Open", "Resolved"];
-$ticketState = seekGET('t', 1);
 
 if ($ticketID != 0) {
     $ticketData = getTicket($ticketID);
@@ -22,6 +23,7 @@ if ($ticketID != 0) {
 
     $action = seekPOSTorGET('action', null);
     $reason = null;
+    $ticketState = 1;
     switch ($action) {
         case "closed-mistaken":
             $ticketState = 0;
@@ -91,7 +93,7 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], 0);
+    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $ticketFilters);
     //var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
@@ -127,9 +129,9 @@ if ($ticketID == 0) {
         }
 
         if ($gamesTableFlag == 5) {
-            $ticketData = getAllTickets($offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState, true);
+            $ticketData = getAllTickets($offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketFilters, true);
         } else {
-            $ticketData = getAllTickets($offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketState);
+            $ticketData = getAllTickets($offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven, $ticketFilters);
         }
     }
 }
@@ -138,11 +140,7 @@ if (!empty($gameIDGiven)) {
     getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
 }
 
-$pageTitle = "Open Tickets";
-
-if ($ticketID !== 0) {
-    $pageTitle = "Inspect Ticket";
-}
+$pageTitle = "Ticket Manager";
 
 $errorCode = seekGET('e');
 RenderHtmlStart();
@@ -157,18 +155,10 @@ RenderHtmlHead($pageTitle);
         <?php
         echo "<div class='navpath'>";
         if ($gamesTableFlag == 1) {
-            echo "<b><a href='/ticketmanager.php'>Open Tickets</a></b> &raquo; <b>Games With Open Tickets</b>";
+            echo "<a href='/ticketmanager.php'>$pageTitle</a></b> &raquo; <b>Games With Open Tickets";
         } else {
             if ($ticketID == 0) {
-                echo "<b>";
-                if ($ticketState == 0) {
-                    echo "All ";
-                }
-                if ($ticketState == 1 || $ticketState == 2) {
-                    echo $reportStates[$ticketState] . " ";
-                }
-
-                echo "Tickets</b>";
+                echo "<a href='/ticketmanager.php'>$pageTitle</a>";
                 if (!empty($assignedToUser)) {
                     echo " &raquo; <a href='/User/$assignedToUser'>$assignedToUser</a>";
                 }
@@ -179,8 +169,8 @@ RenderHtmlHead($pageTitle);
                     }
                 }
             } else {
-                echo "<a href='/ticketmanager.php'>Open Tickets</a>";
-                echo " &raquo; <b>Ticket</b>";
+                echo "<a href='/ticketmanager.php'>$pageTitle</a>";
+                echo " &raquo; <b>Inspect Ticket</b>";
             }
         }
         echo "</div>";
@@ -188,7 +178,27 @@ RenderHtmlHead($pageTitle);
         if ($gamesTableFlag == 1) {
             echo "<h3>Top " . count($ticketData) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
-            echo "<h3 class='longheader'>$pageTitle</h3>";
+            $assignedToUser = seekGET('u', null);
+            if (!isValidUsername($assignedToUser)) {
+                $assignedToUser = null;
+            }
+            if ($gamesTableFlag == 5) {
+                $openTicketsCount = countOpenTickets(true);
+                $filteredTicketsCount = countOpenTickets(true, $ticketFilters, $assignedToUser, $gameIDGiven);
+                if ($ticketID == 0) {
+                    echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open Unofficial Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
+                } else {
+                    echo "<h3 class='longheader'>Inspect Ticket</h3>";
+                }
+            } else {
+                $openTicketsCount = countOpenTickets();
+                $filteredTicketsCount = countOpenTickets(false, $ticketFilters, $assignedToUser, $gameIDGiven);
+                if ($ticketID == 0) {
+                    echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
+                } else {
+                    echo "<h3 class='longheader'>Inspect Ticket</h3>";
+                }
+            }
         }
 
         echo "<div class='detaillist'>";
@@ -226,33 +236,114 @@ RenderHtmlHead($pageTitle);
             echo "</tbody></table>";
         } else {
             if ($ticketID == 0) {
-                echo "<h4>Filters</h4>";
+                echo "<h4>Filters - " . $filteredTicketsCount . " Ticket" . ($filteredTicketsCount == 1 ? "" : "s") . " Filtered</h4>";
+                echo "<div class='embedded mb-1'>";
+                
+                /*
+                    Each filter is represented by a bit in the $ticketFilters variable.
+                    This allows us to easily determine which filters are active as well as toggle them back and forth.
+                 */
+                $openTickets            = ($ticketFilters & (1 << 0));
+                $closedTickets          = ($ticketFilters & (1 << 1));
+                $resolvedTickets        = ($ticketFilters & (1 << 2));
+                $triggeredTickets       = ($ticketFilters & (1 << 3));
+                $didNotTriggerTickets   = ($ticketFilters & (1 << 4));
+                $md5KnownTickets        = ($ticketFilters & (1 << 5));
+                $md5UnknownTickets      = ($ticketFilters & (1 << 6));
+                $raEmulatorTickets      = ($ticketFilters & (1 << 7));
+                $rarchKnownTickets      = ($ticketFilters & (1 << 8));
+                $rarchUnknownTickets    = ($ticketFilters & (1 << 9));
+                $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
 
-                echo "<p><b>Ticket State:</b> ";
-                if ($ticketState == 0) {
-                    echo "<b>All Tickets</b> | ";
+                //State Filters
+                echo "<div>";
+                echo "<b>Ticket State:</b> ";
+                if ($openTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 0)) . "'>*Open</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?t=0&g=$gameIDGiven&u=$assignedToUser'>All Tickets</a> | ";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 0)) . "'>Open</a> | ";
                 }
 
-                if ($ticketState == 1 && $gamesTableFlag != 5) {
-                    $openTicketsCount = countOpenTickets();
-                    echo "<b>Open Tickets (" . $openTicketsCount . ")</b> | ";
+                if ($closedTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 1)) . "'>*Closed</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?t=1&g=$gameIDGiven&u=$assignedToUser'>Open Tickets</a> | ";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 1)) . "'>Closed</a> | ";
                 }
 
-                if ($ticketState == 2) {
-                    echo "<b>Resolved Tickets</b>";
+                if ($resolvedTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 2)) . "'>*Resolved</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?t=2&g=$gameIDGiven&u=$assignedToUser'>Resolved Tickets</a>";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 2)) . "'>Resolved</a>";
+                }
+                echo "</div>";
+
+                //Report Type Filters
+                echo "<div>";
+                echo "<b>Report Type:</b> ";
+                if ($triggeredTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 3)) . "'>*Triggered at wrong time</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 3)) . "'>Triggered at wrong time</a> | ";
                 }
 
-                if ($gamesTableFlag == 5) {
-                    echo " | <b>Open Tickets for Unofficial (" . countOpenTickets(true) . ")</b>";
+                if ($didNotTriggerTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 4)) . "'>*Doesn't Trigger</a></b>";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 4)) . "'>Doesn't Trigger</a>";
+                }
+                echo "</div>";
+
+                //MD5 Filters
+                echo "<div>";
+                echo "<b>MD5:</b> ";
+                if ($md5KnownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 5)) . "'>*Contains MD5</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 5)) . "'>Contains MD5</a> | ";
                 }
 
-                echo "</p>";
+                if ($md5UnknownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 6)) . "'>*MD5 Unknown</a></b>";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 6)) . "'>MD5 Unknown</a>";
+                }
+                echo "</div>";
+
+                //Emulator Filters
+                echo "<div>";
+                echo "<b>Emulator:</b> ";
+                if ($raEmulatorTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 7)) . "'>*RA Emulator</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 7)) . "'>RA Emulator</a> | ";
+                }
+
+                if ($rarchKnownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 8)) . "'>*RetroArch - Defined</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 8)) . "'>RetroArch - Defined</a> | ";
+                }
+
+                if ($rarchUnknownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 9)) . "'>*RetroArch - Undefined</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 9)) . "'>RetroArch - Undefined</a> | ";
+                }
+
+                if ($emulatorUnknownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 10)) . "'>*Emulator Unknown</a></b>";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 10)) . "'>Emulator Unknown</a>";
+                }
+                echo "</div>";
+                
+                //Clear Filter
+                if ($ticketFilters != $defaultFilter) {
+                    echo "<div>";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . $defaultFilter . "'>Clear Filter</a>";
+                    echo "</div>";
+                }
+                echo "</div>";
 
                 if (isset($user) || !empty($assignedToUser)) {
                     echo "<p><b>Developer:</b> ";
@@ -260,7 +351,7 @@ RenderHtmlHead($pageTitle);
                         if ($assignedToUser == $user) {
                             echo "<b>$user</b> | ";
                         } else {
-                            echo "<a href='/ticketmanager.php?t=$ticketState&u=$user&g=$gameIDGiven'>$user</a> | ";
+                            echo "<a href='/ticketmanager.php?&u=$user&g=$gameIDGiven&f=$gamesTableFlag&t=$ticketFilters'>$user</a> | ";
                         }
                     }
 
@@ -269,7 +360,7 @@ RenderHtmlHead($pageTitle);
                     }
 
                     if (!empty($assignedToUser)) {
-                        echo "<a href='/ticketmanager.php?t=$ticketState&g=$gameIDGiven'>Clear Filter</a>";
+                        echo "<a href='/ticketmanager.php?&g=$gameIDGiven&f=$gamesTableFlag&t=$ticketFilters'>Clear Filter</a>";
                     } else {
                         echo "<b>Clear Filter</b>";
                     }
@@ -285,13 +376,13 @@ RenderHtmlHead($pageTitle);
                     } else {
                         echo ": <b>$gameTitle ($consoleName)</b>";
                     }
-                    echo " | <a href='/ticketmanager.php?t=$ticketState&u=$assignedToUser'>Clear Filter</a></p>";
+                    echo " | <a href='/ticketmanager.php?&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Clear Filter</a></p>";
                 }
 
                 echo "<table><tbody>";
 
                 echo "<th>ID</th>";
-                echo "<th>Status</th>";
+                echo "<th>State</th>";
                 echo "<th>Achievement</th>";
                 echo "<th>Game</th>";
                 echo "<th>Developer</th>";
@@ -375,16 +466,17 @@ RenderHtmlHead($pageTitle);
                 echo "<div class='rightalign row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
-                    echo "<a href='/ticketmanager.php?u=$assignedToUser&amp;t=$ticketState'>First</a> - ";
-                    echo "<a href='/ticketmanager.php?o=$prevOffset&amp;u=$assignedToUser&amp;t=$ticketState'>&lt; Previous $maxCount</a> - ";
+                    if ($prevOffset < 0) {
+                        $prevOffset = 0;
+                    }
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>First</a> - ";
+                    echo "<a href='/ticketmanager.php?o=$prevOffset&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($rowCount == $maxCount) {
                     //	Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='/ticketmanager.php?o=$nextOffset&amp;g=$gameIDGiven&amp;u=$assignedToUser&amp;t=$ticketState'>Next $maxCount &gt;</a>";
-                    if ($ticketState == 1 && $gamesTableFlag != 5) {
-                        echo " - <a href='/ticketmanager.php?o=" . ($openTicketsCount - 99) . "&amp;u=$assignedToUser&amp;t=$ticketState'>Last</a>";
-                    }
+                    echo "<a href='/ticketmanager.php?o=$nextOffset&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Next $maxCount &gt;</a>";
+                    echo " - <a href='/ticketmanager.php?o=" . ($filteredTicketsCount - ($maxCount - 1)) . "&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Last</a>";
                 }
                 echo "</div>";
             } else {
@@ -414,7 +506,7 @@ RenderHtmlHead($pageTitle);
                 echo "<table><tbody>";
 
                 echo "<th>ID</th>";
-                echo "<th>Status</th>";
+                echo "<th>State</th>";
                 echo "<th>Achievement</th>";
                 echo "<th>Game</th>";
                 echo "<th>Developer</th>";
@@ -548,7 +640,7 @@ RenderHtmlHead($pageTitle);
                     echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
                     $msgPayload = rawurlencode($msgPayload);
-                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20($gameTitle)&amp;p=$msgPayload'>Contact the reporter - $reportedBy</a>";
+                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20($gameTitle)&p=$msgPayload'>Contact the reporter - $reportedBy</a>";
                     echo "</span>";
                     echo "</div>";
                     echo "</td>";
