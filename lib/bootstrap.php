@@ -47,6 +47,7 @@ require_once(__DIR__ . '/render/tooltip.php');
 require_once(__DIR__ . '/render/twitch.php');
 require_once(__DIR__ . '/render/user.php');
 
+require_once(__DIR__ . '/util/api.php');
 require_once(__DIR__ . '/util/array.php');
 require_once(__DIR__ . '/util/bbcode.php');
 require_once(__DIR__ . '/util/bit.php');
