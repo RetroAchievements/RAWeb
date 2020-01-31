@@ -259,7 +259,7 @@ RenderHtmlStart(true);
     $('.ratingachlabel').html('Rating: ...');
 
     $.ajax({
-      url: '/API/API_GetGameRating.php?i=' + gameID,
+      url: '/request/game/rating.php?i=' + gameID,
       dataType: 'json',
       success: function (results) {
         results.GameID;
