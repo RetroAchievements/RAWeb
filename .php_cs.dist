@@ -10,6 +10,7 @@ $dirs = [
     'lib',
     'public',
     'src',
+    'tests',
 ];
 
 return PhpCsFixer\Config::create()
