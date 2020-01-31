@@ -208,14 +208,14 @@ function getAllTickets(
     $assignedToUser = null,
     $givenGameID = null,
     $givenAchievementID = null,
-    $ticketState = 1,
+    $ticketFilters = 2041, //2041 sets all filters active except for Closed and Resolved
     $getUnofficial = false
 ) {
     global $db;
 
     $retVal = [];
     settype($givenGameID, 'integer');
-    settype($ticketState, 'integer');
+    settype($ticketFilters, 'integer');
     settype($givenAchievementID, 'integer');
 
     $innerCond = "TRUE";
@@ -226,11 +226,32 @@ function getAllTickets(
     if ($givenGameID != 0) {
         $innerCond .= " AND gd.ID = $givenGameID";
     }
-    if ($ticketState != 0) {
-        $innerCond .= " AND tick.ReportState = $ticketState";
-    }
     if ($givenAchievementID != 0) {
         $innerCond .= " AND tick.AchievementID = $givenAchievementID";
+    }
+
+    //State condition
+    $stateCond = getStateCondition($ticketFilters);
+    if ($stateCond === null) {
+        return $retVal;
+    }
+
+    //Report Type condition
+    $reportTypeCond = getReportTypeCondition($ticketFilters);
+    if ($reportTypeCond === null) {
+        return $retVal;
+    }
+
+    //MD5 condition
+    $md5Cond = getMD5Condition($ticketFilters);
+    if ($md5Cond === null) {
+        return $retVal;
+    }
+
+    //Emulator condition
+    $emulatorCond = getEmulatorCondition($ticketFilters);
+    if ($emulatorCond === null) {
+        return $retVal;
     }
 
     settype($getUnofficial, 'boolean');
@@ -245,7 +266,7 @@ function getAllTickets(
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-              WHERE $innerCond $unofficialCond
+              WHERE $innerCond $unofficialCond $stateCond $reportTypeCond $md5Cond $emulatorCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -422,19 +443,62 @@ function countOpenTicketsByAchievement($achievementID)
     }
 }
 
-function countOpenTickets($unofficialFlag = false)
-{
+function countOpenTickets(
+    $unofficialFlag = false,
+    $ticketFilters = 2041, //2041 sets all filters active except for Closed and Resolved
+    $assignedToUser = null,
+    $gameID = null
+) {
+    //State condition
+    $stateCond = getStateCondition($ticketFilters);
+    if ($stateCond === null) {
+        return 0;
+    }
+
+    //Report Type condition
+    $reportTypeCond = getReportTypeCondition($ticketFilters);
+    if ($reportTypeCond === null) {
+        return 0;
+    }
+
+    //MD5 condition
+    $md5Cond = getMD5Condition($ticketFilters);
+    if ($md5Cond === null) {
+        return 0;
+    }
+
+    //Emulator condition
+    $emulatorCond = getEmulatorCondition($ticketFilters);
+    if ($emulatorCond === null) {
+        return 0;
+    }
+
+    //Author condition
+    $authorCond = "";
+    if ($assignedToUser != null) {
+        $authorCond = " AND ach.Author LIKE '$assignedToUser'";
+    }
+
+    //Game condition
+    $gameCond = "";
+    if ($gameID != null) {
+        $gameCond = " AND ach.GameID LIKE '$gameID'";
+    }
+
     if ($unofficialFlag === true) {
         $query = "
             SELECT count(*) as count
             FROM Ticket AS tick
             LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-            WHERE tick.ReportState = 1 AND ach.Flags <> 3";
+            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+            WHERE ach.Flags <> 3 $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
     } else {
         $query = "
             SELECT COUNT(*) as count
-            FROM Ticket
-            WHERE ReportState = 1";
+            FROM Ticket AS tick
+            LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
+            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+            WHERE TRUE $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
     }
 
     $dbResult = s_mysql_query($query);
@@ -487,4 +551,156 @@ function gamesSortedByOpenTickets($count)
     }
 
     return $retVal;
+}
+
+/*
+ * Gets the ticket state condition to put into the main ticket query.
+ *
+ * @param int $ticketFilters the current ticket filters in place
+ * @return string|null
+ */
+function getStateCondition($ticketFilters)
+{
+    $openTickets            = ($ticketFilters & (1 << 0));
+    $closedTickets          = ($ticketFilters & (1 << 1));
+    $resolvedTickets        = ($ticketFilters & (1 << 2));
+
+    if ($openTickets && $closedTickets && $resolvedTickets) {
+        return "";
+    } elseif ($openTickets || $closedTickets || $resolvedTickets) {
+        $stateCond = " AND tick.ReportState IN (";
+        if ($openTickets) {
+            $stateCond .= "1";
+        }
+
+        if ($closedTickets) {
+            if ($openTickets) {
+                $stateCond .= ",";
+            }
+            $stateCond .= "0";
+        }
+
+        if ($resolvedTickets) {
+            if ($openTickets || $closedTickets) {
+                $stateCond .= ",";
+            }
+            $stateCond .= "2";
+        }
+        $stateCond .= ")";
+        return $stateCond;
+    } else {
+        return null;
+    }
+}
+
+/*
+ * Gets the ticket report type condition to put into the main ticket query.
+ *
+ * @param int $ticketFilters the current ticket filters in place
+ * @return string|null
+ */
+function getReportTypeCondition($ticketFilters)
+{
+    $triggeredTickets       = ($ticketFilters & (1 << 3));
+    $didNotTriggerTickets   = ($ticketFilters & (1 << 4));
+
+    if ($triggeredTickets && $didNotTriggerTickets) {
+        return "";
+    } elseif ($triggeredTickets || $didNotTriggerTickets) {
+        $reportTypeCond = " AND tick.ReportType IN (";
+        if ($triggeredTickets) {
+            $reportTypeCond .= "1";
+        }
+
+        if ($didNotTriggerTickets) {
+            if ($triggeredTickets) {
+                $reportTypeCond .= ",";
+            }
+            $reportTypeCond .= "2";
+        }
+        $reportTypeCond .= ")";
+        return $reportTypeCond;
+    } else {
+        return null;
+    }
+}
+
+/*
+ * Gets the ticket MD5 condition to put into the main ticket query.
+ *
+ * @param int $ticketFilters the current ticket filters in place
+ * @return string|null
+ */
+function getMD5Condition($ticketFilters)
+{
+    $md5KnownTickets        = ($ticketFilters & (1 << 5));
+    $md5UnknownTickets      = ($ticketFilters & (1 << 6));
+
+    if ($md5KnownTickets && $md5UnknownTickets) {
+        return "";
+    } elseif ($md5KnownTickets || $md5UnknownTickets) {
+        $md5Cond = " AND (";
+        if ($md5KnownTickets) {
+            $md5Cond .= "tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}' ";
+        }
+
+        if ($md5UnknownTickets) {
+            if ($md5KnownTickets) {
+                $md5Cond .= " OR ";
+            }
+            $md5Cond .= "tick.ReportNotes LIKE '%MD5: U%' OR tick.ReportNotes NOT LIKE '%MD5: %'";
+        }
+        $md5Cond .= ")";
+        return $md5Cond;
+    } else {
+        return null;
+    }
+}
+
+/*
+ * Gets the ticket emulator condition to put into the main ticket query.
+ *
+ * @param int $ticketFilters the current ticket filters in place
+ * @return string|null
+ */
+function getEmulatorCondition($ticketFilters)
+{
+    $raEmulatorTickets      = ($ticketFilters & (1 << 7));
+    $rarchKnownTickets      = ($ticketFilters & (1 << 8));
+    $rarchUnknownTickets    = ($ticketFilters & (1 << 9));
+    $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
+
+    if ($raEmulatorTickets && $rarchKnownTickets && $rarchUnknownTickets && $emulatorUnknownTickets) {
+        return "";
+    } elseif ($raEmulatorTickets || $rarchKnownTickets || $rarchUnknownTickets || $emulatorUnknownTickets) {
+        $emulatorCond = " AND (";
+        if ($raEmulatorTickets) {
+            $emulatorCond .= "tick.ReportNotes Like '%Emulator: RA%' ";
+        }
+
+        if ($rarchKnownTickets) {
+            if ($raEmulatorTickets) {
+                $emulatorCond .= " OR ";
+            }
+            $emulatorCond .= "tick.ReportNotes LIKE '%Emulator: RetroArch (_%)%' ";
+        }
+
+        if ($rarchUnknownTickets) {
+            if ($raEmulatorTickets || $rarchKnownTickets) {
+                $emulatorCond .= " OR ";
+            }
+            $emulatorCond .= "tick.ReportNotes LIKE '%Emulator: RetroArch ()%'";
+        }
+
+        if ($emulatorUnknownTickets) {
+            if ($raEmulatorTickets || $rarchKnownTickets || $rarchUnknownTickets) {
+                $emulatorCond .= " OR ";
+            }
+            $emulatorCond .= "(tick.ReportNotes NOT LIKE '%Emulator: RA%' AND tick.ReportNotes NOT LIKE '%Emulator: RetroArch%')";
+        }
+        $emulatorCond .= ")";
+        return $emulatorCond;
+    } else {
+        return null;
+    }
 }
