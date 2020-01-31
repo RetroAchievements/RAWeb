@@ -646,6 +646,11 @@ function GetScore($user)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $result = mysqli_fetch_assoc($dbResult);
+
+        if (!$result) {
+            return null;
+        }
+
         $points = $result['RAPoints'];
         settype($points, 'integer');
         return $points;
@@ -977,6 +982,12 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
 
 function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
 {
+    getAccountDetails($user, $userInfo);
+
+    if (!$userInfo) {
+        return null;
+    }
+
     $libraryOut = [];
     // getUserActivityRange($user, $firstLogin, $lastLogin);
     // $libraryOut['MemberSince'] = $firstLogin;
@@ -984,9 +995,6 @@ function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements,
 
     $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
-
-    getAccountDetails($user, $userInfo); //    Necessary?
-
     $libraryOut['MemberSince'] = $userInfo['Created'];
     $libraryOut['LastActivity'] = $userInfo['LastLogin'];
     $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : strip_tags($userInfo['RichPresenceMsg']);

@@ -22,6 +22,11 @@ $maxNumGamesToFetch = seekGET('g', 5);
 
 //    Get general info
 getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 100, $user);
+if (!$userMassData) {
+    http_response_code(404);
+    echo "User not found";
+    exit;
+}
 
 $userMotto = $userMassData['Motto'];
 $userPageID = $userMassData['ID'];
