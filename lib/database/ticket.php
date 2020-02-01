@@ -607,19 +607,13 @@ function getReportTypeCondition($ticketFilters)
     if ($triggeredTickets && $didNotTriggerTickets) {
         return "";
     } elseif ($triggeredTickets || $didNotTriggerTickets) {
-        $reportTypeCond = " AND tick.ReportType IN (";
         if ($triggeredTickets) {
-            $reportTypeCond .= "1";
+            return " AND tick.ReportType LIKE 1";
         }
 
         if ($didNotTriggerTickets) {
-            if ($triggeredTickets) {
-                $reportTypeCond .= ",";
-            }
-            $reportTypeCond .= "2";
+            return " AND tick.ReportType NOT LIKE 1";
         }
-        $reportTypeCond .= ")";
-        return $reportTypeCond;
     } else {
         return null;
     }
@@ -639,19 +633,13 @@ function getMD5Condition($ticketFilters)
     if ($md5KnownTickets && $md5UnknownTickets) {
         return "";
     } elseif ($md5KnownTickets || $md5UnknownTickets) {
-        $md5Cond = " AND (";
         if ($md5KnownTickets) {
-            $md5Cond .= "tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}' ";
+            return " AND (tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}')";
         }
 
         if ($md5UnknownTickets) {
-            if ($md5KnownTickets) {
-                $md5Cond .= " OR ";
-            }
-            $md5Cond .= "tick.ReportNotes LIKE '%MD5: U%' OR tick.ReportNotes NOT LIKE '%MD5: %'";
+            return " AND (tick.ReportNotes NOT REGEXP 'MD5: [a-fA-F0-9]{32}')";
         }
-        $md5Cond .= ")";
-        return $md5Cond;
     } else {
         return null;
     }
