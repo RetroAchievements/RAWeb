@@ -141,22 +141,22 @@ $userScoreData = getAwardedList(
 );
 
 //    Also add current.
-$numScoreDataElements = count($userScoreData);
-$userScoreData[$numScoreDataElements]['Year'] = date('Y');
-$userScoreData[$numScoreDataElements]['Month'] = date('m');
-$userScoreData[$numScoreDataElements]['Day'] = date('d');
-$userScoreData[$numScoreDataElements]['Date'] = date("Y-m-d H:i:s");
-$userScoreData[$numScoreDataElements]['Points'] = 0;
-settype($userPagePoints, 'integer');
-$userScoreData[$numScoreDataElements]['CumulScore'] = $userPagePoints;
-
-$pointsReverseCumul = $userPagePoints;
-for ($i = $numScoreDataElements; $i >= 0; $i--) {
-    $pointsReverseCumul -= $userScoreData[$i]['Points'];
-    $userScoreData[$i]['CumulScore'] = $pointsReverseCumul;
-}
-
-$numScoreDataElements++;
+// $numScoreDataElements = count($userScoreData);
+// $userScoreData[$numScoreDataElements]['Year'] = (int)date('Y');
+// $userScoreData[$numScoreDataElements]['Month'] = (int)date('m');
+// $userScoreData[$numScoreDataElements]['Day'] = (int)date('d');
+// $userScoreData[$numScoreDataElements]['Date'] = date("Y-m-d H:i:s");
+// $userScoreData[$numScoreDataElements]['Points'] = 0;
+// settype($userPagePoints, 'integer');
+// $userScoreData[$numScoreDataElements]['CumulScore'] = $userPagePoints;
+//
+// $pointsReverseCumul = $userPagePoints;
+// for ($i = $numScoreDataElements; $i >= 0; $i--) {
+//     $pointsReverseCumul -= $userScoreData[$i]['Points'];
+//     $userScoreData[$i]['CumulScore'] = $pointsReverseCumul;
+// }
+//
+// $numScoreDataElements++;
 
 //var_dump( $userScoreData );
 
