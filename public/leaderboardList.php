@@ -240,12 +240,13 @@ RenderHtmlHead($pageTitle);
         echo "<th>Display Order</th>";
     } else {
         echo "<th><a href='/leaderboardList.php?s=$sort1'>ID</a></th>";
+        echo "<th></th>";
         echo "<th><a href='/leaderboardList.php?s=$sort2'>Game</a></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort3'>Console</a></th>";
+        // echo "<th><a href='/leaderboardList.php?s=$sort3'>Console</a></th>";
         echo "<th><a href='/leaderboardList.php?s=$sort4'>Title</a></th>";
         echo "<th><a href='/leaderboardList.php?s=$sort5'>Description</a></th>";
         echo "<th><a href='/leaderboardList.php?s=$sort6'>Type</a></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort7'>NumResults</a></th>";
+        echo "<th><a href='/leaderboardList.php?s=$sort7'>Entries</a></th>";
     }
 
     $listCount = 0;
@@ -399,8 +400,12 @@ RenderHtmlHead($pageTitle);
             echo "</td>";
 
             echo "<td>";
-            echo "$consoleName";
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
             echo "</td>";
+
+            // echo "<td class='text-nowrap'>";
+            // echo "$consoleName";
+            // echo "</td>";
 
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a>";
@@ -410,7 +415,7 @@ RenderHtmlHead($pageTitle);
             echo "$lbDesc";
             echo "</td>";
 
-            echo "<td>";
+            echo "<td class='text-nowrap'>";
             echo "$niceFormat";
             echo "</td>";
 

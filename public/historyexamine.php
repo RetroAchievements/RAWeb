@@ -9,6 +9,13 @@ if (!isset($userPage)) {
     exit;
 }
 
+getUserPageInfo($userPage, $userMassData, 0, 0, $user);
+if (!$userMassData) {
+    http_response_code(404);
+    echo "User not found";
+    exit;
+}
+
 $dateInput = seekGET('d', 0);
 
 $userPagePoints = getScore($userPage);

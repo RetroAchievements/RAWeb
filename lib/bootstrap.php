@@ -47,6 +47,7 @@ require_once(__DIR__ . '/render/tooltip.php');
 require_once(__DIR__ . '/render/twitch.php');
 require_once(__DIR__ . '/render/user.php');
 
+require_once(__DIR__ . '/util/api.php');
 require_once(__DIR__ . '/util/array.php');
 require_once(__DIR__ . '/util/bbcode.php');
 require_once(__DIR__ . '/util/bit.php');
@@ -71,7 +72,7 @@ require_once(__DIR__ . '/util/utf8.php');
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-define("VERSION", "1.40.0");
+define("VERSION", "1.41.0");
 
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));

@@ -1,8 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $gameID = seekGET('i');
 

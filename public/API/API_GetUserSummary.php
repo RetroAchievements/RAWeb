@@ -2,21 +2,26 @@
 
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
-if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
-    echo "Invalid API Key";
-    exit;
-}
+runPublicApiMiddleware();
 
 $user = seekGET('u', null);
 $recentGamesPlayed = seekGET('g', 5);
 $recentAchievementsEarned = seekGET('a', 10);
 
-$retVal = [];
-
 getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);
+
+if (!$retVal) {
+    http_response_code(404);
+    echo json_encode([
+        'ID' => null,
+        'User' => $user,
+    ]);
+    exit;
+}
 
 getAccountDetails($user, $userDetails);
 
+$retVal = [];
 $retVal['ID'] = $userDetails['ID'];
 $retVal['Points'] = $userDetails['RAPoints'];
 $retVal['Motto'] = $userDetails['Motto'];

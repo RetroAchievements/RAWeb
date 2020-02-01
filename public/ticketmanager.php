@@ -229,7 +229,7 @@ RenderHtmlHead($pageTitle);
                 echo "<td>";
                 echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName);
                 echo "</td>";
-                echo "<td><a href='/ticketmanager.php?t=1&g=$gameID'>$openTickets</a></td>";
+                echo "<td><a href='/ticketmanager.php?g=$gameID'>$openTickets</a></td>";
 
                 echo "</tr>";
             }
@@ -568,7 +568,7 @@ RenderHtmlHead($pageTitle);
                 echo "<tr>";
                 echo "<td></td><td colspan='6'>";
                 echo "<div class='temp'>";
-                echo "<a href='ticketmanager.php?g=$gameID&t=1'>View other tickets for this game</a>";
+                echo "<a href='ticketmanager.php?g=$gameID'>View other tickets for this game</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
