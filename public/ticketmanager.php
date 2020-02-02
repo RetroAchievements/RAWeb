@@ -93,7 +93,7 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $ticketFilters);
+    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], 2047); //2047 sets all filters enabled so we get closed/resolved tickets as well
     //var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
