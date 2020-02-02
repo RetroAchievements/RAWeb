@@ -105,10 +105,7 @@ RenderHtmlHead("$userPage's Legacy");
             $dateStr = getNiceDate(strtotime($nextDate), true);
             $value = $dayInfo['CumulScore'];
 
-            //echo "[\"$dateStr\", $value]";
-            //echo "[ {v:new Date(2013, 1, 1), f:\"$dateStr\"}, $value]";
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
-            //echo "[ new Date( Date.parse( '$nextDate' ) ), $value]";
         }
         ?>
     ]);

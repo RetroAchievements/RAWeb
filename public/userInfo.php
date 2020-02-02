@@ -202,14 +202,11 @@ RenderHtmlStart(true);
             $nextDay = (int)$dayInfo['Day'];
             $nextMonth = (int)$dayInfo['Month'] - 1;
             $nextYear = (int)$dayInfo['Year'];
+            $nextDate = $dayInfo['Date'];
 
-            $dateStr = "$nextDay/$nextMonth";
-            //if( $nextYear != date( 'Y' ) )
-            //    $dateStr = "$nextDay/$nextMonth/$nextYear";
-
+            $dateStr = getNiceDate(strtotime($nextDate), true);
             $value = $dayInfo['CumulScore'];
 
-            //echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
         ?>
