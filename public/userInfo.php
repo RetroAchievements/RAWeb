@@ -199,9 +199,9 @@ RenderHtmlStart(true);
                 echo ", ";
             }
 
-            $nextDay = $dayInfo['Day'];
-            $nextMonth = $dayInfo['Month'];
-            $nextYear = $dayInfo['Year'];
+            $nextDay = (int)$dayInfo['Day'];
+            $nextMonth = (int)$dayInfo['Month'] - 1;
+            $nextYear = (int)$dayInfo['Year'];
 
             $dateStr = "$nextDay/$nextMonth";
             //if( $nextYear != date( 'Y' ) )
