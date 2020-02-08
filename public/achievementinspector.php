@@ -6,6 +6,7 @@ $modifyOK = ($permissions >= \RA\Permissions::Developer);
 
 $gameID = seekGET('g');
 $errorCode = seekGET('e');
+$flag = seekGET('f', 3);
 
 $achievementList = [];
 $gamesList = [];
@@ -14,7 +15,7 @@ $codeNotes = [];
 
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {
-    getGameMetadata($gameID, $user, $achievementData, $gameData);
+    getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];
@@ -32,6 +33,60 @@ RenderHtmlHead("Manage Achievements");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 
+
+<script>
+  //Sleeps for the given amount of milliseconds
+  function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
+      }
+    }
+  }
+
+  //Checks or unchecks all boxes
+  function toggle(status) {
+    checkboxes = document.querySelectorAll("[name^='acvhievement']");
+    for(var i=0, n=checkboxes.length;i<n;i++) {
+      checkboxes[i].checked = status;
+    }
+  }
+
+  //Sends update achiecements request
+  function updateAchievements(user, achievements, flag) {
+    $.ajax(
+      {
+        type: "POST",
+        url: '/request/achievement/update.php?a=-1&f=4&u=' + user + '&v=' + flag,
+        data: {"achievementArray" : achievements},
+        success: function (result) {
+        },
+        error: function (temp, temp1, temp2) {
+          alert('Error ' + temp + temp1 + temp2);
+        },
+      });
+  }
+
+  //When clicked, creates an array of checked achievement IDs and sends it to the updateAchievements function
+  $(function () {
+    $('.updateAchievements').click(function () {
+      checkboxes = document.querySelectorAll("[name^='acvhievement']");
+      var achievements = [];
+      for(var i=0, n=checkboxes.length;i<n;i++) {
+        if (checkboxes[i].checked == true) {
+            achievements.push(checkboxes[i].getAttribute("value"));
+        }
+      }
+      if (achievements.length > 0) {
+        updateAchievements('<?php echo $user; ?>', achievements, document.getElementsByClassName('updateAchievements')[0].getAttribute("value"));
+        sleep(100);
+        document.location.reload(true)
+      }
+    });
+  });
+</script>
+
 <div id="mainpage">
     <?php
     if (count($codeNotes) > 0) {
@@ -41,24 +96,45 @@ RenderHtmlHead("Manage Achievements");
     }
     echo "<div id='warning' class='rightfloat'>Status: OK!</div>";
 
-    echo "<h2 class='longheader'>Achievement Inspector</h2>";
+    if ($flag == 5) {
+        echo "<h2 class='longheader'>Unofficial Achievement Inspector</h2>";
+    } else {
+        echo "<h2 class='longheader'>Core Achievement Inspector</h2>";
+    }
 
     if ($gameIDSpecified) {
-        echo "Reordering achievements for:<br>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
-        echo "<br>";
-        echo "<span class='clickablebutton'><a href='/achievementinspector.php?g=$gameID'>Refresh Page</a></span><br>";
-        echo "<span class='clickablebutton'><a href='/achievementinspector.php'>Back to List</a></span><br>";
+        echo "<br><br>";
 
         if ($modifyOK) {
-            echo "<p><b>Instructions:</b> This is the game's achievement list as displayed on the website or in the emulator. " .
+            echo "<p align='justify'><b>Instructions:</b> This is the game's achievement list as displayed on the website or in the emulator. " .
                 "The achievements will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .
                 "Adjust the numbers on the right to set an order for them to appear in. Any changes you make on this page will instantly " .
-                "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.</p><br>";
+                "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.</br></br>" .
+                "You can " . ($flag == 5 ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag == 5 ? "Promote" : "Demote") . " Selected' " .
+                "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
+
+        echo "<div style='text-align:center'><p><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
+        if ($flag == 5) {
+            if ($modifyOK) {
+                echo "<a class='updateAchievements' value='3'>Promote Selected</a> | ";
+            }
+            echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
+        } else {
+            if ($modifyOK) {
+                echo "<a class='updateAchievements' value='5'>Demote Selected</a> | ";
+            }
+            echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
+        }
+        echo "<a href='/achievementinspector.php'>Back to List</a></p></div><br>";
 
         echo "<table><tbody>";
         echo "<tr>";
+        if ($modifyOK) {
+            echo "<th>Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a></th>";
+        }
         echo "<th>ID</th>";
         echo "<th>Badge</th>";
         echo "<th>Title</th>";
@@ -67,7 +143,6 @@ RenderHtmlHead("Manage Achievements");
         echo "<th>Points</th>";
         echo "<th>Created/Modified</th>";
         echo "<th>Display Order</th>";
-        //echo "<th>Submit</th>";
         echo "</tr>";
 
         //	Display all achievements
@@ -89,7 +164,9 @@ RenderHtmlHead("Manage Achievements");
             $achBadgeFile = getenv('APP_STATIC_URL') . "/Badge/$achBadgeName" . ".png";
 
             echo "<tr>";
-
+            if ($modifyOK) {
+                echo "<td align='center'><input type='checkbox' name='acvhievement" . $achID . "' value='" . $achID . "'></td>";
+            }
             echo "<td>$achID</td>";
             echo "<td><code>$achBadgeName</code><br><img alt='' style='float:left;' src='$achBadgeFile' /></td>";
             echo "<td>$achTitle</td>";
@@ -106,7 +183,7 @@ RenderHtmlHead("Manage Achievements");
             echo "</tr>";
             echo "<tr>";
             echo "<td><b>Code:</b></td>";
-            echo "<td colspan='6' style='padding: 10px; word-break:break-all;'>";
+            echo "<td colspan='7' style='padding: 10px; word-break:break-all;'>";
             echo "<code style='word-break:break-all;'>$achMemAddr</code>";
             echo "</td>";
             echo "</tr>";

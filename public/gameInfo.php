@@ -523,7 +523,11 @@ RenderHtmlStart(true);
                     echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
                 }
 
-                echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Achievements</a></div>";
+                if ($flags == 5) {
+                    echo "<div><a href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
+                } else {
+                    echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
+                }
                 echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
 
                 echo "<div><a href='/attemptrename.php?g=$gameID'>Rename Game</a></div>";
