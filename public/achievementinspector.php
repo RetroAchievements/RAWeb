@@ -15,7 +15,7 @@ $codeNotes = [];
 
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {
-    getGameMetadata($gameID, $user, $achievementData, $gameData, 0 , null, $flag);
+    getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];
@@ -111,7 +111,7 @@ RenderHtmlHead("Manage Achievements");
                 "The achievements will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .
                 "Adjust the numbers on the right to set an order for them to appear in. Any changes you make on this page will instantly " .
                 "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.</br></br>" .
-                "You can " . ($flag == 5 ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " . 
+                "You can " . ($flag == 5 ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
                 "the desired checkboxes in the far right column and clicking the '" . ($flag == 5 ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
@@ -133,7 +133,7 @@ RenderHtmlHead("Manage Achievements");
         echo "<table><tbody>";
         echo "<tr>";
         if ($modifyOK) {
-            echo ("<th>Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a></th>");
+            echo "<th>Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a></th>";
         }
         echo "<th>ID</th>";
         echo "<th>Badge</th>";

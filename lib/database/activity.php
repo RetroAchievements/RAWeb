@@ -318,7 +318,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
         $arrayCount = count($articleID);
         $count = 0;
         $query = "INSERT INTO Comment VALUES";
-        foreach($articleID as $id) {
+        foreach ($articleID as $id) {
             $query .= "( NULL, $articleType, $id, $userID, '$commentPayload', NOW(), NULL )";
             if (++$count !== $arrayCount) {
                 $query .= ",";
@@ -338,7 +338,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
 
     //    Inform Subscribers of this comment:
     if (is_array($articleID)) {
-        foreach($articleID as $id) {
+        foreach ($articleID as $id) {
             informAllSubscribersAboutActivity($articleType, $id, $user, $onBehalfOfUser);
         }
     } else {
