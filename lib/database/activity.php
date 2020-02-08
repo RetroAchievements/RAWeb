@@ -314,7 +314,19 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     global $db;
     $commentPayload = mysqli_real_escape_string($db, $commentPayload);
 
-    $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
+    if (is_array($articleID)) {
+        $arrayCount = count($articleID);
+        $count = 0;
+        $query = "INSERT INTO Comment VALUES";
+        foreach($articleID as $id) {
+            $query .= "( NULL, $articleType, $id, $userID, '$commentPayload', NOW(), NULL )";
+            if (++$count !== $arrayCount) {
+                $query .= ",";
+            }
+        }
+    } else {
+        $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
+    }
     // log_sql($query);
 
     $dbResult = mysqli_query($db, $query);
@@ -325,7 +337,13 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     }
 
     //    Inform Subscribers of this comment:
-    informAllSubscribersAboutActivity($articleType, $articleID, $user, $onBehalfOfUser);
+    if (is_array($articleID)) {
+        foreach($articleID as $id) {
+            informAllSubscribersAboutActivity($articleType, $id, $user, $onBehalfOfUser);
+        }
+    } else {
+        informAllSubscribersAboutActivity($articleType, $articleID, $user, $onBehalfOfUser);
+    }
 
     return true;
 }

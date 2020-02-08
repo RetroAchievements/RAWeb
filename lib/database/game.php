@@ -78,9 +78,9 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     return $gameTitle;
 }
 
-function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = null)
+function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = null, $flag = null)
 {
-    return getGameMetadataByFlags($gameID, $user, $achievementDataOut, $gameDataOut, $sortBy, $user2, null);
+    return getGameMetadataByFlags($gameID, $user, $achievementDataOut, $gameDataOut, $sortBy, $user2, $flag);
 }
 
 function getGameMetadataByFlags(
