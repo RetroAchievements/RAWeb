@@ -112,7 +112,7 @@ RenderHtmlHead("Manage Achievements");
                 "Adjust the numbers on the right to set an order for them to appear in. Any changes you make on this page will instantly " .
                 "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.</br></br>" .
                 "You can " . ($flag == 5 ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far right column and clicking the '" . ($flag == 5 ? "Promote" : "Demote") . " Selected' " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag == 5 ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
