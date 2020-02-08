@@ -73,6 +73,22 @@ switch ($field) {
             echo "FAILED!";
         }
         break;
+    case 4:
+        // Promote/Demote Selected
+        settype($value, "integer");
+        $achIDs = $_POST['achievementArray'];
+        if (updateAchievementFlags($achIDs, $value)) {
+            if ($value == 3) {
+                $commentText = 'promoted this achievement to the Core set';
+            }
+            if ($value == 5) {
+                $commentText = 'demoted this achievement to Unofficial';
+            }
+            addArticleComment("Server", 2, $achIDs, "\"$user\" $commentText.", $user);
+        } else {
+            echo "FAILED!";
+        }
+        break;
     default:
         // error_log("requestupdateachievement.php failed?!" . var_dump($_POST));
         echo "FAILED!";

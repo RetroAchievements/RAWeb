@@ -1115,7 +1115,11 @@ function updateAchievementEmbedVideo($achID, $newURL)
 
 function updateAchievementFlags($achID, $newFlags)
 {
-    $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID = $achID";
+    if (is_array($achID)) {
+        $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . implode(', ', $achID) . ")";
+    } else {
+        $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID = $achID";
+    }
     // log_sql($query);
     global $db;
     $dbResult = mysqli_query($db, $query);
