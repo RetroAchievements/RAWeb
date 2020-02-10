@@ -31,7 +31,8 @@ RenderHtmlHead("Reorder Site Awards");
 
         echo "<p><b>Instructions:</b> These are your site awards as displayed on your user page. " .
             "The awards will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .
-            "Adjust the numbers on the right to set an order for them to appear in. Any changes you make on this page will instantly " .
+            "Adjust the numbers on the right to set an order for them to appear in. Setting a 'Display Order' value to -1 " .
+            "will hide the site award. Any changes you make on this page will instantly " .
             "take effect on the website, but you will need to press 'Refresh Page' to see the new order on this page. " .
             "The right panel represents how the site awards will look on your user page.</p><br>";
 
