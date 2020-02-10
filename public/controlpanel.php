@@ -698,7 +698,9 @@ RenderHtmlHead("My Settings");
             New image should be less than 1MB, png/jpeg/gif supported.<br>
             <br>
             <input style='padding: 4px;' type='file' name='file' id='uploadimagefile' onchange='return UploadNewAvatar();'/>
-            <img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
+            <img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/><br>
+				<br>
+				After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
         </div>
 
         <div class='component'>
