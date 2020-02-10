@@ -15,8 +15,6 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 $errorCode = seekGET('e');
 
-$userAwards = getUsersSiteAwards($user);
-
 RenderHtmlStart();
 RenderHtmlHead("Reorder Site Awards");
 ?>
@@ -48,7 +46,7 @@ RenderHtmlHead("Reorder Site Awards");
         $imageSize = 48;
 
         $counter = 0;
-        foreach ($userAwards as $elem) {
+        foreach (getUsersSiteAwards($user, true) as $elem) {
             $awardType = $elem['AwardType'];
             $awardData = $elem['AwardData'];
             $awardDataExtra = $elem['AwardDataExtra'];
@@ -141,7 +139,7 @@ RenderHtmlHead("Reorder Site Awards");
         ?>
     </div>
     <div id="rightcontainer">
-        <?php RenderSiteAwards($userAwards) ?>
+        <?php RenderSiteAwards(getUsersSiteAwards($user, false)) ?>
     </div>
 </div>
 <?php RenderFooter(); ?>

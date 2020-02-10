@@ -219,7 +219,7 @@ function updateDisplayOrder(user, objID) {
 
 function updateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID) {
   var inputText = $('#' + objID).val();
-  var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+  var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
   var posting = $.post('/request/user/update-site-award.php',
     {
       u: user,
