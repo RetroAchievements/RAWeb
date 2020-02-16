@@ -978,7 +978,7 @@ RenderHtmlStart(true);
             $numOpenTickets = countOpenTickets(
                 seekGET('f') == 5,
                 seekGET('t', 2041),
-                $user,
+                null,
                 $gameID
             );
             echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
