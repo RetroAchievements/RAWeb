@@ -545,7 +545,7 @@ RenderHtmlStart(true);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderSiteAwards(getUsersSiteAwards($user, false));
+        RenderSiteAwards(getUsersSiteAwards($userPage, false));
         RenderCompletedGamesList($userPage, $userCompletedGamesList);
 
         echo "<div id='achdistribution' class='component' >";
