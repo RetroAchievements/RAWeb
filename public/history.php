@@ -33,7 +33,6 @@ $userPagePoints = getScore($userPage);
 
 getUserActivityRange($userPage, $userSignedUp, $unused);
 
-$userAwards = getUsersSiteAwards($userPage);
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
 $userCompletedGames = [];

@@ -1253,12 +1253,17 @@ function getUsersCompletedGamesAndMax($user)
     return $retVal;
 }
 
-function getUsersSiteAwards($user)
+function getUsersSiteAwards($user, $showHidden = false)
 {
     $retVal = [];
 
     if (!isValidUsername($user)) {
         return $retVal;
+    }
+
+    $hiddenQuery = "";
+    if ($showHidden == false) {
+        $hiddenQuery = "AND saw.DisplayOrder > -1";
     }
 
     $query = "
@@ -1267,14 +1272,14 @@ function getUsersSiteAwards($user)
                   FROM SiteAwards AS saw
                   LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = 1 )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE saw.AwardType = 1 AND saw.User = '$user'
+                  WHERE saw.AwardType = 1 AND saw.User = '$user' $hiddenQuery
                   GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
     )
     UNION
     (
     SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
-                  WHERE saw.AwardType > 1 AND saw.User = '$user'
+                  WHERE saw.AwardType > 1 AND saw.User = '$user' $hiddenQuery
                   GROUP BY saw.AwardType
 
     )

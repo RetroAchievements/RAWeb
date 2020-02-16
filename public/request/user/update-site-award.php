@@ -37,8 +37,7 @@ if (in_array($awardType, [2, 3])) {
 } else {
     $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
         "AND AwardType = $awardType " .
-        "AND AwardData = $awardData " .
-        "AND AwardDataExtra = $awardDataExtra";
+        "AND AwardData = $awardData";
 }
 
 if (s_mysql_query($query)) {

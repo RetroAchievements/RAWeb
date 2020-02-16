@@ -40,13 +40,7 @@ $numArticleComments = getArticleComments(3, $userPageID, 0, 100, $commentData);
 
 //    Get user's feed
 //$numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
-//    Get user's site awards
 
-$userAwards = getUsersSiteAwards($userPage);
-
-//var_dump( $userAwards );
-//    Find out which games are causing 'invalid' or out of date site awards for completed games
-//var_dump( $userAwards );
 //    Calc avg pcts:
 $totalPctWon = 0.0;
 $numGamesFound = 0;
@@ -99,24 +93,6 @@ foreach ($userCompletedGamesList as $nextGame) {
 $avgPctWon = "0.0";
 if ($numGamesFound > 0) {
     $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
-}
-
-//foreach( $userAwards as $nextKey => &$nextAward )
-for ($i = 0; $i < count($userAwards); $i++) {
-    $nextAward = $userAwards[$i];
-
-    if ($nextAward['AwardType'] == 1) {
-        $nextAward['Incomplete'] = 0;
-        foreach ($userCompletedGamesList as $nextGame) {
-            // if( $nextGame[ 'GameID' ] == $nextAward[ 'AwardData' ] )
-            // {
-            //    I have this game listed as a game I've got awards for, do I have the same number
-            //     of completed awards as there are possible achievements?    //NB> FLAWED!!! DOESNT CATER FOR HARDCORE
-            //if( $nextGame['NumAwarded'] < $nextGame['MaxPossible'] )
-            //    $nextAward['Incomplete'] = 1;
-            // }
-        }
-    }
 }
 
 settype($userMassData['Friendship'], 'integer');
@@ -569,7 +545,7 @@ RenderHtmlStart(true);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderSiteAwards($userAwards);
+        RenderSiteAwards(getUsersSiteAwards($user, false));
         RenderCompletedGamesList($userPage, $userCompletedGamesList);
 
         echo "<div id='achdistribution' class='component' >";
