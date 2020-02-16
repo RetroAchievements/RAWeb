@@ -975,7 +975,13 @@ RenderHtmlStart(true);
             RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions);
             echo "</li>";
             echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
-            echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>Open Tickets for this game</a></li>";
+            $numOpenTickets = countOpenTickets(
+                seekGET('f') == 5,
+                seekGET('t', 2041),
+                $user,
+                $gameID
+            );
+            echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
             if ($numAchievements == 0) {
                 echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
             }
