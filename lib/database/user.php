@@ -1440,7 +1440,7 @@ function GetDeveloperStatsFull($count, $sortBy)
         Permissions,
         ContribCount,
         ContribYield,
-        COUNT(ach.ID) AS Achievements,
+        COUNT(DISTINCT(ach.ID)) AS Achievements,
         COUNT(tick.ID) AS OpenTickets,
         COUNT(tick.ID)/COUNT(ach.ID) AS TicketRatio,
         LastLogin
