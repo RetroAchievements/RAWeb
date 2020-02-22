@@ -692,3 +692,139 @@ function getEmulatorCondition($ticketFilters)
         return null;
     }
 }
+
+/**
+ * Gets the total number of tickets and ticket states for a specific user.
+ *
+ * @param String $user to get ticket data for
+ * @return Array of user ticket data
+ */
+function getTicketsForUser($user)
+{
+    $retVal = [];
+    $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
+              FROM ticket AS t
+              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              WHERE a.Author = '$user'
+              GROUP BY t.AchievementID, ReportState
+              ORDER BY t.AchievementID";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
+
+/**
+ * Gets the user developed game with the most amount of tickets.
+ *
+ * @param String $user to get ticket data for
+ * @return Array|NULL of user ticket data
+ */
+function getUserGameWithMostTickets($user)
+{
+    $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
+              FROM ticket AS t
+              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE a.Author = '$user'
+              AND a.Flags = '3'
+              GROUP BY gd.Title
+              ORDER BY TicketCount DESC
+              LIMIT 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult);
+    } else {
+        return null;
+    }
+}
+
+/*
+ * Gets the user developed achievement with the most amount of tickets.
+ *
+ * @param String $user to get ticket data for
+ * @return Array|NULL of user ticket data
+ */
+function getUserAchievementWithMostTickets($user)
+{
+    $query = "SELECT a.ID as AchievementID, a.Title as AchievementTitle, a.Description as AchievementDescription, a.Points as AchievementPoints, a.BadgeName as AchievementBadge, c.Name as ConsoleName, COUNT(*) as TicketCount
+              FROM ticket AS t
+              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE a.Author = '$user'
+              AND a.Flags = '3'
+              GROUP BY a.ID
+              ORDER BY TicketCount DESC
+              LIMIT 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult);
+    } else {
+        return null;
+    }
+}
+
+/*
+ * Gets the user who created the most tickets for another user.
+ *
+ * @param String $user to get ticket data for
+ * @return Array|NULL of user ticket data
+ */
+function getUserWhoCreatedMostTickets($user)
+{
+    $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
+              FROM Ticket AS t
+              LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
+              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              WHERE a.Author = '$user'
+              GROUP BY t.ReportedByUserID
+              ORDER BY TicketCount DESC
+              LIMIT 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult);
+    } else {
+        return null;
+    }
+}
+
+/*
+ * Gets the number of tickets closed/resolved for other users.
+ *
+ * @param String $user to get ticket data for
+ * @return Array|NULL of user ticket data
+ */
+function getNumberOfTicketsClosedForOthers($user)
+{
+    $retVal = [];
+    $query = "SELECT a.Author, COUNT(a.Author) AS TicketCount,
+              SUM(CASE WHEN t.ReportState LIKE '0' THEN 1 ELSE 0 END) AS ClosedCount,
+              SUM(CASE WHEN t.ReportState LIKE '2' THEN 1 ELSE 0 END) AS ResolvedCount
+              FROM Ticket AS t
+              LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
+              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolvedByUserID
+              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              WHERE t.ReportState NOT LIKE '1'
+              AND ua.User NOT LIKE '$user'
+              AND a.Author NOT LIKE '$user'
+              AND ua2.User LIKE '$user'
+              GROUP BY a.Author
+              ORDER BY TicketCount DESC, Author";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
