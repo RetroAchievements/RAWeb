@@ -1095,8 +1095,7 @@ RenderHtmlHead("$dev's Developer Stats");
 
             // Game with most tickets
             echo "<tr><td>Game with Most Tickets:</td><td>";
-            ;
-            if (! is_null($mostTicketedGame)) {
+            if ($mostTicketedGame !== null) {
                 echo $mostTicketedGame['TicketCount'] . " - ";
                 echo GetGameAndTooltipDiv($mostTicketedGame['GameID'], $mostTicketedGame['GameTitle'], $mostTicketedGame['GameIcon'], $mostTicketedGame['ConsoleName'], false, 32);
             } else {
@@ -1106,7 +1105,7 @@ RenderHtmlHead("$dev's Developer Stats");
 
             // Achievement with most tickets
             echo "<tr><td>Achievement with Most Tickets:</td><td>";
-            if (! is_null($mostTicketedAchievement)) {
+            if ($mostTicketedAchievement !== null) {
                 echo $mostTicketedAchievement['TicketCount'] . " - ";
                 echo GetAchievementAndTooltipDiv($mostTicketedAchievement['AchievementID'], $mostTicketedAchievement['AchievementTitle'], $mostTicketedAchievement['AchievementDescription'], $mostTicketedAchievement['AchievementPoints'], $mostTicketedAchievement['ConsoleName'], $mostTicketedAchievement['AchievementBadge'], true);
             } else {
@@ -1116,7 +1115,7 @@ RenderHtmlHead("$dev's Developer Stats");
 
             // User who has created the most tickets
             echo "<tr><td>User Who Created the Most Tickets for $dev:</td><td>";
-            if (! is_null($mostTicketCreator)) {
+            if ($mostTicketCreator !== null) {
                 echo $mostTicketCreator['TicketCount'] . " - ";
                 echo GetUserAndTooltipDiv($mostTicketCreator['TicketCreator'], true);
                 echo GetUserAndTooltipDiv($mostTicketCreator['TicketCreator'], false);
