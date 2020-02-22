@@ -103,7 +103,7 @@ RenderHtmlHead($pageTitle);
 
                 echo "<tr>";
 
-                echo "<td class='unreadicon p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . getenv('APP_STATIC_URL') . "/Images/ForumTopicUnread32.gif' width='32' height='32'></img></td>";
+                echo "<td class='unreadicon p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . getenv('ASSET_URL') . "/Images/ForumTopicUnread32.gif' width='32' height='32'></img></td>";
                 echo "<td class='forumtitle'><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br>";
                 echo "$nextForumDesc</td>";
                 echo "<td class='topiccount'>$nextForumNumTopics</td>";

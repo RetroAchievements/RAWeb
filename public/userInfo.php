@@ -510,7 +510,7 @@ RenderHtmlStart(true);
                             48,
                             $class
                         );
-                        //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
+                        //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                     }
                 }
 

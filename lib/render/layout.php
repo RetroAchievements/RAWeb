@@ -72,7 +72,7 @@ function RenderSharedHeader()
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='" . getenv('APP_STATIC_URL') . "$imageURL' />\n";
+    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL' />\n";
     echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
@@ -149,7 +149,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
 
-        $mailboxIcon = $unreadMessageCount > 0 ? getenv('APP_STATIC_URL') . '/Images/_MailUnread.png' : getenv('APP_STATIC_URL') . '/Images/_Mail.png';
+        $mailboxIcon = $unreadMessageCount > 0 ? getenv('ASSET_URL') . '/Images/_MailUnread.png' : getenv('ASSET_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
         echo "<img id='mailboxicon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";
@@ -362,7 +362,7 @@ function RenderFooter()
 
     echo "<div>";
     echo "<h4>Connect</h4>";
-    echo "<div><a href='https://www.patreon.com/bePatron?u=5403777' target='_blank'>Patreon</a></div>";
+    echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "' target='_blank'>Patreon</a></div>";
     echo "<div><a href='https://discord.gg/dq2E4hE' target='_blank'>Discord</a></div>";
     echo "<div><a href='https://github.com/RetroAchievements' target='_blank'>GitHub</a></div>";
     echo "<div><a href='https://twitch.tv/retroachievementsorg' target='_blank'>Twitch</a></div>";

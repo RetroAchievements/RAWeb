@@ -102,7 +102,7 @@ function RenderArticleComment(
     if ($user == $localUser || $allowDelete) {
         $class = 'localuser';
 
-        $img = "<img src='" . getenv('APP_STATIC_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
+        $img = "<img src='" . getenv('ASSET_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
@@ -124,7 +124,7 @@ function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
     $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250></textarea>";
     $formStr .= "&nbsp;";
-    $formStr .= "<img id='submitButton' src='" . getenv('APP_STATIC_URL') . "/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
+    $formStr .= "<img id='submitButton' src='" . getenv('ASSET_URL') . "/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
 
     echo "<tr id='comment_$rowIDStr'><td></td><td class='iconscommentsingle'>$userImage</td><td colspan='3'>$formStr</td></tr>";
 }
@@ -135,7 +135,7 @@ function RenderArticleEmptyComment($articleType, $articleID)
 
     echo "<tr id='$rowID' class='feed_comment'>";
 
-    echo "<td></td><td></td><td></td><td></td><td class='editbutton'><img src='" . getenv('APP_STATIC_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '$articleType' )\" /></td>";
+    echo "<td></td><td></td><td></td><td></td><td class='editbutton'><img src='" . getenv('ASSET_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '$articleType' )\" /></td>";
 
     echo "</tr>";
 }

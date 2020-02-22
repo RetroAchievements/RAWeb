@@ -33,7 +33,7 @@ function GetAchievementAndTooltipDiv(
     $gameNameStr = $gameName;
 
     $tooltip = "<div id='objtooltip'>";
-    $tooltip .= "<img src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName" . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img src='" . getenv('ASSET_URL') . "/Badge/$badgeName" . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<b>$achNameStr";
     if ($achPoints) {
         $tooltip .= " ($achPoints)";
@@ -56,7 +56,7 @@ function GetAchievementAndTooltipDiv(
 
     if ($inclSmallBadge) {
         $smallBadgePath = "/Badge/$badgeName" . ".png";
-        $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('APP_STATIC_URL') . "$smallBadgePath\" alt='$achNameStr' title='$achNameStr' class='$imgclass' />";
+        $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameStr' title='$achNameStr' class='$imgclass' />";
 
         if ($smallBadgeOnly) {
             $displayable = "";

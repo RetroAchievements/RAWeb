@@ -47,7 +47,7 @@ RenderHtmlHead("My Settings");
     var posting = $.post('/request/user/list-games.php', { u: '<?php echo $user; ?>' });
     posting.done(OnGetAllResettableGamesList);
 
-    $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+    $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
   }
 
   function OnGetAllResettableGamesList(data) {
@@ -75,7 +75,7 @@ RenderHtmlHead("My Settings");
 
       $('#resetgameselector').html(htmlToAdd);
 
-      $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
     }
 
     ResetFetchAwarded();
@@ -150,7 +150,7 @@ RenderHtmlHead("My Settings");
         var posting = $.post('/request/user/reset-achievements.php', { u: '<?php echo $user; ?>', g: gameID });
         posting.done(onResetComplete);
         $('#warning').html('Status: Updating...');
-        $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+        $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
       }
     } else if (achID > 0) {
       // Particular achievement selected: reset just this achievement
@@ -160,7 +160,7 @@ RenderHtmlHead("My Settings");
       var posting = $.post('/request/user/reset-achievements.php', { u: '<?php echo $user; ?>', a: achID, h: isHardcore });
       posting.done(onResetComplete);
       $('#warning').html('Status: Updating...');
-      $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
     }
   }
 
@@ -168,7 +168,7 @@ RenderHtmlHead("My Settings");
     if (data.substr(0, 2) !== 'OK') {
       alert(data);
     } else {
-      $('#loadingiconreset').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
       //window.location = '/controlpanel.php?e=resetok';
       if ($('#resetachievementscontainer').children('option').length > 2)
         ResetFetchAwarded();			//	Just reset ach. list
@@ -186,14 +186,14 @@ RenderHtmlHead("My Settings");
         newUserPrefs += (1 << i);
     }
 
-    $('#loadingicon').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+    $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
     var posting = $.post('/request/user/update-notification.php', { u: '<?php echo $user; ?>', p: newUserPrefs });
     posting.done(OnChangeUserPrefs);
   }
 
   function OnChangeUserPrefs(object) {
     //console.log( object )
-    $('#loadingicon').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+    $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
   }
 
   function DoChangeFBUserPrefs() {
@@ -204,7 +204,7 @@ RenderHtmlHead("My Settings");
         newUserPrefs += (1 << i);
     }
 
-    $('#loadingiconfb').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+    $('#loadingiconfb').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
     var posting = $.post('/request/facebook/update.php', { u: '<?php echo $user; ?>', p: newUserPrefs });
     posting.done(OnChangeFBUserPrefs);
   }
@@ -212,7 +212,7 @@ RenderHtmlHead("My Settings");
   function OnChangeFBUserPrefs(object) {
     console.log(object);
     if (object == 'OK')
-      $('#loadingiconfb').attr('src', '<?php echo getenv('APP_STATIC_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+      $('#loadingiconfb').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
   }
 
   function UploadNewAvatar() {
@@ -245,11 +245,11 @@ RenderHtmlHead("My Settings");
 
   GetAllResettableGamesList();
 </script>
-<?php if (getenv('FACEBOOK_APP_ID')): ?>
+<?php if (getenv('FACEBOOK_CLIENT_ID')): ?>
     <script>
       window.fbAsyncInit = function () {
         FB.init({
-          appId: '<?= getenv('FACEBOOK_APP_ID') ?>',
+          appId: '<?= getenv('FACEBOOK_CLIENT_ID') ?>',
           status: true, // check login status
           cookie: true, // enable cookies to allow the server to access the session
           xfbml: true,  // parse XFBML
@@ -417,7 +417,7 @@ RenderHtmlHead("My Settings");
         }
         ?>
 
-        <?php if (getenv('FACEBOOK_APP_ID')): ?>
+        <?php if (getenv('FACEBOOK_CLIENT_ID')): ?>
             <div class='component'>
                 <h3>Facebook</h3>
                 <?php
@@ -454,7 +454,7 @@ RenderHtmlHead("My Settings");
                         </tbody>
                     </table>
 
-                    <img id='loadingiconfb' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
+                    <img id='loadingiconfb' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
 
                     <br>
                     <h4>Unlink Facebook</h4>
@@ -525,7 +525,7 @@ RenderHtmlHead("My Settings");
                 </tbody>
             </table>
 
-            <img id='loadingicon' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
+            <img id='loadingicon' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
 
         </div>
 
@@ -660,7 +660,7 @@ RenderHtmlHead("My Settings");
             echo "</div></td></tr>";
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
-            echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
+            echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
             echo "</tr></td></tbody></table>";
             ?>
         </div>
@@ -698,7 +698,7 @@ RenderHtmlHead("My Settings");
             New image should be less than 1MB, png/jpeg/gif supported.<br>
             <br>
             <input style='padding: 4px;' type='file' name='file' id='uploadimagefile' onchange='return UploadNewAvatar();'/>
-            <img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('APP_STATIC_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/><br>
+            <img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/><br>
             <br>
             After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
         </div>
