@@ -312,6 +312,7 @@ if ($userContribCount > 0) {
     // Initialize user achievement variables
     $defaultBadges = array(
         "00000",
+        "00080",
         "00083",
         "00084",
         "00085",
