@@ -1370,7 +1370,7 @@ function recalculateTrueRatio($gameID)
     }
 }
 
-/*
+/**
  * Gets the number of softcore and hardcore awards for an achieveemnt since a given time.
  *
  * @param int $id achievement to gets awards count for
@@ -1400,4 +1400,140 @@ function getAwardsSince($id, $date)
     } else {
         return 0;
     }
+}
+
+/**
+ * Gets the number of achievements made by the user for each console they have worked on.
+ *
+ * @param String $user to get achievment data for
+ * @return Array of achievmeent count per console
+ */
+function getUserAchievemetnsPerConsole($user)
+{
+    $retVal = [];
+    $query = "SELECT COUNT(a.GameID) AS AchievementCount, c.Name AS ConsoleName
+              FROM achievements as a
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE a.Author = '$user'
+              AND a.Flags = '3'
+              GROUP BY ConsoleName
+              ORDER BY AchievementCount DESC, ConsoleName";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
+
+
+/**
+ * Gets the number of sets worked on by the user for each console they have worked on.
+ *
+ * @param String $user to get set data for
+ * @return Array of set count per console
+ */
+function getUserSetsPerConsole($user)
+{
+    $retVal = [];
+    $query = "SELECT COUNT(DISTINCT(a.GameID)) AS SetCount, c.Name AS ConsoleName
+              FROM achievements AS a
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE a.Author = '$user'
+              AND a.Flags = '3'
+              GROUP BY ConsoleName
+              ORDER BY SetCount DESC, ConsoleName";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
+
+/**
+ * Gets information for all achievements made by the user.
+ *
+ * @param String $user to get achievment data for
+ * @return Array of achievement data
+ */
+function getUserAchievementInformation($user)
+{
+    $retVal = [];
+    $query = "SELECT c.Name AS ConsoleName, a.ID, a.GameID, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, a.Author, a.DateCreated, ua.ContribCount, ua.ContribYield
+              FROM Achievements AS a
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN UserAccounts AS ua ON ua.User = '$user'
+              WHERE Author LIKE '$user'
+              AND a.Flags = '3'
+              ORDER BY a.DateCreated";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
+
+/**
+ * Gets the unmber of time the user has obtained (softcore and hardcore) their own achievements.
+ *
+ * @param String $user to get obtained achievment data for
+ * @return Array|NULL of obtained achievement data
+ */
+function getOwnAchievementsObtained($user)
+{
+    $query = "SELECT 
+              SUM(CASE WHEN aw.HardcoreMode = 0 THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN aw.HardcoreMode = 1 THEN 1 ELSE 0 END) AS HardcoreCount
+              FROM Achievements AS a
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
+              WHERE a.Author LIKE '$user'
+              AND aw.User LIKE '$user'
+              AND a.Flags = '3'";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult);
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Gets data for other users that have earned achievemetns for the input user.
+ *
+ * @param String $user to get obtained achievment data for
+ * @return Array of achievement obtainer data
+ */
+function getObtainersOfSpecificUser($user)
+{
+    $retVal = [];
+    $query = "SELECT aw.User, COUNT(aw.User) AS ObtainCount,
+              SUM(CASE WHEN aw.HardcoreMode = 0 THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN aw.HardcoreMode = 1 THEN 1 ELSE 0 END) AS HardcoreCount
+              FROM Achievements AS a
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
+              WHERE a.Author LIKE '$user'
+              AND aw.User NOT LIKE '$user'
+              AND a.Flags = '3'
+              GROUP BY aw.User
+              ORDER BY ObtainCount DESC";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
 }

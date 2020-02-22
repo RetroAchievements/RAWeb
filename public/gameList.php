@@ -72,9 +72,16 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     // Cut out empty consoles:
                     $dataExists = false;
                     foreach ($gamesList as $gameEntry) {
-                        if ($gameEntry['ConsoleID'] == $consoleID) {
-                            $dataExists = true;
-                            break;
+                        if ($dev == null) {
+                            if ($gameEntry['ConsoleID'] == $consoleID && $gameEntry['NumAchievements'] > 0) {
+                                $dataExists = true;
+                                break;
+                            }
+                        } else {
+                            if ($gameEntry['ConsoleID'] == $consoleID && $gameEntry['MyAchievements'] > 0) {
+                                $dataExists = true;
+                                break;
+                            }
                         }
                     }
                     if (!$dataExists) {
@@ -121,7 +128,12 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                             $gameID = $gameEntry['ID'];
                             $maxPoints = $gameEntry['MaxPointsAvailable'];
                             $totalTrueRatio = $gameEntry['TotalTruePoints'];
-                            $numAchievements = $gameEntry['NumAchievements'];
+                            if ($dev == null) {
+                                $numAchievements = $gameEntry['NumAchievements'];
+                            } else {
+                                $numAchievements = $gameEntry['MyAchievements'];
+                                $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
+                            }
                             $numLBs = $gameEntry['NumLBs'];
                             $gameIcon = $gameEntry['GameIcon'];
 
@@ -134,7 +146,11 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                             echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, false, null, true);
                             echo "</td>";
 
-                            echo "<td>$numAchievements</td>";
+                            if ($dev == null) {
+                                echo "<td>$numAchievements</td>";
+                            } else {
+                                echo "<td>$numAchievements of $totalAchievements</td>";
+                            }
                             echo "<td class='text-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
 
                             echo "<td class=''>";

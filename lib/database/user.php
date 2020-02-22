@@ -1622,3 +1622,59 @@ function recalculateDevelopmentContributions($user)
 
     return $dbResult != false;
 }
+
+/*
+ * Gets completed and mastered counts for all users who have played the passed in games.
+ *
+ * @param Array $gameIDs game ID to check awards for
+ * @return Array|NULL of user completed and mastered data
+ */
+function getMostAwardedUsers($gameIDs)
+{
+    $retVal = [];
+    $query = "SELECT User,
+              SUM(CASE WHEN AwardDataExtra LIKE '0' THEN 1 ELSE 0 END) AS Completed,
+              SUM(CASE WHEN AwardDataExtra LIKE '1' THEN 1 ELSE 0 END) AS Mastered
+              FROM SiteAwards
+              WHERE AwardType LIKE '1'
+              AND AwardData IN (" . implode(",", $gameIDs) . ")
+              GROUP BY User
+              ORDER BY User";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
+
+/*
+ * Gets completed and mastered counts for all the passed in games.
+ *
+ * @param Array $gameIDs game ID to check awards for
+ * @return Array|NULL of game data
+ */
+function getMostAwardedGames($gameIDs)
+{
+    $retVal = [];
+    $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
+              SUM(CASE WHEN AwardDataExtra LIKE '0' THEN 1 ELSE 0 END) AS Completed,
+              SUM(CASE WHEN AwardDataExtra LIKE '1' THEN 1 ELSE 0 END) AS Mastered
+              FROM siteawards AS sa
+              LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE sa.AwardType LIKE '1'
+              AND AwardData IN(" . implode(",", $gameIDs) . ")
+              GROUP BY sa.AwardData
+              ORDER BY Title";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}

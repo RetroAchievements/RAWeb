@@ -308,6 +308,8 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
     //    Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
     $whereCond = "WHERE ach.Flags=3 ";
+    $moreSelectCond = '';
+    $havingCond = '';
 
     if ($ticketsFlag) {
         $selectTickets = ", ticks.OpenTickets";
@@ -335,16 +337,22 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
     }
 
     if ($dev != null) {
-        $whereCond .= "AND ach.Author='$dev' ";
+        $moreSelectCond = "SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyAchievements,
+                           SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,";
+        $havingCond = "HAVING MyAchievements > 0 ";
     }
 
-    $query = "SELECT gd.Title, ach.GameID AS ID, ConsoleID, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets
+    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
+                $moreSelectCond
+                CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
                 FROM Achievements AS ach
                 LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = ach.GameID
                 $joinTicketsTable
                 INNER JOIN GameData AS gd on gd.ID = ach.GameID
+                INNER JOIN Console AS c ON c.ID = gd.ConsoleID
                 $whereCond
-                GROUP BY ach.GameID ";
+                GROUP BY ach.GameID
+                $havingCond";
 
     //echo $query;
 
