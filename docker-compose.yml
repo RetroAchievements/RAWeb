@@ -29,6 +29,7 @@ services:
       - ${DB_PORT}:3306
     volumes:
       - mysql-origin-data:/var/lib/mysql
+      - ./resources/docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
     command:
       - "--default-authentication-plugin=mysql_native_password"
 
