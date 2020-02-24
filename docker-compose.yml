@@ -29,6 +29,7 @@ services:
       - ${DB_PORT}:3306
     volumes:
       - mysql-data:/var/lib/mysql # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile#L67
+      - ./database:/docker-entrypoint-initdb.d/
       - ./resources/docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
     command:
       - "--default-authentication-plugin=mysql_native_password"
