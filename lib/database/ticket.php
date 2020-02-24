@@ -703,7 +703,7 @@ function getTicketsForUser($user)
 {
     $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
-              FROM ticket AS t
+              FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE a.Author = '$user'
               GROUP BY t.AchievementID, ReportState
@@ -727,7 +727,7 @@ function getTicketsForUser($user)
 function getUserGameWithMostTickets($user)
 {
     $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
-              FROM ticket AS t
+              FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
@@ -754,7 +754,7 @@ function getUserGameWithMostTickets($user)
 function getUserAchievementWithMostTickets($user)
 {
     $query = "SELECT a.ID as AchievementID, a.Title as AchievementTitle, a.Description as AchievementDescription, a.Points as AchievementPoints, a.BadgeName as AchievementBadge, c.Name as ConsoleName, COUNT(*) as TicketCount
-              FROM ticket AS t
+              FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
