@@ -76,7 +76,7 @@ define("VERSION", "1.43.0");
 
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
-    if(!$db) {
+    if (!$db) {
         throw new Exception('Could not connect to database. Please try again later.');
     }
     mysqli_set_charset($db, 'latin1');

@@ -321,7 +321,7 @@ if ($userContribCount > 0) {
         "00134",
         "00135",
         "00136",
-        "00137"
+        "00137",
     );
     $achievementCount = 0;
     $customBadgesCount = 0;
