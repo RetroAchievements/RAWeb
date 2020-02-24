@@ -5,7 +5,7 @@ function RenderTwitterFeed()
     echo "<div class='component stream'>";
     echo "<h3>Twitter Feed</h3>";
 
-    echo "<a class='twitter-timeline'  href='https://twitter.com/RetroCheevos'  data-widget-id='365153450822103040'>Tweets by @RetroCheevos</a>";
+    echo "<a class='twitter-timeline'  href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'  data-widget-id='365153450822103040'>Tweets by @RetroCheevos</a>";
     echo "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\"://platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
 
     echo "</div>";

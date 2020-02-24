@@ -248,8 +248,8 @@ function RenderToolbar($user, $permissions = 0)
     //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
     if (getenv('WEBSOCKET_PORT')) {
         echo "<li><a href='#' onclick=\"window.open('" . str_replace('https', 'http', getenv('APP_URL')) . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
+        echo "<li class='divider'></li>";
     }
-    echo "<li class='divider'></li>";
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
@@ -362,12 +362,24 @@ function RenderFooter()
 
     echo "<div>";
     echo "<h4>Connect</h4>";
-    echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "' target='_blank'>Patreon</a></div>";
-    echo "<div><a href='https://discord.gg/dq2E4hE' target='_blank'>Discord</a></div>";
-    echo "<div><a href='https://github.com/RetroAchievements' target='_blank'>GitHub</a></div>";
-    echo "<div><a href='https://twitch.tv/retroachievementsorg' target='_blank'>Twitch</a></div>";
-    echo "<div><a href='https://facebook.com/RetroAchievementsPC/' target='_blank'>Facebook</a></div>";
-    echo "<div><a href='https://twitter.com/retrocheevos' target='_blank'>Twitter</a></div>";
+    if (getenv('PATREON_USER_ID')) {
+        echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "' target='_blank'>Patreon</a></div>";
+    }
+    if (getenv('DISCORD_INVITE_ID')) {
+        echo "<div><a href='https://discord.gg/" . getenv('DISCORD_INVITE_ID') . "' target='_blank'>Discord</a></div>";
+    }
+    if (getenv('GITHUB_ORG')) {
+        echo "<div><a href='https://github.com/" . getenv('GITHUB_ORG') . "' target='_blank'>GitHub</a></div>";
+    }
+    if (getenv('TWITCH_CHANNEL')) {
+        echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "' target='_blank'>Twitch</a></div>";
+    }
+    if (getenv('FACEBOOK_CHANNEL')) {
+        echo "<div><a href='https://facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
+    }
+    if (getenv('TWITTER_CHANNEL')) {
+        echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "' target='_blank'>Twitter</a></div>";
+    }
     echo "<div><a href='/rss.php'>RSS</a></div>";
     echo "</div>";
 
