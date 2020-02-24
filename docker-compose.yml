@@ -19,7 +19,7 @@ services:
       retries: 3
 
   mysql:
-    image: mysql:8
+    image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
@@ -28,13 +28,13 @@ services:
     ports:
       - ${DB_PORT}:3306
     volumes:
-      - mysql-origin-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile#L67
       - ./resources/docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
     command:
       - "--default-authentication-plugin=mysql_native_password"
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin # https://github.com/phpmyadmin/docker/blob/master/fpm-alpine/Dockerfile
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: mysql
@@ -49,15 +49,13 @@ services:
 #      - /custom/phpmyadmin/theme/:/www/themes/theme/
 
   redis:
-    image: redis:5.0
+    image: redis:5.0 # https://github.com/docker-library/redis/blob/b6d413ceff3a2bca10a430ace121597fa8fe2a2c/5.0/Dockerfile
     ports:
       - ${REDIS_PORT}:6379
     volumes:
-      - redis-data:/data
+      - redis-data:/data # https://github.com/docker-library/redis/blob/b6d413ceff3a2bca10a430ace121597fa8fe2a2c/5.0/Dockerfile#L108
 
 volumes:
   minio-data:
   mysql-data:
-  mysql-origin-data:
-  postgres-data:
   redis-data:
