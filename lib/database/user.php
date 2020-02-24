@@ -378,7 +378,7 @@ function getAccountDetailsFB($fbUser, &$details)
 {
     $query = "SELECT User, EmailAddress, Permissions, RAPoints FROM UserAccounts WHERE fbUser='$fbUser'";
     $result = s_mysql_query($query);
-    if ($result == false || mysqli_num_rows($dbResult) !== 1) {
+    if ($result == false || mysqli_num_rows($result) !== 1) {
         // error_log(__FUNCTION__ . " failed: fbUser:$fbUser, query:$query");
         return false;
     } else {
@@ -618,7 +618,7 @@ function getUserForumPostAuth($user)
     } else {
         log_sql_fail();
         // error_log(__FUNCTION__ . " issues! $userIn");
-        return $userIn;
+        return $user;
     }
 }
 
@@ -1079,8 +1079,8 @@ function getControlPanelUserInfo($user, &$libraryOut)
                     FROM Achievements AS ach
                     GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
                 WHERE aw.User = '$user' AND aw.HardcoreMode = 0
-                GROUP BY gd.ID
-                ORDER BY ConsoleID, gd.Title";
+                GROUP BY gd.ID, gd.ConsoleID, gd.Title
+                ORDER BY gd.ConsoleID, gd.Title";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -1099,7 +1099,7 @@ function getControlPanelUserInfo($user, &$libraryOut)
 
 function getUserList($sortBy, $offset, $count, &$dataOut, $requestedBy)
 {
-    return getUserListByPerms($sortBy, $offset, $count, $dataOut, $requestedBy, null, false);
+    return getUserListByPerms($sortBy, $offset, $count, $dataOut, $requestedBy, $permissions, false);
 }
 
 function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &$perms = null, $showUntracked = false)
@@ -1233,7 +1233,7 @@ function getUsersCompletedGamesAndMax($user)
             AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > $minAchievementsForCompletion
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
         WHERE aw.User='$user' AND ach.Flags = $requiredFlags
-        GROUP BY ach.GameID, aw.HardcoreMode
+        GROUP BY ach.GameID, aw.HardcoreMode, gd.Title
         ORDER BY PctWon DESC, inner1.MaxPossible DESC, gd.Title ";
 
     global $db;
@@ -1509,7 +1509,7 @@ function SetPatreonSupporter($usernameIn, $enable)
 
 function SetUserTrackedStatus($usernameIn, $isUntracked)
 {
-    $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = \"$usernameIn\"";
+    $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'";
     s_mysql_query($query);
 }
 
@@ -1667,7 +1667,7 @@ function getMostAwardedGames($gameIDs)
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE sa.AwardType LIKE '1'
               AND AwardData IN(" . implode(",", $gameIDs) . ")
-              GROUP BY sa.AwardData
+              GROUP BY sa.AwardData, gd.Title
               ORDER BY Title";
 
     $dbResult = s_mysql_query($query);
