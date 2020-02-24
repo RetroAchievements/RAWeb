@@ -81,7 +81,7 @@ RenderHtmlHead("FAQ");
         echo "<h4 class='longheader' id='faq6'>I want to make achievements!</h4>";
         echo "<p><strong>Good to hear!</strong> The best place to start is here: <a href='https://retroachievements.github.io/docs/Getting-Started-as-an-Achievement-Developer'>Getting Started as an Achievement Developer</a>. Once you're familiar with the Memory Inspector and the other Achievements related dialogs, you can go to other <a href='https://retroachievements.github.io/docs/#developer-docs'>Developer Docs</a>.</p>";
 
-        echo "<p>Please don't hesitate to ask if you need help, don't struggle! The most important thing is to make sure you're enjoying whatever it is you're doing. If you're not having fun, don't do it. But if you get frustrated and want to persist, just drop a message on the <a href='" . getenv('APP_URL') . "/forum.php?c=7'>forums</a> or in our <a href='https://discord.gg/TdfC3r7'>Discord server</a> and someone will get back to you shortly.</p>";
+        echo "<p>Please don't hesitate to ask if you need help, don't struggle! The most important thing is to make sure you're enjoying whatever it is you're doing. If you're not having fun, don't do it. But if you get frustrated and want to persist, just drop a message on the <a href='" . getenv('APP_URL') . "/forum.php?c=7'>forums</a> or in our <a href='https://discord.gg/" . getenv('DISCORD_INVITE_ID') . "'>Discord server</a> and someone will get back to you shortly.</p>";
 
         echo "<h4 class='longheader' id='faq7'>These emulators are GPL protected! Where is the source code?</h4>";
         echo "<p>That is correct! We fully support the open-source initiative, and welcome any changes to the source that builds either emulators or the RA toolset. Please visit <a href='https://sourceforge.net/projects/retroachievers/'>our page on SourceForge</a> and help yourself to the source code. All emulators build with Visual Studio Community 2013 and <a href='http://www.microsoft.com/en-gb/download/details.aspx?id=5770'>Microsoft DirectX SDK (June 2008)</a>. Why do we use such an old DirectX SDK? Some of the emulators were built in early 2000s, and utilise DirectDraw; this is the latest version of DirectX that will support all emulators.</p>";
@@ -98,13 +98,13 @@ RenderHtmlHead("FAQ");
 		';
 
         echo "<h4 class='longheader' id='faq10'>I want to stream on my twitch channel/make a fan site/buy a T-Shirt with RetroAchievements!</h4>";
-        echo "<p>Enjoy! Do whatever you like; here's a <a href='" . getenv('APP_STATIC_URL') . "/Images/RA_LogoLarge.png'>link to a high-resolution logo</a>. Please enjoy responsibly and spread the word about RA as you wish ;)<br><br>";
+        echo "<p>Enjoy! Do whatever you like; here's a <a href='" . getenv('ASSET_URL') . "/Images/RA_LogoLarge.png'>link to a high-resolution logo</a>. Please enjoy responsibly and spread the word about RA as you wish ;)<br><br>";
 
         echo "<h4 class='longheader' id='faq11'>How can I assign a controller button to view the achievement overlay?</h4>";
         echo "<p>Some of the emulators should already be setup for this. Generally ESC on the keyboard should activate it, but if you want to assign it to a controller, see <a href='" . getenv('APP_URL') . "/viewtopic.php?t=2323&c=12084'>this link</a>.<br><br>";
 
         echo "<h4 class='longheader' id='faq99'>I have another question!</h4>";
-        echo "<p>If you have any further questions, just ask! We'd love to hear from you, whether good or bad: you are very welcome in the <a href='/largechat.php'>chat</a>, on the <a href='/forum.php'>forums</a>, to message us on <a href='https://www.facebook.com/RetroAchievementsPC'>Facebook</a> or <a href='https://twitter.com/RetroCheevos'>Twitter</a>, however you like, and we'll get back to you ASAP!</p>";
+        echo "<p>If you have any further questions, just ask! We'd love to hear from you, whether good or bad: you are very welcome in the <a href='/largechat.php'>chat</a>, on the <a href='/forum.php'>forums</a>, to message us on <a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "'>Facebook</a> or <a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'>Twitter</a>, however you like, and we'll get back to you ASAP!</p>";
 
         echo "</div>";
         ?>

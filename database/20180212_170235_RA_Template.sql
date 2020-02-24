@@ -414,39 +414,6 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
   KEY `TrueRAPoints` (`TrueRAPoints`)
 ) ENGINE=InnoDB AUTO_INCREMENT=62866 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
--- Data exporting was unselected.
--- Dumping structure for view RACore.View_APIUses
--- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `View_APIUses` (
-	`ID` INT(10) UNSIGNED NOT NULL COMMENT 'Unique Identifier for this user',
-	`User` VARCHAR(32) NOT NULL COMMENT 'Username (32 chars)' COLLATE 'latin1_general_ci',
-	`SaltedPass` VARCHAR(32) NOT NULL COMMENT 'Salted password (32 MD5)' COLLATE 'latin1_general_ci',
-	`EmailAddress` VARCHAR(64) NOT NULL COMMENT 'Plaintext Email Address (64 chars)' COLLATE 'latin1_general_ci',
-	`Permissions` TINYINT(4) NOT NULL COMMENT 'Permissions: -1=banned, 0=unconfirmedemail, 1=user, 2=dev (commit to test db), 3=sudev (commit/manage achievements), 4=admin',
-	`RAPoints` INT(11) NOT NULL COMMENT 'Gamerscore :P',
-	`fbUser` BIGINT(20) NOT NULL COMMENT 'FBUser ID',
-	`fbPrefs` SMALLINT(6) NULL COMMENT 'Preferences for FB Cross-posting',
-	`cookie` VARCHAR(20) NULL COMMENT 'Random string to be matched against the user for validation.' COLLATE 'latin1_general_ci',
-	`appToken` VARCHAR(20) NULL COMMENT 'Token used by the app' COLLATE 'latin1_general_ci',
-	`appTokenExpiry` DATETIME NULL COMMENT 'Expiry of token used by the app',
-	`websitePrefs` SMALLINT(5) UNSIGNED NULL,
-	`LastLogin` TIMESTAMP NULL,
-	`LastActivityID` INT(10) UNSIGNED NOT NULL COMMENT 'FK to Activity',
-	`Motto` VARCHAR(50) NOT NULL COLLATE 'latin1_general_ci',
-	`ContribCount` INT(11) UNSIGNED NOT NULL COMMENT 'The Number of awarded achievements that this user was the author of',
-	`ContribYield` INT(11) UNSIGNED NOT NULL COMMENT 'The total points allocated for achievements that this user has been the author of',
-	`APIKey` VARCHAR(50) NULL COMMENT 'Random 32 char, set on account create, used for unique API access.' COLLATE 'latin1_general_ci',
-	`APIUses` INT(11) UNSIGNED NOT NULL COMMENT 'Number of API Calls made',
-	`LastGameID` INT(10) UNSIGNED NOT NULL,
-	`RichPresenceMsg` VARCHAR(100) NOT NULL COLLATE 'latin1_general_ci',
-	`RichPresenceMsgDate` DATETIME NULL COMMENT 'Time of Update of RichPresenceMsg',
-	`ManuallyVerified` TINYINT(3) UNSIGNED NULL COMMENT 'If 0, cannot post directly to forums without manual permission',
-	`UnreadMessageCount` INT(11) UNSIGNED NULL,
-	`TrueRAPoints` INT(10) UNSIGNED NULL,
-	`UserWallActive` BIT(1) NOT NULL COMMENT 'Allow Posting to user wall',
-	`PasswordResetToken` VARCHAR(32) NULL COLLATE 'latin1_general_ci'
-) ENGINE=MyISAM;
-
 -- Dumping structure for table RACore.Votes
 CREATE TABLE IF NOT EXISTS `Votes` (
   `User` varchar(50) COLLATE latin1_general_ci NOT NULL,
@@ -454,12 +421,6 @@ CREATE TABLE IF NOT EXISTS `Votes` (
   `Vote` tinyint(4) NOT NULL,
   PRIMARY KEY (`User`,`AchievementID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci COMMENT='Record of votes for achievements that are cast by users';
-
--- Data exporting was unselected.
--- Dumping structure for view RACore.View_APIUses
--- Removing temporary table and create final VIEW structure
-DROP TABLE IF EXISTS `View_APIUses`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`Scott`@`%` SQL SECURITY DEFINER VIEW `View_APIUses` AS select `ua`.`ID` AS `ID`,`ua`.`User` AS `User`,`ua`.`SaltedPass` AS `SaltedPass`,`ua`.`EmailAddress` AS `EmailAddress`,`ua`.`Permissions` AS `Permissions`,`ua`.`RAPoints` AS `RAPoints`,`ua`.`fbUser` AS `fbUser`,`ua`.`fbPrefs` AS `fbPrefs`,`ua`.`cookie` AS `cookie`,`ua`.`appToken` AS `appToken`,`ua`.`appTokenExpiry` AS `appTokenExpiry`,`ua`.`websitePrefs` AS `websitePrefs`,`ua`.`LastLogin` AS `LastLogin`,`ua`.`LastActivityID` AS `LastActivityID`,`ua`.`Motto` AS `Motto`,`ua`.`ContribCount` AS `ContribCount`,`ua`.`ContribYield` AS `ContribYield`,`ua`.`APIKey` AS `APIKey`,`ua`.`APIUses` AS `APIUses`,`ua`.`LastGameID` AS `LastGameID`,`ua`.`RichPresenceMsg` AS `RichPresenceMsg`,`ua`.`RichPresenceMsgDate` AS `RichPresenceMsgDate`,`ua`.`ManuallyVerified` AS `ManuallyVerified`,`ua`.`UnreadMessageCount` AS `UnreadMessageCount`,`ua`.`TrueRAPoints` AS `TrueRAPoints`,`ua`.`UserWallActive` AS `UserWallActive`,`ua`.`PasswordResetToken` AS `PasswordResetToken` from `UserAccounts` `ua` order by `ua`.`APIUses` desc limit 0,50;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

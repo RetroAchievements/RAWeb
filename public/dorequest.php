@@ -271,7 +271,7 @@ if ($credentialsOK) {
         //     // DO NOT USE: access URL directly please!
         //     // Special case
         //     $badgeURI = seekPOSTorGET('i');
-        //     $destURL = getenv('APP_STATIC_URL') . "/Badge/$badgeURI" . ".png";
+        //     $destURL = getenv('ASSET_URL') . "/Badge/$badgeURI" . ".png";
         //
         //     header('Content-type: image/png');
         //     readfile($destURL);

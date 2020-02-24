@@ -72,18 +72,20 @@ require_once(__DIR__ . '/util/utf8.php');
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-define("VERSION", "1.43.0");
+define("VERSION", "1.45.0");
 
 try {
     $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    if (!$db) {
+        throw new Exception('Could not connect to database. Please try again later.');
+    }
     mysqli_set_charset($db, 'latin1');
     mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
 } catch (Exception $exception) {
     if (getenv('APP_ENV') === 'local') {
         throw $exception;
     } else {
-        echo 'Error: Could not connect to database. Please try again later.';
-        echo mysqli_error($db);
+        echo 'Could not connect to database. Please try again later.';
         exit;
     }
 }

@@ -176,3 +176,30 @@ function submitCodeNote($user, $gameID, $address, $note)
         return false;
     }
 }
+
+/**
+ * Gets the number of code notes created for each game the user has created any notes for.
+ *
+ * @param String $user to get code note data for
+ * @return Array of games and code note counts
+ */
+function getCodeNoteCounts($user)
+{
+    $retVal = [];
+    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as NoteCount
+              FROM CodeNotes AS cn
+              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
+              LEFT JOIN GameData AS gd ON gd.ID = cn.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE ua.User = '$user'
+              GROUP BY GameID
+              ORDER BY NoteCount DESC";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}

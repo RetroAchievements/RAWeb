@@ -291,9 +291,10 @@ RenderHtmlStart(true);
         if ($contribCount > 0) {
             echo "<strong>$userPage Developer Stats:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
+            echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
             echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . countOpenTicketsByDev($userPage) . "</b></a><br>";
             echo "Achievements won by others: <b>$contribCount</b><br>";
-            echo "Points awarded to others: <b>$contribYield</b><br>";
+            echo "Points awarded to others: <b>$contribYield</b><br><br>";
         }
 
         echo "</div>"; //usersummary
@@ -509,7 +510,7 @@ RenderHtmlStart(true);
                             48,
                             $class
                         );
-                        //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('APP_STATIC_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
+                        //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                     }
                 }
 

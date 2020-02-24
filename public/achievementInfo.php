@@ -107,7 +107,7 @@ RenderHtmlStart(true);
         echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
         $fileSuffix = ($user == "" || ($achievedLocal == false)) ? "_lock.png" : ".png";
-        $badgeFullPath = getenv('APP_STATIC_URL') . "/Badge/" . $badgeName . $fileSuffix;
+        $badgeFullPath = getenv('ASSET_URL') . "/Badge/" . $badgeName . $fileSuffix;
 
         echo "<table class='nicebox'><tbody>";
 

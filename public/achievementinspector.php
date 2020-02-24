@@ -161,7 +161,7 @@ RenderHtmlHead("Manage Achievements");
 
             $achBadgeName = $achievementEntry['BadgeName'];
             $achDisplayOrder = $achievementEntry['DisplayOrder'];
-            $achBadgeFile = getenv('APP_STATIC_URL') . "/Badge/$achBadgeName" . ".png";
+            $achBadgeFile = getenv('ASSET_URL') . "/Badge/$achBadgeName" . ".png";
 
             echo "<tr>";
             if ($modifyOK) {

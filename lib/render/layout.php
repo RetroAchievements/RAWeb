@@ -72,7 +72,7 @@ function RenderSharedHeader()
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
 {
     echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='" . getenv('APP_STATIC_URL') . "$imageURL' />\n";
+    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL' />\n";
     echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL' />\n";
     echo "<meta property='og:title' content=\"$title\" />\n";
     echo "<meta property='og:description' content=\"$description\" />\n";
@@ -149,7 +149,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
 
-        $mailboxIcon = $unreadMessageCount > 0 ? getenv('APP_STATIC_URL') . '/Images/_MailUnread.png' : getenv('APP_STATIC_URL') . '/Images/_Mail.png';
+        $mailboxIcon = $unreadMessageCount > 0 ? getenv('ASSET_URL') . '/Images/_MailUnread.png' : getenv('ASSET_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
         echo "<img id='mailboxicon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";
@@ -246,10 +246,10 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     echo "<li class='divider'></li>";
     //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    echo "<li><a href='#' onclick=\"window.open('" .
-        str_replace('https', 'http', getenv('APP_URL')) .
-        "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
-    echo "<li class='divider'></li>";
+    if (getenv('WEBSOCKET_PORT')) {
+        echo "<li><a href='#' onclick=\"window.open('" . str_replace('https', 'http', getenv('APP_URL')) . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
+        echo "<li class='divider'></li>";
+    }
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
@@ -362,12 +362,24 @@ function RenderFooter()
 
     echo "<div>";
     echo "<h4>Connect</h4>";
-    echo "<div><a href='https://www.patreon.com/bePatron?u=5403777' target='_blank'>Patreon</a></div>";
-    echo "<div><a href='https://discord.gg/dq2E4hE' target='_blank'>Discord</a></div>";
-    echo "<div><a href='https://github.com/RetroAchievements' target='_blank'>GitHub</a></div>";
-    echo "<div><a href='https://twitch.tv/retroachievementsorg' target='_blank'>Twitch</a></div>";
-    echo "<div><a href='https://facebook.com/RetroAchievementsPC/' target='_blank'>Facebook</a></div>";
-    echo "<div><a href='https://twitter.com/retrocheevos' target='_blank'>Twitter</a></div>";
+    if (getenv('PATREON_USER_ID')) {
+        echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "' target='_blank'>Patreon</a></div>";
+    }
+    if (getenv('DISCORD_INVITE_ID')) {
+        echo "<div><a href='https://discord.gg/" . getenv('DISCORD_INVITE_ID') . "' target='_blank'>Discord</a></div>";
+    }
+    if (getenv('GITHUB_ORG')) {
+        echo "<div><a href='https://github.com/" . getenv('GITHUB_ORG') . "' target='_blank'>GitHub</a></div>";
+    }
+    if (getenv('TWITCH_CHANNEL')) {
+        echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "' target='_blank'>Twitch</a></div>";
+    }
+    if (getenv('FACEBOOK_CHANNEL')) {
+        echo "<div><a href='https://facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
+    }
+    if (getenv('TWITTER_CHANNEL')) {
+        echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "' target='_blank'>Twitter</a></div>";
+    }
     echo "<div><a href='/rss.php'>RSS</a></div>";
     echo "</div>";
 

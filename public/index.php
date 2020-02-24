@@ -133,7 +133,7 @@ RenderToolbar($user, $permissions);
       }
 
       // mark first page as active
-      $('a:eq(0)', '#carouselpages').removeClass('off').addClass('on').css('background-image', "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-on.png)");
+      $('a:eq(0)', '#carouselpages').removeClass('off').addClass('on').css('background-image', "url(<?php echo getenv('ASSET_URL') ?>/Images/page-on.png)");
 
       $('.newstitle').css('opacity', 0.0).delay(500).fadeTo('slow', 1.0);
       $('.newstext').css('opacity', 0.0).delay(900).fadeTo('slow', 1.0);
@@ -141,9 +141,9 @@ RenderToolbar($user, $permissions);
     }
 
     function pageLoaded(event, data) {
-      $('a.on', '#carouselpages').removeClass('on').css('background-image', "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-off.png)");
+      $('a.on', '#carouselpages').removeClass('on').css('background-image', "url(<?php echo getenv('ASSET_URL') ?>/Images/page-off.png)");
 
-      $('a', '#carouselpages').eq(data.page).addClass('on').css('background-image', "url(<?php echo getenv('APP_STATIC_URL') ?>/Images/page-on.png)");
+      $('a', '#carouselpages').eq(data.page).addClass('on').css('background-image', "url(<?php echo getenv('ASSET_URL') ?>/Images/page-on.png)");
     }
 
     function onNext() {

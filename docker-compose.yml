@@ -1,0 +1,62 @@
+version: '3.7'
+services:
+
+  minio:
+    image: minio/minio
+    hostname: minio
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - ${MINIO_PORT}:9000
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  mysql:
+    image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - ${DB_PORT}:3306
+    volumes:
+      - mysql-data:/var/lib/mysql # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile#L67
+      - ./database:/docker-entrypoint-initdb.d/
+      - ./resources/docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+    command:
+      - "--default-authentication-plugin=mysql_native_password"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin # https://github.com/phpmyadmin/docker/blob/master/fpm-alpine/Dockerfile
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD}
+      PMA_PORT: 3306
+    ports:
+      - ${PHPMYADMIN_PORT}:80
+#    volumes:
+#      - /sessions
+#      - ~/docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+#      - /custom/phpmyadmin/theme/:/www/themes/theme/
+
+  redis:
+    image: redis:5.0 # https://github.com/docker-library/redis/blob/b6d413ceff3a2bca10a430ace121597fa8fe2a2c/5.0/Dockerfile
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - redis-data:/data # https://github.com/docker-library/redis/blob/b6d413ceff3a2bca10a430ace121597fa8fe2a2c/5.0/Dockerfile#L108
+
+volumes:
+  minio-data:
+  mysql-data:
+  redis-data:

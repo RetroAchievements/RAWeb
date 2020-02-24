@@ -32,8 +32,8 @@ function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut 
     $userPicSize = 24;
 
     echo "<tr id='chatloadingfirstrow'>";
-    echo "<td class='chatcell'><img src='" . getenv('APP_STATIC_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon'/></td>";
-    //echo "<td class='chatcell'><img src='" . getenv('APP_STATIC_URL') . "/Images/tick.gif' width='16' height='16' alt='loading icon'/></td>";
+    echo "<td class='chatcell'><img src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon'/></td>";
+    //echo "<td class='chatcell'><img src='" . getenv('ASSET_URL') . "/Images/tick.gif' width='16' height='16' alt='loading icon'/></td>";
     echo "<td class='chatcell'></td>";
     echo "<td class='chatcellmessage'>Loading chat...</td>";
     echo "</tr>";

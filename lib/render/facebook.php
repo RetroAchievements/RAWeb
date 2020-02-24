@@ -2,7 +2,7 @@
 
 function RenderFBScript()
 {
-    $facebookAppId = getenv('FACEBOOK_APP_ID');
+    $facebookAppId = getenv('FACEBOOK_CLIENT_ID');
     if (!$facebookAppId) {
         return;
     }
