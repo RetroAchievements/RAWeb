@@ -1405,14 +1405,14 @@ function getAwardsSince($id, $date)
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
  *
- * @param String $user to get achievment data for
- * @return Array of achievmeent count per console
+ * @param String $user to get achievement data for
+ * @return array of achievement count per console
  */
 function getUserAchievemetnsPerConsole($user)
 {
     $retVal = [];
     $query = "SELECT COUNT(a.GameID) AS AchievementCount, c.Name AS ConsoleName
-              FROM achievements as a
+              FROM Achievements as a
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
@@ -1434,13 +1434,13 @@ function getUserAchievemetnsPerConsole($user)
  * Gets the number of sets worked on by the user for each console they have worked on.
  *
  * @param String $user to get set data for
- * @return Array of set count per console
+ * @return array of set count per console
  */
 function getUserSetsPerConsole($user)
 {
     $retVal = [];
     $query = "SELECT COUNT(DISTINCT(a.GameID)) AS SetCount, c.Name AS ConsoleName
-              FROM achievements AS a
+              FROM Achievements AS a
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
@@ -1460,8 +1460,8 @@ function getUserSetsPerConsole($user)
 /**
  * Gets information for all achievements made by the user.
  *
- * @param String $user to get achievment data for
- * @return Array of achievement data
+ * @param String $user to get achievement data for
+ * @return array of achievement data
  */
 function getUserAchievementInformation($user)
 {
@@ -1487,8 +1487,8 @@ function getUserAchievementInformation($user)
 /**
  * Gets the unmber of time the user has obtained (softcore and hardcore) their own achievements.
  *
- * @param String $user to get obtained achievment data for
- * @return Array|NULL of obtained achievement data
+ * @param String $user to get obtained achievement data for
+ * @return array|NULL of obtained achievement data
  */
 function getOwnAchievementsObtained($user)
 {
@@ -1512,8 +1512,8 @@ function getOwnAchievementsObtained($user)
 /**
  * Gets data for other users that have earned achievemetns for the input user.
  *
- * @param String $user to get obtained achievment data for
- * @return Array of achievement obtainer data
+ * @param String $user to get obtained achievement data for
+ * @return array of achievement obtainer data
  */
 function getObtainersOfSpecificUser($user)
 {
