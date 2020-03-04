@@ -175,11 +175,16 @@ function validateEmailValidationString($emailCookie, &$user)
         if (mysqli_num_rows($dbResult) == 1) {
             $data = mysqli_fetch_assoc($dbResult);
             $user = $data['User'];
+
+            if (getUserPermissions($user) != Permissions::Unregistered) {
+                return false;
+            }
+
             $query = "DELETE FROM EmailConfirmations WHERE User='$user' AND EmailCookie='$emailCookie'";
             // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
-                $response = SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, 1);
+                $response = SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Registered);
                 //if( setAccountPermissions( 'Scott', \RA\Permissions::Admin, $user, 1 ) )
                 if ($response['Success']) {
                     static_addnewregistereduser($user);
