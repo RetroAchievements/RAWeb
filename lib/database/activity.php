@@ -2,6 +2,7 @@
 
 use RA\ActivityType;
 use RA\ObjectType;
+use RA\Permissions;
 use RA\SubjectType;
 
 function getMostRecentActivity($user, $type, $data)
@@ -724,12 +725,15 @@ function getLatestRichPresenceUpdates()
     $playersFound = [];
 
     $recentMinutes = 10;
+    $permissionsCutoff = Permissions::Registered;
 
     $query = "SELECT ua.User, ua.RAPoints, ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() ) AND ua.LastGameID !=0";
+              WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
+                AND ua.LastGameID !=0
+                AND ua.Permissions >= $permissionsCutoff";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
