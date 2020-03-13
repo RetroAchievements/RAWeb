@@ -8,6 +8,7 @@ $user = seekGET('u', null);
 $recentGamesPlayed = seekGET('g', 5);
 $recentAchievementsEarned = seekGET('a', 10);
 
+$retVal = [];
 getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);
 
 if (!$retVal) {
@@ -21,7 +22,6 @@ if (!$retVal) {
 
 getAccountDetails($user, $userDetails);
 
-$retVal = [];
 $retVal['ID'] = $userDetails['ID'];
 $retVal['Points'] = $userDetails['RAPoints'];
 $retVal['Motto'] = $userDetails['Motto'];
