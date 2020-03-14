@@ -237,6 +237,23 @@ RenderHtmlHead("$userPage's Legacy");
         echo " &raquo; <a href='/User/$userPage'>$userPage</a>";
         echo " &raquo; <b>History</b>";
         echo "</div>";
+        ?>
+
+        <?php if ($user !== null): ?>
+            <div class="d-flex flex-wrap justify-content-between">
+                <div>
+                </div>
+                <div>
+                    Filter by user:<br>
+                    <form action="history.php">
+                        <input size="28" name="u" type="text" value="<?= $userPage ?>">
+                        &nbsp;
+                        <input type="submit" value="Select">
+                    </form>
+                </div>
+            </div>
+        <?php endif ?>
+        <?php
 
         echo "<h3>History</h3>";
 
@@ -264,9 +281,9 @@ RenderHtmlHead("$userPage's Legacy");
         $sort3 = ($sortBy == 3) ? 13 : 3;
 
         echo "<tr>";
-        echo "<th><a href='/history.php?s=$sort1'>Date</a></th>";
-        echo "<th><a href='/history.php?s=$sort2'>Num Achievements</a></th>";
-        echo "<th><a href='/history.php?s=$sort3'>Score Earned</a></th>";
+        echo "<th><a href='/history.php?s=$sort1&u=$userPage'>Date</a></th>";
+        echo "<th><a href='/history.php?s=$sort2&u=$userPage'>Num Achievements</a></th>";
+        echo "<th><a href='/history.php?s=$sort3&u=$userPage'>Score Earned</a></th>";
         echo "</tr>";
 
         $dayCount = 0;
