@@ -1632,12 +1632,14 @@ function recalculateDevelopmentContributions($user)
 function getMostAwardedUsers($gameIDs)
 {
     $retVal = [];
-    $query = "SELECT User,
+    $query = "SELECT ua.User,
               SUM(CASE WHEN AwardDataExtra LIKE '0' THEN 1 ELSE 0 END) AS Completed,
               SUM(CASE WHEN AwardDataExtra LIKE '1' THEN 1 ELSE 0 END) AS Mastered
-              FROM SiteAwards
+              FROM SiteAwards AS sa
+              LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
               WHERE AwardType LIKE '1'
               AND AwardData IN (" . implode(",", $gameIDs) . ")
+              AND Untracked = 0
               GROUP BY User
               ORDER BY User";
 
@@ -1660,11 +1662,12 @@ function getMostAwardedGames($gameIDs)
 {
     $retVal = [];
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
-              SUM(CASE WHEN AwardDataExtra LIKE '0' THEN 1 ELSE 0 END) AS Completed,
-              SUM(CASE WHEN AwardDataExtra LIKE '1' THEN 1 ELSE 0 END) AS Mastered
+              SUM(CASE WHEN AwardDataExtra LIKE '0' AND Untracked = 0 THEN 1 ELSE 0 END) AS Completed,
+              SUM(CASE WHEN AwardDataExtra LIKE '1' AND Untracked = 0 THEN 1 ELSE 0 END) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
               WHERE sa.AwardType LIKE '1'
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title
