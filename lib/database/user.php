@@ -614,7 +614,7 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
 
 /**
  * Gets the number of friends for the input user.
- * 
+ *
  * @param String $user to get friend count for
  * @return int|NULL The number of friends for the user
  */
@@ -688,9 +688,9 @@ function GetScore($user)
 
 /**
  * Gets the points or retro points rank of the user.
- * 
+ *
  * @param String $user the user to get the rank for
- * @param int $type 0 for points rank, anything else for retro points rank 
+ * @param int $type 0 for points rank, anything else for retro points rank
  * @return int rank of the user
  */
 function getUserRank($user, $type = 0)

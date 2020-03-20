@@ -97,7 +97,7 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
  * Renders the friends and global leaderboard.
  *
  * @param String $user to render leaderboard for
- * @param boolean $friendsOnly render friends leaderboard
+ * @param bool $friendsOnly render friends leaderboard
  * @param int $numToFetch number if entries to show in the leaderboard
  */
 function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
@@ -298,11 +298,11 @@ function RenderTopAchieversComponent($gameTopAchievers)
  * Gets all the global leaderboard information.
  * This includes User, acheivements obtained (softcore and hardcore), points, retro points
  * retro ratio, completed awards and mastered awards.
- * 
+ *
  * Results are configurable based on input parameters, allowing sorting on each of the
  * abobe stats, returning data for a specific user, returning data for a specific users friends,
  * tracked/untracked filtering, and filtering on a day/week/month/year/all time based on any input date.
- * 
+ *
  * @param int $lbType Leaderboard timeframe type
  *            0 - Daily
  *            1 - Weekly
@@ -330,7 +330,7 @@ function RenderTopAchieversComponent($gameTopAchievers)
  * @param int $count number of rows to return
  * @return array|NULL Leaderboard data to display
  */
-function getGlobalLeaderboardData($lbType = 0, $sort = 5, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50)
+function getGlobalLeaderboardData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50)
 {
     // Determine the WHERE condition
     switch ($lbType) {
@@ -357,7 +357,7 @@ function getGlobalLeaderboardData($lbType = 0, $sort = 5, $date, $user, $friends
     // Set the date names if we are choosing anything but All Time
     $whereDateAchievement = "";
     $whereDateAward = "";
-    if (strlen($whereCond) > 0) {
+    if (mb_strlen($whereCond) > 0) {
         $whereDateAchievement = "AND aw.Date";
         $whereDateAward = "AND sa.AwardDate";
     }
