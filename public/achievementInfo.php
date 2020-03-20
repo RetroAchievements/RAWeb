@@ -292,7 +292,7 @@ RenderHtmlStart(true);
     <div id="rightcontainer">
         <?php
         if ($user !== null) {
-            RenderScoreLeaderboardComponent($user, $points, true);
+            RenderScoreLeaderboardComponent($user, true);
         }
         RenderGameLeaderboardsComponent($gameID, $lbData);
         ?>

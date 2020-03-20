@@ -10,3 +10,20 @@ body {
 a {
   color: rgb(255, 12, 0);
 }
+
+.tab {
+  color: rgb(255, 12, 0);
+  border: 1px solid rgb(255, 12, 0);
+}
+
+.tab button{
+  color: rgb(255, 12, 0);
+}
+
+.tabcontentfriendstab  {
+  border: 1px solid rgb(255, 12, 0);
+}
+
+.tabcontentglobaltab  {
+  border: 1px solid rgb(255, 12, 0);
+}

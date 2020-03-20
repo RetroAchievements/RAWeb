@@ -5,3 +5,20 @@ body {
 a {
   color: rgb(12, 255, 12);
 }
+
+.tab {
+  color: rgb(12, 255, 12);
+  border: 1px solid rgb(12, 255, 12);
+}
+
+.tab button{
+  color: rgb(12, 255, 12);
+}
+
+.tabcontentfriendstab  {
+  border: 1px solid rgb(12, 255, 12);
+}
+
+.tabcontentglobaltab  {
+  border: 1px solid rgb(12, 255, 12);
+}

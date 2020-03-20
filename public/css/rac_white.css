@@ -35,3 +35,31 @@ tr:nth-child(odd) {
 #carouselcontainer {
   background-color: rgb(200, 200, 200);
 }
+
+.tab {
+  color: rgb(255, 12, 0);
+  border: 1px solid rgb(66, 66, 66);
+}
+
+.tab button{
+  color: rgb(255, 12, 0);
+  background-color: rgb(200, 200, 200);
+}
+
+.tab button:hover{
+  color: rgb(255, 12, 0);
+  background-color: rgb(222, 222, 222);
+}
+
+.tab button.active{
+  color: rgb(255, 12, 0);
+  background-color: rgb(222, 222, 222);
+}
+
+.tabcontentfriendstab  {
+  border: 1px solid rgb(66, 66, 66);
+}
+
+.tabcontentglobaltab  {
+  border: 1px solid rgb(66, 66, 66);
+}

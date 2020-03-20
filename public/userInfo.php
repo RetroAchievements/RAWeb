@@ -555,8 +555,8 @@ RenderHtmlStart(true);
         echo "<div class='rightalign'><a href='/history.php?u=$userPage'>more...</a></div>";
         echo "</div>";
 
-        if ($user !== null) {
-            RenderScoreLeaderboardComponent($user, $points, true);
+        if ($user !== null && $user === $userPage) {
+            RenderScoreLeaderboardComponent($user, true);
         }
         ?>
     </div>
