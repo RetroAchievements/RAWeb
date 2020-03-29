@@ -75,14 +75,12 @@ function SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $destUser, $
     $retVal['NewPermissions'] = $newPermissions;
 
     if ($destPermissions > $sourcePermissions) {
-        //    Ignore: this person cannot be demoted by a lower-level member
-        // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Not allowed!");
+        // Ignore: this person cannot be demoted by a lower-level member
         $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Not allowed!";
         $retVal['Success'] = false;
-    } elseif (($newPermissions >= Permissions::Admin) && ($sourcePermissions != Permissions::Root)) {
-        //    Ignore: cannot promote to admin unless you are root
-        // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!");
-        $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires Root account ('Scott')!";
+    } elseif (($newPermissions >= Permissions::Admin) && ($sourcePermissions < Permissions::Root)) {
+        // Ignore: cannot promote to admin unless you are root
+        $retVal['Error'] = "$sourceUser ($sourcePermissions) is trying to set $destUser ($destPermissions) to $newPermissions??! Changing to admin requires root account!";
         $retVal['Success'] = false;
     } else {
         $query = "UPDATE UserAccounts SET Permissions = $newPermissions, Updated=NOW() WHERE User='$destUser'";
@@ -99,30 +97,6 @@ function SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $destUser, $
     }
 
     return $retVal;
-}
-
-function setAccountPermissions($sourceUser, $sourcePermissions, $user, $permissions)
-{
-    $existingPermissions = getUserPermissions($user);
-    if ($existingPermissions > $sourcePermissions) {
-        //    Ignore: this person cannot be demoted by a lower-level member
-        // error_log(__FUNCTION__ . " failed: $sourceUser ($sourcePermissions) is trying to set $user ($existingPermissions) to $permissions??! not allowed!");
-        return false;
-    } elseif (($permissions >= Permissions::Admin) && ($sourceUser != 'Scott')) {
-        // error_log(__FUNCTION__ . " failed: person who is not Scott trying to set a user's permissions to admin");
-        return false;
-    } else {
-        $query = "UPDATE UserAccounts SET Permissions = $permissions, Updated=NOW() WHERE User='$user'";
-        // log_sql($query);
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            return true;
-        } else {
-            //    Unrecognised  user
-            // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
-            return false;
-        }
-    }
 }
 
 function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permissions)
@@ -185,7 +159,6 @@ function validateEmailValidationString($emailCookie, &$user)
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
                 $response = SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Registered);
-                //if( setAccountPermissions( 'Scott', \RA\Permissions::Admin, $user, 1 ) )
                 if ($response['Success']) {
                     static_addnewregistereduser($user);
                     generateAPIKey($user);
