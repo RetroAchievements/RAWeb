@@ -1,6 +1,6 @@
 # RAWeb
 
-The Web Server backend to run RetroAchievements.org
+RetroAchievements.org's site and server backend. 
 
 See the [Contribution Guidelines](CONTRIBUTING.md).
 

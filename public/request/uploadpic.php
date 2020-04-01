@@ -2,9 +2,11 @@
 
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
+use RA\Permissions;
+
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
     if (getAccountDetails($user, $userDetails) == false) {
         // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
@@ -12,7 +14,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     }
 } else {
     // Immediate redirect if we cannot validate cookie!
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
+    header("Location: " . getenv('APP_URL') . "?e=badcredentials");
     exit;
 }
 

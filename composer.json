@@ -1,6 +1,6 @@
 {
     "name": "retroachievements/retroachivements-web",
-    "description": "The Web Server backend to run RetroAchievements.org",
+    "description": "RetroAchievements.org's site and server backend",
     "type": "project",
     "require": {
         "php": "^7.4",
