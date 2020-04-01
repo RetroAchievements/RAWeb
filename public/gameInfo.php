@@ -281,7 +281,7 @@ RenderHtmlStart(true);
     });
   }
 
-  function SubmitRating(user, gameID, ratingObjectType, value) {
+  function SubmitRating(gameID, ratingObjectType, value) {
     $.ajax({
       url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
       dataType: 'json',
