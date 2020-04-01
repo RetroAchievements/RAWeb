@@ -283,7 +283,7 @@ RenderHtmlStart(true);
 
   function SubmitRating(user, gameID, ratingObjectType, value) {
     $.ajax({
-      url: '/request/game/update-rating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+      url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
       dataType: 'json',
       success: function (results) {
         GetRating(<?php echo $gameID; ?>);
@@ -370,7 +370,7 @@ RenderHtmlStart(true);
       if ($(this).parent().is($('#ratingach')))
         ratingType = 3;
 
-      SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars);
+      SubmitRating(<?php echo $gameID; ?>, ratingType, numStars);
     });
 
     if ($('.rating').length) {
