@@ -424,7 +424,7 @@ RenderHtmlStart(true);
   function submitSetRequest(user, gameID) {
     $.ajax(
       {
-        url: '/request/set-request/update.php?i=' + gameID + '&u=' + user,
+        url: '/request/set-request/update.php?i=' + gameID,
         dataType: 'json',
         success: function (results) {
           getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
