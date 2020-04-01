@@ -211,7 +211,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
     return true;
 }
 
-function RemoveLeaderboardEntry($user, $lbID)
+function removeLeaderboardEntry($user, $lbID)
 {
     $userID = getUserIDFromUser($user);
     if ($userID > 0) {
