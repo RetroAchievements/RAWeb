@@ -164,7 +164,6 @@ function processComment(activityVar, articleType) {
           // var safeComment = comment.replace( /<|>/g, '_' );
           // Note: using substr on activityVar, because it will be in the format art_213 etc.
           var posting = $.post('/request/comment/create.php', {
-            u: user,
             a: activityVar.substr(4),
             c: safeComment,
             t: articleType,
