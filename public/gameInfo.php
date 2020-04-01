@@ -956,7 +956,7 @@ RenderHtmlStart(true);
             echo "</tbody></table>";
 
             echo "<b>Forum Topic: </b>";
-            RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions);
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";
 
             RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, 1, $permissions >= Permissions::Admin);
@@ -972,7 +972,7 @@ RenderHtmlStart(true);
             echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
             echo "<ul>";
             echo "<li>- ";
-            RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions);
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "</li>";
             echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
             $numOpenTickets = countOpenTickets(

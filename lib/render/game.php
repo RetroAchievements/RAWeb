@@ -152,14 +152,14 @@ function RenderGameAlts($gameAlts)
     echo "</div>";
 }
 
-function RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions = 0)
+function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0)
 {
     if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
         echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
     } else {
         echo "No forum topic";
-        if (isset($user) && $permissions >= Permissions::Developer) {
-            echo " - <a href='/request/game/generate-forum-topic.php?u=$user&c=$cookie&g=$gameID'>Create the official forum topic for $gameTitle</a>";
+        if ($permissions >= Permissions::Developer) {
+            echo " - <a href='/request/game/generate-forum-topic.php?g=$gameID'>Create the official forum topic for $gameTitle</a>";
         }
     }
 }
