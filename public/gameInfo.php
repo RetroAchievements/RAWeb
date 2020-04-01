@@ -283,7 +283,7 @@ RenderHtmlStart(true);
 
   function SubmitRating(user, gameID, ratingObjectType, value) {
     $.ajax({
-      url: '/request/game/update-rating.php?i=' + gameID + '&u=' + user + '&t=' + ratingObjectType + '&v=' + value,
+      url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
       dataType: 'json',
       success: function (results) {
         GetRating(<?php echo $gameID; ?>);
@@ -370,7 +370,7 @@ RenderHtmlStart(true);
       if ($(this).parent().is($('#ratingach')))
         ratingType = 3;
 
-      SubmitRating('<?php echo $user; ?>', <?php echo $gameID; ?>, ratingType, numStars);
+      SubmitRating(<?php echo $gameID; ?>, ratingType, numStars);
     });
 
     if ($('.rating').length) {
@@ -424,7 +424,7 @@ RenderHtmlStart(true);
   function submitSetRequest(user, gameID) {
     $.ajax(
       {
-        url: '/request/set-request/update.php?i=' + gameID + '&u=' + user,
+        url: '/request/set-request/update.php?i=' + gameID,
         dataType: 'json',
         success: function (results) {
           getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
@@ -956,7 +956,7 @@ RenderHtmlStart(true);
             echo "</tbody></table>";
 
             echo "<b>Forum Topic: </b>";
-            RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions);
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";
 
             RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, 1, $permissions >= Permissions::Admin);
@@ -972,7 +972,7 @@ RenderHtmlStart(true);
             echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
             echo "<ul>";
             echo "<li>- ";
-            RenderLinkToGameForum($user, $cookie, $gameTitle, $gameID, $forumTopicID, $permissions);
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "</li>";
             echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
             $numOpenTickets = countOpenTickets(

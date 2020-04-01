@@ -2,15 +2,18 @@
 
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-// error_log(__FILE__ . " called");
+use RA\Permissions;
 
 //	Sanitise!
-if (!ValidatePOSTChars("uact")) {
+if (!ValidatePOSTChars("act")) {
     echo "FAILED";
     return;
 }
 
-$user = seekPOST('u');
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
+    echo "FAILED!";
+    return;
+}
 
 $articleID = seekPOST('a');
 $articleType = seekPOST('t');
