@@ -131,7 +131,7 @@ RenderHtmlHead("Reorder Site Awards");
             echo "<td><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" style='float:middle;' src='$imagepath' width='$imageSize' height='$imageSize' /></td>";
             echo "<td>$awardTitle</td>";
             echo "<td><span class='smalldate'>$awardDate</span><br></td>";
-            echo "<td><input class='displayorderedit' id='$counter' type='text' value='$awardDisplayOrder' onchange=\"updateAwardDisplayOrder('$user', '$awardType', '$awardData', '$awardDataExtra', '$counter')\" size='3' /></td>";
+            echo "<td><input class='displayorderedit' id='$counter' type='text' value='$awardDisplayOrder' onchange=\"updateAwardDisplayOrder($awardType', '$awardData', '$awardDataExtra', '$counter')\" size='3' /></td>";
 
             echo "</tr>";
             $counter++;

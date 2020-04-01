@@ -216,12 +216,11 @@ function updateDisplayOrder(user, objID) {
   $('#warning').html('Status: updating...');
 }
 
-function updateAwardDisplayOrder(user, awardType, awardData, awardDataExtra, objID) {
+function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
   var posting = $.post('/request/user/update-site-award.php',
     {
-      u: user,
       t: awardType,
       d: awardData,
       e: awardDataExtra,
