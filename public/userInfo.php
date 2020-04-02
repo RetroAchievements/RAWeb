@@ -266,8 +266,8 @@ RenderHtmlStart(true);
         } else {
             $countRankedUsers = countRankedUsers();
             $rankPct = sprintf("%1.0f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
-            $rankOffset = (int)($userRank / 25) * 25;
-            echo "<a href='/userList.php?s=2&o=$rankOffset&u=1'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
+            $rankOffset = (int)(($userRank - 1) / 25) * 25;
+            echo "<a href='/userList.php?s=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }
         echo "<br><br>";
 
