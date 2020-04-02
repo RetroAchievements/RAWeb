@@ -651,10 +651,12 @@ function GetScore($user)
 
 function getUserRank($user)
 {
-    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
-                FROM UserAccounts AS ua
-                RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints
-                WHERE ua.User = '$user'";
+    $query = "
+        SELECT (COUNT(*) + 1) AS UserRank
+        FROM UserAccounts
+        WHERE NOT Untracked
+          AND RAPoints > (SELECT RAPoints FROM UserAccounts WHERE User = '$user')
+    ";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -672,8 +674,10 @@ function countRankedUsers()
 {
     $query = "
         SELECT COUNT(*) AS count
-        FROM UserAccounts as ua
-        WHERE ua.RAPoints > 0 ";
+        FROM UserAccounts
+        WHERE RAPoints > 0
+          AND NOT Untracked
+    ";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
