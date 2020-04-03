@@ -76,7 +76,7 @@ switch ($field) {
     case 4:
         // Promote/Demote Selected
         settype($value, "integer");
-        $achIDs = $_POST['achievementArray'];
+        $achIDs = seekPOST('achievementArray');
         if (updateAchievementFlags($achIDs, $value)) {
             if ($value == 3) {
                 $commentText = 'promoted this achievement to the Core set';

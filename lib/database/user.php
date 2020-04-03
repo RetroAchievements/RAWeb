@@ -102,6 +102,11 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     if ($dbResult == false) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Cannot find user: '$targetUser'!";
+
+        if($targetUserNewPermissions < Permissions::Unregistered) {
+            s_mysql_query("UPDATE UserAccounts SET Untracked = 1 WHERE User='$targetUser'");
+        }
+
         return $retVal;
     }
 

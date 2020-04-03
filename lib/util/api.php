@@ -7,17 +7,6 @@ if (!function_exists('runIntegrationApiMiddleware')) {
     }
 }
 
-if (!function_exists('runIntegrationApiMiddleware')) {
-    function apiErrorResponse($errorMsg)
-    {
-        echo json_encode([
-            'Success' => false,
-            'Error' => $errorMsg,
-        ]);
-        exit;
-    }
-}
-
 if (!function_exists('runPublicApiMiddleware')) {
     function runPublicApiMiddleware()
     {
@@ -34,4 +23,13 @@ if (!function_exists('runPublicApiMiddleware')) {
             exit;
         }
     }
+}
+
+function apiErrorResponse($error)
+{
+    echo json_encode([
+        'Success' => false,
+        'Error' => $error,
+    ]);
+    exit;
 }

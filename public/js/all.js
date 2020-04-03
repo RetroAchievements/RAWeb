@@ -600,7 +600,7 @@ function onRefreshOnlinePlayers(data) {
 }
 
 function refreshActivePlayers() {
-  var posting = $.post('/request/user/list-currently-active.php');
+  var posting = $.get('/request/user/list-currently-active.php');
   posting.done(onRefreshActivePlayers);
   $('#activeplayersbox').fadeTo('fast', 0.0);
   $('#activeplayers-update').fadeTo('fast', 0.0);

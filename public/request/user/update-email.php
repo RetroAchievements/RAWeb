@@ -9,10 +9,10 @@ if (!ValidatePOSTChars("efcu")) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_baddata");
 }
 
-$email = $_POST["e"];
-$email2 = $_POST["f"];
-$user = $_POST["u"];
-$cookie = $_POST["c"];
+$email = seekPOST('e');
+$email2 = seekPOST('f');
+$user = seekPOST('u');
+$cookie = seekPOST('c');
 
 if ($email !== $email2) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_notmatch");

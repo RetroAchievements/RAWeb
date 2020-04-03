@@ -7,12 +7,12 @@ if (!ValidatePOSTChars("ucdtm")) {
     return;
 }
 
-$user = $_POST["u"];
-$cookie = $_POST["c"];
+$user = seekPOST('u');
+$cookie = seekPOST('c');
 
-$recipient = $_POST["d"];
-$title = $_POST["t"];
-$payload = $_POST["m"];
+$recipient = seekPOST('d');
+$title = seekPOST('t');
+$payload = seekPOST('m');
 
 if (validateUser_cookie($user, $cookie, 0) == true) {
     if (CreateNewMessage($user, $recipient, $title, $payload)) {

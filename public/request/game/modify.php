@@ -7,10 +7,10 @@ if (!ValidatePOSTChars("ugfv")) {
     return;
 }
 
-$author = $_POST["u"];
-$gameID = $_POST["g"];
-$field = $_POST["f"];
-$value = $_POST["v"];
+$author = seekPOST('u');
+$gameID = seekPOST('g');
+$field = seekPOST('f');
+$value = seekPOST('v');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     if (requestModifyGame($author, $gameID, $field, $value)) {
