@@ -1131,13 +1131,11 @@ RenderHtmlHead("$dev's Developer Stats");
                 // Only display row for Hardcore if so.
                 if ($recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User'] &&
                     $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date'] &&
-                    $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID'])
-                {
+                    $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID']) {
                     echo " <span class='hardcore'>(Hardcore!)</span>";
                     $skipNextEntry = true;
                 } elseif ($recentlyObtainedAchievements[$i]['HardcoreMode'] == 1) {
                     echo " <span class='hardcore'>(Hardcore!)</span>";
-                    
                 }
                 echo "</td><td width='35%'>";
                 echo GetGameAndTooltipDiv($recentlyObtainedAchievements[$i]['GameID'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['GameIcon'], $recentlyObtainedAchievements[$i]['ConsoleName'], false, 32);
@@ -1168,7 +1166,7 @@ RenderHtmlHead("$dev's Developer Stats");
             echo "<tr><td width='50%'>Code Notes Created:</td><td>" . $userCodeNoteCount . "</td></tr>";
             echo "</td></tr><tr height='10px'></td></tr>";
             echo "</tbody></table>";
-            
+
             // Games with user created code notes
             echo "<table><tbody>";
             echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Games with Code Notes</td></tr>";
