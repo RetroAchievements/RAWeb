@@ -1552,24 +1552,21 @@ function getObtainersOfSpecificUser($user)
 /**
  * Gets recently obtained achievements created by the user.
  *
- * @param String $user to get obtained achievement data for
+ * @param array $achievementIDs array of achievement IDs
  * @param Integer $offset starting point to return items
  * @param Integer $count number of items to return
  * @return array of recently obtained achievements
  */
-function getRecentObtainedAchievements($user, $offset = 0, $count = 100)
+function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 200)
 {
     $retVal = [];
-    $query = "SELECT aw.User, c.Name AS ConsoleName, aw.Date, a.ID, a.GameID, aw.HardcoreMode, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, gd.Title AS GameTitle, gd.ImageIcon as GameIcon, COUNT(*) AS Grouped
-              FROM Awarded as aw
+    $query = "SELECT aw.User, c.Name AS ConsoleName, aw.Date, aw.AchievementID, a.GameID, aw.HardcoreMode, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, gd.Title AS GameTitle, gd.ImageIcon as GameIcon
+              FROM Awarded AS aw
               LEFT JOIN Achievements as a ON a.ID = aw.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE Author LIKE '$user'
+              WHERE aw.AchievementID IN (" . implode(",", $achievementIDs) . ")
               AND gd.ConsoleID NOT IN (100, 101)
-              AND Untracked = 0
-              GROUP BY aw.User, aw.Date, a.ID, a.GameID
               ORDER BY aw.Date DESC
               LIMIT $offset, $count";
 

@@ -337,6 +337,7 @@ if ($userContribCount > 0) {
     $hardestAchievement = [];
     $firstAchievement = [];
     $lastAchievement = [];
+    $achievementIDs = [];
     foreach ($userArchInfo as $achievement) {
         if ($achievementCount == 0) {
             $shortestMemAchievement = $achievement;
@@ -368,6 +369,7 @@ if ($userContribCount > 0) {
         $totalPoints += $achievement['Points'];
         $totalTruePoints += $achievement['TrueRatio'];
         $lastAchievement = $achievement;
+        array_push($achievementIDs, $achievement['ID']);
     }
 
     $averagePoints = $totalPoints / $achievementCount;
@@ -394,8 +396,10 @@ if ($userContribCount > 0) {
         $uniqueObtainers++;
     }
 
-    // Get last 100 achievements obtained by others
-    $recentlyObtainedAchievements = getRecentObtainedAchievements($dev);
+    // Get last 200 achievements obtained by others
+    // Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
+    $maxRecentAchievements = 200;
+    $recentlyObtainedAchievements = getRecentObtainedAchievements($achievementIDs, 0, $maxRecentAchievements);
 
     // Initialize code note variables
     $mostNotedGame = [];
@@ -1117,20 +1121,37 @@ RenderHtmlHead("$dev's Developer Stats");
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
             echo "<table><tbody>";
-            foreach ($recentlyObtainedAchievements as $awarded) {
+            $rowCount = 0;
+            for ($i = 0; $i < count($recentlyObtainedAchievements) && $rowCount < ($maxRecentAchievements / 2); $i++) {
+                $skipNextEntry = false;
                 echo "<tr><td width='35%'>";
-                echo GetAchievementAndTooltipDiv($awarded['ID'], $awarded['Title'], $awarded['Description'], $awarded['Points'], $awarded['GameTitle'], $awarded['BadgeName'], true, false, '', 32);
-                if ($awarded['HardcoreMode'] == 1 || $awarded['Grouped'] == 2) {
+                echo GetAchievementAndTooltipDiv($recentlyObtainedAchievements[$i]['AchievementID'], $recentlyObtainedAchievements[$i]['Title'], $recentlyObtainedAchievements[$i]['Description'], $recentlyObtainedAchievements[$i]['Points'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['BadgeName'], true, false, '', 32);
+
+                // Check the next entry for the same achievement ID and time to see if SC and HC were earned at the same time
+                // Only display row for Hardcore if so.
+                if ($recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User'] &&
+                    $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date'] &&
+                    $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID'])
+                {
                     echo " <span class='hardcore'>(Hardcore!)</span>";
+                    $skipNextEntry = true;
+                } elseif ($recentlyObtainedAchievements[$i]['HardcoreMode'] == 1) {
+                    echo " <span class='hardcore'>(Hardcore!)</span>";
+                    
                 }
                 echo "</td><td width='35%'>";
-                echo GetGameAndTooltipDiv($awarded['GameID'], $awarded['GameTitle'], $awarded['GameIcon'], $awarded['ConsoleName'], false, 32);
+                echo GetGameAndTooltipDiv($recentlyObtainedAchievements[$i]['GameID'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['GameIcon'], $recentlyObtainedAchievements[$i]['ConsoleName'], false, 32);
                 echo "</td><td width='20%'>";
-                echo GetUserAndTooltipDiv($awarded['User'], true);
-                echo GetUserAndTooltipDiv($awarded['User'], false);
+                echo GetUserAndTooltipDiv($recentlyObtainedAchievements[$i]['User'], true);
+                echo GetUserAndTooltipDiv($recentlyObtainedAchievements[$i]['User'], false);
                 echo "</td><td width='10%'>";
-                echo $awarded['Date'];
+                echo $recentlyObtainedAchievements[$i]['Date'];
                 echo "</td></tr>";
+
+                if ($skipNextEntry) {
+                    $i++;
+                }
+                $rowCount++;
             }
             echo "</tbody></table>";
             echo "</div>";
