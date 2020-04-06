@@ -696,9 +696,9 @@ function GetScore($user)
 function getUserRank($user, $type = 0)
 {
     if ($type == 0) {
-        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints";
+        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked";
     } else {
-        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints";
+        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked";
     }
 
     $query = "SELECT ( COUNT(*) + 1 ) AS UserRank

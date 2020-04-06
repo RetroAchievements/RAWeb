@@ -38,12 +38,14 @@ tr:nth-child(odd) {
 
 .tab {
   color: rgb(255, 12, 0);
-  border: 1px solid rgb(66, 66, 66);
 }
 
 .tab button{
   color: rgb(255, 12, 0);
   background-color: rgb(200, 200, 200);
+  border: 1px solid rgb(255, 12, 0);
+  border-radius: 5px 5px 0px 0px;
+  border-bottom: none;
 }
 
 .tab button:hover{

@@ -8,11 +8,13 @@ a {
 
 .tab {
   color: rgb(12, 255, 12);
-  border: 1px solid rgb(12, 255, 12);
 }
 
 .tab button{
   color: rgb(12, 255, 12);
+  border: 1px solid rgb(12, 255, 12);
+  border-radius: 5px 5px 0px 0px;
+  border-bottom: none;
 }
 
 .tabcontentfriendstab  {
