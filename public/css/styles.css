@@ -223,6 +223,11 @@ a:hover {
   overflow-y: scroll;
 }
 
+#devstatsscrollpane {
+  max-height: 25.0em;
+  overflow-y: scroll;
+}
+
 span.news {
   padding: 6px 10px 10px;
   /*border-radius: 8px; */

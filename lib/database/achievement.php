@@ -1417,6 +1417,7 @@ function getUserAchievemetnsPerConsole($user)
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
               AND a.Flags = '3'
+              AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY AchievementCount DESC, ConsoleName";
 
@@ -1445,6 +1446,7 @@ function getUserSetsPerConsole($user)
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
               AND a.Flags = '3'
+              AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
 
@@ -1466,13 +1468,14 @@ function getUserSetsPerConsole($user)
 function getUserAchievementInformation($user)
 {
     $retVal = [];
-    $query = "SELECT c.Name AS ConsoleName, a.ID, a.GameID, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, a.Author, a.DateCreated, ua.ContribCount, ua.ContribYield
+    $query = "SELECT c.Name AS ConsoleName, a.ID, a.GameID, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, a.Author, a.DateCreated, gd.Title AS GameTitle, LENGTH(a.MemAddr) AS MemLength, ua.ContribCount, ua.ContribYield
               FROM Achievements AS a
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = '$user'
               WHERE Author LIKE '$user'
               AND a.Flags = '3'
+              AND gd.ConsoleID NOT IN (100, 101)
               ORDER BY a.DateCreated";
 
     $dbResult = s_mysql_query($query);
@@ -1485,7 +1488,7 @@ function getUserAchievementInformation($user)
 }
 
 /**
- * Gets the unmber of time the user has obtained (softcore and hardcore) their own achievements.
+ * Gets the number of time the user has obtained (softcore and hardcore) their own achievements.
  *
  * @param String $user to get obtained achievement data for
  * @return array|NULL of obtained achievement data
@@ -1497,9 +1500,12 @@ function getOwnAchievementsObtained($user)
               SUM(CASE WHEN aw.HardcoreMode = 1 THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
               LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author LIKE '$user'
               AND aw.User LIKE '$user'
-              AND a.Flags = '3'";
+              AND a.Flags = '3'
+              AND gd.ConsoleID NOT IN (100, 101)";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -1523,11 +1529,46 @@ function getObtainersOfSpecificUser($user)
               SUM(CASE WHEN aw.HardcoreMode = 1 THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
               LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE a.Author LIKE '$user'
               AND aw.User NOT LIKE '$user'
               AND a.Flags = '3'
+              AND gd.ConsoleID NOT IN (100, 101)
+              AND Untracked = 0
               GROUP BY aw.User
               ORDER BY ObtainCount DESC";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}
+
+/**
+ * Gets recently obtained achievements created by the user.
+ *
+ * @param array $achievementIDs array of achievement IDs
+ * @param Integer $offset starting point to return items
+ * @param Integer $count number of items to return
+ * @return array of recently obtained achievements
+ */
+function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 200)
+{
+    $retVal = [];
+    $query = "SELECT aw.User, c.Name AS ConsoleName, aw.Date, aw.AchievementID, a.GameID, aw.HardcoreMode, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, gd.Title AS GameTitle, gd.ImageIcon as GameIcon
+              FROM Awarded AS aw
+              LEFT JOIN Achievements as a ON a.ID = aw.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE aw.AchievementID IN (" . implode(",", $achievementIDs) . ")
+              AND gd.ConsoleID NOT IN (100, 101)
+              ORDER BY aw.Date DESC
+              LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
