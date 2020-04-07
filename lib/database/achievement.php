@@ -1163,11 +1163,18 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
 {
     $winnerInfo = [];
 
-    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID AND aw.HardcoreMode = 0";
+    $query = "
+        SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
+        FROM Achievements AS ach
+        LEFT JOIN (
+            SELECT aw.AchievementID
+            FROM Awarded AS aw
+            INNER JOIN UserAccounts AS ua ON ua.User = aw.User
+            WHERE aw.AchievementID = $achID AND aw.HardcoreMode = 0
+              AND (NOT ua.Untracked OR ua.User = \"$user\")
+        ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
+        WHERE ach.ID = $achID
+    ";
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
         return false;

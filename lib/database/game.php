@@ -162,8 +162,8 @@ function getGameMetadataByFlags(
     $query = "
     SELECT
         ach.ID, 
-        (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded, 
-        (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore, 
+        IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
+        IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,
         ach.Title,
         ach.Description,
         ach.Points,
@@ -174,16 +174,20 @@ function getGameMetadataByFlags(
         ach.BadgeName,
         ach.DisplayOrder,
         ach.MemAddr
-    FROM
-        Achievements AS ach
-    LEFT JOIN
-        Awarded AS aw ON aw.AchievementID = ach.ID
-    LEFT JOIN
-        UserAccounts AS ua ON ua.User = aw.User
-    WHERE
-        ach.GameID = $gameID AND ach.Flags = $flags
-        AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
-    GROUP BY ach.ID
+    FROM Achievements AS ach
+    LEFT JOIN (
+        SELECT
+            ach.ID AS AchievementID,
+            (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded, 
+            (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
+        FROM Achievements AS ach
+        INNER JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+        INNER JOIN UserAccounts AS ua ON ua.User = aw.User
+        WHERE ach.GameID = $gameID AND ach.Flags = $flags
+          AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
+        GROUP BY ach.ID
+    ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
+    WHERE ach.GameID = $gameID AND ach.Flags = $flags
     $orderBy";
 
     //echo $query;
