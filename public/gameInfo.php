@@ -63,7 +63,7 @@ $richPresenceData = $gameData['RichPresencePatch'];
 // Get the top ten players at this game:
 $gameTopAchievers = getGameTopAchievers($gameID, 0, 10, $user);
 
-$totalUniquePlayers = getTotalUniquePlayers($gameID, $user);
+$totalUniquePlayers = getTotalUniquePlayers($gameID);
 if ($numDistinctPlayersCasual < $totalUniquePlayers) {
     $numDistinctPlayersCasual = $totalUniquePlayers;
 }
@@ -71,7 +71,7 @@ if ($numDistinctPlayersHardcore < $totalUniquePlayers) {
     $numDistinctPlayersHardcore = $totalUniquePlayers;
 }
 
-$achDist = getAchievementDistribution($gameID, 0, $user); //    for now, only retrieve casual!
+$achDist = getAchievementDistribution($gameID, 0); //    for now, only retrieve casual!
 for ($i = 1; $i <= $numAchievements; $i++) {
     if (!array_key_exists($i, $achDist)) {
         $achDist[$i] = 0;

@@ -1176,8 +1176,24 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
     $data = mysqli_fetch_assoc($dbResult);
     $numWinners = $data['NumEarned'];
     $gameID = $data['GameID'];   //    Grab GameID at this point
+    //$query = "SELECT COUNT(*) FROM UserAccounts WHERE Permissions>0";
+    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
+              (
+                  SELECT ach.ID, COUNT(*) AS MaxAwarded
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  GROUP BY ach.ID
+              ) AS Inner1";
 
-    $numPossibleWinners = getTotalUniquePlayers($gameID, $user);
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $arrayResult = mysqli_fetch_assoc($dbResult);
+    $numPossibleWinners = $arrayResult['TotalPlayers'];
 
     $numRecentWinners = 0;
 

@@ -162,8 +162,16 @@ function getGameMetadataByFlags(
     $query = "
     SELECT
         ach.ID, 
-        (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded, 
-        (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore, 
+        IF(
+            IFNULL(!ua.Untracked, FALSE) || ua.User = '$user',
+            ( COUNT( aw.AchievementID ) - SUM( IFNULL( aw.HardcoreMode, 0 ) ) ),
+            0
+        ) AS NumAwarded, 
+        IF(
+            IFNULL(!ua.Untracked, FALSE) || ua.User = '$user',
+            ( SUM( IFNULL( aw.HardcoreMode, 0 ) ) ),
+            0
+        ) AS NumAwardedHardcore, 
         ach.Title,
         ach.Description,
         ach.Points,
@@ -182,7 +190,6 @@ function getGameMetadataByFlags(
         UserAccounts AS ua ON ua.User = aw.User
     WHERE
         ach.GameID = $gameID AND ach.Flags = $flags
-        AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
     GROUP BY ach.ID
     $orderBy";
 
@@ -705,7 +712,7 @@ function requestModifyGameForumTopic($gameID, $newForumTopic)
     return false;
 }
 
-function getAchievementDistribution($gameID, $hardcore, $requestedBy)
+function getAchievementDistribution($gameID, $hardcore)
 {
     settype($hardcore, 'integer');
     $retval = [];
@@ -718,9 +725,7 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy)
             FROM Awarded AS aw
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
             WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore
-              AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
             GROUP BY aw.User
             ORDER BY AwardedCount DESC
         ) AS InnerTable
@@ -836,19 +841,17 @@ function getGameListSearch($offset, $count, $method, $consoleID = null)
     return $retval;
 }
 
-function getTotalUniquePlayers($gameID, $requestedBy)
+function getTotalUniquePlayers($gameID)
 {
     settype($gameID, 'integer');
 
-    $query = "
-        SELECT COUNT(DISTINCT aw.User) As UniquePlayers
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE gd.ID = $gameID
-          AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
-    ";
+    $query = "SELECT COUNT(*) AS UniquePlayers FROM
+              ( SELECT COUNT(aw.User)
+              FROM Awarded AS aw
+              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+              WHERE gd.ID = $gameID
+              GROUP BY aw.User ) AS InnerTable";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
