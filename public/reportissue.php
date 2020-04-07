@@ -52,7 +52,7 @@ RenderHtmlHead("Report Broken Achievement");
             &raquo; <b>Issue Report</b>
         </div>
 
-        <h3 class="longheader"><?php echo $pageTitle ?></h3>
+        <h3 class="longheader">Report Broken Achievement</h3>
 
         <form action="/request/ticket/create.php" method="post">
             <input type="hidden" value="<?php echo $user ?>" name="u">

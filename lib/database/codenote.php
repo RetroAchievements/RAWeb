@@ -186,13 +186,14 @@ function submitCodeNote($user, $gameID, $address, $note)
 function getCodeNoteCounts($user)
 {
     $retVal = [];
-    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as NoteCount
+    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as TotalNotes,
+              SUM(CASE WHEN ua.User = '$user' THEN 1 ELSE 0 END) AS NoteCount
               FROM CodeNotes AS cn
               LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
               LEFT JOIN GameData AS gd ON gd.ID = cn.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ua.User = '$user'
               GROUP BY GameID
+              HAVING NoteCount > 0
               ORDER BY NoteCount DESC";
 
     $dbResult = s_mysql_query($query);

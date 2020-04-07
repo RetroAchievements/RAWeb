@@ -129,7 +129,8 @@ RenderHtmlHead("Users");
 
             if (($sortBy == 2)) {
                 echo "<td>";
-                echo $userCount + $offset;
+                // echo $userCount + $offset;
+                echo getUserRank($nextUser);
                 echo "</td>";
             }
 

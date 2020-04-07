@@ -102,6 +102,11 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     if ($dbResult == false) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Cannot find user: '$targetUser'!";
+
+        if($targetUserNewPermissions < Permissions::Unregistered) {
+            s_mysql_query("UPDATE UserAccounts SET Untracked = 1 WHERE User='$targetUser'");
+        }
+
         return $retVal;
     }
 
@@ -596,6 +601,27 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
     }
 }
 
+/**
+ * Gets the number of friends for the input user.
+ *
+ * @param String $user to get friend count for
+ * @return int|NULL The number of friends for the user
+ */
+function getFriendCount($user)
+{
+    $query = "SELECT COUNT(*) AS FriendCount
+              FROM Friends
+              WHERE User LIKE '$user'
+              AND Friendship = 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult)['FriendCount'];
+    } else {
+        return null;
+    }
+}
+
 function getUserForumPostAuth($user)
 {
     $query = "SELECT uc.ManuallyVerified FROM UserAccounts AS uc WHERE uc.User = '$user'";
@@ -649,14 +675,32 @@ function GetScore($user)
     }
 }
 
-function getUserRank($user)
+/**
+ * Gets the points or retro points rank of the user.
+ *
+ * @param String $user the user to get the rank for
+ * @param int $type 0 for points rank, anything else for retro points rank
+ * @return int rank of the user
+ */
+function getUserRank($user, $type = 0)
 {
-    $query = "
-        SELECT (COUNT(*) + 1) AS UserRank
-        FROM UserAccounts
-        WHERE NOT Untracked
-          AND RAPoints > (SELECT RAPoints FROM UserAccounts WHERE User = '$user')
-    ";
+    // $query = "
+    //     SELECT (COUNT(*) + 1) AS UserRank
+    //     FROM UserAccounts
+    //     WHERE NOT Untracked
+    //       AND RAPoints > (SELECT RAPoints FROM UserAccounts WHERE User = '$user')
+    // ";
+
+    if ($type == 0) {
+        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked";
+    } else {
+        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked";
+    }
+
+    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
+                FROM UserAccounts AS ua
+                $joinCond
+                WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -1625,12 +1669,14 @@ function recalculateDevelopmentContributions($user)
 function getMostAwardedUsers($gameIDs)
 {
     $retVal = [];
-    $query = "SELECT User,
+    $query = "SELECT ua.User,
               SUM(CASE WHEN AwardDataExtra LIKE '0' THEN 1 ELSE 0 END) AS Completed,
               SUM(CASE WHEN AwardDataExtra LIKE '1' THEN 1 ELSE 0 END) AS Mastered
-              FROM SiteAwards
+              FROM SiteAwards AS sa
+              LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
               WHERE AwardType LIKE '1'
               AND AwardData IN (" . implode(",", $gameIDs) . ")
+              AND Untracked = 0
               GROUP BY User
               ORDER BY User";
 
@@ -1653,11 +1699,12 @@ function getMostAwardedGames($gameIDs)
 {
     $retVal = [];
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
-              SUM(CASE WHEN AwardDataExtra LIKE '0' THEN 1 ELSE 0 END) AS Completed,
-              SUM(CASE WHEN AwardDataExtra LIKE '1' THEN 1 ELSE 0 END) AS Mastered
+              SUM(CASE WHEN AwardDataExtra LIKE '0' AND Untracked = 0 THEN 1 ELSE 0 END) AS Completed,
+              SUM(CASE WHEN AwardDataExtra LIKE '1' AND Untracked = 0 THEN 1 ELSE 0 END) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
               WHERE sa.AwardType LIKE '1'
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title
