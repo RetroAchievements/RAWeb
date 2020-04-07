@@ -1163,11 +1163,18 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
 {
     $winnerInfo = [];
 
-    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID AND aw.HardcoreMode = 0";
+    $query = "
+        SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
+        FROM Achievements AS ach
+        LEFT JOIN (
+            SELECT aw.AchievementID
+            FROM Awarded AS aw
+            INNER JOIN UserAccounts AS ua ON ua.User = aw.User
+            WHERE aw.AchievementID = $achID AND aw.HardcoreMode = 0
+              AND (NOT ua.Untracked OR ua.User = \"$user\")
+        ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
+        WHERE ach.ID = $achID
+    ";
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
         return false;
@@ -1176,24 +1183,8 @@ function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$num
     $data = mysqli_fetch_assoc($dbResult);
     $numWinners = $data['NumEarned'];
     $gameID = $data['GameID'];   //    Grab GameID at this point
-    //$query = "SELECT COUNT(*) FROM UserAccounts WHERE Permissions>0";
-    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
-              (
-                  SELECT ach.ID, COUNT(*) AS MaxAwarded
-                  FROM Awarded AS aw
-                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
-                  GROUP BY ach.ID
-              ) AS Inner1";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        return false;
-    }
-
-    $arrayResult = mysqli_fetch_assoc($dbResult);
-    $numPossibleWinners = $arrayResult['TotalPlayers'];
+    $numPossibleWinners = getTotalUniquePlayers($gameID, $user);
 
     $numRecentWinners = 0;
 
