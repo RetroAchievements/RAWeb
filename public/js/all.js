@@ -607,7 +607,7 @@ function refreshActivePlayers() {
 }
 
 function onRefreshActivePlayers(data) {
-  var playerList = JSON.parse(data);
+  var playerList = data;
   var numPlayersOnline = playerList.length;
   var htmlTitle = '<div>There are currently <strong>' + numPlayersOnline
     + '</strong> active players:</div>';
