@@ -21,6 +21,7 @@ foreach ($ingameList as $playerIngame) {
     $mergedList[$playerIngame['User']]['InGame'] = true;
 }
 
+header('Content-type: application/json');
 echo json_encode(array_values($mergedList), JSON_UNESCAPED_UNICODE);
 
 // $finalList = []];
