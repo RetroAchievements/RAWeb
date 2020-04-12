@@ -30,6 +30,9 @@ rules:
   # let's at least have console output. at least no alerts, right? right!?
   no-console: off
 
+  # ++ in for loop
+  no-plusplus: off
+
   # ecmaVersion 5...
   comma-dangle: off
   no-alert: off # still using confirm() dialog
