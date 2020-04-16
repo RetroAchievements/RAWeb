@@ -55,8 +55,9 @@ function GetAchievementAndTooltipDiv(
     }
 
     if ($inclSmallBadge) {
+        $achNameAttr = htmlspecialchars($achName, ENT_QUOTES);
         $smallBadgePath = "/Badge/$badgeName" . ".png";
-        $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameStr' title='$achNameStr' class='$imgclass' />";
+        $smallBadge = "<img width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='$imgclass' />";
 
         if ($smallBadgeOnly) {
             $displayable = "";
