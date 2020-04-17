@@ -85,13 +85,15 @@ RenderHtmlStart();
     <div id="fullcontainer">
 
         <?php
+        $thisTopicTitle = htmlspecialchars($thisTopicTitle, ENT_QUOTES);
+
         echo "<div class='navpath'>";
         echo "<a href='/forum.php'>Forum Index</a>";
         echo " &raquo; <a href='forum.php?c=$thisTopicCategoryID'>$thisTopicCategory</a>";
         echo " &raquo; <a href='viewforum.php?f=$thisTopicForumID'>$thisTopicForum</a>";
         echo " &raquo; <b>$thisTopicTitle</b></a>";
         echo "</div>";
-
+        
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
         echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
