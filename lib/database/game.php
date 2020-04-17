@@ -612,8 +612,7 @@ function requestModifyGame($author, $gameID, $field, $value)
                 return false;
             }
 
-            $newTitle = str_replace("'", "''", $value);
-            $newTitle = mysqli_real_escape_string($db, $newTitle);
+            $newTitle = mysqli_real_escape_string($db, $value);
             //$newTitle = str_replace( "/", "&#47;", $newTitle );
             //$newTitle = str_replace( "\\", "&#92;", $newTitle );
 
