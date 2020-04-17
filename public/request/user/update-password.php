@@ -14,35 +14,41 @@ $passResetToken = seekPOST('t');
 $newpass1 = seekPOST('x');
 $newpass2 = seekPOST('y');
 
-if (mb_strlen($newpass1) < 2 ||
-    mb_strlen($newpass2) < 2) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
-} else {
-    if ($newpass1 !== $newpass2) {
-        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=passinequal");
-    } else {
-        if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken)) {
-            RemovePasswordResetToken($user, $passResetToken);
-
-            if (changePassword($user, $newpass1)) {
-                //	Perform auto-login:
-                generateCookie($user, $newCookie);
-                RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-
-                header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
-            } else {
-                header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=generalerror");
-            }
-        } else {
-            if (validateUser($user, $pass, $fbUser, 0) == true) {
-                if (changePassword($user, $newpass1)) {
-                    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
-                } else {
-                    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=generalerror");
-                }
-            } else {
-                header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badpass");
-            }
-        }
-    }
+if ($newpass1 !== $newpass2) {
+    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=passinequal");
+    exit;
 }
+
+if (mb_strlen($newpass1) < 8) {
+    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
+    exit;
+}
+
+if ($newpass1 == $user) {
+    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
+    exit;
+}
+
+if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken)) {
+    RemovePasswordResetToken($user, $passResetToken);
+
+    if (changePassword($user, $newpass1)) {
+        //	Perform auto-login:
+        generateCookie($user, $newCookie);
+        RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
+    } else {
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=generalerror");
+    }
+    exit;
+}
+if (validateUser($user, $pass, $fbUser, 0) == true) {
+    if (changePassword($user, $newpass1)) {
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
+    } else {
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=generalerror");
+    }
+    exit;
+}
+header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badpass");

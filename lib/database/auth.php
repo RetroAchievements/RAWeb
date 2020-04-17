@@ -2,31 +2,61 @@
 
 function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 {
-    //    Note: avoid this wherever possible!! Requires raw use of user's password!
-
     if (!isValidUsername($user)) {
         return false;
     }
 
-    $query = "SELECT User, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
+    $query = "SELECT User, Password, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
     if ($result == false) {
-        // error_log(__FUNCTION__ . " failed: bad query: $query");
         return false;
-    } else {
-        $row = mysqli_fetch_array($result);
+    }
 
-        //    Add salt
-        $saltedHash = md5($pass . getenv('RA_PASSWORD_SALT'));
+    $row = mysqli_fetch_array($result);
 
-        if ($row['SaltedPass'] == $saltedHash) {
-            $fbUser = $row['fbUser'];
-            $user = $row['User'];
-            return $row['Permissions'] >= $permissionRequired;
-        } else {
+    $hashedPassword = $row['Password'];
+
+    if (mb_strlen($row['SaltedPass']) === 32) {
+        $pepperedPassword = md5($pass . getenv('RA_PASSWORD_SALT'));
+        if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
+        migratePassword($user, $pass);
     }
+
+    if (!password_verify($pass, $hashedPassword)) {
+        return false;
+    }
+
+    $fbUser = $row['fbUser'];
+    $user = $row['User'];
+    return $row['Permissions'] >= $permissionRequired;
+}
+
+function changePassword($user, $pass)
+{
+    $hashedPassword = hashPassword($pass);
+    $query = "UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='', Updated=NOW() WHERE user='$user'";
+    if (s_mysql_query($query) === false) {
+        log_sql_fail();
+        return false;
+    }
+    return true;
+}
+
+function hashPassword($pass)
+{
+    return password_hash($pass, PASSWORD_ARGON2ID, [
+        'memory_cost' => 1024,
+        'threads' => 2,
+        'time' => 1,
+    ]);
+}
+
+function migratePassword($user, $pass)
+{
+    $hashedPassword = hashPassword($pass);
+    return s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'") !== false;
 }
 
 function validateUser_app(&$user, $token, &$fbUser, $permissionRequired)
