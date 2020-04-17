@@ -56,7 +56,7 @@ if ($friends == 1) {
 }
 
 RenderHtmlStart();
-RenderHtmlHead($lbUsers ." Ranking - " . $lbType);
+RenderHtmlHead($lbUsers . " Ranking - " . $lbType);
 ?>
 <body>
 <?php

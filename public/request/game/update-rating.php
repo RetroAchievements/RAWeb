@@ -22,5 +22,5 @@ if ($validRating
 }
 
 echo json_encode([
-    'Success' => $success
+    'Success' => $success,
 ]);

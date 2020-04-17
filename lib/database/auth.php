@@ -25,7 +25,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
-        $hashedPassword= migratePassword($user, $pass);
+        $hashedPassword = migratePassword($user, $pass);
     }
 
     if (!password_verify($pass, $hashedPassword)) {

@@ -77,7 +77,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     $permissionChangeAllowed = true;
 
     // only admins can change permissions
-    if($actingUserPermissions < Permissions::Admin) {
+    if ($actingUserPermissions < Permissions::Admin) {
         $permissionChangeAllowed = false;
     }
 
@@ -91,7 +91,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
         $permissionChangeAllowed = false;
     }
 
-    if(!$permissionChangeAllowed) {
+    if (!$permissionChangeAllowed) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Not allowed!";
         return $retVal;
@@ -103,7 +103,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Cannot find user: '$targetUser'!";
 
-        if($targetUserNewPermissions < Permissions::Unregistered) {
+        if ($targetUserNewPermissions < Permissions::Unregistered) {
             s_mysql_query("UPDATE UserAccounts SET Untracked = 1 WHERE User='$targetUser'");
         }
 
@@ -257,14 +257,14 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
     $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
     $tokenProvided = (isset($tokenInOut) && mb_strlen($tokenInOut) >= 1);
 
-    if(!$passwordProvided && !$tokenProvided) {
+    if (!$passwordProvided && !$tokenProvided) {
         return 0;
     }
 
     if ($passwordProvided) {
         $loginUser = $user;
         $authenticated = validateUser($loginUser, $pass, $fbUser, 0);
-        if(!$authenticated) {
+        if (!$authenticated) {
             return 0;
         }
         $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user'";

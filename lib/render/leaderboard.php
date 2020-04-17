@@ -326,6 +326,7 @@ function RenderTopAchieversComponent($gameTopAchievers)
  * @param int $into amount of information to pull from the database
  *            0 - All ranking stats
  *            1 - Just Points and Retro Points. Used for the sidebar rankings.
+ * @param mixed $info
  * @return array|NULL Leaderboard data to display
  */
 function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50, $info = 0)

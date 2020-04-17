@@ -93,7 +93,7 @@ RenderHtmlStart();
         echo " &raquo; <a href='viewforum.php?f=$thisTopicForumID'>$thisTopicForum</a>";
         echo " &raquo; <b>$thisTopicTitle</b></a>";
         echo "</div>";
-        
+
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
         echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
