@@ -101,8 +101,13 @@ if ($dbResult !== false) {
         // error_log("Failed to send validation email to $user at $email");
     }
 
-    if (copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png") == false) {
-        // error_log("Failed to create user pic for user $user");
+    /**
+     * do not copy avatar to reduce data waste
+     * static media host should be configured to serve the default avatar for any missing files instead
+     * disabled by default for local development
+     */
+    if(!getenv('RA_AVATAR_FALLBACK')) {
+        copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png");
     }
 
     header("Location: " . getenv('APP_URL') . "/?e=validateEmailPlease");
