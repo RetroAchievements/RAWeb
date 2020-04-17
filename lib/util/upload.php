@@ -18,6 +18,7 @@ function UploadToS3($filenameSrc, $filenameDest)
         'Bucket' => getenv('AWS_BUCKET'),
         'Key' => $filenameDest,
         'Body' => fopen($filenameSrc, 'r+'),
+        'CacheControl' => 'max-age=2628000',
     ]);
 
     if (!$result) {
