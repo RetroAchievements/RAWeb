@@ -14,6 +14,10 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 
     $row = mysqli_fetch_array($result);
 
+    if (!$row) {
+        return false;
+    }
+
     $hashedPassword = $row['Password'];
 
     if (mb_strlen($row['SaltedPass']) === 32) {
