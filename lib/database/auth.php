@@ -14,6 +14,10 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 
     $row = mysqli_fetch_array($result);
 
+    if (!$row) {
+        return false;
+    }
+
     $hashedPassword = $row['Password'];
 
     if (mb_strlen($row['SaltedPass']) === 32) {
@@ -21,7 +25,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
-        $hashedPassword= migratePassword($user, $pass);
+        $hashedPassword = migratePassword($user, $pass);
     }
 
     if (!password_verify($pass, $hashedPassword)) {

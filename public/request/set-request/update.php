@@ -8,13 +8,13 @@ $gameID = seekGET('i');
 settype($gameID, 'integer');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
-  $setRequestList = getUserRequestList($user);
-  $totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
-  $totalRequests['gameRequests'] = getSetRequestCount($gameID);
+    $setRequestList = getUserRequestList($user);
+    $totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
+    $totalRequests['gameRequests'] = getSetRequestCount($gameID);
 
-  $success = toggleSetRequest($user, $gameID, $totalRequests['remaining']);
+    $success = toggleSetRequest($user, $gameID, $totalRequests['remaining']);
 } else {
-  $success = false;
+    $success = false;
 }
 
 echo json_encode([

@@ -105,7 +105,7 @@ if ($dbResult !== false) {
      * static media host should be configured to serve the default avatar for any missing files instead
      * disabled by default for local development
      */
-    if(!getenv('RA_AVATAR_FALLBACK')) {
+    if (!getenv('RA_AVATAR_FALLBACK')) {
         copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png");
     }
 
