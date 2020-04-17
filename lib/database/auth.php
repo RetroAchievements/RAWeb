@@ -21,7 +21,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
-        migratePassword($user, $pass);
+        $hashedPassword= migratePassword($user, $pass);
     }
 
     if (!password_verify($pass, $hashedPassword)) {
@@ -56,7 +56,8 @@ function hashPassword($pass)
 function migratePassword($user, $pass)
 {
     $hashedPassword = hashPassword($pass);
-    return s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'") !== false;
+    s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'");
+    return $hashedPassword;
 }
 
 function validateUser_app(&$user, $token, &$fbUser, $permissionRequired)
