@@ -509,12 +509,13 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
     switch ($field) {
         case ModifyTopicField::ModifyTitle:
             if (($permissions >= Permissions::Admin) || ($user == $topicData['Author'])) {
+                global $db;
+                $value = mysqli_real_escape_string($db, $value);
                 $query = "  UPDATE ForumTopic AS ft
                             SET Title='$value'
                             WHERE ID=$topicID";
 
-                $dbResult = s_mysql_query($query);
-                if ($dbResult !== false) {
+                if (mysqli_query($db, $query)) {
                     // error_log("$user changed forum topic $topicID title from '" . $topicData['TopicTitle'] . "' to '$value'");
                     return true;
                 } else {

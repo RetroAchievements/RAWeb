@@ -13,23 +13,6 @@ $newsArticleID = seekGET('n');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
-$testUser = "Bob";
-$rawPass = "qwe";
-$saltPass = md5($rawPass . getenv('RA_PASSWORD_SALT'));
-$appToken = "INbOEl5bviMEmU4b";
-
-$reqAchievementID = 1;
-$reqAchievementValidation = sprintf(
-    "%d,%d-%s.%s-%d132%s2A%slLIA",
-    $reqAchievementID,
-    (mb_strlen($testUser) * 3) + 1,
-    $testUser,
-    $appToken,
-    $reqAchievementID,
-    $testUser,
-    "WOAHi2"
-);
-
 function tailCustom($filepath, $lines = 1, $adaptive = true)
 {
 

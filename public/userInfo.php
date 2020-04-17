@@ -384,7 +384,6 @@ RenderHtmlStart(true);
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
 
-                //$userIsUntracked
                 echo ($userIsUntracked == 1) ? "<b>Untracked User!</b>&nbsp;" : "Tracked User.&nbsp;";
                 $newValue = $userIsUntracked ? 0 : 1;
                 echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
@@ -392,6 +391,12 @@ RenderHtmlStart(true);
                 echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
                 echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Tracked Status' /><br><br>";
+                echo "<div style='clear:all;'></div>";
+                echo "</form>";
+
+                echo "<form method='post' action='/request/user/remove-avatar.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
+                echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Remove Avatar' /><br><br>";
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
             }

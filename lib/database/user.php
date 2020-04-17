@@ -257,16 +257,20 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
     $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
     $tokenProvided = (isset($tokenInOut) && mb_strlen($tokenInOut) >= 1);
 
+    if(!$passwordProvided && !$tokenProvided) {
+        return 0;
+    }
+
     if ($passwordProvided) {
-        //error_log( $query );
-        $saltedPass = md5($pass . getenv('RA_PASSWORD_SALT'));
-        $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user' AND SaltedPass='$saltedPass'";
+        $loginUser = $user;
+        $authenticated = validateUser($loginUser, $pass, $fbUser, 0);
+        if(!$authenticated) {
+            return 0;
+        }
+        $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user'";
     } elseif ($tokenProvided) {
         //    Token provided:
         $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
-    } else {
-        // error_log(__FUNCTION__ . " token and pass failed: user:$user");
-        return 0;
     }
 
     //error_log( $query );
@@ -378,27 +382,6 @@ function getAccountDetailsFB($fbUser, &$details)
     } else {
         $details = mysqli_fetch_array($result);
         return true;
-    }
-}
-
-function changePassword($user, $pass)
-{
-    //    Add salt
-    $saltedHash = md5($pass . getenv('RA_PASSWORD_SALT'));
-
-    if (mb_strrchr(' ', $saltedHash) || mb_strlen($saltedHash) != 32) {
-        // error_log(__FUNCTION__ . " failed: new pass $pass contains invalid characters or is not 32 chars long!");
-        return false;
-    }
-
-    $query = "UPDATE UserAccounts SET SaltedPass='$saltedHash', Updated=NOW() WHERE user='$user'";
-    // log_sql($query);
-    if (s_mysql_query($query) == true) {
-        return true;
-    } else {
-        log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: user:$user");
-        return false;
     }
 }
 

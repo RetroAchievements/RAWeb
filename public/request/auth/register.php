@@ -13,37 +13,36 @@ $email = $_POST["e"];
 $email2 = $_POST["f"];
 
 if (ctype_alnum($user) == false) {
-    // error_log("requestcreateuser.php failed 1 - $user $email $email2 ");
     echo "Username ($user) must consist only of letters or numbers. Please retry.<br>";
     return false;
 }
 
 if (mb_strlen($user) > 20) {
-    // error_log("requestcreateuser.php failed 2 - $user $email $email2 ");
     echo "Username can be a maximum of 20 characters. Please retry.<br>";
     return false;
 }
 
-if (mb_strlen($user) < 2) {
-    // error_log("requestcreateuser.php failed 3 - $user $email $email2 ");
-    echo "Username must be at least 2 characters. Please retry.<br>";
+if (mb_strlen($user) < 4) {
+    echo "Username must be at least 4 characters. Please retry.<br>";
     return false;
 }
 
-if (mb_strlen($pass) < 2) {
-    // error_log("requestcreateuser.php failed 3.5 - $user $email $email2 ");
-    echo "Password must be at least 2 characters. Please retry.<br>";
+if (mb_strlen($pass) < 8) {
+    echo "Password must be at least 8 characters. Please retry.<br>";
+    return false;
+}
+
+if ($pass == $user) {
+    echo "Password and username must not be identical. Please retry.<br>";
     return false;
 }
 
 if ($email !== $email2) {
-    // error_log("requestcreateuser.php failed 4 - $user $email $email2 ");
     echo "Emails do not match... please retry.<br>";
     return false;
 }
 
 if (!checkEmail($email)) {
-    // error_log("requestcreateuser.php failed 5 - $user $email $email2 ");
     echo "Email is not valid... please retry.<br>";
     return false;
 }
@@ -87,10 +86,10 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
     return false;
 }
 
-$saltedPass = md5($pass . getenv('RA_PASSWORD_SALT'));
+$hashedPassword = hashPassword($pass);
 
-$query = "INSERT INTO UserAccounts (User, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup) 
-VALUES ( \"$user\", \"$saltedPass\", \"$email\", 0, 0, 0, 0, '', '', NULL, 63, null, 0, \"\", 0, 0, \"\", 0, 0, \"Unknown\", NULL, 0, 0, 0, 1, NULL, false, \"$email\")";
+$query = "INSERT INTO UserAccounts (User, Password, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup) 
+VALUES ( '$user', '$hashedPassword', '', '$email', 0, 0, 0, 0, '', '', NULL, 63, null, 0, '', 0, 0, '', 0, 0, '', NULL, 0, 0, 0, 1, NULL, false, '$email')";
 $dbResult = s_mysql_query($query);
 
 if ($dbResult !== false) {
@@ -101,8 +100,13 @@ if ($dbResult !== false) {
         // error_log("Failed to send validation email to $user at $email");
     }
 
-    if (copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png") == false) {
-        // error_log("Failed to create user pic for user $user");
+    /**
+     * do not copy avatar to reduce data waste
+     * static media host should be configured to serve the default avatar for any missing files instead
+     * disabled by default for local development
+     */
+    if(!getenv('RA_AVATAR_FALLBACK')) {
+        copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png");
     }
 
     header("Location: " . getenv('APP_URL') . "/?e=validateEmailPlease");
