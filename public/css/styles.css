@@ -647,6 +647,23 @@ td, tr, img {
   text-align: right;
 }
 
+.forumlink {
+  padding-left: 2px;
+  cursor: pointer;
+}
+
+.forumlink img:hover {
+  filter:  brightness(0) invert(1);
+}
+
+.forumlink img:active {
+  filter:  brightness(1);
+}
+
+.highlight {
+  outline: 1px solid;
+}
+
 #topicpreview {
 }
 

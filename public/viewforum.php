@@ -141,7 +141,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
                 //echo "<a href='/User/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
-                echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
+                echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

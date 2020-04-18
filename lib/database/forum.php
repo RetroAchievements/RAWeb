@@ -360,12 +360,11 @@ function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offse
     if ($commentID == -1) {
         $commentID = 99999999;
     }
-
-    $query = "SELECT COUNT(ID) AS CommentOffset FROM
-                ( SELECT ID FROM ForumTopicComment
-                  WHERE ForumTopicID = $forumTopicID
-                  ORDER BY ID ) AS InnerTable
-                WHERE ID < $commentID ";
+    
+    $query = "SELECT COUNT(ID) AS CommentOffset
+              FROM ForumTopicComment
+              WHERE DateCreated < (SELECT DateCreated FROM ForumTopicComment WHERE ID = $commentID)
+              AND ForumTopicID = $forumTopicID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
