@@ -192,9 +192,11 @@ function getCodeNoteCounts($user)
               LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
               LEFT JOIN GameData AS gd ON gd.ID = cn.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE LENGTH(Note) > 0
+              AND gd.Title IS NOT NULL
               GROUP BY GameID
               HAVING NoteCount > 0
-              ORDER BY NoteCount DESC";
+              ORDER BY NoteCount DESC, GameTitle";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
