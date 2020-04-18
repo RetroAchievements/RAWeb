@@ -16,8 +16,9 @@ if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
         return false;
     }
     removeAvatar($user);
-    if ($user != $actingUser) {
+    if ($user === $actingUser) {
         header("Location: " . getenv('APP_URL') . "/controlpanel.php");
+        exit;
     }
 }
 

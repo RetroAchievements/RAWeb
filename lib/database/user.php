@@ -124,7 +124,7 @@ function removeAvatar($user)
     /**
      * remove avatar - replaced by default content
      */
-    $avatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/' . $targetUser . '.png';
+    $avatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/' . $user . '.png';
     if (file_exists($avatarFile)) {
         unlink($avatarFile);
     }
