@@ -102,17 +102,36 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     if ($dbResult == false) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Cannot find user: '$targetUser'!";
-
-        if ($targetUserNewPermissions < Permissions::Unregistered) {
-            s_mysql_query("UPDATE UserAccounts SET Untracked = 1 WHERE User='$targetUser'");
-        }
-
         return $retVal;
+    }
+
+    if ($targetUserNewPermissions < Permissions::Unregistered) {
+        /**
+         * Reset authentication and status user content, remove avatar
+         * APIKey doesn't have to be reset -> permission >= Registered
+         */
+        s_mysql_query("UPDATE UserAccounts SET Untracked = 1, Password = NULL, SaltedPass = '', appToken = NULL, appTokenExpiry = NOW(), cookie = NULL, Motto = '', RichPresenceMsg = NULL, UserWallActive = 0 WHERE User='$targetUser'");
+        removeAvatar($targetUser);
     }
 
     $retVal['Success'] = true;
 
     return $retVal;
+}
+
+function removeAvatar($user)
+{
+    /**
+     * remove avatar - replaced by default content
+     */
+    $avatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/' . $targetUser . '.png';
+    if (file_exists($avatarFile)) {
+        unlink($avatarFile);
+    }
+    if (!getenv('RA_AVATAR_FALLBACK')) {
+        $defaultAvatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/_User.png';
+        copy($defaultAvatarFile, $avatarFile);
+    }
 }
 
 function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permissions)

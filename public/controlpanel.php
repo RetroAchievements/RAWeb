@@ -699,8 +699,14 @@ RenderHtmlHead("My Settings");
             <br>
             <input style='padding: 4px;' type='file' name='file' id='uploadimagefile' onchange='return UploadNewAvatar();'/>
             <img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/><br>
-            <br>
-            After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+            <div style="margin-bottom: 10px">
+                After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+            </div>
+
+            <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
+                <input type="hidden" name="u" value="<?= $user ?>">
+                <input type="submit" value="Remove Avatar">
+            </form>
         </div>
 
         <div class='component'>
