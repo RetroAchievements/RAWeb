@@ -693,14 +693,26 @@ RenderHtmlHead("My Settings");
         </div>
 
         <div class='component'>
-            <h2>Change User Pic</h2>
-
-            New image should be less than 1MB, png/jpeg/gif supported.<br>
-            <br>
-            <input style='padding: 4px;' type='file' name='file' id='uploadimagefile' onchange='return UploadNewAvatar();'/>
-            <img id='loadingiconavatar' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/><br>
-            <br>
-            After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+            <h2>Avatar</h2>
+            <div style="margin-bottom: 10px">
+                New image should be less than 1MB, png/jpeg/gif supported.
+            </div>
+            <div style="margin-bottom: 10px">
+                <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
+                <img id="loadingiconavatar" style="opacity: 0; float: right;"
+                     src="<?php echo getenv('ASSET_URL') ?>/Images/loading.gif"
+                     width="16" height="16" alt="loading">
+            </div>
+            <div style="margin-bottom: 10px">
+                After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+            </div>
+            <div style="margin-bottom: 10px">
+                Reset your avatar to default by removing your current one:
+            </div>
+            <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
+                <input type="hidden" name="u" value="<?= $user ?>">
+                <input type="submit" value="Remove Avatar">
+            </form>
         </div>
 
         <div class='component'>

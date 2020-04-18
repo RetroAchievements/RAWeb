@@ -30,7 +30,7 @@ $validLogin = false;
 /**
  * Be aware that if token or cookie are invalid, $user will be invalidated (NULLED) by RA_ReadCookieCredentials!
  */
-if (isset($token) /* && strlen( $token ) == 16 */) {
+if (!empty($token) /* && strlen( $token ) == 16 */) {
     $validLogin = RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions);
 }
 if ($validLogin == false) {

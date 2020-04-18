@@ -11,10 +11,14 @@ if (!ValidatePOSTChars("u")) {
 
 $user = seekPOST('u');
 
-if (validateUser_cookie($actingUser, null, Permissions::Admin) === true) {
-    $filePath = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/' . $user . '.png';
-    if (\file_exists($filePath)) {
-        \unlink($filePath);
+if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
+    if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {
+        return false;
+    }
+    removeAvatar($user);
+    if ($user === $actingUser) {
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php");
+        exit;
     }
 }
 

@@ -30,7 +30,7 @@ if ($newpass1 == $user) {
 }
 
 if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken)) {
-    RemovePasswordResetToken($user, $passResetToken);
+    RemovePasswordResetToken($user);
 
     if (changePassword($user, $newpass1)) {
         //	Perform auto-login:

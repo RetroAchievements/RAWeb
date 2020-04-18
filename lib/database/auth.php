@@ -201,6 +201,9 @@ function RA_ReadTokenCredentials(
     if (!isValidUsername($userOut)) {
         return false;
     }
+    if (empty($token)) {
+        return false;
+    }
 
     $query = "SELECT ua.User, ua.appToken, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions
               FROM UserAccounts AS ua
@@ -309,16 +312,16 @@ function ValidateAPIKey($user, $key)
     return $data['COUNT(*)'] != 0;
 }
 
-function RemovePasswordResetToken($username, $passwordResetToken)
+function RemovePasswordResetToken($username)
 {
     global $db;
 
     $query = "UPDATE UserAccounts AS ua "
-        . "WHERE ua.User='$user' "
+        . "WHERE ua.User='$username' "
         . "SET ua.PasswordResetToken = ''";
 
     $dbResult = s_mysql_query($query);
-    return mysqli_affected_rows($db) == 1;
+    return mysqli_affected_rows($db) >= 1;
 }
 
 function isValidPasswordResetToken($usernameIn, $passwordResetToken)
