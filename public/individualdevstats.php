@@ -1117,7 +1117,7 @@ RenderHtmlHead("$dev's Developer Stats");
             // Recently Obtained achievements
             echo "<table><tbody>";
             echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Recently Obtained Achievements</td></tr>";
-            echo "<tr><td width='34%'>Achivement</td><td width='33%'>Game</td><td width='19%'>User</td><td width='11%'>Date Obtained</td></tr>";
+            echo "<tr><td width='34%'>Achievement</td><td width='33%'>Game</td><td width='19%'>User</td><td width='11%'>Date Obtained</td></tr>";
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
             echo "<table><tbody>";
