@@ -272,7 +272,7 @@ RenderHtmlStart();
             echo "<div class='rightfloat forumlink'><img src='" . getenv('ASSET_URL') . "/Images/Link.png' onclick='copy(\"" . getenv('APP_URL') . "viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\"" . ")'</img></div>";
 
             echo "<div class='smalltext rightfloat'>Posted: $nextCommentDateCreatedNiceDate";
-            
+
             if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
                 echo "&nbsp;<a href='/editpost.php?c=$nextCommentID'>(Edit&nbsp;Post)</a>";
             }

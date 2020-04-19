@@ -360,7 +360,7 @@ function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offse
     if ($commentID == -1) {
         $commentID = 99999999;
     }
-    
+
     $query = "SELECT COUNT(ID) AS CommentOffset
               FROM ForumTopicComment
               WHERE DateCreated < (SELECT DateCreated FROM ForumTopicComment WHERE ID = $commentID)
