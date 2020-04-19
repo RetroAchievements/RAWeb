@@ -87,7 +87,7 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
 
 function cb_injectAchievementPHPBB($matches)
 {
-    if (count($matches) == ) {
+    if (count($matches) === 0) {
         return "";
     }
 
