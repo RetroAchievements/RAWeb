@@ -87,28 +87,33 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
 
 function cb_injectAchievementPHPBB($matches)
 {
-    if (count($matches) > 1) {
-        getAchievementMetadata($matches[2], $achData);
-        $achID = $achData['AchievementID'];
-        $achName = $achData['AchievementTitle'];
-        $achDesc = $achData['Description'];
-        $achPoints = $achData['Points'];
-        $gameName = $achData['GameTitle'];
-        $badgeName = $achData['BadgeName'];
-        $consoleName = $achData['ConsoleName'];
-
-        return GetAchievementAndTooltipDiv(
-            $achID,
-            $achName,
-            $achDesc,
-            $achPoints,
-            $gameName,
-            $badgeName,
-            $consoleName,
-            false
-        );
+    if (count($matches) == ) {
+        return "";
     }
-    return "";
+
+    $achData = [];
+    getAchievementMetadata($matches[2], $achData);
+    if(empty($achData)) {
+        return "";
+    }
+    $achID = $achData['AchievementID'];
+    $achName = $achData['AchievementTitle'];
+    $achDesc = $achData['Description'];
+    $achPoints = $achData['Points'];
+    $gameName = $achData['GameTitle'];
+    $badgeName = $achData['BadgeName'];
+    $consoleName = $achData['ConsoleName'];
+
+    return GetAchievementAndTooltipDiv(
+        $achID,
+        $achName,
+        $achDesc,
+        $achPoints,
+        $gameName,
+        $badgeName,
+        $consoleName,
+        false
+    );
 }
 
 //    17:05 18/04/2013
