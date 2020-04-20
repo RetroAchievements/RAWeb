@@ -110,7 +110,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
          * Reset authentication and status user content, remove avatar
          * APIKey doesn't have to be reset -> permission >= Registered
          */
-        s_mysql_query("UPDATE UserAccounts SET Untracked = 1, Password = NULL, SaltedPass = '', appToken = NULL, appTokenExpiry = NOW(), cookie = NULL, Motto = '', RichPresenceMsg = NULL, UserWallActive = 0 WHERE User='$targetUser'");
+        s_mysql_query("UPDATE UserAccounts SET Untracked = 1, Password = NULL, SaltedPass = '', PasswordResetToken = '', appToken = NULL, appTokenExpiry = NOW(), cookie = NULL, Motto = '', RichPresenceMsg = NULL, UserWallActive = 0 WHERE User='$targetUser'");
         removeAvatar($targetUser);
     }
 
