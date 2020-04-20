@@ -348,8 +348,7 @@ RenderHtmlStart(true);
 
                 echo "<select name='v' >";
                 $i = Permissions::Banned;
-                //    NB. Only I can authorise changing to Admin
-                //    Don't do this, looks weird when trying to change someone above you
+                // Don't do this, looks weird when trying to change someone above you
                 //while( $i <= $permissions && ( $i <= \RA\Permissions::Developer || $user == 'Scott' ) )
                 while ($i <= $permissions) {
                     if ($userMassData['Permissions'] == $i) {
@@ -527,7 +526,7 @@ RenderHtmlStart(true);
         }
 
         if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='rightalign'><a href='/User/$userPage&g=15'>more...</a></div><br>";
+            echo "<div class='rightalign'><a href='/User/$userPage?g=15'>more...</a></div><br>";
         }
 
         echo "</div>"; //recentlyplayed

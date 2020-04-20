@@ -48,7 +48,7 @@ function GetGameAndTooltipDiv(
     $displayable = "";
 
     if ($justText == false) {
-        $displayable = "<img alt='' title=\"$gameName\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img loading='lazy' alt='' title=\"$gameName\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
     }
 
     if ($justImage == false) {
