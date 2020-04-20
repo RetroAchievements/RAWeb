@@ -93,7 +93,7 @@ function cb_injectAchievementPHPBB($matches)
 
     $achData = [];
     getAchievementMetadata($matches[2], $achData);
-    if(empty($achData)) {
+    if (empty($achData)) {
         return "";
     }
     $achID = $achData['AchievementID'];

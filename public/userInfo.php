@@ -348,8 +348,7 @@ RenderHtmlStart(true);
 
                 echo "<select name='v' >";
                 $i = Permissions::Banned;
-                //    NB. Only I can authorise changing to Admin
-                //    Don't do this, looks weird when trying to change someone above you
+                // Don't do this, looks weird when trying to change someone above you
                 //while( $i <= $permissions && ( $i <= \RA\Permissions::Developer || $user == 'Scott' ) )
                 while ($i <= $permissions) {
                     if ($userMassData['Permissions'] == $i) {
