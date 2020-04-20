@@ -526,7 +526,7 @@ RenderHtmlStart(true);
         }
 
         if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='rightalign'><a href='/User/$userPage&g=15'>more...</a></div><br>";
+            echo "<div class='rightalign'><a href='/User/$userPage?g=15'>more...</a></div><br>";
         }
 
         echo "</div>"; //recentlyplayed
