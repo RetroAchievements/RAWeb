@@ -32,21 +32,21 @@ function RenderHtmlHead($pageTitle = null)
 
 function RenderSharedHeader()
 {
-    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' type='text/css' media='screen' />\n";
+    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
 
     $customCSS = RA_ReadCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' type='text/css' media='screen' />\n";
+        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
     }
 
-    echo "<link rel='icon' type='image/png' href='/favicon.png' />\n";
-    echo "<link rel='image_src' href='/Images/RA_Logo10.png' />\n";
-    echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8' />\n";
-    echo "<meta name='robots' content='all' />\n";
-    //echo "<meta name='Copyright' content='Copyright 2014' />\n";
-    echo "<meta name='description' content='Adding achievements to your favourite retro games since 2012' />\n";
-    echo "<meta name='keywords' content='games, retro, computer games, mega drive, genesis, rom, emulator, achievements' />\n";
-    echo '<meta property="fb:app_id" content="490904194261313" />';
+    echo "<link rel='icon' type='image/png' href='/favicon.png'>\n";
+    echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
+    echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>\n";
+    echo "<meta name='robots' content='all'>\n";
+    //echo "<meta name='Copyright' content='Copyright 2014'>\n";
+    echo "<meta name='description' content='Adding achievements to your favourite retro games since 2012'>\n";
+    echo "<meta name='keywords' content='games, retro, computer games, mega drive, genesis, rom, emulator, achievements'>\n";
+    echo '<meta property="fb:app_id" content="490904194261313">';
     echo "<meta name='viewport' content='width=device-width,user-scalable = no'/>\n";
 
     echo '<meta name="theme-color" content="#2C2E30">';
@@ -58,24 +58,25 @@ function RenderSharedHeader()
     echo '<link rel="shortcut icon" type="image/png" href="/favicon.png" sizes="16x16 32x32 64x64">';
     echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
 
-    echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css' type='text/css' />\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js' type='text/javascript'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js' type='text/javascript'></script>\n";
+    echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js'></script>\n";
 
     //    jQuery, and custom js
-    //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
-    //echo "<script type='text/javascript' src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script type='text/javascript' src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
-    echo "<script type='text/javascript' src='/js/all.js?v=" . VERSION . "'></script>\n";
+    //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
+    //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
+    echo "<script src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
+    echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
+    echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
 }
 
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
 {
-    echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL' />\n";
-    echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL' />\n";
-    echo "<meta property='og:title' content=\"$title\" />\n";
-    echo "<meta property='og:description' content=\"$description\" />\n";
+    echo "<meta property='og:type' content='retroachievements:$OGType'>\n";
+    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL'>\n";
+    echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL'>\n";
+    echo "<meta property='og:title' content=\"$title\">\n";
+    echo "<meta property='og:description' content=\"$description\">\n";
 }
 
 function RenderTitleTag($title = null)
@@ -108,7 +109,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "<div id='title'>";
 
-    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo' /></a></div>";
+    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a></div>";
 
     echo "<div class='login'>";
 
@@ -118,17 +119,17 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<form method='post' action='/request/auth/login.php'>";
         echo "<div>";
-        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "' />";
+        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "'>";
         echo "<table><tbody>";
         echo "<tr>";
         echo "<td>User:&nbsp;</td>";
-        echo "<td><input type='text' name='u' size='16' class='loginbox' value='' /></td>";
+        echo "<td><input type='text' name='u' size='16' class='loginbox' value=''></td>";
         echo "<td></td>";
         echo "</tr>";
         echo "<tr>";
         echo "<td>Pass:&nbsp;</td>";
-        echo "<td><input type='password' name='p' size='16' class='loginbox' value='' /></td>";
-        echo "<td style='width: 45%'><input type='submit' value='Login' name='submit' class='loginbox' /></td>";
+        echo "<td><input type='password' name='p' size='16' class='loginbox' value=''></td>";
+        echo "<td style='width: 45%'><input type='submit' value='Login' name='submit' class='loginbox'></td>";
         echo "</tr>";
         echo "</tbody></table>";
         echo "</div>";
@@ -139,7 +140,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
     } else {
         echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic' />";
+        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
@@ -316,9 +317,9 @@ function RenderToolbar($user, $permissions = 0)
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' />";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery'>";
     echo "&nbsp;";
-    echo "<input type='submit' value='Search' />";
+    echo "<input type='submit' value='Search'>";
     echo "</div>";
     echo "</form>";
 
