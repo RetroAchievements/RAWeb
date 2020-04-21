@@ -11,8 +11,8 @@ return [
     ],
     'emulators' => [
         Emulators::RAppleWin => [
-            'minimum_version' => '1.0.1',
-            'latest_version' => '1.0.1',
+            'minimum_version' => '1.1.1',
+            'latest_version' => '1.1.1',
             'latest_version_url' => 'bin/RAppleWin.zip',
             // 'latest_version_url_x64' => 'bin/RAppleWin-x64.zip',
             'name' => 'AppleWin',
@@ -42,7 +42,7 @@ return [
             'minimum_version' => '1.2',
             'latest_version' => '1.2',
             'latest_version_url' => 'bin/RALibretro.zip',
-            //'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
+            'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'LibRetro',
             'handle' => 'RALibRetro',
             'active' => true,
