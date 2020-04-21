@@ -1,5 +1,5 @@
 <?php
-include_once '../../lib/bootstrap.php';
+require_once(__DIR__ . '/../../vendor/autoload.php');
 
 $username = 'luchaos';
 $user = GetUserData($username);
