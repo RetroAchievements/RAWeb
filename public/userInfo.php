@@ -1,8 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
-
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 $userPage = strip_tags(seekGET('ID'));
 if ($userPage == null || mb_strlen($userPage) == 0) {

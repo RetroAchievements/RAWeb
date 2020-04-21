@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
 $site = getenv('APP_URL');
 
 $dom = new DOMDocument('1.0', 'UTF-8');

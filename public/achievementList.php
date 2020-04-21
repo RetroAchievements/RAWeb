@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $consoleList = getConsoleList();
 $consoleIDInput = seekGET('z', 0);

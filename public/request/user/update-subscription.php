@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 // what is being (un-)subscribed? and where should we go back to at the end?
 

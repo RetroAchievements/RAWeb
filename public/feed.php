@@ -1,8 +1,8 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
 header("Location: " . getenv('APP_URL'));
 return;
-
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 $errorCode = seekGET('e');
 $offset = seekGET('o');

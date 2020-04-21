@@ -1,11 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 if (!isset($_REQUEST['term'])) {
     exit;
 }
 
+global $db;
 $searchTerm = mysqli_real_escape_string($db, $_REQUEST['term']);
 
 $source = seekGET('p', "");

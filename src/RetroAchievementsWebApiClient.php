@@ -1,6 +1,8 @@
 <?php
 
-class RetroAchievements
+namespace RA;
+
+class RetroAchievementsWebApiClient
 {
     const API_URL = 'https://retroachievements.org/API/';
 
