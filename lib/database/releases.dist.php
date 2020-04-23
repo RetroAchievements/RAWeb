@@ -11,8 +11,8 @@ return [
     ],
     'emulators' => [
         Emulators::RAppleWin => [
-            'minimum_version' => '1.0.1',
-            'latest_version' => '1.0.1',
+            'minimum_version' => '1.1.1',
+            'latest_version' => '1.1.1',
             'latest_version_url' => 'bin/RAppleWin.zip',
             // 'latest_version_url_x64' => 'bin/RAppleWin-x64.zip',
             'name' => 'AppleWin',
@@ -42,7 +42,7 @@ return [
             'minimum_version' => '1.2',
             'latest_version' => '1.2',
             'latest_version_url' => 'bin/RALibretro.zip',
-            //'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
+            'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'LibRetro',
             'handle' => 'RALibRetro',
             'active' => true,
@@ -195,7 +195,7 @@ return [
             ],
         ],
         /**
-         * RetroArch Supported Systems/Cores https://docs.libretro.com/guides/retroachievements/#cores-compatibility
+         * RetroArch Supported Systems/Cores https://libretro.readthedocs.io/en/latest/guides/retroachievements/#cores-compatibility
          */
         100 => [
             'name' => 'RetroArch',
@@ -231,7 +231,7 @@ return [
                 53, // WonderSwan
             ],
             'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
-Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
+Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://libretro.readthedocs.io/en/latest/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
         ],
     ],
 ];
