@@ -1119,6 +1119,11 @@ pre, code, .code {
   padding: 0;
 }
 
+.injectinlineimage {
+  max-width: 100%;
+  max-height: 300px;
+}
+
 #WzBoDy {
   /* Popup */
   border-radius: 10px;
