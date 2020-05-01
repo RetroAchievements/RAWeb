@@ -699,7 +699,7 @@ function getCurrentlyOnlinePlayers()
     $playersFound = [];
 
     //    Select all users active in the last 10 minutes:
-    $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity
+    $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity, act.data as GameID
               FROM UserAccounts AS ua
               LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
               WHERE ua.LastLogin > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
