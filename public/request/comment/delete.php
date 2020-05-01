@@ -8,8 +8,8 @@ $commentID = seekPOSTorGET('c', 0, 'integer');
 $response = [];
 $response['ArtID'] = $articleID;
 $response['CommentID'] = $commentID;
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
-    $response['Success'] = RemoveComment($articleID, $commentID);
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered, $userID)) {
+    $response['Success'] = RemoveComment($articleID, $commentID, $userID, $permissions);
 } else {
     $response['Success'] = false;
 }
