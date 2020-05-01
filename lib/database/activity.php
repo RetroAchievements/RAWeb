@@ -277,13 +277,19 @@ function getActivityMetadata($activityID)
     return mysqli_fetch_assoc($dbResult);
 }
 
-function RemoveComment($articleID, $commentID)
+function RemoveComment($articleID, $commentID, $userID, $permissions)
 {
     settype($articleID, 'integer');
     settype($commentID, 'integer');
+    settype($userID, 'integer');
+    settype($permissions, 'integer');
 
     $query = "DELETE FROM Comment
               WHERE ArticleID = $articleID AND ID = $commentID";
+
+    if ($permissions < \RA\Permissions::Admin) {
+        $query .= " AND UserID = $userID";
+    }
 
     // log_sql($query);
 
