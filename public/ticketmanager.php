@@ -707,7 +707,7 @@ RenderHtmlHead($pageTitle);
 
                 echo "<h4>Comments</h4>";
                 $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
-                RenderCommentsComponent($user, $numArticleComments, $commentData, $ticketID, 7, $forceAllowDeleteComments);
+                RenderCommentsComponent($user, $numArticleComments, $commentData, $ticketID, \RA\ArticleType::Ticket, $forceAllowDeleteComments);
 
                 echo "</div>";
                 echo "</td>";

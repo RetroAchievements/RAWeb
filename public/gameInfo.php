@@ -959,7 +959,7 @@ RenderHtmlStart(true);
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";
 
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, 1, $permissions >= Permissions::Admin);
+            RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, \RA\ArticleType::Game, $permissions >= Permissions::Admin);
             ?>
         </div>
     </div>

@@ -541,7 +541,7 @@ RenderHtmlStart(true);
                 $numArticleComments,
                 $commentData,
                 $userPageID,
-                3,
+                \RA\ArticleType::User,
                 $forceAllowDeleteComments
             );
         }

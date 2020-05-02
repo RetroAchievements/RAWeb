@@ -30,7 +30,7 @@ if (validateUser_cookie($user, $cookie, 1)) {
     } else {
         if ($prefType == 'cleanwall') {
             $query = "DELETE FROM Comment
-                      WHERE ArticleType = 3 && ArticleID = ( SELECT ua.ID FROM UserAccounts AS ua WHERE ua.User = '$user' )";
+                      WHERE ArticleType = " . \RA\ArticleType::User . " && ArticleID = ( SELECT ua.ID FROM UserAccounts AS ua WHERE ua.User = '$user' )";
 
             $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
