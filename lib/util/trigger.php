@@ -183,7 +183,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             $res .= "\n  <td> " . $memTypes[$lType] . " </td>";
             $res .= "\n  <td> " . $memSize[$lSize] . " </td>";
             $res .= "\n  <td" . $lTooltip . "> " . $lMemory . " </td>";
-            if ($flag == 'A' || $flag == 'B') {
+            if ($flag == 'A' || $flag == 'B' || $flag == 'I') {
                 $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
             } else {
                 $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";
