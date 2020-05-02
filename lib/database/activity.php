@@ -307,6 +307,10 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
 
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
 {
+    if (!in_array($articleType, \RA\ArticleType::values())) {
+        return false;
+    }
+
     //    Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
