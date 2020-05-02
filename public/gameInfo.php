@@ -23,7 +23,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 $errorCode = seekGET('e');
 
-$flags = seekGET('f', 3); // flags = 3 means Core achievements
+$defaultFlag = 3; // flags = 3 means Core achievements
+$flags = seekGET('f', $defaultFlag);
 settype($flags, 'integer');
 
 $defaultSort = 1;
@@ -800,13 +801,18 @@ RenderHtmlStart(true);
                 echo "<div class='sortbyselector'><span>";
                 echo "Sort: ";
 
+                $params = [];
+                if ($flags != $defaultFlag) {
+                    $params[] = 'f=' . $flags;
+                }
+
                 $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
 
-                $sort1 = ($sortBy == 1) ? 11 : 1;
-                $sort2 = ($sortBy == 2) ? 12 : 2;
-                $sort3 = ($sortBy == 3) ? 13 : 3;
-                $sort4 = ($sortBy == 4) ? 14 : 4;
-                $sort5 = ($sortBy == 5) ? 15 : 5;
+                $sort1 = http_build_query($params + ["s=" . ($sortBy == 1) ? 11 : 1]);
+                $sort2 = http_build_query($params + ["s=" . ($sortBy == 2) ? 12 : 2]);
+                $sort3 = http_build_query($params + ["s=" . ($sortBy == 3) ? 13 : 3]);
+                $sort4 = http_build_query($params + ["s=" . ($sortBy == 4) ? 14 : 4]);
+                $sort5 = http_build_query($params + ["s=" . ($sortBy == 5) ? 15 : 5]);
 
                 $mark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
                 $mark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
@@ -814,14 +820,14 @@ RenderHtmlStart(true);
                 $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
                 $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
 
-                echo "<a href='/Game/$gameID?s=$sort1'>Normal$mark1</a> - ";
-                echo "<a href='/Game/$gameID?s=$sort2'>Won By$mark2</a> - ";
+                echo "<a href='/Game/$gameID?$sort1'>Normal$mark1</a> - ";
+                echo "<a href='/Game/$gameID?$sort2'>Won By$mark2</a> - ";
                 // TODO sorting by "date won" isn't implemented yet.
                 //if(isset($user)) {
-                //    echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
+                //    echo "<a href='/Game/$gameID?$sort3'>Date Won$mark3</a> - ";
                 //}
-                echo "<a href='/Game/$gameID?s=$sort4'>Points$mark4</a> - ";
-                echo "<a href='/Game/$gameID?s=$sort5'>Title$mark5</a>";
+                echo "<a href='/Game/$gameID?$sort4'>Points$mark4</a> - ";
+                echo "<a href='/Game/$gameID?$sort5'>Title$mark5</a>";
 
                 echo "<sup>&nbsp;</sup></span></div>";
             }
