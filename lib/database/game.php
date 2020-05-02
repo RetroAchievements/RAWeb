@@ -520,7 +520,7 @@ function getAchievementIDs($gameID)
 
 function getGameFromTitle($gameTitleIn, $consoleID)
 {
-    $gameTitle = str_replace("'", "''", $gameTitleIn);
+    $gameTitle = sanitizeTitle($gameTitleIn);
     settype($consoleID, 'integer');
 
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
