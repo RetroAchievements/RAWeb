@@ -23,6 +23,8 @@ if ($responseCode == -1) {
         $response['Token'] = $token;
         $response['Score'] = $scoreOut;
         $response['Messages'] = $messagesOut;
+        $response['Permissions'] = $userDetails['Permissions'];
+        $response['AccountType'] = PermissionsToString($userDetails['Permissions']);
     } else {
         http_response_code(401);
         $response['Success'] = false;
