@@ -999,9 +999,10 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
     }
 }
 
-function createNewGame($title, $consoleID)
+function createNewGame($titleIn, $consoleID)
 {
     settype($consoleID, 'integer');
+    $title = sanitizeTitle($titleIn);
     //$title = str_replace( "--", "-", $title );    //    subtle non-comment breaker
 
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints) 
@@ -1013,12 +1014,15 @@ function createNewGame($title, $consoleID)
     if ($dbResult !== false) {
         $newID = mysqli_insert_id($db);
         static_addnewgame($newID);
-        return $newID;
+        return [
+            'ID' => $newID,
+            'Title' => $title,
+        ];
     }
 
     log_sql_fail();
     // error_log(__FUNCTION__ . "failed ($title)");
-    return 0;
+    return null;
 }
 
 function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
@@ -1068,16 +1072,13 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
         }
         $gameID = $game['ID'] ?? 0;
         if ($gameID == 0) {
-            //    Remove single quotes, replace with double quotes:
-            $title = str_replace("'", "''", $titleIn);
-            $title = str_replace("/", "-", $title);
-            $title = str_replace("\\", "-", $title);
-
             /**
              * New Game!
              * The MD5 for this game doesn't yet exist in our DB. Insert a new game:
              */
-            $gameID = createNewGame($title, $consoleID);
+            $game = createNewGame($titleIn, $consoleID);
+            $gameID = $game['ID'] ?? 0;
+            $title = $game['Title'] ?? $titleIn;
             if ($gameID !== 0) {
                 $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
                 $dbResult = s_mysql_query($query);
@@ -1127,6 +1128,15 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
     return $retVal;
 }
 
+function sanitizeTitle($titleIn)
+{
+    //    Remove single quotes, replace with double quotes:
+    $title = str_replace("'", "''", $titleIn);
+    $title = str_replace("/", "-", $title);
+    $title = str_replace("\\", "-", $title);
+    return $title;
+}
+
 function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
 {
     if ($consoleID == 0) {
@@ -1142,15 +1152,11 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
     $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        //    Remove single quotes, replace with double quotes:
-        $title = str_replace("'", "''", $titleIn);
-        $title = str_replace("/", "-", $title);
-        $title = str_replace("\\", "-", $title);
         // error_log(__FUNCTION__ . " about to add $title (was $titleIn)");
 
         if (mysqli_num_rows($dbResult) == 0) {
             //    The MD5 for this game doesn't yet exist in our DB. Insert a new game:
-            $idOut = createNewGame($title, $consoleID);
+            $idOut = createNewGame($titleIn, $consoleID);
 
             if ($idOut !== 0) {
                 $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
