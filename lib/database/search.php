@@ -48,9 +48,9 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
             WHEN c.articletype=1 THEN CONCAT( '/Game/', c.ArticleID )
             WHEN c.articletype=2 THEN CONCAT( '/Achievement/', c.ArticleID )
             WHEN c.articletype=3 THEN CONCAT( '/User/', ua.User ),
-            WHEN c.articletype=5 THEN  CONCAT( '/feed.php?a=', c.ArticleID )
-            ELSE c.articletype
-        )
+            WHEN c.articletype=5 THEN CONCAT( '/feed.php?a=', c.ArticleID )
+            WHEN c.articletype=7 THEN CONCAT( '/ticketmanager.php?i=', c.ArticleID )
+            ELSE CONCAT( c.articletype, '/', c.ArticleID )
         END
         AS Target,
 
