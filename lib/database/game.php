@@ -1100,6 +1100,7 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
                 $retVal['Success'] = false;
             }
         } else {
+            $gameTitle = $game['Title'] ?? $titleIn;
             /**
              * Adding md5 to an existing title ($gameID)
              */
@@ -1110,12 +1111,12 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
                 $retVal['GameID'] = $gameID;
-                $retVal['GameTitle'] = $titleIn;
+                $retVal['GameTitle'] = $gameTitle;
             } else {
                 /**
                  * cannot insert duplicate md5 (already present?
                  */
-                $retVal['Error'] = "Failed to add duplicate md5 for '$titleIn' (already present?)";
+                $retVal['Error'] = "Failed to add duplicate md5 for '$gameTitle' (already present?)";
                 $retVal['Success'] = false;
             }
         }
