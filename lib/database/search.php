@@ -44,13 +44,14 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
     (
         SELECT 'Comment' AS Type, cua.User AS ID,
 
-        IF( c.articletype=1, CONCAT( '/Game/', c.ArticleID ),
-            IF( c.articletype=2, CONCAT( '/Achievement/', c.ArticleID ),
-                IF( c.articletype=3, CONCAT( '/User/', ua.User ),
-                    IF( c.articletype=5, CONCAT( '/feed.php?a=', c.ArticleID ), c.articletype )
-                )
-            )
+        CASE
+            WHEN c.articletype=1 THEN CONCAT( '/Game/', c.ArticleID )
+            WHEN c.articletype=2 THEN CONCAT( '/Achievement/', c.ArticleID )
+            WHEN c.articletype=3 THEN CONCAT( '/User/', ua.User ),
+            WHEN c.articletype=5 THEN  CONCAT( '/feed.php?a=', c.ArticleID )
+            ELSE c.articletype
         )
+        END
         AS Target,
 
         CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-40, 1), 60 ), '...' ) AS Title
