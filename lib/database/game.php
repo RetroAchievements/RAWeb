@@ -518,22 +518,28 @@ function getAchievementIDs($gameID)
     return $retVal;
 }
 
-function getGameIDFromTitle($gameTitleIn, $consoleID)
+function getGameFromTitle($gameTitleIn, $consoleID)
 {
     $gameTitle = str_replace("'", "''", $gameTitleIn);
     settype($consoleID, 'integer');
 
-    $query = "SELECT ID FROM GameData
-              WHERE Title='$gameTitle' AND ConsoleID='$consoleID'";
+    $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
+              FROM GameData AS gd
+              LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
+              WHERE gd.Title='$gameTitle' AND gd.ConsoleID='$consoleID'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        return $data['ID'];
+    if ($retVal = mysqli_fetch_assoc($dbResult)) {
+        settype($retVal['ID'], 'integer');
+        settype($retVal['ConsoleID'], 'integer');
+        settype($retVal['Flags'], 'integer');
+        settype($retVal['ForumTopicID'], 'integer');
+        settype($retVal['IsFinal'], 'boolean');
+        return $retVal;
     } else {
         log_sql_fail();
         // error_log(__FUNCTION__ . " failed: could not find $gameTitle!");
-        return 0;
+        return null;
     }
 }
 
@@ -936,7 +942,7 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
     }
 
     //    Redirect the given md5 to an existing gameID:
-    $idOut = getGameIDFromTitle($gameTitleDest, $consoleID);
+    $idOut = getGameFromTitle($gameTitleDest, $consoleID)['ID'] ?? 0;
     if ($idOut == 0) {
         //log_email("CANNOT find this existing game title! ($user requested $md5 forward to '$gameTitleDest')");
         return false;
@@ -1015,7 +1021,7 @@ function createNewGame($title, $consoleID)
     return 0;
 }
 
-function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
+function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
 {
     settype($consoleID, 'integer');
 
@@ -1024,8 +1030,8 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
     $retVal = [];
     $retVal['MD5'] = $md5;
     $retVal['ConsoleID'] = $consoleID;
-    $retVal['GameID'] = 0;
-    $retVal['GameTitle'] = "";
+    $retVal['GameID'] = $gameID;
+    $retVal['GameTitle'] = $titleIn;
     $retVal['Success'] = true;
 
     $permissions = getUserPermissions($user);
@@ -1054,7 +1060,13 @@ function submitNewGameTitleJSON($user, $md5, $titleIn, $consoleID)
         $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
         $retVal['Success'] = false;
     } else {
-        $gameID = getGameIDFromTitle($titleIn, $consoleID);
+        if (!empty($gameID)) {
+            $game = getGameData($gameID);
+        }
+        if (empty($game)) {
+            $game = getGameFromTitle($titleIn, $consoleID);
+        }
+        $gameID = $game['ID'] ?? 0;
         if ($gameID == 0) {
             //    Remove single quotes, replace with double quotes:
             $title = str_replace("'", "''", $titleIn);
