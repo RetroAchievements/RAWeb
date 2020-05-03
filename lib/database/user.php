@@ -1019,7 +1019,7 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
     }
 }
 
-function getUserPageInfo($user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
+function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
 {
     getAccountDetails($user, $userInfo);
 
