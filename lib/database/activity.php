@@ -307,7 +307,7 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
 
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
 {
-    if (!in_array($articleType, \RA\ArticleType::values())) {
+    if (!\RA\ArticleType::isValid($articleType)) {
         return false;
     }
 

@@ -22,6 +22,7 @@ abstract class ArticleType
         self::Game,
         self::Achievement,
         self::User,
+        self::News,
         self::Activity,
         self::Leaderboard,
         self::AchievementTicket,
@@ -32,7 +33,7 @@ abstract class ArticleType
         return self::VALUES;
     }
 
-    public static function isValue($value): bool
+    public static function isValid($value): bool
     {
         return in_array($value, self::values());
     }
