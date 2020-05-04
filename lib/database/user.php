@@ -998,6 +998,7 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
         return;
     }
 
+    $limit = ($numAchievements == 0) ? 5000 : $numAchievements;
     //echo $numIDs;
     //error_log( $gameIDsCSV );
 
@@ -1007,7 +1008,7 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDsCSV )
               ORDER BY IsAwarded DESC, HardcoreAchieved ASC, DateAwarded DESC, ach.DisplayOrder ASC, ach.ID ASC
-              LIMIT $numAchievements";
+              LIMIT $limit";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
