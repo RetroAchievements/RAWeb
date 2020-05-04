@@ -23,7 +23,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 $errorCode = seekGET('e');
 
-$flags = seekGET('f', 3); // flags = 3 means Core achievements
+$officialFlag = 3; // flag = 3 means Core (official) achievements
+$flags = seekGET('f', $officialFlag);
 settype($flags, 'integer');
 
 $defaultSort = 1;
@@ -800,6 +801,8 @@ RenderHtmlStart(true);
                 echo "<div class='sortbyselector'><span>";
                 echo "Sort: ";
 
+                $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
+
                 $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
 
                 $sort1 = ($sortBy == 1) ? 11 : 1;
@@ -814,14 +817,14 @@ RenderHtmlStart(true);
                 $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
                 $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
 
-                echo "<a href='/Game/$gameID?s=$sort1'>Normal$mark1</a> - ";
-                echo "<a href='/Game/$gameID?s=$sort2'>Won By$mark2</a> - ";
+                echo "<a href='/Game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
+                echo "<a href='/Game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
                 // TODO sorting by "date won" isn't implemented yet.
                 //if(isset($user)) {
-                //    echo "<a href='/Game/$gameID?s=$sort3'>Date Won$mark3</a> - ";
+                //    echo "<a href='/Game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
                 //}
-                echo "<a href='/Game/$gameID?s=$sort4'>Points$mark4</a> - ";
-                echo "<a href='/Game/$gameID?s=$sort5'>Title$mark5</a>";
+                echo "<a href='/Game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
+                echo "<a href='/Game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
 
                 echo "<sup>&nbsp;</sup></span></div>";
             }
