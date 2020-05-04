@@ -354,7 +354,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
                 break;
         }
 
-        addArticleComment("Server", \RA\ArticleType::Ticket, $ticketID, $comment, $user);
+        addArticleComment("Server", \RA\ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
         getAccountDetails($userReporter, $reporterData);
         $email = $reporterData['EmailAddress'];

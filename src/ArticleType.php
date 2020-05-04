@@ -4,29 +4,36 @@ namespace RA;
 
 abstract class ArticleType
 {
-    public const Game = 1;
+    const Game = 1;
 
-    public const Achievement = 2;
+    const Achievement = 2;
 
-    public const User = 3;
+    const User = 3;
 
-    public const Feed = 5;
+    const News = 4;
 
-    public const Leaderboard = 6;
+    const Activity = 5;
 
-    public const Ticket = 7;
+    const Leaderboard = 6;
+
+    const AchievementTicket = 7;
 
     private const VALUES = [
         self::Game,
         self::Achievement,
         self::User,
-        self::Feed,
+        self::Activity,
         self::Leaderboard,
-        self::Ticket,
+        self::AchievementTicket,
     ];
 
     public static function values(): array
     {
         return self::VALUES;
+    }
+
+    public static function isValue($value): bool
+    {
+        return in_array($value, self::values());
     }
 }
