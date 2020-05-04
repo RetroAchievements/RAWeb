@@ -10,7 +10,7 @@ if (!isset($userPage) || !isValidUsername($userPage)) {
     exit;
 }
 
-getUserPageInfo($userPage, $userMassData, 0, 5000, $user);
+getUserPageInfo($userPage, $userMassData, 0, 0, $user);
 if (!$userMassData) {
     http_response_code(404);
     echo "User not found";
