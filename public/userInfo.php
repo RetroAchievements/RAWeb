@@ -21,7 +21,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 $maxNumGamesToFetch = seekGET('g', 5);
 
 //    Get general info
-getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 5000, $user);
+getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 0, $user);
 if (!$userMassData) {
     http_response_code(404);
     echo "User not found";
