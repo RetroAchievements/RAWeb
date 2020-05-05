@@ -37,7 +37,7 @@ function isValidConsoleId($consoleId)
             // case 26: // DOS
         case 27: // Arcade
         case 28: // Virtual Boy
-            // case 29: // MSX
+        case 29: // MSX
             // case 30: // Commodore 64
             // case 31: // ZX81
             // case 32: // Oric
@@ -54,7 +54,7 @@ function isValidConsoleId($consoleId)
             // case 43: // 3DO Interactive Multiplayer
         case 44: // ColecoVision
             // case 45: // Intellivision
-            // case 46: // Vectrex
+        case 46: // Vectrex
         case 47: // PC-8000/8800
             // case 48: // PC-9800
             // case 49: // PC-FX
