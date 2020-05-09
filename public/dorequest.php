@@ -27,15 +27,10 @@ $errorCode = "OK";
 
 $validLogin = false;
 
-/**
- * Be aware that if token or cookie are invalid, $user will be invalidated (NULLED) by RA_ReadCookieCredentials!
- */
 if (!empty($token) /* && strlen( $token ) == 16 */) {
     $validLogin = RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions);
 }
-if ($validLogin == false) {
-    $validLogin = RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-}
+
 function DoRequestError($errorMsg)
 {
     global $response;
