@@ -195,7 +195,7 @@ return [
             ],
         ],
         /**
-         * RetroArch Supported Systems/Cores https://libretro.readthedocs.io/en/latest/guides/retroachievements/#cores-compatibility
+         * RetroArch Supported Systems/Cores https://docs.libretro.com/guides/retroachievements/#cores-compatibility
          */
         100 => [
             'name' => 'RetroArch',
@@ -231,7 +231,7 @@ return [
                 53, // WonderSwan
             ],
             'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
-Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://libretro.readthedocs.io/en/latest/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
+Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
         ],
     ],
 ];
