@@ -1584,12 +1584,12 @@ function recalcScore($user)
     $query = "UPDATE UserAccounts SET RAPoints = (
                 SELECT SUM(ach.Points) FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                WHERE aw.User = '$user'
+                WHERE aw.User = '$user' AND ach.Flags = 3
                 ),
                 TrueRAPoints = (
                 SELECT SUM(ach.TrueRatio) FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                WHERE aw.User = '$user'
+                WHERE aw.User = '$user' AND ach.Flags = 3
                 )
               WHERE User = '$user' ";
 
