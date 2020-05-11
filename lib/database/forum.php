@@ -350,7 +350,7 @@ function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, 6, null, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Leaderboard, null, $urlTarget);
     }
 }
 

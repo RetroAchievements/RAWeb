@@ -3,7 +3,7 @@
 use RA\ActivityType;
 use RA\ObjectType;
 use RA\Permissions;
-use RA\SubjectType;
+use RA\ArticleType;
 
 function getMostRecentActivity($user, $type, $data)
 {
@@ -307,6 +307,10 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
 
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
 {
+    if (!\RA\ArticleType::isValid($articleType)) {
+        return false;
+    }
+
     //    Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
@@ -362,36 +366,36 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
     $altURLTarget = null;
 
     switch ($articleType) {
-        case SubjectType::Game:
+        case ArticleType::Game:
             $subscribers = getSubscribersOfGameWall($articleID);
             break;
 
-        case SubjectType::Achievement:
+        case ArticleType::Achievement:
             $achievementData = getAchievementMetadataJSON($articleID);
             $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
             $subjectAuthor = $achievementData['Author'];
             break;
 
-        case SubjectType::User:  // User wall
+        case ArticleType::User:  // User wall
             $wallUserData = getUserMetadataFromID($articleID);
             $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
             $subjectAuthor = $wallUserData['User'];
             $altURLTarget = $wallUserData['User'];
             break;
 
-        case SubjectType::News:  // News
+        case ArticleType::News:  // News
             break;
 
-        case SubjectType::Activity:  // Activity (feed)
+        case ArticleType::Activity:  // Activity (feed)
             $activityData = getActivityMetadata($articleID);
             $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
             $subjectAuthor = $activityData['User'];
             break;
 
-        case SubjectType::Leaderboard:  // Leaderboard
+        case ArticleType::Leaderboard:  // Leaderboard
             break;
 
-        case SubjectType::AchievementTicket:  // Ticket
+        case ArticleType::AchievementTicket:  // Ticket
             $ticketData = getTicket($articleID);
             $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
             $subjectAuthor = $ticketData['ReportedBy'];

@@ -231,7 +231,7 @@ RenderHtmlStart(true);
 
         //    Comments:
         $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-        RenderCommentsComponent($user, $numArticleComments, $commentData, $achievementID, 2, $forceAllowDeleteComments);
+        RenderCommentsComponent($user, $numArticleComments, $commentData, $achievementID, \RA\ArticleType::Achievement, $forceAllowDeleteComments);
 
         echo "</div>"; //achievement
 

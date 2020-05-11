@@ -212,36 +212,37 @@ function sendActivityEmail(
     $activityDescription = '';
 
 
-    if ($articleType == 1) { //    Game (wall)
+    if ($articleType == \RA\ArticleType::Game) {
         $emailTitle = "New Game Wall Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/Game/$actID'>here</a>";
         $activityDescription = "A game wall discussion you've commented in";
-    } elseif ($articleType == 2) { //    Achievement: sending mail to person who authored an achievement
+    } elseif ($articleType == \RA\ArticleType::Achievement) {
+        // sending mail to person who authored an achievement
         $emailTitle = "New Achievement Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/achievement/$actID'>here</a>";
         $activityDescription = "An achievement you created";
         if (isset($threadInvolved)) {
             $activityDescription = "An achievement page discussion you've commented in";
         }
-    } elseif ($articleType == 3) { //    User (wall)
+    } elseif ($articleType == \RA\ArticleType::User) {
         $emailTitle = "New User Wall Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/User/$altURLTarget'>here</a>";
         $activityDescription = "Your user wall";
         if (isset($threadInvolved)) {
             $activityDescription = "A user wall discussion you've commented in";
         }
-    } elseif ($articleType == 6) { //    Forum thread
+    } elseif ($articleType == \RA\ArticleType::Leaderboard) {
         $emailTitle = "New Forum Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/$altURLTarget'>here</a>";
         $activityDescription = "A forum thread you've commented in";
-    } elseif ($articleType == 7) { //    Ticket
+    } elseif ($articleType == \RA\ArticleType::AchievementTicket) {
         $emailTitle = "New Ticket Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$actID'>here</a>";
         $activityDescription = "A ticket you've reported";
         if (isset($threadInvolved)) {
             $activityDescription = "A ticket you've commented on";
         }
-    } else { //if( $articleType == 5 )    //    Activity
+    } else { //if( $articleType == \RA\ArticleType::Activity )
         //    Also used for Generic text:
         $emailTitle = "New Activity Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/feed.php?a=$actID'>here</a>";
