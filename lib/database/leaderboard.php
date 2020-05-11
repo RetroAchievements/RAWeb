@@ -464,26 +464,32 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
 {
     settype($scoreIn, 'integer');
 
-    if ($formatType == 'TIME') {
-        $mins = $scoreIn / 3600;
+    if ($formatType == 'TIME') { // Number of frames
+        $hours = $scoreIn / 216000;
+        settype($hours, 'integer');
+        $mins = ($scoreIn / 3600) - ($hours * 60);
         $secs = ($scoreIn % 3600) / 60;
         $milli = (($scoreIn % 3600) % 60) * (100.0 / 60.0);
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%01d:%02d.%02d", $mins, $secs, $milli);
-    } elseif ($formatType == 'TIMESECS') {
-        $mins = $scoreIn / 60;
+        return sprintf("%01d:%02d:%02d.%02d", $hours, $mins, $secs, $milli);
+    } elseif ($formatType == 'TIMESECS') { // Number of seconds
+        $hours = $scoreIn / 360;
+        settype($hours, 'integer');
+        $mins = ($scoreIn / 60) - ($hours * 60);
         $secs = $scoreIn % 60;
-        return sprintf("%01d:%02d", $mins, $secs);
-    } elseif ($formatType == 'MILLISECS') {
-        $mins = $scoreIn / 6000;
+        return sprintf("%01d:%02d:%02d", $hours, $mins, $secs);
+    } elseif ($formatType == 'MILLISECS') { // Number of milliseconds
+        $hours = $scoreIn / 360000;
+        settype($hours, 'integer');
+        $mins = ($scoreIn / 6000) - ($hours * 60);
         $secs = ($scoreIn % 6000) / 100;
         $milli = ($scoreIn % 100);
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%01d:%02d.%02d", $mins, $secs, $milli);
+        return sprintf("%01d:%02d:%02d.%02d", $hours, $mins, $secs, $milli);
     } else {
         return "$scoreIn";
     }
