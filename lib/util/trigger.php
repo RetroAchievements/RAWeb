@@ -35,6 +35,9 @@ function SizeTypeToString($char, &$iter)
     } elseif ($char == 'T') {
         $iter++;
         return "Bit 7 ";
+    } elseif ($char == 'K') {
+        $iter++;
+        return "Bit Count ";
     } else {
         //    As-is
         return "16-bit ";
@@ -83,7 +86,9 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         'B' => 'Sub Source',
         'C' => 'Add Hits',
         'N' => 'And Next',
+        'O' => 'Or Next',
         'M' => 'Measured',
+        'Q' => 'Measured If',
         'I' => 'Add Address',
         '' => '',
     ];
@@ -101,6 +106,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         '0xU' => 'Upper4',
         '0xH' => '8-bit',
         '0xW' => '24-bit',
+        '0xK' => 'BitCount',
         '0xX' => '32-bit', // needs to be before the 16bits below to make the RegEx work
         '0x ' => '16-bit',
         '0x' => '16-bit',
