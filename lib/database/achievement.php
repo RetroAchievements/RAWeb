@@ -867,11 +867,14 @@ function resetAchievements($user, $gameID)
     return $numRowsDeleted;
 }
 
-function resetSingleAchievement($user, $achID, $hardcoreMode)
+function resetSingleAchievement($user, $achID, $hardcoreMode, $resetBoth = 0)
 {
     $achData = [];
     if (getAchievementMetadata($achID, $achData)) {
         $pointsToDeduct = $achData['Points'];
+        if ($resetBoth == 1) {
+            $pointsToDeduct += $pointsToDeduct;
+        }
         $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToDeduct, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
@@ -879,7 +882,11 @@ function resetSingleAchievement($user, $achID, $hardcoreMode)
             // error_log(__FUNCTION__ . " failed?! $user, $achID");
         }
 
-        $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID' AND HardcoreMode='$hardcoreMode'";
+        if ($resetBoth == 1) {
+            $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID'";
+        } else {
+            $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID' AND HardcoreMode='$hardcoreMode'";
+        }
         $dbResult = s_mysql_query($query);
 
         if ($dbResult == false) {

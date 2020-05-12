@@ -312,6 +312,19 @@ switch ($action) {
             }
         }
         break;
+    case 'resetaward':
+        $resetAchievementID = seekPOST('a');
+        $resetAchievementUser = seekPOST('u');
+        $resetAchSoftcore = seekPOST('h', 0);
+        if (isset($resetAchievementID) && isset($resetAchievementUser)) {
+            $ids = explode(',', $resetAchievementID);
+            foreach ($ids as $nextID) {
+                if (resetSingleAchievement($resetAchievementUser, $nextID, 1, $resetAchSoftcore)) {
+                    $message .= "Reset achievement $nextID for $resetAchievementUser!<br>";
+                }
+            }
+        }
+        break;
     // case 'recalctrueratio':
     //     set_time_limit(3000);
     //
@@ -491,6 +504,46 @@ RenderHtmlHead('Admin Tools');
                     </tbody>
                 </table>
                 <input type='hidden' name='action' value='giveaward'>
+                <input type='submit' value='Submit'>
+            </form>
+        </div>
+
+        <div id='fullcontainer'>
+            <h4>Reset Achievement</h4>
+            <form method='post' action='admin.php'>
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col class="fullwidth">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="reset_achievement_user">User to reset achievement</label>
+                        </td>
+                        <td>
+                            <input id='reset_achievement_user' name='u'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="reset_achievement_id">Achievement ID</label>
+                        </td>
+                        <td>
+                            <input id='reset_achievement_id' name='a'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for="reset_achievement_hardcore">Include softcore?</label>
+                        </td>
+                        <td>
+                            <input id='reset_achievement_hardcore' type='checkbox' name='h' value='1'>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type='hidden' name='action' value='resetaward'>
                 <input type='submit' value='Submit'>
             </form>
         </div>
