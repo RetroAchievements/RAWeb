@@ -1,65 +1,5 @@
 <?php
 
-function SizeTypeToString($char, &$iter)
-{
-    if ($char == 'H') {
-        $iter++;
-        return "8-bit ";
-    } elseif ($char == 'U') {
-        $iter++;
-        return "Upper 4-bits ";
-    } elseif ($char == 'L') {
-        $iter++;
-        return "Lower 4-bits ";
-    } elseif ($char == 'M') {
-        $iter++;
-        return "Bit 0 ";
-    } elseif ($char == 'N') {
-        $iter++;
-        return "Bit 1 ";
-    } elseif ($char == 'O') {
-        $iter++;
-        return "Bit 2 ";
-    } elseif ($char == 'P') {
-        $iter++;
-        return "Bit 3 ";
-    } elseif ($char == 'Q') {
-        $iter++;
-        return "Bit 4 ";
-    } elseif ($char == 'R') {
-        $iter++;
-        return "Bit 5 ";
-    } elseif ($char == 'S') {
-        $iter++;
-        return "Bit 6 ";
-    } elseif ($char == 'T') {
-        $iter++;
-        return "Bit 7 ";
-    } else {
-        //    As-is
-        return "16-bit ";
-    }
-}
-
-function ComparisonOpToString($opChars)
-{
-    if ($opChars == "<=") {
-        return " is less than or equal to ";
-    } elseif ($opChars == ">=") {
-        return " is greater than or equal to ";
-    } elseif ($opChars == "<") {
-        return " is less than ";
-    } elseif ($opChars == ">") {
-        return " is greater than ";
-    } elseif ($opChars == "!=") {
-        return " is not equal to ";
-    } elseif ($opChars == "=") {
-        return " is equal to ";
-    } else {
-        return " unknown sizetype '$opChars' ";
-    }
-}
-
 function getAchievementPatchReadableHTML($mem, $memNotes)
 {
     $tableHeader = '
@@ -83,7 +23,9 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         'B' => 'Sub Source',
         'C' => 'Add Hits',
         'N' => 'And Next',
+        'O' => 'Or Next',
         'M' => 'Measured',
+        'Q' => 'Measured If',
         'I' => 'Add Address',
         '' => '',
     ];
@@ -101,6 +43,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         '0xU' => 'Upper4',
         '0xH' => '8-bit',
         '0xW' => '24-bit',
+        '0xK' => 'BitCount',
         '0xX' => '32-bit', // needs to be before the 16bits below to make the RegEx work
         '0x ' => '16-bit',
         '0x' => '16-bit',
