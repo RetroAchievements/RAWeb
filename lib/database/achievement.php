@@ -818,68 +818,32 @@ function UploadNewAchievement(
 
 function resetAchievements($user, $gameID)
 {
-    //$query = "SELECT COUNT(*) AS NumAchievements FROM Awarded WHERE User='$user'";
     $query = "DELETE FROM Awarded WHERE User='$user' ";
 
-    $pointsToRemove = 0;
-    if (isset($gameID) && $gameID !== 0) {
-        $achievementData = [];
-        $gameData = [];
-        getGameMetadata($gameID, $user, $achievementData, $gameData);
-        foreach ($achievementData as $nextAch) {
-            if (isset($nextAch['DateAwarded1'])) {
-                $pointsToRemove += $nextAch['Points'];
-            }
-        }
-
+    if (!empty($gameID) && $gameID > 0) {
         $query .= "AND AchievementID IN ( SELECT ID FROM Achievements WHERE Achievements.GameID='$gameID' )";
     }
 
     $numRowsDeleted = 0;
-
     // log_sql($query);
     if (s_mysql_query($query) !== false) {
         global $db;
         $numRowsDeleted = mysqli_affected_rows($db);
         // error_log(__FUNCTION__ . " Success - deleted $numRowsDeleted achievements for $user.");
         //echo "SUCCESS! Deleted " . $numRowsDeleted . " achievements.<br>";
-
-        if (!isset($gameID) || $gameID == 0) {
-            //    remove stored points if we're doing a total reset
-            $query = "UPDATE UserAccounts SET RAPoints='0', Updated=NOW() WHERE User='$user'";
-            // log_sql($query);
-            if (s_mysql_query($query) == false) {
-                //log_email(__FUNCTION__ . " Errors removing RAPoints for $user");
-            }
-        } elseif ($pointsToRemove > 0) {
-            //    remove achieved points if we're doing a game reset
-            $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToRemove, Updated=NOW() WHERE User='$user'";
-            // log_sql($query);
-            if (s_mysql_query($query) == false) {
-                //log_email(__FUNCTION__ . " Errors adjusting RAPoints for $user");
-            }
-        }
     } else {
         // error_log(__FUNCTION__ . " Delete op failed (no permissions?)!");
         //echo "Delete op failed (no permissions?)!<br>";
     }
 
+    recalcScore($user);
     return $numRowsDeleted;
 }
 
-function resetSingleAchievement($user, $achID, $hardcoreMode)
+function resetSingleAchievement($user, $achID)
 {
-    $achData = [];
-    if (getAchievementMetadata($achID, $achData)) {
-        $pointsToDeduct = $achData['Points'];
-        $query = "UPDATE UserAccounts SET RAPoints=RAPoints-$pointsToDeduct, Updated=NOW() WHERE User='$user'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult == false) {
-            log_sql_fail();
-            // error_log(__FUNCTION__ . " failed?! $user, $achID");
-        }
-
-        $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID' AND HardcoreMode='$hardcoreMode'";
+    if ($achID > 0) {
+        $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID'";
         $dbResult = s_mysql_query($query);
 
         if ($dbResult == false) {
@@ -887,11 +851,11 @@ function resetSingleAchievement($user, $achID, $hardcoreMode)
             // error_log(__FUNCTION__ . " failed?! $user, $achID");
         }
 
+        recalcScore($user);
         return true;
-    } else {
-        // error_log(__FUNCTION__ . " couldn't find achievement $achID!");
-        return false;
     }
+    // error_log(__FUNCTION__ . " couldn't find achievement $achID!");
+    return false;
 }
 
 function getRecentlyEarnedAchievements($count, $user, &$dataOut)

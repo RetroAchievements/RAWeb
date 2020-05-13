@@ -163,7 +163,20 @@ RenderHtmlStart(true);
             }
             echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
         }
-        echo "<br><br>";
+        echo "<br>";
+
+        if ($achievedLocal) {
+            echo "<div class='devbox'>";
+            echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
+            echo "<div id='resetboxcontent'>";
+            echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
+            echo "<input type='hidden' name='u' value='$user'>";
+            echo "<input type='hidden' name='a' value='$achievementID'>";
+            echo "<input type='submit' value='Reset Progress For This Game'>";
+            echo "</form>";
+            echo "</div></div>";
+        }
+        echo "<br>";
 
         if (isset($user) && $permissions >= Permissions::Developer) {
             echo "<div class='devbox mb-3'>";

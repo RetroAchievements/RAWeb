@@ -445,6 +445,7 @@ function reloadTwitchContainer(videoID) {
 
 jQuery(document).ready(function onReady($) {
   $('#devboxcontent').hide();
+  $('#resetboxcontent').hide();
   $('#commentTextarea').watermark('Enter a comment here...');
   $('.messageTextarea').watermark('Enter your message here...');
   $('.passwordresetusernameinput').watermark('Enter Username...');
@@ -501,6 +502,19 @@ jQuery(document).ready(function onReady($) {
   $searchUser.on('autocompleteselect', function (event, ui) {
     $searchUser.val(ui.item.id);
     $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
+    return false;
+  });
+
+  var $resetForm = $('#resetform');
+  $resetForm.submit(function () {
+    if (!window.confirm('Are you sure you want to proceed?')) {
+      return false;
+    }
+    $.post(
+      $(this).attr('action'),
+      $(this).serialize(),
+      window.location.reload(true),
+      'json');
     return false;
   });
 });
