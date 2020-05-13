@@ -1120,7 +1120,7 @@ function getControlPanelUserInfo($user, &$libraryOut)
                     GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
                 WHERE aw.User = '$user' AND aw.HardcoreMode = 0
                 GROUP BY gd.ID, gd.ConsoleID, gd.Title
-                ORDER BY gd.ConsoleID, gd.Title";
+                ORDER BY gd.Title, gd.ConsoleID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
