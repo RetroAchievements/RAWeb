@@ -13,15 +13,7 @@ $gameID = seekPOST('g', null);
 $achID = seekPOST('a', null);
 $hardcoreMode = seekPOST('h', null);
 
-/**
- * require password when resetting everything
- */
-$requirePass = true;
-if (isset($gameID) || isset($achID)) {
-    $requirePass = false;
-}
-
-if ((!$requirePass) || validateUser($user, $pass, $fbUser, 0)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (isset($achID)) {
         if (resetSingleAchievement($user, $achID, $hardcoreMode)) {
             recalcScore($user);
