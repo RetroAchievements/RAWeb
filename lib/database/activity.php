@@ -287,7 +287,8 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
     $query = "DELETE FROM Comment
               WHERE ArticleID = $articleID AND ID = $commentID";
 
-    if ($permissions < \RA\Permissions::Admin) {
+    // if not UserWall's owner nor admin, check if it's the author
+    if ($articleId != $userId && $permissions < \RA\Permissions::Admin) {
         $query .= " AND UserID = $userID";
     }
 
