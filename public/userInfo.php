@@ -32,6 +32,8 @@ $userMotto = $userMassData['Motto'];
 $userPageID = $userMassData['ID'];
 $userTruePoints = $userMassData['TotalTruePoints'];
 $userRank = $userMassData['Rank'];
+$setRequestList = getUserRequestList($userPage);
+$userSetRequestInformation = getUserRequestsInformation($userPage, $setRequestList);
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
@@ -269,6 +271,10 @@ RenderHtmlStart(true);
             $rankOffset = (int)(($userRank - 1) / 25) * 25;
             echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }
+        echo "<br>";
+
+        echo "<a href='/setRequestList.php?u=$userPage'> Requested Sets</a>" 
+                . " - " . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made";
         echo "<br><br>";
 
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
