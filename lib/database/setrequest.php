@@ -55,30 +55,26 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;
     $points = GetScore($user);
-    $age = GetAge($user);
 
-    //Determine how many requests the user can make
-    if ($points >= 2500) {
-        $requests['total']++;
+    // logic behind the amount of requests based on player's score:
+    $boundariesAndChunks = array(
+        180000 => 20000, // from 180k to infinite, +1 for each 20k chunk of points
+        20000 => 10000,  // from 20k to 180k, +1 for each 10k chunk
+        5000 => 5000,    // from 5k to 20k, +1 for each 5k chunk
+        0 => 2500,       // from 0 to 5k, +1 for each 2.5k chunk
+    );
+
+    $pointsLeft = $points;
+    foreach ($boundariesAndChunks as $boundary => $chunk) {
+        if ($pointsLeft >= $boundary) {
+            $aboveBoundary = $pointsLeft - $boundary;
+            $requests['total'] += floor($aboveBoundary / $chunk);
+            $pointsLeft = $boundary;
+        }
     }
-    if ($points >= 5000) {
-        $requests['total']++;
-    }
-    if ($points >= 10000) {
-        $requests['total']++;
-    }
-    if ($points >= 15000) {
-        $requests['total']++;
-    }
-    if ($points >= 20000) {
-        $requests['total']++;
-        $requests['total'] += floor(($points - 20000) / 10000);
-    }
-    if ($points >= 190000) {
-        $requests['total']--;
-        $requests['total'] -= floor(($points - 190000) / 20000);
-    }
-    $requests['total'] += $age;
+
+    // adding the number of years the user is here
+    $requests['total'] += GetAge($user);
 
     //Determine how many of the users current requests are still valid.
     //Requests made for games that now have achievements do no count towards a used request
