@@ -678,6 +678,38 @@ function GetScore($user)
 }
 
 /**
+ * Gets the account age in years for the input user.
+ *
+ * @param String $user to get account age for
+ * @return int|NULL The number of years the account has been created for
+ */
+function GetAge($user)
+{
+    $query = "SELECT ua.Created
+              FROM UserAccounts AS ua
+              WHERE ua.User='$user'";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        $result = mysqli_fetch_assoc($dbResult);
+
+        if (!$result) {
+            return null;
+        }
+        $created = strtotime($result['Created']);
+        $curDate = strtotime(date('Y-m-d H:i:s'));
+        $diff = $curDate - $created;
+
+        $years = floor($diff / (365*60*60*24));
+        settype($years, 'integer');
+        return $years;
+    } else {
+        // error_log(__FUNCTION__ . " failed: user:$user");
+        return 0;
+    }
+}
+
+/**
  * Gets the points or retro points rank of the user.
  *
  * @param String $user the user to get the rank for

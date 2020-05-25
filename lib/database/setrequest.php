@@ -55,8 +55,12 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;
     $points = GetScore($user);
+    $age = GetAge($user);
 
     //Determine how many requests the user can make
+    if ($points >= 2500) {
+        $requests['total']++;
+    }
     if ($points >= 5000) {
         $requests['total']++;
     }
@@ -70,11 +74,11 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
         $requests['total']++;
         $requests['total'] += floor(($points - 20000) / 10000);
     }
-
-    //Cap the allowed set requests at 20
-    if ($requests['total'] > 20) {
-        $requests['total'] = 20;
+    if ($points >= 190000) {
+        $requests['total']--;
+        $requests['total'] -= floor(($points - 190000) / 20000);
     }
+    $requests['total'] += $age;
 
     //Determine how many of the users current requests are still valid.
     //Requests made for games that now have achievements do no count towards a used request
