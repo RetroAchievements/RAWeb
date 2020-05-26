@@ -41,19 +41,18 @@ RenderHtmlHead("Download a client");
             <div class="mb-3" style="display: flex; justify-content: space-between; flex-direction: row; align-items: start">
                 <div style="flex-grow: 1">
                     <?php if (!empty($emulator['systems'])): ?>
+                        <?php sort($emulator['systems']) ?>
                         <b>Supported Systems:</b><br>
-                        <?php foreach ($emulator['systems'] as $consoleId => $system): ?>
-                            <span style="display: inline-block; margin-right: .75rem; margin-top: .25rem">
-                                <a href="/gameList.php?c=<?= $consoleId ?>">
-                                    <?= $system ?>
-                                </a>
-                            </span>
+                        <ul style="column-count: 3">
+                        <?php foreach ($emulator['systems'] as $system): ?>
+                            <li>- <?= $system ?></li>
                         <?php endforeach ?>
+                        </ul>
                     <?php endif ?>
                 </div>
                 <?php if ($emulator['latest_version_url_x64'] ?? false): ?>
                     <p class="mb-1 text-right text-nowrap" style="margin-right: 0.5rem">
-                        <a style="" href="<?= getenv('APP_URL') . '/' . $emulator['latest_version_url_x64'] ?>">
+                        <a href="<?= getenv('APP_URL') . '/' . $emulator['latest_version_url_x64'] ?>">
                             Download v<?= $emulator['latest_version'] ?> x64<br>
                             <small>Windows</small>
                         </a>
@@ -61,7 +60,7 @@ RenderHtmlHead("Download a client");
                 <?php endif ?>
                 <?php if ($emulator['latest_version_url'] ?? false): ?>
                     <p class="mb-1 text-right text-nowrap">
-                        <a style="" href="<?= getenv('APP_URL') . '/' . $emulator['latest_version_url'] ?>">
+                        <a href="<?= getenv('APP_URL') . '/' . $emulator['latest_version_url'] ?>">
                             Download v<?= $emulator['latest_version'] ?> x86<br>
                             <small>Windows</small>
                         </a>
