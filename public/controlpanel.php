@@ -224,7 +224,7 @@ RenderHtmlHead("My Settings");
     reader.onload = function () {
 
       $('#loadingiconavatar').fadeTo(100, 1.0);
-      $.post('doupload.php', { r: 'uploaduserpic', f: file.name.split('.').pop(), i: reader.result }, onUploadImageComplete);
+      $.post('/request/user/update-avatar.php', { f: file.name.split('.').pop(), i: reader.result }, onUploadImageComplete);
     };
 
     reader.readAsDataURL(file);
