@@ -26,6 +26,10 @@ function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
 
 function getGameData($gameID)
 {
+    settype($gameID, 'integer');
+    if ($gameID <= 0) {
+        return null;
+    }
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
               FROM GameData AS gd
               LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
@@ -518,28 +522,23 @@ function getAchievementIDs($gameID)
     return $retVal;
 }
 
-function getGameFromTitle($gameTitleIn, $consoleID)
+function getGameIDFromTitle($gameTitleIn, $consoleID)
 {
     $gameTitle = sanitizeTitle($gameTitleIn);
     settype($consoleID, 'integer');
 
-    $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
+    $query = "SELECT gd.ID
               FROM GameData AS gd
-              LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
               WHERE gd.Title='$gameTitle' AND gd.ConsoleID='$consoleID'";
 
     $dbResult = s_mysql_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
         settype($retVal['ID'], 'integer');
-        settype($retVal['ConsoleID'], 'integer');
-        settype($retVal['Flags'], 'integer');
-        settype($retVal['ForumTopicID'], 'integer');
-        settype($retVal['IsFinal'], 'boolean');
-        return $retVal;
+        return $retVal['ID'];
     } else {
         log_sql_fail();
         // error_log(__FUNCTION__ . " failed: could not find $gameTitle!");
-        return null;
+        return 0;
     }
 }
 
@@ -942,7 +941,7 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
     }
 
     //    Redirect the given md5 to an existing gameID:
-    $idOut = getGameFromTitle($gameTitleDest, $consoleID)['ID'] ?? 0;
+    $idOut = getGameIDFromTitle($gameTitleDest, $consoleID);
     if ($idOut == 0) {
         //log_email("CANNOT find this existing game title! ($user requested $md5 forward to '$gameTitleDest')");
         return false;
@@ -1025,7 +1024,7 @@ function createNewGame($titleIn, $consoleID)
     return null;
 }
 
-function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
+function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
 {
     settype($consoleID, 'integer');
 
@@ -1034,7 +1033,7 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
     $retVal = [];
     $retVal['MD5'] = $md5;
     $retVal['ConsoleID'] = $consoleID;
-    $retVal['GameID'] = $gameID;
+    $retVal['GameID'] = $gameIDin;
     $retVal['GameTitle'] = $titleIn;
     $retVal['Success'] = true;
 
@@ -1051,7 +1050,7 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
         // error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
-    } elseif ($consoleID == 0) {
+    } elseif (!isValidConsoleId($consoleID)) {
         /**
          * cannot submitGameTitle, $consoleID is 0! What console is this for?
          */
@@ -1064,11 +1063,11 @@ function submitNewGameTitleJSON($user, $md5, $gameID, $titleIn, $consoleID)
         $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
         $retVal['Success'] = false;
     } else {
-        if (!empty($gameID)) {
-            $game = getGameData($gameID);
+        if (!empty($gameIDin)) {
+            $game = getGameData($gameIDin);
         }
         if (empty($game)) {
-            $game = getGameFromTitle($titleIn, $consoleID);
+            $game = getGameData(getGameIDFromTitle($titleIn, $consoleID));
         }
         $gameID = $game['ID'] ?? 0;
         if ($gameID == 0) {
