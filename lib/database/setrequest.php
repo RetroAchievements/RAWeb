@@ -74,7 +74,7 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     }
 
     // adding the number of years the user is here
-    $requests['total'] += GetAge($user);
+    $requests['total'] += getAge($user);
 
     //Determine how many of the users current requests are still valid.
     //Requests made for games that now have achievements do no count towards a used request
