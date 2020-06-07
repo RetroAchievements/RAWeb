@@ -507,7 +507,7 @@ jQuery(document).ready(function onReady($) {
 
   var $resetForm = $('#resetform');
   $resetForm.submit(function () {
-    if (!window.confirm('Are you sure you want to proceed?')) {
+    if (!window.confirm('Are you sure you want to reset this progress?')) {
       return false;
     }
     $.post(

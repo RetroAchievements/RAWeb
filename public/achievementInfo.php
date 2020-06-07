@@ -172,7 +172,7 @@ RenderHtmlStart(true);
             echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='a' value='$achievementID'>";
-            echo "<input type='submit' value='Reset Progress For This Game'>";
+            echo "<input type='submit' value='Reset this achievement'>";
             echo "</form>";
             echo "</div></div>";
         }
