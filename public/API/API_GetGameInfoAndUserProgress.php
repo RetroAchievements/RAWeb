@@ -11,7 +11,7 @@ getGameMetadata($gameID, $targetUser, $achData, $gameData);
 foreach ($achData as &$achievement) {
     $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
 }
-$gameData['Achievements'] = $achData;
+$gameData['Achievements'] = empty($achData) ? (object)null : $achData;
 $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
 $gameData['NumAwardedToUser'] = 0;
