@@ -369,9 +369,11 @@ if ($credentialsOK) {
 
         case "submitgametitle":
             $md5 = seekPOSTorGET('m');
+            $gameID = seekPOSTorGET('g');
             $gameTitle = seekPOSTorGET('i');
+            $description = seekPOSTorGET('d');
             $consoleID = seekPOSTorGET('c');
-            $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameTitle, $consoleID);
+            $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameID, $gameTitle, $consoleID);
             $response['Success'] = $response['Response']['Success']; // Passthru
             if (isset($response['Response']['Error'])) {
                 $response['Error'] = $response['Response']['Error'];
