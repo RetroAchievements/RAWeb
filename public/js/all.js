@@ -513,7 +513,7 @@ jQuery(document).ready(function onReady($) {
     $.post(
       $(this).attr('action'),
       $(this).serialize(),
-      window.location.reload(true),
+      setTimeout(() => window.location.reload(), 100),
       'json');
     return false;
   });
