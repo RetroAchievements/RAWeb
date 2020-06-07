@@ -8,32 +8,16 @@ if (!ValidatePOSTChars("u")) {
 }
 
 $user = seekPOST('u', null);
-$pass = seekPOST('p', null);
 $gameID = seekPOST('g', null);
 $achID = seekPOST('a', null);
-$hardcoreMode = seekPOST('h', null);
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
-    if (isset($achID)) {
-        if (resetSingleAchievement($user, $achID, $hardcoreMode)) {
-            recalcScore($user);
-            echo "OK";
-        } else {
-            echo "ERROR!";
-        }
+    if (!empty($achID) && resetSingleAchievement($user, $achID)) {
+        echo "OK";
+    } elseif (!empty($gameID) && resetAchievements($user, $gameID) > 0) {
+        echo "OK";
     } else {
-        /**
-         * NOTE: full reset deprecated until v2
-         */
-        if (empty($gameID)) {
-            echo "ERROR!";
-        }
-        if (resetAchievements($user, $gameID) > 0) {
-            recalcScore($user);
-            echo "OK";
-        } else {
-            echo "ERROR!";
-        }
+        echo "ERROR!";
     }
 } else {
     echo "FAILED";

@@ -744,6 +744,18 @@ RenderHtmlStart(true);
             }
 
             if ($user !== null && $numAchievements > 0) {
+                if ($totalEarnedCasual > 0 || $numEarnedHardcore > 0) {
+                    echo "<div class='devbox'>";
+                    echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
+                    echo "<div id='resetboxcontent'>";
+                    echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
+                    echo "<input type='hidden' name='u' value='$user'>";
+                    echo "<input type='hidden' name='g' value='$gameID'>";
+                    echo "<input type='submit' value='Reset your progress for this game'>";
+                    echo "</form>";
+                    echo "</div></div>";
+                }
+
                 echo "<div style='float: right; clear: both;'>";
 
                 echo "<h4>Game Rating</h4>";

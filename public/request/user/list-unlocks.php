@@ -14,18 +14,19 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Unregister
     echo "OK:";
 
     $numUnlocks = getUserUnlocksDetailed($user, $gameID, $dataOut);
+    $achievementIds = [];
     foreach ($dataOut as $nextAwarded) {
-        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        //	_:_ delim 1
-
-        if ($nextAwarded['HardcoreMode'] == 1) {
-            echo "h";
+        if (in_array($nextAwarded['ID'], $achievementIds)) {
+            continue;
         }
+
+        $achievementIds[] = $nextAwarded['ID'];
+        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        //	_:_ delim 1
 
         echo $nextAwarded['ID'] . "::";            //	::	delim 2
     }
 
     exit;
-} else {
-    echo "FAILED: Invalid User/Password combination.\n";
-    exit;
 }
+
+echo "FAILED: Invalid User/Password combination.\n";
