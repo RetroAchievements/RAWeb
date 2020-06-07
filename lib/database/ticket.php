@@ -255,7 +255,7 @@ function getAllTickets(
     }
 
     settype($getUnofficial, 'boolean');
-    $unofficialCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
+    $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
@@ -266,7 +266,7 @@ function getAllTickets(
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-              WHERE $innerCond $unofficialCond $stateCond $reportTypeCond $md5Cond $emulatorCond
+              WHERE $innerCond $achFlagCond $stateCond $reportTypeCond $md5Cond $emulatorCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -486,14 +486,14 @@ function countOpenTickets(
     }
 
     settype($unofficialFlag, 'boolean');
-    $unofficialCond = $unofficialFlag ? "ach.Flags = '5'" : "ach.Flags = '3'";
+    $achFlagCond = $unofficialFlag ? "ach.Flags = '5'" : "ach.Flags = '3'";
 
     $query = "
         SELECT count(*) as count
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE $unofficialCond $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
+        WHERE $achFlagCond $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
 
     $dbResult = s_mysql_query($query);
 
