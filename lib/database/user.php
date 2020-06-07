@@ -683,7 +683,7 @@ function GetScore($user)
  * @param String $user to get account age for
  * @return int|NULL The number of years the account has been created for
  */
-function GetAge($user)
+function getAge($user)
 {
     $query = "SELECT ua.Created
               FROM UserAccounts AS ua
