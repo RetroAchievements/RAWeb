@@ -895,11 +895,7 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
 
 function getGameRankAndScore($gameID, $requestedBy)
 {
-    if (empty($gameID)) {
-        return null;
-    }
-
-    if (empty($requestedBy)) {
+    if (empty($gameID) || !isValidUsername($requestedBy)) {
         return null;
     }
     $retval = [];
