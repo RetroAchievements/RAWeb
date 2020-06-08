@@ -857,6 +857,9 @@ function getUserActivityRange($user, &$firstLogin, &$lastLogin)
 
 function getUserProgress($user, $gameIDsCSV, &$dataOut)
 {
+    if (empty($gameIDsCSV) || !isValidUsername($user)) {
+        return null;
+    }
     //    Create null entries so that we pass 'something' back.
     $gameIDsArray = explode(',', $gameIDsCSV);
     foreach ($gameIDsArray as $gameID) {
