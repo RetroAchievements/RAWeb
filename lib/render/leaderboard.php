@@ -193,7 +193,8 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo GetUserAndTooltipDiv($dataPoint['User'], false);
                     echo "</td>";
                     if ($j == 0) {
-                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . $dataPoint['Points'] . "</a>";
+                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
+                            $dataPoint['Points'] . "</a>";
                     } else {
                         echo "<td>" . $dataPoint['Points'];
                     }
