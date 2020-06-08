@@ -55,7 +55,7 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     $gameTitle = "UNRECOGNISED";
     settype($gameID, "integer");
 
-    if ($gameID !== 0) {
+    if ($gameID > 0) {
         $query = "SELECT gd.Title, gd.ForumTopicID, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon, gd.ImageIcon AS GameIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released
                   FROM GameData AS gd
                   LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
