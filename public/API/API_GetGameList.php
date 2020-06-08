@@ -11,6 +11,9 @@ if ($consoleID < 0) {
     return;
 }
 
-getGamesList($consoleID, $dataOut);
+settype($officialFlag, 'boolean');
+$officialFlag = seekGET('f', false);
+
+getGamesList($consoleID, $dataOut, $officialFlag);
 
 echo utf8_encode(json_encode($dataOut));

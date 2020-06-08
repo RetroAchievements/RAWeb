@@ -441,7 +441,7 @@ function getGamesListData($consoleID, $officialFlag = false)
         $whereClause .= "ConsoleID=$consoleID ";
     }
 
-    $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, gd.ImageIcon, c.Name as ConsoleName
+    $query = "SELECT DISTINCT gd.Title, gd.ID, gd.ConsoleID, gd.ImageIcon, c.Name as ConsoleName
               FROM GameData AS gd
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               $leftJoinAch
@@ -458,9 +458,9 @@ function getGamesListData($consoleID, $officialFlag = false)
     return $retVal;
 }
 
-function getGamesList($consoleID, &$dataOut)
+function getGamesList($consoleID, &$dataOut, $officialFlag = false)
 {
-    $dataOut = getGamesListData($consoleID);
+    $dataOut = getGamesListData($consoleID, $officialFlag);
     return count($dataOut);
 }
 
