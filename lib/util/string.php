@@ -2,7 +2,12 @@
 
 function isValidUsername($userTest)
 {
-    if (empty($userTest) || !ctype_alnum($userTest) || mb_strlen($userTest) > 20 || mb_strlen($userTest) < 2) {
+    if (
+        empty($userTest)
+        || !ctype_alnum($userTest)
+        || mb_strlen($userTest) > 20
+        || mb_strlen($userTest) < 2
+    ) {
         return false;
     }
 
