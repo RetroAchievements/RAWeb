@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $date = date('Y/m/d H:i:s');
 echo $date . "\r\n";

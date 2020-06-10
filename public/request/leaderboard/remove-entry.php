@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 $leaderboardId = seekPOSTorGET('l', 0, 'integer');
 $targetUser = seekPOSTorGET('t');

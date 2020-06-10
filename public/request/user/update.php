@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (ValidatePOSTorGETChars("tpv")) {
     $targetUser = seekPOSTorGET('t');

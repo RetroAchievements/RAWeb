@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
@@ -31,10 +31,10 @@ $retVal['Rank'] = getUserRank($user);
 //	Find out if we're online or offline
 $retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID']);
 
-$lastUpdate = date("U", strtotime($retVal['LastActivity']['lastupdate']));
-$now = date("U");
+$lastUpdate = (int)date("U", strtotime($retVal['LastActivity']['lastupdate']));
+$now = (int)date("U");
 
-$status = ($lastUpdate + (10 * 60)) > $now ? "Online" : "Offline";
+$status = ($lastUpdate + 600) > $now ? "Online" : "Offline";
 
 $retVal['Status'] = $status;
 

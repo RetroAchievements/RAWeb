@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 //	Auto login from app uses token. Standard login from app uses password.
 $user = seekPOST('u', null);
