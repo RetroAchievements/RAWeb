@@ -513,8 +513,11 @@ jQuery(document).ready(function onReady($) {
     $.post(
       $(this).attr('action'),
       $(this).serialize(),
-      setTimeout(() => window.location.reload(), 100),
-      'json');
+      setTimeout(function () {
+        window.location.reload();
+      }, 100),
+      'json'
+    );
     return false;
   });
 });
@@ -695,8 +698,8 @@ function tabClick(evt, tabName, type) {
 
 function copy(text) {
   var inp = document.createElement('input');
-  document.body.appendChild(inp)
-  inp.value = text
+  document.body.appendChild(inp);
+  inp.value = text;
   inp.select();
   document.execCommand('copy', false);
   inp.remove();
