@@ -192,7 +192,7 @@ RenderToolbar($user, $permissions);
       },
     );
     refreshActivePlayers();
-    setInterval(refreshActivePlayers, 2000 * 60);
+    setInterval(refreshActivePlayers, 5000 * 60);
   });
   //]]>
 </script>
