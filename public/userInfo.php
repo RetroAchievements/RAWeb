@@ -273,22 +273,16 @@ RenderHtmlStart(true);
         }
         echo "<br>";
 
-        echo "<a href='/setRequestList.php?u=$userPage'> Requested Sets</a>" 
-                . " - " . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made";
+        echo "<a href='/setRequestList.php?u=$userPage'> Requested Sets</a>"
+            . " - " . $userSetRequestInformation['used']
+            . " of " . $userSetRequestInformation['total'] . " Requests Made";
         echo "<br><br>";
 
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
             echo "<div class='mottocontainer'>Last seen ";
             if (!empty($userMassData['LastGameID'])) {
                 $game = getGameData($userMassData['LastGameID']);
-                echo ' in ' . GetGameAndTooltipDiv(
-                    $game['ID'],
-                    $game['Title'],
-                    $game['ImageIcon'],
-                    null,
-                    false,
-                    22
-                ) . '<br>';
+                echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false, 22) . '<br>';
             }
             echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
         }
