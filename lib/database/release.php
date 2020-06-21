@@ -51,7 +51,7 @@ function isValidConsoleId($consoleId)
             // case 40: // Dreamcast
             // case 41: // PlayStation Portable
             // case 42: // Philips CD-i
-            // case 43: // 3DO Interactive Multiplayer
+        case 43: // 3DO Interactive Multiplayer
         case 44: // ColecoVision
             // case 45: // Intellivision
         case 46: // Vectrex
