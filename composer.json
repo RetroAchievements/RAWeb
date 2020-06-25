@@ -21,8 +21,13 @@
     },
     "autoload": {
         "psr-4": {
-            "RA\\": "src/"
-        }
+            "RA\\": "src/",
+            "Test\\": "tests/src"
+        },
+        "files": [
+            "lib/functions.php",
+            "lib/bootstrap.php"
+        ]
     },
     "config": {
         "platform": {
@@ -30,6 +35,7 @@
         }
     },
     "scripts": {
-        "fix-cs": "vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix"
+        "fix-cs": "vendor/bin/php-cs-fixer fix",
+        "stan": "vendor/bin/phpstan analyse"
     }
 }

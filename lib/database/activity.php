@@ -1,9 +1,9 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\ObjectType;
 use RA\Permissions;
-use RA\ArticleType;
 
 function getMostRecentActivity($user, $type, $data)
 {

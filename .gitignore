@@ -23,6 +23,7 @@ nbproject
 .project
 .settings
 .php_cs.cache
+test*.php
 /public/Badge
 /public/Images
 /public/UserPic

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("uctpi")) {
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams");

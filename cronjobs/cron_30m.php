@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 //$output = shell_exec('crontab -l');
 //echo "<pre>$output</pre>";

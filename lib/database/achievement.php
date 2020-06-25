@@ -829,8 +829,6 @@ function resetAchievements($user, $gameID)
     if (s_mysql_query($query) !== false) {
         global $db;
         $numRowsDeleted = mysqli_affected_rows($db);
-        // error_log(__FUNCTION__ . " Success - deleted $numRowsDeleted achievements for $user.");
-        //echo "SUCCESS! Deleted " . $numRowsDeleted . " achievements.<br>";
     } else {
         // error_log(__FUNCTION__ . " Delete op failed (no permissions?)!");
         //echo "Delete op failed (no permissions?)!<br>";
@@ -1123,8 +1121,16 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
     }
 }
 
-function getAchievementWonData($achID, &$numWinners, &$numPossibleWinners, &$numRecentWinners, &$winnerInfo, $user, $offset = 0, $limit = 50)
-{
+function getAchievementWonData(
+    $achID,
+    &$numWinners,
+    &$numPossibleWinners,
+    &$numRecentWinners,
+    &$winnerInfo,
+    $user,
+    $offset = 0,
+    $limit = 50
+) {
     $winnerInfo = [];
 
     $query = "

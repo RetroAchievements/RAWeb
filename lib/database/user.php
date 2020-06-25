@@ -48,6 +48,7 @@ abstract class FBUserPref
 function generateEmailValidationString($user)
 {
     $emailCookie = rand_string(16);
+    // $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
     $expiry = time() + 60 * 60 * 24 * 7;
 
     $query = "INSERT INTO EmailConfirmations VALUES( '$user', '$emailCookie', $expiry )";
@@ -189,7 +190,7 @@ function validateEmailValidationString($emailCookie, &$user)
                 return false;
             }
 
-            $query = "DELETE FROM EmailConfirmations WHERE User='$user' AND EmailCookie='$emailCookie'";
+            $query = "DELETE FROM EmailConfirmations WHERE User='$user'";
             // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {

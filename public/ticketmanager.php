@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -61,6 +61,13 @@ if ($ticketID != 0) {
             if ($permissions >= \RA\Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Network problems";
+            }
+            break;
+
+        case "unable-to-reproduce":
+            if ($permissions >= \RA\Permissions::Developer) {
+                $ticketState = 0;
+                $reason = "Unable to reproduce";
             }
             break;
 
@@ -685,6 +692,7 @@ RenderHtmlHead($pageTitle);
                             echo "<option value='network'>Close - Network problems</option>";
                             echo "<option value='not-enough-info'>Close - Not enough information</option>";
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
+                            echo "<option value='unable-to-reproduce'>Close - Unable to reproduce</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     } else { // ticket is not open

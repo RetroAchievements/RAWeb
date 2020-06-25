@@ -1,8 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
-
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 /*
   DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash

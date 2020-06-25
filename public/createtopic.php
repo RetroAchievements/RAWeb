@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -68,7 +68,7 @@ RenderHtmlHead("Create topic: $thisForumTitle");
 
             RenderPHPBBIcons();
 
-            echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:160px' rows=5 name='p'></textarea></td></tr>";
+            echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:160px' rows=5 name='p' maxlength='60000'></textarea></td></tr>";
             echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit new topic' SIZE='37'/></td></tr>";
             echo "</form>";
             echo "</tbody>";

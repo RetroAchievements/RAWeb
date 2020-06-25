@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 $articleID = seekPOSTorGET('a', 0, 'integer');
 $commentID = seekPOSTorGET('c', 0, 'integer');

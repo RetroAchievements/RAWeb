@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("ucip")) {
     echo "FAILED";
@@ -22,7 +22,7 @@ if (isset($_POST['note'])) {
     if (!empty(trim($_POST['note']['emulator']))) {
         $appendNote .= "<br>Emulator: " . $_POST['note']['emulator'];
 
-        if ($_POST['note']['emulator'] == "RetroArch") {
+        if ($_POST['note']['emulator'] == "RetroArch" || $_POST['note']['emulator'] == "RALibRetro") {
             $appendNote .= " (" . $_POST['note']['core'] . ")";
         }
     }
