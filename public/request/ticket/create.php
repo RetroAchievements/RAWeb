@@ -22,7 +22,7 @@ if (isset($_POST['note'])) {
     if (!empty(trim($_POST['note']['emulator']))) {
         $appendNote .= "<br>Emulator: " . $_POST['note']['emulator'];
 
-        if ($_POST['note']['emulator'] == "RetroArch") {
+        if ($_POST['note']['emulator'] == "RetroArch" || $_POST['note']['emulator'] == "RALibRetro") {
             $appendNote .= " (" . $_POST['note']['core'] . ")";
         }
     }
