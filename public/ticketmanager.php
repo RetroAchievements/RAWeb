@@ -64,6 +64,13 @@ if ($ticketID != 0) {
             }
             break;
 
+        case "unable-to-reproduce":
+            if ($permissions >= \RA\Permissions::Developer) {
+                $ticketState = 0;
+                $reason = "Unable to reproduce";
+            }
+            break;
+
         case "closed-other":
             if ($permissions >= \RA\Permissions::Developer) {
                 $ticketState = 0;
@@ -685,6 +692,7 @@ RenderHtmlHead($pageTitle);
                             echo "<option value='network'>Close - Network problems</option>";
                             echo "<option value='not-enough-info'>Close - Not enough information</option>";
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
+                            echo "<option value='unable-to-reproduce'>Close - Unable to reproduce</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     } else { // ticket is not open
