@@ -57,7 +57,7 @@ function isValidConsoleId($consoleId)
         case 46: // Vectrex
         case 47: // PC-8000/8800
             // case 48: // PC-9800
-            // case 49: // PC-FX
+        case 49: // PC-FX
             // case 50: // Atari 5200
         case 51: // Atari 7800
             // case 52: // X68K
