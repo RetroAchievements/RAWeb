@@ -182,53 +182,64 @@ function RenderToolbar($user, $permissions = 0)
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
     echo "<li><a href='#'>Games</a>";
+    echo "<div>";
+
     echo "<ul>";
-    //// Sorted Lists
-    echo "<li><a href='/gameList.php'>All Games</a></li>";
-    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
-    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
-    echo "<li class='divider'></li>";
+    ///Nintendo
+    echo "<li class='dropdown-header'>Nintendo</li>";
+    echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
+    echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
+    echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
+    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
+    echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
+    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
+    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
+    ///Sony
+    echo "<li class='dropdown-header'>Sony</li>";
+    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
     ///Atari
+    echo "<li class='dropdown-header'>Atari</li>";
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
     echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
-    ///Coleco
-    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
-    ///Nintendo
-    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
-    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
-    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
+    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
+    echo "</ul>";
+
+    echo "<ul>";
     ///Sega
+    echo "<li class='dropdown-header'>Sega</li>";
     echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
     echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
+    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
     echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
-    ///NEC
+    /// NEC
+    echo "<li class='dropdown-header'>NEC</li>";
     echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
-    ///Sony
-    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
-    /// Arcade
-    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
-    /// Computers
-    echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
     echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
-    /// Handhelds
-    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
-    echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
-    echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
-    echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
-    echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
-    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
-    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
+    /// Other
+    echo "<li class='dropdown-header'>Other</li>";
+    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
+    echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
+    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+    echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
+    echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
+    echo "</ul>";
+
+    echo "<ul>";
+    echo "<li><a href='/gameList.php'>All Games</a></li>";
+    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
     echo "</li>";
 
     echo "<li><a href='#'>Achievements</a>";
+    echo "<div>";
     echo "<ul>";
     echo "<li><a href='/achievementList.php'>All Achievements</a></li>";
     echo "<li class='divider'></li>";
@@ -236,9 +247,11 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
     echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
     echo "</ul>";
+    echo "</div>";
     echo "</li>";
 
     echo "<li><a href='#'>Community</a>";
+    echo "<div>";
     echo "<ul>";
     echo "<li><a href='/forum.php'>Forums</a></li>";
     echo "<li><a href='/forum.php?c=1'>- Community</a></li>";
@@ -259,6 +272,8 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
     echo "</ul>";
+    echo "</div>";
+
     echo "</li>";
 
     echo "<li><a href='/download.php'>Download</a></li>";
@@ -266,6 +281,7 @@ function RenderToolbar($user, $permissions = 0)
 
     if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
+        echo "<div>";
         echo "<ul>";
         echo "<li><a href='/User/$user'>Profile</a></li>";
         //echo "<li><a href='/feed.php?i=1'>Feed</a></li>";
@@ -281,6 +297,7 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li class='divider'></li>";
         echo "<li><a href='/request/auth/logout.php'>Log Out</a></li>";
         echo "</ul>";
+        echo "</div>";
         echo "</li>";
     } else {
         echo "<li><a href='/createaccount.php'>Create Account</a></li>";
@@ -288,6 +305,7 @@ function RenderToolbar($user, $permissions = 0)
 
     if ($permissions >= Permissions::SuperUser) {
         echo "<li><a href='#'>Manage</a>";
+        echo "<div>";
         echo "<ul>";
         // SU
         echo "<li><a href='/submitnews.php'>News Articles</a></li>";
@@ -307,6 +325,7 @@ function RenderToolbar($user, $permissions = 0)
             echo "<li><a href='/admin.php'>Admin Tools</a></li>";
         }
         echo "</ul>";
+        echo "</div>";
         echo "</li>";
     }
 
