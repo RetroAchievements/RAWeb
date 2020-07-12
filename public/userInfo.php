@@ -364,8 +364,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
             }
 
-            if (isset($user) && $permissions >= Permissions::Root) {
-                //  Me only
+            if (isset($user) && $permissions >= Permissions::Admin) {
                 echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='2' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
@@ -373,9 +372,7 @@ RenderHtmlStart(true);
                 echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Patreon Supporter' /><br><br>";
                 echo "<div style='clear:all;'></div>";
                 echo "</form>";
-            }
 
-            if (isset($user) && $permissions >= Permissions::Admin) {
                 echo "<form method='post' action='/request/user/recalculate-score.php' enctype='multipart/form-data'>";
                 echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Recalc Score Now' /><br><br>";

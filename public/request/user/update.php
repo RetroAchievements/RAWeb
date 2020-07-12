@@ -11,50 +11,50 @@ if (ValidatePOSTorGETChars("tpv")) {
     return;
 }
 
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
+    echo "FAILED!";
+    return;
+}
+
 settype($propertyType, 'integer');
 settype($value, 'integer');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
-    if ($propertyType == 0) { //	account permissions
-        $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
-
-        if ($response['Success']) {
-            // error_log("$user updated $targetUser to $value OK!!");
-            header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
-        } else {
-            //log_email("requestupdateuser failed: " . $response['Error']);
-            // error_log("requestupdateuser.php failed?! 0" . $response['Error']);
-            echo "Failed: " . $response['Error'];
-        }
+// Account permissions
+if ($propertyType == 0) {
+    $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
+    if ($response['Success']) {
+        // error_log("$user updated $targetUser to $value OK!!");
+        header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
     } else {
-        if ($propertyType == 1) { //	forum post permissions
-            if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
-                // error_log("$user updated $targetUser to $value OK!!");
-                header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
-            } else {
-                //log_email("requestupdateuser.php failed?! 1");
-                // error_log("requestupdateuser.php failed?! 1");
-                echo "FAILED!";
-            }
-        } else {
-            if ($propertyType == 2) {   //  Toggle Patreon badge
-                $hasBadge = HasPatreonBadge($targetUser);
-                SetPatreonSupporter($targetUser, !$hasBadge);
-
-                $hasBadge = !$hasBadge;
-                // error_log("$user updated $targetUser to Patreon Status $hasBadge OK!!");
-                header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
-            } else {
-                if ($propertyType == 3) {   //  Toggle 'Untracked' status
-                    SetUserTrackedStatus($targetUser, $value);
-                    // error_log("SetUserTrackedStatus, $targetUser => $value");
-                    header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
-                }
-            }
-        }
+        // error_log("requestupdateuser.php failed?! 0" . $response['Error']);
+        echo "Failed: " . $response['Error'];
     }
-} else {
-    //log_email("requestupdateuser.php failed?! 2");
-    // error_log("requestupdateuser.php failed?! 2");
-    echo "FAILED!";
+    return;
+}
+
+// Forum post permissions
+if ($propertyType == 1) {
+    if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
+        // error_log("$user updated $targetUser to $value OK!!");
+        header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
+    } else {
+        // error_log("requestupdateuser.php failed?! 1");
+        echo "FAILED!";
+    }
+    return;
+}
+
+// Toggle Patreon badge
+if ($propertyType == 2) {
+    $hasBadge = HasPatreonBadge($targetUser);
+    SetPatreonSupporter($targetUser, !$hasBadge);
+    // error_log("$user updated $targetUser to Patreon Status $hasBadge OK!!");
+    header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
+}
+
+// Toggle 'Untracked' status
+if ($propertyType == 3) {
+    SetUserTrackedStatus($targetUser, $value);
+    // error_log("SetUserTrackedStatus, $targetUser => $value");
+    header("Location: " . getenv('APP_URL') . "/User/$targetUser?e=OK");
 }
