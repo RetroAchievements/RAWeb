@@ -288,7 +288,7 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
               WHERE ArticleID = $articleID AND ID = $commentID";
 
     // if not UserWall's owner nor admin, check if it's the author
-    if ($articleId != $userId && $permissions < \RA\Permissions::Admin) {
+    if ($articleID != $userID && $permissions < \RA\Permissions::Admin) {
         $query .= " AND UserID = $userID";
     }
 
@@ -531,7 +531,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
         SELECT act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2
         FROM Activity AS act
         LEFT JOIN UserAccounts AS ua ON ua.User = act.User
-        WHERE ( !ua.Untracked || ua.User=\"$user\" ) AND $subquery
+        WHERE ( !ua.Untracked || ua.User='$user' ) AND $subquery
         ORDER BY act.ID DESC
         LIMIT $offset, $maxMessages
     ) AS InnerTable
