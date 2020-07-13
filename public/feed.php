@@ -14,6 +14,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 //    Max: last 50 messages:
 $maxMessages = 50;
+$numFeedItems = 0;
 
 $feedData = [];
 $numFeedItems = 0;
@@ -31,7 +32,7 @@ if ($activityID !== null) {
 //var_dump( $feedData );
 
 //    This page is unusual, in that the later items should appear at the top
-$feedData = array_reverse($feedData);
+// $feedData = array_reverse($feedData);
 
 if (isset($activityID)) {
     $pageTitle = "Activity";
