@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$baseUri = '/ticketmanager.php?';
+$baseUrl = getenv('APP_URL') . '/ticketmanager.php';
 $defaultTicketFilter = 2041; //2041 sets all filters active except for Closed and Resolved
 $count = 10;
 $offset = 0;
@@ -26,7 +26,7 @@ if ($ticketID > 0) {
     $ticketData['ReportStateDescription'] = $reportStates[$ticketData['ReportState']];
     $ticketData['ReportTypeDescription'] = $reportTypes[$ticketData['ReportType']];
 
-    $ticketData['URI'] = $baseUri . "i=$ticketID";
+    $ticketData['URL'] = $baseUrl . "?i=$ticketID";
     echo json_encode($ticketData);
     return;
 }
@@ -40,7 +40,7 @@ settype($gamesTableFlag, 'integer');
 // get the most reported games...
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
-    $ticketData['URI'] = $baseUri . "f=$gamesTableFlag";
+    $ticketData['URL'] = $baseUrl . "?f=$gamesTableFlag";
     echo json_encode($ticketData);
     return;
 }
@@ -75,7 +75,7 @@ if (isValidUsername($assignedToUser)) {
             $prevID = $ticket['AchievementID'];
         }
     }
-    $ticketData['URI'] = $baseUri . "u=$assignedToUser";
+    $ticketData['URL'] = $baseUrl . "?u=$assignedToUser";
     echo json_encode($ticketData);
     return;
 }
@@ -95,7 +95,7 @@ if ($gameIDGiven > 0) {
             $assignedToUser,
             $gameIDGiven
         );
-        $ticketData['URI'] = $baseUri . "g=$gameIDGiven";
+        $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
 
         echo json_encode($ticketData);
         return;
@@ -118,14 +118,14 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementID'] = $achievementIDGiven;
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
-    $ticketData['URI'] = $baseUri . "a=$achievementIDGiven";
+    $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
     echo json_encode($ticketData);
     return;
 }
 
 // getting the 10 most recent tickets
-$ticketData['RecentTickets'] = getAllTickets($offset, $count, $assignedToUser, $gameIDGiven, $achievementIDGiven,
-    $defaultTicketFilter);
-$ticketData['URI'] = $baseUri;
+$ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, $defaultTicketFilter);
+$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null);
+$ticketData['URL'] = $baseUrl;
 echo json_encode($ticketData);
