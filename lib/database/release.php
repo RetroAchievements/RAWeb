@@ -3,7 +3,11 @@
 use RA\Emulators;
 
 /**
- * Reference https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
+ * References:
+ * https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
+ * https://github.com/RetroAchievements/rcheevos/blob/develop/include/rconsoles.h
+ * https://github.com/RetroAchievements/rcheevos/blob/develop/src/rcheevos/consoleinfo.c
+ * https://github.com/RetroAchievements/rcheevos/blob/develop/test/rcheevos/test_consoleinfo.c
  *
  * @param int $consoleId
  * @return bool
@@ -78,41 +82,6 @@ function isValidConsoleId($consoleId)
             return true;
     }
     return false;
-}
-
-/**
- * Clients used to query for the latest build version by console id instead of emulator id.
- * For new emulators/clients it should not be necessary to add them to this mapping.
- * This mapping of console id to emulator id only exists for legacy reasons.
- *
- * @param int $consoleId
- * @return mixed|null
- */
-function getEmulatorIdByConsoleId($consoleId)
-{
-    $consoleMap = [
-        1 => Emulators::RAGens,
-        2 => Emulators::RAP64,
-        3 => Emulators::RASnes9x,
-        4 => Emulators::RAVBA,
-        7 => Emulators::RANes,
-        8 => Emulators::RAPCE,
-        11 => Emulators::RAMeka,
-        25 => Emulators::RALibretro, // Atari 2600 TODO: is this used?
-        38 => Emulators::RAppleWin,
-        47 => Emulators::RAQUASI88,
-    ];
-    return $consoleMap[$consoleId] ?? null;
-}
-
-/**
- * @param int $consoleId
- * @return array|null
- */
-function getEmulatorReleaseByConsoleId($consoleId)
-{
-    $emulatorId = getEmulatorIdByConsoleId($consoleId);
-    return $emulatorId === null ? null : getEmulatorReleaseByIntegrationId($emulatorId);
 }
 
 /**

@@ -178,11 +178,9 @@ if ($credentialsOK) {
             $emulatorId = seekPOSTorGET('e');
             $consoleId = seekPOSTorGET('c');
 
-            /**
-             * Keep backwards compatible behaviour by mapping console ID to emulator/integration ID
-             */
-            if ($consoleId !== null) {
-                $emulatorId = getEmulatorIdByConsoleId($consoleId);
+            if ($emulatorId === null && $consoleId !== null) {
+                DoRequestError("Lookup by Console ID has been deprecated");
+                break;
             }
 
             $emulator = getEmulatorReleaseByIntegrationId($emulatorId);
