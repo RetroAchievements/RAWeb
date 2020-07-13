@@ -61,7 +61,7 @@ function UploadUserPic($user, $filename, $rawImage)
     if ($success) {
         $userPicDestSize = 128;
 
-        $existingUserFile = __DIR__ ."/../../public/UserPic/$user.png";
+        $existingUserFile = __DIR__ . "/../../public/UserPic/$user.png";
 
         //Allow transparent backgrounds for .png and .gif files
         if ($extension == 'png' || $extension == 'gif') {

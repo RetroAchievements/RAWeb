@@ -66,10 +66,6 @@ The environment configuration file (`.env`) contains a sensible set of default v
 
 See the [Contribution Guidelines](CONTRIBUTING.md).
 
-## Code of Conduct
-
-Please review and abide by the [Code of Conduct](https://docs.retroachievements.org/Users-Code-of-Conduct/).
-
 ## License
 
 RAWeb is open-sourced software licensed under the [GPL-3.0 License](LICENSE).

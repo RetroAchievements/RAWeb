@@ -1,7 +1,5 @@
 <?php
 
-use RA\Emulators;
-
 /**
  * References:
  * https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
