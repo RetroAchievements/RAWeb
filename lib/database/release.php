@@ -3,6 +3,8 @@
 use RA\Emulators;
 
 /**
+ * Reference https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
+ *
  * @param int $consoleId
  * @return bool
  */
@@ -31,7 +33,7 @@ function isValidConsoleId($consoleId)
             // case 20: // Wii U
             // case 21: // PlayStation 2
             // case 22: // Xbox
-            // case 23: // Unused
+            // case 23: // Magnavox Odyssey
         case 24: // Pokemon Mini
         case 25: // Atari 2600
             // case 26: // DOS
@@ -64,6 +66,13 @@ function isValidConsoleId($consoleId)
         case 53: // WonderSwan
             // case 54: // Cassette Vision
             // case 55: // Super Cassette Vision
+            // case 56: // Neo Geo CD
+            // case 57: // Fairchild Channel-F
+            // case 58: // FM Towns
+            // case 59: // ZX Spectrum
+            // case 60: // Game & Watch
+            // case 61: // Nokia N-Gage
+            // case 62: // Nintendo 3DS
             // case 100: // Hubs (not an actual console)
         case 101: // Events (not an actual console)
             return true;
@@ -82,61 +91,16 @@ function isValidConsoleId($consoleId)
 function getEmulatorIdByConsoleId($consoleId)
 {
     $consoleMap = [
-        1 => Emulators::RAGens, // Mega Drive/Genesis
-        2 => Emulators::RAP64, // Nintendo 64
-        3 => Emulators::RASnes9x, // SNES
-        4 => Emulators::RAVBA, // Game Boy
-        5 => null, // Game Boy Advance
-        6 => null, // Game Boy Color
-        7 => Emulators::RANes, // NES
-        8 => Emulators::RAPCE, // PC Engine
-        9 => null, // Sega CD
-        10 => null, // Sega 32X
-        11 => Emulators::RAMeka, // Master System
-        12 => null, // PlayStation
-        13 => null, // Atari Lynx
-        14 => null, // Neo Geo Pocket
-        15 => null, // Game Gear
-        16 => null, // GameCube
-        17 => null, // Atari Jaguar
-        18 => null, // Nintendo DS
-        19 => null, // Wii
-        20 => null, // Wii U
-        21 => null, // PlayStation 2
-        22 => null, // Xbox
-        23 => null, // Unused
-        24 => null, // Pokemon Mini
+        1 => Emulators::RAGens,
+        2 => Emulators::RAP64,
+        3 => Emulators::RASnes9x,
+        4 => Emulators::RAVBA,
+        7 => Emulators::RANes,
+        8 => Emulators::RAPCE,
+        11 => Emulators::RAMeka,
         25 => Emulators::RALibretro, // Atari 2600 TODO: is this used?
-        26 => null, // DOS
-        27 => null, // Arcade
-        28 => null, // Virtual Boy
-        29 => null, // MSX
-        30 => null, // Commodore 64
-        31 => null, // ZX81
-        32 => null, // Oric
-        33 => null, // SG-1000
-        34 => null, // VIC-20
-        35 => null, // Amiga
-        36 => null, // Atari ST
-        37 => null, // Amstrad CPC
-        38 => Emulators::RAppleWin, // Apple II
-        39 => null, // Sega Saturn
-        40 => null, // Dreamcast
-        41 => null, // PlayStation Portable
-        42 => null, // Philips CD-i
-        43 => null, // 3DO Interactive Multiplayer
-        44 => null, // ColecoVision
-        45 => null, // Intellivision
-        46 => null, // Vectrex
-        47 => Emulators::RAQUASI88, // PC-8000/8800
-        48 => null, // PC-9800
-        49 => null, // PC-FX
-        50 => null, // Atari 5200
-        51 => null, // Atari 7800
-        52 => null, // X68K
-        53 => null, // WonderSwan
-        54 => null, // Cassette Vision
-        55 => null, // Super Cassette Vision
+        38 => Emulators::RAppleWin,
+        47 => Emulators::RAQUASI88,
     ];
     return $consoleMap[$consoleId] ?? null;
 }
