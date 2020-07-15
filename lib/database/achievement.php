@@ -486,7 +486,10 @@ function addEarnedAchievement(
     $isHardcore = 0,
     $silent = false
 ) {
-    $user = correctUserCase($userIn);
+    $user = validateUsername($userIn);
+    if (!$user) {
+        return false;
+    }
 
     //    Sanitise!
     settype($achIDToAward, "integer");

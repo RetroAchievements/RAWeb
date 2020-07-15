@@ -65,7 +65,10 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
 {
     global $db;
 
-    $user = correctUserCase($userIn);
+    $user = validateUsername($userIn);
+    if (!$user) {
+        return false;
+    }
 
     userActivityPing($user);
 
