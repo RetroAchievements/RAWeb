@@ -640,7 +640,7 @@ function getUserForumPostAuth($user)
     }
 }
 
-function correctUserCase($userIn)
+function validateUsername($userIn)
 {
     $query = "SELECT uc.User FROM UserAccounts AS uc WHERE uc.User LIKE '$userIn'";
     $dbResult = s_mysql_query($query);
@@ -651,7 +651,7 @@ function correctUserCase($userIn)
     } else {
         log_sql_fail();
         // error_log(__FUNCTION__ . " issues! $userIn");
-        return $userIn;
+        return null;
     }
 }
 
