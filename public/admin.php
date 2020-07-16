@@ -296,18 +296,21 @@ switch ($action) {
         $awardAchHardcore = seekPOST('h', 0);
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
-            $ids = explode(',', $awardAchievementID);
-            foreach ($ids as $nextID) {
-                $message .= "'$awardAchievementUser': ";
-                $awardResponse = addEarnedAchievementJSON($awardAchievementUser, $nextID, $awardAchHardcore);
-                if (empty($awardResponse) || !$awardResponse['Success']) {
-                    $message .= array_key_exists('Error', $awardResponse)
-                        ? $awardResponse['Error']
-                        : "Failed to award achievement $nextID!";
-                } else {
-                    $message .= "Awarded achievement $nextID -  Updated score to " . GetScore($awardAchievementUser);
+            $usersToAward = preg_split('/\W+/', $awardAchievementUser);
+            foreach ($usersToAward as $nextUser) {
+                $ids = explode(',', $awardAchievementID);
+                foreach ($ids as $nextID) {
+                    $message .= "'$nextUser': ";
+                    $awardResponse = addEarnedAchievementJSON($nextUser, $nextID, $awardAchHardcore);
+                    if (empty($awardResponse) || !$awardResponse['Success']) {
+                        $message .= array_key_exists('Error', $awardResponse)
+                            ? $awardResponse['Error']
+                            : "Failed to award achievement $nextID!";
+                    } else {
+                        $message .= "Awarded achievement $nextID -  Updated score to " . GetScore($nextUser);
+                    }
+                    $message .= "<br>";
                 }
-                $message .= "<br>";
             }
         }
         break;
