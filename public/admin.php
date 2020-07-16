@@ -298,17 +298,16 @@ switch ($action) {
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $ids = explode(',', $awardAchievementID);
             foreach ($ids as $nextID) {
-                if (addEarnedAchievement(
-                    $awardAchievementUser,
-                    '',
-                    $nextID,
-                    0,
-                    $newPointTotal,
-                    $awardAchHardcore,
-                    true
-                )) {
-                    $message .= "Awarded achievement $nextID to $awardAchievementUser -  Updated score to $newPointTotal!<br>";
+                $message .= "'$awardAchievementUser': ";
+                $awardResponse = addEarnedAchievementJSON($awardAchievementUser, $nextID, $awardAchHardcore);
+                if (empty($awardResponse) || !$awardResponse['Success']) {
+                    $message .= array_key_exists('Error', $awardResponse)
+                        ? $awardResponse['Error']
+                        : "Failed to award achievement $nextID!";
+                } else {
+                    $message .= "Awarded achievement $nextID -  Updated score to " . GetScore($awardAchievementUser);
                 }
+                $message .= "<br>";
             }
         }
         break;
@@ -551,10 +550,10 @@ RenderHtmlHead('Admin Tools');
             <div id="aotw_entries"></div>
 
             <script>
-              jQuery('#event_aotw_start_at').datetimepicker({
-                format: 'Y-m-d H:i:s',
-                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-              });
+                jQuery('#event_aotw_start_at').datetimepicker({
+                    format: 'Y-m-d H:i:s',
+                    mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+                });
             </script>
         </div>
     <?php endif ?>
