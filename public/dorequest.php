@@ -290,13 +290,12 @@ if ($credentialsOK) {
         //     break;
 
         case "awardachievement":
-            $validation = seekPOSTorGET('v');
             $achIDToAward = seekPOSTorGET('a', 0, 'integer');
             $hardcore = seekPOSTorGET('h', 0, 'integer');
             /**
              * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
              */
-            $response = array_merge($response, AddEarnedAchievementJSON($user, $achIDToAward, $hardcore, $validation));
+            $response = array_merge($response, addEarnedAchievementJSON($user, $achIDToAward, $hardcore));
             $response['Score'] = GetScore($user);
             $response['AchievementID'] = $achIDToAward;
             break;

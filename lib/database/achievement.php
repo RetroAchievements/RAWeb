@@ -263,21 +263,6 @@ function getAchievementBadgeFilename($id)
     return $data['BadgeName'];
 }
 
-function ValidationPass($key, $user, $achID)
-{
-    // $userToken = getUserAppToken( $user );
-    // $testValidInput = sprintf( "%d,%d-%s.%s-%d132%s2A%slLIA", $achIDToAward, (strlen($user)*3)+1, $user, $userToken, $achIDToAward, $user, "WOAHi2" );
-    // $validationTestMd5 = md5( $testValidInput );
-    //if( $validationTestMd5 !== $validation )
-    //{
-    //    echo "FAILED: Achievement doesn't exist? (validation $validationTestMd5 !== $validation from $testValidInput )";
-    //    error_log( __FUNCTION__ . " validation failed: $achIDToAward, $user, $achIDToAward, $fbUser, $userToken, >>$testValidInput<< -> $validationTestMd5 !== $validation " );
-    //    return FALSE;
-    //}{
-
-    return true; //    TBD
-}
-
 function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 {
     //error_log( "InsertAwardedAchievementDB, $user, $achIDToAward, $isHardcore" );
@@ -353,7 +338,7 @@ function CrossPostToSocial($userData, $activityType, $data)
     }
 }
 
-function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validationKey)
+function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
 {
     //error_log( "AddEarnedAchievementJSON, $user, $achIDToAward, $isHardcore, $validationKey" );
 
@@ -362,11 +347,6 @@ function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validation
 
     $retVal = [];
     $retVal['Success'] = false;
-
-    if (!ValidationPass($validationKey, $user, $achIDToAward)) {
-        $retVal['Error'] = "Validation failed!";
-        return $retVal;
-    }
 
     if ($achIDToAward <= 0) {
         $retVal['Error'] = "Achievement ID <= 0! Cannot award.";
