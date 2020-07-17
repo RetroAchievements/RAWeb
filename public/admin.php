@@ -298,11 +298,16 @@ switch ($action) {
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $usersToAward = preg_split('/\W+/', $awardAchievementUser);
             foreach ($usersToAward as $nextUser) {
-                $message .= "<strong>$nextUser</strong>:<br>";
+                $validUser = validateUsername($nextUser);
+                if (!$validUser) {
+                    $message .= "<strong>$nextUser</strong>: user not found!<br>";
+                    continue;
+                }
+                $message .= "<strong>$validUser</strong>:<br>";
                 $ids = explode(',', $awardAchievementID);
                 foreach ($ids as $nextID) {
                     $message .= "- $nextID: ";
-                    $awardResponse = addEarnedAchievementJSON($nextUser, $nextID, $awardAchHardcore);
+                    $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
                     if (empty($awardResponse) || !$awardResponse['Success']) {
                         $message .= array_key_exists('Error', $awardResponse)
                             ? $awardResponse['Error']
@@ -312,8 +317,8 @@ switch ($action) {
                     }
                     $message .= "<br>";
                 }
-                recalcScore($nextUser);
-                $message .= "- Recalculated Score: " . GetScore($nextUser) . "<br>";
+                recalcScore($validUser);
+                $message .= "- Recalculated Score: " . GetScore($validUser) . "<br>";
             }
         }
         break;
