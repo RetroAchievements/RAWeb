@@ -298,19 +298,22 @@ switch ($action) {
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $usersToAward = preg_split('/\W+/', $awardAchievementUser);
             foreach ($usersToAward as $nextUser) {
+                $message .= "<strong>$nextUser</strong>:<br>";
                 $ids = explode(',', $awardAchievementID);
                 foreach ($ids as $nextID) {
-                    $message .= "'$nextUser': ";
+                    $message .= "- $nextID: ";
                     $awardResponse = addEarnedAchievementJSON($nextUser, $nextID, $awardAchHardcore);
                     if (empty($awardResponse) || !$awardResponse['Success']) {
                         $message .= array_key_exists('Error', $awardResponse)
                             ? $awardResponse['Error']
-                            : "Failed to award achievement $nextID!";
+                            : "Failed to award achievement!";
                     } else {
-                        $message .= "Awarded achievement $nextID -  Updated score to " . GetScore($nextUser);
+                        $message .= "Awarded achievement";
                     }
                     $message .= "<br>";
                 }
+                recalcScore($nextUser);
+                $message .= "- Recalculated Score: " . GetScore($nextUser) . "<br>";
             }
         }
         break;
