@@ -296,19 +296,29 @@ switch ($action) {
         $awardAchHardcore = seekPOST('h', 0);
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
-            $ids = explode(',', $awardAchievementID);
-            foreach ($ids as $nextID) {
-                if (addEarnedAchievement(
-                    $awardAchievementUser,
-                    '',
-                    $nextID,
-                    0,
-                    $newPointTotal,
-                    $awardAchHardcore,
-                    true
-                )) {
-                    $message .= "Awarded achievement $nextID to $awardAchievementUser -  Updated score to $newPointTotal!<br>";
+            $usersToAward = preg_split('/\W+/', $awardAchievementUser);
+            foreach ($usersToAward as $nextUser) {
+                $validUser = validateUsername($nextUser);
+                if (!$validUser) {
+                    $message .= "<strong>$nextUser</strong>: user not found!<br>";
+                    continue;
                 }
+                $message .= "<strong>$validUser</strong>:<br>";
+                $ids = explode(',', $awardAchievementID);
+                foreach ($ids as $nextID) {
+                    $message .= "- $nextID: ";
+                    $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
+                    if (empty($awardResponse) || !$awardResponse['Success']) {
+                        $message .= array_key_exists('Error', $awardResponse)
+                            ? $awardResponse['Error']
+                            : "Failed to award achievement!";
+                    } else {
+                        $message .= "Awarded achievement";
+                    }
+                    $message .= "<br>";
+                }
+                recalcScore($validUser);
+                $message .= "- Recalculated Score: " . GetScore($validUser) . "<br>";
             }
         }
         break;
@@ -551,10 +561,10 @@ RenderHtmlHead('Admin Tools');
             <div id="aotw_entries"></div>
 
             <script>
-              jQuery('#event_aotw_start_at').datetimepicker({
-                format: 'Y-m-d H:i:s',
-                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-              });
+                jQuery('#event_aotw_start_at').datetimepicker({
+                    format: 'Y-m-d H:i:s',
+                    mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+                });
             </script>
         </div>
     <?php endif ?>

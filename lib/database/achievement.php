@@ -263,21 +263,6 @@ function getAchievementBadgeFilename($id)
     return $data['BadgeName'];
 }
 
-function ValidationPass($key, $user, $achID)
-{
-    // $userToken = getUserAppToken( $user );
-    // $testValidInput = sprintf( "%d,%d-%s.%s-%d132%s2A%slLIA", $achIDToAward, (strlen($user)*3)+1, $user, $userToken, $achIDToAward, $user, "WOAHi2" );
-    // $validationTestMd5 = md5( $testValidInput );
-    //if( $validationTestMd5 !== $validation )
-    //{
-    //    echo "FAILED: Achievement doesn't exist? (validation $validationTestMd5 !== $validation from $testValidInput )";
-    //    error_log( __FUNCTION__ . " validation failed: $achIDToAward, $user, $achIDToAward, $fbUser, $userToken, >>$testValidInput<< -> $validationTestMd5 !== $validation " );
-    //    return FALSE;
-    //}{
-
-    return true; //    TBD
-}
-
 function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 {
     //error_log( "InsertAwardedAchievementDB, $user, $achIDToAward, $isHardcore" );
@@ -353,343 +338,130 @@ function CrossPostToSocial($userData, $activityType, $data)
     }
 }
 
-function AddEarnedAchievementJSON($user, $achIDToAward, $isHardcore, $validationKey)
+function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
 {
-    //error_log( "AddEarnedAchievementJSON, $user, $achIDToAward, $isHardcore, $validationKey" );
-
     settype($achIDToAward, 'integer');
     settype($isHardcore, 'integer');
 
     $retVal = [];
-    $retVal['Success'] = true;
+    $retVal['Success'] = false;
 
-    if (!ValidationPass($validationKey, $user, $achIDToAward)) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "Validation failed!";
-    } elseif ($achIDToAward == 0) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "Achievement ID is 0! Cannot award.";
-    } elseif (!isset($user) || mb_strlen($user) < 2) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "User is '$user', cannot award achievement.";
-    } else {
-        $achData = GetAchievementMetadataJSON($achIDToAward);
-        $userData = GetUserData($user);
-
-        if ($achData == null) {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Achievement data cannot be found for $achIDToAward";
-        } elseif ($userData == null) {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "User data cannot be found for $user";
-        } elseif ($achData['Flags'] == 5) { // do not award Unofficial achievements
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Unofficial achievements aren't registered on the RetroAchievements.org database";
-        } else {
-            $hasAwardTypes = HasAward($user, $achIDToAward);
-            $hasRegular = $hasAwardTypes['HasRegular'];
-            $hasHardcore = $hasAwardTypes['HasHardcore'];
-
-            if (($isHardcore && $hasHardcore) || (!$isHardcore && $hasRegular)) {
-                $retVal['Success'] = false;
-                if ($isHardcore) {
-                    $retVal['Error'] = "User already has hardcore and regular achievements awarded.";
-                } else {
-                    $retVal['Error'] = "User already has this achievement awarded.";
-                }
-            } else {
-                //error_log( "AddEarnedAchievementJSON, Ready to add" );
-
-                $awardedOK = InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore);
-                if ($awardedOK && $isHardcore) {
-                    $awardedOK |= InsertAwardedAchievementDB($user, $achIDToAward, false);
-                }
-
-                if ($awardedOK == false) {
-                    $retVal['Success'] = false;
-                    $retVal['Error'] = "Issues allocating awards for user?";
-                } else {
-                    $pointsToGive = $achData['Points'];
-                    settype($pointsToGive, 'integer'); //    Safety
-
-                    if ($isHardcore && !$hasRegular) {
-                        //    Double points (award base as well!)
-                        $pointsToGive *= 2;
-                    }
-
-                    $query = "UPDATE UserAccounts SET RAPoints=RAPoints+$pointsToGive, Updated=NOW() WHERE User='$user'";
-                    //error_log( $query );
-                    $dbResult = s_mysql_query($query);
-                    if ($dbResult == false) {
-                        //    Could not add points?!
-                        $retVal['Success'] = false;
-                        $retVal['Error'] = "Could not add points for this user?";
-                        error_log(__FUNCTION__ . " failed: cannot add new achievement to DB! $user, $achIDToAward");
-                    } else {
-                        //    Achievements all awarded. Now housekeeping (no error handling?)
-
-                        static_setlastearnedachievement($achIDToAward, $user, $achData['Points']);
-
-                        if ($user != $achData['Author']) {
-                            attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
-                        }
-
-                        //    Update GameData
-                        //    Removed: this needs rethinking! //##SD TBD
-                        //recalculateTrueRatio( $gameID );    //    Heavy!
-                        //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
-                        //    Select the NEW TA from this achievement, as it has just been recalc'd
-                        $query = "SELECT TrueRatio
-                                  FROM Achievements
-                                  WHERE ID='$achIDToAward'";
-                        $dbResult = s_mysql_query($query);
-                        SQL_ASSERT($dbResult);
-
-                        $data = mysqli_fetch_assoc($dbResult);
-                        $newTA = $data['TrueRatio'];
-                        settype($newTA, 'integer');
-
-                        //    Pack back into $achData
-                        $achData['TrueRatio'] = $newTA;
-
-                        $query = "UPDATE UserAccounts
-                                  SET TrueRAPoints=TrueRAPoints+$newTA
-                                  WHERE User='$user'";
-                        $dbResult = s_mysql_query($query);
-                        SQL_ASSERT($dbResult);
-
-                        postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
-
-                        testFullyCompletedGame($user, $achIDToAward, $isHardcore);
-
-                        $socialData = [];
-                        $socialData['User'] = $user;
-                        $socialData['Points'] = $userData['RAPoints'] + $pointsToGive;
-                        $socialData['AchievementData'] = $achData; //Passthru
-                        $socialData['Hardcore'] = $isHardcore;
-                        CrossPostToSocial($userData, ActivityType::EarnedAchivement, $socialData);
-                    }
-                }
-            }
-        }
+    if ($achIDToAward <= 0) {
+        $retVal['Error'] = "Achievement ID <= 0! Cannot award.";
+        return $retVal;
     }
+
+    if (!isValidUsername($user)) {
+        $retVal['Error'] = "User is '$user', cannot award achievement.";
+        return $retVal;
+    }
+
+    $userData = GetUserData($user);
+    if (!$userData) {
+        $retVal['Error'] = "User data cannot be found for $user";
+        return $retVal;
+    }
+
+    $achData = GetAchievementMetadataJSON($achIDToAward);
+    if (!$achData) {
+        $retVal['Error'] = "Achievement data cannot be found for $achIDToAward";
+        return $retVal;
+    }
+
+    if ($achData['Flags'] == 5) { // do not award Unofficial achievements
+        $retVal['Error'] = "Unofficial achievements are not awarded";
+        return $retVal;
+    }
+
+    $hasAwardTypes = HasAward($user, $achIDToAward);
+    $hasRegular = $hasAwardTypes['HasRegular'];
+    $hasHardcore = $hasAwardTypes['HasHardcore'];
+
+    if (($isHardcore && $hasHardcore) || (!$isHardcore && $hasRegular)) {
+        if ($isHardcore) {
+            // XXX: do not change the messages here, as it can interfere with RetroArch's behavior.
+            // https://github.com/libretro/RetroArch/blob/343a04e2b8e1a334dda3ad947c284bde9d9d2894/cheevos/cheevos.c#L524
+            $retVal['Error'] = "User already has hardcore and regular achievements awarded.";
+        } else {
+            $retVal['Error'] = "User already has this achievement awarded.";
+        }
+        return $retVal;
+    }
+
+    //error_log( "AddEarnedAchievementJSON, Ready to add" );
+
+    $awardedOK = InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore);
+    if ($awardedOK && $isHardcore) {
+        $awardedOK |= InsertAwardedAchievementDB($user, $achIDToAward, false);
+    }
+
+    if ($awardedOK == false) {
+        $retVal['Error'] = "Issues allocating awards for user?";
+        return $retVal;
+    }
+
+    $pointsToGive = $achData['Points'];
+    settype($pointsToGive, 'integer');
+
+    if ($isHardcore && !$hasRegular) {
+        //    Double points (award base as well!)
+        $pointsToGive *= 2;
+    }
+
+    $query = "UPDATE UserAccounts SET RAPoints=RAPoints+$pointsToGive, Updated=NOW() WHERE User='$user'";
+    //error_log( $query );
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        $retVal['Error'] = "Could not add points for this user?";
+        error_log(__FUNCTION__ . " failed: cannot add new achievement to DB! $user, $achIDToAward");
+        return $retVal;
+    }
+
+    $retVal['Success'] = true;
+    //    Achievements all awarded. Now housekeeping (no error handling?)
+
+    static_setlastearnedachievement($achIDToAward, $user, $achData['Points']);
+
+    if ($user != $achData['Author']) {
+        attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
+    }
+
+    //    Update GameData
+    //    Removed: this needs rethinking! //##SD TBD
+    //recalculateTrueRatio( $gameID );    //    Heavy!
+    //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
+    //    Select the NEW TA from this achievement, as it has just been recalc'd
+    $query = "SELECT TrueRatio
+              FROM Achievements
+              WHERE ID='$achIDToAward'";
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    $data = mysqli_fetch_assoc($dbResult);
+    $newTA = $data['TrueRatio'];
+    settype($newTA, 'integer');
+
+    //    Pack back into $achData
+    $achData['TrueRatio'] = $newTA;
+
+    $query = "UPDATE UserAccounts
+              SET TrueRAPoints=TrueRAPoints+$newTA
+              WHERE User='$user'";
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
+
+    testFullyCompletedGame($user, $achIDToAward, $isHardcore);
+
+    $socialData = [];
+    $socialData['User'] = $user;
+    $socialData['Points'] = $userData['RAPoints'] + $pointsToGive;
+    $socialData['AchievementData'] = $achData; //Passthru
+    $socialData['Hardcore'] = $isHardcore;
+    CrossPostToSocial($userData, ActivityType::EarnedAchivement, $socialData);
 
     return $retVal;
-}
-
-function addEarnedAchievement(
-    $userIn,
-    $validation,
-    $achIDToAward,
-    $fbUser,
-    &$newPointTotal,
-    $isHardcore = 0,
-    $silent = false
-) {
-    $user = validateUsername($userIn);
-    if (!$user) {
-        return false;
-    }
-
-    //    Sanitise!
-    settype($achIDToAward, "integer");
-    if ($achIDToAward == 0) {
-        echo "FAILED: Achievement doesn't exist?";
-        error_log(__FUNCTION__ . " failed: ID 0 requested! user:$user, validation:$validation, achIDToAward:$achIDToAward, fbUser:$fbUser");
-        return false;
-    }
-
-    //    Validate a given hash for uploading an achievement:
-    //    validation is md5 of
-    //     "%d,%d-%s.%s-%d132%s2A%slLIA", nID, (strlen(sUser)*3)+1, sUser, sToken, nID, sUser, "WOAHi2"
-    //$userToken = getUserAppToken( $user );
-    //$testValidInput = sprintf( "%d,%d-%s.%s-%d132%s2A%slLIA", $achIDToAward, (strlen($user)*3)+1, $user, $userToken, $achIDToAward, $user, "WOAHi2" );
-    //$validationTestMd5 = md5( $testValidInput );
-    //if( $validationTestMd5 !== $validation )
-    //{
-    //    echo "FAILED: Achievement doesn't exist? (validation $validationTestMd5 !== $validation from $testValidInput )";
-    //    error_log( __FUNCTION__ . " validation failed: $achIDToAward, $user, $achIDToAward, $fbUser, $userToken, >>$testValidInput<< -> $validationTestMd5 !== $validation " );
-    //    return FALSE;
-    //}
-
-    $returnVal = false;
-
-    //    Fetch achievement details:
-    $query = "SELECT Points, Author, GameID, TrueRatio
-              FROM Achievements
-              WHERE ID=$achIDToAward";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
-        echo "FAILED: Achievement doesn't exist?";
-        error_log(__FUNCTION__ . " failed: Achievement $achIDToAward doesn't exist! $user, $achIDToAward, $fbUser");
-    } else {
-        $db_entry = mysqli_fetch_assoc($dbResult);
-        if ($db_entry == false) {
-            // error_log(__FUNCTION__ . " failed: Could not read result from DB! $user, $achIDToAward, $fbUser");
-            echo "FAILED: Could not read result from DB?";
-        } else {
-            //    Add new achievement to Awarded:
-            $gameID = $db_entry['GameID'];
-            $achTrueRatio = $db_entry['TrueRatio'];
-
-            $query = "INSERT INTO Awarded VALUES ( '$user', $achIDToAward, NOW(), $isHardcore ) ON DUPLICATE KEY UPDATE Date = NOW()";
-            // log_sql($query);
-            if (s_mysql_query($query) == false) {
-                if ($silent == false) {
-                    //    Note: this should still just work, now we have "ON DUPLICATE KEY UPDATE"
-                    log_sql_fail();
-                    echo "FAILED: cannot add new achievement to DB! (already added?)";
-                    error_log(__FUNCTION__ . " failed: cannot add new achievement to DB! (already added?)! $user, $achIDToAward, $fbUser, $isHardcore");
-                } else {
-                    //error_log( __FUNCTION__ . " attempted to add achievement but couldn't: error silently: $user, $achIDToAward, $fbUser, $isHardcore. Nb. Could be attempting to add non-HC where it already exists. This may be OK" );
-                }
-            } else {
-                $points = $db_entry['Points'];
-                $author = $db_entry['Author'];
-
-                settype($points, "integer");
-
-                static_setlastearnedachievement($achIDToAward, $user, $points);
-
-                //    Update my score total:
-                //$query = "UPDATE UserAccounts SET RAPoints=RAPoints+$points, Updated=NOW() WHERE User='$user'";
-
-                $userPoints = 0;
-                $userTA = 0;
-                $query = "SELECT RAPoints, TrueRAPoints From UserAccounts WHERE User='$user'";
-                $dbResult = s_mysql_query($query);
-
-                if ($dbResult !== false) {
-                    $db_entry = mysqli_fetch_assoc($dbResult);
-                    $userPoints = $db_entry['RAPoints'];
-                    settype($userPoints, 'integer');
-                    $userTA = $db_entry['TrueRAPoints'];
-                    settype($userTA, 'integer');
-                }
-
-                if ($userIn != $author) {
-                    attributeDevelopmentAuthor($author, $points);
-                }
-
-                //    Fetch the new point total to send back
-                $newPointTotal = ($userPoints + $points);
-
-                $query = "UPDATE UserAccounts SET RAPoints=$newPointTotal, Updated=NOW() WHERE User='$user'";
-                // log_sql($query);
-                if (s_mysql_query($query) == false) {
-                    //    Could not add points?!
-                    echo "FAILED: cannot add points?!";
-                    error_log(__FUNCTION__ . " failed: cannot add new achievement to DB! (already added?)! $user, $achIDToAward, $fbUser, $points");
-                } else {
-                    if ($isHardcore) {
-                        //    Ensure the player has the base-level achievement now too
-                        addEarnedAchievement($userIn, $validation, $achIDToAward, $fbUser, $newPointTotal, 0, true);
-                    }
-
-
-                    //    Update GameData
-                    recalculateTrueRatio($gameID); //    Heavy!
-                    //    Add TA to the player for this achievement, NOW that the TA value has been recalculated
-                    //    Select the NEW TA from this achievement, as it has just been recalc'd
-                    $query = "SELECT TrueRatio FROM Achievements WHERE ID='$achIDToAward'";
-                    $dbResult = s_mysql_query($query);
-                    SQL_ASSERT($dbResult);
-
-                    $data = mysqli_fetch_assoc($dbResult);
-
-                    $userNewTA = $data['TrueRatio'] + $userTA;
-
-                    $query = "UPDATE UserAccounts SET TrueRAPoints=$userNewTA WHERE User='$user'";
-                    $dbResult = s_mysql_query($query);
-                    SQL_ASSERT($dbResult);
-
-
-                    $returnVal = true;
-
-                    if ($silent == false) {
-                        //    For app
-                        echo "OK";
-                    }
-
-                    if ($silent == false) {
-                        postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
-                    }
-
-                    testFullyCompletedGame($user, $achIDToAward, $isHardcore);
-
-                    // if ($silent == false) {
-                    //     if ($fbUser == 0) {
-                    //         echo ":FBNA"; //    Not associated
-                    //     } else {
-                    //         //    Attempt post on FB:
-                    //         global $fbConn;
-                    //         if ($fbConn == false) {
-                    //             echo ":FBDC"; //    Disconnected (?)
-                    //             // error_log(__FUNCTION__ . " failed: cannot connect to FB? $user, $achIDToAward, $fbUser, $points");
-                    //         } else {
-                    //             //$wallMsg = "I just earned  $title  on $game for $points points on RetroAchievements.org!";
-                    //             //$linkTo = "https://retroachievements.org/Users/$User.html";
-                    //             //$linkTo = getenv('APP_URL');
-                    //             //$linkTo = '';
-                    //             //$params = array(
-                    //             //    'access_token'=>'490904194261313|WGR9vR4fulyLxEufSRH2CJrthHw',
-                    //             //    'url'=>getenv('APP_URL'),
-                    //             //    'image'=>getenv('APP_URL').'/Trophy1-96.png',
-                    //             //    'message'=>$wallMsg,
-                    //             //    'link'=>$linkTo,
-                    //             //    'caption'=>$title,
-                    //             //    'title'=>$title,
-                    //             //    'description'=>$desc );
-                    //
-                    //             $access_token = '490904194261313|ea6341e18635a588bab539281e798b97';
-                    //             $params = [
-                    //                 'access_token' => $access_token,
-                    //                 'achievement' => getenv('APP_URL') . "/Achievement/$achIDToAward",
-                    //             ];
-                    //
-                    //             try {
-                    //                 //$ret_obj = $fbConn->api( "/$fbUser/feed", 'POST', $params );
-                    //                 $message = "/$fbUser/retroachievements:earn?access_token=$access_token";
-                    //                 //echo "<br>DEBUG:<br>" . $message . "<br>" . $params . "<br>";
-                    //
-                    //                 $ret_obj = $fbConn->api($message, 'POST', $params);
-                    //                 //echo '<pre>Post ID: ' . $ret_obj['id'] . '</pre>';
-                    //
-                    //                 // error_log("Posted OK to FB for $user ($fbUser) $ret_obj");
-                    //
-                    //                 echo ":FBOK"; //    Posted OK!
-                    //             } catch (FacebookApiException $e) {
-                    //                 // If the user is logged out, you can have a
-                    //                 // user ID even though the access token is invalid.
-                    //                 // In this case, we'll get an exception, so we'll
-                    //                 // just ask the user to login again here.
-                    //                 //$login_url = $fbConn->getLoginUrl( array( 'scope' => 'publish_stream' ) );
-                    //                 //global $config;
-                    //                 //echo $login_url . "<br>";
-                    //                 //echo $config['appId'] . "<br>";
-                    //                 //echo $config['secret'] . "<br>";
-                    //                 //echo $config['cookie'] . "<br>";
-                    //                 //echo "fbConn " . fbConn!==FALSE;
-                    //                 //echo 'Please <a href="' . $login_url . '">login.</a><br>';
-                    //                 error_log($e->getType());
-                    //                 error_log($e->getMessage());
-                    //
-                    //                 //echo "ERROR: " . $e->getType() . "<br>";
-                    //                 //echo "ERROR: " . $e->getMessage() . "<br>";
-                    //                 //echo ":FBER";    //    Error!
-                    //                 error_log(__FUNCTION__ . " failed: fbConn->api exception: $user, $achIDToAward, $fbUser, $points");
-                    //                 echo ":FBER"; //    Posted OK!
-                    //             }
-                    //         }
-                    //     }
-                    // }
-                }
-            }
-        }
-    }
-
-    return $returnVal;
 }
 
 function UploadNewAchievement(
@@ -738,7 +510,8 @@ function UploadNewAchievement(
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
             static_addnewachievement($idInOut);
-            addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut, "$author uploaded this achievement.", $author);
+            addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut, "$author uploaded this achievement.",
+                $author);
 
             // error_log(__FUNCTION__ . " $author uploaded new achievement: $idInOut, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, $badge");
 
@@ -796,12 +569,15 @@ function UploadNewAchievement(
 
                 if ($changingAchSet) {
                     if ($type == 3) {
-                        addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut, "$author promoted this achievement to the Core set.", $author);
+                        addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut,
+                            "$author promoted this achievement to the Core set.", $author);
                     } elseif ($type == 5) {
-                        addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut, "$author demoted this achievement to Unofficial.", $author);
+                        addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut,
+                            "$author demoted this achievement to Unofficial.", $author);
                     }
                 } else {
-                    addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut, "$author edited this achievement.", $author);
+                    addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut,
+                        "$author edited this achievement.", $author);
                 }
 
                 return true;
@@ -1081,7 +857,8 @@ function updateAchievementEmbedVideo($achID, $newURL)
 function updateAchievementFlags($achID, $newFlags)
 {
     if (is_array($achID)) {
-        $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . implode(', ', $achID) . ")";
+        $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . implode(', ',
+                $achID) . ")";
     } else {
         $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID = $achID";
     }
