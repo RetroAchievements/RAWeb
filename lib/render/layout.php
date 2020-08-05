@@ -196,15 +196,17 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
     echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
-    ///Sony
-    echo "<li class='dropdown-header'>Sony</li>";
-    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
     ///Atari
     echo "<li class='dropdown-header'>Atari</li>";
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
     echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
     echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
+    /// NEC
+    echo "<li class='dropdown-header'>NEC</li>";
+    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
+    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
+    echo "<li><a href='/gameList.php?c=49'>PC-FX</a></li>";
     echo "</ul>";
 
     echo "<ul>";
@@ -217,17 +219,18 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
     echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
-    /// NEC
-    echo "<li class='dropdown-header'>NEC</li>";
-    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
-    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
+    ///Sony
+    echo "<li class='dropdown-header'>Sony</li>";
+    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
+    echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
+    echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
     echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
     echo "</ul>";
 
