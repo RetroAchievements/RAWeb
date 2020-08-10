@@ -865,9 +865,16 @@ function getTotalUniquePlayers($gameID, $requestedBy)
     return $data['UniquePlayers'];
 }
 
-function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
+function getGameTopAchievers($gameID, $offset, $count, $requestedBy, $totalPossible, $order)
 {
     $retval = [];
+    $havingQuery = "";
+    if ($order == 1) {
+        $havingQuery = "HAVING SUM(ach.points) = $totalPossible*2";
+        $order2 = "DESC";
+    } else {
+        $order2 = "ASC";
+    }
 
     $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
                 FROM Awarded AS aw
@@ -878,7 +885,8 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy)
                   AND ach.Flags = 3 
                   AND gd.ID = $gameID
                 GROUP BY aw.User
-                ORDER BY TotalScore DESC, LastAward ASC
+                $havingQuery
+                ORDER BY TotalScore DESC, LastAward $order2
                 LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);

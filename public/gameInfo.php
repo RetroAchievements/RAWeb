@@ -60,9 +60,6 @@ $consoleID = $gameData['ConsoleID'];
 $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
 
-// Get the top ten players at this game:
-$gameTopAchievers = getGameTopAchievers($gameID, 0, 10, $user);
-
 $totalUniquePlayers = getTotalUniquePlayers($gameID, $user);
 if ($numDistinctPlayersCasual < $totalUniquePlayers) {
     $numDistinctPlayersCasual = $totalUniquePlayers;
@@ -130,6 +127,10 @@ if (isset($achievementData)) {
     $authorInfo = array_combine($authorName, $authorCount);
     array_multisort($authorCount, SORT_DESC, $authorInfo);
 }
+
+//Get the top ten players at this game:
+$gameTopAchievers  = getGameTopAchievers($gameID, 0, 10, $user, $totalPossible, 0);
+$gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, $totalPossible, 1);
 
 RenderHtmlStart(true);
 ?>
@@ -1021,7 +1022,7 @@ RenderHtmlStart(true);
         echo "<div id='chart_distribution'></div>";
         echo "</div>";
 
-        RenderTopAchieversComponent($gameTopAchievers);
+        RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters);
         RenderGameLeaderboardsComponent($gameID, $lbData);
         ?>
     </div>
