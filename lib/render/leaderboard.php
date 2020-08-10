@@ -248,9 +248,9 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
 /**
  * Creates the High scores tables on game pages
  * 
- * @param String $user The logged in user.
- * @param Array $gameTopAchievers Top 10 highest scoreres for the game.
- * @param Array $gameLatestMasters Top 10 latest masters for the game.
+ * @param string $user The logged in user.
+ * @param array $gameTopAchievers Top 10 highest scoreres for the game.
+ * @param array $gameLatestMasters Top 10 latest masters for the game.
  */
 function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters)
 {

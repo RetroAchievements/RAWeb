@@ -129,8 +129,8 @@ if (isset($achievementData)) {
 }
 
 //Get the top ten players at this game:
-$gameTopAchievers  = getGameTopAchievers($gameID, 0, 10, $user, $totalPossible, 0);
-$gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, $totalPossible, 1);
+$gameTopAchievers  = getGameTopAchievers($gameID, 0, 10, $user, 0);
+$gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, 1);
 
 RenderHtmlStart(true);
 ?>
