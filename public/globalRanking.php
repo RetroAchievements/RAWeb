@@ -357,7 +357,7 @@ RenderToolbar($user, $permissions);
                     } else {
                         echo "<td>" . $userData[0]['RetroRatio'] . "</td>";
                     }
-                    echo "<td>" . $dataPoint['TotalAwards'] . " - " . $dataPoint['CompletedAwards'] . " (" . $dataPoint['MasteredAwards'] . ")</td></tr>";
+                    echo "<td>" . $userData[0]['TotalAwards'] . " - " . $userData[0]['CompletedAwards'] . " (" . $userData[0]['MasteredAwards'] . ")</td></tr>";
                 }
             }
         }

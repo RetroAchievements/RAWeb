@@ -227,7 +227,11 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo GetUserAndTooltipDiv($userData[0]['User'], true);
                     echo GetUserAndTooltipDiv($userData[0]['User'], false);
                     echo "</td>";
-                    echo "<td>" . $userData[0]['Points'];
+                    if ($j == 0) {
+                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
+                    } else {
+                        echo "<td>" . $userData[0]['Points'];
+                    }
                     echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
                 }
             }
