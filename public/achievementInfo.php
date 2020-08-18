@@ -114,7 +114,7 @@ RenderHtmlStart(true);
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href='/Achievement/$achievementID'><img src='$badgeFullPath' title='$gameTitle ($achPoints)\n$desc' alt='$desc' align='left' width='64' height='64' /></a>";
+        echo "<a href=\"/Achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$desc\" alt=\"$desc\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; //achievemententryicon
         echo "</td>";
 
