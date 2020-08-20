@@ -12,7 +12,9 @@ if ($gameId <= 0) {
 }
 
 $username = seekGET('z');
+$type = seekGET('t', 0);
+settype($type, 'integer');
 
-$gameTopAchievers = getGameTopAchievers($gameId, 0, 10, $username);
+$gameTopAchievers = getGameTopAchievers($gameId, 0, 10, $username, $type);
 
 echo json_encode($gameTopAchievers);
