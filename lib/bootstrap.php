@@ -3,7 +3,7 @@
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-define("VERSION", "1.61.0");
+define("VERSION", "1.61.1");
 
 try {
     global $db;

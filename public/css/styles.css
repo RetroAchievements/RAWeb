@@ -1394,9 +1394,11 @@ svg > g > g:last-child { pointer-events: none }
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-  border: 1px solid rgb(44, 151, 250);
-  border-bottom: 1px solid #1F1F1F;
-  background-color: #1F1F1F;
+  border: 1px solid rgb(80, 80, 80);
+}
+
+.tab button:hover:not(.active) {
+  border-bottom: 1px solid rgb(44, 151, 250);
 }
 
 /* Create an active/current tablink class */
