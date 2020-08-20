@@ -510,8 +510,13 @@ function UploadNewAchievement(
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
             static_addnewachievement($idInOut);
-            addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut, "$author uploaded this achievement.",
-                $author);
+            addArticleComment(
+                "Server",
+                \RA\ArticleType::Achievement,
+                $idInOut,
+                "$author uploaded this achievement.",
+                $author
+            );
 
             // error_log(__FUNCTION__ . " $author uploaded new achievement: $idInOut, $title, $desc, $progress, $progressMax, $progressFmt, $points, $mem, $type, $badge");
 
@@ -569,15 +574,30 @@ function UploadNewAchievement(
 
                 if ($changingAchSet) {
                     if ($type == 3) {
-                        addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut,
-                            "$author promoted this achievement to the Core set.", $author);
+                        addArticleComment(
+                            "Server",
+                            \RA\ArticleType::Achievement,
+                            $idInOut,
+                            "$author promoted this achievement to the Core set.",
+                            $author
+                        );
                     } elseif ($type == 5) {
-                        addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut,
-                            "$author demoted this achievement to Unofficial.", $author);
+                        addArticleComment(
+                            "Server",
+                            \RA\ArticleType::Achievement,
+                            $idInOut,
+                            "$author demoted this achievement to Unofficial.",
+                            $author
+                        );
                     }
                 } else {
-                    addArticleComment("Server", \RA\ArticleType::Achievement, $idInOut,
-                        "$author edited this achievement.", $author);
+                    addArticleComment(
+                        "Server",
+                        \RA\ArticleType::Achievement,
+                        $idInOut,
+                        "$author edited this achievement.",
+                        $author
+                    );
                 }
 
                 return true;
@@ -857,8 +877,7 @@ function updateAchievementEmbedVideo($achID, $newURL)
 function updateAchievementFlags($achID, $newFlags)
 {
     if (is_array($achID)) {
-        $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . implode(', ',
-                $achID) . ")";
+        $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . implode(', ', $achID) . ")";
     } else {
         $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID = $achID";
     }

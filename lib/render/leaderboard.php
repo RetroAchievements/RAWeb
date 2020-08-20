@@ -247,10 +247,10 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
 
 /**
  * Creates the High scores tables on game pages
- * 
- * @param string $user The logged in user.
- * @param array $gameTopAchievers Top 10 highest scoreres for the game.
- * @param array $gameLatestMasters Top 10 latest masters for the game.
+ *
+ * @param string $user the logged in user
+ * @param array $gameTopAchievers top 10 highest scoreres for the game
+ * @param array $gameLatestMasters top 10 latest masters for the game
  */
 function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters)
 {
@@ -258,7 +258,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
 
     $numLatestMasters = count($gameLatestMasters);
     $numTopAchievers = count($gameTopAchievers);
-    $masteryThreshold = 10; //Number of masters neede for the "Latest Masters" tab to be selected by default
+    $masteryThreshold = 10; //Number of masters needed for the "Latest Masters" tab to be selected by default
 
     echo "<h3>High Scores</h3>";
     echo "<div class='tab'>";
@@ -291,11 +291,11 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv( $nextUser, TRUE );
+        echo GetUserAndTooltipDiv($nextUser, true);
         echo "</td>";
 
         echo "<td class='user'>";
-        echo GetUserAndTooltipDiv( $nextUser, FALSE );
+        echo GetUserAndTooltipDiv($nextUser, false);
         echo "</td>";
 
         echo "<td>$nextLastAward</td>";

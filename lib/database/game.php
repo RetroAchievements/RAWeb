@@ -866,27 +866,26 @@ function getTotalUniquePlayers($gameID, $requestedBy)
 }
 
 /**
- * Gets a games high scoreres or latests masters.
- * 
- * @param integer $gameID Game ID to get high score information for.
- * @param integer $offset Query offset value.
- * @param integer $count Query number of returned rows.
- * @param string $requestedBy User requesting the information.
- * @param integer $type The type of data to return.
+ * Gets a game's high scorers or latest masters.
+ *
+ * @param int $gameID game ID to get high score information for
+ * @param int $offset query offset value
+ * @param int $count query number of returned rows
+ * @param string $requestedBy user requesting the information
+ * @param int $type The type of data to return.
  *          0 - High Scores
  *          1 - Latest Masters
- * 
- * @return Array of user informtion to display on the High Scores section of a game page.
+ *
+ * @return array of user information to display on the High Scores section of a game page
  */
 function getGameTopAchievers($gameID, $offset, $count, $requestedBy, $type = 0)
 {
     $retval = [];
     $havingQuery = "";
+    $order = "ASC";
     if ($type == 1) {
         $havingQuery = "HAVING TotalScore = (SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3)";
         $order = "DESC";
-    } else {
-        $order = "ASC";
     }
 
     $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
