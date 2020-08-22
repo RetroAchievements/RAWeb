@@ -35,5 +35,7 @@ test*.php
 /public/google*
 /public/mtests.php
 
+/resources/docker/nginx/logs/*
+
 cronjobs/playersonline.log
 cronjobs/cronlog.log
