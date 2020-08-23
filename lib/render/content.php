@@ -89,7 +89,7 @@ function RenderDocsComponent()
         <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
-            Read the <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
+            <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
           </div>
         </div>
       </div>";
