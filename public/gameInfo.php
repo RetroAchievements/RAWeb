@@ -68,7 +68,7 @@ if ($numDistinctPlayersHardcore < $totalUniquePlayers) {
     $numDistinctPlayersHardcore = $totalUniquePlayers;
 }
 
-$achDist = getAchievementDistribution($gameID, 0, $user); //    for now, only retrieve casual!
+$achDist = getAchievementDistribution($gameID, 0, $user, $flags); //    for now, only retrieve casual!
 for ($i = 1; $i <= $numAchievements; $i++) {
     if (!array_key_exists($i, $achDist)) {
         $achDist[$i] = 0;

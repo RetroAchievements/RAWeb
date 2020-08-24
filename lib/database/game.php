@@ -713,7 +713,17 @@ function requestModifyGameForumTopic($gameID, $newForumTopic)
     return false;
 }
 
-function getAchievementDistribution($gameID, $hardcore, $requestedBy)
+/**
+ * Gets the achievement distribution to display on the game page.
+ *
+ * @param int $gameID game ID to get achievement distribution for
+ * @param int $hardcore casual (0) or hardcore (1) flag
+ * @param string $requestedBy user requesting the achievement distribution information
+ * @param int $flags core (3) or unofficial (5) achievement flag
+ *
+ * @return array of achievement distribution information to plot on the game page
+ */
+function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags)
 {
     settype($hardcore, 'integer');
     $retval = [];
@@ -727,7 +737,7 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy)
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore
+            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = " . $flags . "
               AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
             GROUP BY aw.User
             ORDER BY AwardedCount DESC
