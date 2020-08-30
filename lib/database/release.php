@@ -35,7 +35,7 @@ function isValidConsoleId($consoleId)
             // case 20: // Wii U
             // case 21: // PlayStation 2
             // case 22: // Xbox
-            // case 23: // Magnavox Odyssey
+        case 23: // Magnavox Odyssey 2
         case 24: // Pokemon Mini
         case 25: // Atari 2600
             // case 26: // DOS
