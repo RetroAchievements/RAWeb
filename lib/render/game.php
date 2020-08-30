@@ -117,11 +117,13 @@ function RenderBoxArt($imagePath)
     echo "</div>";
 }
 
-function RenderGameAlts($gameAlts)
+function RenderGameAlts($gameAlts, $showTitle = true)
 {
     echo "<div class='component gamealts'>";
-    echo "<h3>Similar Games</h3>";
-    echo "Have you tried:<br>";
+    if ($showTitle) {
+        echo "<h3>Similar Games</h3>";
+        echo "Have you tried:<br>";
+    }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
         echo "<tr>";
@@ -134,17 +136,21 @@ function RenderGameAlts($gameAlts)
         settype($points, 'integer');
         settype($totalTP, 'integer');
 
+        $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
+
         echo "<td>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
         echo "</td>";
 
-        echo "<td>";
+        echo "<td " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
         echo "</td>";
 
-        echo "<td>";
-        echo "$points points<span class='TrueRatio'> ($totalTP)</span>";
-        echo "</td>";
+        if ($isFullyFeaturedGame) {
+            echo "<td>";
+            echo "$points points<span class='TrueRatio'> ($totalTP)</span>";
+            echo "</td>";
+        }
 
         echo "</tr>";
     }
