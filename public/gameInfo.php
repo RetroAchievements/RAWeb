@@ -546,8 +546,11 @@ RenderHtmlStart(true);
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
                     echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
+                }
 
-                    echo "<div><a href='/attemptrename.php?g=$gameID'>Rename Game</a></div>";
+                echo "<div><a href='/attemptrename.php?g=$gameID'>Rename Game</a></div>";
+
+                if ($isFullyFeaturedGame) {
                     echo "<div><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></div>";
 
                     if ($numLeaderboards == 0) {
@@ -619,19 +622,19 @@ RenderHtmlStart(true);
                     echo "<input type='file' name='file' id='game_boxart'>";
                     echo "<input type='submit' name='submit' style='float: right;' value='Submit'>";
                     echo "</form>";
-
-                    echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
-                    echo "<div>Update game details:</div>";
-                    echo "<table><tbody>";
-                    echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'></td></tr>";
-                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value='$publisher' style='width:100%;'></td></tr>";
-                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='$genre' style='width:100%;'></td></tr>";
-                    echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value='$released' style='width:100%;'></td></tr>";
-                    echo "</tbody></table>";
-                    echo "<div class='text-right'><input type='submit' value='Submit'></div>";
-                    echo "</form>";
                 }
+
+                echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                echo "<div>Update game details:</div>";
+                echo "<table><tbody>";
+                echo "<input type='hidden' name='i' value='$gameID'>";
+                echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'></td></tr>";
+                echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value='$publisher' style='width:100%;'></td></tr>";
+                echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='$genre' style='width:100%;'></td></tr>";
+                echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value='$released' style='width:100%;'></td></tr>";
+                echo "</tbody></table>";
+                echo "<div class='text-right'><input type='submit' value='Submit'></div>";
+                echo "</form>";
 
                 if ($permissions >= Permissions::Admin) {
                     echo "<tr><td>";
@@ -1011,54 +1014,54 @@ RenderHtmlStart(true);
         </div>
     </div>
     <?php if ($isFullyFeaturedGame): ?>
-    <div id="rightcontainer">
-        <?php
-        RenderBoxArt($gameData['ImageBoxArt']);
+        <div id="rightcontainer">
+            <?php
+            RenderBoxArt($gameData['ImageBoxArt']);
 
-        if (isset($user)) {
-            echo "<h3>More Info</h3>";
-            echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
-            echo "<ul>";
-            echo "<li>- ";
-            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            echo "</li>";
-            echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
-            $numOpenTickets = countOpenTickets(
-                seekGET('f') == 5,
-                seekGET('t', 2041),
-                null,
-                $gameID
-            );
-            echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
-            if ($numAchievements == 0) {
-                echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
+            if (isset($user)) {
+                echo "<h3>More Info</h3>";
+                echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
+                echo "<ul>";
+                echo "<li>- ";
+                RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+                echo "</li>";
+                echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
+                $numOpenTickets = countOpenTickets(
+                    seekGET('f') == 5,
+                    seekGET('t', 2041),
+                    null,
+                    $gameID
+                );
+                echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
+                if ($numAchievements == 0) {
+                    echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
+                }
+                //if( $flags == 5 )
+                //echo "<li>- <a href='/Game/$gameID'>View Core Achievements</a></li>";
+                //else
+                //echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
+                echo "</ul><br>";
             }
-            //if( $flags == 5 )
-            //echo "<li>- <a href='/Game/$gameID'>View Core Achievements</a></li>";
-            //else
-            //echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
-            echo "</ul><br>";
-        }
 
-        if (count($gameAlts) > 0) {
-            RenderGameAlts($gameAlts);
-        }
+            if (count($gameAlts) > 0) {
+                RenderGameAlts($gameAlts);
+            }
 
-        if ($user == null) {
-            RenderTutorialComponent();
-        }
+            if ($user == null) {
+                RenderTutorialComponent();
+            }
 
-        RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
+            RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
 
-        echo "<div id='achdistribution' class='component' >";
-        echo "<h3>Achievement Distribution</h3>";
-        echo "<div id='chart_distribution'></div>";
-        echo "</div>";
+            echo "<div id='achdistribution' class='component' >";
+            echo "<h3>Achievement Distribution</h3>";
+            echo "<div id='chart_distribution'></div>";
+            echo "</div>";
 
-        RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters);
-        RenderGameLeaderboardsComponent($gameID, $lbData);
-        ?>
-    </div>
+            RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters);
+            RenderGameLeaderboardsComponent($gameID, $lbData);
+            ?>
+        </div>
     <?php endif ?>
 </div>
 <?php RenderFooter(); ?>
