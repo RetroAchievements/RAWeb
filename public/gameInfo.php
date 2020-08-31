@@ -501,7 +501,7 @@ RenderHtmlStart(true);
                 echo "<td><b>$genre</b></td>";
                 echo "</tr>";
             }
-            if ($genre) {
+            if ($released) {
                 echo "<tr>";
                 echo "<td>First released:</td>";
                 echo "<td><b>$released</b></td>";
