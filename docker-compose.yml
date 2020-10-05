@@ -1,23 +1,6 @@
 version: '3.7'
 services:
 
-  minio:
-    image: minio/minio
-    hostname: minio
-    volumes:
-      - minio-data:/data
-    environment:
-      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
-      MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
-    ports:
-      - ${MINIO_PORT}:9000
-    command: server /data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-
   mysql:
     image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
     environment:
@@ -74,14 +57,5 @@ services:
 #      - ~/docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
 #      - /custom/phpmyadmin/theme/:/www/themes/theme/
 
-  redis:
-    image: redis:5.0 # https://github.com/docker-library/redis/blob/b6d413ceff3a2bca10a430ace121597fa8fe2a2c/5.0/Dockerfile
-    ports:
-      - ${REDIS_PORT}:6379
-    volumes:
-      - redis-data:/data # https://github.com/docker-library/redis/blob/b6d413ceff3a2bca10a430ace121597fa8fe2a2c/5.0/Dockerfile#L108
-
 volumes:
-  minio-data:
   mysql-data:
-  redis-data:
