@@ -6,6 +6,8 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
         return false;
     }
 
+    sanitize_query_inputs($user);
+
     $query = "SELECT User, Password, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
     if ($result == false) {
@@ -39,6 +41,8 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 
 function changePassword($user, $pass)
 {
+    sanitize_query_inputs($user);
+
     $hashedPassword = hashPassword($pass);
     $query = "UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='', Updated=NOW() WHERE user='$user'";
     if (s_mysql_query($query) === false) {
@@ -87,6 +91,9 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
 {
     $userOut = RA_ReadCookie("RA_User");
     $cookie = RA_ReadCookie("RA_Cookie");
+
+    sanitize_query_inputs($userOut);
+
     if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 2 || !isValidUsername($userOut)) {
         //    There is no cookie
         return false;
@@ -142,6 +149,8 @@ function RA_ReadCookieCredentials(
         //error_log( __FUNCTION__ . " User invalid, bailing..." );
         return false;
     }
+
+    sanitize_query_inputs($userOut);
 
     $query = "SELECT ua.cookie, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions, ua.ID
               FROM UserAccounts AS ua
@@ -205,6 +214,8 @@ function RA_ReadTokenCredentials(
         return false;
     }
 
+    sanitize_query_inputs($userOut);
+
     $query = "SELECT ua.User, ua.appToken, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions
               FROM UserAccounts AS ua
               WHERE User='$userOut'";
@@ -231,6 +242,8 @@ function RA_ReadTokenCredentials(
 
 function generateAPIKey($user)
 {
+    sanitize_query_inputs($user);
+
     if (!getAccountDetails($user, $userData)) {
         // error_log(__FUNCTION__ . " API Key gen fail 1: not a user?");
         return "";
@@ -259,6 +272,8 @@ function generateAPIKey($user)
 
 function GetAPIKey($user)
 {
+    sanitize_query_inputs($user);
+
     if (!isValidUsername($user)) {
         return false;
     }
@@ -280,6 +295,8 @@ function GetAPIKey($user)
 
 function LogSuccessfulAPIAccess($user)
 {
+    sanitize_query_inputs($user);
+
     $query = "UPDATE UserAccounts AS ua
               SET ua.APIUses=ua.APIUses+1
               WHERE ua.User = '$user' ";
@@ -289,6 +306,8 @@ function LogSuccessfulAPIAccess($user)
 
 function ValidateAPIKey($user, $key)
 {
+    sanitize_query_inputs($user, $key);
+
     if (mb_strlen($key) < 20 || !isValidUsername($user)) {
         return false;
     }
@@ -316,6 +335,8 @@ function RemovePasswordResetToken($username)
 {
     global $db;
 
+    sanitize_query_inputs($username);
+
     $query = "UPDATE UserAccounts AS ua "
         . "WHERE ua.User='$username' "
         . "SET ua.PasswordResetToken = ''";
@@ -327,6 +348,8 @@ function RemovePasswordResetToken($username)
 function isValidPasswordResetToken($usernameIn, $passwordResetToken)
 {
     global $db;
+
+    sanitize_query_inputs($usernameIn, $passwordResetToken);
 
     $retVal = [];
 
@@ -357,9 +380,11 @@ function RequestPasswordReset($usernameIn)
 {
     global $db;
 
+    sanitize_query_inputs($usernameIn);
+
     $retVal = [];
 
-    $userFields = GetUserFields(mysqli_real_escape_string($db, $usernameIn), ["User", "EmailAddress"]);
+    $userFields = GetUserFields($usernameIn, ["User", "EmailAddress"]);
     if ($userFields == null) {
         $retVal['Error'] = "Could not find $usernameIn";
         return $retVal;

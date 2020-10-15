@@ -2,9 +2,10 @@
 
 function getMD5List($consoleID)
 {
-    $retVal = [];
-
+    sanitize_query_inputs($consoleID);
     settype($consoleID, 'integer');
+
+    $retVal = [];
 
     $whereClause = "";
     if ($consoleID > 0) {
@@ -31,6 +32,7 @@ function getMD5List($consoleID)
 
 function getHashListByGameID($gameID)
 {
+    sanitize_query_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID < 1) {
         return false;
@@ -55,6 +57,8 @@ function getHashListByGameID($gameID)
 
 function getGameIDFromMD5($md5)
 {
+    sanitize_query_inputs($md5);
+
     $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
     $dbResult = s_mysql_query($query);
 
@@ -80,6 +84,8 @@ function getGameIDFromMD5($md5)
  */
 function getHashList($offset, $count, $searchedHash)
 {
+    sanitize_query_inputs($offset, $count, $searchedHash);
+
     $searchQuery = "";
     if ($searchedHash !== null || $searchedHash != "") {
         $offset = 0;
@@ -115,8 +121,6 @@ function getHashList($offset, $count, $searchedHash)
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?! $count");
     }
 
     return $retVal;

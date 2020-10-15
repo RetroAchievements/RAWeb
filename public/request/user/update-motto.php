@@ -9,7 +9,9 @@ if (!ValidatePOSTChars("ucm")) {
 
 $user = seekPost('u');
 $cookie = seekPost('c');
-$newMotto = mysqli_real_escape_string($db, seekPost('m'));
+$newMotto = seekPost('m');
+
+sanitize_query_inputs($user, $cookie, $newMotto);
 
 if (validateUser_cookie($user, $cookie, 1)) {
     $query = "
@@ -17,6 +19,7 @@ if (validateUser_cookie($user, $cookie, 1)) {
 			SET Motto='$newMotto', Updated=NOW()
 			WHERE User='$user'";
 
+    global $db;
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         // error_log(__FILE__ . " user $user to $newMotto - associate successful!");

@@ -7,6 +7,8 @@
  */
 function getUserRequestList($user)
 {
+    sanitize_query_inputs($user);
+
     $retVal = [];
 
     $query = "
@@ -107,6 +109,8 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
  */
 function toggleSetRequest($user, $gameID, $remaining)
 {
+    sanitize_query_inputs($user, $gameID);
+
     $query = "
         SELECT
             COUNT(*) FROM SetRequest 
@@ -160,6 +164,7 @@ function toggleSetRequest($user, $gameID, $remaining)
  */
 function getSetRequestCount($gameID)
 {
+    sanitize_query_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID < 1) {
         return 0;
@@ -186,9 +191,10 @@ function getSetRequestCount($gameID)
  */
 function getSetRequestorsList($gameID)
 {
-    $retVal = [];
-
+    sanitize_query_inputs($gameID);
     settype($gameID, 'integer');
+
+    $retVal = [];
 
     if ($gameID < 1) {
         return false;
@@ -225,6 +231,8 @@ function getSetRequestorsList($gameID)
  */
 function getMostRequestedSetsList($console, $offset, $count)
 {
+    sanitize_query_inputs($console, $offset, $count);
+
     $retVal = [];
 
     $query = "
@@ -278,6 +286,8 @@ function getMostRequestedSetsList($console, $offset, $count)
  */
 function getGamesWithRequests($console)
 {
+    sanitize_query_inputs($console);
+
     $query = "
         SELECT
             COUNT(DISTINCT sr.GameID) AS Games,
