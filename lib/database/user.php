@@ -51,8 +51,6 @@ function generateEmailValidationString($user)
     // $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
     $expiry = time() + 60 * 60 * 24 * 7;
 
-    sanitize_query_inputs($user);
-
     $query = "INSERT INTO EmailConfirmations VALUES( '$user', '$emailCookie', $expiry )";
     // log_sql($query);
     $dbResult = s_mysql_query($query);
@@ -69,9 +67,6 @@ function generateEmailValidationString($user)
 
 function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetUser, $targetUserNewPermissions)
 {
-    sanitize_query_inputs($actingUser, $targetUser, $targetUserNewPermissions);
-    settype($targetUserNewPermissions, 'integer');
-
     $targetUserCurrentPermissions = getUserPermissions($targetUser);
 
     $retVal = [
@@ -142,9 +137,6 @@ function removeAvatar($user)
 
 function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permissions)
 {
-    sanitize_query_inputs($user, $permissions);
-    settype($permissions, 'integer');
-
     //    $sourceUser is setting $user's forum post permissions.
 
     if ($permissions == 0) {
@@ -186,8 +178,6 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
 
 function validateEmailValidationString($emailCookie, &$user)
 {
-    sanitize_query_inputs($emailCookie);
-
     $query = "SELECT * FROM EmailConfirmations WHERE EmailCookie='$emailCookie'";
     $dbResult = s_mysql_query($query);
 
@@ -238,7 +228,6 @@ function generateCookie($user, &$cookie)
     if (!isset($user) || $user == false) {
         return false;
     }
-    sanitize_query_inputs($user);
 
     $cookie = rand_string(16);
     $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
@@ -262,7 +251,6 @@ function generateAppToken($user, &$tokenOut)
     if (!isset($user) || $user == false) {
         return false;
     }
-    sanitize_query_inputs($user);
     $newToken = rand_string(16);
 
     $expDays = 30;
@@ -280,8 +268,6 @@ function generateAppToken($user, &$tokenOut)
 function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOut)
 {
     //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
-
-    sanitize_query_inputs($user);
 
     if (!isset($user) || $user == false || mb_strlen($user) < 2) {
         // error_log(__FUNCTION__ . " username failed: empty user");
@@ -360,8 +346,6 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
 
 function getUserAppToken($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT appToken FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -374,8 +358,6 @@ function getUserAppToken($user)
 
 function GetUserData($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT * FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
 
@@ -395,8 +377,6 @@ function getAccountDetails(&$user, &$dataOut)
         return false;
     }
 
-    sanitize_query_inputs($user);
-
     $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created
                 FROM UserAccounts
                 WHERE User='$user'";
@@ -414,8 +394,6 @@ function getAccountDetails(&$user, &$dataOut)
 
 function getAccountDetailsFB($fbUser, &$details)
 {
-    sanitize_query_inputs($fbUser);
-
     $query = "SELECT User, EmailAddress, Permissions, RAPoints FROM UserAccounts WHERE fbUser='$fbUser'";
     $result = s_mysql_query($query);
     if ($result == false || mysqli_num_rows($result) !== 1) {
@@ -429,8 +407,6 @@ function getAccountDetailsFB($fbUser, &$details)
 
 function associateFB($user, $fbUser)
 {
-    sanitize_query_inputs($user, $fbUser);
-
     //    TBD: Sanitise!
     $query = "UPDATE UserAccounts SET fbUser='$fbUser', Updated=NOW() WHERE User='$user'";
     //echo $query;
@@ -458,8 +434,6 @@ function associateFB($user, $fbUser)
 
 function getFBUser($user, &$fbUserOut)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT fbUser FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
 
@@ -475,8 +449,6 @@ function getFBUser($user, &$fbUserOut)
 
 function getUserIDFromUser($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT ID FROM UserAccounts WHERE User LIKE '$user'";
     $dbResult = s_mysql_query($query);
 
@@ -491,8 +463,6 @@ function getUserIDFromUser($user)
 
 function getUserFromID($userID)
 {
-    sanitize_query_inputs($userID);
-
     $query = "SELECT User FROM UserAccounts WHERE ID ='$userID'";
     $dbResult = s_mysql_query($query);
 
@@ -507,8 +477,6 @@ function getUserFromID($userID)
 
 function getUserMetadataFromID($userID)
 {
-    sanitize_query_inputs($userID);
-
     $query = "SELECT * FROM UserAccounts WHERE ID ='$userID'";
     $dbResult = s_mysql_query($query);
 
@@ -526,8 +494,6 @@ function getUserStats($user)
 
 function getUserUnlockAchievement($user, $achievementID, &$dataOut)
 {
-    sanitize_query_inputs($user, $achievementID);
-
     $query = "SELECT ach.ID, aw.HardcoreMode, aw.Date
         FROM Achievements AS ach
         LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
@@ -550,8 +516,6 @@ function getUserUnlockAchievement($user, $achievementID, &$dataOut)
 
 function getUserUnlocksDetailed($user, $gameID, &$dataOut)
 {
-    sanitize_query_inputs($user, $gameID);
-
     $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode
         FROM Achievements AS ach
         LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
@@ -573,8 +537,6 @@ function getUserUnlocksDetailed($user, $gameID, &$dataOut)
 
 function GetUserUnlocksData($user, $gameID, $hardcoreMode)
 {
-    sanitize_query_inputs($user, $gameID);
-
     $query = "SELECT AchievementID
         FROM Achievements AS ach
         LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
@@ -600,7 +562,6 @@ function getUserUnlocks($user, $gameID, &$dataOut, $hardcoreMode)
 
 function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
 {
-    sanitize_query_inputs($count, $ofFriend);
     settype($count, 'integer');
 
     if ($count > 10) {
@@ -651,8 +612,6 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
  */
 function getFriendCount($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT COUNT(*) AS FriendCount
               FROM Friends
               WHERE User LIKE '$user'
@@ -668,8 +627,6 @@ function getFriendCount($user)
 
 function getUserForumPostAuth($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT uc.ManuallyVerified FROM UserAccounts AS uc WHERE uc.User = '$user'";
     $dbResult = s_mysql_query($query);
 
@@ -685,8 +642,6 @@ function getUserForumPostAuth($user)
 
 function validateUsername($userIn)
 {
-    sanitize_query_inputs($userIn);
-
     $query = "SELECT uc.User FROM UserAccounts AS uc WHERE uc.User LIKE '$userIn'";
     $dbResult = s_mysql_query($query);
 
@@ -702,8 +657,6 @@ function validateUsername($userIn)
 
 function GetScore($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT ua.RAPoints
               FROM UserAccounts AS ua
               WHERE ua.User='$user'";
@@ -733,8 +686,6 @@ function GetScore($user)
  */
 function getAge($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT ua.Created
               FROM UserAccounts AS ua
               WHERE ua.User='$user'";
@@ -750,7 +701,7 @@ function getAge($user)
         $curDate = strtotime(date('Y-m-d H:i:s'));
         $diff = $curDate - $created;
 
-        $years = floor($diff / (365 * 60 * 60 * 24));
+        $years = floor($diff / (365*60*60*24));
         settype($years, 'integer');
         return $years;
     } else {
@@ -768,8 +719,6 @@ function getAge($user)
  */
 function getUserRank($user, $type = 0)
 {
-    sanitize_query_inputs($user);
-
     // $query = "
     //     SELECT (COUNT(*) + 1) AS UserRank
     //     FROM UserAccounts
@@ -819,8 +768,6 @@ function countRankedUsers()
 
 function updateAchievementVote($achID, $posDiff, $negDiff)
 {
-    sanitize_query_inputs($achID, $posDiff, $negDiff);
-
     //    Tell achievement $achID that it's vote count has been changed by $posDiff and $negDiff
 
     $query = "UPDATE Achievements SET VotesPos=VotesPos+$posDiff, VotesNeg=VotesNeg+$negDiff, Updated=NOW() WHERE ID=$achID";
@@ -836,7 +783,6 @@ function updateAchievementVote($achID, $posDiff, $negDiff)
 
 function applyVote($user, $achID, $vote)
 {
-    sanitize_query_inputs($user, $achID, $vote);
     settype($vote, 'integer');
     if ($vote != 1 && $vote != -1) {
         // error_log(__FUNCTION__ . " failed: illegal vote:$vote by user:$user, achID:$achID");
@@ -894,8 +840,6 @@ function applyVote($user, $achID, $vote)
 
 function getUserActivityRange($user, &$firstLogin, &$lastLogin)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT MIN(act.timestamp) AS FirstLogin, MAX(act.timestamp) AS LastLogin
               FROM Activity AS act
               WHERE act.User = '$user' AND act.activitytype=2";
@@ -917,11 +861,8 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
     if (empty($gameIDsCSV) || !isValidUsername($user)) {
         return null;
     }
-    sanitize_query_inputs($user);
-
     //    Create null entries so that we pass 'something' back.
     $gameIDsArray = explode(',', $gameIDsCSV);
-    $gameIDs = [];
     foreach ($gameIDsArray as $gameID) {
         settype($gameID, "integer");
         $dataOut[$gameID]['NumPossibleAchievements'] = 0;
@@ -930,13 +871,11 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
         $dataOut[$gameID]['ScoreAchieved'] = 0;
         $dataOut[$gameID]['NumAchievedHardcore'] = 0;
         $dataOut[$gameID]['ScoreAchievedHardcore'] = 0;
-        $gameIDs[] = $gameID;
     }
-    $gameIDs = implode(',', $gameIDs);
 
     //    Count num possible achievements
     $query = "SELECT GameID, COUNT(*) AS AchCount, SUM(ach.Points) AS PointCount FROM Achievements AS ach
-              WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDs )
+              WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDsCSV )
               GROUP BY ach.GameID
               HAVING COUNT(*)>0 ";
 
@@ -987,7 +926,6 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
 function GetAllUserProgress($user, $consoleID)
 {
     $retVal = [];
-    sanitize_query_inputs($user, $consoleID);
     settype($consoleID, 'integer');
 
     //Title,
@@ -1039,8 +977,6 @@ function GetAllUserProgress($user, $consoleID)
 
 function getUsersGameList($user, &$dataOut)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT gd.Title, c.Name AS ConsoleName, gd.ID, COUNT(AchievementID) AS NumAchieved
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
@@ -1091,22 +1027,12 @@ function getUsersGameList($user, &$dataOut)
 
 function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$dataOut)
 {
-    sanitize_query_inputs($user, $numAchievements);
-    settype($numAchievements, 'integer');
-
     $gameIDsArray = explode(',', $gameIDsCSV);
 
     $numIDs = count($gameIDsArray);
     if ($numIDs == 0) {
         return;
     }
-
-    $gameIDs = [];
-    foreach ($gameIDsArray as $gameID) {
-        settype($gameID, "integer");
-        $gameIDs[] = $gameID;
-    }
-    $gameIDs = implode(',', $gameIDs);
 
     $limit = ($numAchievements == 0) ? 5000 : $numAchievements;
     //echo $numIDs;
@@ -1116,7 +1042,7 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
               FROM Achievements AS ach
               LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDs )
+              WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDsCSV )
               ORDER BY IsAwarded DESC, HardcoreAchieved ASC, DateAwarded DESC, ach.DisplayOrder ASC, ach.ID ASC
               LIMIT $limit";
 
@@ -1132,8 +1058,6 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
 
 function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
 {
-    sanitize_query_inputs($user, $localUser);
-
     getAccountDetails($user, $userInfo);
 
     if (!$userInfo) {
@@ -1215,8 +1139,6 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
 
 function getControlPanelUserInfo($user, &$libraryOut)
 {
-    sanitize_query_inputs($user);
-
     $libraryOut = [];
     $libraryOut['Played'] = [];
     //getUserActivityRange( $user, $firstLogin, $lastLogin );
@@ -1258,7 +1180,6 @@ function getUserList($sortBy, $offset, $count, &$dataOut, $requestedBy)
 
 function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &$perms = null, $showUntracked = false)
 {
-    sanitize_query_inputs($offset, $count, $requestedBy, $perms);
     settype($offset, 'integer');
     settype($count, 'integer');
     settype($showUntracked, 'boolean');
@@ -1356,8 +1277,6 @@ function getUserPermissions($user)
         return 0;
     }
 
-    sanitize_query_inputs($user);
-
     $query = "SELECT Permissions FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
@@ -1377,8 +1296,6 @@ function getUsersCompletedGamesAndMax($user)
     if (!isValidUsername($user)) {
         return $retVal;
     }
-
-    sanitize_query_inputs($user);
 
     $requiredFlags = 3;
     $minAchievementsForCompletion = 5;
@@ -1414,8 +1331,6 @@ function getUsersCompletedGamesAndMax($user)
 
 function getUsersSiteAwards($user, $showHidden = false)
 {
-    sanitize_query_inputs($user);
-
     $retVal = [];
 
     if (!isValidUsername($user)) {
@@ -1502,7 +1417,6 @@ function getUsersSiteAwards($user, $showHidden = false)
 
 function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
 {
-    sanitize_query_inputs($user, $awardType, $data, $dataExtra);
     settype($awardType, 'integer');
     //settype( $data, 'integer' );    //    nullable
     settype($dataExtra, 'integer');
@@ -1535,8 +1449,6 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
 
 function GetDeveloperStats($count, $type)
 {
-    sanitize_query_inputs($count);
-
     if ($type == 1) {
         $query = "SELECT ua.User as Author, ContribYield as NumCreated
                 FROM UserAccounts AS ua
@@ -1571,7 +1483,6 @@ function GetDeveloperStats($count, $type)
 
 function GetDeveloperStatsFull($count, $sortBy)
 {
-    sanitize_query_inputs($count);
     settype($sortBy, 'integer');
     settype($count, 'integer');
 
@@ -1641,8 +1552,6 @@ function GetDeveloperStatsFull($count, $sortBy)
 
 function GetUserFields($username, $fields)
 {
-    sanitize_query_inputs($username);
-
     $fieldsCSV = implode(",", $fields);
     $query = "SELECT $fieldsCSV FROM UserAccounts AS ua
               WHERE ua.User = '$username'";
@@ -1657,8 +1566,6 @@ function GetUserFields($username, $fields)
  */
 function HasPatreonBadge($usernameIn)
 {
-    sanitize_query_inputs($usernameIn);
-
     $query = "SELECT * FROM SiteAwards AS sa "
         . "WHERE sa.AwardType = 6 AND sa.User = '$usernameIn'";
 
@@ -1668,8 +1575,6 @@ function HasPatreonBadge($usernameIn)
 
 function SetPatreonSupporter($usernameIn, $enable)
 {
-    sanitize_query_inputs($usernameIn);
-
     if ($enable) {
         AddSiteAward($usernameIn, 6, 0, 0);
     } else {
@@ -1680,8 +1585,6 @@ function SetPatreonSupporter($usernameIn, $enable)
 
 function SetUserTrackedStatus($usernameIn, $isUntracked)
 {
-    sanitize_query_inputs($usernameIn, $isUntracked);
-
     $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'";
     s_mysql_query($query);
 }
@@ -1714,8 +1617,6 @@ function getUserCardData($user, &$userCardInfo)
 
 function recalcScore($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "UPDATE UserAccounts SET RAPoints = (
                 SELECT SUM(ach.Points) FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
@@ -1743,8 +1644,6 @@ function recalcScore($user)
 
 function attributeDevelopmentAuthor($author, $points)
 {
-    sanitize_query_inputs($author, $points);
-
     $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
     $dbResult = s_mysql_query($query);
     $oldResults = mysqli_fetch_assoc($dbResult);
@@ -1780,8 +1679,6 @@ function attributeDevelopmentAuthor($author, $points)
 
 function recalculateDevelopmentContributions($user)
 {
-    sanitize_query_inputs($user);
-
     //##SD Should be rewritten using a single inner table... damnit!
 
     $query = "UPDATE UserAccounts AS ua

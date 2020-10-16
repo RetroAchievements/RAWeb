@@ -1,15 +1,5 @@
 <?php
 
-function sanitize_query_inputs(&...$inputs)
-{
-    global $db;
-    foreach ($inputs as &$input) {
-        if (!empty($input)) {
-            $input = mysqli_real_escape_string($db, $input);
-        }
-    }
-}
-
 function SQL_ASSERT($dbResult)
 {
     if ($dbResult == false) {

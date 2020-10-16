@@ -2,13 +2,12 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-if (!seekPOSTorGET('term')) {
+if (!isset($_REQUEST['term'])) {
     exit;
 }
 
 global $db;
-$searchTerm = $_REQUEST['term'];
-sanitize_query_inputs($searchTerm);
+$searchTerm = mysqli_real_escape_string($db, $_REQUEST['term']);
 
 $source = seekGET('p', "");
 if ($source == 'gamecompare' || $source == 'user') {

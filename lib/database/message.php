@@ -2,44 +2,54 @@
 
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
-    sanitize_query_inputs($author, $destUser, $messageTitle, $messagePayloadIn);
+    //if( isFriendsWith( $author, $destUser ) )    //    nah
+    {
+        $messagePayload = nl2br($messagePayloadIn);
 
-    $messagePayload = nl2br($messagePayloadIn);
+        global $db;
+        $messageTitleSafe = mysqli_real_escape_string($db, $messageTitle);
+        $messagePayloadSafe = mysqli_real_escape_string($db, $messagePayload);
+        $authorSafe = mysqli_real_escape_string($db, $author);
+        $destUserSafe = mysqli_real_escape_string($db, $destUser);
 
-    $query = "INSERT INTO Messages VALUES ( NULL, '$destUser', '$author', '$messageTitle', '$messagePayloadIn', NOW(), 1, 0 )";
-    // log_sql($query);
+        $query = "INSERT INTO Messages VALUES ( NULL, '$destUserSafe', '$authorSafe', '$messageTitleSafe', '$messagePayloadSafe', NOW(), 1, 0 )";
+        // log_sql($query);
 
-    global $db;
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        //    Message sent!
-        UpdateCachedUnreadTotals($destUser);
+        $dbResult = mysqli_query($db, $query);
+        if ($dbResult !== false) {
+            //    Message sent!
+            UpdateCachedUnreadTotals($destUser);
 
-        //    Inform target?
-        if (getAccountDetails($destUser, $userDetails)) {
-            $websitePrefs = $userDetails['websitePrefs'];
-            $destEmail = $userDetails['EmailAddress'];
+            //    Inform target?
+            if (getAccountDetails($destUser, $userDetails)) {
+                $websitePrefs = $userDetails['websitePrefs'];
+                $destEmail = $userDetails['EmailAddress'];
 
-            if (BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage)) {
-                // error_log("Sending email to $destUser, from $author, about $messageTitle, containing: $messagePayload");
-                sendPrivateMessageEmail($destUser, $destEmail, $messageTitle, $messagePayload, $author);
+                if (BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage)) {
+                    // error_log("Sending email to $destUser, from $author, about $messageTitle, containing: $messagePayload");
+                    sendPrivateMessageEmail($destUser, $destEmail, $messageTitle, $messagePayload, $author);
+                }
             }
-        }
 
-        // error_log("Sent new PM from $author to $destUser, about $messageTitle, containing: $messagePayload");
-        return true;
-    } else {
-        //    Unconfirmed friend:
-        log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: insert query failed: user:$author, friend:$destUser, $messageTitle, $messagePayload");
-        return false;
+            // error_log("Sent new PM from $author to $destUser, about $messageTitle, containing: $messagePayload");
+            return true;
+        } else {
+            //    Unconfirmed friend:
+            log_sql_fail();
+            // error_log(__FUNCTION__ . " failed: insert query failed: user:$author, friend:$destUser, $messageTitle, $messagePayload");
+            return false;
+        }
     }
+    // else
+    // {
+    // //    Cannot send PM to a non-friend
+    // error_log( __FUNCTION__ . " cannot PM a non-friend!" );
+    // return FALSE;
+    // }
 }
 
 function GetMessageCount($user, &$totalMessageCount)
 {
-    sanitize_query_inputs($user);
-
     if (!isset($user)) {
         $totalMessageCount = 0;
         return 0;
@@ -85,8 +95,6 @@ function GetMessageCount($user, &$totalMessageCount)
 
 function GetTotalMessageCount($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "SELECT COUNT(*) AS NumUnreadMessages
               FROM Messages AS msg
               WHERE msg.UserTo = '$user'";
@@ -103,8 +111,6 @@ function GetTotalMessageCount($user)
 
 function GetMessage($user, $id)
 {
-    sanitize_query_inputs($user, $id);
-
     $query = "SELECT * FROM Messages AS msg
               WHERE msg.ID='$id' AND msg.UserTo='$user'";
 
@@ -126,8 +132,6 @@ function GetMessage($user, $id)
 
 function GetUnreadMessages($user, $offset, $count)
 {
-    sanitize_query_inputs($user, $offset, $count);
-
     $retval = [];
 
     $query = "SELECT * FROM Messages AS msg
@@ -150,8 +154,6 @@ function GetUnreadMessages($user, $offset, $count)
 
 function GetAllMessages($user, $offset, $count, $unreadOnly)
 {
-    sanitize_query_inputs($user, $offset, $count);
-
     $retval = [];
 
     $subQuery = '';
@@ -180,8 +182,6 @@ function GetAllMessages($user, $offset, $count, $unreadOnly)
 
 function GetSentMessages($user, $offset, $count)
 {
-    sanitize_query_inputs($user, $offset, $count);
-
     $retval = [];
 
     $query = "SELECT * FROM Messages AS msg
@@ -204,8 +204,6 @@ function GetSentMessages($user, $offset, $count)
 
 function UpdateCachedUnreadTotals($user)
 {
-    sanitize_query_inputs($user);
-
     $query = "
     UPDATE UserAccounts AS ua
     SET UnreadMessageCount = (
@@ -223,8 +221,6 @@ function UpdateCachedUnreadTotals($user)
 
 function markMessageAsRead($user, $messageID, $setAsUnread = 0)
 {
-    sanitize_query_inputs($user, $messageID);
-
     $newReadStatus = $setAsUnread == 1 ? 1 : 0;
 
     $query = "UPDATE Messages AS msg
@@ -243,8 +239,6 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0)
 
 function DeleteMessage($user, $messageID)
 {
-    sanitize_query_inputs($user, $messageID);
-
     $messageToDelete = GetMessage($user, $messageID);
 
     if ($messageToDelete == false) {

@@ -2,8 +2,14 @@
 
 function requestModifyVid($author, &$id, $title, $link)
 {
-    sanitize_query_inputs($author, $title, $link);
+    global $db;
+
+    //    Sanitise:
+    $title = mysqli_real_escape_string($db, $title);
     $title = str_replace("'", "''", $title);
+
+    $author = mysqli_real_escape_string($db, $author);
+    $link = mysql_real_escape_string($link);
 
     if (isset($id) && $id != 0) {
         $query = "UPDATE PlaylistVideo SET Title='$title', Author='$author', Link='$link' WHERE ID='$id'";

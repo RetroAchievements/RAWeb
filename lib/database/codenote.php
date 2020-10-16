@@ -4,7 +4,6 @@ function getCodeNotesData($gameID)
 {
     $codeNotesOut = [];
 
-    sanitize_query_inputs($gameID);
     settype($gameID, 'integer');
 
     $query = "SELECT ua.User, cn.Address, cn.Note
@@ -30,7 +29,6 @@ function getCodeNotesData($gameID)
 
 function getCodeNotes($gameID, &$codeNotesOut)
 {
-    sanitize_query_inputs($gameID);
     settype($gameID, 'integer');
 
     $query = "SELECT ua.User, cn.Address, cn.Note
@@ -77,8 +75,6 @@ function submitCodeNote2($user, $gameID, $address, $note)
         return false;
     }
 
-    sanitize_query_inputs($user, $gameID, $address, $note);
-
     $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
     $currentNotes = getCodeNotesData($gameID);
     $i = array_search($addressHex, array_column($currentNotes, 'Address'));
@@ -98,6 +94,7 @@ function submitCodeNote2($user, $gameID, $address, $note)
     //    turn '0x00000f' into '15'
     //$addressAsInt = hexdec( substr( $address, 2 ) );
 
+    $note = mysqli_real_escape_string($db, $note);
     $note = str_replace("#", "_", $note);   //    Remove hashes. Sorry. hash is now a delim.
 
     $query = "INSERT INTO CodeNotes ( GameID, Address, AuthorID, Note )
@@ -126,7 +123,6 @@ function submitCodeNote($user, $gameID, $address, $note)
     }
 
     global $db;
-    sanitize_query_inputs($user, $gameID, $address, $note);
 
     $userID = getUserIDFromUser($user);
 
@@ -134,6 +130,7 @@ function submitCodeNote($user, $gameID, $address, $note)
     $addressAsInt = hexdec(mb_substr($address, 2));
 
     //$note = str_replace( "'", "''", $note );
+    $note = mysqli_real_escape_string($db, $note);
 
     //    Remove hashes. Sorry. hash is now a delim.
     $note = str_replace("#", "_", $note);
@@ -183,13 +180,11 @@ function submitCodeNote($user, $gameID, $address, $note)
 /**
  * Gets the number of code notes created for each game the user has created any notes for.
  *
- * @param string $user to get code note data for
- * @return array of games and code note counts
+ * @param String $user to get code note data for
+ * @return Array of games and code note counts
  */
 function getCodeNoteCounts($user)
 {
-    sanitize_query_inputs($user);
-
     $retVal = [];
     $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as TotalNotes,
               SUM(CASE WHEN ua.User = '$user' THEN 1 ELSE 0 END) AS NoteCount
@@ -199,7 +194,7 @@ function getCodeNoteCounts($user)
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE LENGTH(Note) > 0
               AND gd.Title IS NOT NULL
-              GROUP BY GameID, GameTitle
+              GROUP BY GameID
               HAVING NoteCount > 0
               ORDER BY NoteCount DESC, GameTitle";
 

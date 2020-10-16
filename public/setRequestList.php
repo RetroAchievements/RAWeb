@@ -120,7 +120,7 @@ RenderToolbar($user, $permissions);
                 . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
             if ($flag == 0) {
-                echo "<a href='/setRequestList.php?u=" . $username . "&f=1'>View All User Set Requests</a>";
+                echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
             } else {
                 echo "<a href='/setRequestList.php?u=$username'>View Active User Set Requests</a>";
             }

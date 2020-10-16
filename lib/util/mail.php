@@ -211,6 +211,7 @@ function sendActivityEmail(
     $link = '';
     $activityDescription = '';
 
+
     if ($articleType == \RA\ArticleType::Game) {
         $emailTitle = "New Game Wall Comment from $activityCommenter";
         $link = "<a href='" . getenv('APP_URL') . "/Game/$actID'>here</a>";

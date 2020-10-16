@@ -2,24 +2,42 @@
 
 function seekGET($key, $default = null)
 {
-    return ($_GET[$key] ?? null) ? htmlentities($_GET[$key], ENT_QUOTES | ENT_HTML5) : $default;
+    if ($_GET !== false && array_key_exists($key, $_GET)) {
+        return $_GET[$key];
+    } else {
+        return $default;
+    }
 }
 
 function seekPOST($key, $default = null)
 {
-    return $_POST[$key] ?? $default;
+    if ($_POST !== false && array_key_exists($key, $_POST)) {
+        return $_POST[$key];
+    } else {
+        return $default;
+    }
 }
 
 function seekPOSTorGET($key, $default = null, $type = null)
 {
-    $input = seekPOST($key);
-    if (!$input) {
-        $input = seekGET($key);
+    if ($_POST !== false && array_key_exists($key, $_POST)) {
+        if (isset($type)) {
+            settype($_POST[$key], $type);
+        }
+        return $_POST[$key];
+    } else {
+        if ($_GET !== false && array_key_exists($key, $_GET)) {
+            if (isset($type)) {
+                settype($_GET[$key], $type);
+            }
+            return $_GET[$key];
+        } else {
+            if (isset($type)) {
+                settype($default, $type);
+            }
+            return $default;
+        }
     }
-    if (!$input) {
-        $input = $default;
-    }
-    return $type ? settype($input, $type) : $input;
 }
 
 function ValidatePOSTChars($charsIn)
