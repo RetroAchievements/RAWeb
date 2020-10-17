@@ -7,9 +7,9 @@ if (!ValidatePOSTChars("u")) {
     return;
 }
 
-$user = seekPOST('u', null);
-$gameID = seekPOST('g', null);
-$achID = seekPOST('a', null);
+$user = requestInputPost('u', null);
+$gameID = requestInputPost('g', null);
+$achID = requestInputPost('a', null);
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (!empty($achID) && resetSingleAchievement($user, $achID)) {

@@ -13,7 +13,7 @@ function isAllowedToSubmitTickets($user)
 
 function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
 {
-    sanitize_query_inputs($userSubmitter, $reportType, $noteIn, $ROMMD5);
+    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $ROMMD5);
 
     $returnMsg = [];
 
@@ -114,7 +114,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
         return false;
     }
 
-    sanitize_query_inputs($userSubmitter, $reportType, $noteIn);
+    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn);
 
     global $db;
     $note = $noteIn;
@@ -214,7 +214,7 @@ function getAllTickets(
     $ticketFilters = 2041, //2041 sets all filters active except for Closed and Resolved
     $getUnofficial = false
 ) {
-    sanitize_query_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
+    sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
 
     $retVal = [];
     settype($givenGameID, 'integer');
@@ -288,7 +288,7 @@ function getAllTickets(
 
 function getTicket($ticketID)
 {
-    sanitize_query_inputs($ticketID);
+    sanitize_sql_inputs($ticketID);
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
@@ -313,7 +313,7 @@ function getTicket($ticketID)
 
 function updateTicket($user, $ticketID, $ticketVal, $reason = null)
 {
-    sanitize_query_inputs($ticketI, $ticketVal);
+    sanitize_sql_inputs($ticketI, $ticketVal);
 
     $userID = getUserIDFromUser($user);
 
@@ -408,7 +408,7 @@ function countOpenTicketsByDev($dev)
         return null;
     }
 
-    sanitize_query_inputs($dev);
+    sanitize_sql_inputs($dev);
 
     $query = "
         SELECT count(*) as count
@@ -428,7 +428,7 @@ function countOpenTicketsByDev($dev)
 
 function countOpenTicketsByAchievement($achievementID)
 {
-    sanitize_query_inputs($achievementID);
+    sanitize_sql_inputs($achievementID);
     settype($achievementID, 'integer');
     if ($achievementID <= 0) {
         return false;
@@ -454,7 +454,7 @@ function countOpenTickets(
     $assignedToUser = null,
     $gameID = null
 ) {
-    sanitize_query_inputs($assignedToUser, $gameID);
+    sanitize_sql_inputs($assignedToUser, $gameID);
 
     //State condition
     $stateCond = getStateCondition($ticketFilters);
@@ -513,7 +513,7 @@ function countOpenTickets(
 
 function gamesSortedByOpenTickets($count)
 {
-    sanitize_query_inputs($count);
+    sanitize_sql_inputs($count);
     settype($count, 'integer');
     if ($count == 0) {
         $count = 20;
@@ -694,7 +694,7 @@ function getEmulatorCondition($ticketFilters)
  */
 function getTicketsForUser($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
@@ -721,7 +721,7 @@ function getTicketsForUser($user)
  */
 function getUserGameWithMostTickets($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
               FROM Ticket AS t
@@ -750,7 +750,7 @@ function getUserGameWithMostTickets($user)
  */
 function getUserAchievementWithMostTickets($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT a.ID as AchievementID, a.Title as AchievementTitle, a.Description as AchievementDescription, a.Points as AchievementPoints, a.BadgeName as AchievementBadge, gd.Title AS GameTitle, COUNT(*) as TicketCount
               FROM Ticket AS t
@@ -779,7 +779,7 @@ function getUserAchievementWithMostTickets($user)
  */
 function getUserWhoCreatedMostTickets($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
               FROM Ticket AS t
@@ -806,7 +806,7 @@ function getUserWhoCreatedMostTickets($user)
  */
 function getNumberOfTicketsClosedForOthers($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
     $query = "SELECT a.Author, COUNT(a.Author) AS TicketCount,

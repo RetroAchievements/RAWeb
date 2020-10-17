@@ -7,7 +7,7 @@ if (!validateGetChars("v")) {
     return;
 }
 
-$eCookie = seekGET('v');
+$eCookie = requestInputSanitized('v');
 
 if (validateEmailValidationString($eCookie, $user)) {
     //	Valid!

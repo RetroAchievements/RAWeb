@@ -4,7 +4,7 @@ function getCodeNotesData($gameID)
 {
     $codeNotesOut = [];
 
-    sanitize_query_inputs($gameID);
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
 
     $query = "SELECT ua.User, cn.Address, cn.Note
@@ -30,7 +30,7 @@ function getCodeNotesData($gameID)
 
 function getCodeNotes($gameID, &$codeNotesOut)
 {
-    sanitize_query_inputs($gameID);
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
 
     $query = "SELECT ua.User, cn.Address, cn.Note
@@ -77,7 +77,7 @@ function submitCodeNote2($user, $gameID, $address, $note)
         return false;
     }
 
-    sanitize_query_inputs($user, $gameID, $address, $note);
+    sanitize_sql_inputs($user, $gameID, $address, $note);
 
     $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
     $currentNotes = getCodeNotesData($gameID);
@@ -126,7 +126,7 @@ function submitCodeNote($user, $gameID, $address, $note)
     }
 
     global $db;
-    sanitize_query_inputs($user, $gameID, $address, $note);
+    sanitize_sql_inputs($user, $gameID, $address, $note);
 
     $userID = getUserIDFromUser($user);
 
@@ -188,7 +188,7 @@ function submitCodeNote($user, $gameID, $address, $note)
  */
 function getCodeNoteCounts($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
     $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as TotalNotes,

@@ -4,7 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use RA\Permissions;
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('c', 0);
+$consoleIDInput = requestInputSanitized('c', 0);
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -18,15 +18,15 @@ if (isset($user)) {
 $maxCount = 25;
 
 $count = 25;
-$offset = seekGET('o', 0);
+$offset = requestInputSanitized('o', 0);
 
-$gameID = seekGET('g', null);
+$gameID = requestInputSanitized('g', null);
 
 if (isset($gameID)) {
-    $sortBy = seekGET('s', 0);
+    $sortBy = requestInputSanitized('s', 0);
 }    //	If a game is picked, sort the LBs by DisplayOrder
 else {
-    $sortBy = seekGET('s', 3);
+    $sortBy = requestInputSanitized('s', 3);
 }
 
 $lbCount = getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, $lbData);
@@ -48,7 +48,7 @@ if ($consoleIDInput) {
 
 $pageTitle = "Leaderboard List" . $requestedConsole;
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>

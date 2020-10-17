@@ -6,7 +6,7 @@ $consoles = getConsoleList();
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 $staticData = getStaticData();
 
 RenderHtmlStart();

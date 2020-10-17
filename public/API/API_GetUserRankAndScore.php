@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
+$user = requestInputQuery('u', null);
 
 $retVal = [];
 

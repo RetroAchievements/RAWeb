@@ -5,9 +5,9 @@ use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
-$vidID = seekGET('v', 0);
-$mobileSetting = seekGET('m');
+$errorCode = requestInputSanitized('e');
+$vidID = requestInputSanitized('v', 0);
+$mobileSetting = requestInputSanitized('m');
 
 RenderHtmlStart();
 RenderHtmlHead("RA Cinema");

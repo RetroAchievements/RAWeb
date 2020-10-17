@@ -5,7 +5,7 @@ use RA\ActivityType;
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 {
     global $db;
-    sanitize_query_inputs($user, $lbID, $newEntry);
+    sanitize_sql_inputs($user, $lbID, $newEntry);
 
     $retVal = [];
     $retVal['Success'] = true;
@@ -103,7 +103,7 @@ function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 
 function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
 {
-    sanitize_query_inputs($user, $lbID, $newEntry);
+    sanitize_sql_inputs($user, $lbID, $newEntry);
 
     //    Fetch some always-needed data
     $query = "SELECT Format, ID, GameID, Title
@@ -216,7 +216,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
 
 function removeLeaderboardEntry($user, $lbID)
 {
-    sanitize_query_inputs($user, $lbID);
+    sanitize_sql_inputs($user, $lbID);
 
     $userID = getUserIDFromUser($user);
     if ($userID > 0) {
@@ -240,7 +240,7 @@ function removeLeaderboardEntry($user, $lbID)
 
 function GetLeaderboardRankingJSON($user, $lbID)
 {
-    sanitize_query_inputs($user, $lbID);
+    sanitize_sql_inputs($user, $lbID);
 
     $retVal = [];
 
@@ -272,7 +272,7 @@ function GetLeaderboardRankingJSON($user, $lbID)
 // TODO Deprecate: fold into above
 function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries)
 {
-    sanitize_query_inputs($user, $lbID);
+    sanitize_sql_inputs($user, $lbID);
 
     $query = "SELECT
               COUNT(*) AS UserRank,
@@ -309,7 +309,7 @@ function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries)
 
 function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
 {
-    sanitize_query_inputs($gameID, $localUser);
+    sanitize_sql_inputs($gameID, $localUser);
 
     $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format FROM (
                 SELECT
@@ -348,7 +348,7 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
 
 function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $friendsOnly)
 {
-    sanitize_query_inputs($lbID, $user, $numToFetch, $offset);
+    sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
 
     $retVal = [];
 
@@ -381,7 +381,7 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
 
 function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
 {
-    sanitize_query_inputs($lbID, $user, $numToFetch, $offset);
+    sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
 
     $retVal = [];
 
@@ -522,7 +522,7 @@ function getLeaderboardDataSmall(
     &$consoleIDOut,
     &$consoleTitleOut
 ) {
-    sanitize_query_inputs($lbID);
+    sanitize_sql_inputs($lbID);
 
     $query = "SELECT ld.Title, Description, GameID, Format, LowerIsBetter, gd.Title AS GameTitle, gd.ConsoleID, gd.ForumTopicID, c.Name AS ConsoleTitle ";
     $query .= "FROM LeaderboardDef AS ld ";
@@ -554,7 +554,7 @@ function getLeaderboardDataSmall(
 
 function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, &$lbDataOut)
 {
-    sanitize_query_inputs($consoleIDInput, $gameID, $count, $offset);
+    sanitize_sql_inputs($consoleIDInput, $gameID, $count, $offset);
     settype($sortBy, 'integer');
     settype($consoleIDInput, 'integer');
     settype($gameID, 'integer');
@@ -653,7 +653,7 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
 
 function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)
 {
-    sanitize_query_inputs($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder);
+    sanitize_sql_inputs($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder);
     settype($lbDisplayOrder, 'integer');
 
     $query = "UPDATE LeaderboardDef AS ld SET
@@ -681,7 +681,7 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
 
 function SubmitNewLeaderboard($gameID, &$lbIDOut)
 {
-    sanitize_query_inputs($gameID);
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID == 0) {
         return false;
@@ -712,7 +712,7 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
  */
 function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 {
-    sanitize_query_inputs($gameID, $leaderboardID);
+    sanitize_sql_inputs($gameID, $leaderboardID);
     settype($gameID, 'integer');
     settype($leaderboardID, 'integer');
     settype($duplicateNumber, 'integer');
@@ -771,7 +771,7 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 
 function requestResetLB($lbID)
 {
-    sanitize_query_inputs($lbID);
+    sanitize_sql_inputs($lbID);
     settype($lbID, 'integer');
     if ($lbID == 0) {
         return false;
@@ -787,7 +787,7 @@ function requestResetLB($lbID)
 
 function requestDeleteLB($lbID)
 {
-    sanitize_query_inputs($lbID);
+    sanitize_sql_inputs($lbID);
     settype($lbID, 'integer');
     //log_email(__FUNCTION__ . " LB $lbID being deleted!");
 
@@ -802,7 +802,7 @@ function requestDeleteLB($lbID)
 
 function GetLBPatch($gameID)
 {
-    sanitize_query_inputs($gameID);
+    sanitize_sql_inputs($gameID);
     $lbData = [];
 
     //    Always append LBs?

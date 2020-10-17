@@ -7,9 +7,9 @@ if (!ValidatePOSTChars("tfv")) {
     return;
 }
 
-$topicID = seekPOST('t');
-$field = seekPOST('f');
-$value = seekPOST('v');
+$topicID = requestInputPost('t');
+$field = requestInputPost('f');
+$value = requestInputPost('v');
 
 // error_log("requestModifyTopic, " . $field . ", " . "$value");
 

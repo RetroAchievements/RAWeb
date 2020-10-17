@@ -16,12 +16,12 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$messageTo = seekGET('t', '');
-$messageContextID = seekGET('i', -1);
+$messageTo = requestInputSanitized('t', '');
+$messageContextID = requestInputSanitized('i', -1);
 
-$messageOutgoingPayload = seekGET('p', '');
+$messageOutgoingPayload = requestInputSanitized('p', '');
 
-$messageContextTitle = seekGET('s', '');
+$messageContextTitle = requestInputSanitized('s', '');
 $messageContextPayload = '';
 $messageContextData = null;
 
@@ -33,7 +33,7 @@ if ($messageContextID != -1) {
     $messageContextPayload = nl2br($messageContextPayload);
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Send Message");

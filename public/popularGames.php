@@ -5,15 +5,14 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $maxCount = 50;
 
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
-$method = seekGET('p', 0);
-settype($method, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$method = requestInputSanitized('p', 0, 'integer');
 
 $gameData = getMostPopularGames($offset, $count, $method);
 
 $mobileBrowser = IsMobileBrowser();
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Most Popular Games");
 ?>

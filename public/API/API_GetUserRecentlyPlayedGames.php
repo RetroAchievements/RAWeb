@@ -4,9 +4,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$count = min(seekGET('c', 10), 50);
-$offset = seekGET('o', 0);
+$user = requestInputQuery('u', null);
+$count = min(requestInputQuery('c', 10), 50);
+$offset = requestInputQuery('o', 0);
 
 $recentlyPlayedData = [];
 $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);

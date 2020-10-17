@@ -3,9 +3,9 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (ValidatePOSTorGETChars("tpv")) {
-    $targetUser = seekPOSTorGET('t');
-    $propertyType = seekPOSTorGET('p');
-    $value = seekPOSTorGET('v');
+    $targetUser = requestInput('t');
+    $propertyType = requestInput('p', null, 'integer');
+    $value = requestInput('v', null, 'integer');
 } else {
     echo "FAILED";
     return;
@@ -15,9 +15,6 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     echo "FAILED!";
     return;
 }
-
-settype($propertyType, 'integer');
-settype($value, 'integer');
 
 // Account permissions
 if ($propertyType == 0) {

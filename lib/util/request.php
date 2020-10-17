@@ -1,20 +1,32 @@
 <?php
 
-function seekGET($key, $default = null)
+function requestInputQuery($key, $default = null, $type = null)
 {
-    return $_GET[$key] ?? $default;
+    $input = $_GET[$key] ?? $default;
+
+    if ($type) {
+        settype($input, $type);
+    }
+
+    return $input;
 }
 
-function seekPOST($key, $default = null)
+function requestInputPost($key, $default = null, $type = null)
 {
-    return $_POST[$key] ?? $default;
+    $input = $_POST[$key] ?? $default;
+
+    if ($type) {
+        settype($input, $type);
+    }
+
+    return $input;
 }
 
-function seekPOSTorGET($key, $default = null, $type = null)
+function requestInput($key, $default = null, $type = null)
 {
-    $input = seekPOST($key);
+    $input = requestInputPost($key);
     if (!$input) {
-        $input = seekGET($key);
+        $input = requestInputQuery($key);
     }
     if (!$input) {
         $input = $default;
@@ -23,6 +35,22 @@ function seekPOSTorGET($key, $default = null, $type = null)
         settype($input, $type);
     }
     return $input;
+}
+
+/**
+ * Get request input sanitized for output
+ *
+ * @param $key
+ * @param null $default
+ * @param null $type
+ * @return mixed|string|null
+ */
+function requestInputSanitized($key, $default = null, $type = null)
+{
+    if (!$type || $type === 'string') {
+        return htmlentities(requestInput($key, $default, $type));
+    }
+    return requestInput($key, $default, $type);
 }
 
 function ValidatePOSTChars($charsIn)

@@ -4,13 +4,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 100;
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
+$count = requestInputSanitized('c', $maxCount);
+$offset = requestInputSanitized('o', 0);
 
-$ticketID = seekPOSTorGET('i', 0);
-settype($ticketID, 'integer');
+$ticketID = requestInputSanitized('i', 0, 'integer');
 $defaultFilter = 2041; //2041 sets all filters active except for Closed and Resolved
-$ticketFilters = seekGET('t', $defaultFilter);
+$ticketFilters = requestInputSanitized('t', $defaultFilter);
 
 $reportStates = ["Closed", "Open", "Resolved"];
 
@@ -21,7 +20,7 @@ if ($ticketID != 0) {
         $errorCode = 'notfound';
     }
 
-    $action = seekPOSTorGET('action', null);
+    $action = requestInputSanitized('action', null);
     $reason = null;
     $ticketState = 1;
     switch ($action) {
@@ -117,18 +116,18 @@ if ($ticketID != 0) {
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
 if ($ticketID == 0) {
-    $gamesTableFlag = seekGET('f');
+    $gamesTableFlag = requestInputSanitized('f');
     if ($gamesTableFlag == 1) {
-        $count = seekGET('c', 100);
+        $count = requestInputSanitized('c', 100);
         $ticketData = gamesSortedByOpenTickets($count);
     } else {
-        $assignedToUser = seekGET('u', null);
+        $assignedToUser = htmlentities(requestInputSanitized('u', null));
         if (!isValidUsername($assignedToUser)) {
             $assignedToUser = null;
         }
-        $gameIDGiven = seekGET('g', null);
+        $gameIDGiven = htmlentities(requestInputSanitized('g', null));
 
-        $achievementIDGiven = seekGET('a', null);
+        $achievementIDGiven = requestInputSanitized('a', null);
         if ($achievementIDGiven > 0) {
             $achievementData = GetAchievementData($achievementIDGiven);
             $achievementTitle = $achievementData['Title'];
@@ -149,7 +148,7 @@ if (!empty($gameIDGiven)) {
 
 $pageTitle = "Ticket Manager";
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
@@ -185,7 +184,7 @@ RenderHtmlHead($pageTitle);
         if ($gamesTableFlag == 1) {
             echo "<h3>Top " . count($ticketData) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
-            $assignedToUser = seekGET('u', null);
+            $assignedToUser = htmlentities(requestInputSanitized('u', null));
             if (!isValidUsername($assignedToUser)) {
                 $assignedToUser = null;
             }

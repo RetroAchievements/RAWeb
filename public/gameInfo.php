@@ -8,8 +8,7 @@ use RA\Permissions;
   as they are all in a pseudo-directory of /Game etc.
  */
 
-$gameID = seekGET('ID');
-settype($gameID, 'integer');
+$gameID = requestInputSanitized('ID', null, 'integer');
 if ($gameID == null || $gameID == 0) {
     header("Location: " . getenv('APP_URL') . "?e=urlissue");
     exit;
@@ -20,17 +19,16 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 $officialFlag = 3; // flag = 3 means Core (official) achievements
-$flags = seekGET('f', $officialFlag);
-settype($flags, 'integer');
+$flags = requestInputSanitized('f', $officialFlag, 'integer');
 
 $defaultSort = 1;
 if (isset($user)) {
     $defaultSort = 13;
 }
-$sortBy = seekGET('s', $defaultSort);
+$sortBy = requestInputSanitized('s', $defaultSort);
 
 if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
@@ -1027,8 +1025,8 @@ RenderHtmlStart(true);
                 echo "</li>";
                 echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
                 $numOpenTickets = countOpenTickets(
-                    seekGET('f') == 5,
-                    seekGET('t', 2041),
+                    requestInputSanitized('f') == 5,
+                    requestInputSanitized('t', 2041),
                     null,
                     $gameID
                 );

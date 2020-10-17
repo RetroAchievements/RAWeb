@@ -7,9 +7,9 @@ if (!ValidateGETChars('uig')) {
     return;
 }
 
-$source = seekGET('u');
-$lbID = seekGET('i');
-$gameID = seekGET('g');
+$source = requestInputQuery('u');
+$lbID = requestInputQuery('i');
+$gameID = requestInputQuery('g');
 
 getCookie($user, $cookie);
 

@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$requestedCategoryID = seekGET('c');
-settype($requestedCategoryID, "integer");
+$requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
 $forumList = getForumList($requestedCategoryID);
 
@@ -21,7 +20,7 @@ if ($requestedCategoryID !== 0 && count($forumList) > 0) {
     $pageTitle .= ": " . $requestedCategory;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);

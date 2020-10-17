@@ -4,7 +4,7 @@ require_once(__DIR__ . "/../src/RetroAchievementsWebApiClient.php");
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 $apiUser = isset($user) ? $user : 'TestUser';
 $apiKey = isset($user) ? GetAPIKey($user) : 'Your API Key';

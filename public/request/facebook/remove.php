@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$userInput = seekGET('u');
+$userInput = requestInputQuery('u');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions) && ($user == $userInput)) {
     $query = "UPDATE UserAccounts SET fbPrefs='0', fbUser='0', Updated=NOW() WHERE User='$user'";

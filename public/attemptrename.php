@@ -14,10 +14,8 @@ if (!RA_ReadCookieCredentials(
     exit;
 }
 
-$gameID = seekGET('g');
-$errorCode = seekGET('e');
-
-settype($gameID, 'integer');
+$gameID = requestInputSanitized('g', null, 'integer');
+$errorCode = requestInputSanitized('e');
 
 $achievementList = [];
 $gamesList = [];

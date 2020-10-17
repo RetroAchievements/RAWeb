@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$articleID = seekPOSTorGET('a', 0, 'integer');
-$commentID = seekPOSTorGET('c', 0, 'integer');
+$articleID = requestInput('a', 0, 'integer');
+$commentID = requestInput('c', 0, 'integer');
 
 $response = [];
 $response['ArtID'] = $articleID;

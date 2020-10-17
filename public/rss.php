@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("RSS Feeds");
 ?>

@@ -13,15 +13,15 @@ $response = ['Success' => true];
  * AVOID A G O C - these are now strongly typed as INT!
  * Global RESERVED vars:
  */
-$requestType = seekPOSTorGET('r');
-$user = seekPOSTorGET('u');
-$token = seekPOSTorGET('t', null);
-$achievementID = seekPOSTorGET('a', 0, 'integer');  // Keep in mind, this will overwrite anything given outside these params!!
-$gameID = seekPOSTorGET('g', 0, 'integer');
-$offset = seekPOSTorGET('o', 0, 'integer');
-$count = seekPOSTorGET('c', 10, 'integer');
+$requestType = requestInput('r');
+$user = requestInput('u');
+$token = requestInput('t', null);
+$achievementID = requestInput('a', 0, 'integer');  // Keep in mind, this will overwrite anything given outside these params!!
+$gameID = requestInput('g', 0, 'integer');
+$offset = requestInput('o', 0, 'integer');
+$count = requestInput('c', 10, 'integer');
 
-//$bounceReferrer = seekPOSTorGET( 'b' ); // TBD: Remove!
+//$bounceReferrer = requestInput( 'b' ); // TBD: Remove!
 
 $errorCode = "OK";
 
@@ -91,8 +91,8 @@ if ($credentialsOK) {
          * Login
          */
         case "login": // From App!
-            $user = seekPOSTorGET('u');
-            $rawPass = seekPOSTorGET('p');
+            $user = requestInput('u');
+            $rawPass = requestInput('p');
             $success = login_appWithToken($user, $rawPass, $token, $scoreOut, $messagesOut);
             if ($success == 1) {
                 // OK:
@@ -113,7 +113,7 @@ if ($credentialsOK) {
          * Global, no permissions required
          */
         case "allprogress":
-            $consoleID = seekPOSTorGET('c');
+            $consoleID = requestInput('c', null, 'integer');
             $response['Response'] = GetAllUserProgress($user, $consoleID);
             break;
 
@@ -155,28 +155,28 @@ if ($credentialsOK) {
         //     break;
 
         case "gameid":
-            $md5 = seekPOSTorGET('m');
+            $md5 = requestInput('m');
             $response['GameID'] = getGameIDFromMD5($md5);
             break;
 
         case "gameslist":
-            $consoleID = seekPOSTorGET('c', 0, 'integer');
+            $consoleID = requestInput('c', 0, 'integer');
             $response['Response'] = getGamesListDataNamesOnly($consoleID);
             break;
 
         case "officialgameslist":
-            $consoleID = seekPOSTorGET('c', 0, 'integer');
+            $consoleID = requestInput('c', 0, 'integer');
             $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
             break;
 
         case "hashlibrary":
-            $consoleID = seekPOSTorGET('c', 0, 'integer');
+            $consoleID = requestInput('c', 0, 'integer');
             $response['MD5List'] = getMD5List($consoleID);
             break;
 
         case "latestclient":
-            $emulatorId = seekPOSTorGET('e');
-            $consoleId = seekPOSTorGET('c');
+            $emulatorId = requestInput('e');
+            $consoleId = requestInput('c');
 
             if ($emulatorId === null && $consoleId !== null) {
                 DoRequestError("Lookup by Console ID has been deprecated");
@@ -214,7 +214,7 @@ if ($credentialsOK) {
         //     break;
 
         case "ping":
-            $activityMessage = seekPOST('m', null);
+            $activityMessage = requestInputPost('m', null);
             $response['Success'] = userActivityPing($user);
 
             if (isset($activityMessage)) {
@@ -223,12 +223,12 @@ if ($credentialsOK) {
             break;
 
         // case "resetpassword":
-        //     $username = seekPOSTorGET('u');
+        //     $username = requestInput('u');
         //     $response['Response'] = RequestPasswordReset($username);
         //     break;
         // case "setpassword":
-        //     $username = seekPOSTorGET( 'u' );
-        //     $newPassword = seekPOSTorGET( 'p' );
+        //     $username = requestInput( 'u' );
+        //     $newPassword = requestInput( 'p' );
         //     $success = changePassword( $username, $newPassword );
         //
         //     //  If changed OK, auto-login - doesn't appear to work?
@@ -241,7 +241,7 @@ if ($credentialsOK) {
         //     DoRequestError('Deprecated');
         //     break;
         // case "score":
-        //     $user = seekPOSTorGET('u');
+        //     $user = requestInput('u');
         //     $response['Score'] = GetScore($user);
         //     $response['User'] = $user;
         //     break;
@@ -252,7 +252,7 @@ if ($credentialsOK) {
         // case "userpic":
         // {
         //     // Special case
-        //     $targetUser = seekPOSTorGET('i');
+        //     $targetUser = requestInput('i');
         //     $destURL = getenv('APP_URL') . "/UserPic/$targetUser" . ".png";
         //
         //     header('Content-type: image/png');
@@ -263,7 +263,7 @@ if ($credentialsOK) {
         // {
         //     // DO NOT USE: access URL directly please!
         //     // Special case
-        //     $badgeURI = seekPOSTorGET('i');
+        //     $badgeURI = requestInput('i');
         //     $destURL = getenv('ASSET_URL') . "/Badge/$badgeURI" . ".png";
         //
         //     header('Content-type: image/png');
@@ -276,7 +276,7 @@ if ($credentialsOK) {
          * User-based (require credentials)
          */
         case "achievementwondata":
-            $friendsOnly = seekPOSTorGET('f', 0, 'integer');
+            $friendsOnly = requestInput('f', 0, 'integer');
             $response['Offset'] = $offset;
             $response['Count'] = $count;
             $response['FriendsOnly'] = $friendsOnly;
@@ -285,13 +285,13 @@ if ($credentialsOK) {
             break;
 
         // case "addfriend":
-        //     $newFriend = seekPOSTorGET('n');
+        //     $newFriend = requestInput('n');
         //     $response['Success'] = AddFriend($user, $newFriend);
         //     break;
 
         case "awardachievement":
-            $achIDToAward = seekPOSTorGET('a', 0, 'integer');
-            $hardcore = seekPOSTorGET('h', 0, 'integer');
+            $achIDToAward = requestInput('a', 0, 'integer');
+            $hardcore = requestInput('h', 0, 'integer');
             /**
              * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
              */
@@ -310,26 +310,26 @@ if ($credentialsOK) {
             break;
 
         case "lbinfo":
-            $lbID = seekPOSTorGET('i', 0, 'integer');
+            $lbID = requestInput('i', 0, 'integer');
             $friendsOnly = 0; // TBD
             $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
             break;
 
         // case "modifyfriend":
-        //     $friend = seekPOSTorGET('f');
-        //     $action = seekPOSTorGET('a');
+        //     $friend = requestInput('f');
+        //     $action = requestInput('a');
         //     $response['Response'] = changeFriendStatus($user, $friend, $action);
         //     break;
 
         case "patch":
-            $flags = seekPOSTorGET('f', 0, 'integer');
-            $hardcore = seekPOSTorGET('h', 0, 'integer');
+            $flags = requestInput('f', 0, 'integer');
+            $hardcore = requestInput('h', 0, 'integer');
             $response['PatchData'] = GetPatchData($gameID, $flags, $user, $hardcore);
             break;
 
         case "postactivity":
-            $activityType = seekPOSTorGET('a');
-            $activityMessage = seekPOSTorGET('m');
+            $activityType = requestInput('a');
+            $activityMessage = requestInput('m');
             $response['Success'] = postActivity($user, $activityType, $activityMessage);
             break;
 
@@ -337,15 +337,15 @@ if ($credentialsOK) {
         //     $response['Success'] = recalculateTrueRatio($gameID);
         //     break;
         // case "removecomment":
-        //     $articleID = seekPOSTorGET('a', 0, 'integer');
-        //     $commentID = seekPOSTorGET('c', 0, 'integer');
+        //     $articleID = requestInput('a', 0, 'integer');
+        //     $commentID = requestInput('c', 0, 'integer');
         //     $response['Success'] = RemoveComment($articleID, $commentID);
         //     $response['ArtID'] = $articleID;
         //     $response['CommentID'] = $commentID;
         //     break;
         // case "removelbentry":
-        //     $lbID = seekPOSTorGET('l', 0, 'integer');
-        //     $targetUser = seekPOSTorGET('t');
+        //     $lbID = requestInput('l', 0, 'integer');
+        //     $targetUser = requestInput('t');
         //     // error_log("$user authorised dropping LB entry by $targetUser from LB $lbID");
         //     $response['Success'] = RemoveLeaderboardEntry($targetUser, $lbID);
         //     break;
@@ -356,8 +356,8 @@ if ($credentialsOK) {
             break;
 
         case "submitcodenote":
-            $note = seekPOSTorGET('n');
-            $address = seekPOSTorGET('m', 0, 'integer');
+            $note = requestInput('n');
+            $address = requestInput('m', 0, 'integer');
             $response['Success'] = submitCodeNote2($user, $gameID, $address, $note);
             $response['GameID'] = $gameID;     // Repeat this back to the caller?
             $response['Address'] = $address;    // Repeat this back to the caller?
@@ -365,11 +365,11 @@ if ($credentialsOK) {
             break;
 
         case "submitgametitle":
-            $md5 = seekPOSTorGET('m');
-            $gameID = seekPOSTorGET('g');
-            $gameTitle = seekPOSTorGET('i');
-            $description = seekPOSTorGET('d');
-            $consoleID = seekPOSTorGET('c');
+            $md5 = requestInput('m');
+            $gameID = requestInput('g');
+            $gameTitle = requestInput('i');
+            $description = requestInput('d');
+            $consoleID = requestInput('c');
             $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameID, $gameTitle, $consoleID);
             $response['Success'] = $response['Response']['Success']; // Passthru
             if (isset($response['Response']['Error'])) {
@@ -378,9 +378,9 @@ if ($credentialsOK) {
             break;
 
         case "submitlbentry":
-            $lbID = seekPOSTorGET('i', 0, 'integer');
-            $score = seekPOSTorGET('s', 0, 'integer');
-            $validation = seekPOSTorGET('v'); // Ignore for now?
+            $lbID = requestInput('i', 0, 'integer');
+            $score = requestInput('s', 0, 'integer');
+            $validation = requestInput('v'); // Ignore for now?
             $response['Response'] = SubmitLeaderboardEntryJSON($user, $lbID, $score, $validation);
             $response['Success'] = $response['Response']['Success']; // Passthru
             if ($response['Success'] == false) {
@@ -389,10 +389,10 @@ if ($credentialsOK) {
             break;
 
         case "submitticket":
-            $idCSV = seekPOSTorGET('i');
-            $problemType = seekPOSTorGET('p');
-            $comment = seekPOSTorGET('n');
-            $md5 = seekPOSTorGET('m');
+            $idCSV = requestInput('i');
+            $problemType = requestInput('p');
+            $comment = requestInput('n');
+            $md5 = requestInput('m');
             $response['Response'] = submitNewTicketsJSON($user, $idCSV, $problemType, $comment, $md5);
             $response['Success'] = $response['Response']['Success']; // Passthru
             if (isset($response['Response']['Error'])) {
@@ -401,7 +401,7 @@ if ($credentialsOK) {
             break;
 
         case "unlocks":
-            $hardcoreMode = seekPOSTorGET('h', 0, 'integer');
+            $hardcoreMode = requestInput('h', 0, 'integer');
             $response['UserUnlocks'] = GetUserUnlocksData($user, $gameID, $hardcoreMode);
             $response['GameID'] = $gameID;     // Repeat this back to the caller?
             $response['HardcoreMode'] = $hardcoreMode;  // Repeat this back to the caller?
@@ -409,12 +409,12 @@ if ($credentialsOK) {
             break;
 
         case "uploadachievement":
-            $newTitle = seekPOSTorGET('n');
-            $newDesc = seekPOSTorGET('d');
-            $newPoints = seekPOSTorGET('z', 0, 'integer');
-            $newMemString = seekPOSTorGET('m');
-            $newFlags = seekPOSTorGET('f', 0, 'integer');
-            $newBadge = seekPOSTorGET('b');
+            $newTitle = requestInput('n');
+            $newDesc = requestInput('d');
+            $newPoints = requestInput('z', 0, 'integer');
+            $newMemString = requestInput('m');
+            $newFlags = requestInput('f', 0, 'integer');
+            $newBadge = requestInput('b');
             $errorOut = "";
             $response['Success'] = UploadNewAchievement($user, $gameID, $newTitle, $newDesc, ' ', ' ', ' ', $newPoints, $newMemString, $newFlags, $achievementID, $newBadge, $errorOut);
             $response['AchievementID'] = $achievementID;

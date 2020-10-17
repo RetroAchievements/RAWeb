@@ -2,21 +2,19 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$gameID = seekPOST('i');
-settype($gameID, 'integer');
+$gameID = requestInputPost('i', null, 'integer');
 
-$developer = seekPOST('d');
-$publisher = seekPOST('p');
-$genre = seekPOST('g');
-$released = seekPOST('r');
+$developer = requestInputPost('d');
+$publisher = requestInputPost('p');
+$genre = requestInputPost('g');
+$released = requestInputPost('r');
 
-$richPresence = seekPOST('x');
+$richPresence = requestInputPost('x');
 
-$newGameAlt = seekPOST('n');
-$removeGameAlt = seekPOST('m');
+$newGameAlt = requestInputPost('n');
+$removeGameAlt = requestInputPost('m');
 
-$newForumTopic = seekPOST('f');
-settype($newForumTopic, 'integer');
+$newForumTopic = requestInputPost('f', null, 'integer');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser)) {
     if (isset($richPresence)) {

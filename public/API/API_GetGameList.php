@@ -4,15 +4,13 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-settype($consoleID, 'integer');
-$consoleID = seekGET('i');
+$consoleID = requestInputQuery('i', null, 'integer');
 if ($consoleID < 0) {
     echo json_encode(['success' => false]);
     return;
 }
 
-settype($officialFlag, 'boolean');
-$officialFlag = seekGET('f', false);
+$officialFlag = requestInputQuery('f', false, 'boolean');
 
 getGamesList($consoleID, $dataOut, $officialFlag);
 

@@ -2,7 +2,7 @@
 
 function changeFriendStatus($user, $friend, $action)
 {
-    sanitize_query_inputs($user, $friend, $action);
+    sanitize_sql_inputs($user, $friend, $action);
     settype($action, 'integer');
 
     $query = "SELECT (f.User = '$user') AS Local, f.Friend, f.Friendship
@@ -123,7 +123,7 @@ function changeFriendStatus($user, $friend, $action)
 
 function addFriend($user, $friendToAdd)
 {
-    sanitize_query_inputs($user, $friendToAdd);
+    sanitize_sql_inputs($user, $friendToAdd);
 
     $query = "SELECT * FROM Friends WHERE (User='$user' AND Friend='$friendToAdd') OR (User='$friendToAdd' AND Friend='$user')";
     $dbResult = s_mysql_query($query);
@@ -163,7 +163,7 @@ function addFriend($user, $friendToAdd)
 
 function confirmFriend($user, $friendToConfirm)
 {
-    sanitize_query_inputs($user, $friendToConfirm);
+    sanitize_sql_inputs($user, $friendToConfirm);
 
     $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friendToConfirm'";
     $dbResult = s_mysql_query($query);
@@ -197,7 +197,7 @@ function confirmFriend($user, $friendToConfirm)
 
 function blockFriend($user, $friendToConfirm)
 {
-    sanitize_query_inputs($user, $friendToConfirm);
+    sanitize_sql_inputs($user, $friendToConfirm);
 
     $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friendToConfirm'";
     $dbResult = s_mysql_query($query);
@@ -231,7 +231,7 @@ function blockFriend($user, $friendToConfirm)
 
 function isFriendsWith($user, $friend)
 {
-    sanitize_query_inputs($user, $friend);
+    sanitize_sql_inputs($user, $friend);
 
     $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friend'";
     $dbResult = s_mysql_query($query);
@@ -249,7 +249,7 @@ function isFriendsWith($user, $friend)
 
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
 {
-    sanitize_query_inputs($user, $gameID);
+    sanitize_sql_inputs($user, $gameID);
 
     $friendScoresOut = [];
     //    Subquery one: select all friends this user has added:
@@ -343,7 +343,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
 
 function GetFriendList($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $friendList = [];
 

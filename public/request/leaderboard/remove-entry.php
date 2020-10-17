@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$leaderboardId = seekPOSTorGET('l', 0, 'integer');
-$targetUser = seekPOSTorGET('t');
+$leaderboardId = requestInput('l', 0, 'integer');
+$targetUser = requestInput('t');
 $returnUrl = getenv('APP_URL') . '/leaderboardinfo.php?i=' . $leaderboardId;
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {

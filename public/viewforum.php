@@ -3,13 +3,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$requestedForumID = seekGET('f', null);
-$offset = seekGET('o', 0);
-$count = seekGET('c', 25);
-
-settype($requestedForumID, "integer");
-settype($offset, "integer");
-settype($count, "integer");
+$requestedForumID = requestInputSanitized('f', null, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', 25, 'integer');
 
 $numUnofficialLinks = 0;
 if ($permissions >= \RA\Permissions::Admin) {
@@ -52,7 +48,7 @@ if ($requestedForumID == 0) {
     $requestedForum = $thisForumTitle;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
 RenderHtmlStart();

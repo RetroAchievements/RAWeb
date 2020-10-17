@@ -31,7 +31,7 @@ header('Content-type: text/xml');
 echo html_entity_decode($dom->saveXML());
 return;
 
-$user = seekGET('u', null);
+$user = htmlentities(requestInputSanitized('u', null));
 $feedtype = isset($user) ? 'friends' : 'global';
 $numArticles = getFeed($user, 40, 0, $feedData, 0, $feedtype);
 

@@ -2,20 +2,17 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('z', 0);
+$consoleIDInput = requestInputSanitized('z', 0);
 $mobileBrowser = IsMobileBrowser();
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 25;
 
-$count = seekGET('c', $maxCount);
-settype($count, 'integer');
-$offset = seekGET('o', 0);
-settype($offset, 'integer');
-$params = seekGET('p', 3);
-settype($params, 'integer');
-$dev = seekGET('d');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$params = requestInputSanitized('p', 3, 'integer');
+$dev = requestInputSanitized('d');
 
 if ($user == null) {
     $params = 3;
@@ -37,7 +34,7 @@ if ($dev != null) {
     $dev_param .= "&d=$dev";
 }
 
-$sortBy = seekGET('s', 17);
+$sortBy = requestInputSanitized('s', 17);
 $achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 $requestedConsole = "";
@@ -45,7 +42,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>

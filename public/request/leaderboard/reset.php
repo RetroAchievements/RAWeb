@@ -7,8 +7,8 @@ if (!ValidateGETChars("ui")) {
     exit;
 }
 
-$source = seekGET('u');
-$lbid = seekGET('i');
+$source = requestInputQuery('u');
+$lbid = requestInputQuery('i');
 
 //	Double check cookie as well
 

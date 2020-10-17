@@ -17,7 +17,7 @@ $cookie = $userDetails['cookie'];
 
 $friendsList = getFriendList($user);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Friends");

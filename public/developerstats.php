@@ -3,8 +3,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
-$type = seekGET('t', 0);
+$errorCode = requestInputSanitized('e');
+$type = requestInputSanitized('t', 0);
 
 RenderHtmlStart();
 RenderHtmlHead("Developer Stats");

@@ -7,11 +7,11 @@ if (!ValidatePOSTChars("uctpi")) {
     exit;
 }
 
-$user = seekPOST('u');
-$cookie = seekPOST('c');
-$topicID = seekPOST('t');
-$commentPayload = seekPOST('p');
-$commentID = seekPOST('i');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
+$topicID = requestInputPost('t');
+$commentPayload = requestInputPost('p');
+$commentID = requestInputPost('i');
 
 if (validateUser_cookie($user, $cookie, 1, $permissions)) {
     if (getSingleTopicComment($commentID, $commentData) == false) {

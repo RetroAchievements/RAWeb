@@ -4,9 +4,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$unixTimeInputStart = seekGET('f', "");
-$unixTimeInputEnd = seekGET('t', "");
+$user = requestInputQuery('u', null);
+$unixTimeInputStart = requestInputQuery('f', "");
+$unixTimeInputEnd = requestInputQuery('t', "");
 
 $dateStrStartF = date("Y-m-d H:i:s", $unixTimeInputStart);
 $dateStrEndF = date("Y-m-d H:i:s", $unixTimeInputEnd);

@@ -7,7 +7,7 @@ if (!ValidatePOSTChars("u")) {
     exit;
 }
 
-$user = seekPOST('u');
+$user = requestInputPost('u');
 
 getcookie($userIn, $cookie);
 if ($user == $userIn && validateUser_cookie($user, $cookie, 0) == false) {

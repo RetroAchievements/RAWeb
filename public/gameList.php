@@ -2,13 +2,11 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('c', 0);
-settype($consoleIDInput, 'integer');
-$showCompleteGames = seekGET('f', 0); //	0 = no filter, 1 = only complete, 2 = only incomplete
-settype($showCompleteGames, 'integer');
+$consoleIDInput = requestInputSanitized('c', 0, 'integer');
+$showCompleteGames = requestInputSanitized('f', 0, 'integer'); //	0 = no filter, 1 = only complete, 2 = only incomplete
 
-$sortBy = seekGET('s', 0);
-$dev = seekGET('d');
+$sortBy = requestInputSanitized('s', 0);
+$dev = requestInputSanitized('d');
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
@@ -25,7 +23,7 @@ if ($showTickets) {
     $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, false);
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Supported Games" . $requestedConsole);
 ?>

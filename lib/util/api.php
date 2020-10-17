@@ -18,7 +18,7 @@ if (!function_exists('runPublicApiMiddleware')) {
         /**
          * public api authorization
          */
-        if (!ValidateAPIKey(seekGET('z'), seekGET('y'))) {
+        if (!ValidateAPIKey(requestInputQuery('z'), requestInputQuery('y'))) {
             echo "Invalid API Key";
             exit;
         }

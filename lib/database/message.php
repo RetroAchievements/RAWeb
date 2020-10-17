@@ -2,7 +2,7 @@
 
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
-    sanitize_query_inputs($author, $destUser, $messageTitle, $messagePayloadIn);
+    sanitize_sql_inputs($author, $destUser, $messageTitle, $messagePayloadIn);
 
     $messagePayload = nl2br($messagePayloadIn);
 
@@ -38,7 +38,7 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 
 function GetMessageCount($user, &$totalMessageCount)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     if (!isset($user)) {
         $totalMessageCount = 0;
@@ -85,7 +85,7 @@ function GetMessageCount($user, &$totalMessageCount)
 
 function GetTotalMessageCount($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT COUNT(*) AS NumUnreadMessages
               FROM Messages AS msg
@@ -103,7 +103,7 @@ function GetTotalMessageCount($user)
 
 function GetMessage($user, $id)
 {
-    sanitize_query_inputs($user, $id);
+    sanitize_sql_inputs($user, $id);
 
     $query = "SELECT * FROM Messages AS msg
               WHERE msg.ID='$id' AND msg.UserTo='$user'";
@@ -126,7 +126,7 @@ function GetMessage($user, $id)
 
 function GetUnreadMessages($user, $offset, $count)
 {
-    sanitize_query_inputs($user, $offset, $count);
+    sanitize_sql_inputs($user, $offset, $count);
 
     $retval = [];
 
@@ -150,7 +150,7 @@ function GetUnreadMessages($user, $offset, $count)
 
 function GetAllMessages($user, $offset, $count, $unreadOnly)
 {
-    sanitize_query_inputs($user, $offset, $count);
+    sanitize_sql_inputs($user, $offset, $count);
 
     $retval = [];
 
@@ -180,7 +180,7 @@ function GetAllMessages($user, $offset, $count, $unreadOnly)
 
 function GetSentMessages($user, $offset, $count)
 {
-    sanitize_query_inputs($user, $offset, $count);
+    sanitize_sql_inputs($user, $offset, $count);
 
     $retval = [];
 
@@ -204,7 +204,7 @@ function GetSentMessages($user, $offset, $count)
 
 function UpdateCachedUnreadTotals($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "
     UPDATE UserAccounts AS ua
@@ -223,7 +223,7 @@ function UpdateCachedUnreadTotals($user)
 
 function markMessageAsRead($user, $messageID, $setAsUnread = 0)
 {
-    sanitize_query_inputs($user, $messageID);
+    sanitize_sql_inputs($user, $messageID);
 
     $newReadStatus = $setAsUnread == 1 ? 1 : 0;
 
@@ -243,7 +243,7 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0)
 
 function DeleteMessage($user, $messageID)
 {
-    sanitize_query_inputs($user, $messageID);
+    sanitize_sql_inputs($user, $messageID);
 
     $messageToDelete = GetMessage($user, $messageID);
 

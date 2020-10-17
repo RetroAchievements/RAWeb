@@ -4,9 +4,9 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 
 $response = ['Success' => true];
 
-$user = seekPOSTorGET('u');
-$filename = seekPOSTorGET('f');
-$rawImage = seekPOSTorGET('i');
+$user = requestInput('u');
+$filename = requestInput('f');
+$rawImage = requestInput('i');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     http_response_code(401);

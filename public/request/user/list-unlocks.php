@@ -7,8 +7,7 @@ if (!ValidatePOSTChars('g')) {
     return;
 }
 
-$gameID = seekPOST('g');
-settype($gameID, 'integer');
+$gameID = requestInputPost('g', null, 'integer');
 
 if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Unregistered)) {
     echo "OK:";

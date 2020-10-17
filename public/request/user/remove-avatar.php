@@ -9,7 +9,7 @@ if (!ValidatePOSTChars("u")) {
     header("Location: " . getenv('APP_URL') . "?e=e_baddata");
 }
 
-$user = seekPOST('u');
+$user = requestInputPost('u');
 
 if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
     if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {

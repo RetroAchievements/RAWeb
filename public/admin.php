@@ -7,9 +7,9 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     exit;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
-$newsArticleID = seekGET('n');
+$newsArticleID = requestInputSanitized('n');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
@@ -70,7 +70,7 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
     return trim($output);
 }
 
-$action = seekPOSTorGET('action');
+$action = requestInputSanitized('action');
 $message = null;
 switch ($action) {
     // case 'regenapi':
@@ -93,7 +93,7 @@ switch ($action) {
     //     echo "REGENERATED $numRegens APIKEYS!<br>";
     //     break;
     // case 'regenapione':
-    //     $targetUser = seekGET('t');
+    //     $targetUser = requestInputSanitized('t');
     //     $newKey = generateAPIKey($targetUser);
     //     echo "New API Key for $targetUser: $newKey<br>";
     //     break;
@@ -118,7 +118,7 @@ switch ($action) {
     //     echo "REGENERATED $numRegens developer contribution totals!<br>";
     //     break;
     // case 'reconstructsiteawards':
-    //     $tgtPlayer = seekGET('t', null);
+    //     $tgtPlayer = requestInputSanitized('t', null);
     //
     //     $query = "DELETE FROM SiteAwards WHERE AwardType = 1";
     //     if ($tgtPlayer !== null) {
@@ -222,7 +222,7 @@ switch ($action) {
     //     }
     //     break;
     // case 'recalcsiteawards':
-    //     $tgtPlayer = seekGET('t', null);
+    //     $tgtPlayer = requestInputSanitized('t', null);
     //     {
     //         $query = "DELETE FROM SiteAwards WHERE ( AwardType = 2 || AwardType = 3 || AwardType = 5 )";
     //         if ($tgtPlayer !== null) {
@@ -284,16 +284,16 @@ switch ($action) {
     //     }
     //     break;
     case 'getachids':
-        $gameIDs = explode(',', seekPOST('g'));
+        $gameIDs = explode(',', requestInputSanitized('g'));
         foreach ($gameIDs as $nextGameID) {
             $ids = getAchievementIDs($nextGameID);
             $message = implode(', ', $ids["AchievementIDs"] ?? []);
         }
         break;
     case 'giveaward':
-        $awardAchievementID = seekPOST('a');
-        $awardAchievementUser = seekPOST('u');
-        $awardAchHardcore = seekPOST('h', 0);
+        $awardAchievementID = requestInputSanitized('a');
+        $awardAchievementUser = requestInputSanitized('u');
+        $awardAchHardcore = requestInputSanitized('h', 0);
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $usersToAward = preg_split('/\W+/', $awardAchievementUser);
@@ -365,9 +365,9 @@ switch ($action) {
     //     exit;
     //     break;
     case 'updatestaticdata':
-        $aotwAchID = seekPOSTorGET('a', 0, 'integer');
-        $aotwForumID = seekPOSTorGET('f', 0, 'integer');
-        $aotwStartAt = seekPOSTorGET('s', null, 'string');
+        $aotwAchID = requestInputSanitized('a', 0, 'integer');
+        $aotwForumID = requestInputSanitized('f', 0, 'integer');
+        $aotwStartAt = requestInputSanitized('s', null, 'string');
 
         $query = "UPDATE StaticData SET
             Event_AOTW_AchievementID='$aotwAchID',
@@ -402,7 +402,7 @@ switch ($action) {
     //     echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
     //     echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
     //
-    //     $count = seekPOSTorGET('c', 20, 'integer');
+    //     $count = requestInputSanitized('c', 20, 'integer');
     //     echo nl2br(tailCustom($errorlogpath, $count));
     //     exit;
     //     break;

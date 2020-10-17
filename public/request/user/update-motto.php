@@ -7,11 +7,11 @@ if (!ValidatePOSTChars("ucm")) {
     exit;
 }
 
-$user = seekPost('u');
-$cookie = seekPost('c');
-$newMotto = seekPost('m');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
+$newMotto = requestInputPost('m');
 
-sanitize_query_inputs($user, $cookie, $newMotto);
+sanitize_sql_inputs($user, $cookie, $newMotto);
 
 if (validateUser_cookie($user, $cookie, 1)) {
     $query = "

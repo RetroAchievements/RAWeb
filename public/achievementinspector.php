@@ -4,9 +4,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 $modifyOK = ($permissions >= \RA\Permissions::Developer);
 
-$gameID = seekGET('g');
-$errorCode = seekGET('e');
-$flag = seekGET('f', 3);
+$gameID = requestInputSanitized('g');
+$errorCode = requestInputSanitized('e');
+$flag = requestInputSanitized('f', 3);
 
 $achievementList = [];
 $gamesList = [];

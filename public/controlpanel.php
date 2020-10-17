@@ -34,7 +34,7 @@ $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
 $cookie = RA_ReadCookie('RA_Cookie');
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("My Settings");

@@ -4,9 +4,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$recentGamesPlayed = seekGET('g', 5);
-$recentAchievementsEarned = seekGET('a', 10);
+$user = requestInputQuery('u', null);
+$recentGamesPlayed = requestInputQuery('g', 5);
+$recentAchievementsEarned = requestInputQuery('a', 10);
 
 $retVal = [];
 getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);

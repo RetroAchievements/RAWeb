@@ -7,7 +7,7 @@ use RA\Permissions;
 
 function getMostRecentActivity($user, $type, $data)
 {
-    sanitize_query_inputs($user, $type, $data);
+    sanitize_sql_inputs($user, $type, $data);
 
     $innerClause = "Activity.user = '$user'";
     if (isset($type)) {
@@ -35,7 +35,7 @@ function getMostRecentActivity($user, $type, $data)
 
 function updateActivity($activityID)
 {
-    sanitize_query_inputs($activityID);
+    sanitize_sql_inputs($activityID);
 
     //    Update the last update value of given activity
     $query = "UPDATE Activity
@@ -52,7 +52,7 @@ function updateActivity($activityID)
 
 function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 {
-    sanitize_query_inputs($user, $gameID, $isHardcore);
+    sanitize_sql_inputs($user, $gameID, $isHardcore);
     settype($isHardcore, 'integer');
 
     $query = "SELECT act.ID
@@ -237,7 +237,7 @@ function userActivityPing($user)
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
     }
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.LastLogin = NOW()
@@ -257,7 +257,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
     }
-    sanitize_query_inputs($user, $gameID, $presenceMsg);
+    sanitize_sql_inputs($user, $gameID, $presenceMsg);
     settype($gameID, 'integer');
 
     $query = "UPDATE UserAccounts AS ua
@@ -276,7 +276,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 
 function getActivityMetadata($activityID)
 {
-    sanitize_query_inputs($activityID);
+    sanitize_sql_inputs($activityID);
 
     $query = "SELECT * FROM Activity
               WHERE ID='$activityID'";
@@ -320,7 +320,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
         return false;
     }
 
-    sanitize_query_inputs($activityID, $commentPayload);
+    sanitize_sql_inputs($activityID, $commentPayload);
 
     //    Note: $user is the person who just made a comment.
 
@@ -517,7 +517,7 @@ function getSubscribersOfArticle(
 
 function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global')
 {
-    sanitize_query_inputs($user, $maxMessages, $offset, $latestFeedID);
+    sanitize_sql_inputs($user, $maxMessages, $offset, $latestFeedID);
     settype($maxMessages, "integer");
     settype($offset, "integer");
 
@@ -586,7 +586,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
 function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
 {
-    sanitize_query_inputs($user, $offset, $count);
+    sanitize_sql_inputs($user, $offset, $count);
 
     // $query = "SELECT g.ID AS GameID, g.ConsoleID, c.Name AS ConsoleName, g.Title, MAX(act.lastupdate) AS LastPlayed, g.ImageIcon
     // FROM Activity AS act
@@ -638,7 +638,7 @@ LIMIT $offset, $count";
 
 function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut)
 {
-    sanitize_query_inputs($articleTypeID, $articleID, $offset, $count);
+    sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
 
     //    $articleTypeID
     //    1 = Game
@@ -684,7 +684,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
 
 function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
 {
-    sanitize_query_inputs($articleType, $articleID, $userID);
+    sanitize_sql_inputs($articleType, $articleID, $userID);
 
     $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
 
@@ -769,7 +769,7 @@ function getLatestRichPresenceUpdates()
 
 function getLatestNewAchievements($numToFetch, &$dataOut)
 {
-    sanitize_query_inputs($numToFetch);
+    sanitize_sql_inputs($numToFetch);
 
     $numFound = 0;
 
@@ -797,7 +797,7 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
 
 function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
 {
-    sanitize_query_inputs($daysRange, $offset, $count);
+    sanitize_sql_inputs($daysRange, $offset, $count);
 
     $data = [];
 

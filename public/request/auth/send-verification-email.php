@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$user = seekGet('u');
+$user = requestInputQuery('u');
 
 getAccountDetails($user, $userDetails);
 $emailAddr = $userDetails['EmailAddress'];

@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$user = seekPOST('u', null);
-$fbUserID = seekPOST('f', null);
+$user = requestInputPost('u', null);
+$fbUserID = requestInputPost('f', null);
 
 if (!isset($fbUserID)) {
     global $fbConn;

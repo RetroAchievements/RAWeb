@@ -13,8 +13,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$requestedForumID = seekGet('f', 0);
-settype($requestedForumID, "integer");
+$requestedForumID = requestInputQuery('f', 0, 'integer');
 
 if ($requestedForumID == 0) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
@@ -34,7 +33,7 @@ $thisCategoryID = $forumData['CategoryID'];
 $thisCategoryName = $forumData['CategoryName'];
 
 getCookie($user, $cookieRaw);
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Create topic: $thisForumTitle");

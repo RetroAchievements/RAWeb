@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$userPage = seekGET('u', $user);
+$userPage = htmlentities(requestInputSanitized('u', $user));
 if (!isset($userPage)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -16,7 +16,7 @@ if (!$userMassData) {
     exit;
 }
 
-$dateInput = seekGET('d', 0);
+$dateInput = requestInputSanitized('d', 0);
 
 $userPagePoints = getScore($userPage);
 
@@ -24,7 +24,7 @@ $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 
 $dateStr = strftime("%d %b %Y", $dateInput);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 RenderHtmlHead("$userPage's Legacy - $dateStr");

@@ -2,25 +2,22 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('i', 0);
-
-settype($consoleIDInput, 'integer');
+$consoleIDInput = requestInputSanitized('i', 0, 'integer');
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 25;
 
-$count = seekGet('c', $maxCount);
-$offset = seekGet('o', 0);
+$count = requestInputQuery('c', $maxCount);
+$offset = requestInputQuery('o', 0);
 
-$params = seekGet('p', 0);
-settype($params, 'integer');
+$params = requestInputQuery('p', 0, 'integer');
 
 if ($user == null) {
     $params = 0;
 }
 
-$sortBy = seekGet('s', 1);
+$sortBy = requestInputQuery('s', 1);
 
 getCommonlyEarnedAchievements($consoleIDInput, $offset, $count, $awardedData);
 
@@ -31,7 +28,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>

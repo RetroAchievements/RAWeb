@@ -13,8 +13,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$requestedComment = seekGet('c', 0);
-settype($$requestedComment, "integer");
+$requestedComment = requestInputQuery('c', 0, 'integer');
 
 if (getSingleTopicComment($requestedComment, $commentData) == false) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment");
@@ -42,7 +41,7 @@ $thisAuthor = $commentData['Author'];
 //$thisCategoryName = $topicData['CategoryName'];
 
 getCookie($user, $cookieRaw);
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Edit post");

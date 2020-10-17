@@ -5,19 +5,15 @@ use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$lbID = seekGET('i');
+$lbID = requestInputSanitized('i');
 if (!isset($lbID)) {
     header("Location: " . getenv('APP_URL') . "?e=urlissue");
     exit;
 }
 
-$offset = seekGET('o', 0);
-$count = seekGET('c', 50);
-$friendsOnly = seekGET('f', 0);
-
-settype($offset, 'integer');
-settype($count, 'integer');
-settype($friendsOnly, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', 50, 'integer');
+$friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
 $numEntries = count($lbData['Entries']);
@@ -43,7 +39,7 @@ getCookie($user, $cookie);
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 ?>

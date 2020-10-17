@@ -3,8 +3,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$dev = seekGET('u');
-$errorCode = seekGET('e');
+$dev = htmlentities(requestInputSanitized('u'));
+$errorCode = requestInputSanitized('e');
 
 $userArchInfo = getUserAchievementInformation($dev);
 $userContribCount = 0;

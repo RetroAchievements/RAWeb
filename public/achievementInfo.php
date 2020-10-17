@@ -5,8 +5,7 @@ use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$achievementID = seekGET('ID', 0);
-settype($achievementID, 'integer');
+$achievementID = requestInputSanitized('ID', 0, 'integer');
 
 if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
@@ -51,7 +50,7 @@ $numArticleComments = getArticleComments(2, $achievementID, 0, 20, $commentData)
 
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 ?>

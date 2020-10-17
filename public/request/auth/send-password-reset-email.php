@@ -10,6 +10,6 @@ if (!ValidatePOSTChars("u")) {
 
 // error_log(__FILE__);
 
-$user = seekPOST('u');
+$user = requestInputPost('u');
 RequestPasswordReset($user);
 header("Location: " . getenv('APP_URL') . "/index.php?e=checkyouremail");

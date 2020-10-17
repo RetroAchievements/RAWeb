@@ -7,8 +7,8 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     exit;
 }
 
-$gameID = seekGET('g');
-$errorCode = seekGET('e');
+$gameID = requestInputSanitized('g');
+$errorCode = requestInputSanitized('e');
 
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {

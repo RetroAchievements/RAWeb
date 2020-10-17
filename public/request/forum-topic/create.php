@@ -2,15 +2,15 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$forumID = seekPOST('f');
+$forumID = requestInputPost('f');
 
 if (!ValidatePOSTChars("ftp")) {
     header("Location: " . getenv('APP_URL') . "/createtopic.php?f=$forumID&e=invalidparams");
     exit;
 }
 
-$topicTitle = seekPOST('t');
-$topicPayload = seekPOST('p');
+$topicTitle = requestInputPost('t');
+$topicPayload = requestInputPost('p');
 
 $bannedTitles = [
     'kitchen',

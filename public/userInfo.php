@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
 
-$userPage = strip_tags(seekGET('ID'));
+$userPage = requestInputSanitized('ID');
 if ($userPage == null || mb_strlen($userPage) == 0) {
     header("Location: " . getenv('APP_URL'));
     exit;
@@ -17,7 +17,7 @@ if (ctype_alnum($userPage) == false) {
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$maxNumGamesToFetch = seekGET('g', 5);
+$maxNumGamesToFetch = requestInputSanitized('g', 5);
 
 //    Get general info
 getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 0, $user);
@@ -99,7 +99,7 @@ if ($numGamesFound > 0) {
 settype($userMassData['Friendship'], 'integer');
 settype($userMassData['FriendReciprocation'], 'integer');
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 getCookie($user, $cookie);
 

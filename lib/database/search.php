@@ -4,7 +4,7 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
 {
     global $db;
 
-    sanitize_query_inputs($searchQuery, $offset, $count);
+    sanitize_sql_inputs($searchQuery, $offset, $count);
 
     $resultCount = 0;
 

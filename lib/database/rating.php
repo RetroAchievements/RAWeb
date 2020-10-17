@@ -2,7 +2,7 @@
 
 function getGameRating($gameID)
 {
-    sanitize_query_inputs($gameID);
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
     $query = "SELECT r.RatingObjectType, SUM(r.RatingValue)/COUNT(r.RatingValue) AS AvgPct, COUNT(r.RatingValue) AS NumVotes
               FROM Rating AS r
@@ -24,7 +24,7 @@ function getGameRating($gameID)
 
 function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
 {
-    sanitize_query_inputs($user, $ratingType, $ratingID, $ratingValue);
+    sanitize_sql_inputs($user, $ratingType, $ratingID, $ratingValue);
     settype($ratingType, 'integer');
     settype($ratingID, 'integer');
     settype($ratingValue, 'integer');
@@ -41,7 +41,7 @@ function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
 
 function getGamesByRating($offset, $count)
 {
-    sanitize_query_inputs($offset, $count);
+    sanitize_sql_inputs($offset, $count);
 
     $query = "SELECT gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName, AVG(RatingValue) AS AvgVote, COUNT(RatingID) AS NumVotes
 FROM Rating 

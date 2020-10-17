@@ -7,12 +7,12 @@ if (!ValidatePOSTChars("aptlg")) {
     return;
 }
 
-$author = seekPOST('a');
-$payload = seekPOST('p');
-$title = seekPOST('t');
-$link = seekPOST('l');
-$image = seekPOST('g');
-$id = seekPOST('i', null);
+$author = requestInputPost('a');
+$payload = requestInputPost('p');
+$title = requestInputPost('t');
+$link = requestInputPost('l');
+$image = requestInputPost('g');
+$id = requestInputPost('i', null);
 
 $payload = str_replace("_http_", "http", $payload);
 $title = str_replace("_http_", "http", $title);

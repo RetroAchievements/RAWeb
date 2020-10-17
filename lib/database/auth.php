@@ -6,7 +6,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
         return false;
     }
 
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT User, Password, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
@@ -41,7 +41,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
 
 function changePassword($user, $pass)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $hashedPassword = hashPassword($pass);
     $query = "UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='', Updated=NOW() WHERE user='$user'";
@@ -92,7 +92,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
     $userOut = RA_ReadCookie("RA_User");
     $cookie = RA_ReadCookie("RA_Cookie");
 
-    sanitize_query_inputs($userOut);
+    sanitize_sql_inputs($userOut);
 
     if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 2 || !isValidUsername($userOut)) {
         //    There is no cookie
@@ -150,7 +150,7 @@ function RA_ReadCookieCredentials(
         return false;
     }
 
-    sanitize_query_inputs($userOut);
+    sanitize_sql_inputs($userOut);
 
     $query = "SELECT ua.cookie, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions, ua.ID
               FROM UserAccounts AS ua
@@ -214,7 +214,7 @@ function RA_ReadTokenCredentials(
         return false;
     }
 
-    sanitize_query_inputs($userOut);
+    sanitize_sql_inputs($userOut);
 
     $query = "SELECT ua.User, ua.appToken, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions
               FROM UserAccounts AS ua
@@ -242,7 +242,7 @@ function RA_ReadTokenCredentials(
 
 function generateAPIKey($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     if (!getAccountDetails($user, $userData)) {
         // error_log(__FUNCTION__ . " API Key gen fail 1: not a user?");
@@ -272,7 +272,7 @@ function generateAPIKey($user)
 
 function GetAPIKey($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     if (!isValidUsername($user)) {
         return false;
@@ -295,7 +295,7 @@ function GetAPIKey($user)
 
 function LogSuccessfulAPIAccess($user)
 {
-    sanitize_query_inputs($user);
+    sanitize_sql_inputs($user);
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.APIUses=ua.APIUses+1
@@ -306,7 +306,7 @@ function LogSuccessfulAPIAccess($user)
 
 function ValidateAPIKey($user, $key)
 {
-    sanitize_query_inputs($user, $key);
+    sanitize_sql_inputs($user, $key);
 
     if (mb_strlen($key) < 20 || !isValidUsername($user)) {
         return false;
@@ -335,7 +335,7 @@ function RemovePasswordResetToken($username)
 {
     global $db;
 
-    sanitize_query_inputs($username);
+    sanitize_sql_inputs($username);
 
     $query = "UPDATE UserAccounts AS ua "
         . "WHERE ua.User='$username' "
@@ -349,7 +349,7 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken)
 {
     global $db;
 
-    sanitize_query_inputs($usernameIn, $passwordResetToken);
+    sanitize_sql_inputs($usernameIn, $passwordResetToken);
 
     $retVal = [];
 
@@ -380,7 +380,7 @@ function RequestPasswordReset($usernameIn)
 {
     global $db;
 
-    sanitize_query_inputs($usernameIn);
+    sanitize_sql_inputs($usernameIn);
 
     $retVal = [];
 

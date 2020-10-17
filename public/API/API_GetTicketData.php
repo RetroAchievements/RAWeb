@@ -9,8 +9,7 @@ $defaultTicketFilter = 2041; //2041 sets all filters active except for Closed an
 $count = 10;
 $offset = 0;
 
-$ticketID = seekPOSTorGET('i', 0);
-settype($ticketID, 'integer');
+$ticketID = requestInput('i', 0, 'integer');
 
 // if ticket ID given...
 if ($ticketID > 0) {
@@ -35,8 +34,7 @@ if ($ticketID > 0) {
 // same logic used in ticketmanager.php
 // f=1 - get info for the most reported games
 // f=5 - get info for unofficial
-$gamesTableFlag = seekGET('f', 0);
-settype($gamesTableFlag, 'integer');
+$gamesTableFlag = requestInputQuery('f', 0, 'integer');
 
 // get the most reported games...
 if ($gamesTableFlag == 1) {
@@ -47,7 +45,7 @@ if ($gamesTableFlag == 1) {
 }
 
 // getting ticket info for a specific user
-$assignedToUser = seekGET('u', null);
+$assignedToUser = requestInputQuery('u', null);
 if (isValidUsername($assignedToUser)) {
     $ticketData['User'] = $assignedToUser;
     $ticketData['Open'] = 0;
@@ -83,8 +81,7 @@ if (isValidUsername($assignedToUser)) {
 $assignedToUser = null;
 
 // getting data for a specific game
-$gameIDGiven = seekGET('g', null);
-settype($gameIDGiven, 'integer');
+$gameIDGiven = requestInputQuery('g', null, 'integer');
 if ($gameIDGiven > 0) {
     if (getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopicID, $allData)) {
         $ticketData['GameID'] = $gameIDGiven;
@@ -107,8 +104,7 @@ if ($gameIDGiven > 0) {
 }
 
 // getting data for a specific achievement
-$achievementIDGiven = seekGET('a', null);
-settype($achievementIDGiven, 'integer');
+$achievementIDGiven = requestInputQuery('a', null, 'integer');
 if ($achievementIDGiven > 0) {
     $achievementData = GetAchievementData($achievementIDGiven);
     if (!$achievementData) {

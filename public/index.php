@@ -17,7 +17,7 @@ if (file_exists("../storage/logs/playersonline.log")) {
     }
 }
 $staticData = getStaticData();
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
 RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
@@ -27,7 +27,7 @@ RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
 //LoadCSS( '/css/_mobile.css' );
 // }
 
-$mostPopularCount = seekGET('p', 10);
+$mostPopularCount = requestInputSanitized('p', 10);
 
 RenderHtmlStart();
 RenderHtmlHead();

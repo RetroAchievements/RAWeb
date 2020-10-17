@@ -3,15 +3,15 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $allowNewPasswordEntry = false;
 
-$user = seekGET('u');
-$passResetToken = seekGET('t');
+$user = htmlentities(requestInputSanitized('u'));
+$passResetToken = htmlentities(requestInputSanitized('t'));
 if (isset($passResetToken) && isset($user)) {
     if (isValidPasswordResetToken($user, $passResetToken)) {
         $allowNewPasswordEntry = true;
     }
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Password Reset");
 ?>

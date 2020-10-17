@@ -13,7 +13,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Reorder Site Awards");

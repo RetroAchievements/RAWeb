@@ -7,9 +7,9 @@ if (!ValidatePOSTChars("tp")) {
     exit;
 }
 
-$userIn = seekPOST('u');
-$topicID = seekPOST('t');
-$commentPayload = seekPOST('p');
+$userIn = requestInputPost('u');
+$topicID = requestInputPost('t');
+$commentPayload = requestInputPost('p');
 
 if (validateFromCookie($user, $unused, $permissions, \RA\Permissions::Registered)) {
     if (submitTopicComment($user, $topicID, $commentPayload, $newCommentID)) {

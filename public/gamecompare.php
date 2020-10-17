@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$gameID = seekGET('ID');
-$user2 = seekGET('f');
+$gameID = requestInputSanitized('ID');
+$user2 = requestInputSanitized('f');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Unregistered)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
@@ -19,7 +19,7 @@ $gameTitle = $gameData['Title'];
 
 $gameIcon = $gameData['ImageIcon'];
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 $gamesPlayedWithAchievements = [];
 $numGamesPlayedWithAchievements = 0;

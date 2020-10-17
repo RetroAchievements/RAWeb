@@ -2,15 +2,15 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-if (!seekPOSTorGET('term')) {
+if (!requestInput('term')) {
     exit;
 }
 
 global $db;
 $searchTerm = $_REQUEST['term'];
-sanitize_query_inputs($searchTerm);
+sanitize_sql_inputs($searchTerm);
 
-$source = seekGET('p', null);
+$source = requestInputQuery('p', null);
 
 $query = "(
     SELECT '1' AS Type, gd.ID, CONCAT( gd.Title, \" (\", c.Name, \")\" ) AS Title, gd.ImageIcon AS Icon

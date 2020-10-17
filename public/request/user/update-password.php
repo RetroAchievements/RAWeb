@@ -8,11 +8,11 @@ if (!ValidatePOSTChars("uxy")) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=baddata");
 }
 
-$user = seekPOST('u');
-$pass = seekPOST('p');
-$passResetToken = seekPOST('t');
-$newpass1 = seekPOST('x');
-$newpass2 = seekPOST('y');
+$user = requestInputPost('u');
+$pass = requestInputPost('p');
+$passResetToken = requestInputPost('t');
+$newpass1 = requestInputPost('x');
+$newpass2 = requestInputPost('y');
 
 if ($newpass1 !== $newpass2) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=passinequal");

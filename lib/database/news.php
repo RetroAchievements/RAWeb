@@ -2,7 +2,7 @@
 
 function GetLatestNewsData($offset, $count)
 {
-    sanitize_query_inputs($offset, $count);
+    sanitize_sql_inputs($offset, $count);
 
     $retVal = [];
 
@@ -35,7 +35,7 @@ function getLatestNewsHeaders($offset, $numItems, &$dataOut)
 
 function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
 {
-    sanitize_query_inputs($payload, $link, $imageURL, $title);
+    sanitize_sql_inputs($payload, $link, $imageURL, $title);
 
     global $db;
 

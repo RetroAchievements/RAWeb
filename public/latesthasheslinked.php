@@ -5,10 +5,10 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $maxCount = 50;
 
-$errorCode = seekGET('e');
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
-$searchedHash = seekGET('h', null);
+$errorCode = requestInputSanitized('e');
+$count = requestInputSanitized('c', $maxCount);
+$offset = requestInputSanitized('o', 0);
+$searchedHash = requestInputSanitized('h', null);
 if ($offset < 0) {
     $offset = 0;
 }

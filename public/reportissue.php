@@ -4,9 +4,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 $cookieRaw = RA_ReadCookie('RA_Cookie');
 
-$achievementID = seekGET('i', 0);
-settype($achievementID, 'integer');
+$achievementID = requestInputSanitized('i', 0, 'integer');
 
+$dataOut = null;
 if ($achievementID == 0 ||
     getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
@@ -25,7 +25,7 @@ $consoleName = $dataOut['ConsoleName'];
 $gameID = $dataOut['GameID'];
 $gameBadge = $dataOut['GameIcon'];
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 RenderHtmlHead("Report Broken Achievement");

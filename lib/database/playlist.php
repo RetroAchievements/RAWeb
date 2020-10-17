@@ -2,7 +2,7 @@
 
 function requestModifyVid($author, &$id, $title, $link)
 {
-    sanitize_query_inputs($author, $title, $link);
+    sanitize_sql_inputs($author, $title, $link);
     $title = str_replace("'", "''", $title);
 
     if (isset($id) && $id != 0) {

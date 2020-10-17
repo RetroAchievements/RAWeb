@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$gameID = seekGET('i');
+$gameID = requestInputQuery('i');
 
 $gameRating = getGameRating($gameID);
 

@@ -33,8 +33,8 @@ function UploadUserPic($user, $filename, $rawImage)
     $response['Filename'] = $filename;
     $response['User'] = $user;
 
-    //$filename = seekPOST( 'f' );
-    //$rawImage = seekPOST( 'i' );
+    //$filename = requestInputPost( 'f' );
+    //$rawImage = requestInputPost( 'i' );
     //	sometimes the extension... *is* the filename?
     $extension = $filename;
     if (explode(".", $filename) !== false) {

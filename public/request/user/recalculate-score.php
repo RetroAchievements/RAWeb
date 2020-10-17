@@ -9,7 +9,7 @@ if (!ValidatePOSTChars("u")) {
     exit;
 }
 
-$userIn = seekPOST('u');
+$userIn = requestInputPost('u');
 
 $permOk = RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)
           && ($user == $userIn

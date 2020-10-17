@@ -5,11 +5,11 @@ use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$gameID = seekGET('g', 1);
+$gameID = requestInputSanitized('g', 1);
 $gameData = getGameData($gameID);
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead('Code Notes');

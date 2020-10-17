@@ -1,6 +1,6 @@
 <?php
 
-function sanitize_query_inputs(&...$inputs)
+function sanitize_sql_inputs(&...$inputs)
 {
     global $db;
     foreach ($inputs as &$input) {

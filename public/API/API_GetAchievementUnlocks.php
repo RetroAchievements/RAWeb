@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 runPublicApiMiddleware();
 
 $user = null;
-$achievementID = (int)(seekGET('a') ?? null);
+$achievementID = (int)(requestInputQuery('a') ?? null);
 
 if (empty($achievementID)) {
     echo json_encode([

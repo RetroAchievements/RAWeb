@@ -4,11 +4,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 header("Location: " . getenv('APP_URL'));
 return;
 
-$errorCode = seekGET('e');
-$offset = seekGET('o');
-$global = seekGET('g', null);
-$activityID = seekGET('a', null);
-$individual = seekGET('i', null);
+$errorCode = requestInputSanitized('e');
+$offset = requestInputSanitized('o');
+$global = requestInputSanitized('g', null);
+$activityID = requestInputSanitized('a', null);
+$individual = requestInputSanitized('i', null);
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 

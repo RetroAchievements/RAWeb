@@ -5,14 +5,14 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $maxCount = 25;
 
-$errorCode = seekGET('e');
-$offset = seekGET('o', 0);
+$errorCode = requestInputSanitized('e');
+$offset = requestInputSanitized('o', 0);
 $offset = max($offset, 0);
-$sort = seekGET('s', 5);
-$type = seekGET('t', 0);
-$friends = seekGET('f', 0);
-$untracked = seekGET('u', 0);
-$date = seekGET('d', date("Y-m-d"));
+$sort = requestInputSanitized('s', 5);
+$type = requestInputSanitized('t', 0);
+$friends = requestInputSanitized('f', 0);
+$untracked = requestInputSanitized('u', 0);
+$date = requestInputSanitized('d', date("Y-m-d"));
 $dateUnix = strtotime("$date");
 
 switch ($type) {

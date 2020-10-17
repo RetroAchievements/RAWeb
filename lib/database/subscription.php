@@ -11,7 +11,7 @@
  */
 function updateSubscription($subjectType, $subjectID, $userID, $state)
 {
-    sanitize_query_inputs($subjectType, $subjectID, $userID, $state);
+    sanitize_sql_inputs($subjectType, $subjectID, $userID, $state);
     settype($state, 'integer');
 
     $stateInt = $state ? 1 : 0;
@@ -46,7 +46,7 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
     if (!$userID) {
         return false;
     }
-    sanitize_query_inputs($subjectType, $subjectID, $userID);
+    sanitize_sql_inputs($subjectType, $subjectID, $userID);
 
     if ($implicitSubscriptionQry === null) {
         $query = "
@@ -115,7 +115,7 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
  */
 function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $implicitSubscriptionQry = null)
 {
-    sanitize_query_inputs($subjectType, $subjectID, $reqWebsitePrefs);
+    sanitize_sql_inputs($subjectType, $subjectID, $reqWebsitePrefs);
 
     $websitePrefsFilter = (
         $reqWebsitePrefs === null ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0"

@@ -7,8 +7,8 @@ if (!ValidatePOSTChars("pu")) {
     exit;
 }
 
-$prefs = seekPOST('p');
-$user = seekPOST('u');
+$prefs = requestInputPost('p');
+$user = requestInputPost('u');
 getcookie($userIn, $cookie);
 
 if ($user == $userIn && validateUser_cookie($user, $cookie, 0) == false) {

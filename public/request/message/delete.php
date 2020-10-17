@@ -7,9 +7,9 @@ if (!ValidateGETChars("ucm")) {
     return;
 }
 
-$user = seekGET('u');
-$cookie = seekGET('c');
-$messageID = seekGET('m');
+$user = requestInputQuery('u');
+$cookie = requestInputQuery('c');
+$messageID = requestInputQuery('m');
 
 if (validateUser_cookie($user, $cookie, 0) == true) {
     if (DeleteMessage($user, $messageID)) {

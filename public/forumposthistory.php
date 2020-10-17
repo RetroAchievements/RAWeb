@@ -1,18 +1,16 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-settype($requestedCategoryID, "integer");
-
 $maxCount = 25;
 
-$offset = seekGET('o', 0);
+$offset = requestInputSanitized('o', 0);
 $count = $maxCount;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $numPostsFound = getRecentForumPosts($offset, $count, 90, $recentPostsData);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Forum Recent Posts");

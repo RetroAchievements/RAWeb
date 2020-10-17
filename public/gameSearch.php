@@ -9,18 +9,16 @@ $consoleList = getConsoleList();
 $consoleList[0] = 'All Consoles';
 ksort($consoleList);                //	Bump 'All Consoles' to the top
 
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
-$method = seekGET('p', 0);
-settype($method, 'integer');
-$consoleID = seekGET('i', 0);
-settype($consoleID, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$method = requestInputSanitized('p', 0, 'integer');
+$consoleID = requestInputSanitized('i', 0, 'integer');
 
 $gameData = getGameListSearch($offset, $count, $method, $consoleID);
 
 //var_dump( $gameData );
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Game Search");
 ?>

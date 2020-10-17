@@ -7,10 +7,10 @@ if (!ValidatePOSTChars("ucip")) {
     return;
 }
 
-$user = seekPOST('u');
-$cookie = seekPOST('c');
-$achievementID = seekPOST('i');
-$problemType = seekPOST('p');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
+$achievementID = requestInputPost('i');
+$problemType = requestInputPost('p');
 
 if (isset($_POST['note'])) {
     $appendNote = $_POST['note']['description'];

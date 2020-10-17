@@ -6,12 +6,12 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 $maxCount = 50;
 $offset = 0;
 
-$username = seekGET('u');
-$errorCode = seekGET('e');
-$selectedConsole = seekGET('s', null);
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', $offset);
-$flag = seekGET('f', 0); //0 - display only active user set requests, else display all user set requests
+$username = requestInputSanitized('u');
+$errorCode = requestInputSanitized('e');
+$selectedConsole = requestInputSanitized('s', null);
+$count = requestInputSanitized('c', $maxCount);
+$offset = requestInputSanitized('o', $offset);
+$flag = requestInputSanitized('f', 0); //0 - display only active user set requests, else display all user set requests
 if ($offset < 0) {
     $offset = 0;
 }
