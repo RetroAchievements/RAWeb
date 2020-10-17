@@ -31,8 +31,8 @@ $count = 15;
 $offset = requestInputSanitized('o', 0, 'integer');
 
 // Fetch 'goto comment' param if available
-$gotoCommentID = requestInputSanitized('c', null);
-if (isset($gotoCommentID)) {
+$gotoCommentID = requestInputSanitized('c', null, 'integer');
+if (!empty($gotoCommentID)) {
     // Override $offset, just find this comment and go to it.
     getTopicCommentCommentOffset($requestedTopicID, $gotoCommentID, $count, $offset);
 }
