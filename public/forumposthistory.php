@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $maxCount = 25;
 
-$offset = requestInputSanitized('o', 0);
+$offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);

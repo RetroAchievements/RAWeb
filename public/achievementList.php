@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $consoleList = getConsoleList();
-$consoleIDInput = requestInputSanitized('z', 0);
+$consoleIDInput = requestInputSanitized('z', 0, 'integer');
 $mobileBrowser = IsMobileBrowser();
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
@@ -34,7 +34,7 @@ if ($dev != null) {
     $dev_param .= "&d=$dev";
 }
 
-$sortBy = requestInputSanitized('s', 17);
+$sortBy = requestInputSanitized('s', 17, 'integer');
 $achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 $requestedConsole = "";

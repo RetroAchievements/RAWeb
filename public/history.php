@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$userPage = htmlentities(requestInputSanitized('u', $user));
+$userPage = requestInputSanitized('u', $user);
 
 if (!isset($userPage) || !isValidUsername($userPage)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
@@ -17,9 +17,9 @@ if (!$userMassData) {
     exit;
 }
 
-$listOffset = requestInputSanitized('o', 0);
-$sortBy = requestInputSanitized('s', 3);
-$maxDays = requestInputSanitized('c', 15);
+$listOffset = requestInputSanitized('o', 0, 'integer');
+$sortBy = requestInputSanitized('s', 3, 'integer');
+$maxDays = requestInputSanitized('c', 15, 'integer');
 $userBestDaysList = getUserBestDaysList($userPage, $listOffset, $maxDays, $sortBy);
 
 $sortByGraphName = 'Total Points';

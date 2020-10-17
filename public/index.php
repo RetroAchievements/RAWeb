@@ -27,7 +27,7 @@ RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
 //LoadCSS( '/css/_mobile.css' );
 // }
 
-$mostPopularCount = requestInputSanitized('p', 10);
+$mostPopularCount = requestInputSanitized('p', 10, 'integer');
 
 RenderHtmlStart();
 RenderHtmlHead();

@@ -6,12 +6,12 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 $maxCount = 25;
 
 $errorCode = requestInputSanitized('e');
-$offset = requestInputSanitized('o', 0);
+$offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
-$sort = requestInputSanitized('s', 5);
-$type = requestInputSanitized('t', 0);
-$friends = requestInputSanitized('f', 0);
-$untracked = requestInputSanitized('u', 0);
+$sort = requestInputSanitized('s', 5, 'integer');
+$type = requestInputSanitized('t', 0, 'integer');
+$friends = requestInputSanitized('f', 0, 'integer');
+$untracked = requestInputSanitized('u', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
 $dateUnix = strtotime("$date");
 

@@ -251,7 +251,7 @@ function getMostRequestedSetsList($console, $offset, $count)
         WHERE 
             sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
-    if ($console !== null) {
+    if (!empty($console)) {
         $query .= "
                 AND c.ID = '$console' ";
     }
@@ -302,7 +302,7 @@ function getGamesWithRequests($console)
         WHERE
              GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
-    if ($console != null) {
+    if (!empty($console)) {
         $query .= "
                 AND c.ID = '$console' ";
     }

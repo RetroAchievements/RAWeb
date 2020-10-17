@@ -8,15 +8,15 @@ $offset = 0;
 
 $username = requestInputSanitized('u');
 $errorCode = requestInputSanitized('e');
-$selectedConsole = requestInputSanitized('s', null);
-$count = requestInputSanitized('c', $maxCount);
-$offset = requestInputSanitized('o', $offset);
-$flag = requestInputSanitized('f', 0); //0 - display only active user set requests, else display all user set requests
+$selectedConsole = requestInputSanitized('s', null, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', $offset, 'integer');
+$flag = requestInputSanitized('f', 0, 'integer'); //0 - display only active user set requests, else display all user set requests
 if ($offset < 0) {
     $offset = 0;
 }
 
-if ($username === null) {
+if (empty($username)) {
     $setRequestList = getMostRequestedSetsList($selectedConsole, $offset, $count);
     $totalRequestedGames = getGamesWithRequests($selectedConsole);
 } else {
@@ -95,7 +95,7 @@ RenderToolbar($user, $permissions);
             echo "<div class='rightalign row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                if ($selectedConsole != null) {
+                if (!empty($selectedConsole)) {
                     echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
                     echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
                 } else {
@@ -105,7 +105,7 @@ RenderToolbar($user, $permissions);
             }
             if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
                 $nextOffset = $offset + $maxCount;
-                if ($selectedConsole != null) {
+                if (!empty($selectedConsole)) {
                     echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
                     echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
                 } else {
@@ -120,7 +120,7 @@ RenderToolbar($user, $permissions);
                 . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
             if ($flag == 0) {
-                echo "<a href='/setRequestList.php?u=" . $username . "&f=1'>View All User Set Requests</a>";
+                echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
             } else {
                 echo "<a href='/setRequestList.php?u=$username'>View Active User Set Requests</a>";
             }

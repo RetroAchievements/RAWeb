@@ -4,8 +4,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $searchQuery = requestInputSanitized('s', null);
-$offset = requestInputSanitized('o', 0);
-$maxCount = requestInputSanitized('c', 50);
+$offset = requestInputSanitized('o', 0, 'integer');
+$maxCount = requestInputSanitized('c', 50, 'integer');
 
 $resultsCount = 0;
 if ($searchQuery !== null) {

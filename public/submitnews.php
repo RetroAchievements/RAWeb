@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $errorCode = requestInputSanitized('e');
 $newsImageInput = requestInputSanitized('g');
-$newsArticleID = requestInputSanitized('n', 0);
+$newsArticleID = requestInputSanitized('n', 0, 'integer');
 
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;

@@ -6,7 +6,7 @@ use RA\Permissions;
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $errorCode = requestInputSanitized('e');
-$vidID = requestInputSanitized('v', 0);
+$vidID = requestInputSanitized('v', 0, 'integer');
 $mobileSetting = requestInputSanitized('m');
 
 RenderHtmlStart();

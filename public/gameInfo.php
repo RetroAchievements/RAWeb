@@ -28,7 +28,7 @@ $defaultSort = 1;
 if (isset($user)) {
     $defaultSort = 13;
 }
-$sortBy = requestInputSanitized('s', $defaultSort);
+$sortBy = requestInputSanitized('s', $defaultSort, 'integer');
 
 if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;

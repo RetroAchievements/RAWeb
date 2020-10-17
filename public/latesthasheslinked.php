@@ -6,8 +6,8 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 $maxCount = 50;
 
 $errorCode = requestInputSanitized('e');
-$count = requestInputSanitized('c', $maxCount);
-$offset = requestInputSanitized('o', 0);
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
 $searchedHash = requestInputSanitized('h', null);
 if ($offset < 0) {
     $offset = 0;

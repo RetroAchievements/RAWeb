@@ -5,7 +5,7 @@ $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $showCompleteGames = requestInputSanitized('f', 0, 'integer'); //	0 = no filter, 1 = only complete, 2 = only incomplete
 
-$sortBy = requestInputSanitized('s', 0);
+$sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
 
 $requestedConsole = "";

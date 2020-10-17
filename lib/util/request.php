@@ -48,7 +48,8 @@ function requestInput($key, $default = null, $type = null)
 function requestInputSanitized($key, $default = null, $type = null)
 {
     if (!$type || $type === 'string') {
-        return htmlentities(requestInput($key, $default, $type));
+        $input = requestInput($key, $default, $type);
+        return !empty($input) ? htmlentities($input) : null;
     }
     return requestInput($key, $default, $type);
 }

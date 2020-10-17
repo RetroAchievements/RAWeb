@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$userPage = htmlentities(requestInputSanitized('u', $user));
+$userPage = requestInputSanitized('u', $user);
 if (!isset($userPage)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;

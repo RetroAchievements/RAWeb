@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$gameID = requestInputSanitized('ID');
+$gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Unregistered)) {

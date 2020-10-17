@@ -4,9 +4,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $maxCount = 10;
 
 $errorCode = requestInputSanitized('e');
-$offset = requestInputSanitized('o', 0);
-$count = requestInputSanitized('c', $maxCount);
-$unreadOnly = requestInputSanitized('u', 0);
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$unreadOnly = requestInputSanitized('u', 0, 'integer');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     //	Trying to visit someone's inbox while not being logged in :S

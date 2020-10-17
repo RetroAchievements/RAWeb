@@ -17,7 +17,7 @@ if (ctype_alnum($userPage) == false) {
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$maxNumGamesToFetch = requestInputSanitized('g', 5);
+$maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
 //    Get general info
 getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 0, $user);

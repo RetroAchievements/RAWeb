@@ -5,10 +5,10 @@ header("Location: " . getenv('APP_URL'));
 return;
 
 $errorCode = requestInputSanitized('e');
-$offset = requestInputSanitized('o');
-$global = requestInputSanitized('g', null);
-$activityID = requestInputSanitized('a', null);
-$individual = requestInputSanitized('i', null);
+$offset = requestInputSanitized('o', null, 'integer');
+$global = requestInputSanitized('g', null, 'integer');
+$activityID = requestInputSanitized('a', null, 'integer');
+$individual = requestInputSanitized('i', null, 'integer');
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 

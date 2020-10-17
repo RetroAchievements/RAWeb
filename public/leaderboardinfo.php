@@ -5,8 +5,8 @@ use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$lbID = requestInputSanitized('i');
-if (!isset($lbID)) {
+$lbID = requestInputSanitized('i', null, 'integer');
+if (empty($lbID)) {
     header("Location: " . getenv('APP_URL') . "?e=urlissue");
     exit;
 }

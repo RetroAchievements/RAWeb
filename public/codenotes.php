@@ -5,7 +5,7 @@ use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$gameID = requestInputSanitized('g', 1);
+$gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
 getCodeNotes($gameID, $codeNotes);
 

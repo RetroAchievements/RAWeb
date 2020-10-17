@@ -4,12 +4,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 100;
-$count = requestInputSanitized('c', $maxCount);
-$offset = requestInputSanitized('o', 0);
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
 $defaultFilter = 2041; //2041 sets all filters active except for Closed and Resolved
-$ticketFilters = requestInputSanitized('t', $defaultFilter);
+$ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
 
@@ -116,18 +116,18 @@ if ($ticketID != 0) {
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
 if ($ticketID == 0) {
-    $gamesTableFlag = requestInputSanitized('f');
+    $gamesTableFlag = requestInputSanitized('f', null, 'integer');
     if ($gamesTableFlag == 1) {
-        $count = requestInputSanitized('c', 100);
+        $count = requestInputSanitized('c', 100, 'integer');
         $ticketData = gamesSortedByOpenTickets($count);
     } else {
-        $assignedToUser = htmlentities(requestInputSanitized('u', null));
+        $assignedToUser = requestInputSanitized('u', null);
         if (!isValidUsername($assignedToUser)) {
             $assignedToUser = null;
         }
-        $gameIDGiven = htmlentities(requestInputSanitized('g', null));
+        $gameIDGiven = requestInputSanitized('g', null, 'integer');
 
-        $achievementIDGiven = requestInputSanitized('a', null);
+        $achievementIDGiven = requestInputSanitized('a', null, 'integer');
         if ($achievementIDGiven > 0) {
             $achievementData = GetAchievementData($achievementIDGiven);
             $achievementTitle = $achievementData['Title'];
@@ -184,7 +184,7 @@ RenderHtmlHead($pageTitle);
         if ($gamesTableFlag == 1) {
             echo "<h3>Top " . count($ticketData) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
-            $assignedToUser = htmlentities(requestInputSanitized('u', null));
+            $assignedToUser = requestInputSanitized('u', null);
             if (!isValidUsername($assignedToUser)) {
                 $assignedToUser = null;
             }
@@ -249,16 +249,16 @@ RenderHtmlHead($pageTitle);
                     Each filter is represented by a bit in the $ticketFilters variable.
                     This allows us to easily determine which filters are active as well as toggle them back and forth.
                  */
-                $openTickets            = ($ticketFilters & (1 << 0));
-                $closedTickets          = ($ticketFilters & (1 << 1));
-                $resolvedTickets        = ($ticketFilters & (1 << 2));
-                $triggeredTickets       = ($ticketFilters & (1 << 3));
-                $didNotTriggerTickets   = ($ticketFilters & (1 << 4));
-                $md5KnownTickets        = ($ticketFilters & (1 << 5));
-                $md5UnknownTickets      = ($ticketFilters & (1 << 6));
-                $raEmulatorTickets      = ($ticketFilters & (1 << 7));
-                $rarchKnownTickets      = ($ticketFilters & (1 << 8));
-                $rarchUnknownTickets    = ($ticketFilters & (1 << 9));
+                $openTickets = ($ticketFilters & (1 << 0));
+                $closedTickets = ($ticketFilters & (1 << 1));
+                $resolvedTickets = ($ticketFilters & (1 << 2));
+                $triggeredTickets = ($ticketFilters & (1 << 3));
+                $didNotTriggerTickets = ($ticketFilters & (1 << 4));
+                $md5KnownTickets = ($ticketFilters & (1 << 5));
+                $md5UnknownTickets = ($ticketFilters & (1 << 6));
+                $raEmulatorTickets = ($ticketFilters & (1 << 7));
+                $rarchKnownTickets = ($ticketFilters & (1 << 8));
+                $rarchUnknownTickets = ($ticketFilters & (1 << 9));
                 $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
 
                 //State Filters

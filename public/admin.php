@@ -9,7 +9,7 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 
 $errorCode = requestInputSanitized('e');
 
-$newsArticleID = requestInputSanitized('n');
+$newsArticleID = requestInputSanitized('n', null, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
@@ -291,9 +291,9 @@ switch ($action) {
         }
         break;
     case 'giveaward':
-        $awardAchievementID = requestInputSanitized('a');
+        $awardAchievementID = requestInputSanitized('a', null, 'integer');
         $awardAchievementUser = requestInputSanitized('u');
-        $awardAchHardcore = requestInputSanitized('h', 0);
+        $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $usersToAward = preg_split('/\W+/', $awardAchievementUser);
