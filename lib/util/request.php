@@ -2,7 +2,7 @@
 
 function seekGET($key, $default = null)
 {
-    return ($_GET[$key] ?? null) ? htmlentities($_GET[$key], ENT_QUOTES | ENT_HTML5) : $default;
+    return $_GET[$key] ?? $default;
 }
 
 function seekPOST($key, $default = null)
