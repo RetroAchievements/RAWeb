@@ -291,7 +291,7 @@ switch ($action) {
         }
         break;
     case 'giveaward':
-        $awardAchievementID = requestInputSanitized('a', null, 'integer');
+        $awardAchievementID = requestInputSanitized('a', null);
         $awardAchievementUser = requestInputSanitized('u');
         $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
 
@@ -304,7 +304,9 @@ switch ($action) {
                     continue;
                 }
                 $message .= "<strong>$validUser</strong>:<br>";
-                $ids = explode(',', $awardAchievementID);
+                $ids = str_replace(',', ' ', $awardAchievementID);
+                $ids = str_replace('  ', ' ', $ids);
+                $ids = explode(' ', $ids);
                 foreach ($ids as $nextID) {
                     $message .= "- $nextID: ";
                     $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
