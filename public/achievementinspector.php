@@ -19,6 +19,7 @@ if ($gameIDSpecified) {
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];
+    sanitize_outputs($gameTitle, $consoleName);
 
     getCodeNotes($gameID, $codeNotes);
 } else {
@@ -163,6 +164,8 @@ RenderHtmlHead("Manage Achievements");
             $achDisplayOrder = $achievementEntry['DisplayOrder'];
             $achBadgeFile = getenv('ASSET_URL') . "/Badge/$achBadgeName" . ".png";
 
+            sanitize_outputs($achTitle, $achDesc);
+
             echo "<tr>";
             if ($modifyOK) {
                 echo "<td align='center'><input type='checkbox' name='acvhievement" . $achID . "' value='" . $achID . "'></td>";
@@ -200,6 +203,7 @@ RenderHtmlHead("Manage Achievements");
             $gameID = $gameEntry['ID'];
             $gameTitle = $gameEntry['Title'];
             $console = $gameEntry['ConsoleName'];
+            sanitize_outputs($gameTitle, $console);
 
             if ($lastConsole == 'NULL') {
                 echo "<tr><td>$console:</td>";

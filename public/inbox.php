@@ -137,6 +137,12 @@ RenderHtmlHead('Inbox');
                 $msgType = $allMessages[$i]['Type'];
                 $msgUnread = ($allMessages[$i]['Unread'] == 1);
 
+                sanitize_outputs(
+                    $msgFrom,
+                    $msgTitle,
+                    $msgPayload,
+                );
+
                 $msgPayload = nl2br($msgPayload);
                 $msgPayload = stripslashes($msgPayload);
                 $msgPayload = parseTopicCommentPHPBB($msgPayload);

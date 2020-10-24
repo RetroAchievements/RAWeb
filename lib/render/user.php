@@ -144,6 +144,11 @@ function RenderSiteAwards($userAwards)
             $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
 
+            sanitize_outputs(
+                $awardGameTitle,
+                $awardGameConsole,
+            );
+
             if ($awardType == 1) {
                 //echo $awardDataExtra;
                 if ($awardDataExtra == '1') {
@@ -259,6 +264,11 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $nextConsoleName = $userCompletedGamesList[$i]['ConsoleName'];
         $nextTitle = $userCompletedGamesList[$i]['Title'];
         $nextImageIcon = $userCompletedGamesList[$i]['ImageIcon'];
+
+        sanitize_outputs(
+            $nextConsoleName,
+            $nextTitle,
+        );
 
         $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
 

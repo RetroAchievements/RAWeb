@@ -59,6 +59,8 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             $bestScore = $lbItem['Score'];
             $scoreFormat = $lbItem['Format'];
 
+            sanitize_outputs($lbTitle, $lbDesc);
+
             //    Title
             echo "<tr>";
             echo "<td colspan='2'>";

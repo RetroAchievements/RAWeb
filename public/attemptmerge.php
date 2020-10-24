@@ -34,6 +34,11 @@ $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
 $gameIcon = $gameData['ImageIcon'];
 
+sanitize_outputs(
+    $gameTitle,
+    $consoleName,
+);
+
 $numGames = getGamesListWithNumAchievements($consoleID, $gamesList, 0);
 //var_dump( $gamesList );
 RenderHtmlStart();
@@ -67,7 +72,7 @@ RenderHtmlHead("Merge Game Entry ($consoleName)");
         echo "&nbsp;<INPUT type='submit' value='Submit' />";
         echo "</FORM>";
 
-        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=Scott&s=Attempt%20to%20Merge%20a%20title'>leave me a message</a> and I'll help sort it.</div>";
+        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt%20to%20Merge%20a%20title'>leave me a message for admins</a> and they'll help sort it.</div>";
         ?>
         <br>
     </div>

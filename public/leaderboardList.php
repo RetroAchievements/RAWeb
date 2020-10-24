@@ -42,6 +42,11 @@ if ($consoleIDInput) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
+sanitize_outputs(
+    $requestedConsole,
+    $gameData['Title'],
+);
+
 $pageTitle = "Leaderboard List" . $requestedConsole;
 
 $errorCode = requestInputSanitized('e');
@@ -119,7 +124,7 @@ RenderHtmlHead($pageTitle);
     echo "<div class='detaillist'>";
     echo "<h3 class='longheader'>Leaderboard List</h3>";
 
-    if (isset($gameData)) {
+    if (isset($gameData['ID'])) {
         echo "<div>";
         echo "Displaying leaderboards for: ";
         echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']);

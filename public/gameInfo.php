@@ -136,6 +136,14 @@ if ($isFullyFeaturedGame) {
     $gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, 1);
 }
 
+sanitize_outputs(
+    $gameTitle,
+    $consoleName,
+    $richPresenceData,
+    $pageTitle,
+    $user,
+);
+
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
@@ -454,6 +462,13 @@ RenderHtmlStart(true);
         <?php RenderErrorCodeWarning($errorCode); ?>
         <div id="achievement">
             <?php
+            sanitize_outputs(
+                $developer,
+                $publisher,
+                $genre,
+                $released,
+            );
+
             if ($isFullyFeaturedGame) {
                 echo "<div class='navpath'>";
                 echo "<a href='/gameList.php'>All Games</a>";
@@ -660,6 +675,12 @@ RenderHtmlStart(true);
                         $gameAltID = $gameAlt['gameIDAlt'];
                         $gameAltTitle = $gameAlt['Title'];
                         $gameAltConsole = $gameAlt['ConsoleName'];
+
+                        sanitize_outputs(
+                            $gameAltTitle,
+                            $gameAltConsole,
+                        );
+
                         echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
                     }
                     echo "</select>";
@@ -893,6 +914,11 @@ RenderHtmlStart(true);
                                 $dateAch = $nextAch['DateEarned'];
                             }
                             $achBadgeName = $nextAch['BadgeName'];
+
+                            sanitize_outputs(
+                            $achTitle,
+                                $achDesc,
+                            );
 
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
 

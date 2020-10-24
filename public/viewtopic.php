@@ -58,6 +58,13 @@ $thisTopicForumID = $topicData['ForumID'];
 $thisTopicTitle = $topicData['TopicTitle'];
 $thisTopicPermissions = $topicData['RequiredPermissions'];
 
+sanitize_outputs(
+    $thisTopicAuthor,
+    $thisTopicCategory,
+    $thisTopicForum,
+    $thisTopicTitle,
+);
+
 $pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
@@ -80,10 +87,7 @@ RenderHtmlStart();
 <div id="mainpage">
     <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">
-
         <?php
-        $thisTopicTitle = htmlspecialchars($thisTopicTitle, ENT_QUOTES);
-
         echo "<div class='navpath'>";
         echo "<a href='/forum.php'>Forum Index</a>";
         echo " &raquo; <a href='forum.php?c=$thisTopicCategoryID'>$thisTopicCategory</a>";
@@ -234,6 +238,11 @@ RenderHtmlStart();
             } else {
                 $nextCommentDateModifiedNiceDate = "None";
             }
+
+            sanitize_outputs(
+                $nextCommentPayload,
+                $nextCommentAuthor,
+            );
 
             $showDisclaimer = false;
             $showAuthoriseTools = false;

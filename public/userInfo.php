@@ -99,6 +99,12 @@ if ($numGamesFound > 0) {
 settype($userMassData['Friendship'], 'integer');
 settype($userMassData['FriendReciprocation'], 'integer');
 
+sanitize_outputs(
+    $userMotto,
+    $userPage,
+    $userMassData['RichPresenceMsg']
+);
+
 $errorCode = requestInputSanitized('e');
 
 getCookie($user, $cookie);
@@ -415,6 +421,8 @@ RenderHtmlStart(true);
             $consoleName = $userMassData['RecentlyPlayed'][$i]['ConsoleName'];
             $gameTitle = $userMassData['RecentlyPlayed'][$i]['Title'];
             $gameLastPlayed = $userMassData['RecentlyPlayed'][$i]['LastPlayed'];
+
+            sanitize_outputs($consoleName, $gameTitle);
 
             $pctAwarded = 100.0;
 

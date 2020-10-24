@@ -35,6 +35,11 @@ $consoleID = $gameData['ConsoleID'];
 $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 
+sanitize_outputs(
+    $consoleName,
+    $gameTitle,
+);
+
 //$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
 //var_dump( $gamesList );
 RenderHtmlStart();
@@ -53,7 +58,7 @@ RenderHtmlHead("Unlink Game Entry ($consoleName)");
 
         echo "Use this tool when an incorrect link has been made to a game, i.e. when you load a Super Mario Kart ROM, and the achievements for Super Mario World get loaded.<br>";
 
-        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help you to sort it.</div><br>";
+        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div><br>";
 
         echo "<h4><b>Unlink a single hash</b></h4>";
         echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following MD5s:<br><br>";

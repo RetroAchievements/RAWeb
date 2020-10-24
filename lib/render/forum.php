@@ -25,6 +25,12 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
             $forumTopicID = $nextData['ForumTopicID'];
             $forumTopicTitle = $nextData['ForumTopicTitle'];
 
+            sanitize_outputs(
+                $shortMsg,
+                $author,
+                $forumTopicTitle,
+            );
+
             echo "<div class='embedded mb-1'>";
             echo "<div style='line-height: 1em;'>";
             echo GetUserAndTooltipDiv($author, true, null, 16);

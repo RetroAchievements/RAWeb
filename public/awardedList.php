@@ -66,6 +66,9 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=0'>All consoles</a>";
 
         foreach ($consoleList as $nextConsoleID => $nextConsoleName) {
+
+            sanitize_outputs($nextConsoleName);
+
             if ($nextConsoleID == $consoleIDInput) {
                 echo " | <b>$nextConsoleName</b>";
             } else {
@@ -138,6 +141,14 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             $gameTitle = $achEntry['GameTitle'];
             $consoleName = $achEntry['ConsoleName'];
             $timesAwarded = $achEntry['NumTimesAwarded'];
+
+            sanitize_outputs(
+                $achTitle,
+                $achDesc,
+                $achAuthor,
+                $gameTitle,
+                $consoleName
+            );
 
             if ($achCount++ % 2 == 0) {
                 echo "<tr>";

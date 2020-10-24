@@ -112,7 +112,9 @@ function RenderArticleComment(
     //$niceDate = date( "d M\nH:i ", $submittedDate );
     $niceDate = date("j M\nG:i Y ", $submittedDate);
 
-    echo "<td alt='Test' class='smalldate'>$niceDate</td>";
+    sanitize_outputs($user, $comment);
+
+    echo "<td class='smalldate'>$niceDate</td>";
     echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv($user, true) . "</td>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
@@ -121,6 +123,8 @@ function RenderArticleComment(
 
 function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
 {
+    sanitize_outputs($user, $formStr);
+
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
     $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250></textarea>";
     $formStr .= "&nbsp;";

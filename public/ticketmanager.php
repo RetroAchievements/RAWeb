@@ -146,6 +146,12 @@ if (!empty($gameIDGiven)) {
     getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
 }
 
+sanitize_outputs(
+    $achievementTitle,
+    $gameTitle,
+    $consoleName,
+);
+
 $pageTitle = "Ticket Manager";
 
 $errorCode = requestInputSanitized('e');
@@ -188,6 +194,9 @@ RenderHtmlHead($pageTitle);
             if (!isValidUsername($assignedToUser)) {
                 $assignedToUser = null;
             }
+            sanitize_outputs(
+                $assignedToUser,
+            );
             if ($gamesTableFlag == 5) {
                 $openTicketsCount = countOpenTickets(true);
                 $filteredTicketsCount = countOpenTickets(true, $ticketFilters, $assignedToUser, $gameIDGiven);
@@ -223,8 +232,12 @@ RenderHtmlHead($pageTitle);
                 $gameTitle = $nextTicket['GameTitle'];
                 $gameBadge = $nextTicket['GameIcon'];
                 $consoleName = $nextTicket['Console'];
-                $gameTitle = $nextTicket['GameTitle'];
                 $openTickets = $nextTicket['OpenTickets'];
+
+                sanitize_outputs(
+                    $gameTitle,
+                    $consoleName,
+                );
 
                 if ($rowCount++ % 2 == 0) {
                     echo "<tr>";
@@ -423,6 +436,15 @@ RenderHtmlHead($pageTitle);
                     $niceResolvedAt = getNiceDate(strtotime($resolvedAt));
                     $resolvedBy = $nextTicket['ResolvedBy'];
 
+                    sanitize_outputs(
+                        $achTitle,
+                        $achDesc,
+                        $achAuthor,
+                        $gameTitle,
+                        $consoleName,
+                        $reportNotes,
+                    );
+
                     if ($rowCount++ % 2 == 0) {
                         echo "<tr>";
                     } else {
@@ -508,6 +530,15 @@ RenderHtmlHead($pageTitle);
                 $resolvedAt = $nextTicket['ResolvedAt'];
                 $niceResolvedAt = getNiceDate(strtotime($resolvedAt));
                 $resolvedBy = $nextTicket['ResolvedBy'];
+
+                sanitize_outputs(
+                    $achTitle,
+                    $achDesc,
+                    $achAuthor,
+                    $gameTitle,
+                    $consoleName,
+                    $reportNotes,
+                );
 
                 echo "<table><tbody>";
 

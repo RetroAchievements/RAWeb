@@ -48,6 +48,13 @@ if ($requestedForumID == 0) {
     $requestedForum = $thisForumTitle;
 }
 
+sanitize_outputs(
+    $requestedForum,
+    $thisForumTitle,
+    $thisForumDescription,
+    $thisCategoryName,
+);
+
 $errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
@@ -109,6 +116,13 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 $nextTopicLastCommentAuthorID = $topicData['LatestCommentAuthorID'];
                 $nextTopicLastCommentPostedDate = $topicData['LatestCommentPostedDate'];
                 $nextTopicNumReplies = $topicData['NumTopicReplies'];
+
+                sanitize_outputs(
+                    $nextTopicTitle,
+                    $nextTopicPreview,
+                    $nextTopicAuthor,
+                    $nextTopicLastCommentAuthor,
+                );
 
                 if ($nextTopicPostedDate !== null) {
                     $nextTopicPostedNiceDate = getNiceDate(strtotime($nextTopicPostedDate));

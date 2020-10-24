@@ -20,6 +20,8 @@ if ($requestedCategoryID !== 0 && count($forumList) > 0) {
     $pageTitle .= ": " . $requestedCategory;
 }
 
+sanitize_outputs($requestedCategory);
+
 $errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
@@ -57,6 +59,8 @@ RenderHtmlHead($pageTitle);
                 $nextCategory = $forumData['CategoryName'];
                 $nextCategoryID = $forumData['CategoryID'];
 
+                sanitize_outputs($nextCategory);
+
                 if ($nextCategory != $lastCategory) {
                     if ($lastCategory !== "_init") {
                         //	We are starting another table, but we need to close the last one!
@@ -66,6 +70,8 @@ RenderHtmlHead($pageTitle);
                         echo "<br>";
                         $forumIter = 0;
                     }
+
+                    sanitize_outputs($forumData['CategoryDescription']);
 
                     echo "<h2>Forum: $nextCategory</h2>";
                     echo $forumData['CategoryDescription'] . "<br>";
@@ -99,6 +105,13 @@ RenderHtmlHead($pageTitle);
                 $nextForumLastPostTopicName = $forumData['LastPostTopicName'];
                 $nextForumLastPostTopicID = $forumData['LastPostTopicID'];
                 $nextForumLastPostID = $forumData['LastPostID'];
+
+                sanitize_outputs(
+                $nextForumTitle,
+                    $nextForumDesc,
+                    $nextForumLastPostAuthor,
+                    $nextForumLastPostTopicName,
+                );
 
                 echo "<tr>";
 

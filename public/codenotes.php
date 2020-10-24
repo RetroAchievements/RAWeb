@@ -7,6 +7,12 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
+
+sanitize_outputs(
+    $gameData['Title'],
+    $gameData['ConsoleName'],
+);
+
 getCodeNotes($gameID, $codeNotes);
 
 $errorCode = requestInputSanitized('e');

@@ -28,6 +28,14 @@ $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
 
+sanitize_outputs(
+    $achievementTitle,
+    $desc,
+    $gameTitle,
+    $consoleName,
+    $author
+);
+
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;

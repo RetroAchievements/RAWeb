@@ -168,6 +168,14 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             $consoleID = $achEntry['ConsoleID'];
             $consoleName = $achEntry['ConsoleName'];
 
+            sanitize_outputs(
+                    $achTitle,
+                $achDesc,
+                $achAuthor,
+                $gameTitle,
+                $consoleName
+            );
+
             echo "<tr>";
 
             echo "<td>";

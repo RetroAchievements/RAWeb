@@ -1,5 +1,14 @@
 <?php
 
+function sanitize_outputs(&...$outputs)
+{
+    foreach ($outputs as &$output) {
+        if (!empty($output)) {
+            $output = htmlentities($output, null, null, false);
+        }
+    }
+}
+
 function isValidUsername($userTest)
 {
     if (

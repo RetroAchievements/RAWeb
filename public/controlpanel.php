@@ -63,8 +63,8 @@ RenderHtmlHead("My Settings");
         var object = gameList[i];
 
         var nextID = object.ID;
-        var console = object.ConsoleName;
-        var title = object.GameTitle;
+        var console = htmlEntities(object.ConsoleName);
+        var title = htmlEntities(object.GameTitle);
         var numAw = object.NumAwarded;
         var numPoss = object.NumPossible;
 
@@ -114,8 +114,8 @@ RenderHtmlHead("My Settings");
         if (dataChunks.length < 2)
           continue;
 
-        var achTitle = dataChunks[0];
-        var achID = dataChunks[1];
+        var achTitle = htmlEntities(dataChunks[0]);
+        var achID = htmlEntities(dataChunks[1]);
         if (achID[0] == 'h') {
           //	Hardcore:
           achTitle = achTitle + ' (Hardcore)';

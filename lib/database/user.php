@@ -1149,7 +1149,7 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
     $libraryOut['MemberSince'] = $userInfo['Created'];
     $libraryOut['LastActivity'] = $userInfo['LastLogin'];
-    $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : strip_tags($userInfo['RichPresenceMsg']);
+    $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : $userInfo['RichPresenceMsg'];
     $libraryOut['LastGameID'] = $userInfo['LastGameID'];
     if ($userInfo['LastGameID']) {
         $libraryOut['LastGame'] = getGameData($userInfo['LastGameID']);
@@ -1162,7 +1162,7 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     $libraryOut['Untracked'] = $userInfo['Untracked'];
     $libraryOut['ID'] = $userInfo['ID'];
     $libraryOut['UserWallActive'] = $userInfo['UserWallActive'];
-    $libraryOut['Motto'] = htmlspecialchars($userInfo['Motto']);
+    $libraryOut['Motto'] = $userInfo['Motto'];
 
     $libraryOut['Rank'] = getUserRank($user); //    ANOTHER call... can't we cache this?
 

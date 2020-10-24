@@ -45,6 +45,9 @@ RenderHtmlHead("Download a client");
                         <b>Supported Systems:</b><br>
                         <ul style="column-count: 3">
                         <?php foreach ($emulator['systems'] as $system): ?>
+                            <?php
+                            sanitize_outputs($system);
+                            ?>
                             <li>- <?= $system ?></li>
                         <?php endforeach ?>
                         </ul>
