@@ -25,7 +25,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
     global $db;
 
     $note = $noteIn;
-    $note .= "<br>MD5: $ROMMD5";
+    $note .= "\nMD5: $ROMMD5";
 
     $submitterUserID = getUserIDFromUser($userSubmitter);
     settype($reportType, 'integer');

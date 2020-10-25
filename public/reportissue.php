@@ -25,6 +25,12 @@ $consoleName = $dataOut['ConsoleName'];
 $gameID = $dataOut['GameID'];
 $gameBadge = $dataOut['GameIcon'];
 
+sanitize_outputs(
+    $achievementTitle,
+    $gameTitle,
+    $consoleName
+);
+
 $errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);

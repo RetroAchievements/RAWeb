@@ -59,6 +59,11 @@ RenderHtmlHead("Reorder Site Awards");
             $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
 
+            sanitize_outputs(
+                $awardTitle,
+                $awardGameConsole
+            );
+
             settype($awardType, 'integer');
 
             if ($awardType == 1) {

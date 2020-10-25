@@ -426,7 +426,7 @@ RenderHtmlHead($pageTitle);
                     $gameBadge = $nextTicket['GameIcon'];
                     $consoleName = $nextTicket['ConsoleName'];
                     $reportType = $nextTicket['ReportType'];
-                    $reportNotes = $nextTicket['ReportNotes'];
+                    $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
                     $reportState = $nextTicket['ReportState'];
 
                     $reportedAt = $nextTicket['ReportedAt'];
@@ -522,7 +522,7 @@ RenderHtmlHead($pageTitle);
                 $consoleName = $nextTicket['ConsoleName'];
                 $reportState = $nextTicket['ReportState'];
                 $reportType = $nextTicket['ReportType'];
-                $reportNotes = $nextTicket['ReportNotes'];
+                $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
 
                 $reportedAt = $nextTicket['ReportedAt'];
                 $niceReportedAt = getNiceDate(strtotime($reportedAt));

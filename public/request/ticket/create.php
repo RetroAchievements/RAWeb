@@ -16,11 +16,11 @@ if (isset($_POST['note'])) {
     $appendNote = $_POST['note']['description'];
 
     if (!empty(trim($_POST['note']['checksum']))) {
-        $appendNote .= "<br>MD5: " . $_POST['note']['checksum'];
+        $appendNote .= "\nMD5: " . $_POST['note']['checksum'];
     }
 
     if (!empty(trim($_POST['note']['emulator']))) {
-        $appendNote .= "<br>Emulator: " . $_POST['note']['emulator'];
+        $appendNote .= "\nEmulator: " . $_POST['note']['emulator'];
 
         if ($_POST['note']['emulator'] == "RetroArch" || $_POST['note']['emulator'] == "RALibRetro") {
             $appendNote .= " (" . $_POST['note']['core'] . ")";
