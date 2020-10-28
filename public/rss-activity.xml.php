@@ -54,7 +54,7 @@ for ($i = 0; $i < $numArticles; $i++) {
     $title = getFeedItemTitle($feedData[$i], false);
 
     //	Image first?
-    //$payload = "<a href='$site/User/$user'>";
+    //$payload = "<a href='$site/user/$user'>";
     //$payload .= "<img src='$userPicURL' width='64' height='64' />";
     $payload = "<img src=\"$userPicURL\" />";
     //$payload .= "</a>";

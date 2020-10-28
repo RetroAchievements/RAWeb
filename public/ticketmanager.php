@@ -172,7 +172,7 @@ RenderHtmlHead($pageTitle);
             if ($ticketID == 0) {
                 echo "<a href='/ticketmanager.php'>$pageTitle</a>";
                 if (!empty($assignedToUser)) {
-                    echo " &raquo; <a href='/User/$assignedToUser'>$assignedToUser</a>";
+                    echo " &raquo; <a href='/user/$assignedToUser'>$assignedToUser</a>";
                 }
                 if (!empty($gameIDGiven)) {
                     echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";

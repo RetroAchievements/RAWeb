@@ -58,7 +58,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
         echo "<br><br>";
 
-        echo "Renaming game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName.<br>";
+        echo "Renaming game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName.<br>";
         echo "Please enter a new name below:<br><br>";
 
         echo "<FORM method=post action='/request/game/modify.php'>";

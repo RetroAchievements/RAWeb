@@ -53,8 +53,8 @@ RenderHtmlHead("Report Broken Achievement");
         <div class="navpath">
             <a href="/gameList.php">All Games</a>
             &raquo; <a href="/gameList.php?c=<?php echo $consoleName ?>"><?php echo $consoleName ?></a>
-            &raquo; <a href="/Game/<?php echo $gameID ?>"><?php echo $gameTitle ?></a>
-            &raquo; <a href="/Achievement/<?php echo $achievementID ?>"><?php echo $achievementTitle ?></a>
+            &raquo; <a href="/game/<?php echo $gameID ?>"><?php echo $gameTitle ?></a>
+            &raquo; <a href="/achievement/<?php echo $achievementID ?>"><?php echo $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>
 

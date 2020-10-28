@@ -331,7 +331,7 @@ RenderHtmlHead("My Settings");
             //	Render user panel
             echo "<p style='min-height:62px'>";
             echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' align='right' width='64' height='64'>";
-            echo "<strong><a href='/User/$user'>$user</a></strong> ($points points)<br>";
+            echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
             echo "Account: ($permissions) " . PermissionsToString($permissions) . "<br>";
             if (isset($userMotto) && mb_strlen($userMotto) > 1) {
                 echo "<span class='usermotto'>$userMotto</span><br>";

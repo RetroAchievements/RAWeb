@@ -79,7 +79,7 @@ RenderHtmlHead("Reorder Site Awards");
                 }
 
                 $imagepath = $awardGameImage;
-                $linkdest = "/Game/$awardData";
+                $linkdest = "/game/$awardData";
             } elseif ($awardType == 2) { //    Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
                 $awardTitle = "Achievements Earned by Others";

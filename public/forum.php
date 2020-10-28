@@ -125,7 +125,7 @@ RenderHtmlHead($pageTitle);
                 echo "<span class='smalldate'>$nextForumCreatedNiceDate</span><br>";
                 if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
                     echo GetUserAndTooltipDiv($nextForumLastPostAuthor, true);
-                    //echo "<a href='/User/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
+                    //echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
                     echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>[View]</a>";
                 }
                 echo "</div>";

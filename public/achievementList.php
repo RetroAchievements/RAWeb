@@ -62,7 +62,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
 
         echo "<h3 class='longheader'>";
         if ($dev != null) {
-            echo "<a href='/User/$dev'>$dev</a>'s ";
+            echo "<a href='/user/$dev'>$dev</a>'s ";
         }
         echo "Achievement List</h3>";
 

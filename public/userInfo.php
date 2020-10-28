@@ -151,7 +151,7 @@ RenderHtmlStart(true);
     $userPage,
     "user",
     "/UserPic/$userPage" . ".png",
-    "/User/$userPage",
+    "/user/$userPage",
     "User page for $userPage"
 ); ?>
     <?php RenderTitleTag($pageTitle); ?>
@@ -236,7 +236,7 @@ RenderHtmlStart(true);
         $totalTruePoints = $userMassData['TotalTruePoints'];
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
         echo "<div class='username'>";
-        echo "<span class='username'><a href='/User/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
+        echo "<span class='username'><a href='/user/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
         echo "</div>"; //username
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
@@ -476,7 +476,7 @@ RenderHtmlStart(true);
                 }
                 echo "</div>";
 
-                echo "<a href='/Game/$gameID'>$gameTitle ($consoleName)</a><br>";
+                echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br>";
                 echo "Last played $gameLastPlayed<br>";
                 echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br>";
 
@@ -519,7 +519,7 @@ RenderHtmlStart(true);
                             48,
                             $class
                         );
-                        //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
+                        //echo "<a href='/achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                     }
                 }
 
@@ -530,7 +530,7 @@ RenderHtmlStart(true);
         }
 
         if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='rightalign'><a href='/User/$userPage?g=15'>more...</a></div><br>";
+            echo "<div class='rightalign'><a href='/user/$userPage?g=15'>more...</a></div><br>";
         }
 
         echo "</div>"; //recentlyplayed

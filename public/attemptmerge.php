@@ -53,7 +53,7 @@ RenderHtmlHead("Merge Game Entry ($consoleName)");
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
         echo "<br><br>";
-        echo " Merging game entry <a href='/Game/$gameID'>$gameTitle</a> for $consoleName with another entry for $consoleName.<br>";
+        echo " Merging game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName with another entry for $consoleName.<br>";
         echo "Please select an existing $consoleName game to merge this entry with:<br><br>";
 
         echo "<FORM method=post action='requestmergegameids.php'>";

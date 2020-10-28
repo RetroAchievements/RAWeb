@@ -37,7 +37,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
         <div class="navpath">
             <?php
             if ($dev != null) {
-                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/User/$dev'>$dev</a> &raquo; Achievement Sets</b>";
+                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Achievement Sets</b>";
             } else {
                 if ($requestedConsole == "") {
                     echo "<b>All Games</b>";

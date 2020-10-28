@@ -5,7 +5,7 @@ use RA\Permissions;
 
 /*
   DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash
-  as they are all in a pseudo-directory of /Game etc.
+  as they are all in a pseudo-directory of /game etc.
  */
 
 $gameID = requestInputSanitized('ID', null, 'integer');
@@ -149,7 +149,7 @@ RenderHtmlStart(true);
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
     <?php if ($isFullyFeaturedGame): ?>
-        <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/Game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
+        <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
     <?php endif ?>
     <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
@@ -474,7 +474,7 @@ RenderHtmlStart(true);
                 echo "<a href='/gameList.php'>All Games</a>";
                 echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
                 if ($flags == 5) {
-                    echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
+                    echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
                     echo " &raquo; <b>Unofficial Achievements</b>";
                 } else {
                     echo " &raquo; <b>$gameTitle</b>";
@@ -548,7 +548,7 @@ RenderHtmlStart(true);
 
                 if ($isFullyFeaturedGame) {
                     if ($flags == 5) {
-                        echo "<div><a href='/Game/$gameID'>View Core Achievements</a></div>";
+                        echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
                     } else {
                         echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
                     }
@@ -715,7 +715,7 @@ RenderHtmlStart(true);
             if ($isFullyFeaturedGame) {
                 if ($flags == 5) {
                     echo "<h4><b>Unofficial</b> Achievements</h4>";
-                    echo "<a href='/Game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
+                    echo "<a href='/game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
                 } else {
                     echo "<h4>Achievements</h4>";
@@ -774,13 +774,13 @@ RenderHtmlStart(true);
                 }
 
                 if ($user !== null && $numAchievements > 0) {
-                    echo "<a href='/User/$user'>$user</a> has won <b>$numEarnedCasual</b> achievements";
+                    echo "<a href='/user/$user'>$user</a> has won <b>$numEarnedCasual</b> achievements";
                     if ($totalEarnedCasual > 0) {
                         echo ", worth <b>$totalEarnedCasual</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points";
                     }
                     echo ".<br>";
                     if ($numEarnedHardcore > 0) {
-                        echo "<a href='/User/$user'>$user</a> has won <b>$numEarnedHardcore</b> HARDCORE achievements";
+                        echo "<a href='/user/$user'>$user</a> has won <b>$numEarnedHardcore</b> HARDCORE achievements";
                         if ($totalEarnedHardcore > 0) {
                             echo ", worth a further <b>$totalEarnedHardcore</b> points";
                         }
@@ -874,14 +874,14 @@ RenderHtmlStart(true);
                     $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
                     $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
 
-                    echo "<a href='/Game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
-                    echo "<a href='/Game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
+                    echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
+                    echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
                     // TODO sorting by "date won" isn't implemented yet.
                     //if(isset($user)) {
-                    //    echo "<a href='/Game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
+                    //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
                     //}
-                    echo "<a href='/Game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
-                    echo "<a href='/Game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
+                    echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
+                    echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
 
                     echo "<sup>&nbsp;</sup></span></div>";
                 }
@@ -1061,7 +1061,7 @@ RenderHtmlStart(true);
                     echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
                 }
                 //if( $flags == 5 )
-                //echo "<li>- <a href='/Game/$gameID'>View Core Achievements</a></li>";
+                //echo "<li>- <a href='/game/$gameID'>View Core Achievements</a></li>";
                 //else
                 //echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
                 echo "</ul><br>";

@@ -530,7 +530,7 @@ RenderHtmlHead('Admin Tools');
                             <input id='event_aotw_achievement_id' name='a' value='<?= $eventAotwAchievementID ?>'>
                         </td>
                         <td>
-                            <a href='/Achievement/<?= $eventAotwAchievementID ?>'>Link</a>
+                            <a href='/achievement/<?= $eventAotwAchievementID ?>'>Link</a>
                         </td>
                     </tr>
                     <tr>

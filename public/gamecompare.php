@@ -67,7 +67,7 @@ RenderHtmlHead("Game Compare");
             echo "<div class='navpath'>";
             echo "<a href='/gameList.php'>All Games</a>";
             echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-            echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
+            echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
             echo " &raquo; <b>Game Compare</b>";
             echo "</div>";
 
@@ -79,7 +79,7 @@ RenderHtmlHead("Game Compare");
             }
 
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
-            //echo "<a href='/Game/$gameID'>$gameTitle ($consoleName)</a><br><br>";
+            //echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br><br>";
 
             echo "<form method=get action='/gamecompare.php'>";
             echo "<input type='hidden' name='f' value='$user2'>";
@@ -101,14 +101,14 @@ RenderHtmlHead("Game Compare");
             echo "<tr>";
 
             echo "<th>";
-            echo "<a style='float: right' href='/User/$user'>$user</a><br>";
+            echo "<a style='float: right' href='/user/$user'>$user</a><br>";
             echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg rightfloat");
             echo "</th>";
 
             echo "<th><center>Achievement</center></th>";
 
             echo "<th>";
-            echo "<a style='float: left' href='/User/$user2'>$user2</a><br>";
+            echo "<a style='float: left' href='/user/$user2'>$user2</a><br>";
             echo GetUserAndTooltipDiv($user2, true, null, $iconSize);
             echo "</th>";
 
