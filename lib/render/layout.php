@@ -246,7 +246,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<ul>";
     echo "<li><a href='/achievementList.php'>All Achievements</a></li>";
     echo "<li class='divider'></li>";
-    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
+    // echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
     echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
     echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
     echo "</ul>";
