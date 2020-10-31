@@ -337,21 +337,15 @@ function RemovePasswordResetToken($username)
 
     sanitize_sql_inputs($username);
 
-    $query = "UPDATE UserAccounts AS ua "
-        . "WHERE ua.User='$username' "
-        . "SET ua.PasswordResetToken = ''";
+    $query = "UPDATE UserAccounts AS ua SET ua.PasswordResetToken = '' WHERE ua.User='$username'";
+    s_mysql_query($query);
 
-    $dbResult = s_mysql_query($query);
     return mysqli_affected_rows($db) >= 1;
 }
 
 function isValidPasswordResetToken($usernameIn, $passwordResetToken)
 {
-    global $db;
-
     sanitize_sql_inputs($usernameIn, $passwordResetToken);
-
-    $retVal = [];
 
     if (mb_strlen($passwordResetToken) == 20) {
         $query = "SELECT * FROM UserAccounts AS ua "
@@ -360,26 +354,15 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken)
         $dbResult = s_mysql_query($query);
         SQL_ASSERT($dbResult);
 
-        if (mysqli_num_fields($dbResult) == 1) {
-            //    Success; delete old token
-            //RemovePasswordResetToken( $usernameIn, $passwordResetToken );
-            $retVal['Success'] = true;
-        } else {
-            $retVal['Error'] = "Incorrect token.";
-            $retVal['Success'] = false;
+        if (mysqli_num_rows($dbResult) == 1) {
+            return true;
         }
-    } else {
-        $retVal['Error'] = "Token looks to be invalid. Must be 20 characters.";
-        $retVal['Success'] = false;
     }
-
-    return $retVal;
+    return false;
 }
 
 function RequestPasswordReset($usernameIn)
 {
-    global $db;
-
     sanitize_sql_inputs($usernameIn);
 
     $retVal = [];
