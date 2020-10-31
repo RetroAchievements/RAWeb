@@ -1,6 +1,6 @@
 <?php
 
-function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
+function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
 {
     if (!isValidUsername($user)) {
         return false;
@@ -39,7 +39,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired)
     return $row['Permissions'] >= $permissionRequired;
 }
 
-function changePassword($user, $pass)
+function changePassword($user, $pass): bool
 {
     sanitize_sql_inputs($user);
 
@@ -52,7 +52,7 @@ function changePassword($user, $pass)
     return true;
 }
 
-function hashPassword($pass)
+function hashPassword($pass): string
 {
     return password_hash($pass, PASSWORD_ARGON2ID, [
         'memory_cost' => 1024,
@@ -61,14 +61,14 @@ function hashPassword($pass)
     ]);
 }
 
-function migratePassword($user, $pass)
+function migratePassword($user, $pass): string
 {
     $hashedPassword = hashPassword($pass);
     s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'");
     return $hashedPassword;
 }
 
-function validateUser_app(&$user, $token, &$fbUser, $permissionRequired)
+function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
 {
     $fbUser = 0; //    TBD: Remove!
     return RA_ReadTokenCredentials(
@@ -82,12 +82,12 @@ function validateUser_app(&$user, $token, &$fbUser, $permissionRequired)
     );
 }
 
-function validateUser_cookie(&$user, $cookie, $permissionRequired, &$permissions = 0)
+function validateUser_cookie(&$user, $cookie, $permissionRequired, &$permissions = 0): bool
 {
     return validateFromCookie($user, $points, $permissions, $permissionRequired);
 }
 
-function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissionRequired = 0)
+function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissionRequired = 0): bool
 {
     $userOut = RA_ReadCookie("RA_User");
     $cookie = RA_ReadCookie("RA_Cookie");
@@ -133,7 +133,7 @@ function RA_ReadCookieCredentials(
     &$permissionOut,
     $minPermissions = null,
     &$userIDOut = null
-) {
+): bool {
     //    Promise some values:
     $userOut = RA_ReadCookie('RA_User');
     $cookie = RA_ReadCookie('RA_Cookie');
@@ -202,7 +202,7 @@ function RA_ReadTokenCredentials(
     &$unreadMessagesOut,
     &$permissionOut,
     $permissionRequired = null
-) {
+): bool {
     if ($userOut == null || $userOut == '') {
         // error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
@@ -240,7 +240,7 @@ function RA_ReadTokenCredentials(
     }
 }
 
-function generateAPIKey($user)
+function generateAPIKey($user): string
 {
     sanitize_sql_inputs($user);
 
@@ -270,7 +270,7 @@ function generateAPIKey($user)
     return $newKey;
 }
 
-function GetAPIKey($user)
+function GetAPIKey($user): string
 {
     sanitize_sql_inputs($user);
 
@@ -304,7 +304,7 @@ function LogSuccessfulAPIAccess($user)
     s_mysql_query($query);
 }
 
-function ValidateAPIKey($user, $key)
+function ValidateAPIKey($user, $key): bool
 {
     sanitize_sql_inputs($user, $key);
 
@@ -331,7 +331,7 @@ function ValidateAPIKey($user, $key)
     return $data['COUNT(*)'] != 0;
 }
 
-function RemovePasswordResetToken($username)
+function RemovePasswordResetToken($username): bool
 {
     global $db;
 
@@ -343,7 +343,7 @@ function RemovePasswordResetToken($username)
     return mysqli_affected_rows($db) >= 1;
 }
 
-function isValidPasswordResetToken($usernameIn, $passwordResetToken)
+function isValidPasswordResetToken($usernameIn, $passwordResetToken): bool
 {
     sanitize_sql_inputs($usernameIn, $passwordResetToken);
 
@@ -361,16 +361,13 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken)
     return false;
 }
 
-function RequestPasswordReset($usernameIn)
+function RequestPasswordReset($usernameIn): bool
 {
     sanitize_sql_inputs($usernameIn);
 
-    $retVal = [];
-
     $userFields = GetUserFields($usernameIn, ["User", "EmailAddress"]);
     if ($userFields == null) {
-        $retVal['Error'] = "Could not find $usernameIn";
-        return $retVal;
+        return false;
     }
 
     $username = $userFields["User"];
@@ -387,7 +384,5 @@ function RequestPasswordReset($usernameIn)
 
     SendPasswordResetEmail($username, $emailAddress, $newToken);
 
-    $retVal['Success'] = true;
-
-    return $retVal;
+    return true;
 }

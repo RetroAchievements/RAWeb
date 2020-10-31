@@ -31,7 +31,6 @@ if ($newpass1 == $user) {
 
 if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken)) {
     RemovePasswordResetToken($user);
-
     if (changePassword($user, $newpass1)) {
         //	Perform auto-login:
         generateCookie($user, $newCookie);
@@ -44,7 +43,8 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
     }
     exit;
 }
-if (validateUser($user, $pass, $fbUser, 0) == true) {
+if (validateUser($user, $pass, $fbUser, 0)) {
+    RemovePasswordResetToken($user);
     if (changePassword($user, $newpass1)) {
         generateAppToken($user, $tokenInOut);
         header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
