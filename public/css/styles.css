@@ -215,17 +215,17 @@ a:hover {
   min-height: 25.0em;
   height: 25.0em;
   max-height: 25.0em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #usercompletedgamescomponent {
   max-height: 30.0em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #devstatsscrollpane {
   max-height: 25.0em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 span.news {
@@ -872,7 +872,7 @@ td, tr, img {
   height: 220px;
   /*width: 300px;*/
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   vertical-align: middle;
 }
 
