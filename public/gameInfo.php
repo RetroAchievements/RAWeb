@@ -1056,7 +1056,9 @@ RenderHtmlStart(true);
                     null,
                     $gameID
                 );
-                echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
+                if ($permissions >= Permissions::Registered) {
+                    echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
+                }
                 if ($numAchievements == 0) {
                     echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
                 }

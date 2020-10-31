@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
 
 $maxCount = 100;
 $count = requestInputSanitized('c', $maxCount, 'integer');
