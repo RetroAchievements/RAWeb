@@ -36,6 +36,7 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
         //	Perform auto-login:
         generateCookie($user, $newCookie);
         RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+        generateAppToken($user, $tokenInOut);
 
         header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
     } else {
@@ -45,6 +46,7 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
 }
 if (validateUser($user, $pass, $fbUser, 0) == true) {
     if (changePassword($user, $newpass1)) {
+        generateAppToken($user, $tokenInOut);
         header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
     } else {
         header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=generalerror");
