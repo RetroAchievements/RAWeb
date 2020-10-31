@@ -916,7 +916,7 @@ RenderHtmlStart(true);
                             $achBadgeName = $nextAch['BadgeName'];
 
                             sanitize_outputs(
-                            $achTitle,
+                                $achTitle,
                                 $achDesc,
                             );
 

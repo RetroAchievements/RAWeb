@@ -107,7 +107,7 @@ RenderHtmlHead($pageTitle);
                 $nextForumLastPostID = $forumData['LastPostID'];
 
                 sanitize_outputs(
-                $nextForumTitle,
+                    $nextForumTitle,
                     $nextForumDesc,
                     $nextForumLastPostAuthor,
                     $nextForumLastPostTopicName,

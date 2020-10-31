@@ -404,6 +404,8 @@ function RequestPasswordReset($usernameIn)
 
     SendPasswordResetEmail($username, $emailAddress, $newToken);
 
+    generateAppToken($username, $tokenInOut);
+
     $retVal['Success'] = true;
 
     return $retVal;

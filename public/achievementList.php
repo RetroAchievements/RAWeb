@@ -169,7 +169,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             $consoleName = $achEntry['ConsoleName'];
 
             sanitize_outputs(
-                    $achTitle,
+                $achTitle,
                 $achDesc,
                 $achAuthor,
                 $gameTitle,

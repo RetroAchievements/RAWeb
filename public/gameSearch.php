@@ -45,6 +45,8 @@ RenderHtmlHead("Game Search");
                 echo " | ";
             }
 
+            sanitize_outputs($nextConsoleName);
+
             if ($nextConsoleID == $consoleID) {
                 echo "<b>$nextConsoleName</b>";
             } else {
@@ -95,6 +97,11 @@ RenderHtmlHead("Game Search");
             $gameTA = $gameEntry['TotalTruePoints'];
             $consoleName = $gameEntry['ConsoleName'];
             //$numRecords = $gameEntry['NumRecords'];
+
+            sanitize_outputs(
+                $gameTitle,
+                $consoleName
+            );
 
             echo "<tr>";
 

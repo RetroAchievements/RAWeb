@@ -317,6 +317,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
             if ($tokenProvided) {
                 $expiry = $data['appTokenExpiry'];
                 if (time() > strtotime($expiry)) {
+                    generateAppToken($user, $tokenInOut);
                     //    Expired!
                     // error_log(__FUNCTION__ . " failed6: user:$user, tokenInOut:$tokenInOut, $expiry, " . strtotime($expiry));
                     return -1;
