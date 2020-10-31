@@ -42,6 +42,11 @@ if ($consoleIDInput) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
+if (empty($consoleIDInput) && empty($gameID)) {
+    header("Location: " . getenv('APP_URL'));
+    return;
+}
+
 sanitize_outputs(
     $requestedConsole,
     $gameData['Title'],

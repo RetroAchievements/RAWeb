@@ -236,8 +236,8 @@ function RenderToolbar($user, $permissions = 0)
 
     echo "<ul>";
     echo "<li><a href='/gameList.php'>All Games</a></li>";
-    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
-    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
+    // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    // echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
     echo "</li>";
 
@@ -269,7 +269,7 @@ function RenderToolbar($user, $permissions = 0)
     }
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
-    echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
+    //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";

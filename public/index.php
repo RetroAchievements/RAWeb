@@ -225,10 +225,10 @@ RenderToolbar($user, $permissions);
         //RenderTwitchTVStream();
         RenderChat($user, 320, '', true);
         if ($user !== null) {
-            RenderScoreLeaderboardComponent($user, true);
+            // RenderScoreLeaderboardComponent($user, true);
         }
         //RenderMostPopularTitles( 7, 0, $mostPopularCount );
-        RenderScoreLeaderboardComponent($user, false);
+        // RenderScoreLeaderboardComponent($user, false);
         RenderStaticDataComponent($staticData);
         //RenderTwitterFeed();
         //echo "<h3>Development Progress</h3>";
