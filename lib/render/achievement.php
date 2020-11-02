@@ -53,9 +53,7 @@ function GetAchievementAndTooltipDiv(
 
     $tooltip = str_replace("'", "\'", $tooltip);
 
-    sanitize_outputs(
-        $tooltip,
-    );
+    sanitize_outputs($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";
