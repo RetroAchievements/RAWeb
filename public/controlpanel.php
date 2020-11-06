@@ -404,7 +404,7 @@ RenderHtmlHead("My Settings");
             echo "</tr>";
 
             echo "<tr>";
-            echo "<td>Connect API Key:</td>";
+            echo "<td>Connect Key:</td>";
             echo "<td>";
             echo "The Connect Key is used in emulators to keep you logged in.<br>";
             echo "Resetting the key will log you out of all emulators.<br>";
