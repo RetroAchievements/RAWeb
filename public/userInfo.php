@@ -298,7 +298,7 @@ RenderHtmlStart(true);
             echo "<strong>$userPage Developer Stats:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
             echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
-            if(isset($user) && $permissions >= Permissions::Registered) {
+            if (isset($user) && $permissions >= Permissions::Registered) {
                 echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . countOpenTicketsByDev($userPage) . "</b></a><br>";
             }
             echo "Achievements won by others: <b>$contribCount</b><br>";

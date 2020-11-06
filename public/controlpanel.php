@@ -44,7 +44,7 @@ RenderHtmlHead("My Settings");
   function GetAllResettableGamesList() {
     $('#resetgameselector').empty();
 
-    var posting = $.post('/request/user/list-games.php', { u: '<?php echo $user; ?>' });
+    var posting = $.post('/request/user/list-games.php', {u: '<?php echo $user; ?>'});
     posting.done(OnGetAllResettableGamesList);
 
     $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
@@ -84,7 +84,7 @@ RenderHtmlHead("My Settings");
   function ResetFetchAwarded() {
     var gameID = parseInt($('#resetgameselector :selected').val());
     if (gameID > 0) {
-      var posting = $.post('/request/user/list-unlocks.php', { u: '<?php echo $user; ?>', g: gameID });
+      var posting = $.post('/request/user/list-unlocks.php', {u: '<?php echo $user; ?>', g: gameID});
       posting.done(onFetchComplete);
       $('#resetachievementscontainer').empty();
       $('#warning').html('Status: Updating...');
@@ -147,7 +147,7 @@ RenderHtmlHead("My Settings");
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
         //alert( "Game ID is " + gameID );
-        var posting = $.post('/request/user/reset-achievements.php', { u: '<?php echo $user; ?>', g: gameID });
+        var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', g: gameID});
         posting.done(onResetComplete);
         $('#warning').html('Status: Updating...');
         $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
@@ -157,7 +157,7 @@ RenderHtmlHead("My Settings");
 
       //alert( "Ach ID is " + achID );
       //alert( "isHardcore is " + isHardcore );
-      var posting = $.post('/request/user/reset-achievements.php', { u: '<?php echo $user; ?>', a: achID, h: isHardcore });
+      var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', a: achID, h: isHardcore});
       posting.done(onResetComplete);
       $('#warning').html('Status: Updating...');
       $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
@@ -187,7 +187,7 @@ RenderHtmlHead("My Settings");
     }
 
     $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
-    var posting = $.post('/request/user/update-notification.php', { u: '<?php echo $user; ?>', p: newUserPrefs });
+    var posting = $.post('/request/user/update-notification.php', {u: '<?php echo $user; ?>', p: newUserPrefs});
     posting.done(OnChangeUserPrefs);
   }
 
@@ -205,7 +205,7 @@ RenderHtmlHead("My Settings");
     }
 
     $('#loadingiconfb').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
-    var posting = $.post('/request/facebook/update.php', { u: '<?php echo $user; ?>', p: newUserPrefs });
+    var posting = $.post('/request/facebook/update.php', {u: '<?php echo $user; ?>', p: newUserPrefs});
     posting.done(OnChangeFBUserPrefs);
   }
 
@@ -224,7 +224,7 @@ RenderHtmlHead("My Settings");
     reader.onload = function () {
 
       $('#loadingiconavatar').fadeTo(100, 1.0);
-      $.post('/request/user/update-avatar.php', { f: file.name.split('.').pop(), i: reader.result }, onUploadImageComplete);
+      $.post('/request/user/update-avatar.php', {f: file.name.split('.').pop(), i: reader.result}, onUploadImageComplete);
     };
 
     reader.readAsDataURL(file);
@@ -265,7 +265,7 @@ RenderHtmlHead("My Settings");
           // Here we specify what we do with the response anytime this event occurs.
           if (response.status === 'connected') {
             FB.api('/me', function (response) {
-              var postingupdate = $.post('/request/facebook/connect.php', { u: '<?php echo $user; ?>', f: response.id });
+              var postingupdate = $.post('/request/facebook/connect.php', {u: '<?php echo $user; ?>', f: response.id});
               postingupdate.done(function (data) {
                   console.log('FB associate: ' + data + '.');
 
@@ -288,7 +288,7 @@ RenderHtmlHead("My Settings");
             // (2) it is a bad experience to be continually prompted to login upon page load.
             FB.login(function (response) {
               // handle the response
-            }, { scope: 'publish_actions' });
+            }, {scope: 'publish_actions'});
 
           } else {
             // In this case, the person is not logged into Facebook, so we call the login()
@@ -298,7 +298,7 @@ RenderHtmlHead("My Settings");
             // The same caveats as above apply to the FB.login() call here.
             FB.login(function (response) {
               // handle the response
-            }, { scope: 'publish_actions' });
+            }, {scope: 'publish_actions'});
           }
         });
 
@@ -322,34 +322,23 @@ RenderHtmlHead("My Settings");
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
     <div id="leftcontainer">
-
         <?php RenderErrorCodeWarning($errorCode); ?>
-
         <div class='component'>
             <h2>User Details</h2>
             <?php
             //	Render user panel
             echo "<p style='min-height:62px'>";
-            echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' align='right' width='64' height='64'>";
+            echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='text-align:right' width='64' height='64'>";
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
             echo "Account: ($permissions) " . PermissionsToString($permissions) . "<br>";
             if (isset($userMotto) && mb_strlen($userMotto) > 1) {
                 echo "<span class='usermotto'>$userMotto</span><br>";
             }
             echo "</p>";
-
-            if ($permissions == \RA\Permissions::Unregistered) {
+            echo "<table><tbody>";
+            if ($permissions == Permissions::Unregistered) {
                 echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
-            ?>
-
-        </div>
-        <?php
-        if ($permissions >= Permissions::Registered) {
-            echo "<div class='component'>";
-            echo "<h3>Account Privileges</h3>";
-            echo "<table><tbody>";
-
             if ($permissions >= Permissions::Registered) {
                 $userMottoString = isset($userMotto) ? $userMotto : "";
                 echo "<tr>";
@@ -363,27 +352,10 @@ RenderHtmlHead("My Settings");
                 echo "</form>";
                 echo "</td>";
                 echo "</tr>";
-
-                echo "<tr>";
-                echo "<td>";
-                echo "<a href='/APIDemo.php'>API Key:</a>";
-                echo "</td>";
-                echo "<td>";
-                echo "<input size='60' readonly type='text' value='$apiKey' />";
-                echo "Note: this is your <em>personal</em> API Key. Handle it with care.";
-                echo "</td>";
-                echo "</tr>";
             }
-
-            if ($permissions >= Permissions::Registered) {
-                echo "<tr><td>Twitch.tv streamkey:</td><td><input size='60' readonly type='text' value='live_46798798_5tO2CCgggTMoi5458BLKUADECNpOrq' /></td></tr>";
-            }
-
             if ($permissions >= Permissions::Unregistered) {
                 echo "<tr>";
-                echo "<td>";
-                echo "Allow Comments on my User Wall: ";
-                echo "</td>";
+                echo "<td>Allow Comments on my User Wall:</td>";
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-wall.php'>";
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
@@ -396,11 +368,8 @@ RenderHtmlHead("My Settings");
                 echo "</td>";
                 echo "</tr>";
 
-
                 echo "<tr>";
-                echo "<td>";
-                echo "Remove all comments from my User Wall: ";
-                echo "</td>";
+                echo "<td>Remove all comments from my User Wall:</td>";
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-wall.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
                 echo "<input type='hidden' name='u' value='$user'>";
@@ -411,13 +380,50 @@ RenderHtmlHead("My Settings");
                 echo "</td>";
                 echo "</tr>";
             }
+            echo "</tbody></table>";
+            ?>
+        </div>
+        <?php
+        if ($permissions >= Permissions::Registered) {
+            echo "<div class='component'>";
+            echo "<h3>Keys</h3>";
+            echo "<table><tbody>";
+
+            echo "<tr>";
+            echo "<td><a href='/APIDemo.php'>Web API Key:</a></td>";
+            echo "<td>";
+            echo "This is your <em>personal</em> Web API Key.<br>Handle it with care.";
+            echo "<input size='60' readonly type='text' value='$apiKey' />";
+            echo "<form method='POST' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
+            $checkedStr = ($userWallActive == 1) ? "checked" : "";
+            echo "<input type='hidden' name='u' value='$user'>";
+            echo "<input type='hidden' name='c' value='$cookie'>";
+            echo "<input value='Reset Web API key' name='submit' type='submit' size='37' />";
+            echo "</form>";
+            echo "</td>";
+            echo "</tr>";
+
+            echo "<tr>";
+            echo "<td>Connect API Key:</td>";
+            echo "<td>";
+            echo "The Connect Key is used in emulators to keep you logged in.<br>";
+            echo "Resetting it will log you out of all emulators.<br>";
+            echo "<form method='POST' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
+            $checkedStr = ($userWallActive == 1) ? "checked" : "";
+            echo "<input type='hidden' name='u' value='$user'>";
+            echo "<input type='hidden' name='c' value='$cookie'>";
+            echo "<input value='Reset Connect Key' name='submit' type='submit' size='37' />";
+            echo "</form>";
+            echo "</td>";
+            echo "</tr>";
+
+            echo "<tr><td>Twitch.tv streamkey:</td><td><input size='60' readonly type='text' value='live_46798798_5tO2CCgggTMoi5458BLKUADECNpOrq' /></td></tr>";
 
             echo "</tbody></table>";
             echo "</div>";
         }
-        ?>
-
-        <?php if (getenv('FACEBOOK_CLIENT_ID')): ?>
+        if (getenv('FACEBOOK_CLIENT_ID')) {
+            ?>
             <div class='component'>
                 <h3>Facebook</h3>
                 <?php
@@ -469,15 +475,14 @@ RenderHtmlHead("My Settings");
                     //RenderFBLoginPrompt();
                     //echo "<div class='fb-login-button' scope='publish_stream;publish_actions'>Login with Facebook</div>";
                     echo "<br>";
-                }
-                ?>
+                } ?>
             </div>
-        <?php endif ?>
-
+            <?php
+        }
+        ?>
         <div class='component'>
             <h3>Notifications</h3>
             When would you like to be notified?
-
             <table>
                 <tbody>
                 <tr>
@@ -486,7 +491,6 @@ RenderHtmlHead("My Settings");
                     <th>Site Msg</th>
                 </tr>
                 <tr>
-
                     <td>If someone comments on my activity:</td>
                     <td><input id='UserPref0' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_ActivityComment) ? 'checked' : '' ?>></td>
                     <td><input id='UserPref8' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_ActivityComment) ? 'checked' : '' ?>></td>
@@ -521,17 +525,12 @@ RenderHtmlHead("My Settings");
                     <td><input id='UserPref6' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_Newsletter) ? 'checked' : '' ?>></td>
                     <td><input id='UserPref14' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled></td>
                 </tr>
-
                 </tbody>
             </table>
-
             <img id='loadingicon' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
-
         </div>
-
         <div class='component'>
             <h3>Change Password</h3>
-
             <?php
             if ($errorCode == 'baddata' || $errorCode == 'generalerror') {
                 echo "<div id=\"warning\">Info: Errors changing your password. Please check and try again!</div>";
@@ -553,9 +552,7 @@ RenderHtmlHead("My Settings");
                 }
             }
             ?>
-
-            <form method='post' action='/request/user/update-password.php'>
-
+            <form method='post' action='/request/auth/update-password.php'>
                 <table id='controlpanelinput'>
                     <tbody>
                     <tr>
@@ -570,45 +567,40 @@ RenderHtmlHead("My Settings");
                         <td class='firstrow'>New Password again: </label></td>
                         <td><input size='22' type='password' name="y"/></td>
                     </tr>
-
                     <tr>
                         <td></td>
                         <td><input value="Change Password" name='submit' type='submit' size='37'></td>
                     </tr>
-
-                    <input type="hidden" name="u" value="<?php echo $user; ?>">
-
+                    <tr>
+                        <td></td>
+                        <td><input type="hidden" name="u" value="<?php echo $user; ?>"></td>
+                    </tr>
                     </tbody>
                 </table>
             </form>
-
         </div>
-
         <div class='component'>
             <h3>Change Email Address</h3>
-
             <?php
-            if ($errorCode == 'e_baddata' || $errorCode == 'e_generalerror') {
-                echo "<div id=\"warning\">Info: Errors changing your email address. Please check and try again!</div>";
-            } else {
-                if ($errorCode == 'e_badnewemail') {
+            switch ($errorCode) {
+                case 'e_baddata':
+                case 'e_generalerror':
+                    echo "<div id=\"warning\">Info: Errors changing your email address. Please check and try again!</div>";
+                    break;
+                case 'e_badnewemail':
                     echo "<div id=\"warning\">Info: Errors changing your email address, the new email doesn't appear to be valid!</div>";
-                } else {
-                    if ($errorCode == 'e_notmatch') {
-                        echo "<div id=\"warning\">Info: Errors changing your email address, new emails were not identical!</div>";
-                    } else {
-                        if ($errorCode == 'e_badcredentials') {
-                            echo "<div id=\"warning\">Info: Errors changing your email address, session invalid. Please log out and back in, and try again!</div>";
-                        } else {
-                            if ($errorCode == 'e_changeok') {
-                                echo "<div id=\"warning\">Info: Email address changed OK!</div>";
-                            }
-                        }
-                    }
-                }
+                    break;
+                case 'e_notmatch':
+                    echo "<div id=\"warning\">Info: Errors changing your email address, new emails were not identical!</div>";
+                    break;
+                case 'e_badcredentials':
+                    echo "<div id=\"warning\">Info: Errors changing your email address, session invalid. Please log out and back in, and try again!</div>";
+                    break;
+                case 'e_changeok':
+                    echo "<div id=\"warning\">Info: Email address changed OK!</div>";
+                    break;
             }
             ?>
-
             <form method='post' action='/request/user/update-email.php'>
                 <table id='controlpanelinput'>
                     <tbody>
@@ -630,21 +622,16 @@ RenderHtmlHead("My Settings");
                             <div class="field_container"><input type="text" class="inputtext" name="f" size='30'/></div>
                         </td>
                     </tr>
-
                     <tr>
                         <td></td>
                         <td><input value="Change Email Address" type='submit' size='37'></td>
                     </tr>
-
                     <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
                     <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
-
                     </tbody>
                 </table>
             </form>
-
         </div>
-
         <div class='component'>
             <h3>Reset Game Progress</h3>
             <?php
@@ -664,7 +651,6 @@ RenderHtmlHead("My Settings");
             echo "</tr></td></tbody></table>";
             ?>
         </div>
-
         <?php /*
         <div class='component'>
         <h3>Reset All Achievements</h3>
@@ -678,11 +664,8 @@ RenderHtmlHead("My Settings");
         </form>
         </div>
         */ ?>
-
     </div>
-
     <div id="rightcontainer">
-
         <div class='component'>
             <h3>Request Score Recalculation</h3>
             <form method=post action="/request/user/recalculate-score.php">
@@ -691,7 +674,6 @@ RenderHtmlHead("My Settings");
                 <input value="Recalculate My Score" type='submit' size='37'>
             </form>
         </div>
-
         <div class='component'>
             <h2>Avatar</h2>
             <div style="margin-bottom: 10px">
@@ -714,7 +696,6 @@ RenderHtmlHead("My Settings");
                 <input type="submit" value="Remove Avatar">
             </form>
         </div>
-
         <div class='component'>
             <h3>Reorder Site Awards</h3>
             <form method=post action="reorderSiteAwards.php">
@@ -722,12 +703,8 @@ RenderHtmlHead("My Settings");
                 <input value="Reorder site awards" type='submit' size='37'>
             </form>
         </div>
-
     </div>
-
 </div>
 <?php RenderFooter(); ?>
-</div>
-
 </body>
 <?php RenderHtmlEnd(); ?>

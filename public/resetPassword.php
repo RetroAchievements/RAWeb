@@ -40,7 +40,7 @@ RenderHtmlHead("Password Reset");
             echo "<h4 class='longheader'>Enter new Password for $user:</h4>";
 
             echo "<div class='longer'>";
-            echo "<form action='/request/user/update-password.php' method='post'>";
+            echo "<form action='/request/auth/update-password.php' method='post'>";
             echo "<input type='password' name='x' size='42' />&nbsp;";
             echo "<input type='password' name='y' size='42' />&nbsp;";
             echo "<input type='hidden' name='t' value='$passResetToken' />";

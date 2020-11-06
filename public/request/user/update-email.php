@@ -3,10 +3,8 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("efcu")) {
-    echo "FAILED";
-    // error_log(__FILE__);
-    // error_log("Cannot validate efcu input...");
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_baddata");
+    exit;
 }
 
 $email = requestInputPost('e');
