@@ -407,7 +407,7 @@ RenderHtmlHead("My Settings");
             echo "<td>Connect API Key:</td>";
             echo "<td>";
             echo "The Connect Key is used in emulators to keep you logged in.<br>";
-            echo "Resetting it will log you out of all emulators.<br>";
+            echo "Resetting the key will log you out of all emulators.<br>";
             echo "<form method='POST' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
             $checkedStr = ($userWallActive == 1) ? "checked" : "";
             echo "<input type='hidden' name='u' value='$user'>";
