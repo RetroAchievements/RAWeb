@@ -1,6 +1,6 @@
 # RAWeb
 
-RAWeb is RetroAchievements.org's site and server backend. 
+RAWeb is RetroAchievements.org's site and server backend.
 It is a "flat" PHP project; individual php files within the `public` folder handle server requests.
 
 ## Requirements
@@ -12,6 +12,14 @@ It is a "flat" PHP project; individual php files within the `public` folder hand
 - [Node.js 12](https://nodejs.org/)
 
 **[XAMPP](https://www.apachefriends.org/download.html)** provides an easy way to run an Apache web server, MySQL/MariaDB, and PHP on your system.
+
+- Note that XAMPP comes packaged with PHP 7.2. You will need to update to PHP 7.4 or errors will occur when you open the application. To update PHP, do the following:
+
+1.  Download the update from the link above for your platform.
+2.  Rename the `/php` folder in your `xampp` path to something else, like `/php_7_2`.
+3.  Extract the downloaded update to a new `/php` folder in your `xampp` path.
+4.  Copy the contents of your old `php_*version_number*` folder to the new `/php` folder, but don't overwrite files. This will place important files like `php.ini` into your updated PHP folder.
+5.  Verify that your PHP version has updated! Start up your Apache/MySQL servers in XAMPP and click on the `Admin` button for MySQL to see the PHP version on the right side of the phpMyAdmin homepage.
 
 Alternatively, **[Docker Compose](https://docs.docker.com/compose/install/)** can be used to run MySQL and PHPMyAdmin. See `docker-compose.yml` for details.
 Follow the `.env` file instructions below to configure your environment, then run:
@@ -34,11 +42,11 @@ The environment configuration file (`.env`) contains a sensible set of default v
 
     Linux/MacOS:
 
-	    $ cp .env.example .env
+        $ cp .env.example .env
 
     Windows:
 
-    	$ copy .env.example .env
+        $ copy .env.example .env
 
 2. Adjust the contents of `.env` to match your local setup:
 
@@ -46,21 +54,23 @@ The environment configuration file (`.env`) contains a sensible set of default v
     - URL to where `index.php` can be found (`APP_URL`).
     - URL to where static assets, like images, are stored (`APP_STATIC_URL`). Most likely the same as `APP_URL` in a local environment.
 
-3. Add image assets: 
+3. Add image assets:
 
     [Download the media archive](https://retroachievements.org/bin/ra-web-v1-media.zip) and add its files to the respective folders in `public`.
 
 4. Install dependencies:
-    
+
     Use composer provided in this repository...
 
         $ php composer.phar install
-        
+
     ...or your globally installed instance.
-     
+
         $ composer install
 
-5. Open the application in your browser.
+5. Build the dummy database. In phpMyAdmin, create a new database using the name in you `.env` file (`retroachievements-web` by default). If the database was successfully created, click on the database and then click on the SQL tab. Copy the SQL commands from the `/database` folder of the RAWeb repo into the SQL query text field and click the Go button. All of the necessary tables and modifications will be performed.
+
+6. Open the application in your browser.
 
 ## Contributing
 
