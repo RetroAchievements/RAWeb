@@ -93,4 +93,9 @@ class RetroAchievementsWebApiClient
         $dateTo = strtotime($dateEnd);
         return json_decode(self::GetRAURL("API_GetAchievementsEarnedBetween.php", "u=$user&f=$dateFrom&t=$dateTo"));
     }
+
+    public function GetUserGamesCompleted($user)
+    {
+        return json_decode(self::GetRAURL("API_GetUserCompletedGames.php", "u=$user"));
+    }
 }
