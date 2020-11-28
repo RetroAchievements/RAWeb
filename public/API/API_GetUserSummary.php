@@ -27,6 +27,7 @@ $retVal['Points'] = $userDetails['RAPoints'];
 $retVal['Motto'] = $userDetails['Motto'];
 $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['Rank'] = getUserRank($user);
+$retVal['TotalRanked'] = countRankedUsers($user);
 
 //	Find out if we're online or offline
 $retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID']);
