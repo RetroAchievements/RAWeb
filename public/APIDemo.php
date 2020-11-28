@@ -191,6 +191,14 @@ RenderHtmlHead("RetroAchievements API Demo (PHP)");
         // echo "<pre>".json_encode($data)."</pre>";
         // echo "<a href='#'>Back to top</a>";
         echo '</div>';
+
+        echo '<b id=\'GetUserCompletedGames\' class=\'longheader\' onclick="$(\'#GetUserCompletedGamesDiv\').toggle(); return false;" >Get Games Completed by Scott:</b>';
+        echo '<div class=\'CodeDiv\' id=\'GetUserCompletedGamesDiv\'>';
+        echo '<code>$data = $RAConn->GetUserCompletedGames( \'Scott\' );</code>';
+        // $data = $RAConn->GetUserCompletedGames('Scott');
+        // echo "<pre>".json_encode($data)."</pre>";
+        // echo "<a href='#'>Back to top</a>";
+        echo '</div>';
         ?>
     </div>
 </div>
