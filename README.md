@@ -68,7 +68,7 @@ The environment configuration file (`.env`) contains a sensible set of default v
 
         $ composer install
 
-5. Build the dummy database. In phpMyAdmin, create a new database using the name in you `.env` file (`retroachievements-web` by default). If the database was successfully created, click on the database and then click on the SQL tab. Copy the SQL commands from the `/database` folder of the RAWeb repo into the SQL query text field and click the Go button. All of the necessary tables and modifications will be performed.
+5. Build the dummy database using the SQL commands in the `/database` folder. You can use the MySQL CLI (recommended) or the phpMyAdmin GUI.
 
 6. Open the application in your browser.
 
