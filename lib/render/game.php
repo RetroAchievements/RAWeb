@@ -66,7 +66,7 @@ function GetGameAndTooltipDiv(
     }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='/Game/$gameID'>" .
+        "<a href='/game/$gameID'>" .
         "$displayable" .
         "</a>" .
         "</div>";

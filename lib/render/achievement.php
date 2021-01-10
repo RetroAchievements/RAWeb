@@ -72,7 +72,7 @@ function GetAchievementAndTooltipDiv(
     }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='/Achievement/$achID'>" .
+        "<a href='/achievement/$achID'>" .
         "$smallBadge" .
         "$displayable" .
         "</a>" .
