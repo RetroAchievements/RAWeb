@@ -1,6 +1,6 @@
 # RAWeb
 
-RAWeb is RetroAchievements.org's site and server backend. 
+RAWeb is RetroAchievements.org's site and server backend.
 It is a "flat" PHP project; individual php files within the `public` folder handle server requests.
 
 ## Requirements
@@ -12,6 +12,8 @@ It is a "flat" PHP project; individual php files within the `public` folder hand
 - [Node.js 12](https://nodejs.org/)
 
 **[XAMPP](https://www.apachefriends.org/download.html)** provides an easy way to run an Apache web server, MySQL/MariaDB, and PHP on your system.
+
+- Note that XAMPP comes packaged with PHP 7.2. You will need PHP 7.4+ (check the wiki if you are having problems).
 
 Alternatively, **[Docker Compose](https://docs.docker.com/compose/install/)** can be used to run MySQL and PHPMyAdmin. See `docker-compose.yml` for details.
 Follow the `.env` file instructions below to configure your environment, then run:
@@ -34,11 +36,11 @@ The environment configuration file (`.env`) contains a sensible set of default v
 
     Linux/MacOS:
 
-	    $ cp .env.example .env
+        $ cp .env.example .env
 
     Windows:
 
-    	$ copy .env.example .env
+        $ copy .env.example .env
 
 2. Adjust the contents of `.env` to match your local setup:
 
@@ -46,21 +48,23 @@ The environment configuration file (`.env`) contains a sensible set of default v
     - URL to where `index.php` can be found (`APP_URL`).
     - URL to where static assets, like images, are stored (`APP_STATIC_URL`). Most likely the same as `APP_URL` in a local environment.
 
-3. Add image assets: 
+3. Add image assets:
 
     [Download the media archive](https://retroachievements.org/bin/ra-web-v1-media.zip) and add its files to the respective folders in `public`.
 
 4. Install dependencies:
-    
+
     Use composer provided in this repository...
 
         $ php composer.phar install
-        
+
     ...or your globally installed instance.
-     
+
         $ composer install
 
-5. Open the application in your browser.
+5. Build the dummy database using the SQL commands in the `/database` folder. You can use the MySQL CLI (recommended) or the phpMyAdmin GUI.
+
+6. Open the application in your browser.
 
 ## Contributing
 
