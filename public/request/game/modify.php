@@ -1,16 +1,16 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("ugfv")) {
     echo "FAILED";
     return;
 }
 
-$author = seekPOST('u');
-$gameID = seekPOST('g');
-$field = seekPOST('f');
-$value = seekPOST('v');
+$author = requestInputPost('u');
+$gameID = requestInputPost('g');
+$field = requestInputPost('f');
+$value = requestInputPost('v');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     if (requestModifyGame($author, $gameID, $field, $value)) {

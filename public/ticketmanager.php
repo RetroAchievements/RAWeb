@@ -1,16 +1,18 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
 
 $maxCount = 100;
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
 
-$ticketID = seekPOSTorGET('i', 0);
-settype($ticketID, 'integer');
+$ticketID = requestInputSanitized('i', 0, 'integer');
 $defaultFilter = 2041; //2041 sets all filters active except for Closed and Resolved
-$ticketFilters = seekGET('t', $defaultFilter);
+$ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
 
@@ -21,7 +23,7 @@ if ($ticketID != 0) {
         $errorCode = 'notfound';
     }
 
-    $action = seekPOSTorGET('action', null);
+    $action = requestInputSanitized('action', null);
     $reason = null;
     $ticketState = 1;
     switch ($action) {
@@ -61,6 +63,13 @@ if ($ticketID != 0) {
             if ($permissions >= \RA\Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Network problems";
+            }
+            break;
+
+        case "unable-to-reproduce":
+            if ($permissions >= \RA\Permissions::Developer) {
+                $ticketState = 0;
+                $reason = "Unable to reproduce";
             }
             break;
 
@@ -110,18 +119,18 @@ if ($ticketID != 0) {
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
 if ($ticketID == 0) {
-    $gamesTableFlag = seekGET('f');
+    $gamesTableFlag = requestInputSanitized('f', null, 'integer');
     if ($gamesTableFlag == 1) {
-        $count = seekGET('c', 100);
+        $count = requestInputSanitized('c', 100, 'integer');
         $ticketData = gamesSortedByOpenTickets($count);
     } else {
-        $assignedToUser = seekGET('u', null);
+        $assignedToUser = requestInputSanitized('u', null);
         if (!isValidUsername($assignedToUser)) {
             $assignedToUser = null;
         }
-        $gameIDGiven = seekGET('g', null);
+        $gameIDGiven = requestInputSanitized('g', null, 'integer');
 
-        $achievementIDGiven = seekGET('a', null);
+        $achievementIDGiven = requestInputSanitized('a', null, 'integer');
         if ($achievementIDGiven > 0) {
             $achievementData = GetAchievementData($achievementIDGiven);
             $achievementTitle = $achievementData['Title'];
@@ -140,9 +149,15 @@ if (!empty($gameIDGiven)) {
     getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
 }
 
+sanitize_outputs(
+    $achievementTitle,
+    $gameTitle,
+    $consoleName,
+);
+
 $pageTitle = "Ticket Manager";
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
@@ -160,7 +175,7 @@ RenderHtmlHead($pageTitle);
             if ($ticketID == 0) {
                 echo "<a href='/ticketmanager.php'>$pageTitle</a>";
                 if (!empty($assignedToUser)) {
-                    echo " &raquo; <a href='/User/$assignedToUser'>$assignedToUser</a>";
+                    echo " &raquo; <a href='/user/$assignedToUser'>$assignedToUser</a>";
                 }
                 if (!empty($gameIDGiven)) {
                     echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
@@ -178,10 +193,13 @@ RenderHtmlHead($pageTitle);
         if ($gamesTableFlag == 1) {
             echo "<h3>Top " . count($ticketData) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
-            $assignedToUser = seekGET('u', null);
+            $assignedToUser = requestInputSanitized('u', null);
             if (!isValidUsername($assignedToUser)) {
                 $assignedToUser = null;
             }
+            sanitize_outputs(
+                $assignedToUser,
+            );
             if ($gamesTableFlag == 5) {
                 $openTicketsCount = countOpenTickets(true);
                 $filteredTicketsCount = countOpenTickets(true, $ticketFilters, $assignedToUser, $gameIDGiven);
@@ -217,8 +235,12 @@ RenderHtmlHead($pageTitle);
                 $gameTitle = $nextTicket['GameTitle'];
                 $gameBadge = $nextTicket['GameIcon'];
                 $consoleName = $nextTicket['Console'];
-                $gameTitle = $nextTicket['GameTitle'];
                 $openTickets = $nextTicket['OpenTickets'];
+
+                sanitize_outputs(
+                    $gameTitle,
+                    $consoleName,
+                );
 
                 if ($rowCount++ % 2 == 0) {
                     echo "<tr>";
@@ -243,16 +265,16 @@ RenderHtmlHead($pageTitle);
                     Each filter is represented by a bit in the $ticketFilters variable.
                     This allows us to easily determine which filters are active as well as toggle them back and forth.
                  */
-                $openTickets            = ($ticketFilters & (1 << 0));
-                $closedTickets          = ($ticketFilters & (1 << 1));
-                $resolvedTickets        = ($ticketFilters & (1 << 2));
-                $triggeredTickets       = ($ticketFilters & (1 << 3));
-                $didNotTriggerTickets   = ($ticketFilters & (1 << 4));
-                $md5KnownTickets        = ($ticketFilters & (1 << 5));
-                $md5UnknownTickets      = ($ticketFilters & (1 << 6));
-                $raEmulatorTickets      = ($ticketFilters & (1 << 7));
-                $rarchKnownTickets      = ($ticketFilters & (1 << 8));
-                $rarchUnknownTickets    = ($ticketFilters & (1 << 9));
+                $openTickets = ($ticketFilters & (1 << 0));
+                $closedTickets = ($ticketFilters & (1 << 1));
+                $resolvedTickets = ($ticketFilters & (1 << 2));
+                $triggeredTickets = ($ticketFilters & (1 << 3));
+                $didNotTriggerTickets = ($ticketFilters & (1 << 4));
+                $md5KnownTickets = ($ticketFilters & (1 << 5));
+                $md5UnknownTickets = ($ticketFilters & (1 << 6));
+                $raEmulatorTickets = ($ticketFilters & (1 << 7));
+                $rarchKnownTickets = ($ticketFilters & (1 << 8));
+                $rarchUnknownTickets = ($ticketFilters & (1 << 9));
                 $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
 
                 //State Filters
@@ -407,7 +429,7 @@ RenderHtmlHead($pageTitle);
                     $gameBadge = $nextTicket['GameIcon'];
                     $consoleName = $nextTicket['ConsoleName'];
                     $reportType = $nextTicket['ReportType'];
-                    $reportNotes = $nextTicket['ReportNotes'];
+                    $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
                     $reportState = $nextTicket['ReportState'];
 
                     $reportedAt = $nextTicket['ReportedAt'];
@@ -416,6 +438,15 @@ RenderHtmlHead($pageTitle);
                     $resolvedAt = $nextTicket['ResolvedAt'];
                     $niceResolvedAt = getNiceDate(strtotime($resolvedAt));
                     $resolvedBy = $nextTicket['ResolvedBy'];
+
+                    sanitize_outputs(
+                        $achTitle,
+                        $achDesc,
+                        $achAuthor,
+                        $gameTitle,
+                        $consoleName,
+                        $reportNotes,
+                    );
 
                     if ($rowCount++ % 2 == 0) {
                         echo "<tr>";
@@ -494,7 +525,7 @@ RenderHtmlHead($pageTitle);
                 $consoleName = $nextTicket['ConsoleName'];
                 $reportState = $nextTicket['ReportState'];
                 $reportType = $nextTicket['ReportType'];
-                $reportNotes = $nextTicket['ReportNotes'];
+                $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
 
                 $reportedAt = $nextTicket['ReportedAt'];
                 $niceReportedAt = getNiceDate(strtotime($reportedAt));
@@ -502,6 +533,15 @@ RenderHtmlHead($pageTitle);
                 $resolvedAt = $nextTicket['ResolvedAt'];
                 $niceResolvedAt = getNiceDate(strtotime($resolvedAt));
                 $resolvedBy = $nextTicket['ResolvedBy'];
+
+                sanitize_outputs(
+                    $achTitle,
+                    $achDesc,
+                    $achAuthor,
+                    $gameTitle,
+                    $consoleName,
+                    $reportNotes,
+                );
 
                 echo "<table><tbody>";
 
@@ -685,6 +725,7 @@ RenderHtmlHead($pageTitle);
                             echo "<option value='network'>Close - Network problems</option>";
                             echo "<option value='not-enough-info'>Close - Not enough information</option>";
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
+                            echo "<option value='unable-to-reproduce'>Close - Unable to reproduce</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     } else { // ticket is not open

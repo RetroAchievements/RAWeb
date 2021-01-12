@@ -1,16 +1,16 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidateGETChars("ucfa")) {
     echo "FAILED";
     return;
 }
 
-$user = seekGET('u');
-$cookie = seekGET('c');
-$friend = seekGET('f');
-$action = seekGET('a');
+$user = requestInputQuery('u');
+$cookie = requestInputQuery('c');
+$friend = requestInputQuery('f');
+$action = requestInputQuery('a');
 
 if (validateUser_cookie($user, $cookie, 0) == true) {
     $returnVal = changeFriendStatus($user, $friend, $action);

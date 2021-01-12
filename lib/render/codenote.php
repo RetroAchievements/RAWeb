@@ -18,7 +18,11 @@ function RenderCodeNotes($codeNotes)
         $addrInt = hexdec($addr);
 
         $addrFormatted = sprintf("%04x", $addrInt);
-        $memNote = nl2br($nextCodeNote['Note']);
+        $memNote = $nextCodeNote['Note'];
+
+        sanitize_outputs($memNote);
+
+        $memNote = nl2br($memNote);
 
         echo "<td style='width: 25%;'>";
         echo "<code>0x$addrFormatted</code>";

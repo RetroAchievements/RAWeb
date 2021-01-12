@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$requestedCategoryID = seekGET('c');
-settype($requestedCategoryID, "integer");
+$requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
 $forumList = getForumList($requestedCategoryID);
 
@@ -21,7 +20,9 @@ if ($requestedCategoryID !== 0 && count($forumList) > 0) {
     $pageTitle .= ": " . $requestedCategory;
 }
 
-$errorCode = seekGET('e');
+sanitize_outputs($requestedCategory);
+
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);
@@ -58,6 +59,8 @@ RenderHtmlHead($pageTitle);
                 $nextCategory = $forumData['CategoryName'];
                 $nextCategoryID = $forumData['CategoryID'];
 
+                sanitize_outputs($nextCategory);
+
                 if ($nextCategory != $lastCategory) {
                     if ($lastCategory !== "_init") {
                         //	We are starting another table, but we need to close the last one!
@@ -67,6 +70,8 @@ RenderHtmlHead($pageTitle);
                         echo "<br>";
                         $forumIter = 0;
                     }
+
+                    sanitize_outputs($forumData['CategoryDescription']);
 
                     echo "<h2>Forum: $nextCategory</h2>";
                     echo $forumData['CategoryDescription'] . "<br>";
@@ -101,6 +106,13 @@ RenderHtmlHead($pageTitle);
                 $nextForumLastPostTopicID = $forumData['LastPostTopicID'];
                 $nextForumLastPostID = $forumData['LastPostID'];
 
+                sanitize_outputs(
+                    $nextForumTitle,
+                    $nextForumDesc,
+                    $nextForumLastPostAuthor,
+                    $nextForumLastPostTopicName,
+                );
+
                 echo "<tr>";
 
                 echo "<td class='unreadicon p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . getenv('ASSET_URL') . "/Images/ForumTopicUnread32.gif' width='32' height='32'></img></td>";
@@ -113,7 +125,7 @@ RenderHtmlHead($pageTitle);
                 echo "<span class='smalldate'>$nextForumCreatedNiceDate</span><br>";
                 if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
                     echo GetUserAndTooltipDiv($nextForumLastPostAuthor, true);
-                    //echo "<a href='/User/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
+                    //echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
                     echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>[View]</a>";
                 }
                 echo "</div>";

@@ -1,17 +1,16 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("atl")) {
     echo "FAILED! (POST)";
     exit;
 }
 
-$author = seekPOST('a');
-$title = seekPOST('t');
-$link = seekPOST('l');
-$id = seekPOST('i', null);
-settype($id, 'integer');
+$author = requestInputPost('a');
+$title = requestInputPost('t');
+$link = requestInputPost('l');
+$id = requestInputPost('i', null, 'integer');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser) &&
     ($author == $user)) {

@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$gameID = seekGET('g');
+$gameID = requestInputQuery('g');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     if (recalculateTrueRatio($gameID)) {

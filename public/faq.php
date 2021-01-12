@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("FAQ");
 ?>
@@ -90,7 +90,7 @@ RenderHtmlHead("FAQ");
         echo "<p>Unfortunately sometimes the welcome email has been known to go missing. If this happens, please log in with your username/password you registered with, then visit your settings page. At the top you'll find the option to resend your registration email. If you still have trouble after this point, please drop a message to <a href='/user/RAdmin'>RAdmin</a> and we'll get back to you as soon we can!</p>";
 
         echo "<h4 class='longheader' id='faq9'>This achievement didn't trigger!</h4>";
-        echo "<p>We have a new feature built-in to the emulators now that will allow you to report broken achievements that occur at the wrong time, or not at all. Veteran developer <a href='/User/jackolantern'>Jackolantern</a> explains how to use it in this video:<br><br>";
+        echo "<p>We have a new feature built-in to the emulators now that will allow you to report broken achievements that occur at the wrong time, or not at all. Veteran developer <a href='/user/jackolantern'>Jackolantern</a> explains how to use it in this video:<br><br>";
 
         //	Reporting broken achievements
         echo '

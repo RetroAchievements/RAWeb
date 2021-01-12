@@ -13,6 +13,9 @@ abstract class ModifyTopicField
 
 function getForumList($categoryID = 0)
 {
+    sanitize_sql_inputs($categoryID);
+    settype($categoryID, 'integer');
+
     // Specify NULL for all categories
 
     $query = "    SELECT f.ID, f.CategoryID, fc.Name AS CategoryName, fc.Description AS CategoryDescription, f.Title, f.Description, COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts, ftc2.ID AS LastPostID, ftc2.Author AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated, ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID, f.DisplayOrder
@@ -49,6 +52,7 @@ function getForumList($categoryID = 0)
 
 function getForumDetails($forumID, &$forumDataOut)
 {
+    sanitize_sql_inputs($forumID);
     settype($forumID, "integer");
     $query = "    SELECT f.ID, f.Title AS ForumTitle, f.Description AS ForumDescription, fc.ID AS CategoryID, fc.Name AS CategoryName
                 FROM Forum AS f
@@ -69,6 +73,7 @@ function getForumDetails($forumID, &$forumDataOut)
 
 function getForumTopics($forumID, $offset, $count)
 {
+    sanitize_sql_inputs($forumID, $offset, $count);
     settype($forumID, "integer");
 
     $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
@@ -127,6 +132,7 @@ function getUnauthorisedForumLinks()
 
 function getTopicDetails($topicID, &$topicDataOut)
 {
+    sanitize_sql_inputs($topicID);
     settype($topicID, "integer");
     $query = "  SELECT ft.ID, ft.Author, ft.AuthorID, fc.ID AS CategoryID, fc.Name AS Category, fc.ID as CategoryID, f.ID AS ForumID, f.Title AS Forum, ft.Title AS TopicTitle, ft.RequiredPermissions
                 FROM ForumTopic AS ft
@@ -148,6 +154,7 @@ function getTopicDetails($topicID, &$topicDataOut)
 
 function getTopicComments($topicID, $offset, $count, &$maxCountOut)
 {
+    sanitize_sql_inputs($topicID);
     settype($topicID, "integer");
 
     $query = "    SELECT COUNT(*) FROM ForumTopicComment AS ftc
@@ -186,6 +193,7 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut)
 
 function getSingleTopicComment($forumPostID, &$dataOut)
 {
+    sanitize_sql_inputs($forumPostID);
     settype($forumPostID, 'integer');
     $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified 
                 FROM ForumTopicComment
@@ -202,6 +210,7 @@ function getSingleTopicComment($forumPostID, &$dataOut)
 
 function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicIDOut)
 {
+    sanitize_sql_inputs($user, $forumID);
     $userID = getUserIDFromUser($user);
 
     if (mb_strlen($topicTitle) < 2) {
@@ -244,6 +253,8 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
 
 function setLatestCommentInForumTopic($topicID, $commentID)
 {
+    sanitize_sql_inputs($topicID, $commentID);
+
     // Update ForumTopic table
     $query = "UPDATE ForumTopic SET LatestCommentID=$commentID WHERE ID=$topicID";
     // log_sql($query);
@@ -273,6 +284,7 @@ function setLatestCommentInForumTopic($topicID, $commentID)
 
 function editTopicComment($commentID, $newPayload)
 {
+    sanitize_sql_inputs($commentID);
     settype($commentID, 'integer');
     $newPayload = str_replace("'", "''", $newPayload);
     $newPayload = str_replace("<", "&lt;", $newPayload);
@@ -296,6 +308,7 @@ function editTopicComment($commentID, $newPayload)
 
 function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
 {
+    sanitize_sql_inputs($user, $topicID);
     $userID = getUserIDFromUser($user);
 
     // Replace inverted commas, Remove HTML
@@ -329,6 +342,8 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
 
 function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 {
+    sanitize_sql_inputs($topicID, $author, $commentID);
+
     //    $author has made a post in the topic $topicID
     //    Find all people involved in this forum topic, and if they are not the author and prefer to
     //    hear about comments, let them know! Also notify users that have explicitly subscribed to
@@ -361,6 +376,8 @@ function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offse
         $commentID = 99999999;
     }
 
+    sanitize_sql_inputs($forumTopicID, $commentID);
+
     $query = "SELECT COUNT(ID) AS CommentOffset
               FROM ForumTopicComment
               WHERE DateCreated < (SELECT DateCreated FROM ForumTopicComment WHERE ID = $commentID)
@@ -386,11 +403,14 @@ function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offse
 
 function generateGameForumTopic($user, $gameID, &$forumTopicID)
 {
+    sanitize_sql_inputs($user, $gameID);
     settype($gameID, 'integer');
     if ($gameID == 0) {
         return false;
     }
 
+    $achievementData = null;
+    $gameData = null;
     getGameMetaData($gameID, $user, $achievementData, $gameData);
 
     if (isset($gameData['ForumTopicID'])
@@ -460,6 +480,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
 
 function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
 {
+    sanitize_sql_inputs($offset, $count, $numMessageChars);
     //    02:08 21/02/2014 - cater for 20 spam messages
     $countPlusSpam = $count + 20;
     $query = "
@@ -497,6 +518,7 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
 
 function requestModifyTopic($user, $permissions, $topicID, $field, $value)
 {
+    sanitize_sql_inputs($topicID, $value);
     settype($field, 'integer');
     settype($topicID, 'integer');
 
@@ -509,7 +531,6 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
         case ModifyTopicField::ModifyTitle:
             if (($permissions >= Permissions::Admin) || ($user == $topicData['Author'])) {
                 global $db;
-                $value = mysqli_real_escape_string($db, $value);
                 $query = "  UPDATE ForumTopic AS ft
                             SET Title='$value'
                             WHERE ID=$topicID";
@@ -574,6 +595,8 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
 
 function RemoveUnauthorisedForumPosts($user)
 {
+    sanitize_sql_inputs($user);
+
     //    Removes all 'unauthorised' forum posts by a particular user
     $query = "DELETE FROM ForumTopicComment
               WHERE Author = '$user' AND Authorised = 0";
@@ -592,6 +615,8 @@ function RemoveUnauthorisedForumPosts($user)
 
 function AuthoriseAllForumPosts($user)
 {
+    sanitize_sql_inputs($user);
+
     //    Sets all unauthorised forum posts by a particular user to authorised
     //    Removes all 'unauthorised' forum posts by a particular user
     $query = "UPDATE ForumTopicComment AS ftc

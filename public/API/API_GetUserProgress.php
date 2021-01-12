@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$gameCSV = seekGET('i', "");
+$user = requestInputQuery('u', null);
+$gameCSV = requestInputQuery('i', "");
 
 getUserProgress($user, $gameCSV, $data);
 

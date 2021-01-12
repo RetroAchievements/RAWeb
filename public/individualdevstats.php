@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$dev = seekGET('u');
-$errorCode = seekGET('e');
+$dev = requestInputSanitized('u');
+$errorCode = requestInputSanitized('e');
 
 $userArchInfo = getUserAchievementInformation($dev);
 $userContribCount = 0;
@@ -48,7 +48,7 @@ if ($userContribCount > 0) {
     $onlyDevLeaderboardTotal = 0;
 
     // Get user game list data
-    getGamesListByDev($dev, 0, $gamesList, 1, false, false);
+    getGamesListByDev($dev, 0, $gamesList, 1, false);
     foreach ($gamesList as $game) {
         $consoleID = $game['ConsoleID'];
         if ($consoleID != 100 && $consoleID != 101) {
@@ -543,7 +543,7 @@ RenderHtmlHead("$dev's Developer Stats");
             }
             ?>
         ]);
-        
+
         var achievementData = google.visualization.arrayToDataTable([
         ['Console', 'Achievement per console'],
         <?php
@@ -615,16 +615,16 @@ RenderHtmlHead("$dev's Developer Stats");
         achievementChart.draw(achievementData, achievementOptions);
         <?php } ?>
     }
-  
+
 </script>
 <div id="mainpage">
     <div id='fullcontainer'>
         <div class="navpath">
             <?php
-                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/User/$dev'>$dev</a> &raquo; Developer Stats</b>";
+                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
             ?>
         </div>
-        
+
         <?php if ($user !== null): ?>
             <div class="d-flex flex-wrap justify-content-between">
                 <div>
@@ -639,7 +639,7 @@ RenderHtmlHead("$dev's Developer Stats");
                 </div>
             </div>
         <?php endif ?>
-        
+
         <?php
         echo "<h2>$dev's Developer Stats</h2>";
 

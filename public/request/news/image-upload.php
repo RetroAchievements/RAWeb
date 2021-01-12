@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -15,15 +15,15 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 }
 
 $allowedTypes = ["NEWS", "GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"]; //, "ACHIEVEMENT"
-$uploadType = seekPOST('t', "");
+$uploadType = requestInputPost('t', "");
 
 if ($uploadType !== 'NEWS') {
     // error_log("Unsupported upload type!");
     return;
 }
 
-$filename = seekPOST('f');
-$rawImage = seekPOST('i');
+$filename = requestInputPost('f');
+$rawImage = requestInputPost('i');
 
 //	sometimes the extension... *is* the filename?
 $extension = $filename;

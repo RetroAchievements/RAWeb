@@ -1,14 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
+$user = requestInputQuery('u', null);
 
 $retVal = [];
 
 $retVal['Score'] = getScore($user);
 $retVal['Rank'] = getUserRank($user);
+$retVal['TotalRanked'] = countRankedUsers();
 
 echo json_encode($retVal);

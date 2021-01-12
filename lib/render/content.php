@@ -89,48 +89,42 @@ function RenderDocsComponent()
         <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
-            Read the <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
+            <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
           </div>
         </div>
       </div>";
 }
 
-function RenderCurrentlyOnlineComponent($user)
+function RenderCurrentlyOnlineComponent()
 {
-    if (isset($user)) {
-        //    not impl
-    } else {
-        //    global
+    echo "<div class='component'>";
+    echo "<h3>Currently Online</h3>";
+    echo "<div id='playersonlinebox' class='infobox'>";
 
-        echo "<div class='component'>";
-        echo "<h3>Currently Online</h3>";
-        echo "<div id='playersonlinebox' class='infobox'>";
+    $playersArray = getCurrentlyOnlinePlayers();
 
-        $playersArray = getCurrentlyOnlinePlayers();
+    $numPlayers = count($playersArray);
+    echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
 
-        $numPlayers = count($playersArray);
-        echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
+    //$numOutput = 0;
+    //foreach( $playersArray as $nextPlayer )
+    //{
+    //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
+    //    {
+    //        echo " and ";
+    //    }
+    //    elseif( $numOutput > 0 )
+    //    {
+    //        echo ", ";
+    //    }
+    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
+    //    $numOutput++;
+    //}
 
-        //$numOutput = 0;
-        //foreach( $playersArray as $nextPlayer )
-        //{
-        //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
-        //    {
-        //        echo " and ";
-        //    }
-        //    elseif( $numOutput > 0 )
-        //    {
-        //        echo ", ";
-        //    }
-        //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
-        //    $numOutput++;
-        //}
+    echo "</div>";
 
-        echo "</div>";
-
-        echo "<div class='rightfloat lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
-        echo "</div>";
-    }
+    echo "<div class='rightfloat lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
+    echo "</div>";
 }
 
 function RenderActivePlayersComponent()
@@ -192,6 +186,13 @@ function RenderAOTWComponent($achID, $forumTopicID)
     $achBadgeName = $achData['BadgeName'];
     $achPoints = $achData['Points'];
     $achTruePoints = $achData['TrueRatio'];
+
+    sanitize_outputs(
+        $gameTitle,
+        $consoleName,
+        $achTitle,
+        $achDesc,
+    );
 
     echo "Achievement: ";
     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);

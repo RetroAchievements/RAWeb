@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
-require_once(__DIR__ . "/../src/RA_API.php");
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once(__DIR__ . "/../src/RetroAchievementsWebApiClient.php");
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 $apiUser = isset($user) ? $user : 'TestUser';
 $apiKey = isset($user) ? GetAPIKey($user) : 'Your API Key';
@@ -188,6 +188,14 @@ RenderHtmlHead("RetroAchievements API Demo (PHP)");
         echo '<div class=\'CodeDiv\' id=\'GetAchievementsEarnedBetweenDiv\'>';
         echo '<code>$data = $RAConn->GetAchievementsEarnedBetween( \'Scott\', \'2013-12-31 20:00:00\', \'2014-01-01 04:00:00\' );</code>';
         // $data = $RAConn->GetAchievementsEarnedBetween('Scott', '2013-12-31 20:00:00', '2014-01-01 04:00:00');
+        // echo "<pre>".json_encode($data)."</pre>";
+        // echo "<a href='#'>Back to top</a>";
+        echo '</div>';
+
+        echo '<b id=\'GetUserCompletedGames\' class=\'longheader\' onclick="$(\'#GetUserCompletedGamesDiv\').toggle(); return false;" >Get Games Completed by Scott:</b>';
+        echo '<div class=\'CodeDiv\' id=\'GetUserCompletedGamesDiv\'>';
+        echo '<code>$data = $RAConn->GetUserCompletedGames( \'Scott\' );</code>';
+        // $data = $RAConn->GetUserCompletedGames('Scott');
         // echo "<pre>".json_encode($data)."</pre>";
         // echo "<a href='#'>Back to top</a>";
         echo '</div>';

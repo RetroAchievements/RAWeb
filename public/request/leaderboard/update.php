@@ -1,20 +1,20 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("uimtdflo")) {
     echo "FAILED! (POST)";
     exit;
 }
 
-$source = seekPOST('u');
-$lbID = seekPOST('i');
-$lbMem = seekPOST('m');
-$lbTitle = seekPOST('t');
-$lbDescription = seekPOST('d');
-$lbFormat = seekPOST('f');
-$lbLowerIsBetter = seekPOST('l');
-$lbDisplayOrder = seekPOST('o');
+$source = requestInputPost('u');
+$lbID = requestInputPost('i');
+$lbMem = requestInputPost('m');
+$lbTitle = requestInputPost('t');
+$lbDescription = requestInputPost('d');
+$lbFormat = requestInputPost('f');
+$lbLowerIsBetter = requestInputPost('l');
+$lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 

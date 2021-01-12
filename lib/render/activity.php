@@ -590,6 +590,8 @@ function RenderFeedComment($user, $comment, $submittedDate)
     $niceDate = date("d M\nG:i y ", strtotime($submittedDate));
     //$fullDateHover = date( "d M\nH:i yy", strtotime( $submittedDate ) );
 
+    sanitize_outputs($comment);
+
     echo "<td class='smalldate'>$niceDate</td><td class='iconscomment'><a href='/User/$user'><img alt='$user' title='$user' class='badgeimg' src='/UserPic/$user" . ".png' width='32' height='32' /></a></td><td colspan='3'>$comment</td>";
 
     echo "</tr>";

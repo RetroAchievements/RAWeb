@@ -1,22 +1,25 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
 
 $maxCount = 50;
 $offset = 0;
 
-$username = seekGET('u');
-$errorCode = seekGET('e');
-$selectedConsole = seekGET('s', null);
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', $offset);
-$flag = seekGET('f', 0); //0 - display only active user set requests, else display all user set requests
+$username = requestInputSanitized('u');
+$errorCode = requestInputSanitized('e');
+$selectedConsole = requestInputSanitized('s', null, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', $offset, 'integer');
+$flag = requestInputSanitized('f', 0, 'integer'); //0 - display only active user set requests, else display all user set requests
 if ($offset < 0) {
     $offset = 0;
 }
 
-if ($username === null) {
+if (empty($username)) {
     $setRequestList = getMostRequestedSetsList($selectedConsole, $offset, $count);
     $totalRequestedGames = getGamesWithRequests($selectedConsole);
 } else {
@@ -95,7 +98,7 @@ RenderToolbar($user, $permissions);
             echo "<div class='rightalign row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                if ($selectedConsole != null) {
+                if (!empty($selectedConsole)) {
                     echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
                     echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
                 } else {
@@ -105,7 +108,7 @@ RenderToolbar($user, $permissions);
             }
             if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
                 $nextOffset = $offset + $maxCount;
-                if ($selectedConsole != null) {
+                if (!empty($selectedConsole)) {
                     echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
                     echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
                 } else {

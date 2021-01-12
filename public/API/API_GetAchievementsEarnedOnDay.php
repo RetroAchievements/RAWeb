@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$dateInput = seekGET('d', "");
+$user = requestInputQuery('u', null);
+$dateInput = requestInputQuery('d', "");
 
 $data = getAchievementsEarnedOnDay(strtotime($dateInput), $user);
 

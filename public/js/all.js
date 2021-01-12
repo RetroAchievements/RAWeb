@@ -23,6 +23,10 @@ function readCookie(name) {
   return null;
 }
 
+function htmlEntities(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function stripTags(html) {
   var output = html;
   // PROCESS STRING
@@ -65,7 +69,7 @@ function insertEditForm(activityVar, articleType) {
       var formStr = '';
       formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=250></textarea>';
       formStr += '&nbsp;';
-      formStr += '<img id="submitButton" src="https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Images/Submit.png" '
+      formStr += '<img id="submitButton" src="' + window.assetUrl + '/Images/Submit.png" '
         + 'alt="Submit" style="cursor: pointer;" onclick="processComment( \''
         + activityVar + '\', \'' + articleType + '\' )">';
       var d = new Date();
@@ -278,7 +282,7 @@ function GetAchievementAndTooltipDiv(
 ) {
   var tooltipImageSize = 64;
   var tooltip = '<div id=\'objtooltip\'>'
-    + '<img src=\'https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/'
+    + '<img src=\'' + window.assetUrl + '/Badge/'
     + badgeName + '.png\' width=' + tooltipImageSize + ' height='
     + tooltipImageSize + ' />'
     + '<b>' + achName + ' (' + achPoints.toString() + ')</b><br>'
@@ -293,7 +297,7 @@ function GetAchievementAndTooltipDiv(
   var smallBadge = '';
   var displayable = achName + ' (' + achPoints.toString() + ')';
   if (inclSmallBadge) {
-    var smallBadgePath = 'https://s3-eu-west-1.amazonaws.com/i.retroachievements.org/Badge/'
+    var smallBadgePath = window.assetUrl + '/Badge/'
       + badgeName + '.png';
     smallBadge = '<img width=\'32\' height=\'32\' style=\'floatimg\' src=\''
       + smallBadgePath + '\' alt="' + achName + '" title="' + achName
@@ -445,6 +449,7 @@ function reloadTwitchContainer(videoID) {
 
 jQuery(document).ready(function onReady($) {
   $('#devboxcontent').hide();
+  $('#resetboxcontent').hide();
   $('#commentTextarea').watermark('Enter a comment here...');
   $('.messageTextarea').watermark('Enter your message here...');
   $('.passwordresetusernameinput').watermark('Enter Username...');
@@ -501,6 +506,22 @@ jQuery(document).ready(function onReady($) {
   $searchUser.on('autocompleteselect', function (event, ui) {
     $searchUser.val(ui.item.id);
     $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
+    return false;
+  });
+
+  var $resetForm = $('#resetform');
+  $resetForm.submit(function () {
+    if (!window.confirm('Are you sure you want to reset this progress?')) {
+      return false;
+    }
+    $.post(
+      $(this).attr('action'),
+      $(this).serialize(),
+      setTimeout(function () {
+        window.location.reload();
+      }, 100),
+      'json'
+    );
     return false;
   });
 });
@@ -681,8 +702,8 @@ function tabClick(evt, tabName, type) {
 
 function copy(text) {
   var inp = document.createElement('input');
-  document.body.appendChild(inp)
-  inp.value = text
+  document.body.appendChild(inp);
+  inp.value = text;
   inp.select();
   document.execCommand('copy', false);
   inp.remove();

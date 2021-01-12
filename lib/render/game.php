@@ -23,6 +23,11 @@ function GetGameAndTooltipDiv(
 ) {
     $tooltipIconSize = 64; //96;
 
+    sanitize_outputs(
+        $gameName,
+        $consoleName
+    );
+
     $consoleStr = '';
     if ($consoleName !== null && mb_strlen($consoleName) > 2) {
         $consoleStr = "($consoleName)";
@@ -30,11 +35,13 @@ function GetGameAndTooltipDiv(
 
     $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
 
-    $tooltip = "<div id='objtooltip'>" .
-        "<img src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />" .
-        "<b>$gameName</b><br>" .
-        "$consoleStr" .
-        "</div>";
+    $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<div>";
+    $tooltip .= "<b>$gameName</b><br>";
+    $tooltip .= $consoleStr;
+    $tooltip .= "</div>";
+    $tooltip .= "</div>";
 
     // $tooltip = str_replace('<', '&lt;', $tooltip);
     // $tooltip = str_replace('>', '&gt;', $tooltip);
@@ -43,9 +50,12 @@ function GetGameAndTooltipDiv(
     //echo $tooltip;
 
     $tooltip = str_replace("'", "\'", $tooltip);
-    $tooltip = htmlentities($tooltip);
 
     $displayable = "";
+
+    sanitize_outputs(
+        $tooltip,
+    );
 
     if ($justText == false) {
         $displayable = "<img loading='lazy' alt='' title=\"$gameName\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
@@ -56,7 +66,7 @@ function GetGameAndTooltipDiv(
     }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='/Game/$gameID'>" .
+        "<a href='/game/$gameID'>" .
         "$displayable" .
         "</a>" .
         "</div>";
@@ -117,11 +127,13 @@ function RenderBoxArt($imagePath)
     echo "</div>";
 }
 
-function RenderGameAlts($gameAlts)
+function RenderGameAlts($gameAlts, $showTitle = true)
 {
     echo "<div class='component gamealts'>";
-    echo "<h3>Similar Games</h3>";
-    echo "Have you tried:<br>";
+    if ($showTitle) {
+        echo "<h3>Similar Games</h3>";
+        echo "Have you tried:<br>";
+    }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
         echo "<tr>";
@@ -134,17 +146,26 @@ function RenderGameAlts($gameAlts)
         settype($points, 'integer');
         settype($totalTP, 'integer');
 
+        sanitize_outputs(
+            $gameTitle,
+            $consoleName,
+        );
+
+        $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
+
         echo "<td>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
         echo "</td>";
 
-        echo "<td>";
+        echo "<td " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
         echo "</td>";
 
-        echo "<td>";
-        echo "$points points<span class='TrueRatio'> ($totalTP)</span>";
-        echo "</td>";
+        if ($isFullyFeaturedGame) {
+            echo "<td>";
+            echo "$points points<span class='TrueRatio'> ($totalTP)</span>";
+            echo "</td>";
+        }
 
         echo "</tr>";
     }
@@ -154,6 +175,10 @@ function RenderGameAlts($gameAlts)
 
 function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0)
 {
+    sanitize_outputs(
+        $gameTitle,
+    );
+
     if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
         echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
     } else {

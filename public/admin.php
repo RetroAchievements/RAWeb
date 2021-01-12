@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
@@ -7,9 +7,9 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     exit;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
-$newsArticleID = seekGET('n');
+$newsArticleID = requestInputSanitized('n', null, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
@@ -70,7 +70,7 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
     return trim($output);
 }
 
-$action = seekPOSTorGET('action');
+$action = requestInputSanitized('action');
 $message = null;
 switch ($action) {
     // case 'regenapi':
@@ -93,7 +93,7 @@ switch ($action) {
     //     echo "REGENERATED $numRegens APIKEYS!<br>";
     //     break;
     // case 'regenapione':
-    //     $targetUser = seekGET('t');
+    //     $targetUser = requestInputSanitized('t');
     //     $newKey = generateAPIKey($targetUser);
     //     echo "New API Key for $targetUser: $newKey<br>";
     //     break;
@@ -118,7 +118,7 @@ switch ($action) {
     //     echo "REGENERATED $numRegens developer contribution totals!<br>";
     //     break;
     // case 'reconstructsiteawards':
-    //     $tgtPlayer = seekGET('t', null);
+    //     $tgtPlayer = requestInputSanitized('t', null);
     //
     //     $query = "DELETE FROM SiteAwards WHERE AwardType = 1";
     //     if ($tgtPlayer !== null) {
@@ -222,7 +222,7 @@ switch ($action) {
     //     }
     //     break;
     // case 'recalcsiteawards':
-    //     $tgtPlayer = seekGET('t', null);
+    //     $tgtPlayer = requestInputSanitized('t', null);
     //     {
     //         $query = "DELETE FROM SiteAwards WHERE ( AwardType = 2 || AwardType = 3 || AwardType = 5 )";
     //         if ($tgtPlayer !== null) {
@@ -284,31 +284,43 @@ switch ($action) {
     //     }
     //     break;
     case 'getachids':
-        $gameIDs = explode(',', seekPOST('g'));
+        $gameIDs = explode(',', requestInputSanitized('g'));
         foreach ($gameIDs as $nextGameID) {
             $ids = getAchievementIDs($nextGameID);
             $message = implode(', ', $ids["AchievementIDs"] ?? []);
         }
         break;
     case 'giveaward':
-        $awardAchievementID = seekPOST('a');
-        $awardAchievementUser = seekPOST('u');
-        $awardAchHardcore = seekPOST('h', 0);
+        $awardAchievementID = requestInputSanitized('a', null);
+        $awardAchievementUser = requestInputSanitized('u');
+        $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
-            $ids = explode(',', $awardAchievementID);
-            foreach ($ids as $nextID) {
-                if (addEarnedAchievement(
-                    $awardAchievementUser,
-                    '',
-                    $nextID,
-                    0,
-                    $newPointTotal,
-                    $awardAchHardcore,
-                    true
-                )) {
-                    $message .= "Awarded achievement $nextID to $awardAchievementUser -  Updated score to $newPointTotal!<br>";
+            $usersToAward = preg_split('/\W+/', $awardAchievementUser);
+            foreach ($usersToAward as $nextUser) {
+                $validUser = validateUsername($nextUser);
+                if (!$validUser) {
+                    $message .= "<strong>$nextUser</strong>: user not found!<br>";
+                    continue;
                 }
+                $message .= "<strong>$validUser</strong>:<br>";
+                $ids = str_replace(',', ' ', $awardAchievementID);
+                $ids = str_replace('  ', ' ', $ids);
+                $ids = explode(' ', $ids);
+                foreach ($ids as $nextID) {
+                    $message .= "- $nextID: ";
+                    $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
+                    if (empty($awardResponse) || !$awardResponse['Success']) {
+                        $message .= array_key_exists('Error', $awardResponse)
+                            ? $awardResponse['Error']
+                            : "Failed to award achievement!";
+                    } else {
+                        $message .= "Awarded achievement";
+                    }
+                    $message .= "<br>";
+                }
+                recalcScore($validUser);
+                $message .= "- Recalculated Score: " . GetScore($validUser) . "<br>";
             }
         }
         break;
@@ -368,9 +380,9 @@ switch ($action) {
     //     exit;
     //     break;
     case 'updatestaticdata':
-        $aotwAchID = seekPOSTorGET('a', 0, 'integer');
-        $aotwForumID = seekPOSTorGET('f', 0, 'integer');
-        $aotwStartAt = seekPOSTorGET('s', null, 'string');
+        $aotwAchID = requestInputSanitized('a', 0, 'integer');
+        $aotwForumID = requestInputSanitized('f', 0, 'integer');
+        $aotwStartAt = requestInputSanitized('s', null, 'string');
 
         $query = "UPDATE StaticData SET
             Event_AOTW_AchievementID='$aotwAchID',
@@ -405,7 +417,7 @@ switch ($action) {
     //     echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
     //     echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
     //
-    //     $count = seekPOSTorGET('c', 20, 'integer');
+    //     $count = requestInputSanitized('c', 20, 'integer');
     //     echo nl2br(tailCustom($errorlogpath, $count));
     //     exit;
     //     break;
@@ -571,7 +583,7 @@ RenderHtmlHead('Admin Tools');
                             <input id='event_aotw_achievement_id' name='a' value='<?= $eventAotwAchievementID ?>'>
                         </td>
                         <td>
-                            <a href='/Achievement/<?= $eventAotwAchievementID ?>'>Link</a>
+                            <a href='/achievement/<?= $eventAotwAchievementID ?>'>Link</a>
                         </td>
                     </tr>
                     <tr>
@@ -604,10 +616,10 @@ RenderHtmlHead('Admin Tools');
             <div id="aotw_entries"></div>
 
             <script>
-              jQuery('#event_aotw_start_at').datetimepicker({
-                format: 'Y-m-d H:i:s',
-                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-              });
+                jQuery('#event_aotw_start_at').datetimepicker({
+                    format: 'Y-m-d H:i:s',
+                    mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+                });
             </script>
         </div>
     <?php endif ?>

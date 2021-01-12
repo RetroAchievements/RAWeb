@@ -215,17 +215,17 @@ a:hover {
   min-height: 25.0em;
   height: 25.0em;
   max-height: 25.0em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #usercompletedgamescomponent {
   max-height: 30.0em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #devstatsscrollpane {
   max-height: 25.0em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 span.news {
@@ -748,7 +748,7 @@ td, tr, img {
   height: 42px; /* Only for main menu elements for mobile to make tap space */
 }
 
-#innermenu > ul > li > ul {
+#innermenu > ul > li > div {
   display: none;
   position: absolute;
   top: 42px;
@@ -757,7 +757,7 @@ td, tr, img {
   z-index: 100;
 }
 
-#innermenu > ul > li > ul > li:last-child {
+#innermenu > ul > li > div > ul > li:last-child {
   margin-bottom: 4px;
 }
 
@@ -766,20 +766,40 @@ td, tr, img {
   background-color: #bebebe;
 }
 
-#innermenu > ul > li:hover > ul {
-  display: block;
+#innermenu > ul > li:hover > div {
+  background-color: #bebebe;
 }
 
-#innermenu > ul > li:hover > ul > li > a.hassub {
+@media all and (max-width: 549px) {
+  #innermenu > ul > li:hover > div {
+    display: block;
+  }
+}
+@media all and (min-width: 550px) {
+  #innermenu > ul > li:hover > div {
+    display: flex;
+  }
+}
+
+#innermenu > ul > li:hover > div > ul {
+  margin: 0;
+  padding: 0;
+}
+
+#innermenu > ul > li:hover > div > ul:not(:last-child) {
+  border-right: 1px solid #888;
+}
+
+#innermenu > ul > li:hover > div > ul > li > a.hassub {
   color: #fff;
 }
 
-#innermenu > ul > li:hover > ul > li:hover > a.hassub {
+#innermenu > ul > li:hover > div > ul > li:hover > a.hassub {
   color: #fff;
   font-style: italic;
 }
 
-#innermenu > ul > li:hover > ul > li > ul {
+#innermenu > ul > li:hover > div > ul > li > ul {
   display: none;
 }
 
@@ -789,8 +809,7 @@ td, tr, img {
   left: 2px
 }
 
-#innermenu > ul > li:hover > ul > li > a {
-  /*background-image:none;*/
+#innermenu > ul > li:hover > div > ul > li > a {
   display: block;
   color: #000;
   line-height: 1.4em;
@@ -798,16 +817,10 @@ td, tr, img {
   text-align: left;
   margin: 0;
   padding: 4px 12px;
-  /*font-weight:bold;*/
 }
 
-#innermenu > ul > li:hover > ul {
+#innermenu > ul > li:hover > div > ul {
   padding: 0;
-  background-color: #BEBEBE;
-  /*background-image:url('/Images/dropdown.gif');*/
-  /*background-repeat:no-repeat;*/
-  /*background-position:bottom left;*/
-  /*padding: 0 0 6px 0;*/
 }
 
 #innermenu > ul > li:hover > a.nosub {
@@ -818,22 +831,27 @@ td, tr, img {
   position: relative;
 }
 
-#innermenu > ul > li:hover > ul > .selected {
+#innermenu > ul > li:hover > div > ul > .selected {
   background-image: url('/Images/sub_active.png');
   margin-right: 1px;
 }
 
-#innermenu > ul > li:hover > ul > li > a:hover {
+#innermenu > ul > li:hover > div > ul > li > a:hover {
   color: #fff;
   background: #333;
-  /*background-image:url('/Images/sub_hover.png');*/
 }
 
-#innermenu > ul > li:hover > ul > li:hover > ul {
+#innermenu > ul > li:hover > div > ul > li:hover > ul {
   display: block;
   position: absolute;
   left: 105px;
   top: 0;
+}
+
+.dropdown-header {
+  padding: 0 12px;
+  text-align: center;
+  color: #888;
 }
 
 .searchbox {
@@ -854,7 +872,7 @@ td, tr, img {
   height: 220px;
   /*width: 300px;*/
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   vertical-align: middle;
 }
 
@@ -1357,32 +1375,37 @@ svg > g > g:last-child { pointer-events: none }
 /* Style the tab */
 .tab {
   overflow: hidden;
+  margin-bottom: -1px;
 }
 
 /* Style the buttons that are used to open the tab content */
 .tab button {
-  background-color: inherit;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom: 1px solid rgb(44, 151, 250);
   float: left;
-  border: 1px solid rgb(44, 151, 250);
   border-radius: 5px 5px 0px 0px;
   outline: none;
   cursor: pointer;
   padding: 10px 8px;
   color: rgb(44, 151, 250);
   font-size: 100%;
-  background-color: #323232;
-  border-bottom: none;
 }
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-  background-color: #1a1a1a;
+  border: 1px solid rgb(80, 80, 80);
+}
+
+.tab button:hover:not(.active) {
+  border-bottom: 1px solid rgb(44, 151, 250);
 }
 
 /* Create an active/current tablink class */
 .tab button.active {
-  background-color: #1a1a1a;
-  text-decoration: underline;
+  border: 1px solid rgb(44, 151, 250);
+  border-bottom: 1px solid #1F1F1F;
+  background-color: #1F1F1F;
 }
 
 /* Style the friends tab content */
@@ -1396,5 +1419,26 @@ svg > g > g:last-child { pointer-events: none }
 .tabcontentglobaltab  {
   display: none;
   padding: 2px 2px 25px;
+  border: 1px solid rgb(44, 151, 250);
+}
+
+/* Style the high scores tab content */
+.tabcontenthighscores  {
+  display: none;
+  padding: 2px 2px 25px;
+  border: 1px solid rgb(44, 151, 250);
+}
+
+/* Style the latest masters tab content */
+.tabcontentlatestmasters  {
+  display: none;
+  padding: 2px 2px 2px;
+  border: 1px solid rgb(44, 151, 250);
+}
+
+/* Style the scores tab content */
+.tabcontentscores  {
+  display: none;
+  padding: 2px 2px 2px;
   border: 1px solid rgb(44, 151, 250);
 }

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
@@ -7,8 +7,8 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     exit;
 }
 
-$gameID = seekGET('g');
-$errorCode = seekGET('e');
+$gameID = requestInputSanitized('g', null, 'integer');
+$errorCode = requestInputSanitized('e');
 
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {

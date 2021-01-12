@@ -1,13 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("u")) {
     echo "ERROR";
     exit;
 }
 
-$user = seekPOST('u');
+$user = requestInputPost('u');
 
 getcookie($userIn, $cookie);
 if ($user == $userIn && validateUser_cookie($user, $cookie, 0) == false) {

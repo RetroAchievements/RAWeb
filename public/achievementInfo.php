@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$achievementID = seekGET('ID', 0);
-settype($achievementID, 'integer');
+$achievementID = requestInputSanitized('ID', 0, 'integer');
 
 if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
@@ -28,6 +27,14 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
+
+sanitize_outputs(
+    $achievementTitle,
+    $desc,
+    $gameTitle,
+    $consoleName,
+    $author
+);
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
@@ -51,13 +58,13 @@ $numArticleComments = getArticleComments(2, $achievementID, 0, 20, $commentData)
 
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
+    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
     <?php RenderTitleTag($achievementTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -100,7 +107,7 @@ RenderHtmlStart(true);
         echo "<div class='navpath'>";
         echo "<a href='/gameList.php'>All Games</a>";
         echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-        echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
+        echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
         echo " &raquo; <b>$achievementTitle</b>";
         echo "</div>"; //navpath
 
@@ -114,7 +121,7 @@ RenderHtmlStart(true);
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href='/Achievement/$achievementID'><img src='$badgeFullPath' title='$gameTitle ($achPoints)\n$desc' alt='$desc' align='left' width='64' height='64' /></a>";
+        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$desc\" alt=\"$desc\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; //achievemententryicon
         echo "</td>";
 
@@ -126,7 +133,7 @@ RenderHtmlStart(true);
             $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
             echo "<small style='float: right; text-align: right;' class='smalldate'>unlocked on<br>$niceDateWon</small>";
         }
-        echo "<a href='/Achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "<a href='/achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
         echo "$desc<br>";
 
         echo "</div>"; //achievemententry
@@ -149,7 +156,7 @@ RenderHtmlStart(true);
         if ($achFlags == 5) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by <a href='/User/$author'>$author</a> on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by <a href='/user/$author'>$author</a> on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -163,7 +170,20 @@ RenderHtmlStart(true);
             }
             echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
         }
-        echo "<br><br>";
+        echo "<br>";
+
+        if ($achievedLocal) {
+            echo "<div class='devbox'>";
+            echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
+            echo "<div id='resetboxcontent'>";
+            echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
+            echo "<input type='hidden' name='u' value='$user'>";
+            echo "<input type='hidden' name='a' value='$achievementID'>";
+            echo "<input type='submit' value='Reset this achievement'>";
+            echo "</form>";
+            echo "</div></div>";
+        }
+        echo "<br>";
 
         if (isset($user) && $permissions >= Permissions::Developer) {
             echo "<div class='devbox mb-3'>";
@@ -270,7 +290,7 @@ RenderHtmlStart(true);
                 }
                 echo "</td>";
 
-                //echo "<a href='/User/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
+                //echo "<a href='/user/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
                 //var_dump( $userObject );
                 //echo GetUserAndTooltipDiv( $userObject['User'], FALSE );
                 //echo " (" . $userObject['RAPoints'] . ")";

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -13,7 +13,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Reorder Site Awards");
@@ -59,6 +59,11 @@ RenderHtmlHead("Reorder Site Awards");
             $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
 
+            sanitize_outputs(
+                $awardTitle,
+                $awardGameConsole
+            );
+
             settype($awardType, 'integer');
 
             if ($awardType == 1) {
@@ -74,7 +79,7 @@ RenderHtmlHead("Reorder Site Awards");
                 }
 
                 $imagepath = $awardGameImage;
-                $linkdest = "/Game/$awardData";
+                $linkdest = "/game/$awardData";
             } elseif ($awardType == 2) { //    Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
                 $awardTitle = "Achievements Earned by Others";

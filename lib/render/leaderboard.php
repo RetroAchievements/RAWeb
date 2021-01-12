@@ -59,6 +59,8 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             $bestScore = $lbItem['Score'];
             $scoreFormat = $lbItem['Format'];
 
+            sanitize_outputs($lbTitle, $lbDesc);
+
             //    Title
             echo "<tr>";
             echo "<td colspan='2'>";
@@ -193,7 +195,8 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo GetUserAndTooltipDiv($dataPoint['User'], false);
                     echo "</td>";
                     if ($j == 0) {
-                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . $dataPoint['Points'] . "</a>";
+                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
+                            $dataPoint['Points'] . "</a>";
                     } else {
                         echo "<td>" . $dataPoint['Points'];
                     }
@@ -226,7 +229,11 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo GetUserAndTooltipDiv($userData[0]['User'], true);
                     echo GetUserAndTooltipDiv($userData[0]['User'], false);
                     echo "</td>";
-                    echo "<td>" . $userData[0]['Points'];
+                    if ($j == 0) {
+                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
+                    } else {
+                        echo "<td>" . $userData[0]['Points'];
+                    }
                     echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
                 }
             }
@@ -244,18 +251,72 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
     echo "</div>";
 }
 
-function RenderTopAchieversComponent($gameTopAchievers)
+/**
+ * Creates the High scores tables on game pages
+ *
+ * @param string $user the logged in user
+ * @param array $gameTopAchievers top 10 highest scoreres for the game
+ * @param array $gameLatestMasters top 10 latest masters for the game
+ */
+function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters)
 {
-    $numItems = count($gameTopAchievers);
-
     echo "<div id='leaderboard' class='component' >";
 
-    echo "<h3>High Scores</h3>";
+    $numLatestMasters = count($gameLatestMasters);
+    $numTopAchievers = count($gameTopAchievers);
+    $masteryThreshold = 10; //Number of masters needed for the "Latest Masters" tab to be selected by default
 
+    echo "<h3>High Scores</h3>";
+    echo "<div class='tab'>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='tabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='tabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
+    echo "</div>";
+
+    //Latest Masters Tab
+    echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
+    echo "<table class='smalltable'><tbody>";
+    echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Mastery Date</th></tr>";
+
+    for ($i = 0; $i < $numLatestMasters; $i++) {
+        if (!isset($gameLatestMasters[$i])) {
+            continue;
+        }
+
+        $nextUser = $gameLatestMasters[$i]['User'];
+        $nextLastAward = $gameLatestMasters[$i]['LastAward'];
+
+        //Outline user if they are in the list
+        if ($user !== null && $user == $nextUser) {
+            echo "<tr style='outline: thin solid'>";
+        } else {
+            echo "<tr>";
+        }
+
+        echo "<td class='rank'>";
+        echo $i + 1;
+        echo "</td>";
+
+        echo "<td>";
+        echo GetUserAndTooltipDiv($nextUser, true);
+        echo "</td>";
+
+        echo "<td class='user'>";
+        echo GetUserAndTooltipDiv($nextUser, false);
+        echo "</td>";
+
+        echo "<td>$nextLastAward</td>";
+
+        echo "</tr>";
+    }
+    echo "</tbody></table>";
+    echo "</div>";
+
+    //High Scores Tab
+    echo "<div id='highscores' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "none" : "block") . "\">";
     echo "<table><tbody>";
     echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Points</th></tr>";
 
-    for ($i = 0; $i < $numItems; $i++) {
+    for ($i = 0; $i < $numTopAchievers; $i++) {
         if (!isset($gameTopAchievers[$i])) {
             continue;
         }
@@ -264,7 +325,12 @@ function RenderTopAchieversComponent($gameTopAchievers)
         $nextPoints = $gameTopAchievers[$i]['TotalScore'];
         $nextLastAward = $gameTopAchievers[$i]['LastAward'];
 
-        echo "<tr>";
+        //Outline user if they are in the list
+        if ($user !== null && $user == $nextUser) {
+            echo "<tr style='outline: thin solid'>";
+        } else {
+            echo "<tr>";
+        }
 
         echo "<td class='rank'>";
         echo $i + 1;
@@ -285,7 +351,7 @@ function RenderTopAchieversComponent($gameTopAchievers)
         echo "</tr>";
     }
     echo "</tbody></table>";
-
+    echo "</div>";
     echo "</div>";
 }
 

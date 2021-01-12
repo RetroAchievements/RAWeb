@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use RA\Permissions;
 
@@ -20,10 +20,9 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 $allowedGameImageTypes = ["GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"];
 $allowedTypes = array_merge(["NEWS"], $allowedGameImageTypes); //, "ACHIEVEMENT"
-$uploadType = seekPOST('t', "");
+$uploadType = requestInputPost('t', "");
 
-$returnID = seekPOST('i', 0);
-settype($returnID, 'integer');
+$returnID = requestInputPost('i', 0, 'integer');
 
 $allowedExts = ["png", "jpeg", "jpg", "gif", "bmp"];
 $filenameParts = explode(".", $_FILES["file"]["name"]);

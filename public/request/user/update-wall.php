@@ -1,18 +1,18 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("uct")) {
     header("Location: " . getenv('APP_URL') . "?e=invalidparams");
     exit;
 }
 
-$user = seekPOST('u');
-$cookie = seekPOST('c');
-$prefType = seekPOST('t');
-$value = seekPOST('v', 0);
-settype($value, 'integer');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
+$prefType = requestInputPost('t');
+$value = requestInputPost('v', 0, 'integer');
 
+global $db;
 if (validateUser_cookie($user, $cookie, 1)) {
     if ($prefType == 'wall') {
         $query = "UPDATE UserAccounts

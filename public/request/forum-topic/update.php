@@ -1,17 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (!ValidatePOSTChars("uctpi")) {
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams");
     exit;
 }
 
-$user = seekPOST('u');
-$cookie = seekPOST('c');
-$topicID = seekPOST('t');
-$commentPayload = seekPOST('p');
-$commentID = seekPOST('i');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
+$topicID = requestInputPost('t');
+$commentPayload = requestInputPost('p');
+$commentID = requestInputPost('i');
 
 if (validateUser_cookie($user, $cookie, 1, $permissions)) {
     if (getSingleTopicComment($commentID, $commentData) == false) {

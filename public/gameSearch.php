@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -9,18 +9,16 @@ $consoleList = getConsoleList();
 $consoleList[0] = 'All Consoles';
 ksort($consoleList);                //	Bump 'All Consoles' to the top
 
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
-$method = seekGET('p', 0);
-settype($method, 'integer');
-$consoleID = seekGET('i', 0);
-settype($consoleID, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$method = requestInputSanitized('p', 0, 'integer');
+$consoleID = requestInputSanitized('i', 0, 'integer');
 
 $gameData = getGameListSearch($offset, $count, $method, $consoleID);
 
 //var_dump( $gameData );
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Game Search");
 ?>
@@ -46,6 +44,8 @@ RenderHtmlHead("Game Search");
             if ($nextConsoleID > 0) {
                 echo " | ";
             }
+
+            sanitize_outputs($nextConsoleName);
 
             if ($nextConsoleID == $consoleID) {
                 echo "<b>$nextConsoleName</b>";
@@ -97,6 +97,11 @@ RenderHtmlHead("Game Search");
             $gameTA = $gameEntry['TotalTruePoints'];
             $consoleName = $gameEntry['ConsoleName'];
             //$numRecords = $gameEntry['NumRecords'];
+
+            sanitize_outputs(
+                $gameTitle,
+                $consoleName
+            );
 
             echo "<tr>";
 

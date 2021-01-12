@@ -1,18 +1,17 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$sortBy = seekGet('s');
-$offset = seekGet('o');
+$sortBy = requestInputQuery('s', null, 'integer');
+$offset = requestInputQuery('o', null, 'integer');
 $maxCount = 25;
 
-$perms = seekGet('p', 1);
+$perms = requestInputQuery('p', 1, 'integer');
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $showUntracked = false;
 if (isset($user) && $permissions >= \RA\Permissions::Admin) {
-    $showUntracked = seekGET('u');
-    settype($showUntracked, 'boolean');
+    $showUntracked = requestInputSanitized('u', null, 'boolean');
 } elseif ($perms < \RA\Permissions::Unregistered || $perms > \RA\Permissions::Admin) {
     $perms = 1;
 }
@@ -26,7 +25,7 @@ if ($perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin) {
     $permissionName = "Untracked";
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Users");
 ?>

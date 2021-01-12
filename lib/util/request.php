@@ -1,43 +1,58 @@
 <?php
 
-function seekGET($key, $default = null)
+
+function requestInputQuery($key, $default = null, $type = null)
 {
-    if ($_GET !== false && array_key_exists($key, $_GET)) {
-        return $_GET[$key];
-    } else {
-        return $default;
+    $input = $_GET[$key] ?? $default;
+
+    if ($type) {
+        settype($input, $type);
     }
+
+    return $input;
 }
 
-function seekPOST($key, $default = null)
+function requestInputPost($key, $default = null, $type = null)
 {
-    if ($_POST !== false && array_key_exists($key, $_POST)) {
-        return $_POST[$key];
-    } else {
-        return $default;
+    $input = $_POST[$key] ?? $default;
+
+    if ($type) {
+        settype($input, $type);
     }
+
+    return $input;
 }
 
-function seekPOSTorGET($key, $default = null, $type = null)
+function requestInput($key, $default = null, $type = null)
 {
-    if ($_POST !== false && array_key_exists($key, $_POST)) {
-        if (isset($type)) {
-            settype($_POST[$key], $type);
-        }
-        return $_POST[$key];
-    } else {
-        if ($_GET !== false && array_key_exists($key, $_GET)) {
-            if (isset($type)) {
-                settype($_GET[$key], $type);
-            }
-            return $_GET[$key];
-        } else {
-            if (isset($type)) {
-                settype($default, $type);
-            }
-            return $default;
-        }
+    $input = requestInputPost($key);
+    if (!$input) {
+        $input = requestInputQuery($key);
     }
+    if (!$input) {
+        $input = $default;
+    }
+    if ($type) {
+        settype($input, $type);
+    }
+    return $input;
+}
+
+/**
+ * Get request input sanitized for output
+ *
+ * @param $key
+ * @param null $default
+ * @param null $type
+ * @return mixed|string|null
+ */
+function requestInputSanitized($key, $default = null, $type = null)
+{
+    if (!$type || $type === 'string') {
+        $input = requestInput($key, $default, $type);
+        return !empty($input) ? htmlentities($input) : null;
+    }
+    return requestInput($key, $default, $type);
 }
 
 function ValidatePOSTChars($charsIn)
@@ -45,11 +60,9 @@ function ValidatePOSTChars($charsIn)
     $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
         if (!array_key_exists($charsIn[$i], $_POST)) {
-            // error_log(__FUNCTION__ . " failed, missing " . $charsIn[$i] . " in POST!");
             return false;
         }
     }
-
     return true;
 }
 

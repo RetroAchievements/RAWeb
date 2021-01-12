@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$userPage = seekGET('u', $user);
+$userPage = requestInputSanitized('u', $user);
 if (!isset($userPage)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -16,7 +16,7 @@ if (!$userMassData) {
     exit;
 }
 
-$dateInput = seekGET('d', 0);
+$dateInput = requestInputSanitized('d', 0);
 
 $userPagePoints = getScore($userPage);
 
@@ -24,7 +24,7 @@ $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 
 $dateStr = strftime("%d %b %Y", $dateInput);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 RenderHtmlHead("$userPage's Legacy - $dateStr");
@@ -37,7 +37,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         <?php
         echo "<div class='navpath'>";
         echo "<a href='/userList.php'>All Users</a>";
-        echo " &raquo; <a href='/User/$userPage'>$userPage</a>";
+        echo " &raquo; <a href='/user/$userPage'>$userPage</a>";
         echo " &raquo; <a href='history.php?u=$userPage'>History</a>";
         echo " &raquo; <b>$dateStr</b>";
         echo "</div>";
@@ -46,7 +46,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/User/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br><br>";
 
         //echo "<a href='history.php?u=$userPage'>Back to $userPage's Legacy</a>";
 

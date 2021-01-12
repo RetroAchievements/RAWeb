@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('c', 0);
+$consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -18,16 +18,12 @@ if (isset($user)) {
 $maxCount = 25;
 
 $count = 25;
-$offset = seekGET('o', 0);
+$offset = requestInputSanitized('o', 0, 'integer');
 
-$gameID = seekGET('g', null);
+$gameID = requestInputSanitized('g', null, 'integer');
 
-if (isset($gameID)) {
-    $sortBy = seekGET('s', 0);
-}    //	If a game is picked, sort the LBs by DisplayOrder
-else {
-    $sortBy = seekGET('s', 3);
-}
+// If a game is picked, sort the LBs by DisplayOrder
+$sortBy = requestInputSanitized('s', empty($gameID) ? 3 : 0, 'integer');
 
 $lbCount = getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, $lbData);
 
@@ -46,9 +42,19 @@ if ($consoleIDInput) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
+if (empty($consoleIDInput) && empty($gameID)) {
+    header("Location: " . getenv('APP_URL'));
+    return;
+}
+
+sanitize_outputs(
+    $requestedConsole,
+    $gameData['Title'],
+);
+
 $pageTitle = "Leaderboard List" . $requestedConsole;
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
@@ -123,7 +129,7 @@ RenderHtmlHead($pageTitle);
     echo "<div class='detaillist'>";
     echo "<h3 class='longheader'>Leaderboard List</h3>";
 
-    if (isset($gameData)) {
+    if (isset($gameData['ID'])) {
         echo "<div>";
         echo "Displaying leaderboards for: ";
         echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']);

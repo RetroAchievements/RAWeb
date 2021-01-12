@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$errorCode = seekGET('e');
-$newsImageInput = seekGET('g');
-$newsArticleID = seekGET('n');
+$errorCode = requestInputSanitized('e');
+$newsImageInput = requestInputSanitized('g');
+$newsArticleID = requestInputSanitized('n', null, 'integer');
 
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 

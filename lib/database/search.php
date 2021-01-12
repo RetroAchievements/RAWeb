@@ -4,8 +4,9 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
 {
     global $db;
 
+    sanitize_sql_inputs($searchQuery, $offset, $count);
+
     $resultCount = 0;
-    $searchQuery = mysqli_real_escape_string($db, $searchQuery);
 
     $query = "
     (
