@@ -10,6 +10,6 @@ $retVal = [];
 
 $retVal['Score'] = getScore($user);
 $retVal['Rank'] = getUserRank($user);
-$retVal['TotalRanked'] = countRankedUsers($user);
+$retVal['TotalRanked'] = countRankedUsers();
 
 echo json_encode($retVal);
