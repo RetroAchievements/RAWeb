@@ -9,8 +9,6 @@ runPublicApiMiddleware();
 
 $user = requestInputQuery('u', null);
 
-// I'm not sure that this identifies the difference between Hardcore mastery vs. completion... A HardcoreMode column is returned though.
-// I may want to use getUsersSiteAwards(), but I need to see the output of this to verify what is returned.
 $data = getUsersCompletedGamesAndMax($user);
 
 echo json_encode($data);
