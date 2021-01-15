@@ -27,7 +27,7 @@ $messageContextData = null;
 
 if ($messageContextID != -1) {
     $messageContextData = GetMessage($user, $messageContextID);
-    $messageContextTitle = "RE: " . addcslashes("'",$messageContextData['Title']);
+    $messageContextTitle = "RE: " . addcslashes($messageContextData['Title'],"'");
     $messageContextPayload = $messageContextData['Payload'];
     $messageContextPayload = stripslashes($messageContextPayload);
     $messageContextPayload = nl2br($messageContextPayload);
