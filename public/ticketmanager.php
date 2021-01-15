@@ -680,7 +680,7 @@ RenderHtmlHead($pageTitle);
                     echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
                     $msgPayload = rawurlencode($msgPayload);
-                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20(".addcslashes($gameTitle").")&p=$msgPayload'>Contact the reporter - $reportedBy</a>";
+                    echo "<a href='createmessage.php?t=$reportedBy&amp;s=Bug%20Report%20(".addcslashes($gameTitle,"'").")&p=$msgPayload'>Contact the reporter - $reportedBy</a>";
                     echo "</span>";
                     echo "</div>";
                     echo "</td>";
