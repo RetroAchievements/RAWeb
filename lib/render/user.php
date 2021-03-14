@@ -19,7 +19,7 @@ function GetUserAndTooltipDiv(
     getUserCardData($user, $userCardInfo);
 
     if (!$userCardInfo) {
-        return '<div><i>Unknown</i></div>';
+        return '<del>' . $user . '</del>';
     }
 
     $userMotto = $userCardInfo['Motto'];

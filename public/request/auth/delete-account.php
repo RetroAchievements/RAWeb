@@ -12,4 +12,3 @@ if (deleteRequest($user)) {
     exit;
 }
 header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=error");
-
