@@ -256,14 +256,15 @@ function GetLeaderboardRankingJSON($user, $lbID)
     if ($dbResult !== false) {
         $retVal = mysqli_fetch_assoc($dbResult);
 
-        //    Query actually gives 'how many players are below me in the list.'
-        //    Top position yields '0', which we should change to '1' for '1st'
-        //    Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // Query actually gives 'how many players are below me in the list.'
+        // Top position yields '0', which we should change to '1' for '1st'
+        // Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // 0=1st place.
         if ($retVal['LowerIsBetter'] == 1) {
-            $retVal['Rank'] = ($retVal['NumEntries'] - $retVal['UserRank']);
+            $retVal['Rank'] = (int) $retVal['NumEntries'] - (int) $retVal['UserRank'];
         } else {
-            $retVal['Rank'] = $retVal['UserRank'] + 1;
-        }      //    0=1st place.
+            $retVal['Rank'] = (int) $retVal['UserRank'] + 1;
+        }
     }
 
     return $retVal;
@@ -287,17 +288,18 @@ function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries)
     if ($dbResult !== false) {
         $db_entry = mysqli_fetch_assoc($dbResult);
 
-        $rankOut = $db_entry['UserRank'];
-        $totalEntries = $db_entry['NumEntries'];
+        $rankOut = (int) $db_entry['UserRank'];
+        $totalEntries = (int) $db_entry['NumEntries'];
 
-        //    Query actually gives 'how many players are below me in the list.'
-        //    Top position yields '0', which we should change to '1' for '1st'
-        //    Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // Query actually gives 'how many players are below me in the list.'
+        // Top position yields '0', which we should change to '1' for '1st'
+        // Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // 0=1st place.
         if ($db_entry['LowerIsBetter'] == 1) {
-            $rankOut = ($totalEntries - $rankOut);
+            $rankOut = $totalEntries - $rankOut;
         } else {
-            $rankOut += 1;
-        }      //    0=1st place.
+            $rankOut++;
+        }
 
         return true;
     } else {

@@ -4,7 +4,7 @@
  *
  * @param string $user the user to get information on
  * @param bool $imageInstead if true return the div for the user avatar, if false return the div for the username
- * @param null $customLink custom link if passed in
+ * @param string|null $customLink custom link if passed in
  * @param int $iconSizeDisplayable custom avatar size if passed in
  * @param string $iconClassDisplayable custom icon display class if passed in
  * @return string
@@ -91,8 +91,8 @@ function GetUserAndTooltipDiv(
 
     $tooltip = htmlspecialchars($tooltip);
 
-    $linkURL = "/User/$user";
-    if (isset($customLink)) {
+    $linkURL = "/user/$user";
+    if (!empty($customLink)) {
         $linkURL = $customLink;
     }
 
@@ -166,7 +166,7 @@ function RenderSiteAwards($userAwards)
                 }
 
                 $imagepath = $awardGameImage;
-                $linkdest = "/Game/$awardData";
+                $linkdest = "/game/$awardData";
             } elseif ($awardType == 2) { //    Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
 
@@ -297,7 +297,6 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
 
         echo "<tr>";
 
-
         $tooltipImagePath = "$nextImageIcon";
         $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
         $tooltipTitle = "$nextTitle";
@@ -305,28 +304,27 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
         $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
 
-        $displayable = "<a href=\"/Game/$nextGameID\"><img alt=\"$tooltipTitle ($nextConsoleName)\" title=\"$tooltipTitle\" src=\"$nextImageIcon\" width=\"32\" height=\"32\" />";
+        $displayable = "<a href=\"/game/$nextGameID\"><img alt=\"$tooltipTitle ($nextConsoleName)\" title=\"$tooltipTitle\" src=\"$nextImageIcon\" width=\"32\" height=\"32\" />";
         // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
         $textWithTooltip = $displayable;
 
         echo "<td class='gameimage'>$textWithTooltip</td>";
-        $displayable = "<a href=\"/Game/$nextGameID\">$nextTitle</a>";
+        $displayable = "<a href=\"/game/$nextGameID\">$nextTitle</a>";
         // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
         $textWithTooltip = $displayable;
         echo "<td class=''>$textWithTooltip</td>";
         echo "<td class='progress'>";
 
         //if( $nextNumAwardedHC > 0 )
-        {
-            echo "<div class='progressbar completedgames'>";
-            echo "<div class='completion' style='width:$pctAwardedNormal%'>";
-            echo "<div class='completionhardcore' style='width:$pctAwardedHCProportional%' title='Hardcore earned: $nextNumAwardedHC/$nextMaxPossible'>";
-            echo "&nbsp;";
-            echo "</div>";
-            echo "</div>";
-            echo "$nextTotalAwarded/$nextMaxPossible won<br>";
-            echo "</div>";
-        }
+
+        echo "<div class='progressbar completedgames'>";
+        echo "<div class='completion' style='width:$pctAwardedNormal%'>";
+        echo "<div class='completionhardcore' style='width:$pctAwardedHCProportional%' title='Hardcore earned: $nextNumAwardedHC/$nextMaxPossible'>";
+        echo "&nbsp;";
+        echo "</div>";
+        echo "</div>";
+        echo "$nextTotalAwarded/$nextMaxPossible won<br>";
+        echo "</div>";
 
         echo "</td>";
         echo "</tr>";
@@ -388,7 +386,7 @@ function RenderRecentlyAwardedComponent($user, $points)
         echo "</td>";
 
         echo "<td>";
-        //echo "<a href='/User/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
+        //echo "<a href='/user/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
         echo GetUserAndTooltipDiv($nextUser, true);
         echo "</td>";
 

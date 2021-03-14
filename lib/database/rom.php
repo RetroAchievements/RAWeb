@@ -43,6 +43,7 @@ function getHashListByGameID($gameID)
     FROM GameHashLibrary
     WHERE GameID = $gameID";
 
+    $retVal = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
@@ -78,9 +79,8 @@ function getGameIDFromMD5($md5)
  * @param int $offset
  * @param int $count
  * @param string $searchedHash
- * @return array
  */
-function getHashList($offset, $count, $searchedHash)
+function getHashList($offset, $count, $searchedHash): array
 {
     sanitize_sql_inputs($offset, $count, $searchedHash);
 

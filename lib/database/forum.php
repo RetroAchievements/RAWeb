@@ -166,7 +166,6 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut)
         $maxCountOut = $data['COUNT(*)'];
     }
 
-
     $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints
                 FROM ForumTopicComment AS ftc
                 LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
@@ -527,6 +526,8 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
         return false;
     }
 
+    $result = false;
+
     switch ($field) {
         case ModifyTopicField::ModifyTitle:
             if (($permissions >= Permissions::Admin) || ($user == $topicData['Author'])) {
@@ -537,15 +538,15 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
 
                 if (mysqli_query($db, $query)) {
                     // error_log("$user changed forum topic $topicID title from '" . $topicData['TopicTitle'] . "' to '$value'");
-                    return true;
+                    $result = true;
                 } else {
                     // error_log(__FUNCTION__ . " change title error");
                     log_sql_fail();
-                    return false;
+                    $result = false;
                 }
             } else {
                 // error_log(__FUNCTION__ . " change title... not enough permissions?!");
-                return false;
+                $result = false;
             }
             break;
         case ModifyTopicField::DeleteTopic:
@@ -557,15 +558,15 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
                 if ($dbResult !== false) {
                     s_mysql_query("INSERT INTO DeletedModels SET ModelType='ForumTopic', ModelID=$topicID");
                     // error_log("$user deleted forum topic $topicID ('" . $topicData['TopicTitle'] . "')");
-                    return true;
+                    $result = true;
                 } else {
                     // error_log(__FUNCTION__ . " delete error");
                     log_sql_fail();
-                    return false;
+                    $result = false;
                 }
             } else {
                 // error_log(__FUNCTION__ . " delete title... not enough permissions?!");
-                return false;
+                $result = false;
             }
             break;
         case ModifyTopicField::RequiredPermissions:
@@ -577,20 +578,20 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value)
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
                     // error_log("$user changed permissions for topic ID $topicID ('" . $topicData['TopicTitle'] . "') to $value");
-                    return true;
+                    $result = true;
                 } else {
                     // error_log(__FUNCTION__ . " modify error");
                     log_sql_fail();
-                    return false;
+                    $result = false;
                 }
             } else {
                 // error_log(__FUNCTION__ . " modify topic... not enough permissions?!");
-                return false;
+                $result = false;
             }
             break;
     }
 
-    return false;
+    return $result;
 }
 
 function RemoveUnauthorisedForumPosts($user)

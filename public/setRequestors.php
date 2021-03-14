@@ -10,6 +10,9 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 
+$consoleName = null;
+$gameTitle = null;
+$gameIcon = null;
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData);

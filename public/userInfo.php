@@ -146,7 +146,7 @@ $userScoreData = getAwardedList(
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata(
     $userPage,
     "user",
@@ -182,9 +182,9 @@ RenderHtmlStart(true);
                 echo ", ";
             }
 
-            $nextDay = (int)$dayInfo['Day'];
-            $nextMonth = (int)$dayInfo['Month'] - 1;
-            $nextYear = (int)$dayInfo['Year'];
+            $nextDay = (int) $dayInfo['Day'];
+            $nextMonth = (int) $dayInfo['Month'] - 1;
+            $nextYear = (int) $dayInfo['Year'];
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
@@ -273,7 +273,7 @@ RenderHtmlStart(true);
         } else {
             $countRankedUsers = countRankedUsers();
             $rankPct = sprintf("%1.0f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
-            $rankOffset = (int)(($userRank - 1) / 25) * 25;
+            $rankOffset = (int) (($userRank - 1) / 25) * 25;
             echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }
         echo "<br>";
@@ -372,7 +372,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
             }
 
-            if (isset($user) && $permissions >= Permissions::Admin) {
+            if ($permissions >= Permissions::Admin) {
                 echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='2' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";

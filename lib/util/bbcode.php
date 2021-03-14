@@ -21,7 +21,7 @@ function RenderPHPBBIcons()
 /**
  * @param string $commentIn
  * @param bool $withImgur imgur url parsing requires the links to reliably point to mp4s - can't be static images
- * @return null|string|string[]
+ * @return string|string[]|null
  */
 function parseTopicCommentPHPBB($commentIn, $withImgur = false)
 {
@@ -141,7 +141,7 @@ function cb_injectGamePHPBB($matches)
 function cb_injectSpoilerPHPBB($matches)
 {
     if (count($matches) > 0) {
-        $id = uniqid(mt_rand(10000, 99999));
+        $id = uniqid((string) mt_rand(10000, 99999));
         $spoilerBox = "<div class='devbox'>";
         $spoilerBox .= "<span onclick=\"$('#spoiler_" . $id . "').toggle(); return false;\">Spoiler (Click to show):</span><br>";
         $spoilerBox .= "<div class='spoiler' id='spoiler_" . $id . "'>";

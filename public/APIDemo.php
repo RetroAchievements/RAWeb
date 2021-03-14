@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once(__DIR__ . "/../src/RetroAchievementsWebApiClient.php");
+require_once __DIR__ . "/../src/RetroAchievementsWebApiClient.php";
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 

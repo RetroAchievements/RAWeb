@@ -31,7 +31,7 @@ $errorCode = requestInputSanitized('e');
 
 $userPagePoints = getScore($userPage);
 
-getUserActivityRange($userPage, $userSignedUp, $unused);
+getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
@@ -96,9 +96,9 @@ RenderHtmlHead("$userPage's Legacy");
                 echo ", ";
             }
 
-            $nextDay = (int)$dayInfo['Day'];
-            $nextMonth = (int)$dayInfo['Month'] - 1;
-            $nextYear = (int)$dayInfo['Year'];
+            $nextDay = (int) $dayInfo['Day'];
+            $nextMonth = (int) $dayInfo['Month'] - 1;
+            $nextYear = (int) $dayInfo['Year'];
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
@@ -272,7 +272,6 @@ RenderHtmlHead("$userPage's Legacy");
 
         echo "<h3>Best Days</h3>";
         echo "<div id='chart_bestdays'></div>";
-
 
         echo "<table><tbody>";
 
