@@ -117,14 +117,14 @@ RenderHtmlHead("Report Broken Achievement");
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="checksum">Checksum:</label></td>
+                    <td><label for="checksum">ROM:</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
                             <?php
                             foreach (getHashListByGameID($gameID) as $listKey => $hashArray) {
-                                foreach ($hashArray as $hashKey => $hash) {
-                                    echo "<option value='$hash'>$hash</option>";
+                                foreach ($hashArray as $hashKey) {
+                                    echo "<option value='$hashKey[\"hash\"]'>$hashKey[\"filename\"] ($hashKey[\"hash\"]) </option>";
                                 }
                             }
                             ?>
