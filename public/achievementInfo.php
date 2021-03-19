@@ -156,7 +156,7 @@ RenderHtmlStart(true);
         if ($achFlags == 5) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by <a href='/user/$author'>$author</a> on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 

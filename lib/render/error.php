@@ -17,6 +17,7 @@ function RenderErrorCodeWarning($errorCode)
         'checkyouremail' => "Please check your email for further instructions.",
         'delete_ok' => "Info: Deleted OK!",
         'deleteok' => "Info: Message deleted OK!",
+        'error' => "An error occurred!",
         'errors_in_modify_game' => "Problems encountered while performing modification. Does the target game already exist? If so, try a merge instead on the target game title.",
         'friendadded' => "Friend Added!",
         'friendblocked' => "User blocked.",

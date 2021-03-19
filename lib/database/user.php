@@ -112,12 +112,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     }
 
     if ($targetUserNewPermissions < Permissions::Unregistered) {
-        /**
-         * Reset authentication and status user content, remove avatar
-         * APIKey doesn't have to be reset -> permission >= Registered
-         */
-        s_mysql_query("UPDATE UserAccounts SET Untracked = 1, Password = NULL, SaltedPass = '', PasswordResetToken = '', appToken = NULL, appTokenExpiry = NOW(), cookie = NULL, Motto = '', RichPresenceMsg = NULL, UserWallActive = 0 WHERE User='$targetUser'");
-        removeAvatar($targetUser);
+        banAccountByUsername($targetUser, $targetUserNewPermissions);
     }
 
     $retVal['Success'] = true;
@@ -398,9 +393,10 @@ function getAccountDetails(&$user, &$dataOut)
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created
+    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created, DeleteRequested, Deleted
                 FROM UserAccounts
-                WHERE User='$user'";
+                WHERE User='$user'
+                AND Deleted IS NULL";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
@@ -1324,7 +1320,7 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
             $orderBy = "ua.User ASC ";
     }
 
-    $query = "    SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
+    $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
                 (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded                
                 FROM UserAccounts AS ua
                 $whereQuery
@@ -1860,4 +1856,172 @@ function getMostAwardedGames($gameIDs)
         }
     }
     return $retVal;
+}
+
+function cancelDeleteRequest($username): bool
+{
+    getAccountDetails($username, $user);
+
+    $query = "UPDATE UserAccounts u SET u.DeleteRequested = NULL WHERE u.User = '$username'";
+    $dbResult = s_mysql_query($query);
+    return $dbResult !== false;
+}
+
+function deleteRequest($username, $date = null): bool
+{
+    getAccountDetails($username, $user);
+
+    if ($user['DeleteRequested']) {
+        return false;
+    }
+
+    // Cap permissions to 1
+    $permission = min($user['Permissions'], 1);
+
+    $date = $date ?? date('Y-m-d H:i:s');
+    $query = "UPDATE UserAccounts u SET u.DeleteRequested = '$date', u.Permissions = $permission WHERE u.User = '$username'";
+    $dbResult = s_mysql_query($query);
+    return $dbResult !== false;
+}
+
+function deleteOverdueUserAccounts()
+{
+    $threshold = date('Y-m-d 08:00:00', time() - 60 * 60 * 24 * 14);
+
+    $query = "SELECT * FROM UserAccounts u WHERE u.DeleteRequested <= '$threshold' AND u.Deleted IS NULL ORDER BY u.DeleteRequested";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false) {
+        return;
+    }
+
+    foreach ($dbResult as $user) {
+        clearAccountData($user);
+    }
+}
+
+function clearAccountData($user)
+{
+    global $db;
+
+    $userId = $user['ID'];
+    $username = $user['User'];
+
+    echo "DELETING $username [$userId] ... ";
+
+    if (empty($userId) || empty($username)) {
+        echo "FAIL" . PHP_EOL;
+        return;
+    }
+
+    $dbResult = s_mysql_query("DELETE FROM Activity WHERE User = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db);
+    }
+    $dbResult = s_mysql_query("DELETE FROM Awarded WHERE User = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+    $dbResult = s_mysql_query("DELETE FROM EmailConfirmations WHERE User = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+    $dbResult = s_mysql_query("DELETE FROM Friends WHERE User = '$username' OR Friend = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+    $dbResult = s_mysql_query("DELETE FROM Rating WHERE User = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+    $dbResult = s_mysql_query("DELETE FROM SetRequest WHERE User = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+    $dbResult = s_mysql_query("DELETE FROM SiteAwards WHERE User = '$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+    $dbResult = s_mysql_query("DELETE FROM Subscription WHERE UserID = '$userId'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+
+    // Cap permissions to 0 - negative values may stay
+    $permission = min($user['Permissions'], 0);
+
+    $dbResult = s_mysql_query("UPDATE UserAccounts u SET 
+        u.Password = null, 
+        u.SaltedPass = '', 
+        u.EmailAddress = '', 
+        u.Permissions = $permission, 
+        u.RAPoints = 0,
+        u.TrueRAPoints = null,
+        u.fbUser = 0, 
+        u.fbPrefs = null, 
+        u.cookie = null, 
+        u.appToken = null, 
+        u.appTokenExpiry = null, 
+        u.websitePrefs = 0, 
+        u.LastLogin = null, 
+        u.LastActivityID = 0, 
+        u.Motto = '', 
+        u.Untracked = 1, 
+        u.ContribCount = 0, 
+        u.ContribYield = 0,
+        u.APIKey = null,
+        u.UserWallActive = 0,
+        u.LastGameID = 0,
+        u.RichPresenceMsg = null,
+        u.RichPresenceMsgDate = null,
+        u.PasswordResetToken = null,
+        u.Deleted = NOW()
+        WHERE ID = '$userId'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+
+    removeAvatar($username);
+
+    echo "SUCCESS" . PHP_EOL;
+}
+
+/**
+ * APIKey doesn't have to be reset -> permission >= Registered
+ */
+function banAccountByUsername(string $username, $permissions)
+{
+    global $db;
+
+    echo "BANNING $username ... ";
+
+    if (empty($username)) {
+        echo "FAIL" . PHP_EOL;
+        return;
+    }
+
+    $dbResult = s_mysql_query("UPDATE UserAccounts u SET 
+        u.Password = null, 
+        u.SaltedPass = '', 
+        u.Permissions = $permissions, 
+        u.fbUser = 0, 
+        u.fbPrefs = null, 
+        u.cookie = null, 
+        u.appToken = null, 
+        u.appTokenExpiry = null, 
+        u.Motto = '', 
+        u.Untracked = 1, 
+        u.APIKey = null, 
+        u.UserWallActive = 0, 
+        u.RichPresenceMsg = null, 
+        u.RichPresenceMsgDate = null, 
+        u.PasswordResetToken = '' 
+        WHERE u.User='$username'");
+    if ($dbResult == false) {
+        echo mysqli_error($db) . PHP_EOL;
+    }
+
+    removeAvatar($username);
+
+    echo "SUCCESS" . PHP_EOL;
 }
