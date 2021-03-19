@@ -101,11 +101,11 @@ function GetUserAndTooltipDiv(
         $displayable = "<img loading='lazy' src='/UserPic/$user" . ".png' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
     }
 
-    return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
+    return "<span class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
         "<a href='$linkURL'>" .
         "$displayable" .
         "</a>" .
-        "</div>";
+        "</span>";
 }
 
 function RenderSiteAwards($userAwards)
