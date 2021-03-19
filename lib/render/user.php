@@ -19,6 +19,9 @@ function GetUserAndTooltipDiv(
     getUserCardData($user, $userCardInfo);
 
     if (!$userCardInfo) {
+        if ($imageInstead) {
+            return '';
+        }
         return '<del>' . $user . '</del>';
     }
 
