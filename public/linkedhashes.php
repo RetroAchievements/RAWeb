@@ -43,7 +43,12 @@ RenderHtmlHead("Linked Hashes");
 
         echo "<ul>";
         foreach ($hashes as $hash) {
-            echo "<li><code>" . $hash['hash'] . "</code></li>";
+            echo "<li>";
+            echo "<code>" . $hash['hash'] . "</code>";
+            if (!empty($hash['User'])) {
+                echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+            }
+            echo "</li>";
         }
         echo "</ul>";
 
