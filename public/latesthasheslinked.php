@@ -52,6 +52,7 @@ RenderToolbar($user, $permissions);
             echo "<table><tbody>";
             echo "<th>Hash</th>";
             echo "<th>Game</th>";
+            echo "<th>Linked by</th>";
             echo "<th>Date Linked</th>";
 
             $hashCount = 0;
@@ -66,6 +67,11 @@ RenderToolbar($user, $permissions);
                 echo "<td>" . $hash['Hash'] . "</td>";
                 echo "<td>";
                 echo GetGameAndTooltipDiv($hash['GameID'], $hash['GameTitle'], $hash['GameIcon'], $hash['ConsoleName']);
+                echo "</td>";
+                echo "<td>";
+                if (!empty($hash['User'])) {
+                    echo GetUserAndTooltipDiv($hash['User'], false);
+                }
                 echo "</td>";
                 echo "<td>" . $hash['DateAdded'] . "</td>";
             }

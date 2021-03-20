@@ -11,7 +11,7 @@
  */
 function GetUserAndTooltipDiv(
     $user,
-    $imageInstead,
+    $imageInstead = false,
     $customLink = null,
     $iconSizeDisplayable = 32,
     $iconClassDisplayable = 'badgeimg'

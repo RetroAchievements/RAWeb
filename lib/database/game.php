@@ -1017,7 +1017,7 @@ function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$i
     $data = mysqli_fetch_assoc($dbResult);
     if ($data['NumEntries'] == 0) {
         //    Add new name
-        $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
+        $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$idOut', '$user' )";
         // log_sql($query);
         $dbResult = s_mysql_query($query);
         SQL_ASSERT($dbResult);
@@ -1136,7 +1136,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
             $gameID = $game['ID'] ?? 0;
             $title = $game['Title'] ?? $titleIn;
             if ($gameID !== 0) {
-                $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
+                $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$gameID', '$user' )";
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
                     /**
@@ -1161,7 +1161,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
             /**
              * Adding md5 to an existing title ($gameID)
              */
-            $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$gameID' )";
+            $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$gameID', '$user' )";
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
                 /**
@@ -1218,7 +1218,7 @@ function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
             $idOut = createNewGame($titleIn, $consoleID);
 
             if ($idOut !== 0) {
-                $query = "INSERT INTO GameHashLibrary (MD5, GameID) VALUES( '$md5', '$idOut' )";
+                $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$idOut', '$user' )";
                 // log_sql($query);
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
