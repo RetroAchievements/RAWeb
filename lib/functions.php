@@ -13,6 +13,7 @@ require_once(__DIR__ . '/database/leaderboard.php');
 require_once(__DIR__ . '/database/message.php');
 require_once(__DIR__ . '/database/news.php');
 require_once(__DIR__ . '/database/playlist.php');
+require_once(__DIR__ . '/database/points.php');
 require_once(__DIR__ . '/database/rating.php');
 require_once(__DIR__ . '/database/release.php');
 require_once(__DIR__ . '/database/rom.php');
