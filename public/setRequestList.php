@@ -61,6 +61,7 @@ RenderToolbar($user, $permissions);
             echo "<td><select class='gameselector' onchange='window.location = \"/setRequestList.php\" + this.options[this.selectedIndex].value'><option value=''>-- All Systems --</option>";
 
             foreach ($consoles as $console) {
+                sanitize_outputs($console['Name']);
                 if ($selectedConsole != null) {
                     if ($selectedConsole == $console['ID']) {
                         echo "<option selected>" . $totalRequestedGames . " - " . $console['Name'] . "</option>";
