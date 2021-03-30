@@ -61,15 +61,16 @@ RenderToolbar($user, $permissions);
             echo "<td><select class='gameselector' onchange='window.location = \"/setRequestList.php\" + this.options[this.selectedIndex].value'><option value=''>-- All Systems --</option>";
 
             foreach ($consoles as $console) {
+                sanitize_outputs($console['Name']);
                 if ($selectedConsole != null) {
                     if ($selectedConsole == $console['ID']) {
                         echo "<option selected>" . $totalRequestedGames . " - " . $console['Name'] . "</option>";
                     } else {
-                        echo "<option value='?s=" . $console['ID'] . "'>" . getGamesWithRequests($console['ID']) . " - " . $console['Name'] . "</option>";
+                        echo "<option value='?s=" . $console['ID'] . "'>" . $console['Name'] . "</option>";
                         echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
                     }
                 } else {
-                    echo "<option value='?s=" . $console['ID'] . "'>" . getGamesWithRequests($console['ID']) . " - " . $console['Name'] . "</option>";
+                    echo "<option value='?s=" . $console['ID'] . "'>" . $console['Name'] . "</option>";
                     echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
                 }
             }
@@ -83,7 +84,7 @@ RenderToolbar($user, $permissions);
             echo "<th>Game</th>";
             echo "<th>Requests</th>";
 
-            // Loop through each hash and display its information
+            // Loop through each set request and display its information
             foreach ($setRequestList as $request) {
                 echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
