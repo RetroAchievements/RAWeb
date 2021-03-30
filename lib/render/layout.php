@@ -239,7 +239,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<ul>";
     echo "<li><a href='/gameList.php'>All Games</a></li>";
     // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
-    // echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
+    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
     echo "</li>";
 
