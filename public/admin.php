@@ -290,6 +290,44 @@ switch ($action) {
             $message = implode(', ', $ids["AchievementIDs"] ?? []);
         }
         break;
+    case 'getWinnersOfAchievements':
+        $achievementIDs = requestInputSanitized('a', 0, 'string');
+        $startTime = requestInputSanitized('s', null, 'string');
+        $endTime = requestInputSanitized('e', null, 'string');
+        $hardcoreMode = requestInputSanitized('h', 0, 'integer');
+        $dateString = "";
+        if (isset($achievementIDs)) {
+            if (strtotime($startTime)) {
+                if (strtotime($endTime)) {
+                    //valid start and end
+                    $dateString = " between $startTime and $endTime";
+                } else {
+                    //valid start, invalid end
+                    $dateString = " since $startTime";
+                }
+            } else {
+                if (strtotime($endTime)) {
+                    //invalid start, valid end
+                    $dateString = " before $endTime";
+                } else {
+                    //invalid start and end
+                    //no date string needed
+                }
+            }
+
+            $ids = str_replace(',', ' ', $achievementIDs);
+            $ids = str_replace('  ', ' ', $ids);
+            $ids = explode(' ', $ids);
+            $winners = getWinnersOfAchievements($ids, $startTime, $endTime, $hardcoreMode);
+
+            $keys = array_keys($winners);
+            for($i = 0; $i < count($winners); $i++) {
+                $message .= "<strong>Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+                $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
+            }
+        }
+
+        break;
     case 'giveaward':
         $awardAchievementID = requestInputSanitized('a', null);
         $awardAchievementUser = requestInputSanitized('u');
@@ -465,6 +503,73 @@ RenderHtmlHead('Admin Tools');
                 <input type='hidden' name='action' value='getachids'>
                 <input type='submit' value='Submit'>
             </form>
+        </div>
+
+        <div id='fullcontainer'>
+            <?php
+            $winnersStartTime = $staticData['winnersStartTime'] ?? null;
+            $winnersEndTime = $staticData['winnersEndTime'] ?? null;
+            ?>
+            <h4>Get Winners of Achievements</h4>
+            <form method='post' action='admin.php'>
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                        <col class="fullwidth">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='winnersAchievementIDs'>Achievement IDs</label>
+                        </td>
+                        <td>
+                            <input id='winnersAchievementIDs' name='a'>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='startTime'>Start At (UTC time)</label>
+                        </td>
+                        <td>
+                            <input id='startTime' name='s' value='<?= $winnersStartTime ?>'>
+                        </td>
+                        <td class="text-nowrap">
+                            <label for='endTime'>End At (UTC time)</label>
+                        </td>
+                        <td>
+                            <input id='endTime' name='e' value='<?= $winnersEndTime ?>'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='hardcoreWinners'>Hardcore winners?</label>
+                        </td>
+                        <td>
+                            <input id='hardcoreWinners' type='checkbox' name='h' value='1'>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type='hidden' name='action' value='getWinnersOfAchievements'>
+                <input type='submit' value='Submit'>
+            </form>
+
+            <script>
+            jQuery('#startTime').datetimepicker({
+                format: 'Y-m-d H:i:s',
+                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            });
+            jQuery('#endTime').datetimepicker({
+                format: 'Y-m-d H:i:s',
+                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            });
+            </script>
         </div>
 
         <div id='fullcontainer'>

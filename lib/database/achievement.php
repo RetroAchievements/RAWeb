@@ -1344,3 +1344,56 @@ function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 20
     }
     return $retVal;
 }
+
+/**
+ * Gets a list of users who have won a achievmenet or list of achievements within a given timerange.
+ *
+ * @param Integer|array $achievementIDs Achievement IS or array of achievement IDs
+ * @param String $startTime starting point to return items
+ * @param String $endTime number of items to return
+ * @param Integer $hardcoreMode get hardcore winners
+ * @return array of of winners for each input achievement ID
+ */
+function getWinnersOfAchievements($achievementIDs, $startTime, $endTime, $hardcoreMode)
+{
+    if (isset($achievementIDs)) {
+        $dateQuery = "";
+        if (strtotime($startTime)) {
+            if (strtotime($endTime)) {
+                //valid start and end
+                $dateQuery = "AND aw.DATE BETWEEN '$startTime' AND '$endTime'";
+            } else {
+                //valid start, invalid end
+                $dateQuery = "AND aw.DATE >= '$startTime'";
+            }
+        } else {
+            if (strtotime($endTime)) {
+                //invalid start, valid end
+                $dateQuery = "AND aw.DATE <= '$endTime'";
+            } else {
+                //invalid start and end
+                //no date query needed
+            }
+        }
+
+        $userArray = array();
+        foreach ($achievementIDs as $nextID) {
+            $query = "SELECT aw.User
+                          FROM Awarded AS aw
+                          LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                          WHERE aw.AchievementID = '$nextID'
+                          AND aw.HardcoreMode = '$hardcoreMode'
+                          AND ua.Untracked = 0
+                          $dateQuery";
+            global $db;
+            $dbResult = s_mysql_query($query);
+            if ($dbResult !== false) {
+                while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+                  $userArray[$nextID][] = $db_entry['User'];
+                }
+            }
+        }
+        return $userArray;
+    }
+    return null;
+}
