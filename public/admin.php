@@ -322,7 +322,7 @@ switch ($action) {
 
             $keys = array_keys($winners);
             for($i = 0; $i < count($winners); $i++) {
-                $message .= "<strong>Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+                $message .= "<strong>". number_format(count($winners[$keys[$i]])) ." Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
                 $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
             }
         }
