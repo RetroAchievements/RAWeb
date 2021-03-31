@@ -94,6 +94,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
+                63, // Watara Supervision
             ],
         ],
         Emulators::RAppleWin => [
