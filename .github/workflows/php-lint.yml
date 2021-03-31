@@ -12,17 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ env.BASE_BRANCH }}
       - name: Install
         run: composer install
       - name: Lint
         run: composer lint
+
   phstan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ env.BASE_BRANCH }}
       - name: Install
         run: composer install
       - name: Analyse
