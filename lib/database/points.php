@@ -182,7 +182,7 @@ class TrueRetroRatio_WorkAroundV1
 
     private function constructAchGroup($achievements = [], $players = 0)
     {
-        return (object)[
+        return (object) [
             'achievements' => $achievements,
             'players' => $players,
         ];
@@ -222,7 +222,7 @@ class TrueRetroRatio_WorkAroundV1
             //8300: 0.15-0.17s, 5000: 0.08, 3500: 0.06, 2000: 0.04, 500: 0.005
         }
         //the version below is almost instantaneous
-        $theMostCommonAchievement = (object)[
+        $theMostCommonAchievement = (object) [
             'ID' => 0,
             'Achieved' => 0,
         ];
@@ -248,14 +248,14 @@ class TrueRetroRatio_WorkAroundV1
         }
 
         $checkUnTr = $theCommonestAchievement->Achieved < $checkUnTrThr;
-        $gamePlayers = (int)getNumUniquePlayers($gameID, $HC, $checkUnTr);
+        $gamePlayers = (int) getNumUniquePlayers($gameID, $HC, $checkUnTr);
         //checkUnTracked true  - 8300: 6.4-7.9s 5000: 3.7s, 3500: 3.0s, 2000: 1.6s, 1000: 0.4s, 500: 0.2s
         //checkUnTracked false - 8300: 0.2s     5000: 0.1s, 3500: 0.03, 2000: 0.02
 
         if ($gamePlayers == null) {
             return null;
         }
-        $achsGrouped[0]->players = (int)$parent ? round($gamePlayers / 4) : $gamePlayers;
+        $achsGrouped[0]->players = (int) $parent ? round($gamePlayers / 4) : $gamePlayers;
 
         $count = count($achsGrouped);
         if ($count < 2) {
@@ -268,12 +268,12 @@ class TrueRetroRatio_WorkAroundV1
         );
         //8300: 1.1s, 5000: 0.7s, 3500: 0.5s, 2000: 0.3s, 500: 0.07 sec
 
-        $achievers0 = (int)($theCommonestAchievement->Achieved);
+        $achievers0 = (int) ($theCommonestAchievement->Achieved);
 
         for ($i = 1; $i < $count; $i++) {
             $iS = "a$i";
             $percent = $achievers->$iS / $achievers0;
-            $players = (int)round($percent * $achsGrouped[0]->players);
+            $players = (int) round($percent * $achsGrouped[0]->players);
             $achsGrouped[$i]->players = $players;
         }
 
@@ -303,7 +303,7 @@ class TrueRetroRatio_WorkAroundV1
             $ach->Achieved = 0;
             foreach ($achieved as $a) {
                 if ($ach->ID == $a->ID) {
-                    $ach->Achieved = (int)$a->Achieved;
+                    $ach->Achieved = (int) $a->Achieved;
                     break;
                 }
             }
@@ -348,7 +348,7 @@ class TrueRetroRatio
         if (count($achsGrouped) < 2) {
             return $achsGrouped;
         }
-        $minRevPlayers = (int)round(
+        $minRevPlayers = (int) round(
             ($achsGrouped[0]->players < 100)
                 ? 0.2 * $achsGrouped[0]->players
                 : 2 * sqrt($achsGrouped[0]->players)
@@ -374,7 +374,7 @@ class TrueRetroRatio
         $magicPower = 1.6120042064746;
         //this is saved result for 50% of boost at 20% of players of boost0 (200/1000)
 
-        return 1 - (log10($players / $boost0At * 100) / 2)** $magicPower;
+        return 1 - (log10($players / $boost0At * 100) / 2) ** $magicPower;
         //if trying to explain this as simple as possible:
         //it's similar to 1/x with controllable descending speed and it reaches 0
         //Just check the graph: https://cdn.discordapp.com/attachments/590225863690289162/743771816023162951/unknown.png
@@ -403,7 +403,7 @@ class TrueRetroRatio
                     $retroRatio = ($retroRatio - 1) * ($boost + 1) + 1;
                     //this equals to $percentage = $percentage  / (1 + $boost * (1 - $percentage));
                 }
-                $retroPoints = (int)round(($ach->Points * $retroRatio));
+                $retroPoints = (int) round(($ach->Points * $retroRatio));
                 $totalPoints += $retroPoints;
                 $query = "UPDATE Achievements AS ach
                   SET ach.TrueRatio = $retroPoints
