@@ -7,18 +7,13 @@ It is a "flat" PHP project; individual php files within the `public` folder hand
 
 - Local web server
 - [PHP 7.4](http://php.net/manual/en/)
-- [Composer](https://getcomposer.org/) PHP dependency manager
+- [Composer v2](https://getcomposer.org/) PHP dependency manager
 - [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
 - [Node.js 12](https://nodejs.org/)
 
 **[XAMPP](https://www.apachefriends.org/download.html)** provides an easy way to run an Apache web server, MySQL/MariaDB, and PHP on your system.
 
-- Note that XAMPP comes packaged with PHP 7.2. You will need PHP 7.4+ (check the wiki if you are having problems).
-
-Alternatively, **[Docker Compose](https://docs.docker.com/compose/install/)** can be used to run MySQL and PHPMyAdmin. See `docker-compose.yml` for details.
-Follow the `.env` file instructions below to configure your environment, then run:
-
-    $ docker-compose up -d
+Note: Install the XAMPP version packaged with PHP 7.4.
 
 You might have to enable some extensions in `php.ini`:
 ```
@@ -26,6 +21,11 @@ extension=curl
 extension=mysqli
 extension=pdo_mysql
 ```
+
+Alternatively, **[Docker Compose](https://docs.docker.com/compose/install/)** can be used to run MySQL and PHPMyAdmin. See `docker-compose.yml` for details.
+Follow the `.env` file instructions below to configure your environment, then run:
+
+    $ docker-compose up -d
 
 ## Setup
 

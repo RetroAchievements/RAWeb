@@ -25,7 +25,7 @@ if (count($recentlyPlayedData) > 0) {
         $recentlyPlayedData[$iter]['PossibleScore'] = $nextAwardData['PossibleScore'];
         $recentlyPlayedData[$iter]['NumAchieved'] = $nextAwardData['NumAchieved'];
         $recentlyPlayedData[$iter]['ScoreAchieved'] = $nextAwardData['ScoreAchieved'];
-        $iter++;//	Assumes a LOT about the order of this array!
+        $iter++; //	Assumes a LOT about the order of this array!
     }
 
     $libraryOut['Awarded'] = $awardedData;

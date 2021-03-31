@@ -268,7 +268,7 @@ RenderToolbar($user, $permissions);
                 $findUserRank = true;
             }
 
-            if (! $findUserRank) {
+            if (!$findUserRank) {
                 // Outline the currently logged in user in the table
                 if ($dataPoint['User'] == $user) {
                     $userListed = true;
@@ -312,7 +312,7 @@ RenderToolbar($user, $permissions);
 
         // Display the user if they are not in the list
         if ($user !== null) {
-            if (! $userListed) {
+            if (!$userListed) {
                 $userData = null;
 
                 // Get and display the information for the logged in user if applicable

@@ -107,7 +107,7 @@ function getIntegrationRelease()
  */
 function getReleasesFromFile()
 {
-    return file_exists(__DIR__ . '/releases.php') ? require_once(__DIR__ . '/releases.php') : null;
+    return file_exists(__DIR__ . '/releases.php') ? require_once (__DIR__ . '/releases.php') : null;
 }
 
 /**

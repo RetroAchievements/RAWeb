@@ -1,18 +1,5 @@
 <?php
-/**
- * @param $achID
- * @param $achName
- * @param $achDesc
- * @param $achPoints
- * @param $gameName
- * @param $badgeName
- * @param bool $inclSmallBadge
- * @param bool $smallBadgeOnly
- * @param string $extraText
- * @param int $smallBadgeSize
- * @param string $imgclass
- * @return string
- */
+
 function GetAchievementAndTooltipDiv(
     $achID,
     $achName,
@@ -25,7 +12,7 @@ function GetAchievementAndTooltipDiv(
     $extraText = '',
     $smallBadgeSize = 32,
     $imgclass = 'badgeimg'
-) {
+): string {
     $tooltipIconSize = 64; //96;
 
     sanitize_outputs(

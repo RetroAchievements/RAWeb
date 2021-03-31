@@ -26,7 +26,7 @@ if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer
 }
 
 // error_log("Warning: $user changing achievement ID $achID, field $field");
-
+$commentText = null;
 switch ($field) {
     case 1:
         // display order
@@ -42,7 +42,7 @@ switch ($field) {
         // Embed video
         $value = str_replace("_http_", "http", $value);
         if (updateAchievementEmbedVideo($achID, $value)) {
-            //header( "Location: " . getenv('APP_URL') . "/Achievement/$achID?e=OK" );
+            //header( "Location: " . getenv('APP_URL') . "/achievement/$achID?e=OK" );
             echo "OK";
             return;
         }
@@ -57,7 +57,7 @@ switch ($field) {
             echo "FAILED!";
         }
         if (updateAchievementFlags($achID, $value)) {
-            header("Location: " . getenv('APP_URL') . "/Achievement/$achID?e=changeok");
+            header("Location: " . getenv('APP_URL') . "/achievement/$achID?e=changeok");
             if ($value == 3) {
                 $commentText = 'promoted this achievement to the Core set';
             }

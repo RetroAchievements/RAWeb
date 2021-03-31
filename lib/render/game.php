@@ -2,16 +2,6 @@
 
 use RA\Permissions;
 
-/**
- * @param $gameID
- * @param $gameName
- * @param $gameIcon
- * @param $consoleName
- * @param bool $justImage
- * @param int $imgSizeOverride
- * @param bool $justText
- * @return string
- */
 function GetGameAndTooltipDiv(
     $gameID,
     $gameName,
@@ -20,7 +10,7 @@ function GetGameAndTooltipDiv(
     $justImage = false,
     $imgSizeOverride = 32,
     $justText = false
-) {
+): string {
     $tooltipIconSize = 64; //96;
 
     sanitize_outputs(

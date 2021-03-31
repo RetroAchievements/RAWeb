@@ -80,7 +80,7 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
                 'label' => $nextTitle,
                 'id' => $nextID,
                 'icon' => $nextIcon,
-                'mylink' => "/Game/$nextID",
+                'mylink' => "/game/$nextID",
                 'category' => "Games",
             ];
         } else {
@@ -89,7 +89,7 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
                     'label' => $nextTitle,
                     'id' => $nextID,
                     'icon' => $nextIcon,
-                    'mylink' => "/Achievement/$nextID",
+                    'mylink' => "/achievement/$nextID",
                     'category' => "Achievements",
                 ];
             } else { //	$nextRow['Type'] == 3
@@ -97,7 +97,7 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
                     'label' => $nextTitle,
                     'id' => $nextID,
                     'icon' => $nextIcon,
-                    'mylink' => "/User/$nextID",
+                    'mylink' => "/user/$nextID",
                     'category' => "Users",
                 ];
             }
