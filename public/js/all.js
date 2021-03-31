@@ -309,7 +309,7 @@ function GetAchievementAndTooltipDiv(
 
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/Achievement/' + achID + '\'>'
+    + '<a href=\'/achievement/' + achID + '\'>'
     + smallBadge
     + displayable
     + '</a>'
@@ -337,7 +337,7 @@ function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageIns
   }
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/Game/' + gameID.toString() + '\'>'
+    + '<a href=\'/game/' + gameID.toString() + '\'>'
     + displayable
     + '</a>'
     + '</div>';
@@ -382,7 +382,7 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
   }
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/User/' + user + '\'>'
+    + '<a href=\'/user/' + user + '\'>'
     + displayable
     + '</a>'
     + '</div>';
@@ -485,7 +485,7 @@ jQuery(document).ready(function onReady($) {
   });
   $seachBoxCompareUser.on('autocompleteselect', function (event, ui) {
     var gameID = getParameterByName('ID');
-    if (window.location.pathname.substring(0, 6) === '/Game/') {
+    if (window.location.pathname.substring(0, 6) === '/game/') {
       gameID = window.location.pathname.substring(6);
     }
     window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.id;

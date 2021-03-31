@@ -27,7 +27,7 @@ function RenderCommentsComponent(
             echo "<div class='smalltext rightfloat'>";
             RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed);
             echo "<a href='#' onclick='document.getElementById(\"updatesubscription\").submit(); return false;'>";
-            echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+            echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
             echo "</a>";
             echo "</div>";
         }

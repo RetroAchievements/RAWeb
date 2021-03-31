@@ -57,7 +57,7 @@ function isValidConsoleId($consoleId)
             // case 42: // Philips CD-i
         case 43: // 3DO Interactive Multiplayer
         case 44: // ColecoVision
-            // case 45: // Intellivision
+        case 45: // Intellivision
         case 46: // Vectrex
         case 47: // PC-8000/8800
             // case 48: // PC-9800
@@ -107,7 +107,7 @@ function getIntegrationRelease()
  */
 function getReleasesFromFile()
 {
-    return file_exists(__DIR__ . '/releases.php') ? require_once(__DIR__ . '/releases.php') : null;
+    return file_exists(__DIR__ . '/releases.php') ? require_once (__DIR__ . '/releases.php') : null;
 }
 
 /**

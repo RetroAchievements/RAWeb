@@ -337,6 +337,9 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
         $gameTitle = $ticketData['GameTitle'];
         $consoleName = $ticketData['ConsoleName'];
 
+        $status = null;
+        $comment = null;
+
         switch ($ticketVal) {
             case 0:
                 $status = "Closed";
@@ -380,7 +383,6 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             "<br>" .
             "-- Your friends at RetroAchievements.org<br>";
 
-
         if (isAtHome()) {
             // error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
             // error_log($email);
@@ -392,7 +394,6 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
             // error_log(__FUNCTION__ . " return val: $retVal");
         }
-
 
         return true;
     } else {
@@ -561,9 +562,9 @@ function gamesSortedByOpenTickets($count)
  */
 function getStateCondition($ticketFilters)
 {
-    $openTickets            = ($ticketFilters & (1 << 0));
-    $closedTickets          = ($ticketFilters & (1 << 1));
-    $resolvedTickets        = ($ticketFilters & (1 << 2));
+    $openTickets = ($ticketFilters & (1 << 0));
+    $closedTickets = ($ticketFilters & (1 << 1));
+    $resolvedTickets = ($ticketFilters & (1 << 2));
 
     if ($openTickets && $closedTickets && $resolvedTickets) {
         return "";
@@ -601,8 +602,8 @@ function getStateCondition($ticketFilters)
  */
 function getReportTypeCondition($ticketFilters)
 {
-    $triggeredTickets       = ($ticketFilters & (1 << 3));
-    $didNotTriggerTickets   = ($ticketFilters & (1 << 4));
+    $triggeredTickets = ($ticketFilters & (1 << 3));
+    $didNotTriggerTickets = ($ticketFilters & (1 << 4));
 
     if ($triggeredTickets && $didNotTriggerTickets) {
         return "";
@@ -624,8 +625,8 @@ function getReportTypeCondition($ticketFilters)
  */
 function getMD5Condition($ticketFilters)
 {
-    $md5KnownTickets        = ($ticketFilters & (1 << 5));
-    $md5UnknownTickets      = ($ticketFilters & (1 << 6));
+    $md5KnownTickets = ($ticketFilters & (1 << 5));
+    $md5UnknownTickets = ($ticketFilters & (1 << 6));
 
     if ($md5KnownTickets && $md5UnknownTickets) {
         return "";
@@ -647,9 +648,9 @@ function getMD5Condition($ticketFilters)
  */
 function getEmulatorCondition($ticketFilters)
 {
-    $raEmulatorTickets      = ($ticketFilters & (1 << 7));
-    $rarchKnownTickets      = ($ticketFilters & (1 << 8));
-    $rarchUnknownTickets    = ($ticketFilters & (1 << 9));
+    $raEmulatorTickets = ($ticketFilters & (1 << 7));
+    $rarchKnownTickets = ($ticketFilters & (1 << 8));
+    $rarchUnknownTickets = ($ticketFilters & (1 << 9));
     $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
 
     if ($raEmulatorTickets && $rarchKnownTickets && $rarchUnknownTickets && $emulatorUnknownTickets) {
@@ -802,7 +803,7 @@ function getUserWhoCreatedMostTickets($user)
  * Gets the number of tickets closed/resolved for other users.
  *
  * @param string $user to get ticket data for
- * @return array|null of user ticket data
+ * @return array of user ticket data
  */
 function getNumberOfTicketsClosedForOthers($user)
 {

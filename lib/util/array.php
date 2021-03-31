@@ -7,7 +7,6 @@ if (!function_exists('preg_replace_array')) {
      * Replace a given pattern with each value in the array in sequentially.
      *
      * @param string $pattern
-     * @param array $replacements
      * @param string $subject
      * @return string
      */

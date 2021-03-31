@@ -54,6 +54,26 @@ $pageTitle = "$gameTitle ($consoleName)";
 
 $gameAlts = getGameAlternatives($gameID);
 
+$achDist = null;
+$authorInfo = null;
+$commentData = null;
+$cookie = null;
+$gameLatestMasters = null;
+$gameTopAchievers = null;
+$lbData = null;
+$numArticleComments = null;
+$numDistinctPlayersCasual = null;
+$numEarnedCasual = null;
+$numEarnedHardcore = null;
+$numLeaderboards = null;
+$screenshotMaxHeight = null;
+$screenshotWidth = null;
+$totalEarnedCasual = null;
+$totalEarnedHardcore = null;
+$totalEarnedTrueRatio = null;
+$totalPossible = null;
+$totalPossibleTrueRatio = null;
+
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
@@ -147,7 +167,7 @@ sanitize_outputs(
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
     <?php if ($isFullyFeaturedGame): ?>
         <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
     <?php endif ?>

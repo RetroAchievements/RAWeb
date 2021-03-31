@@ -228,17 +228,18 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+    echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
+    echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
     echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
-    echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
     echo "</ul>";
 
     echo "<ul>";
     echo "<li><a href='/gameList.php'>All Games</a></li>";
     // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
-    // echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
+    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
     echo "</li>";
 
@@ -282,12 +283,11 @@ function RenderToolbar($user, $permissions = 0)
 
     echo "<li><a href='/download.php'>Download</a></li>";
 
-
     if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
         echo "<div>";
         echo "<ul>";
-        echo "<li><a href='/User/$user'>Profile</a></li>";
+        echo "<li><a href='/user/$user'>Profile</a></li>";
         //echo "<li><a href='/feed.php?i=1'>Feed</a></li>";
         //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
