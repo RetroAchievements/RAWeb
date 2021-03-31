@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__ . '/../../vendor/autoload.php');
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $username = 'luchaos';
 $user = GetUserData($username);
@@ -53,7 +53,7 @@ www.example.org
 EOF;
 
 RenderHtmlStart();
-RenderSharedHeader($user);
+RenderSharedHeader();
 ?>
 <body>
 <script type='text/javascript' src='/vendor/wz_tooltip.js'></script>

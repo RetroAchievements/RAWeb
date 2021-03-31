@@ -59,12 +59,12 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     $points = GetScore($user);
 
     // logic behind the amount of requests based on player's score:
-    $boundariesAndChunks = array(
+    $boundariesAndChunks = [
         180000 => 20000, // from 180k to infinite, +1 for each 20k chunk of points
         20000 => 10000,  // from 20k to 180k, +1 for each 10k chunk
         5000 => 5000,    // from 5k to 20k, +1 for each 5k chunk
         0 => 2500,       // from 0 to 5k, +1 for each 2.5k chunk
-    );
+    ];
 
     $pointsLeft = $points;
     foreach ($boundariesAndChunks as $boundary => $chunk) {
@@ -177,7 +177,7 @@ function getSetRequestCount($gameID)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        return (int)(mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
+        return (int) (mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
     } else {
         return 0;
     }

@@ -1,13 +1,19 @@
 <?php
 
+define('VERSION', '1.70.0');
+
+if (!file_exists(__DIR__ . '/../.env')) {
+    // .env file does not exist - do not attempt to load it nor try connecting to a database
+    // helps linter get things done
+    return;
+}
+
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-define("VERSION", "1.67.0");
-
 try {
     global $db;
-    $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), (int) getenv('DB_PORT'));
     if (!$db) {
         throw new Exception('Could not connect to database. Please try again later.');
     }

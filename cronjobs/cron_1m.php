@@ -41,7 +41,6 @@ for ($i = 0; $i < 3; $i++) {
 }
 static_setnextgametoscan($gameID);
 
-
 $userID = $staticData['NextUserIDToScan'];
 $user = '';
 for ($i = 0; $i < 3; $i++) {

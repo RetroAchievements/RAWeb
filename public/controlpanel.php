@@ -331,7 +331,7 @@ RenderHtmlHead("My Settings");
             echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='text-align:right' width='64' height='64'>";
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
             echo "Account: ($permissions) " . PermissionsToString($permissions) . "<br>";
-            if (isset($userMotto) && mb_strlen($userMotto) > 1) {
+            if (!empty($userMotto) && mb_strlen($userMotto) > 1) {
                 echo "<span class='usermotto'>$userMotto</span><br>";
             }
             echo "</p>";
@@ -340,7 +340,7 @@ RenderHtmlHead("My Settings");
                 echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
             if ($permissions >= Permissions::Registered) {
-                $userMottoString = isset($userMotto) ? $userMotto : "";
+                $userMottoString = !empty($userMotto) ? $userMotto : "";
                 echo "<tr>";
                 echo "<td>User Motto:</td>";
                 echo "<td>";
@@ -664,6 +664,28 @@ RenderHtmlHead("My Settings");
         </form>
         </div>
         */ ?>
+        <div class='component'>
+            <h3>Delete Account</h3>
+            <p>
+                After requesting account deletion you may cancel your request within 14 days.<br>
+                Your account's username will NOT be available after the deletion.<br>
+                Your account's personal data will be cleared from the database permanently.<br>
+                Content you wrote in forums, comments, etc. will NOT be removed.
+            </p>
+            <?php if ($userDetails['DeleteRequested']): ?>
+                <p>
+                    You requested to have your account deleted on <?= $userDetails['DeleteRequested'] ?> (UTC).<br>
+                    Your account will be permanently deleted on <?= date('Y-m-d', strtotime($userDetails['DeleteRequested']) + 60 * 60 * 24 * 14) ?>.
+                </p>
+                <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure?');">
+                    <input type="submit" value="Cancel account deletion request">
+                </form>
+            <?php else: ?>
+                <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure?');">
+                    <input type="submit" value="Request account deletion">
+                </form>
+            <?php endif ?>
+        </div>
     </div>
     <div id="rightcontainer">
         <div class='component'>
@@ -697,11 +719,7 @@ RenderHtmlHead("My Settings");
             </form>
         </div>
         <div class='component'>
-            <h3>Reorder Site Awards</h3>
-            <form method=post action="reorderSiteAwards.php">
-                <input TYPE="hidden" NAME="s" VALUE="<?php echo $user; ?>">
-                <input value="Reorder site awards" type='submit' size='37'>
-            </form>
+            <a href="reorderSiteAwards.php">Reorder site awards</a>
         </div>
     </div>
 </div>

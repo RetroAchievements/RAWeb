@@ -20,10 +20,10 @@ $gameData['NumAwardedToUserHardcore'] = 0;
 if (!empty($achData)) {
     foreach ($achData as $nextAch) {
         if (isset($nextAch['DateEarned'])) {
-            $gameData['NumAwardedToUser'] += 1;
+            $gameData['NumAwardedToUser']++;
         }
         if (isset($nextAch['DateEarnedHardcore'])) {
-            $gameData['NumAwardedToUserHardcore'] += 1;
+            $gameData['NumAwardedToUserHardcore']++;
         }
     }
 }

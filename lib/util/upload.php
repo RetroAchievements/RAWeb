@@ -4,7 +4,7 @@ use Aws\S3\S3Client;
 
 function UploadToS3($filenameSrc, $filenameDest)
 {
-    if (!getenv('AWS_ACCESS_KEY_ID')) {
+    if (!getenv('AWS_ACCESS_KEY_ID') && !in_array(getenv('APP_ENV'), ['local'])) {
         // nothing to do here
         return;
     }
@@ -14,16 +14,12 @@ function UploadToS3($filenameSrc, $filenameDest)
         'version' => 'latest',
     ]);
 
-    $result = $client->putObject([
+    $client->putObject([
         'Bucket' => getenv('AWS_BUCKET'),
         'Key' => $filenameDest,
         'Body' => fopen($filenameSrc, 'r+'),
         'CacheControl' => 'max-age=2628000',
     ]);
-
-    if (!$result) {
-        error_log("FAILED to upload $filenameSrc to S3!");
-    }
 }
 
 function UploadUserPic($user, $filename, $rawImage)
@@ -63,6 +59,13 @@ function UploadUserPic($user, $filename, $rawImage)
 
         $existingUserFile = __DIR__ . "/../../public/UserPic/$user.png";
 
+        if ($extension == 'bmp') {
+            $response['Success'] = false;
+            return $response;
+        }
+
+        $tempImage = null;
+
         //Allow transparent backgrounds for .png and .gif files
         if ($extension == 'png' || $extension == 'gif') {
             $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
@@ -80,16 +83,12 @@ function UploadUserPic($user, $filename, $rawImage)
         } else {
             if ($extension == 'jpg' || $extension == 'jpeg') {
                 $tempImage = imagecreatefromjpeg($tempFilename);
-            } else {
-                if ($extension == 'bmp') {
-                    $tempImage = imagecreatefrombitmap($tempFilename);
-                }
             }
 
             $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
             //	Create a black rect, size 128x128
             $blackRect = imagecreatetruecolor($userPicDestSize, $userPicDestSize)
-            or die('Cannot Initialize new GD image stream');
+            or exit('Cannot Initialize new GD image stream');
 
             //	Copy the black rect onto our image
             imagecopy($newImage, $blackRect, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize);
@@ -161,6 +160,8 @@ function UploadBadgeImage($file)
                 $newBadgeFilenameFormatted = str_pad($nextBadgeFilename, 5, "0", STR_PAD_LEFT);
 
                 //	Fetch file and width/height
+
+                $tempImage = null;
 
                 if ($extension == 'png') {
                     $tempImage = imagecreatefrompng($fileTempName);
