@@ -11,6 +11,10 @@ $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
+$consoleName = null;
+$gameIcon = null;
+$gameTitle = null;
+$hashes = null;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData);
     $consoleName = $gameData['ConsoleName'];

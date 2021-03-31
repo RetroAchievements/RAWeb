@@ -75,8 +75,6 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
                 $consoleID = $data['ConsoleID'];
                 $forumTopicID = $data['ForumTopicID'];
                 $allData = $data;
-            } else {
-                // error_log(__FUNCTION__ . " cannot find game with ID ($gameID) in DB!");
             }
         } else {
             log_sql_fail();
@@ -631,6 +629,8 @@ function requestModifyGame($author, $gameID, $field, $value)
 {
     sanitize_sql_inputs($gameID, $field, $value);
 
+    $result = false;
+
     settype($field, 'integer');
     switch ($field) {
         case 1: // Title
@@ -648,7 +648,7 @@ function requestModifyGame($author, $gameID, $field, $value)
             global $db;
             $dbResult = mysqli_query($db, $query);
 
-            return $dbResult !== false;
+            $result = $dbResult !== false;
             break;
 
         /**
@@ -667,11 +667,11 @@ function requestModifyGame($author, $gameID, $field, $value)
             // log_sql("$user: $query");
             $dbResult = s_mysql_query($query);
 
-            return $dbResult !== false;
+            $result = $dbResult !== false;
             break;
     }
 
-    return false;
+    return $result;
 }
 
 function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
@@ -846,11 +846,12 @@ function getMostPopularGames($offset, $count, $method)
     return $retval;
 }
 
-function getGameListSearch($offset, $count, $method, $consoleID = null)
+function getGameListSearch($offset, $count, $method, $consoleID = null): array
 {
     sanitize_sql_inputs($offset, $count, $method, $consoleID);
     settype($method, 'integer');
 
+    $query = null;
     $retval = [];
 
     if ($method == 0) {
@@ -866,8 +867,10 @@ function getGameListSearch($offset, $count, $method, $consoleID = null)
                     $where
                     ORDER BY gd.TotalTruePoints DESC
                     LIMIT $offset, $count";
-    } else {
-        //?
+    }
+
+    if (!$query) {
+        return $retval;
     }
 
     $dbResult = s_mysql_query($query);

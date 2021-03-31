@@ -270,12 +270,12 @@ function generateAPIKey($user): string
     return $newKey;
 }
 
-function GetAPIKey($user): string
+function GetAPIKey($user): ?string
 {
     sanitize_sql_inputs($user);
 
     if (!isValidUsername($user)) {
-        return false;
+        return null;
     }
 
     $query = "SELECT APIKey FROM UserAccounts AS ua
@@ -286,7 +286,7 @@ function GetAPIKey($user): string
         // error_log(__FUNCTION__);
         // error_log("errors fetching API Key for $user!");
         //log_email(__FUNCTION__ . " cannot fetch API key for $user");
-        return "No API Key found!";
+        return null;
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
         return $db_entry['APIKey'];

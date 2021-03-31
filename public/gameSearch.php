@@ -56,7 +56,6 @@ RenderHtmlHead("Game Search");
 
         echo "</p>";
 
-
         // echo "Show: | ";
 
         // if( $method==0 ) 	echo "by number of awards given";
@@ -106,7 +105,7 @@ RenderHtmlHead("Game Search");
             echo "<tr>";
 
             echo "<td>";
-            echo($count) + ($offset);
+            echo ($count) + ($offset);
             echo "</td>";
 
             echo "<td style='min-width:30%'>";

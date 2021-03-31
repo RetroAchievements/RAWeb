@@ -37,13 +37,13 @@ RenderToolbar($user, $permissions);
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search Hash' />";
         echo "</form>";
-        if ($hashList === null || $searchedHash !== null) {
+        if (empty($hashList) || $searchedHash !== null) {
             echo "<br>";
             echo "<a href='/latesthasheslinked.php'>Return to Lastest Linked Hashes</a>";
         }
         echo "</div>";
 
-        if ($hashList !== null) {
+        if (!empty($hashList)) {
             if ($searchedHash === null) {
                 echo "<h2 class='longheader'>Lastest Linked Hashes</h2>";
             } else {

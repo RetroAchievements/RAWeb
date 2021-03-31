@@ -283,12 +283,11 @@ function RenderToolbar($user, $permissions = 0)
 
     echo "<li><a href='/download.php'>Download</a></li>";
 
-
     if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
         echo "<div>";
         echo "<ul>";
-        echo "<li><a href='/User/$user'>Profile</a></li>";
+        echo "<li><a href='/user/$user'>Profile</a></li>";
         //echo "<li><a href='/feed.php?i=1'>Feed</a></li>";
         //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";

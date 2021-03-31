@@ -19,6 +19,8 @@ if ($offset < 0) {
     $offset = 0;
 }
 
+$totalRequestedGames = null;
+$userSetRequestInformation = null;
 if (empty($username)) {
     $setRequestList = getMostRequestedSetsList($selectedConsole, $offset, $count);
     $totalRequestedGames = getGamesWithRequests($selectedConsole);

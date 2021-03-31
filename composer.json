@@ -17,7 +17,7 @@
         "friendsofphp/php-cs-fixer": "^2.15",
         "phpunit/phpunit": "^7.5",
         "phpstan/phpstan": "^0.12.18",
-        "sensiolabs/security-checker": "^6.0"
+        "vimeo/psalm": "^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -35,7 +35,9 @@
         }
     },
     "scripts": {
-        "fix-cs": "vendor/bin/php-cs-fixer fix",
-        "stan": "vendor/bin/phpstan analyse"
+        "analyse": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
+        "taint": "vendor/bin/psalm --taint-analysis",
+        "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
+        "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi"
     }
 }

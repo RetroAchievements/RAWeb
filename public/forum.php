@@ -55,7 +55,7 @@ RenderHtmlHead($pageTitle);
 
             $forumIter = 0;
 
-            foreach ((array)$forumList as $forumData) {
+            foreach ((array) $forumList as $forumData) {
                 $nextCategory = $forumData['CategoryName'];
                 $nextCategoryID = $forumData['CategoryID'];
 

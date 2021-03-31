@@ -5,7 +5,7 @@ function RA_ClearCookie($cookieName)
     RA_SetCookie($cookieName, '', 1);
 }
 
-function RA_ReadCookie($cookieName)
+function RA_ReadCookie($cookieName): ?string
 {
     if (RA_CookieExists($cookieName)) {
         return htmlspecialchars($_COOKIE[$cookieName]);
@@ -27,9 +27,7 @@ function RA_SetCookie($cookieName, $cookieValue, $expire = 0, $httponly = false)
     // ]);
 }
 
-function RA_CookieExists($cookieName)
+function RA_CookieExists($cookieName): bool
 {
-    return isset($_COOKIE) &&
-        array_key_exists($cookieName, $_COOKIE) &&
-        $_COOKIE[$cookieName] !== false;
+    return array_key_exists($cookieName, $_COOKIE) && $_COOKIE[$cookieName] !== false;
 }

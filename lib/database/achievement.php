@@ -99,7 +99,6 @@ function getAchievementsList($consoleIDInput, $user, $sortBy, $params, $count, $
     return getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $dataOut, $achFlags);
 }
 
-
 function getAchievementsListByDev(
     $consoleIDInput,
     $user,
@@ -1097,7 +1096,7 @@ function recalculateTrueRatio($gameID)
 
             $ratioFactor = 0.4;
             $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($totalEarners / $numAchieved) * $ratioFactor));
-            $trueRatio = ( int )$newTrueRatio;
+            $trueRatio = (int) $newTrueRatio;
 
             $ratioTotal += $trueRatio;
 
@@ -1127,9 +1126,8 @@ function recalculateTrueRatio($gameID)
  *
  * @param int $id achievement to gets awards count for
  * @param string $date the date to get awards count since
- * @return array
  */
-function getAwardsSince($id, $date)
+function getAwardsSince($id, $date): array
 {
     sanitize_sql_inputs($id, $date);
     settype($id, "integer");
@@ -1151,14 +1149,17 @@ function getAwardsSince($id, $date)
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
     } else {
-        return 0;
+        return [
+            'softcoreCount' => 0,
+            'hardcoreCount' => 0,
+        ];
     }
 }
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
  *
- * @param String $user to get achievement data for
+ * @param string $user to get achievement data for
  * @return array of achievement count per console
  */
 function getUserAchievemetnsPerConsole($user)
@@ -1185,11 +1186,10 @@ function getUserAchievemetnsPerConsole($user)
     return $retVal;
 }
 
-
 /**
  * Gets the number of sets worked on by the user for each console they have worked on.
  *
- * @param String $user to get set data for
+ * @param string $user to get set data for
  * @return array of set count per console
  */
 function getUserSetsPerConsole($user)
@@ -1219,7 +1219,7 @@ function getUserSetsPerConsole($user)
 /**
  * Gets information for all achievements made by the user.
  *
- * @param String $user to get achievement data for
+ * @param string $user to get achievement data for
  * @return array of achievement data
  */
 function getUserAchievementInformation($user)
@@ -1249,8 +1249,8 @@ function getUserAchievementInformation($user)
 /**
  * Gets the number of time the user has obtained (softcore and hardcore) their own achievements.
  *
- * @param String $user to get obtained achievement data for
- * @return array|NULL of obtained achievement data
+ * @param string $user to get obtained achievement data for
+ * @return array|null of obtained achievement data
  */
 function getOwnAchievementsObtained($user)
 {
@@ -1279,7 +1279,7 @@ function getOwnAchievementsObtained($user)
 /**
  * Gets data for other users that have earned achievemetns for the input user.
  *
- * @param String $user to get obtained achievement data for
+ * @param string $user to get obtained achievement data for
  * @return array of achievement obtainer data
  */
 function getObtainersOfSpecificUser($user)
@@ -1316,8 +1316,8 @@ function getObtainersOfSpecificUser($user)
  * Gets recently obtained achievements created by the user.
  *
  * @param array $achievementIDs array of achievement IDs
- * @param Integer $offset starting point to return items
- * @param Integer $count number of items to return
+ * @param int $offset starting point to return items
+ * @param int $count number of items to return
  * @return array of recently obtained achievements
  */
 function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 200)
@@ -1348,51 +1348,52 @@ function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 20
 /**
  * Gets a list of users who have won a achievmenet or list of achievements within a given timerange.
  *
- * @param int|array $achievementIDs Achievement ID or array of achievement IDs
+ * @param array $achievementIDs Achievement ID or array of achievement IDs
  * @param string $startTime starting point to return items
  * @param string $endTime number of items to return
  * @param int $hardcoreMode get hardcore winners
- * @return array|null of of winners for each input achievement ID
+ * @return array of of winners for each input achievement ID
  */
-function getWinnersOfAchievements($achievementIDs, $startTime, $endTime, $hardcoreMode): ?array
+function getWinnersOfAchievements($achievementIDs, $startTime, $endTime, $hardcoreMode): array
 {
-    if (isset($achievementIDs)) {
-        $dateQuery = "";
-        if (strtotime($startTime)) {
-            if (strtotime($endTime)) {
-                //valid start and end
-                $dateQuery = "AND aw.Date BETWEEN '$startTime' AND '$endTime'";
-            } else {
-                //valid start, invalid end
-                $dateQuery = "AND aw.Date >= '$startTime'";
-            }
-        } else {
-            if (strtotime($endTime)) {
-                //invalid start, valid end
-                $dateQuery = "AND aw.Date <= '$endTime'";
-            } else {
-                //invalid start and end
-                //no date query needed
-            }
-        }
-
-        $userArray = array();
-        foreach ($achievementIDs as $nextID) {
-            $query = "SELECT aw.User
-                          FROM Awarded AS aw
-                          LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                          WHERE aw.AchievementID = '$nextID'
-                          AND aw.HardcoreMode = '$hardcoreMode'
-                          AND ua.Untracked = 0
-                          $dateQuery";
-            $dbResult = s_mysql_query($query);
-            if ($dbResult !== false) {
-                while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                    $userArray[$nextID][] = $db_entry['User'];
-                }
-            }
-        }
-        return $userArray;
+    if (empty($achievementIDs)) {
+        return [];
     }
-    return null;
+
+    $dateQuery = "";
+    if (strtotime($startTime)) {
+        if (strtotime($endTime)) {
+            //valid start and end
+            $dateQuery = "AND aw.Date BETWEEN '$startTime' AND '$endTime'";
+        } else {
+            //valid start, invalid end
+            $dateQuery = "AND aw.Date >= '$startTime'";
+        }
+    } else {
+        if (strtotime($endTime)) {
+            //invalid start, valid end
+            $dateQuery = "AND aw.Date <= '$endTime'";
+        } else {
+            //invalid start and end
+            //no date query needed
+        }
+    }
+
+    $userArray = [];
+    foreach ($achievementIDs as $nextID) {
+        $query = "SELECT aw.User
+                      FROM Awarded AS aw
+                      LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                      WHERE aw.AchievementID = '$nextID'
+                      AND aw.HardcoreMode = '$hardcoreMode'
+                      AND ua.Untracked = 0
+                      $dateQuery";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+                $userArray[$nextID][] = $db_entry['User'];
+            }
+        }
+    }
+    return $userArray;
 }

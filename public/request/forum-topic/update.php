@@ -2,16 +2,16 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-if (!ValidatePOSTChars("uctpi")) {
-    header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams");
-    exit;
-}
-
 $user = requestInputPost('u');
 $cookie = requestInputPost('c');
 $topicID = requestInputPost('t');
 $commentPayload = requestInputPost('p');
 $commentID = requestInputPost('i');
+
+if (!ValidatePOSTChars("uctpi")) {
+    header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams");
+    exit;
+}
 
 if (validateUser_cookie($user, $cookie, 1, $permissions)) {
     if (getSingleTopicComment($commentID, $commentData) == false) {

@@ -3,7 +3,6 @@
 if (!function_exists('runIntegrationApiMiddleware')) {
     function runIntegrationApiMiddleware()
     {
-        //
     }
 }
 
