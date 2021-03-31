@@ -5,7 +5,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 RenderHtmlStart();
 ?>
 <head>
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
 </head>
 <body>
 <script type='text/javascript' src='/vendor/wz_tooltip.js'></script>

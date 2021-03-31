@@ -44,7 +44,7 @@ $errorCode = requestInputSanitized('e');
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
@@ -116,7 +116,6 @@ RenderHtmlStart(true);
                     echo "</td></tr>";
                 }
                 echo "</div>";
-
 
                 echo "</div>";
                 echo "</div>";

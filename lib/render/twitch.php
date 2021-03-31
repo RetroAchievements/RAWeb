@@ -5,7 +5,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo "<div class='component $componentPos stream' >";
     echo "<h3>Twitch Stream</h3>";
 
-    $archiveURLs = array();
+    $archiveURLs = [];
     if ($componentPos == 'left') {
         $query = "SELECT *
             FROM PlaylistVideo

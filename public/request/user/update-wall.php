@@ -13,6 +13,7 @@ $prefType = requestInputPost('t');
 $value = requestInputPost('v', 0, 'integer');
 
 global $db;
+$changeErrorCode = null;
 if (validateUser_cookie($user, $cookie, 1)) {
     if ($prefType == 'wall') {
         $query = "UPDATE UserAccounts

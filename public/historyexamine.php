@@ -106,7 +106,6 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             }
         }
 
-        //
         function dateCompare($a, $b)
         {
             return $a['Date'] > $b['Date'];
@@ -162,7 +161,6 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             echo "<td>";
             echo GetGameAndTooltipDiv($achGameID, $achGameTitle, $achGameIcon, $achConsoleName, true, 32);
             echo "</td>";
-
 
             echo "</tr>";
         }

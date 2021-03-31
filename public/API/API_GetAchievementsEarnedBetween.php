@@ -15,7 +15,7 @@ $data = getAchievementsEarnedBetween($dateStrStartF, $dateStrEndF, $user);
 
 foreach ($data as &$nextData) {
     $nextData['BadgeURL'] = "/Badge/" . $nextData['BadgeName'] . ".png";
-    $nextData['GameURL'] = "/Game/" . $nextData['GameID'];
+    $nextData['GameURL'] = "/game/" . $nextData['GameID'];
 }
 
 echo json_encode($data);

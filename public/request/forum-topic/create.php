@@ -41,6 +41,7 @@ foreach ($bannedTitles as $nextWord) {
 }
 
 if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Registered)) {
+    $topicID = null;
     if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $topicID)) {
         //	Good!
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID");

@@ -7,6 +7,7 @@ $searchQuery = requestInputSanitized('s', null);
 $offset = requestInputSanitized('o', 0, 'integer');
 $maxCount = requestInputSanitized('c', 50, 'integer');
 
+$searchResults = null;
 $resultsCount = 0;
 if ($searchQuery !== null) {
     $resultsCount = performSearch($searchQuery, $offset, $maxCount, $searchResults);

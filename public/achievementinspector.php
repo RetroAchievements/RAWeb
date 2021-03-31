@@ -13,6 +13,10 @@ $gamesList = [];
 
 $codeNotes = [];
 
+$achievementData = null;
+$consoleName = null;
+$gameIcon = null;
+$gameTitle = null;
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
@@ -147,7 +151,7 @@ RenderHtmlHead("Manage Achievements");
         echo "</tr>";
 
         //	Display all achievements
-        foreach ((array)$achievementData as $achievementEntry) {
+        foreach ((array) $achievementData as $achievementEntry) {
             $achID = $achievementEntry['ID'];
             //$gameConsoleID = $achievementEntry['ConsoleID'];
             $achTitle = $achievementEntry['Title'];

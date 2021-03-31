@@ -16,6 +16,13 @@ $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
 
+$altTicketData = null;
+$commentData = null;
+$filteredTicketsCount = null;
+$numArticleComments = null;
+$numClosedTickets = null;
+$numOpenTickets = null;
+$ticketData = null;
 if ($ticketID != 0) {
     $ticketData = getTicket($ticketID);
     if ($ticketData == false) {
@@ -116,6 +123,7 @@ if ($ticketID != 0) {
     $numClosedTickets = (count($altTicketData) - $numOpenTickets) - 1;
 }
 
+$assignedToUser = null;
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
 if ($ticketID == 0) {
@@ -461,7 +469,6 @@ RenderHtmlHead($pageTitle);
                     echo "<td>";
                     echo $reportStates[$reportState];
                     echo "</td>";
-
 
                     echo "<td style='min-width:25%'>";
                     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
-die('no');
+exit('no');
 
 if (!RA_ReadCookieCredentials(
     $user,

@@ -32,8 +32,8 @@ $retVal['TotalRanked'] = countRankedUsers();
 //	Find out if we're online or offline
 $retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID']);
 
-$lastUpdate = (int)date("U", strtotime($retVal['LastActivity']['lastupdate']));
-$now = (int)date("U");
+$lastUpdate = (int) date("U", strtotime($retVal['LastActivity']['lastupdate']));
+$now = (int) date("U");
 
 $status = ($lastUpdate + 600) > $now ? "Online" : "Offline";
 
@@ -41,6 +41,5 @@ $retVal['Status'] = $status;
 
 //	Just from a security/polish point of view:
 unset($retVal['Friendship'], $retVal['FriendReciprocation']);
-
 
 echo json_encode($retVal);

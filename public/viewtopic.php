@@ -75,8 +75,8 @@ RenderHtmlStart();
 ?>
 
 <head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
+    <?php RenderSharedHeader(); ?>
+    <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
 
