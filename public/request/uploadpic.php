@@ -48,6 +48,7 @@ if ($_FILES["file"]["error"] > 0) {
     echo "Error: " . $_FILES["file"]["error"] . "<br />";
     return;
 }
+$tempImage = null;
 $tempFile = $_FILES["file"]["tmp_name"];
 switch ($extension) {
     case 'png':
@@ -60,9 +61,11 @@ switch ($extension) {
     case 'gif':
         $tempImage = imagecreatefromgif($tempFile);
         break;
-    case 'bmp':
-        $tempImage = imagecreatefrombitmap($tempFile);
-        break;
+}
+
+if (!$tempImage) {
+    header("Location: " . getenv('APP_URL') . "/game/$returnID?e=error");
+    exit;
 }
 
 $nextImageFilename = file_get_contents($imageIterFilename);
@@ -80,10 +83,6 @@ $maxImageSizeWidth = 160;
 $maxImageSizeHeight = 160;
 
 switch ($uploadType) {
-    case 'NEWS':
-        $maxImageSizeWidth = 160;
-        $maxImageSizeHeight = 160;
-        break;
     case 'GAME_ICON':
         $maxImageSizeWidth = 96;
         $maxImageSizeHeight = 96;
@@ -103,7 +102,6 @@ $wScaling = 1.0;
 
 $targetWidth = $width;
 $targetHeight = $height;
-
 
 if ($targetWidth > $maxImageSizeWidth) {
     $wScaling = 1.0 / ($targetWidth / $maxImageSizeWidth);
@@ -161,6 +159,7 @@ if (in_array($uploadType, $allowedGameImageTypes)) {
             break;
     }
 
+    global $db;
     $query = "UPDATE GameData AS gd SET $param='/Images/$nextImageFilenameStr.png' WHERE gd.ID = $returnID";
     $dbResult = mysqli_query($db, $query);
 

@@ -272,7 +272,7 @@ function generateAppToken($user, &$tokenOut)
     }
 }
 
-function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOut)
+function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOut): int
 {
     //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
 
@@ -290,6 +290,8 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
         return 0;
     }
 
+    $query = null;
+
     if ($passwordProvided) {
         $loginUser = $user;
         $authenticated = validateUser($loginUser, $pass, $fbUser, 0);
@@ -300,6 +302,10 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
     } elseif ($tokenProvided) {
         //    Token provided:
         $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
+    }
+
+    if (!$query) {
+        return 0;
     }
 
     //error_log( $query );
@@ -327,7 +333,7 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
             //    generateAppToken( $user, $tokenInOut );
             //    Against my better judgement... ##SD
             if (mb_strlen($data['appToken']) != 16) {   //    Generate if new
-                generateAppToken($user, $tokenInOut);  //
+                generateAppToken($user, $tokenInOut);
             } else {
                 //    Return old token if not
                 $tokenInOut = $data['appToken'];
@@ -348,10 +354,9 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
             // error_log(__FUNCTION__ . " failed5: user:$user, tokenInOut:$tokenInOut");
             return 0;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed4: user:$user, tokenInOut:$tokenInOut");
-        return 0;
     }
+
+    return 0;
 }
 
 function getUserAppToken($user)
@@ -643,8 +648,8 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
 /**
  * Gets the number of friends for the input user.
  *
- * @param String $user to get friend count for
- * @return int|NULL The number of friends for the user
+ * @param string $user to get friend count for
+ * @return int|null The number of friends for the user
  */
 function getFriendCount($user)
 {
@@ -657,7 +662,7 @@ function getFriendCount($user)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['FriendCount'];
+        return (int) mysqli_fetch_assoc($dbResult)['FriendCount'];
     } else {
         return null;
     }
@@ -725,8 +730,8 @@ function GetScore($user)
 /**
  * Gets the account age in years for the input user.
  *
- * @param String $user to get account age for
- * @return int|NULL The number of years the account has been created for
+ * @param string $user to get account age for
+ * @return int|null The number of years the account has been created for
  */
 function getAge($user)
 {
@@ -748,8 +753,7 @@ function getAge($user)
         $diff = $curDate - $created;
 
         $years = floor($diff / (365 * 60 * 60 * 24));
-        settype($years, 'integer');
-        return $years;
+        return (int) $years;
     } else {
         // error_log(__FUNCTION__ . " failed: user:$user");
         return 0;
@@ -759,7 +763,7 @@ function getAge($user)
 /**
  * Gets the points or retro points rank of the user.
  *
- * @param String $user the user to get the rank for
+ * @param string $user the user to get the rank for
  * @param int $type 0 for points rank, anything else for retro points rank
  * @return int rank of the user
  */
@@ -788,7 +792,7 @@ function getUserRank($user, $type = 0)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['UserRank'];
+        return (int) $data['UserRank'];
     }
 
     log_sql_fail();
@@ -903,7 +907,7 @@ function getUserActivityRange($user, &$firstLogin, &$lastLogin)
         $firstLogin = $data['FirstLogin'];
         $lastLogin = $data['LastLogin'];
 
-        return $firstLogin !== null || $lastLogin !== null;
+        return !empty($firstLogin) || !empty($lastLogin);
     }
 
     return false;
@@ -1260,7 +1264,6 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     settype($count, 'integer');
     settype($showUntracked, 'boolean');
 
-
     $whereQuery = null;
     $permsFilter = null;
 
@@ -1284,7 +1287,6 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     } else {
         $whereQuery = "WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" ) AND $permsFilter";
     }
-
 
     settype($sortBy, 'integer');
     switch ($sortBy) {
@@ -1344,10 +1346,9 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
 }
 
 /**
- * @param $user
  * @return int|mixed|string
  */
-function getUserPermissions($user)
+function getUserPermissions(?string $user)
 {
     if ($user == null) {
         return 0;
@@ -1513,7 +1514,7 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
     } else {
         $dbData = mysqli_fetch_assoc($dbResult);
         if (isset($dbData['MAX( DisplayOrder )'])) {
-            $displayOrder = $dbData['MAX( DisplayOrder )'] + 1;
+            $displayOrder = (int) $dbData['MAX( DisplayOrder )'] + 1;
         }
     }
 
@@ -1648,11 +1649,7 @@ function GetUserFields($username, $fields)
     return mysqli_fetch_assoc($dbResult);
 }
 
-/**
- * @param $usernameIn
- * @return bool
- */
-function HasPatreonBadge($usernameIn)
+function HasPatreonBadge($usernameIn): bool
 {
     sanitize_sql_inputs($usernameIn);
 
@@ -1745,8 +1742,8 @@ function attributeDevelopmentAuthor($author, $points)
     $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
     $dbResult = s_mysql_query($query);
     $oldResults = mysqli_fetch_assoc($dbResult);
-    $oldContribCount = $oldResults['ContribCount'];
-    $oldContribYield = $oldResults['ContribYield'];
+    $oldContribCount = (int) $oldResults['ContribCount'];
+    $oldContribYield = (int) $oldResults['ContribYield'];
 
     //    Update the fact that this author made an achievement that just got earned.
     $query = "UPDATE UserAccounts AS ua
@@ -1988,6 +1985,7 @@ function clearAccountData($user)
 
 /**
  * APIKey doesn't have to be reset -> permission >= Registered
+ * @param mixed $permissions
  */
 function banAccountByUsername(string $username, $permissions)
 {

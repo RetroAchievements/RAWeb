@@ -11,7 +11,7 @@ $user = requestInputPost('u');
 $cookie = requestInputPost('c');
 $achievementID = requestInputPost('i');
 $problemType = requestInputPost('p');
-
+$note = null;
 if (isset($_POST['note'])) {
     $appendNote = $_POST['note']['description'];
 
@@ -33,9 +33,9 @@ if (isset($_POST['note'])) {
 if (validateUser_cookie($user, $cookie, 0) == true) {
     $success = submitNewTickets($user, $achievementID, $problemType, $note, $msgOut);
     if ($msgOut == "FAILED!") {
-        header("Location: " . getenv('APP_URL') . "/Achievement/$achievementID?e=issue_failed");
+        header("Location: " . getenv('APP_URL') . "/achievement/$achievementID?e=issue_failed");
     } else {
-        header("Location: " . getenv('APP_URL') . "/Achievement/$achievementID?e=issue_submitted");
+        header("Location: " . getenv('APP_URL') . "/achievement/$achievementID?e=issue_submitted");
     }
 
     echo $msgOut;

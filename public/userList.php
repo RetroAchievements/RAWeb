@@ -21,7 +21,8 @@ $userCount = getUserListByPerms($sortBy, $offset, $maxCount, $userListData, $use
 $permissionName = null;
 if ($perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin) {
     $permissionName = PermissionsToString($perms);
-} elseif ($showUntracked && $perms = -99) { // meleu: using -99 magic number for untracked (I know, it's sloppy)
+} elseif ($showUntracked) { // meleu: using -99 magic number for untracked (I know, it's sloppy)
+    $perms = -99;
     $permissionName = "Untracked";
 }
 
@@ -44,7 +45,6 @@ RenderHtmlHead("Users");
                 echo " (including Untracked)";
             }
         }
-
 
         echo "</b></div>";
 
@@ -95,7 +95,6 @@ RenderHtmlHead("Users");
             }
             echo "</p>";
         }
-
 
         echo "<table><tbody>";
 

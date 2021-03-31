@@ -32,7 +32,6 @@ function RenderNewsHeader($newsData)
 
     $link = htmlspecialchars($newsData['Link']);
 
-
     $author = $newsData['Author'];
     $authorLink = GetUserAndTooltipDiv($author, false);
     $timestampStr = date("d M", $newsData['TimePosted']);

@@ -37,10 +37,6 @@ function sanitiseSQL($query)
     }
 }
 
-/**
- * @param $query
- * @return bool|mysqli_result
- */
 function s_mysql_query($query)
 {
     global $db;

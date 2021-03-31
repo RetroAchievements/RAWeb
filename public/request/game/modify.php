@@ -14,10 +14,10 @@ $value = requestInputPost('v');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     if (requestModifyGame($author, $gameID, $field, $value)) {
-        header("location: " . getenv('APP_URL') . "/Game/$gameID?e=modify_game_ok");
+        header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
         exit;
     } else {
-        header("location: " . getenv('APP_URL') . "/Game/$gameID?e=errors_in_modify_game");
+        header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
         exit;
     }
 }

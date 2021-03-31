@@ -27,7 +27,7 @@ $sortBy = requestInputSanitized('s', empty($gameID) ? 3 : 0, 'integer');
 
 $lbCount = getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, $lbData);
 
-unset($gameData);
+$gameData = null;
 $codeNotes = [];
 if ($gameID != 0) {
     $gameData = getGameData($gameID);
@@ -227,7 +227,6 @@ RenderHtmlHead($pageTitle);
         echo "</select>";
     }
 
-
     echo "<table class='smalltable xsmall'><tbody>";
 
     $sort1 = ($sortBy == 1) ? 11 : 1;
@@ -297,7 +296,6 @@ RenderHtmlHead($pageTitle);
             echo "<input style='width: 60%;' type='text' value='$lbTitle' id='LB_" . $lbID . "_Title' /><br>";
             echo "<input style='width: 100%;' type='text' value='$lbDesc' id='LB_" . $lbID . "_Desc' />";
             echo "</td>";
-
 
             echo "<td style='width: 20%;'>";
             echo "<select id='LB_" . $lbID . "_Format' name='i' >";
@@ -444,12 +442,12 @@ RenderHtmlHead($pageTitle);
     echo "<div class='rightalign row'>";
     if ($offset > 0) {
         $prevOffset = $offset - $maxCount;
-        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset&amp;p=$params'>&lt; Previous $maxCount</a> - ";
+        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
     }
     if ($listCount == $maxCount) {
         //	Max number fetched, i.e. there are more. Can goto next 25.
         $nextOffset = $offset + $maxCount;
-        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset&amp;p=$params'>Next $maxCount &gt;</a>";
+        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
     }
     echo "</div>";
     ?>
