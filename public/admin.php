@@ -33,7 +33,7 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
     fseek($f, -1, SEEK_END);
 
     if (fread($f, 1) != "\n") {
-        $lines -= 1;
+        $lines--;
     }
 
     // Start reading
@@ -321,8 +321,8 @@ switch ($action) {
             $winners = getWinnersOfAchievements($ids, $startTime, $endTime, $hardcoreMode);
 
             $keys = array_keys($winners);
-            for($i = 0; $i < count($winners); $i++) {
-                $message .= "<strong>". number_format(count($winners[$keys[$i]])) ." Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+            for ($i = 0; $i < count($winners); $i++) {
+                $message .= "<strong>" . number_format(count($winners[$keys[$i]])) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
                 $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
             }
         }
@@ -414,6 +414,7 @@ switch ($action) {
             Event_AOTW_ForumID='$aotwForumID',
             Event_AOTW_StartAt='$aotwStartAt'";
 
+        global $db;
         $result = s_mysql_query($query);
 
         if ($result) {

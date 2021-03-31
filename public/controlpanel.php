@@ -331,7 +331,7 @@ RenderHtmlHead("My Settings");
             echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='text-align:right' width='64' height='64'>";
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
             echo "Account: ($permissions) " . PermissionsToString($permissions) . "<br>";
-            if (isset($userMotto) && mb_strlen($userMotto) > 1) {
+            if (!empty($userMotto) && mb_strlen($userMotto) > 1) {
                 echo "<span class='usermotto'>$userMotto</span><br>";
             }
             echo "</p>";
@@ -340,7 +340,7 @@ RenderHtmlHead("My Settings");
                 echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
             if ($permissions >= Permissions::Registered) {
-                $userMottoString = isset($userMotto) ? $userMotto : "";
+                $userMottoString = !empty($userMotto) ? $userMotto : "";
                 echo "<tr>";
                 echo "<td>User Motto:</td>";
                 echo "<td>";

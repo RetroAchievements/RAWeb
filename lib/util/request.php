@@ -1,7 +1,6 @@
 <?php
 
-
-function requestInputQuery($key, $default = null, $type = null)
+function requestInputQuery(string $key, $default = null, $type = null)
 {
     $input = $_GET[$key] ?? $default;
 
@@ -12,7 +11,7 @@ function requestInputQuery($key, $default = null, $type = null)
     return $input;
 }
 
-function requestInputPost($key, $default = null, $type = null)
+function requestInputPost(string $key, $default = null, $type = null)
 {
     $input = $_POST[$key] ?? $default;
 
@@ -23,7 +22,7 @@ function requestInputPost($key, $default = null, $type = null)
     return $input;
 }
 
-function requestInput($key, $default = null, $type = null)
+function requestInput(string $key, $default = null, $type = null)
 {
     $input = requestInputPost($key);
     if (!$input) {
@@ -41,12 +40,11 @@ function requestInput($key, $default = null, $type = null)
 /**
  * Get request input sanitized for output
  *
- * @param $key
- * @param null $default
- * @param null $type
+ * @param mixed|null $default
+ * @param mixed|null $type
  * @return mixed|string|null
  */
-function requestInputSanitized($key, $default = null, $type = null)
+function requestInputSanitized(string $key, $default = null, $type = null)
 {
     if (!$type || $type === 'string') {
         $input = requestInput($key, $default, $type);

@@ -1,12 +1,9 @@
 <?php
-/**
- * @param string $errorCode
- * @return string
- */
-function RenderErrorCodeWarning($errorCode)
+
+function RenderErrorCodeWarning(?string $errorCode)
 {
     if (empty($errorCode)) {
-        return '';
+        return;
     }
     $errorMessages = [
         'accountissue' => "There appears to be a problem with your account. Please contact the administrator <a href='" . getenv('APP_URL') . "/user/RAdmin'>here</a> for more details.",
@@ -51,7 +48,7 @@ function RenderErrorCodeWarning($errorCode)
     ];
     $message = $errorMessages[mb_strtolower($errorCode)] ?? null;
     if (!$message) {
-        return '';
+        return;
     }
     echo "<div id='warning'>$message</div>";
 }

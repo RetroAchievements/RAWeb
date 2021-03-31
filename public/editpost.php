@@ -25,7 +25,6 @@ if ($user != $commentData['Author'] && $permissions < \RA\Permissions::Admin) {
     exit;
 }
 
-
 if (getTopicDetails($commentData['ForumTopicID'], $topicData) == false) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
     exit;

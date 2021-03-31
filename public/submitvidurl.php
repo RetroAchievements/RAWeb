@@ -31,7 +31,7 @@ RenderHtmlHead("Manage News");
         RenderErrorCodeWarning($errorCode);
 
         echo "<div class='navpath'>";
-        echo "<b>$pageTitle</b>";
+        echo "<b>Manage News</b>";
         echo "</div>";
 
         echo "<div class='largelist'>"; //?
