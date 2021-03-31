@@ -93,7 +93,7 @@ RenderHtmlHead("Send Message");
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
             echo "<input type='hidden' value='$user' name='u'>";
             echo "<input type='hidden' value='$cookieRaw' name='c'>";
-            $destUser = mb_strlen($messageTo > 2) ? $messageTo : '_User';
+            $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";
             echo "<td><input type='text' value='$messageTo' name='d' id='messagedest' onblur='onUserChange(); return false;' class='requiredinput searchuser'></td>";

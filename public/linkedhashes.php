@@ -11,6 +11,10 @@ $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
+$consoleName = null;
+$gameIcon = null;
+$gameTitle = null;
+$hashes = null;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData);
     $consoleName = $gameData['ConsoleName'];
@@ -43,7 +47,12 @@ RenderHtmlHead("Linked Hashes");
 
         echo "<ul>";
         foreach ($hashes as $hash) {
-            echo "<li><code>" . $hash['hash'] . "</code></li>";
+            echo "<li>";
+            echo "<code>" . $hash['hash'] . "</code>";
+            if (!empty($hash['User'])) {
+                echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+            }
+            echo "</li>";
         }
         echo "</ul>";
 

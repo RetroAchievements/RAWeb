@@ -57,14 +57,7 @@ function getCodeNotes($gameID, &$codeNotesOut)
     }
 }
 
-/**
- * @param $user
- * @param $gameID
- * @param $address
- * @param $note
- * @return bool
- */
-function submitCodeNote2($user, $gameID, $address, $note)
+function submitCodeNote2($user, $gameID, $address, $note): bool
 {
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {
@@ -110,15 +103,14 @@ function submitCodeNote2($user, $gameID, $address, $note)
 }
 
 /**
- * @param $user
- * @param $gameID
- * @param $address
- * @param $note
- * @return bool
  * @deprecated
  * @see submitCodeNote2()
+ * @param mixed $user
+ * @param mixed $gameID
+ * @param mixed $address
+ * @param mixed $note
  */
-function submitCodeNote($user, $gameID, $address, $note)
+function submitCodeNote($user, $gameID, $address, $note): bool
 {
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {

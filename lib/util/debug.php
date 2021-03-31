@@ -1,5 +1,11 @@
 <?php
 
+function dd(...$args)
+{
+    var_dump(...$args);
+    exit();
+}
+
 function debug_string_backtrace()
 {
     ob_start();

@@ -201,7 +201,7 @@ RenderToolbar($user, $permissions);
     <div id="leftcontainer">
         <?php
         RenderErrorCodeWarning($errorCode);
-        if (!isset($user)) {
+        if (empty($user)) {
             RenderWelcomeComponent();
         }
         RenderNewsComponent();

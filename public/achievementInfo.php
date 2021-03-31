@@ -63,7 +63,7 @@ $errorCode = requestInputSanitized('e');
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
     <?php RenderTitleTag($achievementTitle); ?>
     <?php RenderGoogleTracking(); ?>
@@ -74,28 +74,28 @@ RenderHtmlStart(true);
 <?php RenderToolbar($user, $permissions); ?>
 <?php if ($permissions >= Permissions::Developer): ?>
     <script>
-      function PostEmbedUpdate() {
-        var url = $('#embedurlinput').val();
-        url = replaceAll('http', '_http_', url);
+        function PostEmbedUpdate() {
+            var url = $('#embedurlinput').val();
+            url = replaceAll('http', '_http_', url);
 
-        var posting = $.post('/request/achievement/update.php', {
-          u: '<?php echo $user; ?>',
-          a: <?php echo $achievementID; ?>,
-          f: 2,
-          v: url,
-        });
-        posting.done(onUpdateEmbedComplete);
-        $('#warning').html('Status: Updating...');
-      }
-
-      function onUpdateEmbedComplete(data) {
-        if (data !== 'OK') {
-          $('#warning').html('Status: Errors...');
-        } else {
-          $('#warning').html('Status: Loading...');
-          window.location.reload();
+            var posting = $.post('/request/achievement/update.php', {
+                u: '<?php echo $user; ?>',
+                a: <?php echo $achievementID; ?>,
+                f: 2,
+                v: url,
+            });
+            posting.done(onUpdateEmbedComplete);
+            $('#warning').html('Status: Updating...');
         }
-      }
+
+        function onUpdateEmbedComplete(data) {
+            if (data !== 'OK') {
+                $('#warning').html('Status: Errors...');
+            } else {
+                $('#warning').html('Status: Loading...');
+                window.location.reload();
+            }
+        }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -156,7 +156,7 @@ RenderHtmlStart(true);
         if ($achFlags == 5) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by <a href='/user/$author'>$author</a> on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -168,7 +168,9 @@ RenderHtmlStart(true);
             if ($countTickets > 0) {
                 echo "<small><a href='/ticketmanager.php?a=$achievementID'>This achievement has $countTickets open tickets</a></small><br>";
             }
-            echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+            if (isAllowedToSubmitTickets($user)) {
+                echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+            }
         }
         echo "<br>";
 

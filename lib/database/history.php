@@ -65,7 +65,6 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
     $dateStrStart = $dateStart;
     $dateStrEnd = $dateEnd;
 
-
     $query = "SELECT aw.Date, aw.HardcoreMode, ach.ID AS AchievementID, ach.Title, ach.Description, ach.BadgeName, ach.Points, ach.Author, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID, c.Name AS ConsoleName
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID

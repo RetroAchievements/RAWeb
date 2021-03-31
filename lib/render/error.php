@@ -1,12 +1,9 @@
 <?php
-/**
- * @param string $errorCode
- * @return string
- */
-function RenderErrorCodeWarning($errorCode)
+
+function RenderErrorCodeWarning(?string $errorCode)
 {
     if (empty($errorCode)) {
-        return '';
+        return;
     }
     $errorMessages = [
         'accountissue' => "There appears to be a problem with your account. Please contact the administrator <a href='" . getenv('APP_URL') . "/user/RAdmin'>here</a> for more details.",
@@ -17,6 +14,7 @@ function RenderErrorCodeWarning($errorCode)
         'checkyouremail' => "Please check your email for further instructions.",
         'delete_ok' => "Info: Deleted OK!",
         'deleteok' => "Info: Message deleted OK!",
+        'error' => "An error occurred!",
         'errors_in_modify_game' => "Problems encountered while performing modification. Does the target game already exist? If so, try a merge instead on the target game title.",
         'friendadded' => "Friend Added!",
         'friendblocked' => "User blocked.",
@@ -50,7 +48,7 @@ function RenderErrorCodeWarning($errorCode)
     ];
     $message = $errorMessages[mb_strtolower($errorCode)] ?? null;
     if (!$message) {
-        return '';
+        return;
     }
     echo "<div id='warning'>$message</div>";
 }

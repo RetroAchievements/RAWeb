@@ -39,17 +39,16 @@ function getHashListByGameID($gameID)
     }
 
     $query = "
-    SELECT MD5 AS hash
+    SELECT MD5 AS hash, User
     FROM GameHashLibrary
     WHERE GameID = $gameID";
 
+    $retVal = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?!");
     }
 
     return $retVal;
@@ -80,9 +79,8 @@ function getGameIDFromMD5($md5)
  * @param int $offset
  * @param int $count
  * @param string $searchedHash
- * @return array
  */
-function getHashList($offset, $count, $searchedHash)
+function getHashList($offset, $count, $searchedHash): array
 {
     sanitize_sql_inputs($offset, $count, $searchedHash);
 
@@ -97,6 +95,7 @@ function getHashList($offset, $count, $searchedHash)
     SELECT
         h.MD5 as Hash,
         h.GameID as GameID,
+        h.User as User,
         h.Created as DateAdded,
         gd.Title as GameTitle,
         gd.ImageIcon as GameIcon,

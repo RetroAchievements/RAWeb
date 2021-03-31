@@ -14,7 +14,7 @@ $action = requestInputQuery('a');
 
 if (validateUser_cookie($user, $cookie, 0) == true) {
     $returnVal = changeFriendStatus($user, $friend, $action);
-    header("Location: " . getenv('APP_URL') . "/User/$friend?e=$returnVal");
+    header("Location: " . getenv('APP_URL') . "/user/$friend?e=$returnVal");
 } else {
-    header("Location: " . getenv('APP_URL') . "/User/$friend?e=pleaselogin");
+    header("Location: " . getenv('APP_URL') . "/user/$friend?e=pleaselogin");
 }

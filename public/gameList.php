@@ -123,6 +123,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                 $achievementsTally = 0;
                 $truePointsTally = 0;
                 $lbCount = 0;
+                $ticketsCount = null;
                 if ($showTickets) {
                     $ticketsCount = 0;
                 }
@@ -133,6 +134,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                         $gameID = $gameEntry['ID'];
                         $maxPoints = $gameEntry['MaxPointsAvailable'];
                         $totalTrueRatio = $gameEntry['TotalTruePoints'];
+                        $totalAchievements = null;
                         if ($dev == null) {
                             $numAchievements = $gameEntry['NumAchievements'];
                         } else {
