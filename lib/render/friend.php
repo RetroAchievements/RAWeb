@@ -40,24 +40,19 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
         echo "</div>";
     } else {
         echo "<div class='nicebox'>";
-        if ($totalFriends > 0) {
-            echo "None of your friends appear to have won any achievements for $gameTitle!<br>";
-            echo "Brag about your achievements to them <a href='/friends.php'>on their user wall</a>!";
+        echo "RetroAchievements is a lot more fun with friends!<br><br>";
+        if ($user == null) {
+            echo "<a href='/createaccount.php'>Create an account</a> or login and start earning achievements today!<br>";
         } else {
-            echo "RetroAchievements is a lot more fun with friends!<br><br>";
-            if ($user == null) {
-                echo "<a href='/createaccount.php'>Create an account</a> or login and start earning achievements today!<br>";
-            } else {
-                echo "Find friends to add <a href='/userList.php'>here</a>!<br>";
-                echo "<br>";
-                echo "or compare your progress in this game against any user:<br>";
+            echo "Find friends to add <a href='/userList.php'>here</a>!<br>";
+            echo "<br>";
+            echo "or compare your progress in this game against any user:<br>";
 
-                echo "<form method='get' action='/gamecompare.php'>";
-                echo "<input type='hidden' name='ID' value='$gameID'>";
-                echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' />";
-                echo "&nbsp;<input type='submit' value='Select' />";
-                echo "</form>";
-            }
+            echo "<form method='get' action='/gamecompare.php'>";
+            echo "<input type='hidden' name='ID' value='$gameID'>";
+            echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' />";
+            echo "&nbsp;<input type='submit' value='Select' />";
+            echo "</form>";
         }
         echo "</div>";
     }

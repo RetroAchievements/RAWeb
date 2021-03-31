@@ -61,7 +61,7 @@ function RenderStaticDataComponent($staticData)
 
     echo "The last registered user was ";
     echo GetUserAndTooltipDiv($lastRegisteredUser, false);
-    //echo "<a href='/User/$lastRegisteredUser'>$lastRegisteredUser</a>";
+    //echo "<a href='/user/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br>";
 
     //echo "<br>";
@@ -71,9 +71,9 @@ function RenderStaticDataComponent($staticData)
     //echo "Next user to scan: ";
     //echo GetUserAndTooltipDiv( $nextUserToScan, FALSE );
     //echo "The last achievement earned was ";
-    //echo "<a href='/Achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
+    //echo "<a href='/achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
     //echo " by ";
-    //echo "<a href='/User/$lastAchievementEarnedByUser'>$lastAchievementEarnedByUser</a><br>";
+    //echo "<a href='/user/$lastAchievementEarnedByUser'>$lastAchievementEarnedByUser</a><br>";
 
     echo "</div>";
 

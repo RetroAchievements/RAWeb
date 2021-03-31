@@ -25,17 +25,13 @@ function RenderTutorialComponent()
 
 function RenderWelcomeComponent()
 {
-    if (isset($user)) {
-        return;
-    }
-
     echo "
     <div class='component welcome'>
         <h2>Welcome!</h2>
         <div id='Welcome'>
             <p>
             Were you the greatest in your day at Mega Drive or SNES games? Wanna prove it? Use our modified emulators and you will be awarded achievements as you play! Your progress will be tracked so you can compete with your friends to complete all your favourite classics to 100%: we provide the emulators for your Windows-based PC, all you need are the roms!<br>
-            <a href='/Game/1'>Click here for an example:</a> which of these do you think you can get?
+            <a href='/game/1'>Click here for an example:</a> which of these do you think you can get?
             </p>
         <br>
             <p style='clear:both; text-align:center'>

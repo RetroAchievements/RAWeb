@@ -92,8 +92,8 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $gameID = $achData['GameID'];
             $achName = $achData['AchievementTitle'];
 
-            $gameLink = "<a href='/Game/$gameID'>$gameName</a>";
-            $achLink = "<a href='/Achievement/$achID'>$achName</a>";
+            $gameLink = "<a href='/game/$gameID'>$gameName</a>";
+            $achLink = "<a href='/achievement/$achID'>$achName</a>";
 
             $gameLink = str_replace("'", "''", $gameLink);
             $achLink = str_replace("'", "''", $achLink);
@@ -168,7 +168,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             if ($activity == ActivityType::OpenedTicket || $activity == ActivityType::ClosedTicket) {
                 $achievementLink = "<a href='/ticketmanager.php?a=$achID&t=1'>$achievementName</a>";
             } else {
-                $achievementLink = "<a href='/Achievement/$achID'>$achievementName</a>";
+                $achievementLink = "<a href='/achievement/$achID'>$achievementName</a>";
             }
             $achievementLink = str_replace("'", "''", $achievementLink);
 
@@ -180,7 +180,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $gameID = $customMsg;
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
-            $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
+            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace("'", "''", $gameLink);
 
             AddSiteAward($user, 1, $gameID, $isalt);
@@ -197,7 +197,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $scoreFormatted = $customMsg['ScoreFormatted'];
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
-            $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
+            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace("'", "''", $gameLink);
             $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
             $lbLinkScore = str_replace("'", "''", $lbLinkScore);
