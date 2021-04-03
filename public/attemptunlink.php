@@ -20,12 +20,12 @@ if (empty($gameID)) {
 
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
-$query = "SELECT MD5 FROM GameHashLibrary WHERE GameID=$gameID";
+$query = "SELECT MD5, User FROM GameHashLibrary WHERE GameID=$gameID";
 $dbResult = s_mysql_query($query);
 
 $hashList = [];
 while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    $hashList[] = $db_entry['MD5'];
+    $hashList[] = $db_entry;
 }
 
 $numLinks = count($hashList);
@@ -68,8 +68,12 @@ RenderHtmlHead("Unlink Game Entry ($consoleName)");
         echo "<input type='hidden' name='f' VALUE='3'>";
         for ($i = 0; $i < $numLinks; $i++) {
             echo "<label>";
-            echo "<input type='radio' name='v' VALUE='" . $hashList[$i] . "' " . ($i == 0 ? "required" : "") . ">";
-            echo " <code>" . $hashList[$i] . "</code><br>";
+            echo "<input type='radio' name='v' VALUE='" . $hashList[$i]['MD5'] . "' " . ($i == 0 ? "required" : "") . ">";
+            echo " <code>" . $hashList[$i]['MD5'] . "</code>";
+            if ($hashList[$i]['User']) {
+                echo " linked by " . GetUserAndTooltipDiv($hashList[$i]['User']);
+            }
+            echo "<br>";
             echo "</label>";
         }
         echo "<br>";

@@ -33,7 +33,7 @@ test*.php
 /public/*.dll
 /public/Bing*
 /public/google*
-/public/mtests.php
+/public/tmp
 
 /resources/docker/nginx/logs/*
 
