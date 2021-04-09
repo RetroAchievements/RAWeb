@@ -523,8 +523,13 @@ td, tr, img {
   background-color: #111530;
 }
 
-#feed tr.feed_comment {
+#feed tr.feed_comment:not(.system) {
   background-color: #151515;
+}
+
+#feed tr.feed_comment.system {
+  color: grey;
+  font-size: 9px;
 }
 
 #feed tr.feed_completegame {

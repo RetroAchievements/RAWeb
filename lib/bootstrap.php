@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.70.0');
+define('VERSION', '1.71.0');
 
 if (!file_exists(__DIR__ . '/../.env')) {
     // .env file does not exist - do not attempt to load it nor try connecting to a database
