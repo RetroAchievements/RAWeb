@@ -111,7 +111,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     // system message
     echo "<div style='background:lightblue;color:black;padding:15px 20px'>";
-    echo "<b>Planned maintenance downtime for an estimated 2 hours on Saturday, 6am UTC (<span id='systemMessageDateLocal'></span>).</b><br>";
+    echo "<b>Planned maintenance downtime for an estimated 2 hours on Saturday, 6:30am UTC (<span id='systemMessageDateLocal'></span>).</b><br>";
     echo "</div>";
     echo <<<EOD
         <script>
@@ -120,7 +120,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         d.setUTCMonth(3);
         d.setUTCDate(10);
         d.setUTCHours(6);
-        d.setUTCMinutes(0);
+        d.setUTCMinutes(30);
         d.setUTCSeconds(0);
         var localTime = Intl.DateTimeFormat().resolvedOptions().timeZone + ': ' + d.toLocaleString();
         document.getElementById('systemMessageDateLocal').innerHTML = localTime;
