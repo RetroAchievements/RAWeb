@@ -99,15 +99,33 @@ function RenderTitleTag($title = null)
 
 function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0)
 {
+    settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
+
     //    js tooltip code is basically on every page:
     echo "<script src='/vendor/wz_tooltip.js'></script>";
-
-    settype($unreadMessageCount, "integer");
 
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
     echo "<div id='title'>";
+
+    // system message
+    echo "<div style='background:lightblue;color:black;padding:15px 20px'>";
+    echo "<b>Planned maintenance downtime for an estimated 2 hours on Saturday, 6am UTC (<span id='systemMessageDateLocal'></span>).</b><br>";
+    echo "</div>";
+    echo <<<EOD
+        <script>
+        d = new Date();
+        d.setUTCFullYear(2021);
+        d.setUTCMonth(3);
+        d.setUTCDate(10);
+        d.setUTCHours(6);
+        d.setUTCMinutes(0);
+        d.setUTCSeconds(0);
+        var localTime = Intl.DateTimeFormat().resolvedOptions().timeZone + ': ' + d.toLocaleString();
+        document.getElementById('systemMessageDateLocal').innerHTML = localTime;
+        </script>
+EOD;
 
     echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a></div>";
 
