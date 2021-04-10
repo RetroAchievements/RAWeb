@@ -7,18 +7,15 @@ $dev = requestInputSanitized('u');
 $errorCode = requestInputSanitized('e');
 
 $userArchInfo = getUserAchievementInformation($dev);
-$userContribCount = 0;
-$userContribYield = 0;
-if (count($userArchInfo) > 0) {
-    $userContribCount = $userArchInfo[0]['ContribCount'];
-    $userContribYield = $userArchInfo[0]['ContribYield'];
-}
 
 // Only get stats if the user has a contribute count
-if (empty($userContribCount)) {
+if (empty($userArchInfo)) {
     header("Location: " . getenv('APP_URL') . "/user/" . $dev);
     return;
 }
+
+$userContribCount = $userArchInfo[0]['ContribCount'];
+$userContribYield = $userArchInfo[0]['ContribYield'];
 
 // Get sets and achievements per console data for pie charts
 $setsPerConsole = getUserSetsPerConsole($dev);
@@ -542,7 +539,10 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($count++ > 0) {
                     echo ", ";
                 }
-                echo "['" . $info['ConsoleName'] . "', " . $info['SetCount'] . "]";
+                echo json_encode([
+                    $info['ConsoleName'],
+                    (int) $info['SetCount'],
+                ]);
             }
             ?>
         ]);
@@ -555,7 +555,10 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($count++ > 0) {
                     echo ", ";
                 }
-                echo "['" . $info['ConsoleName'] . "', " . $info['AchievementCount'] . "]";
+                echo json_encode([
+                    $info['ConsoleName'],
+                    (int) $info['AchievementCount'],
+                ]);
             }
             ?>
         ]);
