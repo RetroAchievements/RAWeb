@@ -1,8 +1,5 @@
 <?php
 
-// http_response_code(503);
-// exit('Maintenance');
-
 define('VERSION', '1.71.0');
 
 if (!file_exists(__DIR__ . '/../.env')) {
