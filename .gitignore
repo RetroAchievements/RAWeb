@@ -39,3 +39,5 @@ test*.php
 
 cronjobs/playersonline.log
 cronjobs/cronlog.log
+cghooks.lock
+

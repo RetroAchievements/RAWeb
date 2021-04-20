@@ -6,6 +6,8 @@ parameters:
         - src
         - tests
     level: 5
+    checkMissingIterableValueType: false
+    treatPhpDocTypesAsCertain: false
     ignoreErrors:
         - '#Parameter (.*) of function htmlentities expects#'
     excludes_analyse:
@@ -16,10 +18,11 @@ parameters:
         - public/feed.php
         - public/popularGames.php
         - public/rss-activity.xml.php
+        # composer utility
+        - src/Utility/ComposerScripts.php
         # facebook. google. whatever
         - lib/util/facebook/*
         - lib/util/facebook.php
         - lib/render/facebook.php
         - public/request/facebook/connect.php
         - lib/util/recaptcha.php
-    checkMissingIterableValueType: false
