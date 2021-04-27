@@ -23,6 +23,8 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
     && $source == $user) {
     if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
         echo "OK";
+        $commentText = 'made updates to this leaderboard';
+        addArticleComment("Server", \RA\ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
         exit;
     } else {
         echo "FAILED!";
