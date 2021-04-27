@@ -17,6 +17,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     requestResetLB($lbid);
 
     header("location: " . getenv('APP_URL') . "/leaderboardinfo.php?i=$lbid&e=success");
+    $commentText = 'reset all entries for this leaderboard';
+    addArticleComment("Server", \RA\ArticleType::Leaderboard, $lbid, "\"$user\" $commentText.", $user);
     exit;
 } else {
     header("location: " . getenv('APP_URL') . "/leaderboardinfo.php?i=$lbid&e=failed");
