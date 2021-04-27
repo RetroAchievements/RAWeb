@@ -14,7 +14,7 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 if (removeLeaderboardEntry($targetUser, $leaderboardId)) {
     header('Location: ' . $returnUrl . '&success=true');
     $commentText = 'removed "' . $targetUser . '"s entry from this leaderboard';
-        addArticleComment("Server", \RA\ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
+    addArticleComment("Server", \RA\ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
     return;
 }
 
