@@ -5,6 +5,7 @@ use RA\ActivityType;
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 {
     global $db;
+    sanitize_sql_inputs($user, $lbID, $newEntry);
 
     $retVal = [];
     $retVal['Success'] = true;
@@ -102,6 +103,8 @@ function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 
 function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
 {
+    sanitize_sql_inputs($user, $lbID, $newEntry);
+
     //    Fetch some always-needed data
     $query = "SELECT Format, ID, GameID, Title
               FROM LeaderboardDef AS ld
@@ -213,6 +216,8 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
 
 function removeLeaderboardEntry($user, $lbID)
 {
+    sanitize_sql_inputs($user, $lbID);
+
     $userID = getUserIDFromUser($user);
     if ($userID > 0) {
         $query = "DELETE FROM LeaderboardEntry
@@ -235,6 +240,8 @@ function removeLeaderboardEntry($user, $lbID)
 
 function GetLeaderboardRankingJSON($user, $lbID)
 {
+    sanitize_sql_inputs($user, $lbID);
+
     $retVal = [];
 
     $query = "SELECT COUNT(*) AS UserRank,
@@ -249,14 +256,15 @@ function GetLeaderboardRankingJSON($user, $lbID)
     if ($dbResult !== false) {
         $retVal = mysqli_fetch_assoc($dbResult);
 
-        //    Query actually gives 'how many players are below me in the list.'
-        //    Top position yields '0', which we should change to '1' for '1st'
-        //    Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // Query actually gives 'how many players are below me in the list.'
+        // Top position yields '0', which we should change to '1' for '1st'
+        // Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // 0=1st place.
         if ($retVal['LowerIsBetter'] == 1) {
-            $retVal['Rank'] = ($retVal['NumEntries'] - $retVal['UserRank']);
+            $retVal['Rank'] = (int) $retVal['NumEntries'] - (int) $retVal['UserRank'];
         } else {
-            $retVal['Rank'] = $retVal['UserRank'] + 1;
-        }      //    0=1st place.
+            $retVal['Rank'] = (int) $retVal['UserRank'] + 1;
+        }
     }
 
     return $retVal;
@@ -265,6 +273,8 @@ function GetLeaderboardRankingJSON($user, $lbID)
 // TODO Deprecate: fold into above
 function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries)
 {
+    sanitize_sql_inputs($user, $lbID);
+
     $query = "SELECT
               COUNT(*) AS UserRank,
               (SELECT ld.LowerIsBetter FROM LeaderboardDef AS ld WHERE ld.ID=$lbID) AS LowerIsBetter,
@@ -278,17 +288,18 @@ function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries)
     if ($dbResult !== false) {
         $db_entry = mysqli_fetch_assoc($dbResult);
 
-        $rankOut = $db_entry['UserRank'];
-        $totalEntries = $db_entry['NumEntries'];
+        $rankOut = (int) $db_entry['UserRank'];
+        $totalEntries = (int) $db_entry['NumEntries'];
 
-        //    Query actually gives 'how many players are below me in the list.'
-        //    Top position yields '0', which we should change to '1' for '1st'
-        //    Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // Query actually gives 'how many players are below me in the list.'
+        // Top position yields '0', which we should change to '1' for '1st'
+        // Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
+        // 0=1st place.
         if ($db_entry['LowerIsBetter'] == 1) {
-            $rankOut = ($totalEntries - $rankOut);
+            $rankOut = $totalEntries - $rankOut;
         } else {
-            $rankOut += 1;
-        }      //    0=1st place.
+            $rankOut++;
+        }
 
         return true;
     } else {
@@ -300,6 +311,8 @@ function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries)
 
 function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
 {
+    sanitize_sql_inputs($gameID, $localUser);
+
     $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format FROM (
                 SELECT
                 CASE
@@ -337,6 +350,8 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
 
 function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $friendsOnly)
 {
+    sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
+
     $retVal = [];
 
     //    'Me or my friends'
@@ -368,6 +383,8 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
 
 function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
 {
+    sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
+
     $retVal = [];
 
     //    Get raw LB data
@@ -507,6 +524,8 @@ function getLeaderboardDataSmall(
     &$consoleIDOut,
     &$consoleTitleOut
 ) {
+    sanitize_sql_inputs($lbID);
+
     $query = "SELECT ld.Title, Description, GameID, Format, LowerIsBetter, gd.Title AS GameTitle, gd.ConsoleID, gd.ForumTopicID, c.Name AS ConsoleTitle ";
     $query .= "FROM LeaderboardDef AS ld ";
     $query .= "LEFT JOIN GameData AS gd ON gd.ID = ld.GameID ";
@@ -537,6 +556,7 @@ function getLeaderboardDataSmall(
 
 function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, &$lbDataOut)
 {
+    sanitize_sql_inputs($consoleIDInput, $gameID, $count, $offset);
     settype($sortBy, 'integer');
     settype($consoleIDInput, 'integer');
     settype($gameID, 'integer');
@@ -635,6 +655,7 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
 
 function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)
 {
+    sanitize_sql_inputs($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder);
     settype($lbDisplayOrder, 'integer');
 
     $query = "UPDATE LeaderboardDef AS ld SET
@@ -662,6 +683,7 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
 
 function SubmitNewLeaderboard($gameID, &$lbIDOut)
 {
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID == 0) {
         return false;
@@ -692,6 +714,7 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
  */
 function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 {
+    sanitize_sql_inputs($gameID, $leaderboardID);
     settype($gameID, 'integer');
     settype($leaderboardID, 'integer');
     settype($duplicateNumber, 'integer');
@@ -750,6 +773,7 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 
 function requestResetLB($lbID)
 {
+    sanitize_sql_inputs($lbID);
     settype($lbID, 'integer');
     if ($lbID == 0) {
         return false;
@@ -765,6 +789,7 @@ function requestResetLB($lbID)
 
 function requestDeleteLB($lbID)
 {
+    sanitize_sql_inputs($lbID);
     settype($lbID, 'integer');
     //log_email(__FUNCTION__ . " LB $lbID being deleted!");
 
@@ -779,6 +804,7 @@ function requestDeleteLB($lbID)
 
 function GetLBPatch($gameID)
 {
+    sanitize_sql_inputs($gameID);
     $lbData = [];
 
     //    Always append LBs?
@@ -798,4 +824,9 @@ function GetLBPatch($gameID)
     }
 
     return $lbData;
+}
+
+function deleteOrphanedLeaderboardEntries()
+{
+    s_mysql_query("DELETE le FROM LeaderboardEntry le LEFT JOIN UserAccounts ua ON le.UserID = ua.ID WHERE ua.User IS NULL");
 }

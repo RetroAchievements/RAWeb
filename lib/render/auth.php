@@ -35,6 +35,8 @@ function RenderLoginComponent($user, $points, $errorCode, $inline = false)
 
         echo "</div>";
     } else {
+        sanitize_outputs($user);
+
         echo "<h3>$user</h3>";
         echo "<div class='infobox'>";
 

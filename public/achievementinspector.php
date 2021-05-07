@@ -1,24 +1,29 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 $modifyOK = ($permissions >= \RA\Permissions::Developer);
 
-$gameID = seekGET('g');
-$errorCode = seekGET('e');
-$flag = seekGET('f', 3);
+$gameID = requestInputSanitized('g', null, 'integer');
+$errorCode = requestInputSanitized('e');
+$flag = requestInputSanitized('f', 3, 'integer');
 
 $achievementList = [];
 $gamesList = [];
 
 $codeNotes = [];
 
+$achievementData = null;
+$consoleName = null;
+$gameIcon = null;
+$gameTitle = null;
 $gameIDSpecified = (isset($gameID) && $gameID != 0);
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];
+    sanitize_outputs($gameTitle, $consoleName);
 
     getCodeNotes($gameID, $codeNotes);
 } else {
@@ -146,7 +151,7 @@ RenderHtmlHead("Manage Achievements");
         echo "</tr>";
 
         //	Display all achievements
-        foreach ((array)$achievementData as $achievementEntry) {
+        foreach ((array) $achievementData as $achievementEntry) {
             $achID = $achievementEntry['ID'];
             //$gameConsoleID = $achievementEntry['ConsoleID'];
             $achTitle = $achievementEntry['Title'];
@@ -162,6 +167,8 @@ RenderHtmlHead("Manage Achievements");
             $achBadgeName = $achievementEntry['BadgeName'];
             $achDisplayOrder = $achievementEntry['DisplayOrder'];
             $achBadgeFile = getenv('ASSET_URL') . "/Badge/$achBadgeName" . ".png";
+
+            sanitize_outputs($achTitle, $achDesc);
 
             echo "<tr>";
             if ($modifyOK) {
@@ -200,6 +207,7 @@ RenderHtmlHead("Manage Achievements");
             $gameID = $gameEntry['ID'];
             $gameTitle = $gameEntry['Title'];
             $console = $gameEntry['ConsoleName'];
+            sanitize_outputs($gameTitle, $console);
 
             if ($lastConsole == 'NULL') {
                 echo "<tr><td>$console:</td>";

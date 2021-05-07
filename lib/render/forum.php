@@ -18,12 +18,17 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
 
             $postedAt = date("H:i", $timestamp);
 
-
             $shortMsg = $nextData['ShortMsg'] . "...";
             $author = $nextData['Author'];
             $commentID = $nextData['CommentID'];
             $forumTopicID = $nextData['ForumTopicID'];
             $forumTopicTitle = $nextData['ForumTopicTitle'];
+
+            sanitize_outputs(
+                $shortMsg,
+                $author,
+                $forumTopicTitle,
+            );
 
             echo "<div class='embedded mb-1'>";
             echo "<div style='line-height: 1em;'>";

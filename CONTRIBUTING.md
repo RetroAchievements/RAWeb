@@ -1,8 +1,12 @@
 # Contribution Guide
 
+## Code of Conduct
+
+Please review and abide by the [Code of Conduct](https://docs.retroachievements.org/Users-Code-of-Conduct/).
+
 ## Which Branch?
 
-All PRs should be sent to the latest develop branch and should never be sent to the master branch.
+State PRs from feature branches towards the latest default branch.
 
 ## Security Vulnerabilities
 
@@ -10,7 +14,7 @@ If you discover a security vulnerability, please send an on-site message to [RAd
 
 ## Coding Style
 
-Commit code style fixes separately from feature code.
+Run the provided code style fixers.
 
 ### PHP
 
@@ -23,4 +27,3 @@ Run `composer fix-cs` to fix most code style issues automatically.
 Follow the [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript).
 
 Run `npm run fix-cs` to fix most code style issues automatically. 
-

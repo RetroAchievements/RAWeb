@@ -1,10 +1,8 @@
 <?php
-/**
- * @return Facebook
- */
+
 function getFacebookConnection()
 {
-    require_once __DIR__ . '/facebook/facebook.php';
+    require_once __DIR__ . '/facebook/Facebook.php';
 
     return new Facebook([
         'appId' => getenv('FACEBOOK_CLIENT_ID'),

@@ -1,520 +1,520 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$dev = seekGET('u');
-$errorCode = seekGET('e');
+$dev = requestInputSanitized('u');
+$errorCode = requestInputSanitized('e');
 
 $userArchInfo = getUserAchievementInformation($dev);
-$userContribCount = 0;
-$userContribYield = 0;
-if (count($userArchInfo) > 0) {
-    $userContribCount = $userArchInfo[0]['ContribCount'];
-    $userContribYield = $userArchInfo[0]['ContribYield'];
-}
 
 // Only get stats if the user has a contribute count
-if ($userContribCount > 0) {
-    // Get sets and achievemtns per console data for pie charts
-    $setsPerConsole = getUserSetsPerConsole($dev);
-    $achievementsPerConsole = getUserAchievemetnsPerConsole($dev);
+if (empty($userArchInfo)) {
+    header("Location: " . getenv('APP_URL') . "/user/" . $dev);
+    return;
+}
 
-    // Initialise any dev game variables
-    $gamesList = [];
-    $anyDevGameIDs = [];
-    $anyDevHardestGame = [];
-    $anyDevEasiestGame = [];
-    $anyDevRichPresenceCount = 0;
-    $anyDevLeaderboardCount = 0;
-    $anyDevLeaderboardTotal = 0;
+$userContribCount = $userArchInfo[0]['ContribCount'];
+$userContribYield = $userArchInfo[0]['ContribYield'];
 
-    // Initialise majority dev game variables
-    $majorityDevGameIDs = [];
-    $majorityDevHardestGame = [];
-    $majorityDevEasiestGame = [];
-    $majorityDevAchievementCount = 0;
-    $majorityDevRichPresenceCount = 0;
-    $majorityDevLeaderboardCount = 0;
-    $majorityDevLeaderboardTotal = 0;
+// Get sets and achievements per console data for pie charts
+$setsPerConsole = getUserSetsPerConsole($dev);
+$achievementsPerConsole = getUserAchievemetnsPerConsole($dev);
 
-    // Initialise sole dev game variables
-    $onlyDevGameIDs = [];
-    $onlyDevHardestGame = [];
-    $onlyDevEasiestGame = [];
-    $onlyDevAchievementCount = 0;
-    $onlyDevRichPresenceCount = 0;
-    $onlyDevLeaderboardCount = 0;
-    $onlyDevLeaderboardTotal = 0;
+// Initialise any dev game variables
+$gamesList = [];
+$anyDevGameIDs = [];
+$anyDevHardestGame = [];
+$anyDevEasiestGame = [];
+$anyDevRichPresenceCount = 0;
+$anyDevLeaderboardCount = 0;
+$anyDevLeaderboardTotal = 0;
 
-    // Get user game list data
-    getGamesListByDev($dev, 0, $gamesList, 1, false, false);
-    foreach ($gamesList as $game) {
-        $consoleID = $game['ConsoleID'];
-        if ($consoleID != 100 && $consoleID != 101) {
-            // Any part developer
-            if (count($anyDevGameIDs) == 0) {
+// Initialise majority dev game variables
+$majorityDevGameIDs = [];
+$majorityDevHardestGame = [];
+$majorityDevEasiestGame = [];
+$majorityDevAchievementCount = 0;
+$majorityDevRichPresenceCount = 0;
+$majorityDevLeaderboardCount = 0;
+$majorityDevLeaderboardTotal = 0;
+
+// Initialise sole dev game variables
+$onlyDevGameIDs = [];
+$onlyDevHardestGame = [];
+$onlyDevEasiestGame = [];
+$onlyDevAchievementCount = 0;
+$onlyDevRichPresenceCount = 0;
+$onlyDevLeaderboardCount = 0;
+$onlyDevLeaderboardTotal = 0;
+
+// Get user game list data
+getGamesListByDev($dev, 0, $gamesList, 1, false);
+foreach ($gamesList as $game) {
+    $consoleID = $game['ConsoleID'];
+    if ($consoleID != 100 && $consoleID != 101) {
+        // Any part developer
+        if (count($anyDevGameIDs) == 0) {
+            $anyDevHardestGame = $game;
+            $anyDevEasiestGame = $game;
+        } else {
+            if (($anyDevHardestGame['TotalTruePoints'] / $anyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
                 $anyDevHardestGame = $game;
+            }
+            if ($anyDevEasiestGame['TotalTruePoints'] == 0 || ($anyDevEasiestGame['TotalTruePoints'] / $anyDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($anyDevEasiestGame['TotalTruePoints'] / $anyDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
                 $anyDevEasiestGame = $game;
+            }
+        }
+        array_push($anyDevGameIDs, $game['ID']);
+        $anyDevRichPresenceCount += $game['RichPresence'];
+        $anyDevLeaderboardTotal += $game['NumLBs'];
+        if (isset($game['NumLBs'])) {
+            $anyDevLeaderboardCount++;
+        }
+
+        // Majority developer
+        if ($game['MyAchievements'] >= $game['NotMyAchievements']) {
+            if (count($majorityDevGameIDs) == 0) {
+                $majorityDevHardestGame = $game;
+                $majorityDevEasiestGame = $game;
             } else {
-                if (($anyDevHardestGame['TotalTruePoints'] / $anyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
-                    $anyDevHardestGame = $game;
-                }
-                if ($anyDevEasiestGame['TotalTruePoints'] == 0 || ($anyDevEasiestGame['TotalTruePoints'] / $anyDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($anyDevEasiestGame['TotalTruePoints'] / $anyDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
-                    $anyDevEasiestGame = $game;
-                }
-            }
-            array_push($anyDevGameIDs, $game['ID']);
-            $anyDevRichPresenceCount += $game['RichPresence'];
-            $anyDevLeaderboardTotal += $game['NumLBs'];
-            if (isset($game['NumLBs'])) {
-                $anyDevLeaderboardCount++;
-            }
-
-            // Majority developer
-            if ($game['MyAchievements'] >= $game['NotMyAchievements']) {
-                if (count($majorityDevGameIDs) == 0) {
+                if (($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
                     $majorityDevHardestGame = $game;
+                }
+                if ($majorityDevEasiestGame['TotalTruePoints'] == 0 || ($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
                     $majorityDevEasiestGame = $game;
-                } else {
-                    if (($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
-                        $majorityDevHardestGame = $game;
-                    }
-                    if ($majorityDevEasiestGame['TotalTruePoints'] == 0 || ($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
-                        $majorityDevEasiestGame = $game;
-                    }
-                }
-                array_push($majorityDevGameIDs, $game['ID']);
-                $majorityDevAchievementCount += $game['MyAchievements'];
-                $majorityDevRichPresenceCount += $game['RichPresence'];
-                $majorityDevLeaderboardTotal += $game['NumLBs'];
-                if (isset($game['NumLBs'])) {
-                    $majorityDevLeaderboardCount++;
                 }
             }
+            array_push($majorityDevGameIDs, $game['ID']);
+            $majorityDevAchievementCount += $game['MyAchievements'];
+            $majorityDevRichPresenceCount += $game['RichPresence'];
+            $majorityDevLeaderboardTotal += $game['NumLBs'];
+            if (isset($game['NumLBs'])) {
+                $majorityDevLeaderboardCount++;
+            }
+        }
 
-            // Only developer
-            if ($game['MyAchievements'] == $game['NumAchievements']) {
-                if (count($onlyDevGameIDs) == 0) {
+        // Only developer
+        if ($game['MyAchievements'] == $game['NumAchievements']) {
+            if (count($onlyDevGameIDs) == 0) {
+                $onlyDevHardestGame = $game;
+                $onlyDevEasiestGame = $game;
+            } else {
+                if (($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
                     $onlyDevHardestGame = $game;
+                }
+                if ($onlyDevEasiestGame['TotalTruePoints'] == 0 || ($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
                     $onlyDevEasiestGame = $game;
-                } else {
-                    if (($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
-                        $onlyDevHardestGame = $game;
-                    }
-                    if ($onlyDevEasiestGame['TotalTruePoints'] == 0 || ($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
-                        $onlyDevEasiestGame = $game;
-                    }
-                }
-                array_push($onlyDevGameIDs, $game['ID']);
-                $onlyDevAchievementCount += $game['MyAchievements'];
-                $onlyDevRichPresenceCount += $game['RichPresence'];
-                $onlyDevLeaderboardTotal += $game['NumLBs'];
-                if (isset($game['NumLBs'])) {
-                    $onlyDevLeaderboardCount++;
                 }
             }
-        }
-    }
-
-    // Initialize any dev game award variables
-    $anyDevMostCompletedGame = [];
-    $anyDevMostMasteredGame = [];
-
-    // Get user award data for any developed games
-    $anyDevCompletedMasteredGames = getMostAwardedGames($anyDevGameIDs);
-    foreach ($anyDevCompletedMasteredGames as $game) {
-        if (count($anyDevMostCompletedGame) == 0) {
-            if ($game['Completed'] > 0) {
-                $anyDevMostCompletedGame = $game;
-            }
-        } else {
-            if ($anyDevMostCompletedGame['Completed'] < $game['Completed']) {
-                $anyDevMostCompletedGame = $game;
-            }
-        }
-
-        if (count($anyDevMostMasteredGame) == 0) {
-            if ($game['Mastered'] > 0) {
-                $anyDevMostMasteredGame = $game;
-            }
-        } else {
-            if ($anyDevMostMasteredGame['Mastered'] < $game['Mastered']) {
-                $anyDevMostMasteredGame = $game;
+            array_push($onlyDevGameIDs, $game['ID']);
+            $onlyDevAchievementCount += $game['MyAchievements'];
+            $onlyDevRichPresenceCount += $game['RichPresence'];
+            $onlyDevLeaderboardTotal += $game['NumLBs'];
+            if (isset($game['NumLBs'])) {
+                $onlyDevLeaderboardCount++;
             }
         }
     }
+}
 
-    // Initialize any dev user award variables
-    $anyDevOwnAwards = [];
-    $anyDevCompletedAwards = 0;
-    $anyDevMasteredAwards = 0;
-    $anyDevUserMostCompleted = [];
-    $anyDevUserMostMastered = [];
+// Initialize any dev game award variables
+$anyDevMostCompletedGame = [];
+$anyDevMostMasteredGame = [];
 
-    // Get user award data for any developed games
-    $anyDevAwardInfo = getMostAwardedUsers($anyDevGameIDs);
-    foreach ($anyDevAwardInfo as $userInfo) {
-        if (count($anyDevUserMostCompleted) == 0) {
-            if ($userInfo['Completed'] > 0) {
-                $anyDevUserMostCompleted = $userInfo;
-            }
-        } else {
-            if ($anyDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
-                $anyDevUserMostCompleted = $userInfo;
-            }
+// Get user award data for any developed games
+$anyDevCompletedMasteredGames = getMostAwardedGames($anyDevGameIDs);
+foreach ($anyDevCompletedMasteredGames as $game) {
+    if (count($anyDevMostCompletedGame) == 0) {
+        if ($game['Completed'] > 0) {
+            $anyDevMostCompletedGame = $game;
         }
-
-        if (count($anyDevUserMostMastered) == 0) {
-            if ($userInfo['Mastered'] > 0) {
-                $anyDevUserMostMastered = $userInfo;
-            }
-        } else {
-            if ($anyDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
-                $anyDevUserMostMastered = $userInfo;
-            }
-        }
-
-        if (strcmp($dev, $userInfo['User']) == 0) {
-            $anyDevOwnAwards = $userInfo;
-        }
-        $anyDevCompletedAwards += $userInfo['Completed'];
-        $anyDevMasteredAwards += $userInfo['Mastered'];
-    }
-
-    // Initialize majority dev game award variables
-    $majorityDevMostCompletedGame = [];
-    $majorityDevMostMasteredGame = [];
-
-    // Get user award data for majority developed games
-    $majorityDevCompletedMasteredGames = getMostAwardedGames($majorityDevGameIDs);
-    foreach ($majorityDevCompletedMasteredGames as $game) {
-        if (count($majorityDevMostCompletedGame) == 0) {
-            if ($game['Completed'] > 0) {
-                $majorityDevMostCompletedGame = $game;
-            }
-        } else {
-            if ($majorityDevMostCompletedGame['Completed'] < $game['Completed']) {
-                $majorityDevMostCompletedGame = $game;
-            }
-        }
-
-        if (count($majorityDevMostMasteredGame) == 0) {
-            if ($game['Mastered'] > 0) {
-                $majorityDevMostMasteredGame = $game;
-            }
-        } else {
-            if ($majorityDevMostMasteredGame['Mastered'] < $game['Mastered']) {
-                $majorityDevMostMasteredGame = $game;
-            }
+    } else {
+        if ($anyDevMostCompletedGame['Completed'] < $game['Completed']) {
+            $anyDevMostCompletedGame = $game;
         }
     }
 
-    // Initialize majority dev user award variables
-    $majorityDevOwnAwards = [];
-    $majorityDevCompletedAwards = 0;
-    $majorityDevMasteredAwards = 0;
-    $majorityDevUserMostCompleted = [];
-    $majorityDevUserMostMastered = [];
-
-    // Get user award data for majority developed games
-    $majorityDevAwardInfo = getMostAwardedUsers($majorityDevGameIDs);
-    foreach ($majorityDevAwardInfo as $userInfo) {
-        if (count($majorityDevUserMostCompleted) == 0) {
-            if ($userInfo['Completed'] > 0) {
-                $majorityDevUserMostCompleted = $userInfo;
-            }
-        } else {
-            if ($majorityDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
-                $majorityDevUserMostCompleted = $userInfo;
-            }
+    if (count($anyDevMostMasteredGame) == 0) {
+        if ($game['Mastered'] > 0) {
+            $anyDevMostMasteredGame = $game;
         }
-
-        if (count($majorityDevUserMostMastered) == 0) {
-            if ($userInfo['Mastered'] > 0) {
-                $majorityDevUserMostMastered = $userInfo;
-            }
-        } else {
-            if ($majorityDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
-                $majorityDevUserMostMastered = $userInfo;
-            }
+    } else {
+        if ($anyDevMostMasteredGame['Mastered'] < $game['Mastered']) {
+            $anyDevMostMasteredGame = $game;
         }
-
-        if (strcmp($dev, $userInfo['User']) == 0) {
-            $majorityDevOwnAwards = $userInfo;
-        }
-        $majorityDevCompletedAwards += $userInfo['Completed'];
-        $majorityDevMasteredAwards += $userInfo['Mastered'];
     }
+}
 
-    // Initialize sole dev game award variables
-    $onlyDevMostCompletedGame = [];
-    $onlyDevMostMasteredGame = [];
+// Initialize any dev user award variables
+$anyDevOwnAwards = [];
+$anyDevCompletedAwards = 0;
+$anyDevMasteredAwards = 0;
+$anyDevUserMostCompleted = [];
+$anyDevUserMostMastered = [];
 
-    // Get user award data for solely developed games
-    $onlyDevCompletedMasteredGames = getMostAwardedGames($onlyDevGameIDs);
-    foreach ($onlyDevCompletedMasteredGames as $game) {
-        if (count($onlyDevMostCompletedGame) == 0) {
-            if ($game['Completed'] > 0) {
-                $onlyDevMostCompletedGame = $game;
-            }
-        } else {
-            if ($onlyDevMostCompletedGame['Completed'] < $game['Completed']) {
-                $onlyDevMostCompletedGame = $game;
-            }
+// Get user award data for any developed games
+$anyDevAwardInfo = getMostAwardedUsers($anyDevGameIDs);
+foreach ($anyDevAwardInfo as $userInfo) {
+    if (count($anyDevUserMostCompleted) == 0) {
+        if ($userInfo['Completed'] > 0) {
+            $anyDevUserMostCompleted = $userInfo;
         }
-
-        if (count($onlyDevMostMasteredGame) == 0) {
-            if ($game['Mastered'] > 0) {
-                $onlyDevMostMasteredGame = $game;
-            }
-        } else {
-            if ($onlyDevMostMasteredGame['Mastered'] < $game['Mastered']) {
-                $onlyDevMostMasteredGame = $game;
-            }
+    } else {
+        if ($anyDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
+            $anyDevUserMostCompleted = $userInfo;
         }
     }
 
-    // Initialize sole dev user award variables
-    $onlyDevOwnAwards = [];
-    $onlyDevCompletedAwards = 0;
-    $onlyDevMasteredAwards = 0;
-    $onlyDevUserMostCompleted = [];
-    $onlyDevUserMostMastered = [];
-
-    // Get user award data for solely developed games
-    $onlyDevAwardInfo = getMostAwardedUsers($onlyDevGameIDs);
-    foreach ($onlyDevAwardInfo as $userInfo) {
-        if (count($onlyDevUserMostCompleted) == 0) {
-            if ($userInfo['Completed'] > 0) {
-                $onlyDevUserMostCompleted = $userInfo;
-            }
-        } else {
-            if ($onlyDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
-                $onlyDevUserMostCompleted = $userInfo;
-            }
+    if (count($anyDevUserMostMastered) == 0) {
+        if ($userInfo['Mastered'] > 0) {
+            $anyDevUserMostMastered = $userInfo;
         }
-
-        if (count($onlyDevUserMostMastered) == 0) {
-            if ($userInfo['Mastered'] > 0) {
-                $onlyDevUserMostMastered = $userInfo;
-            }
-        } else {
-            if ($onlyDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
-                $onlyDevUserMostMastered = $userInfo;
-            }
+    } else {
+        if ($anyDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
+            $anyDevUserMostMastered = $userInfo;
         }
-
-        if (strcmp($dev, $userInfo['User']) == 0) {
-            $onlyDevOwnAwards = $userInfo;
-        }
-        $onlyDevCompletedAwards += $userInfo['Completed'];
-        $onlyDevMasteredAwards += $userInfo['Mastered'];
     }
 
-    // Initialize user achievement variables
-    $defaultBadges = array(
-        "00000",
-        "00080",
-        "00083",
-        "00084",
-        "00085",
-        "00132",
-        "00133",
-        "00134",
-        "00135",
-        "00136",
-        "00137",
-    );
-    $achievementCount = 0;
-    $totalMemLegth = 0;
-    $customBadgesCount = 0;
-    $totalPoints = 0;
-    $totalTruePoints = 0;
-    $shortestMemAchievement = [];
-    $longestMemAchievement = [];
-    $easiestAchievement = [];
-    $hardestAchievement = [];
-    $firstAchievement = [];
-    $lastAchievement = [];
-    $achievementIDs = [];
-    foreach ($userArchInfo as $achievement) {
-        if ($achievementCount == 0) {
-            $shortestMemAchievement = $achievement;
-            $longestMemAchievement = $achievement;
-            $easiestAchievement = $achievement;
-            $hardestAchievement = $achievement;
-            $firstAchievement = $achievement;
-            $lastAchievement = $achievement;
-        } else {
-            if ($hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
-                $hardestAchievement = $achievement;
-            }
-            if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && (($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
-                $easiestAchievement = $achievement;
-            }
-            if ($shortestMemAchievement['MemLength'] > $achievement['MemLength']) {
-                $shortestMemAchievement = $achievement;
-            }
-            if ($longestMemAchievement['MemLength'] < $achievement['MemLength']) {
-                $longestMemAchievement = $achievement;
-            }
-        }
+    if (strcmp($dev, $userInfo['User']) == 0) {
+        $anyDevOwnAwards = $userInfo;
+    }
+    $anyDevCompletedAwards += $userInfo['Completed'];
+    $anyDevMasteredAwards += $userInfo['Mastered'];
+}
 
-        if (! in_array($achievement['BadgeName'], $defaultBadges)) {
-            $customBadgesCount++;
+// Initialize majority dev game award variables
+$majorityDevMostCompletedGame = [];
+$majorityDevMostMasteredGame = [];
+
+// Get user award data for majority developed games
+$majorityDevCompletedMasteredGames = getMostAwardedGames($majorityDevGameIDs);
+foreach ($majorityDevCompletedMasteredGames as $game) {
+    if (count($majorityDevMostCompletedGame) == 0) {
+        if ($game['Completed'] > 0) {
+            $majorityDevMostCompletedGame = $game;
         }
-        $achievementCount++;
-        $totalMemLegth += $achievement['MemLength'];
-        $totalPoints += $achievement['Points'];
-        $totalTruePoints += $achievement['TrueRatio'];
+    } else {
+        if ($majorityDevMostCompletedGame['Completed'] < $game['Completed']) {
+            $majorityDevMostCompletedGame = $game;
+        }
+    }
+
+    if (count($majorityDevMostMasteredGame) == 0) {
+        if ($game['Mastered'] > 0) {
+            $majorityDevMostMasteredGame = $game;
+        }
+    } else {
+        if ($majorityDevMostMasteredGame['Mastered'] < $game['Mastered']) {
+            $majorityDevMostMasteredGame = $game;
+        }
+    }
+}
+
+// Initialize majority dev user award variables
+$majorityDevOwnAwards = [];
+$majorityDevCompletedAwards = 0;
+$majorityDevMasteredAwards = 0;
+$majorityDevUserMostCompleted = [];
+$majorityDevUserMostMastered = [];
+
+// Get user award data for majority developed games
+$majorityDevAwardInfo = getMostAwardedUsers($majorityDevGameIDs);
+foreach ($majorityDevAwardInfo as $userInfo) {
+    if (count($majorityDevUserMostCompleted) == 0) {
+        if ($userInfo['Completed'] > 0) {
+            $majorityDevUserMostCompleted = $userInfo;
+        }
+    } else {
+        if ($majorityDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
+            $majorityDevUserMostCompleted = $userInfo;
+        }
+    }
+
+    if (count($majorityDevUserMostMastered) == 0) {
+        if ($userInfo['Mastered'] > 0) {
+            $majorityDevUserMostMastered = $userInfo;
+        }
+    } else {
+        if ($majorityDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
+            $majorityDevUserMostMastered = $userInfo;
+        }
+    }
+
+    if (strcmp($dev, $userInfo['User']) == 0) {
+        $majorityDevOwnAwards = $userInfo;
+    }
+    $majorityDevCompletedAwards += $userInfo['Completed'];
+    $majorityDevMasteredAwards += $userInfo['Mastered'];
+}
+
+// Initialize sole dev game award variables
+$onlyDevMostCompletedGame = [];
+$onlyDevMostMasteredGame = [];
+
+// Get user award data for solely developed games
+$onlyDevCompletedMasteredGames = getMostAwardedGames($onlyDevGameIDs);
+foreach ($onlyDevCompletedMasteredGames as $game) {
+    if (count($onlyDevMostCompletedGame) == 0) {
+        if ($game['Completed'] > 0) {
+            $onlyDevMostCompletedGame = $game;
+        }
+    } else {
+        if ($onlyDevMostCompletedGame['Completed'] < $game['Completed']) {
+            $onlyDevMostCompletedGame = $game;
+        }
+    }
+
+    if (count($onlyDevMostMasteredGame) == 0) {
+        if ($game['Mastered'] > 0) {
+            $onlyDevMostMasteredGame = $game;
+        }
+    } else {
+        if ($onlyDevMostMasteredGame['Mastered'] < $game['Mastered']) {
+            $onlyDevMostMasteredGame = $game;
+        }
+    }
+}
+
+// Initialize sole dev user award variables
+$onlyDevOwnAwards = [];
+$onlyDevCompletedAwards = 0;
+$onlyDevMasteredAwards = 0;
+$onlyDevUserMostCompleted = [];
+$onlyDevUserMostMastered = [];
+
+// Get user award data for solely developed games
+$onlyDevAwardInfo = getMostAwardedUsers($onlyDevGameIDs);
+foreach ($onlyDevAwardInfo as $userInfo) {
+    if (count($onlyDevUserMostCompleted) == 0) {
+        if ($userInfo['Completed'] > 0) {
+            $onlyDevUserMostCompleted = $userInfo;
+        }
+    } else {
+        if ($onlyDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
+            $onlyDevUserMostCompleted = $userInfo;
+        }
+    }
+
+    if (count($onlyDevUserMostMastered) == 0) {
+        if ($userInfo['Mastered'] > 0) {
+            $onlyDevUserMostMastered = $userInfo;
+        }
+    } else {
+        if ($onlyDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
+            $onlyDevUserMostMastered = $userInfo;
+        }
+    }
+
+    if (strcmp($dev, $userInfo['User']) == 0) {
+        $onlyDevOwnAwards = $userInfo;
+    }
+    $onlyDevCompletedAwards += $userInfo['Completed'];
+    $onlyDevMasteredAwards += $userInfo['Mastered'];
+}
+
+// Initialize user achievement variables
+$defaultBadges = [
+    "00000",
+    "00080",
+    "00083",
+    "00084",
+    "00085",
+    "00132",
+    "00133",
+    "00134",
+    "00135",
+    "00136",
+    "00137",
+];
+$achievementCount = 0;
+$totalMemLegth = 0;
+$customBadgesCount = 0;
+$totalPoints = 0;
+$totalTruePoints = 0;
+$shortestMemAchievement = [];
+$longestMemAchievement = [];
+$easiestAchievement = [];
+$hardestAchievement = [];
+$firstAchievement = [];
+$lastAchievement = [];
+$achievementIDs = [];
+foreach ($userArchInfo as $achievement) {
+    if ($achievementCount == 0) {
+        $shortestMemAchievement = $achievement;
+        $longestMemAchievement = $achievement;
+        $easiestAchievement = $achievement;
+        $hardestAchievement = $achievement;
+        $firstAchievement = $achievement;
         $lastAchievement = $achievement;
-        array_push($achievementIDs, $achievement['ID']);
+    } else {
+        if ($hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
+            $hardestAchievement = $achievement;
+        }
+        if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && (($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
+            $easiestAchievement = $achievement;
+        }
+        if ($shortestMemAchievement['MemLength'] > $achievement['MemLength']) {
+            $shortestMemAchievement = $achievement;
+        }
+        if ($longestMemAchievement['MemLength'] < $achievement['MemLength']) {
+            $longestMemAchievement = $achievement;
+        }
     }
 
-    $averagePoints = $totalPoints / $achievementCount;
-    $averageTruePoints = $totalTruePoints / $achievementCount;
-    $averageMemLength = $totalMemLegth / $achievementCount;
+    if (!in_array($achievement['BadgeName'], $defaultBadges)) {
+        $customBadgesCount++;
+    }
+    $achievementCount++;
+    $totalMemLegth += $achievement['MemLength'];
+    $totalPoints += $achievement['Points'];
+    $totalTruePoints += $achievement['TrueRatio'];
+    $lastAchievement = $achievement;
+    array_push($achievementIDs, $achievement['ID']);
+}
 
-    // Get own achievements earned info
-    $ownAchievementsObtained = getOwnAchievementsObtained($dev);
+$averagePoints = $totalPoints / $achievementCount;
+$averageTruePoints = $totalTruePoints / $achievementCount;
+$averageMemLength = $totalMemLegth / $achievementCount;
 
-    // Initialize unique obtainers variables
-    $uniqueObtainers = 0;
-    $mostAchievementObtainer = [];
+// Get own achievements earned info
+$ownAchievementsObtained = getOwnAchievementsObtained($dev);
 
-    // Get unique obtainers for user
-    $obtainers = getObtainersOfSpecificUser($dev);
-    foreach ($obtainers as $obtainer) {
-        if ($uniqueObtainers == 0) {
+// Initialize unique obtainers variables
+$uniqueObtainers = 0;
+$mostAchievementObtainer = [];
+
+// Get unique obtainers for user
+$obtainers = getObtainersOfSpecificUser($dev);
+foreach ($obtainers as $obtainer) {
+    if ($uniqueObtainers == 0) {
+        $mostAchievementObtainer = $obtainer;
+    } else {
+        if ($mostAchievementObtainer['ObtainCount'] < $obtainer['ObtainCount']) {
             $mostAchievementObtainer = $obtainer;
-        } else {
-            if ($mostAchievementObtainer['ObtainCount'] < $obtainer['ObtainCount']) {
-                $mostAchievementObtainer = $obtainer;
-            }
-        }
-        $uniqueObtainers++;
-    }
-
-    // Get last 200 achievements obtained by others
-    // Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
-    $maxRecentAchievements = 200;
-    $recentlyObtainedAchievements = getRecentObtainedAchievements($achievementIDs, 0, $maxRecentAchievements);
-
-    // Initialize code note variables
-    $mostNotedGame = [];
-    $userCodeNoteCount = 0;
-
-    // Get code note information for user
-    $codeNotes = getCodeNoteCounts($dev);
-    foreach ($codeNotes as $game) {
-        if (count($mostNotedGame) == 0) {
-            $mostNotedGame = $game;
-        }
-        $userCodeNoteCount += $game['NoteCount'];
-    }
-
-    // Initialize ticket information variables
-    $userTickets['total'] = 0;
-    $userTickets['closed'] = 0;
-    $userTickets['open'] = 0;
-    $userTickets['resolved'] = 0;
-    $userTickets['uniqueTotal'] = 0;
-    $userTickets['uniqueClosed'] = 0;
-    $userTickets['uniqueOpen'] = 0;
-    $userTickets['uniqueResolved'] = 0;
-    $prevID = 0;
-
-    // Get ticket information for user
-    $userTicketInfo = getTicketsForUser($dev);
-    foreach ($userTicketInfo as $ticketData) {
-        switch ($ticketData['ReportState']) {
-            case 0:
-                $userTickets['closed'] += $ticketData['TicketCount'];
-                $userTickets['total'] += $ticketData['TicketCount'];
-                $userTickets['uniqueClosed']++;
-                break;
-            case 1:
-                $userTickets['open'] += $ticketData['TicketCount'];
-                $userTickets['total'] += $ticketData['TicketCount'];
-                $userTickets['uniqueOpen']++;
-                break;
-            case 2:
-                $userTickets['resolved'] += $ticketData['TicketCount'];
-                $userTickets['total'] += $ticketData['TicketCount'];
-                $userTickets['uniqueResolved']++;
-                break;
-        }
-        if ($prevID != $ticketData['AchievementID']) {
-            $prevID = $ticketData['AchievementID'];
-            $userTickets['uniqueTotal']++;
         }
     }
+    $uniqueObtainers++;
+}
 
-    // Get most ticketed game and achievement
-    $mostTicketedGame = getUserGameWithMostTickets($dev);
-    $mostTicketedAchievement = getUserAchievementWithMostTickets($dev);
+// Get last 200 achievements obtained by others
+// Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
+$maxRecentAchievements = 200;
+$recentlyObtainedAchievements = getRecentObtainedAchievements($achievementIDs, 0, $maxRecentAchievements);
 
-    // Get user who created most tickets
-    $mostTicketCreator = getUserWhoCreatedMostTickets($dev);
+// Initialize code note variables
+$mostNotedGame = [];
+$userCodeNoteCount = 0;
 
-    // Get closed/resolved ticket information for user
-    $userCount = 0;
-    $closedTicketPlusMinus = 0;
-    $closedTicketPlusMinusRatio = 0;
-    $resolvedTicketPlusMinus = 0;
-    $resolvedTicketPlusMinusRatio = 0;
-    $totalTicketPlusMinus = 0;
-    $totalTicketPlusMinusRatio = 0;
-    $closedResolvedTicketInfo = [];
-    $closedResolvedTicketInfo['Count'] = 0;
-    $closedResolvedTicketInfo['ClosedCount'] = 0;
-    $closedResolvedTicketInfo['ResolvedCount'] = 0;
+// Get code note information for user
+$codeNotes = getCodeNoteCounts($dev);
+foreach ($codeNotes as $game) {
+    if (count($mostNotedGame) == 0) {
+        $mostNotedGame = $game;
+    }
+    $userCodeNoteCount += $game['NoteCount'];
+}
 
-    // Get closed/resolved ticket information
-    $ticketsClosedResolved = getNumberOfTicketsClosedForOthers($dev);
-    foreach ($ticketsClosedResolved as $ticketData) {
-        if ($userCount == 0) {
+// Initialize ticket information variables
+$userTickets['total'] = 0;
+$userTickets['closed'] = 0;
+$userTickets['open'] = 0;
+$userTickets['resolved'] = 0;
+$userTickets['uniqueTotal'] = 0;
+$userTickets['uniqueClosed'] = 0;
+$userTickets['uniqueOpen'] = 0;
+$userTickets['uniqueResolved'] = 0;
+$prevID = 0;
+
+// Get ticket information for user
+$userTicketInfo = getTicketsForUser($dev);
+foreach ($userTicketInfo as $ticketData) {
+    switch ($ticketData['ReportState']) {
+        case 0:
+            $userTickets['closed'] += $ticketData['TicketCount'];
+            $userTickets['total'] += $ticketData['TicketCount'];
+            $userTickets['uniqueClosed']++;
+            break;
+        case 1:
+            $userTickets['open'] += $ticketData['TicketCount'];
+            $userTickets['total'] += $ticketData['TicketCount'];
+            $userTickets['uniqueOpen']++;
+            break;
+        case 2:
+            $userTickets['resolved'] += $ticketData['TicketCount'];
+            $userTickets['total'] += $ticketData['TicketCount'];
+            $userTickets['uniqueResolved']++;
+            break;
+    }
+    if ($prevID != $ticketData['AchievementID']) {
+        $prevID = $ticketData['AchievementID'];
+        $userTickets['uniqueTotal']++;
+    }
+}
+
+// Get most ticketed game and achievement
+$mostTicketedGame = getUserGameWithMostTickets($dev);
+$mostTicketedAchievement = getUserAchievementWithMostTickets($dev);
+
+// Get user who created most tickets
+$mostTicketCreator = getUserWhoCreatedMostTickets($dev);
+
+// Get closed/resolved ticket information for user
+$userCount = 0;
+$closedTicketPlusMinus = 0;
+$closedTicketPlusMinusRatio = 0;
+$resolvedTicketPlusMinus = 0;
+$resolvedTicketPlusMinusRatio = 0;
+$totalTicketPlusMinus = 0;
+$totalTicketPlusMinusRatio = 0;
+$closedResolvedTicketInfo = [];
+$closedResolvedTicketInfo['Count'] = 0;
+$closedResolvedTicketInfo['ClosedCount'] = 0;
+$closedResolvedTicketInfo['ResolvedCount'] = 0;
+
+// Get closed/resolved ticket information
+$ticketsClosedResolved = getNumberOfTicketsClosedForOthers($dev);
+foreach ($ticketsClosedResolved as $ticketData) {
+    if ($userCount == 0) {
+        $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
+        $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
+        $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
+        $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
+    } else {
+        if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
             $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
             $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
+        }
+        if ($closedResolvedTicketInfo['ResolvedAuthorCount'] < $ticketData['ResolvedCount']) {
             $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
             $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
-        } else {
-            if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
-                $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
-                $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
-            }
-            if ($closedResolvedTicketInfo['ResolvedAuthorCount'] < $ticketData['ResolvedCount']) {
-                $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
-                $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
-            }
         }
-        $userCount++;
-        $closedResolvedTicketInfo['Count'] += $ticketData['TicketCount'];
-        $closedResolvedTicketInfo['ClosedCount'] += $ticketData['ClosedCount'];
-        $closedResolvedTicketInfo['ResolvedCount'] += $ticketData['ResolvedCount'];
     }
-    $closedTicketPlusMinus = $closedResolvedTicketInfo['ClosedCount'] - $userTickets['closed'];
-    $closedTicketPlusMinus = ($closedTicketPlusMinus > 0) ? '+' . $closedTicketPlusMinus : $closedTicketPlusMinus;
-    $resolvedTicketPlusMinus = $closedResolvedTicketInfo['ResolvedCount'] - $userTickets['resolved'];
-    $resolvedTicketPlusMinus = ($resolvedTicketPlusMinus > 0) ? '+' . $resolvedTicketPlusMinus : $resolvedTicketPlusMinus;
-    $totalTicketPlusMinus = $closedResolvedTicketInfo['Count'] - $userTickets['total'];
-    $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinus : $totalTicketPlusMinus;
-    if ($userTickets['closed'] == 0) {
-        $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'];
-    } else {
-        $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'] / $userTickets['closed'];
-    }
-    if ($userTickets['resolved'] == 0) {
-        $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'];
-    } else {
-        $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'] / $userTickets['resolved'];
-    }
-    if ($userTickets['total'] == 0) {
-        $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'];
-    } else {
-        $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'] / $userTickets['total'];
-    }
+    $userCount++;
+    $closedResolvedTicketInfo['Count'] += $ticketData['TicketCount'];
+    $closedResolvedTicketInfo['ClosedCount'] += $ticketData['ClosedCount'];
+    $closedResolvedTicketInfo['ResolvedCount'] += $ticketData['ResolvedCount'];
+}
+$closedTicketPlusMinus = $closedResolvedTicketInfo['ClosedCount'] - $userTickets['closed'];
+$closedTicketPlusMinus = ($closedTicketPlusMinus > 0) ? '+' . $closedTicketPlusMinus : $closedTicketPlusMinus;
+$resolvedTicketPlusMinus = $closedResolvedTicketInfo['ResolvedCount'] - $userTickets['resolved'];
+$resolvedTicketPlusMinus = ($resolvedTicketPlusMinus > 0) ? '+' . $resolvedTicketPlusMinus : $resolvedTicketPlusMinus;
+$totalTicketPlusMinus = $closedResolvedTicketInfo['Count'] - $userTickets['total'];
+$totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinus : $totalTicketPlusMinus;
+if ($userTickets['closed'] == 0) {
+    $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'];
+} else {
+    $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'] / $userTickets['closed'];
+}
+if ($userTickets['resolved'] == 0) {
+    $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'];
+} else {
+    $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'] / $userTickets['resolved'];
+}
+if ($userTickets['total'] == 0) {
+    $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'];
+} else {
+    $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'] / $userTickets['total'];
 }
 
 RenderHtmlStart();
@@ -539,11 +539,14 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($count++ > 0) {
                     echo ", ";
                 }
-                echo "['" . $info['ConsoleName'] . "', " . $info['SetCount'] . "]";
+                echo json_encode([
+                    $info['ConsoleName'],
+                    (int) $info['SetCount'],
+                ]);
             }
             ?>
         ]);
-        
+
         var achievementData = google.visualization.arrayToDataTable([
         ['Console', 'Achievement per console'],
         <?php
@@ -552,7 +555,10 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($count++ > 0) {
                     echo ", ";
                 }
-                echo "['" . $info['ConsoleName'] . "', " . $info['AchievementCount'] . "]";
+                echo json_encode([
+                    $info['ConsoleName'],
+                    (int) $info['AchievementCount'],
+                ]);
             }
             ?>
         ]);
@@ -615,16 +621,16 @@ RenderHtmlHead("$dev's Developer Stats");
         achievementChart.draw(achievementData, achievementOptions);
         <?php } ?>
     }
-  
+
 </script>
 <div id="mainpage">
     <div id='fullcontainer'>
         <div class="navpath">
             <?php
-                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/User/$dev'>$dev</a> &raquo; Developer Stats</b>";
+                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
             ?>
         </div>
-        
+
         <?php if ($user !== null): ?>
             <div class="d-flex flex-wrap justify-content-between">
                 <div>
@@ -639,7 +645,7 @@ RenderHtmlHead("$dev's Developer Stats");
                 </div>
             </div>
         <?php endif ?>
-        
+
         <?php
         echo "<h2>$dev's Developer Stats</h2>";
 

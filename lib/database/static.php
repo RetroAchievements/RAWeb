@@ -2,6 +2,8 @@
 
 function static_addnewachievement($id)
 {
+    sanitize_sql_inputs($id);
+
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumAchievements=sd.NumAchievements+1, sd.LastCreatedAchievementID='$id'";
     // log_sql($query);
@@ -15,6 +17,8 @@ function static_addnewachievement($id)
 
 function static_addnewgame($id)
 {
+    sanitize_sql_inputs($id);
+
     // Subquery to get # of games that have achievements
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumGames = (SELECT COUNT(DISTINCT ach.GameID) ";
@@ -33,6 +37,8 @@ function static_addnewgame($id)
 
 function static_addnewregistereduser($user)
 {
+    sanitize_sql_inputs($user);
+
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumRegisteredUsers = sd.NumRegisteredUsers+1, sd.LastRegisteredUser = '$user', sd.LastRegisteredUserAt = NOW()";
     // log_sql($query);
@@ -46,6 +52,8 @@ function static_addnewregistereduser($user)
 
 function static_setlastearnedachievement($id, $user, $points)
 {
+    sanitize_sql_inputs($id, $user, $points);
+
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumAwarded = sd.NumAwarded+1, sd.LastAchievementEarnedID = '$id', sd.LastAchievementEarnedByUser = '$user', sd.LastAchievementEarnedAt = NOW(), sd.TotalPointsEarned=sd.TotalPointsEarned+$points";
     // log_sql($query);
@@ -59,6 +67,8 @@ function static_setlastearnedachievement($id, $user, $points)
 
 function static_setlastupdatedgame($id)
 {
+    sanitize_sql_inputs($id);
+
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.LastUpdatedGameID = '$id'";
     // log_sql($query);
@@ -72,6 +82,8 @@ function static_setlastupdatedgame($id)
 
 function static_setlastupdatedachievement($id)
 {
+    sanitize_sql_inputs($id);
+
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.LastUpdatedAchievementID = '$id'";
     // log_sql($query);
@@ -85,6 +97,8 @@ function static_setlastupdatedachievement($id)
 
 function static_setnextgametoscan($gameID)
 {
+    sanitize_sql_inputs($gameID);
+
     $query = "UPDATE StaticData AS sd
               SET sd.NextGameToScan = '$gameID'";
     $dbResult = s_mysql_query($query);
@@ -94,6 +108,8 @@ function static_setnextgametoscan($gameID)
 
 function static_setnextusertoscan($userID)
 {
+    sanitize_sql_inputs($userID);
+
     $query = "UPDATE StaticData AS sd
               SET sd.NextUserIDToScan = '$userID'";
     $dbResult = s_mysql_query($query);

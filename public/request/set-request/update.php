@@ -1,11 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use RA\Permissions;
 
-$gameID = seekGET('i');
-settype($gameID, 'integer');
+$gameID = requestInputQuery('i', null, 'integer');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
     $setRequestList = getUserRequestList($user);

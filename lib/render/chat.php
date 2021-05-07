@@ -47,8 +47,8 @@ function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut 
     echo "<table><tbody>";
     echo "<tr>";
 
-    if (isset($user)) {
-        echo "<td class='chatcell'><a href='/User/$user'><img src='/UserPic/$user" . ".png' width='32' height='32'/></a></td>";
+    if (!empty($user)) {
+        echo "<td class='chatcell'><a href='/user/$user'><img src='/UserPic/$user" . ".png' width='32' height='32'/></a></td>";
 
         echo "<td class='chatcell'>";
         echo "<div class='rightalign'>";
@@ -74,12 +74,10 @@ function RenderChat($user, $chatHeight = 380, $chatboxat = '', $addLinkToPopOut 
 
     echo "<div class='rightalign'>Mute&nbsp;<input id='mutechat' type='checkbox' value='Mute' />";
 
-
     if ($addLinkToPopOut) {
         echo "&nbsp;<a href='#' onclick=\"window.open('" . str_replace('https', 'http', getenv('APP_URL')) . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a>";
     }
     echo "</div>";
-
 
     //echo "<div id='tlkio' data-channel='retroachievements' data-theme='/css/chat.css' style='width:100%;height:400px;'></div><script async src='http://tlk.io/embed.js' type='text/javascript'></script>";
     echo "</div>";

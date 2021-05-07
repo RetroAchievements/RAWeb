@@ -25,17 +25,13 @@ function RenderTutorialComponent()
 
 function RenderWelcomeComponent()
 {
-    if (isset($user)) {
-        return;
-    }
-
     echo "
     <div class='component welcome'>
         <h2>Welcome!</h2>
         <div id='Welcome'>
             <p>
             Were you the greatest in your day at Mega Drive or SNES games? Wanna prove it? Use our modified emulators and you will be awarded achievements as you play! Your progress will be tracked so you can compete with your friends to complete all your favourite classics to 100%: we provide the emulators for your Windows-based PC, all you need are the roms!<br>
-            <a href='/Game/1'>Click here for an example:</a> which of these do you think you can get?
+            <a href='/game/1'>Click here for an example:</a> which of these do you think you can get?
             </p>
         <br>
             <p style='clear:both; text-align:center'>
@@ -89,48 +85,42 @@ function RenderDocsComponent()
         <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
-            Read the <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
+            <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
           </div>
         </div>
       </div>";
 }
 
-function RenderCurrentlyOnlineComponent($user)
+function RenderCurrentlyOnlineComponent()
 {
-    if (isset($user)) {
-        //    not impl
-    } else {
-        //    global
+    echo "<div class='component'>";
+    echo "<h3>Currently Online</h3>";
+    echo "<div id='playersonlinebox' class='infobox'>";
 
-        echo "<div class='component'>";
-        echo "<h3>Currently Online</h3>";
-        echo "<div id='playersonlinebox' class='infobox'>";
+    $playersArray = getCurrentlyOnlinePlayers();
 
-        $playersArray = getCurrentlyOnlinePlayers();
+    $numPlayers = count($playersArray);
+    echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
 
-        $numPlayers = count($playersArray);
-        echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
+    //$numOutput = 0;
+    //foreach( $playersArray as $nextPlayer )
+    //{
+    //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
+    //    {
+    //        echo " and ";
+    //    }
+    //    elseif( $numOutput > 0 )
+    //    {
+    //        echo ", ";
+    //    }
+    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
+    //    $numOutput++;
+    //}
 
-        //$numOutput = 0;
-        //foreach( $playersArray as $nextPlayer )
-        //{
-        //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
-        //    {
-        //        echo " and ";
-        //    }
-        //    elseif( $numOutput > 0 )
-        //    {
-        //        echo ", ";
-        //    }
-        //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
-        //    $numOutput++;
-        //}
+    echo "</div>";
 
-        echo "</div>";
-
-        echo "<div class='rightfloat lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
-        echo "</div>";
-    }
+    echo "<div class='rightfloat lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
+    echo "</div>";
 }
 
 function RenderActivePlayersComponent()
@@ -192,6 +182,13 @@ function RenderAOTWComponent($achID, $forumTopicID)
     $achBadgeName = $achData['BadgeName'];
     $achPoints = $achData['Points'];
     $achTruePoints = $achData['TrueRatio'];
+
+    sanitize_outputs(
+        $gameTitle,
+        $consoleName,
+        $achTitle,
+        $achDesc,
+    );
 
     echo "Achievement: ";
     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);

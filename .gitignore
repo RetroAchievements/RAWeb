@@ -23,6 +23,7 @@ nbproject
 .project
 .settings
 .php_cs.cache
+test*.php
 /public/Badge
 /public/Images
 /public/UserPic
@@ -32,7 +33,11 @@ nbproject
 /public/*.dll
 /public/Bing*
 /public/google*
-/public/mtests.php
+/public/tmp
+
+/resources/docker/nginx/logs/*
 
 cronjobs/playersonline.log
 cronjobs/cronlog.log
+cghooks.lock
+

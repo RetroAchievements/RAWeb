@@ -2,6 +2,8 @@
 
 function GetLatestNewsData($offset, $count)
 {
+    sanitize_sql_inputs($offset, $count);
+
     $retVal = [];
 
     $query = "SELECT ID, UNIX_TIMESTAMP(Timestamp) AS TimePosted, Title, Payload, Author, Link, Image
@@ -33,11 +35,9 @@ function getLatestNewsHeaders($offset, $numItems, &$dataOut)
 
 function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
 {
+    sanitize_sql_inputs($payload, $link, $imageURL, $title);
+
     global $db;
-    $payload = mysqli_real_escape_string($db, $payload);
-    $link = mysqli_real_escape_string($db, $link);
-    $imageURL = mysqli_real_escape_string($db, $imageURL);
-    $title = mysqli_real_escape_string($db, $title);
 
     if (isset($id) && $id != 0) {
         $query = "UPDATE News SET Title='$title', Payload='$payload', Link='$link', Image='$imageURL' WHERE ID='$id'";

@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 RenderHtmlStart();
 ?>
 <head>
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
 </head>
 <body>
 <script type='text/javascript' src='/vendor/wz_tooltip.js'></script>

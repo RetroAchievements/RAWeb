@@ -5,14 +5,14 @@
 echo json_encode(['success' => false]);
 return;
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$friends = seekGET('f', null);
-$count = seekGET('c', 10);
-$offset = seekGET('o', 0);
+$user = requestInputQuery('u', null);
+$friends = requestInputQuery('f', null);
+$count = requestInputQuery('c', 10);
+$offset = requestInputQuery('o', 0);
 
 //	Sensible caps
 if ($count > 100) {

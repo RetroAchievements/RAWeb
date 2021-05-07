@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
 $user = null;
-$achievementID = (int)(seekGET('a') ?? null);
+$achievementID = (int) (requestInputQuery('a') ?? null);
 
 if (empty($achievementID)) {
     echo json_encode([
@@ -47,7 +47,7 @@ echo json_encode([
     'Achievement' => $achievement,
     'Console' => $console,
     'Game' => $game,
-    'UnlocksCount' => (int)($numWinners ?? 0),
-    'TotalPlayers' => (int)($numPossibleWinners ?? 0),
+    'UnlocksCount' => (int) ($numWinners ?? 0),
+    'TotalPlayers' => (int) ($numPossibleWinners ?? 0),
     'Unlocks' => array_values($winnerInfo ?? []),
 ]);

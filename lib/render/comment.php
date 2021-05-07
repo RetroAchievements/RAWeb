@@ -27,7 +27,7 @@ function RenderCommentsComponent(
             echo "<div class='smalltext rightfloat'>";
             RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed);
             echo "<a href='#' onclick='document.getElementById(\"updatesubscription\").submit(); return false;'>";
-            echo    "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+            echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
             echo "</a>";
             echo "</div>";
         }
@@ -44,10 +44,8 @@ function RenderCommentsComponent(
         $dow = date("d/m", $nextTime);
         if ($lastKnownDate == 'Init') {
             $lastKnownDate = $dow;
-        //echo "<tr><td class='date'>$dow:</td></tr>";
         } elseif ($lastKnownDate !== $dow) {
             $lastKnownDate = $dow;
-            //echo "<tr><td class='date'><br>$dow:</td></tr>";
         }
 
         if ($lastID != $commentData[$i]['ID']) {
@@ -100,20 +98,32 @@ function RenderArticleComment(
     $deleteIcon = '';
 
     if ($user == $localUser || $allowDelete) {
-        $class = 'localuser';
+        $class .= ' localuser';
 
         $img = "<img src='" . getenv('ASSET_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
+    if ($user === 'Server') {
+        $deleteIcon = null;
+        $class .= ' system';
+    }
+
     $artCommentID = "artcomment_" . $articleID . "_" . $commentID;
     echo "<tr class='feed_comment $class' id='$artCommentID'>";
 
-    //$niceDate = date( "d M\nH:i ", $submittedDate );
-    $niceDate = date("j M\nG:i Y ", $submittedDate);
+    $niceDate = date("j M Y ", $submittedDate);
+    $niceDate .= '<br>';
+    $niceDate .= date("G:i", $submittedDate);
 
-    echo "<td alt='Test' class='smalldate'>$niceDate</td>";
-    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv($user, true) . "</td>";
+    sanitize_outputs($user, $comment);
+
+    echo "<td class='smalldate'>$niceDate</td>";
+    echo "<td class='iconscommentsingle'>";
+    if ($user !== 'Server') {
+        echo GetUserAndTooltipDiv($user, true);
+    }
+    echo "</td>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";
@@ -121,6 +131,8 @@ function RenderArticleComment(
 
 function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
 {
+    sanitize_outputs($user, $formStr);
+
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
     $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250></textarea>";
     $formStr .= "&nbsp;";

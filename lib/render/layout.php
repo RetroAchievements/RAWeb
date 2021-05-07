@@ -32,21 +32,21 @@ function RenderHtmlHead($pageTitle = null)
 
 function RenderSharedHeader()
 {
-    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' type='text/css' media='screen' />\n";
+    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
 
     $customCSS = RA_ReadCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' type='text/css' media='screen' />\n";
+        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
     }
 
-    echo "<link rel='icon' type='image/png' href='/favicon.png' />\n";
-    echo "<link rel='image_src' href='/Images/RA_Logo10.png' />\n";
-    echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8' />\n";
-    echo "<meta name='robots' content='all' />\n";
-    //echo "<meta name='Copyright' content='Copyright 2014' />\n";
-    echo "<meta name='description' content='Adding achievements to your favourite retro games since 2012' />\n";
-    echo "<meta name='keywords' content='games, retro, computer games, mega drive, genesis, rom, emulator, achievements' />\n";
-    echo '<meta property="fb:app_id" content="490904194261313" />';
+    echo "<link rel='icon' type='image/png' href='/favicon.png'>\n";
+    echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
+    echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>\n";
+    echo "<meta name='robots' content='all'>\n";
+    //echo "<meta name='Copyright' content='Copyright 2014'>\n";
+    echo "<meta name='description' content='Adding achievements to your favourite retro games since 2012'>\n";
+    echo "<meta name='keywords' content='games, retro, computer games, mega drive, genesis, rom, emulator, achievements'>\n";
+    echo '<meta property="fb:app_id" content="490904194261313">';
     echo "<meta name='viewport' content='width=device-width,user-scalable = no'/>\n";
 
     echo '<meta name="theme-color" content="#2C2E30">';
@@ -58,24 +58,25 @@ function RenderSharedHeader()
     echo '<link rel="shortcut icon" type="image/png" href="/favicon.png" sizes="16x16 32x32 64x64">';
     echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
 
-    echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css' type='text/css' />\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js' type='text/javascript'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js' type='text/javascript'></script>\n";
+    echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js'></script>\n";
 
     //    jQuery, and custom js
-    //echo "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
-    //echo "<script type='text/javascript' src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script type='text/javascript' src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
-    echo "<script type='text/javascript' src='/js/all.js?v=" . VERSION . "'></script>\n";
+    //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
+    //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
+    echo "<script src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
+    echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
+    echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
 }
 
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
 {
-    echo "<meta property='og:type' content='retroachievements:$OGType' />\n";
-    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL' />\n";
-    echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL' />\n";
-    echo "<meta property='og:title' content=\"$title\" />\n";
-    echo "<meta property='og:description' content=\"$description\" />\n";
+    echo "<meta property='og:type' content='retroachievements:$OGType'>\n";
+    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL'>\n";
+    echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL'>\n";
+    echo "<meta property='og:title' content=\"$title\">\n";
+    echo "<meta property='og:description' content=\"$description\">\n";
 }
 
 function RenderTitleTag($title = null)
@@ -98,17 +99,17 @@ function RenderTitleTag($title = null)
 
 function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0)
 {
+    settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
+
     //    js tooltip code is basically on every page:
     echo "<script src='/vendor/wz_tooltip.js'></script>";
-
-    settype($unreadMessageCount, "integer");
 
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
     echo "<div id='title'>";
 
-    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo' /></a></div>";
+    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a></div>";
 
     echo "<div class='login'>";
 
@@ -118,17 +119,17 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<form method='post' action='/request/auth/login.php'>";
         echo "<div>";
-        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "' />";
+        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "'>";
         echo "<table><tbody>";
         echo "<tr>";
         echo "<td>User:&nbsp;</td>";
-        echo "<td><input type='text' name='u' size='16' class='loginbox' value='' /></td>";
+        echo "<td><input type='text' name='u' size='16' class='loginbox' value=''></td>";
         echo "<td></td>";
         echo "</tr>";
         echo "<tr>";
         echo "<td>Pass:&nbsp;</td>";
-        echo "<td><input type='password' name='p' size='16' class='loginbox' value='' /></td>";
-        echo "<td style='width: 45%'><input type='submit' value='Login' name='submit' class='loginbox' /></td>";
+        echo "<td><input type='password' name='p' size='16' class='loginbox' value=''></td>";
+        echo "<td style='width: 45%'><input type='submit' value='Login' name='submit' class='loginbox'></td>";
         echo "</tr>";
         echo "</tbody></table>";
         echo "</div>";
@@ -139,7 +140,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
     } else {
         echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic' />";
+        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
@@ -181,63 +182,81 @@ function RenderToolbar($user, $permissions = 0)
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
     echo "<li><a href='#'>Games</a>";
+    echo "<div>";
+
     echo "<ul>";
-    //// Sorted Lists
-    echo "<li><a href='/gameList.php'>All Games</a></li>";
-    echo "<li><a href='/popularGames.php'>Most Played</a></li>";
-    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
-    echo "<li class='divider'></li>";
+    ///Nintendo
+    echo "<li class='dropdown-header'>Nintendo</li>";
+    echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
+    echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
+    echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
+    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
+    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
+    echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
+    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
+    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
     ///Atari
+    echo "<li class='dropdown-header'>Atari</li>";
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
     echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
-    ///Coleco
-    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
-    ///Nintendo
-    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
-    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
-    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
+    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
+    /// NEC
+    echo "<li class='dropdown-header'>NEC</li>";
+    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
+    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
+    echo "<li><a href='/gameList.php?c=49'>PC-FX</a></li>";
+    echo "</ul>";
+
+    echo "<ul>";
     ///Sega
+    echo "<li class='dropdown-header'>Sega</li>";
     echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
     echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
+    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
     echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
     echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
-    ///NEC
-    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
     ///Sony
+    echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
-    /// Arcade
+    /// Other
+    echo "<li class='dropdown-header'>Other</li>";
+    echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
-    /// Computers
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
-    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
-    /// Handhelds
-    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
-    echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
-    echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
-    echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
-    echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
-    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
-    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
+    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+    echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
+    echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
+    echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
+    echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
+    echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
+    echo "</ul>";
+
+    echo "<ul>";
+    echo "<li><a href='/gameList.php'>All Games</a></li>";
+    // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
     echo "</li>";
 
     echo "<li><a href='#'>Achievements</a>";
+    echo "<div>";
     echo "<ul>";
     echo "<li><a href='/achievementList.php'>All Achievements</a></li>";
     echo "<li class='divider'></li>";
-    echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
+    // echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
     echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
     echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
     echo "</ul>";
+    echo "</div>";
     echo "</li>";
 
     echo "<li><a href='#'>Community</a>";
+    echo "<div>";
     echo "<ul>";
     echo "<li><a href='/forum.php'>Forums</a></li>";
     echo "<li><a href='/forum.php?c=1'>- Community</a></li>";
@@ -252,21 +271,23 @@ function RenderToolbar($user, $permissions = 0)
     }
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
-    echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
+    //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
     echo "</ul>";
+    echo "</div>";
+
     echo "</li>";
 
     echo "<li><a href='/download.php'>Download</a></li>";
 
-
     if (isset($user) && $user != "") {
         echo "<li><a href='#'>My Pages</a>";
+        echo "<div>";
         echo "<ul>";
-        echo "<li><a href='/User/$user'>Profile</a></li>";
+        echo "<li><a href='/user/$user'>Profile</a></li>";
         //echo "<li><a href='/feed.php?i=1'>Feed</a></li>";
         //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
@@ -280,6 +301,7 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li class='divider'></li>";
         echo "<li><a href='/request/auth/logout.php'>Log Out</a></li>";
         echo "</ul>";
+        echo "</div>";
         echo "</li>";
     } else {
         echo "<li><a href='/createaccount.php'>Create Account</a></li>";
@@ -287,6 +309,7 @@ function RenderToolbar($user, $permissions = 0)
 
     if ($permissions >= Permissions::SuperUser) {
         echo "<li><a href='#'>Manage</a>";
+        echo "<div>";
         echo "<ul>";
         // SU
         echo "<li><a href='/submitnews.php'>News Articles</a></li>";
@@ -306,19 +329,20 @@ function RenderToolbar($user, $permissions = 0)
             echo "<li><a href='/admin.php'>Admin Tools</a></li>";
         }
         echo "</ul>";
+        echo "</div>";
         echo "</li>";
     }
 
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-        $searchQuery = seekGET('s', null);
+        $searchQuery = requestInputQuery('s', null);
     }
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' />";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery'>";
     echo "&nbsp;";
-    echo "<input type='submit' value='Search' />";
+    echo "<input type='submit' value='Search'>";
     echo "</div>";
     echo "</form>";
 
