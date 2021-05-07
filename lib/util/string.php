@@ -1,21 +1,22 @@
 <?php
 
+function sanitize_outputs(&...$outputs)
+{
+    foreach ($outputs as &$output) {
+        if (!empty($output)) {
+            $output = htmlentities($output, null, null, false);
+        }
+    }
+}
+
 function isValidUsername($userTest)
 {
-    if (ctype_alnum($userTest) == false) {
-        //error_log( "requestcreateuser.php failed 1 - $user $pass $email $email2 " );
-        //echo "Username ($user) must consist only of letters or numbers. Please retry.<br>";
-        return false;
-    }
-
-    if (mb_strlen($userTest) > 20) {
-        //error_log( "requestcreateuser.php failed 2 - $user $pass $email $email2 " );
-        //echo "Username can be a maximum of 20 characters. Please retry.<br>";
-        //log_sql_fail();
-        return false;
-    }
-
-    if (mb_strlen($userTest) < 2) {
+    if (
+        empty($userTest)
+        || !ctype_alnum($userTest)
+        || mb_strlen($userTest) > 20
+        || mb_strlen($userTest) < 2
+    ) {
         return false;
     }
 

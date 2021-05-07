@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use RA\Permissions;
 
@@ -9,7 +9,7 @@ if (!ValidatePOSTChars("u")) {
     exit;
 }
 
-$userIn = seekPOST('u');
+$userIn = requestInputPost('u');
 
 $permOk = RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)
           && ($user == $userIn

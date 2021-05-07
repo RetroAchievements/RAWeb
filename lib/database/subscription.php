@@ -11,7 +11,10 @@
  */
 function updateSubscription($subjectType, $subjectID, $userID, $state)
 {
-    $stateInt = ($state ? 1 : 0);
+    sanitize_sql_inputs($subjectType, $subjectID, $userID, $state);
+    settype($state, 'integer');
+
+    $stateInt = $state ? 1 : 0;
     $query = "
         INSERT INTO Subscription(SubjectType, SubjectID, UserID, State)
         VALUES ('$subjectType', $subjectID, $userID, b'$stateInt')
@@ -43,6 +46,7 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
     if (!$userID) {
         return false;
     }
+    sanitize_sql_inputs($subjectType, $subjectID, $userID);
 
     if ($implicitSubscriptionQry === null) {
         $query = "
@@ -104,13 +108,15 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
  *
  * @param string $subjectType subject type
  * @param int $subjectID subject id
- * @param int $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
- * @param string $implicitSubscriptionQry sql query that returns the set of users that are implicitly subscribed to
+ * @param ?int $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
+ * @param ?string $implicitSubscriptionQry sql query that returns the set of users that are implicitly subscribed to
  *                                        the subject (must return whole UserAccounts rows)
  * @return array of subscribers, each as an assoc array with "User" and "Email Address" keys
  */
 function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $implicitSubscriptionQry = null)
 {
+    sanitize_sql_inputs($subjectType, $subjectID, $reqWebsitePrefs);
+
     $websitePrefsFilter = (
         $reqWebsitePrefs === null ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0"
     );

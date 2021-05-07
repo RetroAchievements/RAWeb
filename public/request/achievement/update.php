@@ -1,18 +1,18 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 if (ValidatePOSTChars("uafv")) {
-    $user = seekPOST('u');
-    $achID = seekPOST('a');
-    $field = seekPOST('f');
-    $value = seekPOST('v');
+    $user = requestInputPost('u');
+    $achID = requestInputPost('a', null, 'integer');
+    $field = requestInputPost('f', null, 'integer');
+    $value = requestInputPost('v');
 } else {
     if (ValidateGETChars("uafv")) {
-        $user = seekGET('u');
-        $achID = seekGET('a');
-        $field = seekGET('f');
-        $value = seekGET('v');
+        $user = requestInputQuery('u');
+        $achID = requestInputQuery('a', null, 'integer');
+        $field = requestInputQuery('f', null, 'integer');
+        $value = requestInputQuery('v');
     } else {
         // error_log("FAILED access to requestupdateachievements.php");
         echo "FAILED";
@@ -25,11 +25,8 @@ if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer
     return;
 }
 
-settype($achID, "integer");
-settype($field, "integer");
-
 // error_log("Warning: $user changing achievement ID $achID, field $field");
-
+$commentText = null;
 switch ($field) {
     case 1:
         // display order
@@ -45,7 +42,7 @@ switch ($field) {
         // Embed video
         $value = str_replace("_http_", "http", $value);
         if (updateAchievementEmbedVideo($achID, $value)) {
-            //header( "Location: " . getenv('APP_URL') . "/Achievement/$achID?e=OK" );
+            //header( "Location: " . getenv('APP_URL') . "/achievement/$achID?e=OK" );
             echo "OK";
             return;
         }
@@ -60,7 +57,7 @@ switch ($field) {
             echo "FAILED!";
         }
         if (updateAchievementFlags($achID, $value)) {
-            header("Location: " . getenv('APP_URL') . "/Achievement/$achID?e=changeok");
+            header("Location: " . getenv('APP_URL') . "/achievement/$achID?e=changeok");
             if ($value == 3) {
                 $commentText = 'promoted this achievement to the Core set';
             }
@@ -76,7 +73,7 @@ switch ($field) {
     case 4:
         // Promote/Demote Selected
         settype($value, "integer");
-        $achIDs = seekPOST('achievementArray');
+        $achIDs = requestInputPost('achievementArray');
         if (updateAchievementFlags($achIDs, $value)) {
             if ($value == 3) {
                 $commentText = 'promoted this achievement to the Core set';

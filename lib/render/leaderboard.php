@@ -1,14 +1,6 @@
 <?php
-/**
- * @param $lbID
- * @param $lbName
- * @param $lbDesc
- * @param $gameName
- * @param $gameIcon
- * @param $displayable
- * @return string
- */
-function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable)
+
+function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable): string
 {
     $tooltipIconSize = 64; //96;
 
@@ -34,10 +26,6 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
         "</div>";
 }
 
-/**
- * @param $gameID
- * @param $lbData
- */
 function RenderGameLeaderboardsComponent($gameID, $lbData)
 {
     $numLBs = count($lbData);
@@ -59,6 +47,8 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             $bestScore = $lbItem['Score'];
             $scoreFormat = $lbItem['Format'];
 
+            sanitize_outputs($lbTitle, $lbDesc);
+
             //    Title
             echo "<tr>";
             echo "<td colspan='2'>";
@@ -70,7 +60,7 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             //    Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            //echo "<a href='/User/" . $bestScoreUser . "'><img alt='$bestScoreUser' title='$bestScoreUser' src='/UserPic/$bestScoreUser.png' width='32' height='32' /></a>";
+            //echo "<a href='/user/" . $bestScoreUser . "'><img alt='$bestScoreUser' title='$bestScoreUser' src='/UserPic/$bestScoreUser.png' width='32' height='32' /></a>";
             echo GetUserAndTooltipDiv($bestScoreUser, true);
             echo GetUserAndTooltipDiv($bestScoreUser, false);
             echo "</td>";
@@ -96,22 +86,22 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
 /**
  * Renders the friends and global ranking.
  *
- * @param String $user to render leaderboard for
+ * @param string $user to render leaderboard for
  * @param bool $friendsOnly render friends leaderboard
  * @param int $numToFetch number if entries to show in the leaderboard
  */
 function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
 {
-    $lbTypes = array(
+    $lbTypes = [
         "Daily_",
         "Weekly_",
         "AllTime_",
-    );
-    $lbNames = array(
+    ];
+    $lbNames = [
         "Daily",
         "Weekly",
         "All Time",
-    );
+    ];
     $friendCount = getFriendCount($user);
     $displayTable = true;
     $currentDate = date("Y-m-d");
@@ -193,7 +183,8 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo GetUserAndTooltipDiv($dataPoint['User'], false);
                     echo "</td>";
                     if ($j == 0) {
-                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . $dataPoint['Points'] . "</a>";
+                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
+                            $dataPoint['Points'] . "</a>";
                     } else {
                         echo "<td>" . $dataPoint['Points'];
                     }
@@ -215,7 +206,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo "<tr><td colspan='3'></td></tr>";
                     echo "<tr style='outline: thin solid'>";
 
-                    if ($j == 2 && ! $friendsOnly) {
+                    if ($j == 2 && !$friendsOnly) {
                         echo "<td class='rank'>" . getUserRank($user, 0) . "</td>";
                     } elseif ($friendsOnly) {
                         echo "<td>" . $userRank . "</td>";
@@ -226,7 +217,11 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo GetUserAndTooltipDiv($userData[0]['User'], true);
                     echo GetUserAndTooltipDiv($userData[0]['User'], false);
                     echo "</td>";
-                    echo "<td>" . $userData[0]['Points'];
+                    if ($j == 0) {
+                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
+                    } else {
+                        echo "<td>" . $userData[0]['Points'];
+                    }
                     echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
                 }
             }
@@ -244,18 +239,72 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
     echo "</div>";
 }
 
-function RenderTopAchieversComponent($gameTopAchievers)
+/**
+ * Creates the High scores tables on game pages
+ *
+ * @param string $user the logged in user
+ * @param array $gameTopAchievers top 10 highest scoreres for the game
+ * @param array $gameLatestMasters top 10 latest masters for the game
+ */
+function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters)
 {
-    $numItems = count($gameTopAchievers);
-
     echo "<div id='leaderboard' class='component' >";
 
-    echo "<h3>High Scores</h3>";
+    $numLatestMasters = count($gameLatestMasters);
+    $numTopAchievers = count($gameTopAchievers);
+    $masteryThreshold = 10; //Number of masters needed for the "Latest Masters" tab to be selected by default
 
+    echo "<h3>High Scores</h3>";
+    echo "<div class='tab'>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='tabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='tabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
+    echo "</div>";
+
+    //Latest Masters Tab
+    echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
+    echo "<table class='smalltable'><tbody>";
+    echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Mastery Date</th></tr>";
+
+    for ($i = 0; $i < $numLatestMasters; $i++) {
+        if (!isset($gameLatestMasters[$i])) {
+            continue;
+        }
+
+        $nextUser = $gameLatestMasters[$i]['User'];
+        $nextLastAward = $gameLatestMasters[$i]['LastAward'];
+
+        //Outline user if they are in the list
+        if ($user !== null && $user == $nextUser) {
+            echo "<tr style='outline: thin solid'>";
+        } else {
+            echo "<tr>";
+        }
+
+        echo "<td class='rank'>";
+        echo $i + 1;
+        echo "</td>";
+
+        echo "<td>";
+        echo GetUserAndTooltipDiv($nextUser, true);
+        echo "</td>";
+
+        echo "<td class='user'>";
+        echo GetUserAndTooltipDiv($nextUser, false);
+        echo "</td>";
+
+        echo "<td>$nextLastAward</td>";
+
+        echo "</tr>";
+    }
+    echo "</tbody></table>";
+    echo "</div>";
+
+    //High Scores Tab
+    echo "<div id='highscores' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "none" : "block") . "\">";
     echo "<table><tbody>";
     echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Points</th></tr>";
 
-    for ($i = 0; $i < $numItems; $i++) {
+    for ($i = 0; $i < $numTopAchievers; $i++) {
         if (!isset($gameTopAchievers[$i])) {
             continue;
         }
@@ -264,7 +313,12 @@ function RenderTopAchieversComponent($gameTopAchievers)
         $nextPoints = $gameTopAchievers[$i]['TotalScore'];
         $nextLastAward = $gameTopAchievers[$i]['LastAward'];
 
-        echo "<tr>";
+        //Outline user if they are in the list
+        if ($user !== null && $user == $nextUser) {
+            echo "<tr style='outline: thin solid'>";
+        } else {
+            echo "<tr>";
+        }
 
         echo "<td class='rank'>";
         echo $i + 1;
@@ -285,7 +339,7 @@ function RenderTopAchieversComponent($gameTopAchievers)
         echo "</tr>";
     }
     echo "</tbody></table>";
-
+    echo "</div>";
     echo "</div>";
 }
 
@@ -314,20 +368,19 @@ function RenderTopAchieversComponent($gameTopAchievers)
  *            7 - Retro Ratio
  *            8 - Completed Awards
  *            9 - Mastered Awards
- * @param String $date Date to grab information from
- * @param String $user User to get data for
- * @param String $friendsOf User to get friends data for
+ * @param string $date Date to grab information from
+ * @param string|null $user User to get data for
+ * @param string $friendsOf User to get friends data for
  * @param int $untracked Option to include or exclude untracked users
  *            0 - Tracked users only
  *            1 - Untracked users only
  *            2 - Tracked and untracked user
  * @param int $offset starting point to return rows
  * @param int $count number of rows to return
- * @param int $into amount of information to pull from the database
+ * @param int $info amount of information to pull from the database
  *            0 - All ranking stats
  *            1 - Just Points and Retro Points. Used for the sidebar rankings.
- * @param mixed $info
- * @return array|NULL Leaderboard data to display
+ * @return array Leaderboard data to display
  */
 function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50, $info = 0)
 {

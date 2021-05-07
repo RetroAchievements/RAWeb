@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
 $site = getenv('APP_URL');
 
 $dom = new DOMDocument('1.0', 'UTF-8');
@@ -30,7 +31,7 @@ header('Content-type: text/xml');
 echo html_entity_decode($dom->saveXML());
 return;
 
-$user = seekGET('u', null);
+$user = requestInputSanitized('u', null);
 $feedtype = isset($user) ? 'friends' : 'global';
 $numArticles = getFeed($user, 40, 0, $feedData, 0, $feedtype);
 
@@ -53,7 +54,7 @@ for ($i = 0; $i < $numArticles; $i++) {
     $title = getFeedItemTitle($feedData[$i], false);
 
     //	Image first?
-    //$payload = "<a href='$site/User/$user'>";
+    //$payload = "<a href='$site/user/$user'>";
     //$payload .= "<img src='$userPicURL' width='64' height='64' />";
     $payload = "<img src=\"$userPicURL\" />";
     //$payload .= "</a>";

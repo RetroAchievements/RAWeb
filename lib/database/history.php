@@ -2,6 +2,9 @@
 
 function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
 {
+    sanitize_sql_inputs($user, $listOffset, $maxDays);
+    settype($sortBy, 'integer');
+
     $retVal = [];
 
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned FROM Awarded AS aw ";
@@ -9,7 +12,6 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
     $query .= "WHERE User='$user' ";
     $query .= "GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date) ";
 
-    settype($sortBy, 'integer');
     if ($sortBy < 1 || $sortBy > 13) {
         $sortBy = 1;
     }
@@ -53,6 +55,8 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
     if (!isValidUsername($user)) {
         return $retVal;
     }
+
+    sanitize_sql_inputs($dateStart, $dateEnd, $user);
 
     //error_log( __FUNCTION__ . " $dateStart, $dateEnd" );
 
@@ -105,6 +109,8 @@ function getAchievementsEarnedOnDay($dateInput, $user)
 
 function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $dateTo = null)
 {
+    sanitize_sql_inputs($user, $listOffset, $maxToFetch, $dateFrom, $dateTo);
+
     $retVal = [];
 
     if (!isValidUsername($user)) {

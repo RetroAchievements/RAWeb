@@ -1,18 +1,5 @@
 <?php
-/**
- * @param $achID
- * @param $achName
- * @param $achDesc
- * @param $achPoints
- * @param $gameName
- * @param $badgeName
- * @param bool $inclSmallBadge
- * @param bool $smallBadgeOnly
- * @param string $extraText
- * @param int $smallBadgeSize
- * @param string $imgclass
- * @return string
- */
+
 function GetAchievementAndTooltipDiv(
     $achID,
     $achName,
@@ -25,28 +12,35 @@ function GetAchievementAndTooltipDiv(
     $extraText = '',
     $smallBadgeSize = 32,
     $imgclass = 'badgeimg'
-) {
+): string {
     $tooltipIconSize = 64; //96;
+
+    sanitize_outputs(
+        $achName,
+        $consoleName,
+        $gameName
+    );
 
     $achNameStr = $achName;
     $achDescStr = $achDesc;
     $gameNameStr = $gameName;
 
-    $tooltip = "<div id='objtooltip'>";
-    $tooltip .= "<img src='" . getenv('ASSET_URL') . "/Badge/$badgeName" . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />";
-    $tooltip .= "<b>$achNameStr";
-    if ($achPoints) {
-        $tooltip .= " ($achPoints)";
-    }
-    $tooltip .= "</b><br>";
-    $tooltip .= "<i>($gameNameStr)</i><br>";
-    $tooltip .= "<br>";
+    $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+    $tooltip .= "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "/Badge/$badgeName" . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<div>";
+    $tooltip .= "<b>$achNameStr</b><br>";
     $tooltip .= "$achDescStr<br>";
-    $tooltip .= "$extraText";
+    if ($achPoints) {
+        $tooltip .= "<br>$achPoints Points<br>";
+    }
+    $tooltip .= "<i>$gameNameStr</i><br>";
+    $tooltip .= $extraText;
+    $tooltip .= "</div>";
     $tooltip .= "</div>";
 
     $tooltip = str_replace("'", "\'", $tooltip);
-    $tooltip = htmlentities($tooltip);
+
+    sanitize_outputs($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";
@@ -65,7 +59,7 @@ function GetAchievementAndTooltipDiv(
     }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='/Achievement/$achID'>" .
+        "<a href='/achievement/$achID'>" .
         "$smallBadge" .
         "$displayable" .
         "</a>" .
@@ -102,6 +96,8 @@ function RenderRecentlyUploadedComponent($numToFetch)
             $gameIcon = $nextData['GameIcon'];
             $achBadgeName = $nextData['BadgeName'];
             $consoleName = $nextData['ConsoleName'];
+
+            sanitize_outputs($achTitle, $achDesc, $gameTitle, $consoleName);
 
             echo "<tr>";
             echo "<td>";

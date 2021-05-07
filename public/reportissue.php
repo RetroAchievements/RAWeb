@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 $cookieRaw = RA_ReadCookie('RA_Cookie');
 
-$achievementID = seekGET('i', 0);
-settype($achievementID, 'integer');
+$achievementID = requestInputSanitized('i', 0, 'integer');
 
+$dataOut = null;
 if ($achievementID == 0 ||
     getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
@@ -25,7 +25,13 @@ $consoleName = $dataOut['ConsoleName'];
 $gameID = $dataOut['GameID'];
 $gameBadge = $dataOut['GameIcon'];
 
-$errorCode = seekGET('e');
+sanitize_outputs(
+    $achievementTitle,
+    $gameTitle,
+    $consoleName
+);
+
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 RenderHtmlHead("Report Broken Achievement");
@@ -47,8 +53,8 @@ RenderHtmlHead("Report Broken Achievement");
         <div class="navpath">
             <a href="/gameList.php">All Games</a>
             &raquo; <a href="/gameList.php?c=<?php echo $consoleName ?>"><?php echo $consoleName ?></a>
-            &raquo; <a href="/Game/<?php echo $gameID ?>"><?php echo $gameTitle ?></a>
-            &raquo; <a href="/Achievement/<?php echo $achievementID ?>"><?php echo $achievementTitle ?></a>
+            &raquo; <a href="/game/<?php echo $gameID ?>"><?php echo $gameTitle ?></a>
+            &raquo; <a href="/achievement/<?php echo $achievementID ?>"><?php echo $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>
 

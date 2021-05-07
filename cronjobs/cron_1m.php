@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 function GetNextHighestGameID($givenID)
 {
@@ -40,7 +40,6 @@ for ($i = 0; $i < 3; $i++) {
     $gameID = GetNextHighestGameID($gameID);
 }
 static_setnextgametoscan($gameID);
-
 
 $userID = $staticData['NextUserIDToScan'];
 $user = '';

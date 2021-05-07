@@ -2,7 +2,7 @@
 
 echo '<response></response>';
 return;
-// require_once __DIR__ . '/../../../lib/bootstrap.php';
+// require_once __DIR__ . '/../../../vendor/autoload.php';
 // // retrieve the operation to be performed
 // $mode = $_POST['mode'];
 //

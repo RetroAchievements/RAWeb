@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -13,8 +13,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$requestedComment = seekGet('c', 0);
-settype($$requestedComment, "integer");
+$requestedComment = requestInputQuery('c', 0, 'integer');
 
 if (getSingleTopicComment($requestedComment, $commentData) == false) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment");
@@ -25,7 +24,6 @@ if ($user != $commentData['Author'] && $permissions < \RA\Permissions::Admin) {
     header("Location: " . getenv('APP_URL') . "?e=nopermission");
     exit;
 }
-
 
 if (getTopicDetails($commentData['ForumTopicID'], $topicData) == false) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
@@ -42,7 +40,7 @@ $thisAuthor = $commentData['Author'];
 //$thisCategoryName = $topicData['CategoryName'];
 
 getCookie($user, $cookieRaw);
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Edit post");

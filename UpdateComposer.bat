@@ -1,1 +1,0 @@
-php ./composer.phar update

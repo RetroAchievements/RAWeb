@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use RA\Permissions;
 
@@ -15,12 +15,10 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     return;
 }
 
-$articleID = seekPOST('a');
-$articleType = seekPOST('t');
-settype($articleID, 'integer');
-settype($articleType, 'integer');
+$articleID = requestInputPost('a', null, 'integer');
+$articleType = requestInputPost('t', null, 'integer');
 
-$commentPayload = seekPOST('c');
+$commentPayload = requestInputPost('c');
 $commentPayload = preg_replace('/[^(\x20-\x7F)]*/', '', $commentPayload);
 
 if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {

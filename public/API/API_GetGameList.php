@@ -1,11 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$consoleID = seekGET('i');
+$consoleID = requestInputQuery('i', null, 'integer');
+if ($consoleID < 0) {
+    echo json_encode(['success' => false]);
+    return;
+}
 
-getGamesList($consoleID, $dataOut);
+$officialFlag = requestInputQuery('f', false, 'boolean');
 
-echo json_encode(utf8ize($dataOut));
+getGamesList($consoleID, $dataOut, $officialFlag);
+
+echo utf8_encode(json_encode($dataOut));

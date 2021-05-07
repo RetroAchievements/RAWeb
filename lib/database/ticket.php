@@ -13,6 +13,8 @@ function isAllowedToSubmitTickets($user)
 
 function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
 {
+    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $ROMMD5);
+
     $returnMsg = [];
 
     if (!isAllowedToSubmitTickets($userSubmitter)) {
@@ -22,9 +24,8 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
 
     global $db;
 
-    $note = mysqli_real_escape_string($db, $noteIn);
-    $note .= "<br>MD5: $ROMMD5";
-    //error_log( "mysqli_real_escape_string turned #$noteIn# into #$note#" );
+    $note = $noteIn;
+    $note .= "\nMD5: $ROMMD5";
 
     $submitterUserID = getUserIDFromUser($userSubmitter);
     settype($reportType, 'integer');
@@ -45,7 +46,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
         $idsFound++;
 
         $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
-                                VALUES ($achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
+                                VALUES ($achID, $submitterUserID, $reportType, '$note', NOW(), NULL, NULL )";
         // log_sql($query);
 
         $dbResult = mysqli_query($db, $query); //    Unescaped?
@@ -113,8 +114,10 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
         return false;
     }
 
+    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn);
+
     global $db;
-    $note = mysqli_real_escape_string($db, $noteIn);
+    $note = $noteIn;
 
     // error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
 
@@ -211,7 +214,7 @@ function getAllTickets(
     $ticketFilters = 2041, //2041 sets all filters active except for Closed and Resolved
     $getUnofficial = false
 ) {
-    global $db;
+    sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
 
     $retVal = [];
     settype($givenGameID, 'integer');
@@ -220,7 +223,6 @@ function getAllTickets(
 
     $innerCond = "TRUE";
     if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
-        $assignedToUser = mysqli_real_escape_string($db, $assignedToUser);
         $innerCond .= " AND ach.Author = '$assignedToUser'";
     }
     if ($givenGameID != 0) {
@@ -255,7 +257,7 @@ function getAllTickets(
     }
 
     settype($getUnofficial, 'boolean');
-    $unofficialCond = $getUnofficial ? " AND ach.Flags <> 3" : "";
+    $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
@@ -266,7 +268,7 @@ function getAllTickets(
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-              WHERE $innerCond $unofficialCond $stateCond $reportTypeCond $md5Cond $emulatorCond
+              WHERE $innerCond $achFlagCond $stateCond $reportTypeCond $md5Cond $emulatorCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -286,6 +288,8 @@ function getAllTickets(
 
 function getTicket($ticketID)
 {
+    sanitize_sql_inputs($ticketID);
+
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.ReportState, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
@@ -309,6 +313,8 @@ function getTicket($ticketID)
 
 function updateTicket($user, $ticketID, $ticketVal, $reason = null)
 {
+    sanitize_sql_inputs($ticketI, $ticketVal);
+
     $userID = getUserIDFromUser($user);
 
     $resolvedFields = "";
@@ -330,6 +336,9 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
         $achTitle = $ticketData['AchievementTitle'];
         $gameTitle = $ticketData['GameTitle'];
         $consoleName = $ticketData['ConsoleName'];
+
+        $status = null;
+        $comment = null;
 
         switch ($ticketVal) {
             case 0:
@@ -374,7 +383,6 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             "<br>" .
             "-- Your friends at RetroAchievements.org<br>";
 
-
         if (isAtHome()) {
             // error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
             // error_log($email);
@@ -386,7 +394,6 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
             // error_log(__FUNCTION__ . " return val: $retVal");
         }
-
 
         return true;
     } else {
@@ -402,16 +409,14 @@ function countOpenTicketsByDev($dev)
         return null;
     }
 
-    global $db;
-
-    $dev = mysqli_real_escape_string($db, $dev);
+    sanitize_sql_inputs($dev);
 
     $query = "
         SELECT count(*) as count
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = '$dev' AND tick.ReportState = 1";
+        WHERE ach.Author = '$dev' AND ach.Flags = '3' AND tick.ReportState = 1";
 
     $dbResult = s_mysql_query($query);
 
@@ -424,6 +429,7 @@ function countOpenTicketsByDev($dev)
 
 function countOpenTicketsByAchievement($achievementID)
 {
+    sanitize_sql_inputs($achievementID);
     settype($achievementID, 'integer');
     if ($achievementID <= 0) {
         return false;
@@ -449,6 +455,8 @@ function countOpenTickets(
     $assignedToUser = null,
     $gameID = null
 ) {
+    sanitize_sql_inputs($assignedToUser, $gameID);
+
     //State condition
     $stateCond = getStateCondition($ticketFilters);
     if ($stateCond === null) {
@@ -485,21 +493,15 @@ function countOpenTickets(
         $gameCond = " AND ach.GameID LIKE '$gameID'";
     }
 
-    if ($unofficialFlag === true) {
-        $query = "
-            SELECT count(*) as count
-            FROM Ticket AS tick
-            LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            WHERE ach.Flags <> 3 $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
-    } else {
-        $query = "
-            SELECT COUNT(*) as count
-            FROM Ticket AS tick
-            LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            WHERE TRUE $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
-    }
+    settype($unofficialFlag, 'boolean');
+    $achFlagCond = $unofficialFlag ? "ach.Flags = '5'" : "ach.Flags = '3'";
+
+    $query = "
+        SELECT count(*) as count
+        FROM Ticket AS tick
+        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
+        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+        WHERE $achFlagCond $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
 
     $dbResult = s_mysql_query($query);
 
@@ -512,6 +514,7 @@ function countOpenTickets(
 
 function gamesSortedByOpenTickets($count)
 {
+    sanitize_sql_inputs($count);
     settype($count, 'integer');
     if ($count == 0) {
         $count = 20;
@@ -546,14 +549,12 @@ function gamesSortedByOpenTickets($count)
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?!");
     }
 
     return $retVal;
 }
 
-/*
+/**
  * Gets the ticket state condition to put into the main ticket query.
  *
  * @param int $ticketFilters the current ticket filters in place
@@ -561,9 +562,9 @@ function gamesSortedByOpenTickets($count)
  */
 function getStateCondition($ticketFilters)
 {
-    $openTickets            = ($ticketFilters & (1 << 0));
-    $closedTickets          = ($ticketFilters & (1 << 1));
-    $resolvedTickets        = ($ticketFilters & (1 << 2));
+    $openTickets = ($ticketFilters & (1 << 0));
+    $closedTickets = ($ticketFilters & (1 << 1));
+    $resolvedTickets = ($ticketFilters & (1 << 2));
 
     if ($openTickets && $closedTickets && $resolvedTickets) {
         return "";
@@ -593,7 +594,7 @@ function getStateCondition($ticketFilters)
     }
 }
 
-/*
+/**
  * Gets the ticket report type condition to put into the main ticket query.
  *
  * @param int $ticketFilters the current ticket filters in place
@@ -601,25 +602,22 @@ function getStateCondition($ticketFilters)
  */
 function getReportTypeCondition($ticketFilters)
 {
-    $triggeredTickets       = ($ticketFilters & (1 << 3));
-    $didNotTriggerTickets   = ($ticketFilters & (1 << 4));
+    $triggeredTickets = ($ticketFilters & (1 << 3));
+    $didNotTriggerTickets = ($ticketFilters & (1 << 4));
 
     if ($triggeredTickets && $didNotTriggerTickets) {
         return "";
-    } elseif ($triggeredTickets || $didNotTriggerTickets) {
-        if ($triggeredTickets) {
-            return " AND tick.ReportType LIKE 1";
-        }
-
-        if ($didNotTriggerTickets) {
-            return " AND tick.ReportType NOT LIKE 1";
-        }
-    } else {
-        return null;
     }
+    if ($triggeredTickets) {
+        return " AND tick.ReportType LIKE 1";
+    }
+    if ($didNotTriggerTickets) {
+        return " AND tick.ReportType NOT LIKE 1";
+    }
+    return null;
 }
 
-/*
+/**
  * Gets the ticket MD5 condition to put into the main ticket query.
  *
  * @param int $ticketFilters the current ticket filters in place
@@ -627,25 +625,22 @@ function getReportTypeCondition($ticketFilters)
  */
 function getMD5Condition($ticketFilters)
 {
-    $md5KnownTickets        = ($ticketFilters & (1 << 5));
-    $md5UnknownTickets      = ($ticketFilters & (1 << 6));
+    $md5KnownTickets = ($ticketFilters & (1 << 5));
+    $md5UnknownTickets = ($ticketFilters & (1 << 6));
 
     if ($md5KnownTickets && $md5UnknownTickets) {
         return "";
-    } elseif ($md5KnownTickets || $md5UnknownTickets) {
-        if ($md5KnownTickets) {
-            return " AND (tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}')";
-        }
-
-        if ($md5UnknownTickets) {
-            return " AND (tick.ReportNotes NOT REGEXP 'MD5: [a-fA-F0-9]{32}')";
-        }
-    } else {
-        return null;
     }
+    if ($md5KnownTickets) {
+        return " AND (tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}')";
+    }
+    if ($md5UnknownTickets) {
+        return " AND (tick.ReportNotes NOT REGEXP 'MD5: [a-fA-F0-9]{32}')";
+    }
+    return null;
 }
 
-/*
+/**
  * Gets the ticket emulator condition to put into the main ticket query.
  *
  * @param int $ticketFilters the current ticket filters in place
@@ -653,9 +648,9 @@ function getMD5Condition($ticketFilters)
  */
 function getEmulatorCondition($ticketFilters)
 {
-    $raEmulatorTickets      = ($ticketFilters & (1 << 7));
-    $rarchKnownTickets      = ($ticketFilters & (1 << 8));
-    $rarchUnknownTickets    = ($ticketFilters & (1 << 9));
+    $raEmulatorTickets = ($ticketFilters & (1 << 7));
+    $rarchKnownTickets = ($ticketFilters & (1 << 8));
+    $rarchUnknownTickets = ($ticketFilters & (1 << 9));
     $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
 
     if ($raEmulatorTickets && $rarchKnownTickets && $rarchUnknownTickets && $emulatorUnknownTickets) {
@@ -688,24 +683,25 @@ function getEmulatorCondition($ticketFilters)
         }
         $emulatorCond .= ")";
         return $emulatorCond;
-    } else {
-        return null;
     }
+    return null;
 }
 
 /**
  * Gets the total number of tickets and ticket states for a specific user.
  *
- * @param String $user to get ticket data for
- * @return Array of user ticket data
+ * @param string $user to get ticket data for
+ * @return array of user ticket data
  */
 function getTicketsForUser($user)
 {
+    sanitize_sql_inputs($user);
+
     $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = '$user'
+              WHERE a.Author = '$user' AND a.Flags = '3'
               GROUP BY t.AchievementID, ReportState
               ORDER BY t.AchievementID";
 
@@ -721,11 +717,13 @@ function getTicketsForUser($user)
 /**
  * Gets the user developed game with the most amount of tickets.
  *
- * @param String $user to get ticket data for
- * @return Array|NULL of user ticket data
+ * @param string $user to get ticket data for
+ * @return array|null of user ticket data
  */
 function getUserGameWithMostTickets($user)
 {
+    sanitize_sql_inputs($user);
+
     $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
@@ -745,14 +743,16 @@ function getUserGameWithMostTickets($user)
     }
 }
 
-/*
+/**
  * Gets the user developed achievement with the most amount of tickets.
  *
- * @param String $user to get ticket data for
- * @return Array|NULL of user ticket data
+ * @param string $user to get ticket data for
+ * @return array|null of user ticket data
  */
 function getUserAchievementWithMostTickets($user)
 {
+    sanitize_sql_inputs($user);
+
     $query = "SELECT a.ID as AchievementID, a.Title as AchievementTitle, a.Description as AchievementDescription, a.Points as AchievementPoints, a.BadgeName as AchievementBadge, gd.Title AS GameTitle, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
@@ -772,14 +772,16 @@ function getUserAchievementWithMostTickets($user)
     }
 }
 
-/*
+/**
  * Gets the user who created the most tickets for another user.
  *
- * @param String $user to get ticket data for
- * @return Array|NULL of user ticket data
+ * @param string $user to get ticket data for
+ * @return array|null of user ticket data
  */
 function getUserWhoCreatedMostTickets($user)
 {
+    sanitize_sql_inputs($user);
+
     $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
@@ -797,14 +799,16 @@ function getUserWhoCreatedMostTickets($user)
     }
 }
 
-/*
+/**
  * Gets the number of tickets closed/resolved for other users.
  *
- * @param String $user to get ticket data for
- * @return Array|NULL of user ticket data
+ * @param string $user to get ticket data for
+ * @return array of user ticket data
  */
 function getNumberOfTicketsClosedForOthers($user)
 {
+    sanitize_sql_inputs($user);
+
     $retVal = [];
     $query = "SELECT a.Author, COUNT(a.Author) AS TicketCount,
               SUM(CASE WHEN t.ReportState LIKE '0' THEN 1 ELSE 0 END) AS ClosedCount,
@@ -817,6 +821,7 @@ function getNumberOfTicketsClosedForOthers($user)
               AND ua.User NOT LIKE '$user'
               AND a.Author NOT LIKE '$user'
               AND ua2.User LIKE '$user'
+              AND a.Flags = '3'
               GROUP BY a.Author
               ORDER BY TicketCount DESC, Author";
 

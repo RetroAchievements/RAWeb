@@ -1,13 +1,13 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
-$vidID = seekGET('v', 0);
-$mobileSetting = seekGET('m');
+$errorCode = requestInputSanitized('e');
+$vidID = requestInputSanitized('v', 0, 'integer');
+$mobileSetting = requestInputSanitized('m');
 
 RenderHtmlStart();
 RenderHtmlHead("RA Cinema");

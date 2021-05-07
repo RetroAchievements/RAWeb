@@ -1,5 +1,5 @@
 <?php
 
-namespace Test\Application;
+namespace Test;
 
 include __DIR__ . '/../vendor/autoload.php';

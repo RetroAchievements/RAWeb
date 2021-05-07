@@ -1,16 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use RA\Permissions;
 
-$ratingID = seekGET('i');
-$ratingType = seekGET('t');
-$ratingValue = seekGET('v');
-
-settype($ratingID, 'integer');
-settype($ratingType, 'integer');
-settype($ratingValue, 'integer');
+$ratingID = requestInputQuery('i', null, 'integer');
+$ratingType = requestInputQuery('t', null, 'integer');
+$ratingValue = requestInputQuery('v', null, 'integer');
 
 $validRating = ($ratingType == 1 || $ratingType == 3) && ($ratingValue >= 1 && $ratingValue <= 5);
 

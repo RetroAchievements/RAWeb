@@ -1,15 +1,11 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$requestedForumID = seekGET('f', null);
-$offset = seekGET('o', 0);
-$count = seekGET('c', 25);
-
-settype($requestedForumID, "integer");
-settype($offset, "integer");
-settype($count, "integer");
+$requestedForumID = requestInputSanitized('f', null, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', 25, 'integer');
 
 $numUnofficialLinks = 0;
 if ($permissions >= \RA\Permissions::Admin) {
@@ -52,7 +48,14 @@ if ($requestedForumID == 0) {
     $requestedForum = $thisForumTitle;
 }
 
-$errorCode = seekGET('e');
+sanitize_outputs(
+    $requestedForum,
+    $thisForumTitle,
+    $thisForumDescription,
+    $thisCategoryName,
+);
+
+$errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
 RenderHtmlStart();
@@ -114,6 +117,13 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 $nextTopicLastCommentPostedDate = $topicData['LatestCommentPostedDate'];
                 $nextTopicNumReplies = $topicData['NumTopicReplies'];
 
+                sanitize_outputs(
+                    $nextTopicTitle,
+                    $nextTopicPreview,
+                    $nextTopicAuthor,
+                    $nextTopicLastCommentAuthor,
+                );
+
                 if ($nextTopicPostedDate !== null) {
                     $nextTopicPostedNiceDate = getNiceDate(strtotime($nextTopicPostedDate));
                 } else {
@@ -133,14 +143,14 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<td class='author'>";
                 echo GetUserAndTooltipDiv($nextTopicAuthor, $mobileBrowser);
                 echo "</td>";
-                //echo "<td class='author'><div class='author'><a href='/User/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
+                //echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
                 echo "<td class='replies'>$nextTopicNumReplies</td>";
                 //echo "<td class='views'>$nextForumNumViews</td>";
                 echo "<td class='lastpost'>";
                 echo "<div class='lastpost'>";
                 echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
-                //echo "<a href='/User/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
+                //echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
                 echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
                 echo "</div>";
                 echo "</td>";

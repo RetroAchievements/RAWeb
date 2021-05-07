@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $maxCount = 10;
 
-$errorCode = seekGET('e');
-$offset = seekGET('o', 0);
-$count = seekGET('c', $maxCount);
-$unreadOnly = seekGET('u', 0);
+$errorCode = requestInputSanitized('e');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$unreadOnly = requestInputSanitized('u', 0, 'integer');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     //	Trying to visit someone's inbox while not being logged in :S
@@ -136,6 +136,12 @@ RenderHtmlHead('Inbox');
                 $msgPayload = $allMessages[$i]['Payload'];
                 $msgType = $allMessages[$i]['Type'];
                 $msgUnread = ($allMessages[$i]['Unread'] == 1);
+
+                sanitize_outputs(
+                    $msgFrom,
+                    $msgTitle,
+                    $msgPayload,
+                );
 
                 $msgPayload = nl2br($msgPayload);
                 $msgPayload = stripslashes($msgPayload);

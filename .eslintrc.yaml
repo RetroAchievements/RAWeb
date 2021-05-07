@@ -21,6 +21,8 @@ rules:
   # some javascript functions are used within html attributes rendered within php
   no-unused-vars: off
 
+  max-len: off
+
   # yeah, we're polluting the global namespace with jquery...
   no-undef: off
 

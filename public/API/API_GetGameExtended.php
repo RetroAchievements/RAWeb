@@ -1,10 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../../lib/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 runPublicApiMiddleware();
 
-$gameID = seekGET('i');
+$gameID = requestInputQuery('i');
 getGameMetadata($gameID, null, $achData, $gameData);
 
 foreach ($achData as &$achievement) {

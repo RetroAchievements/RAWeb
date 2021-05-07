@@ -1,6 +1,6 @@
 <?php
 
-if (empty($_GET['page'])) {
+if (!requestInputSanitized('page')) {
     return;
 }
 $page = pathinfo($_GET['page'])['filename'];

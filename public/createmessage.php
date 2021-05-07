@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $user = RA_ReadCookie('RA_User');
 $cookieRaw = RA_ReadCookie('RA_Cookie');
@@ -16,12 +16,12 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$messageTo = seekGET('t', '');
-$messageContextID = seekGET('i', -1);
+$messageTo = requestInputSanitized('t', '');
+$messageContextID = requestInputSanitized('i', -1);
 
-$messageOutgoingPayload = seekGET('p', '');
+$messageOutgoingPayload = requestInputSanitized('p', '');
 
-$messageContextTitle = seekGET('s', '');
+$messageContextTitle = requestInputSanitized('s', '');
 $messageContextPayload = '';
 $messageContextData = null;
 
@@ -33,7 +33,7 @@ if ($messageContextID != -1) {
     $messageContextPayload = nl2br($messageContextPayload);
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Send Message");
@@ -93,7 +93,7 @@ RenderHtmlHead("Send Message");
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
             echo "<input type='hidden' value='$user' name='u'>";
             echo "<input type='hidden' value='$cookieRaw' name='c'>";
-            $destUser = mb_strlen($messageTo > 2) ? $messageTo : '_User';
+            $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";
             echo "<td><input type='text' value='$messageTo' name='d' id='messagedest' onblur='onUserChange(); return false;' class='requiredinput searchuser'></td>";

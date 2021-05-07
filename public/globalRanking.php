@@ -1,18 +1,18 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 25;
 
-$errorCode = seekGET('e');
-$offset = seekGET('o', 0);
+$errorCode = requestInputSanitized('e');
+$offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
-$sort = seekGET('s', 5);
-$type = seekGET('t', 0);
-$friends = seekGET('f', 0);
-$untracked = seekGET('u', 0);
-$date = seekGET('d', date("Y-m-d"));
+$sort = requestInputSanitized('s', 5, 'integer');
+$type = requestInputSanitized('t', 0, 'integer');
+$friends = requestInputSanitized('f', 0, 'integer');
+$untracked = requestInputSanitized('u', 0, 'integer');
+$date = requestInputSanitized('d', date("Y-m-d"));
 $dateUnix = strtotime("$date");
 
 switch ($type) {
@@ -268,7 +268,7 @@ RenderToolbar($user, $permissions);
                 $findUserRank = true;
             }
 
-            if (! $findUserRank) {
+            if (!$findUserRank) {
                 // Outline the currently logged in user in the table
                 if ($dataPoint['User'] == $user) {
                     $userListed = true;
@@ -312,7 +312,7 @@ RenderToolbar($user, $permissions);
 
         // Display the user if they are not in the list
         if ($user !== null) {
-            if (! $userListed) {
+            if (!$userListed) {
                 $userData = null;
 
                 // Get and display the information for the logged in user if applicable
@@ -357,7 +357,7 @@ RenderToolbar($user, $permissions);
                     } else {
                         echo "<td>" . $userData[0]['RetroRatio'] . "</td>";
                     }
-                    echo "<td>" . $dataPoint['TotalAwards'] . " - " . $dataPoint['CompletedAwards'] . " (" . $dataPoint['MasteredAwards'] . ")</td></tr>";
+                    echo "<td>" . $userData[0]['TotalAwards'] . " - " . $userData[0]['CompletedAwards'] . " (" . $userData[0]['MasteredAwards'] . ")</td></tr>";
                 }
             }
         }

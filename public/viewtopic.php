@@ -1,13 +1,12 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
 
 // Fetch topic ID
-$requestedTopicID = seekGET('t', 0);
-settype($requestedTopicID, "integer");
+$requestedTopicID = requestInputSanitized('t', 0, 'integer');
 
 if ($requestedTopicID == 0) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic");
@@ -29,13 +28,11 @@ if ($permissions < $topicData['RequiredPermissions']) {
 
 // Fetch other params
 $count = 15;
-$offset = seekGET('o', 0);
-settype($offset, "integer");
-settype($count, "integer");
+$offset = requestInputSanitized('o', 0, 'integer');
 
 // Fetch 'goto comment' param if available
-$gotoCommentID = seekGET('c', null);
-if (isset($gotoCommentID)) {
+$gotoCommentID = requestInputSanitized('c', null, 'integer');
+if (!empty($gotoCommentID)) {
     // Override $offset, just find this comment and go to it.
     getTopicCommentCommentOffset($requestedTopicID, $gotoCommentID, $count, $offset);
 }
@@ -61,18 +58,25 @@ $thisTopicForumID = $topicData['ForumID'];
 $thisTopicTitle = $topicData['TopicTitle'];
 $thisTopicPermissions = $topicData['RequiredPermissions'];
 
+sanitize_outputs(
+    $thisTopicAuthor,
+    $thisTopicCategory,
+    $thisTopicForum,
+    $thisTopicTitle,
+);
+
 $pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 ?>
 
 <head>
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderTitleTag($pageTitle, $user); ?>
+    <?php RenderSharedHeader(); ?>
+    <?php RenderTitleTag($pageTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
 
@@ -83,10 +87,7 @@ RenderHtmlStart();
 <div id="mainpage">
     <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">
-
         <?php
-        $thisTopicTitle = htmlspecialchars($thisTopicTitle, ENT_QUOTES);
-
         echo "<div class='navpath'>";
         echo "<a href='/forum.php'>Forum Index</a>";
         echo " &raquo; <a href='forum.php?c=$thisTopicCategoryID'>$thisTopicCategory</a>";
@@ -237,6 +238,11 @@ RenderHtmlStart();
             } else {
                 $nextCommentDateModifiedNiceDate = "None";
             }
+
+            sanitize_outputs(
+                $nextCommentPayload,
+                $nextCommentAuthor,
+            );
 
             $showDisclaimer = false;
             $showAuthoriseTools = false;

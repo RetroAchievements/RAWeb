@@ -1,15 +1,21 @@
 <?php
-require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$gameID = seekGET('g', 1);
+$gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
+
+sanitize_outputs(
+    $gameData['Title'],
+    $gameData['ConsoleName'],
+);
+
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead('Code Notes');
