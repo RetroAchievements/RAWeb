@@ -84,11 +84,11 @@ usort($userCompletedGames, "scorePctCompare");
 
 $userCompletedGamesList = $userCompletedGames;
 
-$excludeConsole = ["Hubs", "Events"];
+$excludedConsoles = ["Hubs", "Events"];
 
 foreach ($userCompletedGamesList as $nextGame) {
     if ($nextGame['PctWon'] > 0) {
-        if (!in_array($nextGame['ConsoleName'], $excludeConsole)) {
+        if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
             $totalPctWon += $nextGame['PctWon'];
             $numGamesFound++;
         }
