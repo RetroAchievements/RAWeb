@@ -84,6 +84,8 @@ usort($userCompletedGames, "scorePctCompare");
 
 $userCompletedGamesList = $userCompletedGames;
 
+$excludeConsole = array("Hubs", "Events");
+
 foreach ($userCompletedGamesList as $nextGame) {
     if ($nextGame['PctWon'] > 0) {
         if (!in_array($nextGame['ConsoleName'], $excludeConsole)) { 
