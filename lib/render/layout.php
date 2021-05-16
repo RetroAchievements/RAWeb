@@ -233,6 +233,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
+    echo "<li><a href='/gameList.php?c=63'>Watara Supervision</a></li>";
     echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
     echo "</ul>";
 
