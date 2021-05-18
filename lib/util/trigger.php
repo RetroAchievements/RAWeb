@@ -67,9 +67,9 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
     $memRegex = '/(?:([' . implode(
         '',
         array_keys($specialFlags)
-    ) . ']):)?' . $operandRegex . '(<=|>=|<|>|=|!=|)' . $operandRegex . '(?:[(.](\\d+)[).])?/';
+    ) . ']):)?' . $operandRegex . '(<=|>=|<|>|=|!=|\*|\/|&|)' . $operandRegex . '(?:[(.](\\d+)[).])?/';
     // memRegex is this monster:
-    // (?:([RPABCNOMQIZDT]):)?(d|p|b)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xW|0xK|0xX|0x |0x|)?([0-9a-f]*)(<=|>=|<|>|=|!=|)(d|p|b)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xW|0xK|0xX|0x |0x|)?([0-9a-f]*)(?:[(.](\d+)[).])?/
+    // (?:([RPABCNOMQIZDT]):)?(d|p|b)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xW|0xK|0xX|0x |0x|)?([0-9a-f]*)(<=|>=|<|>|=|!=|\*|\/|&|)(d|p|b)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xW|0xK|0xX|0x |0x|)?([0-9a-f]*)(?:[(.](\d+)[).])?/
     // I was about to add comments explaining this long RegEx, but realized that the best way
     // is to copy the regex string and paste it in the proper field at https://regex101.com/
 
@@ -130,7 +130,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             $res .= "\n  <td> " . $memTypes[$lType] . " </td>";
             $res .= "\n  <td> " . $memSize[$lSize] . " </td>";
             $res .= "\n  <td" . $lTooltip . "> " . $lMemory . " </td>";
-            if ($flag == 'A' || $flag == 'B' || $flag == 'I') {
+            if (($flag == 'A' || $flag == 'B' || $flag == 'I') && ($cmp != '*' && $cmp != '/' && $cmp != '&')) {
                 $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
             } else {
                 $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";
