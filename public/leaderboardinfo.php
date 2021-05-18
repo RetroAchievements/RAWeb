@@ -107,10 +107,13 @@ RenderHtmlStart(true);
                         $nextUser = $nextLBEntry['User'];
                         $nextScore = $nextLBEntry['Score'];
                         $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
-                        echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
+                        $entry = $nextUser . ',' . $nextScoreFormatted;
+                        echo "<option value='$entry'>$nextUser ($nextScoreFormatted)</option>";
                     }
                     echo "</select>";
-
+                    echo "</br>";
+                    echo "Reason:";
+                    echo "<input type='text' name='r' value='' style='width: 50%;' placeholder='Please enter reason for removal'/>";
                     echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
                     echo "</form>";
                     echo "</td></tr>";
