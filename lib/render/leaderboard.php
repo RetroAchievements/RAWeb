@@ -607,3 +607,82 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     }
     return $retVal;
 }
+
+/**
+ * Gets completed and mastery award information.
+ * This includes User, Game and Completed or Mastered Date.
+ *
+ * Results are configurable based on input parameters, allowing sorting on each of the
+ * abobe stats, returning data for a specific user, returning data for a specific users friends,
+ * tracked/untracked filtering, and filtering on a day/all time based on any input date.
+ *
+ * @param int $lbType Leaderboard timeframe type
+ *            0 - Daily
+ *            1 - All Time
+ * @param int $sort Stats to sort by
+ *            8 - Completed Awards
+ *            9 - Mastered Awards
+ * @param string $date Date to grab information from
+ * @param string|null $user User to get data for
+ * @param string $friendsOf User to get friends data for
+ * @param int $untracked Option to include or exclude untracked users
+ *            0 - Tracked users only
+ *            1 - Untracked users only
+ *            2 - Tracked and untracked user
+ * @param int $offset starting point to return rows
+ * @param int $count number of rows to return
+ * @return array Leaderboard data to display
+ */
+function getRecentMasteryData($lbType, $sort, $date, $user, $friendsOf = NULL, $untracked = 0, $offset = 0, $count = 50)
+{
+    $pointRequirement = "";
+
+    // Determine the WHERE condition
+    switch ($lbType) {
+        case 1: // All Time
+            $whereTypeCond = "";
+            break;
+        default: // Daily by default
+            $whereTypeCond = " BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)";
+            break;
+    }
+
+    // Set the date names if we are choosing anything but All Time
+    $whereDateAward = "";
+    if (mb_strlen($whereTypeCond) > 0) {
+        $whereDateAward = " AND saw.AwardDate";
+    }
+
+    // Determine ascending or descending order
+    // settype($sort, 'integer');
+    // if ($sort < 10) {
+    //     $sortOrder = "DESC";
+    // } else {
+    //     $sortOrder = "ASC";
+    //     $sort = $sort - 10;
+    // }
+
+    // Determine the friends condition
+    $friendCondAward = "";
+    if ($friendsOf !== null) {
+        $friendCondAward = "AND (saw.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR saw.User LIKE '$friendsOf')";
+    }
+
+    $retVal = [];
+    $whereCond = "saw.AwardType = 1 AND AwardData > 0 AND AwardDataExtra IS NOT NULL";
+    $query = "SELECT saw.User, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAtUnix, saw.AwardType, saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon
+                FROM SiteAwards AS saw
+                LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
+                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+                WHERE $whereCond $friendCondAward $whereDateAward $whereTypeCond
+                ORDER BY AwardedAt DESC
+                LIMIT $offset, $count";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+    return $retVal;
+}

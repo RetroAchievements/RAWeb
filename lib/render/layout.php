@@ -274,6 +274,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
+    echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
