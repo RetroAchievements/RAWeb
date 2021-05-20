@@ -26,9 +26,9 @@ switch ($friends) {
 }
 
 if ($friends == 1) {
-    $data = getRecentMasteryData($date, null, $user, $offset, $maxCount);
+    $data = getRecentMasteryData($date, null, $user, $offset, $maxCount + 1);
 } else {
-    $data = getRecentMasteryData($date, $user, null, $offset, $maxCount);
+    $data = getRecentMasteryData($date, $user, null, $offset, $maxCount + 1);
 }
 
 RenderHtmlStart();
@@ -93,39 +93,42 @@ RenderToolbar($user, $permissions);
         echo "</tr>";
 
         $userCount = 0;
+        $skip = false;
         // Create the table rows
         foreach ($data as $dataPoint) {
             // Break if we have hit the maxCount + 1 user
             if ($userCount == $maxCount) {
                 $userCount++;
-                $findUserRank = true;
+                $skip = true;
             }
 
-            echo "<tr>";
+            if (!$skip) {
+                echo "<tr>";
 
-            echo "<td>";
-            echo GetUserAndTooltipDiv($dataPoint['User'], true);
-            echo GetUserAndTooltipDiv($dataPoint['User'], false);
-            echo "</td>";
+                echo "<td>";
+                echo GetUserAndTooltipDiv($dataPoint['User'], true);
+                echo GetUserAndTooltipDiv($dataPoint['User'], false);
+                echo "</td>";
 
-            echo "<td>";
-            if ($dataPoint['AwardDataExtra'] == 1) {
-                echo "Mastered";
-            } else {
-                echo "Completed";
+                echo "<td>";
+                if ($dataPoint['AwardDataExtra'] == 1) {
+                    echo "Mastered";
+                } else {
+                    echo "Completed";
+                }
+                echo "</td>";
+
+                echo "<td>";
+                echo GetGameAndTooltipDiv($dataPoint['GameID'], $dataPoint['GameTitle'], $dataPoint['GameIcon'], $dataPoint['ConsoleName']);
+                echo "</td>";
+
+                echo "<td>";
+                echo $dataPoint['AwardedAt'];
+                echo "</td>";
+
+                echo "</tr>";
+                $userCount++;
             }
-            echo "</td>";
-
-            echo "<td>";
-            echo GetGameAndTooltipDiv($dataPoint['GameID'], $dataPoint['GameTitle'], $dataPoint['GameIcon'], $dataPoint['ConsoleName']);
-            echo "</td>";
-
-            echo "<td>";
-            echo $dataPoint['AwardedAt'];
-            echo "</td>";
-
-            echo "</tr>";
-            $userCount++;
         }
         echo "</tbody></table>";
 
@@ -142,7 +145,7 @@ RenderToolbar($user, $permissions);
             $prevOffset = $offset - $maxCount;
             echo "<a href='/recentMastery.php?d=$date&f=$friends&o=$prevOffset'>&lt; Prev $maxCount </a>";
         }
-        if ($userCount >= $maxCount) {
+        if ($userCount > $maxCount) {
             if ($offset > 0) {
                 echo " - ";
             }
