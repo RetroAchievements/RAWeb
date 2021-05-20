@@ -109,7 +109,7 @@ RenderToolbar($user, $permissions);
             echo "</td>";
 
             echo "<td>";
-            if ($dataPoint['AwardDataExtra'] == 1){
+            if ($dataPoint['AwardDataExtra'] == 1) {
                 echo "Mastered";
             } else {
                 echo "Completed";

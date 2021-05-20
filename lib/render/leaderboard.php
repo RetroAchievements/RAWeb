@@ -622,7 +622,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
  * @param int $count number of rows to return
  * @return array Leaderboard data to display
  */
-function getRecentMasteryData($date, $user, $friendsOf = NULL, $offset = 0, $count = 50)
+function getRecentMasteryData($date, $user, $friendsOf = null, $offset = 0, $count = 50)
 {
     // Determine the friends condition
     $friendCondAward = "";
