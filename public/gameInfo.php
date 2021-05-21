@@ -1077,7 +1077,11 @@ RenderHtmlStart(true);
                     $gameID
                 );
                 if ($permissions >= Permissions::Registered) {
-                    echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
+                    if ($flags == 5) {
+                        echo "<li>- <a href='/ticketmanager.php?g=$gameID&f=$flags'>($numOpenTickets) Open Unofficial Tickets for this game</a></li>";
+                    } else {
+                        echo "<li>- <a href='/ticketmanager.php?g=$gameID'>($numOpenTickets) Open Tickets for this game</a></li>";
+                    }
                 }
                 if ($numAchievements == 0) {
                     echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
