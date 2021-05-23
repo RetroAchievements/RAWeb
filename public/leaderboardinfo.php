@@ -144,7 +144,6 @@ RenderHtmlStart(true);
                 //$nextEntry = $lbData[$i];
                 //var_dump( $nextEntry );
 
-                $nextRank = $nextEntry['Rank'];
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
                 if ($prevScore != $nextScore){
