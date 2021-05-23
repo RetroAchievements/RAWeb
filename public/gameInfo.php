@@ -21,7 +21,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 $errorCode = requestInputSanitized('e');
 
-$officialFlag = 3; // flag = 3 means Core (official) achievements
+$officialFlag = 3; // flag = 3: Core (official) achievements
+$unofficialFlag = 5; // flag = 5: unofficial
 $flags = requestInputSanitized('f', $officialFlag, 'integer');
 
 $defaultSort = 1;
@@ -493,7 +494,7 @@ RenderHtmlStart(true);
                 echo "<div class='navpath'>";
                 echo "<a href='/gameList.php'>All Games</a>";
                 echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-                if ($flags == 5) {
+                if ($flags == $unofficialFlag) {
                     echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
                     echo " &raquo; <b>Unofficial Achievements</b>";
                 } else {
@@ -567,15 +568,11 @@ RenderHtmlStart(true);
                 echo "<div id='devboxcontent'>";
 
                 if ($isFullyFeaturedGame) {
-                    if ($flags == 5) {
+                    if ($flags == $unofficialFlag) {
                         echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
-                    } else {
-                        echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
-                    }
-
-                    if ($flags == 5) {
                         echo "<div><a href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
                     } else {
+                        echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
                     echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
@@ -733,7 +730,7 @@ RenderHtmlStart(true);
             }
 
             if ($isFullyFeaturedGame) {
-                if ($flags == 5) {
+                if ($flags == $unofficialFlag) {
                     echo "<h4><b>Unofficial</b> Achievements</h4>";
                     echo "<a href='/game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
@@ -1071,18 +1068,22 @@ RenderHtmlStart(true);
                 echo "</li>";
                 echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
                 $numOpenTickets = countOpenTickets(
-                    requestInputSanitized('f') == 5,
+                    requestInputSanitized('f') == $unofficialFlag,
                     requestInputSanitized('t', 2041),
                     null,
                     $gameID
                 );
                 if ($permissions >= Permissions::Registered) {
-                    echo "<li>- <a href='/ticketmanager.php?g=$gameID&ampt=1'>($numOpenTickets) Open Tickets for this game</a></li>";
+                    if ($flags == $unofficialFlag) {
+                        echo "<li>- <a href='/ticketmanager.php?g=$gameID&f=$flags'>($numOpenTickets) Open Unofficial Tickets for this game</a></li>";
+                    } else {
+                        echo "<li>- <a href='/ticketmanager.php?g=$gameID'>($numOpenTickets) Open Tickets for this game</a></li>";
+                    }
                 }
                 if ($numAchievements == 0) {
                     echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
                 }
-                //if( $flags == 5 )
+                //if( $flags == $unofficialFlag )
                 //echo "<li>- <a href='/game/$gameID'>View Core Achievements</a></li>";
                 //else
                 //echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
