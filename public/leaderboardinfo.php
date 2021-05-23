@@ -146,7 +146,7 @@ RenderHtmlStart(true);
 
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
-                if ($prevScore != $nextScore){
+                if ($prevScore != $nextScore) {
                     $nextRank = $nextEntry['Rank'];
                 }
                 $prevScore = $nextScore;
