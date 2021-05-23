@@ -536,7 +536,7 @@ function gamesSortedByOpenTickets($count)
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState = 1
+            tick.ReportState = 1 AND ach.Flags = 3
         GROUP BY
             gd.ID
         ORDER BY
