@@ -689,7 +689,7 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
 
         $values = implode(", ", $valuesArray);
         if (!empty($values)) {
-            $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values";
+            $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values ON DUPLICATE KEY UPDATE Updated = CURRENT_TIMESTAMP";
             if (s_mysql_query($query)) {
                 // error_log("Added game alt(s): $values");
             } else {
