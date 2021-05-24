@@ -55,7 +55,7 @@ if (empty($startAt)) {
 
 if (!empty($startAt)) {
     $winnerInfo = array_filter($winnerInfo, function ($unlock) use ($startAt) {
-        return strtotime($unlock['DateAwarded']) >= strtotime($startAt);
+        return (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt);
     });
 }
 

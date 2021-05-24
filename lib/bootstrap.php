@@ -1,6 +1,11 @@
 <?php
 
-define('VERSION', '1.73.0');
+use Dotenv\Dotenv;
+use Dotenv\Repository\Adapter\EnvConstAdapter;
+use Dotenv\Repository\Adapter\PutenvAdapter;
+use Dotenv\Repository\RepositoryBuilder;
+
+define('VERSION', '1.72.0');
 define('MIN_POINTS', 500);
 
 if (!file_exists(__DIR__ . '/../.env')) {
@@ -9,8 +14,12 @@ if (!file_exists(__DIR__ . '/../.env')) {
     return;
 }
 
-$dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
-$dotenv->load();
+$repository = RepositoryBuilder::createWithNoAdapters()
+    ->addAdapter(EnvConstAdapter::class)
+    ->addWriter(PutenvAdapter::class)
+    ->make();
+
+Dotenv::create($repository, __DIR__ . '/../')->load();
 
 try {
     global $db;

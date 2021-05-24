@@ -10,13 +10,13 @@
         "ext-gd": "*",
         "ext-json": "*",
         "asika/autolink": "1.*",
-        "vlucas/phpdotenv": "^2.4",
+        "vlucas/phpdotenv": "^5.0",
         "aws/aws-sdk-php": "^3.52"
     },
     "require-dev": {
         "brainmaestro/composer-git-hooks": "^2.8",
-        "friendsofphp/php-cs-fixer": "^2.15",
-        "phpunit/phpunit": "^7.5",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpunit/phpunit": "^9.0",
         "phpstan/phpstan": "^0.12.18",
         "vimeo/psalm": "^4.0"
     },
@@ -46,7 +46,8 @@
         }
     },
     "scripts": {
-        "analyse": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
+        "analyse": "@stan",
+        "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
         "taint": "vendor/bin/psalm --taint-analysis",
         "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
         "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",

@@ -4,11 +4,11 @@ use RA\Permissions;
 
 abstract class ModifyTopicField
 {
-    const ModifyTitle = 0;
+    public const ModifyTitle = 0;
 
-    const DeleteTopic = 1;
+    public const DeleteTopic = 1;
 
-    const RequiredPermissions = 2;
+    public const RequiredPermissions = 2;
 }
 
 function getForumList($categoryID = 0)
