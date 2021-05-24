@@ -94,7 +94,7 @@ RenderHtmlStart(true);
 
                 echo "<li>Manage Entries</li>";
                 echo "<div>";
-                if (count($lbData['Entries']) > 0) {
+                if (!empty($lbData['Entries'])) {
                     echo "<tr><td>";
                     echo "<form method='post' action='/request/leaderboard/remove-entry.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo "<input type='hidden' name='l' value='$lbID' />";
@@ -107,8 +107,7 @@ RenderHtmlStart(true);
                         $nextUser = $nextLBEntry['User'];
                         $nextScore = $nextLBEntry['Score'];
                         $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
-                        $entry = $nextUser . ',' . $nextScoreFormatted;
-                        echo "<option value='$entry'>$nextUser ($nextScoreFormatted)</option>";
+                        echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                     }
                     echo "</select>";
                     echo "</br>";

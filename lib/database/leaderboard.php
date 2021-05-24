@@ -218,6 +218,21 @@ function removeLeaderboardEntry($user, $lbID)
 {
     sanitize_sql_inputs($user, $lbID);
 
+    $query = "SELECT le.Score, ld.Format FROM LeaderboardEntry AS le
+              LEFT JOIN LeaderboardDef AS ld ON ld.ID = le.LeaderboardID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+              WHERE ua.User = '$user' AND ld.ID = $lbID ";
+
+    $dbResult = s_mysql_query($query);
+    $data = mysqli_fetch_assoc($dbResult);
+    $scoreFormatted = GetFormattedLeaderboardEntry($data['Format'], $data['Score']);
+
+    $retVal = [];
+    $retVal['Success'] = true;
+    $retVal['Score'] = $scoreFormatted;
+
+    GetFormattedLeaderboardEntry($lbFormat, $nextScore);
+
     $userID = getUserIDFromUser($user);
     if ($userID > 0) {
         $query = "DELETE FROM LeaderboardEntry
@@ -226,16 +241,14 @@ function removeLeaderboardEntry($user, $lbID)
         s_mysql_query($query);
 
         global $db;
-        if (mysqli_affected_rows($db) > 0) {
-            // error_log("Dropped $user 's LB entry from Leaderboard ID $lbID");
-            return true;
-        } else {
-            return false;
+        if (mysqli_affected_rows($db) == 0) {
+            $retVal['Success'] = false;
         }
     } else {
         // error_log("Could not find user ID for $user");
-        return false;
+        $retVal['Success'] = false;
     }
+    return $retVal;
 }
 
 function GetLeaderboardRankingJSON($user, $lbID)

@@ -18,7 +18,6 @@ $lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 
-//  Somewhat elevated privileges to modify an LB:
 if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
@@ -28,11 +27,10 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
         echo "OK";
 
         $updatedData = GetLeaderboardData($lbID, $user, 2, 0, false);
-        $entries = $updatedData['Entries'];
-        $updated = $updatedData["Updated"];
+        $updated = $updatedData['Updated'];
         $dateDiffMins = ($updated - $prevUpdated) / 60;
 
-        if (count($updatedData['Entries']) > 0) {
+        if (!empty($updatedData['Entries'])) {
             if ($dateDiffMins > 10) {
                 $commentText = 'made updates to this leaderboard';
                 addArticleComment("Server", \RA\ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);

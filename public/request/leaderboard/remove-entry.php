@@ -3,9 +3,7 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 $leaderboardId = requestInput('l', 0, 'integer');
-$targetEntry = explode(",", requestInput('t'));
-$targetUser = $targetEntry[0];
-$targetUserScore = $targetEntry[1];
+$targetUser = requestInput('t');
 $reason = requestInputPost('r');
 $returnUrl = getenv('APP_URL') . '/leaderboardinfo.php?i=' . $leaderboardId;
 
@@ -14,13 +12,17 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     return;
 }
 
-if (removeLeaderboardEntry($targetUser, $leaderboardId)) {
+$response['Response'] = removeLeaderboardEntry($targetUser, $leaderboardId);
+$response['Success'] = $response['Response']['Success'];
+$response['Score'] = $response['Response']['Score'];
+
+if ($response['Success']) {
     header('Location: ' . $returnUrl . '&success=true');
     if ($targetUser != $user) {
-        if ($reason === '') {
-            $commentText = 'removed "' . $targetUser . '"s entry of "' . $targetUserScore . '" from this leaderboard';
+        if (empty($reason)) {
+            $commentText = 'removed "' . $targetUser . '"s entry of "' . $response['Score'] . '" from this leaderboard';
         } else {
-            $commentText = 'removed "' . $targetUser . '"s entry of "' . $targetUserScore . '" from this leaderboard. Reason: ' . $reason;
+            $commentText = 'removed "' . $targetUser . '"s entry of "' . $response['Score'] . '" from this leaderboard. Reason: ' . $reason;
         }
         addArticleComment("Server", \RA\ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
     }
