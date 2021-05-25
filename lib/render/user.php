@@ -75,6 +75,10 @@ function GetUserAndTooltipDiv(
         $tooltip .= "<tr>";
         $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Untracked</td>";
         $tooltip .= "</tr>";
+    } elseif ($userPoints < 500) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Needs at least 500 points </td>";
+        $tooltip .= "</tr>";
     } else {
         $tooltip .= "<tr>";
         $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";

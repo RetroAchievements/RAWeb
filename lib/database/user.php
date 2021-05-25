@@ -806,7 +806,7 @@ function countRankedUsers()
     $query = "
         SELECT COUNT(*) AS count
         FROM UserAccounts
-        WHERE RAPoints > 0
+        WHERE RAPoints >= 500
           AND NOT Untracked
     ";
 
