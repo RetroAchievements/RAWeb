@@ -231,8 +231,6 @@ function removeLeaderboardEntry($user, $lbID)
     $retVal['Success'] = true;
     $retVal['Score'] = $scoreFormatted;
 
-    GetFormattedLeaderboardEntry($lbFormat, $nextScore);
-
     $userID = getUserIDFromUser($user);
     if ($userID > 0) {
         $query = "DELETE FROM LeaderboardEntry
