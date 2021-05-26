@@ -75,6 +75,10 @@ function GetUserAndTooltipDiv(
         $tooltip .= "<tr>";
         $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Untracked</td>";
         $tooltip .= "</tr>";
+    } elseif ($userPoints < MIN_POINTS) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Needs at least " . MIN_POINTS . " points </td>";
+        $tooltip .= "</tr>";
     } else {
         $tooltip .= "<tr>";
         $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
