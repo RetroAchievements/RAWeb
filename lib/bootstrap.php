@@ -1,6 +1,7 @@
 <?php
 
 define('VERSION', '1.71.0');
+define('MIN_POINTS', 500);
 
 if (!file_exists(__DIR__ . '/../.env')) {
     // .env file does not exist - do not attempt to load it nor try connecting to a database

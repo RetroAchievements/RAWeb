@@ -806,7 +806,7 @@ RenderHtmlStart(true);
                 }
 
                 if ($user !== null && $numAchievements > 0) {
-                    if ($totalEarnedCasual > 0 || $numEarnedHardcore > 0) {
+                    if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
                         echo "<div class='devbox'>";
                         echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
                         echo "<div id='resetboxcontent'>";
