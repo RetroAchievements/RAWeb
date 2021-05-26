@@ -273,7 +273,7 @@ RenderHtmlStart(true);
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
         } elseif ($totalPoints < MIN_POINTS) {
-            echo "<i>Needs at least ". MIN_POINTS ." points.</i>";
+            echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
             $rankPct = sprintf("%1.0f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
