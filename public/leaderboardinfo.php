@@ -94,7 +94,7 @@ RenderHtmlStart(true);
 
                 echo "<li>Manage Entries</li>";
                 echo "<div>";
-                if (count($lbData['Entries']) > 0) {
+                if (!empty($lbData['Entries'])) {
                     echo "<tr><td>";
                     echo "<form method='post' action='/request/leaderboard/remove-entry.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo "<input type='hidden' name='l' value='$lbID' />";
@@ -110,7 +110,9 @@ RenderHtmlStart(true);
                         echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                     }
                     echo "</select>";
-
+                    echo "</br>";
+                    echo "Reason:";
+                    echo "<input type='text' name='r' value='' style='width: 50%;' placeholder='Please enter reason for removal'/>";
                     echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
                     echo "</form>";
                     echo "</td></tr>";
@@ -135,6 +137,8 @@ RenderHtmlStart(true);
             $numActualEntries = 0;
             $localUserFound = false;
             $resultsDrawn = 0;
+            $prevScore = 0;
+            $nextRank = 1;
 
             $count = 0;
             //for( $i = 0; $i < $numEntries; $i++ )
@@ -143,9 +147,12 @@ RenderHtmlStart(true);
                 //$nextEntry = $lbData[$i];
                 //var_dump( $nextEntry );
 
-                $nextRank = $nextEntry['Rank'];
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
+                if ($prevScore != $nextScore) {
+                    $nextRank = $nextEntry['Rank'];
+                }
+                $prevScore = $nextScore;
                 $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
                 $nextSubmitAt = $nextEntry['DateSubmitted'];
                 $nextSubmitAtNice = getNiceDate($nextSubmitAt);
