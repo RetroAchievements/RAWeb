@@ -13,7 +13,7 @@
     "express": "^4.17.1",
     "pino": "^5.17.0",
     "redis": "1.0.0",
-    "ws": "^5.2.2"
+    "ws": "^7.4.5"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
