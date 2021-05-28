@@ -137,10 +137,7 @@ RenderHtmlStart(true);
             $numActualEntries = 0;
             $localUserFound = false;
             $resultsDrawn = 0;
-            $prevScore = 0;
-            $nextRank = 1;
 
-            $count = 0;
             //for( $i = 0; $i < $numEntries; $i++ )
             //var_dump( $lbData );
             foreach ($lbData['Entries'] as $nextEntry) {
@@ -149,10 +146,7 @@ RenderHtmlStart(true);
 
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
-                if ($prevScore != $nextScore) {
-                    $nextRank = $nextEntry['Rank'];
-                }
-                $prevScore = $nextScore;
+                $nextRank = $nextEntry['Rank'];
                 $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
                 $nextSubmitAt = $nextEntry['DateSubmitted'];
                 $nextSubmitAtNice = getNiceDate($nextSubmitAt);
