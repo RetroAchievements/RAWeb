@@ -137,6 +137,7 @@ RenderHtmlStart(true);
             $numActualEntries = 0;
             $localUserFound = false;
             $resultsDrawn = 0;
+            $nextRank = 1;
 
             //for( $i = 0; $i < $numEntries; $i++ )
             //var_dump( $lbData );

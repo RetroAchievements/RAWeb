@@ -438,7 +438,6 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
             $entries = [];
 
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                //$db_entry['Rank'] = $numResultsFound + $offset + 1;
                 $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                 settype($db_entry['Score'], 'integer');
 
