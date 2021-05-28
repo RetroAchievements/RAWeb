@@ -276,7 +276,7 @@ RenderHtmlStart(true);
             echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
-            $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
+            $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
             $rankOffset = (int) (($userRank - 1) / 25) * 25;
             echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }
