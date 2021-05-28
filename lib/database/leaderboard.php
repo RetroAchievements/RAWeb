@@ -399,7 +399,8 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
     $retVal = [];
 
     //    Get raw LB data
-    $query = "SELECT ld.ID AS LBID, gd.ID AS GameID, gd.Title AS GameTitle, ld.LowerIsBetter, ld.Title AS LBTitle, ld.Description AS LBDesc, ld.Format AS LBFormat, ld.Mem AS LBMem, gd.ConsoleID, c.Name AS ConsoleName, gd.ForumTopicID, gd.ImageIcon AS GameIcon, UNIX_TIMESTAMP(ld.Updated) AS Updated
+    $query = "SELECT ld.ID AS LBID, gd.ID AS GameID, gd.Title AS GameTitle, ld.LowerIsBetter, ld.Title AS LBTitle, ld.Description AS LBDesc, ld.Format AS LBFormat, ld.Mem AS LBMem, gd.ConsoleID, c.Name AS ConsoleName, gd.ForumTopicID, gd.ImageIcon AS GameIcon,
+        ld.Author AS LBAuthor, ld.Created AS LBCreated, ld.Updated AS LBUpdated
               FROM LeaderboardDef AS ld
               LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
@@ -692,7 +693,7 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
     }
 }
 
-function SubmitNewLeaderboard($gameID, &$lbIDOut)
+function SubmitNewLeaderboard($gameID, &$lbIDOut, $user)
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -701,9 +702,9 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
+    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
                                 VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
-                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp))";
+                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '$user', NOW())";
     // log_sql($query);
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -723,7 +724,7 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
  * @param int $duplicateNumber the number of times to duplicate the leaderboard
  * @return bool
  */
-function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
+function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)
 {
     sanitize_sql_inputs($gameID, $leaderboardID);
     settype($gameID, 'integer');
@@ -768,8 +769,8 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 
     //Create the duplicate entries
     for ($i = 1; $i <= $duplicateNumber; $i++) {
-        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
-                                    VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i))";
+        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
+                                    VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i), '$user', NOW())";
         // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
