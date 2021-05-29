@@ -154,7 +154,7 @@ RenderHtmlStart(true);
 
                 $isLocal = (strcmp($nextUser, $user) == 0);
                 $lastEntry = ($resultsDrawn + 1 == $numEntries);
-                $userAppendedInResults = ($numEntries !== $count);
+                $userAppendedInResults = ($numEntries > $count);
 
                 //echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
@@ -167,9 +167,10 @@ RenderHtmlStart(true);
 
                 if ($isLocal) {
                     $localUserFound = true;
+                    echo "<tr style='outline: thin solid'>";
+                } else {
+                    echo "<tr>";
                 }
-
-                echo "<tr>";
 
                 $injectFmt1 = $isLocal ? "<b>" : "";
                 $injectFmt2 = $isLocal ? "</b>" : "";
