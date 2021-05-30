@@ -13,6 +13,8 @@ if ($permissions >= \RA\Permissions::Admin) {
     $numUnofficialLinks = count($unofficialLinks);
 }
 
+$numTotalTopics = 0;
+
 if ($requestedForumID == 0) {
     if ($permissions >= \RA\Permissions::Admin) {
         //	Continue
