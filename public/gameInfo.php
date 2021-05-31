@@ -1044,7 +1044,6 @@ RenderHtmlStart(true);
                 }
             }
 
-            echo "<b>Forum Topic: </b>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";
 
@@ -1061,12 +1060,11 @@ RenderHtmlStart(true);
 
             if (isset($user)) {
                 echo "<h3>More Info</h3>";
-                echo "<b>About \"$gameTitle ($consoleName)\":</b><br>";
                 echo "<ul>";
-                echo "<li>- ";
+                echo "<li>";
                 RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
                 echo "</li>";
-                echo "<li>- <a href='/linkedhashes.php?g=$gameID'>Hashes linked to this game</a></li>";
+                echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Hashes linked to this game</a></li>";
                 $numOpenTickets = countOpenTickets(
                     requestInputSanitized('f') == $unofficialFlag,
                     requestInputSanitized('t', 2041),
@@ -1075,18 +1073,18 @@ RenderHtmlStart(true);
                 );
                 if ($permissions >= Permissions::Registered) {
                     if ($flags == $unofficialFlag) {
-                        echo "<li>- <a href='/ticketmanager.php?g=$gameID&f=$flags'>($numOpenTickets) Open Unofficial Tickets for this game</a></li>";
+                        echo "<li><a class='info-button' href='/ticketmanager.php?g=$gameID&f=$flags'><span>🎫</span>($numOpenTickets) Open Unofficial Tickets for this game</a></li>";
                     } else {
-                        echo "<li>- <a href='/ticketmanager.php?g=$gameID'>($numOpenTickets) Open Tickets for this game</a></li>";
+                        echo "<li><a class='info-button' href='/ticketmanager.php?g=$gameID'><span>🎫</span>($numOpenTickets) Open Tickets for this game</a></li>";
                     }
                 }
                 if ($numAchievements == 0) {
-                    echo "<li>- <a href='/setRequestors.php?g=$gameID'>Set Requestors for this game</a></li>";
+                    echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors for this game</a></li>";
                 }
                 //if( $flags == $unofficialFlag )
-                //echo "<li>- <a href='/game/$gameID'>View Core Achievements</a></li>";
+                //echo "<li><a class='info-button' href='/game/$gameID'><span>🏆</span>View Core Achievements</a></li>";
                 //else
-                //echo "<li>- <a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></li>";
+                //echo "<li><a class='info-button' href='/gameInfo.php?ID=$gameID&f=5'><span>🏆</span>View Unofficial Achievements</a></li>";
                 echo "</ul><br>";
             }
 

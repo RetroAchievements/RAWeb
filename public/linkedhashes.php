@@ -21,7 +21,7 @@ if ($gameIDSpecified) {
     $consoleID = $gameData['ConsoleID'];
     $gameTitle = $gameData['Title'];
     $gameIcon = $gameData['ImageIcon'];
-    $hashes = getHashListByGameID($gameID);
+    $hashes = getHashListByGameID($gameID, true);
 } else {
     //	Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));

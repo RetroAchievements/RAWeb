@@ -220,7 +220,6 @@ RenderHtmlStart(true);
             $forceAllowDeleteComments = $permissions >= Permissions::Admin;
             RenderCommentsComponent($user, $numArticleComments, $commentData, $lbID, \RA\ArticleType::Leaderboard, $forceAllowDeleteComments);
 
-            echo "<b>Forum Topic: </b>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";
             ?>

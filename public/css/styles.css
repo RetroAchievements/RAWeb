@@ -1447,3 +1447,21 @@ svg > g > g:last-child { pointer-events: none }
   padding: 2px 2px 2px;
   border: 1px solid rgb(44, 151, 250);
 }
+
+/* More info buttons */
+.info-button{
+  display:block;
+  border: 1px solid #111;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 7px 15px;
+  background-color: #222;
+}
+
+.info-button:hover{
+  background-color: #2a2a2a;
+}
+
+.info-button span{
+  margin-right: 15px;
+}
