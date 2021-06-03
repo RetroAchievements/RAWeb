@@ -1001,6 +1001,7 @@ th {
 .commentpayload {
   padding: 6px 4px;
   vertical-align: top;
+  word-break: break-word;
 }
 
 .smalltext {
@@ -1344,7 +1345,8 @@ a.setRequestLabel {
 /* --- MOBILE STYLES --- */
 @media only screen and (max-width: 980px) {
   #mainpage {
-    grid-template-columns: 100%;
+    grid-template-columns: 1fr;
+    grid-column-gap: 0;
   }
 
   #logocontainer {
@@ -1371,6 +1373,19 @@ a.setRequestLabel {
 
   .gamescreenshots td {
     display: inline-block;
+  }
+
+  #forums div.lastpost {
+    width: auto;
+  }
+
+  .topiccommentsheader th, .commentavatar, .commentpayload, .table-wrapper .fullwidth, .table-forum-history th, .table-forum-history td {
+    display: block;
+	max-width:100%;
+	box-sizing: border-box;
+  }
+  .commentavatar{
+	padding: 10px 5px;
   }
 }
 
@@ -1464,4 +1479,10 @@ svg > g > g:last-child { pointer-events: none }
 
 .info-button span{
   margin-right: 15px;
+}
+
+/* Table wrapper */
+.table-wrapper{
+  max-width:100%;
+  overflow-x:auto;
 }

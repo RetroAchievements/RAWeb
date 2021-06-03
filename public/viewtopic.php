@@ -171,6 +171,7 @@ RenderHtmlStart();
             echo "</div>";
         }
 
+        echo "<div class='table-wrapper'>";
         echo "<table><tbody>";
 
         if ($numTotalComments > $count) {
@@ -296,6 +297,7 @@ RenderHtmlStart();
             }
             echo "</div>";
 
+            echo "<br style='clear:both;'>";
             echo "<div class='topiccommenttext'>";
             RenderTopicCommentPayload($nextCommentPayload);
             echo "</div>";
@@ -377,9 +379,9 @@ RenderHtmlStart();
             //echo "</td>";
             echo "</tr>";
 
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
         } else {
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
             RenderLoginComponent($user, $points, $errorCode, true);
         }
 

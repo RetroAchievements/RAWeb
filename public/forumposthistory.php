@@ -35,7 +35,8 @@ RenderHtmlHead("Forum Recent Posts");
 
             $forumIter = 0;
 
-            echo "<table>";
+            echo "<div class='table-wrapper'>";
+            echo "<table class='table-forum-history'>";
             echo "<tbody>";
 
             echo "<tr>";
@@ -70,7 +71,7 @@ RenderHtmlHead("Forum Recent Posts");
                 echo "</tr>";
             }
 
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
 
             echo "<div class='rightalign row'>";
             if ($offset > 0) {

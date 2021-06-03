@@ -55,6 +55,7 @@ RenderHtmlHead($pageTitle);
 
             $forumIter = 0;
 
+            echo "<div class='table-wrapper'>";
             foreach ((array) $forumList as $forumData) {
                 $nextCategory = $forumData['CategoryName'];
                 $nextCategoryID = $forumData['CategoryID'];
@@ -134,7 +135,7 @@ RenderHtmlHead($pageTitle);
             }
 
             echo "</tbody></table>";
-
+            echo "</div>";
             ?>
 
             <br>
