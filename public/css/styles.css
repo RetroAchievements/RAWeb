@@ -1342,6 +1342,13 @@ a.setRequestLabel {
   margin-bottom: 1rem !important;
 }
 
+.download-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: start;
+}
+
 /* --- MOBILE STYLES --- */
 @media only screen and (max-width: 980px) {
   #mainpage {
@@ -1386,6 +1393,10 @@ a.setRequestLabel {
   }
   .commentavatar{
 	padding: 10px 5px;
+  }
+
+  .download-flex {
+    flex-direction: column;
   }
 }
 
