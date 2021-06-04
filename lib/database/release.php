@@ -83,6 +83,7 @@ function isValidConsoleId($consoleId)
         case 101: // Events (not an actual console)
             return true;
     }
+
     return false;
 }
 
@@ -94,6 +95,7 @@ function getEmulatorReleaseByIntegrationId($integrationId)
 {
     $releases = getReleasesFromFile();
     $emulators = $releases['emulators'] ?? [];
+
     return $emulators[$integrationId] ?? null;
 }
 
@@ -103,6 +105,7 @@ function getEmulatorReleaseByIntegrationId($integrationId)
 function getIntegrationRelease()
 {
     $releases = getReleasesFromFile();
+
     return $releases['integration'] ?? null;
 }
 

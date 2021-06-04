@@ -26,8 +26,8 @@
             "Test\\": "tests/src"
         },
         "files": [
-            "lib/functions.php",
-            "lib/bootstrap.php"
+            "lib/constants.php",
+            "lib/functions.php"
         ]
     },
     "config": {
