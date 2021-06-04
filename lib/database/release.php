@@ -127,13 +127,17 @@ function getActiveEmulatorReleases()
     $emulators = array_filter($releases['emulators'] ?? [], function ($emulator) {
         return $emulator['active'] ?? false;
     });
-    $emulators = array_map(function ($emulator) use ($consoles) {
-        $systems = [];
-        foreach ($emulator['systems'] as $system) {
-            $systems[$system] = $consoles[$system];
-        }
-        $emulator['systems'] = $systems;
-        return $emulator;
-    }, $emulators);
+    if (!empty($consoles)) {
+        $emulators = array_map(function ($emulator) use ($consoles) {
+            $systems = [];
+            foreach ($emulator['systems'] as $system) {
+                $systems[$system] = $consoles[$system];
+            }
+            $emulator['systems'] = $systems;
+
+            return $emulator;
+        }, $emulators);
+    }
+
     return $emulators;
 }
