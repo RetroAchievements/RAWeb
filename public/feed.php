@@ -138,7 +138,6 @@ RenderHtmlHead($pageTitle);
         <?php
         $yOffs = 0;
         RenderTwitchTVStream();
-        RenderChat($user);
         ?>
 
         <div id="achievement" class="rightFeed">

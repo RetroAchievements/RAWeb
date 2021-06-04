@@ -14,7 +14,6 @@ RenderHtmlHead("RSS Feeds");
     <?php
     $yOffs = 0;
     //RenderTwitchTVStream( $yOffs );
-    //RenderChat( $user, $yOffs );
     ?>
     <div id="fullcontainer">
         <?php

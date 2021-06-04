@@ -224,7 +224,6 @@ RenderToolbar($user, $permissions);
         RenderDocsComponent();
         RenderAOTWComponent($staticData['Event_AOTW_AchievementID'], $staticData['Event_AOTW_ForumID']);
         //RenderTwitchTVStream();
-        RenderChat($user, 320, '', true);
         if ($user !== null) {
             // RenderScoreLeaderboardComponent($user, true);
         }

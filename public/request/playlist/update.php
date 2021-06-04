@@ -19,11 +19,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     requestModifyVid($author, $id, $title, $link);
 
     echo "OK";
-    //header( "location: " . getenv('APP_URL') . "/largechat.php?e=ok" );
     exit;
 } else {
-    // error_log("aitl: $author, $id, $title, $link");
     echo "FAILED!";
-    //header( "location: " . getenv('APP_URL') . "/largechat.php?n=$id&e=failed" );
     exit;
 }

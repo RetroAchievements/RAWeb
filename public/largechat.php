@@ -104,10 +104,6 @@ RenderHtmlHead("RA Cinema");
         ?>
     </div>
     <div id="rightcontainer">
-        <?php
-        //	right
-        RenderChat($user, 490, 'right');
-        ?>
     </div>
 </div>
 <?php RenderFooter(); ?>

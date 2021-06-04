@@ -46,9 +46,6 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo $videoHTML;
     echo "</div>";
 
-    //$chatWidth = 300;
-    //$chatHeight = 335;
-
     //echo "<div class='streamchat'>";
     //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
     //echo "</div>";

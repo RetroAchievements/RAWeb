@@ -457,11 +457,6 @@ jQuery(document).ready(function onReady($) {
   $('#managevids').hide();
   $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
 
-  var $chatInput = $('#chatinput');
-  $chatInput.watermark('Enter a comment here...');
-  $chatInput.width('75%');
-  $('#chatinput:disabled').watermark('Please log in to join the chat!');
-
   var $searchBoxInput = $('.searchboxinput');
   $searchBoxInput.watermark('Search the site...');
   $searchBoxInput.autocomplete({ source: '/request/search.php', minLength: 2 });

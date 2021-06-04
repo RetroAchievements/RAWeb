@@ -79,17 +79,6 @@ CREATE TABLE IF NOT EXISTS `Awarded` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 -- Data exporting was unselected.
--- Dumping structure for table RACore.Chat
-CREATE TABLE IF NOT EXISTS `Chat` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `Submitted` datetime NOT NULL,
-  `User` varchar(255) COLLATE latin1_general_ci NOT NULL,
-  `Message` text COLLATE latin1_general_ci NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `Submitted` (`Submitted`)
-) ENGINE=InnoDB AUTO_INCREMENT=202124 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
-
--- Data exporting was unselected.
 -- Dumping structure for table RACore.CodeNotes
 CREATE TABLE IF NOT EXISTS `CodeNotes` (
   `GameID` int(10) unsigned NOT NULL COMMENT 'FK to GameData',

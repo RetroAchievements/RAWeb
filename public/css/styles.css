@@ -873,7 +873,7 @@ td, tr, img {
   width: 80%;
 }
 
-#chatcontainer {
+#feedcontainer {
   height: 220px;
   /*width: 300px;*/
   overflow-x: hidden;
@@ -881,16 +881,16 @@ td, tr, img {
   vertical-align: middle;
 }
 
-.chatcell {
+.feedcell {
   vertical-align: middle;
 }
 
-.chatcelldate {
+.feedcelldate {
   font-size: x-small;
   color: rgb(140, 140, 140);
 }
 
-.chatcellmessage {
+.feedcellmessage {
   vertical-align: middle;
   /*color: rgb( 76, 146, 235 );*/
   /*color: rgb( 165, 242, 243 );*/

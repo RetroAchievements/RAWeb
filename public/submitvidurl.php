@@ -24,7 +24,6 @@ RenderHtmlHead("Manage News");
         <?php
         $yOffs = 0;
         //RenderTwitchTVStream( $yOffs );
-        //RenderChat( $user, $yOffs );
 
         $activeNewsArticle = null;
 

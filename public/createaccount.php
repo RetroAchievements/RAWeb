@@ -67,7 +67,7 @@ RenderHtmlHead("Create Account");
                 Terms and Conditions:<br>
                 <small>Your email will be stored securely and will <i>never</i> be sold to a third party. By default you will receive an email notification if
                     you receive a new friend request, activity comment, or a direct private message. You can unsubscribe from these at any time on your My Settings page.<br>
-                    By signing up you will be allowed to use the forums, chat and other communications available on the site. You agree not to post offensive messages
+                    By signing up you will be allowed to use the forums and other communications available on the site. You agree not to post offensive messages
                     and you accept that you can and will be banned from the site for any duration or permanently at the administrators discretion. <br>
                     Finally, you also agree that RetroAchievements.org is not responsible in any way for any personal loss you may sustain.</small>
             </p>
