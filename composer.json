@@ -23,7 +23,8 @@
     "autoload": {
         "psr-4": {
             "RA\\": "src/",
-            "Test\\": "tests/src"
+            "Test\\": "tests/src",
+			"Models\\": "lib/models"
         },
         "files": [
             "lib/functions.php",
