@@ -26,7 +26,8 @@ function GetTicketAndTooltipDiv(TicketModel $ticket): string {
             "<div><b>" . $ticket->AchievementTitle . "</b> <i>(" . $ticket->GameTitle . ")</i></div>" .
             "<div>Reported by $ticket->CreatedBy</div>" .
             "<div>Issue: " . \Models\TicketTypes::RenderType($ticket->TicketType) . "</div>" .
-            "<div class='tooltip-closer'>Closed by $ticket->ClosedBy</div>" .
+            "<div class='tooltip-closer'>Closed by $ticket->ClosedBy, " . getNiceDate(strtotime($ticket->ClosedOn)) . "</div>" .
+            "<div class='tooltip-opened-date'> Opened " . getNiceDate(strtotime($ticket->CreatedOn)) . "</div>" .
         "</div>" .
         "<div class='ticket-tooltip-state'>" . \Models\TicketStates::RenderState($ticket->TicketState) . "</div>" .
     "</div>";
