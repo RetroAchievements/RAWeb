@@ -96,7 +96,7 @@ RenderHtmlHead("Users");
             echo "</p>";
         }
 
-        echo "<table><tbody>";
+        echo "<div class='table-wrapper'><table><tbody>";
 
         $sort1 = ($sortBy == 1) ? 11 : 1;
         $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -147,7 +147,7 @@ RenderHtmlHead("Users");
 
             echo "</tr>";
         }
-        echo "</tbody></table>";
+        echo "</tbody></table></div>";
 
         echo "<div class='rightalign row'>";
         if ($offset > 0) {
