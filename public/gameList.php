@@ -98,7 +98,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                 echo "</a>";
                 echo "</h3>";
 
-                echo "<table><tbody>";
+                echo "<div class='table-wrapper'><table><tbody>";
 
                 $sort1 = ($sortBy == 1) ? 11 : 1;
                 $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -200,7 +200,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                 }
                 echo "<td></td>";
                 echo "</tr>";
-                echo "</tbody></table>";
+                echo "</tbody></table></div>";
             }
             ?>
             <br>
