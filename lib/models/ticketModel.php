@@ -58,6 +58,8 @@ abstract class TicketTypes {
                 return "Does not trigger";
             case TicketTypes::TriggeredAtTheWrongTime:
                 return "Triggered at the wrong time";
+            default:
+                return "Invalid ticket type";
         }
     }
 }
@@ -76,6 +78,8 @@ abstract class TicketStates {
                 return "Open";
             case TicketStates::Resolved:
                 return "Resolved";
+            default:
+                return "Invalid state";
         }
     }
 }
