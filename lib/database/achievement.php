@@ -468,8 +468,25 @@ function UploadNewAchievement(
 
     //    Assume authorised!
     if (!isset($idInOut) || $idInOut == 0) {
-        $query = "INSERT INTO Achievements (ID, GameID, Title, Description, MemAddr, Progress, ProgressMax, ProgressFormat, Points, Flags, Author, DateCreated, DateModified, Updated, VotesPos, VotesNeg, BadgeName, DisplayOrder, AssocVideo, TrueRatio)
-                VALUES ( NULL, '$gameID', '$title', '$desc', '$mem', '$progress', '$progressMax', '$progressFmt', '$points', '$type', '$author', NOW(), NOW(), NOW(), 0, 0, '$badge', 0, NULL, 0 )";
+        $query = "
+            INSERT INTO Achievements (
+                ID, GameID, Title, Description,
+                MemAddr, Progress, ProgressMax,
+                ProgressFormat, Points, Flags,
+                Author, DateCreated, DateModified,
+                Updated, VotesPos, VotesNeg,
+                BadgeName, DisplayOrder, AssocVideo,
+                TrueRatio
+            )
+            VALUES (
+                NULL, '$gameID', '$title', '$desc',
+                '$mem', '$progress', '$progressMax',
+                '$progressFmt', '$points', '$type',
+                '$author', NOW(), NOW(),
+                NOW(), 0, 0,
+                '$badge', 0, NULL,
+                0
+            )";
         // log_sql($query);
         if (s_mysql_query($query) !== false) {
             global $db;
@@ -504,7 +521,7 @@ function UploadNewAchievement(
             $changingPoints = ($data['Points'] != $points);
 
             //if( ( $changingAchSet || $changingPoints ) && $type == 3 )
-            if ($type == 3) {
+            if ($type == 3 || $changingAchSet) {
                 $userPermissions = getUserPermissions($author);
                 // error_log("changing ach set detected; user is $author, permissions is $userPermissions, target set is $type");
                 if ($userPermissions < Permissions::Developer) {

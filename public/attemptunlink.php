@@ -61,7 +61,7 @@ RenderHtmlHead("Unlink Game Entry ($consoleName)");
         echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div><br>";
 
         echo "<h4><b>Unlink a single hash</b></h4>";
-        echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following MD5s:<br><br>";
+        echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following hashes:<br><br>";
         echo "<form method=post action='/request/game/modify.php'>";
         echo "<input type='hidden' name='u' VALUE='$user'>";
         echo "<input type='hidden' name='g' VALUE='$gameID'>";

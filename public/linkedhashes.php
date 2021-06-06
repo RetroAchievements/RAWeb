@@ -21,7 +21,7 @@ if ($gameIDSpecified) {
     $consoleID = $gameData['ConsoleID'];
     $gameTitle = $gameData['Title'];
     $gameIcon = $gameData['ImageIcon'];
-    $hashes = getHashListByGameID($gameID);
+    $hashes = getHashListByGameID($gameID, true);
 } else {
     //	Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
@@ -43,7 +43,7 @@ RenderHtmlHead("Linked Hashes");
         echo "<br><br>";
 
         echo "<p><b>Hashes are used to confirm if two copies of a file are identical. We use it to ensure the player is using the same ROM as the achievement developer, or a compatible one.</b></p>";
-        echo "Currently this game has <b>" . count($hashes) . "</b> unique ROM(s) registered for it with the following MD5s:<br><br>";
+        echo "Currently this game has <b>" . count($hashes) . "</b> unique ROM(s) registered for it with the following hashes:<br><br>";
 
         echo "<ul>";
         foreach ($hashes as $hash) {
