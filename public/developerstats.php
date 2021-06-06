@@ -22,7 +22,8 @@ RenderToolbar($user, $permissions);
         $devStatsList = GetDeveloperStatsFull(100, $type);
 
         echo "<div class='rightfloat'>* = ordered by</div>";
-        echo "<table><tbody>";
+        echo "<br style='clear:both;'>";
+        echo "<div class='table-wrapper'><table><tbody>";
         echo "<th></th>";
         echo "<th><a href='/developerstats.php?t=6'>Name</a>" . ($type == 6 ? "*" : "") . "</th>";
         echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=3'>Open Tickets</a>" . ($type == 3 ? "*" : "") . "</th>";
@@ -59,7 +60,7 @@ RenderToolbar($user, $permissions);
             echo "<td class='text-right'>" . $devStats['ContribYield'] . "</td>";
             // echo "<td class='text-right smalldate'>" . getNiceDate( strtotime( $devStats[ 'LastLogin' ] ) ) . "</td>";
         }
-        echo "</tbody></table>";
+        echo "</tbody></table></div>";
         ?>
     </div>
 </div>
