@@ -4,7 +4,7 @@ namespace RA;
 
 class RetroAchievementsWebApiClient
 {
-    const API_URL = 'https://retroachievements.org/API/';
+    public const API_URL = 'https://retroachievements.org/API/';
 
     public $ra_user;
 

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 /**
  * @usage
@@ -210,8 +211,12 @@ switch ($requestType) {
         $baseDownloadUrl = str_replace('https', 'http', getenv('APP_URL')) . '/';
         $response['MinimumVersion'] = $integration['minimum_version'] ?? null;
         $response['LatestVersion'] = $integration['latest_version'] ?? null;
-        $response['LatestVersionUrl'] = $baseDownloadUrl . $integration['latest_version_url'] ?? null;
-        $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $integration['latest_version_url_x64'] : null;
+        $response['LatestVersionUrl'] = ($integration['latest_version_url'] ?? null)
+            ? $baseDownloadUrl . $integration['latest_version_url']
+            : 'http://retroachievements.org/bin/RA_Integration.dll';
+        $response['LatestVersionUrlX64'] = ($integration['latest_version_url_x64'] ?? null)
+            ? $baseDownloadUrl . $integration['latest_version_url_x64']
+            : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
 
     // case "news":

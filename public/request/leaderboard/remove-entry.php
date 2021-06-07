@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $leaderboardId = requestInput('l', 0, 'integer');
 $targetUser = requestInput('t');

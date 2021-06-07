@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("efcu")) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_baddata");

@@ -265,11 +265,6 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/forum.php?c=7'>- Developers</a></li>";
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     echo "<li class='divider'></li>";
-    //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    if (getenv('WEBSOCKET_PORT')) {
-        echo "<li><a href='#' onclick=\"window.open('" . str_replace('https', 'http', getenv('APP_URL')) . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
-        echo "<li class='divider'></li>";
-    }
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";

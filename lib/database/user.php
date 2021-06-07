@@ -5,40 +5,40 @@ use RA\Permissions;
 
 abstract class UserPref
 {
-    const EmailOn_ActivityComment = 0;
+    public const EmailOn_ActivityComment = 0;
 
-    const EmailOn_AchievementComment = 1;
+    public const EmailOn_AchievementComment = 1;
 
-    const EmailOn_UserWallComment = 2;
+    public const EmailOn_UserWallComment = 2;
 
-    const EmailOn_ForumReply = 3;
+    public const EmailOn_ForumReply = 3;
 
-    const EmailOn_AddFriend = 4;
+    public const EmailOn_AddFriend = 4;
 
-    const EmailOn_PrivateMessage = 5;
+    public const EmailOn_PrivateMessage = 5;
 
-    const EmailOn_Newsletter = 6;
+    public const EmailOn_Newsletter = 6;
 
-    const EmailOn_unused2 = 7;
+    public const EmailOn_unused2 = 7;
 
-    const SiteMsgOn_ActivityComment = 8;
+    public const SiteMsgOn_ActivityComment = 8;
 
-    const SiteMsgOn_AchievementComment = 9;
+    public const SiteMsgOn_AchievementComment = 9;
 
-    const SiteMsgOn_UserWallComment = 10;
+    public const SiteMsgOn_UserWallComment = 10;
 
-    const SiteMsgOn_ForumReply = 11;
+    public const SiteMsgOn_ForumReply = 11;
 
-    const SiteMsgOn_AddFriend = 12;
+    public const SiteMsgOn_AddFriend = 12;
 }
 
 abstract class FBUserPref
 {
-    const PostFBOn_EarnAchievement = 0;
+    public const PostFBOn_EarnAchievement = 0;
 
-    const PostFBOn_CompleteGame = 1;
+    public const PostFBOn_CompleteGame = 1;
 
-    const PostFBOn_UploadAchievement = 2;
+    public const PostFBOn_UploadAchievement = 2;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
