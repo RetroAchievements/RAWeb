@@ -2,12 +2,12 @@
 
 use Models\TicketModel;
 
-function GetTicketAndTooltipDiv(TicketModel $ticket): string {
+function GetTicketAndTooltipDiv(TicketModel $ticket): string
+{
     $tooltipIconSize = 64;
     $ticketStateClass = '';
 
-    switch ($ticket->TicketState)
-    {
+    switch ($ticket->TicketState) {
         case \Models\TicketStates::Open:
             $ticketStateClass = 'open';
             break;
@@ -45,5 +45,3 @@ function GetTicketAndTooltipDiv(TicketModel $ticket): string {
             "<div class='ticket-displayable-block'>Ticket #$ticket->TicketId</div>" .
         "</a>";
 }
-
-?>

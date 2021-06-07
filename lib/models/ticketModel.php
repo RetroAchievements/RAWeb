@@ -2,9 +2,10 @@
 
 namespace Models;
 
-class TicketModel {
-
-    function __construct(array $ticketDbResult) {
+class TicketModel
+{
+    public function __construct(array $ticketDbResult)
+    {
         $this->TicketId = $ticketDbResult['ID'];
         $this->AchievementId = $ticketDbResult['AchievementID'];
         $this->AchievementTitle = $this->Sanitize($ticketDbResult['AchievementTitle']);
@@ -24,7 +25,8 @@ class TicketModel {
         $this->ClosedBy = $this->Sanitize($ticketDbResult['ResolvedBy']);
     }
 
-    private function Sanitize(?string $input) {
+    private function Sanitize(?string $input)
+    {
         return htmlentities($input, ENT_COMPAT, null, false);
     }
 
@@ -47,13 +49,14 @@ class TicketModel {
     public string $ClosedBy;
 }
 
-abstract class TicketTypes {
+abstract class TicketTypes
+{
     public const TriggeredAtTheWrongTime = 1;
     public const DoesNotTrigger = 2;
 
-    public static function RenderType(int $type): string {
-        switch ($type)
-        {
+    public static function RenderType(int $type): string
+    {
+        switch ($type) {
             case TicketTypes::DoesNotTrigger:
                 return "Does not trigger";
             case TicketTypes::TriggeredAtTheWrongTime:
@@ -64,14 +67,15 @@ abstract class TicketTypes {
     }
 }
 
-abstract class TicketStates {
+abstract class TicketStates
+{
     public const Closed = 0;
     public const Open = 1;
     public const Resolved = 2;
 
-    public static function RenderState(int $type): string {
-        switch ($type)
-        {
+    public static function RenderState(int $type): string
+    {
+        switch ($type) {
             case TicketStates::Closed:
                 return "Closed";
             case TicketStates::Open:
@@ -83,5 +87,3 @@ abstract class TicketStates {
         }
     }
 }
-
-?>

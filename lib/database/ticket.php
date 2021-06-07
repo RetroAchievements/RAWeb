@@ -837,12 +837,11 @@ function GetTicketModel($ticketId)
 {
     $ticketDbResult = getTicket($ticketId);
 
-    if ($ticketDbResult == null)
-    {
+    if ($ticketDbResult == null) {
         return null;
     }
 
     $ticketModel = new TicketModel($ticketDbResult);
-    
+
     return $ticketModel;
 }
