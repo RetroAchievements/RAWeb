@@ -24,7 +24,11 @@ function readCookie(name) {
 }
 
 function htmlEntities(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function stripTags(html) {
@@ -456,11 +460,6 @@ jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
   $('#managevids').hide();
   $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
-
-  var $chatInput = $('#chatinput');
-  $chatInput.watermark('Enter a comment here...');
-  $chatInput.width('75%');
-  $('#chatinput:disabled').watermark('Please log in to join the chat!');
 
   var $searchBoxInput = $('.searchboxinput');
   $searchBoxInput.watermark('Search the site...');

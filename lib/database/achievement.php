@@ -526,7 +526,7 @@ function UploadNewAchievement(
                 // error_log("changing ach set detected; user is $author, permissions is $userPermissions, target set is $type");
                 if ($userPermissions < Permissions::Developer) {
                     //  Must be developer to modify core!
-                    $errorOut = "You must be a developer to modify values in Core! Please drop a message in the chat/forums to apply.";
+                    $errorOut = "You must be a developer to modify values in Core! Please drop a message in the forums to apply.";
                     return false;
                 }
             }

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -224,7 +225,6 @@ RenderToolbar($user, $permissions);
         RenderDocsComponent();
         RenderAOTWComponent($staticData['Event_AOTW_AchievementID'], $staticData['Event_AOTW_ForumID']);
         //RenderTwitchTVStream();
-        RenderChat($user, 320, '', true);
         if ($user !== null) {
             // RenderScoreLeaderboardComponent($user, true);
         }

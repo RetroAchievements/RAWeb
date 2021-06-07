@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $errorCode = requestInputSanitized('e');
 $newsImageInput = requestInputSanitized('g');
@@ -99,7 +100,6 @@ RenderHtmlHead("Manage News");
         <?php
         $yOffs = 0;
         // RenderTwitchTVStream( $yOffs );
-        // RenderChat( $user, $yOffs );
 
         // echo "<div class='right'>";
         // echo "<h2 class='longheader'>Upload news image</h2>";
