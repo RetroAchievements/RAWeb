@@ -108,6 +108,7 @@ RenderHtmlStart();
         echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
         echo "</a>";
         echo "</div>";
+        echo "<br style='clear:both;'>";
 
         //if( isset( $user ) && $permissions >= Permissions::Registered )
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
