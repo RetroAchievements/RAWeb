@@ -336,10 +336,10 @@ RenderHtmlHead("My Settings");
                 echo "<span class='usermotto'>$userMotto</span><br>";
             }
             echo "</p>";
-            echo "<table><tbody>";
             if ($permissions == Permissions::Unregistered) {
                 echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
+            echo "<table><tbody>";
             if ($permissions >= Permissions::Registered) {
                 $userMottoString = !empty($userMotto) ? $userMotto : "";
                 echo "<tr>";
@@ -554,18 +554,18 @@ RenderHtmlHead("My Settings");
             }
             ?>
             <form method='post' action='/request/auth/update-password.php'>
-                <table id='controlpanelinput'>
+                <table>
                     <tbody>
                     <tr>
                         <td class='firstrow'>Old Password:</td>
                         <td><input size='22' type='password' name="p"/></td>
                     </tr>
                     <tr>
-                        <td class='firstrow'>New Password: </label></td>
+                        <td class='firstrow'>New Password:</td>
                         <td><input size='22' type='password' name="x"/></td>
                     </tr>
                     <tr>
-                        <td class='firstrow'>New Password again: </label></td>
+                        <td class='firstrow'>New Password again:</td>
                         <td><input size='22' type='password' name="y"/></td>
                     </tr>
                     <tr>
@@ -603,7 +603,7 @@ RenderHtmlHead("My Settings");
             }
             ?>
             <form method='post' action='/request/user/update-email.php'>
-                <table id='controlpanelinput'>
+                <table>
                     <tbody>
                     <tr>
                         <td class='firstrow'>Old Email Address:</td>
@@ -627,10 +627,10 @@ RenderHtmlHead("My Settings");
                         <td></td>
                         <td><input value="Change Email Address" type='submit' size='37'></td>
                     </tr>
-                    <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-                    <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
                     </tbody>
                 </table>
+                <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
+                <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
             </form>
         </div>
         <div class='component'>
@@ -649,7 +649,7 @@ RenderHtmlHead("My Settings");
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
             echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
-            echo "</tr></td></tbody></table>";
+            echo "</td></tr></tbody></table>";
             ?>
         </div>
         <?php /*

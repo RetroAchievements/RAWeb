@@ -2,9 +2,13 @@
 
 function RenderNewsComponent()
 {
+    $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
+    if (!$numNewsItems) {
+        return;
+    }
+
     echo "<div class='left'>";
     echo "<h2>News</h2>";
-    $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
     echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";
