@@ -345,7 +345,7 @@ function RenderToolbar($user, $permissions = 0)
     RenderThemeSelector();
     echo "</div>";
 
-    echo '<div style="clear:both;">';
+    echo '<div style="clear:both;"></div>';
 
     echo "</ul>";
     echo "</div>";
