@@ -6,7 +6,7 @@ function RenderHtmlStart($isOpenGraphPage = false)
 {
     echo "<!doctype html>";
     //echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
-    echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
+    echo "<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
     if ($isOpenGraphPage) {
         echo "prefix=\"og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#\" ";
@@ -140,7 +140,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
     } else {
         echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic'>";
+        echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
@@ -152,7 +152,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         $mailboxIcon = $unreadMessageCount > 0 ? getenv('ASSET_URL') . '/Images/_MailUnread.png' : getenv('ASSET_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
-        echo "<img id='mailboxicon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
+        echo "<img id='mailboxicon' alt='Mailbox Icon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";
         echo "(";
         echo "<span id='mailboxcount'>$unreadMessageCount</span>";
@@ -181,9 +181,9 @@ function RenderToolbar($user, $permissions = 0)
 {
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
+
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
-
     echo "<ul>";
     ///Nintendo
     echo "<li class='dropdown-header'>Nintendo</li>";
@@ -242,6 +242,7 @@ function RenderToolbar($user, $permissions = 0)
     // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
+    echo "</div>";
     echo "</li>";
 
     echo "<li><a href='#'>Achievements</a>";
@@ -274,7 +275,6 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
     echo "</ul>";
     echo "</div>";
-
     echo "</li>";
 
     echo "<li><a href='/download.php'>Download</a></li>";

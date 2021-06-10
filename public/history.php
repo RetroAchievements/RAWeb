@@ -76,8 +76,8 @@ RenderHtmlHead("$userPage's Legacy");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
   google.setOnLoadCallback(drawCharts);
 

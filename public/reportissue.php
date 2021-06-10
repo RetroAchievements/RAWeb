@@ -40,7 +40,7 @@ RenderHtmlHead("Report Broken Achievement");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript">
+<script>
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
       document.getElementById('core-row').style.display = '';

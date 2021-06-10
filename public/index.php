@@ -40,11 +40,11 @@ RenderToolbar($user, $permissions);
 ?>
 <link type='text/css' rel='stylesheet' href='/rcarousel/widget/css/rcarousel.css'/>
 <link type='text/css' rel='stylesheet' href='/rcarousel/rcarousel-ra.css'/>
-<!--    <script type='text/javascript' src="js/ping_feed.js"></script>-->
-<script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
-<script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<!--    <script src="js/ping_feed.js"></script>-->
+<script src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
+<script src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
   google.setOnLoadCallback(drawCharts);
 
@@ -114,7 +114,7 @@ RenderToolbar($user, $permissions);
   }
 </script>
 
-<script type="text/javascript">
+<script>
   //<![CDATA[
   $(function () {
     function generatePages() {
@@ -197,7 +197,7 @@ RenderToolbar($user, $permissions);
   });
   //]]>
 </script>
-<script type="text/javascript" src="vendor/jquery.githubRepoWidget.js"></script>
+<script src="vendor/jquery.githubRepoWidget.js"></script>
 <div id='mainpage'>
     <div id="leftcontainer">
         <?php

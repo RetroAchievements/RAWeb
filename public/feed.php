@@ -50,7 +50,7 @@ RenderHtmlHead($pageTitle);
 ?>
 <body>
 <link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
-<script type='text/javascript'>
+<script>
   $(document).ready(function () {
     focusOnArticleID(getParameterByName('a'));
   });
