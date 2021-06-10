@@ -395,6 +395,7 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
   `UserWallActive` bit(1) NOT NULL DEFAULT b'1' COMMENT 'Allow Posting to user wall',
   `PasswordResetToken` varchar(32) COLLATE latin1_general_ci DEFAULT NULL,
   `Untracked` bit(1) NOT NULL DEFAULT b'0' COMMENT 'Untracked users are considered as having cheated.',
+  `email_backup` varchar(64) COLLATE latin1_general_ci NOT NULL COMMENT 'Plaintext Email Address (64 chars)',
   PRIMARY KEY (`ID`,`User`),
   KEY `RAPoints` (`RAPoints`),
   KEY `ID` (`ID`),
