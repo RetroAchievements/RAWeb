@@ -345,11 +345,10 @@ function RenderToolbar($user, $permissions = 0)
     RenderThemeSelector();
     echo "</div>";
 
-    echo '<br style="clear:both;">'; // to stretch height on mobile
+    echo '<div style="clear:both;">';
 
-    echo "</div>";
-    echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
     echo "</ul>";
+    echo "</div>";
 }
 
 function RenderFooter()
