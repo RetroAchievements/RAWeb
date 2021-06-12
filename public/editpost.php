@@ -74,7 +74,7 @@ RenderHtmlHead("Edit post");
 
         RenderPHPBBIcons();
 
-        echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:300px' rows='32' cols='32' name='p'>$existingComment</textarea></td></tr>";
+        echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:300px' rows='32' cols='32' name='p' placeholder='Enter a comment here...'>$existingComment</textarea></td></tr>";
         echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit post' SIZE='37'/>&nbsp;<a href='/viewtopic.php?t=$thisTopicID&c=$requestedComment'>Cancel</a></td></tr>";
         echo "</form>";
 

@@ -33,7 +33,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
 
         echo "<form method='get' action='/gamecompare.php'>";
         echo "<input type='hidden' name='ID' value='$gameID'>";
-        echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' />";
+        echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
         echo "&nbsp;<input type='submit' value='Select' />";
         echo "</form>";
 
@@ -50,7 +50,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
 
             echo "<form method='get' action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' />";
+            echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
             echo "&nbsp;<input type='submit' value='Select' />";
             echo "</form>";
         }

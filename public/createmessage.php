@@ -105,7 +105,7 @@ RenderHtmlHead("Send Message");
 
             RenderPHPBBIcons();
 
-            echo "<textarea id='commentTextarea' class='requiredinput fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='m'>$messageOutgoingPayload</textarea></td></tr>";
+            echo "<textarea id='commentTextarea' class='requiredinput fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='m' placeholder='Enter your message here...'>$messageOutgoingPayload</textarea></td></tr>";
             echo "<tr>" . "<td></td><td colspan='2' class='fullwidth'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
             echo "</form>";
             echo "</tbody>";

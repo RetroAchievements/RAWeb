@@ -106,7 +106,6 @@ function insertEditForm(activityVar, articleType) {
       commentTextarea.focus();
       commentTextarea.val('');
       commentTextarea.css('width', '75%');
-      commentTextarea.watermark('Enter a comment here...');
     } else {
       commentRow.remove();
     }
@@ -454,15 +453,10 @@ function reloadTwitchContainer(videoID) {
 jQuery(document).ready(function onReady($) {
   $('#devboxcontent').hide();
   $('#resetboxcontent').hide();
-  $('#commentTextarea').watermark('Enter a comment here...');
-  $('.messageTextarea').watermark('Enter your message here...');
-  $('.passwordresetusernameinput').watermark('Enter Username...');
   $('.msgPayload').hide();
   $('#managevids').hide();
-  $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
 
   var $searchBoxInput = $('.searchboxinput');
-  $searchBoxInput.watermark('Search the site...');
   $searchBoxInput.autocomplete({ source: '/request/search.php', minLength: 2 });
   $searchBoxInput.autocomplete({
     select: function (event, ui) {
@@ -475,7 +469,6 @@ jQuery(document).ready(function onReady($) {
   });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
-  $seachBoxCompareUser.watermark('Enter User...');
   $seachBoxCompareUser.autocomplete({ source: '/request/search.php?p=gamecompare', minLength: 2 });
   $seachBoxCompareUser.autocomplete({
     select: function (event, ui) {
