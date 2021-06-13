@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("atl")) {
     echo "FAILED! (POST)";
@@ -19,11 +20,8 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     requestModifyVid($author, $id, $title, $link);
 
     echo "OK";
-    //header( "location: " . getenv('APP_URL') . "/largechat.php?e=ok" );
     exit;
 } else {
-    // error_log("aitl: $author, $id, $title, $link");
     echo "FAILED!";
-    //header( "location: " . getenv('APP_URL') . "/largechat.php?n=$id&e=failed" );
     exit;
 }

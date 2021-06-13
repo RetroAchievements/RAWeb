@@ -6,7 +6,7 @@ function RenderHtmlStart($isOpenGraphPage = false)
 {
     echo "<!doctype html>";
     //echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
-    echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
+    echo "<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
     if ($isOpenGraphPage) {
         echo "prefix=\"og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#\" ";
@@ -65,7 +65,6 @@ function RenderSharedHeader()
     //    jQuery, and custom js
     //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
     echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
     echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
 }
@@ -140,7 +139,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
     } else {
         echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic'>";
+        echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
@@ -152,7 +151,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         $mailboxIcon = $unreadMessageCount > 0 ? getenv('ASSET_URL') . '/Images/_MailUnread.png' : getenv('ASSET_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
-        echo "<img id='mailboxicon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
+        echo "<img id='mailboxicon' alt='Mailbox Icon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";
         echo "(";
         echo "<span id='mailboxcount'>$unreadMessageCount</span>";
@@ -181,9 +180,9 @@ function RenderToolbar($user, $permissions = 0)
 {
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
+
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
-
     echo "<ul>";
     ///Nintendo
     echo "<li class='dropdown-header'>Nintendo</li>";
@@ -242,6 +241,7 @@ function RenderToolbar($user, $permissions = 0)
     // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
+    echo "</div>";
     echo "</li>";
 
     echo "<li><a href='#'>Achievements</a>";
@@ -265,11 +265,6 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/forum.php?c=7'>- Developers</a></li>";
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     echo "<li class='divider'></li>";
-    //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    if (getenv('WEBSOCKET_PORT')) {
-        echo "<li><a href='#' onclick=\"window.open('" . str_replace('https', 'http', getenv('APP_URL')) . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
-        echo "<li class='divider'></li>";
-    }
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
@@ -279,7 +274,6 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
     echo "</ul>";
     echo "</div>";
-
     echo "</li>";
 
     echo "<li><a href='/download.php'>Download</a></li>";
@@ -289,14 +283,13 @@ function RenderToolbar($user, $permissions = 0)
         echo "<div>";
         echo "<ul>";
         echo "<li><a href='/user/$user'>Profile</a></li>";
-        //echo "<li><a href='/feed.php?i=1'>Feed</a></li>";
-        //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
+        echo "<li><a href='/gameList.php?d=$user'>My Sets</a></li>";
+        echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
         echo "<li><a href='/friends.php'>Friends</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$user'>Requested Sets</a></li>";
-        // echo "<li><a href='/createmessage.php'>New Message</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
         echo "<li class='divider'></li>";
@@ -341,7 +334,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery'>";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
     echo "<input type='submit' value='Search'>";
     echo "</div>";
@@ -351,11 +344,10 @@ function RenderToolbar($user, $permissions = 0)
     RenderThemeSelector();
     echo "</div>";
 
-    echo '<br style="clear:both;">'; // to stretch height on mobile
+    echo '<div style="clear:both;"></div>';
 
-    echo "</div>";
-    echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
     echo "</ul>";
+    echo "</div>";
 }
 
 function RenderFooter()

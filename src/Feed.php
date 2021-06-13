@@ -2,7 +2,7 @@
 
 namespace RA;
 
-// class that contains server-side chat functionality
+// class that contains server-side feed functionality
 class Feed
 {
     /*

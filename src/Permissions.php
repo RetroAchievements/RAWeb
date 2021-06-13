@@ -4,19 +4,19 @@ namespace RA;
 
 abstract class Permissions
 {
-    const Spam = -2;
+    public const Spam = -2;
 
-    const Banned = -1;
+    public const Banned = -1;
 
-    const Unregistered = 0;
+    public const Unregistered = 0;
 
-    const Registered = 1;
+    public const Registered = 1;
 
-    const SuperUser = 2;
+    public const SuperUser = 2;
 
-    const Developer = 3;
+    public const Developer = 3;
 
-    const Admin = 4;
+    public const Admin = 4;
 
-    const Root = 5;
+    public const Root = 5;
 }

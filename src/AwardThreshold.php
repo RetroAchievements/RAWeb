@@ -4,7 +4,7 @@ namespace RA;
 
 class AwardThreshold
 {
-    const DEVELOPER_COUNT_BOUNDARIES = [
+    public const DEVELOPER_COUNT_BOUNDARIES = [
         5,
         10,
         50,
@@ -21,7 +21,7 @@ class AwardThreshold
         6000,
     ];
 
-    const DEVELOPER_POINT_BOUNDARIES = [
+    public const DEVELOPER_POINT_BOUNDARIES = [
         100,
         200,
         300,

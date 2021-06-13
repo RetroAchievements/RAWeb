@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../lib/bootstrap.php';
 
 $username = 'luchaos';
 $user = GetUserData($username);
@@ -56,7 +57,7 @@ RenderHtmlStart();
 RenderSharedHeader();
 ?>
 <body>
-<script type='text/javascript' src='/vendor/wz_tooltip.js'></script>
+<script src='/vendor/wz_tooltip.js'></script>
 <div style="width: 360px; margin: auto">
     <?php RenderTopicCommentPayload($payload) ?>
 </div>

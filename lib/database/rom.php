@@ -30,7 +30,7 @@ function getMD5List($consoleID)
     return $retVal;
 }
 
-function getHashListByGameID($gameID)
+function getHashListByGameID($gameID, $getUser = false)
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -38,8 +38,13 @@ function getHashListByGameID($gameID)
         return false;
     }
 
+    $selectString = "SELECT MD5 AS hash";
+    if ($getUser === true) {
+        $selectString .= ", User";
+    }
+
     $query = "
-    SELECT MD5 AS hash, User
+    $selectString
     FROM GameHashLibrary
     WHERE GameID = $gameID";
 

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
@@ -291,7 +292,7 @@ RenderHtmlHead("Game Compare");
 
             echo "<form method='get' action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' />";
+            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
             echo "&nbsp;<input type='submit' value='Select' />";
             echo "</form>";
 
@@ -311,7 +312,7 @@ RenderHtmlHead("Game Compare");
 
             echo "<form method='get' action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' />";
+            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
             echo "&nbsp;<input type='submit' value='Select' />";
             echo "</form>";
 

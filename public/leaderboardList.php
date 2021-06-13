@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -158,7 +159,7 @@ RenderHtmlHead($pageTitle);
             echo "Duplicate leaderboard ID: ";
             echo "<input style='width: 10%;' type='number' min=1 value=1 name='l' /> ";
             echo "Number of times: ";
-            echo "<input style='width: 10%;' type='number' min=1 value=1 name='n' />";
+            echo "<input style='width: 10%;' type='number' min=1 max=25 value=1 name='n' />";
             echo "&nbsp;&nbsp;";
             echo "<input type='submit' value='Duplicate'/>";
             echo "</form>";

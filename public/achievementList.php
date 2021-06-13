@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('z', 0, 'integer');
@@ -107,8 +108,9 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "</div>";
 
         echo "<div class='rightfloat'>* = ordered by</div>";
+        echo "<br style='clear:both;' />";
 
-        echo "<table><tbody>";
+        echo "<div class='table-wrapper'><table><tbody>";
 
         $sort1 = ($sortBy == 1) ? 11 : 1;
         $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -214,7 +216,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "</tr>";
         }
 
-        echo "</tbody></table>";
+        echo "</tbody></table></div>";
         echo "</div>";
 
         echo "<div class='rightalign row'>";

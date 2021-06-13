@@ -4,17 +4,17 @@ namespace RA;
 
 abstract class SubscriptionSubjectType
 {
-    const ForumTopic = "ForumTopic";
+    public const ForumTopic = "ForumTopic";
 
-    const UserWall = "UserWall";
+    public const UserWall = "UserWall";
 
-    const GameWall = "GameWall";
+    public const GameWall = "GameWall";
 
-    const Achievement = "Achievement";
+    public const Achievement = "Achievement";
 
-    const GameTickets = "GameTickets";
+    public const GameTickets = "GameTickets";
 
-    const GameAchievements = "GameAchievements";
+    public const GameAchievements = "GameAchievements";
 
     public static function fromArticleType($articleType)
     {

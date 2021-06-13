@@ -83,6 +83,7 @@ function isValidConsoleId($consoleId)
         case 101: // Events (not an actual console)
             return true;
     }
+
     return false;
 }
 
@@ -94,6 +95,7 @@ function getEmulatorReleaseByIntegrationId($integrationId)
 {
     $releases = getReleasesFromFile();
     $emulators = $releases['emulators'] ?? [];
+
     return $emulators[$integrationId] ?? null;
 }
 
@@ -103,6 +105,7 @@ function getEmulatorReleaseByIntegrationId($integrationId)
 function getIntegrationRelease()
 {
     $releases = getReleasesFromFile();
+
     return $releases['integration'] ?? null;
 }
 
@@ -124,13 +127,17 @@ function getActiveEmulatorReleases()
     $emulators = array_filter($releases['emulators'] ?? [], function ($emulator) {
         return $emulator['active'] ?? false;
     });
-    $emulators = array_map(function ($emulator) use ($consoles) {
-        $systems = [];
-        foreach ($emulator['systems'] as $system) {
-            $systems[$system] = $consoles[$system];
-        }
-        $emulator['systems'] = $systems;
-        return $emulator;
-    }, $emulators);
+    if (!empty($consoles)) {
+        $emulators = array_map(function ($emulator) use ($consoles) {
+            $systems = [];
+            foreach ($emulator['systems'] as $system) {
+                $systems[$system] = $consoles[$system];
+            }
+            $emulator['systems'] = $systems;
+
+            return $emulator;
+        }, $emulators);
+    }
+
     return $emulators;
 }

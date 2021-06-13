@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -524,8 +525,8 @@ RenderHtmlHead("$dev's Developer Stats");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
       google.charts.load('current', {'packages':['corechart']});
       google.charts.setOnLoadCallback(drawChart);
 
@@ -563,11 +564,20 @@ RenderHtmlHead("$dev's Developer Stats");
             ?>
         ]);
 
+        let chartWidth = 450;
+        let chartAreaHeight = '60%';
+
+        /* Render smaller charts on mobile */
+        if(window.innerWidth < 640){
+            chartWidth = 300;
+            chartAreaHeight = '50%';
+        }
+
         var gameOptions = {
             title: 'Games Developed for Per Console',
-               'width': 450,
+               'width': chartWidth,
                'height': 325,
-            'chartArea': {'width': '100%', 'height': '80%'},
+            'chartArea': {'width': '100%', 'height': chartAreaHeight},
             pieSliceText: 'value-and-percentage',
             titleTextStyle: {
                 color: '#2C97FA',
@@ -592,9 +602,9 @@ RenderHtmlHead("$dev's Developer Stats");
 
         var achievementOptions = {
             title: 'Achievements Created Per Console',
-               'width': 450,
+               'width': chartWidth,
                'height': 325,
-            'chartArea': {'width': '100%', 'height': '80%'},
+            'chartArea': {'width': '100%', 'height': chartAreaHeight},
             pieSliceText: 'value-and-percentage',
             titleTextStyle: {
                 color: '#2C97FA',
@@ -621,7 +631,6 @@ RenderHtmlHead("$dev's Developer Stats");
         achievementChart.draw(achievementData, achievementOptions);
         <?php } ?>
     }
-
 </script>
 <div id="mainpage">
     <div id='fullcontainer'>
