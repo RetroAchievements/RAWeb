@@ -420,8 +420,8 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
         //    Now get entries:
         $query = "SELECT ua.User, le.Score, le.DateSubmitted, 
                   CASE WHEN !lbd.LowerIsBetter 
-                  THEN RANK() OVER(ORDER BY le.score DESC)
-                  ELSE RANK() OVER(ORDER BY le.score ASC) END AS Rank
+                  THEN RANK() OVER(ORDER BY le.Score DESC)
+                  ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank
                   FROM LeaderboardEntry AS le
                   LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
                   LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
@@ -441,6 +441,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                 settype($db_entry['Score'], 'integer');
+                $db_entry['Rank'] = (int) $db_entry['UserRank'];
 
                 if (strcmp($db_entry['User'], $user) == 0) {
                     $userFound = true;
@@ -448,19 +449,16 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
 
                 $entries[] = $db_entry;
 
-                //$retVal['Entries'][ $db_entry['Rank'] ] = $db_entry;
-                //$retVal[] = $db_entry;
-
                 $numResultsFound++;
             }
 
             if ($userFound == false) {
                 //    Go find user's score in this table, if it exists!
-                $query = "SELECT User, Score, DateSubmitted, Rank FROM
+                $query = "SELECT User, Score, DateSubmitted, UserRank FROM
                          (SELECT ua.User, le.Score, le.DateSubmitted, 
                           CASE WHEN !lbd.LowerIsBetter 
-                          THEN RANK() OVER(ORDER BY le.score DESC)
-                          ELSE RANK() OVER(ORDER BY le.score ASC) END AS Rank
+                          THEN RANK() OVER(ORDER BY le.Score DESC)
+                          ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank
                           FROM LeaderboardEntry AS le
                           LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
                           LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
@@ -474,6 +472,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
                         $db_entry = mysqli_fetch_assoc($dbResult);
                         $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                         settype($db_entry['Score'], 'integer');
+                        $db_entry['Rank'] = (int) $db_entry['UserRank'];
                         $entries[] = $db_entry;
                     }
                 } else {
