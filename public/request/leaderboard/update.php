@@ -22,13 +22,13 @@ getCookie($user, $cookie);
 if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
-    $prevUpdated = $prevData["Updated"];
+    $prevUpdated = strtotime($prevData["LBUpdated"]);
 
     if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
         echo "OK";
 
         $updatedData = GetLeaderboardData($lbID, $user, 2, 0, false);
-        $updated = $updatedData['Updated'];
+        $updated = strtotime($updatedData['LBUpdated']);
         $dateDiffMins = ($updated - $prevUpdated) / 60;
 
         if (!empty($updatedData['Entries'])) {

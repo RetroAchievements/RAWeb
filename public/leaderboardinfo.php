@@ -22,6 +22,9 @@ $numEntries = count($lbData['Entries']);
 $lbTitle = $lbData['LBTitle'];
 $lbDescription = $lbData['LBDesc'];
 $lbFormat = $lbData['LBFormat'];
+$lbAuthor = $lbData['LBAuthor'];
+$lbCreated = $lbData['LBCreated'];
+$lbUpdated = $lbData['LBUpdated'];
 
 $gameID = $lbData['GameID'];
 $gameTitle = $lbData['GameTitle'];
@@ -84,6 +87,19 @@ RenderHtmlStart(true);
             echo "<br>";
             echo "<br>";
             echo "<br>";
+
+            $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
+            $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));
+
+            echo "<p class='smalldata'>";
+            echo "<small>";
+            if (is_null($lbAuthor)) {
+                echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+            } else {
+                echo "Created by " . GetUserAndTooltipDiv($lbAuthor, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+            }
+            echo "</small>";
+            echo "</p>";
 
             if (isset($user) && $permissions >= Permissions::Developer) {
                 echo "<div class='devbox'>";
