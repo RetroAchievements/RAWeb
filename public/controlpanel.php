@@ -346,7 +346,7 @@ RenderHtmlHead("My Settings");
                 echo "<td>User Motto:</td>";
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-motto.php'>";
-                echo "<input class='fullwidth' name='m' value=\"$userMottoString\" maxlength='49' id='usermottoinput'/>";
+                echo "<input class='fullwidth' name='m' value=\"$userMottoString\" maxlength='49' id='usermottoinput' placeholder='Add your motto here! (No profanity please!)' />";
                 echo "<input type='hidden' name='u' VALUE='$user'>";
                 echo "<input type='hidden' name='c' VALUE='$cookie'>";
                 echo "<input value='Set Motto' name='submit' type='submit' size='37' />";

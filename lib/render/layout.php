@@ -65,7 +65,6 @@ function RenderSharedHeader()
     //    jQuery, and custom js
     //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
     echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
     echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
 }
@@ -335,7 +334,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery'>";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
     echo "<input type='submit' value='Search'>";
     echo "</div>";
