@@ -68,7 +68,7 @@ function insertEditForm(activityVar, articleType) {
   if (user !== null) {
     var rowID = 'comment_' + activityVar;
     var commentRow = $('#' + rowID);
-    if (!commentRow.exists()) {
+    if (!commentRow.length) {
       var userImage = '<img id="badgeimg" src="/UserPic/' + user + '.png" width="32" height="32" >';
       var formStr = '';
       formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=250></textarea>';
@@ -133,12 +133,12 @@ function onCommentSuccess(data) {
   }
 
   var commentRow = $('#comment_art_' + data);
-  if (commentRow.exists()) {
+  if (commentRow.length) {
     // Embed as proper comment instead!
     commentRow.addClass('feed_comment');
     commentRow.removeAttr('id');
     var textBox = commentRow.find('#commentTextarea');
-    if (textBox.exists()) {
+    if (textBox.length) {
       var comment = textBox.val();
       // var safeComment = comment.replace( /<|>/g, '_' );
       var safeComment = stripTags(comment);
@@ -151,7 +151,7 @@ function onCommentSuccess(data) {
     }
 
     var submitButton = commentRow.find('#submitButton');
-    if (submitButton.exists()) {
+    if (submitButton.length) {
       submitButton.remove();
     }
   }
@@ -162,9 +162,9 @@ function processComment(activityVar, articleType) {
   if (user !== null) {
     var rowID = 'comment_' + activityVar;
     var commentRow = $('#' + rowID);
-    if (commentRow.exists()) {
+    if (commentRow.length) {
       var textBox = commentRow.find('#commentTextarea');
-      if (textBox.exists()) {
+      if (textBox.length) {
         var comment = textBox.val();
         if (comment.length > 0) {
           var safeComment = stripTags(comment);
@@ -177,7 +177,7 @@ function processComment(activityVar, articleType) {
           });
           posting.done(onCommentSuccess);
           var submitButton = commentRow.find('#submitButton');
-          if (submitButton.exists()) {
+          if (submitButton.length) {
             submitButton.attr('src', '/Images/loading.gif'); // Change to 'loading' gif
             submitButton.attr('onclick', ''); // stop being able to click this
             submitButton.css('cursor', ''); // stop being able to see a finger pointer
