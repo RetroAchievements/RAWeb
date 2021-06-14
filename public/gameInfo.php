@@ -593,7 +593,7 @@ RenderHtmlStart(true);
                     echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
-                // Only allow developers ot rename a game
+                // Only allow developers to rename a game
                 if ($permissions >= Permissions::Developer) {
                     echo "<div><a href='/attemptrename.php?g=$gameID'>Rename Game</a></div>";
                 }
