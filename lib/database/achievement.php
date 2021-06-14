@@ -535,7 +535,7 @@ function UploadNewAchievement(
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
                     return false;
                 }
-            } elseif ($type == 5 && !$changingAchSet) { // If modifying unofficial
+            } elseif ($type == 5) { // If modifying unofficial
                 // Only allow jr. devs to modify unofficial if they are the author
                 if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] != $author) {
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
