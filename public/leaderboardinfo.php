@@ -101,7 +101,7 @@ RenderHtmlStart(true);
             echo "</small>";
             echo "</p>";
 
-            if (isset($user) && $permissions >= Permissions::Developer) {
+            if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
                 echo "<div id='devboxcontent'>";
@@ -121,10 +121,13 @@ RenderHtmlStart(true);
                     echo "<select name='t'>";
                     echo "<option value='0' selected>-</option>";
                     foreach ($lbData['Entries'] as $nextLBEntry) {
-                        $nextUser = $nextLBEntry['User'];
-                        $nextScore = $nextLBEntry['Score'];
-                        $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
-                        echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
+                        // Display all entries for devs, display only own entry for jr. devs
+                        if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
+                            $nextUser = $nextLBEntry['User'];
+                            $nextScore = $nextLBEntry['Score'];
+                            $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
+                            echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
+                        }
                     }
                     echo "</select>";
                     echo "</br>";

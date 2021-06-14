@@ -301,21 +301,21 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li><a href='/createaccount.php'>Create Account</a></li>";
     }
 
-    if ($permissions >= Permissions::SuperUser) {
+    if ($permissions >= Permissions::JuniorDeveloper) {
         echo "<li><a href='#'>Manage</a>";
         echo "<div>";
         echo "<ul>";
         // SU
-        echo "<li><a href='/submitnews.php'>News Articles</a></li>";
         if ($permissions >= Permissions::Developer) {
+            echo "<li><a href='/submitnews.php'>News Articles</a></li>";
             echo "<li class='divider'></li>";
-            echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
-            echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
-            echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
-            echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
-            echo "<li class='divider'></li>";
-            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         }
+        echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
+        echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
+        echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
+        echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
+        echo "<li class='divider'></li>";
+        echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         // Admin
         if ($permissions >= Permissions::Admin) {
             echo "<li class='divider'></li>";

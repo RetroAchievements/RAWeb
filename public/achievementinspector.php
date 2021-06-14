@@ -3,11 +3,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-$modifyOK = ($permissions >= \RA\Permissions::Developer);
+$fullModifyOK = ($permissions >= \RA\Permissions::Developer);
 
 $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 $flag = requestInputSanitized('f', 3, 'integer');
+
+$partialModifyOK = ($permissions == \RA\Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID));
 
 $achievementList = [];
 $gamesList = [];
@@ -59,7 +61,7 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
-  //Sends update achiecements request
+  //Sends update achievements request
   function updateAchievements(user, achievements, flag) {
     $.ajax(
       {
@@ -112,24 +114,27 @@ RenderHtmlHead("Manage Achievements");
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
         echo "<br><br>";
 
-        if ($modifyOK) {
+        if ($partialModifyOK || $fullModifyOK) {
             echo "<p align='justify'><b>Instructions:</b> This is the game's achievement list as displayed on the website or in the emulator. " .
                 "The achievements will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .
                 "Adjust the numbers on the right to set an order for them to appear in. Any changes you make on this page will instantly " .
-                "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.</br></br>" .
-                "You can " . ($flag == 5 ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.";
+        }
+
+        if ($fullModifyOK) {
+            echo "</br></br>You can " . ($flag == 5 ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
                 "the desired checkboxes in the far left column and clicking the '" . ($flag == 5 ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
         echo "<div style='text-align:center'><p><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
         if ($flag == 5) {
-            if ($modifyOK) {
+            if ($fullModifyOK) {
                 echo "<a class='updateAchievements' value='3'>Promote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
         } else {
-            if ($modifyOK) {
+            if ($fullModifyOK) {
                 echo "<a class='updateAchievements' value='5'>Demote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
@@ -138,7 +143,7 @@ RenderHtmlHead("Manage Achievements");
 
         echo "<table><tbody>";
         echo "<tr>";
-        if ($modifyOK) {
+        if ($fullModifyOK) {
             echo "<th>Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a></th>";
         }
         echo "<th>ID</th>";
@@ -172,7 +177,7 @@ RenderHtmlHead("Manage Achievements");
             sanitize_outputs($achTitle, $achDesc);
 
             echo "<tr>";
-            if ($modifyOK) {
+            if ($fullModifyOK) {
                 echo "<td align='center'><input type='checkbox' name='acvhievement" . $achID . "' value='" . $achID . "'></td>";
             }
             echo "<td>$achID</td>";
@@ -182,8 +187,8 @@ RenderHtmlHead("Manage Achievements");
             //echo "<td>$achMemAddr</td>";
             echo "<td>$achPoints</td>";
             echo "<td><span class='smalldate'>$achCreated</span><br><span class='smalldate'>$achModified</span></td>";
-            if ($modifyOK) {
-                echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('$user', 'ach_$achID')\" size='3' /></td>";
+            if ($partialModifyOK || $fullModifyOK) {
+                echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('$user', 'ach_$achID', '$gameID')\" size='3' /></td>";
             } else {
                 echo "<td>$achDisplayOrder</td>";
             }    //	Just remove the input

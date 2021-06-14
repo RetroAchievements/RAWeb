@@ -446,6 +446,12 @@ function UploadNewAchievement(
     $badge,
     &$errorOut
 ) {
+    // Prevent <= registered users from uploading or modifying achievements
+    if (getUserPermissions($author) <= \RA\Permissions::Registered) {
+        $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+        return false;
+    }
+
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {
         $errorOut = "Tutorial: Achievement upload! This reply is happening on the server, to say that we have successfully received your achievement data.";
@@ -512,7 +518,7 @@ function UploadNewAchievement(
             return false;
         }
     } else {
-        $query = "SELECT Flags, Points FROM Achievements WHERE ID='$idInOut'";
+        $query = "SELECT Flags, Points, Author FROM Achievements WHERE ID='$idInOut'";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
             $data = mysqli_fetch_assoc($dbResult);
@@ -520,13 +526,19 @@ function UploadNewAchievement(
             $changingAchSet = ($data['Flags'] != $type);
             $changingPoints = ($data['Points'] != $points);
 
+            $userPermissions = getUserPermissions($author);
             //if( ( $changingAchSet || $changingPoints ) && $type == 3 )
-            if ($type == 3 || $changingAchSet) {
-                $userPermissions = getUserPermissions($author);
+            if ($type == 3 || $changingAchSet) { // If modifying core or changing achievement state
                 // error_log("changing ach set detected; user is $author, permissions is $userPermissions, target set is $type");
                 if ($userPermissions < Permissions::Developer) {
                     //  Must be developer to modify core!
-                    $errorOut = "You must be a developer to modify values in Core! Please drop a message in the forums to apply.";
+                    $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+                    return false;
+                }
+            } elseif ($type == 5 && !$changingAchSet) { // If modifying unofficial
+                // Only allow jr. devs to modify unofficial if they are the author
+                if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] != $author) {
+                    $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
                     return false;
                 }
             }

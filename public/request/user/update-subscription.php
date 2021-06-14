@@ -18,7 +18,7 @@ if ($subjectType === null || $subjectID === null || $returnUrl === null) {
 switch ($subjectType) {
     case \RA\SubscriptionSubjectType::GameTickets:
     case \RA\SubscriptionSubjectType::GameAchievements:
-        $requiredPermissions = \RA\Permissions::Developer;
+        $requiredPermissions = \RA\Permissions::JuniorDeveloper;
         break;
     default:
         $requiredPermissions = \RA\Permissions::Registered;
