@@ -209,13 +209,14 @@ function focusOnArticleID(id) {
   $('#art_' + id).scrollIntoView();
 }
 
-function updateDisplayOrder(user, objID) {
+function updateDisplayOrder(user, objID, gameID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
   var posting = $.post('/request/achievement/update.php',
     {
       u: user,
       a: objID.substr(4),
+      g: gameID,
       f: 1,
       v: inputNum,
     });

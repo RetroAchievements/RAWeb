@@ -1268,7 +1268,7 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     $permsFilter = null;
 
     settype($perms, 'integer');
-    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::SuperUser) {
+    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
         $permsFilter = "ua.Permissions = $perms ";
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
         $permsFilter = "ua.Permissions >= $perms ";
@@ -1567,11 +1567,37 @@ function GetDeveloperStats($count, $type)
     return $retVal;
 }
 
-function GetDeveloperStatsFull($count, $sortBy)
+function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
 {
-    sanitize_sql_inputs($count);
+    sanitize_sql_inputs($count, $sortBy, $devFilter);
     settype($sortBy, 'integer');
     settype($count, 'integer');
+    settype($devFilter, 'integer');
+
+    switch ($devFilter) {
+        case 1: // Active
+            $stateCond = " AND ua.Permissions >= " . \RA\Permissions::Developer;
+            break;
+        case 2: // Junior
+            $stateCond = " AND ua.Permissions = " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 3: // Active + Junior
+            $stateCond = " AND ua.Permissions >= " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 4: // Inactive
+            $stateCond = " AND ua.Permissions <= " . \RA\Permissions::Registered;
+            break;
+        case 5: // Active + Inactive
+            $stateCond = " AND ua.Permissions <> " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 6: // Junior + Inactive
+            $stateCond = " AND ua.Permissions <= " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 0: // Active + Junior + Inactive
+        case 7:
+        default:
+            $stateCond = "";
+    }
 
     switch ($sortBy) {
         case 1: // number of points allocated
@@ -1615,6 +1641,7 @@ function GetDeveloperStatsFull($count, $sortBy)
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState = 1)
     WHERE
         ContribCount > 0 AND ContribYield > 0
+        $stateCond
     GROUP BY
         ua.User
     ORDER BY

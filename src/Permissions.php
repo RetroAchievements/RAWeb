@@ -12,7 +12,7 @@ abstract class Permissions
 
     public const Registered = 1;
 
-    public const SuperUser = 2;
+    public const JuniorDeveloper = 2;
 
     public const Developer = 3;
 

@@ -16,7 +16,7 @@ if (!isset($user)) {
     $duplicateNumber = requestInputQuery('n');
 }
 
-if (validateUser_cookie($user, $cookie, \RA\Permissions::Developer)) {
+if (validateUser_cookie($user, $cookie, \RA\Permissions::JuniorDeveloper)) {
     if (isset($leaderboardID) && isset($duplicateNumber)) {
         if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");

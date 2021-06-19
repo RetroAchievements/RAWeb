@@ -7,7 +7,7 @@ use RA\Permissions;
 
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::JuniorDeveloper)) {
     if (getAccountDetails($user, $userDetails) == false) {
         // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
@@ -24,6 +24,12 @@ $allowedTypes = array_merge(["NEWS"], $allowedGameImageTypes); //, "ACHIEVEMENT"
 $uploadType = requestInputPost('t', "");
 
 $returnID = requestInputPost('i', 0, 'integer');
+
+if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $returnID)) {
+    // Immediate redirect if the jr. dev attempting to upload the image is not the sole developer
+    header("Location: " . getenv('APP_URL') . "?e=badcredentials");
+    exit;
+}
 
 $allowedExts = ["png", "jpeg", "jpg", "gif", "bmp"];
 $filenameParts = explode(".", $_FILES["file"]["name"]);

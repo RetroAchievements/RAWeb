@@ -399,7 +399,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
     $retVal = [];
 
     //    Get raw LB data
-    $query = "SELECT ld.ID AS LBID, gd.ID AS GameID, gd.Title AS GameTitle, ld.LowerIsBetter, ld.Title AS LBTitle, ld.Description AS LBDesc, ld.Format AS LBFormat, ld.Mem AS LBMem, gd.ConsoleID, c.Name AS ConsoleName, gd.ForumTopicID, gd.ImageIcon AS GameIcon,
+    $query = "SELECT ld.ID AS LBID, gd.ID AS GameID, gd.Title AS GameTitle, ld.LowerIsBetter, ld.Title AS LBTitle, ld.Description AS LBDesc, ld.Format AS LBFormat, ld.Mem AS LBMem, ld.Author AS LBAuthor, gd.ConsoleID, c.Name AS ConsoleName, gd.ForumTopicID, gd.ImageIcon AS GameIcon,
         ld.Author AS LBAuthor, ld.Created AS LBCreated, ld.Updated AS LBUpdated
               FROM LeaderboardDef AS ld
               LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
@@ -633,6 +633,7 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
                      ld.DisplayOrder, 
                      leInner.NumResults, 
                      ld.LowerIsBetter, 
+                     ld.Author,
                      gd.ID AS GameID, 
                      gd.ImageIcon AS GameIcon, 
                      gd.Title AS GameTitle, 

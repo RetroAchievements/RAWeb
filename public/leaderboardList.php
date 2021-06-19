@@ -77,7 +77,7 @@ RenderHtmlHead($pageTitle);
     location.href = '/leaderboardList.php?g=' + ID;
   }
 </script>
-<?php if ($permissions >= \RA\Permissions::Developer): ?>
+<?php if ($permissions >= \RA\Permissions::JuniorDeveloper): ?>
     <script>
       function UpdateLeaderboard(user, lbID) {
         var lbTitle = $.trim($('#LB_' + lbID + '_Title').val());
@@ -135,13 +135,9 @@ RenderHtmlHead($pageTitle);
         echo "Displaying leaderboards for: ";
         echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']);
         echo "</div>";
-
-        echo "<div>";
-        echo "<a href='/leaderboardList.php'>Return to full list</a>";
-        echo "</div>";
     }
 
-    if (isset($user) && $permissions >= Permissions::Developer) {
+    if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
         $numGames = getGamesList(0, $gamesList);
 
         echo "<div class='devbox'>";
@@ -187,7 +183,7 @@ RenderHtmlHead($pageTitle);
         echo "</div>";
     }
 
-    if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
+    if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
         echo "<div id='warning'>Status: OK!</div>";
     }
 
@@ -238,7 +234,7 @@ RenderHtmlHead($pageTitle);
     $sort6 = ($sortBy == 6) ? 16 : 6;
     $sort7 = ($sortBy == 7) ? 17 : 7;
 
-    if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
+    if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
         echo "<th>ID</th>";
         echo "<th>Title/Description</th>";
         echo "<th>Type</th>";
@@ -267,6 +263,7 @@ RenderHtmlHead($pageTitle);
         $lbNumEntries = $nextLB['NumResults'];
         settype($lbNumEntries, 'integer');
         $lbDisplayOrder = $nextLB['DisplayOrder'];
+        $lbAuthor = $nextLB['Author'];
         $gameID = $nextLB['GameID'];
         $gameTitle = $nextLB['GameTitle'];
         $gameIcon = $nextLB['GameIcon'];
@@ -280,7 +277,14 @@ RenderHtmlHead($pageTitle);
             echo "<tr>";
         }
 
-        if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
+        if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+            // Allow leaderboard edits for devs and jr. devs if they are the author
+            if ($permissions >= Permissions::Developer || ($lbAuthor == $user && $permissions == Permissions::JuniorDeveloper)) {
+                $editAllowed = true;
+            } else {
+                $editAllowed = false;
+            }
+
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>$lbID</a>";
             echo "</td>";
@@ -294,12 +298,12 @@ RenderHtmlHead($pageTitle);
             // echo "</td>";
 
             echo "<td>";
-            echo "<input style='width: 60%;' type='text' value='$lbTitle' id='LB_" . $lbID . "_Title' /><br>";
-            echo "<input style='width: 100%;' type='text' value='$lbDesc' id='LB_" . $lbID . "_Desc' />";
+            echo "<input style='width: 60%;' type='text' value='$lbTitle' id='LB_" . $lbID . "_Title' " . ($editAllowed ? "" : "readonly") . "/><br>";
+            echo "<input style='width: 100%;' type='text' value='$lbDesc' id='LB_" . $lbID . "_Desc' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
 
             echo "<td style='width: 20%;'>";
-            echo "<select id='LB_" . $lbID . "_Format' name='i' >";
+            echo "<select id='LB_" . $lbID . "_Format' name='i' " . ($editAllowed ? "" : "disabled='true'") . ">";
             $selected = $lbFormat == "SCORE" ? "selected" : "";
             echo "<option value='SCORE' $selected>Score</option>";
             $selected = $lbFormat == "TIME" ? "selected" : "";
@@ -315,11 +319,11 @@ RenderHtmlHead($pageTitle);
 
             echo "<td style='width: 10%;'>";
             $checked = ($lbLowerIsBetter ? "checked" : "");
-            echo "<input type='checkbox' $checked id='LB_" . $lbID . "_LowerIsBetter' />";
+            echo "<input type='checkbox' $checked id='LB_" . $lbID . "_LowerIsBetter' " . ($editAllowed ? "" : "onclick='return false'") . "/>";
             echo "</td>";
 
             echo "<td style='width: 10%;'>";
-            echo "<input size='3' type='text' value='$lbDisplayOrder' id='LB_" . $lbID . "_DisplayOrder' />";
+            echo "<input size='3' type='text' value='$lbDisplayOrder' id='LB_" . $lbID . "_DisplayOrder' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
 
             echo "</tr>";
@@ -347,53 +351,66 @@ RenderHtmlHead($pageTitle);
             echo "<tr>";
             echo "<td style='width:10%;' >Start:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memChunks[0]' style='width: 100%;' />";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memChunks[0]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "<tr>";
             echo "<td style='width:10%;'>Cancel:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem2' value='$memChunks[1]' style='width: 100%;' />";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem2' value='$memChunks[1]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "<tr>";
             echo "<td style='width:10%;'>Submit:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem3' value='$memChunks[2]' style='width: 100%;' />";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem3' value='$memChunks[2]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "<tr>";
             echo "<td style='width:10%;'>Value:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem4' value='$memChunks[3]' style='width: 100%;' />";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem4' value='$memChunks[3]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "</tbody></table>";
 
-            echo "<div style='float:left;' >";
-            echo "&#124;";
-            echo "&nbsp;";
-            echo "<a href='/request/leaderboard/delete.php?u=$user&amp;i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Permanently Delete?</a>";
-            echo "&nbsp;";
-            echo "&#124;";
-            echo "&nbsp;";
-            if ($lbNumEntries > 0) {
-                echo "<a href='/request/leaderboard/reset.php?u=$user&amp;i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset all $lbNumEntries entries?</a>";
+            // Only display the entry count for jr. devs
+            if ($permissions == Permissions::JuniorDeveloper) {
+                echo "<div style='float:left;' >";
+                echo "&#124;";
+                echo "&nbsp;";
+                echo $lbNumEntries . " entries";
+                echo "&nbsp;";
+                echo "&#124;";
+                echo "</div>";
+                if ($editAllowed) {
+                    echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
+                }
             } else {
-                echo "0 entries";
-            }
-            echo "&nbsp;";
-            echo "&#124;";
-            echo "</div>";
+                echo "<div style='float:left;' >";
+                echo "&#124;";
+                echo "&nbsp;";
+                echo "<a href='/request/leaderboard/delete.php?u=$user&i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Permanently Delete?</a>";
+                echo "&nbsp;";
+                echo "&#124;";
+                echo "&nbsp;";
+                if ($lbNumEntries > 0) {
+                    echo "<a href='/request/leaderboard/reset.php?u=$user&i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset all $lbNumEntries entries?</a>";
+                } else {
+                    echo "0 entries";
+                }
+                echo "&nbsp;";
+                echo "&#124;";
+                echo "</div>";
 
-            echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
+                echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
+            }
 
             echo "</td>";
-
             echo "</td>";
         } else {
             echo "<td>";
@@ -433,7 +450,7 @@ RenderHtmlHead($pageTitle);
     }
 
     //	hack:
-    if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
+    if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
         $listCount /= 2;
     }
 
@@ -457,7 +474,7 @@ RenderHtmlHead($pageTitle);
 </div>
 
 <?php
-if (count($codeNotes) > 0 && $permissions >= Permissions::Developer) {
+if (count($codeNotes) > 0 && $permissions >= Permissions::JuniorDeveloper) {
         echo "<div id='rightcontainer'>";
         RenderCodeNotes($codeNotes);
         echo "</div>";

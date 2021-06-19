@@ -17,7 +17,15 @@ $removeGameAlt = requestInputPost('m');
 
 $newForumTopic = requestInputPost('f', null, 'integer');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JuniorDeveloper)) {
+    // Only allow jr. devs if they are the sole author of the set
+    if ($permissions == \RA\Permissions::JuniorDeveloper) {
+        if (!checkIfSoleDeveloper($user, $gameID)) {
+            header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
+            exit;
+        }
+    }
+
     if (isset($richPresence)) {
         requestModifyRichPresence($gameID, $richPresence);
         header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");

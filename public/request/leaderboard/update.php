@@ -19,10 +19,16 @@ $lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
+if (validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
     $prevUpdated = strtotime($prevData["LBUpdated"]);
+
+    // Only let jr. devs update their own leaderboards
+    if ($permissions == \RA\Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
+        echo "FAILED!";
+        exit;
+    }
 
     if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
         echo "OK";
