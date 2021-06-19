@@ -356,7 +356,15 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
         //error_log( $query );
     }
 
-    return count($dataOut);
+    // Get the number of leaderboards for the game
+    $query = "SELECT COUNT(*) AS lbCount FROM LeaderboardDef WHERE GameID = $gameID";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult)['lbCount'];
+    } else {
+        return 0;
+    }
 }
 
 function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $friendsOnly)
