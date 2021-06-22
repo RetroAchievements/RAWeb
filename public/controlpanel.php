@@ -56,7 +56,7 @@ RenderHtmlHead("My Settings");
       //alert( data );
 
       var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
-      htmlToAdd += '<option>--</option>';
+      htmlToAdd += '<option value="">--</option>';
 
       var gameList = JSON.parse(data);
 
@@ -131,6 +131,7 @@ RenderHtmlHead("My Settings");
   }
 
   function ResetProgressForSelection() {
+    var achName = $('#resetachievementscontainer :selected').text();
     var achID = $('#resetachievementscontainer :selected').val();
 
     var isHardcore = 0;
@@ -141,10 +142,11 @@ RenderHtmlHead("My Settings");
 
     if (achID == 9999999) {
       var gameName = $('#resetgameselector :selected').text();
+      var gameId = $('#resetgameselector :selected').val();
       gameName = gameName.substr(0, gameName.lastIndexOf('(') - 1);
 
       //Prompt user for confirmation if attempting to remove all achievement for a single game
-      if (confirm('Reset all achievements for ' + gameName + '?')) {
+      if (gameId > 0 && confirm('Reset all achievements for ' + gameName + '?')) {
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
         //alert( "Game ID is " + gameID );
@@ -153,7 +155,7 @@ RenderHtmlHead("My Settings");
         $('#warning').html('Status: Updating...');
         $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
       }
-    } else if (achID > 0) {
+    } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
 
       //alert( "Ach ID is " + achID );
@@ -639,7 +641,7 @@ RenderHtmlHead("My Settings");
             echo "<table><tbody>";
             echo "<tr><td>Game:</td>";
             echo "<td><select id='resetgameselector' onchange=\"ResetFetchAwarded()\" >";
-            echo "<option>--</option>";
+            echo "<option value=''>--</option>";
             echo "</select></td></tr>";
 
             echo "<tr><td>Achievement:</td>";
