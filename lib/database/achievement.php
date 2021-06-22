@@ -616,11 +616,11 @@ function resetAchievements($user, $gameID)
     sanitize_sql_inputs($user, $gameID);
     settype($gameID, 'integer');
 
-    $query = "DELETE FROM Awarded WHERE User='$user' ";
-
-    if (!empty($gameID) && $gameID > 0) {
-        $query .= "AND AchievementID IN ( SELECT ID FROM Achievements WHERE Achievements.GameID='$gameID' )";
+    if (empty($gameID)) {
+        return false;
     }
+
+    $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ( SELECT ID FROM Achievements WHERE Achievements.GameID='$gameID')";
 
     $numRowsDeleted = 0;
     // log_sql($query);
@@ -639,11 +639,11 @@ function resetAchievements($user, $gameID)
 function resetSingleAchievement($user, $achID)
 {
     sanitize_sql_inputs($user, $achID);
+    settype($achID, 'integer');
 
     if (empty($achID)) {
         return false;
     }
-    settype($achID, 'integer');
 
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID'";
     $dbResult = s_mysql_query($query);
