@@ -320,7 +320,7 @@ switch ($requestType) {
 
     case "lbinfo":
         $lbID = requestInput('i', 0, 'integer');
-        $nearby = true;
+        $nearby = true; // Nearby entry behvaior has no effect if $user is null
         $friendsOnly = 0; // TBD
         $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly, $nearby);
         break;
