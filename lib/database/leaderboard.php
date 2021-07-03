@@ -400,7 +400,7 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     return $retVal;
 }
 
-function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $nearby = 0)
+function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $nearby = false)
 {
     sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
 
@@ -428,7 +428,9 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
 
         $retVal['Entries'] = [];
 
-        if ($nearby == 1) {
+        // If a $user is passed in and $nearby is true then change $offset to give
+        // entries around the player based on their index and total entries
+        if ($nearby && !is_null($user)) {
             $userPosition = 0;
             getLeaderboardUserPosition($lbID, $user, $userPosition);
             if ($userPosition != 0) {
@@ -444,7 +446,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
         $query = "SELECT ua.User, le.Score, le.DateSubmitted, 
                   CASE WHEN !lbd.LowerIsBetter 
                   THEN RANK() OVER(ORDER BY le.Score DESC)
-                  ELSE RANK() OVER(ORDER BY le.Score ASC) END AS Rank,
+                  ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
                   CASE WHEN !lbd.LowerIsBetter 
                   THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
                   ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
@@ -467,8 +469,10 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                 settype($db_entry['Score'], 'integer');
-                $db_entry['Rank'] = (int) $db_entry['Rank'];
-                $db_entry['UserIndex'] = (int) $db_entry['UserIndex'];
+                $db_entry['Rank'] = (int) $db_entry['UserRank'];
+                unset($db_entry['UserRank']);
+                $db_entry['Index'] = (int) $db_entry['UserIndex'];
+                unset($db_entry['UserIndex']);
 
                 if (strcmp($db_entry['User'], $user) == 0) {
                     $userFound = true;
@@ -479,13 +483,14 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
                 $numResultsFound++;
             }
 
-            if ($userFound == false && $nearby == 0) {
+            // Currently only used for appending player to the end on website leaderboard pages
+            if ($userFound == false && !$nearby) {
                 //    Go find user's score in this table, if it exists!
-                $query = "SELECT User, Score, DateSubmitted, Rank, UserIndex FROM
+                $query = "SELECT User, Score, DateSubmitted, UserRank, UserIndex FROM
                          (SELECT ua.User, le.Score, le.DateSubmitted, 
                           CASE WHEN !lbd.LowerIsBetter 
                           THEN RANK() OVER(ORDER BY le.Score DESC)
-                          ELSE RANK() OVER(ORDER BY le.Score ASC) END AS Rank,
+                          ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
                           CASE WHEN !lbd.LowerIsBetter 
                           THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
                           ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
@@ -502,8 +507,10 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
                         $db_entry = mysqli_fetch_assoc($dbResult);
                         $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                         settype($db_entry['Score'], 'integer');
-                        $db_entry['Rank'] = (int) $db_entry['Rank'];
-                        $db_entry['UserIndex'] = (int) $db_entry['UserIndex'];
+                        $db_entry['Rank'] = (int) $db_entry['UserRank'];
+                        unset($db_entry['UserRank']);
+                        $db_entry['Index'] = (int) $db_entry['UserIndex'];
+                        unset($db_entry['UserIndex']);
                         $entries[] = $db_entry;
                     }
                 } else {
