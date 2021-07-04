@@ -411,7 +411,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
               FROM LeaderboardDef AS ld
               LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN leaderboardentry le ON le.LeaderboardID = ld.ID
+              LEFT JOIN LeaderboardEntry le ON le.LeaderboardID = ld.ID
               LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
               WHERE ld.ID = $lbID
               AND !ua.Untracked";
