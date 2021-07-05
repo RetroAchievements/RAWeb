@@ -86,6 +86,14 @@ RenderHtmlHead("Manage Achievements");
             achievements.push(checkboxes[i].getAttribute("value"));
         }
       }
+      // check for promote/demote and confirm if necessary
+      var value = parseInt(document.getElementsByClassName('updateAchievements')[0].getAttribute("value"));
+      if ([3, 5].indexOf(value) !== -1) {
+        var confirmation = confirm(`Are you sure you want to ${(value == 3 ? 'promote' : 'demote')} these achievements?`);
+        if (!confirmation) {
+            return;
+        }
+      }
       if (achievements.length > 0) {
         updateAchievements('<?php echo $user; ?>', achievements, document.getElementsByClassName('updateAchievements')[0].getAttribute("value"));
         sleep(100);
