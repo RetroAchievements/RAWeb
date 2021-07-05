@@ -1232,6 +1232,7 @@ function getControlPanelUserInfo($user, &$libraryOut)
                 LEFT JOIN (
                     SELECT ach.GameID, COUNT(*) AS NumPossible
                     FROM Achievements AS ach
+                    WHERE ach.Flags = 3
                     GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
                 WHERE aw.User = '$user' AND aw.HardcoreMode = 0
                 GROUP BY gd.ID, gd.ConsoleID, gd.Title
