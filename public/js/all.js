@@ -701,3 +701,11 @@ function copy(text) {
   document.execCommand('copy', false);
   inp.remove();
 }
+
+function ConfirmDemotion() {
+  return confirm("Are you sure you want to demote this achievement?");
+}
+
+function ConfirmPromotion() {
+  return confirm("Are you sure you want to promote this achievement?");
+}
