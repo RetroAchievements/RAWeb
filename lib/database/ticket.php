@@ -416,7 +416,7 @@ function countOpenTicketsByDev($dev)
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = '$dev' AND ach.Flags = '3' AND tick.ReportState = 1";
+        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5) AND tick.ReportState = 1";
 
     $dbResult = s_mysql_query($query);
 
