@@ -68,17 +68,22 @@ function isValidConsoleId($consoleId)
         case 53: // WonderSwan
             // case 54: // Cassette Vision
             // case 55: // Super Cassette Vision
-            // case 56: // Neo Geo CD
+        case 56: // Neo Geo CD
             // case 57: // Fairchild Channel-F
             // case 58: // FM Towns
             // case 59: // ZX Spectrum
             // case 60: // Game & Watch
             // case 61: // Nokia N-Gage
             // case 62: // Nintendo 3DS
+        case 63: // Supervision
+            // case 64: // Sharp X1
+            // case 65: // TIC-80
+            // case 66: // Thomson TO8
             // case 100: // Hubs (not an actual console)
         case 101: // Events (not an actual console)
             return true;
     }
+
     return false;
 }
 
@@ -90,6 +95,7 @@ function getEmulatorReleaseByIntegrationId($integrationId)
 {
     $releases = getReleasesFromFile();
     $emulators = $releases['emulators'] ?? [];
+
     return $emulators[$integrationId] ?? null;
 }
 
@@ -99,6 +105,7 @@ function getEmulatorReleaseByIntegrationId($integrationId)
 function getIntegrationRelease()
 {
     $releases = getReleasesFromFile();
+
     return $releases['integration'] ?? null;
 }
 
@@ -107,7 +114,7 @@ function getIntegrationRelease()
  */
 function getReleasesFromFile()
 {
-    return file_exists(__DIR__ . '/releases.php') ? require_once (__DIR__ . '/releases.php') : null;
+    return file_exists(__DIR__ . '/releases.php') ? require_once __DIR__ . '/releases.php' : null;
 }
 
 /**
@@ -120,13 +127,17 @@ function getActiveEmulatorReleases()
     $emulators = array_filter($releases['emulators'] ?? [], function ($emulator) {
         return $emulator['active'] ?? false;
     });
-    $emulators = array_map(function ($emulator) use ($consoles) {
-        $systems = [];
-        foreach ($emulator['systems'] as $system) {
-            $systems[$system] = $consoles[$system];
-        }
-        $emulator['systems'] = $systems;
-        return $emulator;
-    }, $emulators);
+    if (!empty($consoles)) {
+        $emulators = array_map(function ($emulator) use ($consoles) {
+            $systems = [];
+            foreach ($emulator['systems'] as $system) {
+                $systems[$system] = $consoles[$system];
+            }
+            $emulator['systems'] = $systems;
+
+            return $emulator;
+        }, $emulators);
+    }
+
     return $emulators;
 }

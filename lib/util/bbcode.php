@@ -201,29 +201,33 @@ function linkifyYouTubeURLs($text)
 
 function linkifyTwitchURLs($text)
 {
-    if (mb_strpos($text, "twitch.tv") !== false) {
-        // https://www.twitch.tv/videos/270709956
-        // https://www.twitch.tv/gamingwithmist/v/40482810
-        $text = preg_replace(
-            '~(?:https?://)?(?:www.)?twitch.tv/(?:videos|[^/]+/v)/([0-9]+)~i',
-            makeEmbeddedVideo('//player.twitch.tv/?video=$1&autoplay=false'),
-            $text
-        );
-
-        // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
-        $text = preg_replace(
-            '~(?:https?://)?(?:www.)?twitch.tv/collections/([a-z0-9]+)~i',
-            makeEmbeddedVideo('//player.twitch.tv/?collection=$1&autoplay=false'),
-            $text
-        );
-
-        // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
-        $text = preg_replace(
-            '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
-            makeEmbeddedVideo('//clips.twitch.tv/embed?clip=$1&autoplay=false'),
-            $text
-        );
+    if (mb_strpos($text, "twitch.tv") === false) {
+        return $text;
     }
+
+    $parent = parse_url(getenv('APP_URL'))['host'];
+
+    // https://www.twitch.tv/videos/270709956
+    // https://www.twitch.tv/gamingwithmist/v/40482810
+    $text = preg_replace(
+        '~(?:https?://)?(?:www.)?twitch.tv/(?:videos|[^/]+/v)/([0-9]+)~i',
+        makeEmbeddedVideo('//player.twitch.tv/?video=$1&parent=' . $parent . '&autoplay=false'),
+        $text
+    );
+
+    // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
+    $text = preg_replace(
+        '~(?:https?://)?(?:www.)?twitch.tv/collections/([a-z0-9]+)~i',
+        makeEmbeddedVideo('//player.twitch.tv/?collection=$1&parent=' . $parent . '&autoplay=false'),
+        $text
+    );
+
+    // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
+    $text = preg_replace(
+        '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
+        makeEmbeddedVideo('//clips.twitch.tv/embed?clip=$1&parent=' . $parent . '&autoplay=false'),
+        $text
+    );
 
     return $text;
 }

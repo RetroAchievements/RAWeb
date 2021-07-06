@@ -5,40 +5,40 @@ use RA\Permissions;
 
 abstract class UserPref
 {
-    const EmailOn_ActivityComment = 0;
+    public const EmailOn_ActivityComment = 0;
 
-    const EmailOn_AchievementComment = 1;
+    public const EmailOn_AchievementComment = 1;
 
-    const EmailOn_UserWallComment = 2;
+    public const EmailOn_UserWallComment = 2;
 
-    const EmailOn_ForumReply = 3;
+    public const EmailOn_ForumReply = 3;
 
-    const EmailOn_AddFriend = 4;
+    public const EmailOn_AddFriend = 4;
 
-    const EmailOn_PrivateMessage = 5;
+    public const EmailOn_PrivateMessage = 5;
 
-    const EmailOn_Newsletter = 6;
+    public const EmailOn_Newsletter = 6;
 
-    const EmailOn_unused2 = 7;
+    public const EmailOn_unused2 = 7;
 
-    const SiteMsgOn_ActivityComment = 8;
+    public const SiteMsgOn_ActivityComment = 8;
 
-    const SiteMsgOn_AchievementComment = 9;
+    public const SiteMsgOn_AchievementComment = 9;
 
-    const SiteMsgOn_UserWallComment = 10;
+    public const SiteMsgOn_UserWallComment = 10;
 
-    const SiteMsgOn_ForumReply = 11;
+    public const SiteMsgOn_ForumReply = 11;
 
-    const SiteMsgOn_AddFriend = 12;
+    public const SiteMsgOn_AddFriend = 12;
 }
 
 abstract class FBUserPref
 {
-    const PostFBOn_EarnAchievement = 0;
+    public const PostFBOn_EarnAchievement = 0;
 
-    const PostFBOn_CompleteGame = 1;
+    public const PostFBOn_CompleteGame = 1;
 
-    const PostFBOn_UploadAchievement = 2;
+    public const PostFBOn_UploadAchievement = 2;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -806,7 +806,7 @@ function countRankedUsers()
     $query = "
         SELECT COUNT(*) AS count
         FROM UserAccounts
-        WHERE RAPoints > 0
+        WHERE RAPoints >= " . MIN_POINTS . "
           AND NOT Untracked
     ";
 
@@ -1268,7 +1268,7 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     $permsFilter = null;
 
     settype($perms, 'integer');
-    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::SuperUser) {
+    if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
         $permsFilter = "ua.Permissions = $perms ";
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
         $permsFilter = "ua.Permissions >= $perms ";
@@ -1567,11 +1567,37 @@ function GetDeveloperStats($count, $type)
     return $retVal;
 }
 
-function GetDeveloperStatsFull($count, $sortBy)
+function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
 {
-    sanitize_sql_inputs($count);
+    sanitize_sql_inputs($count, $sortBy, $devFilter);
     settype($sortBy, 'integer');
     settype($count, 'integer');
+    settype($devFilter, 'integer');
+
+    switch ($devFilter) {
+        case 1: // Active
+            $stateCond = " AND ua.Permissions >= " . \RA\Permissions::Developer;
+            break;
+        case 2: // Junior
+            $stateCond = " AND ua.Permissions = " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 3: // Active + Junior
+            $stateCond = " AND ua.Permissions >= " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 4: // Inactive
+            $stateCond = " AND ua.Permissions <= " . \RA\Permissions::Registered;
+            break;
+        case 5: // Active + Inactive
+            $stateCond = " AND ua.Permissions <> " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 6: // Junior + Inactive
+            $stateCond = " AND ua.Permissions <= " . \RA\Permissions::JuniorDeveloper;
+            break;
+        case 0: // Active + Junior + Inactive
+        case 7:
+        default:
+            $stateCond = "";
+    }
 
     switch ($sortBy) {
         case 1: // number of points allocated
@@ -1615,6 +1641,7 @@ function GetDeveloperStatsFull($count, $sortBy)
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState = 1)
     WHERE
         ContribCount > 0 AND ContribYield > 0
+        $stateCond
     GROUP BY
         ua.User
     ORDER BY
@@ -1702,6 +1729,7 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['Permissions'] = $userInfo['Permissions'];
     $userCardInfo['Motto'] = htmlspecialchars($userInfo['Motto']);
     $userCardInfo['Rank'] = getUserRank($user);
+    $userCardInfo['Untracked'] = $userInfo['Untracked'];
     $userCardInfo['LastActivity'] = $userInfo['LastLogin'];
     $userCardInfo['MemberSince'] = $userInfo['Created'];
 }

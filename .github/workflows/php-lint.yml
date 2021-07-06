@@ -18,7 +18,7 @@ jobs:
       - name: Lint
         run: composer lint
 
-  phstan:
+  phpstan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

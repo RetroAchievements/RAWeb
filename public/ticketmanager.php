@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     header("Location: " . getenv('APP_URL'));
@@ -367,10 +368,26 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
+                //Core/Unofficial Filters - These filters are mutually exclusive
+                echo "<div>";
+                echo "<b>Achievement State:</b> ";
+                if ($gamesTableFlag != 5) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=$ticketFilters'>*Core</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=$ticketFilters'>Core</a> | ";
+                }
+
+                if ($gamesTableFlag == 5) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=5&t=$ticketFilters'>*Unofficial</a></b>";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=5&t=$ticketFilters'>Unofficial</a>";
+                }
+                echo "</div>";
+
                 //Clear Filter
-                if ($ticketFilters != $defaultFilter) {
+                if ($ticketFilters != $defaultFilter || $gamesTableFlag == 5) {
                     echo "<div>";
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . $defaultFilter . "'>Clear Filter</a>";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=" . $defaultFilter . "'>Clear Filter</a>";
                     echo "</div>";
                 }
                 echo "</div>";

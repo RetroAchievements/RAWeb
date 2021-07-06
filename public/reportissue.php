@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 $cookieRaw = RA_ReadCookie('RA_Cookie');
@@ -39,7 +40,7 @@ RenderHtmlHead("Report Broken Achievement");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript">
+<script>
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
       document.getElementById('core-row').style.display = '';

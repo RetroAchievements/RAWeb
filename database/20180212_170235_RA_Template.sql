@@ -79,17 +79,6 @@ CREATE TABLE IF NOT EXISTS `Awarded` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 -- Data exporting was unselected.
--- Dumping structure for table RACore.Chat
-CREATE TABLE IF NOT EXISTS `Chat` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `Submitted` datetime NOT NULL,
-  `User` varchar(255) COLLATE latin1_general_ci NOT NULL,
-  `Message` text COLLATE latin1_general_ci NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `Submitted` (`Submitted`)
-) ENGINE=InnoDB AUTO_INCREMENT=202124 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
-
--- Data exporting was unselected.
 -- Dumping structure for table RACore.CodeNotes
 CREATE TABLE IF NOT EXISTS `CodeNotes` (
   `GameID` int(10) unsigned NOT NULL COMMENT 'FK to GameData',
@@ -406,6 +395,7 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
   `UserWallActive` bit(1) NOT NULL DEFAULT b'1' COMMENT 'Allow Posting to user wall',
   `PasswordResetToken` varchar(32) COLLATE latin1_general_ci DEFAULT NULL,
   `Untracked` bit(1) NOT NULL DEFAULT b'0' COMMENT 'Untracked users are considered as having cheated.',
+  `email_backup` varchar(64) COLLATE latin1_general_ci NOT NULL COMMENT 'Plaintext Email Address (64 chars)',
   PRIMARY KEY (`ID`,`User`),
   KEY `RAPoints` (`RAPoints`),
   KEY `ID` (`ID`),

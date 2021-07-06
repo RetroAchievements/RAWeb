@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -12,6 +13,8 @@ if ($permissions >= \RA\Permissions::Admin) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = count($unofficialLinks);
 }
+
+$numTotalTopics = 0;
 
 if ($requestedForumID == 0) {
     if ($permissions >= \RA\Permissions::Admin) {
@@ -43,7 +46,7 @@ if ($requestedForumID == 0) {
     $thisCategoryID = $forumDataOut['CategoryID'];
     $thisCategoryName = $forumDataOut['CategoryName'];
 
-    $topicList = getForumTopics($requestedForumID, $offset, $count);
+    $topicList = getForumTopics($requestedForumID, $offset, $count, $numTotalTopics);
 
     $requestedForum = $thisForumTitle;
 }
@@ -85,6 +88,47 @@ RenderHtmlHead("View forum: $thisForumTitle");
             if ($permissions >= \RA\Permissions::Registered) {
                 echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
             }
+
+            /* Forum pagination */
+            $forumPagination = "";
+
+            if ($numTotalTopics > $count) {
+                $forumPagination .= "<tr>";
+
+                $forumPagination .= "<td class='forumpagetabs' colspan='2'>";
+                $forumPagination .= "<div class='forumpagetabs'>";
+
+                $forumPagination .= "Page:&nbsp;";
+                $pageOffset = ($offset / $count);
+                $numPages = ceil($numTotalTopics / $count);
+
+                if ($pageOffset > 0) {
+                    $prevOffs = $offset - $count;
+                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$prevOffs'>&lt;</a> ";
+                }
+
+                for ($i = 0; $i < $numPages; $i++) {
+                    $nextOffs = $i * $count;
+                    $pageNum = $i + 1;
+
+                    if ($nextOffs == $offset) {
+                        $forumPagination .= "<span class='forumpagetab current'>$pageNum</span> ";
+                    } else {
+                        $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>$pageNum</a> ";
+                    }
+                }
+
+                if ($offset + $count < $numTotalTopics) {
+                    $nextOffs = $offset + $count;
+                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>&gt;</a> ";
+                }
+
+                $forumPagination .= "</div>";
+                $forumPagination .= "</td>";
+                $forumPagination .= "</tr>";
+            }
+
+            echo $forumPagination;
 
             echo "<table><tbody>";
             echo "<tr class='forumsheader'>";
@@ -158,6 +202,8 @@ RenderHtmlHead("View forum: $thisForumTitle");
             }
 
             echo "</tbody></table>";
+
+            echo $forumPagination;
 
             echo "<br>";
 

@@ -24,7 +24,11 @@ function readCookie(name) {
 }
 
 function htmlEntities(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function stripTags(html) {
@@ -64,7 +68,7 @@ function insertEditForm(activityVar, articleType) {
   if (user !== null) {
     var rowID = 'comment_' + activityVar;
     var commentRow = $('#' + rowID);
-    if (!commentRow.exists()) {
+    if (!commentRow.length) {
       var userImage = '<img id="badgeimg" src="/UserPic/' + user + '.png" width="32" height="32" >';
       var formStr = '';
       formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=250></textarea>';
@@ -102,7 +106,6 @@ function insertEditForm(activityVar, articleType) {
       commentTextarea.focus();
       commentTextarea.val('');
       commentTextarea.css('width', '75%');
-      commentTextarea.watermark('Enter a comment here...');
     } else {
       commentRow.remove();
     }
@@ -130,12 +133,12 @@ function onCommentSuccess(data) {
   }
 
   var commentRow = $('#comment_art_' + data);
-  if (commentRow.exists()) {
+  if (commentRow.length) {
     // Embed as proper comment instead!
     commentRow.addClass('feed_comment');
     commentRow.removeAttr('id');
     var textBox = commentRow.find('#commentTextarea');
-    if (textBox.exists()) {
+    if (textBox.length) {
       var comment = textBox.val();
       // var safeComment = comment.replace( /<|>/g, '_' );
       var safeComment = stripTags(comment);
@@ -148,7 +151,7 @@ function onCommentSuccess(data) {
     }
 
     var submitButton = commentRow.find('#submitButton');
-    if (submitButton.exists()) {
+    if (submitButton.length) {
       submitButton.remove();
     }
   }
@@ -159,9 +162,9 @@ function processComment(activityVar, articleType) {
   if (user !== null) {
     var rowID = 'comment_' + activityVar;
     var commentRow = $('#' + rowID);
-    if (commentRow.exists()) {
+    if (commentRow.length) {
       var textBox = commentRow.find('#commentTextarea');
-      if (textBox.exists()) {
+      if (textBox.length) {
         var comment = textBox.val();
         if (comment.length > 0) {
           var safeComment = stripTags(comment);
@@ -174,7 +177,7 @@ function processComment(activityVar, articleType) {
           });
           posting.done(onCommentSuccess);
           var submitButton = commentRow.find('#submitButton');
-          if (submitButton.exists()) {
+          if (submitButton.length) {
             submitButton.attr('src', '/Images/loading.gif'); // Change to 'loading' gif
             submitButton.attr('onclick', ''); // stop being able to click this
             submitButton.css('cursor', ''); // stop being able to see a finger pointer
@@ -206,13 +209,14 @@ function focusOnArticleID(id) {
   $('#art_' + id).scrollIntoView();
 }
 
-function updateDisplayOrder(user, objID) {
+function updateDisplayOrder(user, objID, gameID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
   var posting = $.post('/request/achievement/update.php',
     {
       u: user,
       a: objID.substr(4),
+      g: gameID,
       f: 1,
       v: inputNum,
     });
@@ -450,20 +454,10 @@ function reloadTwitchContainer(videoID) {
 jQuery(document).ready(function onReady($) {
   $('#devboxcontent').hide();
   $('#resetboxcontent').hide();
-  $('#commentTextarea').watermark('Enter a comment here...');
-  $('.messageTextarea').watermark('Enter your message here...');
-  $('.passwordresetusernameinput').watermark('Enter Username...');
   $('.msgPayload').hide();
   $('#managevids').hide();
-  $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
-
-  var $chatInput = $('#chatinput');
-  $chatInput.watermark('Enter a comment here...');
-  $chatInput.width('75%');
-  $('#chatinput:disabled').watermark('Please log in to join the chat!');
 
   var $searchBoxInput = $('.searchboxinput');
-  $searchBoxInput.watermark('Search the site...');
   $searchBoxInput.autocomplete({ source: '/request/search.php', minLength: 2 });
   $searchBoxInput.autocomplete({
     select: function (event, ui) {
@@ -476,7 +470,6 @@ jQuery(document).ready(function onReady($) {
   });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
-  $seachBoxCompareUser.watermark('Enter User...');
   $seachBoxCompareUser.autocomplete({ source: '/request/search.php?p=gamecompare', minLength: 2 });
   $seachBoxCompareUser.autocomplete({
     select: function (event, ui) {

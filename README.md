@@ -64,7 +64,18 @@ The environment configuration file (`.env`) contains a sensible set of default v
 
 5. Build the dummy database using the SQL commands in the `/database` folder. You can use the MySQL CLI (recommended) or the phpMyAdmin GUI.
 
-6. Open the application in your browser.
+6. Copy `releases.dist.php` to `releases.php` in `lib/database`:
+
+   Linux/MacOS:
+
+        $ cp lib/database/releases.dist.php lib/database/releases.php
+
+   Windows:
+
+        $ copy lib\database\releases.dist.php lib\database\releases.php
+
+
+7. Open the application in your browser.
 
 ## Contributing
 

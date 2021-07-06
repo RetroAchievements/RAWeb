@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -84,10 +85,14 @@ usort($userCompletedGames, "scorePctCompare");
 
 $userCompletedGamesList = $userCompletedGames;
 
+$excludedConsoles = ["Hubs", "Events"];
+
 foreach ($userCompletedGamesList as $nextGame) {
     if ($nextGame['PctWon'] > 0) {
-        $totalPctWon += $nextGame['PctWon'];
-        $numGamesFound++;
+        if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
+            $totalPctWon += $nextGame['PctWon'];
+            $numGamesFound++;
+        }
     }
 }
 
@@ -160,8 +165,8 @@ RenderHtmlStart(true);
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
   google.setOnLoadCallback(drawCharts);
 
@@ -268,11 +273,11 @@ RenderHtmlStart(true);
         echo "Site Rank: ";
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
-        } elseif ($userTruePoints <= 0) {
-            echo "<i>This user has not earned any points.</i>";
+        } elseif ($totalPoints < MIN_POINTS) {
+            echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
-            $rankPct = sprintf("%1.0f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
+            $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
             $rankOffset = (int) (($userRank - 1) / 25) * 25;
             echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }

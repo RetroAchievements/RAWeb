@@ -4,11 +4,11 @@ use RA\Permissions;
 
 abstract class ModifyTopicField
 {
-    const ModifyTitle = 0;
+    public const ModifyTitle = 0;
 
-    const DeleteTopic = 1;
+    public const DeleteTopic = 1;
 
-    const RequiredPermissions = 2;
+    public const RequiredPermissions = 2;
 }
 
 function getForumList($categoryID = 0)
@@ -71,10 +71,20 @@ function getForumDetails($forumID, &$forumDataOut)
     }
 }
 
-function getForumTopics($forumID, $offset, $count)
+function getForumTopics($forumID, $offset, $count, &$maxCountOut)
 {
     sanitize_sql_inputs($forumID, $offset, $count);
     settype($forumID, "integer");
+
+    $query = "    SELECT COUNT(*) FROM ForumTopic AS ft
+                LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
+                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        $data = mysqli_fetch_assoc($dbResult);
+        $maxCountOut = (int) $data['COUNT(*)'];
+    }
 
     $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
@@ -83,7 +93,8 @@ function getForumTopics($forumID, $offset, $count)
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
                 WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
                 GROUP BY ft.ID, LatestCommentPostedDate
-                ORDER BY LatestCommentPostedDate DESC ";
+                ORDER BY LatestCommentPostedDate DESC
+                LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -483,7 +494,15 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
     //    02:08 21/02/2014 - cater for 20 spam messages
     $countPlusSpam = $count + 20;
     $query = "
-        SELECT LatestComments.DateCreated AS PostedAt, LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg, LatestComments.Author, ua.RAPoints, ua.Motto, ft.ID AS ForumTopicID, ft.Title AS ForumTopicTitle, LatestComments.ID AS CommentID
+        SELECT LatestComments.DateCreated AS PostedAt,
+            LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg,
+            LENGTH(LatestComments.Payload) > $numMessageChars AS IsTruncated,
+            LatestComments.Author,
+            ua.RAPoints,
+            ua.Motto,
+            ft.ID AS ForumTopicID,
+            ft.Title AS ForumTopicTitle,
+            LatestComments.ID AS CommentID
         FROM 
         (
             SELECT * 
