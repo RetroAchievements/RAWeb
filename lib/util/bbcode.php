@@ -28,6 +28,21 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     //    Parse and format tags
     $comment = $commentIn;
 
+    //    [code]
+    $comment = preg_replace_callback(
+        '/\\[code\\](?:<br.*?>)?(.*?)\\[\\/code\\]/is',
+        function ($matches) {
+            $replacements = [
+                '[' => '&lsqb;',
+                ']' => '&rsqb;',
+                '/' => '&sol;',
+                '\\' => '&bsol;',
+            ];
+            return "<pre class='codetags'>" . str_replace(array_keys($replacements), array_values($replacements), $matches[1]) . '</pre>';
+        },
+        $comment);
+    $comment = preg_replace("/\r\n|\r|\n/", '', $comment);
+
     //    [url]
     //$comment = preg_replace( '/(\\[url=http:\\/\\/)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
     //$comment = preg_replace( '/(\\[url=)(.*?)(\\])(.*?)(\\[\\/url\\])/i', '<a onmouseover=" Tip( \'${2}\' ) " onmouseout=\'UnTip()\' href=\'http://${2}\'>${4}</a>', $comment );
@@ -59,9 +74,6 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     $comment = preg_replace('/\\[u\\](.*?)\\[\\/u\\]/is', '<u>${1}</u>', $comment);
     //    [s]
     $comment = preg_replace('/\\[s\\](.*?)\\[\\/s\\]/is', '<s>${1}</s>', $comment);
-    //    [code]
-    $comment = preg_replace('/\\[code\\](?:<br.*?>)?(.*?)\\[\\/code\\]/is', '<pre class=\'codetags\'>${1}</pre>', $comment);
-    $comment = preg_replace("/\r\n|\r|\n/", '', $comment);
     //    [img]
     $comment = preg_replace('/(\\[img=)(.*?)(\\])/i', '<img class=\'injectinlineimage\' src=\'${2}\' />', $comment);
     //    [ach]
