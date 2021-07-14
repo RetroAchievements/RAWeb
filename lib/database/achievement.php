@@ -1063,17 +1063,18 @@ function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
     return $retVal;
 }
 
-function getGameNumUniquePlayersByAwards($gameID)
+function getGameNumUniquePlayersByAwards($gameID, $hardcoreMode = 0)
 {
     sanitize_sql_inputs($gameID);
 
+    //this returns not the number of total players but the number of achievers for the most common achievement
     $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
               (
                   SELECT ach.ID, COUNT(*) AS MaxAwarded
                   FROM Awarded AS aw
                   LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                   LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcoreMode
                   GROUP BY ach.ID
               ) AS Inner1";
 
@@ -1081,73 +1082,6 @@ function getGameNumUniquePlayersByAwards($gameID)
     $data = mysqli_fetch_assoc($dbResult);
 
     return $data['TotalPlayers'];
-}
-
-function recalculateTrueRatio($gameID)
-{
-    sanitize_sql_inputs($gameID);
-
-    $query = "SELECT ach.ID, ach.Points, COUNT(*) AS NumAchieved
-              FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 0
-              GROUP BY ach.ID";
-
-    $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
-
-    if ($dbResult !== false) {
-        $achData = [];
-        $totalEarners = 0;
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $achData[$nextData['ID']] = $nextData;
-            if ($nextData['NumAchieved'] > $totalEarners) {
-                $totalEarners = $nextData['NumAchieved'];
-            }
-
-            //error_log( "Added " . $achData[ $nextData['ID'] ]['ID'] );
-        }
-
-        if ($totalEarners == 0) { // force all unachieved to be 1
-            $totalEarners = 1;
-        }
-
-        $ratioTotal = 0;
-
-        foreach ($achData as $nextAch) {
-            $achID = $nextAch['ID'];
-            $achPoints = $nextAch['Points'];
-            $numAchieved = $nextAch['NumAchieved'];
-
-            if ($numAchieved == 0) { // force all unachieved to be 1
-                $numAchieved = 1;
-            }
-
-            $ratioFactor = 0.4;
-            $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($totalEarners / $numAchieved) * $ratioFactor));
-            $trueRatio = (int) $newTrueRatio;
-
-            $ratioTotal += $trueRatio;
-
-            $query = "UPDATE Achievements AS ach
-                      SET ach.TrueRatio = $trueRatio
-                      WHERE ach.ID = $achID";
-            s_mysql_query($query);
-
-            //error_log( "TA: $achID -> $trueRatio" );
-        }
-
-        $query = "UPDATE GameData AS gd
-                  SET gd.TotalTruePoints = $ratioTotal
-                  WHERE gd.ID = $gameID";
-        s_mysql_query($query);
-
-        //error_log( __FUNCTION__ . " RECALCULATED " . count($achData) . " achievements for game ID $gameID ($ratioTotal)" );
-
-        return true;
-    } else {
-        return false;
-    }
 }
 
 /**
