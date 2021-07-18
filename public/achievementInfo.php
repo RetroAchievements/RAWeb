@@ -232,9 +232,9 @@ RenderHtmlStart(true);
                 echo "<div style='clear:both;'></div>";
 
                 if ($achFlags == 3) {
-                    echo "<li>State: Official&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
+                    echo "<li>State: Official&nbsp;<a onclick='return ConfirmDemotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
                 } elseif ($achFlags == 5) {
-                    echo "<li>State: Unofficial&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                    echo "<li>State: Unofficial&nbsp;<a onclick='return ConfirmPromotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
                 }
             }
 
