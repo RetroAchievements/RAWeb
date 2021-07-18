@@ -134,7 +134,7 @@ function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
     sanitize_outputs($user, $formStr);
 
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
-    $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250 placeholder='Enter a comment here...'></textarea>";
+    $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=2000 placeholder='Enter a comment here...'></textarea>";
     $formStr .= "&nbsp;";
     $formStr .= "<img id='submitButton' src='" . getenv('ASSET_URL') . "/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
 
