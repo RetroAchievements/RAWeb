@@ -206,7 +206,7 @@ function linkifyYouTubeURLs($text)
         ([?=&+%\w.-]*)        # Consume any URL (query) remainder.
         ~ix';
 
-    $text = preg_replace($pattern, makeEmbeddedVideo('//www.youtube-nocookie.com/embed/$1'), $text);
+    $text = preg_replace($pattern, makeEmbeddedVideo('//www.youtube-nocookie.com/embed/$1$2'), $text);
 
     return $text;
 }
