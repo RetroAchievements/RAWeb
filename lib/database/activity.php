@@ -750,7 +750,8 @@ function getLatestRichPresenceUpdates()
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
                 AND ua.LastGameID !=0
-                AND ua.Permissions >= $permissionsCutoff";
+                AND ua.Permissions >= $permissionsCutoff
+              ORDER BY ua.RAPoints DESC;";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
