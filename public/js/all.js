@@ -71,7 +71,7 @@ function insertEditForm(activityVar, articleType) {
     if (!commentRow.length) {
       var userImage = '<img id="badgeimg" src="/UserPic/' + user + '.png" width="32" height="32" >';
       var formStr = '';
-      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=250></textarea>';
+      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=2000></textarea>';
       formStr += '&nbsp;';
       formStr += '<img id="submitButton" src="' + window.assetUrl + '/Images/Submit.png" '
         + 'alt="Submit" style="cursor: pointer;" onclick="processComment( \''
@@ -700,4 +700,12 @@ function copy(text) {
   inp.select();
   document.execCommand('copy', false);
   inp.remove();
+}
+
+function ConfirmDemotion() {
+  return confirm("Are you sure you want to demote this achievement?");
+}
+
+function ConfirmPromotion() {
+  return confirm("Are you sure you want to promote this achievement?");
 }
