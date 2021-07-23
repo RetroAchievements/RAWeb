@@ -10,6 +10,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
         - '#Parameter (.*) of function htmlentities expects#'
+        - '#Cannot unset offset (.*) on array#'
     excludes_analyse:
         # disabled features
         - public/API/API_GetFeed.php

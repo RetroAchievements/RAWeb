@@ -4,11 +4,11 @@ use RA\Permissions;
 
 abstract class ModifyTopicField
 {
-    const ModifyTitle = 0;
+    public const ModifyTitle = 0;
 
-    const DeleteTopic = 1;
+    public const DeleteTopic = 1;
 
-    const RequiredPermissions = 2;
+    public const RequiredPermissions = 2;
 }
 
 function getForumList($categoryID = 0)
@@ -494,7 +494,15 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
     //    02:08 21/02/2014 - cater for 20 spam messages
     $countPlusSpam = $count + 20;
     $query = "
-        SELECT LatestComments.DateCreated AS PostedAt, LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg, LatestComments.Author, ua.RAPoints, ua.Motto, ft.ID AS ForumTopicID, ft.Title AS ForumTopicTitle, LatestComments.ID AS CommentID
+        SELECT LatestComments.DateCreated AS PostedAt,
+            LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg,
+            LENGTH(LatestComments.Payload) > $numMessageChars AS IsTruncated,
+            LatestComments.Author,
+            ua.RAPoints,
+            ua.Motto,
+            ft.ID AS ForumTopicID,
+            ft.Title AS ForumTopicTitle,
+            LatestComments.ID AS CommentID
         FROM 
         (
             SELECT * 

@@ -1287,3 +1287,39 @@ function getRichPresencePatch($gameID, &$dataOut)
         return false;
     }
 }
+
+/**
+ * Checks to see if a user is the sole author of a set.
+ *
+ * @param string $user user to check authorship for
+ * @param int $gameID game to check authorship for
+ *
+ * @return bool true if sole author, false otherwise
+ */
+function checkIfSoleDeveloper($user, $gameID)
+{
+    sanitize_sql_inputs($user, $gameID);
+    settype($gameID, 'integer');
+
+    $query = "
+        SELECT distinct(Author) AS Author FROM Achievements AS ach
+        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+        WHERE ach.GameID = $gameID
+        AND ach.Flags = 3";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    $userFound = false;
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            if ($user != $data['Author']) {
+                return false;
+            } else {
+                $userFound = true;
+            }
+        }
+    }
+
+    return $userFound;
+}

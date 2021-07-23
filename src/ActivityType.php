@@ -4,25 +4,25 @@ namespace RA;
 
 abstract class ActivityType
 {
-    const Unknown = 0;
+    public const Unknown = 0;
 
-    const EarnedAchivement = 1;
+    public const EarnedAchivement = 1;
 
-    const Login = 2;
+    public const Login = 2;
 
-    const StartedPlaying = 3;
+    public const StartedPlaying = 3;
 
-    const UploadAchievement = 4;
+    public const UploadAchievement = 4;
 
-    const EditAchievement = 5;
+    public const EditAchievement = 5;
 
-    const CompleteGame = 6;
+    public const CompleteGame = 6;
 
-    const NewLeaderboardEntry = 7;
+    public const NewLeaderboardEntry = 7;
 
-    const ImprovedLeaderboardEntry = 8;
+    public const ImprovedLeaderboardEntry = 8;
 
-    const OpenedTicket = 9;
+    public const OpenedTicket = 9;
 
-    const ClosedTicket = 10;
+    public const ClosedTicket = 10;
 }

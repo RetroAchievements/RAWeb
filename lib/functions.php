@@ -26,7 +26,6 @@ require_once __DIR__ . '/database/user.php';
 require_once __DIR__ . '/render/achievement.php';
 require_once __DIR__ . '/render/activity.php';
 require_once __DIR__ . '/render/auth.php';
-require_once __DIR__ . '/render/chat.php';
 require_once __DIR__ . '/render/codenote.php';
 require_once __DIR__ . '/render/comment.php';
 require_once __DIR__ . '/render/content.php';

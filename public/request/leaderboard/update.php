@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("uimtdflo")) {
     echo "FAILED! (POST)";
@@ -18,16 +19,22 @@ $lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
+if (validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
-    $prevUpdated = $prevData["Updated"];
+    $prevUpdated = strtotime($prevData["LBUpdated"]);
+
+    // Only let jr. devs update their own leaderboards
+    if ($permissions == \RA\Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
+        echo "FAILED!";
+        exit;
+    }
 
     if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
         echo "OK";
 
         $updatedData = GetLeaderboardData($lbID, $user, 2, 0, false);
-        $updated = $updatedData['Updated'];
+        $updated = strtotime($updatedData['LBUpdated']);
         $dateDiffMins = ($updated - $prevUpdated) / 60;
 
         if (!empty($updatedData['Entries'])) {

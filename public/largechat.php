@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -104,10 +105,6 @@ RenderHtmlHead("RA Cinema");
         ?>
     </div>
     <div id="rightcontainer">
-        <?php
-        //	right
-        RenderChat($user, 490, 'right');
-        ?>
     </div>
 </div>
 <?php RenderFooter(); ?>

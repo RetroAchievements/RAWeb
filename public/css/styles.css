@@ -378,8 +378,13 @@ td, tr, img {
 #warning {
   line-height: 110%;
   font-size: 16px;
-  margin: 4px;
-  color: #dd0000
+  margin-bottom: 4px;
+  margin-top: 4px;
+  color: #dd0000;
+  position: sticky;
+  top: 0;
+  background: #292929;
+  padding: 3px;
 }
 
 #warning a {
@@ -873,7 +878,7 @@ td, tr, img {
   width: 80%;
 }
 
-#chatcontainer {
+#feedcontainer {
   height: 220px;
   /*width: 300px;*/
   overflow-x: hidden;
@@ -881,16 +886,16 @@ td, tr, img {
   vertical-align: middle;
 }
 
-.chatcell {
+.feedcell {
   vertical-align: middle;
 }
 
-.chatcelldate {
+.feedcelldate {
   font-size: x-small;
   color: rgb(140, 140, 140);
 }
 
-.chatcellmessage {
+.feedcellmessage {
   vertical-align: middle;
   /*color: rgb( 76, 146, 235 );*/
   /*color: rgb( 165, 242, 243 );*/

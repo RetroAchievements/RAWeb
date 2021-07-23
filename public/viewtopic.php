@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -108,6 +109,7 @@ RenderHtmlStart();
         echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
         echo "</a>";
         echo "</div>";
+        echo "<br style='clear:both;'>";
 
         //if( isset( $user ) && $permissions >= Permissions::Registered )
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
@@ -141,11 +143,11 @@ RenderHtmlStart();
                 echo "<div>Restrict Topic:</div>";
                 echo "<form action='/request/forum-topic/modify.php' method='post' >";
                 echo "<select name='v'>";
-                echo "<option value='0' $selected0>Unregistered</option>";
-                echo "<option value='1' $selected1>Registered</option>";
-                echo "<option value='2' $selected2>Super User</option>";
-                echo "<option value='3' $selected3>Developer</option>";
-                echo "<option value='4' $selected4>Admin</option>";
+                echo "<option value='0' $selected0>" . PermissionsToString(\RA\Permissions::Unregistered) . "</option>";
+                echo "<option value='1' $selected1>" . PermissionsToString(\RA\Permissions::Registered) . "</option>";
+                echo "<option value='2' $selected2>" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</option>";
+                echo "<option value='3' $selected3>" . PermissionsToString(\RA\Permissions::Developer) . "</option>";
+                echo "<option value='4' $selected4>" . PermissionsToString(\RA\Permissions::Admin) . "</option>";
                 echo "</select>";
                 echo "<input type='hidden' name='t' value='$thisTopicID'>";
                 echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "'>";
@@ -360,7 +362,7 @@ RenderHtmlStart();
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
-            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p'>$defaultMessage</textarea><br><br>";
+            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p' placeholder='Enter a comment here...'>$defaultMessage</textarea><br><br>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version

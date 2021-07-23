@@ -30,7 +30,7 @@ function RenderFBScript()
 
 function RenderFBLoginPrompt()
 {
-    //echo "<div id='fb-root'></div><script type='text/javascript'>(function(d, s, id) {var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;  js = d.createElement(s); js.id = id;  js.src = \"//connect.facebook.net/en_GB/all.js#xfbml=1&appId=490904194261313\";  fjs.parentNode.insertBefore(js, fjs);}(document, 'script', 'facebook-jssdk'));</script>";
+    //echo "<div id='fb-root'></div><script>(function(d, s, id) {var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;  js = d.createElement(s); js.id = id;  js.src = \"//connect.facebook.net/en_GB/all.js#xfbml=1&appId=490904194261313\";  fjs.parentNode.insertBefore(js, fjs);}(document, 'script', 'facebook-jssdk'));</script>";
     echo "<div class='fb-login-button' scope='publish_stream'>Login with Facebook</div>";
 }
 
@@ -38,7 +38,7 @@ function RenderFBLogoutPrompt()
 {
     global $fbConn;
     printf("<a href='%s'>(logout)</a>", $fbConn->getLogoutUrl());
-    //echo "<div id=\"fb-root\"></div><script type='text/javascript'>(function(d, s, id) {var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;  js = d.createElement(s); js.id = id;  js.src = \"//connect.facebook.net/en_GB/all.js#xfbml=1&appId=490904194261313\";  fjs.parentNode.insertBefore(js, fjs);}(document, 'script', 'facebook-jssdk'));</script>";
+    //echo "<div id=\"fb-root\"></div><script>(function(d, s, id) {var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;  js = d.createElement(s); js.id = id;  js.src = \"//connect.facebook.net/en_GB/all.js#xfbml=1&appId=490904194261313\";  fjs.parentNode.insertBefore(js, fjs);}(document, 'script', 'facebook-jssdk'));</script>";
     //echo "<div class=\"fb-login-button\" scope=\"publish_stream\">Login with Facebook</div>";
 }
 
