@@ -9,7 +9,7 @@ contact_links:
       about: Contact the QA team for anything related to Achievements/Sets/Leaderboards/Rich Presence creations and creator relations
       
     - name: Report a security vulnerability
-      url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Security%20Vulenrability
+      url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Security%20Vulnerability
       about: Contact RAdmin for security matters
 
     - name: Ask for help
