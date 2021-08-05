@@ -1,12 +1,13 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../lib/bootstrap.php';
 
 runPublicApiMiddleware();
 
 $staticData = getStaticData();
 $user = null;
-$achievementID = (int)($staticData['Event_AOTW_AchievementID'] ?? null);
+$achievementID = (int) ($staticData['Event_AOTW_AchievementID'] ?? null);
 $startAt = $staticData['Event_AOTW_StartAt'] ?? null;
 
 if (empty($achievementID)) {
@@ -55,7 +56,7 @@ if (empty($startAt)) {
 
 if (!empty($startAt)) {
     $winnerInfo = array_filter($winnerInfo, function ($unlock) use ($startAt) {
-        return strtotime($unlock['DateAwarded']) >= strtotime($startAt);
+        return (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt);
     });
 }
 
@@ -69,7 +70,7 @@ echo json_encode([
     'ForumTopic' => $forumTopic,
     'Game' => $game,
     'StartAt' => $startAt,
-    'TotalPlayers' => (int)($numPossibleWinners ?? 0),
+    'TotalPlayers' => (int) ($numPossibleWinners ?? 0),
     'Unlocks' => array_values($winnerInfo ?? []),
-    'UnlocksCount' => (int)($numWinners ?? 0),
+    'UnlocksCount' => (int) ($numWinners ?? 0),
 ]);

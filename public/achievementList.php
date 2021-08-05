@@ -1,21 +1,19 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('z', 0);
+$consoleIDInput = requestInputSanitized('z', 0, 'integer');
 $mobileBrowser = IsMobileBrowser();
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 25;
 
-$count = seekGET('c', $maxCount);
-settype($count, 'integer');
-$offset = seekGET('o', 0);
-settype($offset, 'integer');
-$params = seekGET('p', 3);
-settype($params, 'integer');
-$dev = seekGET('d');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$params = requestInputSanitized('p', 3, 'integer');
+$dev = requestInputSanitized('d');
 
 if ($user == null) {
     $params = 3;
@@ -37,7 +35,7 @@ if ($dev != null) {
     $dev_param .= "&d=$dev";
 }
 
-$sortBy = seekGET('s', 17);
+$sortBy = requestInputSanitized('s', 17, 'integer');
 $achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 $requestedConsole = "";
@@ -45,7 +43,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>
@@ -65,7 +63,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
 
         echo "<h3 class='longheader'>";
         if ($dev != null) {
-            echo "<a href='/User/$dev'>$dev</a>'s ";
+            echo "<a href='/user/$dev'>$dev</a>'s ";
         }
         echo "Achievement List</h3>";
 
@@ -110,8 +108,9 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "</div>";
 
         echo "<div class='rightfloat'>* = ordered by</div>";
+        echo "<br style='clear:both;' />";
 
-        echo "<table><tbody>";
+        echo "<div class='table-wrapper'><table><tbody>";
 
         $sort1 = ($sortBy == 1) ? 11 : 1;
         $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -171,6 +170,14 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             $consoleID = $achEntry['ConsoleID'];
             $consoleName = $achEntry['ConsoleName'];
 
+            sanitize_outputs(
+                $achTitle,
+                $achDesc,
+                $achAuthor,
+                $gameTitle,
+                $consoleName
+            );
+
             echo "<tr>";
 
             echo "<td>";
@@ -209,7 +216,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "</tr>";
         }
 
-        echo "</tbody></table>";
+        echo "</tbody></table></div>";
         echo "</div>";
 
         echo "<div class='rightalign row'>";

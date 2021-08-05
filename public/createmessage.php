@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $user = RA_ReadCookie('RA_User');
 $cookieRaw = RA_ReadCookie('RA_Cookie');
@@ -16,12 +17,12 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$messageTo = seekGET('t', '');
-$messageContextID = seekGET('i', -1);
+$messageTo = requestInputSanitized('t', '');
+$messageContextID = requestInputSanitized('i', -1);
 
-$messageOutgoingPayload = seekGET('p', '');
+$messageOutgoingPayload = requestInputSanitized('p', '');
 
-$messageContextTitle = seekGET('s', '');
+$messageContextTitle = requestInputSanitized('s', '');
 $messageContextPayload = '';
 $messageContextData = null;
 
@@ -33,7 +34,7 @@ if ($messageContextID != -1) {
     $messageContextPayload = nl2br($messageContextPayload);
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Send Message");
@@ -93,7 +94,7 @@ RenderHtmlHead("Send Message");
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
             echo "<input type='hidden' value='$user' name='u'>";
             echo "<input type='hidden' value='$cookieRaw' name='c'>";
-            $destUser = mb_strlen($messageTo > 2) ? $messageTo : '_User';
+            $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";
             echo "<td><input type='text' value='$messageTo' name='d' id='messagedest' onblur='onUserChange(); return false;' class='requiredinput searchuser'></td>";
@@ -104,7 +105,7 @@ RenderHtmlHead("Send Message");
 
             RenderPHPBBIcons();
 
-            echo "<textarea id='commentTextarea' class='requiredinput fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='m'>$messageOutgoingPayload</textarea></td></tr>";
+            echo "<textarea id='commentTextarea' class='requiredinput fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='m' placeholder='Enter your message here...'>$messageOutgoingPayload</textarea></td></tr>";
             echo "<tr>" . "<td></td><td colspan='2' class='fullwidth'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
             echo "</form>";
             echo "</tbody>";

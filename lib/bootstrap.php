@@ -1,13 +1,26 @@
 <?php
 
-$dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
-$dotenv->load();
+use Dotenv\Dotenv;
+use Dotenv\Repository\Adapter\EnvConstAdapter;
+use Dotenv\Repository\Adapter\PutenvAdapter;
+use Dotenv\Repository\RepositoryBuilder;
 
-define("VERSION", "1.60.0");
+if (!file_exists(__DIR__ . '/../.env')) {
+    // .env file does not exist - do not attempt to load it nor try connecting to a database
+    // helps linter get things done
+    return;
+}
+
+$repository = RepositoryBuilder::createWithNoAdapters()
+    ->addAdapter(EnvConstAdapter::class)
+    ->addWriter(PutenvAdapter::class)
+    ->make();
+
+Dotenv::create($repository, __DIR__ . '/../')->load();
 
 try {
     global $db;
-    $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    $db = mysqli_connect(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), (int) getenv('DB_PORT'));
     if (!$db) {
         throw new Exception('Could not connect to database. Please try again later.');
     }

@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("RSS Feeds");
 ?>
@@ -14,7 +15,6 @@ RenderHtmlHead("RSS Feeds");
     <?php
     $yOffs = 0;
     //RenderTwitchTVStream( $yOffs );
-    //RenderChat( $user, $yOffs );
     ?>
     <div id="fullcontainer">
         <?php

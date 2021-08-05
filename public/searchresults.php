@@ -1,18 +1,20 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$searchQuery = seekGET('s', null);
-$offset = seekGET('o', 0);
-$maxCount = seekGET('c', 50);
+$searchQuery = requestInputSanitized('s', null);
+$offset = requestInputSanitized('o', 0, 'integer');
+$maxCount = requestInputSanitized('c', 50, 'integer');
 
+$searchResults = null;
 $resultsCount = 0;
 if ($searchQuery !== null) {
     $resultsCount = performSearch($searchQuery, $offset, $maxCount, $searchResults);
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Search");
 ?>
@@ -31,7 +33,7 @@ RenderHtmlHead("Search");
         echo "<div class='searchbox longer'>";
         echo "<form action='/searchresults.php' method='get'>";
         //echo "Search:&nbsp;";
-        echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQuery' />";
+        echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...' />";
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search' />";
         echo "</form>";

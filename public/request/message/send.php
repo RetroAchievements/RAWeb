@@ -1,18 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("ucdtm")) {
     echo "FAILED";
     return;
 }
 
-$user = seekPOST('u');
-$cookie = seekPOST('c');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
 
-$recipient = seekPOST('d');
-$title = seekPOST('t');
-$payload = seekPOST('m');
+$recipient = requestInputPost('d');
+$title = requestInputPost('t');
+$payload = requestInputPost('m');
 
 if (validateUser_cookie($user, $cookie, 0) == true) {
     if (CreateNewMessage($user, $recipient, $title, $payload)) {

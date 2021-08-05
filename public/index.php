@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -17,7 +18,7 @@ if (file_exists("../storage/logs/playersonline.log")) {
     }
 }
 $staticData = getStaticData();
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
 RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
@@ -27,7 +28,7 @@ RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
 //LoadCSS( '/css/_mobile.css' );
 // }
 
-$mostPopularCount = seekGET('p', 10);
+$mostPopularCount = requestInputSanitized('p', 10, 'integer');
 
 RenderHtmlStart();
 RenderHtmlHead();
@@ -39,11 +40,11 @@ RenderToolbar($user, $permissions);
 ?>
 <link type='text/css' rel='stylesheet' href='/rcarousel/widget/css/rcarousel.css'/>
 <link type='text/css' rel='stylesheet' href='/rcarousel/rcarousel-ra.css'/>
-<!--    <script type='text/javascript' src="js/ping_feed.js"></script>-->
-<script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
-<script type="text/javascript" src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<!--    <script src="js/ping_feed.js"></script>-->
+<script src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
+<script src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
   google.setOnLoadCallback(drawCharts);
 
@@ -113,7 +114,7 @@ RenderToolbar($user, $permissions);
   }
 </script>
 
-<script type="text/javascript">
+<script>
   //<![CDATA[
   $(function () {
     function generatePages() {
@@ -196,12 +197,12 @@ RenderToolbar($user, $permissions);
   });
   //]]>
 </script>
-<script type="text/javascript" src="vendor/jquery.githubRepoWidget.js"></script>
+<script src="vendor/jquery.githubRepoWidget.js"></script>
 <div id='mainpage'>
     <div id="leftcontainer">
         <?php
         RenderErrorCodeWarning($errorCode);
-        if (!isset($user)) {
+        if (empty($user)) {
             RenderWelcomeComponent();
         }
         RenderNewsComponent();
@@ -209,24 +210,26 @@ RenderToolbar($user, $permissions);
         //RenderDemoVideosComponent();
         RenderRecentlyUploadedComponent(5);
         RenderActivePlayersComponent();
-        RenderCurrentlyOnlineComponent(null);
+        RenderCurrentlyOnlineComponent();
         echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
         RenderRecentForumPostsComponent(4);
         ?>
     </div>
     <div id="rightcontainer" style="padding-top: 20px">
         <?php
-        echo '<div class=\'btn-patron text-center\' style="margin-bottom: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank" rel="noopener">Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
-        echo '<div class=\'btn-discord text-center\' style="margin-bottom: 10px"><a href=\'https://discord.gg/' . getenv('DISCORD_INVITE_ID') . '\' target="_blank" rel="noopener">Join us on Discord!</a></div>';
+        echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'/globalRanking.php?s=5&t=2\' target="_blank" rel="noopener">🥇 Global Ranking</a></div>';
+        echo '<div class=\'btn-patron text-center\' style="margin-bottom: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\' target="_blank" rel="noopener">️💙 Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
+        echo '<div class=\'btn-discord text-center\' style="margin-bottom: 10px"><a href=\'https://discord.gg/' . getenv('DISCORD_INVITE_ID') . '\' target="_blank" rel="noopener">💬 Join us on Discord!</a></div>';
+        echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'https://www.youtube.com/channel/UCIGdJGxrzmNYMaAGPsk2sIA\' target="_blank" rel="noopener">🎙️ RAPodcast</a></div>';
+        echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'https://news.retroachievements.org/\' target="_blank" rel="noopener">📰 RANews</a></div>';
         RenderDocsComponent();
         RenderAOTWComponent($staticData['Event_AOTW_AchievementID'], $staticData['Event_AOTW_ForumID']);
         //RenderTwitchTVStream();
-        RenderChat($user, 320, '', true);
         if ($user !== null) {
-            RenderScoreLeaderboardComponent($user, true);
+            // RenderScoreLeaderboardComponent($user, true);
         }
         //RenderMostPopularTitles( 7, 0, $mostPopularCount );
-        RenderScoreLeaderboardComponent($user, false);
+        // RenderScoreLeaderboardComponent($user, false);
         RenderStaticDataComponent($staticData);
         //RenderTwitterFeed();
         //echo "<h3>Development Progress</h3>";

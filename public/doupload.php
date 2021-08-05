@@ -1,14 +1,15 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $response = ['Success' => true];
 
-$requestType = seekPOSTorGET('r');
-$user = seekPOSTorGET('u');
-$token = seekPOSTorGET('t');
+$requestType = requestInput('r');
+$user = requestInput('u');
+$token = requestInput('t');
 
-$bounceReferrer = seekPOSTorGET('b'); //	TBD: Remove!
+$bounceReferrer = requestInput('b'); //	TBD: Remove!
 
 if (!RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions)) {
     http_response_code(401);

@@ -1,13 +1,14 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!validateGetChars("v")) {
     echo "FAILED";
     return;
 }
 
-$eCookie = $_GET['v'];
+$eCookie = requestInputSanitized('v');
 
 if (validateEmailValidationString($eCookie, $user)) {
     //	Valid!

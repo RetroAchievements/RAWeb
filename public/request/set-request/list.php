@@ -1,11 +1,10 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-$gameID = seekGET('i');
-$user = seekGET('u');
-
-settype($gameID, 'integer');
+$gameID = requestInputQuery('i', null, 'integer');
+$user = requestInputQuery('u');
 
 $setRequestList = getUserRequestList($user);
 $totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);

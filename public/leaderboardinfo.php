@@ -1,23 +1,20 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$lbID = seekGET('i');
-if (!isset($lbID)) {
+$lbID = requestInputSanitized('i', null, 'integer');
+if (empty($lbID)) {
     header("Location: " . getenv('APP_URL') . "?e=urlissue");
     exit;
 }
 
-$offset = seekGET('o', 0);
-$count = seekGET('c', 50);
-$friendsOnly = seekGET('f', 0);
-
-settype($offset, 'integer');
-settype($count, 'integer');
-settype($friendsOnly, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', 50, 'integer');
+$friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
 $numEntries = count($lbData['Entries']);
@@ -25,6 +22,9 @@ $numEntries = count($lbData['Entries']);
 $lbTitle = $lbData['LBTitle'];
 $lbDescription = $lbData['LBDesc'];
 $lbFormat = $lbData['LBFormat'];
+$lbAuthor = $lbData['LBAuthor'];
+$lbCreated = $lbData['LBCreated'];
+$lbUpdated = $lbData['LBUpdated'];
 
 $gameID = $lbData['GameID'];
 $gameTitle = $lbData['GameTitle'];
@@ -43,12 +43,12 @@ getCookie($user, $cookie);
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
@@ -72,7 +72,7 @@ RenderHtmlStart(true);
             echo "<div class='navpath'>";
             echo "<a href='/gameList.php'>All Games</a>";
             echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-            echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a></b>";
+            echo " &raquo; <a href='/game/$gameID'>$gameTitle</a></b>";
             echo " &raquo; <b>Leaderboard</b>";
             echo "</div>";
 
@@ -88,7 +88,20 @@ RenderHtmlStart(true);
             echo "<br>";
             echo "<br>";
 
-            if (isset($user) && $permissions >= Permissions::Developer) {
+            $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
+            $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));
+
+            echo "<p class='smalldata'>";
+            echo "<small>";
+            if (is_null($lbAuthor)) {
+                echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+            } else {
+                echo "Created by " . GetUserAndTooltipDiv($lbAuthor, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+            }
+            echo "</small>";
+            echo "</p>";
+
+            if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
                 echo "<div id='devboxcontent'>";
@@ -98,7 +111,7 @@ RenderHtmlStart(true);
 
                 echo "<li>Manage Entries</li>";
                 echo "<div>";
-                if (count($lbData['Entries']) > 0) {
+                if (!empty($lbData['Entries'])) {
                     echo "<tr><td>";
                     echo "<form method='post' action='/request/leaderboard/remove-entry.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo "<input type='hidden' name='l' value='$lbID' />";
@@ -108,19 +121,23 @@ RenderHtmlStart(true);
                     echo "<select name='t'>";
                     echo "<option value='0' selected>-</option>";
                     foreach ($lbData['Entries'] as $nextLBEntry) {
-                        $nextUser = $nextLBEntry['User'];
-                        $nextScore = $nextLBEntry['Score'];
-                        $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
-                        echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
+                        // Display all entries for devs, display only own entry for jr. devs
+                        if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
+                            $nextUser = $nextLBEntry['User'];
+                            $nextScore = $nextLBEntry['Score'];
+                            $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
+                            echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
+                        }
                     }
                     echo "</select>";
-
+                    echo "</br>";
+                    echo "Reason:";
+                    echo "<input type='text' name='r' value='' style='width: 50%;' placeholder='Please enter reason for removal'/>";
                     echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
                     echo "</form>";
                     echo "</td></tr>";
                 }
                 echo "</div>";
-
 
                 echo "</div>";
                 echo "</div>";
@@ -140,24 +157,24 @@ RenderHtmlStart(true);
             $numActualEntries = 0;
             $localUserFound = false;
             $resultsDrawn = 0;
+            $nextRank = 1;
 
-            $count = 0;
             //for( $i = 0; $i < $numEntries; $i++ )
             //var_dump( $lbData );
             foreach ($lbData['Entries'] as $nextEntry) {
                 //$nextEntry = $lbData[$i];
                 //var_dump( $nextEntry );
 
-                $nextRank = $nextEntry['Rank'];
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
+                $nextRank = $nextEntry['Rank'];
                 $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
                 $nextSubmitAt = $nextEntry['DateSubmitted'];
                 $nextSubmitAtNice = getNiceDate($nextSubmitAt);
 
                 $isLocal = (strcmp($nextUser, $user) == 0);
                 $lastEntry = ($resultsDrawn + 1 == $numEntries);
-                $userAppendedInResults = ($numEntries !== $count);
+                $userAppendedInResults = ($numEntries > $count);
 
                 //echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
@@ -170,9 +187,10 @@ RenderHtmlStart(true);
 
                 if ($isLocal) {
                     $localUserFound = true;
+                    echo "<tr style='outline: thin solid'>";
+                } else {
+                    echo "<tr>";
                 }
-
-                echo "<tr>";
 
                 $injectFmt1 = $isLocal ? "<b>" : "";
                 $injectFmt2 = $isLocal ? "</b>" : "";
@@ -218,7 +236,6 @@ RenderHtmlStart(true);
             $forceAllowDeleteComments = $permissions >= Permissions::Admin;
             RenderCommentsComponent($user, $numArticleComments, $commentData, $lbID, \RA\ArticleType::Leaderboard, $forceAllowDeleteComments);
 
-            echo "<b>Forum Topic: </b>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";
             ?>

@@ -7,6 +7,8 @@ use RA\Permissions;
 
 function getMostRecentActivity($user, $type, $data)
 {
+    sanitize_sql_inputs($user, $type, $data);
+
     $innerClause = "Activity.user = '$user'";
     if (isset($type)) {
         $innerClause .= " AND Activity.activityType = $type";
@@ -33,6 +35,8 @@ function getMostRecentActivity($user, $type, $data)
 
 function updateActivity($activityID)
 {
+    sanitize_sql_inputs($activityID);
+
     //    Update the last update value of given activity
     $query = "UPDATE Activity
               SET Activity.lastupdate = NOW()
@@ -48,6 +52,7 @@ function updateActivity($activityID)
 
 function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 {
+    sanitize_sql_inputs($user, $gameID, $isHardcore);
     settype($isHardcore, 'integer');
 
     $query = "SELECT act.ID
@@ -87,8 +92,8 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $gameID = $achData['GameID'];
             $achName = $achData['AchievementTitle'];
 
-            $gameLink = "<a href='/Game/$gameID'>$gameName</a>";
-            $achLink = "<a href='/Achievement/$achID'>$achName</a>";
+            $gameLink = "<a href='/game/$gameID'>$gameName</a>";
+            $achLink = "<a href='/achievement/$achID'>$achName</a>";
 
             $gameLink = str_replace("'", "''", $gameLink);
             $achLink = str_replace("'", "''", $achLink);
@@ -163,7 +168,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             if ($activity == ActivityType::OpenedTicket || $activity == ActivityType::ClosedTicket) {
                 $achievementLink = "<a href='/ticketmanager.php?a=$achID&t=1'>$achievementName</a>";
             } else {
-                $achievementLink = "<a href='/Achievement/$achID'>$achievementName</a>";
+                $achievementLink = "<a href='/achievement/$achID'>$achievementName</a>";
             }
             $achievementLink = str_replace("'", "''", $achievementLink);
 
@@ -175,7 +180,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $gameID = $customMsg;
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
-            $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
+            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace("'", "''", $gameLink);
 
             AddSiteAward($user, 1, $gameID, $isalt);
@@ -192,7 +197,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $scoreFormatted = $customMsg['ScoreFormatted'];
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
-            $gameLink = "<a href='/Game/$gameID'>$gameTitle</a>";
+            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
             $gameLink = str_replace("'", "''", $gameLink);
             $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
             $lbLinkScore = str_replace("'", "''", $lbLinkScore);
@@ -232,6 +237,7 @@ function userActivityPing($user)
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
     }
+    sanitize_sql_inputs($user);
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.LastLogin = NOW()
@@ -251,17 +257,14 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
     }
-
-    global $db;
-
+    sanitize_sql_inputs($user, $gameID, $presenceMsg);
     settype($gameID, 'integer');
-    $presenceMsg = mysqli_real_escape_string($db, $presenceMsg);
-    $user = mysqli_real_escape_string($db, $user);
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
               WHERE ua.User = '$user' ";
 
+    global $db;
     $dbResult = mysqli_query($db, $query);
     if ($dbResult == false) {
         log_sql_fail();
@@ -273,6 +276,8 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 
 function getActivityMetadata($activityID)
 {
+    sanitize_sql_inputs($activityID);
+
     $query = "SELECT * FROM Activity
               WHERE ID='$activityID'";
 
@@ -315,6 +320,8 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
         return false;
     }
 
+    sanitize_sql_inputs($activityID, $commentPayload);
+
     //    Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
@@ -326,8 +333,6 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     //error_log( __FUNCTION__ . $commentPayload );
     //    Replace all single quotes with double quotes (to work with MYSQL DB)
     //$commentPayload = str_replace( "'", "''", $commentPayload );
-    global $db;
-    $commentPayload = mysqli_real_escape_string($db, $commentPayload);
 
     if (is_array($articleID)) {
         $arrayCount = count($articleID);
@@ -344,6 +349,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     }
     // log_sql($query);
 
+    global $db;
     $dbResult = mysqli_query($db, $query);
 
     if ($dbResult == false) {
@@ -511,6 +517,7 @@ function getSubscribersOfArticle(
 
 function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global')
 {
+    sanitize_sql_inputs($user, $maxMessages, $offset, $latestFeedID);
     settype($maxMessages, "integer");
     settype($offset, "integer");
 
@@ -579,6 +586,8 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
 
 function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
 {
+    sanitize_sql_inputs($user, $offset, $count);
+
     // $query = "SELECT g.ID AS GameID, g.ConsoleID, c.Name AS ConsoleName, g.Title, MAX(act.lastupdate) AS LastPlayed, g.ImageIcon
     // FROM Activity AS act
     // LEFT JOIN GameData AS g ON g.ID = act.data
@@ -629,6 +638,8 @@ LIMIT $offset, $count";
 
 function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut)
 {
+    sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
+
     //    $articleTypeID
     //    1 = Game
     //    2 = Achievement
@@ -673,6 +684,8 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
 
 function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
 {
+    sanitize_sql_inputs($articleType, $articleID, $userID);
+
     $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
 
     if ($subjectType === null) {
@@ -737,7 +750,8 @@ function getLatestRichPresenceUpdates()
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
                 AND ua.LastGameID !=0
-                AND ua.Permissions >= $permissionsCutoff";
+                AND ua.Permissions >= $permissionsCutoff
+              ORDER BY ua.RAPoints DESC";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -756,6 +770,8 @@ function getLatestRichPresenceUpdates()
 
 function getLatestNewAchievements($numToFetch, &$dataOut)
 {
+    sanitize_sql_inputs($numToFetch);
+
     $numFound = 0;
 
     $query = "SELECT ach.ID, ach.GameID, ach.Title, ach.Description, ach.Points, gd.Title AS GameTitle, gd.ImageIcon as GameIcon, ach.DateCreated, UNIX_TIMESTAMP(ach.DateCreated) AS timestamp, ach.BadgeName, c.Name AS ConsoleName
@@ -782,6 +798,8 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
 
 function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
 {
+    sanitize_sql_inputs($daysRange, $offset, $count);
+
     $data = [];
 
     $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName

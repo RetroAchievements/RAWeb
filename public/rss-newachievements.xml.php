@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $site = getenv('APP_URL');
 
@@ -47,9 +48,9 @@ for ($i = 0; $i < $numArticles; $i++) {
     $date = date("D, d M Y H:i:s O", $nextData['timestamp']);
     $link = getenv('APP_URL') . '/achievement/' . $nextData['ID'];
     $simpleTitle = "$achTitle ($achPoints) ($gameTitle, $consoleName)";
-    $payloadWithLinks = "<a href='$site/Achievement/$achID'>$achTitle</a> ($achPoints) has been added for <a href='$site/Game/$gameID'>$gameTitle</a> ($consoleName)";
+    $payloadWithLinks = "<a href='$site/achievement/$achID'>$achTitle</a> ($achPoints) has been added for <a href='$site/game/$gameID'>$gameTitle</a> ($consoleName)";
 
-    $achImage = "<a href='$site/Achievement/$achID'><img src='$badgeURL' width='64' height='64' /></a>";
+    $achImage = "<a href='$site/achievement/$achID'><img src='$badgeURL' width='64' height='64' /></a>";
 
     $title = "<![CDATA[" . $simpleTitle . "]]>";
     $payload = "<![CDATA[" . $achImage . $payloadWithLinks . "]]>";

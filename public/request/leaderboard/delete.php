@@ -1,15 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidateGETChars('uig')) {
     echo "FAILED";
     return;
 }
 
-$source = seekGET('u');
-$lbID = seekGET('i');
-$gameID = seekGET('g');
+$source = requestInputQuery('u');
+$lbID = requestInputQuery('i');
+$gameID = requestInputQuery('g');
 
 getCookie($user, $cookie);
 

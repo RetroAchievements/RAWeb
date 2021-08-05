@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -9,7 +10,7 @@ if (!ValidateGETChars("g")) {
     exit;
 }
 
-$gameID = seekGET('g');
+$gameID = requestInputQuery('g');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
     header("Location: " . getenv('APP_URL') . "/forum.php?e=badcredentials");

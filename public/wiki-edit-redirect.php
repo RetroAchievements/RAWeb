@@ -1,6 +1,6 @@
 <?php
 
-if (empty($_GET['page'])) {
+if (!requestInputSanitized('page')) {
     return;
 }
 $page = pathinfo($_GET['page'])['filename'];
@@ -13,4 +13,16 @@ switch ($page) {
         $page = 'Home';
         break;
 }
-header("location: https://github.com/RetroAchievements/docs/wiki/$page/_edit");
+
+$repoDomainMap = [
+    'docs.retroachievements.org' => 'docs',
+    'guides.retroachievements.org' => 'guides',
+];
+$repo = $repoDomainMap[parse_url($_SERVER['HTTP_REFERER'])['host']] ?? null;
+
+if (empty($repo)) {
+    header("location: https://github.com/RetroAchievements");
+    exit;
+}
+
+header("location: https://github.com/RetroAchievements/$repo/wiki/$page/_edit");

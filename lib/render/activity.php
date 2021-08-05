@@ -21,12 +21,12 @@ function RenderFeedComponent($user)
     echo "Here's a breakdown of what's been happening recently:";
     echo "<table id='feed'><tbody>";
     echo "<tr id='feedloadingfirstrow'>";
-    echo "<td class='chatcell'>";
+    echo "<td class='feedcell'>";
     echo "<img src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
     echo "</td>";
-    echo "<td class='chatcell'>";
+    echo "<td class='feedcell'>";
     echo "</td>";
-    echo "<td class='chatcellmessage'>";
+    echo "<td class='feedcellmessage'>";
     echo "loading feed...";
     echo "</td>";
     echo "</tr>";
@@ -60,9 +60,9 @@ function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null)
 
     //    Inject hyperlinks:
     if ($withHyperlinks) {
-        $user = "<a href='$site/User/$user'>$user</a>";
-        $achTitle = "<a href='$site/Achievement/$achID'>$achTitle</a>";
-        $gameTitle = "<a href='$site/Game/$gameID'>$gameTitle</a>";
+        $user = "<a href='$site/user/$user'>$user</a>";
+        $achTitle = "<a href='$site/achievement/$achID'>$achTitle</a>";
+        $gameTitle = "<a href='$site/game/$gameID'>$gameTitle</a>";
         $nextLBName = "<a href='$site/leaderboardinfo.php?i=$nextLBID'>$nextLBName</a>";
     }
 
@@ -156,7 +156,6 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-
         case 1: //    achievement
 
             $retHTML .= "<tr id='$rowID' class='feed_won'>";
@@ -215,7 +214,6 @@ function getFeedItemHTML($feedData, $user)
 
             break;
 
-
         case 2: //    login
 
             $retHTML .= "<tr id='$rowID' class='feed_login'>";
@@ -239,7 +237,6 @@ function getFeedItemHTML($feedData, $user)
             }
             $retHTML .= "</tr>";
             break;
-
 
         case 3: //    start playing game
 
@@ -277,7 +274,6 @@ function getFeedItemHTML($feedData, $user)
                 $retHTML .= "</tr>";
             }
             break;
-
 
         case 4: //    upload ach
 
@@ -324,7 +320,6 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-
         case 5: //    modify ach
 
             $retHTML .= "<tr id='$rowID' class='feed_dev2'>";
@@ -370,7 +365,6 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-
         case 6: //    complete game
             $retHTML .= "<tr id='$rowID' class='feed_completegame'>";
             $retHTML .= $dateCell;
@@ -409,14 +403,12 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-
             if ($user !== null) {
                 $retHTML .= "<td class='editbutton'><img src='" . getenv('ASSET_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
 
             break;
-
 
         case 7: //    submit new record
             $retHTML .= "<tr id='$rowID' class='feed_submitrecord'>";
@@ -469,7 +461,6 @@ function getFeedItemHTML($feedData, $user)
             }
             $retHTML .= "</tr>";
             break;
-
 
         case 8: //    updated record
             $retHTML .= "<tr id='$rowID' class='feed_updaterecord'>";
@@ -527,7 +518,6 @@ function getFeedItemHTML($feedData, $user)
             }
             $retHTML .= "</tr>";
             break;
-
 
         case 9: // open ticket
         case 10: // close ticket
@@ -590,7 +580,9 @@ function RenderFeedComment($user, $comment, $submittedDate)
     $niceDate = date("d M\nG:i y ", strtotime($submittedDate));
     //$fullDateHover = date( "d M\nH:i yy", strtotime( $submittedDate ) );
 
-    echo "<td class='smalldate'>$niceDate</td><td class='iconscomment'><a href='/User/$user'><img alt='$user' title='$user' class='badgeimg' src='/UserPic/$user" . ".png' width='32' height='32' /></a></td><td colspan='3'>$comment</td>";
+    sanitize_outputs($comment);
+
+    echo "<td class='smalldate'>$niceDate</td><td class='iconscomment'><a href='/user/$user'><img alt='$user' title='$user' class='badgeimg' src='/UserPic/$user" . ".png' width='32' height='32' /></a></td><td colspan='3'>$comment</td>";
 
     echo "</tr>";
 }

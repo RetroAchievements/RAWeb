@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$userPage = seekGET('u', $user);
+$userPage = requestInputSanitized('u', $user);
 
 if (!isset($userPage) || !isValidUsername($userPage)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
@@ -17,9 +18,9 @@ if (!$userMassData) {
     exit;
 }
 
-$listOffset = seekGET('o', 0);
-$sortBy = seekGET('s', 3);
-$maxDays = seekGET('c', 15);
+$listOffset = requestInputSanitized('o', 0, 'integer');
+$sortBy = requestInputSanitized('s', 3, 'integer');
+$maxDays = requestInputSanitized('c', 15, 'integer');
 $userBestDaysList = getUserBestDaysList($userPage, $listOffset, $maxDays, $sortBy);
 
 $sortByGraphName = 'Total Points';
@@ -27,11 +28,11 @@ if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 $userPagePoints = getScore($userPage);
 
-getUserActivityRange($userPage, $userSignedUp, $unused);
+getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
@@ -75,8 +76,8 @@ RenderHtmlHead("$userPage's Legacy");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
   google.setOnLoadCallback(drawCharts);
 
@@ -96,9 +97,9 @@ RenderHtmlHead("$userPage's Legacy");
                 echo ", ";
             }
 
-            $nextDay = (int)$dayInfo['Day'];
-            $nextMonth = (int)$dayInfo['Month'] - 1;
-            $nextYear = (int)$dayInfo['Year'];
+            $nextDay = (int) $dayInfo['Day'];
+            $nextMonth = (int) $dayInfo['Month'] - 1;
+            $nextYear = (int) $dayInfo['Year'];
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
@@ -234,7 +235,7 @@ RenderHtmlHead("$userPage's Legacy");
         <?php
         echo "<div class='navpath'>";
         echo "<a href='/userList.php'>All Users</a>";
-        echo " &raquo; <a href='/User/$userPage'>$userPage</a>";
+        echo " &raquo; <a href='/user/$userPage'>$userPage</a>";
         echo " &raquo; <b>History</b>";
         echo "</div>";
         ?>
@@ -259,7 +260,7 @@ RenderHtmlHead("$userPage's Legacy");
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/User/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
 
         echo "Member since: " . getNiceDate(strtotime($userSignedUp), true) . "<br>";
         echo "<br>";
@@ -272,7 +273,6 @@ RenderHtmlHead("$userPage's Legacy");
 
         echo "<h3>Best Days</h3>";
         echo "<div id='chart_bestdays'></div>";
-
 
         echo "<table><tbody>";
 

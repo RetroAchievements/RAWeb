@@ -1,26 +1,27 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+header("Location: " . getenv('APP_URL'));
+return;
 
 $consoleList = getConsoleList();
-$consoleIDInput = seekGET('i', 0);
-
-settype($consoleIDInput, 'integer');
+$consoleIDInput = requestInputSanitized('i', 0, 'integer');
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 25;
 
-$count = seekGet('c', $maxCount);
-$offset = seekGet('o', 0);
+$count = requestInputQuery('c', $maxCount);
+$offset = requestInputQuery('o', 0);
 
-$params = seekGet('p', 0);
-settype($params, 'integer');
+$params = requestInputQuery('p', 0, 'integer');
 
 if ($user == null) {
     $params = 0;
 }
 
-$sortBy = seekGet('s', 1);
+$sortBy = requestInputQuery('s', 1);
 
 getCommonlyEarnedAchievements($consoleIDInput, $offset, $count, $awardedData);
 
@@ -31,7 +32,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>
@@ -69,6 +70,8 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=0'>All consoles</a>";
 
         foreach ($consoleList as $nextConsoleID => $nextConsoleName) {
+            sanitize_outputs($nextConsoleName);
+
             if ($nextConsoleID == $consoleIDInput) {
                 echo " | <b>$nextConsoleName</b>";
             } else {
@@ -141,6 +144,14 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             $gameTitle = $achEntry['GameTitle'];
             $consoleName = $achEntry['ConsoleName'];
             $timesAwarded = $achEntry['NumTimesAwarded'];
+
+            sanitize_outputs(
+                $achTitle,
+                $achDesc,
+                $achAuthor,
+                $gameTitle,
+                $consoleName
+            );
 
             if ($achCount++ % 2 == 0) {
                 echo "<tr>";

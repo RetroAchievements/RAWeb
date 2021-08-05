@@ -1,18 +1,17 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("efcu")) {
-    echo "FAILED";
-    // error_log(__FILE__);
-    // error_log("Cannot validate efcu input...");
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_baddata");
+    exit;
 }
 
-$email = seekPOST('e');
-$email2 = seekPOST('f');
-$user = seekPOST('u');
-$cookie = seekPOST('c');
+$email = requestInputPost('e');
+$email2 = requestInputPost('f');
+$user = requestInputPost('u');
+$cookie = requestInputPost('c');
 
 if ($email !== $email2) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_notmatch");

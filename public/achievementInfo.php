@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$achievementID = seekGET('ID', 0);
-settype($achievementID, 'integer');
+$achievementID = requestInputSanitized('ID', 0, 'integer');
 
 if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
@@ -28,6 +28,14 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
+
+sanitize_outputs(
+    $achievementTitle,
+    $desc,
+    $gameTitle,
+    $consoleName,
+    $author
+);
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
@@ -51,13 +59,13 @@ $numArticleComments = getArticleComments(2, $achievementID, 0, 20, $commentData)
 
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
-    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/Achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
+    <?php RenderSharedHeader(); ?>
+    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
     <?php RenderTitleTag($achievementTitle); ?>
     <?php RenderGoogleTracking(); ?>
 </head>
@@ -67,28 +75,28 @@ RenderHtmlStart(true);
 <?php RenderToolbar($user, $permissions); ?>
 <?php if ($permissions >= Permissions::Developer): ?>
     <script>
-      function PostEmbedUpdate() {
-        var url = $('#embedurlinput').val();
-        url = replaceAll('http', '_http_', url);
+        function PostEmbedUpdate() {
+            var url = $('#embedurlinput').val();
+            url = replaceAll('http', '_http_', url);
 
-        var posting = $.post('/request/achievement/update.php', {
-          u: '<?php echo $user; ?>',
-          a: <?php echo $achievementID; ?>,
-          f: 2,
-          v: url,
-        });
-        posting.done(onUpdateEmbedComplete);
-        $('#warning').html('Status: Updating...');
-      }
-
-      function onUpdateEmbedComplete(data) {
-        if (data !== 'OK') {
-          $('#warning').html('Status: Errors...');
-        } else {
-          $('#warning').html('Status: Loading...');
-          window.location.reload();
+            var posting = $.post('/request/achievement/update.php', {
+                u: '<?php echo $user; ?>',
+                a: <?php echo $achievementID; ?>,
+                f: 2,
+                v: url,
+            });
+            posting.done(onUpdateEmbedComplete);
+            $('#warning').html('Status: Updating...');
         }
-      }
+
+        function onUpdateEmbedComplete(data) {
+            if (data !== 'OK') {
+                $('#warning').html('Status: Errors...');
+            } else {
+                $('#warning').html('Status: Loading...');
+                window.location.reload();
+            }
+        }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -100,7 +108,7 @@ RenderHtmlStart(true);
         echo "<div class='navpath'>";
         echo "<a href='/gameList.php'>All Games</a>";
         echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-        echo " &raquo; <a href='/Game/$gameID'>$gameTitle</a>";
+        echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
         echo " &raquo; <b>$achievementTitle</b>";
         echo "</div>"; //navpath
 
@@ -111,10 +119,11 @@ RenderHtmlStart(true);
 
         echo "<table class='nicebox'><tbody>";
 
+        $escapeForAttributes = "htmlentities"; // sanitize_outputs uses null for 2nd param, so it won't convert quotes to entities
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href='/Achievement/$achievementID'><img src='$badgeFullPath' title='$gameTitle ($achPoints)\n$desc' alt='$desc' align='left' width='64' height='64' /></a>";
+        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n{$escapeForAttributes($desc)}\" alt=\"{$escapeForAttributes($desc)}\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; //achievemententryicon
         echo "</td>";
 
@@ -126,7 +135,7 @@ RenderHtmlStart(true);
             $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
             echo "<small style='float: right; text-align: right;' class='smalldate'>unlocked on<br>$niceDateWon</small>";
         }
-        echo "<a href='/Achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "<a href='/achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
         echo "$desc<br>";
 
         echo "</div>"; //achievemententry
@@ -149,7 +158,7 @@ RenderHtmlStart(true);
         if ($achFlags == 5) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by <a href='/User/$author'>$author</a> on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -161,7 +170,9 @@ RenderHtmlStart(true);
             if ($countTickets > 0) {
                 echo "<small><a href='/ticketmanager.php?a=$achievementID'>This achievement has $countTickets open tickets</a></small><br>";
             }
-            echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+            if (isAllowedToSubmitTickets($user)) {
+                echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+            }
         }
         echo "<br>";
 
@@ -178,51 +189,53 @@ RenderHtmlStart(true);
         }
         echo "<br>";
 
-        if (isset($user) && $permissions >= Permissions::Developer) {
+        if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 
-            echo "<li>Set embedded video URL:</li>";
-            echo "<table><tbody>";
-            echo "<input type='hidden' name='a' value='$achievementID' />";
-            echo "<input type='hidden' name='f' value='2' />";
-            echo "<input type='hidden' name='u' value='$user' />";
-            echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
-            echo "</tbody></table>";
-            echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
-            echo "<div style='clear:both;'></div>"; ?>
-            Examples for accepted formats:<br>
-            <p style="margin-bottom: 20px; float: left; clear: both;">
-                <small style="width:50%; word-break: break-word; float: left">
-                    https://www.youtube.com/v/ID<br>
-                    https://www.youtube.com/watch?v=ID<br>
-                    https://youtu.be/ID<br>
-                    https://www.youtube.com/embed/ID<br>
-                    https://www.youtube.com/watch?v=ID<br>
-                    www.youtube.com/watch?v=ID<br>
-                    https://www.twitch.tv/videos/ID<br>
-                    https://www.twitch.tv/collections/ID<br>
-                    https://www.twitch.tv/ID/v/ID<br>
-                    https://clips.twitch.tv/ID<br>
-                </small>
-                <small style="width:50%; word-break: break-word; float: left">
-                    https://imgur.com/gallery/ID -> turns out as link without extension<br>
-                    https://imgur.com/a/ID.gif -> will use .gifv instead<br>
-                    https://imgur.com/gallery/ID.gifv<br>
-                    https://imgur.com/a/ID.gifv<br>
-                    https://i.imgur.com/ID.gifv<br>
-                    https://i.imgur.com/ID.webm<br>
-                    https://i.imgur.com/ID.mp4<br>
-                </small>
-            </p>
-            <?php
-            echo "<div style='clear:both;'></div>";
+            if ($permissions >= Permissions::Developer) {
+                echo "<li>Set embedded video URL:</li>";
+                echo "<table><tbody>";
+                echo "<input type='hidden' name='a' value='$achievementID' />";
+                echo "<input type='hidden' name='f' value='2' />";
+                echo "<input type='hidden' name='u' value='$user' />";
+                echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
+                echo "</tbody></table>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
+                echo "<div style='clear:both;'></div>"; ?>
+                Examples for accepted formats:<br>
+                <p style="margin-bottom: 20px; float: left; clear: both;">
+                    <small style="width:50%; word-break: break-word; float: left">
+                        https://www.youtube.com/v/ID<br>
+                        https://www.youtube.com/watch?v=ID<br>
+                        https://youtu.be/ID<br>
+                        https://www.youtube.com/embed/ID<br>
+                        https://www.youtube.com/watch?v=ID<br>
+                        www.youtube.com/watch?v=ID<br>
+                        https://www.twitch.tv/videos/ID<br>
+                        https://www.twitch.tv/collections/ID<br>
+                        https://www.twitch.tv/ID/v/ID<br>
+                        https://clips.twitch.tv/ID<br>
+                    </small>
+                    <small style="width:50%; word-break: break-word; float: left">
+                        https://imgur.com/gallery/ID -> turns out as link without extension<br>
+                        https://imgur.com/a/ID.gif -> will use .gifv instead<br>
+                        https://imgur.com/gallery/ID.gifv<br>
+                        https://imgur.com/a/ID.gifv<br>
+                        https://i.imgur.com/ID.gifv<br>
+                        https://i.imgur.com/ID.webm<br>
+                        https://i.imgur.com/ID.mp4<br>
+                    </small>
+                </p>
+                <?php
+                echo "<div style='clear:both;'></div>";
 
-            if ($achFlags == 3) {
-                echo "<li>State: Official&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
-            } elseif ($achFlags == 5) {
-                echo "<li>State: Unofficial&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                if ($achFlags == 3) {
+                    echo "<li>State: Official&nbsp;<a onclick='return ConfirmDemotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
+                } elseif ($achFlags == 5) {
+                    echo "<li>State: Unofficial&nbsp;<a onclick='return ConfirmPromotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                }
             }
 
             echo "<li> Achievement ID: " . $achievementID . "</li>";
@@ -283,7 +296,7 @@ RenderHtmlStart(true);
                 }
                 echo "</td>";
 
-                //echo "<a href='/User/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
+                //echo "<a href='/user/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
                 //var_dump( $userObject );
                 //echo GetUserAndTooltipDiv( $userObject['User'], FALSE );
                 //echo " (" . $userObject['RAPoints'] . ")";

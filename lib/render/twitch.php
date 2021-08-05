@@ -5,7 +5,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo "<div class='component $componentPos stream' >";
     echo "<h3>Twitch Stream</h3>";
 
-    $archiveURLs = array();
+    $archiveURLs = [];
     if ($componentPos == 'left') {
         $query = "SELECT *
             FROM PlaylistVideo
@@ -45,9 +45,6 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo "<div class='streamvid'>";
     echo $videoHTML;
     echo "</div>";
-
-    //$chatWidth = 300;
-    //$chatHeight = 335;
 
     //echo "<div class='streamchat'>";
     //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";

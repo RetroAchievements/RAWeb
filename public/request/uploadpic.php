@@ -1,12 +1,13 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../lib/bootstrap.php';
 
 use RA\Permissions;
 
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::JuniorDeveloper)) {
     if (getAccountDetails($user, $userDetails) == false) {
         // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
@@ -20,10 +21,15 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 $allowedGameImageTypes = ["GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"];
 $allowedTypes = array_merge(["NEWS"], $allowedGameImageTypes); //, "ACHIEVEMENT"
-$uploadType = seekPOST('t', "");
+$uploadType = requestInputPost('t', "");
 
-$returnID = seekPOST('i', 0);
-settype($returnID, 'integer');
+$returnID = requestInputPost('i', 0, 'integer');
+
+if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $returnID)) {
+    // Immediate redirect if the jr. dev attempting to upload the image is not the sole developer
+    header("Location: " . getenv('APP_URL') . "?e=badcredentials");
+    exit;
+}
 
 $allowedExts = ["png", "jpeg", "jpg", "gif", "bmp"];
 $filenameParts = explode(".", $_FILES["file"]["name"]);
@@ -49,6 +55,7 @@ if ($_FILES["file"]["error"] > 0) {
     echo "Error: " . $_FILES["file"]["error"] . "<br />";
     return;
 }
+$tempImage = null;
 $tempFile = $_FILES["file"]["tmp_name"];
 switch ($extension) {
     case 'png':
@@ -61,9 +68,11 @@ switch ($extension) {
     case 'gif':
         $tempImage = imagecreatefromgif($tempFile);
         break;
-    case 'bmp':
-        $tempImage = imagecreatefrombitmap($tempFile);
-        break;
+}
+
+if (!$tempImage) {
+    header("Location: " . getenv('APP_URL') . "/game/$returnID?e=error");
+    exit;
 }
 
 $nextImageFilename = file_get_contents($imageIterFilename);
@@ -81,10 +90,6 @@ $maxImageSizeWidth = 160;
 $maxImageSizeHeight = 160;
 
 switch ($uploadType) {
-    case 'NEWS':
-        $maxImageSizeWidth = 160;
-        $maxImageSizeHeight = 160;
-        break;
     case 'GAME_ICON':
         $maxImageSizeWidth = 96;
         $maxImageSizeHeight = 96;
@@ -104,7 +109,6 @@ $wScaling = 1.0;
 
 $targetWidth = $width;
 $targetHeight = $height;
-
 
 if ($targetWidth > $maxImageSizeWidth) {
     $wScaling = 1.0 / ($targetWidth / $maxImageSizeWidth);
@@ -162,6 +166,7 @@ if (in_array($uploadType, $allowedGameImageTypes)) {
             break;
     }
 
+    global $db;
     $query = "UPDATE GameData AS gd SET $param='/Images/$nextImageFilenameStr.png' WHERE gd.ID = $returnID";
     $dbResult = mysqli_query($db, $query);
 

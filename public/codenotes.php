@@ -1,28 +1,34 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$gameID = seekGET('g', 1);
+$gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
+
+sanitize_outputs(
+    $gameData['Title'],
+    $gameData['ConsoleName'],
+);
+
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead('Code Notes');
 ?>
 <body>
-<script type='text/javascript' src="js/ping_chat.js"></script>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id='mainpage'>
     <div id="fullcontainer">
         <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
         <?php
-        if (isset($gameData) && isset($user) && $permissions >= Permissions::Developer) {
+        if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             RenderCodeNotes($codeNotes);
         }
         ?>

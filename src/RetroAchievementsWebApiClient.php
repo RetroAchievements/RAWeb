@@ -4,7 +4,7 @@ namespace RA;
 
 class RetroAchievementsWebApiClient
 {
-    const API_URL = 'https://retroachievements.org/API/';
+    public const API_URL = 'https://retroachievements.org/API/';
 
     public $ra_user;
 
@@ -92,5 +92,10 @@ class RetroAchievementsWebApiClient
         $dateFrom = strtotime($dateStart);
         $dateTo = strtotime($dateEnd);
         return json_decode(self::GetRAURL("API_GetAchievementsEarnedBetween.php", "u=$user&f=$dateFrom&t=$dateTo"));
+    }
+
+    public function GetUserGamesCompleted($user)
+    {
+        return json_decode(self::GetRAURL("API_GetUserCompletedGames.php", "u=$user"));
     }
 }

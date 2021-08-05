@@ -1,29 +1,25 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (ValidatePOSTChars("tdev")) {
-    $awardType = seekPOST('t');
-    $awardData = seekPOST('d');
-    $awardDataExtra = seekPOST('e');
-    $value = seekPOST('v');
+    $awardType = requestInputPost('t', null, 'integer');
+    $awardData = requestInputPost('d', null, 'integer');
+    $awardDataExtra = requestInputPost('e', null, 'integer');
+    $value = requestInputPost('v', null, 'integer');
 } else {
     if (ValidateGETChars("tdev")) {
-        $awardType = seekGET('t');
-        $awardData = seekGET('d');
-        $awardDataExtra = seekGET('e');
-        $value = seekGET('v');
+        $awardType = requestInputQuery('t', null, 'integer');
+        $awardData = requestInputQuery('d', null, 'integer');
+        $awardDataExtra = requestInputQuery('e', null, 'integer');
+        $value = requestInputQuery('v', null, 'integer');
     } else {
         // error_log("FAILED access to requestupdatesiteaward.php");
         echo "FAILED";
         return;
     }
 }
-
-settype($awardType, "integer");
-settype($awardData, "integer");
-settype($awardDataExtra, "integer");
-settype($value, "integer");
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     echo "FAILED!";

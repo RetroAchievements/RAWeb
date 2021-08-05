@@ -1,5 +1,15 @@
 <?php
 
+function sanitize_sql_inputs(&...$inputs)
+{
+    global $db;
+    foreach ($inputs as &$input) {
+        if (!empty($input)) {
+            $input = mysqli_real_escape_string($db, $input);
+        }
+    }
+}
+
 function SQL_ASSERT($dbResult)
 {
     if ($dbResult == false) {
@@ -27,10 +37,6 @@ function sanitiseSQL($query)
     }
 }
 
-/**
- * @param $query
- * @return bool|mysqli_result
- */
 function s_mysql_query($query)
 {
     global $db;

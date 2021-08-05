@@ -23,6 +23,14 @@ function readCookie(name) {
   return null;
 }
 
+function htmlEntities(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function stripTags(html) {
   var output = html;
   // PROCESS STRING
@@ -60,10 +68,10 @@ function insertEditForm(activityVar, articleType) {
   if (user !== null) {
     var rowID = 'comment_' + activityVar;
     var commentRow = $('#' + rowID);
-    if (!commentRow.exists()) {
+    if (!commentRow.length) {
       var userImage = '<img id="badgeimg" src="/UserPic/' + user + '.png" width="32" height="32" >';
       var formStr = '';
-      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=250></textarea>';
+      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=2000></textarea>';
       formStr += '&nbsp;';
       formStr += '<img id="submitButton" src="' + window.assetUrl + '/Images/Submit.png" '
         + 'alt="Submit" style="cursor: pointer;" onclick="processComment( \''
@@ -98,7 +106,6 @@ function insertEditForm(activityVar, articleType) {
       commentTextarea.focus();
       commentTextarea.val('');
       commentTextarea.css('width', '75%');
-      commentTextarea.watermark('Enter a comment here...');
     } else {
       commentRow.remove();
     }
@@ -126,12 +133,12 @@ function onCommentSuccess(data) {
   }
 
   var commentRow = $('#comment_art_' + data);
-  if (commentRow.exists()) {
+  if (commentRow.length) {
     // Embed as proper comment instead!
     commentRow.addClass('feed_comment');
     commentRow.removeAttr('id');
     var textBox = commentRow.find('#commentTextarea');
-    if (textBox.exists()) {
+    if (textBox.length) {
       var comment = textBox.val();
       // var safeComment = comment.replace( /<|>/g, '_' );
       var safeComment = stripTags(comment);
@@ -144,7 +151,7 @@ function onCommentSuccess(data) {
     }
 
     var submitButton = commentRow.find('#submitButton');
-    if (submitButton.exists()) {
+    if (submitButton.length) {
       submitButton.remove();
     }
   }
@@ -155,9 +162,9 @@ function processComment(activityVar, articleType) {
   if (user !== null) {
     var rowID = 'comment_' + activityVar;
     var commentRow = $('#' + rowID);
-    if (commentRow.exists()) {
+    if (commentRow.length) {
       var textBox = commentRow.find('#commentTextarea');
-      if (textBox.exists()) {
+      if (textBox.length) {
         var comment = textBox.val();
         if (comment.length > 0) {
           var safeComment = stripTags(comment);
@@ -170,7 +177,7 @@ function processComment(activityVar, articleType) {
           });
           posting.done(onCommentSuccess);
           var submitButton = commentRow.find('#submitButton');
-          if (submitButton.exists()) {
+          if (submitButton.length) {
             submitButton.attr('src', '/Images/loading.gif'); // Change to 'loading' gif
             submitButton.attr('onclick', ''); // stop being able to click this
             submitButton.css('cursor', ''); // stop being able to see a finger pointer
@@ -202,13 +209,14 @@ function focusOnArticleID(id) {
   $('#art_' + id).scrollIntoView();
 }
 
-function updateDisplayOrder(user, objID) {
+function updateDisplayOrder(user, objID, gameID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
   var posting = $.post('/request/achievement/update.php',
     {
       u: user,
       a: objID.substr(4),
+      g: gameID,
       f: 1,
       v: inputNum,
     });
@@ -305,7 +313,7 @@ function GetAchievementAndTooltipDiv(
 
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/Achievement/' + achID + '\'>'
+    + '<a href=\'/achievement/' + achID + '\'>'
     + smallBadge
     + displayable
     + '</a>'
@@ -333,7 +341,7 @@ function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageIns
   }
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/Game/' + gameID.toString() + '\'>'
+    + '<a href=\'/game/' + gameID.toString() + '\'>'
     + displayable
     + '</a>'
     + '</div>';
@@ -378,7 +386,7 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
   }
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/User/' + user + '\'>'
+    + '<a href=\'/user/' + user + '\'>'
     + displayable
     + '</a>'
     + '</div>';
@@ -446,20 +454,10 @@ function reloadTwitchContainer(videoID) {
 jQuery(document).ready(function onReady($) {
   $('#devboxcontent').hide();
   $('#resetboxcontent').hide();
-  $('#commentTextarea').watermark('Enter a comment here...');
-  $('.messageTextarea').watermark('Enter your message here...');
-  $('.passwordresetusernameinput').watermark('Enter Username...');
   $('.msgPayload').hide();
   $('#managevids').hide();
-  $('#usermottoinput').watermark('Add your motto here! (No profanity please!)');
-
-  var $chatInput = $('#chatinput');
-  $chatInput.watermark('Enter a comment here...');
-  $chatInput.width('75%');
-  $('#chatinput:disabled').watermark('Please log in to join the chat!');
 
   var $searchBoxInput = $('.searchboxinput');
-  $searchBoxInput.watermark('Search the site...');
   $searchBoxInput.autocomplete({ source: '/request/search.php', minLength: 2 });
   $searchBoxInput.autocomplete({
     select: function (event, ui) {
@@ -472,7 +470,6 @@ jQuery(document).ready(function onReady($) {
   });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
-  $seachBoxCompareUser.watermark('Enter User...');
   $seachBoxCompareUser.autocomplete({ source: '/request/search.php?p=gamecompare', minLength: 2 });
   $seachBoxCompareUser.autocomplete({
     select: function (event, ui) {
@@ -481,7 +478,7 @@ jQuery(document).ready(function onReady($) {
   });
   $seachBoxCompareUser.on('autocompleteselect', function (event, ui) {
     var gameID = getParameterByName('ID');
-    if (window.location.pathname.substring(0, 6) === '/Game/') {
+    if (window.location.pathname.substring(0, 6) === '/game/') {
       gameID = window.location.pathname.substring(6);
     }
     window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.id;
@@ -703,4 +700,12 @@ function copy(text) {
   inp.select();
   document.execCommand('copy', false);
   inp.remove();
+}
+
+function ConfirmDemotion() {
+  return confirm("Are you sure you want to demote this achievement?");
+}
+
+function ConfirmPromotion() {
+  return confirm("Are you sure you want to promote this achievement?");
 }

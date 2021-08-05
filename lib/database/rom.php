@@ -2,9 +2,10 @@
 
 function getMD5List($consoleID)
 {
-    $retVal = [];
-
+    sanitize_sql_inputs($consoleID);
     settype($consoleID, 'integer');
+
+    $retVal = [];
 
     $whereClause = "";
     if ($consoleID > 0) {
@@ -29,25 +30,30 @@ function getMD5List($consoleID)
     return $retVal;
 }
 
-function getHashListByGameID($gameID)
+function getHashListByGameID($gameID, $getUser = false)
 {
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID < 1) {
         return false;
     }
 
+    $selectString = "SELECT MD5 AS hash";
+    if ($getUser === true) {
+        $selectString .= ", User";
+    }
+
     $query = "
-    SELECT MD5 AS hash
+    $selectString
     FROM GameHashLibrary
     WHERE GameID = $gameID";
 
+    $retVal = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?!");
     }
 
     return $retVal;
@@ -55,6 +61,8 @@ function getHashListByGameID($gameID)
 
 function getGameIDFromMD5($md5)
 {
+    sanitize_sql_inputs($md5);
+
     $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
     $dbResult = s_mysql_query($query);
 
@@ -76,10 +84,11 @@ function getGameIDFromMD5($md5)
  * @param int $offset
  * @param int $count
  * @param string $searchedHash
- * @return array
  */
-function getHashList($offset, $count, $searchedHash)
+function getHashList($offset, $count, $searchedHash): array
 {
+    sanitize_sql_inputs($offset, $count, $searchedHash);
+
     $searchQuery = "";
     if ($searchedHash !== null || $searchedHash != "") {
         $offset = 0;
@@ -91,6 +100,7 @@ function getHashList($offset, $count, $searchedHash)
     SELECT
         h.MD5 as Hash,
         h.GameID as GameID,
+        h.User as User,
         h.Created as DateAdded,
         gd.Title as GameTitle,
         gd.ImageIcon as GameIcon,
@@ -115,8 +125,6 @@ function getHashList($offset, $count, $searchedHash)
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?! $count");
     }
 
     return $retVal;

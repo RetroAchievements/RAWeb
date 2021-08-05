@@ -11,7 +11,7 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
 {
     $client = new SesClient([
         'version' => 'latest',
-        'region'  => getenv('AWS_DEFAULT_REGION'),
+        'region' => getenv('AWS_DEFAULT_REGION'),
         // Note: automatically pulled from env when named properly
         // 'credentials' => [
         //     'key'    => getenv('AWS_ACCESS_KEY_ID'),
@@ -30,18 +30,18 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
         $commands[] = $client->getCommand('SendEmail', [
             // Pass the message id so it can be updated after it is processed (it's ignored by SES)
             'x-message-id' => $i,
-            'Source'       => getenv('MAIL_FROM_NAME') . ' <' . getenv('MAIL_FROM_ADDRESS') . '>',
-            'Destination'  => [
+            'Source' => getenv('MAIL_FROM_NAME') . ' <' . getenv('MAIL_FROM_ADDRESS') . '>',
+            'Destination' => [
                 'ToAddresses' => [$recipient],
             ],
-            'Message'      => [
+            'Message' => [
                 'Subject' => [
-                    'Data'    => $subject,
+                    'Data' => $subject,
                     'Charset' => 'UTF-8',
                 ],
-                'Body'    => [
+                'Body' => [
                     'Html' => [
-                        'Data'    => $message,
+                        'Data' => $message,
                         'Charset' => 'UTF-8',
                     ],
                 ],
@@ -51,38 +51,38 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
     }
 
     try {
-        $timeStart = microtime(true);
+        // $timeStart = microtime(true);
         $pool = new CommandPool($client, $commands, [
             'concurrency' => 10,
-            'before'      => function (CommandInterface $cmd, $iteratorId) {
-                // echo sprintf('About to send %d: %s' . PHP_EOL, $iteratorId, $a['Destination']['ToAddresses'][0]);
-                // error_log('About to send ' . $iteratorId . ': ' . $a['Destination']['ToAddresses'][0]);
-                $a = $cmd->toArray();
-            },
-            'fulfilled'   => function (ResultInterface $result, $iteratorId) use ($commands) {
-                // echo sprintf(
-                //  'Completed %d: %s' . PHP_EOL,
-                //  $commands[$iteratorId]['x-message-id'],
-                //  $commands[$iteratorId]['Destination']['ToAddresses'][0]
-                // );
-                // error_log('Completed ' . $commands[$iteratorId]['x-message-id'] . ' :' . $commands[$iteratorId]['Destination']['ToAddresses'][0]);
-            },
-            'rejected'    => function (AwsException $reason, $iteratorId) use ($commands) {
-                // echo sprintf(
-                //  'Failed %d: %s' . PHP_EOL,
-                //  $commands[$iteratorId]['x-message-id'],
-                //  $commands[$iteratorId]['Destination']['ToAddresses'][0]
-                // );
-
-                // error_log('Reason : ' . $reason);
-                // error_log('Amazon SES Failed Rejected:' . $commands[$iteratorId]['x-message-id'] . ' :' . $commands[$iteratorId]['Destination']['ToAddresses'][0]);
-            },
+            // 'before' => function (CommandInterface $cmd, $iteratorId) {
+            //     echo sprintf('About to send %d: %s'.PHP_EOL, $iteratorId, $a['Destination']['ToAddresses'][0]);
+            //     error_log('About to send '.$iteratorId.': '.$a['Destination']['ToAddresses'][0]);
+            //     $a = $cmd->toArray();
+            // },
+            // 'fulfilled' => function (ResultInterface $result, $iteratorId) use ($commands) {
+            //     echo sprintf(
+            //         'Completed %d: %s'.PHP_EOL,
+            //         $commands[$iteratorId]['x-message-id'],
+            //         $commands[$iteratorId]['Destination']['ToAddresses'][0]
+            //     );
+            //     error_log('Completed '.$commands[$iteratorId]['x-message-id'].' :'.$commands[$iteratorId]['Destination']['ToAddresses'][0]);
+            // },
+            // 'rejected' => function (AwsException $reason, $iteratorId) use ($commands) {
+            //     echo sprintf(
+            //         'Failed %d: %s'.PHP_EOL,
+            //         $commands[$iteratorId]['x-message-id'],
+            //         $commands[$iteratorId]['Destination']['ToAddresses'][0]
+            //     );
+            //
+            //     error_log('Reason : '.$reason);
+            //     error_log('Amazon SES Failed Rejected:'.$commands[$iteratorId]['x-message-id'].' :'.$commands[$iteratorId]['Destination']['ToAddresses'][0]);
+            // },
         ]);
         // Initiate the pool transfers
         $promise = $pool->promise();
         // Force the pool to complete synchronously
         $promise->wait();
-        $timeEnd = microtime(true);
+        // $timeEnd = microtime(true);
         // echo sprintf('Operation completed in %s seconds' . PHP_EOL, $timeEnd - $timeStart);
         return true;
     } catch (Exception $e) {
@@ -91,7 +91,6 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
         return false;
     }
 }
-
 
 function mail_utf8($to, $from_user, $from_email, $subject = '(No subject)', $message = '')
 {
@@ -161,11 +160,11 @@ function sendFriendEmail($user, $email, $type, $friend)
     if ($type == 0) { //    Requesting to be your friend
         $emailTitle = "New Friend Request from $friend";
         $emailReason = "sent you a friend request";
-        $link = "<a href='" . getenv('APP_URL') . "/User/$friend'>here</a>";
+        $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } elseif ($type == 1) { //    Friend request confirmed
         $emailTitle = "New Friend confirmed: $friend";
         $emailReason = "confirmed your friend request";
-        $link = "<a href='" . getenv('APP_URL') . "/User/$friend'>here</a>";
+        $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } else {
         // error_log(__FUNCTION__ . " bad times...");
         return false; //    must break early! No nonsense emails please!
@@ -211,10 +210,9 @@ function sendActivityEmail(
     $link = '';
     $activityDescription = '';
 
-
     if ($articleType == \RA\ArticleType::Game) {
         $emailTitle = "New Game Wall Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/Game/$actID'>here</a>";
+        $link = "<a href='" . getenv('APP_URL') . "/game/$actID'>here</a>";
         $activityDescription = "A game wall discussion you've commented in";
     } elseif ($articleType == \RA\ArticleType::Achievement) {
         // sending mail to person who authored an achievement
@@ -226,7 +224,7 @@ function sendActivityEmail(
         }
     } elseif ($articleType == \RA\ArticleType::User) {
         $emailTitle = "New User Wall Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/User/$altURLTarget'>here</a>";
+        $link = "<a href='" . getenv('APP_URL') . "/user/$altURLTarget'>here</a>";
         $activityDescription = "Your user wall";
         if (isset($threadInvolved)) {
             $activityDescription = "A user wall discussion you've commented in";

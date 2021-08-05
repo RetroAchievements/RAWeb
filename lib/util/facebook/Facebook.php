@@ -17,13 +17,13 @@ require_once "base_facebook.php";
  * Extends the BaseFacebook class with the intent of using
  * PHP sessions to store user ids and access tokens.
  */
-class facebook extends BaseFacebook
+class Facebook extends BaseFacebook
 {
-    const FBSS_COOKIE_NAME = 'fbss';
+    public const FBSS_COOKIE_NAME = 'fbss';
 
     // We can set this to a high number because the main session
     // expiration will trump this.
-    const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
+    public const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
 
     // Stores the shared session ID if one is set.
     protected $sharedSessionID;
@@ -34,7 +34,7 @@ class facebook extends BaseFacebook
      * access token if during the course of execution
      * we discover them.
      *
-     * @param Array $config the application configuration. Additionally
+     * @param array $config the application configuration. Additionally
      * accepts "sharedSession" as a boolean to turn on a secondary
      * cookie for environments with a shared session (that is, your app
      * shares the domain with other apps).

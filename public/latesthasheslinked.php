@@ -1,14 +1,15 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $maxCount = 50;
 
-$errorCode = seekGET('e');
-$count = seekGET('c', $maxCount);
-$offset = seekGET('o', 0);
-$searchedHash = seekGET('h', null);
+$errorCode = requestInputSanitized('e');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$searchedHash = requestInputSanitized('h', null);
 if ($offset < 0) {
     $offset = 0;
 }
@@ -37,13 +38,13 @@ RenderToolbar($user, $permissions);
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search Hash' />";
         echo "</form>";
-        if ($hashList === null || $searchedHash !== null) {
+        if (empty($hashList) || $searchedHash !== null) {
             echo "<br>";
             echo "<a href='/latesthasheslinked.php'>Return to Lastest Linked Hashes</a>";
         }
         echo "</div>";
 
-        if ($hashList !== null) {
+        if (!empty($hashList)) {
             if ($searchedHash === null) {
                 echo "<h2 class='longheader'>Lastest Linked Hashes</h2>";
             } else {
@@ -52,6 +53,7 @@ RenderToolbar($user, $permissions);
             echo "<table><tbody>";
             echo "<th>Hash</th>";
             echo "<th>Game</th>";
+            echo "<th>Linked by</th>";
             echo "<th>Date Linked</th>";
 
             $hashCount = 0;
@@ -66,6 +68,11 @@ RenderToolbar($user, $permissions);
                 echo "<td>" . $hash['Hash'] . "</td>";
                 echo "<td>";
                 echo GetGameAndTooltipDiv($hash['GameID'], $hash['GameTitle'], $hash['GameIcon'], $hash['ConsoleName']);
+                echo "</td>";
+                echo "<td>";
+                if (!empty($hash['User'])) {
+                    echo GetUserAndTooltipDiv($hash['User'], false);
+                }
                 echo "</td>";
                 echo "<td>" . $hash['DateAdded'] . "</td>";
             }

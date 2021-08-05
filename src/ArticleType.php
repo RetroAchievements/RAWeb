@@ -4,19 +4,19 @@ namespace RA;
 
 abstract class ArticleType
 {
-    const Game = 1;
+    public const Game = 1;
 
-    const Achievement = 2;
+    public const Achievement = 2;
 
-    const User = 3;
+    public const User = 3;
 
-    const News = 4;
+    public const News = 4;
 
-    const Activity = 5;
+    public const Activity = 5;
 
-    const Leaderboard = 6;
+    public const Leaderboard = 6;
 
-    const AchievementTicket = 7;
+    public const AchievementTicket = 7;
 
     private const VALUES = [
         self::Game,

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -13,8 +14,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     exit;
 }
 
-$requestedComment = seekGet('c', 0);
-settype($$requestedComment, "integer");
+$requestedComment = requestInputQuery('c', 0, 'integer');
 
 if (getSingleTopicComment($requestedComment, $commentData) == false) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment");
@@ -25,7 +25,6 @@ if ($user != $commentData['Author'] && $permissions < \RA\Permissions::Admin) {
     header("Location: " . getenv('APP_URL') . "?e=nopermission");
     exit;
 }
-
 
 if (getTopicDetails($commentData['ForumTopicID'], $topicData) == false) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
@@ -42,7 +41,7 @@ $thisAuthor = $commentData['Author'];
 //$thisCategoryName = $topicData['CategoryName'];
 
 getCookie($user, $cookieRaw);
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Edit post");
@@ -75,7 +74,7 @@ RenderHtmlHead("Edit post");
 
         RenderPHPBBIcons();
 
-        echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:300px' rows='32' cols='32' name='p'>$existingComment</textarea></td></tr>";
+        echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:300px' rows='32' cols='32' name='p' placeholder='Enter a comment here...'>$existingComment</textarea></td></tr>";
         echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit post' SIZE='37'/>&nbsp;<a href='/viewtopic.php?t=$thisTopicID&c=$requestedComment'>Cancel</a></td></tr>";
         echo "</form>";
 

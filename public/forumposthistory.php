@@ -1,18 +1,17 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
-
-settype($requestedCategoryID, "integer");
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $maxCount = 25;
 
-$offset = seekGET('o', 0);
+$offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $numPostsFound = getRecentForumPosts($offset, $count, 90, $recentPostsData);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Forum Recent Posts");
@@ -37,7 +36,8 @@ RenderHtmlHead("Forum Recent Posts");
 
             $forumIter = 0;
 
-            echo "<table>";
+            echo "<div class='table-wrapper'>";
+            echo "<table class='table-forum-history'>";
             echo "<tbody>";
 
             echo "<tr>";
@@ -72,7 +72,7 @@ RenderHtmlHead("Forum Recent Posts");
                 echo "</tr>";
             }
 
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
 
             echo "<div class='rightalign row'>";
             if ($offset > 0) {

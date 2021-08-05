@@ -1,13 +1,14 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
-$errorCode = seekGET('e');
-$newsImageInput = seekGET('g');
-$newsArticleID = seekGET('n');
+$errorCode = requestInputSanitized('e');
+$newsImageInput = requestInputSanitized('g');
+$newsArticleID = requestInputSanitized('n', null, 'integer');
 
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::SuperUser)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
@@ -24,14 +25,13 @@ RenderHtmlHead("Manage News");
         <?php
         $yOffs = 0;
         //RenderTwitchTVStream( $yOffs );
-        //RenderChat( $user, $yOffs );
 
         $activeNewsArticle = null;
 
         RenderErrorCodeWarning($errorCode);
 
         echo "<div class='navpath'>";
-        echo "<b>$pageTitle</b>";
+        echo "<b>Manage News</b>";
         echo "</div>";
 
         echo "<div class='largelist'>"; //?

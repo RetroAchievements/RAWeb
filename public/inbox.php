@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $maxCount = 10;
 
-$errorCode = seekGET('e');
-$offset = seekGET('o', 0);
-$count = seekGET('c', $maxCount);
-$unreadOnly = seekGET('u', 0);
+$errorCode = requestInputSanitized('e');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', $maxCount, 'integer');
+$unreadOnly = requestInputSanitized('u', 0, 'integer');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     //	Trying to visit someone's inbox while not being logged in :S
@@ -31,7 +32,7 @@ RenderHtmlHead('Inbox');
 
     //	If was unread
     var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle');
-    if (unread.contents().exists()) {
+    if (unread.contents().length) {
       var posting = $.post('/request/message/read.php', { u: '<?php echo $user; ?>', m: msgID, r: 0 });
       posting.done(onMarkAsRead);
     }
@@ -41,7 +42,7 @@ RenderHtmlHead('Inbox');
     if (data.substr(0, 3) == 'OK:') {
       var msgID = data.substr(3);
       var titleID = '#msgInlineTitle' + msgID;
-      if ($(titleID).find('span').contents().exists()) {
+      if ($(titleID).find('span').contents().length) {
         $(titleID).find('span').contents().unwrap();
 
         //	Reduce the number of unread messages by 1
@@ -52,7 +53,7 @@ RenderHtmlHead('Inbox');
         UpdateMailboxCount(numUnread);
 
         if (numUnread == 0) {
-          if ($('#messagecountcontainer').find('big').contents().exists())
+          if ($('#messagecountcontainer').find('big').contents().length)
             $('#messagecountcontainer').find('big').contents().unwrap();
         }
       }
@@ -70,7 +71,7 @@ RenderHtmlHead('Inbox');
       $('#msgInline' + msgID).toggle();
       var titleID = '#msgInlineTitle' + msgID;
 
-      if ($(titleID).find('span').contents().exists() == false) {
+      if ($(titleID).find('span').contents().length == false) {
         $(titleID).contents().wrap('<span class=\'unreadmsgtitle\'>');
 
         //	Increase the number of unread messages by 1
@@ -79,7 +80,7 @@ RenderHtmlHead('Inbox');
         $('#messagecounttext').find('b').html(numUnread);
 
         if (numUnread > 0) {
-          if ($('#messagecountcontainer').find('big').contents().exists() == false)
+          if ($('#messagecountcontainer').find('big').contents().length == false)
             $('#messagecountcontainer').contents().wrap('<big>');
         }
 
@@ -136,6 +137,12 @@ RenderHtmlHead('Inbox');
                 $msgPayload = $allMessages[$i]['Payload'];
                 $msgType = $allMessages[$i]['Type'];
                 $msgUnread = ($allMessages[$i]['Unread'] == 1);
+
+                sanitize_outputs(
+                    $msgFrom,
+                    $msgTitle,
+                    $msgPayload,
+                );
 
                 $msgPayload = nl2br($msgPayload);
                 $msgPayload = stripslashes($msgPayload);

@@ -21,7 +21,7 @@ function RenderPHPBBIcons()
 /**
  * @param string $commentIn
  * @param bool $withImgur imgur url parsing requires the links to reliably point to mp4s - can't be static images
- * @return null|string|string[]
+ * @return string|string[]|null
  */
 function parseTopicCommentPHPBB($commentIn, $withImgur = false)
 {
@@ -141,7 +141,7 @@ function cb_injectGamePHPBB($matches)
 function cb_injectSpoilerPHPBB($matches)
 {
     if (count($matches) > 0) {
-        $id = uniqid(mt_rand(10000, 99999));
+        $id = uniqid((string) mt_rand(10000, 99999));
         $spoilerBox = "<div class='devbox'>";
         $spoilerBox .= "<span onclick=\"$('#spoiler_" . $id . "').toggle(); return false;\">Spoiler (Click to show):</span><br>";
         $spoilerBox .= "<div class='spoiler' id='spoiler_" . $id . "'>";
@@ -194,36 +194,40 @@ function linkifyYouTubeURLs($text)
         ([?=&+%\w.-]*)        # Consume any URL (query) remainder.
         ~ix';
 
-    $text = preg_replace($pattern, makeEmbeddedVideo('//www.youtube-nocookie.com/embed/$1'), $text);
+    $text = preg_replace($pattern, makeEmbeddedVideo('//www.youtube-nocookie.com/embed/$1$2'), $text);
 
     return $text;
 }
 
 function linkifyTwitchURLs($text)
 {
-    if (mb_strpos($text, "twitch.tv") !== false) {
-        // https://www.twitch.tv/videos/270709956
-        // https://www.twitch.tv/gamingwithmist/v/40482810
-        $text = preg_replace(
-            '~(?:https?://)?(?:www.)?twitch.tv/(?:videos|[^/]+/v)/([0-9]+)~i',
-            makeEmbeddedVideo('//player.twitch.tv/?video=$1&autoplay=false'),
-            $text
-        );
-
-        // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
-        $text = preg_replace(
-            '~(?:https?://)?(?:www.)?twitch.tv/collections/([a-z0-9]+)~i',
-            makeEmbeddedVideo('//player.twitch.tv/?collection=$1&autoplay=false'),
-            $text
-        );
-
-        // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
-        $text = preg_replace(
-            '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
-            makeEmbeddedVideo('//clips.twitch.tv/embed?clip=$1&autoplay=false'),
-            $text
-        );
+    if (mb_strpos($text, "twitch.tv") === false) {
+        return $text;
     }
+
+    $parent = parse_url(getenv('APP_URL'))['host'];
+
+    // https://www.twitch.tv/videos/270709956
+    // https://www.twitch.tv/gamingwithmist/v/40482810
+    $text = preg_replace(
+        '~(?:https?://)?(?:www.)?twitch.tv/(?:videos|[^/]+/v)/([0-9]+)~i',
+        makeEmbeddedVideo('//player.twitch.tv/?video=$1&parent=' . $parent . '&autoplay=false'),
+        $text
+    );
+
+    // https://www.twitch.tv/collections/cWHCMbAY1xQVDA
+    $text = preg_replace(
+        '~(?:https?://)?(?:www.)?twitch.tv/collections/([a-z0-9]+)~i',
+        makeEmbeddedVideo('//player.twitch.tv/?collection=$1&parent=' . $parent . '&autoplay=false'),
+        $text
+    );
+
+    // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
+    $text = preg_replace(
+        '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
+        makeEmbeddedVideo('//clips.twitch.tv/embed?clip=$1&parent=' . $parent . '&autoplay=false'),
+        $text
+    );
 
     return $text;
 }

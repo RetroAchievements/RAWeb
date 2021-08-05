@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
@@ -7,9 +8,9 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     exit;
 }
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 
-$newsArticleID = seekGET('n');
+$newsArticleID = requestInputSanitized('n', null, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
@@ -33,7 +34,7 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
     fseek($f, -1, SEEK_END);
 
     if (fread($f, 1) != "\n") {
-        $lines -= 1;
+        $lines--;
     }
 
     // Start reading
@@ -70,7 +71,7 @@ function tailCustom($filepath, $lines = 1, $adaptive = true)
     return trim($output);
 }
 
-$action = seekPOSTorGET('action');
+$action = requestInputSanitized('action');
 $message = null;
 switch ($action) {
     // case 'regenapi':
@@ -93,7 +94,7 @@ switch ($action) {
     //     echo "REGENERATED $numRegens APIKEYS!<br>";
     //     break;
     // case 'regenapione':
-    //     $targetUser = seekGET('t');
+    //     $targetUser = requestInputSanitized('t');
     //     $newKey = generateAPIKey($targetUser);
     //     echo "New API Key for $targetUser: $newKey<br>";
     //     break;
@@ -118,7 +119,7 @@ switch ($action) {
     //     echo "REGENERATED $numRegens developer contribution totals!<br>";
     //     break;
     // case 'reconstructsiteawards':
-    //     $tgtPlayer = seekGET('t', null);
+    //     $tgtPlayer = requestInputSanitized('t', null);
     //
     //     $query = "DELETE FROM SiteAwards WHERE AwardType = 1";
     //     if ($tgtPlayer !== null) {
@@ -222,7 +223,7 @@ switch ($action) {
     //     }
     //     break;
     // case 'recalcsiteawards':
-    //     $tgtPlayer = seekGET('t', null);
+    //     $tgtPlayer = requestInputSanitized('t', null);
     //     {
     //         $query = "DELETE FROM SiteAwards WHERE ( AwardType = 2 || AwardType = 3 || AwardType = 5 )";
     //         if ($tgtPlayer !== null) {
@@ -284,16 +285,54 @@ switch ($action) {
     //     }
     //     break;
     case 'getachids':
-        $gameIDs = explode(',', seekPOST('g'));
+        $gameIDs = explode(',', requestInputSanitized('g'));
         foreach ($gameIDs as $nextGameID) {
             $ids = getAchievementIDs($nextGameID);
             $message = implode(', ', $ids["AchievementIDs"] ?? []);
         }
         break;
+    case 'getWinnersOfAchievements':
+        $achievementIDs = requestInputSanitized('a', 0, 'string');
+        $startTime = requestInputSanitized('s', null, 'string');
+        $endTime = requestInputSanitized('e', null, 'string');
+        $hardcoreMode = requestInputSanitized('h', 0, 'integer');
+        $dateString = "";
+        if (isset($achievementIDs)) {
+            if (strtotime($startTime)) {
+                if (strtotime($endTime)) {
+                    //valid start and end
+                    $dateString = " between $startTime and $endTime";
+                } else {
+                    //valid start, invalid end
+                    $dateString = " since $startTime";
+                }
+            } else {
+                if (strtotime($endTime)) {
+                    //invalid start, valid end
+                    $dateString = " before $endTime";
+                } else {
+                    //invalid start and end
+                    //no date string needed
+                }
+            }
+
+            $ids = str_replace(',', ' ', $achievementIDs);
+            $ids = str_replace('  ', ' ', $ids);
+            $ids = explode(' ', $ids);
+            $winners = getWinnersOfAchievements($ids, $startTime, $endTime, $hardcoreMode);
+
+            $keys = array_keys($winners);
+            for ($i = 0; $i < count($winners); $i++) {
+                $message .= "<strong>" . number_format(count($winners[$keys[$i]])) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+                $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
+            }
+        }
+
+        break;
     case 'giveaward':
-        $awardAchievementID = seekPOST('a');
-        $awardAchievementUser = seekPOST('u');
-        $awardAchHardcore = seekPOST('h', 0);
+        $awardAchievementID = requestInputSanitized('a', null);
+        $awardAchievementUser = requestInputSanitized('u');
+        $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
 
         if (isset($awardAchievementID) && isset($awardAchievementUser)) {
             $usersToAward = preg_split('/\W+/', $awardAchievementUser);
@@ -304,7 +343,9 @@ switch ($action) {
                     continue;
                 }
                 $message .= "<strong>$validUser</strong>:<br>";
-                $ids = explode(',', $awardAchievementID);
+                $ids = str_replace(',', ' ', $awardAchievementID);
+                $ids = str_replace('  ', ' ', $ids);
+                $ids = explode(' ', $ids);
                 foreach ($ids as $nextID) {
                     $message .= "- $nextID: ";
                     $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
@@ -365,15 +406,16 @@ switch ($action) {
     //     exit;
     //     break;
     case 'updatestaticdata':
-        $aotwAchID = seekPOSTorGET('a', 0, 'integer');
-        $aotwForumID = seekPOSTorGET('f', 0, 'integer');
-        $aotwStartAt = seekPOSTorGET('s', null, 'string');
+        $aotwAchID = requestInputSanitized('a', 0, 'integer');
+        $aotwForumID = requestInputSanitized('f', 0, 'integer');
+        $aotwStartAt = requestInputSanitized('s', null, 'string');
 
         $query = "UPDATE StaticData SET
             Event_AOTW_AchievementID='$aotwAchID',
             Event_AOTW_ForumID='$aotwForumID',
             Event_AOTW_StartAt='$aotwStartAt'";
 
+        global $db;
         $result = s_mysql_query($query);
 
         if ($result) {
@@ -402,7 +444,7 @@ switch ($action) {
     //     echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
     //     echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
     //
-    //     $count = seekPOSTorGET('c', 20, 'integer');
+    //     $count = requestInputSanitized('c', 20, 'integer');
     //     echo nl2br(tailCustom($errorlogpath, $count));
     //     exit;
     //     break;
@@ -463,6 +505,73 @@ RenderHtmlHead('Admin Tools');
                 <input type='hidden' name='action' value='getachids'>
                 <input type='submit' value='Submit'>
             </form>
+        </div>
+
+        <div id='fullcontainer'>
+            <?php
+            $winnersStartTime = $staticData['winnersStartTime'] ?? null;
+            $winnersEndTime = $staticData['winnersEndTime'] ?? null;
+            ?>
+            <h4>Get Winners of Achievements</h4>
+            <form method='post' action='admin.php'>
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                        <col class="fullwidth">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='winnersAchievementIDs'>Achievement IDs</label>
+                        </td>
+                        <td>
+                            <input id='winnersAchievementIDs' name='a'>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='startTime'>Start At (UTC time)</label>
+                        </td>
+                        <td>
+                            <input id='startTime' name='s' value='<?= $winnersStartTime ?>'>
+                        </td>
+                        <td class="text-nowrap">
+                            <label for='endTime'>End At (UTC time)</label>
+                        </td>
+                        <td>
+                            <input id='endTime' name='e' value='<?= $winnersEndTime ?>'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-nowrap">
+                            <label for='hardcoreWinners'>Hardcore winners?</label>
+                        </td>
+                        <td>
+                            <input id='hardcoreWinners' type='checkbox' name='h' value='1'>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type='hidden' name='action' value='getWinnersOfAchievements'>
+                <input type='submit' value='Submit'>
+            </form>
+
+            <script>
+            jQuery('#startTime').datetimepicker({
+                format: 'Y-m-d H:i:s',
+                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            });
+            jQuery('#endTime').datetimepicker({
+                format: 'Y-m-d H:i:s',
+                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            });
+            </script>
         </div>
 
         <div id='fullcontainer'>
@@ -528,7 +637,7 @@ RenderHtmlHead('Admin Tools');
                             <input id='event_aotw_achievement_id' name='a' value='<?= $eventAotwAchievementID ?>'>
                         </td>
                         <td>
-                            <a href='/Achievement/<?= $eventAotwAchievementID ?>'>Link</a>
+                            <a href='/achievement/<?= $eventAotwAchievementID ?>'>Link</a>
                         </td>
                     </tr>
                     <tr>

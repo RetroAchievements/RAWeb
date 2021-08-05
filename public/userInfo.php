@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
-$userPage = strip_tags(seekGET('ID'));
+$userPage = requestInputSanitized('ID');
 if ($userPage == null || mb_strlen($userPage) == 0) {
     header("Location: " . getenv('APP_URL'));
     exit;
@@ -17,7 +18,7 @@ if (ctype_alnum($userPage) == false) {
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$maxNumGamesToFetch = seekGET('g', 5);
+$maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
 //    Get general info
 getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 0, $user);
@@ -84,10 +85,14 @@ usort($userCompletedGames, "scorePctCompare");
 
 $userCompletedGamesList = $userCompletedGames;
 
+$excludedConsoles = ["Hubs", "Events"];
+
 foreach ($userCompletedGamesList as $nextGame) {
     if ($nextGame['PctWon'] > 0) {
-        $totalPctWon += $nextGame['PctWon'];
-        $numGamesFound++;
+        if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
+            $totalPctWon += $nextGame['PctWon'];
+            $numGamesFound++;
+        }
     }
 }
 
@@ -99,7 +104,13 @@ if ($numGamesFound > 0) {
 settype($userMassData['Friendship'], 'integer');
 settype($userMassData['FriendReciprocation'], 'integer');
 
-$errorCode = seekGET('e');
+sanitize_outputs(
+    $userMotto,
+    $userPage,
+    $userMassData['RichPresenceMsg']
+);
+
+$errorCode = requestInputSanitized('e');
 
 getCookie($user, $cookie);
 
@@ -140,12 +151,12 @@ $userScoreData = getAwardedList(
 RenderHtmlStart(true);
 ?>
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader($user); ?>
+    <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata(
     $userPage,
     "user",
     "/UserPic/$userPage" . ".png",
-    "/User/$userPage",
+    "/user/$userPage",
     "User page for $userPage"
 ); ?>
     <?php RenderTitleTag($pageTitle); ?>
@@ -154,8 +165,8 @@ RenderHtmlStart(true);
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
   google.setOnLoadCallback(drawCharts);
 
@@ -176,9 +187,9 @@ RenderHtmlStart(true);
                 echo ", ";
             }
 
-            $nextDay = (int)$dayInfo['Day'];
-            $nextMonth = (int)$dayInfo['Month'] - 1;
-            $nextYear = (int)$dayInfo['Year'];
+            $nextDay = (int) $dayInfo['Day'];
+            $nextMonth = (int) $dayInfo['Month'] - 1;
+            $nextYear = (int) $dayInfo['Year'];
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
@@ -230,7 +241,7 @@ RenderHtmlStart(true);
         $totalTruePoints = $userMassData['TotalTruePoints'];
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
         echo "<div class='username'>";
-        echo "<span class='username'><a href='/User/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
+        echo "<span class='username'><a href='/user/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
         echo "</div>"; //username
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
@@ -262,12 +273,12 @@ RenderHtmlStart(true);
         echo "Site Rank: ";
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
-        } elseif ($userTruePoints <= 0) {
-            echo "<i>This user has not earned any points.</i>";
+        } elseif ($totalPoints < MIN_POINTS) {
+            echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
-            $rankPct = sprintf("%1.0f", (($userRank / $countRankedUsers) * 100.0) + 1.0);
-            $rankOffset = (int)(($userRank - 1) / 25) * 25;
+            $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
+            $rankOffset = (int) (($userRank - 1) / 25) * 25;
             echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
         }
         echo "<br>";
@@ -292,7 +303,9 @@ RenderHtmlStart(true);
             echo "<strong>$userPage Developer Stats:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
             echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
-            echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . countOpenTicketsByDev($userPage) . "</b></a><br>";
+            if (isset($user) && $permissions >= Permissions::Registered) {
+                echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . countOpenTicketsByDev($userPage) . "</b></a><br>";
+            }
             echo "Achievements won by others: <b>$contribCount</b><br>";
             echo "Points awarded to others: <b>$contribYield</b><br><br>";
         }
@@ -364,7 +377,7 @@ RenderHtmlStart(true);
                 echo "</form><br>";
             }
 
-            if (isset($user) && $permissions >= Permissions::Admin) {
+            if ($permissions >= Permissions::Admin) {
                 echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='2' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
@@ -415,6 +428,8 @@ RenderHtmlStart(true);
             $consoleName = $userMassData['RecentlyPlayed'][$i]['ConsoleName'];
             $gameTitle = $userMassData['RecentlyPlayed'][$i]['Title'];
             $gameLastPlayed = $userMassData['RecentlyPlayed'][$i]['LastPlayed'];
+
+            sanitize_outputs($consoleName, $gameTitle);
 
             $pctAwarded = 100.0;
 
@@ -468,7 +483,7 @@ RenderHtmlStart(true);
                 }
                 echo "</div>";
 
-                echo "<a href='/Game/$gameID'>$gameTitle ($consoleName)</a><br>";
+                echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br>";
                 echo "Last played $gameLastPlayed<br>";
                 echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br>";
 
@@ -511,7 +526,7 @@ RenderHtmlStart(true);
                             48,
                             $class
                         );
-                        //echo "<a href='/Achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
+                        //echo "<a href='/achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                     }
                 }
 
@@ -522,7 +537,7 @@ RenderHtmlStart(true);
         }
 
         if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='rightalign'><a href='/User/$userPage?g=15'>more...</a></div><br>";
+            echo "<div class='rightalign'><a href='/user/$userPage?g=15'>more...</a></div><br>";
         }
 
         echo "</div>"; //recentlyplayed

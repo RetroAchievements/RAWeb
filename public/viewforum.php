@@ -1,21 +1,20 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$requestedForumID = seekGET('f', null);
-$offset = seekGET('o', 0);
-$count = seekGET('c', 25);
-
-settype($requestedForumID, "integer");
-settype($offset, "integer");
-settype($count, "integer");
+$requestedForumID = requestInputSanitized('f', null, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
+$count = requestInputSanitized('c', 25, 'integer');
 
 $numUnofficialLinks = 0;
 if ($permissions >= \RA\Permissions::Admin) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = count($unofficialLinks);
 }
+
+$numTotalTopics = 0;
 
 if ($requestedForumID == 0) {
     if ($permissions >= \RA\Permissions::Admin) {
@@ -47,12 +46,19 @@ if ($requestedForumID == 0) {
     $thisCategoryID = $forumDataOut['CategoryID'];
     $thisCategoryName = $forumDataOut['CategoryName'];
 
-    $topicList = getForumTopics($requestedForumID, $offset, $count);
+    $topicList = getForumTopics($requestedForumID, $offset, $count, $numTotalTopics);
 
     $requestedForum = $thisForumTitle;
 }
 
-$errorCode = seekGET('e');
+sanitize_outputs(
+    $requestedForum,
+    $thisForumTitle,
+    $thisForumDescription,
+    $thisCategoryName,
+);
+
+$errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
 RenderHtmlStart();
@@ -82,6 +88,47 @@ RenderHtmlHead("View forum: $thisForumTitle");
             if ($permissions >= \RA\Permissions::Registered) {
                 echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
             }
+
+            /* Forum pagination */
+            $forumPagination = "";
+
+            if ($numTotalTopics > $count) {
+                $forumPagination .= "<tr>";
+
+                $forumPagination .= "<td class='forumpagetabs' colspan='2'>";
+                $forumPagination .= "<div class='forumpagetabs'>";
+
+                $forumPagination .= "Page:&nbsp;";
+                $pageOffset = ($offset / $count);
+                $numPages = ceil($numTotalTopics / $count);
+
+                if ($pageOffset > 0) {
+                    $prevOffs = $offset - $count;
+                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$prevOffs'>&lt;</a> ";
+                }
+
+                for ($i = 0; $i < $numPages; $i++) {
+                    $nextOffs = $i * $count;
+                    $pageNum = $i + 1;
+
+                    if ($nextOffs == $offset) {
+                        $forumPagination .= "<span class='forumpagetab current'>$pageNum</span> ";
+                    } else {
+                        $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>$pageNum</a> ";
+                    }
+                }
+
+                if ($offset + $count < $numTotalTopics) {
+                    $nextOffs = $offset + $count;
+                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>&gt;</a> ";
+                }
+
+                $forumPagination .= "</div>";
+                $forumPagination .= "</td>";
+                $forumPagination .= "</tr>";
+            }
+
+            echo $forumPagination;
 
             echo "<table><tbody>";
             echo "<tr class='forumsheader'>";
@@ -114,6 +161,13 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 $nextTopicLastCommentPostedDate = $topicData['LatestCommentPostedDate'];
                 $nextTopicNumReplies = $topicData['NumTopicReplies'];
 
+                sanitize_outputs(
+                    $nextTopicTitle,
+                    $nextTopicPreview,
+                    $nextTopicAuthor,
+                    $nextTopicLastCommentAuthor,
+                );
+
                 if ($nextTopicPostedDate !== null) {
                     $nextTopicPostedNiceDate = getNiceDate(strtotime($nextTopicPostedDate));
                 } else {
@@ -133,14 +187,14 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<td class='author'>";
                 echo GetUserAndTooltipDiv($nextTopicAuthor, $mobileBrowser);
                 echo "</td>";
-                //echo "<td class='author'><div class='author'><a href='/User/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
+                //echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
                 echo "<td class='replies'>$nextTopicNumReplies</td>";
                 //echo "<td class='views'>$nextForumNumViews</td>";
                 echo "<td class='lastpost'>";
                 echo "<div class='lastpost'>";
                 echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
-                //echo "<a href='/User/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
+                //echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
                 echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
                 echo "</div>";
                 echo "</td>";
@@ -148,6 +202,8 @@ RenderHtmlHead("View forum: $thisForumTitle");
             }
 
             echo "</tbody></table>";
+
+            echo $forumPagination;
 
             echo "<br>";
 

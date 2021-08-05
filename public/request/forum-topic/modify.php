@@ -1,15 +1,16 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("tfv")) {
     echo "FAILED";
     return;
 }
 
-$topicID = seekPOST('t');
-$field = seekPOST('f');
-$value = seekPOST('v');
+$topicID = requestInputPost('t');
+$field = requestInputPost('f');
+$value = requestInputPost('v');
 
 // error_log("requestModifyTopic, " . $field . ", " . "$value");
 

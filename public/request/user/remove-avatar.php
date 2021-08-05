@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -9,7 +10,7 @@ if (!ValidatePOSTChars("u")) {
     header("Location: " . getenv('APP_URL') . "?e=e_baddata");
 }
 
-$user = seekPOST('u');
+$user = requestInputPost('u');
 
 if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
     if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {

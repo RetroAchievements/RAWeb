@@ -1,12 +1,13 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 // what is being (un-)subscribed? and where should we go back to at the end?
 
-$returnUrl = seekPOST("return_url");
-$subjectType = seekPOST("subject_type");
-$subjectID = seekPOST("subject_id");
+$returnUrl = requestInputPost("return_url");
+$subjectType = requestInputPost("subject_type");
+$subjectID = requestInputPost("subject_id");
 
 if ($subjectType === null || $subjectID === null || $returnUrl === null) {
     exit;
@@ -17,7 +18,7 @@ if ($subjectType === null || $subjectID === null || $returnUrl === null) {
 switch ($subjectType) {
     case \RA\SubscriptionSubjectType::GameTickets:
     case \RA\SubscriptionSubjectType::GameAchievements:
-        $requiredPermissions = \RA\Permissions::Developer;
+        $requiredPermissions = \RA\Permissions::JuniorDeveloper;
         break;
     default:
         $requiredPermissions = \RA\Permissions::Registered;
@@ -36,7 +37,7 @@ if ($userID == 0) {
 }
 
 // subscribing or unsubscribing?
-$operation = seekPost("operation");
+$operation = requestInputPost("operation");
 if ($operation !== "subscribe" && $operation !== "unsubscribe") {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=invalidparams");
     exit;

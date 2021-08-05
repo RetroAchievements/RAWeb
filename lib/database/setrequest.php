@@ -7,6 +7,8 @@
  */
 function getUserRequestList($user)
 {
+    sanitize_sql_inputs($user);
+
     $retVal = [];
 
     $query = "
@@ -57,12 +59,12 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     $points = GetScore($user);
 
     // logic behind the amount of requests based on player's score:
-    $boundariesAndChunks = array(
+    $boundariesAndChunks = [
         180000 => 20000, // from 180k to infinite, +1 for each 20k chunk of points
         20000 => 10000,  // from 20k to 180k, +1 for each 10k chunk
         5000 => 5000,    // from 5k to 20k, +1 for each 5k chunk
         0 => 2500,       // from 0 to 5k, +1 for each 2.5k chunk
-    );
+    ];
 
     $pointsLeft = $points;
     foreach ($boundariesAndChunks as $boundary => $chunk) {
@@ -107,6 +109,8 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
  */
 function toggleSetRequest($user, $gameID, $remaining)
 {
+    sanitize_sql_inputs($user, $gameID);
+
     $query = "
         SELECT
             COUNT(*) FROM SetRequest 
@@ -160,6 +164,7 @@ function toggleSetRequest($user, $gameID, $remaining)
  */
 function getSetRequestCount($gameID)
 {
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID < 1) {
         return 0;
@@ -172,7 +177,7 @@ function getSetRequestCount($gameID)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        return (int)(mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
+        return (int) (mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
     } else {
         return 0;
     }
@@ -186,9 +191,10 @@ function getSetRequestCount($gameID)
  */
 function getSetRequestorsList($gameID)
 {
-    $retVal = [];
-
+    sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
+
+    $retVal = [];
 
     if ($gameID < 1) {
         return false;
@@ -225,6 +231,8 @@ function getSetRequestorsList($gameID)
  */
 function getMostRequestedSetsList($console, $offset, $count)
 {
+    sanitize_sql_inputs($console, $offset, $count);
+
     $retVal = [];
 
     $query = "
@@ -243,7 +251,7 @@ function getMostRequestedSetsList($console, $offset, $count)
         WHERE 
             sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
-    if ($console !== null) {
+    if (!empty($console)) {
         $query .= "
                 AND c.ID = '$console' ";
     }
@@ -278,6 +286,8 @@ function getMostRequestedSetsList($console, $offset, $count)
  */
 function getGamesWithRequests($console)
 {
+    sanitize_sql_inputs($console);
+
     $query = "
         SELECT
             COUNT(DISTINCT sr.GameID) AS Games,
@@ -292,7 +302,7 @@ function getGamesWithRequests($console)
         WHERE
              GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
-    if ($console != null) {
+    if (!empty($console)) {
         $query .= "
                 AND c.ID = '$console' ";
     }

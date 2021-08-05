@@ -1,12 +1,13 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../lib/bootstrap.php';
 
 runPublicApiMiddleware();
 
-$user = seekGET('u', null);
-$count = min(seekGET('c', 10), 50);
-$offset = seekGET('o', 0);
+$user = requestInputQuery('u', null);
+$count = min(requestInputQuery('c', 10), 50);
+$offset = requestInputQuery('o', 0);
 
 $recentlyPlayedData = [];
 $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
@@ -25,7 +26,7 @@ if (count($recentlyPlayedData) > 0) {
         $recentlyPlayedData[$iter]['PossibleScore'] = $nextAwardData['PossibleScore'];
         $recentlyPlayedData[$iter]['NumAchieved'] = $nextAwardData['NumAchieved'];
         $recentlyPlayedData[$iter]['ScoreAchieved'] = $nextAwardData['ScoreAchieved'];
-        $iter++;//	Assumes a LOT about the order of this array!
+        $iter++; //	Assumes a LOT about the order of this array!
     }
 
     $libraryOut['Awarded'] = $awardedData;

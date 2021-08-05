@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$errorCode = seekGET('e');
+$errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("FAQ");
 ?>
@@ -14,7 +15,6 @@ RenderHtmlHead("FAQ");
     <?php
     $yOffs = 0;
     //RenderTwitchTVStream( $yOffs );
-    //RenderChat( $user );
     ?>
     <div id="fullcontainer">
         <?php
@@ -90,7 +90,7 @@ RenderHtmlHead("FAQ");
         echo "<p>Unfortunately sometimes the welcome email has been known to go missing. If this happens, please log in with your username/password you registered with, then visit your settings page. At the top you'll find the option to resend your registration email. If you still have trouble after this point, please drop a message to <a href='/user/RAdmin'>RAdmin</a> and we'll get back to you as soon we can!</p>";
 
         echo "<h4 class='longheader' id='faq9'>This achievement didn't trigger!</h4>";
-        echo "<p>We have a new feature built-in to the emulators now that will allow you to report broken achievements that occur at the wrong time, or not at all. Veteran developer <a href='/User/jackolantern'>Jackolantern</a> explains how to use it in this video:<br><br>";
+        echo "<p>We have a new feature built-in to the emulators now that will allow you to report broken achievements that occur at the wrong time, or not at all. Veteran developer <a href='/user/jackolantern'>Jackolantern</a> explains how to use it in this video:<br><br>";
 
         //	Reporting broken achievements
         echo '
@@ -104,7 +104,7 @@ RenderHtmlHead("FAQ");
         echo "<p>Some of the emulators should already be setup for this. Generally ESC on the keyboard should activate it, but if you want to assign it to a controller, see <a href='" . getenv('APP_URL') . "/viewtopic.php?t=2323&c=12084'>this link</a>.<br><br>";
 
         echo "<h4 class='longheader' id='faq99'>I have another question!</h4>";
-        echo "<p>If you have any further questions, just ask! We'd love to hear from you, whether good or bad: you are very welcome in the <a href='/largechat.php'>chat</a>, on the <a href='/forum.php'>forums</a>, to message us on <a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "'>Facebook</a> or <a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'>Twitter</a>, however you like, and we'll get back to you ASAP!</p>";
+        echo "<p>If you have any further questions, just ask! We'd love to hear from you, whether good or bad: you are very welcome on the <a href='/forum.php'>forums</a>, to message us on <a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "'>Facebook</a> or <a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'>Twitter</a>, however you like, and we'll get back to you ASAP!</p>";
 
         echo "</div>";
         ?>

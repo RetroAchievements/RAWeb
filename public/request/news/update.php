@@ -1,18 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("aptlg")) {
     echo "FAILED";
     return;
 }
 
-$author = seekPOST('a');
-$payload = seekPOST('p');
-$title = seekPOST('t');
-$link = seekPOST('l');
-$image = seekPOST('g');
-$id = seekPOST('i', null);
+$author = requestInputPost('a');
+$payload = requestInputPost('p');
+$title = requestInputPost('t');
+$link = requestInputPost('l');
+$image = requestInputPost('g');
+$id = requestInputPost('i', null);
 
 $payload = str_replace("_http_", "http", $payload);
 $title = str_replace("_http_", "http", $title);
