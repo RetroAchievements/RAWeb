@@ -118,6 +118,16 @@ RenderHtmlHead("Report Broken Achievement");
                     </td>
                 </tr>
                 <tr>
+                    <td><label for="mode">Mode:</label></td>
+                    <td>
+                        <select name="m" id="mode" required>
+                            <option value="" disabled selected hidden>Soft/Hardcore?</option>
+                            <option value="1">Softcore</option>
+                            <option value="2">Hardcore</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
                     <td><label for="checksum">Checksum:</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>

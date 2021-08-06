@@ -12,10 +12,12 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 2041; //2041 sets all filters active except for Closed and Resolved
+$defaultFilter = 16377; //16377 sets all filters active except for Closed and Resolved
+$getAllTickets = 16383; //const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
+$reportModes = ["Softcore", "Hardcore"];
 
 $altTicketData = null;
 $commentData = null;
@@ -110,7 +112,7 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], 2047); //2047 sets all filters enabled so we get closed/resolved tickets as well
+    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $getAllTickets); //sets all filters enabled so we get closed/resolved tickets as well
     //var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
@@ -285,6 +287,9 @@ RenderHtmlHead($pageTitle);
                 $rarchKnownTickets = ($ticketFilters & (1 << 8));
                 $rarchUnknownTickets = ($ticketFilters & (1 << 9));
                 $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
+                $modeUnknown = ($ticketFilters & (1 << 11));
+                $modeHardcore = ($ticketFilters & (1 << 12));
+                $modeSoftcore = ($ticketFilters & (1 << 13));
 
                 //State Filters
                 echo "<div>";
@@ -381,6 +386,27 @@ RenderHtmlHead($pageTitle);
                     echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=5&t=$ticketFilters'>*Unofficial</a></b>";
                 } else {
                     echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=5&t=$ticketFilters'>Unofficial</a>";
+                }
+                echo "</div>";
+
+                //Mode Filters
+                echo "<div>";
+                echo "<b>Mode:</b> ";
+
+                if ($modeUnknown) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 11)) . "'>*Unknown</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 11)) . "'>Unknown</a> | ";
+                }
+                if ($modeHardcore) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 12)) . "'>*Hardcore</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 12)) . "'>Hardcore</a> | ";
+                }
+                if ($modeSoftcore) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 13)) . "'>*Softcore</a></b>";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 13)) . "'>Softcore</a>";
                 }
                 echo "</div>";
 
@@ -549,6 +575,7 @@ RenderHtmlHead($pageTitle);
                 $consoleName = $nextTicket['ConsoleName'];
                 $reportState = $nextTicket['ReportState'];
                 $reportType = $nextTicket['ReportType'];
+                $mode = $nextTicket['Hardcore'];
                 $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
 
                 $reportedAt = $nextTicket['ReportedAt'];
@@ -564,6 +591,7 @@ RenderHtmlHead($pageTitle);
                     $achAuthor,
                     $gameTitle,
                     $consoleName,
+                    $mode,
                     $reportNotes,
                 );
 
@@ -619,6 +647,17 @@ RenderHtmlHead($pageTitle);
                 echo "<code>$reportNotes</code>";
                 echo "</td>";
                 echo "</tr>";
+
+                if (isset($mode)) {
+                    echo "<tr>";
+                    echo "<td>";
+                    echo "Mode: ";
+                    echo "</td>";
+                    echo "<td colspan='6'>";
+                    echo "<b>$reportModes[$mode]</b>";
+                    echo "</td>";
+                    echo "</tr>";
+                }
 
                 echo "<tr>";
                 echo "<td>";

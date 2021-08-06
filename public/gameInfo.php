@@ -1092,7 +1092,7 @@ RenderHtmlStart(true);
                 echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Hashes linked to this game</a></li>";
                 $numOpenTickets = countOpenTickets(
                     requestInputSanitized('f') == $unofficialFlag,
-                    requestInputSanitized('t', 2041),
+                    requestInputSanitized('t', 16377),
                     null,
                     $gameID
                 );
