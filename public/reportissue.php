@@ -147,7 +147,7 @@ RenderHtmlHead("Report Broken Achievement");
                         <textarea class="requiredinput fullwidth forum" name="note[description]" id="description"
                                   style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
                                   required data-bind="textInput: description"></textarea>
-                        <p data-bind="visible: descriptionIsUnhelpful">Please be more specific with your issue--such as by adding specific reproduction steps or what you did before encountering it--instead of simply stating that it doesn't work. The more specific, the better.</p>
+                        <p data-bind="visible: descriptionIsUnhelpful">Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.</p>
                     </td>
                 </tr>
                 <tr>
