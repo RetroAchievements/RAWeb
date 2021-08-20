@@ -125,35 +125,34 @@ function RenderCurrentlyOnlineComponent()
 
 function RenderActivePlayersComponent()
 {
-    echo "<div class='component activeplayerscomponent' >";
-    echo "<h3>Active Players</h3>";
-
-    echo "<div id='playersactivebox' style='margin-bottom: 7px'></div>";
-
-    echo "<div id='activeplayersbox' style='min-height: 54px'>";
-    //    fetch via ajaphp
-    // $playersArray = getCurrentlyOnlinePlayers();
-    // $numPlayers = count($playersArray);
-    // echo "There are currently <strong>$numPlayers</strong> players online.<br>";
-    //$numOutput = 0;
-    //foreach( $playersArray as $nextPlayer )
-    //{
-    //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
-    //    {
-    //        echo " and ";
-    //    }
-    //    elseif( $numOutput > 0 )
-    //    {
-    //        echo ", ";
-    //    }
-    //
-    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
-    //    $numOutput++;
-    //}
-    echo "</div>";
-
-    echo "<div class='rightfloat lastupdatedtext'><small><span id='activeplayers-update'></span></small></div>";
-    echo "</div>";
+    echo <<<HTML
+        <div id='active-players-component' class='component activeplayerscomponent'>
+            <h3>Active Players</h3>
+            <div id='playersNotice' style='margin-bottom: 7px'>There are <strong data-bind="text: numberOfPlayersActive"></strong> active players.</div>
+            <div id='activeplayersbox' style='min-height: 54px'>
+                <table class='smalltable'>
+                    <thead>
+                        <th>User</th>
+                        <th>Game</th>
+                        <th>Currently...</th>
+                    </thead>
+                    <tbody>
+                        <!-- ko foreach: players -->
+                        <tr>
+                            <td data-bind='html: playerHtml'></td>
+                            <td data-bind='html: gameHtml'></td>
+                            <td data-bind='text: richPresence'></td>
+                        </tr>
+                        <!-- /ko -->
+                    </tbody>
+                </table>
+            </div>
+            <div class='rightfloat lastupdatedtext'>
+                <small id='activeplayers-update' data-bind='text: lastUpdateRender'></small>
+            </div>
+        </div>
+        <script type="text/javascript" src="/js/activePlayersBootstrap.js"></script>
+    HTML;
 }
 
 function RenderAOTWComponent($achID, $forumTopicID)

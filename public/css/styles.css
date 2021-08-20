@@ -927,12 +927,8 @@ table {
   width: 100%;
 }
 
-tr:nth-child(odd) {
+tbody tr:nth-child(odd) {
   background-color: #323232;
-}
-
-tr:nth-child(even) {
-  /*background-image: -webkit-linear-gradient(#1a1a1a, #323232, #1a1a1a);*/
 }
 
 td {
