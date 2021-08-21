@@ -61,6 +61,8 @@ function RenderSharedHeader()
 
     echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
 
+    echo "<script src='https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js' integrity='sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=' crossorigin='anonymous'></script>";
+
     //    jQuery, and custom js
     //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";

@@ -1498,3 +1498,15 @@ svg > g > g:last-child { pointer-events: none }
   max-width:100%;
   overflow-x:auto;
 }
+
+#active-players-filter-options {
+  margin-top: 3px;
+}
+
+#active-players-menu-button::before {
+  content: '☰';
+}
+
+#active-players-menu-button.menuOpen::before {
+  content: '✕';
+}
