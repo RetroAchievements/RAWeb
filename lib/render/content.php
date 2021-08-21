@@ -138,7 +138,7 @@ function RenderActivePlayersComponent()
                         <input type='text' style='width: 100%;' placeholder='Filter by player, game, console, or Rich Presence...' data-bind='value: playerFilterText, valueUpdate: "afterkeydown"' />
                     </div>
                     <div id='active-players-filter-options'>
-                        <label><input type='checkbox' data-bind='checked: rememberFiltersValue' /> Remember My Filters</label>
+                        <label><input type='checkbox' data-bind='checked: rememberFiltersValue' /> Remember My Filter</label>
                     </div>
                 </div>
             </div>
