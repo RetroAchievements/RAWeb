@@ -135,7 +135,7 @@ function RenderActivePlayersComponent()
                 <a class='rightfloat' id='active-players-menu-button' href='#!' data-bind='click: OnActivePlayersMenuButtonClick, css: { menuOpen: shouldMenuBeVisible }'></a>
                 <div id='active-player-menu' data-bind='visible: shouldMenuBeVisible'>
                     <div>
-                        <input type='text' style='width: 100%;' placeholder='Filter by player, game, console, or Rich Presence...' data-bind='value: playerFilterText, valueUpdate: "afterkeydown"' />
+                        <input type='text' style='width: 100%;' placeholder='Filter by player, game, console, or Rich Presence...' data-bind='value: playerFilterText, valueUpdate: "input"' />
                     </div>
                     <div id='active-players-filter-options'>
                         <label><input type='checkbox' data-bind='checked: rememberFiltersValue' /> Remember My Filter</label>
