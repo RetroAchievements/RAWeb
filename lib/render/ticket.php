@@ -1,8 +1,8 @@
 <?php
 
-use RA\Models\TicketModel;
 use RA\Enums\TicketStates;
 use RA\Enums\TicketTypes;
+use RA\Models\TicketModel;
 
 function GetTicketAndTooltipDiv(TicketModel $ticket): string
 {
