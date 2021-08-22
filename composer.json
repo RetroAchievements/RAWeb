@@ -24,7 +24,8 @@
         "psr-4": {
             "RA\\": "src/",
             "Test\\": "tests/src",
-			"Models\\": "lib/models"
+			"RA\\Models\\": "src/Models",
+            "RA\\Enums\\": "src/Enums"
         },
         "files": [
             "lib/constants.php",

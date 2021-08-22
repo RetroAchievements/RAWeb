@@ -1,6 +1,6 @@
 <?php
 
-namespace Models;
+namespace RA\Models;
 
 class TicketModel
 {
@@ -47,43 +47,4 @@ class TicketModel
     public string $Notes;
     public string $CreatedBy;
     public string $ClosedBy;
-}
-
-abstract class TicketTypes
-{
-    public const TriggeredAtTheWrongTime = 1;
-    public const DoesNotTrigger = 2;
-
-    public static function RenderType(int $type): string
-    {
-        switch ($type) {
-            case TicketTypes::DoesNotTrigger:
-                return "Does not trigger";
-            case TicketTypes::TriggeredAtTheWrongTime:
-                return "Triggered at the wrong time";
-            default:
-                return "Invalid ticket type";
-        }
-    }
-}
-
-abstract class TicketStates
-{
-    public const Closed = 0;
-    public const Open = 1;
-    public const Resolved = 2;
-
-    public static function RenderState(int $type): string
-    {
-        switch ($type) {
-            case TicketStates::Closed:
-                return "Closed";
-            case TicketStates::Open:
-                return "Open";
-            case TicketStates::Resolved:
-                return "Resolved";
-            default:
-                return "Invalid state";
-        }
-    }
 }

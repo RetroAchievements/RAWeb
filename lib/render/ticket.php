@@ -1,6 +1,8 @@
 <?php
 
-use Models\TicketModel;
+use RA\Models\TicketModel;
+use RA\Enums\TicketStates;
+use RA\Enums\TicketTypes;
 
 function GetTicketAndTooltipDiv(TicketModel $ticket): string
 {
@@ -8,13 +10,13 @@ function GetTicketAndTooltipDiv(TicketModel $ticket): string
     $ticketStateClass = '';
 
     switch ($ticket->TicketState) {
-        case \Models\TicketStates::Open:
+        case TicketStates::Open:
             $ticketStateClass = 'open';
             break;
-        case \Models\TicketStates::Closed:
+        case TicketStates::Closed:
             $ticketStateClass = 'closed';
             break;
-        case \Models\TicketStates::Resolved:
+        case TicketStates::Resolved:
             $ticketStateClass = 'closed';
             break;
     }
@@ -25,11 +27,11 @@ function GetTicketAndTooltipDiv(TicketModel $ticket): string
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
             "<div><b>" . $ticket->AchievementTitle . "</b> <i>(" . $ticket->GameTitle . ")</i></div>" .
             "<div>Reported by $ticket->CreatedBy</div>" .
-            "<div>Issue: " . \Models\TicketTypes::RenderType($ticket->TicketType) . "</div>" .
+            "<div>Issue: " . TicketTypes::RenderType($ticket->TicketType) . "</div>" .
             "<div class='tooltip-closer'>Closed by $ticket->ClosedBy, " . getNiceDate(strtotime($ticket->ClosedOn)) . "</div>" .
             "<div class='tooltip-opened-date'> Opened " . getNiceDate(strtotime($ticket->CreatedOn)) . "</div>" .
         "</div>" .
-        "<div class='ticket-tooltip-state'>" . \Models\TicketStates::RenderState($ticket->TicketState) . "</div>" .
+        "<div class='ticket-tooltip-state'>" . TicketStates::RenderState($ticket->TicketState) . "</div>" .
     "</div>";
 
     $tooltip = str_replace("'", "\'", $tooltip);

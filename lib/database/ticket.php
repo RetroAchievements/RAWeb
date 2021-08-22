@@ -1,6 +1,6 @@
 <?php
 
-use Models\TicketModel;
+use RA\Models\TicketModel;
 use RA\ActivityType;
 
 function isAllowedToSubmitTickets($user)
