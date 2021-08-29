@@ -4,18 +4,18 @@ namespace RA\Enums;
 
 abstract class TicketStates
 {
-    public const Closed = 0;
-    public const Open = 1;
-    public const Resolved = 2;
+    public const CLOSED = 0;
+    public const OPEN = 1;
+    public const RESOLVED = 2;
 
-    public static function RenderState(int $type): string
+    public static function renderState(int $type): string
     {
         switch ($type) {
-            case TicketStates::Closed:
+            case TicketStates::CLOSED:
                 return "Closed";
-            case TicketStates::Open:
+            case TicketStates::OPEN:
                 return "Open";
-            case TicketStates::Resolved:
+            case TicketStates::RESOLVED:
                 return "Resolved";
             default:
                 return "Invalid state";

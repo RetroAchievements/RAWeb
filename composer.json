@@ -23,9 +23,7 @@
     "autoload": {
         "psr-4": {
             "RA\\": "src/",
-            "Test\\": "tests/src",
-			"RA\\Models\\": "src/Models",
-            "RA\\Enums\\": "src/Enums"
+            "Test\\": "tests/src"
         },
         "files": [
             "lib/constants.php",
