@@ -111,7 +111,7 @@ switch ($requestType) {
             /**
              * Token invalid or out of date
              */
-            DoRequestError("Error with login! Please try again.");
+            DoRequestError("Login failed. Check your credentials and try again.");
         }
         break;
 
