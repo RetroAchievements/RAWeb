@@ -124,7 +124,12 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
 
         case ActivityType::StartedPlaying:
             $gameID = $customMsg;
+
+            /**
+             * Switch the rich presence to the new game immediately
+             */
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
+            UpdateUserRichPresence($user, $gameID, "Playing $gameTitle");
 
             /**
              * Check for recent duplicate:
@@ -152,8 +157,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
                      */
                 }
             }
-
-            $gameTitle = str_replace("'", "''", $gameTitle);
 
             $query .= "(NOW(), $activity, '$user', '$gameID', NULL)";
             break;
