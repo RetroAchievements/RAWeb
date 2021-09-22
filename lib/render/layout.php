@@ -226,6 +226,7 @@ function RenderToolbar($user, $permissions = 0)
     ///Sony
     echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+	echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
