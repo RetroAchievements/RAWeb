@@ -73,4 +73,5 @@ $finder = Finder::create()
 return (new Config())
     ->setFinder($finder)
     ->setRules($rules)
-    ->setRiskyAllowed(true);
+    ->setRiskyAllowed(true)
+    ->setLineEnding(PHP_EOL);
