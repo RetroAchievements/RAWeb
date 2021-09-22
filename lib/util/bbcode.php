@@ -172,12 +172,6 @@ function linkifyYouTubeURLs($text)
     // https://www.youtube.com/watch?v=1YiNYWpwn7o
     // www.youtube.com/watch?v=Yjba9rvs4iU
 
-    // Don't linkify this text if it's a shortcode construct.
-    $linkedPattern = '/\[.*=.*\].*\[\/.*\]/';
-    if (preg_match($linkedPattern, $text) == 1) {
-        return $text;
-    }
-
     $pattern = '~
         # Match non-linked youtube URL in the wild. (Rev:20130823)
         (?:https?://)?    # Optional scheme. Either http or https.
