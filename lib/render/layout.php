@@ -52,8 +52,8 @@ function RenderSharedHeader()
     echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
 
     echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>\n";
 
     // jQuery Modal
     echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
