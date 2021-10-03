@@ -354,7 +354,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         $havingCond = "HAVING MyAchievements > 0 ";
     }
 
-    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
+    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
                 $moreSelectCond
                 CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
                 FROM Achievements AS ach
@@ -370,7 +370,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
 
     settype($sortBy, 'integer');
 
-    if ($sortBy < 1 || $sortBy > 13) {
+    if ($sortBy < 1 || $sortBy > 16) {
         $sortBy = 1;
     }
 
@@ -417,6 +417,13 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             } else {
                 $query .= "ORDER BY gd.ConsoleID, Title DESC ";
             }
+            break;
+
+        case 6:
+            $query .= "ORDER BY gd.ConsoleID, ach.DateModified DESC, Title ";
+            break;
+        case 16:
+            $query .= "ORDER BY gd.ConsoleID, ach.DateModified ASC, Title DESC ";
             break;
     }
 
