@@ -68,7 +68,9 @@ RenderHtmlHead("Create topic: $thisForumTitle");
 
             RenderPHPBBIcons();
 
-            echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:160px' rows=5 name='p' maxlength='60000' placeholder='Enter a comment here...'></textarea></td></tr>";
+            echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:160px' rows=5 name='p' maxlength='60000' placeholder='Enter a comment here...'></textarea>";
+            echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
+            echo "</td></tr>";
             echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit new topic' SIZE='37'/></td></tr>";
             echo "</form>";
             echo "</tbody>";
