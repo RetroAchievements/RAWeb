@@ -5,6 +5,7 @@ use Aws\CommandPool;
 use Aws\Exception\AwsException;
 use Aws\ResultInterface;
 use Aws\Ses\SesClient;
+use RA\ArticleType;
 use RA\Permissions;
 
 function mail_ses($to, $subject = '(No subject)', $message = '')
@@ -199,6 +200,7 @@ function sendActivityEmail(
     $actID,
     $activityCommenter,
     $articleType,
+    $articleTitle,
     $threadInvolved = null,
     $altURLTarget = null
 ) {
@@ -210,49 +212,63 @@ function sendActivityEmail(
     $link = '';
     $activityDescription = '';
 
-    if ($articleType == \RA\ArticleType::Game) {
-        $emailTitle = "New Game Wall Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/game/$actID'>here</a>";
-        $activityDescription = "A game wall discussion you've commented in";
-    } elseif ($articleType == \RA\ArticleType::Achievement) {
-        // sending mail to person who authored an achievement
-        $emailTitle = "New Achievement Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/achievement/$actID'>here</a>";
-        $activityDescription = "An achievement you created";
-        if (isset($threadInvolved)) {
-            $activityDescription = "An achievement page discussion you've commented in";
-        }
-    } elseif ($articleType == \RA\ArticleType::User) {
-        $emailTitle = "New User Wall Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/user/$altURLTarget'>here</a>";
-        $activityDescription = "Your user wall";
-        if (isset($threadInvolved)) {
-            $activityDescription = "A user wall discussion you've commented in";
-        }
-    } elseif ($articleType == \RA\ArticleType::Leaderboard) {
-        $emailTitle = "New Forum Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/$altURLTarget'>here</a>";
-        $activityDescription = "A forum thread you've commented in";
-    } elseif ($articleType == \RA\ArticleType::AchievementTicket) {
-        $emailTitle = "New Ticket Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$actID'>here</a>";
-        $activityDescription = "A ticket you've reported";
-        if (isset($threadInvolved)) {
-            $activityDescription = "A ticket you've commented on";
-        }
-    } else { //if( $articleType == \RA\ArticleType::Activity )
-        //    Also used for Generic text:
-        $emailTitle = "New Activity Comment from $activityCommenter";
-        $link = "<a href='" . getenv('APP_URL') . "/feed.php?a=$actID'>here</a>";
-        $activityDescription = "Your latest activity";
-        if (isset($threadInvolved)) {
-            $activityDescription = "A thread you've commented in";
-        }
+    switch ($articleType) {
+        case ArticleType::Game:
+            $emailTitle = "New Game Wall Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/game/$actID'>here</a>";
+            $activityDescription = "the game wall for $articleTitle";
+            break;
+
+        case ArticleType::Achievement:
+            $emailTitle = "New Achievement Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/achievement/$actID'>here</a>";
+            $activityDescription = "the achievement wall for $articleTitle";
+            break;
+
+        case ArticleType::User:
+            $emailTitle = "New User Wall Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/user/$altURLTarget'>here</a>";
+            $activityDescription = "your user wall";
+            if ($articleTitle != $user) {
+                $activityDescription = "$articleTitle's user wall";
+            }
+            break;
+
+        case ArticleType::Leaderboard:
+            $emailTitle = "New Leaderboard Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/leaderboardinfo.php?i=$actID'>here</a>";
+            $activityDescription = "the leaderboard wall for $articleTitle";
+            break;
+
+        case ArticleType::Forum:
+            $emailTitle = "New Forum Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/$altURLTarget'>here</a>";
+            $activityDescription = "the forum post \"$articleTitle\"";
+            break;
+
+        case ArticleType::AchievementTicket:
+            $emailTitle = "New Ticket Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$actID'>here</a>";
+            $activityDescription = "the ticket you reported for $articleTitle";
+            if (isset($threadInvolved)) {
+                $activityDescription = "a ticket for $articleTitle";
+            }
+            break;
+
+        default:
+            // generic messages
+            $emailTitle = "New Activity Comment from $activityCommenter";
+            $link = "<a href='" . getenv('APP_URL') . "/feed.php?a=$actID'>here</a>";
+            $activityDescription = "Your latest activity";
+            if (isset($threadInvolved)) {
+                $activityDescription = "A thread you've commented in";
+            }
+            break;
     }
 
     $msg = "Hello $user!<br>" .
-        "$activityDescription on RetroAchievements has received<br>" .
-        "a new comment from $activityCommenter. Click $link to see what they have written!<br>" .
+        "$activityCommenter has commented on $activityDescription. " .
+        "Click $link to see what they have written!<br>" .
         "<br>" .
         "Thanks! And hope to see you on the forums!<br>" .
         "<br>" .
