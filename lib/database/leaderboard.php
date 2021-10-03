@@ -914,7 +914,7 @@ function GetLBPatch($gameID)
     $lbData = [];
 
     //    Always append LBs?
-    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.Title, ld.Description
+    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description
               FROM LeaderboardDef AS ld
               WHERE ld.GameID = $gameID
               ORDER BY ld.DisplayOrder, ld.ID ";
@@ -923,6 +923,7 @@ function GetLBPatch($gameID)
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['ID'], 'integer');
+            settype($db_entry['LowerIsBetter'], 'boolean');
             $lbData[] = $db_entry;
         }
     } else {
