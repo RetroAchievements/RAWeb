@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ArticleType;
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
@@ -233,8 +234,14 @@ RenderHtmlStart(true);
             echo "</div>";
 
             //    Render article comments
-            $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $lbID, \RA\ArticleType::Leaderboard, $forceAllowDeleteComments);
+            RenderCommentsComponent(
+                $user,
+                $numArticleComments,
+                $commentData,
+                $lbID,
+                ArticleType::Leaderboard,
+                $permissions
+            );
 
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";

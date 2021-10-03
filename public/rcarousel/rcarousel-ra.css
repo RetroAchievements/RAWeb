@@ -19,7 +19,6 @@
 	display: block;
 	position: absolute;
 	top: 0;
-	z-index: 100;
 }
 
 #ui-carousel-next {
