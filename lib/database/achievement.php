@@ -374,7 +374,7 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
 
     $completion = testFullyCompletedGame($achData['GameID'], $user, $isHardcore, !$alreadyAwarded);
     if (array_key_exists('NumAwarded', $completion)) {
-        $retVal['AwardsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
+        $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
     }
 
     if ($alreadyAwarded) {

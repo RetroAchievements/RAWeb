@@ -586,9 +586,6 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery)
         }
 
         return $data;
-    } else {
-        // error_log(__FUNCTION__);
-        // error_log("broken1 with $achID, $gameID, $user. This is MEGABAD!");
     }
 
     return [];
