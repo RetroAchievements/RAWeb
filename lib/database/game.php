@@ -568,21 +568,12 @@ function getGameIDFromTitle($gameTitleIn, $consoleID)
     }
 }
 
-function testFullyCompletedGame($user, $achID, $isHardcore)
+function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery)
 {
-    sanitize_sql_inputs($user, $isHardcore);
+    sanitize_sql_inputs($gameID, $user, $isHardcore);
     settype($isHardcore, 'integer');
 
-    $achData = [];
-    if (getAchievementMetadata($achID, $achData) == false) {
-        // error_log(__FUNCTION__);
-        // error_log("cannot get achievement metadata for $achID. This is MEGABAD!");
-        return false;
-    }
-
-    $gameID = $achData['GameID'];
-
-    $query = "SELECT COUNT(ach.ID) AS NumAwarded, COUNT(aw.AchievementID) AS NumAch FROM Achievements AS ach 
+    $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
               WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
 
@@ -591,7 +582,7 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
         $minToCompleteGame = 5;
 
         $data = mysqli_fetch_assoc($dbResult);
-        if (($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
+        if ($postMastery && ($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
             //    Every achievement earned!
             //error_log( __FUNCTION__ );
             //error_log( "$user earned EVERY achievement for game $gameID" );
@@ -599,15 +590,12 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
             if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
                 postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
             }
-            return true;
-        } else {
-            return false;
         }
-    } else {
-        // error_log(__FUNCTION__);
-        // error_log("broken1 with $achID, $gameID, $user. This is MEGABAD!");
-        return false;
+
+        return $data;
     }
+
+    return [];
 }
 
 function requestModifyGameData($gameID, $developer, $publisher, $genre, $released)
