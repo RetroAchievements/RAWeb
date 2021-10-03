@@ -124,7 +124,12 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
 
         case ActivityType::StartedPlaying:
             $gameID = $customMsg;
+
+            /**
+             * Switch the rich presence to the new game immediately
+             */
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
+            UpdateUserRichPresence($user, $gameID, "Playing $gameTitle");
 
             /**
              * Check for recent duplicate:
@@ -152,8 +157,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
                      */
                 }
             }
-
-            $gameTitle = str_replace("'", "''", $gameTitle);
 
             $query .= "(NOW(), $activity, '$user', '$gameID', NULL)";
             break;
@@ -374,16 +377,20 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
     $subscribers = [];
     $subjectAuthor = null;
     $altURLTarget = null;
+    $articleTitle = '';
 
     switch ($articleType) {
         case ArticleType::Game:
+            $gameData = getGameData($articleID);
             $subscribers = getSubscribersOfGameWall($articleID);
+            $articleTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
             break;
 
         case ArticleType::Achievement:
             $achievementData = getAchievementMetadataJSON($articleID);
             $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
             $subjectAuthor = $achievementData['Author'];
+            $articleTitle = $achievementData['AchievementTitle'] . ' (' . $achievementData['GameTitle'] . ')';
             break;
 
         case ArticleType::User:  // User wall
@@ -391,6 +398,7 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
             $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
             $subjectAuthor = $wallUserData['User'];
             $altURLTarget = $wallUserData['User'];
+            $articleTitle = $wallUserData['User'];
             break;
 
         case ArticleType::News:  // News
@@ -400,6 +408,7 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
             $activityData = getActivityMetadata($articleID);
             $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
             $subjectAuthor = $activityData['User'];
+            $articleTitle = $activityData['User'];
             break;
 
         case ArticleType::Leaderboard:  // Leaderboard
@@ -409,6 +418,7 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
             $ticketData = getTicket($articleID);
             $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
             $subjectAuthor = $ticketData['ReportedBy'];
+            $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
             break;
 
         default:
@@ -423,7 +433,7 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
     foreach ($subscribers as $subscriber) {
         $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
-        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $isThirdParty, $altURLTarget);
+        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $isThirdParty, $altURLTarget);
     }
 }
 
