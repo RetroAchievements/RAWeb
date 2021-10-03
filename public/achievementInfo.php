@@ -2,12 +2,14 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ArticleType;
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 
+$dataOut = null;
 if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
     exit;
@@ -255,9 +257,14 @@ RenderHtmlStart(true);
             echo parseTopicCommentPHPBB($embedVidURL, true);
         }
 
-        //    Comments:
-        $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-        RenderCommentsComponent($user, $numArticleComments, $commentData, $achievementID, \RA\ArticleType::Achievement, $forceAllowDeleteComments);
+        RenderCommentsComponent(
+            $user,
+            $numArticleComments,
+            $commentData,
+            $achievementID,
+            ArticleType::Achievement,
+            $permissions
+        );
 
         echo "</div>"; //achievement
 

@@ -18,6 +18,8 @@ abstract class ArticleType
 
     public const AchievementTicket = 7;
 
+    public const Forum = 8;
+
     private const VALUES = [
         self::Game,
         self::Achievement,
@@ -26,6 +28,7 @@ abstract class ArticleType
         self::Activity,
         self::Leaderboard,
         self::AchievementTicket,
+        self::Forum,
     ];
 
     public static function values(): array

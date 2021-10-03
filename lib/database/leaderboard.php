@@ -407,14 +407,33 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
     $retVal = [];
 
     //    Get raw LB data
-    $query = "SELECT ld.ID AS LBID, gd.ID AS GameID, gd.Title AS GameTitle, ld.LowerIsBetter, ld.Title AS LBTitle, ld.Description AS LBDesc, ld.Format AS LBFormat, ld.Mem AS LBMem, ld.Author AS LBAuthor, gd.ConsoleID, c.Name AS ConsoleName, gd.ForumTopicID, gd.ImageIcon AS GameIcon, ld.Author AS LBAuthor, ld.Created AS LBCreated, ld.Updated AS LBUpdated, COUNT(le.UserID) AS TotalEntries
-              FROM LeaderboardDef AS ld
-              LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN LeaderboardEntry le ON le.LeaderboardID = ld.ID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-              WHERE ld.ID = $lbID
-              AND !ua.Untracked";
+    $query = "
+      SELECT
+        ld.ID AS LBID,
+        gd.ID AS GameID,
+        gd.Title AS GameTitle,
+        ld.LowerIsBetter,
+        ld.Title AS LBTitle,
+        ld.Description AS LBDesc,
+        ld.Format AS LBFormat,
+        ld.Mem AS LBMem,
+        ld.Author AS LBAuthor,
+        gd.ConsoleID,
+        c.Name AS ConsoleName,
+        gd.ForumTopicID,
+        gd.ImageIcon AS GameIcon,
+        ld.Created AS LBCreated,
+        ld.Updated AS LBUpdated,
+        (
+          SELECT COUNT(UserID)
+          FROM LeaderboardEntry AS le
+          LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+          WHERE !ua.Untracked AND le.LeaderboardID = $lbID
+        ) AS TotalEntries
+      FROM LeaderboardDef AS ld
+      LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
+      LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+      WHERE ld.ID = $lbID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -895,7 +914,7 @@ function GetLBPatch($gameID)
     $lbData = [];
 
     //    Always append LBs?
-    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.Title, ld.Description
+    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description
               FROM LeaderboardDef AS ld
               WHERE ld.GameID = $gameID
               ORDER BY ld.DisplayOrder, ld.ID ";
@@ -904,6 +923,7 @@ function GetLBPatch($gameID)
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['ID'], 'integer');
+            settype($db_entry['LowerIsBetter'], 'boolean');
             $lbData[] = $db_entry;
         }
     } else {
