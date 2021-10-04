@@ -709,3 +709,26 @@ function ConfirmDemotion() {
 function ConfirmPromotion() {
   return confirm("Are you sure you want to promote this achievement?");
 }
+
+function initializeTextareaCounter() {
+  var textareaCounters = document.getElementsByClassName("textarea-counter");
+  for (var i = 0; i < textareaCounters.length; i++) {
+    var textareaCounter = textareaCounters[i];
+    var textareaId = textareaCounter.dataset.textareaId;
+    var textarea = document.getElementById(textareaId);
+    var max = textarea.getAttribute("maxlength");
+
+    if (max) {
+      var updateCount = function () {
+        var count = textarea.value.length;
+        textareaCounter.textContent = count + " / " + max;
+        textareaCounter.classList.toggle("text-danger", count >= max);
+      };
+      ["keydown", "keypress", "keyup", "blur"].forEach(function (eventName) {
+        textarea.addEventListener(eventName, updateCount);
+      });
+      updateCount();
+    }
+  }
+}
+window.addEventListener("load", initializeTextareaCounter);
