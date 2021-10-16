@@ -281,12 +281,12 @@ function loginApp($user, $pass, $token)
     $query = null;
     $response = [];
 
+    $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
+    $tokenProvided = (isset($token) && mb_strlen($token) >= 1);
+
     if (!isset($user) || $user == false || mb_strlen($user) < 2) {
         // error_log(__FUNCTION__ . " username failed: empty user");
     } else {
-        $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
-        $tokenProvided = (isset($token) && mb_strlen($token) >= 1);
-
         if ($passwordProvided) {
             //    Password provided, validate it
             if (validateUser($user, $pass, $fbUser, 0)) {
