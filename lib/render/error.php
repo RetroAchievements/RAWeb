@@ -26,6 +26,7 @@ function RenderErrorCodeWarning(?string $errorCode)
         'issue_submitted' => "Your issue ticket has been successfully submitted.",
         'merge_failed' => "Problems encountered while performing merge. These errors have been reported and will be fixed soon... sorry!",
         'merge_success' => "Game merge successful!",
+        'messageblocked' => "Message was not delivered - blocked by recipient.",
         'modify_game_ok' => "Game modify successful!",
         'modify_ok' => "Info: Modified OK!",
         'newadded' => "Friend request sent.",

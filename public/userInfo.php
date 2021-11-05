@@ -342,7 +342,9 @@ RenderHtmlStart(true);
                 echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
+            if ($userMassData['FriendReciprocation'] !== -1) {
+                echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
+            }
 
             echo "</div>"; //    buttoncollection
             echo "</div>"; //    friendbox
@@ -547,8 +549,10 @@ RenderHtmlStart(true);
 
         if ($userWallActive) {
             echo "<h4>User Wall</h4>";
+
+            // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                $user,
+                ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,

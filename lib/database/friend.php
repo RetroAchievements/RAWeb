@@ -247,6 +247,24 @@ function isFriendsWith($user, $friend)
     return $data['Friendship'] == '1';
 }
 
+function isUserBlocking($user, $possibly_blocked_user)
+{
+    sanitize_sql_inputs($user, $possibly_blocked_user);
+
+    $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$possibly_blocked_user'";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+    if ($data == false) {
+        return false;
+    }
+
+    return $data['Friendship'] == '-1';
+}
+
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
 {
     sanitize_sql_inputs($user, $gameID);
