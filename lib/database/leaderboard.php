@@ -374,7 +374,7 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     $retVal = [];
 
     //    'Me or my friends'
-    $friendQuery = $friendsOnly ? "( ( ua.User IN ( SELECT Friend FROM Friends WHERE User='$user' ) ) OR ua.User='$user' )" : "TRUE";
+    $friendQuery = $friendsOnly ? "( ( ua.User IN ( SELECT Friend FROM Friends WHERE User='$user' AND Friendship = 1 ) ) OR ua.User='$user' )" : "TRUE";
 
     //    Get entries:
     $query = "SELECT ua.User, le.Score, UNIX_TIMESTAMP( le.DateSubmitted ) AS DateSubmitted

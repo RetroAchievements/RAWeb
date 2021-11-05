@@ -308,6 +308,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
                 SELECT f.Friend 
                 FROM Friends AS f 
                 WHERE f.User = '$user'
+                AND f.Friendship = 1
             ) AS _FriendList 
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User 
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID 
@@ -351,6 +352,7 @@ function GetFriendList($user)
               FROM Friends AS f
               LEFT JOIN UserAccounts AS ua ON ua.User = f.Friend
               WHERE f.User='$user'
+              AND f.Friendship = 1
               AND ua.ID IS NOT NULL
               ORDER BY ua.LastActivityID DESC";
 

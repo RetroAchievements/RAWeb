@@ -534,7 +534,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     if ($type == 'activity') {      //    Find just this activity, ONLY!
         $subquery = "act.ID = $latestFeedID ";
     } elseif ($type == 'friends') {     //    User has been provided: find my friends!
-        $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' OR act.user IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$user' ) )";
+        $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' OR act.user IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$user' AND f.Friendship = 1 ) )";
     } elseif ($type == 'individual') {    //    User and 'individual', just this user's feed!
         $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' )";
     } else { //if( $type == 'global' )                    //    Otherwise, global feed
