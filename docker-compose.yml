@@ -39,6 +39,8 @@ services:
     volumes:
       - .:/srv/web
       - ./resources/docker/php/configs/php-ini-overrides.ini:/usr/local/etc/php/conf.d/php-ini-overrides.ini:ro
+      - ./resources/docker/php/configs/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./resources/docker/php/configs/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
     links:
       - mysql
 
