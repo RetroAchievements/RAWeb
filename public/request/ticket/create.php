@@ -28,6 +28,10 @@ if (isset($_POST['note'])) {
         }
     }
 
+    if (!empty(trim($_POST['note']['emulatorVersion']))) {
+        $appendNote .= "\nEmulator Version: " . $_POST['note']['emulatorVersion'];
+    }
+
     $note = $appendNote;
 }
 

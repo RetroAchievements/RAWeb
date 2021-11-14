@@ -32,13 +32,6 @@ function RenderHtmlHead($pageTitle = null)
 
 function RenderSharedHeader()
 {
-    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
-
-    $customCSS = RA_ReadCookie('RAPrefs_CSS');
-    if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
-    }
-
     echo "<link rel='icon' type='image/png' href='/favicon.png'>\n";
     echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
     echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>\n";
@@ -59,14 +52,26 @@ function RenderSharedHeader()
     echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
 
     echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>\n";
+
+    // jQuery Modal
+    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
+    echo "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css' />";
+
+    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
 
     //    jQuery, and custom js
     //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
     echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
     echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
+
+    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
+    $customCSS = RA_ReadCookie('RAPrefs_CSS');
+    if ($customCSS !== false && mb_strlen($customCSS) > 2) {
+        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
+    }
 }
 
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
@@ -221,6 +226,7 @@ function RenderToolbar($user, $permissions = 0)
     ///Sony
     echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+    echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";

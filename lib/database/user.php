@@ -1232,6 +1232,7 @@ function getControlPanelUserInfo($user, &$libraryOut)
                 LEFT JOIN (
                     SELECT ach.GameID, COUNT(*) AS NumPossible
                     FROM Achievements AS ach
+                    WHERE ach.Flags = 3
                     GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
                 WHERE aw.User = '$user' AND aw.HardcoreMode = 0
                 GROUP BY gd.ID, gd.ConsoleID, gd.Title
@@ -1629,14 +1630,14 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
         Permissions,
         ContribCount,
         ContribYield,
-        COUNT(DISTINCT(ach.ID)) AS Achievements,
+        COUNT(DISTINCT(CASE WHEN ach.Flags = 3 THEN ach.ID ELSE NULL END)) AS Achievements,
         COUNT(tick.ID) AS OpenTickets,
         COUNT(tick.ID)/COUNT(ach.ID) AS TicketRatio,
         LastLogin
     FROM
         UserAccounts AS ua
     LEFT JOIN
-        Achievements AS ach ON (ach.Author = ua.User AND ach.Flags = 3)
+        Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
     LEFT JOIN
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState = 1)
     WHERE

@@ -111,7 +111,7 @@ switch ($requestType) {
             /**
              * Token invalid or out of date
              */
-            DoRequestError("Error with login! Please try again.");
+            DoRequestError("Login failed. Check your credentials and try again.");
         }
         break;
 
@@ -320,8 +320,9 @@ switch ($requestType) {
 
     case "lbinfo":
         $lbID = requestInput('i', 0, 'integer');
+        $nearby = true; // Nearby entry behavior has no effect if $user is null
         $friendsOnly = 0; // TBD
-        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
+        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly, $nearby);
         break;
 
     // case "modifyfriend":

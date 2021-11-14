@@ -244,7 +244,7 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
         global $db;
         $newTopicIDOut = mysqli_insert_id($db);
 
-        if (submitTopicComment($user, $newTopicIDOut, $topicPayload, $newCommentID)) {
+        if (submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID)) {
             //error_log( __FUNCTION__ . " posted OK!" );
             //error_log( "$user posted new topic $topicTitle giving topic ID $newTopicIDOut with added comment ID $newCommentID" );
             return true;
@@ -316,7 +316,7 @@ function editTopicComment($commentID, $newPayload)
     }
 }
 
-function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
+function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$newCommentIDOut)
 {
     sanitize_sql_inputs($user, $topicID);
     $userID = getUserIDFromUser($user);
@@ -338,7 +338,16 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
         $newCommentIDOut = mysqli_insert_id($db);
         setLatestCommentInForumTopic($topicID, $newCommentIDOut);
 
-        notifyUsersAboutForumActivity($topicID, $user, $newCommentIDOut);
+        if ($topicTitle == null) {
+            $topicData = [];
+            if (getTopicDetails($topicID, $topicData)) {
+                $topicTitle = $topicData['TopicTitle'];
+            } else {
+                $topicTitle = '';
+            }
+        }
+
+        notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
 
         //error_log( __FUNCTION__ . " posted OK!" );
         // error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
@@ -350,7 +359,7 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
     }
 }
 
-function notifyUsersAboutForumActivity($topicID, $author, $commentID)
+function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentID)
 {
     sanitize_sql_inputs($topicID, $author, $commentID);
 
@@ -375,7 +384,7 @@ function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Leaderboard, null, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Forum, $topicTitle, null, $urlTarget);
     }
 }
 
@@ -494,7 +503,15 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
     //    02:08 21/02/2014 - cater for 20 spam messages
     $countPlusSpam = $count + 20;
     $query = "
-        SELECT LatestComments.DateCreated AS PostedAt, LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg, LatestComments.Author, ua.RAPoints, ua.Motto, ft.ID AS ForumTopicID, ft.Title AS ForumTopicTitle, LatestComments.ID AS CommentID
+        SELECT LatestComments.DateCreated AS PostedAt,
+            LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg,
+            LENGTH(LatestComments.Payload) > $numMessageChars AS IsTruncated,
+            LatestComments.Author,
+            ua.RAPoints,
+            ua.Motto,
+            ft.ID AS ForumTopicID,
+            ft.Title AS ForumTopicTitle,
+            LatestComments.ID AS CommentID
         FROM 
         (
             SELECT * 

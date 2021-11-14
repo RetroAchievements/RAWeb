@@ -354,7 +354,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         $havingCond = "HAVING MyAchievements > 0 ";
     }
 
-    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
+    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
                 $moreSelectCond
                 CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
                 FROM Achievements AS ach
@@ -370,7 +370,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
 
     settype($sortBy, 'integer');
 
-    if ($sortBy < 1 || $sortBy > 13) {
+    if ($sortBy < 1 || $sortBy > 16) {
         $sortBy = 1;
     }
 
@@ -417,6 +417,13 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             } else {
                 $query .= "ORDER BY gd.ConsoleID, Title DESC ";
             }
+            break;
+
+        case 6:
+            $query .= "ORDER BY gd.ConsoleID, ach.DateModified DESC, Title ";
+            break;
+        case 16:
+            $query .= "ORDER BY gd.ConsoleID, ach.DateModified ASC, Title DESC ";
             break;
     }
 
@@ -561,21 +568,12 @@ function getGameIDFromTitle($gameTitleIn, $consoleID)
     }
 }
 
-function testFullyCompletedGame($user, $achID, $isHardcore)
+function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery)
 {
-    sanitize_sql_inputs($user, $isHardcore);
+    sanitize_sql_inputs($gameID, $user, $isHardcore);
     settype($isHardcore, 'integer');
 
-    $achData = [];
-    if (getAchievementMetadata($achID, $achData) == false) {
-        // error_log(__FUNCTION__);
-        // error_log("cannot get achievement metadata for $achID. This is MEGABAD!");
-        return false;
-    }
-
-    $gameID = $achData['GameID'];
-
-    $query = "SELECT COUNT(ach.ID) AS NumAwarded, COUNT(aw.AchievementID) AS NumAch FROM Achievements AS ach 
+    $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
               WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
 
@@ -584,7 +582,7 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
         $minToCompleteGame = 5;
 
         $data = mysqli_fetch_assoc($dbResult);
-        if (($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
+        if ($postMastery && ($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
             //    Every achievement earned!
             //error_log( __FUNCTION__ );
             //error_log( "$user earned EVERY achievement for game $gameID" );
@@ -592,15 +590,12 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
             if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
                 postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
             }
-            return true;
-        } else {
-            return false;
         }
-    } else {
-        // error_log(__FUNCTION__);
-        // error_log("broken1 with $achID, $gameID, $user. This is MEGABAD!");
-        return false;
+
+        return $data;
     }
+
+    return [];
 }
 
 function requestModifyGameData($gameID, $developer, $publisher, $genre, $released)
