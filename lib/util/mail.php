@@ -116,30 +116,6 @@ function mail_utf8($to, $from_user, $from_email, $subject = '(No subject)', $mes
         return $mailer->send($message);
     }
 
-    if (getenv('MAIL_DRIVER') === 'mailcatcher') {
-        $transport = (new Swift_SmtpTransport('mailcatcher', 1025));
-        $mailer = new Swift_Mailer($transport);
-
-        $message = (new Swift_Message($subject))
-            ->setFrom([$from_email => $from_user])
-            ->setTo($to)
-            ->setBody($message);
-
-        return $mailer->send($message);
-    }
-
-    if (getenv('MAIL_DRIVER') === 'mailcatcher') {
-        $transport = (new Swift_SmtpTransport('mailcatcher', 1025));
-        $mailer = new Swift_Mailer($transport);
-
-        $message = (new Swift_Message($subject))
-            ->setFrom([$from_email => $from_user])
-            ->setTo($to)
-            ->setBody($message);
-
-        return $mailer->send($message);
-    }
-
     $from_user = "=?UTF-8?B?" . base64_encode($from_user) . "?=";
     $subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
     $headers = "From: $from_user <$from_email>\r\n" .
