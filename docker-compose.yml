@@ -52,6 +52,12 @@ services:
       PMA_PORT: 3306
     ports:
       - ${PHPMYADMIN_PORT}:80
+
+  mailcatcher:
+    image: schickling/mailcatcher # https://github.com/schickling/dockerfiles/blob/master/mailcatcher/Dockerfile
+    ports:
+      - ${MAILCATCHER_PORT_SMTP}:1025
+      - ${MAILCATCHER_PORT_HTTP}:1080
 #    volumes:
 #      - /sessions
 #      - ~/docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
