@@ -37,4 +37,3 @@ RenderHtmlHead('Code Notes');
 <?php RenderFooter(); ?>
 </body>
 <?php RenderHtmlEnd(); ?>
-

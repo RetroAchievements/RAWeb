@@ -221,4 +221,3 @@ RenderHtmlHead('Inbox');
 <?php RenderFooter(); ?>
 </body>
 <?php RenderHtmlEnd(); ?>
-
