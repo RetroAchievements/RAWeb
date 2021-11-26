@@ -177,3 +177,35 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
         }
     }
 }
+
+function RenderRecentGamePlayers($recentPlayerData)
+{
+    echo "<div class='component'>Recent Players:";
+    echo "<table class='smalltable'><tbody>";
+    echo "<tr><th>User</th><th>When</th><th>Activity</th>";
+
+    foreach ($recentPlayerData as $recentPlayer) {
+        echo "<tr>";
+
+        $userName = $recentPlayer['User'];
+        $date = $recentPlayer['Date'];
+        $activity = $recentPlayer['Activity'];
+
+        sanitize_outputs(
+            $userName,
+            $activity
+        );
+
+        echo "<td nowrap>";
+        echo GetUserAndTooltipDiv($userName, true);
+        echo GetUserAndTooltipDiv($userName, false);
+        echo "</td>";
+
+        echo "<td>$date</td>";
+        echo "<td>$activity</td>";
+        echo "</tr>";
+    }
+
+    echo "</tbody></table>";
+    echo "</div>";
+}
