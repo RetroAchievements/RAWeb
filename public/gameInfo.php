@@ -60,7 +60,6 @@ $achDist = null;
 $authorInfo = null;
 $commentData = null;
 $cookie = null;
-$gameLatestMasters = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
@@ -155,8 +154,7 @@ if ($isFullyFeaturedGame) {
     }
 
     //Get the top ten players at this game:
-    $gameTopAchievers = getGameTopAchievers($gameID, 0, 10, $user, 0);
-    $gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, 1);
+    $gameTopAchievers = getGameTopAchievers($gameID, $user);
 
     // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
@@ -1128,7 +1126,7 @@ RenderHtmlStart(true);
             echo "<div id='chart_distribution'></div>";
             echo "</div>";
 
-            RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters);
+            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             RenderGameLeaderboardsComponent($gameID, $lbData);
             ?>
         </div>
