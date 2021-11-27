@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\Permissions;
 
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 {
