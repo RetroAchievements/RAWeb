@@ -79,10 +79,10 @@ function isValidConsoleId($consoleId)
             // case 64: // Sharp X1
             // case 65: // TIC-80
             // case 66: // Thomson TO8
-			// case 67: // PC-6000
-			// case 68: // Sega Pico
-			// case 69: // Mega Duck
-			// case 70: // Zeebo
+	    // case 67: // PC-6000
+	    // case 68: // Sega Pico
+	    // case 69: // Mega Duck
+	    // case 70: // Zeebo
             // case 100: // Hubs (not an actual console)
         case 101: // Events (not an actual console)
             return true;
