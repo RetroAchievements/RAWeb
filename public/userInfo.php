@@ -342,9 +342,7 @@ RenderHtmlStart(true);
                 echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
-            if ($userMassData['FriendReciprocation'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
-            }
+            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
 
             echo "</div>"; //    buttoncollection
             echo "</div>"; //    friendbox

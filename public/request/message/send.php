@@ -17,7 +17,7 @@ $payload = requestInputPost('m');
 
 if (validateUser_cookie($user, $cookie, 0) == true) {
     if (isUserBlocking($recipient, $user)) {
-        header("Location: " . getenv('APP_URL') . "/inbox.php?e=messageblocked");
+        header("Location: " . getenv('APP_URL') . "/inbox.php?e=sentok");
         exit;
     }
 
