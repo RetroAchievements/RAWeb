@@ -362,7 +362,7 @@ RenderHtmlStart();
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
-            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p' placeholder='Enter a comment here... and please do not share links to ROMs...'>$defaultMessage</textarea><br><br>";
+            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p' placeholder='Enter a comment here... and please do not share links to copyrighted ROMs...'>$defaultMessage</textarea><br><br>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version
