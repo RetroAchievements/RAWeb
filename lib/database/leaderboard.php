@@ -549,7 +549,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
     return $retVal;
 }
 
-function _FormatValueSeconds($hours, $mins, $secs)
+function formatLeaderboardValueSeconds($hours, $mins, $secs)
 {
     if ($hours == 0) {
         return sprintf("%02d:%02d", $mins, $secs);
@@ -573,13 +573,13 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%s.%02d", _FormatValueSeconds($hours, $mins, $secs), $milli);
+        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
     } elseif ($formatType == 'TIMESECS') { // Number of seconds
         $hours = $scoreIn / 3600;
         settype($hours, 'integer');
         $mins = ($scoreIn / 60) - ($hours * 60);
         $secs = $scoreIn % 60;
-        return _FormatValueSeconds($hours, $mins, $secs);
+        return formatLeaderboardValueSeconds($hours, $mins, $secs);
     } elseif ($formatType == 'MILLISECS') { // Hundredths of seconds
         $hours = $scoreIn / 360000;
         settype($hours, 'integer');
@@ -589,7 +589,7 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%s.%02d", _FormatValueSeconds($hours, $mins, $secs), $milli);
+        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
     } elseif ($formatType == 'MINUTES') { // Number of minutes
         $hours = $scoreIn / 60;
         settype($hours, 'integer');
@@ -609,7 +609,7 @@ function isValidLeaderboardFormat($formatType)
            $formatType == 'MINUTES' ||   // Minutes
            $formatType == 'MILLISECS' || // Hundredths of seconds
            $formatType == 'VALUE' ||     // Raw number
-           $formatType == 'SCORE';      // Number padded to six digits
+           $formatType == 'SCORE';       // Number padded to six digits
 }
 
 function getLeaderboardDataSmall(
