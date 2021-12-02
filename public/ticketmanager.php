@@ -741,7 +741,12 @@ RenderHtmlHead($pageTitle);
 
                     echo "<select name='action' required>";
                     echo "<option value='' disabled selected hidden>Choose an action...</option>";
+
                     if ($reportState == 1) {
+                        if ($user == $reportedBy || $permissions >= Permissions::Developer) {
+                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
+                        }
+
                         if ($permissions >= Permissions::Developer) {
                             echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
                             echo "<option value='demoted'>Demote achievement to Unofficial</option>";
@@ -749,7 +754,6 @@ RenderHtmlHead($pageTitle);
                             echo "<option value='not-enough-info'>Close - Not enough information</option>";
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
                             echo "<option value='unable-to-reproduce'>Close - Unable to reproduce</option>";
-                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     } else { // ticket is not open
