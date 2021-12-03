@@ -745,7 +745,7 @@ RenderHtmlHead($pageTitle);
                     if ($reportState == 1) {
                         if ($user == $reportedBy && $permissions < Permissions::Developer) {
                             echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
-                        } else if ($permissions >= Permissions::Developer) {
+                        } elseif ($permissions >= Permissions::Developer) {
                             echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
                             echo "<option value='demoted'>Demote achievement to Unofficial</option>";
                             echo "<option value='network'>Close - Network problems</option>";
