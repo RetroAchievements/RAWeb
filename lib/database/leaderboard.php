@@ -334,11 +334,12 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
                 FROM LeaderboardEntry AS le2
                 LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le2.LeaderboardID
                 LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                WHERE ( !ua.Untracked || ua.User = '$localUser' ) && lbd.GameID = $gameID
+                WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null ) && lbd.GameID = $gameID
                 GROUP BY lbd.ID
             ) InnerTable
             LEFT JOIN LeaderboardEntry AS le ON le.LeaderboardID = InnerTable.LeaderboardID AND le.Score = InnerTable.BestScore
             LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+            WHERE ( !ua.Untracked || ua.User = '$localUser' )
             ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC ";
 
     $dataOut = [];
@@ -374,7 +375,7 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     $retVal = [];
 
     //    'Me or my friends'
-    $friendQuery = $friendsOnly ? "( ( ua.User IN ( SELECT Friend FROM Friends WHERE User='$user' ) ) OR ua.User='$user' )" : "TRUE";
+    $friendQuery = $friendsOnly ? "( ( ua.User IN ( SELECT Friend FROM Friends WHERE User='$user' AND Friendship = 1 ) ) OR ua.User='$user' )" : "TRUE";
 
     //    Get entries:
     $query = "SELECT ua.User, le.Score, UNIX_TIMESTAMP( le.DateSubmitted ) AS DateSubmitted

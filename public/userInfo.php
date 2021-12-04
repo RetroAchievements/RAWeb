@@ -547,8 +547,10 @@ RenderHtmlStart(true);
 
         if ($userWallActive) {
             echo "<h4>User Wall</h4>";
+
+            // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                $user,
+                ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,
