@@ -40,6 +40,10 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
 
         $count = 0;
         foreach ($lbData as $lbItem) {
+            if ($lbItem['DisplayOrder'] < 0) {
+                continue;
+            }
+
             $lbID = $lbItem['LeaderboardID'];
             $lbTitle = $lbItem['Title'];
             $lbDesc = $lbItem['Description'];
