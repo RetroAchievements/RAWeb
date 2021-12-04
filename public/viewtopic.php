@@ -252,7 +252,7 @@ RenderHtmlStart();
 
             if ($nextCommentAuthorised == 0) {
                 // Allow, only if this is MY comment (disclaimer: unofficial), or if I'm admin (disclaimer: unofficial, verify user?)
-                if ($permissions >= Permissions::Developer) {
+                if ($permissions >= Permissions::Admin) {
                     // Allow with disclaimer
                     $showDisclaimer = true;
                     $showAuthoriseTools = true;
