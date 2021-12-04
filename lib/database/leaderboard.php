@@ -325,7 +325,7 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
 {
     sanitize_sql_inputs($gameID, $localUser);
 
-    $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format FROM (
+    $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format, InnerTable.DisplayOrder FROM (
                 SELECT
                 CASE
                     WHEN !lbd.LowerIsBetter THEN MAX(le2.Score)
