@@ -399,7 +399,7 @@ function RenderFooter()
         echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "' target='_blank'>Twitch</a></div>";
     }
     if (getenv('FACEBOOK_CHANNEL')) {
-        echo "<div><a href='https://facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
+        echo "<div><a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
     }
     if (getenv('TWITTER_CHANNEL')) {
         echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "' target='_blank'>Twitter</a></div>";
