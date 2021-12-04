@@ -1088,12 +1088,13 @@ RenderHtmlStart(true);
             <?php
             RenderBoxArt($gameData['ImageBoxArt']);
 
+            echo "<h3>More Info</h3>";
+            echo "<ul>";
+            echo "<li>";
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+            echo "</li>";
+
             if (isset($user)) {
-                echo "<h3>More Info</h3>";
-                echo "<ul>";
-                echo "<li>";
-                RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-                echo "</li>";
                 echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Hashes linked to this game</a></li>";
                 $numOpenTickets = countOpenTickets(
                     requestInputSanitized('f') == $unofficialFlag,

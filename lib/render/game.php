@@ -173,7 +173,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
         echo "<a class='info-button' href='/viewtopic.php?t=$forumTopicID'><span>💬</span>Official forum topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {
-            echo "<a class='info-button' href='/request/game/generate-forum-topic.php?g=$gameID'><span>💬</span>Create the official forum topic for $gameTitle</a>";
+            echo "<a class='info-button' href='/request/game/generate-forum-topic.php?g=$gameID' onclick='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'><span>💬</span>Create the official forum topic for $gameTitle</a>";
         }
     }
 }
