@@ -420,10 +420,10 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             break;
 
         case 6:
-            $query .= "ORDER BY gd.ConsoleID, ach.DateModified DESC, Title ";
+            $query .= "ORDER BY gd.ConsoleID, DateModified DESC, Title ";
             break;
         case 16:
-            $query .= "ORDER BY gd.ConsoleID, ach.DateModified ASC, Title DESC ";
+            $query .= "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ";
             break;
     }
 
@@ -902,29 +902,58 @@ function getTotalUniquePlayers($gameID, $requestedBy)
     return $data['UniquePlayers'];
 }
 
+function getGameRecentPlayers($gameID, $maximum_results = 0)
+{
+    sanitize_sql_inputs($gameID, $maximum_results);
+    settype($gameID, 'integer');
+
+    $retval = [];
+
+    $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
+              FROM UserAccounts AS ua
+              WHERE ua.LastGameID = $gameID
+              ORDER BY ua.RichPresenceMsgDate DESC";
+
+    if ($maximum_results > 0) {
+        $query .= " LIMIT $maximum_results";
+    }
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $retval[] = $data;
+        }
+    }
+
+    return $retval;
+}
+
 /**
  * Gets a game's high scorers or latest masters.
  *
  * @param int $gameID game ID to get high score information for
- * @param int $offset query offset value
- * @param int $count query number of returned rows
  * @param string $requestedBy user requesting the information
- * @param int $type The type of data to return.
- *          0 - High Scores
- *          1 - Latest Masters
  *
  * @return array of user information to display on the High Scores section of a game page
  */
-function getGameTopAchievers($gameID, $offset, $count, $requestedBy, $type = 0)
+function getGameTopAchievers($gameID, $requestedBy)
 {
     sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
 
-    $retval = [];
-    $havingQuery = "";
-    $order = "ASC";
-    if ($type == 1) {
-        $havingQuery = "HAVING TotalScore = (SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3)";
-        $order = "DESC";
+    $high_scores = [];
+    $masters = [];
+    $mastery_score = 0;
+
+    $query = "SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        if ($data = mysqli_fetch_assoc($dbResult)) {
+            $mastery_score = $data['Points'];
+        }
     }
 
     $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
@@ -936,19 +965,31 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy, $type = 0)
                   AND ach.Flags = 3 
                   AND gd.ID = $gameID
                 GROUP BY aw.User
-                $havingQuery
-                ORDER BY TotalScore DESC, LastAward $order
-                LIMIT $offset, $count";
+                ORDER BY TotalScore DESC, LastAward ASC";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
+            if (count($high_scores) < 10) {
+                array_push($high_scores, $data);
+            }
+
+            if ($data['TotalScore'] == $mastery_score) {
+                if (count($masters) == 10) {
+                    array_shift($masters);
+                }
+                array_push($masters, $data);
+            } elseif (count($high_scores) == 10) {
+                break;
+            }
         }
     }
 
+    $retval = [];
+    $retval['Masters'] = array_reverse($masters);
+    $retval['HighScores'] = $high_scores;
     return $retval;
 }
 

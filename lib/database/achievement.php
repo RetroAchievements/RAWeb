@@ -1052,7 +1052,7 @@ function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
 
     $extraWhere = "";
     if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
-        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' ) ";
+        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' AND Friendship = 1 ) ";
     }
 
     //    Get recent winners, and their most recent activity:
