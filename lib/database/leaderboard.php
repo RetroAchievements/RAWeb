@@ -334,11 +334,12 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
                 FROM LeaderboardEntry AS le2
                 LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le2.LeaderboardID
                 LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                WHERE ( !ua.Untracked || ua.User = '$localUser' ) && lbd.GameID = $gameID
+                WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null ) && lbd.GameID = $gameID
                 GROUP BY lbd.ID
             ) InnerTable
             LEFT JOIN LeaderboardEntry AS le ON le.LeaderboardID = InnerTable.LeaderboardID AND le.Score = InnerTable.BestScore
             LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+            WHERE ( !ua.Untracked || ua.User = '$localUser' )
             ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC ";
 
     $dataOut = [];

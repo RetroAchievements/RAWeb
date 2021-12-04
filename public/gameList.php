@@ -199,11 +199,11 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                 echo "<td><b>Totals: $gameCount games</b></td>";
                 echo "<td><b>$achievementsTally</b></td>";
                 echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
+                echo "<td></td>";
                 echo "<td><b>$lbCount</b></td>";
                 if ($showTickets) {
                     echo "<td><b>$ticketsCount</b></td>";
                 }
-                echo "<td></td>";
                 echo "</tr>";
                 echo "</tbody></table></div>";
             }
