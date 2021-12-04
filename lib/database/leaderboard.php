@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\Permissions;
 
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 {
@@ -549,9 +550,20 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
     return $retVal;
 }
 
+function formatLeaderboardValueSeconds($hours, $mins, $secs)
+{
+    if ($hours == 0) {
+        return sprintf("%02d:%02d", $mins, $secs);
+    }
+
+    return sprintf("%02dh%02d:%02d", $hours, $mins, $secs);
+}
+
 function GetFormattedLeaderboardEntry($formatType, $scoreIn)
 {
     settype($scoreIn, 'integer');
+
+    // NOTE: a/b results in a float, a%b results in an integer
 
     if ($formatType == 'TIME') { // Number of frames
         $hours = $scoreIn / 216000;
@@ -562,14 +574,14 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%01d:%02d:%02d.%02d", $hours, $mins, $secs, $milli);
+        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
     } elseif ($formatType == 'TIMESECS') { // Number of seconds
-        $hours = $scoreIn / 360;
+        $hours = $scoreIn / 3600;
         settype($hours, 'integer');
         $mins = ($scoreIn / 60) - ($hours * 60);
         $secs = $scoreIn % 60;
-        return sprintf("%01d:%02d:%02d", $hours, $mins, $secs);
-    } elseif ($formatType == 'MILLISECS') { // Number of milliseconds
+        return formatLeaderboardValueSeconds($hours, $mins, $secs);
+    } elseif ($formatType == 'MILLISECS') { // Hundredths of seconds
         $hours = $scoreIn / 360000;
         settype($hours, 'integer');
         $mins = ($scoreIn / 6000) - ($hours * 60);
@@ -578,10 +590,27 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%01d:%02d:%02d.%02d", $hours, $mins, $secs, $milli);
-    } else {
+        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
+    } elseif ($formatType == 'MINUTES') { // Number of minutes
+        $hours = $scoreIn / 60;
+        settype($hours, 'integer');
+        $mins = $scoreIn % 60;
+        return sprintf("%01dh%02d", $hours, $mins);
+    } elseif ($formatType == 'SCORE') { // Number padded to six digits
+        return sprintf("%06d", $scoreIn);
+    } else { // Raw number
         return "$scoreIn";
     }
+}
+
+function isValidLeaderboardFormat($formatType)
+{
+    return $formatType == 'TIME' ||      // Frames
+           $formatType == 'TIMESECS' ||  // Seconds
+           $formatType == 'MINUTES' ||   // Minutes
+           $formatType == 'MILLISECS' || // Hundredths of seconds
+           $formatType == 'VALUE' ||     // Raw number
+           $formatType == 'SCORE';       // Number padded to six digits
 }
 
 function getLeaderboardDataSmall(
@@ -800,6 +829,7 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut, $user)
     $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
                                 VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
                                 (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '$user', NOW())";
+
     // log_sql($query);
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -809,6 +839,85 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut, $user)
     } else {
         return false;
     }
+}
+
+function UploadNewLeaderboard(
+    $author,
+    $gameID,
+    $title,
+    $desc,
+    $format,
+    $lowerIsBetter,
+    $mem,
+    &$idInOut,
+    &$errorOut
+) {
+    $displayOrder = 0;
+    $originalAuthor = '';
+
+    if ($idInOut > 0) {
+        $query = "SELECT DisplayOrder, Author FROM LeaderboardDef WHERE ID='$idInOut'";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
+            $data = mysqli_fetch_assoc($dbResult);
+            $displayOrder = $data['DisplayOrder'];
+            $originalAuthor = $data['Author'];
+            settype($displayOrder, 'integer');
+        }
+    }
+
+    // Prevent <= registered users from uploading or modifying leaderboards
+    $userPermissions = getUserPermissions($author);
+    if ($userPermissions <= \RA\Permissions::Registered) {
+        if ($userPermissions < Permissions::JuniorDeveloper || $author != $originalAuthor) {
+            $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+            return false;
+        }
+    }
+
+    //    Hack for 'development tutorial game'
+    if ($gameID == 10971) {
+        $errorOut = "Tutorial: Leaderboard upload! This reply is happening on the server, to say that we have successfully received your leaderboard data.";
+        return false;
+    }
+
+    if (!isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
+        $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
+        return false;
+    }
+
+    if (!isValidLeaderboardFormat($format)) {
+        $errorOut = "Unknown format: $format";
+        return false;
+    }
+
+    if (!isset($idInOut) || $idInOut == 0) {
+        if (!SubmitNewLeaderboard($gameID, $idInOut, $author)) {
+            $errorOut = "Internal error creating new leaderboard.";
+            return false;
+        }
+
+        $query = "SELECT DisplayOrder FROM LeaderboardDef WHERE ID='$idInOut'";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
+            $data = mysqli_fetch_assoc($dbResult);
+            $displayOrder = $data['DisplayOrder'];
+            settype($displayOrder, 'integer');
+        }
+    }
+
+    if (!submitLBData($author, $idInOut, $mem, $title, $desc, $format, $lowerIsBetter, $displayOrder)) {
+        $errorOut = "Internal error updating leaderboard.";
+        return false;
+    }
+
+    if ($originalAuthor != '') {
+        addArticleComment("Server", \RA\ArticleType::Leaderboard, $idInOut,
+            "$author edited this leaderboard.", $author
+        );
+    }
+
+    return true;
 }
 
 /**
