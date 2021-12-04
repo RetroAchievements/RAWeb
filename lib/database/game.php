@@ -420,10 +420,10 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             break;
 
         case 6:
-            $query .= "ORDER BY gd.ConsoleID, MAX(ach.DateModified) DESC, Title ";
+            $query .= "ORDER BY gd.ConsoleID, DateModified DESC, Title ";
             break;
         case 16:
-            $query .= "ORDER BY gd.ConsoleID, MAX(ach.DateModified) ASC, Title DESC ";
+            $query .= "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ";
             break;
     }
 
