@@ -1070,9 +1070,14 @@ RenderHtmlStart(true);
             }
 
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            echo "<br><br>";
+            echo "<br>";
 
             if ($isFullyFeaturedGame) {
+                $recentPlayerData = getGameRecentPlayers($gameID, 10);
+                if (count($recentPlayerData) > 0) {
+                    RenderRecentGamePlayers($recentPlayerData);
+                }
+
                 RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, \RA\ArticleType::Game, $permissions >= Permissions::Admin);
             }
             ?>
