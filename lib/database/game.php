@@ -911,7 +911,7 @@ function getGameRecentPlayers($gameID, $maximum_results = 0)
 
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
               FROM UserAccounts AS ua
-              WHERE ua.LastGameID = $gameID
+              WHERE ua.LastGameID = $gameID AND ua.Permissions >= 0
               ORDER BY ua.RichPresenceMsgDate DESC";
 
     if ($maximum_results > 0) {
