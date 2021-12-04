@@ -272,40 +272,36 @@ function generateAppToken($user, &$tokenOut)
     }
 }
 
-function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOut): int
+function loginApp($user, $pass, $token)
 {
     //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
 
-    sanitize_sql_inputs($user);
+    sanitize_sql_inputs($user, $token);
+
+    $query = null;
+    $response = [];
+
+    $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
+    $tokenProvided = (isset($token) && mb_strlen($token) >= 1);
 
     if (!isset($user) || $user == false || mb_strlen($user) < 2) {
         // error_log(__FUNCTION__ . " username failed: empty user");
-        return 0;
-    }
-
-    $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
-    $tokenProvided = (isset($tokenInOut) && mb_strlen($tokenInOut) >= 1);
-
-    if (!$passwordProvided && !$tokenProvided) {
-        return 0;
-    }
-
-    $query = null;
-
-    if ($passwordProvided) {
-        $loginUser = $user;
-        $authenticated = validateUser($loginUser, $pass, $fbUser, 0);
-        if (!$authenticated) {
-            return 0;
+    } else {
+        if ($passwordProvided) {
+            //    Password provided, validate it
+            if (validateUser($user, $pass, $fbUser, 0)) {
+                $query = "SELECT RAPoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
+            }
+        } elseif ($tokenProvided) {
+            //    Token provided, look for match
+            $query = "SELECT RAPoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
         }
-        $query = "SELECT RAPoints, appToken FROM UserAccounts WHERE User='$user'";
-    } elseif ($tokenProvided) {
-        //    Token provided:
-        $query = "SELECT RAPoints, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$tokenInOut'";
     }
 
     if (!$query) {
-        return 0;
+        $response['Success'] = false;
+        $response['Error'] = "Invalid User/Password combination. Please try again";
+        return $response;
     }
 
     //error_log( $query );
@@ -318,28 +314,21 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
             if ($tokenProvided) {
                 $expiry = $data['appTokenExpiry'];
                 if (time() > strtotime($expiry)) {
-                    generateAppToken($user, $tokenInOut);
+                    generateAppToken($user, $token);
                     //    Expired!
                     // error_log(__FUNCTION__ . " failed6: user:$user, tokenInOut:$tokenInOut, $expiry, " . strtotime($expiry));
-                    return -1;
+                    $response['Success'] = false;
+                    $response['Error'] = "Automatic login failed (token expired), please login manually";
                 }
             }
 
-            $scoreOut = $data['RAPoints'];
-            settype($scoreOut, "integer");
-            $messagesOut = GetMessageCount($user, $totalMessageCount);
-
-            //if( $passwordProvided )
-            //    generateAppToken( $user, $tokenInOut );
-            //    Against my better judgement... ##SD
             if (mb_strlen($data['appToken']) != 16) {   //    Generate if new
                 generateAppToken($user, $tokenInOut);
             } else {
                 //    Return old token if not
-                $tokenInOut = $data['appToken'];
+                $token = $data['appToken'];
 
                 //    Update app token expiry now anyway
-
                 $expDays = 14;
                 $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
                 $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
@@ -349,14 +338,27 @@ function login_appWithToken($user, $pass, &$tokenInOut, &$scoreOut, &$messagesOu
 
             postActivity($user, ActivityType::Login, "");
 
-            return 1;
+            $response['Success'] = true;
+            $response['User'] = $user;
+            $response['Token'] = $token;
+            $response['Score'] = $data['RAPoints'];
+            settype($response['Score'], "integer");
+            $response['Messages'] = GetMessageCount($user, $totalMessageCount);
+            $response['Permissions'] = $data['Permissions'];
+            settype($response['Permissions'], "integer");
+            $response['AccountType'] = PermissionsToString($response['Permissions']);
         } else {
             // error_log(__FUNCTION__ . " failed5: user:$user, tokenInOut:$tokenInOut");
-            return 0;
+            $response['Success'] = false;
+            $response['Error'] = "Invalid User/Password combination. Please try again";
         }
+    } else {
+        // query failure
+        $response['Success'] = false;
+        $response['Error'] = "Invalid User/Password combination. Please try again";
     }
 
-    return 0;
+    return $response;
 }
 
 function getUserAppToken($user)
