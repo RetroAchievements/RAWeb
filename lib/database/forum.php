@@ -90,8 +90,8 @@ function getForumTopics($forumID, $offset, $count, &$maxCountOut)
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
+                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
+                WHERE ft.ForumID = $forumID
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC
                 LIMIT $offset, $count";
@@ -102,8 +102,10 @@ function getForumTopics($forumID, $offset, $count, &$maxCountOut)
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
+            if ($db_entry['NumTopicReplies'] != -1) {
+                $dataOut[$numResults] = $db_entry;
+                $numResults++;
+            }
         }
         return $dataOut;
     } else {

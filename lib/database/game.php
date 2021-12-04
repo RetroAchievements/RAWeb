@@ -420,10 +420,10 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             break;
 
         case 6:
-            $query .= "ORDER BY gd.ConsoleID, ach.DateModified DESC, Title ";
+            $query .= "ORDER BY gd.ConsoleID, DateModified DESC, Title ";
             break;
         case 16:
-            $query .= "ORDER BY gd.ConsoleID, ach.DateModified ASC, Title DESC ";
+            $query .= "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ";
             break;
     }
 
@@ -900,6 +900,34 @@ function getTotalUniquePlayers($gameID, $requestedBy)
 
     $data = mysqli_fetch_assoc($dbResult);
     return $data['UniquePlayers'];
+}
+
+function getGameRecentPlayers($gameID, $maximum_results = 0)
+{
+    sanitize_sql_inputs($gameID, $maximum_results);
+    settype($gameID, 'integer');
+
+    $retval = [];
+
+    $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
+              FROM UserAccounts AS ua
+              WHERE ua.LastGameID = $gameID
+              ORDER BY ua.RichPresenceMsgDate DESC";
+
+    if ($maximum_results > 0) {
+        $query .= " LIMIT $maximum_results";
+    }
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $retval[] = $data;
+        }
+    }
+
+    return $retval;
 }
 
 /**

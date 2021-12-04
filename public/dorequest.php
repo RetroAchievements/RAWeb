@@ -100,19 +100,7 @@ switch ($requestType) {
     case "login": // From App!
         $user = requestInput('u');
         $rawPass = requestInput('p');
-        $success = login_appWithToken($user, $rawPass, $token, $scoreOut, $messagesOut);
-        if ($success == 1) {
-            // OK:
-            $response['User'] = $user;
-            $response['Token'] = $token;
-            $response['Score'] = $scoreOut;
-            $response['Messages'] = $messagesOut;
-        } else {
-            /**
-             * Token invalid or out of date
-             */
-            DoRequestError("Login failed. Check your credentials and try again.");
-        }
+        $response = loginApp($user, $rawPass, $token);
         break;
 
     /**
