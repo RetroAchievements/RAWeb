@@ -40,6 +40,10 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
 
         $count = 0;
         foreach ($lbData as $lbItem) {
+            if ($lbItem['DisplayOrder'] < 0) {
+                continue;
+            }
+
             $lbID = $lbItem['LeaderboardID'];
             $lbTitle = $lbItem['Title'];
             $lbDesc = $lbItem['Description'];
@@ -60,16 +64,18 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             //    Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            //echo "<a href='/user/" . $bestScoreUser . "'><img alt='$bestScoreUser' title='$bestScoreUser' src='/UserPic/$bestScoreUser.png' width='32' height='32' /></a>";
             echo GetUserAndTooltipDiv($bestScoreUser, true);
             echo GetUserAndTooltipDiv($bestScoreUser, false);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
-            echo GetFormattedLeaderboardEntry($scoreFormat, $bestScore);
+            if ($bestScoreUser == '') {
+                echo "No entries";
+            } else {
+                echo GetFormattedLeaderboardEntry($scoreFormat, $bestScore);
+            }
             echo "</a>";
             echo "</td>";
-
             echo "</tr>";
 
             $count++;

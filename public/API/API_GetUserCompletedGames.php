@@ -4,6 +4,7 @@
  * This can be used to determine the number of sets a user has completed.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../lib/bootstrap.php';
 
 runPublicApiMiddleware();
 

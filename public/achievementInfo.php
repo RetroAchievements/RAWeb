@@ -1,12 +1,15 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ArticleType;
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 
+$dataOut = null;
 if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
     exit;
@@ -118,10 +121,11 @@ RenderHtmlStart(true);
 
         echo "<table class='nicebox'><tbody>";
 
+        $escapeForAttributes = "htmlentities"; // sanitize_outputs uses null for 2nd param, so it won't convert quotes to entities
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$desc\" alt=\"$desc\" align=\"left\" width=\"64\" height=\"64\" /></a>";
+        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n{$escapeForAttributes($desc)}\" alt=\"{$escapeForAttributes($desc)}\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; //achievemententryicon
         echo "</td>";
 
@@ -187,51 +191,53 @@ RenderHtmlStart(true);
         }
         echo "<br>";
 
-        if (isset($user) && $permissions >= Permissions::Developer) {
+        if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 
-            echo "<li>Set embedded video URL:</li>";
-            echo "<table><tbody>";
-            echo "<input type='hidden' name='a' value='$achievementID' />";
-            echo "<input type='hidden' name='f' value='2' />";
-            echo "<input type='hidden' name='u' value='$user' />";
-            echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
-            echo "</tbody></table>";
-            echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
-            echo "<div style='clear:both;'></div>"; ?>
-            Examples for accepted formats:<br>
-            <p style="margin-bottom: 20px; float: left; clear: both;">
-                <small style="width:50%; word-break: break-word; float: left">
-                    https://www.youtube.com/v/ID<br>
-                    https://www.youtube.com/watch?v=ID<br>
-                    https://youtu.be/ID<br>
-                    https://www.youtube.com/embed/ID<br>
-                    https://www.youtube.com/watch?v=ID<br>
-                    www.youtube.com/watch?v=ID<br>
-                    https://www.twitch.tv/videos/ID<br>
-                    https://www.twitch.tv/collections/ID<br>
-                    https://www.twitch.tv/ID/v/ID<br>
-                    https://clips.twitch.tv/ID<br>
-                </small>
-                <small style="width:50%; word-break: break-word; float: left">
-                    https://imgur.com/gallery/ID -> turns out as link without extension<br>
-                    https://imgur.com/a/ID.gif -> will use .gifv instead<br>
-                    https://imgur.com/gallery/ID.gifv<br>
-                    https://imgur.com/a/ID.gifv<br>
-                    https://i.imgur.com/ID.gifv<br>
-                    https://i.imgur.com/ID.webm<br>
-                    https://i.imgur.com/ID.mp4<br>
-                </small>
-            </p>
-            <?php
-            echo "<div style='clear:both;'></div>";
+            if ($permissions >= Permissions::Developer) {
+                echo "<li>Set embedded video URL:</li>";
+                echo "<table><tbody>";
+                echo "<input type='hidden' name='a' value='$achievementID' />";
+                echo "<input type='hidden' name='f' value='2' />";
+                echo "<input type='hidden' name='u' value='$user' />";
+                echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
+                echo "</tbody></table>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
+                echo "<div style='clear:both;'></div>"; ?>
+                Examples for accepted formats:<br>
+                <p style="margin-bottom: 20px; float: left; clear: both;">
+                    <small style="width:50%; word-break: break-word; float: left">
+                        https://www.youtube.com/v/ID<br>
+                        https://www.youtube.com/watch?v=ID<br>
+                        https://youtu.be/ID<br>
+                        https://www.youtube.com/embed/ID<br>
+                        https://www.youtube.com/watch?v=ID<br>
+                        www.youtube.com/watch?v=ID<br>
+                        https://www.twitch.tv/videos/ID<br>
+                        https://www.twitch.tv/collections/ID<br>
+                        https://www.twitch.tv/ID/v/ID<br>
+                        https://clips.twitch.tv/ID<br>
+                    </small>
+                    <small style="width:50%; word-break: break-word; float: left">
+                        https://imgur.com/gallery/ID -> turns out as link without extension<br>
+                        https://imgur.com/a/ID.gif -> will use .gifv instead<br>
+                        https://imgur.com/gallery/ID.gifv<br>
+                        https://imgur.com/a/ID.gifv<br>
+                        https://i.imgur.com/ID.gifv<br>
+                        https://i.imgur.com/ID.webm<br>
+                        https://i.imgur.com/ID.mp4<br>
+                    </small>
+                </p>
+                <?php
+                echo "<div style='clear:both;'></div>";
 
-            if ($achFlags == 3) {
-                echo "<li>State: Official&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
-            } elseif ($achFlags == 5) {
-                echo "<li>State: Unofficial&nbsp;<a href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                if ($achFlags == 3) {
+                    echo "<li>State: Official&nbsp;<a onclick='return ConfirmDemotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
+                } elseif ($achFlags == 5) {
+                    echo "<li>State: Unofficial&nbsp;<a onclick='return ConfirmPromotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                }
             }
 
             echo "<li> Achievement ID: " . $achievementID . "</li>";
@@ -251,9 +257,14 @@ RenderHtmlStart(true);
             echo parseTopicCommentPHPBB($embedVidURL, true);
         }
 
-        //    Comments:
-        $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-        RenderCommentsComponent($user, $numArticleComments, $commentData, $achievementID, \RA\ArticleType::Achievement, $forceAllowDeleteComments);
+        RenderCommentsComponent(
+            $user,
+            $numArticleComments,
+            $commentData,
+            $achievementID,
+            ArticleType::Achievement,
+            $permissions
+        );
 
         echo "</div>"; //achievement
 

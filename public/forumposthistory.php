@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $maxCount = 25;
 
@@ -35,7 +36,8 @@ RenderHtmlHead("Forum Recent Posts");
 
             $forumIter = 0;
 
-            echo "<table>";
+            echo "<div class='table-wrapper'>";
+            echo "<table class='table-forum-history'>";
             echo "<tbody>";
 
             echo "<tr>";
@@ -70,7 +72,7 @@ RenderHtmlHead("Forum Recent Posts");
                 echo "</tr>";
             }
 
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
 
             echo "<div class='rightalign row'>";
             if ($offset > 0) {

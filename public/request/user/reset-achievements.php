@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("u")) {
     echo "FAILED";
@@ -8,8 +9,8 @@ if (!ValidatePOSTChars("u")) {
 }
 
 $user = requestInputPost('u', null);
-$gameID = requestInputPost('g', null);
-$achID = requestInputPost('a', null);
+$gameID = requestInputPost('g', null, 'integer');
+$achID = requestInputPost('a', null, 'integer');
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (!empty($achID) && resetSingleAchievement($user, $achID)) {

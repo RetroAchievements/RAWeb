@@ -11,6 +11,7 @@
 /.vagrant
 Homestead.json
 Homestead.yaml
+LocalValetDriver.php
 npm-debug.log
 yarn-error.log
 /.env*
@@ -23,6 +24,7 @@ nbproject
 .project
 .settings
 .php_cs.cache
+.php-cs-fixer.cache
 test*.php
 /public/Badge
 /public/Images

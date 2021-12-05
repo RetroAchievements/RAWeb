@@ -1,13 +1,20 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $leaderboardId = requestInput('l', 0, 'integer');
 $targetUser = requestInput('t');
 $reason = requestInputPost('r');
 $returnUrl = getenv('APP_URL') . '/leaderboardinfo.php?i=' . $leaderboardId;
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JuniorDeveloper)) {
+    header('Location: ' . $returnUrl . '&success=false');
+    return;
+}
+
+// Only let jr. devs remove their own entries
+if ($permissions == \RA\Permissions::JuniorDeveloper && $user != $targetUser) {
     header('Location: ' . $returnUrl . '&success=false');
     return;
 }
