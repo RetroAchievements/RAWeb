@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -32,7 +33,7 @@ RenderHtmlHead("Search");
         echo "<div class='searchbox longer'>";
         echo "<form action='/searchresults.php' method='get'>";
         //echo "Search:&nbsp;";
-        echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQuery' />";
+        echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...' />";
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search' />";
         echo "</form>";

@@ -7,29 +7,29 @@ namespace RA;
  */
 abstract class Emulators
 {
-    const RAGens = 0;
+    public const RAGens = 0;
 
-    const RAP64 = 1;
+    public const RAP64 = 1;
 
-    const RASnes9x = 2;
+    public const RASnes9x = 2;
 
-    const RAVBA = 3;
+    public const RAVBA = 3;
 
-    const RANester = 4; // unused
+    public const RANester = 4; // unused
 
-    const RANes = 5;
+    public const RANes = 5;
 
-    const RAPCE = 6;
+    public const RAPCE = 6;
 
-    const RALibretro = 7;
+    public const RALibretro = 7;
 
-    const RAMeka = 8;
+    public const RAMeka = 8;
 
-    const RAQUASI88 = 9;
+    public const RAQUASI88 = 9;
 
-    const RAppleWin = 10;
+    public const RAppleWin = 10;
 
-    const RAOricutron = 11;
+    public const RAOricutron = 11;
 
-    const RAMelonDS = 12;
+    public const RAMelonDS = 12;
 }

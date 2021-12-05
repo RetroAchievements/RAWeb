@@ -19,11 +19,11 @@ require_once "base_facebook.php";
  */
 class Facebook extends BaseFacebook
 {
-    const FBSS_COOKIE_NAME = 'fbss';
+    public const FBSS_COOKIE_NAME = 'fbss';
 
     // We can set this to a high number because the main session
     // expiration will trump this.
-    const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
+    public const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
 
     // Stores the shared session ID if one is set.
     protected $sharedSessionID;

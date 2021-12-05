@@ -59,6 +59,11 @@ function getCodeNotes($gameID, &$codeNotesOut)
 
 function submitCodeNote2($user, $gameID, $address, $note): bool
 {
+    // Prevent <= registered users from creating code notes.
+    if (getUserPermissions($user) <= \RA\Permissions::Registered) {
+        return false;
+    }
+
     //    Hack for 'development tutorial game'
     if ($gameID == 10971) {
         return false;
@@ -78,7 +83,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
 
     if (
         $i !== false
-        && getUserPermissions($user) < \RA\Permissions::Developer
+        && getUserPermissions($user) == \RA\Permissions::JuniorDeveloper
         && $currentNotes[$i]['User'] !== $user
         && !empty($currentNotes[$i]['Note'])
     ) {

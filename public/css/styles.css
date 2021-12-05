@@ -378,8 +378,13 @@ td, tr, img {
 #warning {
   line-height: 110%;
   font-size: 16px;
-  margin: 4px;
-  color: #dd0000
+  margin-bottom: 4px;
+  margin-top: 4px;
+  color: #dd0000;
+  position: sticky;
+  top: 0;
+  background: #292929;
+  padding: 3px;
 }
 
 #warning a {
@@ -523,8 +528,13 @@ td, tr, img {
   background-color: #111530;
 }
 
-#feed tr.feed_comment {
+#feed tr.feed_comment:not(.system) {
   background-color: #151515;
+}
+
+#feed tr.feed_comment.system {
+  color: grey;
+  font-size: 9px;
 }
 
 #feed tr.feed_completegame {
@@ -698,7 +708,6 @@ td, tr, img {
   max-width: 100%;
   width: 980px;
   position: relative;
-  z-index: 1000;
   font-size: x-small;
   margin: auto;
   /*overflow:hidden; this breaks the dropdown! :S*/
@@ -868,7 +877,7 @@ td, tr, img {
   width: 80%;
 }
 
-#chatcontainer {
+#feedcontainer {
   height: 220px;
   /*width: 300px;*/
   overflow-x: hidden;
@@ -876,16 +885,16 @@ td, tr, img {
   vertical-align: middle;
 }
 
-.chatcell {
+.feedcell {
   vertical-align: middle;
 }
 
-.chatcelldate {
+.feedcelldate {
   font-size: x-small;
   color: rgb(140, 140, 140);
 }
 
-.chatcellmessage {
+.feedcellmessage {
   vertical-align: middle;
   /*color: rgb( 76, 146, 235 );*/
   /*color: rgb( 165, 242, 243 );*/
@@ -996,6 +1005,7 @@ th {
 .commentpayload {
   padding: 6px 4px;
   vertical-align: top;
+  word-break: break-word;
 }
 
 .smalltext {
@@ -1145,6 +1155,10 @@ pre, code, .code {
 #WzBoDy {
   /* Popup */
   border-radius: 10px;
+}
+
+#WzBoDy tr {
+  background: none;
 }
 
 #carouselpages {
@@ -1336,10 +1350,18 @@ a.setRequestLabel {
   margin-bottom: 1rem !important;
 }
 
+.download-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: start;
+}
+
 /* --- MOBILE STYLES --- */
 @media only screen and (max-width: 980px) {
   #mainpage {
-    grid-template-columns: 100%;
+    grid-template-columns: 1fr;
+    grid-column-gap: 0;
   }
 
   #logocontainer {
@@ -1366,6 +1388,23 @@ a.setRequestLabel {
 
   .gamescreenshots td {
     display: inline-block;
+  }
+
+  #forums div.lastpost {
+    width: auto;
+  }
+
+  .topiccommentsheader th, .commentavatar, .commentpayload, .table-wrapper .fullwidth, .table-forum-history th, .table-forum-history td {
+    display: block;
+	max-width:100%;
+	box-sizing: border-box;
+  }
+  .commentavatar{
+	padding: 10px 5px;
+  }
+
+  .download-flex {
+    flex-direction: column;
   }
 }
 
@@ -1442,3 +1481,75 @@ svg > g > g:last-child { pointer-events: none }
   padding: 2px 2px 2px;
   border: 1px solid rgb(44, 151, 250);
 }
+
+/* More info buttons */
+.info-button{
+  display:block;
+  border: 1px solid #111;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 7px 15px;
+  background-color: #222;
+}
+
+.info-button:hover{
+  background-color: #2a2a2a;
+}
+
+.info-button span{
+  margin-right: 15px;
+}
+
+.ticket-block {
+  display: inline-block;
+  border: 1px #1166dd;
+  border-radius: 5px;
+  border-style: solid;
+  min-height: 32px;
+  padding-right: 5px;
+}
+
+.ticket-block.open {
+  border-color: #28a745;
+}
+
+.ticket-block.closed {
+  border-color: #dc3545;
+}
+
+.ticket-block .badgeimg {
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-block;
+}
+
+.ticket-block .ticket-displayable-block {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.ticket-tooltip-state {
+  font-weight: bold;
+  padding: 5px;
+}
+
+.ticket-tooltip-info {
+  padding: 5px;
+}
+
+.ticket-tooltip-info.open .tooltip-closer,
+.ticket-tooltip-info.closed .tooltip-opened-date {
+  display: none;
+}
+
+.table-wrapper {
+  max-width:100%;
+  overflow-x:auto;
+}
+
+.modal {
+  background-color: #1a1a1a;
+}
+
+.text-danger { color: red; }
+.text-right { text-align: right; }
