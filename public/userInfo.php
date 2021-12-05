@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ArticleType;
 use RA\Permissions;
 
 $userPage = requestInputSanitized('ID');
@@ -546,14 +547,15 @@ RenderHtmlStart(true);
 
         if ($userWallActive) {
             echo "<h4>User Wall</h4>";
-            $forceAllowDeleteComments = $permissions >= Permissions::Admin;
+
+            // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                $user,
+                ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,
-                \RA\ArticleType::User,
-                $forceAllowDeleteComments
+                ArticleType::User,
+                $permissions
             );
         }
 

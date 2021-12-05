@@ -53,7 +53,7 @@ function isValidConsoleId($consoleId)
         case 38: // Apple II
         case 39: // Sega Saturn
             // case 40: // Dreamcast
-            // case 41: // PlayStation Portable
+        case 41: // PlayStation Portable
             // case 42: // Philips CD-i
         case 43: // 3DO Interactive Multiplayer
         case 44: // ColecoVision
@@ -79,6 +79,10 @@ function isValidConsoleId($consoleId)
             // case 64: // Sharp X1
             // case 65: // TIC-80
             // case 66: // Thomson TO8
+            // case 67: // PC-6000
+            // case 68: // Sega Pico
+            // case 69: // Mega Duck
+            // case 70: // Zeebo
             // case 100: // Hubs (not an actual console)
         case 101: // Events (not an actual console)
             return true;

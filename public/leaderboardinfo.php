@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ArticleType;
 use RA\Permissions;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
@@ -152,7 +153,7 @@ RenderHtmlStart(true);
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
             echo "<table><tbody>";
-            echo "<tr><th>Rank</th><th>User</th><th>Result</th><th>Date Won</th></tr>";
+            echo "<tr><th>Rank</th><th>User</th><th>Result</th><th>Date Submitted</th></tr>";
 
             $numActualEntries = 0;
             $localUserFound = false;
@@ -233,8 +234,14 @@ RenderHtmlStart(true);
             echo "</div>";
 
             //    Render article comments
-            $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $lbID, \RA\ArticleType::Leaderboard, $forceAllowDeleteComments);
+            RenderCommentsComponent(
+                $user,
+                $numArticleComments,
+                $commentData,
+                $lbID,
+                ArticleType::Leaderboard,
+                $permissions
+            );
 
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "<br><br>";

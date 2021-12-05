@@ -277,6 +277,7 @@ function getAchievementBadgeFilename($id)
 function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 {
     sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
+    settype($isHardcore, 'integer');
 
     $query = "INSERT INTO Awarded ( User, AchievementID, Date, HardcoreMode )
               VALUES ( '$user', '$achIDToAward', NOW(), '$isHardcore' )
@@ -350,27 +351,41 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
     $hasAwardTypes = HasAward($user, $achIDToAward);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
+    $alreadyAwarded = $isHardcore ? $hasHardcore : $hasRegular;
 
-    if (($isHardcore && $hasHardcore) || (!$isHardcore && $hasRegular)) {
+    $awardedOK = true;
+    if ($isHardcore && !$hasHardcore) {
+        $awardedOK &= InsertAwardedAchievementDB($user, $achIDToAward, true);
+    }
+    if (!$hasRegular && $awardedOK) {
+        $awardedOK &= InsertAwardedAchievementDB($user, $achIDToAward, false);
+    }
+
+    if ($awardedOK == false) {
+        $retVal['Error'] = "Issues allocating awards for user";
+        return $retVal;
+    }
+
+    if (!$alreadyAwarded) {
+        // testFullyCompletedGame could post a mastery notification. make sure to post
+        // the achievement unlock notification first
+        postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
+    }
+
+    $completion = testFullyCompletedGame($achData['GameID'], $user, $isHardcore, !$alreadyAwarded);
+    if (array_key_exists('NumAwarded', $completion)) {
+        $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
+    }
+
+    if ($alreadyAwarded) {
+        // XXX: do not change the messages here. the client detects them and does not report
+        //      them as errors.
         if ($isHardcore) {
-            // XXX: do not change the messages here, as it can interfere with RetroArch's behavior.
-            // https://github.com/libretro/RetroArch/blob/343a04e2b8e1a334dda3ad947c284bde9d9d2894/cheevos/cheevos.c#L524
             $retVal['Error'] = "User already has hardcore and regular achievements awarded.";
         } else {
             $retVal['Error'] = "User already has this achievement awarded.";
         }
-        return $retVal;
-    }
 
-    //error_log( "AddEarnedAchievementJSON, Ready to add" );
-
-    $awardedOK = InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore);
-    if ($awardedOK && $isHardcore) {
-        $awardedOK |= InsertAwardedAchievementDB($user, $achIDToAward, false);
-    }
-
-    if ($awardedOK == false) {
-        $retVal['Error'] = "Issues allocating awards for user?";
         return $retVal;
     }
 
@@ -423,10 +438,6 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
               WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
-
-    postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
-
-    testFullyCompletedGame($user, $achIDToAward, $isHardcore);
 
     return $retVal;
 }
@@ -1041,7 +1052,7 @@ function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
 
     $extraWhere = "";
     if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
-        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' ) ";
+        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' AND Friendship = 1 ) ";
     }
 
     //    Get recent winners, and their most recent activity:
