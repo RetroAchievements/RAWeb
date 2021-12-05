@@ -1157,6 +1157,10 @@ pre, code, .code {
   border-radius: 10px;
 }
 
+#WzBoDy tr {
+  background: none;
+}
+
 #carouselpages {
   width: 240px;
 }
