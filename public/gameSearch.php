@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -105,7 +106,7 @@ RenderHtmlHead("Game Search");
             echo "<tr>";
 
             echo "<td>";
-            echo ($count) + ($offset);
+            echo $count + $offset;
             echo "</td>";
 
             echo "<td style='min-width:30%'>";

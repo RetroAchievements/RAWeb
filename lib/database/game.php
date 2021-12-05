@@ -354,7 +354,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         $havingCond = "HAVING MyAchievements > 0 ";
     }
 
-    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
+    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
                 $moreSelectCond
                 CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
                 FROM Achievements AS ach
@@ -370,7 +370,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
 
     settype($sortBy, 'integer');
 
-    if ($sortBy < 1 || $sortBy > 13) {
+    if ($sortBy < 1 || $sortBy > 16) {
         $sortBy = 1;
     }
 
@@ -417,6 +417,13 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             } else {
                 $query .= "ORDER BY gd.ConsoleID, Title DESC ";
             }
+            break;
+
+        case 6:
+            $query .= "ORDER BY gd.ConsoleID, DateModified DESC, Title ";
+            break;
+        case 16:
+            $query .= "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ";
             break;
     }
 
@@ -561,21 +568,12 @@ function getGameIDFromTitle($gameTitleIn, $consoleID)
     }
 }
 
-function testFullyCompletedGame($user, $achID, $isHardcore)
+function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery)
 {
-    sanitize_sql_inputs($user, $isHardcore);
+    sanitize_sql_inputs($gameID, $user, $isHardcore);
     settype($isHardcore, 'integer');
 
-    $achData = [];
-    if (getAchievementMetadata($achID, $achData) == false) {
-        // error_log(__FUNCTION__);
-        // error_log("cannot get achievement metadata for $achID. This is MEGABAD!");
-        return false;
-    }
-
-    $gameID = $achData['GameID'];
-
-    $query = "SELECT COUNT(ach.ID) AS NumAwarded, COUNT(aw.AchievementID) AS NumAch FROM Achievements AS ach 
+    $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
               WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
 
@@ -584,7 +582,7 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
         $minToCompleteGame = 5;
 
         $data = mysqli_fetch_assoc($dbResult);
-        if (($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
+        if ($postMastery && ($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
             //    Every achievement earned!
             //error_log( __FUNCTION__ );
             //error_log( "$user earned EVERY achievement for game $gameID" );
@@ -592,15 +590,12 @@ function testFullyCompletedGame($user, $achID, $isHardcore)
             if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
                 postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
             }
-            return true;
-        } else {
-            return false;
         }
-    } else {
-        // error_log(__FUNCTION__);
-        // error_log("broken1 with $achID, $gameID, $user. This is MEGABAD!");
-        return false;
+
+        return $data;
     }
+
+    return [];
 }
 
 function requestModifyGameData($gameID, $developer, $publisher, $genre, $released)
@@ -689,7 +684,7 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
 
         $values = implode(", ", $valuesArray);
         if (!empty($values)) {
-            $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values";
+            $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values ON DUPLICATE KEY UPDATE Updated = CURRENT_TIMESTAMP";
             if (s_mysql_query($query)) {
                 // error_log("Added game alt(s): $values");
             } else {
@@ -907,29 +902,58 @@ function getTotalUniquePlayers($gameID, $requestedBy)
     return $data['UniquePlayers'];
 }
 
+function getGameRecentPlayers($gameID, $maximum_results = 0)
+{
+    sanitize_sql_inputs($gameID, $maximum_results);
+    settype($gameID, 'integer');
+
+    $retval = [];
+
+    $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
+              FROM UserAccounts AS ua
+              WHERE ua.LastGameID = $gameID AND ua.Permissions >= 0
+              ORDER BY ua.RichPresenceMsgDate DESC";
+
+    if ($maximum_results > 0) {
+        $query .= " LIMIT $maximum_results";
+    }
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $retval[] = $data;
+        }
+    }
+
+    return $retval;
+}
+
 /**
  * Gets a game's high scorers or latest masters.
  *
  * @param int $gameID game ID to get high score information for
- * @param int $offset query offset value
- * @param int $count query number of returned rows
  * @param string $requestedBy user requesting the information
- * @param int $type The type of data to return.
- *          0 - High Scores
- *          1 - Latest Masters
  *
  * @return array of user information to display on the High Scores section of a game page
  */
-function getGameTopAchievers($gameID, $offset, $count, $requestedBy, $type = 0)
+function getGameTopAchievers($gameID, $requestedBy)
 {
     sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
 
-    $retval = [];
-    $havingQuery = "";
-    $order = "ASC";
-    if ($type == 1) {
-        $havingQuery = "HAVING TotalScore = (SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3)";
-        $order = "DESC";
+    $high_scores = [];
+    $masters = [];
+    $mastery_score = 0;
+
+    $query = "SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        if ($data = mysqli_fetch_assoc($dbResult)) {
+            $mastery_score = $data['Points'];
+        }
     }
 
     $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
@@ -941,19 +965,31 @@ function getGameTopAchievers($gameID, $offset, $count, $requestedBy, $type = 0)
                   AND ach.Flags = 3 
                   AND gd.ID = $gameID
                 GROUP BY aw.User
-                $havingQuery
-                ORDER BY TotalScore DESC, LastAward $order
-                LIMIT $offset, $count";
+                ORDER BY TotalScore DESC, LastAward ASC";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
+            if (count($high_scores) < 10) {
+                array_push($high_scores, $data);
+            }
+
+            if ($data['TotalScore'] == $mastery_score) {
+                if (count($masters) == 10) {
+                    array_shift($masters);
+                }
+                array_push($masters, $data);
+            } elseif (count($high_scores) == 10) {
+                break;
+            }
         }
     }
 
+    $retval = [];
+    $retval['Masters'] = array_reverse($masters);
+    $retval['HighScores'] = $high_scores;
     return $retval;
 }
 
@@ -1286,4 +1322,40 @@ function getRichPresencePatch($gameID, &$dataOut)
     } else {
         return false;
     }
+}
+
+/**
+ * Checks to see if a user is the sole author of a set.
+ *
+ * @param string $user user to check authorship for
+ * @param int $gameID game to check authorship for
+ *
+ * @return bool true if sole author, false otherwise
+ */
+function checkIfSoleDeveloper($user, $gameID)
+{
+    sanitize_sql_inputs($user, $gameID);
+    settype($gameID, 'integer');
+
+    $query = "
+        SELECT distinct(Author) AS Author FROM Achievements AS ach
+        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+        WHERE ach.GameID = $gameID
+        AND ach.Flags = 3";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    $userFound = false;
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            if ($user != $data['Author']) {
+                return false;
+            } else {
+                $userFound = true;
+            }
+        }
+    }
+
+    return $userFound;
 }

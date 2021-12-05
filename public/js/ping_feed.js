@@ -165,7 +165,7 @@ function createXmlHttpRequestObject() {
 //   };
 // })(jQuery);
 
-/* this function initiates the chat; it executes when the chat page loads */
+/* this function initiates the feed; it executes when the feed page loads */
 function initFeed() {
   // initiates updating the feed
   refreshFeed(parseInt(readCookie('RAPrefs_Feed'), 10) === 1);
@@ -181,7 +181,7 @@ function refreshFeed(friendsOnly) {
 
   $feed.empty();
   $feed.html(
-    '<tr id=\'feedloadingfirstrow\'><td class=\'chatcell\'><img src=\'' + window.assetUrl + '/Images/loading.gif\' width=\'16\' height=\'16\'/></td><td class=\'chatcell\'></td><td class=\'chatcellmessage\'>Loading feed...</td></tr>'
+    '<tr id=\'feedloadingfirstrow\'><td class=\'feedcell\'><img src=\'' + window.assetUrl + '/Images/loading.gif\' width=\'16\' height=\'16\'/></td><td class=\'feedcell\'></td><td class=\'feedcellmessage\'>Loading feed...</td></tr>'
   );
 
   cacheFeed = [];
@@ -327,7 +327,7 @@ function readFeed() {
       lastFeedID = idArray.item(idArray.length - 1).firstChild.data;
     }
 
-    // add the new messages to the chat window
+    // add the new messages to the feed window
     displayFeedItems(idArray, timestampArray, actTypeArray,
       userArray, userPointsArray, userMottoArray,
       dataArray, data2Array,
@@ -344,7 +344,7 @@ function readFeed() {
   }, updateIntervalFeed));
 }
 
-/* function that appends the new messages to the chat list  */
+/* function that appends the new messages to the feed list  */
 function displayFeedItems(
   idArray, timestampArray, actTypeArray,
   userArray, userPointsArray, userMottoArray,
@@ -401,7 +401,7 @@ function displayFeedItems(
     // timeStr += ("0" + dLocal.getUTCMinutes()).slice(-2);
     // timeStr += "]";
 
-    // add the new message to the chat list:
+    // add the new message to the feed list:
     pushFeedItem(feedItemID, timestamp, acttype, user, userPoints, userMotto, data, data2,
       gameTitle, gameID, gameIcon, consoleName, achTitle, achDesc, achBadge, achPoints, lbTitle,
       lbDesc, lbFormat);
@@ -428,19 +428,6 @@ function displayFeedItems(
   // Don't use while! Will never complete (animation requires time, length remains >50!)
   if ($('#feed tr').length > 50) {
     popFinalFeedItem(idArray.length);
-  }
-
-  if (idArray.length > 0) {
-    if (idArray.length < 10) {
-      // if( $("#mutechat").prop( 'checked' ) == false )
-      // playSound('media/pop');
-    } else if (idArray.length === 50) {
-      var $chatLink = '<tr><td></td><td colspan=2><a href=\'largechat.php\'>See older chat...</a></td></tr>';
-      $('#feedloadingfirstrow').replaceWith($chatLink);
-    }
-
-    // Drop the chat scroll to bottom:
-    // scrollFeedContainer();
   }
 }
 
@@ -733,5 +720,5 @@ function pushFeedComment(
 
 // displays a message
 function scrollFeedContainer() {
-  $('#chatcontainer').scrollTop(99999);
+  $('#feedcontainer').scrollTop(99999);
 }

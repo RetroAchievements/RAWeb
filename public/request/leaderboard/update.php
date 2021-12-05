@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("uimtdflo")) {
     echo "FAILED! (POST)";
@@ -18,11 +19,30 @@ $lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 
-//	Somewhat elevated privileges to modify an LB:
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)
+if (validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)
     && $source == $user) {
+    $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
+    $prevUpdated = strtotime($prevData["LBUpdated"]);
+
+    // Only let jr. devs update their own leaderboards
+    if ($permissions == \RA\Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
+        echo "FAILED!";
+        exit;
+    }
+
     if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
         echo "OK";
+
+        $updatedData = GetLeaderboardData($lbID, $user, 2, 0, false);
+        $updated = strtotime($updatedData['LBUpdated']);
+        $dateDiffMins = ($updated - $prevUpdated) / 60;
+
+        if (!empty($updatedData['Entries'])) {
+            if ($dateDiffMins > 10) {
+                $commentText = 'made updates to this leaderboard';
+                addArticleComment("Server", \RA\ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
+            }
+        }
         exit;
     } else {
         echo "FAILED!";

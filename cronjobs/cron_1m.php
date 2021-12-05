@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 function GetNextHighestGameID($givenID)
 {
@@ -20,7 +21,7 @@ function GetNextHighestGameID($givenID)
 function GetNextHighestUserID($givenID)
 {
     $query = "SELECT MIN(ID) AS NextID FROM UserAccounts
-				  WHERE ID > $givenID";
+				  WHERE ID > $givenID AND RAPoints > 0";
 
     $dbResult = s_mysql_query($query);
 

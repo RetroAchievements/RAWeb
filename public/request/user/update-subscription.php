@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 // what is being (un-)subscribed? and where should we go back to at the end?
 
@@ -17,7 +18,7 @@ if ($subjectType === null || $subjectID === null || $returnUrl === null) {
 switch ($subjectType) {
     case \RA\SubscriptionSubjectType::GameTickets:
     case \RA\SubscriptionSubjectType::GameAchievements:
-        $requiredPermissions = \RA\Permissions::Developer;
+        $requiredPermissions = \RA\Permissions::JuniorDeveloper;
         break;
     default:
         $requiredPermissions = \RA\Permissions::Registered;

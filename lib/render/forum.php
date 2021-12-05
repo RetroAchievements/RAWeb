@@ -18,7 +18,10 @@ function RenderRecentForumPostsComponent($numToFetch = 4)
 
             $postedAt = date("H:i", $timestamp);
 
-            $shortMsg = $nextData['ShortMsg'] . "...";
+            $shortMsg = trim($nextData['ShortMsg']);
+            if ($nextData['IsTruncated']) {
+                $shortMsg .= "...";
+            }
             $author = $nextData['Author'];
             $commentID = $nextData['CommentID'];
             $forumTopicID = $nextData['ForumTopicID'];

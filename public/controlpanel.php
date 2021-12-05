@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
@@ -55,7 +56,7 @@ RenderHtmlHead("My Settings");
       //alert( data );
 
       var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
-      htmlToAdd += '<option>--</option>';
+      htmlToAdd += '<option value="">--</option>';
 
       var gameList = JSON.parse(data);
 
@@ -130,6 +131,7 @@ RenderHtmlHead("My Settings");
   }
 
   function ResetProgressForSelection() {
+    var achName = $('#resetachievementscontainer :selected').text();
     var achID = $('#resetachievementscontainer :selected').val();
 
     var isHardcore = 0;
@@ -140,10 +142,11 @@ RenderHtmlHead("My Settings");
 
     if (achID == 9999999) {
       var gameName = $('#resetgameselector :selected').text();
+      var gameId = $('#resetgameselector :selected').val();
       gameName = gameName.substr(0, gameName.lastIndexOf('(') - 1);
 
       //Prompt user for confirmation if attempting to remove all achievement for a single game
-      if (confirm('Reset all achievements for ' + gameName + '?')) {
+      if (gameId > 0 && confirm('Reset all achievements for ' + gameName + '?')) {
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
         //alert( "Game ID is " + gameID );
@@ -152,7 +155,7 @@ RenderHtmlHead("My Settings");
         $('#warning').html('Status: Updating...');
         $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
       }
-    } else if (achID > 0) {
+    } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
 
       //alert( "Ach ID is " + achID );
@@ -335,17 +338,17 @@ RenderHtmlHead("My Settings");
                 echo "<span class='usermotto'>$userMotto</span><br>";
             }
             echo "</p>";
-            echo "<table><tbody>";
             if ($permissions == Permissions::Unregistered) {
                 echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
+            echo "<table><tbody>";
             if ($permissions >= Permissions::Registered) {
                 $userMottoString = !empty($userMotto) ? $userMotto : "";
                 echo "<tr>";
                 echo "<td>User Motto:</td>";
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-motto.php'>";
-                echo "<input class='fullwidth' name='m' value=\"$userMottoString\" maxlength='49' id='usermottoinput'/>";
+                echo "<input class='fullwidth' name='m' value=\"$userMottoString\" maxlength='49' id='usermottoinput' placeholder='Add your motto here! (No profanity please!)' />";
                 echo "<input type='hidden' name='u' VALUE='$user'>";
                 echo "<input type='hidden' name='c' VALUE='$cookie'>";
                 echo "<input value='Set Motto' name='submit' type='submit' size='37' />";
@@ -553,18 +556,18 @@ RenderHtmlHead("My Settings");
             }
             ?>
             <form method='post' action='/request/auth/update-password.php'>
-                <table id='controlpanelinput'>
+                <table>
                     <tbody>
                     <tr>
                         <td class='firstrow'>Old Password:</td>
                         <td><input size='22' type='password' name="p"/></td>
                     </tr>
                     <tr>
-                        <td class='firstrow'>New Password: </label></td>
+                        <td class='firstrow'>New Password:</td>
                         <td><input size='22' type='password' name="x"/></td>
                     </tr>
                     <tr>
-                        <td class='firstrow'>New Password again: </label></td>
+                        <td class='firstrow'>New Password again:</td>
                         <td><input size='22' type='password' name="y"/></td>
                     </tr>
                     <tr>
@@ -602,7 +605,7 @@ RenderHtmlHead("My Settings");
             }
             ?>
             <form method='post' action='/request/user/update-email.php'>
-                <table id='controlpanelinput'>
+                <table>
                     <tbody>
                     <tr>
                         <td class='firstrow'>Old Email Address:</td>
@@ -626,10 +629,10 @@ RenderHtmlHead("My Settings");
                         <td></td>
                         <td><input value="Change Email Address" type='submit' size='37'></td>
                     </tr>
-                    <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-                    <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
                     </tbody>
                 </table>
+                <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
+                <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
             </form>
         </div>
         <div class='component'>
@@ -638,7 +641,7 @@ RenderHtmlHead("My Settings");
             echo "<table><tbody>";
             echo "<tr><td>Game:</td>";
             echo "<td><select id='resetgameselector' onchange=\"ResetFetchAwarded()\" >";
-            echo "<option>--</option>";
+            echo "<option value=''>--</option>";
             echo "</select></td></tr>";
 
             echo "<tr><td>Achievement:</td>";
@@ -648,7 +651,7 @@ RenderHtmlHead("My Settings");
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
             echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
-            echo "</tr></td></tbody></table>";
+            echo "</td></tr></tbody></table>";
             ?>
         </div>
         <?php /*
