@@ -145,10 +145,7 @@ RenderHtmlHead('Inbox');
                 );
 
                 $msgPayload = nl2br($msgPayload);
-                $msgPayload = stripslashes($msgPayload);
                 $msgPayload = parseTopicCommentPHPBB($msgPayload);
-                //$msgPayload = str_replace( '\r\n', '<br>', $msgPayload );
-                //$msgPayload = str_replace( '\n', '<br>', $msgPayload );
 
                 $styleAlt = $i % 2 == 1 ? "alt" : "";
 
