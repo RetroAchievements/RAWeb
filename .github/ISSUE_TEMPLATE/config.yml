@@ -9,7 +9,7 @@ contact_links:
       about: Contact the QA team for anything related to Achievements/Sets/Leaderboards/Rich Presence creations and creator relations
       
     - name: Report a security vulnerability
-      url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Security%20Vulenrability
+      url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Security%20Vulnerability
       about: Contact RAdmin for security matters
 
     - name: Ask for help
@@ -17,9 +17,9 @@ contact_links:
       about: Join the RetroAchievements.org Discord if you need help with anything related to your account or setup
 
     - name: Request a site feature
-      url: https://github.com/RetroAchievements/retroachievements-web/discussions/new?category=ideas
+      url: https://github.com/RetroAchievements/RAWeb/discussions/new?category=ideas
       about: Share ideas for new site features or enhancements
       
     - name: Report a site bug
-      url: https://github.com/RetroAchievements/retroachievements-web/issues/new
+      url: https://github.com/RetroAchievements/RAWeb/issues/new
       about: Report a reproducable site bug, issues with source code or its assets

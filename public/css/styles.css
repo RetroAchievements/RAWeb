@@ -708,7 +708,6 @@ td, tr, img {
   max-width: 100%;
   width: 980px;
   position: relative;
-  z-index: 1000;
   font-size: x-small;
   margin: auto;
   /*overflow:hidden; this breaks the dropdown! :S*/
@@ -1502,3 +1501,10 @@ svg > g > g:last-child { pointer-events: none }
   max-width:100%;
   overflow-x:auto;
 }
+
+.modal {
+  background-color: #1a1a1a;
+}
+
+.text-danger { color: red; }
+.text-right { text-align: right; }

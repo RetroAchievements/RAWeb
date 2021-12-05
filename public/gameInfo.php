@@ -60,7 +60,6 @@ $achDist = null;
 $authorInfo = null;
 $commentData = null;
 $cookie = null;
-$gameLatestMasters = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
@@ -155,8 +154,7 @@ if ($isFullyFeaturedGame) {
     }
 
     //Get the top ten players at this game:
-    $gameTopAchievers = getGameTopAchievers($gameID, 0, 10, $user, 0);
-    $gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, 1);
+    $gameTopAchievers = getGameTopAchievers($gameID, $user);
 
     // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
@@ -677,10 +675,10 @@ RenderHtmlStart(true);
                     echo "<div>Update game details:</div>";
                     echo "<table><tbody>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'></td></tr>";
-                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value='$publisher' style='width:100%;'></td></tr>";
-                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='$genre' style='width:100%;'></td></tr>";
-                    echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value='$released' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value=\"" . htmlspecialchars($developer) . "\" style='width:100%;'></td></tr>";
+                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value=\"" . htmlspecialchars($publisher) . "\" style='width:100%;'></td></tr>";
+                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value=\"" . htmlspecialchars($genre) . "\" style='width:100%;'></td></tr>";
+                    echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value=\"" . htmlspecialchars($released) . "\" style='width:100%;'></td></tr>";
                     echo "</tbody></table>";
                     echo "<div class='text-right'><input type='submit' value='Submit'></div>";
                     echo "</form>";
@@ -1070,9 +1068,14 @@ RenderHtmlStart(true);
             }
 
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            echo "<br><br>";
+            echo "<br>";
 
             if ($isFullyFeaturedGame) {
+                $recentPlayerData = getGameRecentPlayers($gameID, 10);
+                if (count($recentPlayerData) > 0) {
+                    RenderRecentGamePlayers($recentPlayerData);
+                }
+
                 RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, \RA\ArticleType::Game, $permissions >= Permissions::Admin);
             }
             ?>
@@ -1083,12 +1086,13 @@ RenderHtmlStart(true);
             <?php
             RenderBoxArt($gameData['ImageBoxArt']);
 
+            echo "<h3>More Info</h3>";
+            echo "<ul>";
+            echo "<li>";
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+            echo "</li>";
+
             if (isset($user)) {
-                echo "<h3>More Info</h3>";
-                echo "<ul>";
-                echo "<li>";
-                RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-                echo "</li>";
                 echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Hashes linked to this game</a></li>";
                 $numOpenTickets = countOpenTickets(
                     requestInputSanitized('f') == $unofficialFlag,
@@ -1128,7 +1132,7 @@ RenderHtmlStart(true);
             echo "<div id='chart_distribution'></div>";
             echo "</div>";
 
-            RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters);
+            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             RenderGameLeaderboardsComponent($gameID, $lbData);
             ?>
         </div>
