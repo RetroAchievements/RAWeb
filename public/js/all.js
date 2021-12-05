@@ -71,7 +71,7 @@ function insertEditForm(activityVar, articleType) {
     if (!commentRow.length) {
       var userImage = '<img id="badgeimg" src="/UserPic/' + user + '.png" width="32" height="32" >';
       var formStr = '';
-      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=250></textarea>';
+      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=2000></textarea>';
       formStr += '&nbsp;';
       formStr += '<img id="submitButton" src="' + window.assetUrl + '/Images/Submit.png" '
         + 'alt="Submit" style="cursor: pointer;" onclick="processComment( \''
@@ -701,3 +701,34 @@ function copy(text) {
   document.execCommand('copy', false);
   inp.remove();
 }
+
+function ConfirmDemotion() {
+  return confirm("Are you sure you want to demote this achievement?");
+}
+
+function ConfirmPromotion() {
+  return confirm("Are you sure you want to promote this achievement?");
+}
+
+function initializeTextareaCounter() {
+  var textareaCounters = document.getElementsByClassName("textarea-counter");
+  for (var i = 0; i < textareaCounters.length; i++) {
+    var textareaCounter = textareaCounters[i];
+    var textareaId = textareaCounter.dataset.textareaId;
+    var textarea = document.getElementById(textareaId);
+    var max = textarea.getAttribute("maxlength");
+
+    if (max) {
+      var updateCount = function () {
+        var count = textarea.value.length;
+        textareaCounter.textContent = count + " / " + max;
+        textareaCounter.classList.toggle("text-danger", count >= max);
+      };
+      ["keydown", "keypress", "keyup", "blur"].forEach(function (eventName) {
+        textarea.addEventListener(eventName, updateCount);
+      });
+      updateCount();
+    }
+  }
+}
+window.addEventListener("load", initializeTextareaCounter);
