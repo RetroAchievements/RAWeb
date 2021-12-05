@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (ValidatePOSTChars("uafv")) {
     $user = requestInputPost('u');
@@ -20,9 +21,32 @@ if (ValidatePOSTChars("uafv")) {
     }
 }
 
-if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::Developer)) {
+if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)) {
     echo "FAILED! Unauthenticaed";
     return;
+}
+
+// Only allow jr. devs to update the display order and they are the sole author of the set
+if ($permissions == \RA\Permissions::JuniorDeveloper) {
+    $jrDevAllowed = false;
+    if ($field == 1) {
+        if (ValidatePOSTChars("g")) {
+            $gameID = requestInputPost('g', null, 'integer');
+        } else {
+            if (ValidateGETChars("g")) {
+                $gameID = requestInputQuery('g', null, 'integer');
+            } else {
+                echo "FAILED";
+                return;
+            }
+        }
+        $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
+    }
+
+    if (!$jrDevAllowed) {
+        echo "FAILED! Insufficient permissions";
+        return;
+    }
 }
 
 // error_log("Warning: $user changing achievement ID $achID, field $field");

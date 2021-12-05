@@ -30,6 +30,7 @@ function GetUserAndTooltipDiv(
     $userTruePoints = $userCardInfo['TotalTruePoints'];
     $userAccountType = PermissionsToString($userCardInfo['Permissions']);
     $userRank = $userCardInfo['Rank'];
+    $userUntracked = $userCardInfo['Untracked'];
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
     $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
@@ -70,9 +71,19 @@ function GetUserAndTooltipDiv(
     }
 
     //Add the other user informaiton
-    $tooltip .= "<tr>";
-    $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
-    $tooltip .= "</tr>";
+    if ($userUntracked) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Untracked</td>";
+        $tooltip .= "</tr>";
+    } elseif ($userPoints < MIN_POINTS) {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Needs at least " . MIN_POINTS . " points </td>";
+        $tooltip .= "</tr>";
+    } else {
+        $tooltip .= "<tr>";
+        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
+        $tooltip .= "</tr>";
+    }
     if ($lastLogin) {
         $tooltip .= "<tr>";
         $tooltip .= "<td class=\'usercardbasictext\'><b>Last Activity:</b> $lastLogin</td>";

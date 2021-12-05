@@ -1,12 +1,15 @@
 <?php
 
+use RA\Permissions;
+use RA\SubscriptionSubjectType;
+
 function RenderCommentsComponent(
     $user,
     $numComments,
     $commentData,
     $articleID,
     $articleTypeID,
-    $forceAllowDeleteComments
+    $permissions
 ) {
     $userID = getUserIDFromUser($user);
 
@@ -21,7 +24,7 @@ function RenderCommentsComponent(
     echo "</div>";
 
     if (isset($user)) {
-        $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleTypeID);
+        $subjectType = SubscriptionSubjectType::fromArticleType($articleTypeID);
         if ($subjectType !== null) {
             $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
             echo "<div class='smalltext rightfloat'>";
@@ -44,18 +47,15 @@ function RenderCommentsComponent(
         $dow = date("d/m", $nextTime);
         if ($lastKnownDate == 'Init') {
             $lastKnownDate = $dow;
-        //echo "<tr><td class='date'>$dow:</td></tr>";
         } elseif ($lastKnownDate !== $dow) {
             $lastKnownDate = $dow;
-            //echo "<tr><td class='date'><br>$dow:</td></tr>";
         }
 
         if ($lastID != $commentData[$i]['ID']) {
             $lastID = $commentData[$i]['ID'];
         }
 
-        $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID);
-        $canDeleteComments |= $forceAllowDeleteComments;
+        $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID) || $permissions >= Permissions::Admin;
 
         RenderArticleComment(
             $articleID,
@@ -99,23 +99,33 @@ function RenderArticleComment(
     $class = '';
     $deleteIcon = '';
 
-    if ($user == $localUser || $allowDelete) {
-        $class = 'localuser';
+    if ($user && $user == $localUser || $allowDelete) {
+        $class .= ' localuser';
 
         $img = "<img src='" . getenv('ASSET_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
+    if ($user === 'Server') {
+        $deleteIcon = null;
+        $class .= ' system';
+    }
+
     $artCommentID = "artcomment_" . $articleID . "_" . $commentID;
     echo "<tr class='feed_comment $class' id='$artCommentID'>";
 
-    //$niceDate = date( "d M\nH:i ", $submittedDate );
-    $niceDate = date("j M\nG:i Y ", $submittedDate);
+    $niceDate = date("j M Y ", $submittedDate);
+    $niceDate .= '<br>';
+    $niceDate .= date("G:i", $submittedDate);
 
     sanitize_outputs($user, $comment);
 
     echo "<td class='smalldate'>$niceDate</td>";
-    echo "<td class='iconscommentsingle'>" . GetUserAndTooltipDiv($user, true) . "</td>";
+    echo "<td class='iconscommentsingle'>";
+    if ($user !== 'Server') {
+        echo GetUserAndTooltipDiv($user, true);
+    }
+    echo "</td>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";
@@ -126,7 +136,7 @@ function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
     sanitize_outputs($user, $formStr);
 
     $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
-    $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=250></textarea>";
+    $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=2000 placeholder='Enter a comment here...'></textarea>";
     $formStr .= "&nbsp;";
     $formStr .= "<img id='submitButton' src='" . getenv('ASSET_URL') . "/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
 

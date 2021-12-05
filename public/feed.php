@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 header("Location: " . getenv('APP_URL'));
 return;
@@ -49,7 +50,7 @@ RenderHtmlHead($pageTitle);
 ?>
 <body>
 <link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
-<script type='text/javascript'>
+<script>
   $(document).ready(function () {
     focusOnArticleID(getParameterByName('a'));
   });
@@ -138,7 +139,6 @@ RenderHtmlHead($pageTitle);
         <?php
         $yOffs = 0;
         RenderTwitchTVStream();
-        RenderChat($user);
         ?>
 
         <div id="achievement" class="rightFeed">

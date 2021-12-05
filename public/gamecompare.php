@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
@@ -148,13 +149,12 @@ RenderHtmlHead("Game Compare");
                 $awardedLeft = isset($nextAch['DateEarned']) ? $nextAch['DateEarned'] : null;
                 $awardedRight = isset($nextAch['DateEarnedFriend']) ? $nextAch['DateEarnedFriend'] : null;
                 $awardedHCLeft = isset($nextAch['DateEarnedHardcore']) ? $nextAch['DateEarnedHardcore'] : null;
-                $awardedHCRight = isset($nextAch['DateEarnedHardcoreFriend']) ? $nextAch['DateEarnedHardcoreFriend'] : null;
+                $awardedHCRight = isset($nextAch['DateEarnedFriendHardcore']) ? $nextAch['DateEarnedFriendHardcore'] : null;
 
                 echo "<td class='awardlocal'>";
                 if (isset($awardedLeft)) {
                     if (isset($awardedHCLeft)) {
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardLocal");
-                        $leftAwardedCount++;
                         $leftAwardedCount++;
                         $leftAwardedPoints += $achPoints;
                         $leftAwardedPoints += $achPoints;
@@ -188,8 +188,7 @@ RenderHtmlHead("Game Compare");
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardremote");
                         echo "</div>";
                         $rightAwardedCount++;
-                        $rightAwardedCount++;
-                        $leftAwardedPoints += $achPoints;
+                        $rightAwardedPoints += $achPoints;
                         $rightAwardedPoints += $achPoints;
 
                         echo "<small class='smalldate leftfloat'>-=HARDCORE=-<br>unlocked on<br>$awardedHCRight</small>";
@@ -291,7 +290,7 @@ RenderHtmlHead("Game Compare");
 
             echo "<form method='get' action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' />";
+            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
             echo "&nbsp;<input type='submit' value='Select' />";
             echo "</form>";
 
@@ -311,7 +310,7 @@ RenderHtmlHead("Game Compare");
 
             echo "<form method='get' action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' />";
+            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
             echo "&nbsp;<input type='submit' value='Select' />";
             echo "</form>";
 

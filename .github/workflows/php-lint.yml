@@ -1,10 +1,4 @@
-on:
-#  push:
-#    paths:
-#      - '**.php'
-  pull_request:
-    paths:
-      - '**.php'
+on: [pull_request]
 
 jobs:
   php-cs-fixer:
@@ -18,7 +12,7 @@ jobs:
       - name: Lint
         run: composer lint
 
-  phstan:
+  phpstan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

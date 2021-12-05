@@ -21,12 +21,12 @@ function RenderFeedComponent($user)
     echo "Here's a breakdown of what's been happening recently:";
     echo "<table id='feed'><tbody>";
     echo "<tr id='feedloadingfirstrow'>";
-    echo "<td class='chatcell'>";
+    echo "<td class='feedcell'>";
     echo "<img src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
     echo "</td>";
-    echo "<td class='chatcell'>";
+    echo "<td class='feedcell'>";
     echo "</td>";
-    echo "<td class='chatcellmessage'>";
+    echo "<td class='feedcellmessage'>";
     echo "loading feed...";
     echo "</td>";
     echo "</tr>";

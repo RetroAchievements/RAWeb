@@ -123,12 +123,12 @@ abstract class BaseFacebook
     /**
      * Version.
      */
-    const VERSION = '3.2.0';
+    public const VERSION = '3.2.0';
 
     /**
      * Signed Request Algorithm.
      */
-    const SIGNED_REQUEST_ALGORITHM = 'HMAC-SHA256';
+    public const SIGNED_REQUEST_ALGORITHM = 'HMAC-SHA256';
 
     /**
      * Default options for curl.

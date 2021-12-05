@@ -170,11 +170,42 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
     );
 
     if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
-        echo "<a href='/viewtopic.php?t=$forumTopicID'>View official forum topic for $gameTitle here</a>";
+        echo "<a class='info-button' href='/viewtopic.php?t=$forumTopicID'><span>💬</span>Official forum topic</a>";
     } else {
-        echo "No forum topic";
         if ($permissions >= Permissions::Developer) {
-            echo " - <a href='/request/game/generate-forum-topic.php?g=$gameID'>Create the official forum topic for $gameTitle</a>";
+            echo "<a class='info-button' href='/request/game/generate-forum-topic.php?g=$gameID' onclick='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'><span>💬</span>Create the official forum topic for $gameTitle</a>";
         }
     }
+}
+
+function RenderRecentGamePlayers($recentPlayerData)
+{
+    echo "<div class='component'>Recent Players:";
+    echo "<table class='smalltable'><tbody>";
+    echo "<tr><th>User</th><th>When</th><th>Activity</th>";
+
+    foreach ($recentPlayerData as $recentPlayer) {
+        echo "<tr>";
+
+        $userName = $recentPlayer['User'];
+        $date = $recentPlayer['Date'];
+        $activity = $recentPlayer['Activity'];
+
+        sanitize_outputs(
+            $userName,
+            $activity
+        );
+
+        echo "<td nowrap>";
+        echo GetUserAndTooltipDiv($userName, true);
+        echo GetUserAndTooltipDiv($userName, false);
+        echo "</td>";
+
+        echo "<td>$date</td>";
+        echo "<td>$activity</td>";
+        echo "</tr>";
+    }
+
+    echo "</tbody></table>";
+    echo "</div>";
 }

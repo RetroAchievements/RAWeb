@@ -6,9 +6,9 @@ namespace RA;
 // user SubjectType instead - it matches article types
 abstract class ObjectType
 {
-    const Game = 1;
+    public const Game = 1;
 
-    const User = 2;
+    public const User = 2;
 
-    const Achievement = 3;
+    public const Achievement = 3;
 }

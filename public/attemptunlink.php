@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     //	Immediate redirect if we cannot validate user!	//TBD: pass args?
@@ -20,12 +21,12 @@ if (empty($gameID)) {
 
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
-$query = "SELECT MD5 FROM GameHashLibrary WHERE GameID=$gameID";
+$query = "SELECT MD5, User FROM GameHashLibrary WHERE GameID=$gameID";
 $dbResult = s_mysql_query($query);
 
 $hashList = [];
 while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    $hashList[] = $db_entry['MD5'];
+    $hashList[] = $db_entry;
 }
 
 $numLinks = count($hashList);
@@ -61,15 +62,19 @@ RenderHtmlHead("Unlink Game Entry ($consoleName)");
         echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div><br>";
 
         echo "<h4><b>Unlink a single hash</b></h4>";
-        echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following MD5s:<br><br>";
+        echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following hashes:<br><br>";
         echo "<form method=post action='/request/game/modify.php'>";
         echo "<input type='hidden' name='u' VALUE='$user'>";
         echo "<input type='hidden' name='g' VALUE='$gameID'>";
         echo "<input type='hidden' name='f' VALUE='3'>";
         for ($i = 0; $i < $numLinks; $i++) {
             echo "<label>";
-            echo "<input type='radio' name='v' VALUE='" . $hashList[$i] . "' " . ($i == 0 ? "required" : "") . ">";
-            echo " <code>" . $hashList[$i] . "</code><br>";
+            echo "<input type='radio' name='v' VALUE='" . $hashList[$i]['MD5'] . "' " . ($i == 0 ? "required" : "") . ">";
+            echo " <code>" . $hashList[$i]['MD5'] . "</code>";
+            if ($hashList[$i]['User']) {
+                echo " linked by " . GetUserAndTooltipDiv($hashList[$i]['User']);
+            }
+            echo "<br>";
             echo "</label>";
         }
         echo "<br>";

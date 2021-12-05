@@ -6,7 +6,7 @@ function RenderHtmlStart($isOpenGraphPage = false)
 {
     echo "<!doctype html>";
     //echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
-    echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
+    echo "<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
     if ($isOpenGraphPage) {
         echo "prefix=\"og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#\" ";
@@ -32,13 +32,6 @@ function RenderHtmlHead($pageTitle = null)
 
 function RenderSharedHeader()
 {
-    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
-
-    $customCSS = RA_ReadCookie('RAPrefs_CSS');
-    if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
-    }
-
     echo "<link rel='icon' type='image/png' href='/favicon.png'>\n";
     echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
     echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>\n";
@@ -59,15 +52,26 @@ function RenderSharedHeader()
     echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
 
     echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>\n";
+
+    // jQuery Modal
+    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
+    echo "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css' />";
+
+    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
 
     //    jQuery, and custom js
     //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
     //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script src='/vendor/watermark.js?v=" . VERSION . "'></script>\n";
     echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
     echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
+
+    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
+    $customCSS = RA_ReadCookie('RAPrefs_CSS');
+    if ($customCSS !== false && mb_strlen($customCSS) > 2) {
+        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
+    }
 }
 
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
@@ -99,11 +103,11 @@ function RenderTitleTag($title = null)
 
 function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0)
 {
+    settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
+
     //    js tooltip code is basically on every page:
     echo "<script src='/vendor/wz_tooltip.js'></script>";
-
-    settype($unreadMessageCount, "integer");
 
     echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
 
@@ -140,7 +144,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
     } else {
         echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='$user' style='float:right' align='right' width='64' height='64' class='userpic'>";
+        echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
@@ -152,7 +156,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         $mailboxIcon = $unreadMessageCount > 0 ? getenv('ASSET_URL') . '/Images/_MailUnread.png' : getenv('ASSET_URL') . '/Images/_Mail.png';
         echo "<a href='/inbox.php'>";
-        echo "<img id='mailboxicon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
+        echo "<img id='mailboxicon' alt='Mailbox Icon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";
         echo "(";
         echo "<span id='mailboxcount'>$unreadMessageCount</span>";
@@ -181,9 +185,9 @@ function RenderToolbar($user, $permissions = 0)
 {
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
+
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
-
     echo "<ul>";
     ///Nintendo
     echo "<li class='dropdown-header'>Nintendo</li>";
@@ -222,6 +226,7 @@ function RenderToolbar($user, $permissions = 0)
     ///Sony
     echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+    echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
@@ -233,6 +238,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
+    echo "<li><a href='/gameList.php?c=63'>Watara Supervision</a></li>";
     echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
     echo "</ul>";
 
@@ -241,6 +247,7 @@ function RenderToolbar($user, $permissions = 0)
     // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "</ul>";
+    echo "</div>";
     echo "</li>";
 
     echo "<li><a href='#'>Achievements</a>";
@@ -264,11 +271,6 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/forum.php?c=7'>- Developers</a></li>";
     echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
     echo "<li class='divider'></li>";
-    //echo "<li><a href='/largechat.php'>Chat/RA Cinema</a></li>";
-    if (getenv('WEBSOCKET_PORT')) {
-        echo "<li><a href='#' onclick=\"window.open('" . str_replace('https', 'http', getenv('APP_URL')) . "/popoutchat.php', 'chat', 'status=no,height=560,width=340'); return false;\">Pop-out Chat</a></li>";
-        echo "<li class='divider'></li>";
-    }
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
     //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
@@ -278,7 +280,6 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
     echo "</ul>";
     echo "</div>";
-
     echo "</li>";
 
     echo "<li><a href='/download.php'>Download</a></li>";
@@ -288,14 +289,13 @@ function RenderToolbar($user, $permissions = 0)
         echo "<div>";
         echo "<ul>";
         echo "<li><a href='/user/$user'>Profile</a></li>";
-        //echo "<li><a href='/feed.php?i=1'>Feed</a></li>";
-        //echo "<li><a href='/feed.php'>Friends Feed</a></li>";
+        echo "<li><a href='/gameList.php?d=$user'>My Sets</a></li>";
+        echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
         echo "<li><a href='/friends.php'>Friends</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$user'>Requested Sets</a></li>";
-        // echo "<li><a href='/createmessage.php'>New Message</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
         echo "<li class='divider'></li>";
@@ -307,21 +307,21 @@ function RenderToolbar($user, $permissions = 0)
         echo "<li><a href='/createaccount.php'>Create Account</a></li>";
     }
 
-    if ($permissions >= Permissions::SuperUser) {
+    if ($permissions >= Permissions::JuniorDeveloper) {
         echo "<li><a href='#'>Manage</a>";
         echo "<div>";
         echo "<ul>";
         // SU
-        echo "<li><a href='/submitnews.php'>News Articles</a></li>";
         if ($permissions >= Permissions::Developer) {
+            echo "<li><a href='/submitnews.php'>News Articles</a></li>";
             echo "<li class='divider'></li>";
-            echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
-            echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
-            echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
-            echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
-            echo "<li class='divider'></li>";
-            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         }
+        echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
+        echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
+        echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
+        echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
+        echo "<li class='divider'></li>";
+        echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         // Admin
         if ($permissions >= Permissions::Admin) {
             echo "<li class='divider'></li>";
@@ -340,7 +340,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
     //echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery'>";
+    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
     echo "<input type='submit' value='Search'>";
     echo "</div>";
@@ -350,11 +350,10 @@ function RenderToolbar($user, $permissions = 0)
     RenderThemeSelector();
     echo "</div>";
 
-    echo '<br style="clear:both;">'; // to stretch height on mobile
+    echo '<div style="clear:both;"></div>';
 
-    echo "</div>";
-    echo "<div style='clear:both;'></div>"; //    Makes it work with mobile browsers :)
     echo "</ul>";
+    echo "</div>";
 }
 
 function RenderFooter()
@@ -400,7 +399,7 @@ function RenderFooter()
         echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "' target='_blank'>Twitch</a></div>";
     }
     if (getenv('FACEBOOK_CHANNEL')) {
-        echo "<div><a href='https://facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
+        echo "<div><a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
     }
     if (getenv('TWITTER_CHANNEL')) {
         echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "' target='_blank'>Twitter</a></div>";

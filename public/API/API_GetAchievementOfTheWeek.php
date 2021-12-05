@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../lib/bootstrap.php';
 
 runPublicApiMiddleware();
 
@@ -55,7 +56,7 @@ if (empty($startAt)) {
 
 if (!empty($startAt)) {
     $winnerInfo = array_filter($winnerInfo, function ($unlock) use ($startAt) {
-        return strtotime($unlock['DateAwarded']) >= strtotime($startAt);
+        return (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt);
     });
 }
 
