@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -7,18 +8,15 @@ $dev = requestInputSanitized('u');
 $errorCode = requestInputSanitized('e');
 
 $userArchInfo = getUserAchievementInformation($dev);
-$userContribCount = 0;
-$userContribYield = 0;
-if (count($userArchInfo) > 0) {
-    $userContribCount = $userArchInfo[0]['ContribCount'];
-    $userContribYield = $userArchInfo[0]['ContribYield'];
-}
 
 // Only get stats if the user has a contribute count
-if (empty($userContribCount)) {
+if (empty($userArchInfo)) {
     header("Location: " . getenv('APP_URL') . "/user/" . $dev);
     return;
 }
+
+$userContribCount = $userArchInfo[0]['ContribCount'];
+$userContribYield = $userArchInfo[0]['ContribYield'];
 
 // Get sets and achievements per console data for pie charts
 $setsPerConsole = getUserSetsPerConsole($dev);
@@ -527,8 +525,8 @@ RenderHtmlHead("$dev's Developer Stats");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
       google.charts.load('current', {'packages':['corechart']});
       google.charts.setOnLoadCallback(drawChart);
 
@@ -542,7 +540,10 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($count++ > 0) {
                     echo ", ";
                 }
-                echo "['" . $info['ConsoleName'] . "', " . $info['SetCount'] . "]";
+                echo json_encode([
+                    $info['ConsoleName'],
+                    (int) $info['SetCount'],
+                ]);
             }
             ?>
         ]);
@@ -555,16 +556,28 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($count++ > 0) {
                     echo ", ";
                 }
-                echo "['" . $info['ConsoleName'] . "', " . $info['AchievementCount'] . "]";
+                echo json_encode([
+                    $info['ConsoleName'],
+                    (int) $info['AchievementCount'],
+                ]);
             }
             ?>
         ]);
 
+        let chartWidth = 450;
+        let chartAreaHeight = '60%';
+
+        /* Render smaller charts on mobile */
+        if(window.innerWidth < 640){
+            chartWidth = 300;
+            chartAreaHeight = '50%';
+        }
+
         var gameOptions = {
             title: 'Games Developed for Per Console',
-               'width': 450,
+               'width': chartWidth,
                'height': 325,
-            'chartArea': {'width': '100%', 'height': '80%'},
+            'chartArea': {'width': '100%', 'height': chartAreaHeight},
             pieSliceText: 'value-and-percentage',
             titleTextStyle: {
                 color: '#2C97FA',
@@ -589,9 +602,9 @@ RenderHtmlHead("$dev's Developer Stats");
 
         var achievementOptions = {
             title: 'Achievements Created Per Console',
-               'width': 450,
+               'width': chartWidth,
                'height': 325,
-            'chartArea': {'width': '100%', 'height': '80%'},
+            'chartArea': {'width': '100%', 'height': chartAreaHeight},
             pieSliceText: 'value-and-percentage',
             titleTextStyle: {
                 color: '#2C97FA',
@@ -618,7 +631,6 @@ RenderHtmlHead("$dev's Developer Stats");
         achievementChart.draw(achievementData, achievementOptions);
         <?php } ?>
     }
-
 </script>
 <div id="mainpage">
     <div id='fullcontainer'>

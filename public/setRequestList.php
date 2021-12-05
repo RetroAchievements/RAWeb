@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     header("Location: " . getenv('APP_URL'));
@@ -82,7 +83,7 @@ RenderToolbar($user, $permissions);
             echo "</div>";
 
             //Create table headers
-            echo "</br><table><tbody>";
+            echo "</br><div class='table-wrapper'><table><tbody>";
             echo "<th>Game</th>";
             echo "<th>Requests</th>";
 
@@ -95,7 +96,7 @@ RenderToolbar($user, $permissions);
                 echo "</td>";
                 echo "<td><a href='/setRequestors.php?g=" . $request['GameID'] . "'>" . $request['Requests'] . "</a></td>";
             }
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
 
             //Add page traversal links
             echo "<div class='rightalign row'>";
@@ -134,7 +135,7 @@ RenderToolbar($user, $permissions);
             echo "<br>";
 
             //Create table headers
-            echo "<table><tbody>";
+            echo "<div class='table-wrapper'><table><tbody>";
             echo "<th>Game</th>";
 
             // Loop through each set request and display them if they do not have any acheivements
@@ -163,7 +164,7 @@ RenderToolbar($user, $permissions);
                     }
                 }
             }
-            echo "</tbody></table>";
+            echo "</tbody></table></div>";
         }
         ?>
     </div>

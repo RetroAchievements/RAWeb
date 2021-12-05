@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\Permissions;
 
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
 {
@@ -218,6 +219,19 @@ function removeLeaderboardEntry($user, $lbID)
 {
     sanitize_sql_inputs($user, $lbID);
 
+    $query = "SELECT le.Score, ld.Format FROM LeaderboardEntry AS le
+              LEFT JOIN LeaderboardDef AS ld ON ld.ID = le.LeaderboardID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+              WHERE ua.User = '$user' AND ld.ID = $lbID ";
+
+    $dbResult = s_mysql_query($query);
+    $data = mysqli_fetch_assoc($dbResult);
+    $scoreFormatted = GetFormattedLeaderboardEntry($data['Format'], $data['Score']);
+
+    $retVal = [];
+    $retVal['Success'] = true;
+    $retVal['Score'] = $scoreFormatted;
+
     $userID = getUserIDFromUser($user);
     if ($userID > 0) {
         $query = "DELETE FROM LeaderboardEntry
@@ -226,16 +240,14 @@ function removeLeaderboardEntry($user, $lbID)
         s_mysql_query($query);
 
         global $db;
-        if (mysqli_affected_rows($db) > 0) {
-            // error_log("Dropped $user 's LB entry from Leaderboard ID $lbID");
-            return true;
-        } else {
-            return false;
+        if (mysqli_affected_rows($db) == 0) {
+            $retVal['Success'] = false;
         }
     } else {
         // error_log("Could not find user ID for $user");
-        return false;
+        $retVal['Success'] = false;
     }
+    return $retVal;
 }
 
 function GetLeaderboardRankingJSON($user, $lbID)
@@ -313,21 +325,22 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
 {
     sanitize_sql_inputs($gameID, $localUser);
 
-    $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format FROM (
+    $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format, InnerTable.DisplayOrder FROM (
                 SELECT
                 CASE
                     WHEN !lbd.LowerIsBetter THEN MAX(le2.Score)
                                             ELSE MIN(le2.Score)
                 END
-                AS BestScore, le2.UserID, le2.LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder
-                FROM LeaderboardEntry AS le2
-                LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le2.LeaderboardID
+                AS BestScore, le2.UserID, lbd.ID as LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder
+                FROM LeaderboardDef AS lbd
+                LEFT JOIN LeaderboardEntry AS le2 ON lbd.ID = le2.LeaderboardID
                 LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                WHERE ( !ua.Untracked || ua.User = '$localUser' ) && lbd.GameID = $gameID
+                WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null ) && lbd.GameID = $gameID
                 GROUP BY lbd.ID
             ) InnerTable
             LEFT JOIN LeaderboardEntry AS le ON le.LeaderboardID = InnerTable.LeaderboardID AND le.Score = InnerTable.BestScore
             LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+            WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null )
             ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC ";
 
     $dataOut = [];
@@ -345,7 +358,15 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser)
         //error_log( $query );
     }
 
-    return count($dataOut);
+    // Get the number of leaderboards for the game
+    $query = "SELECT COUNT(*) AS lbCount FROM LeaderboardDef WHERE GameID = $gameID";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return mysqli_fetch_assoc($dbResult)['lbCount'];
+    } else {
+        return 0;
+    }
 }
 
 function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $friendsOnly)
@@ -355,7 +376,7 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     $retVal = [];
 
     //    'Me or my friends'
-    $friendQuery = $friendsOnly ? "( ( ua.User IN ( SELECT Friend FROM Friends WHERE User='$user' ) ) OR ua.User='$user' )" : "TRUE";
+    $friendQuery = $friendsOnly ? "( ( ua.User IN ( SELECT Friend FROM Friends WHERE User='$user' AND Friendship = 1 ) ) OR ua.User='$user' )" : "TRUE";
 
     //    Get entries:
     $query = "SELECT ua.User, le.Score, UNIX_TIMESTAMP( le.DateSubmitted ) AS DateSubmitted
@@ -381,18 +402,40 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     return $retVal;
 }
 
-function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
+function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $nearby = false)
 {
     sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
 
     $retVal = [];
 
     //    Get raw LB data
-    $query = "SELECT ld.ID AS LBID, gd.ID AS GameID, gd.Title AS GameTitle, ld.LowerIsBetter, ld.Title AS LBTitle, ld.Description AS LBDesc, ld.Format AS LBFormat, ld.Mem AS LBMem, gd.ConsoleID, c.Name AS ConsoleName, gd.ForumTopicID, gd.ImageIcon AS GameIcon
-              FROM LeaderboardDef AS ld
-              LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ld.ID = $lbID ";
+    $query = "
+      SELECT
+        ld.ID AS LBID,
+        gd.ID AS GameID,
+        gd.Title AS GameTitle,
+        ld.LowerIsBetter,
+        ld.Title AS LBTitle,
+        ld.Description AS LBDesc,
+        ld.Format AS LBFormat,
+        ld.Mem AS LBMem,
+        ld.Author AS LBAuthor,
+        gd.ConsoleID,
+        c.Name AS ConsoleName,
+        gd.ForumTopicID,
+        gd.ImageIcon AS GameIcon,
+        ld.Created AS LBCreated,
+        ld.Updated AS LBUpdated,
+        (
+          SELECT COUNT(UserID)
+          FROM LeaderboardEntry AS le
+          LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+          WHERE !ua.Untracked AND le.LeaderboardID = $lbID
+        ) AS TotalEntries
+      FROM LeaderboardDef AS ld
+      LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
+      LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+      WHERE ld.ID = $lbID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -402,11 +445,32 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
         settype($retVal['LowerIsBetter'], 'integer');
         settype($retVal['ConsoleID'], 'integer');
         settype($retVal['ForumTopicID'], 'integer');
+        settype($retVal['TotalEntries'], 'integer');
 
         $retVal['Entries'] = [];
 
+        // If a $user is passed in and $nearby is true then change $offset to give
+        // entries around the player based on their index and total entries
+        if ($nearby && !is_null($user)) {
+            $userPosition = 0;
+            getLeaderboardUserPosition($lbID, $user, $userPosition);
+            if ($userPosition != 0) {
+                $offset = $userPosition - intdiv($numToFetch, 2) - 1;
+                if ($offset <= 0) {
+                    $offset = 0;
+                } elseif ($retVal['TotalEntries'] - $userPosition + 1 < $numToFetch) {
+                    $offset = $retVal['TotalEntries'] - $numToFetch;
+                }
+            }
+        }
         //    Now get entries:
-        $query = "SELECT ua.User, le.Score, le.DateSubmitted
+        $query = "SELECT ua.User, le.Score, le.DateSubmitted, 
+                  CASE WHEN !lbd.LowerIsBetter 
+                  THEN RANK() OVER(ORDER BY le.Score DESC)
+                  ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
+                  CASE WHEN !lbd.LowerIsBetter 
+                  THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
+                  ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
                   FROM LeaderboardEntry AS le
                   LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
                   LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
@@ -424,9 +488,12 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
             $entries = [];
 
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                $db_entry['Rank'] = $numResultsFound + $offset + 1;
                 $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                 settype($db_entry['Score'], 'integer');
+                $db_entry['Rank'] = (int) $db_entry['UserRank'];
+                unset($db_entry['UserRank']);
+                $db_entry['Index'] = (int) $db_entry['UserIndex'];
+                unset($db_entry['UserIndex']);
 
                 if (strcmp($db_entry['User'], $user) == 0) {
                     $userFound = true;
@@ -434,18 +501,26 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
 
                 $entries[] = $db_entry;
 
-                //$retVal['Entries'][ $db_entry['Rank'] ] = $db_entry;
-                //$retVal[] = $db_entry;
-
                 $numResultsFound++;
             }
 
-            if ($userFound == false) {
+            // Currently only used for appending player to the end on website leaderboard pages
+            if ($userFound == false && !$nearby) {
                 //    Go find user's score in this table, if it exists!
-                $query = "SELECT ua.User, le.Score, le.DateSubmitted
+                $query = "SELECT User, Score, DateSubmitted, UserRank, UserIndex FROM
+                         (SELECT ua.User, le.Score, le.DateSubmitted, 
+                          CASE WHEN !lbd.LowerIsBetter 
+                          THEN RANK() OVER(ORDER BY le.Score DESC)
+                          ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
+                          CASE WHEN !lbd.LowerIsBetter 
+                          THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
+                          ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
                           FROM LeaderboardEntry AS le
                           LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-                          WHERE le.LeaderboardID = $lbID AND ua.User='$user' ";
+                          LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
+                          WHERE !ua.Untracked AND le.LeaderboardID = $lbID) InnerTable
+                          WHERE InnerTable.User = '$user'";
+
                 $dbResult = s_mysql_query($query);
                 if ($dbResult !== false) {
                     if (mysqli_num_rows($dbResult) > 0) {
@@ -453,12 +528,10 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
                         $db_entry = mysqli_fetch_assoc($dbResult);
                         $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                         settype($db_entry['Score'], 'integer');
-
-                        //    Also fetch our user rank!
-                        getLeaderboardRanking($user, $lbID, $userRank, $totalEntries);
-                        $db_entry['Rank'] = $userRank;
-
-                        //$retVal['Entries'][ $db_entry['Rank'] ] = $db_entry;
+                        $db_entry['Rank'] = (int) $db_entry['UserRank'];
+                        unset($db_entry['UserRank']);
+                        $db_entry['Index'] = (int) $db_entry['UserIndex'];
+                        unset($db_entry['UserIndex']);
                         $entries[] = $db_entry;
                     }
                 } else {
@@ -477,9 +550,20 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly)
     return $retVal;
 }
 
+function formatLeaderboardValueSeconds($hours, $mins, $secs)
+{
+    if ($hours == 0) {
+        return sprintf("%02d:%02d", $mins, $secs);
+    }
+
+    return sprintf("%02dh%02d:%02d", $hours, $mins, $secs);
+}
+
 function GetFormattedLeaderboardEntry($formatType, $scoreIn)
 {
     settype($scoreIn, 'integer');
+
+    // NOTE: a/b results in a float, a%b results in an integer
 
     if ($formatType == 'TIME') { // Number of frames
         $hours = $scoreIn / 216000;
@@ -490,14 +574,14 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%01d:%02d:%02d.%02d", $hours, $mins, $secs, $milli);
+        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
     } elseif ($formatType == 'TIMESECS') { // Number of seconds
-        $hours = $scoreIn / 360;
+        $hours = $scoreIn / 3600;
         settype($hours, 'integer');
         $mins = ($scoreIn / 60) - ($hours * 60);
         $secs = $scoreIn % 60;
-        return sprintf("%01d:%02d:%02d", $hours, $mins, $secs);
-    } elseif ($formatType == 'MILLISECS') { // Number of milliseconds
+        return formatLeaderboardValueSeconds($hours, $mins, $secs);
+    } elseif ($formatType == 'MILLISECS') { // Hundredths of seconds
         $hours = $scoreIn / 360000;
         settype($hours, 'integer');
         $mins = ($scoreIn / 6000) - ($hours * 60);
@@ -506,10 +590,27 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn)
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
-        return sprintf("%01d:%02d:%02d.%02d", $hours, $mins, $secs, $milli);
-    } else {
+        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
+    } elseif ($formatType == 'MINUTES') { // Number of minutes
+        $hours = $scoreIn / 60;
+        settype($hours, 'integer');
+        $mins = $scoreIn % 60;
+        return sprintf("%01dh%02d", $hours, $mins);
+    } elseif ($formatType == 'SCORE') { // Number padded to six digits
+        return sprintf("%06d", $scoreIn);
+    } else { // Raw number
         return "$scoreIn";
     }
+}
+
+function isValidLeaderboardFormat($formatType)
+{
+    return $formatType == 'TIME' ||      // Frames
+           $formatType == 'TIMESECS' ||  // Seconds
+           $formatType == 'MINUTES' ||   // Minutes
+           $formatType == 'MILLISECS' || // Hundredths of seconds
+           $formatType == 'VALUE' ||     // Raw number
+           $formatType == 'SCORE';       // Number padded to six digits
 }
 
 function getLeaderboardDataSmall(
@@ -545,6 +646,40 @@ function getLeaderboardDataSmall(
         $forumTopicIDOut = $db_entry['ForumTopicID'];
         $consoleIDOut = $db_entry['ConsoleID'];
         $consoleTitleOut = $db_entry['ConsoleTitle'];
+
+        return true;
+    } else {
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
+        return false;
+    }
+}
+
+function getLeaderboardUserPosition($lbID, $user, &$lbPosition)
+{
+    sanitize_sql_inputs($lbID, $user);
+
+    $query = "SELECT UserIndex FROM
+                         (SELECT ua.User, le.Score, le.DateSubmitted, 
+                          CASE WHEN !lbd.LowerIsBetter 
+                          THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
+                          ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
+                          FROM LeaderboardEntry AS le
+                          LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+                          LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
+                          WHERE !ua.Untracked AND le.LeaderboardID = $lbID) InnerTable
+                          WHERE InnerTable.User = '$user'";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        $db_entry = mysqli_fetch_assoc($dbResult);
+
+        if (is_null($db_entry)) {
+            $lbPosition = 0;
+            return true;
+        }
+
+        $lbPosition = $db_entry['UserIndex'];
 
         return true;
     } else {
@@ -619,6 +754,7 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
                      ld.DisplayOrder, 
                      leInner.NumResults, 
                      ld.LowerIsBetter, 
+                     ld.Author,
                      gd.ID AS GameID, 
                      gd.ImageIcon AS GameIcon, 
                      gd.Title AS GameTitle, 
@@ -681,7 +817,7 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
     }
 }
 
-function SubmitNewLeaderboard($gameID, &$lbIDOut)
+function SubmitNewLeaderboard($gameID, &$lbIDOut, $user)
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -690,9 +826,10 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
+    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
                                 VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
-                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp))";
+                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '$user', NOW())";
+
     // log_sql($query);
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -704,6 +841,85 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
     }
 }
 
+function UploadNewLeaderboard(
+    $author,
+    $gameID,
+    $title,
+    $desc,
+    $format,
+    $lowerIsBetter,
+    $mem,
+    &$idInOut,
+    &$errorOut
+) {
+    $displayOrder = 0;
+    $originalAuthor = '';
+
+    if ($idInOut > 0) {
+        $query = "SELECT DisplayOrder, Author FROM LeaderboardDef WHERE ID='$idInOut'";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
+            $data = mysqli_fetch_assoc($dbResult);
+            $displayOrder = $data['DisplayOrder'];
+            $originalAuthor = $data['Author'];
+            settype($displayOrder, 'integer');
+        }
+    }
+
+    // Prevent <= registered users from uploading or modifying leaderboards
+    $userPermissions = getUserPermissions($author);
+    if ($userPermissions <= \RA\Permissions::Registered) {
+        if ($userPermissions < Permissions::JuniorDeveloper || $author != $originalAuthor) {
+            $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+            return false;
+        }
+    }
+
+    //    Hack for 'development tutorial game'
+    if ($gameID == 10971) {
+        $errorOut = "Tutorial: Leaderboard upload! This reply is happening on the server, to say that we have successfully received your leaderboard data.";
+        return false;
+    }
+
+    if (!isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
+        $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
+        return false;
+    }
+
+    if (!isValidLeaderboardFormat($format)) {
+        $errorOut = "Unknown format: $format";
+        return false;
+    }
+
+    if (!isset($idInOut) || $idInOut == 0) {
+        if (!SubmitNewLeaderboard($gameID, $idInOut, $author)) {
+            $errorOut = "Internal error creating new leaderboard.";
+            return false;
+        }
+
+        $query = "SELECT DisplayOrder FROM LeaderboardDef WHERE ID='$idInOut'";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
+            $data = mysqli_fetch_assoc($dbResult);
+            $displayOrder = $data['DisplayOrder'];
+            settype($displayOrder, 'integer');
+        }
+    }
+
+    if (!submitLBData($author, $idInOut, $mem, $title, $desc, $format, $lowerIsBetter, $displayOrder)) {
+        $errorOut = "Internal error updating leaderboard.";
+        return false;
+    }
+
+    if ($originalAuthor != '') {
+        addArticleComment("Server", \RA\ArticleType::Leaderboard, $idInOut,
+            "$author edited this leaderboard.", $author
+        );
+    }
+
+    return true;
+}
+
 /**
  * Duplicates a leaderboard a specified number of times.
  *
@@ -712,7 +928,7 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut)
  * @param int $duplicateNumber the number of times to duplicate the leaderboard
  * @return bool
  */
-function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
+function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)
 {
     sanitize_sql_inputs($gameID, $leaderboardID);
     settype($gameID, 'integer');
@@ -757,8 +973,8 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)
 
     //Create the duplicate entries
     for ($i = 1; $i <= $duplicateNumber; $i++) {
-        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder) 
-                                    VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i))";
+        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
+                                    VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i), '$user', NOW())";
         // log_sql($query);
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -808,7 +1024,7 @@ function GetLBPatch($gameID)
     $lbData = [];
 
     //    Always append LBs?
-    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.Title, ld.Description
+    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description
               FROM LeaderboardDef AS ld
               WHERE ld.GameID = $gameID
               ORDER BY ld.DisplayOrder, ld.ID ";
@@ -817,6 +1033,7 @@ function GetLBPatch($gameID)
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['ID'], 'integer');
+            settype($db_entry['LowerIsBetter'], 'boolean');
             $lbData[] = $db_entry;
         }
     } else {

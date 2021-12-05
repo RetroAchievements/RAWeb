@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $userIn = requestInputPost('u');
 $topicID = requestInputPost('t');
@@ -12,7 +13,7 @@ if (!ValidatePOSTChars("tp")) {
 }
 
 if (validateFromCookie($user, $unused, $permissions, \RA\Permissions::Registered)) {
-    if (submitTopicComment($user, $topicID, $commentPayload, $newCommentID)) {
+    if (submitTopicComment($user, $topicID, null, $commentPayload, $newCommentID)) {
         //	Good!
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$newCommentID");
         exit;

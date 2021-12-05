@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $emulators = getActiveEmulatorReleases();
 $consoles = getConsoleList();
@@ -38,7 +39,7 @@ RenderHtmlHead("Download a client");
                     <a class="" href="<?= $emulator['link'] ?>" target="_blank">Documentation</a>
                 <?php endif ?>
             </div>
-            <div class="mb-3" style="display: flex; justify-content: space-between; flex-direction: row; align-items: start">
+            <div class="mb-3 download-flex">
                 <div style="flex-grow: 1">
                     <?php if (!empty($emulator['systems'])): ?>
                         <?php sort($emulator['systems']) ?>

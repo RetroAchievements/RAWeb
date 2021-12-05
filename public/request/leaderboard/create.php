@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $user = requestInputPost('u');
 $cookie = requestInputPost('c');
@@ -15,9 +16,9 @@ if (!isset($user)) {
     $duplicateNumber = requestInputQuery('n');
 }
 
-if (validateUser_cookie($user, $cookie, \RA\Permissions::Developer)) {
+if (validateUser_cookie($user, $cookie, \RA\Permissions::JuniorDeveloper)) {
     if (isset($leaderboardID) && isset($duplicateNumber)) {
-        if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber)) {
+        if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");
             exit;
         } else {
@@ -25,7 +26,7 @@ if (validateUser_cookie($user, $cookie, \RA\Permissions::Developer)) {
             exit;
         }
     } else {
-        if (submitNewLeaderboard($gameID, $lbID)) {
+        if (submitNewLeaderboard($gameID, $lbID, $user)) {
             //	Good!
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");
             exit;

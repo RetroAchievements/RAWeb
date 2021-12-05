@@ -247,6 +247,24 @@ function isFriendsWith($user, $friend)
     return $data['Friendship'] == '1';
 }
 
+function isUserBlocking($user, $possibly_blocked_user)
+{
+    sanitize_sql_inputs($user, $possibly_blocked_user);
+
+    $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$possibly_blocked_user'";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult == false) {
+        return false;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+    if ($data == false) {
+        return false;
+    }
+
+    return $data['Friendship'] == '-1';
+}
+
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
 {
     sanitize_sql_inputs($user, $gameID);
@@ -308,6 +326,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
                 SELECT f.Friend 
                 FROM Friends AS f 
                 WHERE f.User = '$user'
+                AND f.Friendship = 1
             ) AS _FriendList 
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User 
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID 
@@ -351,6 +370,7 @@ function GetFriendList($user)
               FROM Friends AS f
               LEFT JOIN UserAccounts AS ua ON ua.User = f.Friend
               WHERE f.User='$user'
+              AND f.Friendship = 1
               AND ua.ID IS NOT NULL
               ORDER BY ua.LastActivityID DESC";
 

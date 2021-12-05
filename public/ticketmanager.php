@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+use RA\ArticleType;
+use RA\Permissions;
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     header("Location: " . getenv('APP_URL'));
@@ -40,48 +44,48 @@ if ($ticketID != 0) {
             break;
 
         case "resolved":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 2;
             }
             break;
 
         case "demoted":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Demoted";
             }
             break;
 
         case "not-enough-info":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Not enough information";
             }
             break;
 
         case "wrong-rom":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Wrong ROM";
             }
             break;
 
         case "network":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Network problems";
             }
             break;
 
         case "unable-to-reproduce":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "Unable to reproduce";
             }
             break;
 
         case "closed-other":
-            if ($permissions >= \RA\Permissions::Developer) {
+            if ($permissions >= Permissions::Developer) {
                 $ticketState = 0;
                 $reason = "See the comments";
             }
@@ -99,7 +103,7 @@ if ($ticketID != 0) {
     if ($action != null &&
         $ticketState != $ticketData['ReportState'] &&
         (
-            $permissions >= \RA\Permissions::Developer ||
+            $permissions >= Permissions::Developer ||
             $user == $ticketData['ReportedBy']
         )
     ) {
@@ -367,10 +371,26 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
+                //Core/Unofficial Filters - These filters are mutually exclusive
+                echo "<div>";
+                echo "<b>Achievement State:</b> ";
+                if ($gamesTableFlag != 5) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=$ticketFilters'>*Core</a></b> | ";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=$ticketFilters'>Core</a> | ";
+                }
+
+                if ($gamesTableFlag == 5) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=5&t=$ticketFilters'>*Unofficial</a></b>";
+                } else {
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=5&t=$ticketFilters'>Unofficial</a>";
+                }
+                echo "</div>";
+
                 //Clear Filter
-                if ($ticketFilters != $defaultFilter) {
+                if ($ticketFilters != $defaultFilter || $gamesTableFlag == 5) {
                     echo "<div>";
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . $defaultFilter . "'>Clear Filter</a>";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=" . $defaultFilter . "'>Clear Filter</a>";
                     echo "</div>";
                 }
                 echo "</div>";
@@ -678,7 +698,7 @@ RenderHtmlHead($pageTitle);
                 echo "</td>";
                 echo "</tr>";
 
-                if ($permissions >= \RA\Permissions::Developer) {
+                if ($permissions >= Permissions::Developer) {
                     echo "<tr>";
 
                     echo "<td>Reporter:</td>";
@@ -708,7 +728,7 @@ RenderHtmlHead($pageTitle);
                     echo "$reportedBy did not earn this achievement.";
                 }
 
-                if ($user == $reportedBy || $permissions >= \RA\Permissions::Developer) {
+                if ($user == $reportedBy || $permissions >= Permissions::Developer) {
                     echo "<tr>";
 
                     echo "<td>Action: </td><td colspan='6'>";
@@ -721,18 +741,18 @@ RenderHtmlHead($pageTitle);
 
                     echo "<select name='action' required>";
                     echo "<option value='' disabled selected hidden>Choose an action...</option>";
-                    if ($reportState == 1) {
-                        if ($user == $reportedBy) { // only the reporter can close as a mistaken report
-                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
-                        }
 
-                        if ($permissions >= \RA\Permissions::Developer) {
+                    if ($reportState == 1) {
+                        if ($user == $reportedBy && $permissions < Permissions::Developer) {
+                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
+                        } elseif ($permissions >= Permissions::Developer) {
                             echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
                             echo "<option value='demoted'>Demote achievement to Unofficial</option>";
                             echo "<option value='network'>Close - Network problems</option>";
                             echo "<option value='not-enough-info'>Close - Not enough information</option>";
                             echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
                             echo "<option value='unable-to-reproduce'>Close - Unable to reproduce</option>";
+                            echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
                             echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
                         }
                     } else { // ticket is not open
@@ -754,8 +774,13 @@ RenderHtmlHead($pageTitle);
                 echo "<div class='commentscomponent'>";
 
                 echo "<h4>Comments</h4>";
-                $forceAllowDeleteComments = $permissions >= \RA\Permissions::Admin;
-                RenderCommentsComponent($user, $numArticleComments, $commentData, $ticketID, \RA\ArticleType::AchievementTicket, $forceAllowDeleteComments);
+                RenderCommentsComponent($user,
+                    $numArticleComments,
+                    $commentData,
+                    $ticketID,
+                    ArticleType::AchievementTicket,
+                    $permissions
+                );
 
                 echo "</div>";
                 echo "</td>";
@@ -764,7 +789,7 @@ RenderHtmlHead($pageTitle);
                 echo "</tbody></table>";
                 echo "</div>";
 
-                if ($permissions >= \RA\Permissions::Developer && getAchievementMetadata($achID, $dataOut)) {
+                if ($permissions >= Permissions::Developer && getAchievementMetadata($achID, $dataOut)) {
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";

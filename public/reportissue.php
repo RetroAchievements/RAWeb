@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 $cookieRaw = RA_ReadCookie('RA_Cookie');
@@ -39,7 +40,7 @@ RenderHtmlHead("Report Broken Achievement");
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
 <?php RenderToolbar($user, $permissions); ?>
-<script type="text/javascript">
+<script>
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
       document.getElementById('core-row').style.display = '';
@@ -67,39 +68,40 @@ RenderHtmlHead("Report Broken Achievement");
             <table>
                 <tbody>
                 <tr>
-                    <td>Game:</td>
+                    <td>Game</td>
                     <td style="width:80%">
                         <?php echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName, false) ?>
                     </td>
                 </tr>
                 <tr>
-                    <td>Achievement:</td>
+                    <td>Achievement</td>
                     <td>
                         <?php echo GetAchievementAndTooltipDiv(
-    $achievementID,
-    $achievementTitle,
-    $desc,
-    $achPoints,
-    $gameTitle,
-    $achBadgeName,
-    true
-) ?>
+                            $achievementID,
+                            $achievementTitle,
+                            $desc,
+                            $achPoints,
+                            $gameTitle,
+                            $achBadgeName,
+                            true)
+                        ?>
                     </td>
                 </tr>
                 <tr class="alt">
-                    <td><label for="issue">Issue:</label></td>
+                    <td><label for="issue">Issue</label></td>
                     <td>
                         <select name="p" id="issue" required>
                             <option value="" disabled selected hidden>Select your issue...</option>
                             <option value="1">Triggered at wrong time</option>
                             <option value="2">Doesn't Trigger</option>
                         </select>
+                        <a href="/views/issueDescriptionModal.html" rel="modal:open">?</a>
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="emulator">Emulator:</label></td>
+                    <td><label for="emulator">Emulator</label></td>
                     <td>
-                        <select name="note[emulator]" id="emulator" onchange="displayCore()" required>
+                        <select name="note[emulator]" id="emulator" required data-bind="value: emulatorValue">
                             <option value="" disabled selected hidden>Select your emulator...</option>
                             <?php foreach ($emulators as $emulator): ?>
                                 <option><?= $emulator['handle'] ?></option>
@@ -107,9 +109,16 @@ RenderHtmlHead("Report Broken Achievement");
                         </select>
                     </td>
                 </tr>
-                <tr id="core-row" style="display: none">
+                <tr>
+                    <td><label for="version">Emulator Version</label></td>
                     <td>
-                        <label for="core">Core:</label>
+                        <input type="text" name="note[emulatorVersion]" id="version" required />
+                        <a href="/views/versionDescriptionModal.html" rel="modal:open">Why?</a>
+                    </td>
+                </tr>
+                <tr id="core-row">
+                    <td>
+                        <label for="core">Core</label>
                     </td>
                     <td>
                         <input type="text" name="note[core]" id="core" placeholder="Which core did you use?"
@@ -117,7 +126,7 @@ RenderHtmlHead("Report Broken Achievement");
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="checksum">Checksum:</label></td>
+                    <td><label for="checksum">Checksum</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
@@ -129,20 +138,22 @@ RenderHtmlHead("Report Broken Achievement");
                             }
                             ?>
                         </select>
+                        <a href="/views/checksumDescriptionModal.html" rel="modal:open">?</a>
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="description">Description:</label></td>
+                    <td><label for="description">Description</label></td>
                     <td colspan="2">
                         <textarea class="requiredinput fullwidth forum" name="note[description]" id="description"
                                   style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
-                                  required></textarea>
+                                  required data-bind="textInput: description"></textarea>
+                        <p data-bind="visible: descriptionIsUnhelpful">Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.</p>
                     </td>
                 </tr>
                 <tr>
                     <td></td>
                     <td colspan="2" class="fullwidth">
-                        <input style="float:right" type="submit" value="Submit Issue Report" size="37">
+                        <input style="float:right" type="submit" value="Submit Issue Report" size="37" data-bind="disable: descriptionIsUnhelpful" />
                     </td>
                 </tr>
                 </tbody>
@@ -150,6 +161,22 @@ RenderHtmlHead("Report Broken Achievement");
         </form>
     </div>
 </div>
+<script type="text/javascript">
+    let ReportViewModel = function() {
+        this.description = ko.observable('');
+        this.emulatorValue = ko.observable();
+        this.emulatorValue.subscribe(function() {
+            displayCore();
+        });
+
+        this.descriptionIsUnhelpful = ko.pureComputed(function() {
+            let unhelpfulRegex = /(n'?t|not?).*work/ig;
+            return this.description().length < 25 && unhelpfulRegex.test(this.description());
+        }, this);
+    }
+
+    ko.applyBindings(new ReportViewModel());
+</script>
 <?php RenderFooter(); ?>
 </body>
 <?php RenderHtmlEnd(); ?>

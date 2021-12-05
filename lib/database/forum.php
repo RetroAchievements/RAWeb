@@ -4,11 +4,11 @@ use RA\Permissions;
 
 abstract class ModifyTopicField
 {
-    const ModifyTitle = 0;
+    public const ModifyTitle = 0;
 
-    const DeleteTopic = 1;
+    public const DeleteTopic = 1;
 
-    const RequiredPermissions = 2;
+    public const RequiredPermissions = 2;
 }
 
 function getForumList($categoryID = 0)
@@ -71,19 +71,30 @@ function getForumDetails($forumID, &$forumDataOut)
     }
 }
 
-function getForumTopics($forumID, $offset, $count)
+function getForumTopics($forumID, $offset, $count, &$maxCountOut)
 {
     sanitize_sql_inputs($forumID, $offset, $count);
     settype($forumID, "integer");
+
+    $query = "    SELECT COUNT(*) FROM ForumTopic AS ft
+                LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
+                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        $data = mysqli_fetch_assoc($dbResult);
+        $maxCountOut = (int) $data['COUNT(*)'];
+    }
 
     $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
+                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
+                WHERE ft.ForumID = $forumID
                 GROUP BY ft.ID, LatestCommentPostedDate
-                ORDER BY LatestCommentPostedDate DESC ";
+                ORDER BY LatestCommentPostedDate DESC
+                LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -91,8 +102,10 @@ function getForumTopics($forumID, $offset, $count)
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
+            if ($db_entry['NumTopicReplies'] != -1) {
+                $dataOut[$numResults] = $db_entry;
+                $numResults++;
+            }
         }
         return $dataOut;
     } else {
@@ -233,7 +246,7 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
         global $db;
         $newTopicIDOut = mysqli_insert_id($db);
 
-        if (submitTopicComment($user, $newTopicIDOut, $topicPayload, $newCommentID)) {
+        if (submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID)) {
             //error_log( __FUNCTION__ . " posted OK!" );
             //error_log( "$user posted new topic $topicTitle giving topic ID $newTopicIDOut with added comment ID $newCommentID" );
             return true;
@@ -305,7 +318,7 @@ function editTopicComment($commentID, $newPayload)
     }
 }
 
-function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
+function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$newCommentIDOut)
 {
     sanitize_sql_inputs($user, $topicID);
     $userID = getUserIDFromUser($user);
@@ -327,7 +340,16 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
         $newCommentIDOut = mysqli_insert_id($db);
         setLatestCommentInForumTopic($topicID, $newCommentIDOut);
 
-        notifyUsersAboutForumActivity($topicID, $user, $newCommentIDOut);
+        if ($topicTitle == null) {
+            $topicData = [];
+            if (getTopicDetails($topicID, $topicData)) {
+                $topicTitle = $topicData['TopicTitle'];
+            } else {
+                $topicTitle = '';
+            }
+        }
+
+        notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
 
         //error_log( __FUNCTION__ . " posted OK!" );
         // error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
@@ -339,7 +361,7 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
     }
 }
 
-function notifyUsersAboutForumActivity($topicID, $author, $commentID)
+function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentID)
 {
     sanitize_sql_inputs($topicID, $author, $commentID);
 
@@ -364,7 +386,7 @@ function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Leaderboard, null, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Forum, $topicTitle, null, $urlTarget);
     }
 }
 
@@ -483,7 +505,15 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
     //    02:08 21/02/2014 - cater for 20 spam messages
     $countPlusSpam = $count + 20;
     $query = "
-        SELECT LatestComments.DateCreated AS PostedAt, LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg, LatestComments.Author, ua.RAPoints, ua.Motto, ft.ID AS ForumTopicID, ft.Title AS ForumTopicTitle, LatestComments.ID AS CommentID
+        SELECT LatestComments.DateCreated AS PostedAt,
+            LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg,
+            LENGTH(LatestComments.Payload) > $numMessageChars AS IsTruncated,
+            LatestComments.Author,
+            ua.RAPoints,
+            ua.Motto,
+            ft.ID AS ForumTopicID,
+            ft.Title AS ForumTopicTitle,
+            LatestComments.ID AS CommentID
         FROM 
         (
             SELECT * 
