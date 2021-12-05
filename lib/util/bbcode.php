@@ -14,6 +14,7 @@ function RenderPHPBBIcons()
     echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[game=\", \"]\")'>game</a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[user=\", \"]\")'>user</a></span>";
     echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[spoiler]\", \"[/spoiler]\")'>spoiler</a></span>";
+    echo "<span class='clickablebutton'><a href='#a' onclick='injectBBCode(\"[ticket=\", \"]\")'>ticket</a></span>";
 
     echo "</div>";
 }
@@ -68,6 +69,8 @@ function parseTopicCommentPHPBB($commentIn, $withImgur = false)
     $comment = preg_replace_callback('/(\\[game=)(.*?)(\\])/i', 'cb_injectGamePHPBB', $comment);
     // [spoiler]
     $comment = preg_replace_callback('/\\[spoiler\\](?:<br.*?>)?(.*?)\\[\\/spoiler\\]/is', 'cb_injectSpoilerPHPBB', $comment);
+    // [ticket]
+    $comment = preg_replace_callback('/(\\[ticket=)(.*?)(\\])/i', 'cb_injectTicketPHPBB', $comment);
 
     $comment = linkifyBasicURLs($comment);
 
@@ -103,6 +106,21 @@ function cb_injectAchievementPHPBB($matches)
         $consoleName,
         false
     );
+}
+
+function cb_injectTicketPHPBB($matches)
+{
+    if (count($matches) === 0) {
+        return "";
+    }
+
+    $ticketModel = GetTicketModel($matches[2]);
+
+    if ($ticketModel == null) {
+        return "";
+    }
+
+    return GetTicketAndTooltipDiv($ticketModel);
 }
 
 //    17:05 18/04/2013
