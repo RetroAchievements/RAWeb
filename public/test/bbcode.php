@@ -55,6 +55,10 @@ www.example.org (no link)
 <a href="http://www.retroachievements.org">HTML</a>
 https://retroachievements.org/user/$username
 
+[ach=1]
+[game=1]
+[ticket=1]
+
 [b][i]Images[/i][/b]
 
 https://retroachievements.org/Images/043749.png
