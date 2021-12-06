@@ -114,10 +114,10 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
         return false;
     }
 
-    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn);
+    $note = $noteIn;
+    sanitize_sql_inputs($userSubmitter, $reportType, $note);
 
     global $db;
-    $note = $noteIn;
 
     // error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
 
@@ -163,7 +163,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
                 $bugReportDetails = "Achievement: [ach=$achID]
 Game: [game=$gameID]
 Problem: $problemTypeStr
-Comment: $note
+Comment: $noteIn
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
 " . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
