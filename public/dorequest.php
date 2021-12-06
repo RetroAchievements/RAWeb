@@ -431,7 +431,7 @@ switch ($requestType) {
         $newValueMemString = requestInput('l');
         $newLowerIsBetter = requestInput('w', 0, 'integer');
         $newFormat = requestInput('f');
-        $newMemString = "STA:$newStartMemString::SUB:$newSubmitMemString::CAN:$newCancelMemString::VAL:$newValueMemString";
+        $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
         $errorOut = "";
         $response['Success'] = UploadNewLeaderboard($user, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);
