@@ -1157,6 +1157,10 @@ pre, code, .code {
   border-radius: 10px;
 }
 
+#WzBoDy tr {
+  background: none;
+}
+
 #carouselpages {
   width: 240px;
 }
@@ -1496,8 +1500,49 @@ svg > g > g:last-child { pointer-events: none }
   margin-right: 15px;
 }
 
-/* Table wrapper */
-.table-wrapper{
+.ticket-block {
+  display: inline-block;
+  border: 1px #1166dd;
+  border-radius: 5px;
+  border-style: solid;
+  min-height: 32px;
+  padding-right: 5px;
+}
+
+.ticket-block.open {
+  border-color: #28a745;
+}
+
+.ticket-block.closed {
+  border-color: #dc3545;
+}
+
+.ticket-block .badgeimg {
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-block;
+}
+
+.ticket-block .ticket-displayable-block {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.ticket-tooltip-state {
+  font-weight: bold;
+  padding: 5px;
+}
+
+.ticket-tooltip-info {
+  padding: 5px;
+}
+
+.ticket-tooltip-info.open .tooltip-closer,
+.ticket-tooltip-info.closed .tooltip-opened-date {
+  display: none;
+}
+
+.table-wrapper {
   max-width:100%;
   overflow-x:auto;
 }
@@ -1505,3 +1550,6 @@ svg > g > g:last-child { pointer-events: none }
 .modal {
   background-color: #1a1a1a;
 }
+
+.text-danger { color: red; }
+.text-right { text-align: right; }

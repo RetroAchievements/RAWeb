@@ -90,8 +90,8 @@ function getForumTopics($forumID, $offset, $count, &$maxCountOut)
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
+                LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
+                WHERE ft.ForumID = $forumID
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC
                 LIMIT $offset, $count";
@@ -102,8 +102,10 @@ function getForumTopics($forumID, $offset, $count, &$maxCountOut)
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
+            if ($db_entry['NumTopicReplies'] != -1) {
+                $dataOut[$numResults] = $db_entry;
+                $numResults++;
+            }
         }
         return $dataOut;
     } else {
@@ -244,7 +246,7 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
         global $db;
         $newTopicIDOut = mysqli_insert_id($db);
 
-        if (submitTopicComment($user, $newTopicIDOut, $topicPayload, $newCommentID)) {
+        if (submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID)) {
             //error_log( __FUNCTION__ . " posted OK!" );
             //error_log( "$user posted new topic $topicTitle giving topic ID $newTopicIDOut with added comment ID $newCommentID" );
             return true;
@@ -316,7 +318,7 @@ function editTopicComment($commentID, $newPayload)
     }
 }
 
-function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
+function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$newCommentIDOut)
 {
     sanitize_sql_inputs($user, $topicID);
     $userID = getUserIDFromUser($user);
@@ -338,7 +340,16 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
         $newCommentIDOut = mysqli_insert_id($db);
         setLatestCommentInForumTopic($topicID, $newCommentIDOut);
 
-        notifyUsersAboutForumActivity($topicID, $user, $newCommentIDOut);
+        if ($topicTitle == null) {
+            $topicData = [];
+            if (getTopicDetails($topicID, $topicData)) {
+                $topicTitle = $topicData['TopicTitle'];
+            } else {
+                $topicTitle = '';
+            }
+        }
+
+        notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
 
         //error_log( __FUNCTION__ . " posted OK!" );
         // error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
@@ -350,7 +361,7 @@ function submitTopicComment($user, $topicID, $commentPayload, &$newCommentIDOut)
     }
 }
 
-function notifyUsersAboutForumActivity($topicID, $author, $commentID)
+function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentID)
 {
     sanitize_sql_inputs($topicID, $author, $commentID);
 
@@ -375,7 +386,7 @@ function notifyUsersAboutForumActivity($topicID, $author, $commentID)
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Leaderboard, null, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Forum, $topicTitle, null, $urlTarget);
     }
 }
 
