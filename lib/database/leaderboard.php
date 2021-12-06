@@ -1024,7 +1024,8 @@ function GetLBPatch($gameID)
     $lbData = [];
 
     //    Always append LBs?
-    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description
+    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description,
+                  CASE WHEN ld.DisplayOrder < 0 THEN 1 ELSE 0 END AS Hidden
               FROM LeaderboardDef AS ld
               WHERE ld.GameID = $gameID
               ORDER BY ld.DisplayOrder, ld.ID ";
