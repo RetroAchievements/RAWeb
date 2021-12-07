@@ -72,7 +72,7 @@ RenderHtmlHead("Edit post");
         echo "<tr>" . "<td>Author:</td><td><input type='text' readonly value='$thisAuthor'></td></tr>";
         echo "<tr>" . "<td>Message:</td><td>";
 
-        RenderPHPBBIcons();
+        RenderShortcodeButtons();
 
         echo <<<EOF
             <textarea 

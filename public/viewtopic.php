@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ModifyTopicField;
 use RA\Permissions;
+use RA\Shortcode\Shortcode;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
 
@@ -302,7 +303,7 @@ RenderHtmlStart();
 
             echo "<br style='clear:both;'>";
             echo "<div class='topiccommenttext'>";
-            RenderTopicCommentPayload($nextCommentPayload);
+            echo Shortcode::render($nextCommentPayload);
             echo "</div>";
             echo "</td>";
 
@@ -357,7 +358,7 @@ RenderHtmlStart();
 
             echo "<td class='fullwidth'>";
 
-            RenderPHPBBIcons();
+            RenderShortcodeButtons();
 
             $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";

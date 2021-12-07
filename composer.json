@@ -11,7 +11,8 @@
         "ext-json": "*",
         "asika/autolink": "1.*",
         "vlucas/phpdotenv": "^5.0",
-        "aws/aws-sdk-php": "^3.52"
+        "aws/aws-sdk-php": "^3.52",
+        "thunderer/shortcode": "^0.7.4"
     },
     "require-dev": {
         "brainmaestro/composer-git-hooks": "^2.8",

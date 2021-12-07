@@ -250,7 +250,7 @@ function onUpdateDisplayOrderComplete(data) {
   }
 }
 
-function injectBBCode(start, end) {
+function injectShortcode(start, end) {
   var commentTextarea = document.getElementById('commentTextarea');
   if (commentTextarea !== undefined) {
     // Something's selected: wrap it

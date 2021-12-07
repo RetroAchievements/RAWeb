@@ -81,11 +81,6 @@ function RenderCommentsComponent(
     echo "</div>";
 }
 
-function RenderTopicCommentPayload($payload)
-{
-    echo parseTopicCommentPHPBB(nl2br($payload));
-}
-
 function RenderArticleComment(
     $articleID,
     $user,

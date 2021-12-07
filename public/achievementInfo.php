@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\Permissions;
+use RA\Shortcode\Shortcode;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -253,8 +254,8 @@ RenderHtmlStart(true);
             echo "</div>"; //    devbox
         }
 
-        if ($embedVidURL !== "") {
-            echo parseTopicCommentPHPBB($embedVidURL, true);
+        if (!empty($embedVidURL)) {
+            echo Shortcode::render($embedVidURL, ['imgur' => true]);
         }
 
         RenderCommentsComponent(
