@@ -791,8 +791,10 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
 
 function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)
 {
-    sanitize_sql_inputs($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder);
+    sanitize_sql_inputs($user, $lbMem, $lbTitle, $lbDescription, $lbFormat);
+    settype($lbID, 'integer');
     settype($lbDisplayOrder, 'integer');
+    settype($lbLowerIsBetter, 'integer');
 
     $query = "UPDATE LeaderboardDef AS ld SET
               ld.Mem = '$lbMem',
@@ -804,7 +806,8 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
               ld.DisplayOrder = '$lbDisplayOrder'
               WHERE ld.ID = $lbID";
 
-    $dbResult = s_mysql_query($query);
+    global $db;
+    $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         // error_log(__FILE__);
         // error_log("$user changed Leaderboard $lbID: $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder");
