@@ -1,10 +1,4 @@
-on:
-#  push:
-#    paths:
-#      - '**.php'
-  pull_request:
-    paths:
-      - '**.php'
+on: [pull_request]
 
 jobs:
   php-cs-fixer:

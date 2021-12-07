@@ -30,11 +30,13 @@ if ($messageContextID != -1) {
     $messageContextData = GetMessage($user, $messageContextID);
     $messageContextTitle = "RE: " . $messageContextData['Title'];
     $messageContextPayload = $messageContextData['Payload'];
-    $messageContextPayload = stripslashes($messageContextPayload);
     $messageContextPayload = nl2br($messageContextPayload);
+    $messageContextPayload = parseTopicCommentPHPBB($messageContextPayload);
 }
 
 $errorCode = requestInputSanitized('e');
+
+$messageContextTitle = htmlspecialchars($messageContextTitle, ENT_QUOTES);
 
 RenderHtmlStart();
 RenderHtmlHead("Send Message");
@@ -85,7 +87,7 @@ RenderHtmlHead("Send Message");
                 echo "In reply to ";
                 echo GetUserAndTooltipDiv($messageContextData['UserFrom'], false);
                 echo " who wrote:<br><br>";
-                echo "<div class='topiccommenttext'>" . parseTopicCommentPHPBB($messageContextPayload) . "</div>";
+                echo "<div class='topiccommenttext'>$messageContextPayload</div>";
             }
 
             echo "<table>";
