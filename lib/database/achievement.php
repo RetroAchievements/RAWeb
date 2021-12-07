@@ -504,7 +504,7 @@ function UploadNewAchievement(
             )";
         // log_sql($query);
         global $db;
-        if (mysqli_query($query) !== false) {
+        if (mysqli_query($db, $query) !== false) {
             $idInOut = mysqli_insert_id($db);
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
