@@ -1,5 +1,5 @@
 {
-    "name": "retroachievements/retroachivements-web",
+    "name": "retroachievements/retroachievements-web",
     "description": "RetroAchievements.org's site and server backend",
     "type": "project",
     "require": {
