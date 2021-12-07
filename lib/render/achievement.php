@@ -49,7 +49,7 @@ function GetAchievementAndTooltipDiv(
     }
 
     if ($inclSmallBadge) {
-        $achNameAttr = htmlspecialchars($achName, ENT_QUOTES);
+        $achNameAttr = attributeEscape($achName);
         $smallBadgePath = "/Badge/$badgeName" . ".png";
         $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='$imgclass' />";
 

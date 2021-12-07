@@ -962,8 +962,6 @@ RenderHtmlStart(true);
 
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
 
-                            $achDesc = str_replace('"', '\'', $achDesc);
-
                             $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
                             $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
 

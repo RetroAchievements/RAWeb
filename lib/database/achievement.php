@@ -457,6 +457,10 @@ function UploadNewAchievement(
     $badge,
     &$errorOut
 ) {
+    settype($gameID, 'integer');
+    settype($type, 'integer');
+    settype($points, 'integer');
+
     // Prevent <= registered users from uploading or modifying achievements
     if (getUserPermissions($author) <= \RA\Permissions::Registered) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
@@ -474,14 +478,8 @@ function UploadNewAchievement(
         return false;
     }
 
-    $title = str_replace("'", "''", $title);
-    $desc = str_replace("'", "''", $desc);
-    $title = str_replace("/", "_", $title);
-    $desc = str_replace("/", "_", $desc);
-    $title = str_replace("\\", "_", $title);
-    $desc = str_replace("\\", "_", $desc);
-    $title = preg_replace('/[^\x20-\x7e]/', '_', $title);
-    $desc = preg_replace('/[^\x20-\x7e]/', '_', $desc);
+    $dbAuthor = $author;
+    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor);
 
     //    Assume authorised!
     if (!isset($idInOut) || $idInOut == 0) {
@@ -498,15 +496,15 @@ function UploadNewAchievement(
             VALUES (
                 NULL, '$gameID', '$title', '$desc',
                 '$mem', '$progress', '$progressMax',
-                '$progressFmt', '$points', '$type',
-                '$author', NOW(), NOW(),
+                '$progressFmt', $points, $type,
+                '$dbAuthor', NOW(), NOW(),
                 NOW(), 0, 0,
                 '$badge', 0, NULL,
                 0
             )";
         // log_sql($query);
-        if (s_mysql_query($query) !== false) {
-            global $db;
+        global $db;
+        if (mysqli_query($query) !== false) {
             $idInOut = mysqli_insert_id($db);
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
@@ -557,7 +555,8 @@ function UploadNewAchievement(
             $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$type, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
             // log_sql($query);
 
-            if (s_mysql_query($query) !== false) {
+            global $db;
+            if (mysqli_query($db, $query) !== false) {
                 if ($changingAchSet || $changingPoints) {
                     // When changing achievement set, all existing achievements that rely on this should be purged.
                     //$query = "DELETE FROM Awarded WHERE ID='$idInOut'";
