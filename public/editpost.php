@@ -74,7 +74,16 @@ RenderHtmlHead("Edit post");
 
         RenderPHPBBIcons();
 
-        echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:300px' rows='32' cols='32' name='p' placeholder='Enter a comment here... and please do not share links to copyrighted ROMs...'>$existingComment</textarea></td></tr>";
+        echo <<<EOF
+            <textarea 
+                id="commentTextarea" 
+                class="fullwidth" 
+                style="height:300px" 
+                rows="32" cols="32" 
+                name="p" 
+                placeholder="Don't share links to copyrighted ROMs."
+            >$existingComment</textarea></td></tr>
+        EOF;
         echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit post' SIZE='37'/>&nbsp;<a href='/viewtopic.php?t=$thisTopicID&c=$requestedComment'>Cancel</a></td></tr>";
         echo "</form>";
 

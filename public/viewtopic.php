@@ -362,7 +362,17 @@ RenderHtmlStart();
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
-            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p' placeholder='Enter a comment here... and please do not share links to copyrighted ROMs...'>$defaultMessage</textarea><br>";
+            echo <<<EOF
+                <textarea 
+                    id="commentTextarea" 
+                    class="fullwidth" 
+                    rows="10" cols="63" 
+                    $inputEnabled 
+                    maxlength="60000" 
+                    name="p" 
+                    placeholder="Don't share links to copyrighted ROMs."
+                >$defaultMessage</textarea><br>
+            EOF;
             echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div><br>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
