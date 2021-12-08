@@ -351,7 +351,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
 
 /**
  * Gets all the global ranking information.
- * This includes User, acheivements obtained (softcore and hardcore), points, retro points
+ * This includes User, achievements obtained (softcore and hardcore), points, retro points
  * retro ratio, completed awards and mastered awards.
  *
  * Results are configurable based on input parameters, allowing sorting on each of the

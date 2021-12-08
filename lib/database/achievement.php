@@ -369,7 +369,7 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
     if (!$alreadyAwarded) {
         // testFullyCompletedGame could post a mastery notification. make sure to post
         // the achievement unlock notification first
-        postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
+        postActivity($user, ActivityType::EarnedAchievement, $achIDToAward, $isHardcore);
     }
 
     $completion = testFullyCompletedGame($achData['GameID'], $user, $isHardcore, !$alreadyAwarded);
@@ -1386,7 +1386,7 @@ function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 20
 }
 
 /**
- * Gets a list of users who have won a achievmenet or list of achievements within a given timerange.
+ * Gets a list of users who have won a achievement or list of achievements within a given timerange.
  *
  * @param array $achievementIDs Achievement ID or array of achievement IDs
  * @param string $startTime starting point to return items
