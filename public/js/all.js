@@ -212,14 +212,16 @@ function focusOnArticleID(id) {
 function updateDisplayOrder(user, objID, gameID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
-  var posting = $.post('/request/achievement/update.php',
+  var posting = $.post(
+    '/request/achievement/update.php',
     {
       u: user,
       a: objID.substr(4),
       g: gameID,
       f: 1,
       v: inputNum,
-    });
+    }
+  );
   posting.done(onUpdateDisplayOrderComplete);
   $('#warning').html('Status: updating...');
 }
@@ -227,13 +229,15 @@ function updateDisplayOrder(user, objID, gameID) {
 function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
-  var posting = $.post('/request/user/update-site-award.php',
+  var posting = $.post(
+    '/request/user/update-site-award.php',
     {
       t: awardType,
       d: awardData,
       e: awardDataExtra,
       v: inputNum,
-    });
+    }
+  );
   posting.done(onUpdateDisplayOrderComplete);
   $('#warning').html('Status: updating...');
 }
@@ -638,16 +642,26 @@ function onRefreshActivePlayers(data) {
 
   for (var i = 0; i < numPlayersOnline; i += 1) {
     var player = playerList[i];
-    var userStamp = GetUserAndTooltipDiv(player.User, player.RAPoints,
-      player.Motto, true, '');
+    var userStamp = GetUserAndTooltipDiv(
+      player.User,
+      player.RAPoints,
+      player.Motto,
+      true,
+      ''
+    );
     var userElement = $('<td></td>').append(userStamp);
     var gameElement;
     var activityElement;
 
     if (player.InGame) {
       gameElement = $('<td></td>').append(
-        GetGameAndTooltipDiv(player.GameID, player.GameTitle, player.GameIcon, player.ConsoleName,
-          true)
+        GetGameAndTooltipDiv(
+          player.GameID,
+          player.GameTitle,
+          player.GameIcon,
+          player.ConsoleName,
+          true
+        )
       );
       activityElement = $('<td></td>').text(player.RichPresenceMsg);
     } else {
@@ -703,32 +717,32 @@ function copy(text) {
 }
 
 function ConfirmDemotion() {
-  return confirm("Are you sure you want to demote this achievement?");
+  return confirm('Are you sure you want to demote this achievement?');
 }
 
 function ConfirmPromotion() {
-  return confirm("Are you sure you want to promote this achievement?");
+  return confirm('Are you sure you want to promote this achievement?');
 }
 
 function initializeTextareaCounter() {
-  var textareaCounters = document.getElementsByClassName("textarea-counter");
+  var textareaCounters = document.getElementsByClassName('textarea-counter');
   for (var i = 0; i < textareaCounters.length; i++) {
     var textareaCounter = textareaCounters[i];
     var textareaId = textareaCounter.dataset.textareaId;
     var textarea = document.getElementById(textareaId);
-    var max = textarea.getAttribute("maxlength");
+    var max = textarea.getAttribute('maxlength');
 
     if (max) {
       var updateCount = function () {
         var count = textarea.value.length;
-        textareaCounter.textContent = count + " / " + max;
-        textareaCounter.classList.toggle("text-danger", count >= max);
+        textareaCounter.textContent = count + ' / ' + max;
+        textareaCounter.classList.toggle('text-danger', count >= max);
       };
-      ["keydown", "keypress", "keyup", "blur"].forEach(function (eventName) {
+      ['keydown', 'keypress', 'keyup', 'blur'].forEach(function (eventName) {
         textarea.addEventListener(eventName, updateCount);
       });
       updateCount();
     }
   }
 }
-window.addEventListener("load", initializeTextareaCounter);
+window.addEventListener('load', initializeTextareaCounter);

@@ -62,7 +62,7 @@ function generateEmailValidationString($user)
     }
 
     //    Clear permissions til they validate their email.
-    SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, 0);
+    SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Unregistered);
 
     return $emailCookie;
 }

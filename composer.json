@@ -17,8 +17,7 @@
         "brainmaestro/composer-git-hooks": "^2.8",
         "friendsofphp/php-cs-fixer": "^3.0",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^0.12.18",
-        "vimeo/psalm": "^4.0"
+        "phpstan/phpstan": "^1.0"
     },
     "autoload": {
         "psr-4": {
