@@ -84,49 +84,49 @@ RenderHtmlHead("Reorder Site Awards");
             } elseif ($awardType == 2) { //    Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
                 $awardTitle = "Achievements Earned by Others";
-                $imagepath = getenv('ASSET_URL') . "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
+                $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
             } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
                 $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
                 $awardTitle = "Achievement Points Earned by Others";
 
                 if ($awardData == 0) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00133.png";
+                    $imagepath = "/Images/00133.png";
                 } elseif ($awardData == 1) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00134.png";
+                    $imagepath = "/Images/00134.png";
                 } elseif ($awardData == 2) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00137.png";
+                    $imagepath = "/Images/00137.png";
                 } elseif ($awardData == 3) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00135.png";
+                    $imagepath = "/Images/00135.png";
                 } elseif ($awardData == 4) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00136.png";
+                    $imagepath = "/Images/00136.png";
                 } else {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00136.png";
+                    $imagepath = "/Images/00136.png";
                 }
             } elseif ($awardType == 4) { //    Referrals
                 $tooltip = "Referred $awardData members";
                 $awardTitle = "Referral Award";
 
                 if ($awardData < 2) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Images/00083.png";
                 } elseif ($awardData < 3) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Images/00083.png";
                 } elseif ($awardData < 5) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Images/00083.png";
                 } elseif ($awardData < 10) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Images/00083.png";
                 } elseif ($awardData < 15) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Images/00083.png";
                 } else {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Images/00083.png";
                 }
             } elseif ($awardType == 5) { //    Signed up for facebook!
                 $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
                 $awardTitle = "Facebook Association";
-                $imagepath = getenv('ASSET_URL') . "/Images/_FBAssoc.png";
+                $imagepath = "/Images/_FBAssoc.png";
             } elseif ($awardType == 6) {  //  Patreon Supporter
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
                 $awardTitle = "Patreon Supporter";
-                $imagepath = getenv('ASSET_URL') . '/Badge/PatreonBadge.png';
+                $imagepath = '/Images/PatreonBadge.png';
             } else {
                 // error_log("Unknown award type" . $awardType);
                 continue;
