@@ -87,8 +87,11 @@ function UploadUserPic($user, $filename, $rawImage)
 
             $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
             //	Create a black rect, size 128x128
-            $blackRect = imagecreatetruecolor($userPicDestSize, $userPicDestSize)
-            or exit('Cannot Initialize new GD image stream');
+            $blackRect = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
+
+            if ($blackRect === false) {
+                exit('Cannot Initialize new GD image stream');
+            }
 
             //	Copy the black rect onto our image
             imagecopy($newImage, $blackRect, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize);

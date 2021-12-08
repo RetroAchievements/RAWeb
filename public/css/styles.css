@@ -1002,6 +1002,15 @@ th {
 }
 
 /* Forum */
+
+#commentTextarea {
+  padding: 4px;
+}
+
+#commentTextarea::placeholder {
+  font-size: 1.1em;
+}
+
 .commentpayload {
   padding: 6px 4px;
   vertical-align: top;
