@@ -32,15 +32,6 @@ abstract class UserPref
     public const SiteMsgOn_AddFriend = 12;
 }
 
-abstract class FBUserPref
-{
-    public const PostFBOn_EarnAchievement = 0;
-
-    public const PostFBOn_CompleteGame = 1;
-
-    public const PostFBOn_UploadAchievement = 2;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 //    Accounts
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -412,67 +403,6 @@ function getAccountDetails(&$user, &$dataOut)
     } else {
         $dataOut = mysqli_fetch_array($dbResult);
         $user = $dataOut['User'];    //    Fix case!
-        return true;
-    }
-}
-
-function getAccountDetailsFB($fbUser, &$details)
-{
-    sanitize_sql_inputs($fbUser);
-
-    $query = "SELECT User, EmailAddress, Permissions, RAPoints FROM UserAccounts WHERE fbUser='$fbUser'";
-    $result = s_mysql_query($query);
-    if ($result == false || mysqli_num_rows($result) !== 1) {
-        // error_log(__FUNCTION__ . " failed: fbUser:$fbUser, query:$query");
-        return false;
-    } else {
-        $details = mysqli_fetch_array($result);
-        return true;
-    }
-}
-
-function associateFB($user, $fbUser)
-{
-    sanitize_sql_inputs($user, $fbUser);
-
-    //    TBD: Sanitise!
-    $query = "UPDATE UserAccounts SET fbUser='$fbUser', Updated=NOW() WHERE User='$user'";
-    //echo $query;
-    // log_sql($query);
-    if (s_mysql_query($query) == false) {
-        log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: user:$user and fbUser:$fbUser passed");
-        return false;
-    } else {
-        // $query = "UPDATE UserAccounts SET fbPrefs=1, Updated=NOW() WHERE User='$user'";
-        // log_sql( $query );
-        // if( s_mysql_query( $query ) == FALSE )
-        // {
-        // error_log( $query );
-        // error_log( __FUNCTION__ . " failed2: user:$user and fbUser:$fbUser passed" );
-        // return FALSE;
-        // }
-    }
-
-    //    Give them a badge :)
-    AddSiteAward($user, 5, 0);
-
-    return true;
-}
-
-function getFBUser($user, &$fbUserOut)
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT fbUser FROM UserAccounts WHERE User='$user'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
-        // error_log(__FUNCTION__ . " failed: user:$user");
-        return false;
-    } else {
-        $db_entry = mysqli_fetch_assoc($dbResult);
-        $fbUserOut = $db_entry['fbUser'];
         return true;
     }
 }

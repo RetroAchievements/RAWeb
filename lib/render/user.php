@@ -220,11 +220,10 @@ function RenderSiteAwards($userAwards)
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 5) { //    Signed up for facebook!
-                $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
-
-                $imagepath = "/Images/_FBAssoc.png";
-                $linkdest = "/controlpanel.php#facebook";
+            // } elseif ($awardType == 5) { // Signed up for facebook!
+            //     $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
+            //     $imagepath = "/Images/_FBAssoc.png";
+            //     $linkdest = "/controlpanel.php#facebook";
             } elseif ($awardType == 6) {  //  Patreon Supporter
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 

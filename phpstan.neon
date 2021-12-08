@@ -20,9 +20,5 @@ parameters:
         - public/rss-activity.xml.php
         # composer utility
         - src/Utility/ComposerScripts.php
-        # facebook. google. whatever
-        - lib/util/facebook/*
-        - lib/util/facebook.php
-        - lib/render/facebook.php
-        - public/request/facebook/connect.php
+        # third party
         - lib/util/recaptcha.php
