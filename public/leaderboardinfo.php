@@ -153,7 +153,7 @@ RenderHtmlStart(true);
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
             echo "<table><tbody>";
-            echo "<tr><th>Rank</th><th>User</th><th>Result</th><th>Date Won</th></tr>";
+            echo "<tr><th>Rank</th><th>User</th><th>Result</th><th>Date Submitted</th></tr>";
 
             $numActualEntries = 0;
             $localUserFound = false;

@@ -6,7 +6,7 @@ abstract class ActivityType
 {
     public const Unknown = 0;
 
-    public const EarnedAchivement = 1;
+    public const EarnedAchievement = 1;
 
     public const Login = 2;
 

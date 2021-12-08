@@ -66,6 +66,7 @@ switch ($requestType) {
     case "submitlbentry":
     case "unlocks":
     case "uploadachievement":
+    case "uploadleaderboard":
         $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Registered);
         break;
 
@@ -100,19 +101,7 @@ switch ($requestType) {
     case "login": // From App!
         $user = requestInput('u');
         $rawPass = requestInput('p');
-        $success = login_appWithToken($user, $rawPass, $token, $scoreOut, $messagesOut);
-        if ($success == 1) {
-            // OK:
-            $response['User'] = $user;
-            $response['Token'] = $token;
-            $response['Score'] = $scoreOut;
-            $response['Messages'] = $messagesOut;
-        } else {
-            /**
-             * Token invalid or out of date
-             */
-            DoRequestError("Login failed. Check your credentials and try again.");
-        }
+        $response = loginApp($user, $rawPass, $token);
         break;
 
     /**
@@ -425,9 +414,28 @@ switch ($requestType) {
         $newMemString = requestInput('m');
         $newFlags = requestInput('f', 0, 'integer');
         $newBadge = requestInput('b');
+
         $errorOut = "";
         $response['Success'] = UploadNewAchievement($user, $gameID, $newTitle, $newDesc, ' ', ' ', ' ', $newPoints, $newMemString, $newFlags, $achievementID, $newBadge, $errorOut);
         $response['AchievementID'] = $achievementID;
+        $response['Error'] = $errorOut;
+        break;
+
+    case "uploadleaderboard":
+        $leaderboardID = requestInput('i', 0, 'integer');
+        $newTitle = requestInput('n');
+        $newDesc = requestInput('d');
+        $newStartMemString = requestInput('s');
+        $newSubmitMemString = requestInput('b');
+        $newCancelMemString = requestInput('c');
+        $newValueMemString = requestInput('l');
+        $newLowerIsBetter = requestInput('w', 0, 'integer');
+        $newFormat = requestInput('f');
+        $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
+
+        $errorOut = "";
+        $response['Success'] = UploadNewLeaderboard($user, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);
+        $response['LeaderboardID'] = $leaderboardID;
         $response['Error'] = $errorOut;
         break;
 

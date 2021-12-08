@@ -14,6 +14,10 @@ if ($gameId <= 0) {
 $username = requestInputQuery('z');
 $type = requestInputQuery('t', 0, 'integer');
 
-$gameTopAchievers = getGameTopAchievers($gameId, 0, 10, $username, $type);
+$gameTopAchievers = getGameTopAchievers($gameId, $username);
 
-echo json_encode($gameTopAchievers);
+if ($type == 1) {
+    echo json_encode($gameTopAchievers['Masters']);
+} else {
+    echo json_encode($gameTopAchievers['HighScores']);
+}
