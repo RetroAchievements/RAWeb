@@ -312,7 +312,7 @@ RenderHtmlHead($pageTitle);
             echo "<option value='MILLISECS' $selected >Time (Milliseconds)</option>";
             $selected = $lbFormat == "TIMESECS" ? "selected" : "";
             echo "<option value='TIMESECS' $selected >Time (Seconds)</option>";
-            $selected = $lbFormat == "MILLISECS" ? "selected" : "";
+            $selected = $lbFormat == "MINUTES" ? "selected" : "";
             echo "<option value='MINUTES' $selected >Time (Minutes)</option>";
             $selected = $lbFormat == "VALUE" ? "selected" : "";
             echo "<option value='VALUE' $selected>Value</option>";
