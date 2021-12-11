@@ -3,7 +3,7 @@
     "description": "RetroAchievements.org's site and server backend",
     "type": "project",
     "require": {
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-mysqli": "*",
