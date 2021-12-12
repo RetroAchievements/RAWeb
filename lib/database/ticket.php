@@ -486,7 +486,6 @@ function countOpenTickets(
         return 0;
     }
 
-
     $modeCond = getModeCondition($ticketFilters);
     if ($modeCond === null) {
         return 0;
