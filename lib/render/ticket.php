@@ -41,7 +41,7 @@ function GetTicketAndTooltipDiv(TicketModel $ticket): string
     $achNameAttr = htmlspecialchars($ticket->achievementTitle, ENT_QUOTES);
     $smallBadgePath = "/Badge/" . $ticket->badgeName . ".png";
 
-    return "<a class='ticket-block bb_inline $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->achievementId
+    return "<a class='ticket-block bb_inline $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->ticketId
             . "' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\">" .
             "<img loading='lazy' width='32' height='32' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='badgeimg' />" .
             "<div class='ticket-displayable-block'>Ticket #$ticket->ticketId</div>" .
