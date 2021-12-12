@@ -143,12 +143,13 @@ final class Shortcode
     {
         $id = uniqid((string) mt_rand(10000, 99999));
 
+        // remove leading break
+        $content = preg_replace('/^(?:<br\s*\/?>\s*)+/', '', $content);
+
         return <<<EOF
             <div class="devbox">
                 <span onclick="$('#spoiler_{$id}').toggle(); return false;">Spoiler (Click to show):</span><br>
-                <div class="spoiler" id="spoiler_{$id}">
-                    {$content}
-                </div>
+                <div class="spoiler" id="spoiler_{$id}">{$content}</div>
             </div>
         EOF;
     }
