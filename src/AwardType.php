@@ -15,4 +15,11 @@ abstract class AwardType
     public const FACEBOOK_CONNECT = 5;
 
     public const PATREON_SUPPORTER = 6;
+
+    public static $active = [
+        self::MASTERY,
+        self::ACHIEVEMENT_UNLOCKS_YIELD,
+        self::ACHIEVEMENT_POINTS_YIELD,
+        self::PATREON_SUPPORTER,
+    ];
 }
