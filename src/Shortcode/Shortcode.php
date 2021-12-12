@@ -21,7 +21,7 @@ final class Shortcode
             ->add('i', fn (ShortcodeInterface $s) => '<i>' . $s->getContent() . '</i>')
             ->add('u', fn (ShortcodeInterface $s) => '<u>' . $s->getContent() . '</u>')
             ->add('s', fn (ShortcodeInterface $s) => '<s>' . $s->getContent() . '</s>')
-            ->add('img', fn (ShortcodeInterface $s) => '<img src="' . ($s->getBbCode() ?: $s->getContent()) . '">')
+            ->add('img', fn (ShortcodeInterface $s) => '<img class="injectinlineimage" src="' . ($s->getBbCode() ?: $s->getContent()) . '">')
             ->add('code', fn (ShortcodeInterface $s) => $this->renderCode($s))
             ->add('url', fn (ShortcodeInterface $s) => $this->renderUrlLink($s))
             ->add('link', fn (ShortcodeInterface $s) => $this->renderLink($s))
