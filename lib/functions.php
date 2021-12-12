@@ -37,6 +37,7 @@ require_once __DIR__ . '/render/google.php';
 require_once __DIR__ . '/render/layout.php';
 require_once __DIR__ . '/render/leaderboard.php';
 require_once __DIR__ . '/render/news.php';
+require_once __DIR__ . '/render/shortcode.php';
 require_once __DIR__ . '/render/static.php';
 require_once __DIR__ . '/render/subscription.php';
 require_once __DIR__ . '/render/tooltip.php';
@@ -46,7 +47,6 @@ require_once __DIR__ . '/render/ticket.php';
 
 require_once __DIR__ . '/util/api.php';
 require_once __DIR__ . '/util/array.php';
-require_once __DIR__ . '/util/bbcode.php';
 require_once __DIR__ . '/util/bit.php';
 require_once __DIR__ . '/util/cookie.php';
 require_once __DIR__ . '/util/database.php';

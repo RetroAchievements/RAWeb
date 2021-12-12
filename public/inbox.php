@@ -1,4 +1,7 @@
 <?php
+
+use RA\Shortcode\Shortcode;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -144,8 +147,7 @@ RenderHtmlHead('Inbox');
                     $msgPayload,
                 );
 
-                $msgPayload = nl2br($msgPayload);
-                $msgPayload = parseTopicCommentPHPBB($msgPayload);
+                $msgPayload = Shortcode::render($msgPayload);
 
                 $styleAlt = $i % 2 == 1 ? "alt" : "";
 

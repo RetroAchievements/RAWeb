@@ -111,6 +111,15 @@ a:hover {
   text-decoration: none;
 }
 
+.text-link {
+  color: #cc9900;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  color: #eeeeff;
+}
+
 #fullcontainer {
   padding: 15px 20px;
   margin-bottom: 10px;
@@ -957,6 +966,7 @@ th {
   display: inline-block;
   line-height: 1em;
   padding: .4em .6em;
+  cursor: pointer;
 }
 
 .morebutton {
@@ -1073,7 +1083,7 @@ span.smalldate {
 
 .devbox {
   padding: 4px 0;
-  /* for rendering spoilers within bbcode */
+  /* for rendering spoilers within shortcode */
   display: inline-block;
   width: 100%;
   box-sizing: border-box;
@@ -1089,7 +1099,7 @@ span.smalldate {
   border-width: 1px;
   padding: 8px 12px;
   /*
-  for rendering codetag within bbcode
+  for rendering code tag within shortcode
   and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
   */
   display: inline-block;
