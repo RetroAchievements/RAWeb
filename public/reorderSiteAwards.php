@@ -47,7 +47,7 @@ RenderHtmlHead("Reorder Site Awards");
         echo "<th>Display Order</th>";
         echo "</tr>";
 
-        $userAwards = getUsersSiteAwards('searo', true);
+        $userAwards = getUsersSiteAwards($user, true);
         $userAwards = array_values(array_filter($userAwards, function ($award) {
             return in_array((int) $award['AwardType'], AwardType::$active);
         }));
