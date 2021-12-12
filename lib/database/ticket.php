@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\Models\TicketModel;
 
 function isAllowedToSubmitTickets($user)
 {
@@ -73,9 +74,8 @@ Problem: $problemTypeStr
 Comment: $note
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID
-
-Thanks!";
+" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
+. " Thanks!";
                 $bugReportMessage = "Hi, $achAuthor!
 [user=$userSubmitter] would like to report a bug with an achievement you've created:
 $bugReportDetails";
@@ -114,10 +114,10 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
         return false;
     }
 
-    sanitize_sql_inputs($userSubmitter, $reportType, $hardcore, $noteIn);
+    $note = $noteIn;
+    sanitize_sql_inputs($userSubmitter, $reportType, $hardcore, $note);
 
     global $db;
-    $note = $noteIn;
 
     // error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
 
@@ -163,12 +163,11 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
                 $bugReportDetails = "Achievement: [ach=$achID]
 Game: [game=$gameID]
 Problem: $problemTypeStr
-Comment: $note
+Comment: $noteIn
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID
-
-Thanks!";
+" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
+. " Thanks!";
 
                 $bugReportMessage = "Hi, $achAuthor!\r\n
 [user=$userSubmitter] would like to report a bug with an achievement you've created:
@@ -882,4 +881,17 @@ function getNumberOfTicketsClosedForOthers($user)
         }
     }
     return $retVal;
+}
+
+function GetTicketModel($ticketId)
+{
+    $ticketDbResult = getTicket($ticketId);
+
+    if ($ticketDbResult == null) {
+        return null;
+    }
+
+    $ticketModel = new TicketModel($ticketDbResult);
+
+    return $ticketModel;
 }

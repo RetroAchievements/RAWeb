@@ -255,8 +255,8 @@ RenderHtmlHead($pageTitle);
 
     foreach ($lbData as $nextLB) {
         $lbID = $nextLB['ID'];
-        $lbTitle = $nextLB['Title'];
-        $lbDesc = $nextLB['Description'];
+        $lbTitle = attributeEscape($nextLB['Title']);
+        $lbDesc = attributeEscape($nextLB['Description']);
         $lbMem = $nextLB['Mem'];
         $lbFormat = $nextLB['Format'];
         $lbLowerIsBetter = $nextLB['LowerIsBetter'];
@@ -312,7 +312,7 @@ RenderHtmlHead($pageTitle);
             echo "<option value='MILLISECS' $selected >Time (Milliseconds)</option>";
             $selected = $lbFormat == "TIMESECS" ? "selected" : "";
             echo "<option value='TIMESECS' $selected >Time (Seconds)</option>";
-            $selected = $lbFormat == "MILLISECS" ? "selected" : "";
+            $selected = $lbFormat == "MINUTES" ? "selected" : "";
             echo "<option value='MINUTES' $selected >Time (Minutes)</option>";
             $selected = $lbFormat == "VALUE" ? "selected" : "";
             echo "<option value='VALUE' $selected>Value</option>";
@@ -342,41 +342,51 @@ RenderHtmlHead($pageTitle);
             //echo "Memory:";
             echo "</td>";
             echo "<td colspan='4'>";
+            $memStart = "";
+            $memCancel = "";
+            $memSubmit = "";
+            $memValue = "";
             $memChunks = explode("::", $lbMem);
             foreach ($memChunks as &$memChunk) {
-                $memChunk = mb_substr($memChunk, 4);    //	Remove STA: CAN: SUB: and VAL:
+                $part = substr($memChunk, 0, 4);
+                if ($part == 'STA:') {
+                    $memStart = substr($memChunk, 4);
+                } elseif ($part == 'CAN:') {
+                    $memCancel = substr($memChunk, 4);
+                } elseif ($part == 'SUB:') {
+                    $memSubmit = substr($memChunk, 4);
+                } elseif ($part == 'VAL:') {
+                    $memValue = substr($memChunk, 4);
+                }
             }
-            //var_dump( $memChunks );
-            //echo "<input typ
-            //echo "<textarea id='LB_" . $lbID . "_Mem' style='width:88%' class='fullwidth' onchange=\"UpdateLeaderboard('$user', '$lbID')\" >$lbMem</textarea>";
 
             echo "<table class='smalltable xsmall nopadding' ><tbody>";
 
             echo "<tr>";
             echo "<td style='width:10%;' >Start:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memChunks[0]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memStart' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "<tr>";
             echo "<td style='width:10%;'>Cancel:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem2' value='$memChunks[1]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem2' value='$memCancel' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "<tr>";
             echo "<td style='width:10%;'>Submit:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem3' value='$memChunks[2]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem3' value='$memSubmit' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 
             echo "<tr>";
             echo "<td style='width:10%;'>Value:</td>";
             echo "<td>";
-            echo "<input type='text' id='LB_" . $lbID . "_Mem4' value='$memChunks[3]' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+            echo "<input type='text' id='LB_" . $lbID . "_Mem4' value='$memValue' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
             echo "</tr>";
 

@@ -6,14 +6,14 @@ function RenderGoogleTracking()
     if (!$googleAnalyticsId) {
         return;
     }
-    echo "<script>
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '$googleAnalyticsId']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-    </script>";
+    echo <<<END
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=$googleAnalyticsId"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '$googleAnalyticsId');
+    </script>
+    END;
 }

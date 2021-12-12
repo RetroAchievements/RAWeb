@@ -515,11 +515,12 @@ RenderHtmlStart(true);
             $imageIcon = $gameData['ImageIcon'];
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
+            $pageTitleAttr = attributeEscape($pageTitle);
 
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitle' width='96' height='96'></td>";
+            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
             if ($developer) {
@@ -961,8 +962,6 @@ RenderHtmlStart(true);
                             );
 
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
-
-                            $achDesc = str_replace('"', '\'', $achDesc);
 
                             $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
                             $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
