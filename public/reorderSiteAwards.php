@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\AwardType;
+
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
         //  Immediate redirect if we cannot validate user!
@@ -67,7 +69,7 @@ RenderHtmlHead("Reorder Site Awards");
 
             settype($awardType, 'integer');
 
-            if ($awardType == 1) {
+            if ($awardType == AwardType::MASTERY) {
                 if ($awardDataExtra == '1') {
                     $tooltip = "MASTERED $awardTitle ($awardGameConsole)";
                     $imgclass = 'goldimage';
@@ -81,11 +83,13 @@ RenderHtmlHead("Reorder Site Awards");
 
                 $imagepath = $awardGameImage;
                 $linkdest = "/game/$awardData";
-            } elseif ($awardType == 2) { //    Developed a number of earned achievements
+            } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
+                // Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
                 $awardTitle = "Achievements Earned by Others";
                 $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
-            } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
+            } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
+                // Yielded an amount of points earned by players
                 $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
                 $awardTitle = "Achievement Points Earned by Others";
 
@@ -102,7 +106,7 @@ RenderHtmlHead("Reorder Site Awards");
                 } else {
                     $imagepath = "/Images/00136.png";
                 }
-            } elseif ($awardType == 4) { //    Referrals
+            } elseif ($awardType == AwardType::REFERRALS) {
                 $tooltip = "Referred $awardData members";
                 $awardTitle = "Referral Award";
 
@@ -119,11 +123,7 @@ RenderHtmlHead("Reorder Site Awards");
                 } else {
                     $imagepath = "/Images/00083.png";
                 }
-                // } elseif ($awardType == 5) { //    Signed up for facebook!
-                //     $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
-                //     $awardTitle = "Facebook Association";
-                //     $imagepath = "/Images/_FBAssoc.png";
-            } elseif ($awardType == 6) {  //  Patreon Supporter
+            } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
                 $awardTitle = "Patreon Supporter";
                 $imagepath = '/Images/PatreonBadge.png';

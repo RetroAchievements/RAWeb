@@ -1,4 +1,7 @@
 <?php
+
+use RA\AwardType;
+
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  *
@@ -163,8 +166,7 @@ function RenderSiteAwards($userAwards)
                 $awardGameConsole,
             );
 
-            if ($awardType == 1) {
-                //echo $awardDataExtra;
+            if ($awardType == AwardType::MASTERY) {
                 if ($awardDataExtra == '1') {
                     $tooltip = "MASTERED $awardGameTitle ($awardGameConsole)";
                     $imgclass = 'goldimage';
@@ -178,13 +180,15 @@ function RenderSiteAwards($userAwards)
 
                 $imagepath = $awardGameImage;
                 $linkdest = "/game/$awardData";
-            } elseif ($awardType == 2) { //    Developed a number of earned achievements
+            } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
+                // Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
 
                 $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
+            } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
+                // Yielded an amount of points earned by players
                 $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
 
                 if ($awardData == 0) {
@@ -202,7 +206,7 @@ function RenderSiteAwards($userAwards)
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 4) { //    Referrals
+            } elseif ($awardType == AwardType::REFERRALS) {
                 $tooltip = "Referred $awardData members";
 
                 if ($awardData < 2) {
@@ -220,11 +224,7 @@ function RenderSiteAwards($userAwards)
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            // } elseif ($awardType == 5) { // Signed up for facebook!
-            //     $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
-            //     $imagepath = "/Images/_FBAssoc.png";
-            //     $linkdest = "/controlpanel.php#facebook";
-            } elseif ($awardType == 6) {  //  Patreon Supporter
+            } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 
                 $imagepath = '/Images/PatreonBadge.png';

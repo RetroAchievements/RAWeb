@@ -1,5 +1,7 @@
 <?php
 
+use RA\UserPref;
+
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
     $messagePayload = nl2br($messagePayloadIn);
