@@ -26,7 +26,6 @@ function RenderHtmlHead($pageTitle = null)
     RenderSharedHeader();
     RenderTitleTag($pageTitle);
     RenderGoogleTracking();
-    // RenderFBScript(); // only used on controlpanel.php
     echo "</head>";
 }
 
