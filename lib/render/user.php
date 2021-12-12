@@ -25,6 +25,7 @@ function GetUserAndTooltipDiv(
         if ($imageInstead) {
             return '';
         }
+
         return '<del>' . $user . '</del>';
     }
 
@@ -124,20 +125,18 @@ function GetUserAndTooltipDiv(
 
 function RenderSiteAwards($userAwards)
 {
-    $imageSize = 48;
-    $numCols = 5;
-
-    $numItems = count($userAwards);
-    //var_dump( $userAwards );
-
     echo "<div id='siteawards' class='component' >";
-
     echo "<h3>Site Awards</h3>";
-
     echo "<div class='siteawards'>";
-
     echo "<table class='siteawards'><tbody>";
 
+    $userAwards = array_values(array_filter($userAwards, function ($award) {
+        return in_array((int) $award['AwardType'], AwardType::$active);
+    }));
+
+    $numItems = count($userAwards);
+    $imageSize = 48;
+    $numCols = 5;
     for ($i = 0; $i < $numItems / 3; $i++) {
         echo "<tr>";
         for ($j = 0; $j < $numCols; $j++) {
@@ -230,7 +229,7 @@ function RenderSiteAwards($userAwards)
                 $imagepath = '/Images/PatreonBadge.png';
                 $linkdest = 'https://www.patreon.com/retroachievements';
             } else {
-                // error_log("Unknown award type" . $awardType);
+                // Unknown or inactive award type
                 continue;
             }
 

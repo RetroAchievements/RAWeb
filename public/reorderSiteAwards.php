@@ -47,10 +47,14 @@ RenderHtmlHead("Reorder Site Awards");
         echo "<th>Display Order</th>";
         echo "</tr>";
 
-        $imageSize = 48;
+        $userAwards = getUsersSiteAwards('searo', true);
+        $userAwards = array_values(array_filter($userAwards, function ($award) {
+            return in_array((int) $award['AwardType'], AwardType::$active);
+        }));
 
+        $imageSize = 48;
         $counter = 0;
-        foreach (getUsersSiteAwards($user, true) as $elem) {
+        foreach ($userAwards as $elem) {
             $awardType = $elem['AwardType'];
             $awardData = $elem['AwardData'];
             $awardDataExtra = $elem['AwardDataExtra'];
@@ -94,41 +98,41 @@ RenderHtmlHead("Reorder Site Awards");
                 $awardTitle = "Achievement Points Earned by Others";
 
                 if ($awardData == 0) {
-                    $imagepath = "/Images/00133.png";
+                    $imagepath = "/Images/trophy-green.png";
                 } elseif ($awardData == 1) {
-                    $imagepath = "/Images/00134.png";
+                    $imagepath = "/Images/trophy-bronze.png";
                 } elseif ($awardData == 2) {
-                    $imagepath = "/Images/00137.png";
+                    $imagepath = "/Images/trophy-platinum.png";
                 } elseif ($awardData == 3) {
-                    $imagepath = "/Images/00135.png";
+                    $imagepath = "/Images/trophy-silver.png";
                 } elseif ($awardData == 4) {
-                    $imagepath = "/Images/00136.png";
+                    $imagepath = "/Images/trophy-gold.png";
                 } else {
-                    $imagepath = "/Images/00136.png";
+                    $imagepath = "/Images/trophy-gold.png";
                 }
             } elseif ($awardType == AwardType::REFERRALS) {
                 $tooltip = "Referred $awardData members";
                 $awardTitle = "Referral Award";
 
                 if ($awardData < 2) {
-                    $imagepath = "/Images/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 3) {
-                    $imagepath = "/Images/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 5) {
-                    $imagepath = "/Images/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 10) {
-                    $imagepath = "/Images/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 15) {
-                    $imagepath = "/Images/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } else {
-                    $imagepath = "/Images/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 }
             } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
                 $awardTitle = "Patreon Supporter";
                 $imagepath = '/Images/PatreonBadge.png';
             } else {
-                // error_log("Unknown award type" . $awardType);
+                // Unknown or inactive award type
                 continue;
             }
 
