@@ -255,8 +255,8 @@ RenderHtmlHead($pageTitle);
 
     foreach ($lbData as $nextLB) {
         $lbID = $nextLB['ID'];
-        $lbTitle = $nextLB['Title'];
-        $lbDesc = $nextLB['Description'];
+        $lbTitle = attributeEscape($nextLB['Title']);
+        $lbDesc = attributeEscape($nextLB['Description']);
         $lbMem = $nextLB['Mem'];
         $lbFormat = $nextLB['Format'];
         $lbLowerIsBetter = $nextLB['LowerIsBetter'];

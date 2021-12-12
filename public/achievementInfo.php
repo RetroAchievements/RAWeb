@@ -122,11 +122,11 @@ RenderHtmlStart(true);
 
         echo "<table class='nicebox'><tbody>";
 
-        $escapeForAttributes = "htmlentities"; // sanitize_outputs uses null for 2nd param, so it won't convert quotes to entities
+        $descAttr = attributeEscape($desc);
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n{$escapeForAttributes($desc)}\" alt=\"{$escapeForAttributes($desc)}\" align=\"left\" width=\"64\" height=\"64\" /></a>";
+        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; //achievemententryicon
         echo "</td>";
 

@@ -32,14 +32,9 @@ function GetGameAndTooltipDiv(
     $tooltip .= $consoleStr;
     $tooltip .= "</div>";
     $tooltip .= "</div>";
+    $tooltip = attributeEscape($tooltip);
 
-    // $tooltip = str_replace('<', '&lt;', $tooltip);
-    // $tooltip = str_replace('>', '&gt;', $tooltip);
-    //echo $tooltip;
-    //$tooltip = str_replace( "'", "\\'", $tooltip );
-    //echo $tooltip;
-
-    $tooltip = str_replace("'", "\'", $tooltip);
+    $gameNameEscaped = attributeEscape($gameName);
 
     $displayable = "";
 
@@ -48,7 +43,7 @@ function GetGameAndTooltipDiv(
     );
 
     if ($justText == false) {
-        $displayable = "<img loading='lazy' alt='' title=\"$gameName\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
     }
 
     if ($justImage == false) {

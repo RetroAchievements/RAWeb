@@ -235,6 +235,7 @@ function RenderSiteAwards($userAwards)
             }
 
             $tooltip .= "\r\nAwarded on $awardDate";
+            $tooltip = attributeEscape($tooltip);
             $displayable = "<a href=\"$linkdest\"><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" src=\"$imagepath\" width=\"$imageSize\" height=\"$imageSize\" /></a>";
             $tooltipImagePath = "$imagepath";
             $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
@@ -309,8 +310,7 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
 
         $tooltipImagePath = "$nextImageIcon";
         $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
-        $tooltipTitle = "$nextTitle";
-        //$tooltipTitle = str_replace( "'", "\'", $tooltipTitle );
+        $tooltipTitle = attributeEscape($nextTitle);
         $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
         $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
 
