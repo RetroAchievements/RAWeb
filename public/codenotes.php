@@ -28,8 +28,8 @@ RenderHtmlHead('Code Notes');
     <div id="fullcontainer">
         <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
         <?php
-        if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-            RenderCodeNotes($codeNotes);
+        if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
+            RenderCodeNotes($codeNotes, true);
         }
         ?>
     </div>
