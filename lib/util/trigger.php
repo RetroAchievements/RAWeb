@@ -1,5 +1,217 @@
 <?php
 
+function parseOperand($mem)
+{
+    $type = '';
+    switch ($mem[0]) {
+        case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); break;
+        case 'p': case 'P': $type = 'Prior'; $mem = substr($mem, 1); break;
+        case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); break;
+        case '~':           $type = 'Inverted'; $mem = substr($mem, 1); break;
+    }
+
+    $size = '?';
+    $max = strlen($mem);
+    if ($max > 3 && $mem[0] == '0' && $mem[1] == 'x') {
+        switch ($mem[2]) {
+            case 'h': case 'H': $size = '8-bit'; break;
+            case ' ':           $size = '16-bit'; break;
+            case 'x': case 'X': $size = '32-bit'; break;
+
+            case 'm': case 'M': $size = 'Bit0'; break;
+            case 'n': case 'N': $size = 'Bit1'; break;
+            case 'o': case 'O': $size = 'Bit2'; break;
+            case 'p': case 'P': $size = 'Bit3'; break;
+            case 'q': case 'Q': $size = 'Bit4'; break;
+            case 'r': case 'R': $size = 'Bit5'; break;
+            case 's': case 'S': $size = 'Bit6'; break;
+            case 't': case 'T': $size = 'Bit7'; break;
+            case 'l': case 'L': $size = 'Lower4'; break;
+            case 'u': case 'U': $size = 'Upper4'; break;
+            case 'k': case 'K': $size = 'BitCount'; break;
+            case 'w': case 'W': $size = '24-bit'; break;
+            case 'g': case 'G': $size = '32-bit BE'; break;
+            case 'i': case 'I': $size = '16-bit BE'; break;
+            case 'j': case 'J': $size = '24-bit BE'; break;
+
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                // no size specified, implied 16-bit. convert to explicit
+                $size = '16-bit';
+                $mem = substr($mem, 0, 2) . ' ' . substr($mem, 2);
+                break;
+
+            default:
+                $size = $mem[2];
+                break;
+        }
+
+        $mem = substr($mem, 3);
+    } elseif ($max > 2 && $mem[0] == 'f' || $mem[0] == 'F') {
+        switch ($mem[1]) {
+            case 'f': case 'F': $size = 'Float'; break;
+            case 'm': case 'M': $size = 'MBF32'; break;
+
+            case '+': case '-': case '.':
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                $size = 'Value';
+                $count = 1;
+                if ($mem[1] == '+' || $mem[1] == '-') {
+                    $count++;
+                }
+                while ($count < $max && (ctype_digit($mem[$count]) || $mem[$count] == '.')) {
+                    $count++;
+                }
+
+                $value = substr($mem, 1, $count - 1); // ignore 'f'
+                $mem = substr($mem, $count);
+                return [$type, $size, $value, $mem];
+
+            default: $size = $mem[1]; break;
+        }
+
+        $mem = substr($mem, 2);
+    } elseif ($max > 1 && $mem[0] == 'h' || $mem[0] == 'H') {
+        $size = 'Value';
+
+        $mem = substr($mem, 1);
+        $count = 0;
+        $max = strlen($mem);
+        while ($count < $max && ctype_alnum($mem[$count])) {
+            $count++;
+        }
+
+        $value = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
+        $mem = substr($mem, $count);
+        return [$type, $size, $value, $mem];
+    } else {
+        $size = 'Value';
+        if ($mem[0] == 'v' || $mem[0] == 'V') {
+            $mem = substr($mem, 1);
+        }
+        $count = 0;
+        if ($mem[0] == '+' || $mem[0] == '-') {
+            $count++;
+        }
+        $max = strlen($mem);
+        while ($count < $max && ctype_digit($mem[$count])) {
+            $count++;
+        }
+        if ($count < $max && $mem[$count] == '.') {
+            $hitsStart = $count;
+            $count++;
+            while ($count < $max && ctype_digit($mem[$count])) {
+                $count++;
+            }
+            if ($count < $max && $mem[$count] == '.') {
+                $count = $hitsStart;
+            } else {
+                $size = 'Float';
+            }
+        }
+
+        $value = '0x' . str_pad(dechex(substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
+        $mem = substr($mem, $count);
+        return [$type, $size, $value, $mem];
+    }
+
+    $count = 0;
+    $max = strlen($mem);
+    while ($count < $max && ctype_alnum($mem[$count])) {
+        $count++;
+    }
+
+    $address = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
+    $mem = substr($mem, $count);
+    return [$type, $size, $address, $mem];
+}
+
+function parseCondition($mem)
+{
+    $flag = '';
+    $lType = '';
+    $lSize = '';
+    $lMemory = '';
+    $cmp = '';
+    $rType = '';
+    $rSize = '';
+    $rMemVal = '';
+    $hits = '';
+    $scalable = false;
+
+    if ($mem[1] == ':') {
+        switch ($mem[0]) {
+            case 'p': case 'P': $flag = 'Pause If'; break;
+            case 'r': case 'R': $flag = 'Reset If'; break;
+            case 'a': case 'A': $flag = 'Add Source'; $scalable = true; break;
+            case 'b': case 'B': $flag = 'Sub Source'; $scalable = true; break;
+            case 'c': case 'C': $flag = 'Add Hits'; break;
+            case 'd': case 'D': $flag = 'Sub Hits'; break;
+            case 'n': case 'N': $flag = 'And Next'; break;
+            case 'o': case 'O': $flag = 'Or Next'; break;
+            case 'm': case 'M': $flag = 'Measured'; break;
+            case 'q': case 'Q': $flag = 'Measured If'; break;
+            case 'i': case 'I': $flag = 'Add Address'; $scalable = true; break;
+            case 't': case 'T': $flag = 'Trigger'; break;
+            case 'z': case 'Z': $flag = 'Reset Next If'; break;
+            case 'g': case 'G': $flag = 'Measured %'; break;
+            default: $flag = $mem[0]; break;
+        }
+
+        $mem = substr($mem, 2);
+    }
+
+    [$lType, $lSize, $lMemory, $mem] = parseOperand($mem);
+
+    if ($scalable && $mem == '=0') {
+        $mem = ''; // AddSource X=0 should just be AddSource X
+    } elseif (strlen($mem) > 0) {
+        $cmp = $mem[0];
+        $cmplen = 1;
+        switch ($mem[0]) {
+            case '=':
+                if ($mem[1] == '=') {
+                    $cmplen = 2;
+                }
+                break;
+
+            case '!':
+                if ($mem[1] == '=') {
+                    $cmp = '!=';
+                    $cmplen = 2;
+                }
+                break;
+
+            case '<':
+                if ($mem[1] == '=') {
+                    $cmp = '<=';
+                    $cmplen = 2;
+                }
+                break;
+
+            case '>':
+                if ($mem[1] == '=') {
+                    $cmp = '>=';
+                    $cmplen = 2;
+                }
+                break;
+        }
+        $mem = substr($mem, $cmplen);
+
+        [$rType, $rSize, $rMemVal, $mem] = parseOperand($mem);
+
+        $hits = '0';
+        if (strlen($mem) > 0 && ($mem[0] == '(' || $mem[0] == '.')) {
+            $hits = substr($mem, 1, strlen($mem) - 2);
+        }
+    }
+
+    return [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits];
+}
+
 function getAchievementPatchReadableHTML($mem, $memNotes)
 {
     $tableHeader = '
@@ -16,63 +228,6 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
       <th>Hits</th>
     </tr>';
 
-    $specialFlags = [
-        'R' => 'Reset If',
-        'P' => 'Pause If',
-        'A' => 'Add Source',
-        'B' => 'Sub Source',
-        'C' => 'Add Hits',
-        'N' => 'And Next',
-        'O' => 'Or Next',
-        'M' => 'Measured',
-        'Q' => 'Measured If',
-        'I' => 'Add Address',
-        'Z' => 'Reset Next If',
-        'D' => 'Sub Hits',
-        'T' => 'Trigger',
-        '' => '',
-    ];
-
-    $memSize = [
-        '0xM' => 'Bit0',
-        '0xN' => 'Bit1',
-        '0xO' => 'Bit2',
-        '0xP' => 'Bit3',
-        '0xQ' => 'Bit4',
-        '0xR' => 'Bit5',
-        '0xS' => 'Bit6',
-        '0xT' => 'Bit7',
-        '0xL' => 'Lower4',
-        '0xU' => 'Upper4',
-        '0xH' => '8-bit',
-        '0xW' => '24-bit',
-        '0xK' => 'BitCount',
-        '0xX' => '32-bit', // needs to be before the 16bits below to make the RegEx work
-        '0x ' => '16-bit',
-        '0x' => '16-bit',
-        '' => '',
-    ];
-
-    $memTypes = [
-        'd' => 'Delta',
-        'p' => 'Prior',
-        'm' => 'Mem',
-        'v' => 'Value',
-        'b' => 'BCD',
-        '' => '',
-    ];
-
-    // kudos to user "stt" for showing that it's possible to parse MemAddr with regex
-    $operandRegex = '(d|p|b)?(' . implode('|', array_keys($memSize)) . ')?([0-9a-f]*)';
-    $memRegex = '/(?:([' . implode(
-        '',
-        array_keys($specialFlags)
-    ) . ']):)?' . $operandRegex . '(<=|>=|<|>|=|!=|\*|\/|&|)' . $operandRegex . '(?:[(.](\\d+)[).])?/';
-    // memRegex is this monster:
-    // (?:([RPABCNOMQIZDT]):)?(d|p|b)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xW|0xK|0xX|0x |0x|)?([0-9a-f]*)(<=|>=|<|>|=|!=|\*|\/|&|)(d|p|b)?(0xM|0xN|0xO|0xP|0xQ|0xR|0xS|0xT|0xL|0xU|0xH|0xW|0xK|0xX|0x |0x|)?([0-9a-f]*)(?:[(.](\d+)[).])?/
-    // I was about to add comments explaining this long RegEx, but realized that the best way
-    // is to copy the regex string and paste it in the proper field at https://regex101.com/
-
     $res = "\n<table>";
 
     // separating CoreGroup and AltGroups
@@ -87,26 +242,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         // iterating through the requirements
         $reqs = explode('_', $groups[$i]);
         for ($j = 0; $j < count($reqs); $j++) {
-            preg_match_all($memRegex, $reqs[$j], $parsedReq);
-            $flag = $parsedReq[1][0];
-            $lType = $parsedReq[2][0];
-            $lSize = $parsedReq[3][0];
-            $lMemory = $parsedReq[4][0];
-            $cmp = $parsedReq[5][0];
-            $rType = $parsedReq[6][0];
-            $rSize = $parsedReq[7][0];
-            $rMemVal = $parsedReq[8][0];
-            $hits = $parsedReq[9][0];
-
-            $lMemory = '0x' . str_pad(($lSize ? $lMemory : dechex($lMemory)), 6, '0', STR_PAD_LEFT);
-            $rMemVal = '0x' . str_pad(($rSize ? $rMemVal : dechex($rMemVal)), 6, '0', STR_PAD_LEFT);
-            $hits = $hits ? $hits : "0";
-            if ($lType !== "d" && $lType !== "p" && $lType !== "b") {
-                $lType = $lSize === '' ? 'v' : 'm';
-            }
-            if ($rType !== "d" && $rType !== "p" && $rType !== "b") {
-                $rType = $rSize === '' ? 'v' : 'm';
-            }
+            [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits] = parseCondition($reqs[$j]);
 
             $lTooltip = $rTooltip = null;
             foreach ($memNotes as $nextMemNote) {
@@ -126,16 +262,16 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             }
 
             $res .= "\n<tr>\n  <td>" . ($j + 1) . "</td>";
-            $res .= "\n  <td> " . $specialFlags[$flag] . " </td>";
-            $res .= "\n  <td> " . $memTypes[$lType] . " </td>";
-            $res .= "\n  <td> " . $memSize[$lSize] . " </td>";
+            $res .= "\n  <td> " . $flag . " </td>";
+            $res .= "\n  <td> " . $lType . " </td>";
+            $res .= "\n  <td> " . $lSize . " </td>";
             $res .= "\n  <td" . $lTooltip . "> " . $lMemory . " </td>";
-            if (($flag == 'A' || $flag == 'B' || $flag == 'I') && ($cmp != '*' && $cmp != '/' && $cmp != '&')) {
+            if (!$cmp) {
                 $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
             } else {
                 $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";
-                $res .= "\n  <td> " . $memTypes[$rType] . " </td>";
-                $res .= "\n  <td> " . $memSize[$rSize] . " </td>";
+                $res .= "\n  <td> " . $rType . " </td>";
+                $res .= "\n  <td> " . $rSize . " </td>";
                 $res .= "\n  <td" . $rTooltip . "> " . $rMemVal . " </td>";
                 $res .= "\n  <td> (" . $hits . ") </td>";
             }
