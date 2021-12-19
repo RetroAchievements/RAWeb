@@ -113,9 +113,13 @@ function parseOperand($mem)
             }
         }
 
-        $value = '0x' . str_pad(dechex(substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
+        $value = '0x' . str_pad(dechex((int) substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
         $mem = substr($mem, $count);
         return [$type, $size, $value, $mem];
+    }
+
+    if (!$type) {
+        $type = 'Mem';
     }
 
     $count = 0;
