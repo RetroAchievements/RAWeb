@@ -38,9 +38,7 @@ function GetAchievementAndTooltipDiv(
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
-    $tooltip = str_replace("'", "\'", $tooltip);
-
-    sanitize_outputs($tooltip);
+    $tooltip = attributeEscape($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";
