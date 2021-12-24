@@ -277,6 +277,7 @@ function getAchievementBadgeFilename($id)
 function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 {
     sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
+    settype($isHardcore, 'integer');
 
     $query = "INSERT INTO Awarded ( User, AchievementID, Date, HardcoreMode )
               VALUES ( '$user', '$achIDToAward', NOW(), '$isHardcore' )
@@ -350,27 +351,41 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
     $hasAwardTypes = HasAward($user, $achIDToAward);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
+    $alreadyAwarded = $isHardcore ? $hasHardcore : $hasRegular;
 
-    if (($isHardcore && $hasHardcore) || (!$isHardcore && $hasRegular)) {
+    $awardedOK = true;
+    if ($isHardcore && !$hasHardcore) {
+        $awardedOK &= InsertAwardedAchievementDB($user, $achIDToAward, true);
+    }
+    if (!$hasRegular && $awardedOK) {
+        $awardedOK &= InsertAwardedAchievementDB($user, $achIDToAward, false);
+    }
+
+    if ($awardedOK == false) {
+        $retVal['Error'] = "Issues allocating awards for user";
+        return $retVal;
+    }
+
+    if (!$alreadyAwarded) {
+        // testFullyCompletedGame could post a mastery notification. make sure to post
+        // the achievement unlock notification first
+        postActivity($user, ActivityType::EarnedAchievement, $achIDToAward, $isHardcore);
+    }
+
+    $completion = testFullyCompletedGame($achData['GameID'], $user, $isHardcore, !$alreadyAwarded);
+    if (array_key_exists('NumAwarded', $completion)) {
+        $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
+    }
+
+    if ($alreadyAwarded) {
+        // XXX: do not change the messages here. the client detects them and does not report
+        //      them as errors.
         if ($isHardcore) {
-            // XXX: do not change the messages here, as it can interfere with RetroArch's behavior.
-            // https://github.com/libretro/RetroArch/blob/343a04e2b8e1a334dda3ad947c284bde9d9d2894/cheevos/cheevos.c#L524
             $retVal['Error'] = "User already has hardcore and regular achievements awarded.";
         } else {
             $retVal['Error'] = "User already has this achievement awarded.";
         }
-        return $retVal;
-    }
 
-    //error_log( "AddEarnedAchievementJSON, Ready to add" );
-
-    $awardedOK = InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore);
-    if ($awardedOK && $isHardcore) {
-        $awardedOK |= InsertAwardedAchievementDB($user, $achIDToAward, false);
-    }
-
-    if ($awardedOK == false) {
-        $retVal['Error'] = "Issues allocating awards for user?";
         return $retVal;
     }
 
@@ -424,10 +439,6 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
 
-    postActivity($user, ActivityType::EarnedAchivement, $achIDToAward, $isHardcore);
-
-    testFullyCompletedGame($user, $achIDToAward, $isHardcore);
-
     return $retVal;
 }
 
@@ -446,6 +457,10 @@ function UploadNewAchievement(
     $badge,
     &$errorOut
 ) {
+    settype($gameID, 'integer');
+    settype($type, 'integer');
+    settype($points, 'integer');
+
     // Prevent <= registered users from uploading or modifying achievements
     if (getUserPermissions($author) <= \RA\Permissions::Registered) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
@@ -463,14 +478,8 @@ function UploadNewAchievement(
         return false;
     }
 
-    $title = str_replace("'", "''", $title);
-    $desc = str_replace("'", "''", $desc);
-    $title = str_replace("/", "_", $title);
-    $desc = str_replace("/", "_", $desc);
-    $title = str_replace("\\", "_", $title);
-    $desc = str_replace("\\", "_", $desc);
-    $title = preg_replace('/[^\x20-\x7e]/', '_', $title);
-    $desc = preg_replace('/[^\x20-\x7e]/', '_', $desc);
+    $dbAuthor = $author;
+    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor);
 
     //    Assume authorised!
     if (!isset($idInOut) || $idInOut == 0) {
@@ -487,15 +496,15 @@ function UploadNewAchievement(
             VALUES (
                 NULL, '$gameID', '$title', '$desc',
                 '$mem', '$progress', '$progressMax',
-                '$progressFmt', '$points', '$type',
-                '$author', NOW(), NOW(),
+                '$progressFmt', $points, $type,
+                '$dbAuthor', NOW(), NOW(),
                 NOW(), 0, 0,
                 '$badge', 0, NULL,
                 0
             )";
         // log_sql($query);
-        if (s_mysql_query($query) !== false) {
-            global $db;
+        global $db;
+        if (mysqli_query($db, $query) !== false) {
             $idInOut = mysqli_insert_id($db);
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
@@ -546,7 +555,8 @@ function UploadNewAchievement(
             $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$type, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
             // log_sql($query);
 
-            if (s_mysql_query($query) !== false) {
+            global $db;
+            if (mysqli_query($db, $query) !== false) {
                 if ($changingAchSet || $changingPoints) {
                     // When changing achievement set, all existing achievements that rely on this should be purged.
                     //$query = "DELETE FROM Awarded WHERE ID='$idInOut'";
@@ -1041,7 +1051,7 @@ function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
 
     $extraWhere = "";
     if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
-        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' ) ";
+        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' AND Friendship = 1 ) ";
     }
 
     //    Get recent winners, and their most recent activity:
@@ -1375,7 +1385,7 @@ function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 20
 }
 
 /**
- * Gets a list of users who have won a achievmenet or list of achievements within a given timerange.
+ * Gets a list of users who have won a achievement or list of achievements within a given timerange.
  *
  * @param array $achievementIDs Achievement ID or array of achievement IDs
  * @param string $startTime starting point to return items

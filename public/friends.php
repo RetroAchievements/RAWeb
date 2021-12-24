@@ -76,4 +76,3 @@ RenderHtmlHead("Friends");
 <?php RenderFooter(); ?>
 </body>
 <?php RenderHtmlEnd(); ?>
-

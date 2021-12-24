@@ -111,6 +111,15 @@ a:hover {
   text-decoration: none;
 }
 
+.text-link {
+  color: #cc9900;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  color: #eeeeff;
+}
+
 #fullcontainer {
   padding: 15px 20px;
   margin-bottom: 10px;
@@ -708,7 +717,6 @@ td, tr, img {
   max-width: 100%;
   width: 980px;
   position: relative;
-  z-index: 1000;
   font-size: x-small;
   margin: auto;
   /*overflow:hidden; this breaks the dropdown! :S*/
@@ -954,6 +962,7 @@ th {
   display: inline-block;
   line-height: 1em;
   padding: .4em .6em;
+  cursor: pointer;
 }
 
 .morebutton {
@@ -999,6 +1008,15 @@ th {
 }
 
 /* Forum */
+
+#commentTextarea {
+  padding: 4px;
+}
+
+#commentTextarea::placeholder {
+  font-size: 1.1em;
+}
+
 .commentpayload {
   padding: 6px 4px;
   vertical-align: top;
@@ -1061,7 +1079,7 @@ span.smalldate {
 
 .devbox {
   padding: 4px 0;
-  /* for rendering spoilers within bbcode */
+  /* for rendering spoilers within shortcode */
   display: inline-block;
   width: 100%;
   box-sizing: border-box;
@@ -1077,7 +1095,7 @@ span.smalldate {
   border-width: 1px;
   padding: 8px 12px;
   /*
-  for rendering codetag within bbcode
+  for rendering code tag within shortcode
   and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
   */
   display: inline-block;
@@ -1152,6 +1170,10 @@ pre, code, .code {
 #WzBoDy {
   /* Popup */
   border-radius: 10px;
+}
+
+#WzBoDy tr {
+  background: none;
 }
 
 #carouselpages {
@@ -1493,8 +1515,49 @@ svg > g > g:last-child { pointer-events: none }
   margin-right: 15px;
 }
 
-/* Table wrapper */
-.table-wrapper{
+.ticket-block {
+  display: inline-block;
+  border: 1px #1166dd;
+  border-radius: 5px;
+  border-style: solid;
+  min-height: 32px;
+  padding-right: 5px;
+}
+
+.ticket-block.open {
+  border-color: #28a745;
+}
+
+.ticket-block.closed {
+  border-color: #dc3545;
+}
+
+.ticket-block .badgeimg {
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-block;
+}
+
+.ticket-block .ticket-displayable-block {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.ticket-tooltip-state {
+  font-weight: bold;
+  padding: 5px;
+}
+
+.ticket-tooltip-info {
+  padding: 5px;
+}
+
+.ticket-tooltip-info.open .tooltip-closer,
+.ticket-tooltip-info.closed .tooltip-opened-date {
+  display: none;
+}
+
+.table-wrapper {
   max-width:100%;
   overflow-x:auto;
 }
@@ -1510,3 +1573,10 @@ svg > g > g:last-child { pointer-events: none }
 #active-players-menu-button.menuOpen::before {
   content: '✕';
 }
+
+.modal {
+  background-color: #1a1a1a;
+}
+
+.text-danger { color: red; }
+.text-right { text-align: right; }

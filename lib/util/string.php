@@ -9,6 +9,16 @@ function sanitize_outputs(&...$outputs)
     }
 }
 
+function attributeEscape($input)
+{
+    // htmlspecialchars escapes a bunch of stuff that the tooltip can't handle
+    // (like &rsquo; $frac12; and &deg;). when placed in title or alt fields.
+    // just do the bare minimum.
+    $input = str_replace("'", "\'", $input);
+    $input = str_replace('"', "&quot;", $input);
+    return $input;
+}
+
 function isValidUsername($userTest)
 {
     if (

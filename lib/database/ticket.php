@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\Models\TicketModel;
 
 function isAllowedToSubmitTickets($user)
 {
@@ -73,9 +74,8 @@ Problem: $problemTypeStr
 Comment: $note
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID
-
-Thanks!";
+" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
+. " Thanks!";
                 $bugReportMessage = "Hi, $achAuthor!
 [user=$userSubmitter] would like to report a bug with an achievement you've created:
 $bugReportDetails";
@@ -114,10 +114,10 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
         return false;
     }
 
-    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn);
+    $note = $noteIn;
+    sanitize_sql_inputs($userSubmitter, $reportType, $note);
 
     global $db;
-    $note = $noteIn;
 
     // error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
 
@@ -163,12 +163,11 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
                 $bugReportDetails = "Achievement: [ach=$achID]
 Game: [game=$gameID]
 Problem: $problemTypeStr
-Comment: $note
+Comment: $noteIn
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID
-
-Thanks!";
+" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
+. " Thanks!";
 
                 $bugReportMessage = "Hi, $achAuthor!\r\n
 [user=$userSubmitter] would like to report a bug with an achievement you've created:
@@ -416,7 +415,7 @@ function countOpenTicketsByDev($dev)
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = '$dev' AND ach.Flags = '3' AND tick.ReportState = 1";
+        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5) AND tick.ReportState = 1";
 
     $dbResult = s_mysql_query($query);
 
@@ -832,4 +831,17 @@ function getNumberOfTicketsClosedForOthers($user)
         }
     }
     return $retVal;
+}
+
+function GetTicketModel($ticketId)
+{
+    $ticketDbResult = getTicket($ticketId);
+
+    if ($ticketDbResult == null) {
+        return null;
+    }
+
+    $ticketModel = new TicketModel($ticketDbResult);
+
+    return $ticketModel;
 }

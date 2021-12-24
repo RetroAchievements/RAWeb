@@ -26,7 +26,6 @@ function RenderHtmlHead($pageTitle = null)
     RenderSharedHeader();
     RenderTitleTag($pageTitle);
     RenderGoogleTracking();
-    // RenderFBScript(); // only used on controlpanel.php
     echo "</head>";
 }
 
@@ -52,8 +51,14 @@ function RenderSharedHeader()
     echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
 
     echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.js'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>\n";
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>\n";
+
+    // jQuery Modal
+    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
+    echo "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css' />";
+
+    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
 
     // jQuery Modal
     echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
@@ -228,6 +233,7 @@ function RenderToolbar($user, $permissions = 0)
     ///Sony
     echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+    echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
@@ -336,7 +342,7 @@ function RenderToolbar($user, $permissions = 0)
 
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-        $searchQuery = requestInputQuery('s', null);
+        $searchQuery = attributeEscape(requestInputQuery('s', null));
     }
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
@@ -400,7 +406,7 @@ function RenderFooter()
         echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "' target='_blank'>Twitch</a></div>";
     }
     if (getenv('FACEBOOK_CHANNEL')) {
-        echo "<div><a href='https://facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
+        echo "<div><a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
     }
     if (getenv('TWITTER_CHANNEL')) {
         echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "' target='_blank'>Twitter</a></div>";

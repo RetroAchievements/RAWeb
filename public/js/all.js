@@ -212,14 +212,16 @@ function focusOnArticleID(id) {
 function updateDisplayOrder(user, objID, gameID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
-  var posting = $.post('/request/achievement/update.php',
+  var posting = $.post(
+    '/request/achievement/update.php',
     {
       u: user,
       a: objID.substr(4),
       g: gameID,
       f: 1,
       v: inputNum,
-    });
+    }
+  );
   posting.done(onUpdateDisplayOrderComplete);
   $('#warning').html('Status: updating...');
 }
@@ -227,13 +229,15 @@ function updateDisplayOrder(user, objID, gameID) {
 function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
   var inputText = $('#' + objID).val();
   var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
-  var posting = $.post('/request/user/update-site-award.php',
+  var posting = $.post(
+    '/request/user/update-site-award.php',
     {
       t: awardType,
       d: awardData,
       e: awardDataExtra,
       v: inputNum,
-    });
+    }
+  );
   posting.done(onUpdateDisplayOrderComplete);
   $('#warning').html('Status: updating...');
 }
@@ -246,7 +250,7 @@ function onUpdateDisplayOrderComplete(data) {
   }
 }
 
-function injectBBCode(start, end) {
+function injectShortcode(start, end) {
   var commentTextarea = document.getElementById('commentTextarea');
   if (commentTextarea !== undefined) {
     // Something's selected: wrap it
@@ -613,6 +617,73 @@ function onRefreshOnlinePlayers(data) {
   $('#playersonline-update').fadeTo('fast', 0.5);
 }
 
+function refreshActivePlayers() {
+  var posting = $.get('/request/user/list-currently-active.php');
+  posting.done(onRefreshActivePlayers);
+  $('#activeplayersbox').fadeTo('fast', 0.0);
+  $('#activeplayers-update').fadeTo('fast', 0.0);
+}
+
+function onRefreshActivePlayers(data) {
+  var playerList = data;
+  var numPlayersOnline = playerList.length;
+  var htmlTitle = '<div>There are currently <strong>' + numPlayersOnline
+    + '</strong> active players:</div>';
+  $('#playersactivebox').html(htmlTitle);
+  $('#activeplayersbox').empty();
+  var table = $('<table></table>').addClass('smalltable');
+  var tbody = $('<tbody></tbody>');
+  var headers = $('<tr></tr>');
+  headers.append($('<th>></th>').text('User'));
+  headers.append($('<th></th>').text('Game'));
+  headers.append($('<th></th>').text('Currently...'));
+  tbody.append(headers);
+  table.append(tbody);
+
+  for (var i = 0; i < numPlayersOnline; i += 1) {
+    var player = playerList[i];
+    var userStamp = GetUserAndTooltipDiv(
+      player.User,
+      player.RAPoints,
+      player.Motto,
+      true,
+      ''
+    );
+    var userElement = $('<td></td>').append(userStamp);
+    var gameElement;
+    var activityElement;
+
+    if (player.InGame) {
+      gameElement = $('<td></td>').append(
+        GetGameAndTooltipDiv(
+          player.GameID,
+          player.GameTitle,
+          player.GameIcon,
+          player.ConsoleName,
+          true
+        )
+      );
+      activityElement = $('<td></td>').text(player.RichPresenceMsg);
+    } else {
+      gameElement = $('<td></td>').append('None');
+      activityElement = $('<td></td>').append('Just Browsing');
+    }
+
+    var row = $('<tr></tr>')
+      .addClass('activeonlineplayer')
+      .append(userElement)
+      .append(gameElement)
+      .append(activityElement);
+    tbody.append(row);
+  }
+
+  var d = new Date();
+  $('#activeplayersbox').append(table);
+  $('#activeplayersbox').fadeTo('fast', 1.0);
+  $('#activeplayers-update').html('Last updated at ' + d.toLocaleTimeString());
+  $('#activeplayers-update').fadeTo('fast', 0.5);
+}
+
 function tabClick(evt, tabName, type) {
   // Declare all variables
   var i;
@@ -646,9 +717,32 @@ function copy(text) {
 }
 
 function ConfirmDemotion() {
-  return confirm("Are you sure you want to demote this achievement?");
+  return confirm('Are you sure you want to demote this achievement?');
 }
 
 function ConfirmPromotion() {
-  return confirm("Are you sure you want to promote this achievement?");
+  return confirm('Are you sure you want to promote this achievement?');
 }
+
+function initializeTextareaCounter() {
+  var textareaCounters = document.getElementsByClassName('textarea-counter');
+  for (var i = 0; i < textareaCounters.length; i++) {
+    var textareaCounter = textareaCounters[i];
+    var textareaId = textareaCounter.dataset.textareaId;
+    var textarea = document.getElementById(textareaId);
+    var max = textarea.getAttribute('maxlength');
+
+    if (max) {
+      var updateCount = function () {
+        var count = textarea.value.length;
+        textareaCounter.textContent = count + ' / ' + max;
+        textareaCounter.classList.toggle('text-danger', count >= max);
+      };
+      ['keydown', 'keypress', 'keyup', 'blur'].forEach(function (eventName) {
+        textarea.addEventListener(eventName, updateCount);
+      });
+      updateCount();
+    }
+  }
+}
+window.addEventListener('load', initializeTextareaCounter);

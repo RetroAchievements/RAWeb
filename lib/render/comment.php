@@ -1,12 +1,15 @@
 <?php
 
+use RA\Permissions;
+use RA\SubscriptionSubjectType;
+
 function RenderCommentsComponent(
     $user,
     $numComments,
     $commentData,
     $articleID,
     $articleTypeID,
-    $forceAllowDeleteComments
+    $permissions
 ) {
     $userID = getUserIDFromUser($user);
 
@@ -21,7 +24,7 @@ function RenderCommentsComponent(
     echo "</div>";
 
     if (isset($user)) {
-        $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleTypeID);
+        $subjectType = SubscriptionSubjectType::fromArticleType($articleTypeID);
         if ($subjectType !== null) {
             $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
             echo "<div class='smalltext rightfloat'>";
@@ -52,8 +55,7 @@ function RenderCommentsComponent(
             $lastID = $commentData[$i]['ID'];
         }
 
-        $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID);
-        $canDeleteComments |= $forceAllowDeleteComments;
+        $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID) || $permissions >= Permissions::Admin;
 
         RenderArticleComment(
             $articleID,
@@ -79,11 +81,6 @@ function RenderCommentsComponent(
     echo "</div>";
 }
 
-function RenderTopicCommentPayload($payload)
-{
-    echo parseTopicCommentPHPBB(nl2br($payload));
-}
-
 function RenderArticleComment(
     $articleID,
     $user,
@@ -97,7 +94,7 @@ function RenderArticleComment(
     $class = '';
     $deleteIcon = '';
 
-    if ($user == $localUser || $allowDelete) {
+    if ($user && $user == $localUser || $allowDelete) {
         $class .= ' localuser';
 
         $img = "<img src='" . getenv('ASSET_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";

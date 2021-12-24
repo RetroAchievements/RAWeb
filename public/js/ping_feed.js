@@ -328,14 +328,32 @@ function readFeed() {
     }
 
     // add the new messages to the feed window
-    displayFeedItems(idArray, timestampArray, actTypeArray,
-      userArray, userPointsArray, userMottoArray,
-      dataArray, data2Array,
-      gameTitleArray, gameIDArray, gameIconArray, consoleNameArray,
-      achTitleArray, achDescArray, achBadgeArray, achPointsArray,
-      LBTitleArray, LBDescArray, LBFormatArray,
-      commentUserArray, commentUserPointsArray, commentUserMottoArray, commentArray,
-      commentPostedArray);
+    displayFeedItems(
+      idArray,
+      timestampArray,
+      actTypeArray,
+      userArray,
+      userPointsArray,
+      userMottoArray,
+      dataArray,
+      data2Array,
+      gameTitleArray,
+      gameIDArray,
+      gameIconArray,
+      consoleNameArray,
+      achTitleArray,
+      achDescArray,
+      achBadgeArray,
+      achPointsArray,
+      LBTitleArray,
+      LBDescArray,
+      LBFormatArray,
+      commentUserArray,
+      commentUserPointsArray,
+      commentUserMottoArray,
+      commentArray,
+      commentPostedArray
+    );
   }
 
   // restart sequence
@@ -346,14 +364,30 @@ function readFeed() {
 
 /* function that appends the new messages to the feed list  */
 function displayFeedItems(
-  idArray, timestampArray, actTypeArray,
-  userArray, userPointsArray, userMottoArray,
-  dataArray, data2Array,
-  gameTitleArray, gameIDArray, gameIconArray, consoleNameArray,
-  achTitleArray, achDescArray, achBadgeArray, achPointsArray,
-  LBTitleArray, LBDescArray, LBFormatArray,
-  commentUserArray, commentUserPointsArray, commentUserMottoArray,
-  commentArray, commentPostedArray
+  idArray,
+  timestampArray,
+  actTypeArray,
+  userArray,
+  userPointsArray,
+  userMottoArray,
+  dataArray,
+  data2Array,
+  gameTitleArray,
+  gameIDArray,
+  gameIconArray,
+  consoleNameArray,
+  achTitleArray,
+  achDescArray,
+  achBadgeArray,
+  achPointsArray,
+  LBTitleArray,
+  LBDescArray,
+  LBFormatArray,
+  commentUserArray,
+  commentUserPointsArray,
+  commentUserMottoArray,
+  commentArray,
+  commentPostedArray
 ) {
   // each loop adds a new message
   for (var i = 0; i < idArray.length; i += 1) {
@@ -402,9 +436,27 @@ function displayFeedItems(
     // timeStr += "]";
 
     // add the new message to the feed list:
-    pushFeedItem(feedItemID, timestamp, acttype, user, userPoints, userMotto, data, data2,
-      gameTitle, gameID, gameIcon, consoleName, achTitle, achDesc, achBadge, achPoints, lbTitle,
-      lbDesc, lbFormat);
+    pushFeedItem(
+      feedItemID,
+      timestamp,
+      acttype,
+      user,
+      userPoints,
+      userMotto,
+      data,
+      data2,
+      gameTitle,
+      gameID,
+      gameIcon,
+      consoleName,
+      achTitle,
+      achDesc,
+      achBadge,
+      achPoints,
+      lbTitle,
+      lbDesc,
+      lbFormat
+    );
 
     if (commentUser !== null && commentUser.length > 1) {
       var nextFeedItemID = feedItemID;
@@ -416,8 +468,14 @@ function displayFeedItems(
         var innerCommentUserPoints = commentUserPointsArray.item(i).firstChild.data.toString();
         var innerCommentUserMotto = commentUserMottoArray.item(i).firstChild.data.toString();
 
-        pushFeedComment(nextFeedItemID, commentUser, comment, commentPosted, commentUserPoints,
-          commentUserMotto);
+        pushFeedComment(
+          nextFeedItemID,
+          commentUser,
+          comment,
+          commentPosted,
+          commentUserPoints,
+          commentUserMotto
+        );
         i += 1;
       }
       i -= 1;
@@ -462,8 +520,25 @@ function GetFormattedLeaderboardEntry(formatType, scoreIn) {
 }
 
 function pushFeedItem(
-  feedItemID, timestamp, acttype, user, userPoints, userMotto, data, data2, gameTitle, gameID,
-  gameIcon, consoleName, achTitle, achDesc, achBadge, achPoints, lbTitle, lbDesc, lbFormat
+  feedItemID,
+  timestamp,
+  acttype,
+  user,
+  userPoints,
+  userMotto,
+  data,
+  data2,
+  gameTitle,
+  gameID,
+  gameIcon,
+  consoleName,
+  achTitle,
+  achDesc,
+  achBadge,
+  achPoints,
+  lbTitle,
+  lbDesc,
+  lbFormat
 ) {
   var rowClass = '';
   var rowIcon1 = '';
@@ -482,14 +557,30 @@ function pushFeedItem(
         rowClass = 'feed_won_hc';
       }
 
-      rowIcon1 = GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, true, true);
+      rowIcon1 = GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        true,
+        true
+      );
       rowIcon2 = GetUserAndTooltipDiv(user, userPoints, userMotto, true, '');
 
       rowData = GetUserAndTooltipDiv(user, userPoints, userMotto, false, '');
       rowData += ' earned ';
-      rowData += GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, false, false);
+      rowData += GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        false,
+        false
+      );
 
       if (data2 === 1) {
         rowData += ' (HARDCORE)';
@@ -526,27 +617,59 @@ function pushFeedItem(
     case 4: // Created Achievement
       rowClass = 'feed_dev1';
 
-      rowIcon1 = GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, true, true);
+      rowIcon1 = GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        true,
+        true
+      );
       rowIcon2 = GetUserAndTooltipDiv(user, userPoints, userMotto, true, '');
 
       rowData = GetUserAndTooltipDiv(user, userPoints, userMotto, false, '');
       rowData += ' uploaded a new achievement: ';
-      rowData += GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, false, false);
+      rowData += GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        false,
+        false
+      );
 
       break;
     case 5: // Updated Achievement
       rowClass = 'feed_dev2';
 
-      rowIcon1 = GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, true, true);
+      rowIcon1 = GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        true,
+        true
+      );
       rowIcon2 = GetUserAndTooltipDiv(user, userPoints, userMotto, true, '');
 
       rowData = GetUserAndTooltipDiv(user, userPoints, userMotto, false, '');
       rowData += ' made improvements to: ';
-      rowData += GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, false, false);
+      rowData += GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        false,
+        false
+      );
 
       break;
     case 6: // Game Completed
@@ -574,8 +697,14 @@ function pushFeedItem(
 
       rowData = GetUserAndTooltipDiv(user, userPoints, userMotto, false, '');
       rowData += ' submitted ';
-      rowData += GetLeaderboardAndTooltipDiv(data, lbTitle, lbDesc, gameTitle, gameIcon,
-        GetFormattedLeaderboardEntry(lbFormat, data2));
+      rowData += GetLeaderboardAndTooltipDiv(
+        data,
+        lbTitle,
+        lbDesc,
+        gameTitle,
+        gameIcon,
+        GetFormattedLeaderboardEntry(lbFormat, data2)
+      );
       rowData += ' for ';
       rowData += GetLeaderboardAndTooltipDiv(data, lbTitle, lbDesc, gameTitle, gameIcon, lbTitle);
       rowData += ' on ';
@@ -592,8 +721,14 @@ function pushFeedItem(
 
       rowData = GetUserAndTooltipDiv(user, userPoints, userMotto, false, '');
       rowData += ' improved their ' + entryType + ': ';
-      rowData += GetLeaderboardAndTooltipDiv(data, lbTitle, lbDesc, gameTitle, gameIcon,
-        GetFormattedLeaderboardEntry(lbFormat, data2));
+      rowData += GetLeaderboardAndTooltipDiv(
+        data,
+        lbTitle,
+        lbDesc,
+        gameTitle,
+        gameIcon,
+        GetFormattedLeaderboardEntry(lbFormat, data2)
+      );
       rowData += ' for ';
       rowData += GetLeaderboardAndTooltipDiv(data, lbTitle, lbDesc, gameTitle, gameIcon, lbTitle);
       rowData += ' on ';
@@ -605,14 +740,30 @@ function pushFeedItem(
     case 10: // Closed a ticket
       rowClass = 'feed_dev2';
 
-      rowIcon1 = GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, true, true);
+      rowIcon1 = GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        true,
+        true
+      );
       rowIcon2 = GetUserAndTooltipDiv(user, userPoints, userMotto, true, '');
 
       rowData = GetUserAndTooltipDiv(user, userPoints, userMotto, false, '');
       rowData += (acttype === 9 ? ' opened ' : ' closed ') + 'a ticket for ';
-      rowData += GetAchievementAndTooltipDiv(data, achTitle, achDesc, achPoints, gameTitle,
-        achBadge, false, false);
+      rowData += GetAchievementAndTooltipDiv(
+        data,
+        achTitle,
+        achDesc,
+        achPoints,
+        gameTitle,
+        achBadge,
+        false,
+        false
+      );
 
       if (data2 === 1) {
         rowData += ' (HARDCORE)';
@@ -696,9 +847,7 @@ function popFinalFeedItem(numItems) {
   // lastDataRow.remove();
 }
 
-function pushFeedComment(
-  nextFeedItemID, commentUser, comment, commentPosted, commentUserPoints, commentUserMotto
-) {
+function pushFeedComment(nextFeedItemID, commentUser, comment, commentPosted, commentUserPoints, commentUserMotto) {
   // $niceDate = date( "d M\nH:i ", strtotime( commentPosted ) );
 
   var d = new Date(parseInt(commentPosted, 10) * 1000);

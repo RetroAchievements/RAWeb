@@ -126,7 +126,7 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, SUM(ach.Points) AS Points FROM Awarded AS aw ";
     $query .= "LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID ";
     $query .= "LEFT JOIN GameData AS gd ON gd.ID = ach.GameID ";
-    $query .= "WHERE aw.user = '$user' ";    //AND ach.Flags = 3
+    $query .= "WHERE aw.user = '$user' AND ach.Flags = 3";
 
     if (isset($dateFrom) && isset($dateTo)) {
         $dateFromFormatted = $dateFrom; //2013-07-01

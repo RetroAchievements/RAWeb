@@ -2,12 +2,15 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ArticleType;
 use RA\Permissions;
+use RA\Shortcode\Shortcode;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 
+$dataOut = null;
 if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
     exit;
@@ -119,11 +122,11 @@ RenderHtmlStart(true);
 
         echo "<table class='nicebox'><tbody>";
 
-        $escapeForAttributes = "htmlentities"; // sanitize_outputs uses null for 2nd param, so it won't convert quotes to entities
+        $descAttr = attributeEscape($desc);
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n{$escapeForAttributes($desc)}\" alt=\"{$escapeForAttributes($desc)}\" align=\"left\" width=\"64\" height=\"64\" /></a>";
+        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; //achievemententryicon
         echo "</td>";
 
@@ -251,13 +254,18 @@ RenderHtmlStart(true);
             echo "</div>"; //    devbox
         }
 
-        if ($embedVidURL !== "") {
-            echo parseTopicCommentPHPBB($embedVidURL, true);
+        if (!empty($embedVidURL)) {
+            echo Shortcode::render($embedVidURL, ['imgur' => true]);
         }
 
-        //    Comments:
-        $forceAllowDeleteComments = $permissions >= Permissions::Admin;
-        RenderCommentsComponent($user, $numArticleComments, $commentData, $achievementID, \RA\ArticleType::Achievement, $forceAllowDeleteComments);
+        RenderCommentsComponent(
+            $user,
+            $numArticleComments,
+            $commentData,
+            $achievementID,
+            ArticleType::Achievement,
+            $permissions
+        );
 
         echo "</div>"; //achievement
 

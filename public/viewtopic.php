@@ -2,7 +2,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\ModifyTopicField;
 use RA\Permissions;
+use RA\Shortcode\Shortcode;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
 
@@ -252,7 +254,7 @@ RenderHtmlStart();
 
             if ($nextCommentAuthorised == 0) {
                 // Allow, only if this is MY comment (disclaimer: unofficial), or if I'm admin (disclaimer: unofficial, verify user?)
-                if ($permissions >= Permissions::Developer) {
+                if ($permissions >= Permissions::Admin) {
                     // Allow with disclaimer
                     $showDisclaimer = true;
                     $showAuthoriseTools = true;
@@ -301,7 +303,7 @@ RenderHtmlStart();
 
             echo "<br style='clear:both;'>";
             echo "<div class='topiccommenttext'>";
-            RenderTopicCommentPayload($nextCommentPayload);
+            echo Shortcode::render($nextCommentPayload);
             echo "</div>";
             echo "</td>";
 
@@ -356,13 +358,24 @@ RenderHtmlStart();
 
             echo "<td class='fullwidth'>";
 
-            RenderPHPBBIcons();
+            RenderShortcodeButtons();
 
             $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
-            echo "<textarea id='commentTextarea' class='fullwidth forum' rows='10' cols='63' $inputEnabled maxlength='60000' name='p' placeholder='Enter a comment here...'>$defaultMessage</textarea><br><br>";
+            echo <<<EOF
+                <textarea 
+                    id="commentTextarea" 
+                    class="fullwidth" 
+                    rows="10" cols="63" 
+                    $inputEnabled 
+                    maxlength="60000" 
+                    name="p" 
+                    placeholder="Don't share links to copyrighted ROMs."
+                >$defaultMessage</textarea><br>
+            EOF;
+            echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div><br>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version

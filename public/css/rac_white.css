@@ -12,6 +12,10 @@ a {
   color: rgb(255, 12, 0);
 }
 
+.text-link {
+  color: rgb(255, 12, 0);
+}
+
 p, .login, .login p, .commentavatar, .navpath, #footer {
   background: rgb(222, 222, 222);
 }
