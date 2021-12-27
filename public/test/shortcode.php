@@ -12,9 +12,11 @@ $payload = <<<EOF
 [b][i][u][s]Formatting[/s][/u][/i][/b]
 [b][i][u][s]Scrambled Formatting[/i][/b][/u][/s]
 
+[B]Mismatching tags[/b]
+
 [b][i]Code Blocks[/i][/b]
 
-[code]inline code[/code]
+[Code]inline code[/CODE]
 
 [code]
 multi

@@ -9,10 +9,29 @@ use Thunder\Shortcode\HandlerContainer\HandlerContainer;
 use Thunder\Shortcode\Parser\RegularParser;
 use Thunder\Shortcode\Processor\Processor;
 use Thunder\Shortcode\Shortcode\ShortcodeInterface;
-use Thunder\Shortcode\Syntax\Syntax;
 
 final class Shortcode
 {
+    private HandlerContainer $handlers;
+
+    public function __construct()
+    {
+        $this->handlers = (new HandlerContainer())
+            ->add('b', fn (ShortcodeInterface $s) => '<b>' . $s->getContent() . '</b>')
+            ->add('i', fn (ShortcodeInterface $s) => '<i>' . $s->getContent() . '</i>')
+            ->add('u', fn (ShortcodeInterface $s) => '<u>' . $s->getContent() . '</u>')
+            ->add('s', fn (ShortcodeInterface $s) => '<s>' . $s->getContent() . '</s>')
+            ->add('img', fn (ShortcodeInterface $s) => '<img class="injectinlineimage" src="' . ($s->getBbCode() ?: $s->getContent()) . '">')
+            ->add('code', fn (ShortcodeInterface $s) => $this->renderCode($s))
+            ->add('url', fn (ShortcodeInterface $s) => $this->renderUrlLink($s))
+            ->add('link', fn (ShortcodeInterface $s) => $this->renderLink($s))
+            ->add('spoiler', fn (ShortcodeInterface $s) => $this->renderSpoiler($s))
+            ->add('ach', fn (ShortcodeInterface $s) => $this->embedAchievement($s->getBbCode() ?: $s->getContent()))
+            ->add('game', fn (ShortcodeInterface $s) => $this->embedGame($s->getBbCode() ?: $s->getContent()))
+            ->add('ticket', fn (ShortcodeInterface $s) => $this->embedTicket($s->getBbCode() ?: $s->getContent()))
+            ->add('user', fn (ShortcodeInterface $s) => $this->embedUser($s->getBbCode() ?: $s->getContent()));
+    }
+
     public static function render(string $input, array $options = []): string
     {
         return (new Shortcode())->parse($input, $options);
@@ -29,63 +48,23 @@ final class Shortcode
         // pass bbcode style url labeling to link handler
         $input = preg_replace('~\[url="?([^]"]*)"?](.+)\[/url]~i', '[link url="$1"]$2[/link]', $input);
 
-        $handlers = (new HandlerContainer())
-            ->add('b', function (ShortcodeInterface $s) {
-                return '<b>' . $s->getContent() . '</b>';
-            })
-            ->add('i', function (ShortcodeInterface $s) {
-                return '<i>' . $s->getContent() . '</i>';
-            })
-            ->add('u', function (ShortcodeInterface $s) {
-                return '<u>' . $s->getContent() . '</u>';
-            })
-            ->add('s', function (ShortcodeInterface $s) {
-                return '<s>' . $s->getContent() . '</s>';
-            })
-            ->add('code', function (ShortcodeInterface $s) {
-                return '<pre class="codetags">' . htmlentities(str_replace('<br>', '', $s->getContent())) . '</pre>';
-            })
-            ->add('img', function (ShortcodeInterface $s) {
-                return '<img src="' . ($s->getBbCode() ?: $s->getContent()) . '">';
-            })
-            ->add('url', function (ShortcodeInterface $s) {
-                $url = $s->getBbCode() ?: $s->getContent();
-                $label = $s->getContent() ?: $s->getBbCode();
-
-                return '<a href="' . $url . '">' . $label . '</a>';
-            })
-            ->add('link', function (ShortcodeInterface $s) {
-                $url = $s->getParameter('url') ?: $s->getContent();
-
-                return '<a href="' . $url . '">' . $s->getContent() . '</a>';
-            })
-            ->add('ach', function (ShortcodeInterface $s) {
-                return $this->embedAchievement($s->getBbCode() ?: $s->getContent());
-            })
-            ->add('game', function (ShortcodeInterface $s) {
-                return $this->embedGame($s->getBbCode() ?: $s->getContent());
-            })
-            ->add('spoiler', function (ShortcodeInterface $s) {
-                return $this->embedSpoiler($s->getContent());
-            })
-            ->add('ticket', function (ShortcodeInterface $s) {
-                return $this->embedTicket($s->getBbCode() ?: $s->getContent());
-            })
-            ->add('user', function (ShortcodeInterface $s) {
-                return $this->embedUser($s->getBbCode() ?: $s->getContent());
-            });
+        // case insensitive
+        foreach ($this->handlers->getNames() as $tag) {
+            $input = preg_replace("~$tag]~i", "$tag]", $input);
+            $input = preg_replace("~\[$tag~i", "[$tag", $input);
+        }
 
         $events = new EventContainer();
         $events->addListener(Events::FILTER_SHORTCODES, function (FilterShortcodesEvent $event) {
-            $parent = $event->getParent();
-
+            // Note: can't disable parsing in code blocks yet as i has been used as separator within posts. Enable again after code has been migrated to something else
+            // $parent = $event->getParent();
             // no parsing inside of code tags
-            if ($parent && ($parent->getName() === 'code' || $parent->hasAncestor('code'))) {
-                $event->setShortcodes([]);
-            }
+            // if ($parent && ($parent->getName() === 'code' || $parent->hasAncestor('code'))) {
+            //     $event->setShortcodes([]);
+            // }
         });
 
-        $processor = (new Processor(new RegularParser(new Syntax('[', ']', '/', '=', null)), $handlers))
+        $processor = (new Processor(new RegularParser(), $this->handlers))
             ->withEventContainer($events);
 
         $html = $processor->process(nl2br($input, false));
@@ -99,6 +78,38 @@ final class Shortcode
         $html = $this->linkifyBasicURLs($html);
 
         return $html;
+    }
+
+    private function renderUrlLink(ShortcodeInterface $shortcode): string
+    {
+        return '<a href="' . ($shortcode->getBbCode() ?: $shortcode->getContent()) . '">' . ($shortcode->getContent() ?: $shortcode->getBbCode()) . '</a>';
+    }
+
+    private function renderLink(ShortcodeInterface $shortcode): string
+    {
+        return '<a href="' . ($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
+    }
+
+    private function renderCode(ShortcodeInterface $shortcode): string
+    {
+        return '<pre class="codetags">' . str_replace('<br>', '', $shortcode->getContent()) . '</pre>';
+    }
+
+    private function renderSpoiler(ShortcodeInterface $shortcode): string
+    {
+        $content = $shortcode->getContent();
+
+        $id = uniqid((string) mt_rand(10000, 99999));
+
+        // remove leading break
+        $content = preg_replace('/^(?:<br\s*\/?>\s*)+/', '', $content);
+
+        return <<<EOF
+            <div class="devbox">
+                <span onclick="$('#spoiler_{$id}').toggle(); return false;">Spoiler (Click to show):</span><br>
+                <div class="spoiler" id="spoiler_{$id}">{$content}</div>
+            </div>
+        EOF;
     }
 
     private function embedAchievement($id): string
@@ -139,21 +150,6 @@ final class Shortcode
         return GetGameAndTooltipDiv($id, $gameName, $gameData['GameIcon'], $consoleName);
     }
 
-    private function embedSpoiler($content): string
-    {
-        $id = uniqid((string) mt_rand(10000, 99999));
-
-        // remove leading break
-        $content = preg_replace('/^(?:<br\s*\/?>\s*)+/', '', $content);
-
-        return <<<EOF
-            <div class="devbox">
-                <span onclick="$('#spoiler_{$id}').toggle(); return false;">Spoiler (Click to show):</span><br>
-                <div class="spoiler" id="spoiler_{$id}">{$content}</div>
-            </div>
-        EOF;
-    }
-
     private function embedTicket($id): string
     {
         $ticketModel = GetTicketModel($id);
@@ -185,22 +181,6 @@ final class Shortcode
             ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
             ~ix',
             ' <a href="$1" target="_blank" rel="noopener">$1</a> ',
-            $text
-        );
-        $text = preg_replace(
-            '~
-            (\s|^)
-            (www\.[a-z0-9_./?=&#%:+(),-]+)
-            (?!                 # Assert URL is not pre-linked.
-              [?=&+%\w.-]*      # Allow URL (query) remainder.
-              (?:               # Group pre-linked alternatives.
-                [^<>]*>         # Either inside a start tag,
-                | [^<>]*</a>   # or inside <a> element text contents.
-              )                 # End recognized pre-linked alts.
-            )                   # End negative lookahead assertion.
-            ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
-        ~ix',
-            ' <a target="_blank" href="https://$2" rel="noopener">$2</a> ',
             $text
         );
 

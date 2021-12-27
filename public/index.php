@@ -192,8 +192,6 @@ RenderToolbar($user, $permissions);
         // $('.wrapper').pixastic('desaturate')
       },
     );
-    refreshActivePlayers();
-    setInterval(refreshActivePlayers, 5000 * 60);
   });
   //]]>
 </script>
