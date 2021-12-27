@@ -1038,6 +1038,7 @@ function GetLBPatch($gameID)
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['ID'], 'integer');
             settype($db_entry['LowerIsBetter'], 'boolean');
+            settype($db_entry['Hidden'], 'boolean');
             $lbData[] = $db_entry;
         }
     } else {
