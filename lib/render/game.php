@@ -38,10 +38,6 @@ function GetGameAndTooltipDiv(
 
     $displayable = "";
 
-    sanitize_outputs(
-        $tooltip,
-    );
-
     if ($justText == false) {
         $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
     }
