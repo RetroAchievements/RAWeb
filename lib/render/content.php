@@ -125,35 +125,53 @@ function RenderCurrentlyOnlineComponent()
 
 function RenderActivePlayersComponent()
 {
-    echo "<div class='component activeplayerscomponent' >";
-    echo "<h3>Active Players</h3>";
+    echo <<<HTML
+        <div id='active-players-component' class='component activeplayerscomponent'>
+            <h3>Active Players</h3>
+            <div id='playersNotice' style='margin-bottom: 7px'>
+                <span style='margin-bottom: 5px; display: inline-block;'>
+                    There are <strong data-bind="text: numberOfFilteredPlayers"></strong> <span data-bind='visible: usersAreFiltered'>filtered</span> active players<span data-bind='visible: usersAreFiltered'> (out of <strong data-bind='text: numberOfPlayersActive'></strong> total)</span>.
+                </span>
+                <a class='rightfloat' id='active-players-menu-button' href='#!' data-bind='click: OnActivePlayersMenuButtonClick, css: { menuOpen: shouldMenuBeVisible }'></a>
+                <div id='active-player-menu' data-bind='visible: shouldMenuBeVisible'>
+                    <div>
+                        <input type='text' style='width: 100%;' placeholder='Filter by player, game, console, or Rich Presence...' data-bind='value: playerFilterText, valueUpdate: "input"' />
+                    </div>
+                    <div id='active-players-filter-options'>
+                        <label><input type='checkbox' data-bind='checked: rememberFiltersValue' /> Remember My Filter</label>
+                    </div>
+                </div>
+            </div>
+            <div id='activeplayersbox' style='min-height: 54px'>
+                <table class='smalltable' data-bind='hidden: isLoading'>
+                    <thead>
+                        <th>User</th>
+                        <th>Game</th>
+                        <th>Currently...</th>
+                    </thead>
+                    <tbody>
+                        <!-- ko foreach: filteredPlayers -->
+                        <tr>
+                            <td data-bind='html: playerHtml'></td>
+                            <td data-bind='html: gameHtml'></td>
+                            <td data-bind='text: richPresence'></td>
+                        </tr>
+                        <!-- /ko -->
 
-    echo "<div id='playersactivebox' style='margin-bottom: 7px'></div>";
-
-    echo "<div id='activeplayersbox' style='min-height: 54px'>";
-    //    fetch via ajaphp
-    // $playersArray = getCurrentlyOnlinePlayers();
-    // $numPlayers = count($playersArray);
-    // echo "There are currently <strong>$numPlayers</strong> players online.<br>";
-    //$numOutput = 0;
-    //foreach( $playersArray as $nextPlayer )
-    //{
-    //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
-    //    {
-    //        echo " and ";
-    //    }
-    //    elseif( $numOutput > 0 )
-    //    {
-    //        echo ", ";
-    //    }
-    //
-    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
-    //    $numOutput++;
-    //}
-    echo "</div>";
-
-    echo "<div class='rightfloat lastupdatedtext'><small><span id='activeplayers-update'></span></small></div>";
-    echo "</div>";
+                        <tr data-bind='visible: filteredPlayers().length === 0'>
+                            <td colspan='3'>No players could be found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <span data-bind='visible: isLoading'>Loading players...</span>
+                <span data-bind='visible: hasError'>An error has occurred while loading players.</span>
+            </div>
+            <div class='rightfloat lastupdatedtext'>
+                <small id='activeplayers-update' data-bind='text: lastUpdateRender'></small>
+            </div>
+        </div>
+        <script type="text/javascript" src="/js/activePlayersBootstrap.js"></script>
+    HTML;
 }
 
 function RenderAOTWComponent($achID, $forumTopicID)
