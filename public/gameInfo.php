@@ -95,13 +95,6 @@ if ($isFullyFeaturedGame) {
     }
 
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags); // for now, only retrieve casual!
-    for ($i = 1; $i <= $numAchievements; $i++) {
-        if (!array_key_exists($i, $achDist)) {
-            $achDist[$i] = 0;
-        }
-    }
-
-    ksort($achDist);
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
 
