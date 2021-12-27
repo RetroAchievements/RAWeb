@@ -107,7 +107,7 @@ $bugReportDetails";
     return $returnMsg;
 }
 
-function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summaryMsgOut)
+function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $noteIn, &$summaryMsgOut)
 {
     if (!isAllowedToSubmitTickets($userSubmitter)) {
         $summaryMsgOut = "FAILED!";
@@ -115,7 +115,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
     }
 
     $note = $noteIn;
-    sanitize_sql_inputs($userSubmitter, $reportType, $note);
+    sanitize_sql_inputs($userSubmitter, $reportType, $hardcore, $note);
 
     global $db;
 
@@ -139,8 +139,8 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $noteIn, &$summa
 
         $idsFound++;
 
-        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
-                                VALUES($achID, $submitterUserID, $reportType, \"$note\", NOW(), NULL, NULL )";
+        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
+                                VALUES($achID, $submitterUserID, $reportType, $hardcore, \"$note\", NOW(), NULL, NULL )";
         // log_sql($query);
 
         $dbResult = mysqli_query($db, $query); //    Unescaped?
@@ -249,6 +249,11 @@ function getAllTickets(
         return $retVal;
     }
 
+    $modeCond = getModeCondition($ticketFilters);
+    if ($modeCond === null) {
+        return $retVal;
+    }
+
     //Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
     if ($emulatorCond === null) {
@@ -260,14 +265,14 @@ function getAllTickets(
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
+                tick.ReportedAt, tick.ReportType, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
               FROM Ticket AS tick
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-              WHERE $innerCond $achFlagCond $stateCond $reportTypeCond $md5Cond $emulatorCond
+              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $md5Cond $emulatorCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -291,7 +296,7 @@ function getTicket($ticketID)
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
+                tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
               FROM Ticket AS tick
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -450,7 +455,8 @@ function countOpenTicketsByAchievement($achievementID)
 
 function countOpenTickets(
     $unofficialFlag = false,
-    $ticketFilters = 2041, //2041 sets all filters active except for Closed and Resolved
+    $ticketFilters = 16377, //sets all filters active except for Closed and Resolved
+    //move this to constants...
     $assignedToUser = null,
     $gameID = null
 ) {
@@ -480,6 +486,11 @@ function countOpenTickets(
         return 0;
     }
 
+    $modeCond = getModeCondition($ticketFilters);
+    if ($modeCond === null) {
+        return 0;
+    }
+
     //Author condition
     $authorCond = "";
     if ($assignedToUser != null) {
@@ -500,7 +511,7 @@ function countOpenTickets(
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE $achFlagCond $stateCond $gameCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
+        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
 
     $dbResult = s_mysql_query($query);
 
@@ -637,6 +648,44 @@ function getMD5Condition($ticketFilters)
         return " AND (tick.ReportNotes NOT REGEXP 'MD5: [a-fA-F0-9]{32}')";
     }
     return null;
+}
+function getModeCondition($ticketFilters)
+{
+    $modeUnknown = ($ticketFilters & (1 << 11));
+    $modeHardcore = ($ticketFilters & (1 << 12));
+    $modeSoftcore = ($ticketFilters & (1 << 13));
+
+    if ($modeUnknown && $modeHardcore && $modeSoftcore) {
+        return "";
+    }
+
+    if (!$modeUnknown && !$modeHardcore && !$modeSoftcore) {
+        return null;
+    }
+
+    $subquery = "AND (";
+    $added = false;
+    if ($modeUnknown) {
+        $subquery .= "Hardcore IS NULL";
+        $added = true;
+    }
+
+    if ($modeHardcore) {
+        if ($added) {
+            $subquery .= " OR ";
+        }
+        $subquery .= "Hardcore = 1";
+        $added = true;
+    }
+    if ($modeSoftcore) {
+        if ($added) {
+            $subquery .= " OR ";
+        }
+        $subquery .= "Hardcore = 0";
+        $subquery .= "";
+    }
+    $subquery .= ")";
+    return $subquery;
 }
 
 /**
