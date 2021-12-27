@@ -1085,20 +1085,13 @@ RenderHtmlStart(true);
             echo "</li>";
 
             if (isset($user)) {
-                echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Hashes linked to this game</a></li>";
-                $numOpenTickets = countOpenTickets(
-                    requestInputSanitized('f') == $unofficialFlag,
-                    requestInputSanitized('t', 16377),
-                    null,
-                    $gameID
-                );
                 if ($permissions >= Permissions::Registered) {
                     echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Linked Hashes</a></li>";
                     echo "<li><a class='info-button' href='/codenotes.php?g=$gameID'><span>📑</span>Code Notes</a></li>";
 
                     $numOpenTickets = countOpenTickets(
                         requestInputSanitized('f') == $unofficialFlag,
-                        requestInputSanitized('t', 2041),
+                        requestInputSanitized('t', 16377),
                         null,
                         $gameID
                     );
