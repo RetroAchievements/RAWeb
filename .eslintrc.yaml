@@ -23,6 +23,9 @@ rules:
 
   max-len: off
 
+  # eslint doesn't like itself
+  prefer-destructuring: off
+
   # yeah, we're polluting the global namespace with jquery...
   no-undef: off
 
@@ -38,6 +41,7 @@ rules:
   # ecmaVersion 5...
   comma-dangle: off
   no-alert: off # still using confirm() dialog
+  no-restricted-globals: off # still using confirm() dialog
   no-loop-func: off
   no-param-reassign: off
   no-var: off

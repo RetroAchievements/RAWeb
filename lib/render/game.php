@@ -32,23 +32,14 @@ function GetGameAndTooltipDiv(
     $tooltip .= $consoleStr;
     $tooltip .= "</div>";
     $tooltip .= "</div>";
+    $tooltip = attributeEscape($tooltip);
 
-    // $tooltip = str_replace('<', '&lt;', $tooltip);
-    // $tooltip = str_replace('>', '&gt;', $tooltip);
-    //echo $tooltip;
-    //$tooltip = str_replace( "'", "\\'", $tooltip );
-    //echo $tooltip;
-
-    $tooltip = str_replace("'", "\'", $tooltip);
+    $gameNameEscaped = attributeEscape($gameName);
 
     $displayable = "";
 
-    sanitize_outputs(
-        $tooltip,
-    );
-
     if ($justText == false) {
-        $displayable = "<img loading='lazy' alt='' title=\"$gameName\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
     }
 
     if ($justImage == false) {
@@ -173,7 +164,39 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
         echo "<a class='info-button' href='/viewtopic.php?t=$forumTopicID'><span>💬</span>Official forum topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {
-            echo "<a class='info-button' href='/request/game/generate-forum-topic.php?g=$gameID'><span>💬</span>Create the official forum topic for $gameTitle</a>";
+            echo "<a class='info-button' href='/request/game/generate-forum-topic.php?g=$gameID' onclick='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'><span>💬</span>Create the official forum topic for $gameTitle</a>";
         }
     }
+}
+
+function RenderRecentGamePlayers($recentPlayerData)
+{
+    echo "<div class='component'>Recent Players:";
+    echo "<table class='smalltable'><tbody>";
+    echo "<tr><th>User</th><th>When</th><th>Activity</th>";
+
+    foreach ($recentPlayerData as $recentPlayer) {
+        echo "<tr>";
+
+        $userName = $recentPlayer['User'];
+        $date = $recentPlayer['Date'];
+        $activity = $recentPlayer['Activity'];
+
+        sanitize_outputs(
+            $userName,
+            $activity
+        );
+
+        echo "<td nowrap>";
+        echo GetUserAndTooltipDiv($userName, true);
+        echo GetUserAndTooltipDiv($userName, false);
+        echo "</td>";
+
+        echo "<td>$date</td>";
+        echo "<td>$activity</td>";
+        echo "</tr>";
+    }
+
+    echo "</tbody></table>";
+    echo "</div>";
 }

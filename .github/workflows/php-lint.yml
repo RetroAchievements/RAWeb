@@ -3,10 +3,21 @@ on: [pull_request]
 jobs:
   php-cs-fixer:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.0]
+    name: php-cs-fixer (PHP ${{ matrix.php }})
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          ref: ${{ env.BASE_BRANCH }}
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+          tools: composer:v2
+          coverage: none
       - name: Install
         run: composer install
       - name: Lint
@@ -14,10 +25,21 @@ jobs:
 
   phpstan:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.0]
+    name: phpstan (PHP ${{ matrix.php }})
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          ref: ${{ env.BASE_BRANCH }}
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+          tools: composer:v2
+          coverage: none
       - name: Install
         run: composer install
       - name: Analyse

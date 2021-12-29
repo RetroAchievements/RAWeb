@@ -218,4 +218,3 @@ RenderHtmlHead("Manage News");
 <?php RenderFooter(); ?>
 </body>
 <?php RenderHtmlEnd(); ?>
-

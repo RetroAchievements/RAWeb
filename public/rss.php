@@ -25,7 +25,7 @@ RenderHtmlHead("RSS Feeds");
         echo "<div class='largelist'>";
 
         echo "<h2 class='longheader'>What is RSS?</h2>";
-        echo "<p>RSS allows you to easily receive a stream of the latest content and activity on a website or community, and we have a few streams available on RetroAchievenents.org. ";
+        echo "<p>RSS allows you to easily receive a stream of the latest content and activity on a website or community, and we have a few streams available on RetroAchievements.org. ";
         echo "If you'd like to know more about RSS, visit <a href='http://www.whatisrss.com/'>What Is RSS.com</a></p>";
 
         echo "<h2 class='longheader'>RSS Streams</h2>";

@@ -1,9 +1,9 @@
 {
-    "name": "retroachievements/retroachivements-web",
+    "name": "retroachievements/retroachievements-web",
     "description": "RetroAchievements.org's site and server backend",
     "type": "project",
     "require": {
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-mysqli": "*",
@@ -11,14 +11,14 @@
         "ext-json": "*",
         "asika/autolink": "1.*",
         "vlucas/phpdotenv": "^5.0",
-        "aws/aws-sdk-php": "^3.52"
+        "aws/aws-sdk-php": "^3.52",
+        "thunderer/shortcode": "^0.7.4"
     },
     "require-dev": {
         "brainmaestro/composer-git-hooks": "^2.8",
         "friendsofphp/php-cs-fixer": "^3.0",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^0.12.18",
-        "vimeo/psalm": "^4.0",
+        "phpstan/phpstan": "^1.0",
         "swiftmailer/swiftmailer": "^6.3"
     },
     "autoload": {
