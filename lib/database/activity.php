@@ -82,7 +82,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
     $query = "INSERT INTO Activity (lastupdate, activitytype, user, data, data2) VALUES ";
 
     switch ($activity) {
-        case ActivityType::EarnedAchivement:
+        case ActivityType::EarnedAchievement:
             $achID = $customMsg;
 
             $achData = [];

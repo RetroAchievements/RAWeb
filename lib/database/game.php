@@ -749,7 +749,7 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags)
     settype($flags, 'integer');
     $retval = [];
 
-    //    Returns an array of the number of players who have achieved each total, up to the max.
+    // Returns an array of the number of players who have achieved each total, up to the max.
     $query = "
         SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
         FROM (
@@ -776,6 +776,15 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags)
             settype($numUnique, 'integer');
             $retval[$awardedCount] = $numUnique;
         }
+
+        // fill the gaps and sort
+        $numAchievements = getGameMetadataByFlags($gameID, $requestedBy, $achievementData, $gameData, 1, null, $flags);
+        for ($i = 1; $i <= $numAchievements; $i++) {
+            if (!array_key_exists($i, $retval)) {
+                $retval[$i] = 0;
+            }
+        }
+        ksort($retval);
     }
 
     return $retval;

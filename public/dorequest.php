@@ -187,7 +187,10 @@ switch ($requestType) {
         $baseDownloadUrl = str_replace('https', 'http', getenv('APP_URL')) . '/';
         $response['MinimumVersion'] = $emulator['minimum_version'] ?? null;
         $response['LatestVersion'] = $emulator['latest_version'] ?? null;
-        $response['LatestVersionUrl'] = $baseDownloadUrl . $emulator['latest_version_url'] ?? null;
+        $response['LatestVersionUrl'] = null;
+        if ($emulator['latest_version_url'] ?? null) {
+            $response['LatestVersionUrl'] = $baseDownloadUrl . $emulator['latest_version_url'];
+        }
         $response['LatestVersionUrlX64'] = ($emulator['latest_version_url_x64'] ?? null) ? $baseDownloadUrl . $emulator['latest_version_url_x64'] : null;
         break;
 
@@ -431,7 +434,7 @@ switch ($requestType) {
         $newValueMemString = requestInput('l');
         $newLowerIsBetter = requestInput('w', 0, 'integer');
         $newFormat = requestInput('f');
-        $newMemString = "STA:$newStartMemString::SUB:$newSubmitMemString::CAN:$newCancelMemString::VAL:$newValueMemString";
+        $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
         $errorOut = "";
         $response['Success'] = UploadNewLeaderboard($user, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);

@@ -1,4 +1,7 @@
 <?php
+
+use RA\Shortcode\Shortcode;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
@@ -6,18 +9,22 @@ $username = 'Scott';
 $user = GetUserData($username);
 
 $payload = <<<EOF
+[b][i][u][s]Formatting[/s][/u][/i][/b]
+[b][i][u][s]Scrambled Formatting[/i][/b][/u][/s]
 
-[b]BBCode / Shortcode Tests[/b]
+[B]Mismatching tags[/b]
 
 [b][i]Code Blocks[/i][/b]
 
-[code]inline code[/code]
+[Code]inline code[/CODE]
 
 [code]
 multi
 line
+https://www.youtube.com/watch?v=r1BVvs_sxrw
 code
 [b]formatting works in code?[/b]
+[code]Code within code[/code]
 [/code]
 
 [code]starting same line
@@ -37,28 +44,46 @@ Text in-between without leading or trailing extra lines
 test
 test
 [b]test[/b]
+
 [code]Code within spoiler[/code]
 
 [b]Embeds in spoiler[/b]
-[img=https://retroachievements.org/Images/043749.png] 
+
+[img=https://retroachievements.org/Images/043749.png]
+
 https://www.youtube.com/watch?v=r1BVvs_sxrw
 https://youtu.be/dMH0bHeiRNg
-
 [/spoiler]
 
 [b][i]Links[/i][/b]
 
-[user=$username]
+[ach=1]
+[ach="2"]
+[game=3]
+[game="4"]
+[ticket=5]
+[ticket="6"]
+[user={$username}]
+[user]{$username}[/user]
+
 example.org (no link)
 www.example.org (no link)
+
+[url="https://retroachievements.org"]
+[url=https://retroachievements.org]
+[url]https://retroachievements.org[/url]
 [url=https://retroachievements.org]URL Shortcode[/url]
-<a href="http://www.retroachievements.org">HTML</a>
-https://retroachievements.org/user/$username
+
+[link url="https://retroachievements.org"]URL Shortcode[/link]
+
+<a href="https://www.retroachievements.org">HTML</a>
+https://retroachievements.org/user/{$username}
+
 
 [b][i]Images[/i][/b]
 
 https://retroachievements.org/Images/043749.png
-[img=https://retroachievements.org/Images/043749.png] 
+[img=https://retroachievements.org/Images/043749.png]
 
 [b][i]YouTube[/i][/b]
 
@@ -116,8 +141,8 @@ RenderSharedHeader();
 ?>
 <body>
 <script src='/vendor/wz_tooltip.js'></script>
-<div style="width: 360px; margin: auto">
-    <?php echo parseTopicCommentPHPBB(nl2br($payload), true) ?>
+<div style="width:560px">
+    <h1>Shortcode</h1>
+    <?php echo Shortcode::render($payload, ['imgur' => true]) ?>
 </div>
 </body>
-

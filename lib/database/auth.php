@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
 {
     if (!isValidUsername($user)) {
@@ -36,6 +38,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
 
     $fbUser = $row['fbUser'];
     $user = $row['User'];
+
     return $row['Permissions'] >= $permissionRequired;
 }
 
@@ -47,8 +50,10 @@ function changePassword($user, $pass): bool
     $query = "UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='', Updated=NOW() WHERE user='$user'";
     if (s_mysql_query($query) === false) {
         log_sql_fail();
+
         return false;
     }
+
     return true;
 }
 
@@ -65,12 +70,14 @@ function migratePassword($user, $pass): string
 {
     $hashedPassword = hashPassword($pass);
     s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'");
+
     return $hashedPassword;
 }
 
 function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
 {
     $fbUser = 0; //    TBD: Remove!
+
     return RA_ReadTokenCredentials(
         $user,
         $token,
@@ -110,6 +117,7 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
                 $pointsOut = $data['RAPoints'];
                 $userOut = $data['User']; //    Case correction
                 $permissionsOut = $data['Permissions'];
+
                 return $permissionsOut >= $permissionRequired;
             } else {
                 // error_log(__FUNCTION__ . " failed: cookie doesn't match for user:$userOut (given: $cookie, should be " . $data['cookie'] . ")");
@@ -146,6 +154,7 @@ function RA_ReadCookieCredentials(
         RA_ClearCookie('RA_User');
         RA_ClearCookie('RA_Cookie');
         $userOut = null;
+
         //error_log( __FUNCTION__ . " User invalid, bailing..." );
         return false;
     }
@@ -249,7 +258,7 @@ function generateAPIKey($user): string
         return "";
     }
 
-    if ($userData['Permissions'] < 1) {
+    if ($userData['Permissions'] < Permissions::Registered) {
         // error_log(__FUNCTION__ . " API Key gen fail 2: not a full account!");
         return "";
     }
@@ -279,7 +288,7 @@ function GetAPIKey($user): ?string
     }
 
     $query = "SELECT APIKey FROM UserAccounts AS ua
-        WHERE ua.User = '$user' AND ua.Permissions >= 1";
+        WHERE ua.User = '$user' AND ua.Permissions >= " . Permissions::Registered;
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
@@ -289,6 +298,7 @@ function GetAPIKey($user): ?string
         return null;
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
+
         return $db_entry['APIKey'];
     }
 }
@@ -328,6 +338,7 @@ function ValidateAPIKey($user, $key): bool
     LogSuccessfulAPIAccess($user);
 
     $data = mysqli_fetch_assoc($dbResult);
+
     return $data['COUNT(*)'] != 0;
 }
 
@@ -358,6 +369,7 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken): bool
             return true;
         }
     }
+
     return false;
 }
 

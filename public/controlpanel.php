@@ -3,6 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
+use RA\UserPref;
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -199,25 +200,6 @@ RenderHtmlHead("My Settings");
     $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
   }
 
-  function DoChangeFBUserPrefs() {
-    var newUserPrefs = 0;
-    for (i = 0; i < 16; ++i) {
-      var checkbox = document.getElementById('FBUserPref' + i);
-      if (checkbox != null && checkbox.checked)
-        newUserPrefs += (1 << i);
-    }
-
-    $('#loadingiconfb').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
-    var posting = $.post('/request/facebook/update.php', {u: '<?php echo $user; ?>', p: newUserPrefs});
-    posting.done(OnChangeFBUserPrefs);
-  }
-
-  function OnChangeFBUserPrefs(object) {
-    console.log(object);
-    if (object == 'OK')
-      $('#loadingiconfb').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
-  }
-
   function UploadNewAvatar() {
     //	New file
     var photo = document.getElementById('uploadimagefile');
@@ -248,79 +230,6 @@ RenderHtmlHead("My Settings");
 
   GetAllResettableGamesList();
 </script>
-<?php if (getenv('FACEBOOK_CLIENT_ID')): ?>
-    <script>
-      window.fbAsyncInit = function () {
-        FB.init({
-          appId: '<?= getenv('FACEBOOK_CLIENT_ID') ?>',
-          status: true, // check login status
-          cookie: true, // enable cookies to allow the server to access the session
-          xfbml: true,  // parse XFBML
-        });
-
-        // Here we subscribe to the auth.authResponseChange JavaScript event. This event is fired
-        // for any authentication related change, such as login, logout or session refresh. This means that
-        // whenever someone who was previously logged out tries to log in again, the correct case below
-        // will be handled.
-        FB.Event.subscribe('auth.authResponseChange', function (response) {
-          //alert( response.status );
-
-          // Here we specify what we do with the response anytime this event occurs.
-          if (response.status === 'connected') {
-            FB.api('/me', function (response) {
-              var postingupdate = $.post('/request/facebook/connect.php', {u: '<?php echo $user; ?>', f: response.id});
-              postingupdate.done(function (data) {
-                  console.log('FB associate: ' + data + '.');
-
-                      <?php
-                      if ($fbUser == 0) {    //	Refresh if it was 0
-                          echo "window.location = '/controlpanel.php?e=associateok'";
-                      }
-                      ?>
-                },
-              );
-            });
-
-          } else if (response.status === 'not_authorized') {
-            // In this case, the person is logged into Facebook, but not into the app, so we call
-            // FB.login() to prompt them to do so.
-            // In real-life usage, you wouldn't want to immediately prompt someone to login
-            // like this, for two reasons:
-            // (1) JavaScript created popup windows are blocked by most browsers unless they
-            // result from direct interaction from people using the app (such as a mouse click)
-            // (2) it is a bad experience to be continually prompted to login upon page load.
-            FB.login(function (response) {
-              // handle the response
-            }, {scope: 'publish_actions'});
-
-          } else {
-            // In this case, the person is not logged into Facebook, so we call the login()
-            // function to prompt them to do so. Note that at this stage there is no indication
-            // of whether they are logged into the app. If they aren't then they'll see the Login
-            // dialog right after they log in to Facebook.
-            // The same caveats as above apply to the FB.login() call here.
-            FB.login(function (response) {
-              // handle the response
-            }, {scope: 'publish_actions'});
-          }
-        });
-
-      };
-
-      // Load the SDK asynchronously
-      (function (d) {
-        var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-        if (d.getElementById(id)) {
-          return;
-        }
-        js = d.createElement('script');
-        js.id = id;
-        js.async = true;
-        js.src = '//connect.facebook.net/en_US/all.js';
-        ref.parentNode.insertBefore(js, ref);
-      }(document));
-    </script>
-<?php endif ?>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
@@ -424,63 +333,6 @@ RenderHtmlHead("My Settings");
 
             echo "</tbody></table>";
             echo "</div>";
-        }
-        if (getenv('FACEBOOK_CLIENT_ID')) {
-            ?>
-            <div class='component'>
-                <h3>Facebook</h3>
-                <?php
-                if ($fbUser !== "0") {
-                    $loggedIn = RenderFBDialog($fbUser, $fbRealName, $fbURL, $user);
-                    if ($fbUser !== 0) {
-                        echo "<image class='rightfloat' src='https://graph.facebook.com/$fbUser/picture?type=square' width='50' height='50'>";
-                        echo "Logged in as: ";
-                        echo "<a href='$fbURL'>$fbRealName</a><br>";
-                    }
-
-                    if ($errorCode == 'associateOK') {
-                        echo "<div id=\"warning\">Facebook associated OK, $fbRealName! Please confirm below what you would prefer to have cross-posted to your facebook wall:</div>";
-                    } ?>
-                    <br>
-                    <h4>Facebook Preferences</h4>
-                    When would you like RetroAchievements to automatically post on your Facebook wall?
-                    <table>
-                        <tbody>
-                        <!--<tr><th>Action</th><th>Post on Facebook?</th></tr>-->
-                        <tr>
-                            <td>When I earn achievements:</td>
-                            <td><input id='FBUserPref0' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_EarnAchievement) ? 'checked' : '' ?>></td>
-                        </tr>
-                        <tr>
-                            <td>When I fully complete a game:</td>
-                            <td><input id='FBUserPref1' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_CompleteGame) ? 'checked' : '' ?>></td>
-                        </tr>
-                        <tr>
-                            <td>When I upload an achievement:</td>
-                            <td><input id='FBUserPref2' type="checkbox" onchange='DoChangeFBUserPrefs(); return false;' value="1" <?= BitSet($fbPrefs, FBUserPref::PostFBOn_UploadAchievement) ? 'checked' : '' ?>></td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-
-                    <img id='loadingiconfb' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
-
-                    <br>
-                    <h4>Unlink Facebook</h4>
-                    Click <a href="/request/facebook/remove.php?u=<?php echo $user; ?>">here</a>
-                    to remove Facebook from your RetroAchievements account.
-                    Please note you will also need to remove permissions from within Facebook to fully disassociate this app,
-                    by visiting <a href="https://www.facebook.com/settings?tab=applications">this page</a> on Facebook.
-                    <br><br>
-                    <?php
-                } else {
-                    echo "<fb:login-button show-faces='false' width='200' max-rows='1' data-perms='publish_actions'></fb:login-button>";
-                    //RenderFBLoginPrompt();
-                    //echo "<div class='fb-login-button' scope='publish_stream;publish_actions'>Login with Facebook</div>";
-                    echo "<br>";
-                } ?>
-            </div>
-            <?php
         }
         ?>
         <div class='component'>

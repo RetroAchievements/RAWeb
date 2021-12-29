@@ -791,8 +791,10 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
 
 function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)
 {
-    sanitize_sql_inputs($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder);
+    sanitize_sql_inputs($user, $lbMem, $lbTitle, $lbDescription, $lbFormat);
+    settype($lbID, 'integer');
     settype($lbDisplayOrder, 'integer');
+    settype($lbLowerIsBetter, 'integer');
 
     $query = "UPDATE LeaderboardDef AS ld SET
               ld.Mem = '$lbMem',
@@ -804,7 +806,8 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
               ld.DisplayOrder = '$lbDisplayOrder'
               WHERE ld.ID = $lbID";
 
-    $dbResult = s_mysql_query($query);
+    global $db;
+    $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         // error_log(__FILE__);
         // error_log("$user changed Leaderboard $lbID: $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder");
@@ -1024,7 +1027,8 @@ function GetLBPatch($gameID)
     $lbData = [];
 
     //    Always append LBs?
-    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description
+    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description,
+                  CASE WHEN ld.DisplayOrder < 0 THEN 1 ELSE 0 END AS Hidden
               FROM LeaderboardDef AS ld
               WHERE ld.GameID = $gameID
               ORDER BY ld.DisplayOrder, ld.ID ";
@@ -1034,6 +1038,7 @@ function GetLBPatch($gameID)
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['ID'], 'integer');
             settype($db_entry['LowerIsBetter'], 'boolean');
+            settype($db_entry['Hidden'], 'boolean');
             $lbData[] = $db_entry;
         }
     } else {

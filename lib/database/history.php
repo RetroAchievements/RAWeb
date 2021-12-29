@@ -126,7 +126,7 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, SUM(ach.Points) AS Points FROM Awarded AS aw ";
     $query .= "LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID ";
     $query .= "LEFT JOIN GameData AS gd ON gd.ID = ach.GameID ";
-    $query .= "WHERE aw.user = '$user' ";    //AND ach.Flags = 3
+    $query .= "WHERE aw.user = '$user' AND ach.Flags = 3 ";
 
     if (isset($dateFrom) && isset($dateTo)) {
         $dateFromFormatted = $dateFrom; //2013-07-01
@@ -137,30 +137,7 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
     $query .= "GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date) ";
     $query .= "ORDER BY aw.Date ASC ";
 
-    // settype( $sortBy, 'integer' );
-    // if( $sortBy < 1 || $sortBy > 12 )
-    // $sortBy = 1;
-
-    // if( $sortBy == 1 )        //    Date, asc
-    // {
-    // $query.= "ORDER BY aw.Date DESC ";
-    // }
-    // elseif( $sortBy == 2 )    //    Num Awarded, asc
-    // {
-    // $query.= "ORDER BY NumAwarded DESC ";
-    // }
-    // elseif( $sortBy == 11 )//    Date, desc
-    // {
-    // $query.= "ORDER BY aw.Date ASC ";
-    // }
-    // elseif( $sortBy == 12 )//    Num Awarded, desc
-    // {
-    // $query.= "ORDER BY NumAwarded ASC ";
-    // }
-
     $query .= "LIMIT $listOffset, $maxToFetch ";
-
-    //echo $query;
 
     $dbResult = s_mysql_query($query);
 
