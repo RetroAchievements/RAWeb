@@ -60,7 +60,6 @@ $achDist = null;
 $authorInfo = null;
 $commentData = null;
 $cookie = null;
-$gameLatestMasters = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
@@ -96,13 +95,6 @@ if ($isFullyFeaturedGame) {
     }
 
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags); // for now, only retrieve casual!
-    for ($i = 1; $i <= $numAchievements; $i++) {
-        if (!array_key_exists($i, $achDist)) {
-            $achDist[$i] = 0;
-        }
-    }
-
-    ksort($achDist);
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
 
@@ -155,8 +147,7 @@ if ($isFullyFeaturedGame) {
     }
 
     //Get the top ten players at this game:
-    $gameTopAchievers = getGameTopAchievers($gameID, 0, 10, $user, 0);
-    $gameLatestMasters = getGameTopAchievers($gameID, 0, 10, $user, 1);
+    $gameTopAchievers = getGameTopAchievers($gameID, $user);
 
     // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
@@ -517,11 +508,12 @@ RenderHtmlStart(true);
             $imageIcon = $gameData['ImageIcon'];
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
+            $pageTitleAttr = attributeEscape($pageTitle);
 
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitle' width='96' height='96'></td>";
+            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
             if ($developer) {
@@ -964,8 +956,6 @@ RenderHtmlStart(true);
 
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
 
-                            $achDesc = str_replace('"', '\'', $achDesc);
-
                             $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
                             $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
 
@@ -1070,9 +1060,14 @@ RenderHtmlStart(true);
             }
 
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            echo "<br><br>";
+            echo "<br>";
 
             if ($isFullyFeaturedGame) {
+                $recentPlayerData = getGameRecentPlayers($gameID, 10);
+                if (count($recentPlayerData) > 0) {
+                    RenderRecentGamePlayers($recentPlayerData);
+                }
+
                 RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, \RA\ArticleType::Game, $permissions >= Permissions::Admin);
             }
             ?>
@@ -1083,28 +1078,31 @@ RenderHtmlStart(true);
             <?php
             RenderBoxArt($gameData['ImageBoxArt']);
 
+            echo "<h3>More Info</h3>";
+            echo "<ul>";
+            echo "<li>";
+            RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+            echo "</li>";
+
             if (isset($user)) {
-                echo "<h3>More Info</h3>";
-                echo "<ul>";
-                echo "<li>";
-                RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-                echo "</li>";
-                echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Hashes linked to this game</a></li>";
-                $numOpenTickets = countOpenTickets(
-                    requestInputSanitized('f') == $unofficialFlag,
-                    requestInputSanitized('t', 2041),
-                    null,
-                    $gameID
-                );
                 if ($permissions >= Permissions::Registered) {
+                    echo "<li><a class='info-button' href='/linkedhashes.php?g=$gameID'><span>🔗</span>Linked Hashes</a></li>";
+                    echo "<li><a class='info-button' href='/codenotes.php?g=$gameID'><span>📑</span>Code Notes</a></li>";
+
+                    $numOpenTickets = countOpenTickets(
+                        requestInputSanitized('f') == $unofficialFlag,
+                        requestInputSanitized('t', 16377),
+                        null,
+                        $gameID
+                    );
                     if ($flags == $unofficialFlag) {
-                        echo "<li><a class='info-button' href='/ticketmanager.php?g=$gameID&f=$flags'><span>🎫</span>($numOpenTickets) Open Unofficial Tickets for this game</a></li>";
+                        echo "<li><a class='info-button' href='/ticketmanager.php?g=$gameID&f=$flags'><span>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
                     } else {
-                        echo "<li><a class='info-button' href='/ticketmanager.php?g=$gameID'><span>🎫</span>($numOpenTickets) Open Tickets for this game</a></li>";
+                        echo "<li><a class='info-button' href='/ticketmanager.php?g=$gameID'><span>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
                     }
                 }
                 if ($numAchievements == 0) {
-                    echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors for this game</a></li>";
+                    echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors</a></li>";
                 }
                 //if( $flags == $unofficialFlag )
                 //echo "<li><a class='info-button' href='/game/$gameID'><span>🏆</span>View Core Achievements</a></li>";
@@ -1128,7 +1126,7 @@ RenderHtmlStart(true);
             echo "<div id='chart_distribution'></div>";
             echo "</div>";
 
-            RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters);
+            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             RenderGameLeaderboardsComponent($gameID, $lbData);
             ?>
         </div>

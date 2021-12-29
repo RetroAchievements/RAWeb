@@ -18,7 +18,7 @@ services:
       - "--default-authentication-plugin=mysql_native_password"
 
   nginx:
-    image: nginx:1.19
+    image: nginx:1.18
     ports:
       - ${HTTP_PORT}:80
       - ${HTTPS_PORT}:443

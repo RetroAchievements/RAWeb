@@ -38,9 +38,7 @@ function GetAchievementAndTooltipDiv(
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
-    $tooltip = str_replace("'", "\'", $tooltip);
-
-    sanitize_outputs($tooltip);
+    $tooltip = attributeEscape($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";
@@ -49,7 +47,7 @@ function GetAchievementAndTooltipDiv(
     }
 
     if ($inclSmallBadge) {
-        $achNameAttr = htmlspecialchars($achName, ENT_QUOTES);
+        $achNameAttr = attributeEscape($achName);
         $smallBadgePath = "/Badge/$badgeName" . ".png";
         $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='$imgclass' />";
 

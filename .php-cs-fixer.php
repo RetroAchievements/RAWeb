@@ -32,7 +32,6 @@ $rules = [
             'extra',
             'throw',
             'use',
-            'use_trait',
         ],
     ],
     'single_line_comment_style' => [

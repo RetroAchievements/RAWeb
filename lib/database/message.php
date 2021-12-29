@@ -1,10 +1,12 @@
 <?php
 
+use RA\UserPref;
+
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
 {
-    sanitize_sql_inputs($author, $destUser, $messageTitle, $messagePayloadIn);
-
     $messagePayload = nl2br($messagePayloadIn);
+
+    sanitize_sql_inputs($author, $destUser, $messageTitle, $messagePayloadIn);
 
     $query = "INSERT INTO Messages VALUES ( NULL, '$destUser', '$author', '$messageTitle', '$messagePayloadIn', NOW(), 1, 0 )";
     // log_sql($query);
