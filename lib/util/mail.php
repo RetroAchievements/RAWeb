@@ -1,14 +1,11 @@
 <?php
 
-use Aws\CommandInterface;
 use Aws\CommandPool;
-use Aws\Exception\AwsException;
-use Aws\ResultInterface;
 use Aws\Ses\SesClient;
 use RA\ArticleType;
 use RA\Permissions;
 
-function mail_ses($to, $subject = '(No subject)', $message = '')
+function mail_ses($to, $subject = '(No subject)', $message = ''): bool
 {
     $client = new SesClient([
         'version' => 'latest',
@@ -52,7 +49,6 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
     }
 
     try {
-        // $timeStart = microtime(true);
         $pool = new CommandPool($client, $commands, [
             'concurrency' => 10,
             // 'before' => function (CommandInterface $cmd, $iteratorId) {
@@ -83,14 +79,12 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
         $promise = $pool->promise();
         // Force the pool to complete synchronously
         $promise->wait();
-        // $timeEnd = microtime(true);
-        // echo sprintf('Operation completed in %s seconds' . PHP_EOL, $timeEnd - $timeStart);
+
         return true;
     } catch (Exception $e) {
-        // echo sprintf('Error: %s' . PHP_EOL, $e->getMessage());
-        error_log('Amazon SES Exception : ' . $e->getMessage());
-        return false;
     }
+
+    return false;
 }
 
 function mail_utf8($to, $from_user, $from_email, $subject = '(No subject)', $message = '')
@@ -105,7 +99,7 @@ function mail_utf8($to, $from_user, $from_email, $subject = '(No subject)', $mes
     }
 
     if (getenv('MAIL_DRIVER') === 'mailcatcher') {
-        $transport = (new Swift_SmtpTransport('mailcatcher', 1025));
+        $transport = new Swift_SmtpTransport('mailcatcher', 1025);
         $mailer = new Swift_Mailer($transport);
 
         $message = (new Swift_Message($subject))
@@ -310,6 +304,7 @@ function sendRAEmail($to, $header, $body)
         error_log($to);
         error_log($header);
         error_log($body);
+
         return true;
     }
 
