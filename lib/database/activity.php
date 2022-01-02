@@ -582,6 +582,8 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
         $i = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$i] = $db_entry;
+            $dataOut[$i]['timestamp'] = strtotime($dataOut[$i]['timestamp']);
+            $dataOut[$i]['CommentPostedAt'] = strtotime($dataOut[$i]['CommentPostedAt']);
             $i++;
         }
 

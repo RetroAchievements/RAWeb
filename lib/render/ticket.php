@@ -34,11 +34,9 @@ function GetTicketAndTooltipDiv(TicketModel $ticket): string
         "<div class='ticket-tooltip-state'>" . TicketStates::renderState($ticket->ticketState) . "</div>" .
     "</div>";
 
-    $tooltip = str_replace("'", "\'", $tooltip);
+    $tooltip = tipEscape($tooltip);
 
-    sanitize_outputs($tooltip);
-
-    $achNameAttr = htmlspecialchars($ticket->achievementTitle, ENT_QUOTES);
+    $achNameAttr = attributeEscape($ticket->achievementTitle);
     $smallBadgePath = "/Badge/" . $ticket->badgeName . ".png";
 
     return "<a class='ticket-block bb_inline $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->ticketId
