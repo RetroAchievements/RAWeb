@@ -341,7 +341,7 @@ function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageIns
   if (imageInstead) {
     displayable = '<img alt="started playing ' + gameTitle
       + '" title="Started playing ' + gameTitle + '" src=\'' + gameIcon
-      + '\' width=\'32\' height=\'32\' class=\'badgeimg\' />';
+      + '\' width=\'32\' height=\'32\' class=\'badgeimg\' loading=\'lazy\' />';
   }
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
@@ -386,7 +386,7 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
   if (imageInstead) {
     displayable = '<img src=\'/UserPic/' + user
       + '.png\' width=\'32\' height=\'32\' alt=\'' + user + '\' title=\'' + user
-      + '\' class=\'badgeimg\' />';
+      + '\' class=\'badgeimg\' loading=\'lazy\' />';
   }
   return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
