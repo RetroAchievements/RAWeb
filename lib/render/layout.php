@@ -26,7 +26,6 @@ function RenderHtmlHead($pageTitle = null)
     RenderSharedHeader();
     RenderTitleTag($pageTitle);
     RenderGoogleTracking();
-    // RenderFBScript(); // only used on controlpanel.php
     echo "</head>";
 }
 
@@ -60,6 +59,8 @@ function RenderSharedHeader()
     echo "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css' />";
 
     echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
+
+    echo "<script src='https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js' integrity='sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=' crossorigin='anonymous'></script>";
 
     //    jQuery, and custom js
     //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
@@ -336,7 +337,7 @@ function RenderToolbar($user, $permissions = 0)
 
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-        $searchQuery = requestInputQuery('s', null);
+        $searchQuery = attributeEscape(requestInputQuery('s', null));
     }
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";

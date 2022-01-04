@@ -138,7 +138,7 @@ RenderToolbar($user, $permissions);
             echo "<div class='table-wrapper'><table><tbody>";
             echo "<th>Game</th>";
 
-            // Loop through each set request and display them if they do not have any acheivements
+            // Loop through each set request and display them if they do not have any achievements
             foreach ($setRequestList as $request) {
                 if ($flag == 0) {
                     if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {

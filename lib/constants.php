@@ -1,4 +1,4 @@
 <?php
 
-define('VERSION', '1.75.0');
-define('MIN_POINTS', 500);
+const VERSION = '1.78.1';
+const MIN_POINTS = 500;

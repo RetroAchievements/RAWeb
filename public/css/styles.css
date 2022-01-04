@@ -111,6 +111,15 @@ a:hover {
   text-decoration: none;
 }
 
+.text-link {
+  color: #cc9900;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  color: #eeeeff;
+}
+
 #fullcontainer {
   padding: 15px 20px;
   margin-bottom: 10px;
@@ -926,12 +935,8 @@ table {
   width: 100%;
 }
 
-tr:nth-child(odd) {
+tbody tr:nth-child(odd) {
   background-color: #323232;
-}
-
-tr:nth-child(even) {
-  /*background-image: -webkit-linear-gradient(#1a1a1a, #323232, #1a1a1a);*/
 }
 
 td {
@@ -957,6 +962,7 @@ th {
   display: inline-block;
   line-height: 1em;
   padding: .4em .6em;
+  cursor: pointer;
 }
 
 .morebutton {
@@ -1002,6 +1008,15 @@ th {
 }
 
 /* Forum */
+
+#commentTextarea {
+  padding: 4px;
+}
+
+#commentTextarea::placeholder {
+  font-size: 1.1em;
+}
+
 .commentpayload {
   padding: 6px 4px;
   vertical-align: top;
@@ -1064,7 +1079,7 @@ span.smalldate {
 
 .devbox {
   padding: 4px 0;
-  /* for rendering spoilers within bbcode */
+  /* for rendering spoilers within shortcode */
   display: inline-block;
   width: 100%;
   box-sizing: border-box;
@@ -1080,7 +1095,7 @@ span.smalldate {
   border-width: 1px;
   padding: 8px 12px;
   /*
-  for rendering codetag within bbcode
+  for rendering code tag within shortcode
   and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
   */
   display: inline-block;
@@ -1545,6 +1560,18 @@ svg > g > g:last-child { pointer-events: none }
 .table-wrapper {
   max-width:100%;
   overflow-x:auto;
+}
+
+#active-players-filter-options {
+  margin-top: 3px;
+}
+
+#active-players-menu-button::before {
+  content: '☰';
+}
+
+#active-players-menu-button.menuOpen::before {
+  content: '✕';
 }
 
 .modal {

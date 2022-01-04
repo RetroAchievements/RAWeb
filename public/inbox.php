@@ -1,4 +1,7 @@
 <?php
+
+use RA\Shortcode\Shortcode;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -144,11 +147,7 @@ RenderHtmlHead('Inbox');
                     $msgPayload,
                 );
 
-                $msgPayload = nl2br($msgPayload);
-                $msgPayload = stripslashes($msgPayload);
-                $msgPayload = parseTopicCommentPHPBB($msgPayload);
-                //$msgPayload = str_replace( '\r\n', '<br>', $msgPayload );
-                //$msgPayload = str_replace( '\n', '<br>', $msgPayload );
+                $msgPayload = Shortcode::render($msgPayload);
 
                 $styleAlt = $i % 2 == 1 ? "alt" : "";
 
@@ -224,4 +223,3 @@ RenderHtmlHead('Inbox');
 <?php RenderFooter(); ?>
 </body>
 <?php RenderHtmlEnd(); ?>
-

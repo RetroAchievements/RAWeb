@@ -1,4 +1,7 @@
 <?php
+
+use RA\AwardType;
+
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  *
@@ -22,6 +25,7 @@ function GetUserAndTooltipDiv(
         if ($imageInstead) {
             return '';
         }
+
         return '<del>' . $user . '</del>';
     }
 
@@ -121,20 +125,18 @@ function GetUserAndTooltipDiv(
 
 function RenderSiteAwards($userAwards)
 {
-    $imageSize = 48;
-    $numCols = 5;
-
-    $numItems = count($userAwards);
-    //var_dump( $userAwards );
-
     echo "<div id='siteawards' class='component' >";
-
     echo "<h3>Site Awards</h3>";
-
     echo "<div class='siteawards'>";
-
     echo "<table class='siteawards'><tbody>";
 
+    $userAwards = array_values(array_filter($userAwards, function ($award) {
+        return in_array((int) $award['AwardType'], AwardType::$active);
+    }));
+
+    $numItems = count($userAwards);
+    $imageSize = 48;
+    $numCols = 5;
     for ($i = 0; $i < $numItems / 3; $i++) {
         echo "<tr>";
         for ($j = 0; $j < $numCols; $j++) {
@@ -163,8 +165,7 @@ function RenderSiteAwards($userAwards)
                 $awardGameConsole,
             );
 
-            if ($awardType == 1) {
-                //echo $awardDataExtra;
+            if ($awardType == AwardType::MASTERY) {
                 if ($awardDataExtra == '1') {
                     $tooltip = "MASTERED $awardGameTitle ($awardGameConsole)";
                     $imgclass = 'goldimage';
@@ -178,64 +179,62 @@ function RenderSiteAwards($userAwards)
 
                 $imagepath = $awardGameImage;
                 $linkdest = "/game/$awardData";
-            } elseif ($awardType == 2) { //    Developed a number of earned achievements
+            } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
+                // Developed a number of earned achievements
                 $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
 
-                $imagepath = getenv('ASSET_URL') . "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
+                $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 3) { //    Yielded an amount of points earned by players
+            } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
+                // Yielded an amount of points earned by players
                 $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
 
                 if ($awardData == 0) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00133.png";
+                    $imagepath = "/Images/trophy-green.png";
                 } elseif ($awardData == 1) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00134.png";
+                    $imagepath = "/Images/trophy-bronze.png";
                 } elseif ($awardData == 2) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00137.png";
+                    $imagepath = "/Images/trophy-platinum.png";
                 } elseif ($awardData == 3) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00135.png";
+                    $imagepath = "/Images/trophy-silver.png";
                 } elseif ($awardData == 4) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00136.png";
+                    $imagepath = "/Images/trophy-gold.png";
                 } else {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00136.png";
+                    $imagepath = "/Images/trophy-gold.png";
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 4) { //    Referrals
+            } elseif ($awardType == AwardType::REFERRALS) {
                 $tooltip = "Referred $awardData members";
 
                 if ($awardData < 2) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 3) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 5) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 10) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } elseif ($awardData < 15) {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 } else {
-                    $imagepath = getenv('ASSET_URL') . "/Badge/00083.png";
+                    $imagepath = "/Badge/00083.png";
                 }
 
                 $linkdest = ''; //    TBD: referrals page?
-            } elseif ($awardType == 5) { //    Signed up for facebook!
-                $tooltip = "Awarded for associating their account with Facebook! Thanks for spreading the word!";
-
-                $imagepath = getenv('ASSET_URL') . "/Images/_FBAssoc.png";
-                $linkdest = "/controlpanel.php#facebook";
-            } elseif ($awardType == 6) {  //  Patreon Supporter
+            } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
                 $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 
-                $imagepath = getenv('ASSET_URL') . '/Badge/PatreonBadge.png';
+                $imagepath = '/Images/PatreonBadge.png';
                 $linkdest = 'https://www.patreon.com/retroachievements';
             } else {
-                // error_log("Unknown award type" . $awardType);
+                // Unknown or inactive award type
                 continue;
             }
 
             $tooltip .= "\r\nAwarded on $awardDate";
+            $tooltip = attributeEscape($tooltip);
             $displayable = "<a href=\"$linkdest\"><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" src=\"$imagepath\" width=\"$imageSize\" height=\"$imageSize\" /></a>";
             $tooltipImagePath = "$imagepath";
             $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
@@ -310,8 +309,7 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
 
         $tooltipImagePath = "$nextImageIcon";
         $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
-        $tooltipTitle = "$nextTitle";
-        //$tooltipTitle = str_replace( "'", "\'", $tooltipTitle );
+        $tooltipTitle = attributeEscape($nextTitle);
         $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
         $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
 

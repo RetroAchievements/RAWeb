@@ -1,4 +1,7 @@
 <?php
+
+use RA\Shortcode\Shortcode;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -29,12 +32,12 @@ $messageContextData = null;
 if ($messageContextID != -1) {
     $messageContextData = GetMessage($user, $messageContextID);
     $messageContextTitle = "RE: " . $messageContextData['Title'];
-    $messageContextPayload = $messageContextData['Payload'];
-    $messageContextPayload = stripslashes($messageContextPayload);
-    $messageContextPayload = nl2br($messageContextPayload);
+    $messageContextPayload = Shortcode::render($messageContextData['Payload']);
 }
 
 $errorCode = requestInputSanitized('e');
+
+$messageContextTitle = htmlspecialchars($messageContextTitle, ENT_QUOTES);
 
 RenderHtmlStart();
 RenderHtmlHead("Send Message");
@@ -85,7 +88,7 @@ RenderHtmlHead("Send Message");
                 echo "In reply to ";
                 echo GetUserAndTooltipDiv($messageContextData['UserFrom'], false);
                 echo " who wrote:<br><br>";
-                echo "<div class='topiccommenttext'>" . parseTopicCommentPHPBB($messageContextPayload) . "</div>";
+                echo "<div class='topiccommenttext'>$messageContextPayload</div>";
             }
 
             echo "<table>";
@@ -103,7 +106,7 @@ RenderHtmlHead("Send Message");
             echo "<tr>" . "<td>Title: </td><td colspan='2'><input class='requiredinput fullwidth' type='text' value='$messageContextTitle' name='t'></td></tr>";
             echo "<tr>" . "<td>Message:</td><td colspan='2'>";
 
-            RenderPHPBBIcons();
+            RenderShortcodeButtons();
 
             echo "<textarea id='commentTextarea' class='requiredinput fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='m' placeholder='Enter your message here...'>$messageOutgoingPayload</textarea></td></tr>";
             echo "<tr>" . "<td></td><td colspan='2' class='fullwidth'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";

@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+use RA\ModifyTopicField;
+
 if (!ValidatePOSTChars("tfv")) {
     echo "FAILED";
     return;
