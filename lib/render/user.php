@@ -38,64 +38,63 @@ function GetUserAndTooltipDiv(
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
     $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
-    $tooltip = "<div id=\'objtooltip\' class=\'usercard\'>";
+    $tooltip = "<div id='objtooltip' class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td class=\'usercardavatar\'><img src=\'/UserPic/" . $user . ".png\'/>";
-    $tooltip .= "<td class=\'usercard\'>";
+    $tooltip .= "<td class='usercardavatar'><img src='/UserPic/" . $user . ".png'/>";
+    $tooltip .= "<td class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td class=\'usercardusername\'>$user</td>";
-    $tooltip .= "<td class=\'usercardaccounttype\'>$userAccountType</td>";
+    $tooltip .= "<td class='usercardusername'>$user</td>";
+    $tooltip .= "<td class='usercardaccounttype'>$userAccountType</td>";
     $tooltip .= "</tr>";
 
     //Add the user motto if it's set
     if ($userMotto !== null && mb_strlen($userMotto) > 2) {
-        $userMotto = str_replace('\'', '\\\'', $userMotto);
-        $userMotto = str_replace('"', '\\\'\\\'', $userMotto);
+        sanitize_outputs($userMotto);
         $tooltip .= "<tr>";
-        $tooltip .= "<td colspan=\'2\' height=\'32px\'><span class=\'usermotto tooltip\'>$userMotto</span></td>";
+        $tooltip .= "<td colspan='2' height='32px'><span class='usermotto tooltip'>$userMotto</span></td>";
         $tooltip .= "</tr>";
     } else {
         //Insert blank row to add whitespace where motto would be
         $tooltip .= "<tr>";
-        $tooltip .= "<td height=\'24px\'></td>";
+        $tooltip .= "<td height='24px'></td>";
         $tooltip .= "</tr>";
     }
 
     //Add the user points if there are any
     if ($userPoints !== null) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Points:</b> $userPoints ($userTruePoints)</td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Points:</b> $userPoints ($userTruePoints)</td>";
         $tooltip .= "</tr>";
     } else {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Points:</b> 0</td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Points:</b> 0</td>";
         $tooltip .= "</tr>";
     }
 
     //Add the other user informaiton
     if ($userUntracked) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Untracked</td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Untracked</td>";
         $tooltip .= "</tr>";
     } elseif ($userPoints < MIN_POINTS) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> Needs at least " . MIN_POINTS . " points </td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Needs at least " . MIN_POINTS . " points </td>";
         $tooltip .= "</tr>";
     } else {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Site Rank:</b> $userRank</td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> $userRank</td>";
         $tooltip .= "</tr>";
     }
     if ($lastLogin) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Last Activity:</b> $lastLogin</td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Last Activity:</b> $lastLogin</td>";
         $tooltip .= "</tr>";
     }
     if ($memberSince) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class=\'usercardbasictext\'><b>Member Since:</b> $memberSince</td>";
+        $tooltip .= "<td class='usercardbasictext'><b>Member Since:</b> $memberSince</td>";
         $tooltip .= "</tr>";
     }
     $tooltip .= "</tbody></table>";
@@ -104,7 +103,7 @@ function GetUserAndTooltipDiv(
     $tooltip .= "</tbody></table>";
     $tooltip .= "</div>";
 
-    $tooltip = htmlspecialchars($tooltip);
+    $tooltip = tipEscape($tooltip);
 
     $linkURL = "/user/$user";
     if (!empty($customLink)) {
@@ -159,11 +158,6 @@ function RenderSiteAwards($userAwards)
             //$awardGameFlags = $elem[ 'Flags' ];
             $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
             $imgclass = 'badgeimg siteawards';
-
-            sanitize_outputs(
-                $awardGameTitle,
-                $awardGameConsole,
-            );
 
             if ($awardType == AwardType::MASTERY) {
                 if ($awardDataExtra == '1') {
