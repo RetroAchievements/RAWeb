@@ -24,8 +24,14 @@ $rules = [
      */
     '@Symfony' => true,
 
-    // @Symfony overrides: Laravel
+    // @Symfony overrides
     'concat_space' => ['spacing' => 'one'],
+    'phpdoc_summary' => false,
+    'phpdoc_align' => false,
+    'single_line_throw' => false,
+    'yoda_style' => false,
+
+    // @Symfony overrides: Laravel
     'increment_style' => ['style' => 'post'],
     'no_extra_blank_lines' => [
         'tokens' => [
@@ -37,12 +43,6 @@ $rules = [
     'single_line_comment_style' => [
         'comment_types' => ['hash'],
     ],
-
-    // @Symfony overrides
-    'phpdoc_summary' => false,
-    'phpdoc_align' => false,
-    'single_line_throw' => false,
-    'yoda_style' => false,
 
     // @Symfony overrides: V1
     'blank_line_before_statement' => false,

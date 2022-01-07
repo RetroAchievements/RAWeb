@@ -46,7 +46,7 @@ final class Shortcode
         $input = preg_replace('~\[user="?([^]"]*)"?]~i', '[user="$1"]', $input);
 
         // pass bbcode style url labeling to link handler
-        $input = preg_replace('~\[url="?([^]"]*)"?](.+)\[/url]~i', '[link url="$1"]$2[/link]', $input);
+        $input = preg_replace('~\[url="?([^]"]*)"?](!\[)\[/url]~i', '[link url="$1"]$2[/link]', $input);
 
         // case insensitive
         foreach ($this->handlers->getNames() as $tag) {
@@ -82,12 +82,25 @@ final class Shortcode
 
     private function renderUrlLink(ShortcodeInterface $shortcode): string
     {
-        return '<a href="' . ($shortcode->getBbCode() ?: $shortcode->getContent()) . '">' . ($shortcode->getContent() ?: $shortcode->getBbCode()) . '</a>';
+        return '<a href="' . $this->protocolPrefix($shortcode->getBbCode() ?: $shortcode->getContent()) . '">' . ($shortcode->getContent() ?: $this->protocolPrefix($shortcode->getBbCode())) . '</a>';
     }
 
     private function renderLink(ShortcodeInterface $shortcode): string
     {
-        return '<a href="' . ($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
+        return '<a href="' . $this->protocolPrefix($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
+    }
+
+    private function protocolPrefix(string $href): string
+    {
+        $scheme = parse_url($href, PHP_URL_SCHEME);
+
+        if (empty($scheme)) {
+            $href = 'https://' . ltrim($href, '/');
+        } elseif ($scheme === 'http') {
+            $href = str_replace('http://', 'https://', $href);
+        }
+
+        return $href;
     }
 
     private function renderCode(ShortcodeInterface $shortcode): string
