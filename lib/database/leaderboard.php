@@ -459,10 +459,11 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
                 if ($offset <= 0) {
                     $offset = 0;
                 } elseif ($retVal['TotalEntries'] - $userPosition + 1 < $numToFetch) {
-                    $offset = $retVal['TotalEntries'] - $numToFetch;
+                    $offset = max(0, $retVal['TotalEntries'] - $numToFetch);
                 }
             }
         }
+
         //    Now get entries:
         $query = "SELECT ua.User, le.Score, le.DateSubmitted, 
                   CASE WHEN !lbd.LowerIsBetter 

@@ -4,20 +4,16 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
 {
     $tooltipIconSize = 64; //96;
 
-    $lbNameStr = str_replace("'", "\'", $lbName);
-    $lbDescStr = str_replace("'", "\'", $lbDesc);
-    $gameNameStr = str_replace("'", "\'", $gameName);
+    $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<div>";
+    $tooltip .= "<b>$lbName</b>";
+    $tooltip .= "<br>$lbDesc";
+    $tooltip .= "<br><br><i>$gameName</i>";
+    $tooltip .= "</div>";
+    $tooltip .= "</div>";
 
-    $tooltip = "<div id=\'objtooltip\'>" .
-        "<img src=\'$gameIcon\' width=\'$tooltipIconSize\' height=\'$tooltipIconSize\ />" .
-        "<b>$lbNameStr</b><br>" .
-        "<i>($gameNameStr)</i><br>" .
-        "<br>" .
-        "$lbDescStr<br>" .
-        "</div>";
-
-    $tooltip = str_replace('<', '&lt;', $tooltip);
-    $tooltip = str_replace('>', '&gt;', $tooltip);
+    $tooltip = tipEscape($tooltip);
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
         "<a href='/leaderboardinfo.php?i=$lbID'>" .
