@@ -69,12 +69,13 @@ https://youtu.be/dMH0bHeiRNg
 example.org (no link)
 www.example.org (no link)
 
-[url="https://retroachievements.org"]
-[url=https://retroachievements.org]
-[url]https://retroachievements.org[/url]
-[url=https://retroachievements.org]URL Shortcode[/url]
+[url="retroachievements.org#1"] | [url="retroachievements.org#2"]
+[url="https://retroachievements.org#1"] | [url="https://retroachievements.org#2"]
+[url=http://retroachievements.org#1] | [url=http://retroachievements.org#2]
+[url]https://retroachievements.org#1[/url] | [url]https://retroachievements.org#2[/url]
+[url=https://retroachievements.org#1]URL Shortcode #1[/url] | [url=https://retroachievements.org#2]URL Shortcode #2[/url]
 
-[link url="https://retroachievements.org"]URL Shortcode[/link]
+[link url="https://retroachievements.org#1"]Link Shortcode #1[/link] | [link url="http://retroachievements.org#1"]Link Shortcode #2 HTTP -> HTTPS[/link]
 
 <a href="https://www.retroachievements.org">HTML</a>
 https://retroachievements.org/user/{$username}
