@@ -9,6 +9,9 @@ $username = 'Scott';
 $user = GetUserData($username);
 
 $payload = <<<EOF
+
+Unchanged case: [SLUS-00752] [BAR]
+
 [b][i][u][s]Formatting[/s][/u][/i][/b]
 [b][i][u][s]Scrambled Formatting[/i][/b][/u][/s]
 
@@ -16,7 +19,7 @@ $payload = <<<EOF
 
 [b][i]Code Blocks[/i][/b]
 
-[Code]inline code[/CODE]
+[Code]inline code with mismatching tag case[/CODE]
 
 [code]
 multi
