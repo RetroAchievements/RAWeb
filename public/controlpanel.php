@@ -532,11 +532,11 @@ RenderHtmlHead("My Settings");
                     You requested to have your account deleted on <?= $userDetails['DeleteRequested'] ?> (UTC).<br>
                     Your account will be permanently deleted on <?= date('Y-m-d', strtotime($userDetails['DeleteRequested']) + 60 * 60 * 24 * 14) ?>.
                 </p>
-                <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure?');">
+                <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure you want to cancel your account deletion request?');">
                     <input type="submit" value="Cancel account deletion request">
                 </form>
             <?php else: ?>
-                <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure?');">
+                <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure you want to request account deletion?');">
                     <input type="submit" value="Request account deletion">
                 </form>
             <?php endif ?>
