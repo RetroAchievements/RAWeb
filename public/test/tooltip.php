@@ -25,6 +25,19 @@ function tooltip_row(string $text)
     echo "</td>\n        <td>";
     echo GetLeaderboardAndTooltipDiv(1, $text, $text, $text, "/Badge/$badge.png", $text);
 
+    echo "</td>\n        <td>";
+    $userCardInfo = [
+        'TotalPoints' => 12345,
+        'TotalTruePoints' => 34567,
+        'Permissions' => 1,
+        'Motto' => htmlspecialchars($text), // ASSERT: getUserCardData does this escaping
+        'Rank' => 56,
+        'Untracked' => 0,
+        'LastActivity' => '1/2/2022',
+        'MemberSince' => '7/8/2018',
+    ];
+    echo _GetUserAndTooltipDiv($text, $userCardInfo);
+
     $ticketData = [
         'ID' => 1,
         'AchievementID' => 2,
@@ -57,7 +70,7 @@ function tooltip_row(string $text)
 <script src='/vendor/wz_tooltip.js'></script>
 <div style="width:1024px">
     <h1>Tooltip</h1>
-    <table><th>alt</th><th>game</th><th>achievement</th><th>leaderboard</th><th>ticket</th>
+    <table><th>alt</th><th>game</th><th>achievement</th><th>leaderboard</th><th>user</th><th>ticket</th>
 <?php
     tooltip_row("Simple text");
     tooltip_row("Text\nwith\nmultiple\nlines");
