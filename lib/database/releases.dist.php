@@ -43,6 +43,7 @@ return [
                 29, // MSX
                 33, // SG-1000
                 39, // Saturn
+                40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
@@ -90,6 +91,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 29, // MSX
                 33, // SG-1000
                 39, // Saturn
+                40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
