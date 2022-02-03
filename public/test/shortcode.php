@@ -60,8 +60,9 @@ https://youtu.be/dMH0bHeiRNg
 
 [b][i]Links[/i][/b]
 
-[ach=1]
-[ach="2"]
+[ach=1] ach=1
+[ach="2"] ach="2" (quoted)
+[ACH=3] ACH=3 (case corrected)
 [game=3]
 [game="4"]
 [ticket=5]

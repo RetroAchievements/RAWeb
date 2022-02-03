@@ -50,13 +50,9 @@ final class Shortcode
 
         // case insensitive
         foreach ($this->handlers->getNames() as $tag) {
-            if (strlen($tag) === 1) {
-                $input = preg_replace("~\[/$tag]~i", "[/$tag]", $input);
-                $input = preg_replace("~\[$tag]~i", "[$tag]", $input);
-            } else {
-                $input = preg_replace("~$tag]~i", "$tag]", $input);
-                $input = preg_replace("~\[$tag~i", "[$tag", $input);
-            }
+            $input = preg_replace("~\[/$tag]~i", "[/$tag]", $input); // closing tag
+            $input = preg_replace("~\[$tag]~i", "[$tag]", $input); // opening tag
+            $input = preg_replace("~\[$tag=~i", "[$tag=", $input); // opening tag with value
         }
 
         $events = new EventContainer();
