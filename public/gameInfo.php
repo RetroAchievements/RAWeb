@@ -62,7 +62,7 @@ if ($v != 1) {
     foreach ($gameAlts as &$gameAlt) {
         if ($gameAlt['Title'] == '[Theme - Mature]') {
             if (getAccountDetails($user, $accountDetails) &&
-          BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+                BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
                 break;
             }
 
@@ -98,6 +98,7 @@ if ($v != 1) {
       <input type='submit' value='Not Interested'/>
     </form>
   </div>
+</div>
 </div>
 <?php RenderFooter(); ?>
 </body>
