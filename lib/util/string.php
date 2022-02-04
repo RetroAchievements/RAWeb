@@ -26,6 +26,7 @@ function tipEscape($input)
     $input = htmlentities($input, ENT_COMPAT | ENT_HTML401);
     // ENT_COMPAT will not convert single quotes. do so ourself.
     $input = str_replace("'", "\'", $input);
+    $input = str_replace("\n", "<br/>", $input);
     return $input;
 }
 
