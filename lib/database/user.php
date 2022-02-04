@@ -1631,7 +1631,7 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['TotalPoints'] = $userInfo['RAPoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $userCardInfo['Permissions'] = $userInfo['Permissions'];
-    $userCardInfo['Motto'] = htmlspecialchars($userInfo['Motto']);
+    $userCardInfo['Motto'] = $userInfo['Motto'];
     $userCardInfo['Rank'] = getUserRank($user);
     $userCardInfo['Untracked'] = $userInfo['Untracked'];
     $userCardInfo['LastActivity'] = $userInfo['LastLogin'];

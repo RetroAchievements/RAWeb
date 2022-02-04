@@ -40,7 +40,6 @@ require_once __DIR__ . '/render/news.php';
 require_once __DIR__ . '/render/shortcode.php';
 require_once __DIR__ . '/render/static.php';
 require_once __DIR__ . '/render/subscription.php';
-require_once __DIR__ . '/render/tooltip.php';
 require_once __DIR__ . '/render/twitch.php';
 require_once __DIR__ . '/render/user.php';
 require_once __DIR__ . '/render/ticket.php';
