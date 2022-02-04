@@ -341,7 +341,9 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
             }
         }
 
-        notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
+        if ($authFlags == 1) {
+            notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
+        }
 
         //error_log( __FUNCTION__ . " posted OK!" );
         // error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
@@ -640,8 +642,23 @@ function AuthoriseAllForumPosts($user)
 {
     sanitize_sql_inputs($user);
 
+    // notify users of the posts now that they've been authorised
+    $query = "SELECT ft.ID as TopicID, ft.Title as TopicTitle, ftc.ID as CommentID
+              FROM ForumTopic ft
+              LEFT JOIN ForumTopicComment ftc ON ftc.ForumTopicID=ft.ID
+              WHERE ftc.Author = '$user' AND ftc.Authorised = 0";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            notifyUsersAboutForumActivity($db_entry['TopicID'], $db_entry['TopicTitle'], $user, $db_entry['CommentID']);
+        }
+    } else {
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
+    }
+
     //    Sets all unauthorised forum posts by a particular user to authorised
-    //    Removes all 'unauthorised' forum posts by a particular user
     $query = "UPDATE ForumTopicComment AS ftc
               SET ftc.Authorised = 1
               WHERE Author = '$user'";

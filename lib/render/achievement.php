@@ -18,7 +18,8 @@ function GetAchievementAndTooltipDiv(
     sanitize_outputs(
         $achName,
         $consoleName,
-        $gameName
+        $gameName,
+        $achPoints
     );
 
     $achNameStr = $achName;
