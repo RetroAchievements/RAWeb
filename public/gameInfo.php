@@ -59,7 +59,7 @@ $gameAlts = getGameAlternatives($gameID);
 
 $v = requestInputSanitized('v', 0, 'integer');
 if ($v != 1) {
-    foreach ($gameAlts as &$gameAlt) {
+    foreach ($gameAlts as $gameAlt) {
         if ($gameAlt['Title'] == '[Theme - Mature]') {
             if (getAccountDetails($user, $accountDetails) &&
                 BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
