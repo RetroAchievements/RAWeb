@@ -80,7 +80,6 @@ RenderHtmlStart();
 <head>
     <?php RenderSharedHeader(); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 
 <body>
