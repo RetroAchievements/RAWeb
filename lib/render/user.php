@@ -26,8 +26,24 @@ function GetUserAndTooltipDiv(
             return '';
         }
 
-        return '<del>' . $user . '</del>';
+        $userSanitized = $user;
+        sanitize_outputs($userSanitized);
+        return '<del>' . $userSanitized . '</del>';
     }
+
+    return _GetUserAndTooltipDiv($user, $userCardInfo, $imageInstead, $customLink, $iconSizeDisplayable, $iconClassDisplayable);
+}
+
+function _GetUserAndTooltipDiv(
+    $user,
+    $userCardInfo,
+    $imageInstead = false,
+    $customLink = null,
+    $iconSizeDisplayable = 32,
+    $iconClassDisplayable = 'badgeimg'
+) {
+    $userSanitized = $user;
+    sanitize_outputs($userSanitized);
 
     $userMotto = $userCardInfo['Motto'];
     $userPoints = $userCardInfo['TotalPoints'];
@@ -41,11 +57,11 @@ function GetUserAndTooltipDiv(
     $tooltip = "<div id='objtooltip' class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td class='usercardavatar'><img src='/UserPic/" . $user . ".png'/>";
+    $tooltip .= "<td class='usercardavatar'><img src='/UserPic/" . $userSanitized . ".png'/>";
     $tooltip .= "<td class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td class='usercardusername'>$user</td>";
+    $tooltip .= "<td class='usercardusername'>$userSanitized</td>";
     $tooltip .= "<td class='usercardaccounttype'>$userAccountType</td>";
     $tooltip .= "</tr>";
 
@@ -105,12 +121,12 @@ function GetUserAndTooltipDiv(
 
     $tooltip = tipEscape($tooltip);
 
-    $linkURL = "/user/$user";
+    $linkURL = "/user/$userSanitized";
     if (!empty($customLink)) {
         $linkURL = $customLink;
     }
 
-    $displayable = $user;
+    $displayable = $userSanitized;
     if ($imageInstead == true) {
         $displayable = "<img loading='lazy' src='/UserPic/$user" . ".png' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
     }

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
+use RA\UserPref;
 
 /*
   DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash
@@ -55,6 +56,57 @@ $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
 $pageTitle = "$gameTitle ($consoleName)";
 
 $gameAlts = getGameAlternatives($gameID);
+
+$v = requestInputSanitized('v', 0, 'integer');
+if ($v != 1) {
+    foreach ($gameAlts as $gameAlt) {
+        if ($gameAlt['Title'] == '[Theme - Mature]') {
+            if (getAccountDetails($user, $accountDetails) &&
+                BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+                break;
+            }
+
+            RenderHtmlStart(true); ?>
+<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
+    <?php RenderSharedHeader(); ?>
+    <?php RenderTitleTag($pageTitle); ?>
+    <?php RenderGoogleTracking(); ?>
+</head>
+<body>
+<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
+<?php RenderToolbar($user, $permissions);
+            echo "<div id='mainpage'>";
+            echo "<div id='leftcontainer'>";
+            echo "<div class='navpath'>";
+            echo "<a href='/gameList.php'>All Games</a>";
+            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
+            echo " &raquo; <b>$gameTitle</b>";
+            echo "</div>";
+            echo "<h3 class='longheader'>$pageTitle</h3>"; ?>
+  <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
+  <br/>
+  <div id="confirmation">
+    Are you sure that you want to view this game?
+    <br/>
+    <br/>
+    <form id='consentform' action='/game/<?php echo $gameID ?>' method='get' style='float:left'>
+      <input type='hidden' name='v' value='1'/>
+      <input type='submit' value='Yes. I&apos;m an adult'/>
+    </form>
+    <form id='escapeform' action='/gameList.php' method='get' style='float:left; margin-left:16px'>
+      <input type='hidden' name='c' value='<?php echo $consoleID ?>'/>
+      <input type='submit' value='Not Interested'/>
+    </form>
+  </div>
+</div>
+</div>
+<?php RenderFooter(); ?>
+</body>
+<?php RenderHtmlEnd();
+            exit;
+        }
+    }
+}
 
 $achDist = null;
 $authorInfo = null;
@@ -570,10 +622,18 @@ RenderHtmlStart(true);
                 // Display the option to switch between viewing core/unofficial for non-hub page
                 if ($isFullyFeaturedGame) {
                     if ($flags == $unofficialFlag) {
-                        echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
+                        if ($v == 1) {
+                            echo "<div><a href='/game/$gameID?v=1'>View Core Achievements</a></div>";
+                        } else {
+                            echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
+                        }
                         echo "<div><a href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
                     } else {
-                        echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
+                        if ($v == 1) {
+                            echo "<div><a href='/game/$gameID?f=5&v=1'>View Unofficial Achievements</a></div>";
+                        } else {
+                            echo "<div><a href='/game/$gameID?f=5'>View Unofficial Achievements</a></div>";
+                        }
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
                 }
@@ -1104,10 +1164,6 @@ RenderHtmlStart(true);
                 if ($numAchievements == 0) {
                     echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors</a></li>";
                 }
-                //if( $flags == $unofficialFlag )
-                //echo "<li><a class='info-button' href='/game/$gameID'><span>🏆</span>View Core Achievements</a></li>";
-                //else
-                //echo "<li><a class='info-button' href='/gameInfo.php?ID=$gameID&f=5'><span>🏆</span>View Unofficial Achievements</a></li>";
                 echo "</ul><br>";
             }
 

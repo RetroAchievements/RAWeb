@@ -40,6 +40,21 @@ $errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("My Settings");
+
+function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
+{
+    echo "<input id='UserPref$userPref' type='checkbox' ";
+    echo "onchange='DoChangeUserPrefs(); return false;' value='1'";
+
+    if ($state) {
+        echo " $state";
+    } elseif (BitSet($websitePrefs, $userPref) == $setIfTrue) {
+        echo " checked";
+    }
+
+    echo " />";
+}
+
 ?>
 <body>
 <script>
@@ -184,11 +199,22 @@ RenderHtmlHead("My Settings");
 
   function DoChangeUserPrefs() {
     var newUserPrefs = 0;
-    for (i = 0; i < 16; ++i) {
+    for (i = 0; i < 7; ++i) { // 0-6 are set if checked
       var checkbox = document.getElementById('UserPref' + i);
       if (checkbox != null && checkbox.checked)
         newUserPrefs += (1 << i);
     }
+
+    for (i = 8; i < 15; ++i) { // 8-14 are set if checked
+      var checkbox = document.getElementById('UserPref' + i);
+      if (checkbox != null && checkbox.checked)
+        newUserPrefs += (1 << i);
+    }
+
+    // 7 is set if unchecked
+    var checkbox = document.getElementById('UserPref7');
+    if (checkbox != null && !checkbox.checked)
+      newUserPrefs += (1 << 7);
 
     $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
     var posting = $.post('/request/user/update-notification.php', {u: '<?php echo $user; ?>', p: newUserPrefs});
@@ -347,38 +373,43 @@ RenderHtmlHead("My Settings");
                 </tr>
                 <tr>
                     <td>If someone comments on my activity:</td>
-                    <td><input id='UserPref0' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_ActivityComment) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref8' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_ActivityComment) ? 'checked' : '' ?>></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_ActivityComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_ActivityComment, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone comments on an achievement I created:</td>
-                    <td><input id='UserPref1' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_AchievementComment) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref9' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_AchievementComment) ? 'checked' : '' ?>></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_AchievementComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_AchievementComment, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone comments on my user wall:</td>
-                    <td><input id='UserPref2' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_UserWallComment) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref10' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_UserWallComment) ? 'checked' : '' ?>></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_UserWallComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_UserWallComment, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone comments on a forum topic I'm involved in:</td>
-                    <td><input id='UserPref3' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_ForumReply) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref11' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_ForumReply) ? 'checked' : '' ?>></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_ForumReply, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_ForumReply, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone adds me as a friend:</td>
-                    <td><input id='UserPref4' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_AddFriend) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref12' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::SiteMsgOn_AddFriend) ? 'checked' : '' ?>></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_AddFriend, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_AddFriend, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone sends me a private message:</td>
-                    <td><input id='UserPref5' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref13' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled checked></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_PrivateMessage, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_PrivateMessage, true, "disabled checked") ?></td>
                 </tr>
                 <tr>
                     <td>With the weekly RA Newsletter:</td>
-                    <td><input id='UserPref6' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" <?= BitSet($websitePrefs, UserPref::EmailOn_Newsletter) ? 'checked' : '' ?>></td>
-                    <td><input id='UserPref14' type="checkbox" onchange='DoChangeUserPrefs(); return false;' value="1" disabled></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_Newsletter, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_Newsletter, true, "disabled") ?></td>
+                </tr>
+                <tr>
+                    <td>When viewing a game with mature content:</td>
+                    <td/>
+                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOff_MatureContent, false) ?></td>
                 </tr>
                 </tbody>
             </table>
@@ -532,11 +563,11 @@ RenderHtmlHead("My Settings");
                     You requested to have your account deleted on <?= $userDetails['DeleteRequested'] ?> (UTC).<br>
                     Your account will be permanently deleted on <?= date('Y-m-d', strtotime($userDetails['DeleteRequested']) + 60 * 60 * 24 * 14) ?>.
                 </p>
-                <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure?');">
+                <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure you want to cancel your account deletion request?');">
                     <input type="submit" value="Cancel account deletion request">
                 </form>
             <?php else: ?>
-                <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure?');">
+                <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure you want to request account deletion?');">
                     <input type="submit" value="Request account deletion">
                 </form>
             <?php endif ?>

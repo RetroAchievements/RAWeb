@@ -13,6 +13,12 @@ function GetGameAndTooltipDiv(
 ): string {
     $tooltipIconSize = 64; //96;
 
+    $gameNameEscaped = attributeEscape($gameName);
+    sanitize_outputs(
+        $gameName,
+        $consoleName
+    );
+
     $consoleStr = '';
     if ($consoleName !== null && mb_strlen($consoleName) > 2) {
         $consoleStr = "($consoleName)";
@@ -28,8 +34,6 @@ function GetGameAndTooltipDiv(
     $tooltip .= "</div>";
     $tooltip .= "</div>";
     $tooltip = tipEscape($tooltip);
-
-    $gameNameEscaped = attributeEscape($gameName);
 
     $displayable = "";
 

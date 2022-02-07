@@ -4,6 +4,13 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
 {
     $tooltipIconSize = 64; //96;
 
+    sanitize_outputs(
+        $lbName,
+        $lbDesc,
+        $gameName,
+        $displayable
+    );
+
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
     $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
