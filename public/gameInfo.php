@@ -58,7 +58,7 @@ $pageTitle = "$gameTitle ($consoleName)";
 $gameAlts = getGameAlternatives($gameID);
 
 $v = requestInputSanitized('v', 0, 'integer');
-if ($v != 1) {
+if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameAlts as $gameAlt) {
         if ($gameAlt['Title'] == '[Theme - Mature]') {
             if (getAccountDetails($user, $accountDetails) &&
