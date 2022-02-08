@@ -70,7 +70,6 @@ RenderHtmlStart(true);
     <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
     <?php RenderTitleTag($achievementTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 
 <body>

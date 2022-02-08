@@ -58,7 +58,7 @@ $pageTitle = "$gameTitle ($consoleName)";
 $gameAlts = getGameAlternatives($gameID);
 
 $v = requestInputSanitized('v', 0, 'integer');
-if ($v != 1) {
+if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameAlts as $gameAlt) {
         if ($gameAlt['Title'] == '[Theme - Mature]') {
             if (getAccountDetails($user, $accountDetails) &&
@@ -70,7 +70,6 @@ if ($v != 1) {
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader(); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -223,7 +222,6 @@ RenderHtmlStart(true);
         <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
     <?php endif ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -750,7 +748,7 @@ RenderHtmlStart(true);
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div>Similar Games</div>";
+                    echo "<div>Relations</div>";
                     echo "<table><tbody>";
                     if (count($gameAlts) > 0) {
                         echo "<tr><td>";
