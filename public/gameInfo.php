@@ -70,7 +70,6 @@ if ($v != 1 && $isFullyFeaturedGame) {
 <head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
     <?php RenderSharedHeader(); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -223,7 +222,6 @@ RenderHtmlStart(true);
         <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
     <?php endif ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>

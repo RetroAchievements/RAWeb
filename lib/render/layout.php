@@ -25,7 +25,6 @@ function RenderHtmlHead($pageTitle = null)
     echo "<head>";
     RenderSharedHeader();
     RenderTitleTag($pageTitle);
-    RenderGoogleTracking();
     echo "</head>";
 }
 

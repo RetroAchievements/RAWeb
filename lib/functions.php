@@ -33,7 +33,6 @@ require_once __DIR__ . '/render/error.php';
 require_once __DIR__ . '/render/forum.php';
 require_once __DIR__ . '/render/friend.php';
 require_once __DIR__ . '/render/game.php';
-require_once __DIR__ . '/render/google.php';
 require_once __DIR__ . '/render/layout.php';
 require_once __DIR__ . '/render/leaderboard.php';
 require_once __DIR__ . '/render/news.php';

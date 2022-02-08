@@ -161,7 +161,6 @@ RenderHtmlStart(true);
     "User page for $userPage"
 ); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
