@@ -750,7 +750,7 @@ RenderHtmlStart(true);
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div>Similar Games</div>";
+                    echo "<div>Relations</div>";
                     echo "<table><tbody>";
                     if (count($gameAlts) > 0) {
                         echo "<tr><td>";
