@@ -28,7 +28,7 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
         CONCAT( '/user/', ua.User ) AS Target,
         ua.User AS Title
         FROM UserAccounts AS ua
-        WHERE ua.User LIKE '%$searchQuery%'
+        WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0
     )
     UNION
     (
