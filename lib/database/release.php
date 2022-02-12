@@ -52,7 +52,7 @@ function isValidConsoleId($consoleId)
             // case 37: // Amstrad CPC
         case 38: // Apple II
         case 39: // Sega Saturn
-            // case 40: // Dreamcast
+        case 40: // Dreamcast
         case 41: // PlayStation Portable
             // case 42: // Philips CD-i
         case 43: // 3DO Interactive Multiplayer
