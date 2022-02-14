@@ -64,7 +64,7 @@ function isValidConsoleId($consoleId)
         case 49: // PC-FX
             // case 50: // Atari 5200
         case 51: // Atari 7800
-            // case 52: // X68K
+            // case 52: // Sharp X68000
         case 53: // WonderSwan
             // case 54: // Cassette Vision
             // case 55: // Super Cassette Vision
