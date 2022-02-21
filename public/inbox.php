@@ -11,20 +11,29 @@ $errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
+$outbox = requestInputSanitized('s', 0, 'integer');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     //	Trying to visit someone's inbox while not being logged in :S
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
-$unreadMessageCount = GetMessageCount($user, $totalMessageCount);
-
-$allMessages = GetAllMessages($user, $offset, $count, $unreadOnly);
 
 getCookie($user, $cookieRaw);
 
 RenderHtmlStart();
-RenderHtmlHead('Inbox');
+
+if ($outbox) {
+    $unreadMessageCount = 0;
+    $totalMessageCount = GetSentMessageCount($user);
+    $allMessages = GetSentMessages($user, $offset, $count, $unreadOnly);
+    RenderHtmlHead('Outbox');
+} else {
+    $unreadMessageCount = GetMessageCount($user, $totalMessageCount);
+    $allMessages = GetAllMessages($user, $offset, $count, $unreadOnly);
+    RenderHtmlHead('Inbox');
+}
+
 ?>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -102,30 +111,44 @@ RenderHtmlHead('Inbox');
 
         <div id="globalfeed">
             <?php
-            echo "<h2>Inbox</h2>";
-
-            echo "<div id='messagecounttext'>";
-
-            echo "<span id='messagecountcontainer'>";
-            echo "<big>You have <b>$unreadMessageCount</b> unread messages</big>";
-            echo "</span>";
-
-            echo " and $totalMessageCount total messages.";
-
-            echo "</div>";
-
-            echo "<span class='rightalign clickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
-            if ($unreadOnly) {
-                echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";
+            if ($outbox) {
+                echo "<h2>Outbox</h2>";
             } else {
-                echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=1'>View Unread Only</a></span>";
+                echo "<h2>Inbox</h2>";
+            }
+
+            if ($outbox) {
+                echo "<div id='messagecounttext'>";
+                echo "<big>You have $totalMessageCount sent messages.</big>";
+                echo "</div>";
+                echo "<a href='/inbox.php'>Inbox</a>";
+            } else {
+                echo "<div id='messagecounttext'>";
+                echo "<span id='messagecountcontainer'>";
+                echo "<big>You have <b>$unreadMessageCount</b> unread messages</big>";
+                echo "</span>";
+                echo " and $totalMessageCount total messages.";
+                echo "</div>";
+
+                echo "<a href='/inbox.php?s=1'>Outbox</a>";
+
+                echo "<span class='rightalign clickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
+                if ($unreadOnly) {
+                    echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";
+                } else {
+                    echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=1'>View Unread Only</a></span>";
+                }
             }
 
             echo "<table class='messagestable' id='messages'><tbody>";
             echo "<tr>";
             echo "<th>Date</th>";
-            echo "<th colspan='2'>From</th>";
-            echo "<th>Title</th>";
+            if ($outbox) {
+                echo "<th colspan='2' style='min-width:150px'>To</th>";
+            } else {
+                echo "<th colspan='2' style='min-width:150px'>From</th>";
+            }
+            echo "<th style='width:100%'>Title</th>";
             echo "</tr>";
 
             $totalMsgs = count($allMessages);
@@ -135,14 +158,20 @@ RenderHtmlHead('Inbox');
                 $msgTime = $allMessages[$i]['TimeSent'];
                 $msgSentAtNice = date("d/m/y, H:i ", strtotime($msgTime));
                 //$msgTo      	= $allMessages[$i]['UserTo'];
-                $msgFrom = $allMessages[$i]['UserFrom'];
                 $msgTitle = $allMessages[$i]['Title'];
                 $msgPayload = $allMessages[$i]['Payload'];
                 $msgType = $allMessages[$i]['Type'];
-                $msgUnread = ($allMessages[$i]['Unread'] == 1);
+
+                if ($outbox) {
+                    $msgUser = $allMessages[$i]['UserTo'];
+                    $msgUnread = false;
+                } else {
+                    $msgUser = $allMessages[$i]['UserFrom'];
+                    $msgUnread = ($allMessages[$i]['Unread'] == 1);
+                }
 
                 sanitize_outputs(
-                    $msgFrom,
+                    $msgUser,
                     $msgTitle,
                     $msgPayload,
                 );
@@ -158,10 +187,10 @@ RenderHtmlHead('Inbox');
                 echo "</td>";
 
                 echo "<td style='width:34px'>";
-                echo GetUserAndTooltipDiv($msgFrom, true);
+                echo GetUserAndTooltipDiv($msgUser, true);
                 echo "</td>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($msgFrom, false);
+                echo GetUserAndTooltipDiv($msgUser, false);
                 echo "</td>";
 
                 //echo "<td>" . $msgTo . "</td>";
@@ -182,11 +211,13 @@ RenderHtmlHead('Inbox');
                 echo "<td colspan='4'>";
                 echo "<div class='topiccommenttext'>$msgPayload</div>";
 
-                echo "<div class='buttoncollection rightfloat'>";
-                echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
-                echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgFrom&amp;i=$msgID'>Reply</a></span>";
-                echo "<span class='rightalign clickablebutton'><a href='/request/message/delete.php?u=$user&amp;c=$cookieRaw&amp;m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
-                echo "</div>";
+                if (!$outbox) {
+                    echo "<div class='buttoncollection rightfloat'>";
+                    echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
+                    echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a></span>";
+                    echo "<span class='rightalign clickablebutton'><a href='/request/message/delete.php?u=$user&amp;c=$cookieRaw&amp;m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
+                    echo "</div>";
+                }
 
                 echo "</td>";
                 echo "</tr>";
@@ -198,7 +229,7 @@ RenderHtmlHead('Inbox');
 
             if ($offset > 0) {
                 echo "<span class='clickablebutton'>";
-                echo "<a href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly'>";
+                echo "<a href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "&lt; Previous $maxCount";
                 echo "</a>";
                 echo "</span>";
@@ -206,7 +237,7 @@ RenderHtmlHead('Inbox');
 
             if ($totalMsgs == $maxCount) {
                 echo "<span class='clickablebutton'>";
-                echo "<a href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly'>";
+                echo "<a href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "Next $maxCount &gt;";
                 echo "</a>";
                 echo "</span> ";

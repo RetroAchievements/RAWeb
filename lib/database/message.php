@@ -85,6 +85,36 @@ function GetMessageCount($user, &$totalMessageCount)
     }
 }
 
+function GetSentMessageCount($user)
+{
+    sanitize_sql_inputs($user);
+
+    if (!isset($user)) {
+        return 0;
+    }
+
+    $messageCount = 0;
+
+    $query = "
+        SELECT COUNT(*) AS NumFound
+        FROM Messages AS msg
+        WHERE msg.UserFrom = '$user'
+    ";
+
+    $dbResult = s_mysql_query($query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $messageCount = $data['NumFound'];
+        }
+
+        settype($messageCount, 'integer');
+    }
+
+    return $messageCount;
+}
+
 function GetTotalMessageCount($user)
 {
     sanitize_sql_inputs($user);
