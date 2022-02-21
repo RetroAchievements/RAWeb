@@ -54,8 +54,9 @@ if ($outbox) {
     if (data.substr(0, 3) == 'OK:') {
       var msgID = data.substr(3);
       var titleID = '#msgInlineTitle' + msgID;
-      if ($(titleID).find('span').contents().length) {
-        $(titleID).find('span').contents().unwrap();
+
+      if ($(titleID).find('span').hasClass('unreadmsgtitle')) {
+        $(titleID).find('span').removeClass('unreadmsgtitle');
 
         //	Reduce the number of unread messages by 1
         var numUnread = parseInt($('#messagecounttext').find('b').html());
@@ -83,8 +84,8 @@ if ($outbox) {
       $('#msgInline' + msgID).toggle();
       var titleID = '#msgInlineTitle' + msgID;
 
-      if ($(titleID).find('span').contents().length == false) {
-        $(titleID).contents().wrap('<span class=\'unreadmsgtitle\'>');
+      if (!$(titleID).find('span').hasClass('unreadmsgtitle')) {
+        $(titleID).find('span').addClass('unreadmsgtitle');
 
         //	Increase the number of unread messages by 1
         var numUnread = parseInt($('#messagecounttext').find('b').html());
@@ -196,13 +197,11 @@ if ($outbox) {
                 //echo "<td>" . $msgTo . "</td>";
 
                 echo "<td class='pointer' id='msgInlineTitle$msgID' onclick=\"MarkAsRead( $msgID ); return false;\">";
-                echo "<span>";
                 if ($msgUnread) {
                     echo "<span class='unreadmsgtitle'>$msgTitle</span>";
                 } else {
-                    echo "$msgTitle";
+                    echo "<span>$msgTitle</span>";
                 }
-                echo "</span>";
                 echo "</td>";
 
                 echo "</tr>";
