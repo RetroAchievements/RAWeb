@@ -26,7 +26,7 @@ RenderHtmlStart();
 if ($outbox) {
     $unreadMessageCount = 0;
     $totalMessageCount = GetSentMessageCount($user);
-    $allMessages = GetSentMessages($user, $offset, $count, $unreadOnly);
+    $allMessages = GetSentMessages($user, $offset, $count);
     RenderHtmlHead('Outbox');
 } else {
     $unreadMessageCount = GetMessageCount($user, $totalMessageCount);
@@ -114,16 +114,14 @@ if ($outbox) {
             <?php
             if ($outbox) {
                 echo "<h2>Outbox</h2>";
-            } else {
-                echo "<h2>Inbox</h2>";
-            }
 
-            if ($outbox) {
                 echo "<div id='messagecounttext'>";
                 echo "<big>You have $totalMessageCount sent messages.</big>";
                 echo "</div>";
                 echo "<a href='/inbox.php'>Inbox</a>";
             } else {
+                echo "<h2>Inbox</h2>";
+
                 echo "<div id='messagecounttext'>";
                 echo "<span id='messagecountcontainer'>";
                 echo "<big>You have <b>$unreadMessageCount</b> unread messages</big>";
