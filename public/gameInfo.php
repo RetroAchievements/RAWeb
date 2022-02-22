@@ -569,57 +569,16 @@ RenderHtmlStart(true);
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            function addMetadata($label, $gameDataValue, $gameHubs)
-            {
-                $output = '';
-
-                $first = true;
-                if ($gameHubs) {
-                    $hubPrefix = "[$label - ";
-                    foreach ($gameHubs as $hub) {
-                        if (substr($hub['Title'], 0, strlen($hubPrefix)) == $hubPrefix) {
-                            if ($first) {
-                                $first = false;
-                            } else {
-                                $output .= ", ";
-                            }
-
-                            $value = substr($hub['Title'], strlen($hubPrefix), -1);
-                            $output .= "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
-
-                            if ($value == $gameDataValue) {
-                                $gameDataValue = null;
-                            }
-                        }
-                    }
-                }
-
-                if ($gameDataValue) {
-                    if (!$first) {
-                        $output .= ", ";
-                    }
-
-                    $output .= $gameDataValue;
-                }
-
-                if ($output) {
-                    echo "<tr>";
-                    echo "<td style='white-space: nowrap'>$label:</td>";
-                    echo "<td><b>$output</b></td>";
-                    echo "</tr>";
-                }
-            }
-
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
             echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            addMetadata('Developer', $developer, $gameHubs);
-            addMetadata('Publisher', $publisher, $gameHubs);
-            addMetadata('Genre', $genre, $gameHubs);
-            addMetadata('Released', $released, null);
+            RenderMetadataTableRow('Developer', $developer, $gameHubs);
+            RenderMetadataTableRow('Publisher', $publisher, $gameHubs);
+            RenderMetadataTableRow('Genre', $genre, $gameHubs);
+            RenderMetadataTableRow('Released', $released, null);
             echo "</tbody></table>";
             echo "</tr>";
             echo "</tbody></table>";

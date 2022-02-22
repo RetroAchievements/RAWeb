@@ -155,6 +155,36 @@ function RenderGameAlts($gameAlts, $headerText = null)
     echo "</div>";
 }
 
+function RenderMetadataTableRow($label, $gameDataValue, $gameHubs)
+{
+    $values = [];
+
+    if ($gameHubs) {
+        $hubPrefix = "[$label - ";
+        foreach ($gameHubs as $hub) {
+            if (substr($hub['Title'], 0, strlen($hubPrefix)) == $hubPrefix) {
+                $value = substr($hub['Title'], strlen($hubPrefix), -1);
+                $values[] = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+
+                if ($value == $gameDataValue) {
+                    $gameDataValue = null;
+                }
+            }
+        }
+    }
+
+    if ($gameDataValue) {
+        $values[] = $gameDataValue;
+    }
+
+    if ($values) {
+        echo "<tr>";
+        echo "<td style='white-space: nowrap'>$label:</td>";
+        echo "<td><b>" . implode(', ', $values) . "</b></td>";
+        echo "</tr>";
+    }
+}
+
 function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0)
 {
     sanitize_outputs(
