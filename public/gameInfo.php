@@ -57,39 +57,19 @@ $pageTitle = "$gameTitle ($consoleName)";
 
 $relatedGames = getGameAlternatives($gameID);
 $gameAlts = [];
-$tags = [];
+$gameHubs = [];
 foreach ($relatedGames as $gameAlt) {
-    if ($gameAlt['ConsoleName'] != 'Hubs') {
-        $gameAlts[] = $gameAlt;
-        continue;
-    }
-
-    $parts = explode(' - ', ltrim(rtrim($gameAlt['Title'], ']'), '['));
-    if (count($parts) > 2 && $parts[0] == 'Meta') {
-        unset($parts[0]);
-        $parts = array_values($parts);
-    }
-
-    if (count($parts) > 2) {
-        $value = $parts[-1];
-        unset($parts[-1]);
-        $key = implode(' - ', $parts);
+    if ($gameAlt['ConsoleName'] == 'Hubs') {
+        $gameHubs[] = $gameAlt;
     } else {
-        $key = $parts[0];
-        $value = $parts[1];
+        $gameAlts[] = $gameAlt;
     }
-
-    if (substr($key, 0, 5) == 'Meta|') {
-        $key = substr($key, 5);
-    }
-
-    $tags[$key][] = ['Name' => $value, 'ID' => $gameAlt['gameIDAlt']];
 }
 
 $v = requestInputSanitized('v', 0, 'integer');
-if ($v != 1 && $isFullyFeaturedGame && array_key_exists('Theme', $tags)) {
-    foreach ($tags['Theme'] as $tagData) {
-        if ($tagData['Name'] == 'Mature') {
+if ($v != 1 && $isFullyFeaturedGame) {
+    foreach ($gameHubs as $hub) {
+        if ($hub['Title'] == '[Theme - Mature]') {
             if (getAccountDetails($user, $accountDetails) &&
                 BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
                 break;
@@ -585,34 +565,43 @@ RenderHtmlStart(true);
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            function addMetadata($label, $gameDataValue, $tagData)
+            function addMetadata($label, $gameDataValue, $gameHubs)
             {
-                if ($tagData) {
-                    echo "<tr>";
-                    echo "<td style='white-space: nowrap'>$label:</td><td><b>";
-                    $first = true;
-                    foreach ($tagData as $tag) {
-                        if ($first) {
-                            $first = false;
-                        } else {
-                            echo ", ";
-                        }
+                $output = '';
 
-                        echo "<a href=/game/" . $tag['ID'] . ">" . $tag['Name'] . "</a>";
-                        if ($tag['Name'] == $gameDataValue) {
-                            $gameDataValue = null;
+                $first = true;
+                if ($gameHubs) {
+                    $hubPrefix = "[$label - ";
+                    foreach ($gameHubs as $hub) {
+                        if (substr($hub['Title'], 0, strlen($hubPrefix)) == $hubPrefix) {
+                            if ($first) {
+                                $first = false;
+                            } else {
+                                $output .= ", ";
+                            }
+
+                            $value = substr($hub['Title'], strlen($hubPrefix), -1);
+                            $output .= "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+
+                            if ($value == $gameDataValue) {
+                                $gameDataValue = null;
+                            }
                         }
                     }
+                }
 
-                    if ($gameDataValue) {
-                        echo ", $gameDataValue";
+                if ($gameDataValue) {
+                    if (!$first) {
+                        $output .= ", ";
                     }
 
-                    echo "</b></td></tr>";
-                } elseif ($gameDataValue) {
+                    $output .= $gameDataValue;
+                }
+
+                if ($output) {
                     echo "<tr>";
                     echo "<td style='white-space: nowrap'>$label:</td>";
-                    echo "<td><b>$gameDataValue</b></td>";
+                    echo "<td><b>$output</b></td>";
                     echo "</tr>";
                 }
             }
@@ -623,10 +612,9 @@ RenderHtmlStart(true);
             echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            addMetadata('Developer', $gameData['Developer'] ?? null, $tags['Developer'] ?? null);
-            addMetadata('Publisher', $gameData['Publisher'] ?? null, $tags['Publisher'] ?? null);
-            addMetadata('Genre', $gameData['Genre'] ?? null, $tags['Genre'] ?? null);
-            addMetadata('Subgenre', null, $tags['Subgenre'] ?? null);
+            addMetadata('Developer', $gameData['Developer'] ?? null, $gameHubs);
+            addMetadata('Publisher', $gameData['Publisher'] ?? null, $gameHubs);
+            addMetadata('Genre', $gameData['Genre'] ?? null, $gameHubs);
             addMetadata('Released', $gameData['Released'] ?? null, null);
             echo "</tbody></table>";
             echo "</tr>";
@@ -645,14 +633,6 @@ RenderHtmlStart(true);
                 echo "</tr>";
                 echo "</tbody></table>";
                 echo "</div>";
-
-                echo "<div><table><tbody><tr><td><table class='gameinfo'><tbody>";
-                foreach ($tags as $key => $tagData) {
-                    if ($key != 'Developer' && $key != 'Publisher' && $key != 'Genre' && $key != 'Subgenre') {
-                        addMetadata($key, null, $tagData);
-                    }
-                }
-                echo "</tbody></table></td></tr></tbody></table></div>";
             }
 
             echo "<br>";
@@ -1159,8 +1139,8 @@ RenderHtmlStart(true);
             }
 
             if (!$isFullyFeaturedGame) {
-                if (count($gameAlts) > 0) {
-                    RenderGameAlts($gameAlts, false);
+                if (count($relatedGames) > 0) {
+                    RenderGameAlts($relatedGames, null);
                 }
             }
 
@@ -1213,7 +1193,11 @@ RenderHtmlStart(true);
             }
 
             if (count($gameAlts) > 0) {
-                RenderGameAlts($gameAlts);
+                RenderGameAlts($gameAlts, 'Similar Games');
+            }
+
+            if (count($gameHubs) > 0) {
+                RenderGameAlts($gameHubs, 'In Collections');
             }
 
             if ($user == null) {
