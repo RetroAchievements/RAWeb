@@ -560,6 +560,10 @@ RenderHtmlStart(true);
                 echo "</div>";
             }
 
+            $developer = $gameData['Developer'] ?? null;
+            $publisher = $gameData['Publisher'] ?? null;
+            $genre = $gameData['Genre'] ?? null;
+            $released = $gameData['Released'] ?? null;
             $imageIcon = $gameData['ImageIcon'];
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
@@ -612,10 +616,10 @@ RenderHtmlStart(true);
             echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            addMetadata('Developer', $gameData['Developer'] ?? null, $gameHubs);
-            addMetadata('Publisher', $gameData['Publisher'] ?? null, $gameHubs);
-            addMetadata('Genre', $gameData['Genre'] ?? null, $gameHubs);
-            addMetadata('Released', $gameData['Released'] ?? null, null);
+            addMetadata('Developer', $developer, $gameHubs);
+            addMetadata('Publisher', $publisher, $gameHubs);
+            addMetadata('Genre', $genre, $gameHubs);
+            addMetadata('Released', $released, null);
             echo "</tbody></table>";
             echo "</tr>";
             echo "</tbody></table>";
