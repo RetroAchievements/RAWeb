@@ -111,7 +111,8 @@ function RenderGameAlts($gameAlts, $showTitle = true)
 {
     echo "<div class='component gamealts'>";
     if ($showTitle) {
-        echo "<h3>Related</h3>";
+        echo "<h3>Similar Games</h3>";
+        echo "Have you tried:<br>";
     }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {

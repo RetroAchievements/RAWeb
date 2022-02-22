@@ -55,12 +55,41 @@ $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
 
 $pageTitle = "$gameTitle ($consoleName)";
 
-$gameAlts = getGameAlternatives($gameID);
+$relatedGames = getGameAlternatives($gameID);
+$gameAlts = [];
+$tags = [];
+foreach ($relatedGames as $gameAlt) {
+    if ($gameAlt['ConsoleName'] != 'Hubs') {
+        $gameAlts[] = $gameAlt;
+        continue;
+    }
+
+    $parts = explode(' - ', ltrim(rtrim($gameAlt['Title'], ']'), '['));
+    if (count($parts) > 2 && $parts[0] == 'Meta') {
+        unset($parts[0]);
+        $parts = array_values($parts);
+    }
+
+    if (count($parts) > 2) {
+        $value = $parts[-1];
+        unset($parts[-1]);
+        $key = implode(' - ', $parts);
+    } else {
+        $key = $parts[0];
+        $value = $parts[1];
+    }
+
+    if (substr($key, 0, 5) == 'Meta|') {
+        $key = substr($key, 5);
+    }
+
+    $tags[$key][] = ['Name' => $value, 'ID' => $gameAlt['gameIDAlt']];
+}
 
 $v = requestInputSanitized('v', 0, 'integer');
-if ($v != 1 && $isFullyFeaturedGame) {
-    foreach ($gameAlts as $gameAlt) {
-        if ($gameAlt['Title'] == '[Theme - Mature]') {
+if ($v != 1 && $isFullyFeaturedGame && array_key_exists('Theme', $tags)) {
+    foreach ($tags['Theme'] as $tagData) {
+        if ($tagData['Name'] == 'Mature') {
             if (getAccountDetails($user, $accountDetails) &&
                 BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
                 break;
@@ -551,45 +580,54 @@ RenderHtmlStart(true);
                 echo "</div>";
             }
 
-            $developer = $gameData['Developer'] ?? null;
-            $publisher = $gameData['Publisher'] ?? null;
-            $genre = $gameData['Genre'] ?? null;
-            $released = $gameData['Released'] ?? null;
             $imageIcon = $gameData['ImageIcon'];
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
+            function addMetadata($label, $gameDataValue, $tagData)
+            {
+                if ($tagData) {
+                    echo "<tr>";
+                    echo "<td style='white-space: nowrap'>$label:</td><td><b>";
+                    $first = true;
+                    foreach ($tagData as $tag) {
+                        if ($first) {
+                            $first = false;
+                        } else {
+                            echo ", ";
+                        }
+
+                        echo "<a href=/game/" . $tag['ID'] . ">" . $tag['Name'] . "</a>";
+                        if ($tag['Name'] == $gameDataValue) {
+                            $gameDataValue = null;
+                        }
+                    }
+
+                    if ($gameDataValue) {
+                        echo ", $gameDataValue";
+                    }
+
+                    echo "</b></td></tr>";
+                } elseif ($gameDataValue) {
+                    echo "<tr>";
+                    echo "<td style='white-space: nowrap'>$label:</td>";
+                    echo "<td><b>$gameDataValue</b></td>";
+                    echo "</tr>";
+                }
+            }
+
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
+            echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            if ($developer) {
-                echo "<tr>";
-                echo "<td>Developer:</td>";
-                echo "<td><b>$developer</b></td>";
-                echo "</tr>";
-            }
-            if ($publisher) {
-                echo "<tr>";
-                echo "<td>Publisher:</td>";
-                echo "<td><b>$publisher</b></td>";
-                echo "</tr>";
-            }
-            if ($genre) {
-                echo "<tr>";
-                echo "<td>Genre:</td>";
-                echo "<td><b>$genre</b></td>";
-                echo "</tr>";
-            }
-            if ($released) {
-                echo "<tr>";
-                echo "<td>First released:</td>";
-                echo "<td><b>$released</b></td>";
-                echo "</tr>";
-            }
+            addMetadata('Developer', $gameData['Developer'] ?? null, $tags['Developer'] ?? null);
+            addMetadata('Publisher', $gameData['Publisher'] ?? null, $tags['Publisher'] ?? null);
+            addMetadata('Genre', $gameData['Genre'] ?? null, $tags['Genre'] ?? null);
+            addMetadata('Subgenre', null, $tags['Subgenre'] ?? null);
+            addMetadata('Released', $gameData['Released'] ?? null, null);
             echo "</tbody></table>";
             echo "</tr>";
             echo "</tbody></table>";
@@ -607,6 +645,14 @@ RenderHtmlStart(true);
                 echo "</tr>";
                 echo "</tbody></table>";
                 echo "</div>";
+
+                echo "<div><table><tbody><tr><td><table class='gameinfo'><tbody>";
+                foreach ($tags as $key => $tagData) {
+                    if ($key != 'Developer' && $key != 'Publisher' && $key != 'Genre' && $key != 'Subgenre') {
+                        addMetadata($key, null, $tagData);
+                    }
+                }
+                echo "</tbody></table></td></tr></tbody></table></div>";
             }
 
             echo "<br>";
@@ -750,7 +796,7 @@ RenderHtmlStart(true);
                 if ($permissions >= Permissions::Developer) {
                     echo "<div>Relations</div>";
                     echo "<table><tbody>";
-                    if (count($gameAlts) > 0) {
+                    if (count($relatedGames) > 0) {
                         echo "<tr><td>";
                         echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
@@ -759,7 +805,7 @@ RenderHtmlStart(true);
                         echo "<select name='m'>";
                         echo "<option value='0' selected>-</option>";
 
-                        foreach ($gameAlts as $gameAlt) {
+                        foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
                             $gameAltTitle = $gameAlt['Title'];
                             $gameAltConsole = $gameAlt['ConsoleName'];
@@ -771,6 +817,7 @@ RenderHtmlStart(true);
 
                             echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
                         }
+
                         echo "</select>";
                         echo "<input type='submit' style='float: right;' value='Remove' size='37'>";
                         echo "</form>";
