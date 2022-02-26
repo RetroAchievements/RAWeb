@@ -136,7 +136,7 @@ RenderHtmlHead("Report Broken Achievement");
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="checksum">Checksum</label></td>
+                    <td><label for="checksum">RetroAchievements Hash</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
