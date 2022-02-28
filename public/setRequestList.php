@@ -20,22 +20,35 @@ if ($offset < 0) {
     $offset = 0;
 }
 
+// Get and sort the console list
+$consoles = getConsoleIDs();
+usort($consoles, function ($a, $b) {
+    return $a['Name'] <=> $b['Name'];
+});
+
 $totalRequestedGames = null;
 $userSetRequestInformation = null;
 if (empty($username)) {
-    $setRequestList = getMostRequestedSetsList($selectedConsole, $offset, $count);
-    $totalRequestedGames = getGamesWithRequests($selectedConsole);
+    if ($selectedConsole == null) {
+        $validConsoles = [];
+        foreach ($consoles as $console) {
+            if (isValidConsoleID($console['ID'])) {
+                $validConsoles[] = $console['ID'];
+            }
+        }
+        $setRequestList = getMostRequestedSetsList($validConsoles, $offset, $count);
+        $totalRequestedGames = getGamesWithRequests($validConsoles);
+    } elseif ($selectedConsole == -1) {
+        $setRequestList = getMostRequestedSetsList(null, $offset, $count);
+        $totalRequestedGames = getGamesWithRequests(null);
+    } else {
+        $setRequestList = getMostRequestedSetsList($selectedConsole, $offset, $count);
+        $totalRequestedGames = getGamesWithRequests($selectedConsole);
+    }
 } else {
     $setRequestList = getUserRequestList($username);
     $userSetRequestInformation = getUserRequestsInformation($username, $setRequestList);
 }
-
-//Get and srot the console list
-$consoles = getConsoleIDs();
-
-usort($consoles, function ($a, $b) {
-    return $a['Name'] <=> $b['Name'];
-});
 
 RenderHtmlStart();
 RenderHtmlHead("Set Requests");
@@ -53,25 +66,32 @@ RenderToolbar($user, $permissions);
         $gameCounter = 0;
 
         if ($username === null) {
-            if ($selectedConsole != null) {
-                echo "<h2 class='longheader'>Most Requested " . array_column($consoles, 'Name', 'ID')[$selectedConsole] . " Sets</h2>";
+            echo "<h2 class='longheader'>";
+            if ($selectedConsole > 0) {
+                echo "Most Requested " . array_column($consoles, 'Name', 'ID')[$selectedConsole] . " Sets";
             } else {
-                echo "<h2 class='longheader'>Most Requested Sets</h2>";
+                echo "Most Requested Sets";
             }
+            echo "</h2><div style='float:left'>$totalRequestedGames Requested Sets</div>";
 
             echo "<div align='right'>";
             echo "Filter by console: ";
-            echo "<td><select class='gameselector' onchange='window.location = \"/setRequestList.php\" + this.options[this.selectedIndex].value'><option value=''>-- All Systems --</option>";
+            echo "<td><select class='gameselector' onchange='window.location = \"/setRequestList.php\" + this.options[this.selectedIndex].value'>";
+            if ($selectedConsole == null) {
+                echo "<option selected>-- Supported Systems --</option>";
+            } else {
+                echo "<option value=''>-- Supported Systems --</option>";
+            }
+            if ($selectedConsole == -1) {
+                echo "<option selected>-- All Systems --</option>";
+            } else {
+                echo "<option value='?s=-1'>-- All Systems --</option>";
+            }
 
             foreach ($consoles as $console) {
                 sanitize_outputs($console['Name']);
-                if ($selectedConsole != null) {
-                    if ($selectedConsole == $console['ID']) {
-                        echo "<option selected>" . $totalRequestedGames . " - " . $console['Name'] . "</option>";
-                    } else {
-                        echo "<option value='?s=" . $console['ID'] . "'>" . $console['Name'] . "</option>";
-                        echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
-                    }
+                if ($selectedConsole == $console['ID']) {
+                    echo "<option selected>" . $console['Name'] . "</option>";
                 } else {
                     echo "<option value='?s=" . $console['ID'] . "'>" . $console['Name'] . "</option>";
                     echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
