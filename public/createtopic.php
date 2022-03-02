@@ -79,7 +79,7 @@ RenderHtmlHead("Create topic: $thisForumTitle");
         </div>
     </div>
     <div id="rightcontainer">
-        <?php RenderRecentForumPostsComponent(4); ?>
+        <?php RenderRecentForumPostsComponent($permissions, 4); ?>
     </div>
 </div>
 <?php RenderFooter(); ?>

@@ -25,7 +25,7 @@ $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Forum 
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
 $xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
 
-$numPostsFound = getRecentForumPosts(0, 30, 120, $recentPostsData);
+$numPostsFound = getRecentForumPosts(0, 30, 120, 1, $recentPostsData);
 //$feedData = array_reverse( $recentPostsData );
 
 $lastID = 0;

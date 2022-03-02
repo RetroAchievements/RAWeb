@@ -1,6 +1,6 @@
 <?php
 
-function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
+function performSearch($searchQuery, $offset, $count, $permissions, &$searchResultsOut)
 {
     global $db;
 
@@ -38,7 +38,9 @@ function performSearch($searchQuery, $offset, $count, &$searchResultsOut)
         CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) AS Title
         FROM ForumTopicComment AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
+        LEFT JOIN ForumTopic AS ft ON ft.ID = ftc.ForumTopicID
         WHERE ftc.Payload LIKE '%$searchQuery%'
+        AND ft.RequiredPermissions <= '$permissions'
         GROUP BY ID, ftc.ID
     )
     UNION

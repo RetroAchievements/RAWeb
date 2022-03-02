@@ -11,7 +11,7 @@ $maxCount = requestInputSanitized('c', 50, 'integer');
 $searchResults = null;
 $resultsCount = 0;
 if ($searchQuery !== null) {
-    $resultsCount = performSearch($searchQuery, $offset, $maxCount, $searchResults);
+    $resultsCount = performSearch($searchQuery, $offset, $maxCount, $permissions, $searchResults);
 }
 
 $errorCode = requestInputSanitized('e');

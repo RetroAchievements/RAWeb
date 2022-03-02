@@ -9,7 +9,7 @@ $count = $maxCount;
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$numPostsFound = getRecentForumPosts($offset, $count, 90, $recentPostsData);
+$numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData);
 
 $errorCode = requestInputSanitized('e');
 
