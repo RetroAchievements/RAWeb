@@ -1,5 +1,6 @@
 <?php
 
+use RA\ArticleType;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
@@ -55,7 +56,7 @@ function RenderCommentsComponent(
             $lastID = $commentData[$i]['ID'];
         }
 
-        $canDeleteComments = ($articleTypeID == 3) && ($userID == $articleID) || $permissions >= Permissions::Admin;
+        $canDeleteComments = ($articleTypeID == ArticleType::User) && ($userID == $articleID) || $permissions >= Permissions::Admin;
 
         RenderArticleComment(
             $articleID,
