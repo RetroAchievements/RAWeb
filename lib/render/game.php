@@ -107,11 +107,11 @@ function RenderBoxArt($imagePath)
     echo "</div>";
 }
 
-function RenderGameAlts($gameAlts, $showTitle = true)
+function RenderGameAlts($gameAlts, $headerText = null)
 {
     echo "<div class='component gamealts'>";
-    if ($showTitle) {
-        echo "<h3>Related</h3>";
+    if ($headerText) {
+        echo "<h3>$headerText</h3>";
     }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
@@ -131,18 +131,21 @@ function RenderGameAlts($gameAlts, $showTitle = true)
         );
 
         $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
+        if (!$isFullyFeaturedGame) {
+            $consoleName = null;
+        }
 
         echo "<td>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
         echo "</td>";
 
-        echo "<td " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
+        echo "<td style='width: 100%' " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
         echo "</td>";
 
         if ($isFullyFeaturedGame) {
             echo "<td>";
-            echo "$points points<span class='TrueRatio'> ($totalTP)</span>";
+            echo "<span style='white-space: nowrap'>$points points</span><span class='TrueRatio'> ($totalTP)</span>";
             echo "</td>";
         }
 
@@ -150,6 +153,36 @@ function RenderGameAlts($gameAlts, $showTitle = true)
     }
     echo "</tbody></table>";
     echo "</div>";
+}
+
+function RenderMetadataTableRow($label, $gameDataValue, $gameHubs)
+{
+    $values = [];
+
+    if ($gameHubs) {
+        $hubPrefix = "[$label - ";
+        foreach ($gameHubs as $hub) {
+            if (substr($hub['Title'], 0, strlen($hubPrefix)) == $hubPrefix) {
+                $value = substr($hub['Title'], strlen($hubPrefix), -1);
+                $values[] = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+
+                if ($value == $gameDataValue) {
+                    $gameDataValue = null;
+                }
+            }
+        }
+    }
+
+    if ($gameDataValue) {
+        $values[] = $gameDataValue;
+    }
+
+    if ($values) {
+        echo "<tr>";
+        echo "<td style='white-space: nowrap'>$label:</td>";
+        echo "<td><b>" . implode(', ', $values) . "</b></td>";
+        echo "</tr>";
+    }
 }
 
 function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0)

@@ -20,6 +20,8 @@ abstract class ArticleType
 
     public const Forum = 8;
 
+    public const UserModeration = 9;
+
     private const VALUES = [
         self::Game,
         self::Achievement,
@@ -29,6 +31,7 @@ abstract class ArticleType
         self::Leaderboard,
         self::AchievementTicket,
         self::Forum,
+        self::UserModeration,
     ];
 
     public static function values(): array
