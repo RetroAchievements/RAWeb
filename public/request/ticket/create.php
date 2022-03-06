@@ -20,7 +20,7 @@ if (isset($_POST['note'])) {
     $appendNote = $_POST['note']['description'];
 
     if (!empty(trim($_POST['note']['checksum']))) {
-        $appendNote .= "\nMD5: " . $_POST['note']['checksum'];
+        $appendNote .= "\nRetroAchievements Hash: " . $_POST['note']['checksum'];
     }
 
     if (!empty(trim($_POST['note']['emulator']))) {
