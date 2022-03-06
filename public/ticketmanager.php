@@ -284,8 +284,8 @@ RenderHtmlHead($pageTitle);
                 $resolvedTickets = ($ticketFilters & (1 << 2));
                 $triggeredTickets = ($ticketFilters & (1 << 3));
                 $didNotTriggerTickets = ($ticketFilters & (1 << 4));
-                $md5KnownTickets = ($ticketFilters & (1 << 5));
-                $md5UnknownTickets = ($ticketFilters & (1 << 6));
+                $hashKnownTickets = ($ticketFilters & (1 << 5));
+                $hashUnknownTickets = ($ticketFilters & (1 << 6));
                 $raEmulatorTickets = ($ticketFilters & (1 << 7));
                 $rarchKnownTickets = ($ticketFilters & (1 << 8));
                 $rarchUnknownTickets = ($ticketFilters & (1 << 9));
@@ -332,19 +332,19 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //MD5 Filters
+                //Hash Filters
                 echo "<div>";
-                echo "<b>MD5:</b> ";
-                if ($md5KnownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 5)) . "'>*Contains MD5</a></b> | ";
+                echo "<b>Hash:</b> ";
+                if ($hashKnownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 5)) . "'>*Contains Hash</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 5)) . "'>Contains MD5</a> | ";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 5)) . "'>Contains Hash</a> | ";
                 }
 
-                if ($md5UnknownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 6)) . "'>*MD5 Unknown</a></b>";
+                if ($hashUnknownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 6)) . "'>*Hash Unknown</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 6)) . "'>MD5 Unknown</a>";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 6)) . "'>Hash Unknown</a>";
                 }
                 echo "</div>";
 

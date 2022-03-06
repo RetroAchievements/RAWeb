@@ -39,7 +39,7 @@ $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
 //    Get wall
-$numArticleComments = getArticleComments(3, $userPageID, 0, 100, $commentData);
+$numArticleComments = getArticleComments(ArticleType::User, $userPageID, 0, 100, $commentData);
 
 //    Get user's feed
 //$numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
@@ -352,12 +352,16 @@ RenderHtmlStart(true);
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br>";
             echo "<div id='devboxcontent'>";
 
+            echo "<table cellspacing=8 border=1>";
+
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
-                echo "<li>Update Account Type:</li>";
+                echo "<tr>";
                 echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='p' value='0' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
-
+                echo "<td>";
+                echo "<input type='submit' style='float: right;' value='Update Account Type' />";
+                echo "</td><td>";
                 echo "<select name='v' >";
                 $i = Permissions::Banned;
                 // Don't do this, looks weird when trying to change someone above you
@@ -372,42 +376,60 @@ RenderHtmlStart(true);
                 }
                 echo "</select>";
 
-                echo "&nbsp;<input type='submit' style='float: right;' value='Do it!' /><br><br>";
-                echo "<div style='clear:all;'></div>";
-                echo "</form><br>";
+                echo "</td></form></tr>";
             }
 
-            if ($permissions >= Permissions::Admin) {
-                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
-                echo "<input type='hidden' name='p' value='2' />";
-                echo "<input type='hidden' name='t' value='$userPage' />";
-                echo "<input type='hidden' name='v' value='0' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Patreon Supporter' /><br><br>";
-                echo "<div style='clear:all;'></div>";
-                echo "</form>";
+            $newValue = $userIsUntracked ? 0 : 1;
+            echo "<tr><td>";
+            echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
+            echo "<input TYPE='hidden' NAME='p' VALUE='3' />";
+            echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
+            echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";
+            echo "<input type='submit' style='float: right;' value='Toggle Tracked Status' />";
+            echo "</form>";
+            echo "</td><td style='width: 100%'>";
+            echo ($userIsUntracked == 1) ? "Untracked User" : "Tracked User";
+            echo "</td></tr>";
 
-                echo "<form method='post' action='/request/user/recalculate-score.php' enctype='multipart/form-data'>";
-                echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Recalc Score Now' /><br><br>";
-                echo "<div style='clear:all;'></div>";
-                echo "</form>";
+            echo "<tr><td>";
+            echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
+            echo "<input type='hidden' name='p' value='2' />";
+            echo "<input type='hidden' name='t' value='$userPage' />";
+            echo "<input type='hidden' name='v' value='0' />";
+            echo "<input type='submit' style='float: right;' value='Toggle Patreon Supporter' />";
+            echo "</form>";
+            echo "</td><td>";
+            echo HasPatreonBadge($userPage) ? "Patreon Supporter" : "Not a Patreon Supporter";
+            echo "</td></tr>";
 
-                echo ($userIsUntracked == 1) ? "<b>Untracked User!</b>&nbsp;" : "Tracked User.&nbsp;";
-                $newValue = $userIsUntracked ? 0 : 1;
-                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
-                echo "<input TYPE='hidden' NAME='p' VALUE='3' />";
-                echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
-                echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Toggle Tracked Status' /><br><br>";
-                echo "<div style='clear:all;'></div>";
-                echo "</form>";
+            echo "<tr><td>";
+            echo "<form method='post' action='/request/user/recalculate-score.php' enctype='multipart/form-data'>";
+            echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
+            echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
+            echo "</form>";
+            echo "</td></tr>";
 
-                echo "<form method='post' action='/request/user/remove-avatar.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
-                echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Remove Avatar' /><br><br>";
-                echo "<div style='clear:all;'></div>";
-                echo "</form>";
-            }
+            echo "<tr><td>";
+            echo "<form method='post' action='/request/user/remove-avatar.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
+            echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
+            echo "<input type='submit' style='float: right;' value='Remove Avatar' />";
+            echo "</form>";
+            echo "</td></tr>";
+
+            echo "<tr><td colspan=2>";
+            echo "<div class='commentscomponent left'>";
+            $numLogs = getArticleComments(ArticleType::UserModeration, $userPageID, 0, 1000, $logs);
+            RenderCommentsComponent($user,
+                $numLogs,
+                $logs,
+                $userPageID,
+                ArticleType::UserModeration,
+                $permissions
+            );
+            echo "</div>";
+            echo "</td></tr>";
+
+            echo "</table>";
 
             echo "</div>"; //devboxcontent
 
