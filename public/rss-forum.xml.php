@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\Permissions;
+
 $site = getenv('APP_URL');
 
 $dom = new DOMDocument('1.0', 'UTF-8');
@@ -25,7 +27,7 @@ $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Forum 
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
 $xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
 
-$numPostsFound = getRecentForumPosts(0, 30, 120, 1, $recentPostsData);
+$numPostsFound = getRecentForumPosts(0, 30, 120, Permissions::Registered, $recentPostsData);
 //$feedData = array_reverse( $recentPostsData );
 
 $lastID = 0;
