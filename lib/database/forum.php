@@ -3,7 +3,7 @@
 use RA\ModifyTopicField;
 use RA\Permissions;
 
-function getForumList($categoryID = 0)
+function getForumList($permissions, $categoryID = 0)
 {
     sanitize_sql_inputs($categoryID);
     settype($categoryID, 'integer');
@@ -63,7 +63,7 @@ function getForumDetails($forumID, &$forumDataOut)
     }
 }
 
-function getForumTopics($forumID, $offset, $count, &$maxCountOut)
+function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut)
 {
     sanitize_sql_inputs($forumID, $offset, $count);
     settype($forumID, "integer");
@@ -84,6 +84,7 @@ function getForumTopics($forumID, $offset, $count, &$maxCountOut)
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
                 WHERE ft.ForumID = $forumID
+                AND ft.RequiredPermissions <= $permissions
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC
                 LIMIT $offset, $count";
@@ -493,7 +494,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
     }
 }
 
-function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
+function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$dataOut)
 {
     sanitize_sql_inputs($offset, $count, $numMessageChars);
     //    02:08 21/02/2014 - cater for 20 spam messages
@@ -519,6 +520,7 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
         LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
+        WHERE ft.RequiredPermissions <= '$permissions'
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, $count";
 

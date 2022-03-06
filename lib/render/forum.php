@@ -1,11 +1,11 @@
 <?php
 
-function RenderRecentForumPostsComponent($numToFetch = 4)
+function RenderRecentForumPostsComponent($permissions, $numToFetch = 4)
 {
     echo "<div class='component'>";
     echo "<h3>Forum Activity</h3>";
 
-    if (getRecentForumPosts(0, $numToFetch, 100, $recentPostData) != 0) {
+    if (getRecentForumPosts(0, $numToFetch, 100, $permissions, $recentPostData) != 0) {
         foreach ($recentPostData as $nextData) {
             $timestamp = strtotime($nextData['PostedAt']);
             $datePosted = date("d M", $timestamp);

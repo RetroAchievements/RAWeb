@@ -46,7 +46,7 @@ if ($requestedForumID == 0) {
     $thisCategoryID = $forumDataOut['CategoryID'];
     $thisCategoryName = $forumDataOut['CategoryName'];
 
-    $topicList = getForumTopics($requestedForumID, $offset, $count, $numTotalTopics);
+    $topicList = getForumTopics($requestedForumID, $offset, $count, $permissions, $numTotalTopics);
 
     $requestedForum = $thisForumTitle;
 }
@@ -220,7 +220,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
     </div>
     <div id="rightcontainer">
         <?php
-        RenderRecentForumPostsComponent(8);
+        RenderRecentForumPostsComponent($permissions, 8);
         ?>
     </div>
 </div>

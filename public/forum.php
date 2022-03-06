@@ -4,9 +4,9 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
-$forumList = getForumList($requestedCategoryID);
-
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+
+$forumList = getForumList($permissions, $requestedCategoryID);
 
 $numUnofficialLinks = 0;
 if ($permissions >= \RA\Permissions::Developer) {
@@ -144,7 +144,7 @@ RenderHtmlHead($pageTitle);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderRecentForumPostsComponent(8);
+        RenderRecentForumPostsComponent($permissions, 8);
         ?>
     </div>
 </div>
