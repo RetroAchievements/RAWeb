@@ -45,8 +45,8 @@ RenderHtmlHead("Manage Game Hashes");
 <script>
   function UpdateHashDetails(user, hash) {
     var name = $.trim($('#HASH_' + hash + '_Name').val());
-    var source = $.trim($('#HASH_' + hash + '_Source').val());
-    var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, s: source });
+    var labels = $.trim($('#HASH_' + hash + '_Labels').val());
+    var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, l: labels });
     posting.done(onUpdateComplete);
 
     $('#warning').html('Status: updating...');
@@ -74,7 +74,7 @@ RenderHtmlHead("Manage Game Hashes");
         echo "Currently this game has <b>$numLinks</b> unique hashes registered for it:<br><br>";
 
         echo "<div class='table-wrapper'><table><tbody>";
-        echo "<th>Hash</th><th>Linked By</th><th>Description</th><th>Source</th><th>Actions</th><th></th>\n";
+        echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>Description</th><th>Labels</th><th>Actions</th><th></th>\n";
 
         foreach ($hashes as $hashData) {
             $hash = $hashData['Hash'];
@@ -91,7 +91,7 @@ RenderHtmlHead("Manage Game Hashes");
             }
 
             echo "<td style='width: 60%'><input type='text' id='HASH_${hash}_Name' value='" . $hashData['Name'] . "' style='width: 100%'></td>";
-            echo "<td style='width: 20%'><input type='text' id='HASH_${hash}_Source' value='" . $hashData['Source'] . "' style='width: 100%'></td>";
+            echo "<td style='width: 20%'><input type='text' id='HASH_${hash}_Labels' value='" . $hashData['Labels'] . "' style='width: 100%'></td>";
             echo "<td style='width: 5%'><input type='submit' value='Update' onclick=\"UpdateHashDetails('$user', '$hash');\"></td>";
             echo "<td style='width: 5%'><form method='post' action='/request/game/modify.php' onsubmit=\"return confirm('Are you sure you want to unlink the hash $hash?');\">";
             echo "<input type='hidden' name='u' value='$user'>";

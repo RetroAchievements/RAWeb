@@ -38,7 +38,7 @@ function getHashListByGameID($gameID)
         return false;
     }
 
-    $query = "SELECT MD5 AS Hash, Name, Source, User
+    $query = "SELECT MD5 AS Hash, Name, Labels, User
               FROM GameHashLibrary
               WHERE GameID = $gameID
               ORDER BY Name, Hash";
@@ -147,13 +147,28 @@ function getTotalHashes()
     }
 }
 
-function updateHashDetails($gameID, $hash, $name, $source)
+function updateHashDetails($gameID, $hash, $name, $labels)
 {
-    sanitize_sql_inputs($gameID, $hash, $name, $source);
+    sanitize_sql_inputs($gameID, $hash, $name, $labels);
 
     $query = "UPDATE GameHashLibrary
-              SET Name='$name', Source = '$source'
-              WHERE GameID = $gameID AND MD5 = '$hash'";
+              SET Name=";
+
+    if (!empty($name)) {
+        $query .= "'$name'";
+    } else {
+        $query .= "NULL";
+    }
+
+    $query .= ", Labels = ";
+
+    if (!empty($labels)) {
+        $query .= "'$labels'";
+    } else {
+        $query .= "NULL";
+    }
+
+    $query .= " WHERE GameID = $gameID AND MD5 = '$hash'";
 
     global $db;
     $dbResult = mysqli_query($db, $query);

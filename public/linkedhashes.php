@@ -63,12 +63,18 @@ RenderHtmlHead("Linked Hashes");
             }
 
             echo '<li><p><b>' . $hash['Name'] . '</b>';
-            if (!empty($hash['Source'])) {
-                $image = "/Images/labels/" . $hash['Source'] . '.png';
-                if (file_exists(__DIR__ . $image)) {
-                    echo ' <img class="injectinlineimage" src="' . $image . '">';
-                } else {
-                    echo ' [' . $hash['Source'] . ']';
+            if (!empty($hash['Labels'])) {
+                foreach (explode(',', $hash['Labels']) as $label) {
+                    if (empty($label)) {
+                        continue;
+                    }
+
+                    $image = "/Images/labels/" . $label . '.png';
+                    if (file_exists(__DIR__ . $image)) {
+                        echo ' <img class="injectinlineimage" src="' . $image . '">';
+                    } else {
+                        echo ' [' . $label . ']';
+                    }
                 }
             }
 

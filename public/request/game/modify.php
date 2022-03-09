@@ -16,8 +16,8 @@ $value = requestInputPost('v');
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
     if ($field == 4) {
         $name = requestInputPost('n');
-        $source = requestInputPost('s');
-        if (updateHashDetails($gameID, $value, $name, $source)) {
+        $labels = requestInputPost('l');
+        if (updateHashDetails($gameID, $value, $name, $labels)) {
             echo "OK";
         } else {
             echo "FAILED!";
