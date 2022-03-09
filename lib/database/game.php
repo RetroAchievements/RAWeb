@@ -1128,9 +1128,9 @@ function createNewGame($titleIn, $consoleID)
     return null;
 }
 
-function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
+function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $description)
 {
-    sanitize_sql_inputs($user, $md5, $gameIDin, $consoleID);
+    sanitize_sql_inputs($user, $md5, $gameIDin, $consoleID, $description);
     settype($consoleID, 'integer');
 
     // error_log(__FUNCTION__ . " called with $user, $md5, $titleIn, $consoleID");
@@ -1182,46 +1182,42 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
              */
             $game = createNewGame($titleIn, $consoleID);
             $gameID = $game['ID'] ?? 0;
-            $title = $game['Title'] ?? $titleIn;
-            if ($gameID !== 0) {
-                $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$gameID', '$user' )";
-                $dbResult = s_mysql_query($query);
-                if ($dbResult !== false) {
-                    /**
-                     * $user added $md5, $gameID to GameHashLibrary, and $gameID, $title to GameData
-                     */
-                    $retVal['GameID'] = $gameID;
-                    $retVal['GameTitle'] = $title;
-                } else {
-                    log_sql_fail();
-                    $retVal['Error'] = "Failed to add $md5 for '$title'";
-                    $retVal['Success'] = false;
-                }
-            } else {
+            if ($gameID == 0) {
                 /**
                  * cannot create game $title
                  */
                 $retVal['Error'] = "Failed to create game title '$title'";
                 $retVal['Success'] = false;
             }
-        } else {
+        }
+
+        if ($gameID !== 0) {
             $gameTitle = $game['Title'] ?? $titleIn;
+
+            $retVal['GameID'] = $gameID;
+            $retVal['GameTitle'] = $gameTitle;
+
             /**
-             * Adding md5 to an existing title ($gameID)
+             * Associate md5 to $gameID
              */
-            $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$gameID', '$user' )";
+            $query = "INSERT INTO GameHashLibrary (MD5, GameID, User, Name) VALUES( '$md5', '$gameID', '$user', ";
+            if (!empty($description)) {
+                $query .= "'$description'";
+            } else {
+                $query .= "NULL";
+            }
+            $query .= " )";
+
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
                 /**
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
-                $retVal['GameID'] = $gameID;
-                $retVal['GameTitle'] = $gameTitle;
             } else {
                 /**
                  * cannot insert duplicate md5 (already present?
                  */
-                $retVal['Error'] = "Failed to add duplicate md5 for '$gameTitle' (already present?)";
+                $retVal['Error'] = "Failed to add md5 for '$gameTitle' (already present?)";
                 $retVal['Success'] = false;
             }
         }
@@ -1229,6 +1225,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
 
     settype($retVal['ConsoleID'], 'integer');
     settype($retVal['GameID'], 'integer');
+
     return $retVal;
 }
 
