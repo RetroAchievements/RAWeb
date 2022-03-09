@@ -21,15 +21,8 @@ if (empty($gameID)) {
 
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
-$query = "SELECT MD5, User FROM GameHashLibrary WHERE GameID=$gameID";
-$dbResult = s_mysql_query($query);
-
-$hashList = [];
-while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    $hashList[] = $db_entry;
-}
-
-$numLinks = count($hashList);
+$hashes = getHashListByGameID($gameID);
+$numLinks = count($hashes);
 
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
@@ -44,65 +37,72 @@ sanitize_outputs(
 //$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
 //var_dump( $gamesList );
 RenderHtmlStart();
-RenderHtmlHead("Unlink Game Entry ($consoleName)");
+RenderHtmlHead("Manage Game Hashes");
 ?>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
+<script>
+  function UpdateHashDetails(user, hash) {
+    var name = $.trim($('#HASH_' + hash + '_Name').val());
+    var source = $.trim($('#HASH_' + hash + '_Source').val());
+    var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, s: source });
+    posting.done(onUpdateComplete);
+
+    $('#warning').html('Status: updating...');
+  }
+
+  function onUpdateComplete(data) {
+    //alert( data );
+    if (data !== 'OK') {
+        $('#warning').html('Status: Errors...' + data);
+        //alert( data );
+    } else {
+        $('#warning').html('Status: OK!');
+    }
+  }
+</script>
 <div id="mainpage">
     <div id="fullcontainer">
-        <h2>Unlink Hashes</h2>
+        <h2>Manage Hashes</h2>
 
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
-        echo "<br><br>";
-
-        echo "Use this tool when an incorrect link has been made to a game, i.e. when you load a Super Mario Kart ROM, and the achievements for Super Mario World get loaded.<br>";
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
 
         echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div><br>";
 
-        echo "<h4><b>Unlink a single hash</b></h4>";
-        echo "Currently this game has <b>$numLinks</b> unique ROM(s) registered for it with the following hashes:<br><br>";
-        echo "<form method=post action='/request/game/modify.php'>";
-        echo "<input type='hidden' name='u' VALUE='$user'>";
-        echo "<input type='hidden' name='g' VALUE='$gameID'>";
-        echo "<input type='hidden' name='f' VALUE='3'>";
-        for ($i = 0; $i < $numLinks; $i++) {
-            echo "<label>";
-            echo "<input type='radio' name='v' VALUE='" . $hashList[$i]['MD5'] . "' " . ($i == 0 ? "required" : "") . ">";
-            echo " <code>" . $hashList[$i]['MD5'] . "</code>";
-            if ($hashList[$i]['User']) {
-                echo " linked by " . GetUserAndTooltipDiv($hashList[$i]['User']);
+        echo "Currently this game has <b>$numLinks</b> unique hashes registered for it:<br><br>";
+
+        echo "<div class='table-wrapper'><table><tbody>";
+        echo "<th>Hash</th><th>Linked By</th><th>Description</th><th>Source</th><th>Actions</th><th></th>\n";
+
+        foreach ($hashes as $hashData) {
+            $hash = $hashData['Hash'];
+
+            echo "<tr>";
+            echo "<td>$hash&nbsp;</td>";
+
+            if (!empty($hashData['User'])) {
+                echo "<td style='width: 10%; white-space: nowrap'>";
+                echo GetUserAndTooltipDiv($hashData['User']);
+                echo "</td>";
+            } else {
+                echo "<td style='width: 10%'></td>";
             }
-            echo "<br>";
-            echo "</label>";
+
+            echo "<td style='width: 60%'><input type='text' id='HASH_${hash}_Name' value='" . $hashData['Name'] . "' style='width: 100%'></td>";
+            echo "<td style='width: 20%'><input type='text' id='HASH_${hash}_Source' value='" . $hashData['Source'] . "' style='width: 100%'></td>";
+            echo "<td style='width: 5%'><input type='submit' value='Update' onclick=\"UpdateHashDetails('$user', '$hash');\"></td>";
+            echo "<td style='width: 5%'><form method='post' action='/request/game/modify.php' onsubmit=\"return confirm('Are you sure you want to unlink the hash $hash?');\">";
+            echo "<input type='hidden' name='u' value='$user'>";
+            echo "<input type='hidden' name='g' value='$gameID'>";
+            echo "<input type='hidden' name='f' value='3'>";
+            echo "<input type='hidden' name='v' value='$hash'>";
+            echo "<input type='submit' value='Unlink'></form></td>";
+            echo "</tr>\n";
         }
-        echo "<br>";
-        echo "<input type='submit' value='Unlink selected entry'>";
-        echo "</form>";
-        echo "<br>";
 
-        /**
-         * UPDATE: do not allow dangerous actions anymore until proper failovers are in place
-         * See commit df7c534c04ae1029e0f9517717f3b13a9008713d
-         */
-        //echo "<h4><b>Unlink all hashes</b></h4>";
-
-        //echo "<p><b>WARNING: By clicking 'UNLINK ALL', all hashes linked to $gameTitle will be removed.</b></p>";
-
-        //echo "<form method=post action='/request/game/modify.php'>";
-        //echo "<input type='hidden' name='u' VALUE='$user'>";
-        //echo "<input type='hidden' name='g' VALUE='$gameID'>";
-        //echo "<input type='hidden' name='f' VALUE='2'>";
-        //echo "<input type='hidden' name='v' VALUE='1'>";
-        //echo "Perform Unlink:&nbsp;<INPUT TYPE='submit' VALUE='UNLINK ALL!'>";
-        //echo "</form>";
-        //echo "<br>";
-
-        //echo "A new link will be requested when the ROM is next loaded in the emulator.<br><br>";
-
-        //echo "Please note, no achievements will be deleted. However all entries that link to this game will be removed.<br>";
-        //echo "To restore the achievements, simply load up the game in the emulator and select the entry from the drop-down list.<br><br>";
+        echo "</tbody></table></div>";
         ?>
         <br>
     </div>

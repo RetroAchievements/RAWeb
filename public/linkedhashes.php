@@ -42,7 +42,7 @@ RenderHtmlHead("Linked Hashes");
         <h2>List of Linked Hashes</h2>
 
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
         echo "<br><br>";
 
         echo "<p><b>Hashes are used to confirm if two copies of a file are identical. " .

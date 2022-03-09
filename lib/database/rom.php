@@ -146,3 +146,21 @@ function getTotalHashes()
         return false;
     }
 }
+
+function updateHashDetails($gameID, $hash, $name, $source)
+{
+    sanitize_sql_inputs($gameID, $hash, $name, $source);
+
+    $query = "UPDATE GameHashLibrary
+              SET Name='$name', Source = '$source'
+              WHERE GameID = $gameID AND MD5 = '$hash'";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+
+    if ($dbResult == false) {
+        log_sql_fail();
+    }
+
+    return $dbResult != null;
+}
