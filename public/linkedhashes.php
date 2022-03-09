@@ -52,23 +52,54 @@ RenderHtmlHead("Linked Hashes");
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-        echo "Currently this game has <b>" . count($hashes) . "</b> unique hashes registered for it:<br><br>";
+        echo "\n<br>Currently this game has <b>" . count($hashes) . "</b> unique hashes registered for it:<br><br>";
 
         echo "<ul>";
+        $hasUnlabeledHashes = false;
         foreach ($hashes as $hash) {
-            echo "<li>";
-            echo "<code>  " . $hash['hash'] . "</code>";
-            if (!empty($hash['User'])) {
-                echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+            if (empty($hash['Name'])) {
+                $hasUnlabeledHashes = true;
+                continue;
             }
-            echo "</li>";
-        }
-        echo "</ul>";
 
+            echo '<li><p><b>' . $hash['Name'] . '</b>';
+            if (!empty($hash['Source'])) {
+                $image = "/Images/labels/" . $hash['Source'] . '.png';
+                if (file_exists(__DIR__ . $image)) {
+                    echo ' <img class="injectinlineimage" src="' . $image . '">';
+                } else {
+                    echo ' [' . $hash['Source'] . ']';
+                }
+            }
+
+            echo '<br/><code> ' . $hash['Hash'] . '</code>';
+            if (!empty($hash['User'])) {
+                echo ' linked by ' . GetUserAndTooltipDiv($hash['User']);
+            }
+            echo '</p></li>';
+        }
+
+        if ($hasUnlabeledHashes) {
+            echo '<li><p><b>Unlabeled</b><br/>';
+            foreach ($hashes as $hash) {
+                if (!empty($hash['Name'])) {
+                    continue;
+                }
+
+                echo '<code> ' . $hash['Hash'] . '</code>';
+                if (!empty($hash['User'])) {
+                    echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+                }
+                echo '<br/>';
+            }
+            echo "</p></li>";
+        }
+
+        echo "</ul>";
         echo "<br>";
 
         if ($forumTopicID > 0) {
-            echo "Descriptions for these hashes may be listed on the <a href='viewtopic.php?t=$forumTopicID'>official forum topic</a>.<br/>";
+            echo "Additional information for these hashes may be listed on the <a href='viewtopic.php?t=$forumTopicID'>official forum topic</a>.<br/>";
         }
 
         ?>
