@@ -1186,7 +1186,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
                 /**
                  * cannot create game $title
                  */
-                $retVal['Error'] = "Failed to create game title '$title'";
+                $retVal['Error'] = "Failed to create game title '$titleIn'";
                 $retVal['Success'] = false;
             }
         }

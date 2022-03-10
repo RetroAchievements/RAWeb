@@ -24,7 +24,7 @@ if ($gameIDSpecified) {
     $gameTitle = $gameData['Title'];
     $gameIcon = $gameData['ImageIcon'];
     $forumTopicID = $gameData['ForumTopicID'];
-    $hashes = getHashListByGameID($gameID, true);
+    $hashes = getHashListByGameID($gameID);
 } else {
     //	Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
