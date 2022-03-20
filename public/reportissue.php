@@ -141,8 +141,16 @@ RenderHtmlHead("Report Broken Achievement");
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
                             <?php
-                            foreach (getHashListByGameID($gameID) as $listKey => $hashArray) {
-                                foreach ($hashArray as $hashKey => $hash) {
+                            $hashes = getHashListByGameID($gameID);
+                            foreach ($hashes as $hashData) {
+                                if (!empty($hashData['Name'])) {
+                                    $hash = $hashData['Hash'];
+                                    echo "<option value='$hash'>$hash - " . $hashData['Name'] . "</option>";
+                                }
+                            }
+                            foreach ($hashes as $hashData) {
+                                if (empty($hashData['Name'])) {
+                                    $hash = $hashData['Hash'];
                                     echo "<option value='$hash'>$hash</option>";
                                 }
                             }

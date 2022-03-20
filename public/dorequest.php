@@ -372,7 +372,7 @@ switch ($requestType) {
         $gameTitle = requestInput('i');
         $description = requestInput('d');
         $consoleID = requestInput('c');
-        $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameID, $gameTitle, $consoleID);
+        $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameID, $gameTitle, $consoleID, $description);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
