@@ -158,6 +158,7 @@ function RenderGameAlts($gameAlts, $headerText = null)
 function RenderMetadataTableRow($label, $gameDataValue, $gameHubs)
 {
     $values = [];
+    $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
 
     if ($gameHubs) {
         $hubPrefix = "[$label - ";
@@ -166,18 +167,16 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs)
                 $value = substr($hub['Title'], strlen($hubPrefix), -1);
                 $values[] = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
 
-                if ($value == $gameDataValue) {
-                    $gameDataValue = null;
+                $key = array_search($value, $gameDataValues);
+                if ($key !== false) {
+                    unset($gameDataValues[$key]);
                 }
             }
         }
     }
 
-    if ($gameDataValue) {
-        $values[] = $gameDataValue;
-    }
-
-    if ($values) {
+    $values = array_merge($values, $gameDataValues);
+    if (!empty($values)) {
         echo "<tr>";
         echo "<td style='white-space: nowrap'>$label:</td>";
         echo "<td><b>" . implode(', ', $values) . "</b></td>";
