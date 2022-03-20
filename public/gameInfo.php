@@ -575,10 +575,17 @@ RenderHtmlStart(true);
             echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            RenderMetadataTableRow('Developer', $developer, $gameHubs);
-            RenderMetadataTableRow('Publisher', $publisher, $gameHubs);
-            RenderMetadataTableRow('Genre', $genre, $gameHubs);
-            RenderMetadataTableRow('Released', $released, null);
+            if ($isFullyFeaturedGame) {
+                RenderMetadataTableRow('Developer', $developer, $gameHubs);
+                RenderMetadataTableRow('Publisher', $publisher, $gameHubs);
+                RenderMetadataTableRow('Genre', $genre, $gameHubs);
+                RenderMetadataTableRow('Released', $released, null);
+            } else {
+                RenderMetadataTableRow('Developer', $developer, null);
+                RenderMetadataTableRow('Publisher', $publisher, null);
+                RenderMetadataTableRow('Genre', $genre, null);
+                RenderMetadataTableRow('Released', $released, null);
+            }
             echo "</tbody></table>";
             echo "</tr>";
             echo "</tbody></table>";
