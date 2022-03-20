@@ -1147,25 +1147,17 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
     if (!isset($user)) {
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
         $retVal['Success'] = false;
+    } elseif ($permissions < Permissions::Developer) {
+        $retVal['Error'] = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+        $retVal['Success'] = false;
     } elseif (mb_strlen($md5) != 32) {
-        // error_log(__FUNCTION__ . " Md5 unready? Ignoring");
         $retVal['Error'] = "MD5 provided ($md5) doesn't appear to be exactly 32 characters, this request is invalid.";
         $retVal['Success'] = false;
     } elseif (mb_strlen($titleIn) < 2) {
-        // error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
-    } elseif (!isValidConsoleId($consoleID)) {
-        /**
-         * cannot submitGameTitle, $consoleID is 0! What console is this for?
-         */
-        $retVal['Error'] = "Cannot submit game title, ConsoleID is 0! What console is this for?";
-        $retVal['Success'] = false;
-    } elseif ($permissions < Permissions::Developer) {
-        /**
-         * Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)
-         */
-        $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
+    } elseif ($consoleID < 1 || (!isValidConsoleId($consoleID) && $permissions < Permissions::Admin)) {
+        $retVal['Error'] = "Cannot submit game title for unknown ConsoleID $consoleID";
         $retVal['Success'] = false;
     } else {
         if (!empty($gameIDin)) {

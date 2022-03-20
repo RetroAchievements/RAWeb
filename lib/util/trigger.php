@@ -133,6 +133,19 @@ function parseOperand($mem)
     return [$type, $size, $address, $mem];
 }
 
+function isScalerOperator($cmp)
+{
+    switch ($cmp) {
+        case '*':
+        case '/':
+        case '&':
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 function parseCondition($mem)
 {
     $flag = '';
@@ -170,9 +183,11 @@ function parseCondition($mem)
 
     [$lType, $lSize, $lMemory, $mem] = parseOperand($mem);
 
-    if ($scalable && $mem == '=0') {
-        $mem = ''; // AddSource X=0 should just be AddSource X
-    } elseif (strlen($mem) > 0) {
+    if (strlen($mem) == 0) {
+        // no operator
+    } elseif ($scalable && !isScalerOperator($mem[0])) {
+        $mem = ''; // non-scaler operator ignored for scalable operations
+    } else {
         $cmp = $mem[0];
         $cmplen = 1;
         switch ($mem[0]) {
