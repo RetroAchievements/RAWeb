@@ -865,7 +865,7 @@ function UploadNewLeaderboard(
         if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
             $data = mysqli_fetch_assoc($dbResult);
             $displayOrder = $data['DisplayOrder'];
-            $originalAuthor = $data['Author'];
+            $originalAuthor = $data['Author'] ?? "Unknown";
             settype($displayOrder, 'integer');
         }
     }
