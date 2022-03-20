@@ -260,8 +260,12 @@ function getAllTickets(
         return $retVal;
     }
 
-    settype($getUnofficial, 'boolean');
-    $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
+    // official/unofficial filter (ignore when a specific achievement is requested)
+    $achFlagCond = '';
+    if (!$givenAchievementID) {
+        settype($getUnofficial, 'boolean');
+        $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
+    }
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
