@@ -62,7 +62,9 @@ RenderHtmlHead("Linked Hashes");
                 continue;
             }
 
-            echo '<li><p><b>' . $hash['Name'] . '</b>';
+            $hashName = $hash['Name'];
+            sanitize_outputs($hashName);
+            echo "<li><p><b>$hashName</b>";
             if (!empty($hash['Labels'])) {
                 foreach (explode(',', $hash['Labels']) as $label) {
                     if (empty($label)) {
