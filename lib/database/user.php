@@ -1617,7 +1617,7 @@ function SetPatreonSupporter($usernameIn, $enable)
     }
 }
 
-function SetUserTrackedStatus($usernameIn, $isUntracked)
+function SetUserUntrackedStatus($usernameIn, $isUntracked)
 {
     sanitize_sql_inputs($usernameIn, $isUntracked);
 
