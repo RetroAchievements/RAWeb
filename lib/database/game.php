@@ -663,6 +663,9 @@ function requestModifyGame($author, $gameID, $field, $value)
             $dbResult = s_mysql_query($query);
 
             $result = $dbResult !== false;
+
+            // Log hash unlink
+            addArticleComment("Server", \RA\ArticleType::Hash, $gameID, $value . " unlinked by " . $author);
             break;
     }
 
@@ -1205,6 +1208,9 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
                 /**
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
+
+                // Log hash linked
+                addArticleComment("Server", \RA\ArticleType::Hash, $gameID, $md5 . " linked by " . $user);
             } else {
                 /**
                  * cannot insert duplicate md5 (already present?
