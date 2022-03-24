@@ -28,14 +28,18 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     }
 
     if (requestModifyGame($author, $gameID, $field, $value)) {
-        if ($field != 3) { // Don't refresh if unlinking hash
-            header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
+        if ($field == 3) { // Only return status when unlinking hash
+            echo "OK";
+            exit;
         }
-        echo "OK";
+        header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
         exit;
     } else {
+        if ($field == 3) { // Only return status when unlinking hash
+            echo "FAILED!";
+            exit;
+        }
         header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
-        echo "FAILED!";
         exit;
     }
 }
