@@ -19,7 +19,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
         $labels = requestInputPost('l');
         if (updateHashDetails($gameID, $value, $name, $labels)) {
             // Log hash update
-            addArticleComment("Server", \RA\ArticleType::Hash, $gameID, $value . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
+            addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $value . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
             echo "OK";
         } else {
             echo "FAILED!";
@@ -28,14 +28,14 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     }
 
     if (requestModifyGame($author, $gameID, $field, $value)) {
-        if ($field == 3) { // Refresh page if unlinking hash
-            header("location: " . getenv('APP_URL') . "/managehashes.php?g=$gameID");
-        } else {
+        if ($field != 3) { // Don't refresh if unlinking hash
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
         }
+        echo "OK";
         exit;
     } else {
         header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
+        echo "FAILED!";
         exit;
     }
 }

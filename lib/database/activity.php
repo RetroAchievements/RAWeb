@@ -662,7 +662,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     //    7 = Ticket
     //    8 = Forum
     //    9 = User Moderation
-    //    10 = Hash
+    //    10 = Game Hash
 
     $dataOut = [];
 

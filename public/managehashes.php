@@ -46,23 +46,62 @@ RenderHtmlHead("Manage Game Hashes");
 <?php RenderToolbar($user, $permissions); ?>
 <script>
   function UpdateHashDetails(user, hash) {
+    $('#warning').html('Status: updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
     var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, l: labels });
-    posting.done(onUpdateComplete);
+    posting.done(function onUpdateComplete(data) {
+        if (data !== 'OK') {
+            $('#warning').html('Status: Errors...' + data);
+        } else {
+            // Get comment date
+            var date = new Date();
+            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-    $('#warning').html('Status: updating...');
-  }
+            // Place comment on correct row depending on if the user has submitted a comment already
+            if ($('#commentTextarea').length) {
+                $('#feed tr:last').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
+            } else {
+                $('#feed').append('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
+            }
 
-  function onUpdateComplete(data) {
-    //alert( data );
-    if (data !== 'OK') {
-        $('#warning').html('Status: Errors...' + data);
-        //alert( data );
-    } else {
-        $('#warning').html('Status: OK!');
+            $('#warning').html('Status: OK!');
+        }
+    })
+}
+
+function UnlinkHash(user, gameID, hash, elem) {
+    if (confirm('Are you sure you want to unlink the hash ' + hash + '?'))
+    {
+        $('#warning').html('Status: updating...');
+        var posting = $.post('/request/game/modify.php', { u: user, g: gameID, f: 3, v: hash });
+        posting.done(function onUnlinkComplete(data) {
+            if (data !== 'OK') {
+                $('#warning').html('Status: Errors...' + data);
+            } else {
+                // Remove hash from table
+                $(elem).closest('tr').remove();
+
+                // Update number of hashes linked
+                var cnt = $('#hashTable tr').length - 1
+                $("#hashCount").html("Currently this game has <b>" + cnt + "</b> unique hashes registered for it:");
+
+                // Get comment date
+                var date = new Date();
+                var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
+
+                // Place comment on correct row depending on if the user has submitted a comment already
+                if ($('#commentTextarea').length) {
+                    $('#feed tr:last').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
+                } else {
+                    $('#feed').append('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
+                }
+
+                $('#warning').html('Status: OK!');
+            }
+        })
     }
-  }
+}
 </script>
 <div id="mainpage">
     <div id="fullcontainer">
@@ -73,9 +112,9 @@ RenderHtmlHead("Manage Game Hashes");
 
         echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div><br>";
 
-        echo "Currently this game has <b>$numLinks</b> unique hashes registered for it:<br><br>";
+        echo "<div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div><br>";
 
-        echo "<div class='table-wrapper'><table><tbody>";
+        echo "<div class='table-wrapper'><table id='hashTable'><tbody>";
         echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>Description</th><th>Labels</th><th>Actions</th><th></th>\n";
 
         foreach ($hashes as $hashData) {
@@ -95,22 +134,16 @@ RenderHtmlHead("Manage Game Hashes");
             echo "<td style='width: 60%'><input type='text' id='HASH_${hash}_Name' value='" . $hashData['Name'] . "' style='width: 100%'></td>";
             echo "<td style='width: 20%'><input type='text' id='HASH_${hash}_Labels' value='" . $hashData['Labels'] . "' style='width: 100%'></td>";
             echo "<td style='width: 5%'><input type='submit' value='Update' onclick=\"UpdateHashDetails('$user', '$hash');\"></td>";
-            echo "<td style='width: 5%'><form method='post' action='/request/game/modify.php' onsubmit=\"return confirm('Are you sure you want to unlink the hash $hash?');\">";
-            echo "<input type='hidden' name='u' value='$user'>";
-            echo "<input type='hidden' name='g' value='$gameID'>";
-            echo "<input type='hidden' name='f' value='3'>";
-            echo "<input type='hidden' name='v' value='$hash'>";
-            echo "<input type='submit' value='Unlink'></form></td>";
-            echo "</tr>\n";
+            echo "<td style='width: 5%'><input class='btnDelete' type='submit' value='Unlink' onclick=\"UnlinkHash('$user', '$gameID', '$hash', this);\"></td>";
         }
 
         echo "</tbody></table><br><br>";
-        $numLogs = getArticleComments(ArticleType::Hash, $gameID, 0, 1000, $logs);
+        $numLogs = getArticleComments(ArticleType::GameHash, $gameID, 0, 1000, $logs);
         RenderCommentsComponent($user,
             $numLogs,
             $logs,
             $gameID,
-            ArticleType::Hash,
+            ArticleType::GameHash,
             $permissions
         );
         echo "</div>";
