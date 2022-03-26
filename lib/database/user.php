@@ -1299,7 +1299,7 @@ function getUsersCompletedGamesAndMax($user)
     $requiredFlags = 3;
     $minAchievementsForCompletion = 5;
 
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
+    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -1617,7 +1617,7 @@ function SetPatreonSupporter($usernameIn, $enable)
     }
 }
 
-function SetUserTrackedStatus($usernameIn, $isUntracked)
+function SetUserUntrackedStatus($usernameIn, $isUntracked)
 {
     sanitize_sql_inputs($usernameIn, $isUntracked);
 
