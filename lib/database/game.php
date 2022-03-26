@@ -663,6 +663,9 @@ function requestModifyGame($author, $gameID, $field, $value)
             $dbResult = s_mysql_query($query);
 
             $result = $dbResult !== false;
+
+            // Log hash unlink
+            addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $value . " unlinked by " . $author);
             break;
     }
 
@@ -1130,6 +1133,7 @@ function createNewGame($titleIn, $consoleID)
 
 function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $description)
 {
+    $unsanitizedDescription = $description;
     sanitize_sql_inputs($user, $md5, $gameIDin, $consoleID, $description);
     settype($consoleID, 'integer');
 
@@ -1206,6 +1210,13 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
                 /**
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
+
+                // Log hash linked
+                if (!empty($unsanitizedDescription)) {
+                    addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $md5 . " linked by " . $user . ". Description: \"" . $unsanitizedDescription . "\"");
+                } else {
+                    addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $md5 . " linked by " . $user);
+                }
             } else {
                 /**
                  * cannot insert duplicate md5 (already present?
