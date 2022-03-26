@@ -1204,7 +1204,8 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
             }
             $query .= " )";
 
-            $dbResult = s_mysql_query($query);
+            global $db;
+            $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
                 /**
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
