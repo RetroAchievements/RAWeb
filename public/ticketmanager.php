@@ -16,7 +16,7 @@ $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
 $defaultFilter = 16377; //16377 sets all filters active except for Closed and Resolved
-$getAllTickets = 16383; //const
+$allTicketsFilter = 16383; //const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
@@ -115,7 +115,8 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $getAllTickets); //sets all filters enabled so we get closed/resolved tickets as well
+    //sets all filters enabled so we get closed/resolved tickets as well
+    $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $allTicketsFilter);
     //var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
@@ -284,8 +285,8 @@ RenderHtmlHead($pageTitle);
                 $resolvedTickets = ($ticketFilters & (1 << 2));
                 $triggeredTickets = ($ticketFilters & (1 << 3));
                 $didNotTriggerTickets = ($ticketFilters & (1 << 4));
-                $md5KnownTickets = ($ticketFilters & (1 << 5));
-                $md5UnknownTickets = ($ticketFilters & (1 << 6));
+                $hashKnownTickets = ($ticketFilters & (1 << 5));
+                $hashUnknownTickets = ($ticketFilters & (1 << 6));
                 $raEmulatorTickets = ($ticketFilters & (1 << 7));
                 $rarchKnownTickets = ($ticketFilters & (1 << 8));
                 $rarchUnknownTickets = ($ticketFilters & (1 << 9));
@@ -332,19 +333,19 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //MD5 Filters
+                //Hash Filters
                 echo "<div>";
-                echo "<b>MD5:</b> ";
-                if ($md5KnownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 5)) . "'>*Contains MD5</a></b> | ";
+                echo "<b>Hash:</b> ";
+                if ($hashKnownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 5)) . "'>*Contains Hash</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 5)) . "'>Contains MD5</a> | ";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 5)) . "'>Contains Hash</a> | ";
                 }
 
-                if ($md5UnknownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 6)) . "'>*MD5 Unknown</a></b>";
+                if ($hashUnknownTickets) {
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 6)) . "'>*Hash Unknown</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 6)) . "'>MD5 Unknown</a>";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 6)) . "'>Hash Unknown</a>";
                 }
                 echo "</div>";
 

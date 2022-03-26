@@ -663,6 +663,9 @@ function requestModifyGame($author, $gameID, $field, $value)
             $dbResult = s_mysql_query($query);
 
             $result = $dbResult !== false;
+
+            // Log hash unlink
+            addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $value . " unlinked by " . $author);
             break;
     }
 
@@ -1128,9 +1131,10 @@ function createNewGame($titleIn, $consoleID)
     return null;
 }
 
-function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
+function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $description)
 {
-    sanitize_sql_inputs($user, $md5, $gameIDin, $consoleID);
+    $unsanitizedDescription = $description;
+    sanitize_sql_inputs($user, $md5, $gameIDin, $consoleID, $description);
     settype($consoleID, 'integer');
 
     // error_log(__FUNCTION__ . " called with $user, $md5, $titleIn, $consoleID");
@@ -1147,25 +1151,17 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
     if (!isset($user)) {
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
         $retVal['Success'] = false;
+    } elseif ($permissions < Permissions::Developer) {
+        $retVal['Error'] = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+        $retVal['Success'] = false;
     } elseif (mb_strlen($md5) != 32) {
-        // error_log(__FUNCTION__ . " Md5 unready? Ignoring");
         $retVal['Error'] = "MD5 provided ($md5) doesn't appear to be exactly 32 characters, this request is invalid.";
         $retVal['Success'] = false;
     } elseif (mb_strlen($titleIn) < 2) {
-        // error_log(__FUNCTION__ . " $user provided a new md5 $md5 for console $consoleID, but provided the title $titleIn. Ignoring");
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
-    } elseif (!isValidConsoleId($consoleID)) {
-        /**
-         * cannot submitGameTitle, $consoleID is 0! What console is this for?
-         */
-        $retVal['Error'] = "Cannot submit game title, ConsoleID is 0! What console is this for?";
-        $retVal['Success'] = false;
-    } elseif ($permissions < Permissions::Developer) {
-        /**
-         * Cannot submit *new* game title, not allowed! User level too low ($user, $permissions)
-         */
-        $retVal['Error'] = "The ROM you are trying to load is not in the database. Check official forum thread for details about versions of the game which are supported.";
+    } elseif ($consoleID < 1 || (!isValidConsoleId($consoleID) && $permissions < Permissions::Admin)) {
+        $retVal['Error'] = "Cannot submit game title for unknown ConsoleID $consoleID";
         $retVal['Success'] = false;
     } else {
         if (!empty($gameIDin)) {
@@ -1182,46 +1178,50 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
              */
             $game = createNewGame($titleIn, $consoleID);
             $gameID = $game['ID'] ?? 0;
-            $title = $game['Title'] ?? $titleIn;
-            if ($gameID !== 0) {
-                $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$gameID', '$user' )";
-                $dbResult = s_mysql_query($query);
-                if ($dbResult !== false) {
-                    /**
-                     * $user added $md5, $gameID to GameHashLibrary, and $gameID, $title to GameData
-                     */
-                    $retVal['GameID'] = $gameID;
-                    $retVal['GameTitle'] = $title;
-                } else {
-                    log_sql_fail();
-                    $retVal['Error'] = "Failed to add $md5 for '$title'";
-                    $retVal['Success'] = false;
-                }
-            } else {
+            if ($gameID == 0) {
                 /**
                  * cannot create game $title
                  */
-                $retVal['Error'] = "Failed to create game title '$title'";
+                $retVal['Error'] = "Failed to create game title '$titleIn'";
                 $retVal['Success'] = false;
             }
-        } else {
+        }
+
+        if ($gameID !== 0) {
             $gameTitle = $game['Title'] ?? $titleIn;
+
+            $retVal['GameID'] = $gameID;
+            $retVal['GameTitle'] = $gameTitle;
+
             /**
-             * Adding md5 to an existing title ($gameID)
+             * Associate md5 to $gameID
              */
-            $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$gameID', '$user' )";
-            $dbResult = s_mysql_query($query);
+            $query = "INSERT INTO GameHashLibrary (MD5, GameID, User, Name) VALUES( '$md5', '$gameID', '$user', ";
+            if (!empty($description)) {
+                $query .= "'$description'";
+            } else {
+                $query .= "NULL";
+            }
+            $query .= " )";
+
+            global $db;
+            $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
                 /**
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
-                $retVal['GameID'] = $gameID;
-                $retVal['GameTitle'] = $gameTitle;
+
+                // Log hash linked
+                if (!empty($unsanitizedDescription)) {
+                    addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $md5 . " linked by " . $user . ". Description: \"" . $unsanitizedDescription . "\"");
+                } else {
+                    addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $md5 . " linked by " . $user);
+                }
             } else {
                 /**
                  * cannot insert duplicate md5 (already present?
                  */
-                $retVal['Error'] = "Failed to add duplicate md5 for '$gameTitle' (already present?)";
+                $retVal['Error'] = "Failed to add md5 for '$gameTitle' (already present?)";
                 $retVal['Success'] = false;
             }
         }
@@ -1229,6 +1229,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID)
 
     settype($retVal['ConsoleID'], 'integer');
     settype($retVal['GameID'], 'integer');
+
     return $retVal;
 }
 

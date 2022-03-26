@@ -58,7 +58,6 @@ RenderHtmlStart(true);
     "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
 ); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>

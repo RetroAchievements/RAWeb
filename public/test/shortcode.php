@@ -9,6 +9,9 @@ $username = 'Scott';
 $user = GetUserData($username);
 
 $payload = <<<EOF
+
+Unchanged case: [SLUS-00752] [BAR]
+
 [b][i][u][s]Formatting[/s][/u][/i][/b]
 [b][i][u][s]Scrambled Formatting[/i][/b][/u][/s]
 
@@ -16,7 +19,7 @@ $payload = <<<EOF
 
 [b][i]Code Blocks[/i][/b]
 
-[Code]inline code[/CODE]
+[Code]inline code with mismatching tag case[/CODE]
 
 [code]
 multi
@@ -57,8 +60,9 @@ https://youtu.be/dMH0bHeiRNg
 
 [b][i]Links[/i][/b]
 
-[ach=1]
-[ach="2"]
+[ach=1] ach=1
+[ach="2"] ach="2" (quoted)
+[ACH=3] ACH=3 (case corrected)
 [game=3]
 [game="4"]
 [ticket=5]
@@ -69,12 +73,13 @@ https://youtu.be/dMH0bHeiRNg
 example.org (no link)
 www.example.org (no link)
 
-[url="https://retroachievements.org"]
-[url=https://retroachievements.org]
-[url]https://retroachievements.org[/url]
-[url=https://retroachievements.org]URL Shortcode[/url]
+[url="retroachievements.org#1"] | [url="retroachievements.org#2"]
+[url="https://retroachievements.org#1"] | [url="https://retroachievements.org#2"]
+[url=http://retroachievements.org#1] | [url=http://retroachievements.org#2]
+[url]https://retroachievements.org#1[/url] | [url]https://retroachievements.org#2[/url]
+[url=https://retroachievements.org#1]URL Shortcode #1[/url] | [url=https://retroachievements.org#2]URL Shortcode #2[/url]
 
-[link url="https://retroachievements.org"]URL Shortcode[/link]
+[link url="https://retroachievements.org#1"]Link Shortcode #1[/link] | [link url="http://retroachievements.org#1"]Link Shortcode #2 HTTP -> HTTPS[/link]
 
 <a href="https://www.retroachievements.org">HTML</a>
 https://retroachievements.org/user/{$username}

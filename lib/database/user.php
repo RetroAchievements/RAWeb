@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\Permissions;
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +25,7 @@ function generateEmailValidationString($user)
     }
 
     //    Clear permissions til they validate their email.
-    SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Unregistered);
+    SetAccountPermissionsJSON('Server', Permissions::Admin, $user, Permissions::Unregistered);
 
     return $emailCookie;
 }
@@ -34,7 +35,12 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     sanitize_sql_inputs($actingUser, $targetUser, $targetUserNewPermissions);
     settype($targetUserNewPermissions, 'integer');
 
-    $targetUserCurrentPermissions = getUserPermissions($targetUser);
+    if (!getAccountDetails($targetUser, $targetUserData)) {
+        $retVal['Success'] = false;
+        $retVal['Error'] = "$targetUser not found";
+    }
+
+    $targetUserCurrentPermissions = $targetUserData['Permissions'];
 
     $retVal = [
         'DestUser' => $targetUser,
@@ -78,6 +84,9 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     }
 
     $retVal['Success'] = true;
+
+    addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
+        $actingUser . ' set account type to ' . PermissionsToString($targetUserNewPermissions));
 
     return $retVal;
 }
@@ -127,6 +136,11 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permis
         if ($dbResult !== false) {
             AuthoriseAllForumPosts($user);
 
+            if (getAccountDetails($user, $userData)) {
+                addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
+                    $sourceUser . ' authorized user\'s forum posts');
+            }
+
             // error_log(__FUNCTION__ . " SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)");
             return true;
         } else {
@@ -161,7 +175,7 @@ function validateEmailValidationString($emailCookie, &$user)
             // log_sql($query);
             $dbResult = s_mysql_query($query);
             if ($dbResult !== false) {
-                $response = SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Registered);
+                $response = SetAccountPermissionsJSON('Server', Permissions::Admin, $user, Permissions::Registered);
                 if ($response['Success']) {
                     static_addnewregistereduser($user);
                     generateAPIKey($user);
@@ -1285,7 +1299,7 @@ function getUsersCompletedGamesAndMax($user)
     $requiredFlags = 3;
     $minAchievementsForCompletion = 5;
 
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
+    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -1603,7 +1617,7 @@ function SetPatreonSupporter($usernameIn, $enable)
     }
 }
 
-function SetUserTrackedStatus($usernameIn, $isUntracked)
+function SetUserUntrackedStatus($usernameIn, $isUntracked)
 {
     sanitize_sql_inputs($usernameIn, $isUntracked);
 
@@ -1631,7 +1645,7 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['TotalPoints'] = $userInfo['RAPoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $userCardInfo['Permissions'] = $userInfo['Permissions'];
-    $userCardInfo['Motto'] = htmlspecialchars($userInfo['Motto']);
+    $userCardInfo['Motto'] = $userInfo['Motto'];
     $userCardInfo['Rank'] = getUserRank($user);
     $userCardInfo['Untracked'] = $userInfo['Untracked'];
     $userCardInfo['LastActivity'] = $userInfo['LastLogin'];
@@ -1793,6 +1807,12 @@ function cancelDeleteRequest($username): bool
 
     $query = "UPDATE UserAccounts u SET u.DeleteRequested = NULL WHERE u.User = '$username'";
     $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false) {
+        addArticleComment('Server', ArticleType::UserModeration, $user['ID'],
+            $username . ' canceled account deletion');
+    }
+
     return $dbResult !== false;
 }
 
@@ -1810,6 +1830,12 @@ function deleteRequest($username, $date = null): bool
     $date = $date ?? date('Y-m-d H:i:s');
     $query = "UPDATE UserAccounts u SET u.DeleteRequested = '$date', u.Permissions = $permission WHERE u.User = '$username'";
     $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false) {
+        addArticleComment('Server', ArticleType::UserModeration, $user['ID'],
+            $username . ' requested account deletion');
+    }
+
     return $dbResult !== false;
 }
 

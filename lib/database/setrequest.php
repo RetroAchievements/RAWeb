@@ -224,14 +224,14 @@ function getSetRequestorsList($gameID)
 /**
  * Gets a list of the most requested sets without core achievements.
  *
- * @param int $console the console to get games for
+ * @param int|array|null $console the console (or array of consoles) to get games for
  * @param int $offset offset starting position for returned games
  * @param int $count number of games to return
  * @return array
  */
 function getMostRequestedSetsList($console, $offset, $count)
 {
-    sanitize_sql_inputs($console, $offset, $count);
+    sanitize_sql_inputs($offset, $count);
 
     $retVal = [];
 
@@ -251,9 +251,11 @@ function getMostRequestedSetsList($console, $offset, $count)
         WHERE 
             sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
-    if (!empty($console)) {
-        $query .= "
-                AND c.ID = '$console' ";
+    if (is_array($console)) {
+        $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
+    } elseif (!empty($console)) {
+        sanitize_sql_inputs($console);
+        $query .= " AND c.ID = $console ";
     }
 
     $query .= "
@@ -281,13 +283,11 @@ function getMostRequestedSetsList($console, $offset, $count)
 /**
  * Gets the number of set-less games with at least one set request.
  *
- * @param int $console the console to get game count for
+ * @param int|array|null $console the console (or array of consoles) to get game count for
  * @return bool|mixed|string
  */
 function getGamesWithRequests($console)
 {
-    sanitize_sql_inputs($console);
-
     $query = "
         SELECT
             COUNT(DISTINCT sr.GameID) AS Games,
@@ -302,9 +302,11 @@ function getGamesWithRequests($console)
         WHERE
              GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
-    if (!empty($console)) {
-        $query .= "
-                AND c.ID = '$console' ";
+    if (is_array($console)) {
+        $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
+    } elseif (!empty($console)) {
+        sanitize_sql_inputs($console);
+        $query .= " AND c.ID = $console ";
     }
 
     $dbResult = s_mysql_query($query);

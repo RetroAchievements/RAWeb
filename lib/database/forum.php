@@ -3,7 +3,7 @@
 use RA\ModifyTopicField;
 use RA\Permissions;
 
-function getForumList($categoryID = 0)
+function getForumList($permissions, $categoryID = 0)
 {
     sanitize_sql_inputs($categoryID);
     settype($categoryID, 'integer');
@@ -63,7 +63,7 @@ function getForumDetails($forumID, &$forumDataOut)
     }
 }
 
-function getForumTopics($forumID, $offset, $count, &$maxCountOut)
+function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut)
 {
     sanitize_sql_inputs($forumID, $offset, $count);
     settype($forumID, "integer");
@@ -84,6 +84,7 @@ function getForumTopics($forumID, $offset, $count, &$maxCountOut)
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
                 WHERE ft.ForumID = $forumID
+                AND ft.RequiredPermissions <= $permissions
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC
                 LIMIT $offset, $count";
@@ -111,7 +112,7 @@ function getUnauthorisedForumLinks()
 {
     $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
-                LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
+                LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
                 WHERE ftc.Authorised = 0
@@ -341,7 +342,9 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
             }
         }
 
-        notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
+        if ($authFlags == 1) {
+            notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
+        }
 
         //error_log( __FUNCTION__ . " posted OK!" );
         // error_log(__FUNCTION__ . " $user posted $commentPayload for topic ID $topicID");
@@ -491,7 +494,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
     }
 }
 
-function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
+function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$dataOut)
 {
     sanitize_sql_inputs($offset, $count, $numMessageChars);
     //    02:08 21/02/2014 - cater for 20 spam messages
@@ -517,6 +520,7 @@ function getRecentForumPosts($offset, $count, $numMessageChars, &$dataOut)
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
         LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
+        WHERE ft.RequiredPermissions <= '$permissions'
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, $count";
 
@@ -640,8 +644,23 @@ function AuthoriseAllForumPosts($user)
 {
     sanitize_sql_inputs($user);
 
+    // notify users of the posts now that they've been authorised
+    $query = "SELECT ft.ID as TopicID, ft.Title as TopicTitle, ftc.ID as CommentID
+              FROM ForumTopic ft
+              LEFT JOIN ForumTopicComment ftc ON ftc.ForumTopicID=ft.ID
+              WHERE ftc.Author = '$user' AND ftc.Authorised = 0";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            notifyUsersAboutForumActivity($db_entry['TopicID'], $db_entry['TopicTitle'], $user, $db_entry['CommentID']);
+        }
+    } else {
+        // error_log(__FUNCTION__ . " error");
+        log_sql_fail();
+    }
+
     //    Sets all unauthorised forum posts by a particular user to authorised
-    //    Removes all 'unauthorised' forum posts by a particular user
     $query = "UPDATE ForumTopicComment AS ftc
               SET ftc.Authorised = 1
               WHERE Author = '$user'";

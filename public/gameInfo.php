@@ -3,6 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
+use RA\UserPref;
 
 /*
   DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash
@@ -54,7 +55,66 @@ $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
 
 $pageTitle = "$gameTitle ($consoleName)";
 
-$gameAlts = getGameAlternatives($gameID);
+$relatedGames = getGameAlternatives($gameID);
+$gameAlts = [];
+$gameHubs = [];
+foreach ($relatedGames as $gameAlt) {
+    if ($gameAlt['ConsoleName'] == 'Hubs') {
+        $gameHubs[] = $gameAlt;
+    } else {
+        $gameAlts[] = $gameAlt;
+    }
+}
+
+$v = requestInputSanitized('v', 0, 'integer');
+if ($v != 1 && $isFullyFeaturedGame) {
+    foreach ($gameHubs as $hub) {
+        if ($hub['Title'] == '[Theme - Mature]') {
+            if (getAccountDetails($user, $accountDetails) &&
+                BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+                break;
+            }
+
+            RenderHtmlStart(true); ?>
+<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
+    <?php RenderSharedHeader(); ?>
+    <?php RenderTitleTag($pageTitle); ?>
+</head>
+<body>
+<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
+<?php RenderToolbar($user, $permissions);
+            echo "<div id='mainpage'>";
+            echo "<div id='leftcontainer'>";
+            echo "<div class='navpath'>";
+            echo "<a href='/gameList.php'>All Games</a>";
+            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
+            echo " &raquo; <b>$gameTitle</b>";
+            echo "</div>";
+            echo "<h3 class='longheader'>$pageTitle</h3>"; ?>
+  <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
+  <br/>
+  <div id="confirmation">
+    Are you sure that you want to view this game?
+    <br/>
+    <br/>
+    <form id='consentform' action='/game/<?php echo $gameID ?>' method='get' style='float:left'>
+      <input type='hidden' name='v' value='1'/>
+      <input type='submit' value='Yes. I&apos;m an adult'/>
+    </form>
+    <form id='escapeform' action='/gameList.php' method='get' style='float:left; margin-left:16px'>
+      <input type='hidden' name='c' value='<?php echo $consoleID ?>'/>
+      <input type='submit' value='Not Interested'/>
+    </form>
+  </div>
+</div>
+</div>
+<?php RenderFooter(); ?>
+</body>
+<?php RenderHtmlEnd();
+            exit;
+        }
+    }
+}
 
 $achDist = null;
 $authorInfo = null;
@@ -171,7 +231,6 @@ RenderHtmlStart(true);
         <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
     <?php endif ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -513,32 +572,19 @@ RenderHtmlStart(true);
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
+            echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            if ($developer) {
-                echo "<tr>";
-                echo "<td>Developer:</td>";
-                echo "<td><b>$developer</b></td>";
-                echo "</tr>";
-            }
-            if ($publisher) {
-                echo "<tr>";
-                echo "<td>Publisher:</td>";
-                echo "<td><b>$publisher</b></td>";
-                echo "</tr>";
-            }
-            if ($genre) {
-                echo "<tr>";
-                echo "<td>Genre:</td>";
-                echo "<td><b>$genre</b></td>";
-                echo "</tr>";
-            }
-            if ($released) {
-                echo "<tr>";
-                echo "<td>First released:</td>";
-                echo "<td><b>$released</b></td>";
-                echo "</tr>";
+            if ($isFullyFeaturedGame) {
+                RenderMetadataTableRow('Developer', $developer, $gameHubs);
+                RenderMetadataTableRow('Publisher', $publisher, $gameHubs);
+                RenderMetadataTableRow('Genre', $genre, $gameHubs);
+                RenderMetadataTableRow('Released', $released, null);
+            } else {
+                RenderMetadataTableRow('Developer', $developer, null);
+                RenderMetadataTableRow('Publisher', $publisher, null);
+                RenderMetadataTableRow('Genre', $genre, null);
+                RenderMetadataTableRow('Released', $released, null);
             }
             echo "</tbody></table>";
             echo "</tr>";
@@ -570,10 +616,18 @@ RenderHtmlStart(true);
                 // Display the option to switch between viewing core/unofficial for non-hub page
                 if ($isFullyFeaturedGame) {
                     if ($flags == $unofficialFlag) {
-                        echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
+                        if ($v == 1) {
+                            echo "<div><a href='/game/$gameID?v=1'>View Core Achievements</a></div>";
+                        } else {
+                            echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
+                        }
                         echo "<div><a href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
                     } else {
-                        echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
+                        if ($v == 1) {
+                            echo "<div><a href='/game/$gameID?f=5&v=1'>View Unofficial Achievements</a></div>";
+                        } else {
+                            echo "<div><a href='/game/$gameID?f=5'>View Unofficial Achievements</a></div>";
+                        }
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
                 }
@@ -592,7 +646,7 @@ RenderHtmlStart(true);
 
                 if ($isFullyFeaturedGame) {
                     if ($permissions >= Permissions::Developer) {
-                        echo "<div><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></div>";
+                        echo "<div><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                         echo "<div><a href='/request/game/recalculate-points-ratio.php?g=$gameID'>Recalculate True Ratios</a></div>";
                     }
                     echo "<div><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></div>";
@@ -690,9 +744,9 @@ RenderHtmlStart(true);
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div>Similar Games</div>";
+                    echo "<div>Relations</div>";
                     echo "<table><tbody>";
-                    if (count($gameAlts) > 0) {
+                    if (count($relatedGames) > 0) {
                         echo "<tr><td>";
                         echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
@@ -701,7 +755,7 @@ RenderHtmlStart(true);
                         echo "<select name='m'>";
                         echo "<option value='0' selected>-</option>";
 
-                        foreach ($gameAlts as $gameAlt) {
+                        foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
                             $gameAltTitle = $gameAlt['Title'];
                             $gameAltConsole = $gameAlt['ConsoleName'];
@@ -713,6 +767,7 @@ RenderHtmlStart(true);
 
                             echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
                         }
+
                         echo "</select>";
                         echo "<input type='submit' style='float: right;' value='Remove' size='37'>";
                         echo "</form>";
@@ -1054,8 +1109,8 @@ RenderHtmlStart(true);
             }
 
             if (!$isFullyFeaturedGame) {
-                if (count($gameAlts) > 0) {
-                    RenderGameAlts($gameAlts, false);
+                if (count($relatedGames) > 0) {
+                    RenderGameAlts($relatedGames, null);
                 }
             }
 
@@ -1104,15 +1159,15 @@ RenderHtmlStart(true);
                 if ($numAchievements == 0) {
                     echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors</a></li>";
                 }
-                //if( $flags == $unofficialFlag )
-                //echo "<li><a class='info-button' href='/game/$gameID'><span>🏆</span>View Core Achievements</a></li>";
-                //else
-                //echo "<li><a class='info-button' href='/gameInfo.php?ID=$gameID&f=5'><span>🏆</span>View Unofficial Achievements</a></li>";
                 echo "</ul><br>";
             }
 
             if (count($gameAlts) > 0) {
-                RenderGameAlts($gameAlts);
+                RenderGameAlts($gameAlts, 'Similar Games');
+            }
+
+            if (count($gameHubs) > 0) {
+                RenderGameAlts($gameHubs, 'In Collections');
             }
 
             if ($user == null) {

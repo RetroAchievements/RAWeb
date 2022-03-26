@@ -582,6 +582,8 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
         $i = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$i] = $db_entry;
+            $dataOut[$i]['timestamp'] = strtotime($dataOut[$i]['timestamp']);
+            $dataOut[$i]['CommentPostedAt'] = strtotime($dataOut[$i]['CommentPostedAt']);
             $i++;
         }
 
@@ -658,6 +660,9 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     //    5 = feed Activity
     //    6 = LB
     //    7 = Ticket
+    //    8 = Forum
+    //    9 = User Moderation
+    //    10 = Game Hash
 
     $dataOut = [];
 

@@ -210,7 +210,7 @@ RenderToolbar($user, $permissions);
         RenderActivePlayersComponent();
         RenderCurrentlyOnlineComponent();
         echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
-        RenderRecentForumPostsComponent(4);
+        RenderRecentForumPostsComponent($permissions, 4);
         ?>
     </div>
     <div id="rightcontainer" style="padding-top: 20px">

@@ -18,7 +18,8 @@ function GetAchievementAndTooltipDiv(
     sanitize_outputs(
         $achName,
         $consoleName,
-        $gameName
+        $gameName,
+        $achPoints
     );
 
     $achNameStr = $achName;
@@ -38,7 +39,7 @@ function GetAchievementAndTooltipDiv(
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
-    $tooltip = attributeEscape($tooltip);
+    $tooltip = tipEscape($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";

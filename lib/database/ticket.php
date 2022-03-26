@@ -12,9 +12,9 @@ function isAllowedToSubmitTickets($user)
         && $userInfo[0]['GameID'];
 }
 
-function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $ROMMD5)
+function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RAHash)
 {
-    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $ROMMD5);
+    sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $RAHash);
 
     $returnMsg = [];
 
@@ -26,7 +26,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RO
     global $db;
 
     $note = $noteIn;
-    $note .= "\nMD5: $ROMMD5";
+    $note .= "\nRetroAchievements Hash: $RAHash";
 
     $submitterUserID = getUserIDFromUser($userSubmitter);
     settype($reportType, 'integer');
@@ -243,9 +243,9 @@ function getAllTickets(
         return $retVal;
     }
 
-    //MD5 condition
-    $md5Cond = getMD5Condition($ticketFilters);
-    if ($md5Cond === null) {
+    //Hash condition
+    $hashCond = getHashCondition($ticketFilters);
+    if ($hashCond === null) {
         return $retVal;
     }
 
@@ -260,8 +260,12 @@ function getAllTickets(
         return $retVal;
     }
 
-    settype($getUnofficial, 'boolean');
-    $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
+    // official/unofficial filter (ignore when a specific achievement is requested)
+    $achFlagCond = '';
+    if (!$givenAchievementID) {
+        settype($getUnofficial, 'boolean');
+        $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
+    }
 
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
@@ -272,7 +276,7 @@ function getAllTickets(
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $md5Cond $emulatorCond
+              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -474,9 +478,9 @@ function countOpenTickets(
         return 0;
     }
 
-    //MD5 condition
-    $md5Cond = getMD5Condition($ticketFilters);
-    if ($md5Cond === null) {
+    //Hash condition
+    $hashCond = getHashCondition($ticketFilters);
+    if ($hashCond === null) {
         return 0;
     }
 
@@ -511,7 +515,7 @@ function countOpenTickets(
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $md5Cond $emulatorCond $authorCond";
+        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond";
 
     $dbResult = s_mysql_query($query);
 
@@ -628,24 +632,24 @@ function getReportTypeCondition($ticketFilters)
 }
 
 /**
- * Gets the ticket MD5 condition to put into the main ticket query.
+ * Gets the ticket hash condition to put into the main ticket query.
  *
  * @param int $ticketFilters the current ticket filters in place
  * @return string|null
  */
-function getMD5Condition($ticketFilters)
+function getHashCondition($ticketFilters)
 {
-    $md5KnownTickets = ($ticketFilters & (1 << 5));
-    $md5UnknownTickets = ($ticketFilters & (1 << 6));
+    $hashKnownTickets = ($ticketFilters & (1 << 5));
+    $hashUnknownTickets = ($ticketFilters & (1 << 6));
 
-    if ($md5KnownTickets && $md5UnknownTickets) {
+    if ($hashKnownTickets && $hashUnknownTickets) {
         return "";
     }
-    if ($md5KnownTickets) {
-        return " AND (tick.ReportNotes REGEXP 'MD5: [a-fA-F0-9]{32}')";
+    if ($hashKnownTickets) {
+        return " AND (tick.ReportNotes REGEXP '(MD5|RetroAchievements Hash): [a-fA-F0-9]{32}')";
     }
-    if ($md5UnknownTickets) {
-        return " AND (tick.ReportNotes NOT REGEXP 'MD5: [a-fA-F0-9]{32}')";
+    if ($hashUnknownTickets) {
+        return " AND (tick.ReportNotes NOT REGEXP '(MD5|RetroAchievements Hash): [a-fA-F0-9]{32}')";
     }
     return null;
 }

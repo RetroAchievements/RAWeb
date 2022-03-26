@@ -25,7 +25,6 @@ function RenderHtmlHead($pageTitle = null)
     echo "<head>";
     RenderSharedHeader();
     RenderTitleTag($pageTitle);
-    RenderGoogleTracking();
     echo "</head>";
 }
 
@@ -201,6 +200,10 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
     echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
+    ///Sony
+    echo "<li class='dropdown-header'>Sony</li>";
+    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+    echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
     ///Atari
     echo "<li class='dropdown-header'>Atari</li>";
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
@@ -224,10 +227,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
     echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
-    ///Sony
-    echo "<li class='dropdown-header'>Sony</li>";
-    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
-    echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
+    echo "<li><a href='/gameList.php?c=40'>Sega Dreamcast</a></li>";
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
