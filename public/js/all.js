@@ -112,7 +112,7 @@ function insertEditForm(activityVar, articleType) {
   }
 }
 
-function onCommentSuccess(data) {
+function onCommentSuccess(data, articleType) {
   if (data.substring(0, 6) === 'FAILED') {
     console.error('Failed to post comment! Please try again, or later. Sorry!');
     return;
@@ -132,7 +132,7 @@ function onCommentSuccess(data) {
     return;
   }
 
-  var commentRow = $('#comment_art_' + data);
+  var commentRow = $('#comment_art_' + articleType + '_' + data);
   if (commentRow.length) {
     // Embed as proper comment instead!
     commentRow.addClass('feed_comment');
@@ -176,7 +176,7 @@ function processComment(activityVar, articleType) {
             c: safeComment,
             t: articleType,
           });
-          posting.done(onCommentSuccess);
+          posting.done(function (data) { onCommentSuccess(data, articleType); });
           var submitButton = commentRow.find('#submitButton');
           if (submitButton.length) {
             submitButton.attr('src', '/Images/loading.gif'); // Change to 'loading' gif
