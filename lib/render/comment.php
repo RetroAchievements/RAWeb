@@ -72,7 +72,7 @@ function RenderCommentsComponent(
 
     if (isset($user)) {
         //    User comment input:
-        $commentInputBoxID = 'art_' . $articleID;
+        $commentInputBoxID = "art_{$articleTypeID}_{$articleID}";
         RenderCommentInputRow($user, $commentInputBoxID, $articleTypeID);
     }
 
@@ -99,7 +99,7 @@ function RenderArticleComment(
         $class .= ' localuser';
 
         $img = "<img src='" . getenv('ASSET_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
-        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleID, $commentID); return false;\" href='#'>$img</a></div>";
+        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
     if ($user === 'Server') {
@@ -107,7 +107,7 @@ function RenderArticleComment(
         $class .= ' system';
     }
 
-    $artCommentID = "artcomment_" . $articleID . "_" . $commentID;
+    $artCommentID = "artcomment_{$articleTypeID}_{$articleID}_{$commentID}";
     echo "<tr class='feed_comment $class' id='$artCommentID'>";
 
     $niceDate = date("j M Y ", $submittedDate);

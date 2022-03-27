@@ -169,9 +169,10 @@ function processComment(activityVar, articleType) {
         if (comment.length > 0) {
           var safeComment = stripTags(comment);
           // var safeComment = comment.replace( /<|>/g, '_' );
-          // Note: using substr on activityVar, because it will be in the format art_213 etc.
+          // Note: using substr on activityVar, because it will be in the format art_3_213 etc.
+          var activityId = activityVar.substr(activityVar.lastIndexOf('_') + 1);
           var posting = $.post('/request/comment/create.php', {
-            a: activityVar.substr(4),
+            a: activityId,
             c: safeComment,
             t: articleType,
           });
@@ -533,21 +534,19 @@ $(function () {
   repeatFade($('.trophyimageincomplete'), 200, 300);
 });
 
-function removeComment(artID, commentID) {
+function removeComment(artTypeID, artID, commentID) {
   if (!window.confirm('Ary you sure you want to permanently delete this comment?')) {
     return false;
   }
 
   var posting = $.post('/request/comment/delete.php', { a: artID, c: commentID });
-  posting.done(onRemoveComment);
+  posting.done(function (data) {
+    var result = $.parseJSON(data);
+    if (result.Success) {
+      $('#artcomment_' + artTypeID + '_' + artID + '_' + commentID).hide();
+    }
+  });
   return true;
-}
-
-function onRemoveComment(data) {
-  var result = $.parseJSON(data);
-  if (result.Success) {
-    $('#artcomment_' + result.ArtID + '_' + result.CommentID).hide();
-  }
 }
 
 function ResetTheme() {
