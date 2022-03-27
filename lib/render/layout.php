@@ -231,6 +231,7 @@ function RenderToolbar($user, $permissions = 0)
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
+    echo "<li><a href='/gameList.php?c=37'>Amstrad CPC</a></li>";
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";

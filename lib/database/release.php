@@ -49,7 +49,7 @@ function isValidConsoleId($consoleId)
             // case 34: // VIC-20
             // case 35: // Amiga
             // case 36: // Atari ST
-            // case 37: // Amstrad CPC
+        case 37: // Amstrad CPC
         case 38: // Apple II
         case 39: // Sega Saturn
         case 40: // Dreamcast
