@@ -269,7 +269,6 @@ function getGameMetadataByFlags(
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            print_r($data);
             if ($data['HardcoreMode'] == 1) {
                 $numDistinctPlayersHardcore = $data['Users'];
             } else {
@@ -753,7 +752,7 @@ function requestModifyGameForumTopic($gameID, $newForumTopic)
  *
  * @return array of achievement distribution information to plot on the game page
  */
-function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags)
+function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags, $numAchievements = null)
 {
     sanitize_sql_inputs($gameID, $hardcore, $requestedBy, $flags);
     settype($gameID, 'integer');
@@ -790,7 +789,10 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags)
         }
 
         // fill the gaps and sort
-        $numAchievements = getGameMetadataByFlags($gameID, $requestedBy, $achievementData, $gameData, 1, null, $flags);
+        if ($numAchievements === null) {
+            $numAchievements = getGameMetadataByFlags($gameID, $requestedBy, $achievementData, $gameData, 1, null, $flags);
+        }
+
         for ($i = 1; $i <= $numAchievements; $i++) {
             if (!array_key_exists($i, $retval)) {
                 $retval[$i] = 0;

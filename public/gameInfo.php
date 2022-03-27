@@ -140,7 +140,7 @@ if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
 
-    $achDist = getAchievementDistribution($gameID, 0, $user, $flags); // for now, only retrieve casual!
+    $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
 
