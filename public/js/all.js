@@ -540,7 +540,7 @@ function removeComment(artTypeID, artID, commentID) {
   }
 
   var posting = $.post('/request/comment/delete.php', { a: artID, c: commentID });
-  posting.done(function onRemoveComment(data) {
+  posting.done(function (data) {
     var result = $.parseJSON(data);
     if (result.Success) {
       $('#artcomment_' + artTypeID + '_' + artID + '_' + commentID).hide();
