@@ -139,20 +139,6 @@ $isSoleAuthor = false;
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
-    if ($numDistinctPlayersCasual == 0) {
-        $numDistinctPlayersCasual = 1;
-    }
-    if ($numDistinctPlayersHardcore == 0) {
-        $numDistinctPlayersHardcore = 1; //??
-    }
-
-    $totalUniquePlayers = getTotalUniquePlayers($gameID, $user);
-    if ($numDistinctPlayersCasual < $totalUniquePlayers) {
-        $numDistinctPlayersCasual = $totalUniquePlayers;
-    }
-    if ($numDistinctPlayersHardcore < $totalUniquePlayers) {
-        $numDistinctPlayersHardcore = $totalUniquePlayers;
-    }
 
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags); // for now, only retrieve casual!
 
@@ -1015,9 +1001,14 @@ RenderHtmlStart(true);
                             $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
 
                             $wonBy = $nextAch['NumAwarded'];
-                            $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
-                            $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                            if ($numDistinctPlayersCasual == 0) {
+                                $completionPctCasual = "0";
+                                $completionPctHardcore = "0";
+                            } else {
+                                $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
+                                $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                            }
 
                             if ($user == "" || !$achieved) {
                                 $achBadgeName .= "_lock";

@@ -201,8 +201,6 @@ function getGameMetadataByFlags(
     //echo $query;
 
     $numAchievements = 0;
-    $numDistinctPlayersCasual = 0;
-    $numDistinctPlayersHardcore = 0;
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -210,17 +208,6 @@ function getGameMetadataByFlags(
             $nextID = $data['ID'];
             settype($nextID, 'integer');
             $achievementDataOut[$nextID] = $data;
-
-            $numHC = $data['NumAwardedHardcore'];
-            $numCas = $data['NumAwarded'];
-
-            if ($numCas > $numDistinctPlayersCasual) {
-                $numDistinctPlayersCasual = $numCas;
-            }
-            if ($numHC > $numDistinctPlayersHardcore) {
-                $numDistinctPlayersHardcore = $numHC;
-            }
-
             $numAchievements++;
         }
     } else {
@@ -253,7 +240,7 @@ function getGameMetadataByFlags(
         $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
                   FROM Awarded AS aw
                   LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                  WHERE ach.GameID = $gameID AND aw.User = '$user2'";
+                  WHERE ach.GameID = $gameID AND ach.Flags = $flags AND aw.User = '$user2'";
 
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
@@ -265,6 +252,28 @@ function getGameMetadataByFlags(
                 } else {
                     $achievementDataOut[$nextID]['DateEarnedFriend'] = $data['Date'];
                 }
+            }
+        }
+    }
+
+    $numDistinctPlayersCasual = 0;
+    $numDistinctPlayersHardcore = 0;
+
+    $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
+              FROM Awarded AS aw
+              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+              LEFT JOIN UserAccounts as ua ON ua.User = aw.User
+              WHERE ach.GameID = $gameID
+              AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
+              GROUP BY aw.HardcoreMode";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            print_r($data);
+            if ($data['HardcoreMode'] == 1) {
+                $numDistinctPlayersHardcore = $data['Users'];
+            } else {
+                $numDistinctPlayersCasual = $data['Users'];
             }
         }
     }
