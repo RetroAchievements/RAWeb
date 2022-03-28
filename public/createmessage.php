@@ -39,6 +39,8 @@ $errorCode = requestInputSanitized('e');
 
 $messageContextTitle = htmlspecialchars($messageContextTitle, ENT_QUOTES);
 
+sanitize_outputs($messageContextPayload);
+
 RenderHtmlStart();
 RenderHtmlHead("Send Message");
 ?>

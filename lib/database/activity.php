@@ -4,6 +4,7 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\ObjectType;
 use RA\Permissions;
+use RA\SubscriptionSubjectType;
 
 function getMostRecentActivity($user, $type, $data)
 {
@@ -299,7 +300,7 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
               WHERE ArticleID = $articleID AND ID = $commentID";
 
     // if not UserWall's owner nor admin, check if it's the author
-    if ($articleID != $userID && $permissions < \RA\Permissions::Admin) {
+    if ($articleID != $userID && $permissions < Permissions::Admin) {
         $query .= " AND UserID = $userID";
     }
 
@@ -319,7 +320,7 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
 
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
 {
-    if (!\RA\ArticleType::isValid($articleType)) {
+    if (!ArticleType::isValid($articleType)) {
         return false;
     }
 
@@ -448,7 +449,7 @@ function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor
     $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
 
     // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /*(1 << 1)*/);
+    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /*(1 << 1)*/);
 
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
@@ -469,7 +470,7 @@ function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
     $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
 
     // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /*(1 << 1)*/);
+    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /*(1 << 1)*/);
 
     return mergeSubscribers($ticketSubs, $gameTicketsSubs);
 }
@@ -512,7 +513,7 @@ function getSubscribersOfArticle(
         return mysqli_fetch_all($dbResult, MYSQLI_ASSOC);
     }
 
-    $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
+    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
     if ($subjectType === null) {
         return [];
     }
@@ -701,7 +702,7 @@ function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
 {
     sanitize_sql_inputs($articleType, $articleID, $userID);
 
-    $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
+    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
 
     if ($subjectType === null) {
         return false;
