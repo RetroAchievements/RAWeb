@@ -18,7 +18,7 @@ function RenderCommentsComponent(
 
     echo "<div class='leftfloat'>";
     if ($numComments == 0) {
-        echo "No comments yet. Will you be the first?<br>";
+        echo "<i>No comments</i><br>";
     } else {
         echo "Recent comment(s):<br>";
     }
@@ -72,8 +72,7 @@ function RenderCommentsComponent(
 
     if (isset($user)) {
         //    User comment input:
-        $commentInputBoxID = "art_{$articleTypeID}_{$articleID}";
-        RenderCommentInputRow($user, $commentInputBoxID, $articleTypeID);
+        RenderCommentInputRow($user, $articleTypeID, $articleID);
     }
 
     echo "</tbody></table>";
@@ -127,25 +126,41 @@ function RenderArticleComment(
     echo "</tr>";
 }
 
-function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
+function RenderCommentInputRow($user, $articleTypeId, $articleId)
 {
     sanitize_outputs($user, $formStr);
+    $commentId = "art_{$articleTypeId}_{$articleId}";
+    $assetUrl = getenv('ASSET_URL');
 
-    $userImage = "<img alt='$user' title='$user' class='badgeimg' src='/UserPic/" . $user . ".png' width='32' height='32' />";
-    $formStr = "<textarea id='commentTextarea' rows=0 cols=30 name='c' maxlength=2000 placeholder='Enter a comment here...'></textarea>";
-    $formStr .= "&nbsp;";
-    $formStr .= "<img id='submitButton' src='" . getenv('ASSET_URL') . "/Images/Submit.png' alt='Submit' style='cursor: pointer;' onclick=\"processComment( '$rowIDStr', '$artTypeID' )\" />";
-
-    echo "<tr id='comment_$rowIDStr'><td></td><td class='iconscommentsingle'>$userImage</td><td colspan='3'>$formStr</td></tr>";
-}
-
-function RenderArticleEmptyComment($articleType, $articleID)
-{
-    $rowID = "art_$articleID";
-
-    echo "<tr id='$rowID' class='feed_comment'>";
-
-    echo "<td></td><td></td><td></td><td></td><td class='editbutton'><img src='" . getenv('ASSET_URL') . "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '$articleType' )\" /></td>";
-
-    echo "</tr>";
+    echo <<<EOL
+        <tr id="comment_$commentId">
+            <td></td>
+            <td class="iconscommentsingle">
+                <img alt="$user" title="$user" class="badgeimg" src="/UserPic/$user.png" width="32" height="32">
+            </td>
+            <td colspan="3">
+                <form action="/request/comment/create.php" onsubmit="onSubmitComment(event)">
+                    <input type="hidden" name="a" value="$articleId">
+                    <input type="hidden" name="t" value="$articleTypeId">
+                    <div class="d-flex align-items-center">
+                        <textarea
+                            class="comment-textarea" 
+                            name="c"
+                            maxlength="2000"
+                            placeholder="Enter a comment here..."
+                            id="comment_textarea_$commentId"
+                        ></textarea>
+                        <button class="comment-submit-button">
+                            <img src="$assetUrl/Images/Submit.png" alt="Submit">
+                        </button>
+                        <span class="comment-loading-indicator">
+                            <img src="$assetUrl/Images/loading.gif" alt="Loading">
+                        </span>
+                    </div>
+                    <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>
+                    <div class="form-error"></div>
+                </form>
+            </td>
+        </tr>
+    EOL;
 }

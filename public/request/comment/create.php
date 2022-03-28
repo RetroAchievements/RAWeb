@@ -20,7 +20,6 @@ $articleID = requestInputPost('a', null, 'integer');
 $articleType = requestInputPost('t', null, 'integer');
 
 $commentPayload = requestInputPost('c');
-$commentPayload = preg_replace('/[^(\x20-\x7F)]*/', '', $commentPayload);
 
 if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {
     // error_log(__FILE__ . " returning $articleID");
