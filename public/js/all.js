@@ -47,6 +47,7 @@ function onSubmitComment(event) {
   event.preventDefault();
   var $form = $(event.currentTarget);
   var $submit = $form.find('.comment-submit-button');
+  var $loading = $form.find('.comment-loading-indicator');
   var $error = $form.find('.form-error');
 
   var input = $form.serializeArray().reduce(function (obj, item) {
@@ -62,7 +63,8 @@ function onSubmitComment(event) {
     return false;
   }
 
-  $submit.find('img').attr('src', '/Images/loading.gif');
+  $submit.hide();
+  $loading.show();
   $.post('/request/comment/create.php', input).done(function () {
     window.location.reload();
   });

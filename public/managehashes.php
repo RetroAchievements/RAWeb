@@ -51,7 +51,7 @@ function UpdateHashDetails(user, hash) {
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
     var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, l: labels });
-    posting.done(function onUpdateComplete(data) {
+    posting.done(function (data) {
         if (data !== 'OK') {
             $warning.html('Status: Errors...' + data);
             return;
@@ -74,7 +74,7 @@ function UnlinkHash(user, gameID, hash, elem) {
     var $warning = $('#warning');
     $warning.html('Status: updating...');
     var posting = $.post('/request/game/modify.php', { u: user, g: gameID, f: 3, v: hash });
-    posting.done(function onUnlinkComplete(data) {
+    posting.done(function (data) {
         if (data !== 'OK') {
             $warning.html('Status: Errors...' + data);
             return;

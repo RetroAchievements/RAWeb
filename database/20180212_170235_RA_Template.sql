@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `Comment` (
   `ArticleType` tinyint(3) unsigned NOT NULL COMMENT 'FK to ArticleTypeDimension',
   `ArticleID` int(10) unsigned NOT NULL COMMENT 'FK to Activity',
   `UserID` int(10) unsigned NOT NULL COMMENT 'FK to UserAccounts',
-  `Payload` varchar(255) COLLATE latin1_general_ci NOT NULL,
+  `Payload` text COLLATE latin1_general_ci NOT NULL,
   `Submitted` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `Edited` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`ID`),

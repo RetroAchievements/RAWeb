@@ -142,7 +142,7 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId)
                 <form action="/request/comment/create.php" onsubmit="onSubmitComment(event)">
                     <input type="hidden" name="a" value="$articleId">
                     <input type="hidden" name="t" value="$articleTypeId">
-                    <div class="d-flex">
+                    <div class="d-flex align-items-center">
                         <textarea
                             class="comment-textarea" 
                             name="c"
@@ -153,6 +153,9 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId)
                         <button class="comment-submit-button">
                             <img src="$assetUrl/Images/Submit.png" alt="Submit">
                         </button>
+                        <span class="comment-loading-indicator">
+                            <img src="$assetUrl/Images/loading.gif" alt="Loading">
+                        </span>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>
                     <div class="form-error"></div>

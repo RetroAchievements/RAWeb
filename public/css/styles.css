@@ -175,6 +175,10 @@ a:hover {
   justify-content: space-between;
 }
 
+.align-items-center {
+  align-items: center;
+}
+
 /* --------------- */
 /* CORE COMPONENTS */
 /* --------------- */
@@ -1029,6 +1033,11 @@ th {
 .comment-submit-button {
   background: none;
   border: none;
+}
+
+.comment-loading-indicator {
+  display: none;
+  padding: 6px;
 }
 
 .form-error {
