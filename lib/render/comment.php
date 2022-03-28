@@ -141,7 +141,7 @@ function RenderCommentInputRow($user, $rowIDStr, $artTypeID)
 
 function RenderArticleEmptyComment($articleType, $articleID)
 {
-    $rowID = "art_$articleID";
+    $rowID = "art_{$articleType}_{$articleID}";
 
     echo "<tr id='$rowID' class='feed_comment'>";
 
