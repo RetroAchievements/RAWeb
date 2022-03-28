@@ -63,6 +63,7 @@ function performSearch($searchQuery, $offset, $count, $permissions, &$searchResu
         LEFT JOIN UserAccounts AS ua ON ( ua.ID = c.ArticleID )
         LEFT JOIN UserAccounts AS cua ON cua.ID = c.UserID
         WHERE c.Payload LIKE '%$searchQuery%'
+        AND c.articletype IN (1,2,3,5,7)
     )
     LIMIT $offset, $count
     ";
