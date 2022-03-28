@@ -31,26 +31,6 @@ function htmlEntities(str) {
     .replace(/"/g, '&quot;');
 }
 
-function stripTags(html) {
-  var output = html;
-  // PROCESS STRING
-  if (arguments.length < 3) {
-    output = output.replace(/<\/?(?!\!)[^>]*>/gi, '');
-  } else {
-    var regex;
-    var allowed = arguments[1];
-    var specified = eval('[' + arguments[2] + ']');
-    if (allowed) {
-      regex = '</?(?!(' + specified.join('|') + '))\b[^>]*>';
-      output = output.replace(new RegExp(regex, 'gi'), '');
-    } else {
-      regex = '</?(' + specified.join('|') + ')\b[^>]*>';
-      output = output.replace(new RegExp(regex, 'gi'), '');
-    }
-  }
-  return output;
-}
-
 /**
  * Pads a number with 0s
  */
@@ -63,136 +43,33 @@ function strPad(input, padLength, padString) {
   return new Array(padLength - input.length + 1).join(padString) + input;
 }
 
-function insertEditForm(activityVar, articleType) {
-  var user = readCookie('RA_User');
-  if (user !== null) {
-    var rowID = 'comment_' + activityVar;
-    var commentRow = $('#' + rowID);
-    if (!commentRow.length) {
-      var userImage = '<img id="badgeimg" src="/UserPic/' + user + '.png" width="32" height="32" >';
-      var formStr = '';
-      formStr += '<textarea id="commentTextarea" rows=2 cols=36 name="c" maxlength=2000></textarea>';
-      formStr += '&nbsp;';
-      formStr += '<img id="submitButton" src="' + window.assetUrl + '/Images/Submit.png" '
-        + 'alt="Submit" style="cursor: pointer;" onclick="processComment( \''
-        + activityVar + '\', \'' + articleType + '\' )">';
-      var d = new Date();
-      var dateStr = '';
-      dateStr += d.getDate();
-      dateStr += ' ';
-      dateStr += shortMonths[d.getMonth()];
-      dateStr += '<br>';
-      dateStr += ('0' + d.getUTCHours()).slice(-2);
-      dateStr += ':';
-      dateStr += ('0' + d.getUTCMinutes()).slice(-2);
-      var editRow = '<tr id=' + rowID + '><td class="smalldate">' + dateStr
-        + '</td><td class="iconscomment" colspan="2">' + userImage
-        + '</td><td colspan="3">' + formStr + '</td></tr>';
-      var lastComment = $('#' + activityVar);
-      // Insert this AFTER the last comment for this article.
-      var hasNextComment = true;
-      while (hasNextComment) {
-        var nextComment = lastComment.next();
-        if (nextComment.hasClass('feed_comment')) {
-          lastComment = lastComment.next();
-        } else {
-          hasNextComment = false;
-        }
-      }
+function onSubmitComment(event) {
+  event.preventDefault();
+  var $form = $(event.currentTarget);
+  var $submit = $form.find('.comment-submit-button');
+  var $loading = $form.find('.comment-loading-indicator');
+  var $error = $form.find('.form-error');
 
-      lastComment.after(editRow);
-      var insertedRow = lastComment.next('tr');
-      var commentTextarea = insertedRow.find('#commentTextarea');
-      commentTextarea.focus();
-      commentTextarea.val('');
-      commentTextarea.css('width', '75%');
-    } else {
-      commentRow.remove();
-    }
-  }
-}
+  var input = $form.serializeArray().reduce(function (obj, item) {
+    obj[item.name] = item.value;
+    return obj;
+  }, {});
 
-function onCommentSuccess(data, articleType) {
-  if (data.substring(0, 6) === 'FAILED') {
-    console.error('Failed to post comment! Please try again, or later. Sorry!');
-    return;
+  // validate
+  $error.hide();
+  if (input.c.length === 0) {
+    $error.show();
+    $error.text('Comment is empty');
+    return false;
   }
 
-  var sPath = window.location.pathname;
-  if (sPath.substr(0, 5).toLowerCase() === '/game') {
+  $submit.hide();
+  $loading.show();
+  $.post('/request/comment/create.php', input).done(function () {
     window.location.reload();
-    return;
-  }
-  if (sPath.substr(0, 12).toLowerCase() === '/achievement') {
-    window.location.reload();
-    return;
-  }
-  if (sPath.substr(0, 5).toLowerCase() === '/user') {
-    window.location.reload();
-    return;
-  }
+  });
 
-  var commentRow = $('#comment_art_' + articleType + '_' + data);
-  if (commentRow.length) {
-    // Embed as proper comment instead!
-    commentRow.addClass('feed_comment');
-    commentRow.removeAttr('id');
-    var textBox = commentRow.find('#commentTextarea');
-    if (textBox.length) {
-      var comment = textBox.val();
-      // var safeComment = comment.replace( /<|>/g, '_' );
-      var safeComment = stripTags(comment);
-      // var safeComment = comment; // Removed!
-
-      textBox.after(safeComment);
-      // Set its container to commenttext
-      textBox.parent().addClass('commenttext');
-      textBox.remove();
-    }
-
-    var submitButton = commentRow.find('#submitButton');
-    if (submitButton.length) {
-      submitButton.remove();
-    }
-  }
-}
-
-function processComment(activityVar, articleType) {
-  var user = readCookie('RA_User');
-  if (user !== null) {
-    var rowID = 'comment_' + activityVar;
-    var commentRow = $('#' + rowID);
-    if (commentRow.length) {
-      var textBox = commentRow.find('#commentTextarea');
-      if (textBox.length) {
-        var comment = textBox.val();
-        if (comment.length > 0) {
-          var safeComment = stripTags(comment);
-          // var safeComment = comment.replace( /<|>/g, '_' );
-          // Note: using substr on activityVar, because it will be in the format art_3_213 etc.
-          var activityId = activityVar.substr(activityVar.lastIndexOf('_') + 1);
-          var posting = $.post('/request/comment/create.php', {
-            a: activityId,
-            c: safeComment,
-            t: articleType,
-          });
-          posting.done(function (data) { onCommentSuccess(data, articleType); });
-          var submitButton = commentRow.find('#submitButton');
-          if (submitButton.length) {
-            submitButton.attr('src', '/Images/loading.gif'); // Change to 'loading' gif
-            submitButton.attr('onclick', ''); // stop being able to click this
-            submitButton.css('cursor', ''); // stop being able to see a finger pointer
-          }
-        } else {
-          console.warn('Comment is empty');
-        }
-      } else {
-        console.warn('Cannot find textBox #commentTextarea');
-      }
-    } else {
-      console.warn('Cannot find commentRow #' + rowID);
-    }
-  }
+  return false;
 }
 
 function getParameterByName(name) {
@@ -430,16 +307,6 @@ function UpdateMailboxCount(messageCount) {
   $('#mailboxicon').attr('src', messageCount > 0 ? '/Images/_MailUnread.png' : '/Images/_Mail.png');
   $('#mailboxcount').html(messageCount);
 }
-
-$('#commentTextarea').on('keyup', function onKeyUp() {
-  // Store the maxlength and value of the field.
-  var maxlength = $(this).attr('maxlength');
-  var val = $(this).val();
-  // Trim the field if it has content over the maxlength.
-  if (val.length > maxlength) {
-    $(this).val(val.slice(0, maxlength));
-  }
-});
 
 function reloadTwitchContainer(videoID) {
   var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
