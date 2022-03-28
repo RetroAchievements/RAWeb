@@ -20,6 +20,7 @@ $articleID = requestInputPost('a', null, 'integer');
 $articleType = requestInputPost('t', null, 'integer');
 
 $commentPayload = requestInputPost('c');
+// printable characters only. see https://www.asciitable.com/
 $commentPayload = preg_replace('/[^(\x20-\x7F)]*/', '', $commentPayload);
 
 if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {

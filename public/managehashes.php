@@ -45,14 +45,15 @@ RenderHtmlHead("Manage Game Hashes");
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <script>
-  function UpdateHashDetails(user, hash) {
-    $('#warning').html('Status: updating...');
+function UpdateHashDetails(user, hash) {
+    var $warning = $('#warning');
+    $warning.html('Status: updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
     var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, l: labels });
     posting.done(function onUpdateComplete(data) {
         if (data !== 'OK') {
-            $('#warning').html('Status: Errors...' + data);
+            $warning.html('Status: Errors...' + data);
             return;
         }
 
@@ -60,49 +61,40 @@ RenderHtmlHead("Manage Game Hashes");
         var date = new Date();
         var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-        // Place comment on correct row depending on if the user has submitted a comment already
-        if ($('#commentTextarea').length) {
-            $('#feed tr:last').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
-        } else {
-            $('#feed').append('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
-        }
+        $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
 
-        $('#warning').html('Status: OK!');
+        $warning.html('Status: OK!');
     })
 }
 
 function UnlinkHash(user, gameID, hash, elem) {
-    if (confirm('Are you sure you want to unlink the hash ' + hash + '?'))
-    {
-        $('#warning').html('Status: updating...');
-        var posting = $.post('/request/game/modify.php', { u: user, g: gameID, f: 3, v: hash });
-        posting.done(function onUnlinkComplete(data) {
-            if (data !== 'OK') {
-                $('#warning').html('Status: Errors...' + data);
-                return;
-            }
-
-            // Remove hash from table
-            $(elem).closest('tr').remove();
-
-            // Update number of hashes linked
-            var cnt = $('#hashTable tr').length - 1
-            $("#hashCount").html("Currently this game has <b>" + cnt + "</b> unique hashes registered for it:");
-
-            // Get comment date
-            var date = new Date();
-            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
-
-            // Place comment on correct row depending on if the user has submitted a comment already
-            if ($('#commentTextarea').length) {
-                $('#feed tr:last').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
-            } else {
-                $('#feed').append('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
-            }
-
-            $('#warning').html('Status: OK!');
-        })
+    if (confirm('Are you sure you want to unlink the hash ' + hash + '?') === false) {
+        return;
     }
+    var $warning = $('#warning');
+    $warning.html('Status: updating...');
+    var posting = $.post('/request/game/modify.php', { u: user, g: gameID, f: 3, v: hash });
+    posting.done(function onUnlinkComplete(data) {
+        if (data !== 'OK') {
+            $warning.html('Status: Errors...' + data);
+            return;
+        }
+
+        // Remove hash from table
+        $(elem).closest('tr').remove();
+
+        // Update number of hashes linked
+        var cnt = $('#hashTable tr').length - 1
+        $("#hashCount").html("Currently this game has <b>" + cnt + "</b> unique hashes registered for it:");
+
+        // Get comment date
+        var date = new Date();
+        var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
+
+        $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
+
+        $warning.html('Status: OK!');
+    })
 }
 </script>
 <div id="mainpage">
