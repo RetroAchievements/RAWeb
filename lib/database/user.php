@@ -1012,12 +1012,11 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
     sanitize_sql_inputs($user, $numAchievements);
     settype($numAchievements, 'integer');
 
-    $gameIDsArray = explode(',', $gameIDsCSV);
-
-    $numIDs = count($gameIDsArray);
-    if ($numIDs == 0) {
+    if (empty($gameIDsCSV)) {
         return;
     }
+
+    $gameIDsArray = explode(',', $gameIDsCSV);
 
     $gameIDs = [];
     foreach ($gameIDsArray as $gameID) {

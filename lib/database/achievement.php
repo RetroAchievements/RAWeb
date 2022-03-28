@@ -1126,8 +1126,8 @@ function recalculateTrueRatio($gameID)
 
         foreach ($achData as $nextAch) {
             $achID = $nextAch['ID'];
-            $achPoints = $nextAch['Points'];
-            $numAchieved = $nextAch['NumAchieved'];
+            $achPoints = (int) $nextAch['Points'];
+            $numAchieved = (int) $nextAch['NumAchieved'];
 
             if ($numAchieved == 0) { // force all unachieved to be 1
                 $numAchieved = 1;
