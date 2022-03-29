@@ -170,8 +170,13 @@ function RenderActivePlayersComponent()
                 <small id='activeplayers-update' data-bind='text: lastUpdateRender'></small>
             </div>
         </div>
-        <script type="text/javascript" src="/js/activePlayersBootstrap.js"></script>
     HTML;
+
+    if (getenv('APP_ENV') === 'local') {
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap.js?' . rand() . '"></script>';
+    } else {
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap-' . VERSION . '.js"></script>';
+    }
 }
 
 function RenderAOTWComponent($achID, $forumTopicID)
