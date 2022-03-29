@@ -37,15 +37,15 @@ var ActivePlayersViewModel = function () {
   }, this);
 
   this.filteredPlayers = ko.pureComputed(function () {
-    return _.filter(this.players(), function (player) {
+    return _.filter(this.players(), (player) => {
       var lowercaseFilterTextTerms = this.playerFilterText().toLowerCase().split('|');
       var matchFound = false;
-      lowercaseFilterTextTerms.forEach(function (lowercaseFilterText) {
+      lowercaseFilterTextTerms.forEach((lowercaseFilterText) => {
         matchFound = lowercaseFilterText !== ''
-                    && (player.username().toLowerCase().includes(lowercaseFilterText)
-                        || player.gameTitle().toLowerCase().includes(lowercaseFilterText)
-                        || player.consoleName().toLowerCase().includes(lowercaseFilterText)
-                        || player.richPresence().toLowerCase().includes(lowercaseFilterText));
+          && (player.username().toLowerCase().includes(lowercaseFilterText)
+            || player.gameTitle().toLowerCase().includes(lowercaseFilterText)
+            || player.consoleName().toLowerCase().includes(lowercaseFilterText)
+            || player.richPresence().toLowerCase().includes(lowercaseFilterText));
       });
       return this.playerFilterText() === '' || matchFound;
     });
@@ -84,7 +84,7 @@ var ActivePlayersViewModel = function () {
       method: 'GET',
       success: function (data) {
         self.players([]);
-        data.forEach(function (player) {
+        data.forEach((player) => {
           self.players.push(self.ConvertToObservablePlayer(player));
         });
 
