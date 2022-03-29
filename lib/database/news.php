@@ -29,7 +29,7 @@ function GetLatestNewsData($offset, $count)
 function getLatestNewsHeaders($offset, $numItems, &$dataOut)
 {
     $dataOut = GetLatestNewsData($offset, $numItems);
-    return count($dataOut);
+    return is_countable($dataOut) ? count($dataOut) : 0;
 }
 
 function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
@@ -40,29 +40,20 @@ function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
 
     if (isset($id) && $id != 0) {
         $query = "UPDATE News SET Title='$title', Payload='$payload', Link='$link', Image='$imageURL' WHERE ID='$id'";
-        // log_sql($query);
         $dbResult = mysqli_query($db, $query);
 
-        if ($dbResult !== false) {
-            // log_sql_fail();
-            // error_log(__FUNCTION__ . " updated by $author! $id, $title, $payload");
-        } else {
+        if ($dbResult === false) {
             log_sql_fail();
-            // error_log(__FUNCTION__ . " failed! $id, $title, $payload");
         }
     } else {
         $query = "INSERT INTO News (Timestamp, Title, Payload, Author, Link, Image) 
                     VALUES (NOW(), '$title', '$payload', '$author', '$link', '$imageURL')";
-        // log_sql($query);
         $dbResult = mysqli_query($db, $query);
 
         if ($dbResult !== false) {
-            // log_sql_fail();
-            // error_log(__FUNCTION__ . " created by $author! $title, $payload");
             $id = mysqli_insert_id($db);
         } else {
             log_sql_fail();
-            // error_log(__FUNCTION__ . " failed2! $title, $payload");
         }
     }
 

@@ -20,4 +20,4 @@ if ($validRating
 
 echo json_encode([
     'Success' => $success,
-]);
+], JSON_THROW_ON_ERROR);

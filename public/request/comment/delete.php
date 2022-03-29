@@ -17,4 +17,4 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
     $response['Success'] = false;
 }
 
-echo json_encode($response);
+echo json_encode($response, JSON_THROW_ON_ERROR);

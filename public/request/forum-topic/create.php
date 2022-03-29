@@ -44,19 +44,14 @@ foreach ($bannedTitles as $nextWord) {
 if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Registered)) {
     $topicID = null;
     if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $topicID)) {
-        //	Good!
+        // Good!
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID");
         exit;
     } else {
-        // error_log(__FILE__);
-        // error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
-
         header("Location: " . getenv('APP_URL') . "/createtopic.php?e=issuessubmitting");
         exit;
     }
 } else {
-    // error_log(__FILE__);
-    // error_log("Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
     header("Location: " . getenv('APP_URL') . "/createtopic.php?e=badcredentials");
     exit;
 }

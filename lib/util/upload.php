@@ -29,9 +29,9 @@ function UploadUserPic($user, $filename, $rawImage)
     $response['Filename'] = $filename;
     $response['User'] = $user;
 
-    //$filename = requestInputPost( 'f' );
-    //$rawImage = requestInputPost( 'i' );
-    //	sometimes the extension... *is* the filename?
+    // $filename = requestInputPost( 'f' );
+    // $rawImage = requestInputPost( 'i' );
+    // sometimes the extension... *is* the filename?
     $extension = $filename;
     if (explode(".", $filename) !== false) {
         $segmentParts = explode(".", $filename);
@@ -40,18 +40,17 @@ function UploadUserPic($user, $filename, $rawImage)
 
     $extension = mb_strtolower($extension);
 
-    //	Trim declaration
+    // Trim declaration
     $rawImage = str_replace('data:image/png;base64,', '', $rawImage);
     $rawImage = str_replace('data:image/bmp;base64,', '', $rawImage);
-    $rawImage = str_replace('data:image/gif;base64,', '', $rawImage); //	added untested 23:47 28/02/2014
+    $rawImage = str_replace('data:image/gif;base64,', '', $rawImage); // added untested 23:47 28/02/2014
     $rawImage = str_replace('data:image/jpg;base64,', '', $rawImage);
     $rawImage = str_replace('data:image/jpeg;base64,', '', $rawImage);
 
     $imageData = base64_decode($rawImage);
 
-    //$tempFilename = '/tmp/' . uniqid() . '.png';
+    // $tempFilename = '/tmp/' . uniqid() . '.png';
     $tempFilename = tempnam(sys_get_temp_dir(), 'PIC');
-    // error_log($tempFilename);
 
     $success = file_put_contents($tempFilename, $imageData);
     if ($success) {
@@ -66,7 +65,7 @@ function UploadUserPic($user, $filename, $rawImage)
 
         $tempImage = null;
 
-        //Allow transparent backgrounds for .png and .gif files
+        // Allow transparent backgrounds for .png and .gif files
         if ($extension == 'png' || $extension == 'gif') {
             $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
             $background = imagecolorallocatealpha($newImage, 0, 0, 0, 127);
@@ -86,37 +85,37 @@ function UploadUserPic($user, $filename, $rawImage)
             }
 
             $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
-            //	Create a black rect, size 128x128
+            // Create a black rect, size 128x128
             $blackRect = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
 
             if ($blackRect === false) {
                 exit('Cannot Initialize new GD image stream');
             }
 
-            //	Copy the black rect onto our image
+            // Copy the black rect onto our image
             imagecopy($newImage, $blackRect, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize);
         }
 
-        //	Reduce the input file size
+        // Reduce the input file size
         [$givenImageWidth, $givenImageHeight] = getimagesize($tempFilename);
-        //error_log( "Given Image W/H is $givenImageWidth, $givenImageHeight, dest size is $userPicDestSize");
+        // Given Image W/H is $givenImageWidth, $givenImageHeight, dest size is $userPicDestSize
 
         imagecopyresampled($newImage, $tempImage, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize, $givenImageWidth, $givenImageHeight);
 
         $success = imagepng($newImage, $existingUserFile);
 
         if ($success == false) {
-            // error_log("UploadUserPic failed: Issues copying to UserPic/$user.png");
-            //echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
+            // UploadUserPic failed: Issues copying to UserPic/$user.png
+            // echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
             $response['Error'] = "Issues copying to UserPic/$user.png";
         } else {
             // touch user entry
             global $db;
             mysqli_query($db, "UPDATE UserAccounts SET Updated=NOW() WHERE User='$user'");
 
-            //	Done OK
-            //echo 'OK';
-            //header( "Location: " . getenv('APP_URL') . "/manageuserpic.php?e=success" );
+            // Done OK
+            // echo 'OK';
+            // header( "Location: " . getenv('APP_URL') . "/manageuserpic.php?e=success" );
         }
     }
 
@@ -126,8 +125,6 @@ function UploadUserPic($user, $filename, $rawImage)
 
 function UploadBadgeImage($file)
 {
-    // error_log("UploadBadgeImage");
-
     $response = [];
 
     $filename = $file["name"];
@@ -142,7 +139,7 @@ function UploadBadgeImage($file)
     $filenameParts = explode(".", $filename);
     $extension = mb_strtolower(end($filenameParts));
 
-    if ($filesize > 1048576) {
+    if ($filesize > 1_048_576) {
         $response['Error'] = "Error: image too big ($filesize)! Must be smaller than 1mb!";
     } else {
         if (!in_array($extension, $allowedExts)) {
@@ -158,11 +155,11 @@ function UploadBadgeImage($file)
                 $nextBadgeFilename = file_get_contents(__DIR__ . "/../../public/BadgeIter.txt");
                 settype($nextBadgeFilename, "integer");
 
-                //	Produce filenames
+                // Produce filenames
 
                 $newBadgeFilenameFormatted = str_pad($nextBadgeFilename, 5, "0", STR_PAD_LEFT);
 
-                //	Fetch file and width/height
+                // Fetch file and width/height
 
                 $tempImage = null;
 
@@ -180,56 +177,56 @@ function UploadBadgeImage($file)
 
                 [$width, $height] = getimagesize($fileTempName);
 
-                //	Create all images
+                // Create all images
                 $smallPx = 32;
                 $normalPx = 64;
                 $largePx = 128;
 
-                //$newSmallImage 		 = imagecreatetruecolor($smallPx, $smallPx);
+                // $newSmallImage 		 = imagecreatetruecolor($smallPx, $smallPx);
                 $newImage = imagecreatetruecolor($normalPx, $normalPx);
-                //$newLargeImage 		 = imagecreatetruecolor($largePx, $largePx);
-                //$newSmallImageLocked = imagecreatetruecolor($smallPx, $smallPx);
+                // $newLargeImage 		 = imagecreatetruecolor($largePx, $largePx);
+                // $newSmallImageLocked = imagecreatetruecolor($smallPx, $smallPx);
                 $newImageLocked = imagecreatetruecolor($normalPx, $normalPx);
 
-                //	Copy source to dest for all imaegs
-                //imagecopyresampled($newSmallImage, 	$tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
+                // Copy source to dest for all imaegs
+                // imagecopyresampled($newSmallImage, 	$tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
                 imagecopyresampled($newImage, $tempImage, 0, 0, 0, 0, $normalPx, $normalPx, $width, $height);
-                //imagecopyresampled($newLargeImage, 	$tempImage, 0, 0, 0, 0, $largePx, $largePx, $width, $height);
+                // imagecopyresampled($newLargeImage, 	$tempImage, 0, 0, 0, 0, $largePx, $largePx, $width, $height);
 
                 imagecopyresampled($newImageLocked, $tempImage, 0, 0, 0, 0, $normalPx, $normalPx, $width, $height);
                 imagefilter($newImageLocked, IMG_FILTER_GRAYSCALE);
                 imagefilter($newImageLocked, IMG_FILTER_CONTRAST, 20);
                 imagefilter($newImageLocked, IMG_FILTER_GAUSSIAN_BLUR);
 
-                //imagecopyresampled($newSmallImageLocked, $tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
-                //imagefilter( $newSmallImageLocked, IMG_FILTER_GRAYSCALE );
-                //imagefilter( $newSmallImageLocked, IMG_FILTER_CONTRAST, 20 );
-                ////imagefilter( $newSmallImageLocked, IMG_FILTER_GAUSSIAN_BLUR );
+                // imagecopyresampled($newSmallImageLocked, $tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
+                // imagefilter( $newSmallImageLocked, IMG_FILTER_GRAYSCALE );
+                // imagefilter( $newSmallImageLocked, IMG_FILTER_CONTRAST, 20 );
+                // //imagefilter( $newSmallImageLocked, IMG_FILTER_GAUSSIAN_BLUR );
 
                 $destBadgeFile = "Badge/" . "$newBadgeFilenameFormatted" . ".png";
                 $destBadgeFileLocked = "Badge/" . "$newBadgeFilenameFormatted" . "_lock.png";
-                //$destBadgeFileBig = "Badge/" . "$newBadgeFilenameFormatted" . "_big.png";
-                //$destBadgeFileSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_small.png";
-                //$destBadgeFileLockedSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_locksmall.png";
+                // $destBadgeFileBig = "Badge/" . "$newBadgeFilenameFormatted" . "_big.png";
+                // $destBadgeFileSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_small.png";
+                // $destBadgeFileLockedSmall = "Badge/" . "$newBadgeFilenameFormatted" . "_locksmall.png";
 
-                $success = //imagepng( $newLargeImage, $destBadgeFileBig ) &&
-                    //imagepng( $newSmallImage, $destBadgeFileSmall ) &&
-                    //imagepng( $newSmallImageLocked, $destBadgeFileLockedSmall ) &&
+                $success = // imagepng( $newLargeImage, $destBadgeFileBig ) &&
+                    // imagepng( $newSmallImage, $destBadgeFileSmall ) &&
+                    // imagepng( $newSmallImageLocked, $destBadgeFileLockedSmall ) &&
                     imagepng($newImage, __DIR__ . '/../../public/' . $destBadgeFile) &&
                     imagepng($newImageLocked, __DIR__ . '/../../public/' . $destBadgeFileLocked);
 
                 if ($success == false) {
-                    // error_log("UploadBadgeImage failed: Issues copying from ? to $destBadgeFile");
+                    // UploadBadgeImage failed: Issues copying from ? to $destBadgeFile
                     $response['Error'] = "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
                 } else {
                     UploadToS3(__DIR__ . '/../../public/' . $destBadgeFile, $destBadgeFile);
                     UploadToS3(__DIR__ . '/../../public/' . $destBadgeFileLocked, $destBadgeFileLocked);
 
                     $newBadgeContent = str_pad($nextBadgeFilename, 5, "0", STR_PAD_LEFT);
-                    //echo "OK:$newBadgeContent";
+                    // echo "OK:$newBadgeContent";
                     $response['BadgeIter'] = $newBadgeContent;
 
-                    //	Increment and save this new badge number for next time
+                    // Increment and save this new badge number for next time
                     $newBadgeContent = str_pad($nextBadgeFilename + 1, 5, "0", STR_PAD_LEFT);
                     file_put_contents(__DIR__ . "/../../public/BadgeIter.txt", $newBadgeContent);
                 }

@@ -17,12 +17,6 @@ if ($requestedTopicID == 0) {
 }
 
 getTopicDetails($requestedTopicID, $topicData);
-// temporary workaround to fix some game's forum topics
-//if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
-//{
-//header( "location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic2" );
-//exit;
-//}
 
 if ($permissions < $topicData['RequiredPermissions']) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=nopermission");
@@ -44,14 +38,13 @@ if (!empty($gotoCommentID)) {
 $commentList = getTopicComments($requestedTopicID, $offset, $count, $numTotalComments);
 
 // We CANNOT have a topic with no comments... this doesn't make sense.
-if ($commentList == null || count($commentList) == 0) {
+if (empty($commentList)) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic3");
     exit;
 }
 
 $thisTopicID = $topicData['ID'];
 settype($thisTopicID, 'integer');
-//$thisTopicID = $requestedTopicID; //??!?
 $thisTopicAuthor = $topicData['Author'];
 $thisTopicAuthorID = $topicData['AuthorID'];
 $thisTopicCategory = $topicData['Category'];
@@ -112,7 +105,6 @@ RenderHtmlStart();
         echo "</div>";
         echo "<br style='clear:both;'>";
 
-        //if( isset( $user ) && $permissions >= Permissions::Registered )
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
@@ -220,8 +212,6 @@ RenderHtmlStart();
 
         // Output all topics, and offer 'prev/next page'
         foreach ($commentList as $commentData) {
-            //var_dump( $commentData );
-
             // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
             $nextCommentPayload = $commentData['Payload'];
@@ -381,30 +371,19 @@ RenderHtmlStart();
             echo "</form>";
 
             echo "</td>";
-
             echo "</tr>";
-
             echo "</tbody></table>";
 
-            //echo "<div class=\"posteddate\">Posted: $nextCommentDateCreatedNiceDate</div>";
-            //echo "<div class=\"usercommenttext\">";
-            //RenderTopicCommentPayload( $nextCommentPayload );
-            //echo "</div>";
-            //echo "</td>";
             echo "</tr>";
-
             echo "</tbody></table></div>";
         } else {
             echo "</tbody></table></div>";
             RenderLoginComponent($user, $points, $errorCode, true);
         }
-
         ?>
         <br>
     </div>
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
 <?php RenderHtmlEnd(); ?>

@@ -3,6 +3,9 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+use RA\Permissions;
+use RA\SubscriptionSubjectType;
+
 // what is being (un-)subscribed? and where should we go back to at the end?
 
 $returnUrl = requestInputPost("return_url");
@@ -13,17 +16,10 @@ if ($subjectType === null || $subjectID === null || $returnUrl === null) {
     exit;
 }
 
-// can the user perform this operation?
-
-switch ($subjectType) {
-    case \RA\SubscriptionSubjectType::GameTickets:
-    case \RA\SubscriptionSubjectType::GameAchievements:
-        $requiredPermissions = \RA\Permissions::JuniorDeveloper;
-        break;
-    default:
-        $requiredPermissions = \RA\Permissions::Registered;
-        break;
-}
+$requiredPermissions = match ($subjectType) {
+    SubscriptionSubjectType::GameTickets, SubscriptionSubjectType::GameAchievements => Permissions::JuniorDeveloper,
+    default => Permissions::Registered,
+};
 
 if (!validateFromCookie($user, $unused, $permissions, $requiredPermissions)) {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");

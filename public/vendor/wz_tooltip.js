@@ -1159,7 +1159,7 @@ function tt_OnCloseBtnOver(iOver)
 }
 function tt_OnLClick(e)
 {
-	//  Ignore right-clicks
+	// Ignore right-clicks
 	e = e || window.event;
 	if(!((e.button && e.button & 2) || (e.which && e.which == 3)))
 	{
@@ -1235,7 +1235,7 @@ function tt_SetOpa(el, opa)
 			// opacity < 100 has been applied while the DIV was hidden
 			var bVis = css.visibility != "hidden";
 			// 3.) In IE6, applying an opacity < 100 has no effect if the
-			//	   element has no layout (position, size, zoom, ...)
+			//    element has no layout (position, size, zoom, ...)
 			css.zoom = "100%";
 			if(!bVis)
 				css.visibility = "visible";

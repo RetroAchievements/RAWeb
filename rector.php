@@ -9,10 +9,10 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
     $parameters->set(Option::PATHS, [
-        __DIR__ . '/app',
-        __DIR__ . '/config',
-        __DIR__ . '/database',
-        __DIR__ . '/resources',
+        __DIR__ . '/cronjobs',
+        __DIR__ . '/lib',
+        __DIR__ . '/public',
+        __DIR__ . '/src',
         __DIR__ . '/tests',
     ]);
 

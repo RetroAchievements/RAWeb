@@ -14,20 +14,14 @@ if (!ValidatePOSTChars("tp")) {
 
 if (validateFromCookie($user, $unused, $permissions, \RA\Permissions::Registered)) {
     if (submitTopicComment($user, $topicID, null, $commentPayload, $newCommentID)) {
-        //	Good!
+        // Good!
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$newCommentID");
         exit;
     } else {
-        // error_log(__FILE__);
-        // error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
-
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=issuessubmitting");
         exit;
     }
 } else {
-    // error_log(__FILE__);
-    // error_log("Issues: userin $userIn, topicID $topicID, payload: $commentPayload");
-    //log_email("Issues: userin $userIn, topicID $topicID, payload: $commentPayload");
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=badcredentials");
     exit;
 }

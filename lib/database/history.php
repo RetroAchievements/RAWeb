@@ -16,17 +16,17 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
         $sortBy = 1;
     }
 
-    if ($sortBy == 1) {        //    Date, asc
+    if ($sortBy == 1) {        // Date, asc
         $query .= "ORDER BY aw.Date DESC ";
-    } elseif ($sortBy == 2) {    //    Num Awarded, asc
+    } elseif ($sortBy == 2) {    // Num Awarded, asc
         $query .= "ORDER BY NumAwarded DESC ";
-    } elseif ($sortBy == 3) {    //    Total Points earned, asc
+    } elseif ($sortBy == 3) {    // Total Points earned, asc
         $query .= "ORDER BY TotalPointsEarned DESC ";
-    } elseif ($sortBy == 11) {//    Date, desc
+    } elseif ($sortBy == 11) {// Date, desc
         $query .= "ORDER BY aw.Date ASC ";
-    } elseif ($sortBy == 12) {//    Num Awarded, desc
+    } elseif ($sortBy == 12) {// Num Awarded, desc
         $query .= "ORDER BY NumAwarded ASC ";
-    } elseif ($sortBy == 13) {//    Total Points earned, desc
+    } elseif ($sortBy == 13) {// Total Points earned, desc
         $query .= "ORDER BY TotalPointsEarned ASC ";
     }
 
@@ -42,7 +42,6 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
         }
     } else {
         log_sql_fail();
-        //log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
     }
 
     return $retVal;
@@ -58,10 +57,8 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
 
     sanitize_sql_inputs($dateStart, $dateEnd, $user);
 
-    //error_log( __FUNCTION__ . " $dateStart, $dateEnd" );
-
-    //$dateStrStart = date( "Y-m-d H:i:s", strtotime( $dateStart ) );
-    //$dateStrEnd = date( "Y-m-d H:i:s", strtotime( $dateEnd ) );
+    // $dateStrStart = date( "Y-m-d H:i:s", strtotime( $dateStart ) );
+    // $dateStrEnd = date( "Y-m-d H:i:s", strtotime( $dateEnd ) );
     $dateStrStart = $dateStart;
     $dateStrEnd = $dateEnd;
 
@@ -73,8 +70,6 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
               WHERE User = '$user' AND ach.Flags = 3 AND Date BETWEEN '$dateStrStart' AND '$dateStrEnd'
               ORDER BY aw.Date
               LIMIT 500";
-
-    //error_log( $query );
 
     $dbResult = s_mysql_query($query);
 
@@ -91,7 +86,6 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
         }
     } else {
         log_sql_fail();
-        //log_email(__FUNCTION__ . " issues - cannot retrieve day's ach for this user?!");
     }
 
     return $retVal;
@@ -101,8 +95,6 @@ function getAchievementsEarnedOnDay($dateInput, $user)
 {
     $dateStrStart = date("Y-m-d 00:00:00", $dateInput);
     $dateStrEnd = date("Y-m-d 23:59:59", $dateInput);
-
-    //error_log( __FUNCTION__ . " converting $dateInput to $dateStrStart and $dateStrEnd" );
 
     return getAchievementsEarnedBetween($dateStrStart, $dateStrEnd, $user);
 }
@@ -118,10 +110,10 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
     }
 
     $cumulScore = 0;
-    if (isset($dateFrom)) {
-        //    Calculate the points value up until this point
-        //$cumulScore = getPointsAtTime( $user, $dateFrom );    //    TBD!
-    }
+    // if (isset($dateFrom)) {
+    //     // Calculate the points value up until this point
+    //     $cumulScore = getPointsAtTime( $user, $dateFrom );    // TBD!
+    // }
 
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, SUM(ach.Points) AS Points FROM Awarded AS aw ";
     $query .= "LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID ";
@@ -129,7 +121,7 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
     $query .= "WHERE aw.user = '$user' AND ach.Flags = 3 ";
 
     if (isset($dateFrom) && isset($dateTo)) {
-        $dateFromFormatted = $dateFrom; //2013-07-01
+        $dateFromFormatted = $dateFrom; // 2013-07-01
         $dateToFormatted = $dateTo;
         $query .= "AND aw.Date BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
     }
@@ -153,7 +145,6 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
         }
     } else {
         log_sql_fail();
-        //log_email(__FUNCTION__ . " issues - cannot retrieve list for this user?!");
     }
 
     return $retVal;

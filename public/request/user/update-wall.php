@@ -25,7 +25,6 @@ if (validateUser_cookie($user, $cookie, 1)) {
         if ($dbResult !== false) {
             $changeErrorCode = "changeok";
         } else {
-            // error_log(__FILE__);
             log_sql_fail();
             $changeErrorCode = "changeerror";
         }
@@ -38,14 +37,12 @@ if (validateUser_cookie($user, $cookie, 1)) {
             if ($dbResult !== false) {
                 $changeErrorCode = "changeok";
             } else {
-                // error_log(__FILE__);
                 log_sql_fail();
                 $changeErrorCode = "changeerror";
             }
         }
     }
 } else {
-    // error_log(__FILE__);
     $changeErrorCode = "changeerror";
 }
 

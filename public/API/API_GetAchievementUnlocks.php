@@ -40,9 +40,7 @@ $console = [
 
 getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user);
 
-usort($winnerInfo, function ($a, $b) {
-    return strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']);
-});
+usort($winnerInfo, fn ($a, $b) => strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']));
 
 echo json_encode([
     'Achievement' => $achievement,
@@ -51,4 +49,4 @@ echo json_encode([
     'UnlocksCount' => (int) ($numWinners ?? 0),
     'TotalPlayers' => (int) ($numPossibleWinners ?? 0),
     'Unlocks' => array_values($winnerInfo ?? []),
-]);
+], JSON_THROW_ON_ERROR);

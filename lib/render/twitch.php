@@ -32,7 +32,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     allowfullscreen="true">
 </iframe>';
 
-    //$videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+    // $videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
         $muted = 'false';
         if (isAtHome()) {
@@ -46,9 +46,9 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo $videoHTML;
     echo "</div>";
 
-    //echo "<div class='streamchat'>";
-    //echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
-    //echo "</div>";
+    // echo "<div class='streamchat'>";
+    // echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
+    // echo "</div>";
 
     echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span>";
 

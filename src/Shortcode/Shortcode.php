@@ -113,7 +113,7 @@ final class Shortcode
     {
         $content = $shortcode->getContent();
 
-        $id = uniqid((string) mt_rand(10000, 99999));
+        $id = uniqid((string) random_int(10000, 99999));
 
         // remove leading break
         $content = preg_replace('/^(?:<br\s*\/?>\s*)+/', '', $content);
@@ -225,10 +225,10 @@ final class Shortcode
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:[0-9A-Z-]+\.)?   # Optional subdomain.
                 (?:                 # Group host alternatives.
-                  youtu\.be/       # Either youtu.be (trailing slash required),
+                  youtu\.be/        # Either youtu.be (trailing slash required),
                 | youtube\.com      # or youtube.com followed by
                   \S*               # Allow anything up to VIDEO_ID,
-                  [^\w\-\s]         # but char before ID is non-ID char.
+                  [^\w\\-\s]        # but char before ID is non-ID char.
                 )                   # End host alternatives.
                 ([\w\-]{11})        # $1: VIDEO_ID is exactly 11 chars.
                 (?=[^\w\-]|$)       # Assert next char is non-ID or EOS.
@@ -236,7 +236,7 @@ final class Shortcode
                   [?=&+%\w.-]*      # Allow URL (query) remainder.
                   (?:               # Group pre-linked alternatives.
                     [^<>]*>         # Either inside a start tag,
-                    | [^<>]*</a>   # or inside <a> element text contents.
+                    | [^<>]*</a>    # or inside <a> element text contents.
                   )                 # End recognized pre-linked alts.
                 )                   # End negative lookahead assertion.
                 ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
@@ -325,7 +325,7 @@ final class Shortcode
         ~ix';
 
         preg_match_all($pattern, $text, $matches);
-        if (!count($matches[0])) {
+        if (empty($matches[0])) {
             return $text;
         }
         $replacements = [];

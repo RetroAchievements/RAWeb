@@ -15,8 +15,8 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 16377; //16377 sets all filters active except for Closed and Resolved
-$allTicketsFilter = 16383; //const
+$defaultFilter = 16377; // 16377 sets all filters active except for Closed and Resolved
+$allTicketsFilter = 16383; // const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
@@ -115,9 +115,8 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    //sets all filters enabled so we get closed/resolved tickets as well
+    // sets all filters enabled so we get closed/resolved tickets as well
     $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $allTicketsFilter);
-    //var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
@@ -127,7 +126,7 @@ if ($ticketID != 0) {
         }
     }
 
-    $numClosedTickets = (count($altTicketData) - $numOpenTickets) - 1;
+    $numClosedTickets = ((is_countable($altTicketData) ? count($altTicketData) : 0) - $numOpenTickets) - 1;
 }
 
 $assignedToUser = null;
@@ -206,7 +205,7 @@ RenderHtmlHead($pageTitle);
         echo "</div>";
 
         if ($gamesTableFlag == 1) {
-            echo "<h3>Top " . count($ticketData) . " Games Sorted By Most Outstanding Tickets</h3>";
+            echo "<h3>Top " . (is_countable($ticketData) ? count($ticketData) : 0) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
             $assignedToUser = requestInputSanitized('u', null);
             if (!isValidUsername($assignedToUser)) {
@@ -295,7 +294,7 @@ RenderHtmlHead($pageTitle);
                 $modeHardcore = ($ticketFilters & (1 << 12));
                 $modeSoftcore = ($ticketFilters & (1 << 13));
 
-                //State Filters
+                // State Filters
                 echo "<div>";
                 echo "<b>Ticket State:</b> ";
                 if ($openTickets) {
@@ -317,7 +316,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Report Type Filters
+                // Report Type Filters
                 echo "<div>";
                 echo "<b>Report Type:</b> ";
                 if ($triggeredTickets) {
@@ -333,7 +332,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Hash Filters
+                // Hash Filters
                 echo "<div>";
                 echo "<b>Hash:</b> ";
                 if ($hashKnownTickets) {
@@ -349,7 +348,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Emulator Filters
+                // Emulator Filters
                 echo "<div>";
                 echo "<b>Emulator:</b> ";
                 if ($raEmulatorTickets) {
@@ -377,7 +376,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Core/Unofficial Filters - These filters are mutually exclusive
+                // Core/Unofficial Filters - These filters are mutually exclusive
                 echo "<div>";
                 echo "<b>Achievement State:</b> ";
                 if ($gamesTableFlag != 5) {
@@ -393,7 +392,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Mode Filters
+                // Mode Filters
                 echo "<div>";
                 echo "<b>Mode:</b> ";
 
@@ -414,7 +413,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Clear Filter
+                // Clear Filter
                 if ($ticketFilters != $defaultFilter || $gamesTableFlag == 5) {
                     echo "<div>";
                     echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=" . $defaultFilter . "'>Clear Filter</a>";
@@ -469,9 +468,6 @@ RenderHtmlHead($pageTitle);
                 $rowCount = 0;
 
                 foreach ($ticketData as $nextTicket) {
-                    //var_dump( $nextTicket );
-                    //$query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
-
                     $ticketID = $nextTicket['ID'];
                     $achID = $nextTicket['AchievementID'];
                     $achTitle = $nextTicket['AchievementTitle'];
@@ -558,7 +554,7 @@ RenderHtmlHead($pageTitle);
                     echo "<a href='/ticketmanager.php?o=$prevOffset&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($rowCount == $maxCount) {
-                    //	Max number fetched, i.e. there are more. Can goto next $maxCount.
+                    // Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
                     echo "<a href='/ticketmanager.php?o=$nextOffset&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Next $maxCount &gt;</a>";
                     echo " - <a href='/ticketmanager.php?o=" . ($filteredTicketsCount - ($maxCount - 1)) . "&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Last</a>";
@@ -846,8 +842,8 @@ RenderHtmlHead($pageTitle);
                     echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
                     echo "</div>";
 
-                    echo "</div>"; //   devboxcontent
-                    echo "</div>"; //   devbox
+                    echo "</div>"; // devboxcontent
+                    echo "</div>"; // devbox
                 }
             }
         }

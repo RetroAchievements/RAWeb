@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
-    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+    // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -23,7 +23,7 @@ if ($gameIDSpecified) {
     $gameIcon = $gameData['ImageIcon'];
     $requestors = getSetRequestorsList($gameID);
 } else {
-    //	Immediate redirect: this is pointless otherwise!
+    // Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
 }
 

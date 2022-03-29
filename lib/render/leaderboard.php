@@ -2,7 +2,7 @@
 
 function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable): string
 {
-    $tooltipIconSize = 64; //96;
+    $tooltipIconSize = 64; // 96;
 
     sanitize_outputs(
         $lbName,
@@ -31,7 +31,7 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
 
 function RenderGameLeaderboardsComponent($gameID, $lbData)
 {
-    $numLBs = count($lbData);
+    $numLBs = is_countable($lbData) ? count($lbData) : 0;
     echo "<div class='component'>";
     echo "<h3>Leaderboards</h3>";
 
@@ -56,7 +56,7 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
 
             sanitize_outputs($lbTitle, $lbDesc);
 
-            //    Title
+            // Title
             echo "<tr>";
             echo "<td colspan='2'>";
             echo "<div class='fixheightcellsmaller'><a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a></div>";
@@ -64,7 +64,7 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
             echo "</td>";
             echo "</tr>";
 
-            //    Score/Best entry
+            // Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
             echo GetUserAndTooltipDiv($bestScoreUser, true);
@@ -87,7 +87,7 @@ function RenderGameLeaderboardsComponent($gameID, $lbData)
         echo "</tbody></table>";
     }
 
-    //echo "<div class='rightalign'><a href='/forumposthistory.php'>more...</a></div>";
+    // echo "<div class='rightalign'><a href='/forumposthistory.php'>more...</a></div>";
 
     echo "</div>";
 }
@@ -261,7 +261,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
 
     $numLatestMasters = count($gameLatestMasters);
     $numTopAchievers = count($gameTopAchievers);
-    $masteryThreshold = 10; //Number of masters needed for the "Latest Masters" tab to be selected by default
+    $masteryThreshold = 10; // Number of masters needed for the "Latest Masters" tab to be selected by default
 
     echo "<h3>High Scores</h3>";
     echo "<div class='tab'>";
@@ -269,7 +269,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
     echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='tabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
     echo "</div>";
 
-    //Latest Masters Tab
+    // Latest Masters Tab
     echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
     echo "<table class='smalltable'><tbody>";
     echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Mastery Date</th></tr>";
@@ -282,7 +282,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
         $nextUser = $gameLatestMasters[$i]['User'];
         $nextLastAward = $gameLatestMasters[$i]['LastAward'];
 
-        //Outline user if they are in the list
+        // Outline user if they are in the list
         if ($user !== null && $user == $nextUser) {
             echo "<tr style='outline: thin solid'>";
         } else {
@@ -308,7 +308,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
     echo "</tbody></table>";
     echo "</div>";
 
-    //High Scores Tab
+    // High Scores Tab
     echo "<div id='highscores' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "none" : "block") . "\">";
     echo "<table><tbody>";
     echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Points</th></tr>";
@@ -322,7 +322,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
         $nextPoints = $gameTopAchievers[$i]['TotalScore'];
         $nextLastAward = $gameTopAchievers[$i]['LastAward'];
 
-        //Outline user if they are in the list
+        // Outline user if they are in the list
         if ($user !== null && $user == $nextUser) {
             echo "<tr style='outline: thin solid'>";
         } else {
@@ -395,18 +395,14 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
 {
     $pointRequirement = "";
 
-    // Determine the WHERE condition
-    switch ($lbType) {
-        case 0: // Daily
-            $whereCond = "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)";
-            break;
-        case 1: // Weekly
-            $whereCond = "BETWEEN TIMESTAMP(SUBDATE('$date', DAYOFWEEK('$date') - 1)) AND DATE_ADD(DATE_ADD(SUBDATE('$date', DAYOFWEEK('$date') - 1), INTERVAL 6 DAY), INTERVAL 24 * 60 * 60 - 1 SECOND)";
-            break;
-        default: // Daily by default
-            $whereCond = "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)";
-            break;
-    }
+    $whereCond = match ($lbType) {
+        // Daily
+        0 => "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)",
+        // Weekly
+        1 => "BETWEEN TIMESTAMP(SUBDATE('$date', DAYOFWEEK('$date') - 1)) AND DATE_ADD(DATE_ADD(SUBDATE('$date', DAYOFWEEK('$date') - 1), INTERVAL 6 DAY), INTERVAL 24 * 60 * 60 - 1 SECOND)",
+        // Daily by default
+        default => "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)",
+    };
 
     // Set the date names if we are choosing anything but All Time
     $whereDateAchievement = "";
@@ -479,18 +475,11 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             break;
     }
 
-    // Determine the untracked user condition
-    switch ($untracked) {
-        case 0: // Get tracked only
-            $untrackedCond = "AND Untracked = 0";
-            break;
-        case 1: // Get untracked only
-            $untrackedCond = "AND Untracked = 1";
-            break;
-        default: // Get both
-            $untrackedCond = "";
-            break;
-    }
+    $untrackedCond = match ($untracked) {
+        0 => "AND Untracked = 0",
+        1 => "AND Untracked = 1",
+        default => "",
+    };
 
     // Run the All Time ranking query
     $retVal = [];

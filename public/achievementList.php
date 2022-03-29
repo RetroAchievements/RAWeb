@@ -18,17 +18,10 @@ $dev = requestInputSanitized('d');
 if ($user == null) {
     $params = 3;
 }
-
-$flags = null;
-switch ($params) {
-    case 5:
-        $flags = 5;
-        break;
-    case 3:
-    default:
-        $flags = 3;
-        break;
-}
+$flags = match ($params) {
+    5 => 5,
+    default => 3,
+};
 
 $dev_param = null;
 if ($dev != null) {
@@ -56,7 +49,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<div class='navpath'>";
         if ($requestedConsole == "") {
             echo "<b>Achievement List</b>";
-        } //    NB. This will be a stub page
+        } // NB. This will be a stub page
         echo "</div>";
 
         echo "<div class='detaillist'>";
@@ -153,7 +146,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         }
 
         foreach ($achData as $achEntry) {
-            //$query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
+            // $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
 
             $achID = $achEntry['ID'];
             $achTitle = $achEntry['AchievementTitle'];
@@ -225,7 +218,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param'>&lt; Previous $maxCount</a> - ";
         }
         if ($achCount == $maxCount) {
-            //    Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/achievementList.php?s=$sortBy&o=$nextOffset&p=$params$dev_param'>Next $maxCount &gt;</a>";
         }

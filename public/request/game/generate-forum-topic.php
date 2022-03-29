@@ -18,10 +18,8 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 }
 
 if (generateGameForumTopic($user, $gameID, $forumTopicID)) {
-    //	Good!
+    // Good!
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$forumTopicID");
 } else {
-    //error_log( __FILE__ );
-    // error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
     header("Location: " . getenv('APP_URL') . "/forum.php?e=issuessubmitting");
 }

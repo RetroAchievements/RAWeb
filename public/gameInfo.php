@@ -198,7 +198,7 @@ if ($isFullyFeaturedGame) {
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
-    //Get the top ten players at this game:
+    // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID, $user);
 
     // Determine if the logged in user is the sole author of the set
@@ -380,10 +380,10 @@ RenderHtmlStart(true);
         // Add these handlers onload, they don't exist yet
         $('.starimg').hover(
           function () {
-            //	On hover
+            // On hover
 
             if ($(this).parent().is($('#ratingach'))) {
-              //	Ach:
+              // Ach:
               var numStars = 0;
               if ($(this).hasClass('1star'))
                 numStars = 1;
@@ -398,7 +398,7 @@ RenderHtmlStart(true);
 
               SetLitStars('#ratingach', numStars);
             } else {
-              //	Game:
+              // Game:
               var numStars = 0;
               if ($(this).hasClass('1star'))
                 numStars = 1;
@@ -738,7 +738,7 @@ RenderHtmlStart(true);
                 if ($permissions >= Permissions::Developer) {
                     echo "<div>Relations</div>";
                     echo "<table><tbody>";
-                    if (count($relatedGames) > 0) {
+                    if (!empty($relatedGames)) {
                         echo "<tr><td>";
                         echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
@@ -805,7 +805,7 @@ RenderHtmlStart(true);
 
                 if ($numAchievements > 0) {
                     echo "<b>Authors:</b> ";
-                    $numItems = count($authorInfo);
+                    $numItems = count((array) $authorInfo);
                     $i = 0;
                     foreach ($authorInfo as $author => $achievementCount) {
                         echo GetUserAndTooltipDiv($author, false);
@@ -958,9 +958,9 @@ RenderHtmlStart(true);
                     echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
                     echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
                     // TODO sorting by "date won" isn't implemented yet.
-                    //if(isset($user)) {
+                    // if(isset($user)) {
                     //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
-                    //}
+                    // }
                     echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
                     echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
 
@@ -1072,7 +1072,7 @@ RenderHtmlStart(true);
                             } else {
                                 echo "won by $wonBy of $numDistinctPlayersCasual ($pctAwardedCasual%)<br>";
                             }
-                            echo "</div>"; //progressbar
+                            echo "</div>"; // progressbar
 
                             echo "<div class='achievementdata'>";
                             echo GetAchievementAndTooltipDiv(
@@ -1096,7 +1096,7 @@ RenderHtmlStart(true);
                             if ($achieved) {
                                 echo "<div class='date smalltext'>unlocked on<br>$dateAch<br></div>";
                             }
-                            echo "</div>"; //    achievemententry
+                            echo "</div>"; // achievemententry
                             echo "</td>";
                             echo "</tr>";
                         }
@@ -1106,7 +1106,7 @@ RenderHtmlStart(true);
             }
 
             if (!$isFullyFeaturedGame) {
-                if (count($relatedGames) > 0) {
+                if (!empty($relatedGames)) {
                     RenderGameAlts($relatedGames, null);
                 }
             }
@@ -1116,7 +1116,7 @@ RenderHtmlStart(true);
 
             if ($isFullyFeaturedGame) {
                 $recentPlayerData = getGameRecentPlayers($gameID, 10);
-                if (count($recentPlayerData) > 0) {
+                if (!empty($recentPlayerData)) {
                     RenderRecentGamePlayers($recentPlayerData);
                 }
 

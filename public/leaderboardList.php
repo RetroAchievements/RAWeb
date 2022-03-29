@@ -35,9 +35,6 @@ if ($gameID != 0) {
     getCodeNotes($gameID, $codeNotes);
 }
 
-//var_dump( $lbData );
-//var_dump( $gameData );
-
 $requestedConsole = "";
 if ($consoleIDInput) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
@@ -99,10 +96,8 @@ RenderHtmlHead($pageTitle);
       }
 
       function onUpdateComplete(data) {
-        //alert( data );
         if (data !== 'OK') {
           $('#warning').html('Status: Errors...' + data);
-          //alert( data );
         } else {
           $('#warning').html('Status: OK!');
         }
@@ -112,7 +107,7 @@ RenderHtmlHead($pageTitle);
 <?php endif ?>
 <div id="mainpage">
     <?php
-    if (count($codeNotes) > 0) {
+    if (!empty($codeNotes)) {
         echo "<div id='leftcontainer'>";
     } else {
         echo "<div id='fullcontainer'>";
@@ -123,7 +118,7 @@ RenderHtmlHead($pageTitle);
         echo "<a href='/leaderboardList.php'>Leaderboard List</a>";
         echo " &raquo; <b>" . $gameData['Title'] . "</b>";
     } else {
-        echo "<b>Leaderboard List</b>";    //	NB. This will be a stub page
+        echo "<b>Leaderboard List</b>";    // NB. This will be a stub page
     }
     echo "</div>";
 
@@ -289,9 +284,9 @@ RenderHtmlHead($pageTitle);
             echo "<a href='/leaderboardinfo.php?i=$lbID'>$lbID</a>";
             echo "</td>";
 
-            //echo "<td>";
-            //echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName );
-            //echo "</td>";
+            // echo "<td>";
+            // echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName );
+            // echo "</td>";
 
             // echo "<td>";
             // echo "$consoleName";
@@ -318,7 +313,7 @@ RenderHtmlHead($pageTitle);
             echo "<option value='VALUE' $selected>Value</option>";
             echo "</select>";
 
-            //echo "<input type='text' value='$lbFormat' id='LB_" . $lbID . "_Format' />";
+            // echo "<input type='text' value='$lbFormat' id='LB_" . $lbID . "_Format' />";
             echo "</td>";
 
             echo "<td style='width: 10%;'>";
@@ -335,7 +330,7 @@ RenderHtmlHead($pageTitle);
             echo "<tr>";
 
             echo "<td>";
-            //echo "Memory:";
+            // echo "Memory:";
             echo "</td>";
             echo "<td colspan='4'>";
             $memStart = "";
@@ -459,7 +454,7 @@ RenderHtmlHead($pageTitle);
         echo "</tr>";
     }
 
-    //	hack:
+    // hack:
     if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
         $listCount /= 2;
     }
@@ -473,7 +468,7 @@ RenderHtmlHead($pageTitle);
         echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
     }
     if ($listCount == $maxCount) {
-        //	Max number fetched, i.e. there are more. Can goto next 25.
+        // Max number fetched, i.e. there are more. Can goto next 25.
         $nextOffset = $offset + $maxCount;
         echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
     }
@@ -484,7 +479,7 @@ RenderHtmlHead($pageTitle);
 </div>
 
 <?php
-if (count($codeNotes) > 0 && $permissions >= Permissions::JuniorDeveloper) {
+if (!empty($codeNotes) && $permissions >= Permissions::JuniorDeveloper) {
         echo "<div id='rightcontainer'>";
         RenderCodeNotes($codeNotes);
         echo "</div>";

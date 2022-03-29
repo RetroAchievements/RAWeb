@@ -49,7 +49,6 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeve
         exit;
     }
 } else {
-    //log_email(__FUNCTION__ . " FAILED! Cannot validate $user. Are you a developer?");
     echo "FAILED! Cannot validate $user ($source). Are you a developer?";
     exit;
 }

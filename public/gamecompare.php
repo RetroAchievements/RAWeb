@@ -38,7 +38,7 @@ foreach ($userGamesList as $nextGameID => $nextGameData) {
 
 asort($gamesPlayedWithAchievements);
 
-//	Quickly calculate earned/potential
+// Quickly calculate earned/potential
 $totalEarned = 0;
 $totalPossible = 0;
 $numEarned = 0;
@@ -80,7 +80,6 @@ RenderHtmlHead("Game Compare");
             }
 
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
-            //echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br><br>";
 
             echo "<form method=get action='/gamecompare.php'>";
             echo "<input type='hidden' name='f' value='$user2'>";
@@ -145,11 +144,10 @@ RenderHtmlHead("Game Compare");
 
                 $badgeName = $nextAch['BadgeName'];
 
-                //var_dump( $nextAch );
-                $awardedLeft = isset($nextAch['DateEarned']) ? $nextAch['DateEarned'] : null;
-                $awardedRight = isset($nextAch['DateEarnedFriend']) ? $nextAch['DateEarnedFriend'] : null;
-                $awardedHCLeft = isset($nextAch['DateEarnedHardcore']) ? $nextAch['DateEarnedHardcore'] : null;
-                $awardedHCRight = isset($nextAch['DateEarnedFriendHardcore']) ? $nextAch['DateEarnedFriendHardcore'] : null;
+                $awardedLeft = $nextAch['DateEarned'] ?? null;
+                $awardedRight = $nextAch['DateEarnedFriend'] ?? null;
+                $awardedHCLeft = $nextAch['DateEarnedHardcore'] ?? null;
+                $awardedHCRight = $nextAch['DateEarnedFriendHardcore'] ?? null;
 
                 echo "<td class='awardlocal'>";
                 if (isset($awardedLeft)) {
@@ -169,7 +167,6 @@ RenderHtmlHead("Game Compare");
                     }
                 } else {
                     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName . "_lock", true, true, "", $iconSize, "awardLocal");
-                    //echo "<img class='awardlocal' src='" . getenv('ASSET_URL') . "/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='right' width='$iconSize' height='$iconSize'>";
                 }
                 echo "</td>";
 
@@ -211,7 +208,7 @@ RenderHtmlHead("Game Compare");
                 echo "</tr>";
             }
 
-            //	Repeat user images:
+            // Repeat user images:
             echo "<tr>";
 
             echo "<td>";
@@ -230,7 +227,7 @@ RenderHtmlHead("Game Compare");
 
             echo "</tr>";
 
-            //	Draw totals:
+            // Draw totals:
             echo "<tr>";
             echo "<td class='rightfloat'>";
             echo "<b>$leftAwardedCount</b>/$numAchievements unlocked<br><b>$leftAwardedPoints</b>/$maxPoints points";
@@ -244,8 +241,6 @@ RenderHtmlHead("Game Compare");
             echo "</tbody></table>";
 
             echo "<br><br>";
-
-            //echo "<small><a href=\"//retroachievements.org/wiki/index.php?title=$gameTitle\">Developer Wiki Link</a></small>";
             ?>
         </div>
     </div>
@@ -318,11 +313,8 @@ RenderHtmlHead("Game Compare");
         }
 
         echo "<br><br>";
-
         echo "</div>";
-
         ?>
-
     </div>
 </div>
 <?php RenderFooter(); ?>

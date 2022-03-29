@@ -18,7 +18,7 @@ $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
-$numEntries = count($lbData['Entries']);
+$numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 
 $lbTitle = $lbData['LBTitle'];
 $lbDescription = $lbData['LBDesc'];
@@ -143,10 +143,10 @@ RenderHtmlStart(true);
                 echo "</div>";
             }
 
-            //    Not implemented
-            //if( $friendsOnly )
+            // Not implemented
+            // if( $friendsOnly )
             //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br><br>";
-            //else
+            // else
             //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
 
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
@@ -159,11 +159,9 @@ RenderHtmlStart(true);
             $resultsDrawn = 0;
             $nextRank = 1;
 
-            //for( $i = 0; $i < $numEntries; $i++ )
-            //var_dump( $lbData );
+            // for( $i = 0; $i < $numEntries; $i++ )
             foreach ($lbData['Entries'] as $nextEntry) {
-                //$nextEntry = $lbData[$i];
-                //var_dump( $nextEntry );
+                // $nextEntry = $lbData[$i];
 
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
@@ -176,11 +174,11 @@ RenderHtmlStart(true);
                 $lastEntry = ($resultsDrawn + 1 == $numEntries);
                 $userAppendedInResults = ($numEntries > $count);
 
-                //echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
+                // echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
                 if ($lastEntry && $isLocal && $userAppendedInResults) {
-                    //    This is the local, outside-rank user at the end of the table
-                    echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; //    Dirty!
+                    // This is the local, outside-rank user at the end of the table
+                    echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; // Dirty!
                 } else {
                     $numActualEntries++;
                 }
@@ -223,16 +221,16 @@ RenderHtmlStart(true);
                 echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a></span> - ";
             }
 
-            //echo "$numActualEntries";
+            // echo "$numActualEntries";
 
             if ($numActualEntries == $count) {
-                //    Max number fetched, i.e. there are more. Can goto next 20.
+                // Max number fetched, i.e. there are more. Can goto next 20.
                 $nextOffset = $offset + $count;
                 echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a></span>";
             }
             echo "</div>";
 
-            //    Render article comments
+            // Render article comments
             RenderCommentsComponent(
                 $user,
                 $numArticleComments,

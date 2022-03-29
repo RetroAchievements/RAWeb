@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 use RA\Permissions;
 
-//	Sanitise!
+// Sanitise!
 if (!ValidatePOSTChars("act")) {
     echo "FAILED";
     return;
@@ -22,7 +22,6 @@ $articleType = requestInputPost('t', null, 'integer');
 $commentPayload = requestInputPost('c');
 
 if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {
-    // error_log(__FILE__ . " returning $articleID");
     echo $articleID;
 } else {
     echo "FAILED!";

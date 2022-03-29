@@ -11,7 +11,7 @@ if (!ValidateGETChars("ui")) {
 $source = requestInputQuery('u');
 $lbid = requestInputQuery('i');
 
-//	Double check cookie as well
+// Double check cookie as well
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer) &&
     ($source == $user)) {

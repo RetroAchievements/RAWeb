@@ -11,7 +11,7 @@ if (!RA_ReadCookieCredentials(
     $permissions,
     \RA\Permissions::Developer
 )) {
-    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+    // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -23,13 +23,12 @@ $achievementList = [];
 $gamesList = [];
 
 if (empty($gameID)) {
-    //	Immediate redirect: this is pointless otherwise!
+    // Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
 }
 
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
-//var_dump( $gameData );
 $gameTitle = $gameData['Title'];
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
@@ -41,7 +40,6 @@ sanitize_outputs(
 );
 
 $numGames = getGamesListWithNumAchievements($consoleID, $gamesList, 0);
-//var_dump( $gamesList );
 RenderHtmlStart();
 RenderHtmlHead("Merge Game Entry ($consoleName)");
 ?>

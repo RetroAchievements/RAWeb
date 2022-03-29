@@ -23,10 +23,8 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 if ($propertyType == 0) {
     $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
     if ($response['Success']) {
-        // error_log("$user updated $targetUser to $value OK!!");
         header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
     } else {
-        // error_log("requestupdateuser.php failed?! 0" . $response['Error']);
         echo "Failed: " . $response['Error'];
     }
     return;
@@ -35,10 +33,8 @@ if ($propertyType == 0) {
 // Forum post permissions
 if ($propertyType == 1) {
     if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
-        // error_log("$user updated $targetUser to $value OK!!");
         header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
     } else {
-        // error_log("requestupdateuser.php failed?! 1");
         echo "FAILED!";
     }
     return;
@@ -54,7 +50,6 @@ if ($propertyType == 2) {
             $user . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge');
     }
 
-    // error_log("$user updated $targetUser to Patreon Status $hasBadge OK!!");
     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
 }
 
@@ -67,6 +62,5 @@ if ($propertyType == 3) {
             $user . ' set status to ' . ($value ? 'Untracked' : 'Tracked'));
     }
 
-    // error_log("SetUserUntrackedStatus, $targetUser => $value");
     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
 }

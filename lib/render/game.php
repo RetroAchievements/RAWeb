@@ -11,7 +11,7 @@ function GetGameAndTooltipDiv(
     $imgSizeOverride = 32,
     $justText = false
 ): string {
-    $tooltipIconSize = 64; //96;
+    $tooltipIconSize = 64;
 
     $gameNameEscaped = attributeEscape($gameName);
     sanitize_outputs(
@@ -64,7 +64,7 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
     echo "<table><tbody>";
     echo "<tr><th colspan='2'>Game</th><th>Times Played</th></tr>";
 
-    $numItems = count($historyData);
+    $numItems = is_countable($historyData) ? count($historyData) : 0;
     for ($i = 0; $i < $numItems; $i++) {
         $nextData = $historyData[$i];
         $nextID = $nextData['ID'];

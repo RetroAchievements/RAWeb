@@ -11,10 +11,10 @@ if (!validateGetChars("v")) {
 $eCookie = requestInputSanitized('v');
 
 if (validateEmailValidationString($eCookie, $user)) {
-    //	Valid!
+    // Valid!
     generateCookie($user, $cookieOut);
     header("Location: " . getenv('APP_URL') . "/?e=validatedEmail");
 } else {
-    //	Not valid!
+    // Not valid!
     echo "Could not validate account!<br>";
 }

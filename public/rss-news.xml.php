@@ -19,7 +19,7 @@ $xmlns = $dom->createAttribute('xmlns:dc');
 $xmlns->value = 'http://purl.org/dc/elements/1.1/';
 $xmlRoot->appendChild($xmlns);
 
-//$xmlRoot = $dom->appendChild( $dom->createElement("channel") );
+// $xmlRoot = $dom->appendChild( $dom->createElement("channel") );
 
 $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org news feed'));
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
@@ -38,27 +38,27 @@ for ($i = 0; $i < $numNews; $i++) {
     $newsLink = getenv('APP_URL');
     $newsTitle = "<![CDATA[" . htmlspecialchars($newsData[$i]['Title']) . "]]>";
 
-    //	Image first?
+    // Image first?
     $payload = "<a href='$newsLink'><img style='padding: 5px;' src='$newsImage' /></a>";
     $payload .= "<br>\r\n";
     $payload .= $newsData[$i]['Payload'];
 
     $newsPayload = "<![CDATA[" . htmlspecialchars($payload) . "]]>";
 
-    //$newsPayload contains relative URLs, which need converting to absolute URLs
+    // $newsPayload contains relative URLs, which need converting to absolute URLs
     $newsPayload = str_replace("href='/", "href='" . getenv('APP_URL') . "/", $newsPayload);
     $newsPayload = str_replace("href=\"/", "href=\"" . getenv('APP_URL') . "/", $newsPayload);
     $newsPayload = str_replace("src='/", "src='" . getenv('APP_URL') . "/", $newsPayload);
     $newsPayload = str_replace("src=\"/", "src=\"" . getenv('APP_URL') . "/", $newsPayload);
 
-    //	Strip tags from title (incl html markup :S)
-    //	?!
+    // Strip tags from title (incl html markup :S)
+    // ?!
 
     $article->appendChild($dom->createElement('title', $newsTitle));
     $article->appendChild($dom->createElement('link', $newsLink));
     $article->appendChild($dom->createElement('description', $newsPayload));
     $article->appendChild($dom->createElement('pubDate', $newsDate));
-    //$article->appendChild( $dom->createElement( 'id', $newsID ) );
+    // $article->appendChild( $dom->createElement( 'id', $newsID ) );
 }
 
 header('Content-type: text/xml');

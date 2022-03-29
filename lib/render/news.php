@@ -42,19 +42,19 @@ function RenderNewsHeader($newsData)
     echo "<div class='newsbluroverlay'>";
     echo "<div>";
 
-    //    BG
+    // BG
     echo "<div class='newscontainer' style='background: url(\"$image\") repeat scroll; opacity:0.5; width: 470px; height:222px; background-size: 100% auto;' >";
     echo "</div>";
 
     echo "<div class='news' >";
 
-    //    Title
+    // Title
     echo "<h4 style='position: absolute; width: 460px; top:2px; left:10px; white-space: nowrap;' ><a class='newstitle shadowoutline' href='$link'>$title</a></h4>";
 
-    //    Text
+    // Text
     echo "<div class='newstext shadowoutline' style='position: absolute; width: 90%; top: 40px; left:10px;'>$payload</div>";
 
-    //    Author
+    // Author
     echo "<div class='newsauthor shadowoutline' style='position: absolute; width: 470px; top: 196px; left:0px; text-align: right'>~~$authorLink, $niceDate</div>";
 
     echo "</div>";

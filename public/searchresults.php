@@ -32,7 +32,7 @@ RenderHtmlHead("Search");
 
         echo "<div class='searchbox longer'>";
         echo "<form action='/searchresults.php' method='get'>";
-        //echo "Search:&nbsp;";
+        // echo "Search:&nbsp;";
         $searchQueryEscaped = attributeEscape($searchQuery);
         echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQueryEscaped' placeholder='Search the site...' />";
         echo "&nbsp;&nbsp;";
@@ -60,7 +60,7 @@ RenderHtmlHead("Search");
 
                     if ($nextType !== $lastType) {
                         $lastType = $nextType;
-                        //echo "<tr><td colspan=2><b>$nextType</b></td></tr>";
+                        // echo "<tr><td colspan=2><b>$nextType</b></td></tr>";
                     }
 
                     if ($iter++ % 2 == 0) {
@@ -70,7 +70,7 @@ RenderHtmlHead("Search");
                     }
 
                     echo "<td>$nextType</td>";
-                    //echo "<td>$nextID</td>";
+                    // echo "<td>$nextID</td>";
                     if ($nextType == 'User') {
                         echo "<td>";
                         echo GetUserAndTooltipDiv($nextID, true);
@@ -109,7 +109,7 @@ RenderHtmlHead("Search");
                     echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($resultsCount == $maxCount) {
-                    //	Max number fetched, i.e. there are more. Can goto next 25.
+                    // Max number fetched, i.e. there are more. Can goto next 25.
                     $nextOffset = $offset + $maxCount;
                     echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
                 }

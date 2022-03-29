@@ -16,12 +16,11 @@ function getCodeNotesData($gameID)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            //    Seamless :)
+            // Seamless :)
             $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
             $codeNotesOut[] = $db_entry;
         }
     } else {
-        // error_log(__FUNCTION__ . " error");
         log_sql_fail();
     }
 
@@ -45,13 +44,12 @@ function getCodeNotes($gameID, &$codeNotesOut)
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            //    Seamless :)
+            // Seamless :)
             $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
             $codeNotesOut[$numResults++] = $db_entry;
         }
         return true;
     } else {
-        // error_log(__FUNCTION__ . " error");
         log_sql_fail();
         return false;
     }
@@ -64,7 +62,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
         return false;
     }
 
-    //    Hack for 'development tutorial game'
+    // Hack for 'development tutorial game'
     if ($gameID == 10971) {
         return false;
     }
@@ -92,17 +90,16 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
 
     $userID = getUserIDFromUser($user);
 
-    //    Nope! $address will be an integer
-    //    turn '0x00000f' into '15'
-    //$addressAsInt = hexdec( substr( $address, 2 ) );
+    // Nope! $address will be an integer
+    // turn '0x00000f' into '15'
+    // $addressAsInt = hexdec( substr( $address, 2 ) );
 
-    $note = str_replace("#", "_", $note);   //    Remove hashes. Sorry. hash is now a delim.
+    $note = str_replace("#", "_", $note);   // Remove hashes. Sorry. hash is now a delim.
 
     $query = "INSERT INTO CodeNotes ( GameID, Address, AuthorID, Note )
               VALUES( '$gameID', '$address', '$userID', '$note' )
               ON DUPLICATE KEY UPDATE AuthorID=VALUES(AuthorID), Note=VALUES(Note)";
 
-    // log_sql($query);
     $dbResult = mysqli_query($db, $query);
     return $dbResult !== false;
 }
@@ -117,7 +114,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
  */
 function submitCodeNote($user, $gameID, $address, $note): bool
 {
-    //    Hack for 'development tutorial game'
+    // Hack for 'development tutorial game'
     if ($gameID == 10971) {
         return false;
     }
@@ -127,50 +124,36 @@ function submitCodeNote($user, $gameID, $address, $note): bool
 
     $userID = getUserIDFromUser($user);
 
-    //    turn '0x00000f' into '15'
+    // turn '0x00000f' into '15'
     $addressAsInt = hexdec(mb_substr($address, 2));
 
-    //$note = str_replace( "'", "''", $note );
+    // $note = str_replace( "'", "''", $note );
 
-    //    Remove hashes. Sorry. hash is now a delim.
+    // Remove hashes. Sorry. hash is now a delim.
     $note = str_replace("#", "_", $note);
 
     $query = "UPDATE CodeNotes AS cn
               SET cn.AuthorID = $userID, cn.Note = CONVERT(\"$note\" USING ASCII)
               WHERE cn.Address = $addressAsInt AND cn.GameID = $gameID ";
 
-    // log_sql($query);
-
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         if (mysqli_affected_rows($db) == 0) {
-            //    Insert required
+            // Insert required
             $query = "INSERT INTO CodeNotes VALUES ( $gameID, $addressAsInt, $userID, CONVERT(\"$note\" USING ASCII) )";
 
-            // log_sql($query);
             global $db;
             $dbResult = mysqli_query($db, $query);
             if ($dbResult == false) {
-                //log_sql_fail();
-                // error_log(__FUNCTION__ . " error2");
                 log_sql_fail();
                 return false;
             } else {
-                //    Done :)
-                //error_log( __FUNCTION__ . " success2!" );
-                //error_log( $query );
-
                 return true;
             }
         } else {
-            //    Done :)
-            //error_log( __FUNCTION__ . " success1!" );
-            //error_log( $query );
-
             return true;
         }
     } else {
-        // error_log(__FUNCTION__ . " error1");
         log_sql_fail();
 
         return false;

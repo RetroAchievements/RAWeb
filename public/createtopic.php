@@ -4,12 +4,12 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
     if (getAccountDetails($user, $userDetails) == false) {
-        //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+        // Immediate redirect if we cannot validate user!	//TBD: pass args?
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
         exit;
     }
 } else {
-    //	Immediate redirect if we cannot validate cookie!	//TBD: pass args?
+    // Immediate redirect if we cannot validate cookie!	//TBD: pass args?
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
@@ -26,7 +26,6 @@ if (getForumDetails($requestedForumID, $forumData) == false) {
     exit;
 }
 
-//var_dump( $forumData );
 $thisForumID = $forumData['ID'];
 $thisForumTitle = $forumData['ForumTitle'];
 $thisForumDescription = $forumData['ForumDescription'];

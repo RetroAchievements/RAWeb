@@ -54,11 +54,6 @@ RenderHtmlHead("Users");
 
         echo "<p>Filter: ";
 
-        //if( $permissionName == NULL )
-        //    echo "<b>All Users</b>";
-        //else
-        //    echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
-
         if ($perms == \RA\Permissions::Unregistered) {
             echo "<b>Unregistered</b>";
         } else {
@@ -156,7 +151,7 @@ RenderHtmlHead("Users");
             echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>&lt; Previous $maxCount</a> - ";
         }
         if ($userCount == $maxCount) {
-            //	Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Next $maxCount &gt;</a>";
         }

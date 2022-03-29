@@ -3,7 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
-    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+    // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -300,19 +300,19 @@ switch ($action) {
         if (isset($achievementIDs)) {
             if (strtotime($startTime)) {
                 if (strtotime($endTime)) {
-                    //valid start and end
+                    // valid start and end
                     $dateString = " between $startTime and $endTime";
                 } else {
-                    //valid start, invalid end
+                    // valid start, invalid end
                     $dateString = " since $startTime";
                 }
             } else {
                 if (strtotime($endTime)) {
-                    //invalid start, valid end
+                    // invalid start, valid end
                     $dateString = " before $endTime";
                 } else {
-                    //invalid start and end
-                    //no date string needed
+                    // invalid start and end
+                    // no date string needed
                 }
             }
 
@@ -323,7 +323,8 @@ switch ($action) {
 
             $keys = array_keys($winners);
             for ($i = 0; $i < count($winners); $i++) {
-                $message .= "<strong>" . number_format(count($winners[$keys[$i]])) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+                $winnersCount = is_countable($winners[$keys[$i]]) ? count($winners[$keys[$i]]) : 0;
+                $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
                 $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
             }
         }
@@ -365,43 +366,30 @@ switch ($action) {
         break;
     // case 'recalctrueratio':
     //     set_time_limit(3000);
-    //
     //     $query = "SELECT MAX(ID) FROM GameData";
     //     $dbResult = s_mysql_query($query);
     //     $data = mysqli_fetch_assoc($dbResult);
     //     $numGames = $data['MAX(ID)'];
     //     for ($i = 1; $i <= $numGames; $i++) {
-    //         // error_log("Recalculating TA for Game ID: $i<br>");
     //         echo "Recalculating TA for Game ID: $i<br>";
     //         recalculateTrueRatio($i);
     //
     //         ob_flush();
     //         flush();
-    //
-    //         //if( $i % 10 == 0 )
-    //         //	sleep( 1 );
     //     }
-    //
-    //     // error_log("Recalc'd TA for $numGames games!");
     //     echo "Recalc'd TA for $numGames games!";
     //     exit;
     //     break;
     // case 'recalcplayerscores':
     //     set_time_limit(3000);
-    //
     //     getUserList(1, 0, 99999, $userData, "");
-    //
     //     echo "Recalc players scores: " . count($userData) . " to process...";
-    //
     //     foreach ($userData as $nextUser) {
     //         echo "Player: " . $nextUser['User'] . " recalc (was TA: " . $nextUser['TrueRAPoints'] . ")<br>";
     //         recalcScore($nextUser['User']);
-    //
     //         ob_flush();
     //         flush();
     //     }
-    //
-    //     // error_log("Recalc'd TA for " . count($userData) . " players!");
     //     echo "Recalc'd TA for " . count($userData) . " players!";
     //     exit;
     //     break;
@@ -425,29 +413,6 @@ switch ($action) {
         }
 
         break;
-    // case 'access_log':
-    //     $accessLog = file_get_contents( "../../log/httpd/access_log" );
-    //     echo $accessLog;
-    //     exit;
-    // case 'error_log':
-    //     $log = file_get_contents( "../../log/httpd/error_log" );
-    //     echo $log;
-    //     exit;
-    //     break;
-    // case 'errorlog':
-    //     $errorlogpath = "/var/log/httpd/error_log";
-    //
-    //     //$result = exec( "tail -n10 $errorlogpath");
-    //     //var_dump( $result );
-    //
-    //     echo "<a href='/admin.php?action=errorlog&c=50'>Last 50</a> - ";
-    //     echo "<a href='/admin.php?action=errorlog&c=100'>Last 100</a> - ";
-    //     echo "<a href='/admin.php?action=errorlog&c=500'>Last 500</a><br><br>";
-    //
-    //     $count = requestInputSanitized('c', 20, 'integer');
-    //     echo nl2br(tailCustom($errorlogpath, $count));
-    //     exit;
-    //     break;
 }
 
 $staticData = getStaticData();
@@ -461,27 +426,12 @@ RenderHtmlHead('Admin Tools');
 <script src="/vendor/jquery.datetimepicker.full.min.js"></script>
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <div id="mainpage">
-
     <?php if ($message): ?>
         <div id="fullcontainer">
             <?= $message ?>
         </div>
     <?php endif ?>
 
-    <?php
-    // if ($permissions >= \RA\Permissions::Root) :
-    //     echo "<h1>API Key</h1>";
-    //     echo "<a href='/admin.php?action=regenapi'>Regenerate ALL API Keys! (WARNING)</a><br>";
-    //     echo "<a href='/admin.php?action=regenapione&amp;t=TestUser'>Regenerate API Key for TestUser</a><br>";
-    //
-    //     echo "<a href='/admin.php?action=errorlog'>ERROR LOG</a><br>";
-
-    //     echo "<h1>Achievement Inspection/Interaction</h1>";
-    //     echo "<a href='/admin.php?action=recalcdev'>Recalculate developer contribution totals! (1) (WARNING)</a><br>";
-    //     echo "<a href='/admin.php?action=recalcsiteawards'>Recalculate site awards (developer contrib + FB)! (2) (WARNING)</a><br>";
-    //     echo "<a href='/admin.php?action=reconstructsiteawards'>Reconstruct site awards (completed games)! (3) (WARNING)</a><br>";
-    // endif
-    ?>
     <?php if ($permissions >= \RA\Permissions::Admin) : ?>
         <div id="fullcontainer">
             <h4>Get Game Achievement IDs</h4>

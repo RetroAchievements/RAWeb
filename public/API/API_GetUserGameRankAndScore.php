@@ -10,4 +10,4 @@ $username = requestInputQuery('u');
 
 $results = getGameRankAndScore($gameId, $username);
 
-echo json_encode($results);
+echo json_encode($results, JSON_THROW_ON_ERROR);

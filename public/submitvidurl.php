@@ -9,7 +9,7 @@ $newsArticleID = requestInputSanitized('n', null, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
-    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+    // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -24,7 +24,7 @@ RenderHtmlHead("Manage News");
     <div id="fullcontainer">
         <?php
         $yOffs = 0;
-        //RenderTwitchTVStream( $yOffs );
+        // RenderTwitchTVStream( $yOffs );
 
         $activeNewsArticle = null;
 
@@ -34,7 +34,7 @@ RenderHtmlHead("Manage News");
         echo "<b>Manage News</b>";
         echo "</div>";
 
-        echo "<div class='largelist'>"; //?
+        echo "<div class='largelist'>"; // ?
         echo "<h2 class='longheader'>How to use</h2>";
         echo "Here you can submit news to be viewed on the frontpage of the site. <b>Please</b> be considerate when posting, remember that " .
             "it will displayed on the very front page of the website, and will be the first thing a new user (and existing users) will see.<br><br>" .
@@ -62,7 +62,7 @@ RenderHtmlHead("Manage News");
         echo "<select name='ab' onchange=\"if (this.selectedIndex >= 0) window.location = '/submitnews.php?n=' + this.value; return false;\" >";
 
         echo "<option value=0>--New Post--</option>";
-        //echo "<a href='/submitnews.php'>New Post</a><br>";
+        // echo "<a href='/submitnews.php'>New Post</a><br>";
         for ($i = 0; $i < $newsCount; $i++) {
             $nextNews = $newsData[$i];
             $nextID = $nextNews['ID'];

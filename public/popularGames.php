@@ -116,7 +116,7 @@ RenderHtmlHead("Most Popular Games");
             echo "<a href='/popularGames.php?o=$prevOffset&amp;p=$method'>&lt; Previous $maxCount</a> - ";
         }
         if ($count == $maxCount) {
-            //	Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/popularGames.php?o=$nextOffset&amp;p=$method'>Next $maxCount &gt;</a>";
         }

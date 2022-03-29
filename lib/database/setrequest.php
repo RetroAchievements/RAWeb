@@ -35,7 +35,6 @@ function getUserRequestList($user)
             $retVal[] = $nextData;
         }
     } else {
-        // error_log(__FUNCTION__ . " failed?!");
         log_sql_fail();
     }
 
@@ -78,15 +77,15 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     // adding the number of years the user is here
     $requests['total'] += getAge($user);
 
-    //Determine how many of the users current requests are still valid.
-    //Requests made for games that now have achievements do no count towards a used request
+    // Determine how many of the users current requests are still valid.
+    // Requests made for games that now have achievements do no count towards a used request
     foreach ($list as $request) {
-        //If the game does not have achievements then it couns as a legit request
-        if (count(getAchievementIDs($request['GameID'])['AchievementIDs']) == 0) {
+        // If the game does not have achievements then it couns as a legit request
+        if ((is_countable(getAchievementIDs($request['GameID'])['AchievementIDs']) ? count(getAchievementIDs($request['GameID'])['AchievementIDs']) : 0) == 0) {
             $requests['used']++;
         }
 
-        //Determine if we have made a request for the input game
+        // Determine if we have made a request for the input game
         if ($request['GameID'] == $gameID) {
             $requests['requestedThisGame'] = 1;
         }
@@ -131,20 +130,18 @@ function toggleSetRequest($user, $gameID, $remaining)
                 AND
                     (`GameID` = '$gameID')";
 
-            // error_log($query2);
             if (s_mysql_query($query2)) {
                 return true;
             } else {
                 return false;
             }
         } else {
-            //Only insert a set request if the user has some available
+            // Only insert a set request if the user has some available
             if ($remaining > 0) {
                 $query2 = "
                     INSERT
                         INTO SetRequest (`User`, `GameID`)
                     VALUES ('$user', '$gameID')";
-                // error_log($query2);
                 if (s_mysql_query($query2)) {
                     return true;
                 } else {
@@ -187,9 +184,8 @@ function getSetRequestCount($gameID)
  * Gets a list of set requestors for a given game.
  *
  * @param int $gameID the game to get set requestors for
- * @return array|bool
  */
-function getSetRequestorsList($gameID)
+function getSetRequestorsList($gameID): array|bool
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -214,7 +210,6 @@ function getSetRequestorsList($gameID)
             $retVal[] = $nextData;
         }
     } else {
-        // error_log(__FUNCTION__ . " failed?!");
         log_sql_fail();
     }
 
@@ -273,7 +268,6 @@ function getMostRequestedSetsList($console, $offset, $count)
             $retVal[] = $nextData;
         }
     } else {
-        // error_log(__FUNCTION__ . " failed?!");
         log_sql_fail();
     }
 

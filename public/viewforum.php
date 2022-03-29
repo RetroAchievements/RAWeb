@@ -11,14 +11,14 @@ $count = requestInputSanitized('c', 25, 'integer');
 $numUnofficialLinks = 0;
 if ($permissions >= \RA\Permissions::Admin) {
     $unofficialLinks = getUnauthorisedForumLinks();
-    $numUnofficialLinks = count($unofficialLinks);
+    $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
 
 $numTotalTopics = 0;
 
 if ($requestedForumID == 0) {
     if ($permissions >= \RA\Permissions::Admin) {
-        //	Continue
+        // Continue
         $viewingUnauthorisedForumLinks = true;
     } else {
         header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
@@ -81,7 +81,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
             }
 
-            //echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
+            // echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
             echo "<h2>$requestedForum</h2>";
             echo "$thisForumDescription<br>";
 
@@ -136,19 +136,17 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "<th class='fullwidth'>Topics</th>";
             echo "<th>Author</th>";
             echo "<th>Replies</th>";
-            //echo "<th>Views</th>";
+            // echo "<th>Views</th>";
             echo "<th class='text-nowrap'>Last post</th>";
             echo "</tr>";
 
-            $topicCount = count($topicList);
+            $topicCount = is_countable($topicList) ? count($topicList) : 0;
 
             $topicIter = 0;
 
-            //	Output all topics, and offer 'prev/next page'
+            // Output all topics, and offer 'prev/next page'
             foreach ($topicList as $topicData) {
-                //var_dump( $topicData );
-
-                //	Output one forum, then loop
+                // Output one forum, then loop
                 $nextTopicID = $topicData['ForumTopicID'];
                 $nextTopicTitle = $topicData['TopicTitle'];
                 $nextTopicPreview = $topicData['TopicPreview'];
@@ -187,14 +185,14 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<td class='author'>";
                 echo GetUserAndTooltipDiv($nextTopicAuthor, $mobileBrowser);
                 echo "</td>";
-                //echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
+                // echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
                 echo "<td class='replies'>$nextTopicNumReplies</td>";
-                //echo "<td class='views'>$nextForumNumViews</td>";
+                // echo "<td class='views'>$nextForumNumViews</td>";
                 echo "<td class='lastpost'>";
                 echo "<div class='lastpost'>";
                 echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
-                //echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
+                // echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
                 echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
                 echo "</div>";
                 echo "</td>";

@@ -21,9 +21,9 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Unregister
         }
 
         $achievementIds[] = $nextAwarded['ID'];
-        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        //	_:_ delim 1
+        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        // _:_ delim 1
 
-        echo $nextAwarded['ID'] . "::";            //	::	delim 2
+        echo $nextAwarded['ID'] . "::";            // ::	delim 2
     }
 
     exit;

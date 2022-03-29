@@ -7,21 +7,15 @@ use RA\UserPref;
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
-        //	Immediate redirect if we cannot validate user!
+        // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
         exit;
     }
 } else {
-    //	Immediate redirect if we cannot validate cookie!
+    // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
-
-//if( $user == "Scott" )
-//{
-//	log_email("Hi Scott! Testing!");
-//	echo "Hi Scott!";
-//}
 
 $points = $userDetails['RAPoints'];
 $fbUser = $userDetails['fbUser'];
@@ -134,11 +128,11 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
         var achTitle = htmlEntities(dataChunks[0]);
         var achID = htmlEntities(dataChunks[1]);
         if (achID[0] == 'h') {
-          //	Hardcore:
+          // Hardcore:
           achTitle = achTitle + ' (Hardcore)';
           $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
         } else {
-          //	Casual:
+          // Casual:
           $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
         }
       }
@@ -190,9 +184,9 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
       //window.location = '/controlpanel.php?e=resetok';
       if ($('#resetachievementscontainer').children('option').length > 2)
-        ResetFetchAwarded();			//	Just reset ach. list
+        ResetFetchAwarded();			// Just reset ach. list
       else
-        GetAllResettableGamesList();	//	last ach reset: fetch new list!
+        GetAllResettableGamesList();	// last ach reset: fetch new list!
       return false;
     }
   }
@@ -227,7 +221,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
   }
 
   function UploadNewAvatar() {
-    //	New file
+    // New file
     var photo = document.getElementById('uploadimagefile');
     var file = photo.files[0];
 
@@ -264,7 +258,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
         <div class='component'>
             <h2>User Details</h2>
             <?php
-            //	Render user panel
+            // Render user panel
             echo "<p style='min-height:62px'>";
             echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='text-align:right' width='64' height='64'>";
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
@@ -529,7 +523,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
             echo "<tr><td>Achievement:</td>";
             echo "<td><div id='resetachievementscontrol'>";
-            echo "<select id='resetachievementscontainer'></select>";    //	Filled by JS
+            echo "<select id='resetachievementscontainer'></select>";    // Filled by JS
             echo "</div></td></tr>";
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";

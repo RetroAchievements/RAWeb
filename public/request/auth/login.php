@@ -12,19 +12,19 @@ $cookie = "";
 if (validateUser($user, $pass, $fbUser, 0)) {
     generateCookie($user, $cookie);
 
-    //	TBD: Check for messages, updates? etc
-    //	Post activity of login:
+    // TBD: Check for messages, updates? etc
+    // Post activity of login:
     postActivity($user, \RA\ActivityType::Login, null);
 
-    //	Remove 'incorrect password' from redir url:
+    // Remove 'incorrect password' from redir url:
     $redir = str_replace("e=incorrectpassword", "", $redir);
-    //	Remove 'notloggedin'
+    // Remove 'notloggedin'
     $redir = str_replace("e=notloggedin", "", $redir);
 
     header("Location: " . getenv('APP_URL') . "$redir");
 } else {
     if (isset($redir) && mb_stristr($redir, "?")) {
-        header("Location: " . getenv('APP_URL') . "$redir&e=incorrectpassword"); //	if redir has a query string, append errorcode!
+        header("Location: " . getenv('APP_URL') . "$redir&e=incorrectpassword"); // if redir has a query string, append errorcode!
     } else {
         header("Location: " . getenv('APP_URL') . "$redir?e=incorrectpassword");
     }

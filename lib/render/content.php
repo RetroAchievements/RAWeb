@@ -47,7 +47,7 @@ function RenderDeveloperStats($user, $type)
     echo "<h3>Developer Stats</h3>";
 
     $devData = GetDeveloperStats(99, $type);
-    if (count($devData) > 0) {
+    if (!empty($devData)) {
         $tableType = ($type == 2) ? "Num Achievements Won By Others" : (($type == 1) ? "Num Points Allocated" : "Num Achievements Developed");
 
         echo "<table><tbody>";
@@ -99,12 +99,12 @@ function RenderCurrentlyOnlineComponent()
 
     $playersArray = getCurrentlyOnlinePlayers();
 
-    $numPlayers = count($playersArray);
+    $numPlayers = is_countable($playersArray) ? count($playersArray) : 0;
     echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
 
-    //$numOutput = 0;
-    //foreach( $playersArray as $nextPlayer )
-    //{
+    // $numOutput = 0;
+    // foreach( $playersArray as $nextPlayer )
+    // {
     //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
     //    {
     //        echo " and ";
@@ -115,7 +115,7 @@ function RenderCurrentlyOnlineComponent()
     //    }
     //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
     //    $numOutput++;
-    //}
+    // }
 
     echo "</div>";
 
@@ -230,8 +230,8 @@ function RenderAOTWComponent($achID, $forumTopicID)
 
 function RenderDemoVideosComponent()
 {
-    $width = '392'; //600px
-    $height = $width * (3.0 / 4.0); //'100%'; //400px
+    $width = '392'; // 600px
+    $height = $width * (3.0 / 4.0); // '100%'; //400px
 
     echo "<div id='demo' >";
 
@@ -241,8 +241,8 @@ function RenderDemoVideosComponent()
 
     echo "<div class='videocontainer' >";
     echo "<iframe style='border:0;' width='$width' height='$height' src='//www.youtube.com/embed/rKY2mZjurJw' allowfullscreen></iframe>";
-    //echo "<iframe src='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' frameborder='0' allowfullscreen></iframe>";
-    //echo "<object data='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' style='width:300px;'></object>";
+    // echo "<iframe src='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' frameborder='0' allowfullscreen></iframe>";
+    // echo "<object data='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' style='width:300px;'></object>";
     echo "</div>";
 
     echo "<h4>Finding Memory Addresses</h4>";

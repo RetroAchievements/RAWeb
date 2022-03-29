@@ -36,17 +36,11 @@ switch ($type) {
         break;
 }
 
-switch ($friends) {
-    case 0: // Global
-        $lbUsers = "Global";
-        break;
-    case 1: // Friends
-        $lbUsers = "Friends";
-        break;
-    default:
-        $lbUsers = "";
-        break;
-}
+$lbUsers = match ($friends) {
+    0 => "Global",
+    1 => "Friends",
+    default => "",
+};
 
 if ($friends == 1) {
     // We do a maxCount + 1 so that if we get maxCount + 1 rows returned we know

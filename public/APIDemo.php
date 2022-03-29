@@ -7,7 +7,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $errorCode = requestInputSanitized('e');
 
-$apiUser = isset($user) ? $user : 'TestUser';
+$apiUser = $user ?? 'TestUser';
 $apiKey = isset($user) ? GetAPIKey($user) : 'Your API Key';
 
 RenderHtmlStart();
@@ -75,7 +75,7 @@ RenderHtmlHead("RetroAchievements API Demo (PHP)");
         echo '<div class=\'CodeDiv\' id=\'ctorDiv\'>';
         echo '<p>';
         // echo 'First, you must take a copy of the RA_API.php file, store it on your server, and in the file you wish to use, create an instance of the RetroAchievements object.
-        //  This only needs to be done once per pageload. ';
+        // This only needs to be done once per pageload. ';
         if (isset($user)) {
             echo '<b>Note: YOUR unique username and API Key are shown in the example below. Please keep your API Key safe, and do not share it! It is unique to your user account.</b>';
         }

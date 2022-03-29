@@ -17,7 +17,7 @@ if ($user == $userIn && validateUser_cookie($user, $cookie, 0) == false) {
 }
 
 if (getControlPanelUserInfo($user, $userData)) {
-    echo json_encode($userData['Played']);
+    echo json_encode($userData['Played'], JSON_THROW_ON_ERROR);
 } else {
     echo "ERROR3";
 }

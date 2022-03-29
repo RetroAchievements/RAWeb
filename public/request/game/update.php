@@ -32,8 +32,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
         exit;
     } else {
         if (isset($newGameAlt) || isset($removeGameAlt)) {
-            //	new alt provided/alt to be removed
-            // error_log("Provided $newGameAlt and $removeGameAlt to submitgamedata");
+            // new alt provided/alt to be removed
             requestModifyGameAlt($gameID, $newGameAlt, $removeGameAlt);
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
             exit;
@@ -52,7 +51,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
                         exit;
                     }
                 } else {
-                    //	unknown?
+                    // unknown?
                     header("location: " . getenv('APP_URL') . "/game/$gameID?e=unrecognised");
                     exit;
                 }

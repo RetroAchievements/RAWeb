@@ -14,8 +14,6 @@ $topicID = requestInputPost('t');
 $field = requestInputPost('f');
 $value = requestInputPost('v');
 
-// error_log("requestModifyTopic, " . $field . ", " . "$value");
-
 if (validateFromCookie($user, $unused, $permissions, \RA\Permissions::Registered)) {
     if (requestModifyTopic($user, $permissions, $topicID, $field, $value)) {
         if ($field == ModifyTopicField::DeleteTopic) {

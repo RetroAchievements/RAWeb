@@ -15,4 +15,4 @@ $officialFlag = requestInputQuery('f', false, 'boolean');
 
 getGamesList($consoleID, $dataOut, $officialFlag);
 
-echo utf8_encode(json_encode($dataOut));
+echo utf8_encode(json_encode($dataOut, JSON_THROW_ON_ERROR));

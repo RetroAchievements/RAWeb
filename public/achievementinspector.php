@@ -105,7 +105,7 @@ RenderHtmlHead("Manage Achievements");
 
 <div id="mainpage">
     <?php
-    if (count($codeNotes) > 0) {
+    if (!empty($codeNotes)) {
         echo "<div id='leftcontainer'>";
     } else {
         echo "<div id='fullcontainer'>";
@@ -158,23 +158,23 @@ RenderHtmlHead("Manage Achievements");
         echo "<th>Badge</th>";
         echo "<th>Title</th>";
         echo "<th>Description</th>";
-        //echo "<th>Mem</th>";
+        // echo "<th>Mem</th>";
         echo "<th>Points</th>";
         echo "<th>Created/Modified</th>";
         echo "<th>Display Order</th>";
         echo "</tr>";
 
-        //	Display all achievements
+        // Display all achievements
         foreach ((array) $achievementData as $achievementEntry) {
             $achID = $achievementEntry['ID'];
-            //$gameConsoleID = $achievementEntry['ConsoleID'];
+            // $gameConsoleID = $achievementEntry['ConsoleID'];
             $achTitle = $achievementEntry['Title'];
             $achDesc = $achievementEntry['Description'];
             $achMemAddr = htmlspecialchars($achievementEntry['MemAddr']);
             $achPoints = $achievementEntry['Points'];
 
-            //$achCreated = $achievementEntry['DateCreated'];
-            //$achModified = $achievementEntry['DateModified'];
+            // $achCreated = $achievementEntry['DateCreated'];
+            // $achModified = $achievementEntry['DateModified'];
             $achCreated = getNiceDate(strtotime($achievementEntry['DateCreated']));
             $achModified = getNiceDate(strtotime($achievementEntry['DateModified']));
 
@@ -192,14 +192,14 @@ RenderHtmlHead("Manage Achievements");
             echo "<td><code>$achBadgeName</code><br><img alt='' style='float:left;' src='$achBadgeFile' /></td>";
             echo "<td>$achTitle</td>";
             echo "<td>$achDesc</td>";
-            //echo "<td>$achMemAddr</td>";
+            // echo "<td>$achMemAddr</td>";
             echo "<td>$achPoints</td>";
             echo "<td><span class='smalldate'>$achCreated</span><br><span class='smalldate'>$achModified</span></td>";
             if ($partialModifyOK || $fullModifyOK) {
                 echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('$user', 'ach_$achID', '$gameID')\" size='3' /></td>";
             } else {
                 echo "<td>$achDisplayOrder</td>";
-            }    //	Just remove the input
+            }    // Just remove the input
 
             echo "</tr>";
             echo "<tr>";
@@ -244,7 +244,7 @@ RenderHtmlHead("Manage Achievements");
     }
     echo "</div>";
 
-    if (count($codeNotes) > 0) {
+    if (!empty($codeNotes)) {
         echo "<div id='rightcontainer'>";
         RenderCodeNotes($codeNotes);
         echo "</div>";

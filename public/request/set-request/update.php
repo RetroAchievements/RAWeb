@@ -19,4 +19,4 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 
 echo json_encode([
     'Success' => $success,
-]);
+], JSON_THROW_ON_ERROR);

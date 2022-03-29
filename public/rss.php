@@ -14,7 +14,7 @@ RenderHtmlHead("RSS Feeds");
 <div id="mainpage">
     <?php
     $yOffs = 0;
-    //RenderTwitchTVStream( $yOffs );
+    // RenderTwitchTVStream( $yOffs );
     ?>
     <div id="fullcontainer">
         <?php
