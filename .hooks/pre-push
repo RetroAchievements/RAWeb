@@ -1,9 +1,9 @@
 #!/bin/sh
 
-printf "\n⏳ composer lint" && \
+printf "\n⏳ composer lint\n" && \
 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none && \
-printf "\n⏳ npm lint" && \
+printf "\n⏳ npm lint\n" && \
 npm run lint && \
-printf "\n⏳ composer analyse" && \
+printf "\n⏳ composer analyse\n" && \
 vendor/bin/phpstan analyse --memory-limit 512M --no-progress && \
 printf "\n✅ pre-push hook\n\n"
