@@ -37,116 +37,82 @@ RenderHtmlHead("Reorder Site Awards");
             "Adjust the numbers on the right to set an order for them to appear in. Setting a 'Display Order' value to -1 " .
             "will hide the site award. Any changes you make on this page will instantly " .
             "take effect on the website, but you will need to press 'Refresh Page' to see the new order on this page. " .
-            "The right panel represents how the site awards will look on your user page.</p><br>";
-
-        echo "<table><tbody>";
-        echo "<tr>";
-        echo "<th>Badge</th>";
-        echo "<th>Site Award</th>";
-        echo "<th>Award Date</th>";
-        echo "<th>Display Order</th>";
-        echo "</tr>";
+            "The right panel represents how the site awards will look on your user page.</p>";
 
         $userAwards = getUsersSiteAwards($user, true);
-        $userAwards = array_values(array_filter($userAwards, function ($award) {
-            return in_array((int) $award['AwardType'], AwardType::$active);
+
+        $gameAwards = array_values(array_filter($userAwards, function ($award) {
+            return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events';
         }));
 
-        $imageSize = 48;
-        $counter = 0;
-        foreach ($userAwards as $elem) {
-            $awardType = $elem['AwardType'];
-            $awardData = $elem['AwardData'];
-            $awardDataExtra = $elem['AwardDataExtra'];
-            $awardTitle = $elem['Title'];
-            $awardGameConsole = $elem['ConsoleName'];
-            $awardGameImage = $elem['ImageIcon'];
-            $awardDisplayOrder = $elem['DisplayOrder'];
-            $awardDate = getNiceDate($elem['AwardedAt']);
-            $awardButGameIsIncomplete = (isset($elem['Incomplete']) && $elem['Incomplete'] == 1);
-            $imgclass = 'badgeimg siteawards';
+        $eventAwards = array_values(array_filter($userAwards, function ($award) {
+            return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events';
+        }));
 
-            sanitize_outputs(
-                $awardTitle,
-                $awardGameConsole
-            );
+        $siteAwards = array_values(array_filter($userAwards, function ($award) {
+            return $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active);
+        }));
 
-            settype($awardType, 'integer');
+        function RenderAwardOrderTable($title, $awards, &$counter)
+        {
+            echo "<br><h4>$title</h4>";
+            echo "<table><tbody>";
+            echo "<tr>";
+            echo "<th>Badge</th>";
+            echo "<th width=\"75%\">Site Award</th>";
+            echo "<th width=\"25%\">Award Date</th>";
+            echo "<th>Display Order</th>";
+            echo "</tr>\n";
 
-            if ($awardType == AwardType::MASTERY) {
-                if ($awardDataExtra == '1') {
-                    $tooltip = "MASTERED $awardTitle ($awardGameConsole)";
-                    $imgclass = 'goldimage';
-                } else {
-                    $tooltip = "Completed $awardTitle ($awardGameConsole)";
+            foreach ($awards as $award) {
+                $awardType = $award['AwardType'];
+                $awardData = $award['AwardData'];
+                $awardDataExtra = $award['AwardDataExtra'];
+                $awardTitle = $award['Title'];
+                $awardDisplayOrder = $award['DisplayOrder'];
+                $awardDate = getNiceDate($award['AwardedAt']);
+
+                sanitize_outputs(
+                    $awardTitle,
+                    $awardGameConsole
+                );
+
+                if ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
+                    $awardTitle = "Achievements Earned by Others";
+                } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
+                    $awardTitle = "Achievement Points Earned by Others";
+                } elseif ($awardType == AwardType::REFERRALS) {
+                    $awardTitle = "Referral Award";
+                } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
+                    $awardTitle = "Patreon Supporter";
                 }
 
-                if ($awardButGameIsIncomplete) {
-                    $tooltip .= "...<br>but more achievements have been added!<br>Click here to find out what you're missing!";
-                }
+                echo "<td>";
+                RenderAward($award, 48, false);
+                echo "</td>";
+                echo "<td>$awardTitle</td>";
+                echo "<td style=\"white-space: nowrap\"><span class='smalldate'>$awardDate</span><br></td>";
+                echo "<td><input class='displayorderedit' id='$counter' type='text' value='$awardDisplayOrder' onchange=\"updateAwardDisplayOrder('$awardType', '$awardData', '$awardDataExtra', '$counter')\" size='3' /></td>";
 
-                $imagepath = $awardGameImage;
-                $linkdest = "/game/$awardData";
-            } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
-                // Developed a number of earned achievements
-                $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
-                $awardTitle = "Achievements Earned by Others";
-                $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
-            } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
-                // Yielded an amount of points earned by players
-                $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
-                $awardTitle = "Achievement Points Earned by Others";
-
-                if ($awardData == 0) {
-                    $imagepath = "/Images/trophy-green.png";
-                } elseif ($awardData == 1) {
-                    $imagepath = "/Images/trophy-bronze.png";
-                } elseif ($awardData == 2) {
-                    $imagepath = "/Images/trophy-platinum.png";
-                } elseif ($awardData == 3) {
-                    $imagepath = "/Images/trophy-silver.png";
-                } elseif ($awardData == 4) {
-                    $imagepath = "/Images/trophy-gold.png";
-                } else {
-                    $imagepath = "/Images/trophy-gold.png";
-                }
-            } elseif ($awardType == AwardType::REFERRALS) {
-                $tooltip = "Referred $awardData members";
-                $awardTitle = "Referral Award";
-
-                if ($awardData < 2) {
-                    $imagepath = "/Badge/00083.png";
-                } elseif ($awardData < 3) {
-                    $imagepath = "/Badge/00083.png";
-                } elseif ($awardData < 5) {
-                    $imagepath = "/Badge/00083.png";
-                } elseif ($awardData < 10) {
-                    $imagepath = "/Badge/00083.png";
-                } elseif ($awardData < 15) {
-                    $imagepath = "/Badge/00083.png";
-                } else {
-                    $imagepath = "/Badge/00083.png";
-                }
-            } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
-                $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
-                $awardTitle = "Patreon Supporter";
-                $imagepath = '/Images/PatreonBadge.png';
-            } else {
-                // Unknown or inactive award type
-                continue;
+                echo "</tr>\n";
+                $counter++;
             }
-
-            $tooltip .= "\r\nAwarded on $awardDate";
-
-            echo "<td><img class=\"$imgclass\" alt=\"$tooltip\" title=\"$tooltip\" style='float:middle;' src='$imagepath' width='$imageSize' height='$imageSize' /></td>";
-            echo "<td>$awardTitle</td>";
-            echo "<td><span class='smalldate'>$awardDate</span><br></td>";
-            echo "<td><input class='displayorderedit' id='$counter' type='text' value='$awardDisplayOrder' onchange=\"updateAwardDisplayOrder('$awardType', '$awardData', '$awardDataExtra', '$counter')\" size='3' /></td>";
-
-            echo "</tr>";
-            $counter++;
+            echo "</tbody></table>\n";
         }
-        echo "</tbody></table>";
+
+        $counter = 0;
+        if (!empty($gameAwards)) {
+            RenderAwardOrderTable("Game Awards", $gameAwards, $counter);
+        }
+
+        if (!empty($eventAwards)) {
+            RenderAwardOrderTable("Event Awards", $eventAwards, $counter);
+        }
+
+        if (!empty($siteAwards)) {
+            RenderAwardOrderTable("Site Awards", $siteAwards, $counter);
+        }
+
         ?>
     </div>
     <div id="rightcontainer">
