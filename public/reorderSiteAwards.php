@@ -42,17 +42,11 @@ RenderHtmlHead("Reorder Site Awards");
 
         $userAwards = getUsersSiteAwards($user, true);
 
-        $gameAwards = array_values(array_filter($userAwards, function ($award) {
-            return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events';
-        }));
+        $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events'));
 
-        $eventAwards = array_values(array_filter($userAwards, function ($award) {
-            return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events';
-        }));
+        $eventAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events'));
 
-        $siteAwards = array_values(array_filter($userAwards, function ($award) {
-            return $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active);
-        }));
+        $siteAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active)));
 
         function RenderAwardOrderTable($title, $awards, &$counter)
         {

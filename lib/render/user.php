@@ -141,17 +141,11 @@ function _GetUserAndTooltipDiv(
 
 function RenderSiteAwards($userAwards)
 {
-    $gameAwards = array_values(array_filter($userAwards, function ($award) {
-        return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events';
-    }));
+    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_values(array_filter($userAwards, function ($award) {
-        return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events';
-    }));
+    $eventAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events'));
 
-    $siteAwards = array_values(array_filter($userAwards, function ($award) {
-        return $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active);
-    }));
+    $siteAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active)));
 
     if (!empty($gameAwards) || (empty($eventAwards) && empty($siteAwards))) {
         RenderAwardGroup($gameAwards, "Game Awards");
@@ -173,7 +167,7 @@ function RenderAwardGroup($awards, $title)
     echo "<div class='siteawards'>";
     echo "<table class='siteawards'><tbody>";
 
-    $numItems = count($awards);
+    $numItems = is_countable($awards) ? count($awards) : 0;
     $imageSize = 48;
     $numCols = 5;
     for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
@@ -195,8 +189,6 @@ function RenderAwardGroup($awards, $title)
     echo "</tbody></table>";
 
     echo "</div>";
-
-    // echo "<br>";
 
     echo "</div>";
 }
@@ -339,7 +331,7 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $pctAwardedHC = ($nextNumAwardedHC / $nextMaxPossible) * 100.0;
         $pctAwardedHCProportional = ($nextNumAwardedHC / $nextNumAwarded) * 100.0; // This is given as a proportion of normal completion!
         // $nextTotalAwarded = $nextNumAwarded + $nextNumAwardedHC;
-        $nextTotalAwarded = $nextNumAwardedHC > $nextNumAwarded ? $nextNumAwardedHC : $nextNumAwarded; // Just take largest
+        $nextTotalAwarded = max($nextNumAwardedHC, $nextNumAwarded); // Just take largest
 
         if (!isset($nextMaxPossible)) {
             continue;
@@ -351,7 +343,7 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         echo "<tr>";
 
         $tooltipImagePath = "$nextImageIcon";
-        $tooltipImageSize = 96; // 64;    // screw that, lets make it big!
+        $tooltipImageSize = 96;
         $tooltipTitle = attributeEscape($nextTitle);
         $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
         $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
@@ -366,8 +358,6 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $textWithTooltip = $displayable;
         echo "<td class=''>$textWithTooltip</td>";
         echo "<td class='progress'>";
-
-        // if( $nextNumAwardedHC > 0 )
 
         echo "<div class='progressbar completedgames'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";

@@ -13,22 +13,21 @@ return;
 // $feed = new \RA\Feed();
 //
 // if (!isset($mode)) {
-// No mode supplied (feed)
-// //return;
-// $mode = "unknown";
+//     // No mode supplied (feed)
+//     $mode = "unknown";
 // }
 //
 // $user = null;
 //
 // if ($mode == 'RetrieveNew') {
-// // get the id of the last message retrieved by the client
-// $id = $_POST['id'];
-// $user = isset($_POST['user']) ? $_POST['user'] : null;
+//     // get the id of the last message retrieved by the client
+//     $id = $_POST['id'];
+//     $user = $_POST['user'] ?? null;
 // }
 //
 // // Clear the output
 // if (ob_get_length()) {
-// ob_clean();
+//     ob_clean();
 // }
 // // Headers are sent to prevent browsers from caching
 // header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');

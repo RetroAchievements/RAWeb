@@ -329,7 +329,8 @@ final class Shortcode
             return $text;
         }
         $replacements = [];
-        for ($i = 0; $i < count($matches[0]); $i++) {
+        $matchesCount = is_countable($matches[0]) ? count($matches[0]) : 0;
+        for ($i = 0; $i < $matchesCount; $i++) {
             $id = $matches[1][$i];
             $extension = $matches[2][$i] ?? null;
             $extension = $extension === '.gif' ? '.gifv' : $extension;

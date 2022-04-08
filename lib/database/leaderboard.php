@@ -511,7 +511,9 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
                         $db_entry['Rank'] = (int) $db_entry['UserRank'];
                         // @phpstan-ignore-next-line
                         unset($db_entry['UserRank']);
+                        // @phpstan-ignore-next-line
                         $db_entry['Index'] = (int) $db_entry['UserIndex'];
+                        // @phpstan-ignore-next-line
                         unset($db_entry['UserIndex']);
                         $entries[] = $db_entry;
                     }
