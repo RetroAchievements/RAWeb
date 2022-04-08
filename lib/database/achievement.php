@@ -148,6 +148,9 @@ function getAchievementsListByDev(
         if (isset($dev)) {
             $query .= "AND ach.Author = '$dev' ";
         }
+        if ($sortBy == 4) {
+            $query .= "AND ach.TrueRatio > 0 ";
+        }
     } elseif (isset($dev)) {
         $query .= "WHERE ach.Author = '$dev' ";
     }
@@ -168,7 +171,7 @@ function getAchievementsListByDev(
             $query .= "ORDER BY ach.Points, GameTitle ";
             break;
         case 4:
-            $query .= "ORDER BY ach.TrueRatio, GameTitle ";
+            $query .= "ORDER BY ach.TrueRatio, ach.Points DESC, GameTitle ";
             break;
         case 5:
             $query .= "ORDER BY ach.Author ";
@@ -192,7 +195,7 @@ function getAchievementsListByDev(
             $query .= "ORDER BY ach.Points DESC, GameTitle ";
             break;
         case 14:
-            $query .= "ORDER BY ach.TrueRatio DESC, GameTitle ";
+            $query .= "ORDER BY ach.TrueRatio DESC, ach.Points, GameTitle ";
             break;
         case 15:
             $query .= "ORDER BY ach.Author DESC ";
