@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\Permissions;
 
 function getAchievementFeedData(
@@ -457,7 +458,7 @@ function UploadNewAchievement(
     settype($points, 'integer');
 
     // Prevent <= registered users from uploading or modifying achievements
-    if (getUserPermissions($author) <= \RA\Permissions::Registered) {
+    if (getUserPermissions($author) <= Permissions::Registered) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
         return false;
     }
@@ -505,7 +506,7 @@ function UploadNewAchievement(
             static_addnewachievement($idInOut);
             addArticleComment(
                 "Server",
-                \RA\ArticleType::Achievement,
+                ArticleType::Achievement,
                 $idInOut,
                 "$author uploaded this achievement.",
                 $author
@@ -570,7 +571,7 @@ function UploadNewAchievement(
                     if ($type == 3) {
                         addArticleComment(
                             "Server",
-                            \RA\ArticleType::Achievement,
+                            ArticleType::Achievement,
                             $idInOut,
                             "$author promoted this achievement to the Core set.",
                             $author
@@ -578,7 +579,7 @@ function UploadNewAchievement(
                     } elseif ($type == 5) {
                         addArticleComment(
                             "Server",
-                            \RA\ArticleType::Achievement,
+                            ArticleType::Achievement,
                             $idInOut,
                             "$author demoted this achievement to Unofficial.",
                             $author
@@ -587,7 +588,7 @@ function UploadNewAchievement(
                 } else {
                     addArticleComment(
                         "Server",
-                        \RA\ArticleType::Achievement,
+                        ArticleType::Achievement,
                         $idInOut,
                         "$author edited this achievement.",
                         $author

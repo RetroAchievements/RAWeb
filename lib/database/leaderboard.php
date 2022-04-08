@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\Permissions;
 
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation)
@@ -839,7 +840,7 @@ function UploadNewLeaderboard(
 
     // Prevent <= registered users from uploading or modifying leaderboards
     $userPermissions = getUserPermissions($author);
-    if ($userPermissions <= \RA\Permissions::Registered) {
+    if ($userPermissions <= Permissions::Registered) {
         if ($userPermissions < Permissions::JuniorDeveloper || $author != $originalAuthor) {
             $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
             return false;
@@ -883,7 +884,7 @@ function UploadNewLeaderboard(
     }
 
     if ($originalAuthor != '') {
-        addArticleComment("Server", \RA\ArticleType::Leaderboard, $idInOut,
+        addArticleComment("Server", ArticleType::Leaderboard, $idInOut,
             "$author edited this leaderboard.", $author
         );
     }

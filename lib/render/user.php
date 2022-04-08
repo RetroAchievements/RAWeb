@@ -1,5 +1,6 @@
 <?php
 
+use RA\AwardThreshold;
 use RA\AwardType;
 
 /**
@@ -195,7 +196,7 @@ function RenderAwardGroup($awards, $title)
 
     echo "</div>";
 
-    //echo "<br>";
+    // echo "<br>";
 
     echo "</div>";
 }
@@ -229,14 +230,14 @@ function RenderAward($award, $imageSize, $clickable = true)
         $linkdest = "/game/$awardData";
     } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
         // Developed a number of earned achievements
-        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
+        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
 
-        $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
+        $imagepath = "/Images/_Trophy" . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
 
         $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
         // Yielded an amount of points earned by players
-        $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
+        $tooltip = "Awarded for producing many valuable achievements, providing over " . AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
 
         if ($awardData == 0) {
             $imagepath = "/Images/trophy-green.png";
@@ -300,7 +301,7 @@ function RenderAward($award, $imageSize, $clickable = true)
         // }
     }
 
-     echo "<div><div>$displayable</div>$newOverlayDiv</div>";
+    echo "<div><div>$displayable</div>$newOverlayDiv</div>";
 }
 
 function RenderCompletedGamesList($user, $userCompletedGamesList)

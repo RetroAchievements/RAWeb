@@ -1,7 +1,9 @@
 <?php
 
+use RA\ArticleType;
 use RA\ModifyTopicField;
 use RA\Permissions;
+use RA\SubscriptionSubjectType;
 
 function getForumList($permissions, $categoryID = 0)
 {
@@ -341,7 +343,7 @@ function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentI
     // the topic.
 
     $subscribers = getSubscribersOf(
-        \RA\SubscriptionSubjectType::ForumTopic,
+        SubscriptionSubjectType::ForumTopic,
         $topicID,
         (1 << 3),
         "
@@ -356,7 +358,7 @@ function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentI
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, \RA\ArticleType::Forum, $topicTitle, null, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, null, $urlTarget);
     }
 }
 
@@ -627,7 +629,7 @@ function AuthoriseAllForumPosts($user)
 function isUserSubscribedToForumTopic($topicID, $userID)
 {
     return isUserSubscribedTo(
-        \RA\SubscriptionSubjectType::ForumTopic,
+        SubscriptionSubjectType::ForumTopic,
         $topicID,
         $userID,
         "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND AuthorID = $userID"

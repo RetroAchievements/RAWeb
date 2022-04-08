@@ -1,7 +1,9 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\Models\TicketModel;
+use RA\SubscriptionSubjectType;
 
 function isAllowedToSubmitTickets($user)
 {
@@ -81,7 +83,7 @@ $bugReportDetails";
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
 
                 // notify subscribers other than the achievement's author
-                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+                $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
                 $emailHeader = "Bug Report ($gameTitle)";
                 foreach ($subscribers as $sub) {
                     if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter) {
@@ -168,7 +170,7 @@ $bugReportDetails";
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
 
                 // notify subscribers other than the achievement's author
-                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
+                $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
                 $emailHeader = "Bug Report ($gameTitle)";
                 foreach ($subscribers as $sub) {
                     if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter) {
@@ -358,7 +360,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
                 break;
         }
 
-        addArticleComment("Server", \RA\ArticleType::AchievementTicket, $ticketID, $comment, $user);
+        addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
         getAccountDetails($userReporter, $reporterData);
         $email = $reporterData['EmailAddress'];

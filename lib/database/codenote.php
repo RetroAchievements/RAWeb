@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 function getCodeNotesData($gameID)
 {
     $codeNotesOut = [];
@@ -58,7 +60,7 @@ function getCodeNotes($gameID, &$codeNotesOut)
 function submitCodeNote2($user, $gameID, $address, $note): bool
 {
     // Prevent <= registered users from creating code notes.
-    if (getUserPermissions($user) <= \RA\Permissions::Registered) {
+    if (getUserPermissions($user) <= Permissions::Registered) {
         return false;
     }
 
@@ -81,7 +83,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
 
     if (
         $i !== false
-        && getUserPermissions($user) == \RA\Permissions::JuniorDeveloper
+        && getUserPermissions($user) == Permissions::JuniorDeveloper
         && $currentNotes[$i]['User'] !== $user
         && !empty($currentNotes[$i]['Note'])
     ) {

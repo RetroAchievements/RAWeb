@@ -2,6 +2,7 @@
 
 use RA\ActivityType;
 use RA\ArticleType;
+use RA\AwardThreshold;
 use RA\Permissions;
 
 function generateEmailValidationString($user)
@@ -1591,14 +1592,14 @@ function attributeDevelopmentAuthor($author, $points)
     if ($dbResult == false) {
         log_sql_fail();
     } else {
-        for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
-            if ($oldContribCount < RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
+        for ($i = 0; $i < count(AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
+            if ($oldContribCount < AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
                 // This developer has arrived at this point boundary!
                 AddSiteAward($author, 2, $i);
             }
         }
-        for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
-            if ($oldContribYield < RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
+        for ($i = 0; $i < count(AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
+            if ($oldContribYield < AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
                 // This developer is newly above this point boundary!
                 AddSiteAward($author, 3, $i);
             }

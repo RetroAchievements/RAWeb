@@ -1,6 +1,7 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\Permissions;
 
 function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
@@ -629,7 +630,7 @@ function requestModifyGame($author, $gameID, $field, $value)
             $result = $dbResult !== false;
 
             // Log hash unlink
-            addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $value . " unlinked by " . $author);
+            addArticleComment("Server", ArticleType::GameHash, $gameID, $value . " unlinked by " . $author);
             break;
     }
 
@@ -1160,9 +1161,9 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
 
                 // Log hash linked
                 if (!empty($unsanitizedDescription)) {
-                    addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $md5 . " linked by " . $user . ". Description: \"" . $unsanitizedDescription . "\"");
+                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $user . ". Description: \"" . $unsanitizedDescription . "\"");
                 } else {
-                    addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $md5 . " linked by " . $user);
+                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $user);
                 }
             } else {
                 /**
