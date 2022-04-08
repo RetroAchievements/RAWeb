@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -41,7 +43,7 @@ foreach ($bannedTitles as $nextWord) {
     }
 }
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Registered)) {
+if (validateFromCookie($user, $points, $permissions, Permissions::Registered)) {
     $topicID = null;
     if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $topicID)) {
         // Good!

@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ModifyTopicField;
 use RA\Permissions;
 use RA\Shortcode\Shortcode;
+use RA\SubscriptionSubjectType;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
 
@@ -95,7 +97,7 @@ RenderHtmlStart();
         echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
         RenderUpdateSubscriptionForm(
             "updatetopicsubscription",
-            \RA\SubscriptionSubjectType::ForumTopic,
+            SubscriptionSubjectType::ForumTopic,
             $thisTopicID,
             $isSubscribed
         );
@@ -136,11 +138,11 @@ RenderHtmlStart();
                 echo "<div>Restrict Topic:</div>";
                 echo "<form action='/request/forum-topic/modify.php' method='post' >";
                 echo "<select name='v'>";
-                echo "<option value='0' $selected0>" . PermissionsToString(\RA\Permissions::Unregistered) . "</option>";
-                echo "<option value='1' $selected1>" . PermissionsToString(\RA\Permissions::Registered) . "</option>";
-                echo "<option value='2' $selected2>" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</option>";
-                echo "<option value='3' $selected3>" . PermissionsToString(\RA\Permissions::Developer) . "</option>";
-                echo "<option value='4' $selected4>" . PermissionsToString(\RA\Permissions::Admin) . "</option>";
+                echo "<option value='0' $selected0>" . PermissionsToString(Permissions::Unregistered) . "</option>";
+                echo "<option value='1' $selected1>" . PermissionsToString(Permissions::Registered) . "</option>";
+                echo "<option value='2' $selected2>" . PermissionsToString(Permissions::JuniorDeveloper) . "</option>";
+                echo "<option value='3' $selected3>" . PermissionsToString(Permissions::Developer) . "</option>";
+                echo "<option value='4' $selected4>" . PermissionsToString(Permissions::Admin) . "</option>";
                 echo "</select>";
                 echo "<input type='hidden' name='t' value='$thisTopicID'>";
                 echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "'>";

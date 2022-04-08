@@ -1,8 +1,11 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Admin)) {
     // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
@@ -260,16 +263,14 @@ switch ($action) {
     //
     //             for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
     //                 if ($nextCount >= RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
-    //                     //echo "$nextUser has $nextCount, greater than RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[  $i ], addaward!<br>";
-    //                     //This developer has arrived at this point boundary!
+    //                     // This developer has arrived at this point boundary!
     //                     AddSiteAward($nextUser, 2, $i);
     //                     $numRecalced++;
     //                 }
     //             }
     //             for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
     //                 if ($nextYield >= RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
-    //                     //echo "$nextUser has yield of $nextYield, greater than RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i], addaward!<br>";
-    //                     //This developer is newly above this point boundary!
+    //                     // This developer is newly above this point boundary!
     //                     AddSiteAward($nextUser, 3, $i);
     //                     $numRecalced++;
     //                 }
@@ -432,7 +433,7 @@ RenderHtmlHead('Admin Tools');
         </div>
     <?php endif ?>
 
-    <?php if ($permissions >= \RA\Permissions::Admin) : ?>
+    <?php if ($permissions >= Permissions::Admin) : ?>
         <div id="fullcontainer">
             <h4>Get Game Achievement IDs</h4>
             <form method='post' action='admin.php'>

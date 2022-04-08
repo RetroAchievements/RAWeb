@@ -1,5 +1,8 @@
 <?php
 
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -8,13 +11,13 @@ $targetUser = requestInput('t');
 $reason = requestInputPost('r');
 $returnUrl = getenv('APP_URL') . '/leaderboardinfo.php?i=' . $leaderboardId;
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JuniorDeveloper)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::JuniorDeveloper)) {
     header('Location: ' . $returnUrl . '&success=false');
     return;
 }
 
 // Only let jr. devs remove their own entries
-if ($permissions == \RA\Permissions::JuniorDeveloper && $user != $targetUser) {
+if ($permissions == Permissions::JuniorDeveloper && $user != $targetUser) {
     header('Location: ' . $returnUrl . '&success=false');
     return;
 }
@@ -31,7 +34,7 @@ if ($response['Success']) {
         } else {
             $commentText = 'removed "' . $targetUser . '"s entry of "' . $response['Score'] . '" from this leaderboard. Reason: ' . $reason;
         }
-        addArticleComment("Server", \RA\ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
+        addArticleComment("Server", ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
     }
     return;
 }

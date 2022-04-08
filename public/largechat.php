@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -47,14 +48,8 @@ RenderHtmlHead("RA Cinema");
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
 
-  function onPostComplete(data) {
-    alert(data);
-    if (data !== 'OK') {
-      //$("body").find( "#warning" ).html( "Status: Errors..." );
-    } else {
-      //$("body").find( "#warning" ).html( "Status: Loading..." );
-      window.location.reload();
-    }
+  function onPostComplete() {
+    window.location.reload();
   }
 </script>
 <div id="mainpage">

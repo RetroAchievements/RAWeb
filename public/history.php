@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -80,7 +81,7 @@ RenderHtmlHead("$userPage's Legacy");
     var optionsTotalScore = {
       backgroundColor: 'transparent',
       title: '<?php echo $sortByGraphName; ?>',
-      titleTextStyle: { color: '#186DEE' }, //cc9900
+      titleTextStyle: { color: '#186DEE' }, // cc9900
       hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
       vAxis: { textStyle: { color: '#186DEE' } },
       legend: { position: 'none' },

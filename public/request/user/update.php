@@ -1,9 +1,10 @@
 <?php
 
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-use RA\ArticleType;
 
 if (ValidatePOSTorGETChars("tpv")) {
     $targetUser = requestInput('t');
@@ -14,7 +15,7 @@ if (ValidatePOSTorGETChars("tpv")) {
     return;
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Admin)) {
     echo "FAILED!";
     return;
 }

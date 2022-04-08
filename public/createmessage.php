@@ -1,5 +1,6 @@
 <?php
 
+use RA\Permissions;
 use RA\Shortcode\Shortcode;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -8,7 +9,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $user = RA_ReadCookie('RA_User');
 $cookieRaw = RA_ReadCookie('RA_Cookie');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
     if (getAccountDetails($user, $userDetails) == false) {
         // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");

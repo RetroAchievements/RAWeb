@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -9,7 +12,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 $forumList = getForumList($permissions, $requestedCategoryID);
 
 $numUnofficialLinks = 0;
-if ($permissions >= \RA\Permissions::Developer) {
+if ($permissions >= Permissions::Developer) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }

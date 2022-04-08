@@ -1,5 +1,7 @@
 <?php
 
+use RA\ActivityType;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -14,7 +16,7 @@ if (validateUser($user, $pass, $fbUser, 0)) {
 
     // TBD: Check for messages, updates? etc
     // Post activity of login:
-    postActivity($user, \RA\ActivityType::Login, null);
+    postActivity($user, ActivityType::Login, null);
 
     // Remove 'incorrect password' from redir url:
     $redir = str_replace("e=incorrectpassword", "", $redir);

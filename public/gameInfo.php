@@ -1,9 +1,12 @@
 <?php
+
+use RA\ArticleType;
+use RA\Permissions;
+use RA\SubscriptionSubjectType;
+use RA\UserPref;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
-
-use RA\Permissions;
-use RA\UserPref;
 
 /*
   DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash
@@ -265,8 +268,7 @@ RenderHtmlStart(true);
           <?php $numGridlines = $numAchievements; ?>
         var optionsTotalScore = {
           backgroundColor: 'transparent',
-          //title: 'Achievement Distribution',
-          titleTextStyle: {color: '#186DEE'}, //cc9900
+          titleTextStyle: {color: '#186DEE'}, // cc9900
           hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
           vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
           legend: {position: 'none'},
@@ -279,7 +281,7 @@ RenderHtmlStart(true);
         function resize() {
           chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
           chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
-          //google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
+          // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
         }
 
         window.onload = resize();
@@ -355,9 +357,6 @@ RenderHtmlStart(true);
             $('.ratingachlabel').html('Rating: ' + lastKnownAchRating.toFixed(2) + ' (' + achRatingNumVotes + ' votes)');
 
           },
-          error: function (temp, temp1, temp2) {
-            alert('Error ' + temp + temp1 + temp2);
-          },
         });
       }
 
@@ -367,9 +366,6 @@ RenderHtmlStart(true);
           dataType: 'json',
           success: function (results) {
             GetRating(<?php echo $gameID; ?>);
-          },
-          error: function (temp, temp1, temp2) {
-            alert('Error ' + temp + temp1 + temp2);
           },
         });
       }
@@ -416,7 +412,7 @@ RenderHtmlStart(true);
           },
           function () {
             // On leave
-            //GetRating( <?php echo $gameID; ?> );
+            // GetRating( <?php echo $gameID; ?> );
           });
 
         $('.rating').hover(
@@ -425,7 +421,7 @@ RenderHtmlStart(true);
           },
           function () {
             // On leave
-            //GetRating( <?php echo $gameID; ?> );
+            // GetRating( <?php echo $gameID; ?> );
             if ($(this).is($('#ratingach')))
               SetLitStars('#ratingach', lastKnownAchRating);
             else
@@ -475,7 +471,7 @@ RenderHtmlStart(true);
               $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
               $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
 
-              //If the user has not requested a set for this game
+              // If the user has not requested a set for this game
               if (thisGame == 0) {
                 if (remaining <= 0) {
                   $('.setRequestLabel').html('<h4>No Requests Remaining</h4>');
@@ -490,10 +486,6 @@ RenderHtmlStart(true);
               } else {
                 $('.setRequestLabel').html('<h4>Withdraw Request</h4>');
               }
-
-            },
-            error: function (temp, temp1, temp2) {
-              alert('Error ' + temp + temp1 + temp2);
             },
           });
       }
@@ -508,9 +500,6 @@ RenderHtmlStart(true);
             dataType: 'json',
             success: function (results) {
               getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
-            },
-            error: function (temp, temp1, temp2) {
-              alert('Error ' + temp + temp1 + temp2);
             },
           });
       }
@@ -646,10 +635,10 @@ RenderHtmlStart(true);
                     echo "<div><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
 
                     echo "<div>";
-                    $isSubscribedToTickets = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameTickets, $gameID, $userID);
+                    $isSubscribedToTickets = isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID);
                     RenderUpdateSubscriptionForm(
                         "updateticketssub",
-                        \RA\SubscriptionSubjectType::GameTickets,
+                        SubscriptionSubjectType::GameTickets,
                         $gameID,
                         $isSubscribedToTickets
                     );
@@ -659,10 +648,10 @@ RenderHtmlStart(true);
                     echo "</div>";
 
                     echo "<div>";
-                    $isSubscribedToAchievements = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameAchievements, $gameID, $userID);
+                    $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
                     RenderUpdateSubscriptionForm(
                         "updateachievementssub",
-                        \RA\SubscriptionSubjectType::GameAchievements,
+                        SubscriptionSubjectType::GameAchievements,
                         $gameID,
                         $isSubscribedToAchievements
                     );
@@ -1120,7 +1109,7 @@ RenderHtmlStart(true);
                     RenderRecentGamePlayers($recentPlayerData);
                 }
 
-                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, \RA\ArticleType::Game, $permissions >= Permissions::Admin);
+                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions >= Permissions::Admin);
             }
             ?>
         </div>

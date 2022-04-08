@@ -1,7 +1,10 @@
 <?php
 
 echo '<response></response>';
-return;
+exit;
+
+// use RA\Feed;
+//
 // require_once __DIR__ . '/../../../vendor/autoload.php';
 // require_once __DIR__ . '/../../../lib/bootstrap.php';
 // // retrieve the operation to be performed
@@ -10,7 +13,7 @@ return;
 // // default the last id to 0
 // $id = 0;
 // // create a new Feed instance
-// $feed = new \RA\Feed();
+// $feed = new Feed();
 //
 // if (!isset($mode)) {
 //     // No mode supplied (feed)

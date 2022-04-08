@@ -1,15 +1,18 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-$fullModifyOK = ($permissions >= \RA\Permissions::Developer);
+$fullModifyOK = ($permissions >= Permissions::Developer);
 
 $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = ($permissions == \RA\Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID));
+$partialModifyOK = ($permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID));
 
 $achievementList = [];
 $gamesList = [];
@@ -43,7 +46,7 @@ RenderHtmlHead("Manage Achievements");
 
 
 <script>
-  //Sleeps for the given amount of milliseconds
+  // Sleeps for the given amount of milliseconds
   function sleep(milliseconds) {
     var start = new Date().getTime();
     for (var i = 0; i < 1e7; i++) {
@@ -53,7 +56,7 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
-  //Checks or unchecks all boxes
+  // Checks or unchecks all boxes
   function toggle(status) {
     checkboxes = document.querySelectorAll("[name^='acvhievement']");
     for(var i=0, n=checkboxes.length;i<n;i++) {
@@ -61,22 +64,20 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
-  //Sends update achievements request
+  // Sends update achievements request
   function updateAchievements(user, achievements, flag) {
     $.ajax(
       {
         type: "POST",
         url: '/request/achievement/update.php?a=-1&f=4&u=' + user + '&v=' + flag,
         data: {"achievementArray" : achievements},
-        success: function (result) {
-        },
         error: function (temp, temp1, temp2) {
           alert('Error ' + temp + temp1 + temp2);
         },
       });
   }
 
-  //When clicked, creates an array of checked achievement IDs and sends it to the updateAchievements function
+  // When clicked, creates an array of checked achievement IDs and sends it to the updateAchievements function
   $(function () {
     $('.updateAchievements').click(function () {
       checkboxes = document.querySelectorAll("[name^='acvhievement']");

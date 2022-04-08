@@ -182,13 +182,13 @@ function UploadBadgeImage($file)
                 $normalPx = 64;
                 $largePx = 128;
 
-                // $newSmallImage 		 = imagecreatetruecolor($smallPx, $smallPx);
+                // $newSmallImage = imagecreatetruecolor($smallPx, $smallPx);
                 $newImage = imagecreatetruecolor($normalPx, $normalPx);
-                // $newLargeImage 		 = imagecreatetruecolor($largePx, $largePx);
+                // $newLargeImage = imagecreatetruecolor($largePx, $largePx);
                 // $newSmallImageLocked = imagecreatetruecolor($smallPx, $smallPx);
                 $newImageLocked = imagecreatetruecolor($normalPx, $normalPx);
 
-                // Copy source to dest for all imaegs
+                // Copy source to dest for all images
                 // imagecopyresampled($newSmallImage, 	$tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
                 imagecopyresampled($newImage, $tempImage, 0, 0, 0, 0, $normalPx, $normalPx, $width, $height);
                 // imagecopyresampled($newLargeImage, 	$tempImage, 0, 0, 0, 0, $largePx, $largePx, $width, $height);
@@ -201,7 +201,7 @@ function UploadBadgeImage($file)
                 // imagecopyresampled($newSmallImageLocked, $tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
                 // imagefilter( $newSmallImageLocked, IMG_FILTER_GRAYSCALE );
                 // imagefilter( $newSmallImageLocked, IMG_FILTER_CONTRAST, 20 );
-                // //imagefilter( $newSmallImageLocked, IMG_FILTER_GAUSSIAN_BLUR );
+                // imagefilter( $newSmallImageLocked, IMG_FILTER_GAUSSIAN_BLUR );
 
                 $destBadgeFile = "Badge/" . "$newBadgeFilenameFormatted" . ".png";
                 $destBadgeFileLocked = "Badge/" . "$newBadgeFilenameFormatted" . "_lock.png";

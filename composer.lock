@@ -110,16 +110,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.218.5",
+            "version": "3.219.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7fb005ed6887527028dbcadf52509c8b794aecf3"
+                "reference": "e77a9bc31fdd98d3893f398468a36e00b12db3dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7fb005ed6887527028dbcadf52509c8b794aecf3",
-                "reference": "7fb005ed6887527028dbcadf52509c8b794aecf3",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e77a9bc31fdd98d3893f398468a36e00b12db3dc",
+                "reference": "e77a9bc31fdd98d3893f398468a36e00b12db3dc",
                 "shasum": ""
             },
             "require": {
@@ -195,9 +195,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.218.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.219.0"
             },
-            "time": "2022-04-07T18:20:25+00:00"
+            "time": "2022-04-08T18:16:00+00:00"
         },
         {
             "name": "graham-campbell/result-type",

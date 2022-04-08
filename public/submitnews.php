@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -9,7 +12,7 @@ $newsArticleID = requestInputSanitized('n', 0, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
     // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
@@ -36,9 +39,6 @@ RenderHtmlHead("Manage News");
     link = replaceAll('http', '_http_', link);
 
     var author = $('#NewsAuthor').val();
-
-    //alert( link );
-
     var posting = $.post('/request/news/update.php', { a: author, p: payload, t: title, l: link, g: imageurl, i: <?php echo $newsArticleID; ?> });
     posting.done(onPostComplete);
     //$("body").find( "#warning" ).html( "Status: Updating..." );
@@ -71,14 +71,12 @@ RenderHtmlHead("Manage News");
 
   function onUploadImageComplete(data) {
     $('#loadingicon').fadeTo(100, 0.0);
-
-    if (data.substr(0, 3) == 'OK:') {
-      //alert( data );
-      $('#NewsImage').val('<?php echo getenv('ASSET_URL') ?>' + data.substr(3));
-      $('#NewsImagePreview').attr('src', $('#NewsImage').val());
-    } else {
+    if (data.substr(0, 3) !== 'OK:') {
       alert(data);
+      return;
     }
+    $('#NewsImage').val('<?php echo getenv('ASSET_URL') ?>' + data.substr(3));
+    $('#NewsImagePreview').attr('src', $('#NewsImage').val());
   }
 </script>
 <div id="mainpage">
@@ -105,9 +103,9 @@ RenderHtmlHead("Manage News");
         // echo "<h2 class='longheader'>Upload news image</h2>";
         // echo "470px max width! Image size will be scaled to fit.<br>";
         //
-        // //echo "<form style='padding: 2px;' method='post' enctype='multipart/form-data' >";
+        // // echo "<form style='padding: 2px;' method='post' enctype='multipart/form-data' >";
         // echo "<input type='submit' name='submit' style='float: right;' value='Select News Image' />";
-        // //echo "</form>";
+        // // echo "</form>";
         //
         // echo "<br>";
         // echo "</div>";

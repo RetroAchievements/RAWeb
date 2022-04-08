@@ -1,5 +1,8 @@
 <?php
 
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -13,13 +16,13 @@ $gameID = requestInputPost('g');
 $field = requestInputPost('f');
 $value = requestInputPost('v');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
     if ($field == 4) {
         $name = requestInputPost('n');
         $labels = requestInputPost('l');
         if (updateHashDetails($gameID, $value, $name, $labels)) {
             // Log hash update
-            addArticleComment("Server", \RA\ArticleType::GameHash, $gameID, $value . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
+            addArticleComment("Server", ArticleType::GameHash, $gameID, $value . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
             echo "OK";
         } else {
             echo "FAILED!";

@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -21,7 +24,7 @@ if (getSingleTopicComment($requestedComment, $commentData) == false) {
     exit;
 }
 
-if ($user != $commentData['Author'] && $permissions < \RA\Permissions::Admin) {
+if ($user != $commentData['Author'] && $permissions < Permissions::Admin) {
     header("Location: " . getenv('APP_URL') . "?e=nopermission");
     exit;
 }

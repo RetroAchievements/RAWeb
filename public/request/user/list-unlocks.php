@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -10,7 +12,7 @@ if (!ValidatePOSTChars('g')) {
 
 $gameID = requestInputPost('g', null, 'integer');
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Unregistered)) {
+if (validateFromCookie($user, $points, $permissions, Permissions::Unregistered)) {
     echo "OK:";
 
     $numUnlocks = getUserUnlocksDetailed($user, $gameID, $dataOut);

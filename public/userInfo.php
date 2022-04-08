@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\Permissions;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $userPage = requestInputSanitized('ID');
 if ($userPage == null || mb_strlen($userPage) == 0) {
@@ -199,7 +200,6 @@ RenderHtmlStart(true);
       chartArea: { left: 42, width: 458, 'height': '100%' },
       showRowNumber: false,
       view: { columns: [0, 1] },
-      //height: 460,
       colors: ['#cc9900'],
     };
 

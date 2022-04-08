@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 use RA\UserPref;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
@@ -63,8 +64,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
   function OnGetAllResettableGamesList(data) {
     if (data !== 'ERROR3') {
-      //alert( data );
-
       var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
       htmlToAdd += '<option value="">--</option>';
 
@@ -113,18 +112,15 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       var achData = achList.split('::');
 
       if (achData.length > 0 && achData[0].length > 0) {
-        //alert( achData );
         $('#resetachievementscontainer').append('<option value=\'9999999\' >All achievements for this game</option>');
       }
 
       for (var index = 0; index < achData.length; ++index) {
         var nextData = achData[index];
         var dataChunks = nextData.split('_:_');
-
-        //alert( dataChunks );
-        if (dataChunks.length < 2)
+        if (dataChunks.length < 2) {
           continue;
-
+        }
         var achTitle = htmlEntities(dataChunks[0]);
         var achID = htmlEntities(dataChunks[1]);
         if (achID[0] == 'h') {
@@ -155,11 +151,10 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       var gameId = $('#resetgameselector :selected').val();
       gameName = gameName.substr(0, gameName.lastIndexOf('(') - 1);
 
-      //Prompt user for confirmation if attempting to remove all achievement for a single game
+      // Prompt user for confirmation if attempting to remove all achievement for a single game
       if (gameId > 0 && confirm('Reset all achievements for ' + gameName + '?')) {
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
-        //alert( "Game ID is " + gameID );
         var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', g: gameID});
         posting.done(onResetComplete);
         $('#warning').html('Status: Updating...');
@@ -167,9 +162,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       }
     } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
-
-      //alert( "Ach ID is " + achID );
-      //alert( "isHardcore is " + isHardcore );
       var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', a: achID, h: isHardcore});
       posting.done(onResetComplete);
       $('#warning').html('Status: Updating...');
@@ -180,15 +172,14 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
   function onResetComplete(data) {
     if (data.substr(0, 2) !== 'OK') {
       alert(data);
-    } else {
-      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
-      //window.location = '/controlpanel.php?e=resetok';
-      if ($('#resetachievementscontainer').children('option').length > 2)
-        ResetFetchAwarded();			// Just reset ach. list
-      else
-        GetAllResettableGamesList();	// last ach reset: fetch new list!
-      return false;
+      return;
     }
+    $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+    if ($('#resetachievementscontainer').children('option').length > 2)
+      ResetFetchAwarded(); // Just reset ach. list
+    else
+      GetAllResettableGamesList(); // last ach reset: fetch new list!
+    return false;
   }
 
   function DoChangeUserPrefs() {
@@ -215,8 +206,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
     posting.done(OnChangeUserPrefs);
   }
 
-  function OnChangeUserPrefs(object) {
-    //console.log( object )
+  function OnChangeUserPrefs() {
     $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
   }
 
@@ -238,14 +228,8 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
   function onUploadImageComplete(data) {
     $('#loadingiconavatar').fadeTo(100, 0.0);
-    var response = JSON.parse(data);
-    //if( data.substr( 0, 2 ) == "OK" )
-    if (true) {
-      var d = new Date();
-      $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
-    } else {
-      alert(data);
-    }
+    var d = new Date();
+    $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
   }
 
   GetAllResettableGamesList();

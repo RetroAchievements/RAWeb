@@ -1,5 +1,7 @@
 <?php
 
+use RA\ArticleType;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -31,7 +33,7 @@ if (validateUser_cookie($user, $cookie, 1)) {
     } else {
         if ($prefType == 'cleanwall') {
             $query = "DELETE FROM Comment
-                      WHERE ArticleType = " . \RA\ArticleType::User . " && ArticleID = ( SELECT ua.ID FROM UserAccounts AS ua WHERE ua.User = '$user' )";
+                      WHERE ArticleType = " . ArticleType::User . " && ArticleID = ( SELECT ua.ID FROM UserAccounts AS ua WHERE ua.User = '$user' )";
 
             $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {

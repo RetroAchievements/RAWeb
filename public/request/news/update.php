@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -20,7 +22,7 @@ $title = str_replace("_http_", "http", $title);
 $link = str_replace("_http_", "http", $link);
 $image = str_replace("_http_", "http", $image);
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
     requestModifyNews($author, $id, $title, $payload, $link, $image);
 
     echo "OK";

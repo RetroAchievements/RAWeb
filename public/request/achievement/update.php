@@ -1,5 +1,8 @@
 <?php
 
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -20,13 +23,13 @@ if (ValidatePOSTChars("uafv")) {
     }
 }
 
-if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)) {
+if (!validateFromCookie($user, $points, $permissions, Permissions::JuniorDeveloper)) {
     echo "FAILED! Unauthenticaed";
     return;
 }
 
 // Only allow jr. devs to update the display order and they are the sole author of the set
-if ($permissions == \RA\Permissions::JuniorDeveloper) {
+if ($permissions == Permissions::JuniorDeveloper) {
     $jrDevAllowed = false;
     if ($field == 1) {
         if (ValidatePOSTChars("g")) {
@@ -84,7 +87,7 @@ switch ($field) {
             if ($value == 5) {
                 $commentText = 'demoted this achievement to Unofficial';
             }
-            addArticleComment("Server", \RA\ArticleType::Achievement, $achID, "\"$user\" $commentText.", $user);
+            addArticleComment("Server", ArticleType::Achievement, $achID, "\"$user\" $commentText.", $user);
         } else {
             echo "FAILED!";
         }
@@ -100,7 +103,7 @@ switch ($field) {
             if ($value == 5) {
                 $commentText = 'demoted this achievement to Unofficial';
             }
-            addArticleComment("Server", \RA\ArticleType::Achievement, $achIDs, "\"$user\" $commentText.", $user);
+            addArticleComment("Server", ArticleType::Achievement, $achIDs, "\"$user\" $commentText.", $user);
         } else {
             echo "FAILED!";
         }

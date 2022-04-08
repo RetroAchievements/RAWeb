@@ -1,5 +1,8 @@
 <?php
 
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -19,13 +22,13 @@ $lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)
+if (validateFromCookie($user, $points, $permissions, Permissions::JuniorDeveloper)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
     $prevUpdated = strtotime($prevData["LBUpdated"]);
 
     // Only let jr. devs update their own leaderboards
-    if ($permissions == \RA\Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
+    if ($permissions == Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
         echo "FAILED!";
         exit;
     }
@@ -40,7 +43,7 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeve
         if (!empty($updatedData['Entries'])) {
             if ($dateDiffMins > 10) {
                 $commentText = 'made updates to this leaderboard';
-                addArticleComment("Server", \RA\ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
+                addArticleComment("Server", ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
             }
         }
         exit;

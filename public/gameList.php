@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -16,7 +19,7 @@ if ($consoleIDInput !== 0) {
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$showTickets = (isset($user) && $permissions >= \RA\Permissions::Developer);
+$showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
 if ($showTickets) {
     $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, true);

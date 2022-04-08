@@ -74,7 +74,7 @@ $credentialsOK = match ($requestType) {
     // case "createnewlb":
     // case "recalctrueratio":
     // case "removelbentry":
-    //     $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Developer);
+    //     $credentialsOK = $validLogin && ($permissions >= Permissions::Developer);
     //     break;
     /**
      * Anything else is public. Includes login
@@ -133,7 +133,7 @@ switch ($requestType) {
         $response['GameID'] = $gameID;
         break;
 
-    // case "currentactivity": //requestcurrentlyactiveplayers
+    // case "currentactivity": // requestcurrentlyactiveplayers
     //     $response['CurrentActivity'] = getLatestRichPresenceUpdates();
     //     break;
     // case "currentlyonline":
@@ -228,10 +228,10 @@ switch ($requestType) {
     //     $success = changePassword( $username, $newPassword );
     //
     //     //  If changed OK, auto-login - doesn't appear to work?
-    //     //if( validateUser( $username, $newPassword, $fbUser, 0 ) )
-    //     //{
-    //     //    generateCookie( $user, $cookie );
-    //     //}
+    //     // if( validateUser( $username, $newPassword, $fbUser, 0 ) )
+    //     // {
+    //     //     generateCookie( $user, $cookie );
+    //     // }
     //     $response[ 'Success' ] = $success;
     //     $response[ 'Cookie' ] = $cookie;
     //     DoRequestError('Deprecated');

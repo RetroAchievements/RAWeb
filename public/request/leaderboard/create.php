@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -16,7 +18,7 @@ if (!isset($user)) {
     $duplicateNumber = requestInputQuery('n');
 }
 
-if (validateUser_cookie($user, $cookie, \RA\Permissions::JuniorDeveloper)) {
+if (validateUser_cookie($user, $cookie, Permissions::JuniorDeveloper)) {
     if (isset($leaderboardID) && isset($duplicateNumber)) {
         if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");

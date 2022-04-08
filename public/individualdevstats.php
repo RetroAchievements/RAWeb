@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -592,11 +593,11 @@ RenderHtmlHead("$dev's Developer Stats");
                 }
             },
             backgroundColor: 'transparent',
-            colors: ['#000066', '#000099', '#0000cc', '#0000ff', '#3333ff', '#6666ff', '#9999ff'] //blue
-            //colors: ['#660000', '#990000', '#cc0000', '#ff0000', '#ff3333', '#ff6666', '#ff9999'] //red
-            //colors: ['#003300', '#004d00', '#006600', '#008000', '#009900', '#00b300', '#00cc00'] //green
-            //colors: ['#660029', '#99003d', '#cc0052', '#ff0066', '#ff3385', '#ff66a3', '#ff99c2'] //pink
-            //colors: ['#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc'] //B/W
+            colors: ['#000066', '#000099', '#0000cc', '#0000ff', '#3333ff', '#6666ff', '#9999ff'] // blue
+            //colors: ['#660000', '#990000', '#cc0000', '#ff0000', '#ff3333', '#ff6666', '#ff9999'] // red
+            //colors: ['#003300', '#004d00', '#006600', '#008000', '#009900', '#00b300', '#00cc00'] // green
+            //colors: ['#660029', '#99003d', '#cc0052', '#ff0066', '#ff3385', '#ff66a3', '#ff99c2'] // pink
+            //colors: ['#333333', '#4d4d4d', '#666666', '#808080', '#999999', '#b3b3b3', '#cccccc'] // B/W
         };
 
         var achievementOptions = {

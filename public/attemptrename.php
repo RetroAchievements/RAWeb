@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -8,7 +11,7 @@ if (!RA_ReadCookieCredentials(
     $truePoints,
     $unreadMessageCount,
     $permissions,
-    \RA\Permissions::Developer
+    Permissions::Developer
 )) {
     // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));

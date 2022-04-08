@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -9,7 +12,7 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 25, 'integer');
 
 $numUnofficialLinks = 0;
-if ($permissions >= \RA\Permissions::Admin) {
+if ($permissions >= Permissions::Admin) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
@@ -17,7 +20,7 @@ if ($permissions >= \RA\Permissions::Admin) {
 $numTotalTopics = 0;
 
 if ($requestedForumID == 0) {
-    if ($permissions >= \RA\Permissions::Admin) {
+    if ($permissions >= Permissions::Admin) {
         // Continue
         $viewingUnauthorisedForumLinks = true;
     } else {
@@ -85,7 +88,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "<h2>$requestedForum</h2>";
             echo "$thisForumDescription<br>";
 
-            if ($permissions >= \RA\Permissions::Registered) {
+            if ($permissions >= Permissions::Registered) {
                 echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
             }
 
@@ -205,7 +208,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
             echo "<br>";
 
-            if ($permissions >= \RA\Permissions::Registered) {
+            if ($permissions >= Permissions::Registered) {
                 echo "<div class='rightlink'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
             } else {
                 echo "<div class='rightlink'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";

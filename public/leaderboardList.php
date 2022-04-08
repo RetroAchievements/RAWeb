@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
@@ -74,7 +75,7 @@ RenderHtmlHead($pageTitle);
     location.href = '/leaderboardList.php?g=' + ID;
   }
 </script>
-<?php if ($permissions >= \RA\Permissions::JuniorDeveloper): ?>
+<?php if ($permissions >= Permissions::JuniorDeveloper): ?>
     <script>
       function UpdateLeaderboard(user, lbID) {
         var lbTitle = $.trim($('#LB_' + lbID + '_Title').val());

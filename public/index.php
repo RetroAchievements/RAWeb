@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -87,9 +88,7 @@ RenderToolbar($user, $permissions);
 
     var optionsTotalScore = {
       backgroundColor: 'transparent',
-      //title: 'Achievement Distribution',
-      titleTextStyle: { color: '#186DEE' }, //cc9900
-      //hAxis: {textStyle: {color: '#186DEE'}, gridlines:{count:24, color: '#334433'}, minorGridlines:{count:0}, format:'#', slantedTextAngle:90, maxAlternation:0 },
+      titleTextStyle: { color: '#186DEE' }, // cc9900
       hAxis: { textStyle: { color: '#186DEE' } },
       vAxis: { textStyle: { color: '#186DEE' }, viewWindow: { min: 0 }, format: '#' },
       legend: { position: 'none' },
