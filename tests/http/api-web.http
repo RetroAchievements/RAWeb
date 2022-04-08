@@ -1,3 +1,5 @@
+# To be used with a JetBrains IDE HTTP Client
+
 ### GetAchievementCount
 # curl -X GET --location "http://{{host}}/API/API_GetAchievementCount.php?y={{apiToken}}&z={{apiUser}}&i={{game}}" -H "Accept: application/json"
 GET {{host}}/API/API_GetAchievementCount.php?y={{apiToken}}&z={{apiUser}}&i={{game}}

@@ -1,3 +1,5 @@
+# To be used with a JetBrains IDE HTTP Client
+
 ### Latest client
 # curl -X POST --location "http://{{host}}/dorequest.php" \
 #    -H "Content-Type: application/x-www-form-urlencoded" \
