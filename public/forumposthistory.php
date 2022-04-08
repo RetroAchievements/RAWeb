@@ -58,6 +58,8 @@ RenderHtmlHead("Forum Recent Posts");
                 $postTime = $topicPostData['PostedAt'];
                 $nicePostTime = getNiceDate(strtotime($postTime));
 
+                sanitize_outputs($forumTopicTitle, $postMessage);
+
                 echo "<tr>";
 
                 echo "<td>";

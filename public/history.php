@@ -34,37 +34,6 @@ $userPagePoints = getScore($userPage);
 
 getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
-$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-
-$userCompletedGames = [];
-
-//	Merge all elements of $userCompletedGamesList into one unique list
-for ($i = 0; $i < count($userCompletedGamesList); $i++) {
-    $gameID = $userCompletedGamesList[$i]['GameID'];
-
-    if ($userCompletedGamesList[$i]['HardcoreMode'] == 0) {
-        $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
-    }
-
-    $userCompletedGames[$gameID]['NumAwardedHC'] = 0; //	Update this later, but fill in for now
-}
-
-for ($i = 0; $i < count($userCompletedGamesList); $i++) {
-    $gameID = $userCompletedGamesList[$i]['GameID'];
-    if ($userCompletedGamesList[$i]['HardcoreMode'] == 1) {
-        $userCompletedGames[$gameID]['NumAwardedHC'] = $userCompletedGamesList[$i]['NumAwarded'];
-    }
-}
-
-function scorePctCompare($a, $b)
-{
-    return $a['PctWon'] < $b['PctWon'];
-}
-
-usort($userCompletedGames, "scorePctCompare");
-
-$userCompletedGamesList = $userCompletedGames;
-
 //	the past week
 $userScoreData = getAwardedList($userPage, 0, 1000);
 
@@ -297,16 +266,10 @@ RenderHtmlHead("$userPage's Legacy");
             $dateUnix = strtotime("$nextDay-$nextMonth-$nextYear");
             $dateStr = getNiceDate($dateUnix, true);
 
-            if ($dayCount++ % 2 == 0) {
-                echo "<tr>";
-            } else {
-                echo "<tr>";
-            }
-
+            echo "<tr>";
             echo "<td>$dateStr</td>";
             echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextNumAwarded</a></td>";
             echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextTotalPointsEarned</a></td>";
-
             echo "</tr>";
         }
 

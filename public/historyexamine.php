@@ -107,12 +107,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             }
         }
 
-        function dateCompare($a, $b)
-        {
-            return $a['Date'] > $b['Date'];
-        }
-
-        usort($achEarnedLib, "dateCompare");
+        usort($achEarnedLib, fn ($a, $b) => $a['Date'] <=> $b['Date']);
 
         foreach ($achEarnedLib as $achEarned) {
             $achAwardedAt = $achEarned['Date'];
@@ -128,6 +123,8 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             $achConsoleName = $achEarned['ConsoleName'];
             $achBadgeName = $achEarned['BadgeName'];
             $hardcoreMode = $achEarned['HardcoreMode'];
+
+            sanitize_outputs($achTitle, $achDesc);
 
             //$pointsCount 	+= $achPoints;
 

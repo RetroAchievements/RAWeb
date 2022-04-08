@@ -27,7 +27,7 @@ function GetGameAndTooltipDiv(
     $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleStr;
