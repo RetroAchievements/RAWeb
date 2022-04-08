@@ -19,13 +19,13 @@ if (ValidatePOSTChars("uafv")) {
         $value = requestInputQuery('v');
     } else {
         echo "FAILED";
-        return;
+        exit;
     }
 }
 
 if (!validateFromCookie($user, $points, $permissions, Permissions::JuniorDeveloper)) {
     echo "FAILED! Unauthenticaed";
-    return;
+    exit;
 }
 
 // Only allow jr. devs to update the display order and they are the sole author of the set
@@ -39,7 +39,7 @@ if ($permissions == Permissions::JuniorDeveloper) {
                 $gameID = requestInputQuery('g', null, 'integer');
             } else {
                 echo "FAILED";
-                return;
+                exit;
             }
         }
         $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
@@ -47,7 +47,7 @@ if ($permissions == Permissions::JuniorDeveloper) {
 
     if (!$jrDevAllowed) {
         echo "FAILED! Insufficient permissions";
-        return;
+        exit;
     }
 }
 
@@ -58,7 +58,7 @@ switch ($field) {
         settype($value, "integer");
         if (updateAchievementDisplayID($achID, $value)) {
             echo "OK";
-            return;
+            exit;
         }
         echo "FAILED!";
         break;
@@ -68,7 +68,7 @@ switch ($field) {
         if (updateAchievementEmbedVideo($achID, $value)) {
             // header( "Location: " . getenv('APP_URL') . "/achievement/$achID?e=OK" );
             echo "OK";
-            return;
+            exit;
         }
         echo "FAILED!";
         break;

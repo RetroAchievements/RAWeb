@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidateGETChars('uig')) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $source = requestInputQuery('u');

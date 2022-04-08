@@ -5,7 +5,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!validateGetChars("v")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $eCookie = requestInputSanitized('v');

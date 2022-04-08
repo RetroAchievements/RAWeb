@@ -14,7 +14,7 @@ $gameID = requestInputQuery('g');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
     header("Location: " . getenv('APP_URL') . "/forum.php?e=badcredentials");
-    return;
+    exit;
 }
 
 if (generateGameForumTopic($user, $gameID, $forumTopicID)) {

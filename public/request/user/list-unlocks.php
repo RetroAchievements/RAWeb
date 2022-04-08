@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars('g')) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $gameID = requestInputPost('g', null, 'integer');

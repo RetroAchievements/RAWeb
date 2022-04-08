@@ -5,14 +5,17 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-$fullModifyOK = ($permissions >= Permissions::Developer);
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
+    exit;
+}
+
+$fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = ($permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID));
+$partialModifyOK = $permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID);
 
 $achievementList = [];
 $gamesList = [];
@@ -23,7 +26,7 @@ $achievementData = null;
 $consoleName = null;
 $gameIcon = null;
 $gameTitle = null;
-$gameIDSpecified = (isset($gameID) && $gameID != 0);
+$gameIDSpecified = isset($gameID) && $gameID != 0;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];

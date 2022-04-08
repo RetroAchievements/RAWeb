@@ -18,7 +18,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 $uploadType = requestInputPost('t', "");
 
 if ($uploadType !== 'NEWS') {
-    return;
+    exit;
 }
 
 $filename = requestInputPost('f');

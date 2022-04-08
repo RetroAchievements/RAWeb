@@ -30,7 +30,7 @@ $xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
  */
 header('Content-type: text/xml');
 echo html_entity_decode($dom->saveXML());
-return;
+exit;
 
 $user = requestInputSanitized('u');
 $feedtype = isset($user) ? 'friends' : 'global';

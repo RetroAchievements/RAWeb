@@ -8,8 +8,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("tfv")) {
     echo "FAILED";
-
-    return;
+    exit;
 }
 
 $topicID = requestInputPost('t');

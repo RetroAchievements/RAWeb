@@ -12,12 +12,12 @@ if (ValidatePOSTorGETChars("tpv")) {
     $value = requestInput('v', null, 'integer');
 } else {
     echo "FAILED";
-    return;
+    exit;
 }
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Admin)) {
     echo "FAILED!";
-    return;
+    exit;
 }
 
 // Account permissions
@@ -28,7 +28,7 @@ if ($propertyType == 0) {
     } else {
         echo "Failed: " . $response['Error'];
     }
-    return;
+    exit;
 }
 
 // Forum post permissions
@@ -38,7 +38,7 @@ if ($propertyType == 1) {
     } else {
         echo "FAILED!";
     }
-    return;
+    exit;
 }
 
 // Toggle Patreon badge

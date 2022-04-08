@@ -16,13 +16,13 @@ if (ValidatePOSTChars("tdev")) {
         $value = requestInputQuery('v', null, 'integer');
     } else {
         echo "FAILED";
-        return;
+        exit;
     }
 }
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     echo "FAILED!";
-    return;
+    exit;
 }
 
 /**

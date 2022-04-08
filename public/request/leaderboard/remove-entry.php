@@ -13,13 +13,13 @@ $returnUrl = getenv('APP_URL') . '/leaderboardinfo.php?i=' . $leaderboardId;
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::JuniorDeveloper)) {
     header('Location: ' . $returnUrl . '&success=false');
-    return;
+    exit;
 }
 
 // Only let jr. devs remove their own entries
 if ($permissions == Permissions::JuniorDeveloper && $user != $targetUser) {
     header('Location: ' . $returnUrl . '&success=false');
-    return;
+    exit;
 }
 
 $response['Response'] = removeLeaderboardEntry($targetUser, $leaderboardId);
@@ -36,7 +36,7 @@ if ($response['Success']) {
         }
         addArticleComment("Server", ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
     }
-    return;
+    exit;
 }
 
 header('Location: ' . $returnUrl . '&success=false');

@@ -13,7 +13,7 @@ $userArchInfo = getUserAchievementInformation($dev);
 // Only get stats if the user has a contribute count
 if (empty($userArchInfo)) {
     header("Location: " . getenv('APP_URL') . "/user/" . $dev);
-    return;
+    exit;
 }
 
 $userContribCount = $userArchInfo[0]['ContribCount'];

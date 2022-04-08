@@ -37,23 +37,23 @@ $extension = mb_strtolower(end($filenameParts));
 
 if ($_FILES["file"]["size"] > 1_048_576) {
     echo "Error: image too big! Must be smaller than 1mb!";
-    return;
+    exit;
 }
 if ($extension == null || mb_strlen($extension) < 1) {
     echo "Error: no file detected. Did you pick a file for upload?";
-    return;
+    exit;
 }
 if (!in_array($extension, $allowedExts)) {
     echo "Error: image type ($extension) not supported! Supported types: .png, .jpeg, .gif";
-    return;
+    exit;
 }
 if (!in_array($uploadType, $allowedTypes)) {
     echo "Error: upload authorisation not given. Are you uploading from retroachievements.org?";
-    return;
+    exit;
 }
 if ($_FILES["file"]["error"] > 0) {
     echo "Error: " . $_FILES["file"]["error"] . "<br />";
-    return;
+    exit;
 }
 $tempFile = $_FILES["file"]["tmp_name"];
 $tempImage = match ($extension) {

@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("aptlg")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $author = requestInputPost('a');

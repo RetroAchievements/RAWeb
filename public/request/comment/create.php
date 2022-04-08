@@ -8,12 +8,12 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 // Sanitise!
 if (!ValidatePOSTChars("act")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
     echo "FAILED!";
-    return;
+    exit;
 }
 
 $articleID = requestInputPost('a', null, 'integer');

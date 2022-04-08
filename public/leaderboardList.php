@@ -43,7 +43,7 @@ if ($consoleIDInput) {
 
 if (empty($consoleIDInput) && empty($gameID)) {
     header("Location: " . getenv('APP_URL'));
-    return;
+    exit;
 }
 
 sanitize_outputs(
