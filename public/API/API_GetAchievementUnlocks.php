@@ -12,7 +12,7 @@ if (empty($achievementID)) {
     echo json_encode([
         'Achievement' => ['ID' => null],
     ]);
-    return;
+    exit;
 }
 
 $achievementData = GetAchievementMetadataJSON($achievementID);

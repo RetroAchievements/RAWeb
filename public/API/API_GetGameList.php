@@ -8,7 +8,7 @@ runPublicApiMiddleware();
 $consoleID = requestInputQuery('i', null, 'integer');
 if ($consoleID < 0) {
     echo json_encode(['success' => false]);
-    return;
+    exit;
 }
 
 $officialFlag = requestInputQuery('f', false, 'boolean');

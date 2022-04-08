@@ -38,6 +38,7 @@ test*.php
 /public/tmp
 
 /resources/docker/nginx/logs/*
+/tests/http/http-client.private.env.json
 
 cronjobs/playersonline.log
 cronjobs/cronlog.log

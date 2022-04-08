@@ -15,7 +15,7 @@ if (empty($achievementID)) {
         'Achievement' => ['ID' => null],
         'StartAt' => null,
     ]);
-    return;
+    exit;
 }
 
 $achievementData = GetAchievementMetadataJSON($achievementID);
