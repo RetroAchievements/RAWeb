@@ -31,7 +31,7 @@ $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $sho
 
 sanitize_outputs($requestedConsole);
 
-function ListGames($gamesList, $dev, $consoleIDInput, $sortBy, $showTickets)
+function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets)
 {
     echo "\n<div class='table-wrapper'><table><tbody>";
 
@@ -45,14 +45,14 @@ function ListGames($gamesList, $dev, $consoleIDInput, $sortBy, $showTickets)
     echo "<tr>";
     echo "<th></th>";
     if ($dev == null) {
-        echo "<th><a href='/gameList.php?s=$sort1&c=$consoleIDInput'>Title</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort2&c=$consoleIDInput'>Achievements</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort3&c=$consoleIDInput'>Points</a></th>";
-        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&c=$consoleIDInput'>Last Updated</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort4&c=$consoleIDInput'>Leaderboards</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort2&$queryParams'>Achievements</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort3&$queryParams'>Points</a></th>";
+        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&$queryParams'>Last Updated</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort4&$queryParams'>Leaderboards</a></th>";
 
         if ($showTickets) {
-            echo "<th class='text-nowrap'><a href='/gameList.php?s=$sort5&c=$consoleIDInput'>Open Tickets</a></th>";
+            echo "<th class='text-nowrap'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
         }
     } else {
         echo "<th>Title</th>";
@@ -171,19 +171,24 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
         <div class="largelist">
             <?php
                 if ($dev !== null) {
-                    // Output all console lists fetched
+                    // Determine which consoles the dev has created content for
+                    $devConsoles = [];
                     foreach ($consoleList as $consoleID => $consoleName) {
                         $consoleGames = array_filter($gamesList, function ($game) use ($consoleID) {
                             return $game['ConsoleID'] == $consoleID;
                         });
-                        if (empty($consoleGames)) {
-                            continue;
+                        if (!empty($consoleGames)) {
+                            $devConsoles[$consoleName] = $consoleGames;
                         }
+                    }
 
+                    ksort($devConsoles);
+
+                    foreach ($devConsoles as $consoleName => $consoleGames) {
                         sanitize_outputs($consoleName);
                         echo "<h2 class='longheader'>$consoleName</h2>";
 
-                        listGames($consoleGames, $dev, $consoleID, $sortBy, $showTickets);
+                        listGames($consoleGames, $dev, '', $sortBy, $showTickets);
 
                         echo "<br/>";
                     }
@@ -203,7 +208,9 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     echo "</div>";
 
                     echo "<br/>";
-                    listGames($gamesList, null, $consoleIDInput, $sortBy, $showTickets);
+
+                    $queryParams = "c=$consoleIDInput&f=$filter";
+                    listGames($gamesList, null, $queryParams, $sortBy, $showTickets);
 
                     // Add page traversal links
                     echo "\n<div class='rightalign row'>";
