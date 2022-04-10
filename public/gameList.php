@@ -8,6 +8,7 @@ $showCompleteGames = requestInputSanitized('f', 0, 'integer'); //	0 = no filter,
 
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
+$filter = requestInputSanitized('f');
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
@@ -18,11 +19,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $showTickets = (isset($user) && $permissions >= \RA\Permissions::Developer);
 $gamesList = [];
-if ($showTickets) {
-    $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, true);
-} else {
-    $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, false);
-}
+$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $showTickets, $filter);
 
 sanitize_outputs($requestedConsole);
 
@@ -39,6 +36,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
             <?php
             if ($dev != null) {
                 echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Achievement Sets</b>";
+                $filter = 0;
             } else {
                 if ($requestedConsole == "") {
                     echo "<b>All Games</b>";
@@ -50,19 +48,19 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
             ?>
         </div>
         <?php if ($user !== null): ?>
-            <div class="d-flex flex-wrap justify-content-between">
-                <div>
+            <div style='float:right; vertical-align: top'>
+                <form action="/gameList.php">
+                <input type="hidden" name="s" value="<?= $sortBy ?>">
+                <input type="hidden" name="c" value="<?= $consoleIDInput ?>">
+                <div style='vertical-align: top; display: inline-block'>
+                    <select class='gameselector' style='width:100%' name='f'>
+                    <option value='0' <? if ($filter == 0) print "selected" ?>>Games with achievements</option>
+                    <option value='1' <? if ($filter == 1) print "selected" ?>>Games without achievements</option>
+                    <option value='2' <? if ($filter == 2) print "selected" ?>>All games</option>
+                    </select>
                 </div>
-                <div>
-                    Filter by developer:<br>
-                    <form action="/gameList.php">
-                        <input type="hidden" name="s" value="<?= $sortBy ?>">
-                        <input type="hidden" name="c" value="<?= $consoleIDInput ?>">
-                        <input size="28" name="d" type="text" value="<?= $dev ?>">
-                        &nbsp;
-                        <input type="submit" value="Select">
-                    </form>
-                </div>
+                <input type="submit" value="Select">
+            </form>
             </div>
         <?php endif ?>
         <div class="largelist">
@@ -76,12 +74,12 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                 $dataExists = false;
                 foreach ($gamesList as $gameEntry) {
                     if ($dev == null) {
-                        if ($gameEntry['ConsoleID'] == $consoleID && $gameEntry['NumAchievements'] > 0) {
+                        if ($gameEntry['ConsoleID'] == $consoleID) {
                             $dataExists = true;
                             break;
                         }
                     } else {
-                        if ($gameEntry['ConsoleID'] == $consoleID && $gameEntry['MyAchievements'] > 0) {
+                        if ($gameEntry['ConsoleID'] == $consoleID) {
                             $dataExists = true;
                             break;
                         }
@@ -135,8 +133,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     if ($gameEntry['ConsoleID'] == $consoleID) {
                         $title = $gameEntry['Title'];
                         $gameID = $gameEntry['ID'];
-                        $maxPoints = $gameEntry['MaxPointsAvailable'];
-                        $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
+                        $maxPoints = $gameEntry['MaxPointsAvailable'] ?? 0;
                         $totalTrueRatio = $gameEntry['TotalTruePoints'];
                         $totalAchievements = null;
                         if ($dev == null) {
@@ -166,7 +163,13 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                         }
                         echo "<td class='text-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
 
-                        echo "<td>$lastUpdated</td>";
+                        if ($gameEntry['DateModified'] != null) {
+                            $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
+                            echo "<td>$lastUpdated</td>";
+                        } else {
+                            echo "<td/>";
+                        }
+
                         echo "<td class=''>";
                         if ($numLBs > 0) {
                             echo "<a href=\"game/$gameID\">$numLBs</a>";
