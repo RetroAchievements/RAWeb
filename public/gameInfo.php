@@ -568,9 +568,9 @@ RenderHtmlStart(true);
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
             if ($isFullyFeaturedGame) {
-                RenderMetadataTableRow('Developer', $developer, $gameHubs);
-                RenderMetadataTableRow('Publisher', $publisher, $gameHubs);
-                RenderMetadataTableRow('Genre', $genre, $gameHubs);
+                RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
+                RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
+                RenderMetadataTableRow('Genre', $genre, $gameHubs, ['Subgenre']);
                 RenderMetadataTableRow('Released', $released, null);
             } else {
                 RenderMetadataTableRow('Developer', $developer, null);
