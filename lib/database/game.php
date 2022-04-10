@@ -321,9 +321,9 @@ function getGamesListWithNumAchievements($consoleID, &$dataOut, $sortBy)
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy);
 }
 
-function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false, $filter = 0)
+function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false, $filter = 0, $offset = 0, $count = 0)
 {
-    sanitize_sql_inputs($dev, $consoleID);
+    sanitize_sql_inputs($dev, $consoleID, $offset, $count);
 
     //    Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
@@ -379,8 +379,6 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
                 $whereCond
                 GROUP BY gd.ID
                 $havingCond";
-
-
 
     settype($sortBy, 'integer');
 
@@ -441,18 +439,29 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             break;
     }
 
-    $numGamesFound = 0;
+    if ($count > 0) {
+        $query = substr_replace($query, "SQL_CALC_FOUND_ROWS ", 7, 0);
+        $query .= " LIMIT $offset, $count";
+    }
 
     $dataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numGamesFound] = $db_entry;
-            $numGamesFound++;
+            $dataOut[] = $db_entry;
         }
     } else {
         // error_log(__FUNCTION__);
         log_sql_fail();
+    }
+
+    $numGamesFound = count($dataOut) + $offset;
+    if ($numGamesFound == $count && $count > 0) {
+        $query = "SELECT FOUND_ROWS() AS NumGames";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            $numGamesFound = mysqli_fetch_assoc($dbResult)['NumGames'];
+        }
     }
 
     return $numGamesFound;

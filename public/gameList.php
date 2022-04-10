@@ -10,6 +10,14 @@ $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
 $filter = requestInputSanitized('f');
 
+if ($dev == null) {
+    $maxCount = 50;
+    $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
+} else {
+    $maxCount = 0;
+    $offset = 0;
+}
+
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
     $requestedConsole = " (" . $consoleList[$consoleIDInput] . ")";
@@ -19,7 +27,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $showTickets = (isset($user) && $permissions >= \RA\Permissions::Developer);
 $gamesList = [];
-$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $showTickets, $filter);
+$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $showTickets, $filter, $offset, $maxCount);
 
 sanitize_outputs($requestedConsole);
 
@@ -196,6 +204,21 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
 
                     echo "<br/>";
                     listGames($gamesList, null, $consoleIDInput, $sortBy, $showTickets);
+
+                    // Add page traversal links
+                    echo "\n<div class='rightalign row'>";
+                    if ($offset > 0) {
+                        $prevOffset = $offset - $maxCount;
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter'>First</a> - ";
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    }
+                    $nextOffset = $offset + $maxCount;
+                    if ($nextOffset < $gamesCount) {
+                        $lastOffset = $gamesCount - ($gamesCount % $maxCount);
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$nextOffset'>Next $maxCount &gt;</a> - ";
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$lastOffset'>Last</a>";
+                    }
+                    echo "</div>";
                 }
             ?>
             <br>
