@@ -58,11 +58,17 @@ $pageTitle = "$gameTitle ($consoleName)";
 $relatedGames = getGameAlternatives($gameID);
 $gameAlts = [];
 $gameHubs = [];
+$gameSubsets = [];
+$subsetPrefix = $gameData['Title'] . " [Subset - ";
 foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
     } else {
-        $gameAlts[] = $gameAlt;
+        if (substr($gameAlt['Title'], 0, strlen($subsetPrefix)) == $subsetPrefix) {
+            $gameSubsets[] = $gameAlt;
+        } else {
+            $gameAlts[] = $gameAlt;
+        }
     }
 }
 
@@ -1151,6 +1157,10 @@ RenderHtmlStart(true);
                     echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors</a></li>";
                 }
                 echo "</ul><br>";
+            }
+
+            if (count($gameSubsets) > 0) {
+                RenderGameAlts($gameSubsets, 'Subsets');
             }
 
             if (count($gameAlts) > 0) {
