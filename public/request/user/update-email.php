@@ -28,6 +28,8 @@ if ($email !== $email2) {
                 // error_log(__FILE__);
                 // error_log("$user changed email to $email");
 
+                sendValidationEmail($user, $email);
+
                 if (getAccountDetails($user, $userData)) {
                     addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
                         $user . ' changed their email address');
