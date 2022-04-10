@@ -49,17 +49,13 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
         </div>
         <?php if ($user !== null): ?>
             <div style='float:right; vertical-align: top'>
-                <form action="/gameList.php">
-                <input type="hidden" name="s" value="<?= $sortBy ?>">
-                <input type="hidden" name="c" value="<?= $consoleIDInput ?>">
                 <div style='vertical-align: top; display: inline-block'>
-                    <select class='gameselector' style='width:100%' name='f'>
-                    <option value='0' <? if ($filter == 0) print "selected" ?>>Games with achievements</option>
-                    <option value='1' <? if ($filter == 1) print "selected" ?>>Games without achievements</option>
-                    <option value='2' <? if ($filter == 2) print "selected" ?>>All games</option>
+                    <select class='gameselector' style='width:100%' onchange='window.location = "/gameList.php?s=<?= $sortBy ?>&c=<?= $consoleIDInput ?>" + this.options[this.selectedIndex].value'>
+                    <option value='' <? if ($filter == 0) print "selected" ?>>Games with achievements</option>
+                    <option value='&f=1' <? if ($filter == 1) print "selected" ?>>Games without achievements</option>
+                    <option value='&f=2' <? if ($filter == 2) print "selected" ?>>All games</option>
                     </select>
                 </div>
-                <input type="submit" value="Select">
             </form>
             </div>
         <?php endif ?>
