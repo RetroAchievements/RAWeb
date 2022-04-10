@@ -193,8 +193,12 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                         echo "<br/>";
                     }
                 } else {
-                    $consoleName = $consoleList[$consoleIDInput];
-                    sanitize_outputs($consoleName);
+                    if ($consoleIDInput == 0) {
+                        $consoleName = "All Games";
+                    } else {
+                        $consoleName = $consoleList[$consoleIDInput];
+                        sanitize_outputs($consoleName);
+                    }
                     echo "<h2 class='longheader'>$consoleName</h2>";
 
                     echo "<div style='float:left'>$gamesCount Games</div>";
