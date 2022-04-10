@@ -455,13 +455,16 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         log_sql_fail();
     }
 
-    $numGamesFound = count($dataOut) + $offset;
-    if ($numGamesFound == $count && $count > 0) {
-        $query = "SELECT FOUND_ROWS() AS NumGames";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            $numGamesFound = mysqli_fetch_assoc($dbResult)['NumGames'];
+    $numGamesFound = count($dataOut);
+    if ($count > 0) {
+        if ($numGamesFound == $count) {
+            $query = "SELECT FOUND_ROWS() AS NumGames";
+            $dbResult = s_mysql_query($query);
+            if ($dbResult !== false) {
+                $numGamesFound = mysqli_fetch_assoc($dbResult)['NumGames'];
+            }
         }
+        $numGamesFound += $offset;
     }
 
     return $numGamesFound;
