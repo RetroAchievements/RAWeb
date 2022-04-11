@@ -535,7 +535,7 @@ function UploadNewAchievement(
             $changingAchSet = ($data['Flags'] != $type);
             $changingPoints = ($data['Points'] != $points);
             $changingBadge = ($data['BadgeName'] != $badge);
-            $changingWording = ($data['Title'] != $title | $data['Description'] != $desc);
+            $changingWording = ($data['Title'] != $title || $data['Description'] != $desc);
             $changingLogic = ($data['MemAddr'] != $mem);
 
             $userPermissions = getUserPermissions($author);
@@ -621,7 +621,7 @@ function UploadNewAchievement(
                         "Server",
                         \RA\ArticleType::Achievement,
                         $idInOut,
-                        "$author edited this achievements $editString.",
+                        "$author edited this achievement's $editString.",
                         $author
                     );
                 }
