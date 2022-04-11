@@ -599,14 +599,22 @@ function UploadNewAchievement(
                             $author
                         );
                     }
-                } else {    
-                    $stringArray = array();
-        
-                    if ($changingPoints) { array_push($stringArray, "points"); }
-                    if ($changingBadge) { array_push($stringArray, "badge"); }
-                    if ($changingWording) { array_push($stringArray, "wording"); }
-                    if ($changingLogic) { array_push($stringArray, "logic"); }
-        
+                } else {
+                    $stringArray = [];
+
+                    if ($changingPoints) {
+                        array_push($stringArray, "points");
+                    }
+                    if ($changingBadge) {
+                        array_push($stringArray, "badge");
+                    }
+                    if ($changingWording) {
+                        array_push($stringArray, "wording");
+                    }
+                    if ($changingLogic) {
+                        array_push($stringArray, "logic");
+                    }
+
                     $editString = implode(', ', $stringArray);
 
                     addArticleComment(
