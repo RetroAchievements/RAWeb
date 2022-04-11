@@ -15,10 +15,9 @@
         "thunderer/shortcode": "^0.7.4"
     },
     "require-dev": {
-        "brainmaestro/composer-git-hooks": "^2.8",
         "friendsofphp/php-cs-fixer": "^3.0",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^1.0"
+        "phpstan/phpstan": "^1.5"
     },
     "autoload": {
         "psr-4": {
@@ -48,16 +47,10 @@
     "scripts": {
         "analyse": "@stan",
         "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
-        "taint": "vendor/bin/psalm --taint-analysis",
         "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
         "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
         "post-install-cmd": [
-            "RA\\Utility\\ComposerScripts::devModeOnly",
-            "cghooks add --ignore-lock"
-        ],
-        "post-update-cmd": [
-            "RA\\Utility\\ComposerScripts::devModeOnly",
-            "cghooks update"
+            "git config core.hooksPath ./.hooks"
         ]
     }
 }

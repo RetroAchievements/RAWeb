@@ -8,7 +8,7 @@ runPublicApiMiddleware();
 $gameId = requestInputQuery('g', null, 'integer');
 if ($gameId <= 0) {
     echo json_encode(['success' => false]);
-    return;
+    exit;
 }
 
 $username = requestInputQuery('z');

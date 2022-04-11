@@ -32,7 +32,9 @@ $messageContextData = null;
 if ($messageContextID != -1) {
     $messageContextData = GetMessage($user, $messageContextID);
     $messageContextTitle = "RE: " . $messageContextData['Title'];
-    $messageContextPayload = Shortcode::render($messageContextData['Payload']);
+    $messageContextPayload = $messageContextData['Payload'];
+    sanitize_outputs($messageContextPayload);
+    $messageContextPayload = Shortcode::render($messageContextPayload);
 }
 
 $errorCode = requestInputSanitized('e');

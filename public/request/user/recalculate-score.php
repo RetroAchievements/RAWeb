@@ -12,7 +12,7 @@ if (!ValidatePOSTChars("u")) {
 
 $userIn = requestInputPost('u');
 
-$permOk = RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)
+$permOk = RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)
           && ($user == $userIn
               || $permissions >= Permissions::Admin);
 if (!$permOk) {
