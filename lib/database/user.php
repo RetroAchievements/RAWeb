@@ -443,14 +443,15 @@ function getUserStats($user)
 {
 }
 
-function getUserUnlockAchievement($user, $achievementID, &$dataOut)
+function getUserUnlockDates($user, $gameID, &$dataOut)
 {
-    sanitize_sql_inputs($user, $achievementID);
+    sanitize_sql_inputs($user, $gameID);
 
-    $query = "SELECT ach.ID, aw.HardcoreMode, aw.Date
-        FROM Achievements AS ach
-        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.ID = '$achievementID' AND aw.User = '$user'";
+    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
+        FROM Achievements ach
+        INNER JOIN Awarded AS aw ON ach.ID = aw.AchievementID
+        WHERE ach.GameID = $gameID AND aw.User = '$user'
+        ORDER BY ach.ID, aw.HardcoreMode DESC";
 
     $dbResult = s_mysql_query($query);
 
@@ -460,8 +461,15 @@ function getUserUnlockAchievement($user, $achievementID, &$dataOut)
         return false;
     }
 
+    $lastID = 0;
     while ($data = mysqli_fetch_assoc($dbResult)) {
+        $achID = $data['ID'];
+        if ($lastID == $achID) {
+            continue;
+        }
+
         $dataOut[] = $data;
+        $lastID = $achID;
     }
 
     return count($dataOut);
@@ -508,13 +516,6 @@ function GetUserUnlocksData($user, $gameID, $hardcoreMode)
     }
 
     return $retVal;
-}
-
-// TODO: Deprecate
-function getUserUnlocks($user, $gameID, &$dataOut, $hardcoreMode)
-{
-    $dataOut = GetUserUnlocksData($user, $gameID, $hardcoreMode);
-    return count($dataOut);
 }
 
 function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
