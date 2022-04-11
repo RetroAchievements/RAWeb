@@ -30,3 +30,6 @@ test*.php
 /public/Bing*
 /public/google*
 /public/tmp
+
+/lib/database/releases.php
+/tests/http/http-client.private.env.json

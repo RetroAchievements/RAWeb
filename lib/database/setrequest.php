@@ -78,10 +78,10 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
     $requests['total'] += getAge($user);
 
     // Determine how many of the users current requests are still valid.
-    // Requests made for games that now have achievements do no count towards a used request
+    // Requests made for games that since received achievements do not count towards a used request
     foreach ($list as $request) {
-        // If the game does not have achievements then it couns as a legit request
-        if ((is_countable(getAchievementIDs($request['GameID'])['AchievementIDs']) ? count(getAchievementIDs($request['GameID'])['AchievementIDs']) : 0) == 0) {
+        // If the game does not have achievements then it counts as a legit request
+        if (empty(getAchievementIDs($request['GameID'])['AchievementIDs'])) {
             $requests['used']++;
         }
 

@@ -27,7 +27,15 @@ function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
         return mail_ses($to, $subject, $message);
     }
 
-    return false;
+    return mail_log($to, $subject, $message);
+}
+
+function mail_log($to, $subject = '(No subject)', $message = ''): bool
+{
+    error_log("MAIL to $to: $subject");
+    error_log($message);
+
+    return true;
 }
 
 function mail_smtp($to, $subject = '(No subject)', $message = ''): bool

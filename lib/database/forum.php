@@ -418,7 +418,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID)
     $forumID = match ($consoleID) {
         // Mega Drive
         1 => 10,
-        // SENS
+        // SNES
         3 => 13,
         // GB, GBC, GBA
         4, 5, 6 => 16,

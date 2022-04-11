@@ -126,7 +126,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
 }
 
 $achDist = null;
-$authorInfo = null;
+$authorInfo = [];
 $commentData = null;
 $cookie = null;
 $gameTopAchievers = null;
@@ -794,7 +794,7 @@ RenderHtmlStart(true);
 
                 if ($numAchievements > 0) {
                     echo "<b>Authors:</b> ";
-                    $numItems = count((array) $authorInfo);
+                    $numItems = count($authorInfo);
                     $i = 0;
                     foreach ($authorInfo as $author => $achievementCount) {
                         echo GetUserAndTooltipDiv($author, false);

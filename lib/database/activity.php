@@ -207,6 +207,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
         case ActivityType::Unknown:
+        default:
             error_log(__FUNCTION__ . " received unknown activity: $activity");
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
             break;

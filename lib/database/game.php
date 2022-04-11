@@ -92,7 +92,7 @@ function getGameMetadataByFlags(
     $user,
     &$achievementDataOut,
     &$gameDataOut,
-    $sortBy = 0,
+    $sortBy = 1,
     $user2 = null,
     $flags = 0
 ) {
@@ -105,18 +105,18 @@ function getGameMetadataByFlags(
     $flags = $flags != 5 ? 3 : 5;
 
     $orderBy = match ($sortBy) {
-        // display order defined by the developer
-        1 => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
         11 => "ORDER BY ach.DisplayOrder DESC, ach.ID DESC ",
         2 => "ORDER BY NumAwarded, ach.ID ASC ",
         12 => "ORDER BY NumAwarded DESC, ach.ID DESC ",
-        // date the user won
+        // 3 and 13 should sort by the date the user unlocked the achievement
+        // however, it's not trivial to implement (requires SQL tweaks)
         // 3 => "",
         // 13 => "",
         4 => "ORDER BY ach.Points, ach.ID ASC ",
         14 => "ORDER BY ach.Points DESC, ach.ID DESC ",
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
+        // 1
         default => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
     };
 
@@ -353,57 +353,25 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         $sortBy = 1;
     }
 
-    switch ($sortBy) {
-        case 11:
-            $query .= "ORDER BY gd.ConsoleID, Title DESC ";
-            break;
-
-        case 2:
-            $query .= "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ";
-            break;
-        case 12:
-            $query .= "ORDER BY gd.ConsoleID, NumAchievements ASC, Title ";
-            break;
-
-        case 3:
-            $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ";
-            break;
-        case 13:
-            $query .= "ORDER BY gd.ConsoleID, MaxPointsAvailable, Title ";
-            break;
-
-        case 4:
-            $query .= "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
-            break;
-        case 14:
-            $query .= "ORDER BY NumLBs, gd.ConsoleID, MaxPointsAvailable, Title ";
-            break;
-
-        case 5:
-            if ($ticketsFlag) {
-                $query .= "ORDER BY OpenTickets DESC, gd.ConsoleID, MaxPointsAvailable, Title ";
-            } else {
-                $query .= "ORDER BY gd.ConsoleID, Title ";
-            }
-            break;
-        case 15:
-            if ($ticketsFlag) {
-                $query .= "ORDER BY OpenTickets, gd.ConsoleID, MaxPointsAvailable, Title ";
-            } else {
-                $query .= "ORDER BY gd.ConsoleID, Title DESC ";
-            }
-            break;
-
-        case 6:
-            $query .= "ORDER BY gd.ConsoleID, DateModified DESC, Title ";
-            break;
-        case 16:
-            $query .= "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ";
-            break;
-        default:
-            $query .= "ORDER BY gd.ConsoleID, Title ";
-            break;
-    }
+    $query .= match ($sortBy) {
+        11 => "ORDER BY gd.ConsoleID, Title DESC ",
+        2 => "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ",
+        12 => "ORDER BY gd.ConsoleID, NumAchievements ASC, Title ",
+        3 => "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ",
+        13 => "ORDER BY gd.ConsoleID, MaxPointsAvailable, Title ",
+        4 => "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ",
+        14 => "ORDER BY NumLBs, gd.ConsoleID, MaxPointsAvailable, Title ",
+        5 => $ticketsFlag
+                ? "ORDER BY OpenTickets DESC, gd.ConsoleID, MaxPointsAvailable, Title "
+                : "ORDER BY gd.ConsoleID, Title ",
+        15 => $ticketsFlag
+                ? "ORDER BY OpenTickets, gd.ConsoleID, MaxPointsAvailable, Title "
+                : "ORDER BY gd.ConsoleID, Title DESC ",
+        6 => "ORDER BY gd.ConsoleID, DateModified DESC, Title ",
+        16 => "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ",
+        // 1
+        default => "ORDER BY gd.ConsoleID, Title ",
+    };
 
     $numGamesFound = 0;
 
