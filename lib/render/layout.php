@@ -104,7 +104,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
     // js tooltip code is basically on every page:
     echo "<script src='/vendor/wz_tooltip.js'></script>";
 
-    echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
+    echo "<div id='topborder'></div>\n";
 
     echo "<div id='title'>";
 

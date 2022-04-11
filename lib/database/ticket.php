@@ -380,13 +380,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             "<br>" .
             "-- Your friends at RetroAchievements.org<br>";
 
-        if (isAtHome()) {
-            $retVal = true;
-        } else {
-            $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        }
-
-        return true;
+        return mail_utf8($email, $emailTitle, $msg);
     } else {
         log_sql_fail();
         return false;

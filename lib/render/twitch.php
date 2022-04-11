@@ -31,15 +31,8 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     scrolling="no"
     allowfullscreen="true">
 </iframe>';
-
-    // $videoHTML = '<iframe src="http://player.twitch.tv/?'.getenv('TWITCH_CHANNEL').'&muted=true" height="378" width="620" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     } else {
-        $muted = 'false';
-        if (isAtHome()) {
-            $muted = 'true';
-        }
-
-        $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=$muted" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+        $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=false" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     }
 
     echo "<div class='streamvid'>";

@@ -8,12 +8,11 @@ use RA\Permissions;
 function generateEmailValidationString($user)
 {
     $emailCookie = rand_string(16);
-    // $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
-    $expiry = time() + 60 * 60 * 24 * 7;
+    $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
 
     sanitize_sql_inputs($user);
 
-    $query = "INSERT INTO EmailConfirmations VALUES( '$user', '$emailCookie', $expiry )";
+    $query = "INSERT INTO EmailConfirmations (User, EmailCookie, Expires) VALUES( '$user', '$emailCookie', '$expiry' )";
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
         log_sql_fail();
@@ -97,7 +96,7 @@ function removeAvatar($user)
     if (file_exists($avatarFile)) {
         unlink($avatarFile);
     }
-    if (!getenv('RA_AVATAR_FALLBACK')) {
+    if (!filter_var(getenv('RA_AVATAR_FALLBACK'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
         $defaultAvatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/_User.png';
         copy($defaultAvatarFile, $avatarFile);
     }
