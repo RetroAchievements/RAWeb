@@ -8,7 +8,6 @@
  * and selecting a specific date
  *
  * @param string $date Date to grab information from
- * @param string|null $user User to get data for
  * @param string $friendsOf User to get friends data for
  * @param int $offset starting point to return rows
  * @param int $count number of rows to return
