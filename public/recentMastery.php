@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -26,9 +27,9 @@ switch ($friends) {
 }
 
 if ($friends == 1) {
-    $data = getRecentMasteryData($date, null, $user, $offset, $maxCount + 1);
+    $data = getRecentMasteryData($date, $user, $offset, $maxCount + 1);
 } else {
-    $data = getRecentMasteryData($date, $user, null, $offset, $maxCount + 1);
+    $data = getRecentMasteryData($date, null, $offset, $maxCount + 1);
 }
 
 RenderHtmlStart();

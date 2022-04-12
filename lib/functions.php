@@ -10,6 +10,7 @@ require_once __DIR__ . '/database/friend.php';
 require_once __DIR__ . '/database/game.php';
 require_once __DIR__ . '/database/history.php';
 require_once __DIR__ . '/database/leaderboard.php';
+require_once __DIR__ . '/database/mastery.php';
 require_once __DIR__ . '/database/message.php';
 require_once __DIR__ . '/database/news.php';
 require_once __DIR__ . '/database/playlist.php';
