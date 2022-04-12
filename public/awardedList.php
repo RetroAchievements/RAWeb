@@ -153,11 +153,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
                 $consoleName
             );
 
-            if ($achCount++ % 2 == 0) {
-                echo "<tr>";
-            } else {
-                echo "<tr>";
-            }
+            echo "<tr>";
 
             echo "<td style='min-width:25%'>";
             echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);

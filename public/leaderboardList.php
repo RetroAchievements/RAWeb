@@ -332,11 +332,7 @@ RenderHtmlHead($pageTitle);
 
             echo "</tr>";
 
-            if ($listCount++ % 2 == 0) {
-                echo "<tr>";
-            } else {
-                echo "<tr>";
-            }
+            echo "<tr>";
 
             echo "<td>";
             //echo "Memory:";

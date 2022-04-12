@@ -11,6 +11,8 @@ parameters:
     ignoreErrors:
         - '#Parameter (.*) of function htmlentities expects#'
     excludePaths:
+        # unrelated directories
+        - public/tmp
         # disabled features
         - public/API/API_GetFeed.php
         - public/attemptmerge.php

@@ -6,14 +6,14 @@ It is a "flat" PHP project; individual php files within the `public` folder hand
 ## Requirements
 
 - Local web server
-- [PHP 7.4](http://php.net/manual/en/)
+- [PHP 8.0](http://php.net/manual/en/)
 - [Composer v2](https://getcomposer.org/) PHP dependency manager
 - [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
 - [Node.js 12](https://nodejs.org/)
 
 **[XAMPP](https://www.apachefriends.org/download.html)** provides an easy way to run an Apache web server, MySQL/MariaDB, and PHP on your system.
 
-Note: Install the XAMPP version packaged with PHP 7.4.
+Note: Install the XAMPP version packaged with PHP 8.0.
 
 You might have to enable some extensions in `php.ini`:
 ```

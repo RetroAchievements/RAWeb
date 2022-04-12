@@ -148,6 +148,9 @@ function getAchievementsListByDev(
         if (isset($dev)) {
             $query .= "AND ach.Author = '$dev' ";
         }
+        if ($sortBy == 4) {
+            $query .= "AND ach.TrueRatio > 0 ";
+        }
     } elseif (isset($dev)) {
         $query .= "WHERE ach.Author = '$dev' ";
     }
@@ -168,7 +171,7 @@ function getAchievementsListByDev(
             $query .= "ORDER BY ach.Points, GameTitle ";
             break;
         case 4:
-            $query .= "ORDER BY ach.TrueRatio, GameTitle ";
+            $query .= "ORDER BY ach.TrueRatio, ach.Points DESC, GameTitle ";
             break;
         case 5:
             $query .= "ORDER BY ach.Author ";
@@ -192,7 +195,7 @@ function getAchievementsListByDev(
             $query .= "ORDER BY ach.Points DESC, GameTitle ";
             break;
         case 14:
-            $query .= "ORDER BY ach.TrueRatio DESC, GameTitle ";
+            $query .= "ORDER BY ach.TrueRatio DESC, ach.Points, GameTitle ";
             break;
         case 15:
             $query .= "ORDER BY ach.Author DESC ";
@@ -1146,8 +1149,8 @@ function recalculateTrueRatio($gameID)
 
         foreach ($achData as $nextAch) {
             $achID = $nextAch['ID'];
-            $achPoints = $nextAch['Points'];
-            $numAchieved = $nextAch['NumAchieved'];
+            $achPoints = (int) $nextAch['Points'];
+            $numAchieved = (int) $nextAch['NumAchieved'];
 
             if ($numAchieved == 0) { // force all unachieved to be 1
                 $numAchieved = 1;

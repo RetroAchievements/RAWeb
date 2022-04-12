@@ -1,0 +1,5 @@
+#!/bin/sh
+
+php composer.phar install
+
+printf "\n✅ post-merge hook\n\n"

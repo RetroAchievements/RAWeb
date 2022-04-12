@@ -34,16 +34,11 @@ function RenderSharedHeader()
     echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
     echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>\n";
     echo "<meta name='robots' content='all'>\n";
-    //echo "<meta name='Copyright' content='Copyright 2014'>\n";
     echo "<meta name='description' content='Adding achievements to your favourite retro games since 2012'>\n";
     echo "<meta name='keywords' content='games, retro, computer games, mega drive, genesis, rom, emulator, achievements'>\n";
-    echo '<meta property="fb:app_id" content="490904194261313">';
     echo "<meta name='viewport' content='width=device-width,user-scalable = no'/>\n";
 
     echo '<meta name="theme-color" content="#2C2E30">';
-    // echo '<meta name="apple-mobile-web-app-capable" content="yes">';
-    // echo '<meta name="apple-mobile-web-app-status-bar-style" content="black">';
-    // echo '<meta name="apple-mobile-web-app-status-bar-style" content="black">';
     echo '<meta name="msapplication-TileColor" content="#2C2E30">';
     echo '<meta name="msapplication-TileImage" content="/favicon.png">';
     echo '<link rel="shortcut icon" type="image/png" href="/favicon.png" sizes="16x16 32x32 64x64">';
@@ -52,22 +47,22 @@ function RenderSharedHeader()
     echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
     echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>\n";
     echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>\n";
-
-    // jQuery Modal
     echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
     echo "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css' />";
-
     echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
-
     echo "<script src='https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js' integrity='sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=' crossorigin='anonymous'></script>";
 
-    //    jQuery, and custom js
-    //echo "<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>\n";
-    //echo "<script src='/vendor/jquery-ui-1.10.2.custom.min.js'></script>\n";
-    echo "<script src='/js/all.js?v=" . VERSION . "'></script>\n";
     echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
-
-    echo "<link rel='stylesheet' href='/css/styles.css?v=" . VERSION . "' media='screen'>\n";
+    if (getenv('APP_ENV') === 'local') {
+        echo "<script src='/js/all.js?v=" . rand() . "'></script>\n";
+    } else {
+        echo "<script src='/js/all-" . VERSION . ".js'></script>\n";
+    }
+    if (getenv('APP_ENV') === 'local') {
+        echo "<link rel='stylesheet' href='/css/styles.css?" . rand() . "' media='screen'>\n";
+    } else {
+        echo "<link rel='stylesheet' href='/css/styles-" . VERSION . ".css' media='screen'>\n";
+    }
     $customCSS = RA_ReadCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
         echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
@@ -231,6 +226,7 @@ function RenderToolbar($user, $permissions = 0)
     /// Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
+    echo "<li><a href='/gameList.php?c=37'>Amstrad CPC</a></li>";
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";

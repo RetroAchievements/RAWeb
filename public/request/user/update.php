@@ -60,13 +60,13 @@ if ($propertyType == 2) {
 
 // Toggle 'Untracked' status
 if ($propertyType == 3) {
-    SetUserTrackedStatus($targetUser, $value);
+    SetUserUntrackedStatus($targetUser, $value);
 
     if (getAccountDetails($targetUser, $targetUserData)) {
         addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
-            $user . ' set status to ' . ($value ? 'Tracked' : 'Untracked'));
+            $user . ' set status to ' . ($value ? 'Untracked' : 'Tracked'));
     }
 
-    // error_log("SetUserTrackedStatus, $targetUser => $value");
+    // error_log("SetUserUntrackedStatus, $targetUser => $value");
     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
 }

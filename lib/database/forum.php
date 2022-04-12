@@ -112,7 +112,7 @@ function getUnauthorisedForumLinks()
 {
     $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.Author, ft.AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
-                LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
+                LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
                 WHERE ftc.Authorised = 0

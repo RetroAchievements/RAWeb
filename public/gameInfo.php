@@ -58,11 +58,17 @@ $pageTitle = "$gameTitle ($consoleName)";
 $relatedGames = getGameAlternatives($gameID);
 $gameAlts = [];
 $gameHubs = [];
+$gameSubsets = [];
+$subsetPrefix = $gameData['Title'] . " [Subset - ";
 foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
     } else {
-        $gameAlts[] = $gameAlt;
+        if (substr($gameAlt['Title'], 0, strlen($subsetPrefix)) == $subsetPrefix) {
+            $gameSubsets[] = $gameAlt;
+        } else {
+            $gameAlts[] = $gameAlt;
+        }
     }
 }
 
@@ -139,22 +145,8 @@ $isSoleAuthor = false;
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
-    if ($numDistinctPlayersCasual == 0) {
-        $numDistinctPlayersCasual = 1;
-    }
-    if ($numDistinctPlayersHardcore == 0) {
-        $numDistinctPlayersHardcore = 1; //??
-    }
 
-    $totalUniquePlayers = getTotalUniquePlayers($gameID, $user);
-    if ($numDistinctPlayersCasual < $totalUniquePlayers) {
-        $numDistinctPlayersCasual = $totalUniquePlayers;
-    }
-    if ($numDistinctPlayersHardcore < $totalUniquePlayers) {
-        $numDistinctPlayersHardcore = $totalUniquePlayers;
-    }
-
-    $achDist = getAchievementDistribution($gameID, 0, $user, $flags); // for now, only retrieve casual!
+    $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
 
@@ -575,10 +567,17 @@ RenderHtmlStart(true);
             echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            RenderMetadataTableRow('Developer', $developer, $gameHubs);
-            RenderMetadataTableRow('Publisher', $publisher, $gameHubs);
-            RenderMetadataTableRow('Genre', $genre, $gameHubs);
-            RenderMetadataTableRow('Released', $released, null);
+            if ($isFullyFeaturedGame) {
+                RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
+                RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
+                RenderMetadataTableRow('Genre', $genre, $gameHubs, ['Subgenre']);
+                RenderMetadataTableRow('Released', $released, null);
+            } else {
+                RenderMetadataTableRow('Developer', $developer, null);
+                RenderMetadataTableRow('Publisher', $publisher, null);
+                RenderMetadataTableRow('Genre', $genre, null);
+                RenderMetadataTableRow('Released', $released, null);
+            }
             echo "</tbody></table>";
             echo "</tr>";
             echo "</tbody></table>";
@@ -639,7 +638,7 @@ RenderHtmlStart(true);
 
                 if ($isFullyFeaturedGame) {
                     if ($permissions >= Permissions::Developer) {
-                        echo "<div><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></div>";
+                        echo "<div><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                         echo "<div><a href='/request/game/recalculate-points-ratio.php?g=$gameID'>Recalculate True Ratios</a></div>";
                     }
                     echo "<div><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></div>";
@@ -1008,9 +1007,14 @@ RenderHtmlStart(true);
                             $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
 
                             $wonBy = $nextAch['NumAwarded'];
-                            $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
-                            $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                            if ($numDistinctPlayersCasual == 0) {
+                                $completionPctCasual = "0";
+                                $completionPctHardcore = "0";
+                            } else {
+                                $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
+                                $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                            }
 
                             if ($user == "" || !$achieved) {
                                 $achBadgeName .= "_lock";
@@ -1153,6 +1157,10 @@ RenderHtmlStart(true);
                     echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors</a></li>";
                 }
                 echo "</ul><br>";
+            }
+
+            if (count($gameSubsets) > 0) {
+                RenderGameAlts($gameSubsets, 'Subsets');
             }
 
             if (count($gameAlts) > 0) {

@@ -71,18 +71,9 @@ for ($i = 0; $i < count($userCompletedGamesList); $i++) {
         $userCompletedGames[$gameID]['NumAwardedHC'] = $userCompletedGamesList[$i]['NumAwarded'];
     }
 }
-//var_dump( $userCompletedGames );
-//    Custom sort, then overwrite $userCompletedGamesList
 
-function scorePctCompare($a, $b)
-{
-    if (empty($a['PctWon']) || empty($b['PctWon'])) {
-        return 0;
-    }
-    return $a['PctWon'] < $b['PctWon'];
-}
-
-usort($userCompletedGames, "scorePctCompare");
+// Custom sort, then overwrite $userCompletedGamesList
+usort($userCompletedGames, fn ($a, $b) => ($b['PctWon'] ?? 0) <=> ($a['PctWon'] ?? 0));
 
 $userCompletedGamesList = $userCompletedGames;
 

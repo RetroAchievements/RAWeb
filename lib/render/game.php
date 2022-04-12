@@ -27,7 +27,7 @@ function GetGameAndTooltipDiv(
     $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleStr;
@@ -155,32 +155,49 @@ function RenderGameAlts($gameAlts, $headerText = null)
     echo "</div>";
 }
 
-function RenderMetadataTableRow($label, $gameDataValue, $gameHubs)
+function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = [])
 {
-    $values = [];
+    $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
 
     if ($gameHubs) {
-        $hubPrefix = "[$label - ";
-        foreach ($gameHubs as $hub) {
-            if (substr($hub['Title'], 0, strlen($hubPrefix)) == $hubPrefix) {
-                $value = substr($hub['Title'], strlen($hubPrefix), -1);
-                $values[] = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues) {
+            $hubPrefix = "[$hubCategory - ";
+            foreach ($gameHubs as $hub) {
+                $title = $hub['Title'];
+                if (substr($title, 0, strlen($hubPrefix)) == $hubPrefix) {
+                    $value = substr($title, strlen($hubPrefix), -1);
+                    $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
 
-                if ($value == $gameDataValue) {
-                    $gameDataValue = null;
+                    $key = array_search($value, $gameDataValues);
+                    if ($key === false) {
+                        // attempt to match "Hack - XXX" to "Hacks - XXX" hub
+                        $value = substr(str_replace($hubCategory, rtrim($hubCategory, "s"), $title), 1, -1);
+                        $key = array_search($value, $gameDataValues);
+                        if ($key !== false) {
+                            $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+                        }
+                    }
+
+                    if ($key !== false) {
+                        $gameDataValues[$key] = $link;
+                    } else {
+                        $gameDataValues[] = $link;
+                    }
                 }
             }
+        };
+
+        $mergeMetadata($label);
+
+        foreach ($altLabels as $altLabel) {
+            $mergeMetadata($altLabel);
         }
     }
 
-    if ($gameDataValue) {
-        $values[] = $gameDataValue;
-    }
-
-    if ($values) {
+    if (!empty($gameDataValues)) {
         echo "<tr>";
         echo "<td style='white-space: nowrap'>$label:</td>";
-        echo "<td><b>" . implode(', ', $values) . "</b></td>";
+        echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
         echo "</tr>";
     }
 }
