@@ -139,24 +139,63 @@ function _GetUserAndTooltipDiv(
         "</span>";
 }
 
-function RenderSiteAwards($userAwards)
+function SeparateAwards($userAwards)
 {
     $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events'));
+    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events');
 
-    $siteAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active)));
-
-    if (!empty($gameAwards) || (empty($eventAwards) && empty($siteAwards))) {
-        RenderAwardGroup($gameAwards, "Game Awards");
+    $devEventsPrefix = "[Dev Events - ";
+    $devEventsHub = "[Central - Developer Events]";
+    $devEventAwards = [];
+    foreach ($eventAwards as $k => $eventAward) {
+        $related = getGameAlternatives($eventAward['AwardData']);
+        foreach ($related as $hub) {
+            if ($hub['Title'] == $devEventsHub || substr($hub['Title'], 0, strlen($devEventsPrefix)) == $devEventsPrefix) {
+                $devEventAwards[] = $eventAward;
+                break;
+            }
+        }
     }
 
-    if (!empty($eventAwards)) {
-        RenderAwardGroup($eventAwards, "Event Awards");
+    $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
+
+    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active)) ||
+        in_array($award, $devEventAwards)
+    ));
+
+    return [$gameAwards, $eventAwards, $siteAwards];
+}
+
+function RenderSiteAwards($userAwards)
+{
+    [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
+
+    $groups = [];
+
+    if (!empty($gameAwards)) {
+        $firstGameAward = array_search($gameAwards[0], $userAwards);
+        $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
+    }
+
+    if (!empty($gameAwards)) {
+        $firstEventAward = array_search($eventAwards[0], $userAwards);
+        $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
     }
 
     if (!empty($siteAwards)) {
-        RenderAwardGroup($siteAwards, "Site Awards");
+        $firstSiteAward = array_search($siteAwards[0], $userAwards);
+        $groups[] = [$firstSiteAward, $siteAwards, "Site Awards"];
+    }
+
+    if (empty($groups)) {
+        $groups[] = [0, $gameAwards, "Game Awards"];
+    }
+
+    usort($groups, fn ($a, $b) => $a[0] - $b[0]);
+
+    foreach ($groups as $group) {
+        RenderAwardGroup($group[1], $group[2]);
     }
 }
 
