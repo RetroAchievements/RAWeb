@@ -232,6 +232,25 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
     $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
   }
 
+  function validateEmail() {
+    var oldEmail = document.forms['updateEmail']['o'].value;
+    var newEmail = document.forms['updateEmail']['e'].value;
+    var verifyEmail = document.forms['updateEmail']['f'].value;
+    if (newEmail != verifyEmail) {
+      alert("New email addresses are not identical");
+      return false;
+    }
+    if (newEmail == oldEmail) {
+      alert("New email address is same as old email address");
+      return false;
+    }
+    <?php if ($permissions >= Permissions::Developer): ?>
+    return confirm("Are you sure that you want to do this?\n\nChanging your email address will revoke your priveledges and you will need to have them restored by staff.");
+    <?php else: ?>
+    return true;
+    <?php endif ?>
+  }
+
   GetAllResettableGamesList();
 </script>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -465,13 +484,13 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                     break;
             }
             ?>
-            <form method='post' action='/request/user/update-email.php'>
+            <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return validateEmail()'>
                 <table>
                     <tbody>
                     <tr>
                         <td class='firstrow'>Old Email Address:</td>
                         <td>
-                            <div class="field_container"><input type="text" class="inputtext" size='30' disabled VALUE="<?php echo $emailAddr; ?>"/></div>
+                            <div class="field_container"><input type="text" class="inputtext" name="o" size='30' disabled VALUE="<?php echo $emailAddr; ?>"/></div>
                         </td>
                     </tr>
                     <tr>
