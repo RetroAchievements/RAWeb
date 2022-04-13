@@ -400,8 +400,9 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             if ($dbResult !== false) {
                 $numGamesFound = mysqli_fetch_assoc($dbResult)['NumGames'];
             }
+        } else {
+            $numGamesFound += $offset;
         }
-        $numGamesFound += $offset;
     }
 
     return $numGamesFound;
