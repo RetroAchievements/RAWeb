@@ -12,7 +12,7 @@ if (!ValidatePOSTChars("u")) {
 
 $user = requestInputPost('u');
 
-if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
+if (validateUser_cookie($actingUser, null, Permissions::Registered)) {
     if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {
         return false;
     }
