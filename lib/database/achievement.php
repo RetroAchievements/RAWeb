@@ -530,13 +530,16 @@ function UploadNewAchievement(
             return false;
         }
     } else {
-        $query = "SELECT Flags, Points, Author FROM Achievements WHERE ID='$idInOut'";
+        $query = "SELECT Flags, MemAddr, Points, Title, Description, BadgeName, Author FROM Achievements WHERE ID='$idInOut'";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
             $data = mysqli_fetch_assoc($dbResult);
 
             $changingAchSet = ($data['Flags'] != $type);
             $changingPoints = ($data['Points'] != $points);
+            $changingBadge = ($data['BadgeName'] != $badge);
+            $changingWording = ($data['Title'] != $title || $data['Description'] != $desc);
+            $changingLogic = ($data['MemAddr'] != $mem);
 
             $userPermissions = getUserPermissions($author);
             //if( ( $changingAchSet || $changingPoints ) && $type == 3 )
@@ -600,11 +603,28 @@ function UploadNewAchievement(
                         );
                     }
                 } else {
+                    $stringArray = [];
+
+                    if ($changingPoints) {
+                        array_push($stringArray, "points");
+                    }
+                    if ($changingBadge) {
+                        array_push($stringArray, "badge");
+                    }
+                    if ($changingWording) {
+                        array_push($stringArray, "wording");
+                    }
+                    if ($changingLogic) {
+                        array_push($stringArray, "logic");
+                    }
+
+                    $editString = implode(', ', $stringArray);
+
                     addArticleComment(
                         "Server",
                         \RA\ArticleType::Achievement,
                         $idInOut,
-                        "$author edited this achievement.",
+                        "$author edited this achievement's $editString.",
                         $author
                     );
                 }
