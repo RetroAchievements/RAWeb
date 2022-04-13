@@ -18,15 +18,11 @@ abstract class SubscriptionSubjectType
 
     public static function fromArticleType($articleType)
     {
-        switch ($articleType) {
-            case ArticleType::Game:
-                return SubscriptionSubjectType::GameWall;
-            case ArticleType::Achievement:
-                return SubscriptionSubjectType::Achievement;
-            case ArticleType::User:
-                return SubscriptionSubjectType::UserWall;
-        }
-
-        return null;
+        return match ($articleType) {
+            ArticleType::Game => SubscriptionSubjectType::GameWall,
+            ArticleType::Achievement => SubscriptionSubjectType::Achievement,
+            ArticleType::User => SubscriptionSubjectType::UserWall,
+            default => null,
+        };
     }
 }

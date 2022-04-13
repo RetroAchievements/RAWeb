@@ -13,7 +13,7 @@ function GetAchievementAndTooltipDiv(
     $smallBadgeSize = 32,
     $imgclass = 'badgeimg'
 ): string {
-    $tooltipIconSize = 64; //96;
+    $tooltipIconSize = 64; // 96;
 
     sanitize_outputs(
         $achName,

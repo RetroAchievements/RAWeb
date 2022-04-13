@@ -9,13 +9,10 @@ abstract class TicketTypes
 
     public static function renderType(int $type): string
     {
-        switch ($type) {
-            case TicketTypes::DOES_NOT_TRIGGER:
-                return "Does not trigger";
-            case TicketTypes::TRIGGERED_AT_THE_WRONG_TIME:
-                return "Triggered at the wrong time";
-            default:
-                return "Invalid ticket type";
-        }
+        return match ($type) {
+            TicketTypes::DOES_NOT_TRIGGER => "Does not trigger",
+            TicketTypes::TRIGGERED_AT_THE_WRONG_TIME => "Triggered at the wrong time",
+            default => "Invalid ticket type",
+        };
     }
 }

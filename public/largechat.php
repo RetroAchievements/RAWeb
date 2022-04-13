@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -27,11 +28,11 @@ RenderHtmlHead("RA Cinema");
   $dbResult = s_mysql_query($query);
 
   while ($nextData = mysqli_fetch_assoc($dbResult)) {
-      //$archiveURLs[ $nextData['ID'] ] = $nextData;
+      // $archiveURLs[ $nextData['ID'] ] = $nextData;
       $nextID = $nextData['ID'];
       $nextURL = $nextData['Link'];
       $nextTitle = htmlspecialchars($nextData['Title']);
-      echo "archiveURLs[ $nextID ] = \"$nextURL\";";    //	Push this to JS
+      echo "archiveURLs[ $nextID ] = \"$nextURL\";";    // Push this to JS
       echo "archiveTitles[ $nextID ] = \"$nextTitle\";";
   }
   ?>
@@ -47,20 +48,14 @@ RenderHtmlHead("RA Cinema");
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
 
-  function onPostComplete(data) {
-    alert(data);
-    if (data !== 'OK') {
-      //$("body").find( "#warning" ).html( "Status: Errors..." );
-    } else {
-      //$("body").find( "#warning" ).html( "Status: Loading..." );
-      window.location.reload();
-    }
+  function onPostComplete() {
+    window.location.reload();
   }
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
-        //	left
+        // left
         RenderTwitchTVStream(600, 500, 'left', $vidID);
 
         if ($mobileSetting == 1) {

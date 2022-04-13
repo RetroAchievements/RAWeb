@@ -38,27 +38,27 @@ function RenderFeedComponent($user)
 
 function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null)
 {
-    $site = $site ?? getenv('APP_URL');
+    $site ??= getenv('APP_URL');
 
     $retHTML = '';
 
     $actType = $feedData['activitytype'];
     $user = $feedData['User'];
     $timestamp = $feedData['timestamp'];
-    $achID = $feedData['data']; //    intentional: blind data, dual use
+    $achID = $feedData['data']; // intentional: blind data, dual use
     $achTitle = $feedData['AchTitle'];
     $achPoints = $feedData['AchPoints'];
     $gameID = $feedData['GameID'];
     $gameTitle = $feedData['GameTitle'];
     $console = $feedData['ConsoleName'];
 
-    //    LB only:
+    // LB only:
     $nextLBID = $feedData['data'];
     $nextLBScore = $feedData['data2'];
     $nextLBName = $feedData['LBTitle'];
     $nextLBFormat = $feedData['LBFormat'];
 
-    //    Inject hyperlinks:
+    // Inject hyperlinks:
     if ($withHyperlinks) {
         $user = "<a href='$site/user/$user'>$user</a>";
         $achTitle = "<a href='$site/achievement/$achID'>$achTitle</a>";
@@ -119,7 +119,7 @@ function getFeedItemHTML($feedData, $user)
 {
     $retHTML = '';
 
-    //    WILL ALWAYS BE PRESENT in feedData. Note: in SQL order
+    // WILL ALWAYS BE PRESENT in feedData. Note: in SQL order
     $nextID = $feedData['ID'];
     $nextTimestamp = $feedData['timestamp'];
     $nextActivityType = $feedData['activitytype'];
@@ -142,7 +142,7 @@ function getFeedItemHTML($feedData, $user)
     $dateCell = "<td class='date'><small>&nbsp;" . date("H:i ", $nextTimestamp) . "&nbsp;</small></td>";
 
     switch ($nextActivityType) {
-        case 0: //    misc
+        case 0: // misc
             $retHTML .= "<tr id='$rowID' class='feed_login'>";
             $retHTML .= $dateCell;
 
@@ -156,12 +156,12 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-        case 1: //    achievement
+        case 1: // achievement
 
             $retHTML .= "<tr id='$rowID' class='feed_won'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
             $retHTML .= GetAchievementAndTooltipDiv(
                 $nextData,
@@ -176,7 +176,7 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= GetUserAndTooltipDiv($nextUser, true);
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_won'>";
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
             $retHTML .= " earned ";
@@ -214,18 +214,18 @@ function getFeedItemHTML($feedData, $user)
 
             break;
 
-        case 2: //    login
+        case 2: // login
 
             $retHTML .= "<tr id='$rowID' class='feed_login'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
             $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/Images/LoginIcon32.png' width='32' height='32' class='badgeimg' />";
             $retHTML .= GetUserAndTooltipDiv($nextUser, true);
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_login'>";
 
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -238,13 +238,13 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-        case 3: //    start playing game
+        case 3: // start playing game
 
             if ($nextGameTitle !== "UNRECOGNISED") {
                 $retHTML .= "<tr id='$rowID' class='feed_startplay'>";
                 $retHTML .= $dateCell;
 
-                //    Images:
+                // Images:
                 $retHTML .= "<td class='icons'>";
 
                 $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
@@ -252,7 +252,7 @@ function getFeedItemHTML($feedData, $user)
 
                 $retHTML .= "</td>";
 
-                //    Content:
+                // Content:
                 $retHTML .= "<td class='feed_startplay'>";
 
                 $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -275,12 +275,12 @@ function getFeedItemHTML($feedData, $user)
             }
             break;
 
-        case 4: //    upload ach
+        case 4: // upload ach
 
             $retHTML .= "<tr id='$rowID' class='feed_dev1'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetAchievementAndTooltipDiv(
@@ -297,7 +297,7 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_dev1'>";
 
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -320,12 +320,12 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-        case 5: //    modify ach
+        case 5: // modify ach
 
             $retHTML .= "<tr id='$rowID' class='feed_dev2'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetAchievementAndTooltipDiv(
@@ -342,7 +342,7 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_dev2'>";
 
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -365,11 +365,11 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-        case 6: //    complete game
+        case 6: // complete game
             $retHTML .= "<tr id='$rowID' class='feed_completegame'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
@@ -377,7 +377,7 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_completegame'>";
 
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -410,11 +410,11 @@ function getFeedItemHTML($feedData, $user)
 
             break;
 
-        case 7: //    submit new record
+        case 7: // submit new record
             $retHTML .= "<tr id='$rowID' class='feed_submitrecord'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
@@ -422,7 +422,7 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_submitrecord'>";
 
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -462,11 +462,11 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "</tr>";
             break;
 
-        case 8: //    updated record
+        case 8: // updated record
             $retHTML .= "<tr id='$rowID' class='feed_updaterecord'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
@@ -474,7 +474,7 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_updaterecord'>";
 
             $entryType = (strcmp($nextLBFormat, 'TIME') == 0 || strcmp(
@@ -524,7 +524,7 @@ function getFeedItemHTML($feedData, $user)
             $retHTML .= "<tr id='$rowID' class='feed_dev2'>";
             $retHTML .= $dateCell;
 
-            //    Images:
+            // Images:
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetAchievementAndTooltipDiv(
@@ -541,7 +541,7 @@ function getFeedItemHTML($feedData, $user)
 
             $retHTML .= "</td>";
 
-            //    Content:
+            // Content:
             $retHTML .= "<td class='feed_dev2'>";
 
             $retHTML .= GetUserAndTooltipDiv($nextUser, false);
@@ -578,7 +578,7 @@ function RenderFeedComment($user, $comment, $submittedDate)
     echo "<tr class='feed_comment'>";
 
     $niceDate = date("d M\nG:i y ", strtotime($submittedDate));
-    //$fullDateHover = date( "d M\nH:i yy", strtotime( $submittedDate ) );
+    // $fullDateHover = date( "d M\nH:i yy", strtotime( $submittedDate ) );
 
     sanitize_outputs($comment);
 

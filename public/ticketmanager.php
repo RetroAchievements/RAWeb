@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\Permissions;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     header("Location: " . getenv('APP_URL'));
@@ -15,8 +16,8 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 16377; //16377 sets all filters active except for Closed and Resolved
-$allTicketsFilter = 16383; //const
+$defaultFilter = 16377; // 16377 sets all filters active except for Closed and Resolved
+$allTicketsFilter = 16383; // const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
@@ -115,9 +116,8 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    //sets all filters enabled so we get closed/resolved tickets as well
+    // sets all filters enabled so we get closed/resolved tickets as well
     $altTicketData = getAllTickets(0, 99, null, null, $ticketData['AchievementID'], $allTicketsFilter);
-    //var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
@@ -127,7 +127,7 @@ if ($ticketID != 0) {
         }
     }
 
-    $numClosedTickets = (count($altTicketData) - $numOpenTickets) - 1;
+    $numClosedTickets = ((is_countable($altTicketData) ? count($altTicketData) : 0) - $numOpenTickets) - 1;
 }
 
 $assignedToUser = null;
@@ -206,7 +206,7 @@ RenderHtmlHead($pageTitle);
         echo "</div>";
 
         if ($gamesTableFlag == 1) {
-            echo "<h3>Top " . count($ticketData) . " Games Sorted By Most Outstanding Tickets</h3>";
+            echo "<h3>Top " . (is_countable($ticketData) ? count($ticketData) : 0) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
             $assignedToUser = requestInputSanitized('u', null);
             if (!isValidUsername($assignedToUser)) {
@@ -295,7 +295,7 @@ RenderHtmlHead($pageTitle);
                 $modeHardcore = ($ticketFilters & (1 << 12));
                 $modeSoftcore = ($ticketFilters & (1 << 13));
 
-                //State Filters
+                // State Filters
                 echo "<div>";
                 echo "<b>Ticket State:</b> ";
                 if ($openTickets) {
@@ -317,7 +317,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Report Type Filters
+                // Report Type Filters
                 echo "<div>";
                 echo "<b>Report Type:</b> ";
                 if ($triggeredTickets) {
@@ -333,7 +333,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Hash Filters
+                // Hash Filters
                 echo "<div>";
                 echo "<b>Hash:</b> ";
                 if ($hashKnownTickets) {
@@ -349,7 +349,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Emulator Filters
+                // Emulator Filters
                 echo "<div>";
                 echo "<b>Emulator:</b> ";
                 if ($raEmulatorTickets) {
@@ -377,7 +377,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Core/Unofficial Filters - These filters are mutually exclusive
+                // Core/Unofficial Filters - These filters are mutually exclusive
                 echo "<div>";
                 echo "<b>Achievement State:</b> ";
                 if ($gamesTableFlag != 5) {
@@ -393,7 +393,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Mode Filters
+                // Mode Filters
                 echo "<div>";
                 echo "<b>Mode:</b> ";
 
@@ -414,7 +414,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Clear Filter
+                // Clear Filter
                 if ($ticketFilters != $defaultFilter || $gamesTableFlag == 5) {
                     echo "<div>";
                     echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&f=3&t=" . $defaultFilter . "'>Clear Filter</a>";
@@ -469,9 +469,6 @@ RenderHtmlHead($pageTitle);
                 $rowCount = 0;
 
                 foreach ($ticketData as $nextTicket) {
-                    //var_dump( $nextTicket );
-                    //$query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
-
                     $ticketID = $nextTicket['ID'];
                     $achID = $nextTicket['AchievementID'];
                     $achTitle = $nextTicket['AchievementTitle'];
@@ -558,7 +555,7 @@ RenderHtmlHead($pageTitle);
                     echo "<a href='/ticketmanager.php?o=$prevOffset&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($rowCount == $maxCount) {
-                    //	Max number fetched, i.e. there are more. Can goto next $maxCount.
+                    // Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
                     echo "<a href='/ticketmanager.php?o=$nextOffset&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Next $maxCount &gt;</a>";
                     echo " - <a href='/ticketmanager.php?o=" . ($filteredTicketsCount - ($maxCount - 1)) . "&g=$gameIDGiven&u=$assignedToUser&f=$gamesTableFlag&t=$ticketFilters'>Last</a>";
@@ -758,15 +755,69 @@ RenderHtmlHead($pageTitle);
                 echo "<tr>";
                 echo "<td></td><td colspan='6'>";
 
-                if (getUserUnlockAchievement($reportedBy, $achID, $unlockData)) {
-                    echo "$reportedBy earned this achievement at " . getNiceDate(strtotime($unlockData[0]['Date']));
-                    if ($unlockData[0]['Date'] >= $reportedAt) {
+                $numAchievements = getUserUnlockDates($reportedBy, $gameID, $unlockData);
+                $unlockData[] = ['ID' => 0, 'Title' => 'Ticket Created', 'Date' => $reportedAt, 'HardcoreMode' => 0];
+                usort($unlockData, function ($a, $b) { return strtotime($b["Date"]) - strtotime($a["Date"]); });
+
+                $unlockDate = null;
+                foreach ($unlockData as $unlockEntry) {
+                    if ($unlockEntry['ID'] == $achID) {
+                        $unlockDate = $unlockEntry['Date'];
+                        break;
+                    }
+                }
+
+                if ($unlockDate != null) {
+                    echo "$reportedBy earned this achievement at " . getNiceDate(strtotime($unlockDate));
+                    if ($unlockDate >= $reportedAt) {
                         echo " (after the report).";
                     } else {
                         echo " (before the report).";
                     }
+                } elseif ($numAchievements == 0) {
+                    echo "$reportedBy has not earned any achievements for this game.";
                 } else {
                     echo "$reportedBy did not earn this achievement.";
+                }
+                echo "</td></tr>";
+
+                if ($numAchievements > 0 && $permissions >= Permissions::Developer) {
+                    echo "<tr><td></td><td colspan='6'>";
+
+                    echo "<div class='devbox'>";
+                    echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Click to show player unlock history for this game</span><br>";
+                    echo "<div id='unlockhistory' style='display: none'>";
+                    echo "<table>";
+
+                    foreach ($unlockData as $unlockEntry) {
+                        echo "<tr><td>";
+                        if ($unlockEntry['ID'] == 0) {
+                            echo "Ticket Created - ";
+                            echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
+                        } else {
+                            echo GetAchievementAndTooltipDiv($unlockEntry['ID'], $unlockEntry['Title'], $unlockEntry['Description'],
+                                                            $unlockEntry['Points'], $gameTitle, $unlockEntry['BadgeName'], true);
+                        }
+                        echo "</td><td>";
+                        $unlockDate = getNiceDate(strtotime($unlockEntry['Date']));
+                        if ($unlockEntry['ID'] == $achID) {
+                            echo "<b>$unlockDate</b>";
+                        } else {
+                            echo $unlockDate;
+                        }
+                        echo "</td><td>";
+                        if ($unlockEntry['HardcoreMode'] == 1) {
+                            if ($unlockEntry['ID'] == $achID) {
+                                echo "<b>Hardcore</b>";
+                            } else {
+                                echo "Hardcore";
+                            }
+                        }
+                        echo "</td></tr>";
+                    }
+
+                    echo "</table></div></div>";
+                    echo "</td></tr>";
                 }
 
                 if ($user == $reportedBy || $permissions >= Permissions::Developer) {
@@ -834,8 +885,8 @@ RenderHtmlHead($pageTitle);
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Click to show achievement logic:</span><br>";
-                    echo "<div id='devboxcontent'>";
+                    echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Click to show achievement logic</span><br>";
+                    echo "<div id='achievementlogic' style='display: none'>";
 
                     echo "<div style='clear:both;'></div>";
                     echo "<li> Achievement ID: " . $achID . "</li>";
@@ -846,8 +897,8 @@ RenderHtmlHead($pageTitle);
                     echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
                     echo "</div>";
 
-                    echo "</div>"; //   devboxcontent
-                    echo "</div>"; //   devbox
+                    echo "</div>"; // achievementlogic
+                    echo "</div>"; // devbox
                 }
             }
         }

@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidateGETChars("ucfa")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $user = requestInputQuery('u');

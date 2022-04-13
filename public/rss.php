@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -14,7 +15,7 @@ RenderHtmlHead("RSS Feeds");
 <div id="mainpage">
     <?php
     $yOffs = 0;
-    //RenderTwitchTVStream( $yOffs );
+    // RenderTwitchTVStream( $yOffs );
     ?>
     <div id="fullcontainer">
         <?php

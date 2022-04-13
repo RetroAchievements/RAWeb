@@ -76,7 +76,7 @@ function migratePassword($user, $pass): string
 
 function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
 {
-    $fbUser = 0; //    TBD: Remove!
+    $fbUser = 0; // TBD: Remove!
 
     return RA_ReadTokenCredentials(
         $user,
@@ -102,25 +102,23 @@ function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissio
     sanitize_sql_inputs($userOut);
 
     if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 2 || !isValidUsername($userOut)) {
-        //    There is no cookie
+        // There is no cookie
         return false;
     } else {
-        //    Cookie maybe stale: check it!
+        // Cookie maybe stale: check it!
         $query = "SELECT User, cookie, RAPoints, Permissions FROM UserAccounts WHERE User='$userOut'";
         $dbResult = s_mysql_query($query);
         if ($dbResult == false) {
-            // error_log(__FUNCTION__ . " failed: bad query: $query");
             return false;
         } else {
             $data = mysqli_fetch_array($dbResult);
             if ($data['cookie'] == $cookie) {
                 $pointsOut = $data['RAPoints'];
-                $userOut = $data['User']; //    Case correction
+                $userOut = $data['User']; // Case correction
                 $permissionsOut = $data['Permissions'];
 
                 return $permissionsOut >= $permissionRequired;
             } else {
-                // error_log(__FUNCTION__ . " failed: cookie doesn't match for user:$userOut (given: $cookie, should be " . $data['cookie'] . ")");
                 return false;
             }
         }
@@ -142,7 +140,7 @@ function RA_ReadCookieCredentials(
     $minPermissions = null,
     &$userIDOut = null
 ): bool {
-    //    Promise some values:
+    // Promise some values:
     $userOut = RA_ReadCookie('RA_User');
     $cookie = RA_ReadCookie('RA_Cookie');
     $pointsOut = 0;
@@ -155,7 +153,6 @@ function RA_ReadCookieCredentials(
         RA_ClearCookie('RA_Cookie');
         $userOut = null;
 
-        //error_log( __FUNCTION__ . " User invalid, bailing..." );
         return false;
     }
 
@@ -171,7 +168,6 @@ function RA_ReadCookieCredentials(
         RA_ClearCookie('RA_Cookie');
         $userOut = null;
 
-        //error_log( __FUNCTION__ . " failed: bad query: query:$query" );
         return false;
     } else {
         $dbResult = mysqli_fetch_array($result);
@@ -181,19 +177,18 @@ function RA_ReadCookieCredentials(
             RA_ClearCookie('RA_Cookie');
             $userOut = null;
 
-            //error_log( __FUNCTION__ . " failed: bad cookie: query:$query cookies: local:$cookie server:$serverCookie. Removing it!" );
             return false;
         } else {
             userActivityPing($userOut);
 
-            //    Cookies match: now validate permissions if required
+            // Cookies match: now validate permissions if required
             $pointsOut = $dbResult['RAPoints'];
             $unreadMessagesOut = $dbResult['UnreadMessageCount'];
             $truePointsOut = $dbResult['TrueRAPoints'];
             $permissionOut = $dbResult['Permissions'];
             $userIDOut = $dbResult['ID'];
 
-            //    Only compare if requested, otherwise return true meaning 'logged in'
+            // Only compare if requested, otherwise return true meaning 'logged in'
             if (isset($minPermissions)) {
                 return $permissionOut >= $minPermissions;
             } else {
@@ -213,7 +208,6 @@ function RA_ReadTokenCredentials(
     $permissionRequired = null
 ): bool {
     if ($userOut == null || $userOut == '') {
-        // error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
     }
     if (!isValidUsername($userOut)) {
@@ -230,20 +224,19 @@ function RA_ReadTokenCredentials(
               WHERE User='$userOut'";
     $result = s_mysql_query($query);
     if ($result == false) {
-        // error_log(__FUNCTION__ . " failed: bad query: $query");
         return false;
     } else {
         $row = mysqli_fetch_array($result);
         $permissionOut = $row['Permissions'];
         if ($row['appToken'] == $token) {
-            $userOut = $row['User']; //    Case correction
+            $userOut = $row['User']; // Case correction
             if (isset($permissionRequired)) {
                 return $permissionOut >= $permissionRequired;
             } else {
                 return true;
             }
         } else {
-            // error_log(__FUNCTION__ . " failed: passwords don't match for user:$userOut (given: $token, should be " . $row['appToken'] . ")");
+            // failed: passwords don't match for user:$userOut (given: $token, should be " . $row['appToken'] . ")
             return false;
         }
     }
@@ -254,12 +247,10 @@ function generateAPIKey($user): string
     sanitize_sql_inputs($user);
 
     if (!getAccountDetails($user, $userData)) {
-        // error_log(__FUNCTION__ . " API Key gen fail 1: not a user?");
         return "";
     }
 
     if ($userData['Permissions'] < Permissions::Registered) {
-        // error_log(__FUNCTION__ . " API Key gen fail 2: not a full account!");
         return "";
     }
 
@@ -271,8 +262,6 @@ function generateAPIKey($user): string
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        //log_email(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
-        // error_log(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
         return "";
     }
 
@@ -292,9 +281,6 @@ function GetAPIKey($user): ?string
 
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
-        // error_log(__FUNCTION__);
-        // error_log("errors fetching API Key for $user!");
-        //log_email(__FUNCTION__ . " cannot fetch API key for $user");
         return null;
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
@@ -329,9 +315,7 @@ function ValidateAPIKey($user, $key): bool
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false) {
-        // error_log(__FUNCTION__);
-        // error_log("errors validating API Key for $user (given: $key)!");
-        //log_email(__FUNCTION__ . " errors validating API Key for $user (given: $key)!");
+        // errors validating API Key for $user (given: $key)
         return false;
     }
 

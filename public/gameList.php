@@ -1,30 +1,166 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
-$showCompleteGames = requestInputSanitized('f', 0, 'integer'); //	0 = no filter, 1 = only complete, 2 = only incomplete
+$showCompleteGames = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
+$filter = requestInputSanitized('f');
+
+if ($dev == null) {
+    $maxCount = 50;
+    $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
+} else {
+    $maxCount = 0;
+    $offset = 0;
+}
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
-    $requestedConsole = " " . $consoleList[$consoleIDInput];
+    $requestedConsole = " (" . $consoleList[$consoleIDInput] . ")";
 }
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$showTickets = (isset($user) && $permissions >= \RA\Permissions::Developer);
+$showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
-if ($showTickets) {
-    $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, true);
-} else {
-    $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, false);
-}
+$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $showTickets, $filter, $offset, $maxCount);
 
 sanitize_outputs($requestedConsole);
+
+function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets)
+{
+    echo "\n<div class='table-wrapper'><table><tbody>";
+
+    $sort1 = ($sortBy == 1) ? 11 : 1;
+    $sort2 = ($sortBy == 2) ? 12 : 2;
+    $sort3 = ($sortBy == 3) ? 13 : 3;
+    $sort4 = ($sortBy == 4) ? 14 : 4;
+    $sort5 = ($sortBy == 5) ? 15 : 5;
+    $sort6 = ($sortBy == 6) ? 16 : 6;
+
+    echo "<tr>";
+    echo "<th></th>";
+    if ($dev == null) {
+        echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort2&$queryParams'>Achievements</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort3&$queryParams'>Points</a></th>";
+        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&$queryParams'>Last Updated</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort4&$queryParams'>Leaderboards</a></th>";
+
+        if ($showTickets) {
+            echo "<th class='text-nowrap'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
+        }
+    } else {
+        echo "<th>Title</th>";
+        echo "<th>Achievements</th>";
+        echo "<th>Points</th>";
+        echo "<th style='white-space: nowrap'>Last Updated</th>";
+        echo "<th>Leaderboards</th>";
+
+        if ($showTickets) {
+            echo "<th class='text-nowrap'>Open Tickets</th>";
+        }
+    }
+
+    echo "</tr>";
+
+    $gameCount = 0;
+    $pointsTally = 0;
+    $achievementsTally = 0;
+    $truePointsTally = 0;
+    $lbCount = 0;
+    $ticketsCount = null;
+    $ticketsCount = 0;
+
+    foreach ($gamesList as $gameEntry) {
+        $title = $gameEntry['Title'];
+        $gameID = $gameEntry['ID'];
+        $maxPoints = $gameEntry['MaxPointsAvailable'] ?? 0;
+        $totalTrueRatio = $gameEntry['TotalTruePoints'];
+        $totalAchievements = null;
+        if ($dev == null) {
+            $numAchievements = $gameEntry['NumAchievements'];
+        } else {
+            $numAchievements = $gameEntry['MyAchievements'];
+            $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
+        }
+        $numLBs = $gameEntry['NumLBs'];
+        $gameIcon = $gameEntry['GameIcon'];
+
+        sanitize_outputs($title);
+
+        echo "<tr>";
+
+        echo "<td>";
+        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, true);
+        echo "</td>";
+        echo "<td class='fullwidth'>";
+        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, false, null, true);
+        echo "</td>";
+
+        if ($dev == null) {
+            echo "<td>$numAchievements</td>";
+        } else {
+            echo "<td>$numAchievements of $totalAchievements</td>";
+        }
+        echo "<td class='text-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
+
+        if ($gameEntry['DateModified'] != null) {
+            $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
+            echo "<td>$lastUpdated</td>";
+        } else {
+            echo "<td/>";
+        }
+
+        echo "<td class=''>";
+        if ($numLBs > 0) {
+            echo "<a href=\"game/$gameID\">$numLBs</a>";
+            $lbCount += $numLBs;
+        }
+        echo "</td>";
+
+        if ($showTickets) {
+            $openTickets = $gameEntry['OpenTickets'];
+            echo "<td class=''>";
+            if ($openTickets > 0) {
+                echo "<a href=\"ticketmanager.php?g=$gameID\">$openTickets</a>";
+                $ticketsCount += $openTickets;
+            }
+            echo "</td>";
+        }
+
+        echo "</tr>";
+
+        $gameCount++;
+        $pointsTally += $maxPoints;
+        $achievementsTally += $numAchievements;
+        $truePointsTally += $totalTrueRatio;
+    }
+
+    if ($dev != null) {
+        // Totals:
+        echo "<tr>";
+        echo "<td></td>";
+        echo "<td><b>Totals: $gameCount games</b></td>";
+        echo "<td><b>$achievementsTally</b></td>";
+        echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
+        echo "<td></td>";
+        echo "<td><b>$lbCount</b></td>";
+        if ($showTickets) {
+            echo "<td><b>$ticketsCount</b></td>";
+        }
+        echo "</tr>";
+    }
+
+    echo "</tbody></table></div>";
+}
 
 $errorCode = requestInputSanitized('e');
 RenderHtmlStart();
@@ -35,178 +171,69 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
     <div id="fullcontainer">
-        <div class="navpath">
-            <?php
-            if ($dev != null) {
-                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Achievement Sets</b>";
-            } else {
-                if ($requestedConsole == "") {
-                    echo "<b>All Games</b>";
-                } else {
-                    echo "<a href=\"/gameList.php\">All Games</a>";
-                    echo " &raquo; <b>$requestedConsole</b></a>";
-                }
-            }
-            ?>
-        </div>
-        <?php if ($user !== null): ?>
-            <div class="d-flex flex-wrap justify-content-between">
-                <div>
-                </div>
-                <div>
-                    Filter by developer:<br>
-                    <form action="/gameList.php">
-                        <input type="hidden" name="s" value="<?= $sortBy ?>">
-                        <input type="hidden" name="c" value="<?= $consoleIDInput ?>">
-                        <input size="28" name="d" type="text" value="<?= $dev ?>">
-                        &nbsp;
-                        <input type="submit" value="Select">
-                    </form>
-                </div>
-            </div>
-        <?php endif ?>
         <div class="largelist">
             <?php
-            // Output all console lists fetched
-            foreach ($consoleList as $consoleID => $consoleName) {
-                if ($consoleIDInput != 0 && $consoleIDInput != $consoleID) {
-                    continue;
-                }
-                // Cut out empty consoles:
-                $dataExists = false;
-                foreach ($gamesList as $gameEntry) {
-                    if ($dev == null) {
-                        if ($gameEntry['ConsoleID'] == $consoleID && $gameEntry['NumAchievements'] > 0) {
-                            $dataExists = true;
-                            break;
+                if ($dev !== null) {
+                    // Determine which consoles the dev has created content for
+                    $devConsoles = [];
+                    foreach ($consoleList as $consoleID => $consoleName) {
+                        $consoleGames = array_filter($gamesList, function ($game) use ($consoleID) {
+                            return $game['ConsoleID'] == $consoleID;
+                        });
+                        if (!empty($consoleGames)) {
+                            $devConsoles[$consoleName] = $consoleGames;
                         }
+                    }
+
+                    ksort($devConsoles);
+
+                    foreach ($devConsoles as $consoleName => $consoleGames) {
+                        sanitize_outputs($consoleName);
+                        echo "<h2 class='longheader'>$consoleName</h2>";
+
+                        listGames($consoleGames, $dev, '', $sortBy, $showTickets);
+
+                        echo "<br/>";
+                    }
+                } else {
+                    if ($consoleIDInput == 0) {
+                        $consoleName = "All Games";
                     } else {
-                        if ($gameEntry['ConsoleID'] == $consoleID && $gameEntry['MyAchievements'] > 0) {
-                            $dataExists = true;
-                            break;
-                        }
+                        $consoleName = $consoleList[$consoleIDInput];
+                        sanitize_outputs($consoleName);
                     }
-                }
-                if (!$dataExists) {
-                    continue;
-                }
+                    echo "<h2 class='longheader'>$consoleName</h2>";
 
-                sanitize_outputs($consoleName);
+                    echo "<div style='float:left'>$gamesCount Games</div>";
 
-                echo "<h3 class='longheader'>";
-                echo "<a href='gameList.php?c=$consoleID'>";
-                echo "$consoleName";
-                echo "</a>";
-                echo "</h3>";
+                    echo "<div align='right'>";
+                    echo "<select class='gameselector' onchange='window.location = \"/gameList.php?s=$sortBy&c=$consoleIDInput\" + this.options[this.selectedIndex].value'>";
+                    echo "<option value=''" . (($filter == 0) ? " selected" : "") . ">Games with achievements</option>";
+                    echo "<option value='&f=1'" . (($filter == 1) ? " selected" : "") . ">Games without achievements</option>";
+                    echo "<option value='&f=2'" . (($filter == 2) ? " selected" : "") . ">All games</option>";
+                    echo "</select>";
+                    echo "</div>";
 
-                echo "<div class='table-wrapper'><table><tbody>";
+                    echo "<br/>";
 
-                $sort1 = ($sortBy == 1) ? 11 : 1;
-                $sort2 = ($sortBy == 2) ? 12 : 2;
-                $sort3 = ($sortBy == 3) ? 13 : 3;
-                $sort4 = ($sortBy == 4) ? 14 : 4;
-                $sort5 = ($sortBy == 5) ? 15 : 5;
-                $sort6 = ($sortBy == 6) ? 16 : 6;
+                    $queryParams = "c=$consoleIDInput&f=$filter";
+                    listGames($gamesList, null, $queryParams, $sortBy, $showTickets);
 
-                echo "<tr>";
-                echo "<th></th>";
-                echo "<th><a href='/gameList.php?s=$sort1&d=$dev&c=$consoleIDInput'>Title</a></th>";
-                echo "<th><a href='/gameList.php?s=$sort2&d=$dev&c=$consoleIDInput'>Achievements</a></th>";
-                echo "<th><a href='/gameList.php?s=$sort3&d=$dev&c=$consoleIDInput'>Points</a></th>";
-                echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&d=$dev&c=$consoleIDInput'>Last Updated</a></th>";
-                echo "<th><a href='/gameList.php?s=$sort4&d=$dev&c=$consoleIDInput'>Leaderboards</a></th>";
-
-                if ($showTickets) {
-                    echo "<th class='text-nowrap'><a href='/gameList.php?s=$sort5&d=$dev&c=$consoleIDInput'>Open Tickets</a></th>";
-                }
-                echo "</tr>";
-
-                $gameCount = 0;
-                $pointsTally = 0;
-                $achievementsTally = 0;
-                $truePointsTally = 0;
-                $lbCount = 0;
-                $ticketsCount = null;
-                if ($showTickets) {
-                    $ticketsCount = 0;
-                }
-
-                foreach ($gamesList as $gameEntry) {
-                    if ($gameEntry['ConsoleID'] == $consoleID) {
-                        $title = $gameEntry['Title'];
-                        $gameID = $gameEntry['ID'];
-                        $maxPoints = $gameEntry['MaxPointsAvailable'];
-                        $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
-                        $totalTrueRatio = $gameEntry['TotalTruePoints'];
-                        $totalAchievements = null;
-                        if ($dev == null) {
-                            $numAchievements = $gameEntry['NumAchievements'];
-                        } else {
-                            $numAchievements = $gameEntry['MyAchievements'];
-                            $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
-                        }
-                        $numLBs = $gameEntry['NumLBs'];
-                        $gameIcon = $gameEntry['GameIcon'];
-
-                        sanitize_outputs($title);
-
-                        echo "<tr>";
-
-                        echo "<td>";
-                        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, true);
-                        echo "</td>";
-                        echo "<td class='fullwidth'>";
-                        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, null, false, null, true);
-                        echo "</td>";
-
-                        if ($dev == null) {
-                            echo "<td>$numAchievements</td>";
-                        } else {
-                            echo "<td>$numAchievements of $totalAchievements</td>";
-                        }
-                        echo "<td class='text-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
-
-                        echo "<td>$lastUpdated</td>";
-                        echo "<td class=''>";
-                        if ($numLBs > 0) {
-                            echo "<a href=\"game/$gameID\">$numLBs</a>";
-                            $lbCount += $numLBs;
-                        }
-                        echo "</td>";
-
-                        if ($showTickets) {
-                            $openTickets = $gameEntry['OpenTickets'];
-                            echo "<td class=''>";
-                            if ($openTickets > 0) {
-                                echo "<a href=\"ticketmanager.php?g=$gameID\">$openTickets</a>";
-                                $ticketsCount += $openTickets;
-                            }
-                            echo "</td>";
-                        }
-
-                        echo "</tr>";
-
-                        $gameCount++;
-                        $pointsTally += $maxPoints;
-                        $achievementsTally += $numAchievements;
-                        $truePointsTally += $totalTrueRatio;
+                    // Add page traversal links
+                    echo "\n<div class='rightalign row'>";
+                    if ($offset > 0) {
+                        $prevOffset = $offset - $maxCount;
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter'>First</a> - ";
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$prevOffset'>&lt; Previous $maxCount</a> - ";
                     }
+                    $nextOffset = $offset + $maxCount;
+                    if ($nextOffset < $gamesCount) {
+                        $lastOffset = $gamesCount - ($gamesCount % $maxCount);
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$nextOffset'>Next $maxCount &gt;</a> - ";
+                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$lastOffset'>Last</a>";
+                    }
+                    echo "</div>";
                 }
-
-                // Totals:
-                echo "<tr>";
-                echo "<td></td>";
-                echo "<td><b>Totals: $gameCount games</b></td>";
-                echo "<td><b>$achievementsTally</b></td>";
-                echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
-                echo "<td></td>";
-                echo "<td><b>$lbCount</b></td>";
-                if ($showTickets) {
-                    echo "<td><b>$ticketsCount</b></td>";
-                }
-                echo "</tr>";
-                echo "</tbody></table></div>";
-            }
             ?>
             <br>
         </div>

@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -14,7 +15,7 @@ RenderHtmlHead("FAQ");
 <div id="mainpage">
     <?php
     $yOffs = 0;
-    //RenderTwitchTVStream( $yOffs );
+    // RenderTwitchTVStream( $yOffs );
     ?>
     <div id="fullcontainer">
         <?php
@@ -52,9 +53,9 @@ RenderHtmlHead("FAQ");
 		Achievements are made by and for the community.
 		We provide various custom-built emulators for you to use which will detect when you have completed various challenges.
 		Once logged in, the emulators will post the achievements you've completed back to the site, so you can check and compare your progress to your friends.<br><br>
-		
+
 		Here's an example of RAGens, playing Streets of Rage 2. You will see two leaderboard attempt counters (bottom-right), one achievement popping and finally the overlay (press ESC):<br>
-		
+
 		<img src='https://i.imgur.com/p2y9bDH.gif' width='644' height='480' />
 		</p>
 		";
@@ -65,7 +66,7 @@ RenderHtmlHead("FAQ");
         echo "<h4 class='longheader' id='faq3'>How do I use the emulator?</h4>";
         echo "<p>Please download the emulator of your choice from <a href='/download.php'>the download page</a>, log in using your username and password, then load a ROM and play! See the following video for a demonstration:<br><br>";
 
-        //	Using RA
+        // Using RA
         echo '
 		<object type="application/x-shockwave-flash" style="width:600px; height:400px;" data="https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><param name="movie" value="https://www.youtube.com/v/rKY2mZjurJw?hl=en&amp;fs=1" /></object><br>
 		';
@@ -92,7 +93,7 @@ RenderHtmlHead("FAQ");
         echo "<h4 class='longheader' id='faq9'>This achievement didn't trigger!</h4>";
         echo "<p>We have a new feature built-in to the emulators now that will allow you to report broken achievements that occur at the wrong time, or not at all. Veteran developer <a href='/user/jackolantern'>Jackolantern</a> explains how to use it in this video:<br><br>";
 
-        //	Reporting broken achievements
+        // Reporting broken achievements
         echo '
 		<object type="application/x-shockwave-flash" style="width:600px; height:400px;" data="https://www.youtube-nocookie.com/v/TTHbm700Y-Y?hl=en&amp;fs=1"><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><param name="movie" value="https://www.youtube.com/v/TTHbm700Y-Y?hl=en&amp;fs=1" /></object><br>
 		';

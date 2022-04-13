@@ -157,7 +157,7 @@ function recaptcha_check_answer($privkey, $remoteip, $challenge, $response, $ext
         exit("For security reasons, you must pass the remote ip to reCAPTCHA");
     }
 
-    //discard spam submissions
+    // discard spam submissions
     if ($challenge == null || mb_strlen($challenge) == 0 || $response == null || mb_strlen($response) == 0) {
         $recaptcha_response = new ReCaptchaResponse();
         $recaptcha_response->is_valid = false;

@@ -50,7 +50,7 @@ function rand_string($length)
     $size = mb_strlen($chars);
     $str = '';
     for ($i = 0; $i < $length; $i++) {
-        $str .= $chars[mt_rand(0, $size - 1)];
+        $str .= $chars[random_int(0, $size - 1)];
     }
 
     return $str;

@@ -69,7 +69,6 @@ function ValidateGETChars($charsIn)
     $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
         if (!array_key_exists($charsIn[$i], $_GET)) {
-            // error_log(__FUNCTION__ . " failed, missing " . $charsIn[$i] . " in GET!");
             return false;
         }
     }
@@ -83,7 +82,6 @@ function ValidatePOSTorGETChars($charsIn)
     for ($i = 0; $i < $numChars; $i++) {
         if (!array_key_exists($charsIn[$i], $_GET)) {
             if (!array_key_exists($charsIn[$i], $_POST)) {
-                // error_log(__FUNCTION__ . " failed, missing " . $charsIn[$i] . " in GET or POST!");
                 return false;
             }
         }
@@ -94,7 +92,7 @@ function ValidatePOSTorGETChars($charsIn)
 
 function CurrentPageURL()
 {
-    //$pageURL = $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+    // $pageURL = $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
     $pageURL = 'https://';
     $pageURL .= $_SERVER['SERVER_PORT'] != '80' ? $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"] : $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
     return $pageURL;

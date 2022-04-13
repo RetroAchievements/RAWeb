@@ -54,7 +54,7 @@ if (getenv('GOOGLE_RECAPTCHA_SECRET')) {
         return false;
     }
 
-    //$resp = recaptcha_check_answer( getenv('GOOGLE_RECAPTCHA_SECRET'), $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+    // $resp = recaptcha_check_answer( getenv('GOOGLE_RECAPTCHA_SECRET'), $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
     // Send $_POST['g-recaptcha-response'] to https://www.google.com/recaptcha/api/siteverify
     $url = 'https://www.google.com/recaptcha/api/siteverify';
     $data = ['secret' => getenv('GOOGLE_RECAPTCHA_SECRET'), 'response' => $_POST['g-recaptcha-response']];
@@ -68,10 +68,9 @@ if (getenv('GOOGLE_RECAPTCHA_SECRET')) {
         ],
     ]);
     $result = file_get_contents($url, false, $context);
-    $resultJSON = json_decode($result, true);
+    $resultJSON = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
 
     if (array_key_exists('success', $resultJSON) && $resultJSON['success'] != true) {
-        // error_log("requestcreateuser.php failed 6 - $user $email $email2 ");
         echo "Captcha field failed!... please retry.<br>";
         return false;
     }
@@ -81,7 +80,6 @@ $query = "SELECT User FROM UserAccounts WHERE User='$user'";
 $dbResult = s_mysql_query($query);
 
 if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-    // error_log("requestcreateuser.php failed 6 - $user $email $email2 ");
     echo "That username is already taken...<br>";
 
     return false;
@@ -95,10 +93,10 @@ $dbResult = s_mysql_query($query);
 
 if ($dbResult !== false) {
     // Instead of signing them in straight away...
-    //generateCookie( $user, $cookie );
+    // generateCookie( $user, $cookie );
     // Create an email cookie and send them an email
     if (sendValidationEmail($user, $email) == false) {
-        // error_log("Failed to send validation email to $user at $email");
+        // Failed to send validation email to $user at $email
     }
 
     /**
@@ -106,7 +104,7 @@ if ($dbResult !== false) {
      * static media host should be configured to serve the default avatar for any missing files instead
      * disabled by default for local development
      */
-    if (!getenv('RA_AVATAR_FALLBACK')) {
+    if (!filter_var(getenv('RA_AVATAR_FALLBACK'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
         copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png");
     }
 
@@ -115,6 +113,5 @@ if ($dbResult !== false) {
     echo "Created $user successfully!<br>";
 } else {
     log_sql_fail();
-    // error_log("requestcreateuser.php - Failed to create user $user");
     echo "Failed to create $user <br>";
 }
