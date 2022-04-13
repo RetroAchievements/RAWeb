@@ -289,16 +289,16 @@ function getGameAlternatives($gameID)
 
 function getGamesListWithNumAchievements($consoleID, &$dataOut, $sortBy)
 {
-    return getGamesListByDev(null, $consoleID, $dataOut, $sortBy, false);
+    return getGamesListByDev(null, $consoleID, $dataOut, $sortBy);
 }
 
-function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false)
+function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false, $filter = 0, $offset = 0, $count = 0)
 {
-    sanitize_sql_inputs($dev, $consoleID);
+    sanitize_sql_inputs($dev, $consoleID, $offset, $count);
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
-    $whereCond = "WHERE ach.Flags=3 ";
+    $whereCond = '';
     $moreSelectCond = '';
     $havingCond = '';
 
@@ -317,35 +317,39 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
                 tick.ReportState = 1
             GROUP BY
                 ach.GameID
-        ) as ticks ON ticks.GameID = ach.GameID ";
+        ) as ticks ON ticks.GameID = gd.ID ";
     } else {
         $selectTickets = null;
         $joinTicketsTable = null;
     }
 
     if ($consoleID != 0) {
-        $whereCond .= "AND gd.ConsoleID=$consoleID ";
+        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
     }
 
     if ($dev != null) {
         $moreSelectCond = "SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyAchievements,
                            SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,";
         $havingCond = "HAVING MyAchievements > 0 ";
+    } else {
+        if ($filter == 0) { // only with achievements
+            $havingCond = "HAVING NumAchievements > 0 ";
+        } elseif ($filter == 1) { // only without achievements
+            $havingCond = "HAVING NumAchievements = 0 ";
+        }
     }
 
-    $query = "SELECT gd.Title, ach.GameID AS ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.GameID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
+    $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.ID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
                 $moreSelectCond
                 CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
-                FROM Achievements AS ach
-                LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = ach.GameID
-                $joinTicketsTable
-                INNER JOIN GameData AS gd on gd.ID = ach.GameID
+                FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+                LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = 3
+                LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
+                $joinTicketsTable
                 $whereCond
-                GROUP BY ach.GameID
+                GROUP BY gd.ID
                 $havingCond";
-
-    // echo $query;
 
     settype($sortBy, 'integer');
 
@@ -373,17 +377,31 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         default => "ORDER BY gd.ConsoleID, Title ",
     };
 
-    $numGamesFound = 0;
+    if ($count > 0) {
+        $query = substr_replace($query, "SQL_CALC_FOUND_ROWS ", 7, 0);
+        $query .= " LIMIT $offset, $count";
+    }
 
     $dataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numGamesFound] = $db_entry;
-            $numGamesFound++;
+            $dataOut[] = $db_entry;
         }
     } else {
         log_sql_fail();
+    }
+
+    $numGamesFound = count($dataOut);
+    if ($count > 0) {
+        if ($numGamesFound == $count) {
+            $query = "SELECT FOUND_ROWS() AS NumGames";
+            $dbResult = s_mysql_query($query);
+            if ($dbResult !== false) {
+                $numGamesFound = mysqli_fetch_assoc($dbResult)['NumGames'];
+            }
+        }
+        $numGamesFound += $offset;
     }
 
     return $numGamesFound;
