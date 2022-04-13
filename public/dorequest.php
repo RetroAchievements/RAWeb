@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -22,7 +24,7 @@ $gameID = requestInput('g', 0, 'integer');
 $offset = requestInput('o', 0, 'integer');
 $count = requestInput('c', 10, 'integer');
 
-//$bounceReferrer = requestInput( 'b' ); // TBD: Remove!
+// $bounceReferrer = requestInput( 'b' ); // TBD: Remove!
 
 $errorCode = "OK";
 
@@ -47,45 +49,38 @@ function DoRequestError($errorMsg)
 /**
  * Early exit if we need a valid login
  */
-$credentialsOK = true;
-switch ($requestType) {
+$credentialsOK = match ($requestType) {
     /**
      * Registration required and user=local
      */
-    // case "addfriend":
-    // case "modifyfriend":
-    // case "removecomment":
-    case "achievementwondata":
-    case "awardachievement":
-    case "getfriendlist":
-    case "patch":
-    case "postactivity":
-    case "richpresencepatch":
-    case "submitcodenote":
-    case "submitgametitle":
-    case "submitlbentry":
-    case "unlocks":
-    case "uploadachievement":
-    case "uploadleaderboard":
-        $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Registered);
-        break;
-
+    // "addfriend",
+    // "modifyfriend",
+    // "removecomment",
+    "achievementwondata",
+    "awardachievement",
+    "getfriendlist",
+    "patch",
+    "postactivity",
+    "richpresencepatch",
+    "submitcodenote",
+    "submitgametitle",
+    "submitlbentry",
+    "unlocks",
+    "uploadachievement",
+    "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
     /**
      * Developer status required
      */
     // case "createnewlb":
     // case "recalctrueratio":
     // case "removelbentry":
-    //     $credentialsOK = $validLogin && ($permissions >= \RA\Permissions::Developer);
+    //     $credentialsOK = $validLogin && ($permissions >= Permissions::Developer);
     //     break;
-
     /**
      * Anything else is public. Includes login
      */
-    default:
-        $credentialsOK = true;
-        break;
-}
+    default => true,
+};
 
 if (!$credentialsOK) {
     DoRequestError("Credentials invalid ($permissions)");
@@ -136,10 +131,9 @@ switch ($requestType) {
     case "codenotes2":
         $response['CodeNotes'] = getCodeNotesData($gameID);
         $response['GameID'] = $gameID;
-        //error_log( "codenotes2, $gameID" );
         break;
 
-    // case "currentactivity": //requestcurrentlyactiveplayers
+    // case "currentactivity": // requestcurrentlyactiveplayers
     //     $response['CurrentActivity'] = getLatestRichPresenceUpdates();
     //     break;
     // case "currentlyonline":
@@ -234,10 +228,10 @@ switch ($requestType) {
     //     $success = changePassword( $username, $newPassword );
     //
     //     //  If changed OK, auto-login - doesn't appear to work?
-    //     //if( validateUser( $username, $newPassword, $fbUser, 0 ) )
-    //     //{
-    //     //    generateCookie( $user, $cookie );
-    //     //}
+    //     // if( validateUser( $username, $newPassword, $fbUser, 0 ) )
+    //     // {
+    //     //     generateCookie( $user, $cookie );
+    //     // }
     //     $response[ 'Success' ] = $success;
     //     $response[ 'Cookie' ] = $cookie;
     //     DoRequestError('Deprecated');
@@ -348,7 +342,6 @@ switch ($requestType) {
     // case "removelbentry":
     //     $lbID = requestInput('l', 0, 'integer');
     //     $targetUser = requestInput('t');
-    //     // error_log("$user authorised dropping LB entry by $targetUser from LB $lbID");
     //     $response['Success'] = RemoveLeaderboardEntry($targetUser, $lbID);
     //     break;
 
@@ -448,4 +441,4 @@ switch ($requestType) {
 }
 
 settype($response['Success'], 'boolean');
-echo json_encode($response);
+echo json_encode($response, JSON_THROW_ON_ERROR);

@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\Permissions;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 $userPage = requestInputSanitized('ID');
 if ($userPage == null || mb_strlen($userPage) == 0) {
@@ -12,7 +13,7 @@ if ($userPage == null || mb_strlen($userPage) == 0) {
 }
 
 if (ctype_alnum($userPage) == false) {
-    //  NB. this is triggering for odd reasons? Why would a non-user hit this page?
+    // NB. this is triggering for odd reasons? Why would a non-user hit this page?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -21,7 +22,7 @@ RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $perm
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-//    Get general info
+// Get general info
 getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 0, $user);
 if (!$userMassData) {
     http_response_code(404);
@@ -38,34 +39,34 @@ $userSetRequestInformation = getUserRequestsInformation($userPage, $setRequestLi
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
-//    Get wall
+// Get wall
 $numArticleComments = getArticleComments(ArticleType::User, $userPageID, 0, 100, $commentData);
 
-//    Get user's feed
-//$numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
+// Get user's feed
+// $numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
 
-//    Calc avg pcts:
+// Calc avg pcts:
 $totalPctWon = 0.0;
 $numGamesFound = 0;
 
 $userCompletedGames = [];
 
-//    Get user's list of played games and pct completion
+// Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-//var_dump( $userCompletedGamesList );
-//
-//    Merge all elements of $userCompletedGamesList into one unique list
-for ($i = 0; $i < count($userCompletedGamesList); $i++) {
+$userCompletedGamesListCount = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
+
+// Merge all elements of $userCompletedGamesList into one unique list
+for ($i = 0; $i < $userCompletedGamesListCount; $i++) {
     $gameID = $userCompletedGamesList[$i]['GameID'];
 
     if ($userCompletedGamesList[$i]['HardcoreMode'] == 0) {
         $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
     }
 
-    $userCompletedGames[$gameID]['NumAwardedHC'] = 0; //    Update this later, but fill in for now
+    $userCompletedGames[$gameID]['NumAwardedHC'] = 0; // Update this later, but fill in for now
 }
 
-for ($i = 0; $i < count($userCompletedGamesList); $i++) {
+for ($i = 0; $i < $userCompletedGamesListCount; $i++) {
     $gameID = $userCompletedGamesList[$i]['GameID'];
     if ($userCompletedGamesList[$i]['HardcoreMode'] == 1) {
         $userCompletedGames[$gameID]['NumAwardedHC'] = $userCompletedGamesList[$i]['NumAwarded'];
@@ -110,7 +111,7 @@ $pageTitle = "$userPage";
 
 $userPagePoints = getScore($userPage);
 
-$daysRecentProgressToShow = 14; //    fortnight
+$daysRecentProgressToShow = 14; // fortnight
 
 $userScoreData = getAwardedList(
     $userPage,
@@ -120,7 +121,7 @@ $userScoreData = getAwardedList(
     date("Y-m-d H:i:s", time())
 );
 
-//    Also add current.
+// Also add current.
 // $numScoreDataElements = count($userScoreData);
 // $userScoreData[$numScoreDataElements]['Year'] = (int)date('Y');
 // $userScoreData[$numScoreDataElements]['Month'] = (int)date('m');
@@ -137,8 +138,6 @@ $userScoreData = getAwardedList(
 // }
 //
 // $numScoreDataElements++;
-
-//var_dump( $userScoreData );
 
 RenderHtmlStart(true);
 ?>
@@ -165,7 +164,7 @@ RenderHtmlStart(true);
     var dataRecentProgress = new google.visualization.DataTable();
 
     // Declare columns
-    dataRecentProgress.addColumn('date', 'Date');    //    NOT date! this is non-continuous data
+    dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
     dataRecentProgress.addColumn('number', 'Score');
 
     dataRecentProgress.addRows([
@@ -201,7 +200,6 @@ RenderHtmlStart(true);
       chartArea: { left: 42, width: 458, 'height': '100%' },
       showRowNumber: false,
       view: { columns: [0, 1] },
-      //height: 460,
       colors: ['#cc9900'],
     };
 
@@ -233,12 +231,12 @@ RenderHtmlStart(true);
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
         echo "<div class='username'>";
         echo "<span class='username'><a href='/user/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
-        echo "</div>"; //username
+        echo "</div>";
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
             echo "<span class='usermotto'>$userMotto</span>";
-            echo "</div>"; //mottocontainer
+            echo "</div>";
         }
         echo "<br>";
 
@@ -301,21 +299,21 @@ RenderHtmlStart(true);
             echo "Points awarded to others: <b>$contribYield</b><br><br>";
         }
 
-        echo "</div>"; //usersummary
+        echo "</div>"; // usersummary
 
         if (isset($user) && ($user !== $userPage)) {
             echo "<div class='friendbox'>";
             echo "<div class='buttoncollection'>";
-            //echo "<h4>Friend Actions:</h4>";
+            // echo "<h4>Friend Actions:</h4>";
 
             if ($userMassData['Friendship'] == 1) {
                 if ($userMassData['FriendReciprocation'] == 1) {
                     echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    //    They haven't accepted yet
+                    // They haven't accepted yet
                     echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Cancel friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == -1) {
-                    //    They blocked us
+                    // They blocked us
                     echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Remove friend</a></span>";
                 }
             } elseif ($userMassData['Friendship'] == 0) {
@@ -328,14 +326,14 @@ RenderHtmlStart(true);
 
             if ($userMassData['Friendship'] !== -1) {
                 echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=-1'>Block user</a></span>";
-            } else { //if( $userMassData['Friendship'] == -1 )
+            } else {
                 echo "<span class='clickablebutton'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
 
-            echo "</div>"; //    buttoncollection
-            echo "</div>"; //    friendbox
+            echo "</div>"; // buttoncollection
+            echo "</div>"; // friendbox
         }
 
         if (isset($user) && $permissions >= Permissions::Admin) {
@@ -356,7 +354,7 @@ RenderHtmlStart(true);
                 echo "<select name='v' >";
                 $i = Permissions::Banned;
                 // Don't do this, looks weird when trying to change someone above you
-                //while( $i <= $permissions && ( $i <= \RA\Permissions::Developer || $user == 'Scott' ) )
+                // while( $i <= $permissions && ( $i <= Permissions::Developer || $user == 'Scott' ) )
                 while ($i <= $permissions) {
                     if ($userMassData['Permissions'] == $i) {
                         echo "<option value='$i' selected >($i): " . PermissionsToString($i) . " (current)</option>";
@@ -422,17 +420,14 @@ RenderHtmlStart(true);
 
             echo "</table>";
 
-            echo "</div>"; //devboxcontent
+            echo "</div>"; // devboxcontent
 
-            echo "</div>"; //devbox
+            echo "</div>"; // devbox
         }
 
         echo "<div class='userpage recentlyplayed' >";
 
         $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
-
-        //var_dump( $userMassData[ 'RecentlyPlayed' ] );
-        //error_log( print_r( $userMassData[ 'Awarded' ], true ) );      //a, empty
 
         echo "<h4>Last $recentlyPlayedCount games played:</h4>";
         for ($i = 0; $i < $recentlyPlayedCount; $i++) {
@@ -500,8 +495,6 @@ RenderHtmlStart(true);
                 echo "Last played $gameLastPlayed<br>";
                 echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br>";
 
-                //var_dump( $userMassData[ 'RecentAchievements' ] );
-
                 if (isset($userMassData['RecentAchievements'][$gameID])) {
                     foreach ($userMassData['RecentAchievements'][$gameID] as $achID => $achData) {
                         $badgeName = $achData['BadgeName'];
@@ -511,7 +504,6 @@ RenderHtmlStart(true);
                         $achDesc = $achData['Description'];
                         $achUnlockDate = getNiceDate(strtotime($achData['DateAwarded']));
                         $achHardcore = $achData['HardcoreAchieved'];
-                        //var_dump( $achData );
 
                         $unlockedStr = "";
                         $class = 'badgeimglarge';
@@ -539,7 +531,6 @@ RenderHtmlStart(true);
                             48,
                             $class
                         );
-                        //echo "<a href='/achievement/$achID'><img class='$class' src='" . getenv('ASSET_URL') . "/Badge/$badgeName.png' title='$achTitle ($achPoints) - $achDesc$unlockedStr' width='48' height='48'></a>";
                     }
                 }
 
@@ -553,7 +544,7 @@ RenderHtmlStart(true);
             echo "<div class='rightalign'><a href='/user/$userPage?g=15'>more...</a></div><br>";
         }
 
-        echo "</div>"; //recentlyplayed
+        echo "</div>"; // recentlyplayed
 
         echo "<div class='commentscomponent left'>";
 

@@ -14,4 +14,4 @@ foreach ($achData as &$achievement) {
 $gameData['Achievements'] = $achData;
 $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
-echo json_encode($gameData);
+echo json_encode($gameData, JSON_THROW_ON_ERROR);

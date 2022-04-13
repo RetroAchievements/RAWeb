@@ -25,9 +25,6 @@ if ($email !== $email2) {
             $query = "UPDATE UserAccounts SET EmailAddress='$email', Permissions=0, Updated=NOW() WHERE User='$user'";
             $dbResult = s_mysql_query($query);
             if ($dbResult) {
-                // error_log(__FILE__);
-                // error_log("$user changed email to $email");
-
                 sendValidationEmail($user, $email);
 
                 if (getAccountDetails($user, $userData)) {
@@ -37,8 +34,6 @@ if ($email !== $email2) {
 
                 header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_changeok");
             } else {
-                // error_log(__FILE__);
-                // error_log("$email,$email2,$user,$cookie");
                 header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_generalerror");
             }
         } else {

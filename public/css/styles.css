@@ -1272,18 +1272,6 @@ a.setRequestLabel {
   cursor: pointer;
 }
 
-#preload-01 {
-  background: url('/Images/dropdown.gif') no-repeat -9999px -9999px;
-}
-
-#preload-02 {
-  background: url('/Images/center_hassub.png') no-repeat -9999px -9999px;
-}
-
-#preload-03 {
-  background: url('/Images/sub_hover.png') no-repeat -9999px -9999px;
-}
-
 /*.patron {*/
 /*    text-align: center;*/
 /*    height: 37px;*/

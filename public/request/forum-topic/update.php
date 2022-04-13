@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -20,27 +22,20 @@ if (validateUser_cookie($user, $cookie, 1, $permissions)) {
         exit;
     }
 
-    if ($user != $commentData['Author'] && $permissions < \RA\Permissions::Admin) {
+    if ($user != $commentData['Author'] && $permissions < Permissions::Admin) {
         header("Location: " . getenv('APP_URL') . "?e=nopermission");
         exit;
     }
 
     if (editTopicComment($commentID, $commentPayload)) {
-        //	Good!
-        //error_log( "HOST: " );
-        //error_log( getenv('APP_URL') );
+        // Good!
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$commentID");
         exit;
     } else {
-        // error_log(__FILE__);
-        // error_log("Issues2: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
-
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=issuessubmitting");
         exit;
     }
 } else {
-    // error_log(__FILE__);
-    // error_log("Issues: user $user, cookie $cookie, topicID $topicID, payload: $commentPayload");
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=badcredentials");
     exit;
 }

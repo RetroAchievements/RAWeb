@@ -3,7 +3,7 @@
     "description": "RetroAchievements.org's site and server backend",
     "type": "project",
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0.2",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-mysqli": "*",
@@ -17,7 +17,9 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^1.5"
+        "phpstan/phpstan": "^1.5",
+        "rector/rector": "^0.12.16",
+        "symfony/mailer": "^6.0"
     },
     "autoload": {
         "psr-4": {
@@ -31,7 +33,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.0"
+            "php": "8.0.2"
         }
     },
     "extra": {
@@ -49,6 +51,7 @@
         "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
         "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
         "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
+        "rector": "vendor/bin/rector process",
         "post-install-cmd": [
             "git config core.hooksPath ./.hooks"
         ]

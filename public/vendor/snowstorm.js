@@ -127,7 +127,7 @@ var snowStorm = (function(window, document) {
     };
 
     localFeatures.transform.prop = (
-      localFeatures.transform.w3 || 
+      localFeatures.transform.w3 ||
       localFeatures.transform.moz ||
       localFeatures.transform.webkit ||
       localFeatures.transform.ie ||
@@ -619,7 +619,7 @@ var snowStorm = (function(window, document) {
     if (storm.targetElement !== document.documentElement && storm.targetElement !== document.body) {
       // re-map handler to get element instead of screen dimensions
       storm.resizeHandler = storm.resizeHandlerAlt;
-      //and force-enable pixel positioning
+      // and force-enable pixel positioning
       storm.usePixelPosition = true;
     }
     storm.resizeHandler(); // get bounding box elements

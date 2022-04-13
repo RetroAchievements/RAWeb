@@ -10,15 +10,11 @@ abstract class TicketStates
 
     public static function renderState(int $type): string
     {
-        switch ($type) {
-            case TicketStates::CLOSED:
-                return "Closed";
-            case TicketStates::OPEN:
-                return "Open";
-            case TicketStates::RESOLVED:
-                return "Resolved";
-            default:
-                return "Invalid state";
-        }
+        return match ($type) {
+            TicketStates::CLOSED => "Closed",
+            TicketStates::OPEN => "Open",
+            TicketStates::RESOLVED => "Resolved",
+            default => "Invalid state",
+        };
     }
 }

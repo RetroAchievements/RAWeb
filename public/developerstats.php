@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -32,15 +35,15 @@ RenderToolbar($user, $permissions);
         echo "<div>";
         echo "<b>Developer Status:</b> ";
         if ($activeDev) {
-            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 0)) . "'>*" . PermissionsToString(\RA\Permissions::Developer) . "</a></b> | ";
+            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 0)) . "'>*" . PermissionsToString(Permissions::Developer) . "</a></b> | ";
         } else {
-            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 0)) . "'>" . PermissionsToString(\RA\Permissions::Developer) . "</a> | ";
+            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 0)) . "'>" . PermissionsToString(Permissions::Developer) . "</a> | ";
         }
 
         if ($juniorDev) {
-            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 1)) . "'>*" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</a></b> | ";
+            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 1)) . "'>*" . PermissionsToString(Permissions::JuniorDeveloper) . "</a></b> | ";
         } else {
-            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 1)) . "'>" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</a> | ";
+            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 1)) . "'>" . PermissionsToString(Permissions::JuniorDeveloper) . "</a> | ";
         }
 
         if ($inactiveDev) {
@@ -86,9 +89,9 @@ RenderToolbar($user, $permissions);
             echo "<td class='text-nowrap'><div class='fixheightcell'>";
             echo GetUserAndTooltipDiv($dev, false);
             echo "<br><small>";
-            if ($devStats['Permissions'] == \RA\Permissions::JuniorDeveloper) {
-                echo PermissionsToString(\RA\Permissions::JuniorDeveloper);
-            } elseif ($devStats['Permissions'] <= \RA\Permissions::JuniorDeveloper) {
+            if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
+                echo PermissionsToString(Permissions::JuniorDeveloper);
+            } elseif ($devStats['Permissions'] <= Permissions::JuniorDeveloper) {
                 echo "Inactive";
             }
             echo "</small>";

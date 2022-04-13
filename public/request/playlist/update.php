@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -13,7 +15,7 @@ $title = requestInputPost('t');
 $link = requestInputPost('l');
 $id = requestInputPost('i', null, 'integer');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer) &&
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer) &&
     ($author == $user)) {
     $link = str_replace("_http_", "http", $link);
 
