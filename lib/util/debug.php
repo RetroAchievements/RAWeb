@@ -17,9 +17,9 @@ function debug_string_backtrace()
     // is redundant.
     $trace = preg_replace('/^#0\s+' . __FUNCTION__ . "[^\n]*\n/", '', $trace, 1);
 
-    //  PHP warning?
+    // PHP warning?
     // Renumber backtrace items.
-    //$trace = preg_replace( '/^#(\d+)/me', '\'#\' . ($1 - 1)', $trace );
+    // $trace = preg_replace( '/^#(\d+)/me', '\'#\' . ($1 - 1)', $trace );
 
     return $trace;
 }
@@ -40,7 +40,7 @@ function ProfileStamp($message = null, $echo = false)
         if (isset($message) && mb_strlen($message) > 0) {
             // error_log(" - " . $message);
         }
-        //return " <span style='font-size:x-small;'>(Generated in " . sprintf( '%1.4f', ($_loadDuration) ) . "s)</span>";
+        // return " <span style='font-size:x-small;'>(Generated in " . sprintf( '%1.4f', ($_loadDuration) ) . "s)</span>";
     } else {
         $_loadDuration = microtime(true) - $_profileTimer;
     }

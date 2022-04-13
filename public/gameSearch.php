@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -8,7 +9,7 @@ $maxCount = 50;
 
 $consoleList = getConsoleList();
 $consoleList[0] = 'All Consoles';
-ksort($consoleList);                //	Bump 'All Consoles' to the top
+ksort($consoleList);                // Bump 'All Consoles' to the top
 
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -16,8 +17,6 @@ $method = requestInputSanitized('p', 0, 'integer');
 $consoleID = requestInputSanitized('i', 0, 'integer');
 
 $gameData = getGameListSearch($offset, $count, $method, $consoleID);
-
-//var_dump( $gameData );
 
 $errorCode = requestInputSanitized('e');
 RenderHtmlStart();
@@ -30,7 +29,7 @@ RenderHtmlHead("Game Search");
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
-        echo "<b>Game Search</b>";    //	NB. This will be a stub page
+        echo "<b>Game Search</b>";    // NB. This will be a stub page
         echo "</div>";
 
         echo "<div class='detaillist'>";
@@ -78,8 +77,8 @@ RenderHtmlHead("Game Search");
         echo "<th>Developer</th>";
         echo "<th>Total Retro Ratio</th>";
 
-        //$countCol = ( $method == 0 ) ? "Awards Given" : "Played By";
-        //echo "<th>$countCol</th>";
+        // $countCol = ( $method == 0 ) ? "Awards Given" : "Played By";
+        // echo "<th>$countCol</th>";
 
         $count = 0;
 
@@ -96,7 +95,7 @@ RenderHtmlHead("Game Search");
             $gameReleased = $gameEntry['Released'];
             $gameTA = $gameEntry['TotalTruePoints'];
             $consoleName = $gameEntry['ConsoleName'];
-            //$numRecords = $gameEntry['NumRecords'];
+            // $numRecords = $gameEntry['NumRecords'];
 
             sanitize_outputs(
                 $gameTitle,
@@ -141,7 +140,7 @@ RenderHtmlHead("Game Search");
             echo "<a href='/gameSearch.php?o=$prevOffset&amp;p=$method&amp;i=$consoleID'>&lt; Previous $maxCount</a> - ";
         }
         if ($count == $maxCount) {
-            //	Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/gameSearch.php?o=$nextOffset&amp;p=$method&amp;i=$consoleID'>Next $maxCount &gt;</a>";
         }

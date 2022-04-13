@@ -30,7 +30,6 @@ $rules = [
     'phpdoc_align' => false,
     'phpdoc_summary' => false,
     'single_line_throw' => false,
-    'single_line_comment_spacing' => false,
     'single_line_comment_style' => [
         'comment_types' => ['hash'],
     ],

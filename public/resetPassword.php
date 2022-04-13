@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -26,7 +27,7 @@ RenderHtmlHead("Password Reset");
         echo "<h2 class='longheader'>Password Reset</h2>";
 
         if ($allowNewPasswordEntry == null) {
-            //	Request username for password reset:
+            // Request username for password reset:
             echo "<h4 class='longheader'>Enter username for password reset:</h2>";
 
             echo "<div class='longer'>";
@@ -37,7 +38,7 @@ RenderHtmlHead("Password Reset");
             echo "</form>";
             echo "</div>";
         } else {
-            //	Enter new password for this user:
+            // Enter new password for this user:
             echo "<h4 class='longheader'>Enter new Password for $user:</h4>";
 
             echo "<div class='longer'>";

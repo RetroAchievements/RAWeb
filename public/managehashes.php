@@ -1,11 +1,13 @@
 <?php
+
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-use RA\ArticleType;
-
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer)) {
-    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
+    // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -17,14 +19,14 @@ $achievementList = [];
 $gamesList = [];
 
 if (empty($gameID)) {
-    //	Immediate redirect: this is pointless otherwise!
+    // Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
 }
 
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
 $hashes = getHashListByGameID($gameID);
-$numLinks = count($hashes);
+$numLinks = is_countable($hashes) ? count($hashes) : 0;
 
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
@@ -36,8 +38,6 @@ sanitize_outputs(
     $gameTitle,
 );
 
-//$numGames = getGamesListWithNumAchievements( $consoleID, $gamesList, 0 );
-//var_dump( $gamesList );
 RenderHtmlStart();
 RenderHtmlHead("Manage Game Hashes");
 ?>

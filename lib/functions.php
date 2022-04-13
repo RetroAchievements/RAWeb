@@ -50,7 +50,6 @@ require_once __DIR__ . '/util/cookie.php';
 require_once __DIR__ . '/util/database.php';
 require_once __DIR__ . '/util/date.php';
 require_once __DIR__ . '/util/debug.php';
-require_once __DIR__ . '/util/environment.php';
 require_once __DIR__ . '/util/log.php';
 require_once __DIR__ . '/util/mail.php';
 require_once __DIR__ . '/util/mobilebrowser.php';

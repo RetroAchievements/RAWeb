@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars("ucipm")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $user = requestInputPost('u');

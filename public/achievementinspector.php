@@ -1,15 +1,21 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-$fullModifyOK = ($permissions >= \RA\Permissions::Developer);
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
+    exit;
+}
+
+$fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
 $errorCode = requestInputSanitized('e');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = ($permissions == \RA\Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID));
+$partialModifyOK = $permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID);
 
 $achievementList = [];
 $gamesList = [];
@@ -20,7 +26,7 @@ $achievementData = null;
 $consoleName = null;
 $gameIcon = null;
 $gameTitle = null;
-$gameIDSpecified = (isset($gameID) && $gameID != 0);
+$gameIDSpecified = isset($gameID) && $gameID != 0;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
@@ -43,7 +49,7 @@ RenderHtmlHead("Manage Achievements");
 
 
 <script>
-  //Sleeps for the given amount of milliseconds
+  // Sleeps for the given amount of milliseconds
   function sleep(milliseconds) {
     var start = new Date().getTime();
     for (var i = 0; i < 1e7; i++) {
@@ -53,7 +59,7 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
-  //Checks or unchecks all boxes
+  // Checks or unchecks all boxes
   function toggle(status) {
     checkboxes = document.querySelectorAll("[name^='acvhievement']");
     for(var i=0, n=checkboxes.length;i<n;i++) {
@@ -61,22 +67,20 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
-  //Sends update achievements request
+  // Sends update achievements request
   function updateAchievements(user, achievements, flag) {
     $.ajax(
       {
         type: "POST",
         url: '/request/achievement/update.php?a=-1&f=4&u=' + user + '&v=' + flag,
         data: {"achievementArray" : achievements},
-        success: function (result) {
-        },
         error: function (temp, temp1, temp2) {
           alert('Error ' + temp + temp1 + temp2);
         },
       });
   }
 
-  //When clicked, creates an array of checked achievement IDs and sends it to the updateAchievements function
+  // When clicked, creates an array of checked achievement IDs and sends it to the updateAchievements function
   $(function () {
     $('.updateAchievements').click(function () {
       checkboxes = document.querySelectorAll("[name^='acvhievement']");
@@ -105,7 +109,7 @@ RenderHtmlHead("Manage Achievements");
 
 <div id="mainpage">
     <?php
-    if (count($codeNotes) > 0) {
+    if (!empty($codeNotes)) {
         echo "<div id='leftcontainer'>";
     } else {
         echo "<div id='fullcontainer'>";
@@ -158,23 +162,23 @@ RenderHtmlHead("Manage Achievements");
         echo "<th>Badge</th>";
         echo "<th>Title</th>";
         echo "<th>Description</th>";
-        //echo "<th>Mem</th>";
+        // echo "<th>Mem</th>";
         echo "<th>Points</th>";
         echo "<th>Created/Modified</th>";
         echo "<th>Display Order</th>";
         echo "</tr>";
 
-        //	Display all achievements
+        // Display all achievements
         foreach ((array) $achievementData as $achievementEntry) {
             $achID = $achievementEntry['ID'];
-            //$gameConsoleID = $achievementEntry['ConsoleID'];
+            // $gameConsoleID = $achievementEntry['ConsoleID'];
             $achTitle = $achievementEntry['Title'];
             $achDesc = $achievementEntry['Description'];
             $achMemAddr = htmlspecialchars($achievementEntry['MemAddr']);
             $achPoints = $achievementEntry['Points'];
 
-            //$achCreated = $achievementEntry['DateCreated'];
-            //$achModified = $achievementEntry['DateModified'];
+            // $achCreated = $achievementEntry['DateCreated'];
+            // $achModified = $achievementEntry['DateModified'];
             $achCreated = getNiceDate(strtotime($achievementEntry['DateCreated']));
             $achModified = getNiceDate(strtotime($achievementEntry['DateModified']));
 
@@ -192,14 +196,14 @@ RenderHtmlHead("Manage Achievements");
             echo "<td><code>$achBadgeName</code><br><img alt='' style='float:left;' src='$achBadgeFile' /></td>";
             echo "<td>$achTitle</td>";
             echo "<td>$achDesc</td>";
-            //echo "<td>$achMemAddr</td>";
+            // echo "<td>$achMemAddr</td>";
             echo "<td>$achPoints</td>";
             echo "<td><span class='smalldate'>$achCreated</span><br><span class='smalldate'>$achModified</span></td>";
             if ($partialModifyOK || $fullModifyOK) {
                 echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('$user', 'ach_$achID', '$gameID')\" size='3' /></td>";
             } else {
                 echo "<td>$achDisplayOrder</td>";
-            }    //	Just remove the input
+            }    // Just remove the input
 
             echo "</tr>";
             echo "<tr>";
@@ -244,7 +248,7 @@ RenderHtmlHead("Manage Achievements");
     }
     echo "</div>";
 
-    if (count($codeNotes) > 0) {
+    if (!empty($codeNotes)) {
         echo "<div id='rightcontainer'>";
         RenderCodeNotes($codeNotes);
         echo "</div>";

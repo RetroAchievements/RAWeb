@@ -23,7 +23,7 @@ function getMD5List($consoleID)
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             settype($nextData['GameID'], 'integer');
             $retVal[$nextData['MD5']] = $nextData['GameID'];
-            //echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
+            // echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
         }
     }
 
@@ -61,14 +61,12 @@ function getGameIDFromMD5($md5)
     $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
     $dbResult = s_mysql_query($query);
 
-    //error_log( $query );
     if ($dbResult !== false && mysqli_num_rows($dbResult) >= 1) {
         $data = mysqli_fetch_assoc($dbResult);
         settype($data['GameID'], 'integer');
 
         return $data['GameID'];
     } else {
-        //error_log( __FUNCTION__ . " failed: could not find $md5!" );
         return 0;
     }
 }

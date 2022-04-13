@@ -15,4 +15,4 @@ $gameData['ConsoleID'] = $consoleID;
 $gameData['Console'] = $consoleName;
 $gameData['ForumTopicID'] = $forumTopicID;
 
-echo json_encode($gameData);
+echo json_encode($gameData, JSON_THROW_ON_ERROR);

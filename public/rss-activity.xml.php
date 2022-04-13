@@ -30,9 +30,9 @@ $xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
  */
 header('Content-type: text/xml');
 echo html_entity_decode($dom->saveXML());
-return;
+exit;
 
-$user = requestInputSanitized('u', null);
+$user = requestInputSanitized('u');
 $feedtype = isset($user) ? 'friends' : 'global';
 $numArticles = getFeed($user, 40, 0, $feedData, 0, $feedtype);
 
@@ -46,7 +46,7 @@ for ($i = 0; $i < $numArticles; $i++) {
     $article = $dom->createElement("item");
     $article = $xmlRoot->appendChild($article);
 
-    //$newsID = $nextData['ID'];
+    // $newsID = $nextData['ID'];
     $user = $nextData['User'];
     $userPicURL = "$site/UserPic/$user" . ".png";
     $date = date("D, d M Y H:i:s O", $nextData['timestamp']);
@@ -54,11 +54,11 @@ for ($i = 0; $i < $numArticles; $i++) {
 
     $title = getFeedItemTitle($feedData[$i], false);
 
-    //	Image first?
-    //$payload = "<a href='$site/user/$user'>";
-    //$payload .= "<img src='$userPicURL' width='64' height='64' />";
+    // Image first?
+    // $payload = "<a href='$site/user/$user'>";
+    // $payload .= "<img src='$userPicURL' width='64' height='64' />";
     $payload = "<img src=\"$userPicURL\" />";
-    //$payload .= "</a>";
+    // $payload .= "</a>";
     $payload .= "\r\n";
     $payload .= getFeedItemTitle($feedData[$i], true);
 
@@ -69,24 +69,24 @@ for ($i = 0; $i < $numArticles; $i++) {
         $lastID = $feedData[$i]['ID'];
     }
 
-    //$payload contains relative URLs, which need converting to absolute URLs
+    // $payload contains relative URLs, which need converting to absolute URLs
     $payload = str_replace("href='/", "href='" . getenv('APP_URL') . "/", $payload);
     $payload = str_replace("href=\"/", "href=\"" . getenv('APP_URL') . "/", $payload);
     $payload = str_replace("src='/", "src='" . getenv('APP_URL') . "/", $payload);
     $payload = str_replace("src=\"/", "src=\"" . getenv('APP_URL') . "/", $payload);
 
-    //	Strip tags from title (incl html markup :S)
-    //	?!
+    // Strip tags from title (incl html markup :S)
+    // ?!
 
     $article->appendChild($dom->createElement('title', $title));
     $article->appendChild($dom->createElement('link', $link));
     $article->appendChild($dom->createElement('description', $payload));
     $article->appendChild($dom->createElement('pubDate', $date));
-    //$article->appendChild( $dom->createElement( 'id', $newsID ) );
-    //	Skip comments
+    // $article->appendChild( $dom->createElement( 'id', $newsID ) );
+    // Skip comments
     if ($feedData[$i]['Comment'] !== null) {
         while (($i < $numArticles) && $lastID == $feedData[$i]['ID']) {
-            //RenderArticleComment( $feedData[$i]['ID'], $feedData[$i]['CommentUser'], $feedData[$i]['CommentPoints'], $feedData[$i]['CommentMotto'], $feedData[$i]['Comment'], $feedData[$i]['CommentPostedAt'] );
+            // RenderArticleComment( $feedData[$i]['ID'], $feedData[$i]['CommentUser'], $feedData[$i]['CommentPoints'], $feedData[$i]['CommentMotto'], $feedData[$i]['Comment'], $feedData[$i]['CommentPostedAt'] );
             $i++;
         }
     }

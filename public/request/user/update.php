@@ -1,9 +1,10 @@
 <?php
 
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-use RA\ArticleType;
 
 if (ValidatePOSTorGETChars("tpv")) {
     $targetUser = requestInput('t');
@@ -11,37 +12,33 @@ if (ValidatePOSTorGETChars("tpv")) {
     $value = requestInput('v', null, 'integer');
 } else {
     echo "FAILED";
-    return;
+    exit;
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Admin)) {
+if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Admin)) {
     echo "FAILED!";
-    return;
+    exit;
 }
 
 // Account permissions
 if ($propertyType == 0) {
     $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
     if ($response['Success']) {
-        // error_log("$user updated $targetUser to $value OK!!");
         header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
     } else {
-        // error_log("requestupdateuser.php failed?! 0" . $response['Error']);
         echo "Failed: " . $response['Error'];
     }
-    return;
+    exit;
 }
 
 // Forum post permissions
 if ($propertyType == 1) {
     if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
-        // error_log("$user updated $targetUser to $value OK!!");
         header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
     } else {
-        // error_log("requestupdateuser.php failed?! 1");
         echo "FAILED!";
     }
-    return;
+    exit;
 }
 
 // Toggle Patreon badge
@@ -54,7 +51,6 @@ if ($propertyType == 2) {
             $user . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge');
     }
 
-    // error_log("$user updated $targetUser to Patreon Status $hasBadge OK!!");
     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
 }
 
@@ -67,6 +63,5 @@ if ($propertyType == 3) {
             $user . ' set status to ' . ($value ? 'Untracked' : 'Tracked'));
     }
 
-    // error_log("SetUserUntrackedStatus, $targetUser => $value");
     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
 }

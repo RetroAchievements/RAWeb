@@ -14,7 +14,7 @@ $unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
-    //	Trying to visit someone's inbox while not being logged in :S
+    // Trying to visit someone's inbox while not being logged in :S
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
@@ -42,7 +42,7 @@ if ($outbox) {
   function MarkAsRead(msgID) {
     $('#msgInline' + msgID).toggle();
 
-    //	If was unread
+    // If was unread
     var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle');
     if (unread.contents().length) {
       var posting = $.post('/request/message/read.php', { u: '<?php echo $user; ?>', m: msgID, r: 0 });
@@ -58,7 +58,7 @@ if ($outbox) {
       if ($(titleID).find('span').hasClass('unreadmsgtitle')) {
         $(titleID).find('span').removeClass('unreadmsgtitle');
 
-        //	Reduce the number of unread messages by 1
+        // Reduce the number of unread messages by 1
         var numUnread = parseInt($('#messagecounttext').find('b').html());
         numUnread = numUnread - 1;
         $('#messagecounttext').find('b').html(numUnread);
@@ -87,7 +87,7 @@ if ($outbox) {
       if (!$(titleID).find('span').hasClass('unreadmsgtitle')) {
         $(titleID).find('span').addClass('unreadmsgtitle');
 
-        //	Increase the number of unread messages by 1
+        // Increase the number of unread messages by 1
         var numUnread = parseInt($('#messagecounttext').find('b').html());
         numUnread = numUnread + 1;
         $('#messagecounttext').find('b').html(numUnread);
@@ -106,7 +106,7 @@ if ($outbox) {
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php
-        //	Left
+        // Left
         RenderErrorCodeWarning($errorCode);
         ?>
 
@@ -150,13 +150,13 @@ if ($outbox) {
             echo "<th style='width:100%'>Title</th>";
             echo "</tr>";
 
-            $totalMsgs = count($allMessages);
+            $totalMsgs = is_countable($allMessages) ? count($allMessages) : 0;
 
             for ($i = 0; $i < $totalMsgs; $i++) {
                 $msgID = $allMessages[$i]['ID'];
                 $msgTime = $allMessages[$i]['TimeSent'];
                 $msgSentAtNice = date("d/m/y, H:i ", strtotime($msgTime));
-                //$msgTo      	= $allMessages[$i]['UserTo'];
+                // $msgTo      	= $allMessages[$i]['UserTo'];
                 $msgTitle = $allMessages[$i]['Title'];
                 $msgPayload = $allMessages[$i]['Payload'];
                 $msgType = $allMessages[$i]['Type'];
@@ -192,7 +192,7 @@ if ($outbox) {
                 echo GetUserAndTooltipDiv($msgUser, false);
                 echo "</td>";
 
-                //echo "<td>" . $msgTo . "</td>";
+                // echo "<td>" . $msgTo . "</td>";
 
                 echo "<td class='pointer' id='msgInlineTitle$msgID' onclick=\"MarkAsRead( $msgID ); return false;\">";
                 if ($msgUnread) {

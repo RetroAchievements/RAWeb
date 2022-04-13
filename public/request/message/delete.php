@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidateGETChars("ucm")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $user = requestInputQuery('u');
