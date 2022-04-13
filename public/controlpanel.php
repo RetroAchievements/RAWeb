@@ -592,6 +592,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
             <?php endif ?>
         </div>
     </div>
+    <?php if ($permissions >= Permissions::Registered): ?>
     <div id="rightcontainer">
         <div class='component'>
             <h3>Request Score Recalculation</h3>
@@ -627,6 +628,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
             <a href="reorderSiteAwards.php">Reorder site awards</a>
         </div>
     </div>
+    <?php endif ?>
 </div>
 <?php RenderFooter(); ?>
 </body>
