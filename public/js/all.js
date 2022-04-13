@@ -324,10 +324,7 @@ function reloadTwitchContainer(videoID) {
 }
 
 jQuery(document).ready(function onReady($) {
-  $('#devboxcontent').hide();
-  $('#resetboxcontent').hide();
   $('.msgPayload').hide();
-  $('#managevids').hide();
 
   var $searchBoxInput = $('.searchboxinput');
   $searchBoxInput.autocomplete({ source: '/request/search.php', minLength: 2 });

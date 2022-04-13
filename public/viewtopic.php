@@ -110,7 +110,7 @@ RenderHtmlStart();
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<div>Change Topic Title:</div>";
             echo "<form action='/request/forum-topic/modify.php' method='post' >";

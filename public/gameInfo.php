@@ -592,7 +592,7 @@ RenderHtmlStart(true);
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-                echo "<div id='devboxcontent'>";
+                echo "<div id='devboxcontent' style='display: none'>";
 
                 // Display the option to switch between viewing core/unofficial for non-hub page
                 if ($isFullyFeaturedGame) {
@@ -862,7 +862,7 @@ RenderHtmlStart(true);
                     if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
                         echo "<div class='devbox'>";
                         echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
-                        echo "<div id='resetboxcontent'>";
+                        echo "<div id='resetboxcontent' style='display: none'>";
                         echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
                         echo "<input type='hidden' name='u' value='$user'>";
                         echo "<input type='hidden' name='g' value='$gameID'>";
