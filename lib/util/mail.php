@@ -137,7 +137,7 @@ function sendValidationEmail($user, $email)
 
     // error_log(__FUNCTION__ . " sending mail to $user at address $email");
 
-    $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $subject, $msg);
+    $retVal = sendRAEmail($email, $subject, $msg);
 
     // error_log(__FUNCTION__ . " return val: $retVal");
 
