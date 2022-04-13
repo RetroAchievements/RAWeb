@@ -9,31 +9,27 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
     sanitize_sql_inputs($author, $destUser, $messageTitle, $messagePayloadIn);
 
     $query = "INSERT INTO Messages VALUES ( NULL, '$destUser', '$author', '$messageTitle', '$messagePayloadIn', NOW(), 1, 0 )";
-    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
-        //    Message sent!
+        // Message sent!
         UpdateCachedUnreadTotals($destUser);
 
-        //    Inform target?
+        // Inform target?
         if (getAccountDetails($destUser, $userDetails)) {
             $websitePrefs = $userDetails['websitePrefs'];
             $destEmail = $userDetails['EmailAddress'];
 
             if (BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage)) {
-                // error_log("Sending email to $destUser, from $author, about $messageTitle, containing: $messagePayload");
                 sendPrivateMessageEmail($destUser, $destEmail, $messageTitle, $messagePayload, $author);
             }
         }
 
-        // error_log("Sent new PM from $author to $destUser, about $messageTitle, containing: $messagePayload");
         return true;
     } else {
-        //    Unconfirmed friend:
+        // Unconfirmed friend:
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: insert query failed: user:$author, friend:$destUser, $messageTitle, $messagePayload");
         return false;
     }
 }
@@ -47,7 +43,7 @@ function GetMessageCount($user, &$totalMessageCount)
         return 0;
     }
 
-    //    Returns unread message count.
+    // Returns unread message count.
 
     $unreadMessageCount = 0;
     $totalMessageCount = 0;
@@ -66,8 +62,6 @@ function GetMessageCount($user, &$totalMessageCount)
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            //error_log( var_dump( $data ) );
-
             if ($data['Unread'] == 1) {
                 $unreadMessageCount = $data['NumFound'];
             }
@@ -75,12 +69,9 @@ function GetMessageCount($user, &$totalMessageCount)
             $totalMessageCount += $data['NumFound'];
         }
 
-        //error_log( "For $user, found $unreadMessageCount and $totalMessageCount" );
-
         settype($unreadMessageCount, 'integer');
         return $unreadMessageCount;
     } else {
-        //log_email("Unread message count fetch failed...");
         return 0;
     }
 }
@@ -128,7 +119,6 @@ function GetTotalMessageCount($user)
         $data = mysqli_fetch_assoc($dbResult);
         return $data['NumUnreadMessages'];
     } else {
-        //log_email("Unread message count fetch failed...");
         return 0;
     }
 }
@@ -147,11 +137,9 @@ function GetMessage($user, $id)
         if ($numFound > 0) {
             return mysqli_fetch_assoc($dbResult);
         } else {
-            //log_email("Failed to get message ID $id for $user");
             return false;
         }
     } else {
-        //log_email(__FUNCTION__ . " failed with user $user and ID $id");
         return false;
     }
 }
@@ -173,8 +161,6 @@ function GetUnreadMessages($user, $offset, $count)
         while ($data = mysqli_fetch_assoc($dbResult)) {
             $retval[] = $data;
         }
-    } else {
-        //log_email(__FUNCTION__ . " failed: $user, $offset, $count");
     }
 
     return $retval;
@@ -204,7 +190,6 @@ function GetAllMessages($user, $offset, $count, $unreadOnly)
         }
     } else {
         log_sql_fail();
-        //log_email(__FUNCTION__ . " failed with $user, $offset, $count");
     }
 
     return $retval;
@@ -227,8 +212,6 @@ function GetSentMessages($user, $offset, $count)
         while ($data = mysqli_fetch_assoc($dbResult)) {
             $retval[] = $data;
         }
-    } else {
-        //log_email(__FUNCTION__ . " failed with $user, $offset, $count");
     }
 
     return $retval;
@@ -280,17 +263,10 @@ function DeleteMessage($user, $messageID)
     $messageToDelete = GetMessage($user, $messageID);
 
     if ($messageToDelete == false) {
-        //log_email(__FUNCTION__ . " could not delete message ID $messageID for $user!");
         return false;
     } elseif ($messageToDelete['UserTo'] !== $user) {
-        //log_email(__FUNCTION__ . " $user is trying to delete a message $messageID that was sent to " . $messageToDelete['UserTo']);
         return false;
     } else {
-        // error_log("Deleting message: ");
-        // error_log("From: " . $messageToDelete['UserFrom'] . " To: " . $messageToDelete['UserTo'] . " at " . $messageToDelete['TimeSent']);
-        // error_log("Title: " . $messageToDelete['Title']);
-        // error_log("Payload: " . $messageToDelete['Payload']);
-
         $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {

@@ -9,7 +9,7 @@ $requestType = requestInput('r');
 $user = requestInput('u');
 $token = requestInput('t');
 
-$bounceReferrer = requestInput('b'); //	TBD: Remove!
+$bounceReferrer = requestInput('b'); // TBD: Remove!
 
 if (!RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions)) {
     http_response_code(401);
@@ -36,4 +36,4 @@ switch ($requestType) {
 }
 
 settype($response['Success'], 'boolean');
-echo json_encode($response);
+echo json_encode($response, JSON_THROW_ON_ERROR);

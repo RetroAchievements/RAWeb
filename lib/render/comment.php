@@ -71,7 +71,7 @@ function RenderCommentsComponent(
     }
 
     if (isset($user)) {
-        //    User comment input:
+        // User comment input:
         RenderCommentInputRow($user, $articleTypeID, $articleID);
     }
 

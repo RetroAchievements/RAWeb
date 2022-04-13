@@ -71,7 +71,6 @@ function performSearch($searchQuery, $offset, $count, $permissions, &$searchResu
     $dbResult = mysqli_query($db, $query);
 
     if ($dbResult == false) {
-        // error_log(__FUNCTION__ . " gone wrong!");
         log_sql_fail();
     } else {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {

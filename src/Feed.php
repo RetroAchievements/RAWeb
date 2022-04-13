@@ -16,7 +16,7 @@ class Feed
     public function retrieveNewMessages($id = 0, $user = null)
     {
         // escape the variable data
-        //$id = $this->mMysqli->real_escape_string($id);
+        // $id = $this->mMysqli->real_escape_string($id);
         // compose the SQL query that retrieves new messages
 
         $mode = 'global';
@@ -86,7 +86,7 @@ class Feed
                     '<feedCommentPostedAt><![CDATA[' . $feedCommentPostedAt . ']]></feedCommentPostedAt>';
             }
             // close the database connection as soon as possible
-            //$result->close();
+            // $result->close();
         }
 
         // finish the XML response and return it

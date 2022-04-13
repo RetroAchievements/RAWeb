@@ -1,9 +1,9 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-use RA\Permissions;
 
 if (!ValidatePOSTChars("u")) {
     echo "FAILED";
@@ -12,7 +12,7 @@ if (!ValidatePOSTChars("u")) {
 
 $user = requestInputPost('u');
 
-if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
+if (validateUser_cookie($actingUser, null, Permissions::Registered)) {
     if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {
         return false;
     }

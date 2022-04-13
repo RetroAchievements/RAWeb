@@ -17,7 +17,7 @@ if (!$retVal) {
     echo json_encode([
         'ID' => null,
         'User' => $user,
-    ]);
+    ], JSON_THROW_ON_ERROR);
     exit;
 }
 
@@ -30,7 +30,7 @@ $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['Rank'] = getUserRank($user);
 $retVal['TotalRanked'] = countRankedUsers();
 
-//	Find out if we're online or offline
+// Find out if we're online or offline
 $retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID']);
 
 $lastUpdate = (int) date("U", strtotime($retVal['LastActivity']['lastupdate']));
@@ -40,7 +40,7 @@ $status = ($lastUpdate + 600) > $now ? "Online" : "Offline";
 
 $retVal['Status'] = $status;
 
-//	Just from a security/polish point of view:
+// Just from a security/polish point of view:
 unset($retVal['Friendship'], $retVal['FriendReciprocation']);
 
-echo json_encode($retVal);
+echo json_encode($retVal, JSON_THROW_ON_ERROR);

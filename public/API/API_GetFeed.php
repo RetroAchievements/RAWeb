@@ -15,7 +15,7 @@ $friends = requestInputQuery('f', null);
 $count = requestInputQuery('c', 10);
 $offset = requestInputQuery('o', 0);
 
-//	Sensible caps
+// Sensible caps
 if ($count > 100) {
     $count = 100;
 }
@@ -32,4 +32,4 @@ if (isset($user)) {
 
 getFeed($user, $count, $offset, $feedData, 0, $type);
 
-echo json_encode($feedData);
+echo json_encode($feedData, JSON_THROW_ON_ERROR);

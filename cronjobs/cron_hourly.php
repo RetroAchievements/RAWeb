@@ -3,12 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-//$output = shell_exec('crontab -l');
-//echo "<pre>$output</pre>";
-//error_log( "Cron Job Run!" );
-
 $playersList = getCurrentlyOnlinePlayers();
-$numPlayers = count($playersList);
+$numPlayers = is_countable($playersList) ? count($playersList) : 0;
 
 settype($numPlayers, 'integer');
 

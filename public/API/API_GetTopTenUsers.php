@@ -8,4 +8,4 @@ runPublicApiMiddleware();
 $dataOut = [];
 $numFound = getTopUsersByScore(10, $dataOut, null);
 
-echo json_encode($dataOut);
+echo json_encode($dataOut, JSON_THROW_ON_ERROR);

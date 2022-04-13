@@ -1,10 +1,13 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
-$showCompleteGames = requestInputSanitized('f', 0, 'integer'); //	0 = no filter, 1 = only complete, 2 = only incomplete
+$showCompleteGames = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
@@ -25,7 +28,7 @@ if ($consoleIDInput !== 0) {
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-$showTickets = (isset($user) && $permissions >= \RA\Permissions::Developer);
+$showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
 $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $showTickets, $filter, $offset, $maxCount);
 

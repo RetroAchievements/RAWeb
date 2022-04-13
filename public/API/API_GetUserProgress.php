@@ -10,4 +10,4 @@ $gameCSV = requestInputQuery('i', "");
 
 getUserProgress($user, $gameCSV, $data);
 
-echo json_encode($data);
+echo json_encode($data, JSON_THROW_ON_ERROR);

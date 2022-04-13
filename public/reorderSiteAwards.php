@@ -1,17 +1,19 @@
 <?php
+
+use RA\AwardType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-use RA\AwardType;
-
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
     if (getAccountDetails($user, $userDetails) == false) {
-        //  Immediate redirect if we cannot validate user!
+        // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
         exit;
     }
 } else {
-    //  Immediate redirect if we cannot validate cookie!
+    // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
@@ -41,17 +43,11 @@ RenderHtmlHead("Reorder Site Awards");
 
         $userAwards = getUsersSiteAwards($user, true);
 
-        $gameAwards = array_values(array_filter($userAwards, function ($award) {
-            return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events';
-        }));
+        $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events'));
 
-        $eventAwards = array_values(array_filter($userAwards, function ($award) {
-            return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events';
-        }));
+        $eventAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events'));
 
-        $siteAwards = array_values(array_filter($userAwards, function ($award) {
-            return $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active);
-        }));
+        $siteAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active)));
 
         function RenderAwardOrderTable($title, $awards, &$counter)
         {
