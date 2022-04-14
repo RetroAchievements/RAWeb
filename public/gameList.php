@@ -221,20 +221,28 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     $queryParams = "c=$consoleIDInput&f=$filter";
                     ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
 
-                    // Add page traversal links
-                    echo "\n<div class='rightalign row'>";
-                    if ($offset > 0) {
-                        $prevOffset = $offset - $maxCount;
-                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter'>First</a> - ";
-                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    if ($maxCount != 0 && $gamesCount > $maxCount) {
+                        // Add page traversal links
+                        echo "\n<br/><div class='rightalign row'>";
+                        if ($offset > 0) {
+                            $prevOffset = $offset - $maxCount;
+                            echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$prevOffset'>&lt;</a>&nbsp;";
+                        }
+
+                        echo "Page <select class='gameselector' onchange='window.location=\"/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=\" + this.options[this.selectedIndex].value'>";
+                        $pages = floor(($gamesCount + $maxCount - 1) / $maxCount);
+                        for ($i = 1; $i <= $pages; $i++) {
+                            $pageOffset = ($i - 1) * $maxCount;
+                            echo "<option value='$pageOffset'" . (($offset == $pageOffset) ? " selected" : "") . ">$i</option>";
+                        }
+                        echo "</select> of $pages";
+
+                        $nextOffset = $offset + $maxCount;
+                        if ($nextOffset < $gamesCount) {
+                            echo "&nbsp;<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$nextOffset'>&gt;</a>";
+                        }
+                        echo "</div>";
                     }
-                    $nextOffset = $offset + $maxCount;
-                    if ($nextOffset < $gamesCount) {
-                        $lastOffset = $gamesCount - ($gamesCount % $maxCount);
-                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$nextOffset'>Next $maxCount &gt;</a> - ";
-                        echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$lastOffset'>Last</a>";
-                    }
-                    echo "</div>";
                 }
             ?>
             <br>
