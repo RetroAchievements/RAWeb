@@ -13,7 +13,7 @@ $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
 $filter = requestInputSanitized('f');
 
-if ($dev == null) {
+if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
     $maxCount = 50;
     $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
 } else {
@@ -34,7 +34,7 @@ $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $sho
 
 sanitize_outputs($requestedConsole);
 
-function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showConsole)
+function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showConsoleName, $showTotals)
 {
     echo "\n<div class='table-wrapper'><table><tbody>";
 
@@ -94,7 +94,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         $numLBs = $gameEntry['NumLBs'];
         $gameIcon = $gameEntry['GameIcon'];
 
-        $consoleName = $showConsole ? $gameEntry['ConsoleName'] : null;
+        $consoleName = $showConsoleName ? $gameEntry['ConsoleName'] : null;
 
         sanitize_outputs($title);
 
@@ -146,7 +146,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         $truePointsTally += $totalTrueRatio;
     }
 
-    if ($dev != null) {
+    if ($showTotals) {
         // Totals:
         echo "<tr>";
         echo "<td></td>";
@@ -193,7 +193,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                         sanitize_outputs($consoleName);
                         echo "<h2 class='longheader'>$consoleName</h2>";
 
-                        ListGames($consoleGames, $dev, '', $sortBy, $showTickets, false);
+                        ListGames($consoleGames, $dev, '', $sortBy, $showTickets, false, true);
 
                         echo "<br/>";
                     }
@@ -219,7 +219,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     echo "<br/>";
 
                     $queryParams = "c=$consoleIDInput&f=$filter";
-                    ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0);
+                    ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
 
                     // Add page traversal links
                     echo "\n<div class='rightalign row'>";
