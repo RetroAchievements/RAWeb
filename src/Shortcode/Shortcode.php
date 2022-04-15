@@ -188,7 +188,7 @@ final class Shortcode
         // lookahead: (?<![!,.?;:"\'()-])
         $text = preg_replace(
             '~
-            (https?://[\w!#$%&\'()*+,./:;=?@\[\]-]+(?<![!,.?;:"\'()-]))
+            (https?://[\w!#$%&\'()*+,./:;=?@\[\]-]+(?<![!,.?;:"\'()]))
             (?!                 # Assert URL is not pre-linked.
               [^<>]*>           # Either inside a start tag,
               | [^<>]*</a>      # End recognized pre-linked alts.

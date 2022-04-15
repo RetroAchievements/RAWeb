@@ -88,10 +88,12 @@ https://example.com/?test=test,test.test%20test+test(test)&test-test"
 https://example.com/?test=test,test.test%20test+test(test)&test-test'
 https://example.com/?test=test,test.test%20test+test(test)&test-test)
 https://example.com/?test=test,test.test%20test+test(test)&test-test(
-https://example.com/?test=test,test.test%20test+test(test)&test-test-
 https://example.com/?test=https://example.com/?test=test,test.test%20test+test(test)&test-test
 [url="https://example.com/?test=test,test.test%20test+test(test)&test-test"]
 [url=https://example.com/?test=test,test.test%20test+test(test)&test-test]https://example.com/?test=test,test.test%20test+test(test)&test-test[/url]
+
+Trailing hyphens ARE part of URL (matches most markdown parsers):
+https://example.com/?test=test,test.test%20test+test(test)&test-test-
 
 [url="retroachievements.org#1"] | [url="retroachievements.org#2"]
 [url="https://retroachievements.org#1"] | [url="https://retroachievements.org#2"]
