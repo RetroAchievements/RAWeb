@@ -201,12 +201,16 @@ function RenderSiteAwards($userAwards)
 
 function RenderAwardGroup($awards, $title)
 {
+    $numItems = is_countable($awards) ? count($awards) : 0;
+    if ($numItems == 0) {
+        return;
+    }
+
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "' class='component' >";
     echo "<h3>$title</h3>";
     echo "<div class='siteawards'>";
     echo "<table class='siteawards'><tbody>";
 
-    $numItems = is_countable($awards) ? count($awards) : 0;
     $imageSize = 48;
     $numCols = 5;
     for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
