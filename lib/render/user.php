@@ -178,7 +178,7 @@ function RenderSiteAwards($userAwards)
         $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
     }
 
-    if (!empty($gameAwards)) {
+    if (!empty($eventAwards)) {
         $firstEventAward = array_search($eventAwards[0], $userAwards);
         $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
     }
