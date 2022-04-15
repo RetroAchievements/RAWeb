@@ -65,7 +65,7 @@ RenderHtmlHead("RA Cinema");
         if ($permissions >= Permissions::Developer) {
             echo "<div>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Extra (click to show):</span>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             $vidTitle = "";
             $vidLink = "";

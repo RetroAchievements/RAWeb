@@ -339,7 +339,7 @@ RenderHtmlStart(true);
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<table cellspacing=8 border=1>";
 
