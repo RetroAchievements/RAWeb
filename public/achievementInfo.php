@@ -181,7 +181,7 @@ RenderHtmlStart(true);
         if ($achievedLocal) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
-            echo "<div id='resetboxcontent'>";
+            echo "<div id='resetboxcontent' style='display: none'>";
             echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='a' value='$achievementID'>";
@@ -194,7 +194,7 @@ RenderHtmlStart(true);
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             if ($permissions >= Permissions::Developer) {
                 echo "<li>Set embedded video URL:</li>";

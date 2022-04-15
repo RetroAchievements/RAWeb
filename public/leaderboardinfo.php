@@ -105,7 +105,7 @@ RenderHtmlStart(true);
             if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-                echo "<div id='devboxcontent'>";
+                echo "<div id='devboxcontent' style='display: none'>";
 
                 echo "<ul>";
                 echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
