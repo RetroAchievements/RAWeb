@@ -74,6 +74,9 @@ example.org (no link)
 www.example.org (no link)
 
 Trailing sentence-punctuation characters are NOT part of URL:
+https://example.com.
+https://example.com?
+https://example.com?test
 https://example.com/?test=test,test.test%20test+test(test)&test-test!
 https://example.com/?test=test,test.test%20test+test(test)&test-test,
 https://example.com/?test=test,test.test%20test+test(test)&test-test.
