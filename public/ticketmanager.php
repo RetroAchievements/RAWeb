@@ -755,15 +755,69 @@ RenderHtmlHead($pageTitle);
                 echo "<tr>";
                 echo "<td></td><td colspan='6'>";
 
-                if (getUserUnlockAchievement($reportedBy, $achID, $unlockData)) {
-                    echo "$reportedBy earned this achievement at " . getNiceDate(strtotime($unlockData[0]['Date']));
-                    if ($unlockData[0]['Date'] >= $reportedAt) {
+                $numAchievements = getUserUnlockDates($reportedBy, $gameID, $unlockData);
+                $unlockData[] = ['ID' => 0, 'Title' => 'Ticket Created', 'Date' => $reportedAt, 'HardcoreMode' => 0];
+                usort($unlockData, function ($a, $b) { return strtotime($b["Date"]) - strtotime($a["Date"]); });
+
+                $unlockDate = null;
+                foreach ($unlockData as $unlockEntry) {
+                    if ($unlockEntry['ID'] == $achID) {
+                        $unlockDate = $unlockEntry['Date'];
+                        break;
+                    }
+                }
+
+                if ($unlockDate != null) {
+                    echo "$reportedBy earned this achievement at " . getNiceDate(strtotime($unlockDate));
+                    if ($unlockDate >= $reportedAt) {
                         echo " (after the report).";
                     } else {
                         echo " (before the report).";
                     }
+                } elseif ($numAchievements == 0) {
+                    echo "$reportedBy has not earned any achievements for this game.";
                 } else {
                     echo "$reportedBy did not earn this achievement.";
+                }
+                echo "</td></tr>";
+
+                if ($numAchievements > 0 && $permissions >= Permissions::Developer) {
+                    echo "<tr><td></td><td colspan='6'>";
+
+                    echo "<div class='devbox'>";
+                    echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Click to show player unlock history for this game</span><br>";
+                    echo "<div id='unlockhistory' style='display: none'>";
+                    echo "<table>";
+
+                    foreach ($unlockData as $unlockEntry) {
+                        echo "<tr><td>";
+                        if ($unlockEntry['ID'] == 0) {
+                            echo "Ticket Created - ";
+                            echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
+                        } else {
+                            echo GetAchievementAndTooltipDiv($unlockEntry['ID'], $unlockEntry['Title'], $unlockEntry['Description'],
+                                                            $unlockEntry['Points'], $gameTitle, $unlockEntry['BadgeName'], true);
+                        }
+                        echo "</td><td>";
+                        $unlockDate = getNiceDate(strtotime($unlockEntry['Date']));
+                        if ($unlockEntry['ID'] == $achID) {
+                            echo "<b>$unlockDate</b>";
+                        } else {
+                            echo $unlockDate;
+                        }
+                        echo "</td><td>";
+                        if ($unlockEntry['HardcoreMode'] == 1) {
+                            if ($unlockEntry['ID'] == $achID) {
+                                echo "<b>Hardcore</b>";
+                            } else {
+                                echo "Hardcore";
+                            }
+                        }
+                        echo "</td></tr>";
+                    }
+
+                    echo "</table></div></div>";
+                    echo "</td></tr>";
                 }
 
                 if ($user == $reportedBy || $permissions >= Permissions::Developer) {
@@ -831,8 +885,8 @@ RenderHtmlHead($pageTitle);
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Click to show achievement logic:</span><br>";
-                    echo "<div id='devboxcontent'>";
+                    echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Click to show achievement logic</span><br>";
+                    echo "<div id='achievementlogic' style='display: none'>";
 
                     echo "<div style='clear:both;'></div>";
                     echo "<li> Achievement ID: " . $achID . "</li>";
@@ -843,7 +897,7 @@ RenderHtmlHead($pageTitle);
                     echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
                     echo "</div>";
 
-                    echo "</div>"; // devboxcontent
+                    echo "</div>"; // achievementlogic
                     echo "</div>"; // devbox
                 }
             }
