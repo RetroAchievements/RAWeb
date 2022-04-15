@@ -1431,3 +1431,30 @@ function getWinnersOfAchievements($achievementIDs, $startTime, $endTime, $hardco
     }
     return $userArray;
 }
+
+function updateAchievementMetrics($achievementID)
+{
+    $query = "UPDATE Achievements ach
+              LEFT JOIN (
+                SELECT aw.AchievementID,
+                  (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore,
+                  (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded
+                FROM Awarded aw
+                INNER JOIN UserAccounts ua ON aw.User=ua.User
+                WHERE aw.AchievementID=$achievementID AND !ua.Untracked
+              ) as u ON u.AchievementID=ach.ID
+              SET ach.UnlockCount=IFNULL(u.NumAwarded, 0),
+                  ach.HardcoreUnlockCount=IFNULL(u.NumAwardedHardcore, 0),
+                  ach.MetricsUpdated=now()
+              WHERE ach.ID=$achievementID";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult) {
+        return true;
+    } else {
+        return false;
+    }
+}
