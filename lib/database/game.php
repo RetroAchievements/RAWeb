@@ -1308,3 +1308,58 @@ function checkIfSoleDeveloper($user, $gameID)
 
     return $userFound;
 }
+
+function updateGameAssetMetrics($gameID)
+{
+    $query = "UPDATE GameData gd
+              LEFT JOIN (
+                SELECT GameID, count(*) as AchievementCount, sum(Points) as TotalPoints
+                FROM Achievements
+                WHERE GameID=$gameID AND Flags=3
+              ) AS ach ON ach.GameID=gd.ID
+              LEFT JOIN (
+                SELECT GameID, count(*) as LeaderboardCount
+                FROM LeaderboardDef
+                WHERE GameID=$gameID AND DisplayOrder>=0
+              ) AS lb ON lb.GameID=gd.ID
+              SET gd.CoreAchievementCount=IFNULL(ach.AchievementCount, 0),
+                  gd.Points=IFNULL(ach.TotalPoints, 0),
+                  gd.LeaderboardCount=IFNULL(lb.LeaderboardCount, 0),
+                  gd.MetricsUpdated=now()
+              WHERE gd.ID=$gameID";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function updateGamePlayerMetrics($gameID)
+{
+    $query = "UPDATE GameData gd
+              LEFT JOIN (
+                SELECT a.GameID, count(DISTINCT aw.User) as PlayerCount
+                FROM Awarded aw
+                INNER JOIN Achievements a ON aw.AchievementID=a.ID
+                INNER JOIN UserAccounts ua ON aw.User=ua.User
+                WHERE a.GameID=$gameID AND a.Flags=3 AND !ua.Untracked
+              ) as p ON p.GameID=gd.ID
+              SET gd.PlayerCount=IFNULL(p.PlayerCount, 0),
+                  gd.MetricsUpdated=now()
+              WHERE gd.ID=$gameID";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+    SQL_ASSERT($dbResult);
+
+    if ($dbResult) {
+        return true;
+    } else {
+        return false;
+    }
+}
