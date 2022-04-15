@@ -757,7 +757,7 @@ RenderHtmlHead($pageTitle);
 
                 $numAchievements = getUserUnlockDates($reportedBy, $gameID, $unlockData);
                 $unlockData[] = ['ID' => 0, 'Title' => 'Ticket Created', 'Date' => $reportedAt, 'HardcoreMode' => 0];
-                usort($unlockData, function ($a, $b) { return strtotime($b["Date"]) - strtotime($a["Date"]); });
+                usort($unlockData, fn ($a, $b) => strtotime($b["Date"]) - strtotime($a["Date"]));
 
                 $unlockDate = null;
                 foreach ($unlockData as $unlockEntry) {
