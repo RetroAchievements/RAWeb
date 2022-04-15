@@ -182,19 +182,19 @@ final class Shortcode
 
     private function linkifyBasicURLs($text)
     {
+        // see https://stackoverflow.com/a/2271552/580651:
+        // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
+        // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
+        // lookahead: (?<![!,.?;:"\'()-])
         $text = preg_replace(
             '~
-            (https?://[a-z0-9_./?=&#%:+(),-]+)
+            (https?://[\w!#$%&\'()*+,./:;=?@\[\]-]+(?<![!,.?;:"\'()-]))
             (?!                 # Assert URL is not pre-linked.
-              [?=&+%\w.-]*      # Allow URL (query) remainder.
-              (?:               # Group pre-linked alternatives.
-                [^<>]*>         # Either inside a start tag,
-                | [^<>]*</a>   # or inside <a> element text contents.
-              )                 # End recognized pre-linked alts.
+              [^<>]*>           # Either inside a start tag,
+              | [^<>]*</a>      # End recognized pre-linked alts.
             )                   # End negative lookahead assertion.
-            ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
             ~ix',
-            ' <a href="$1" target="_blank" rel="noopener">$1</a> ',
+            '<a href="$1" target="_blank" rel="noopener">$1</a>',
             $text
         );
 
