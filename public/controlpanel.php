@@ -1,27 +1,22 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 use RA\UserPref;
 
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
 if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     if (getAccountDetails($user, $userDetails) == false) {
-        //	Immediate redirect if we cannot validate user!
+        // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
         exit;
     }
 } else {
-    //	Immediate redirect if we cannot validate cookie!
+    // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
-
-//if( $user == "Scott" )
-//{
-//	log_email("Hi Scott! Testing!");
-//	echo "Hi Scott!";
-//}
 
 $points = $userDetails['RAPoints'];
 $fbUser = $userDetails['fbUser'];
@@ -69,8 +64,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
   function OnGetAllResettableGamesList(data) {
     if (data !== 'ERROR3') {
-      //alert( data );
-
       var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
       htmlToAdd += '<option value="">--</option>';
 
@@ -119,26 +112,23 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       var achData = achList.split('::');
 
       if (achData.length > 0 && achData[0].length > 0) {
-        //alert( achData );
         $('#resetachievementscontainer').append('<option value=\'9999999\' >All achievements for this game</option>');
       }
 
       for (var index = 0; index < achData.length; ++index) {
         var nextData = achData[index];
         var dataChunks = nextData.split('_:_');
-
-        //alert( dataChunks );
-        if (dataChunks.length < 2)
+        if (dataChunks.length < 2) {
           continue;
-
+        }
         var achTitle = htmlEntities(dataChunks[0]);
         var achID = htmlEntities(dataChunks[1]);
         if (achID[0] == 'h') {
-          //	Hardcore:
+          // Hardcore:
           achTitle = achTitle + ' (Hardcore)';
           $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
         } else {
-          //	Casual:
+          // Casual:
           $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
         }
       }
@@ -161,11 +151,10 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       var gameId = $('#resetgameselector :selected').val();
       gameName = gameName.substr(0, gameName.lastIndexOf('(') - 1);
 
-      //Prompt user for confirmation if attempting to remove all achievement for a single game
+      // Prompt user for confirmation if attempting to remove all achievement for a single game
       if (gameId > 0 && confirm('Reset all achievements for ' + gameName + '?')) {
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
-        //alert( "Game ID is " + gameID );
         var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', g: gameID});
         posting.done(onResetComplete);
         $('#warning').html('Status: Updating...');
@@ -173,9 +162,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       }
     } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
-
-      //alert( "Ach ID is " + achID );
-      //alert( "isHardcore is " + isHardcore );
       var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', a: achID, h: isHardcore});
       posting.done(onResetComplete);
       $('#warning').html('Status: Updating...');
@@ -186,15 +172,14 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
   function onResetComplete(data) {
     if (data.substr(0, 2) !== 'OK') {
       alert(data);
-    } else {
-      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
-      //window.location = '/controlpanel.php?e=resetok';
-      if ($('#resetachievementscontainer').children('option').length > 2)
-        ResetFetchAwarded();			//	Just reset ach. list
-      else
-        GetAllResettableGamesList();	//	last ach reset: fetch new list!
-      return false;
+      return;
     }
+    $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+    if ($('#resetachievementscontainer').children('option').length > 2)
+      ResetFetchAwarded(); // Just reset ach. list
+    else
+      GetAllResettableGamesList(); // last ach reset: fetch new list!
+    return false;
   }
 
   function DoChangeUserPrefs() {
@@ -221,13 +206,12 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
     posting.done(OnChangeUserPrefs);
   }
 
-  function OnChangeUserPrefs(object) {
-    //console.log( object )
+  function OnChangeUserPrefs() {
     $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
   }
 
   function UploadNewAvatar() {
-    //	New file
+    // New file
     var photo = document.getElementById('uploadimagefile');
     var file = photo.files[0];
 
@@ -244,14 +228,27 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
   function onUploadImageComplete(data) {
     $('#loadingiconavatar').fadeTo(100, 0.0);
-    var response = JSON.parse(data);
-    //if( data.substr( 0, 2 ) == "OK" )
-    if (true) {
-      var d = new Date();
-      $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
-    } else {
-      alert(data);
+    var d = new Date();
+    $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
+  }
+
+  function validateEmail() {
+    var oldEmail = document.forms['updateEmail']['o'].value;
+    var newEmail = document.forms['updateEmail']['e'].value;
+    var verifyEmail = document.forms['updateEmail']['f'].value;
+    if (newEmail != verifyEmail) {
+      alert("New email addresses are not identical");
+      return false;
     }
+    if (newEmail == oldEmail) {
+      alert("New email address is same as old email address");
+      return false;
+    }
+    <?php if ($permissions >= Permissions::Developer): ?>
+    return confirm("Are you sure that you want to do this?\n\nChanging your email address will revoke your priveledges and you will need to have them restored by staff.");
+    <?php else: ?>
+    return true;
+    <?php endif ?>
   }
 
   GetAllResettableGamesList();
@@ -264,7 +261,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
         <div class='component'>
             <h2>User Details</h2>
             <?php
-            //	Render user panel
+            // Render user panel
             echo "<p style='min-height:62px'>";
             echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='text-align:right' width='64' height='64'>";
             echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
@@ -487,13 +484,13 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                     break;
             }
             ?>
-            <form method='post' action='/request/user/update-email.php'>
+            <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return validateEmail()'>
                 <table>
                     <tbody>
                     <tr>
                         <td class='firstrow'>Old Email Address:</td>
                         <td>
-                            <div class="field_container"><input type="text" class="inputtext" size='30' disabled VALUE="<?php echo $emailAddr; ?>"/></div>
+                            <div class="field_container"><input type="text" class="inputtext" name="o" size='30' disabled VALUE="<?php echo $emailAddr; ?>"/></div>
                         </td>
                     </tr>
                     <tr>
@@ -529,7 +526,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
             echo "<tr><td>Achievement:</td>";
             echo "<td><div id='resetachievementscontrol'>";
-            echo "<select id='resetachievementscontainer'></select>";    //	Filled by JS
+            echo "<select id='resetachievementscontainer'></select>";    // Filled by JS
             echo "</div></td></tr>";
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";

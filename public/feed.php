@@ -1,9 +1,10 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 header("Location: " . getenv('APP_URL'));
-return;
+exit;
 
 $errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', null, 'integer');
@@ -13,7 +14,7 @@ $individual = requestInputSanitized('i', null, 'integer');
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
-//    Max: last 50 messages:
+// Max: last 50 messages:
 $maxMessages = 50;
 $numFeedItems = 0;
 
@@ -30,9 +31,7 @@ if ($activityID !== null) {
     $numFeedItems = getFeed($user, $maxMessages, $offset, $feedData, 0, 'individual');
 }
 
-//var_dump( $feedData );
-
-//    This page is unusual, in that the later items should appear at the top
+// This page is unusual, in that the later items should appear at the top
 // $feedData = array_reverse($feedData);
 
 if (isset($activityID)) {
@@ -101,7 +100,7 @@ RenderHtmlHead($pageTitle);
                         );
                         $i++;
                     }
-                    $i--;    //Note: we will have incorrectly incremented this if we read comments - the first comment has the same ID!
+                    $i--;    // Note: we will have incorrectly incremented this if we read comments - the first comment has the same ID!
                 }
             }
             echo "</tbody></table>";

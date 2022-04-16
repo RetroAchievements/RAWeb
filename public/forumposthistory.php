@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -30,7 +31,7 @@ RenderHtmlHead("Forum Recent Posts");
 
             echo "<h3 class='longheader'>Forum Post History</h3>";
 
-            //	Output all forums fetched, by category
+            // Output all forums fetched, by category
 
             $lastCategory = "_init";
 
@@ -48,8 +49,6 @@ RenderHtmlHead("Forum Recent Posts");
             echo "</tr>";
 
             foreach ($recentPostsData as $topicPostData) {
-                //var_dump( $topicPostData );
-
                 $postMessage = $topicPostData['ShortMsg'];
                 $postAuthor = $topicPostData['Author'];
                 $forumTopicID = $topicPostData['ForumTopicID'];
@@ -82,7 +81,7 @@ RenderHtmlHead("Forum Recent Posts");
                 echo "<a href='/forumposthistory.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
             }
             if ($numPostsFound == $maxCount) {
-                //	Max number fetched, i.e. there are more. Can goto next 25.
+                // Max number fetched, i.e. there are more. Can goto next 25.
                 $nextOffset = $offset + $maxCount;
                 echo "<a href='/forumposthistory.php?o=$nextOffset'>Next $maxCount &gt;</a>";
             }

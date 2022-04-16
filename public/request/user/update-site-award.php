@@ -15,15 +15,14 @@ if (ValidatePOSTChars("tdev")) {
         $awardDataExtra = requestInputQuery('e', null, 'integer');
         $value = requestInputQuery('v', null, 'integer');
     } else {
-        // error_log("FAILED access to requestupdatesiteaward.php");
         echo "FAILED";
-        return;
+        exit;
     }
 }
 
 if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
     echo "FAILED!";
-    return;
+    exit;
 }
 
 /**
@@ -42,6 +41,5 @@ if (in_array($awardType, [2, 3])) {
 if (s_mysql_query($query)) {
     echo "OK";
 } else {
-    // error_log("requestupdatesiteaward.php failed?! 1" . var_dump($_POST));
     echo "FAILED!";
 }

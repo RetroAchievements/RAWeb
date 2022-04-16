@@ -1,7 +1,9 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
 use RA\Models\TicketModel;
+use RA\SubscriptionSubjectType;
 
 function isAllowedToSubmitTickets($user)
 {
@@ -48,18 +50,15 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
 
         $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
                                 VALUES ($achID, $submitterUserID, $reportType, '$note', NOW(), NULL, NULL )";
-        // log_sql($query);
 
-        $dbResult = mysqli_query($db, $query); //    Unescaped?
+        $dbResult = mysqli_query($db, $query); // Unescaped?
         $ticketID = mysqli_insert_id($db);
-        // error_log(__FUNCTION__ . " produced insert id of $ticketID ");
 
         if ($dbResult == false) {
-            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
             $errorsEncountered = true;
             log_sql_fail();
         } else {
-            //    Success
+            // Success
             if (GetAchievementMetadata($achID, $achData)) {
                 $achAuthor = $achData['Author'];
                 $achTitle = $achData['AchievementTitle'];
@@ -84,7 +83,7 @@ $bugReportDetails";
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
 
                 // notify subscribers other than the achievement's author
-                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
+                $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
                 $emailHeader = "Bug Report ($gameTitle)";
                 foreach ($subscribers as $sub) {
                     if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter) {
@@ -119,8 +118,6 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
 
     global $db;
 
-    // error_log("mysqli_real_escape_string turned #$noteIn# into #$note#");
-
     $submitterUserID = getUserIDFromUser($userSubmitter);
     settype($reportType, 'integer');
 
@@ -141,18 +138,15 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
 
         $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
                                 VALUES($achID, $submitterUserID, $reportType, $hardcore, \"$note\", NOW(), NULL, NULL )";
-        // log_sql($query);
 
-        $dbResult = mysqli_query($db, $query); //    Unescaped?
+        $dbResult = mysqli_query($db, $query); // Unescaped?
         $ticketID = mysqli_insert_id($db);
-        // error_log(__FUNCTION__ . " produced insert id of $ticketID ");
 
         if ($dbResult == false) {
-            // error_log(__FUNCTION__ . " failed?! $userSubmitter, $achID, $reportType, $note");
             $errorsEncountered = true;
             log_sql_fail();
         } else {
-            //    Success
+            // Success
             if (GetAchievementMetadata($achID, $achData)) {
                 $achAuthor = $achData['Author'];
                 $gameID = $achData['GameID'];
@@ -176,7 +170,7 @@ $bugReportDetails";
                 postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
 
                 // notify subscribers other than the achievement's author
-                $subscribers = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /*(1 << 1)*/);
+                $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
                 $emailHeader = "Bug Report ($gameTitle)";
                 foreach ($subscribers as $sub) {
                     if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter) {
@@ -193,7 +187,7 @@ $bugReportDetails";
     }
 
     if ($idsAdded > 0 && $idsFound == $idsAdded) {
-        //    Normal exit
+        // Normal exit
         $summaryMsgOut = "OK:";
     } elseif ($idsAdded > 0) {
         $summaryMsgOut = "OK:$idsAdded/$idsFound added.";
@@ -240,19 +234,19 @@ function getAllTickets(
         $innerCond .= " AND tick.AchievementID = $givenAchievementID";
     }
 
-    //State condition
+    // State condition
     $stateCond = getStateCondition($ticketFilters);
     if ($stateCond === null) {
         return $retVal;
     }
 
-    //Report Type condition
+    // Report Type condition
     $reportTypeCond = getReportTypeCondition($ticketFilters);
     if ($reportTypeCond === null) {
         return $retVal;
     }
 
-    //Hash condition
+    // Hash condition
     $hashCond = getHashCondition($ticketFilters);
     if ($hashCond === null) {
         return $retVal;
@@ -264,7 +258,7 @@ function getAllTickets(
         return $retVal;
     }
 
-    //Emulator condition
+    // Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
     if ($emulatorCond === null) {
         return $retVal;
@@ -311,8 +305,6 @@ function getAllTickets(
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?! $offset, $limit");
     }
 
     return $retVal;
@@ -338,7 +330,6 @@ function getTicket($ticketID)
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
     } else {
-        // error_log(__FUNCTION__ . " failed?! $offset, $limit");
         return false;
     }
 }
@@ -357,8 +348,6 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
     $query = "UPDATE Ticket
               SET ReportState=$ticketVal $resolvedFields
               WHERE ID=$ticketID";
-
-    // log_sql($query);
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -395,7 +384,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
                 break;
         }
 
-        addArticleComment("Server", \RA\ArticleType::AchievementTicket, $ticketID, $comment, $user);
+        addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
         getAccountDetails($userReporter, $reporterData);
         $email = $reporterData['EmailAddress'];
@@ -415,21 +404,8 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
             "<br>" .
             "-- Your friends at RetroAchievements.org<br>";
 
-        if (isAtHome()) {
-            // error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-            // error_log($email);
-            // error_log($emailTitle);
-            // error_log($msg);
-            $retVal = true;
-        } else {
-            // error_log(__FUNCTION__ . " sending ticket resolution mail to $user at address $email");
-            $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-            // error_log(__FUNCTION__ . " return val: $retVal");
-        }
-
-        return true;
+        return mail_utf8($email, $emailTitle, $msg);
     } else {
-        // error_log(__FUNCTION__ . " failed?! $user, $ticketID, $ticketVal");
         log_sql_fail();
         return false;
     }
@@ -483,8 +459,8 @@ function countOpenTicketsByAchievement($achievementID)
 
 function countOpenTickets(
     $unofficialFlag = false,
-    $ticketFilters = 131065, //sets all filters active except for Closed, Resolved and Karma
-    //move this to constants...
+    $ticketFilters = 131065, // sets all filters active except for Closed, Resolved and Karma
+    // move this to constants...
     $assignedToUser = null,
     $reportedByUser = null,
     $resolvedByUser = null,
@@ -492,25 +468,25 @@ function countOpenTickets(
 ) {
     sanitize_sql_inputs($assignedToUser, $reportedByUser, $resolvedByUser, $gameID);
 
-    //State condition
+    // State condition
     $stateCond = getStateCondition($ticketFilters);
     if ($stateCond === null) {
         return 0;
     }
 
-    //Report Type condition
+    // Report Type condition
     $reportTypeCond = getReportTypeCondition($ticketFilters);
     if ($reportTypeCond === null) {
         return 0;
     }
 
-    //Hash condition
+    // Hash condition
     $hashCond = getHashCondition($ticketFilters);
     if ($hashCond === null) {
         return 0;
     }
 
-    //Emulator condition
+    // Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
     if ($emulatorCond === null) {
         return 0;

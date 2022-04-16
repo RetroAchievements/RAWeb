@@ -1,9 +1,9 @@
 <?php
 
+use RA\Models\TicketModel;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
-
-use RA\Models\TicketModel;
 
 RenderHtmlStart();
 RenderSharedHeader();

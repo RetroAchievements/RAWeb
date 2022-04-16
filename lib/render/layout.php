@@ -5,7 +5,7 @@ use RA\Permissions;
 function RenderHtmlStart($isOpenGraphPage = false)
 {
     echo "<!doctype html>";
-    //echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
+    // echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
     echo "<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
     if ($isOpenGraphPage) {
@@ -54,12 +54,12 @@ function RenderSharedHeader()
 
     echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
     if (getenv('APP_ENV') === 'local') {
-        echo "<script src='/js/all.js?v=" . rand() . "'></script>\n";
+        echo "<script src='/js/all.js?v=" . random_int(0, mt_getrandmax()) . "'></script>\n";
     } else {
         echo "<script src='/js/all-" . VERSION . ".js'></script>\n";
     }
     if (getenv('APP_ENV') === 'local') {
-        echo "<link rel='stylesheet' href='/css/styles.css?" . rand() . "' media='screen'>\n";
+        echo "<link rel='stylesheet' href='/css/styles.css?" . random_int(0, mt_getrandmax()) . "' media='screen'>\n";
     } else {
         echo "<link rel='stylesheet' href='/css/styles-" . VERSION . ".css' media='screen'>\n";
     }
@@ -86,14 +86,14 @@ function RenderTitleTag($title = null)
     }
     echo getenv('APP_NAME');
     echo "</title>";
-    //<!-- YAY XMAS! -->
-    //echo "<script src='js/snowstorm.js'></script>
-    //<script>
-    //$( function() {
-    //    //    Onload:
-    //    $('body').append( \"<img src='https://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
-    //});
-    //</script>";
+    // <!-- YAY XMAS! -->
+    // echo "<script src='js/snowstorm.js'></script>
+    // <script>
+    //     $( function() {
+    //         // Onload:
+    //         $('body').append( \"<img src='https://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
+    //     });
+    // </script>";
 }
 
 function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0)
@@ -101,10 +101,10 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
     settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
 
-    //    js tooltip code is basically on every page:
+    // js tooltip code is basically on every page:
     echo "<script src='/vendor/wz_tooltip.js'></script>";
 
-    echo "<div id='topborder'><span id='preload-01'></span><span id='preload-02'></span><span id='preload-03'></span></div>\n";
+    echo "<div id='topborder'></div>\n";
 
     echo "<div id='title'>";
 
@@ -184,7 +184,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
     echo "<ul>";
-    ///Nintendo
+    // Nintendo
     echo "<li class='dropdown-header'>Nintendo</li>";
     echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
     echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
@@ -195,17 +195,17 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
     echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
-    ///Sony
+    // Sony
     echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
     echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
-    ///Atari
+    // Atari
     echo "<li class='dropdown-header'>Atari</li>";
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
     echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
     echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
-    /// NEC
+    // NEC
     echo "<li class='dropdown-header'>NEC</li>";
     echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
     echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
@@ -213,7 +213,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "</ul>";
 
     echo "<ul>";
-    ///Sega
+    // Sega
     echo "<li class='dropdown-header'>Sega</li>";
     echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
     echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
@@ -223,7 +223,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
     echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
     echo "<li><a href='/gameList.php?c=40'>Sega Dreamcast</a></li>";
-    /// Other
+    // Other
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
     echo "<li><a href='/gameList.php?c=37'>Amstrad CPC</a></li>";
@@ -270,8 +270,9 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li class='divider'></li>";
     echo "<li><a href='/userList.php'>Users</a></li>";
     echo "<li><a href='/developerstats.php'>Developers</a></li>";
-    //echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
+    // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
+    echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
@@ -336,7 +337,7 @@ function RenderToolbar($user, $permissions = 0)
     }
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";
-    //echo "Search:&nbsp;";
+    // echo "Search:&nbsp;";
     echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
     echo "<input type='submit' value='Search'>";

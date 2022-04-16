@@ -12,7 +12,7 @@ $offset = requestInputQuery('o', 0);
 $recentlyPlayedData = [];
 $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
 
-if (count($recentlyPlayedData) > 0) {
+if (!empty($recentlyPlayedData)) {
     $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
     for ($i = 1; $i < $numRecentlyPlayed; $i++) {
         $gameIDsCSV .= ", " . $recentlyPlayedData[$i]['GameID'];
@@ -26,10 +26,10 @@ if (count($recentlyPlayedData) > 0) {
         $recentlyPlayedData[$iter]['PossibleScore'] = $nextAwardData['PossibleScore'];
         $recentlyPlayedData[$iter]['NumAchieved'] = $nextAwardData['NumAchieved'];
         $recentlyPlayedData[$iter]['ScoreAchieved'] = $nextAwardData['ScoreAchieved'];
-        $iter++; //	Assumes a LOT about the order of this array!
+        $iter++; // Assumes a LOT about the order of this array!
     }
 
     $libraryOut['Awarded'] = $awardedData;
 }
 
-echo json_encode($recentlyPlayedData);
+echo json_encode($recentlyPlayedData, JSON_THROW_ON_ERROR);

@@ -17,7 +17,7 @@ if ($ticketID > 0) {
     $ticketData = getTicket($ticketID);
     if ($ticketData == false) {
         http_response_code(404);
-        echo json_encode(['error' => "Ticket ID $ticketID not found"]);
+        echo json_encode(['error' => "Ticket ID $ticketID not found"], JSON_THROW_ON_ERROR);
         exit;
     }
 
@@ -28,7 +28,7 @@ if ($ticketID > 0) {
     $ticketData['ReportTypeDescription'] = $reportTypes[$ticketData['ReportType']];
 
     $ticketData['URL'] = $baseUrl . "?i=$ticketID";
-    echo json_encode($ticketData);
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
     exit;
 }
 
@@ -41,7 +41,7 @@ $gamesTableFlag = requestInputQuery('f', 0, 'integer');
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
     $ticketData['URL'] = $baseUrl . "?f=$gamesTableFlag";
-    echo json_encode($ticketData);
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
     exit;
 }
 
@@ -76,7 +76,7 @@ if (isValidUsername($assignedToUser)) {
         }
     }
     $ticketData['URL'] = $baseUrl . "?u=$assignedToUser";
-    echo json_encode($ticketData);
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
     exit;
 }
 $assignedToUser = null;
@@ -98,11 +98,11 @@ if ($gameIDGiven > 0) {
         );
         $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
 
-        echo json_encode($ticketData);
+        echo json_encode($ticketData, JSON_THROW_ON_ERROR);
         exit;
     }
     http_response_code(404);
-    echo json_encode(['error' => "Game ID $gameIDGiven not found"]);
+    echo json_encode(['error' => "Game ID $gameIDGiven not found"], JSON_THROW_ON_ERROR);
     exit;
 }
 
@@ -112,7 +112,7 @@ if ($achievementIDGiven > 0) {
     $achievementData = GetAchievementData($achievementIDGiven);
     if (!$achievementData) {
         http_response_code(404);
-        echo json_encode(['error' => "Achievement ID $achievementIDGiven not found"]);
+        echo json_encode(['error' => "Achievement ID $achievementIDGiven not found"], JSON_THROW_ON_ERROR);
         exit;
     }
     $ticketData['AchievementID'] = $achievementIDGiven;
@@ -120,7 +120,7 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
-    echo json_encode($ticketData);
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
     exit;
 }
 
@@ -128,4 +128,4 @@ if ($achievementIDGiven > 0) {
 $ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, null, null, $defaultTicketFilter);
 $ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter,null, null , null, null);
 $ticketData['URL'] = $baseUrl;
-echo json_encode($ticketData);
+echo json_encode($ticketData, JSON_THROW_ON_ERROR);

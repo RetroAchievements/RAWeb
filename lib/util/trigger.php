@@ -135,15 +135,10 @@ function parseOperand($mem)
 
 function isScalerOperator($cmp)
 {
-    switch ($cmp) {
-        case '*':
-        case '/':
-        case '&':
-            return true;
-
-        default:
-            return false;
-    }
+    return match ($cmp) {
+        '*', '/', '&' => true,
+        default => false,
+    };
 }
 
 function parseCondition($mem)
@@ -262,7 +257,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
 
     // separating CoreGroup and AltGroups
     $groups = preg_split("/(?<!0x)S/", $mem);
-    for ($i = 0; $i < count($groups); $i++) {
+    $groupsCount = is_countable($groups) ? count($groups) : 0;
+    for ($i = 0; $i < $groupsCount; $i++) {
         $res .= "<tr><td colspan=10><p style='text-align: center'><strong>";
         $res .= $i === 0 ? "Core Group" : "Alt Group $i";
         $res .= "</p></strong></td></tr>\n";

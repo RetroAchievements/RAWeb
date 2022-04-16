@@ -1,5 +1,6 @@
 <?php
 
+use RA\AwardThreshold;
 use RA\AwardType;
 
 /**
@@ -65,20 +66,20 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "<td class='usercardaccounttype'>$userAccountType</td>";
     $tooltip .= "</tr>";
 
-    //Add the user motto if it's set
+    // Add the user motto if it's set
     if ($userMotto !== null && mb_strlen($userMotto) > 2) {
         sanitize_outputs($userMotto);
         $tooltip .= "<tr>";
         $tooltip .= "<td colspan='2' height='32px'><span class='usermotto tooltip'>$userMotto</span></td>";
         $tooltip .= "</tr>";
     } else {
-        //Insert blank row to add whitespace where motto would be
+        // Insert blank row to add whitespace where motto would be
         $tooltip .= "<tr>";
         $tooltip .= "<td height='24px'></td>";
         $tooltip .= "</tr>";
     }
 
-    //Add the user points if there are any
+    // Add the user points if there are any
     if ($userPoints !== null) {
         $tooltip .= "<tr>";
         $tooltip .= "<td class='usercardbasictext'><b>Points:</b> $userPoints ($userTruePoints)</td>";
@@ -89,7 +90,7 @@ function _GetUserAndTooltipDiv(
         $tooltip .= "</tr>";
     }
 
-    //Add the other user informaiton
+    // Add the other user informaiton
     if ($userUntracked) {
         $tooltip .= "<tr>";
         $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Untracked</td>";
@@ -138,41 +139,78 @@ function _GetUserAndTooltipDiv(
         "</span>";
 }
 
+function SeparateAwards($userAwards)
+{
+    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events'));
+
+    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events');
+
+    $devEventsPrefix = "[Dev Events - ";
+    $devEventsHub = "[Central - Developer Events]";
+    $devEventAwards = [];
+    foreach ($eventAwards as $k => $eventAward) {
+        $related = getGameAlternatives($eventAward['AwardData']);
+        foreach ($related as $hub) {
+            if ($hub['Title'] == $devEventsHub || substr($hub['Title'], 0, strlen($devEventsPrefix)) == $devEventsPrefix) {
+                $devEventAwards[] = $eventAward;
+                break;
+            }
+        }
+    }
+
+    $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
+
+    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active)) ||
+        in_array($award, $devEventAwards)
+    ));
+
+    return [$gameAwards, $eventAwards, $siteAwards];
+}
+
 function RenderSiteAwards($userAwards)
 {
-    $gameAwards = array_values(array_filter($userAwards, function ($award) {
-        return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events';
-    }));
+    [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
-    $eventAwards = array_values(array_filter($userAwards, function ($award) {
-        return $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events';
-    }));
+    $groups = [];
 
-    $siteAwards = array_values(array_filter($userAwards, function ($award) {
-        return $award['AwardType'] != AwardType::MASTERY && in_array((int) $award['AwardType'], AwardType::$active);
-    }));
-
-    if (!empty($gameAwards) || (empty($eventAwards) && empty($siteAwards))) {
-        RenderAwardGroup($gameAwards, "Game Awards");
+    if (!empty($gameAwards)) {
+        $firstGameAward = array_search($gameAwards[0], $userAwards);
+        $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
     }
 
     if (!empty($eventAwards)) {
-        RenderAwardGroup($eventAwards, "Event Awards");
+        $firstEventAward = array_search($eventAwards[0], $userAwards);
+        $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
     }
 
     if (!empty($siteAwards)) {
-        RenderAwardGroup($siteAwards, "Site Awards");
+        $firstSiteAward = array_search($siteAwards[0], $userAwards);
+        $groups[] = [$firstSiteAward, $siteAwards, "Site Awards"];
+    }
+
+    if (empty($groups)) {
+        $groups[] = [0, $gameAwards, "Game Awards"];
+    }
+
+    usort($groups, fn ($a, $b) => $a[0] - $b[0]);
+
+    foreach ($groups as $group) {
+        RenderAwardGroup($group[1], $group[2]);
     }
 }
 
 function RenderAwardGroup($awards, $title)
 {
+    $numItems = is_countable($awards) ? count($awards) : 0;
+    if ($numItems == 0) {
+        return;
+    }
+
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "' class='component' >";
     echo "<h3>$title</h3>";
     echo "<div class='siteawards'>";
     echo "<table class='siteawards'><tbody>";
 
-    $numItems = count($awards);
     $imageSize = 48;
     $numCols = 5;
     for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
@@ -194,8 +232,6 @@ function RenderAwardGroup($awards, $title)
     echo "</tbody></table>";
 
     echo "</div>";
-
-    //echo "<br>";
 
     echo "</div>";
 }
@@ -229,14 +265,14 @@ function RenderAward($award, $imageSize, $clickable = true)
         $linkdest = "/game/$awardData";
     } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
         // Developed a number of earned achievements
-        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
+        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
 
-        $imagepath = "/Images/_Trophy" . RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
+        $imagepath = "/Images/_Trophy" . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
 
-        $linkdest = ''; //    TBD: referrals page?
+        $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
         // Yielded an amount of points earned by players
-        $tooltip = "Awarded for producing many valuable achievements, providing over " . RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
+        $tooltip = "Awarded for producing many valuable achievements, providing over " . AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
 
         if ($awardData == 0) {
             $imagepath = "/Images/trophy-green.png";
@@ -252,7 +288,7 @@ function RenderAward($award, $imageSize, $clickable = true)
             $imagepath = "/Images/trophy-gold.png";
         }
 
-        $linkdest = ''; //    TBD: referrals page?
+        $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::REFERRALS) {
         $tooltip = "Referred $awardData members";
 
@@ -270,7 +306,7 @@ function RenderAward($award, $imageSize, $clickable = true)
             $imagepath = "/Badge/00083.png";
         }
 
-        $linkdest = ''; //    TBD: referrals page?
+        $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
 
@@ -290,7 +326,7 @@ function RenderAward($award, $imageSize, $clickable = true)
     if ($clickable && !empty($linkdest)) {
         $displayable = "<a href=\"$linkdest\">$displayable</a>";
         $tooltipImagePath = "$imagepath";
-        $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
+        $tooltipImageSize = 96;
         $tooltipTitle = "Site Award";
 
         // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
@@ -313,7 +349,7 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
     echo "<table><tbody>";
     echo "<tr><th colspan='2'>Game</th><th>Completion</th></tr>";
 
-    $numItems = count($userCompletedGamesList);
+    $numItems = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
     for ($i = 0; $i < $numItems; $i++) {
         $nextGameID = $userCompletedGamesList[$i]['GameID'];
         $nextConsoleName = $userCompletedGamesList[$i]['ConsoleName'];
@@ -328,34 +364,34 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
 
         $nextNumAwarded = $userCompletedGamesList[$i]['NumAwarded'];
-        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) { //    Ignore 0 (div by 0 anyway)
+        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) { // Ignore 0 (div by 0 anyway)
             continue;
         }
 
         $pctAwardedNormal = ($nextNumAwarded / $nextMaxPossible) * 100.0;
 
-        $nextNumAwardedHC = isset($userCompletedGamesList[$i]['NumAwardedHC']) ? $userCompletedGamesList[$i]['NumAwardedHC'] : 0;
+        $nextNumAwardedHC = $userCompletedGamesList[$i]['NumAwardedHC'] ?? 0;
         $pctAwardedHC = ($nextNumAwardedHC / $nextMaxPossible) * 100.0;
-        $pctAwardedHCProportional = ($nextNumAwardedHC / $nextNumAwarded) * 100.0; //    This is given as a proportion of normal completion!
-        //$nextTotalAwarded = $nextNumAwarded + $nextNumAwardedHC;
-        $nextTotalAwarded = $nextNumAwardedHC > $nextNumAwarded ? $nextNumAwardedHC : $nextNumAwarded; //    Just take largest
+        $pctAwardedHCProportional = ($nextNumAwardedHC / $nextNumAwarded) * 100.0; // This is given as a proportion of normal completion!
+        // $nextTotalAwarded = $nextNumAwarded + $nextNumAwardedHC;
+        $nextTotalAwarded = max($nextNumAwardedHC, $nextNumAwarded); // Just take largest
 
         if (!isset($nextMaxPossible)) {
             continue;
         }
 
         $nextPctAwarded = $userCompletedGamesList[$i]['PctWon'] * 100.0;
-        //$nextCompletionPct = sprintf( "%2.2f", $nextNumAwarded / $nextMaxPossible );
+        // $nextCompletionPct = sprintf( "%2.2f", $nextNumAwarded / $nextMaxPossible );
 
         echo "<tr>";
 
         $tooltipImagePath = "$nextImageIcon";
-        $tooltipImageSize = 96; //64;    //    screw that, lets make it big!
+        $tooltipImageSize = 96;
         $tooltipTitle = attributeEscape($nextTitle);
         $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
         $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
 
-        $displayable = "<a href=\"/game/$nextGameID\"><img alt=\"$tooltipTitle ($nextConsoleName)\" title=\"$tooltipTitle\" src=\"$nextImageIcon\" width=\"32\" height=\"32\" />";
+        $displayable = "<a href=\"/game/$nextGameID\"><img alt=\"$tooltipTitle ($nextConsoleName)\" title=\"$tooltipTitle\" src=\"$nextImageIcon\" width=\"32\" height=\"32\" loading=\"lazy\" />";
         // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
         $textWithTooltip = $displayable;
 
@@ -365,8 +401,6 @@ function RenderCompletedGamesList($user, $userCompletedGamesList)
         $textWithTooltip = $displayable;
         echo "<td class=''>$textWithTooltip</td>";
         echo "<td class='progress'>";
-
-        //if( $nextNumAwardedHC > 0 )
 
         echo "<div class='progressbar completedgames'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
@@ -426,7 +460,7 @@ function RenderRecentlyAwardedComponent($user, $points)
         $achDesc = $dataArray[$i]['Description'];
         $achPoints = $dataArray[$i]['Points'];
         $badgeName = $dataArray[$i]['BadgeName'];
-        //$badgeFullPath = getenv('ASSET_URL')."/Badge/" . $badgeName . ".png";
+        // $badgeFullPath = getenv('ASSET_URL')."/Badge/" . $badgeName . ".png";
         $gameTitle = $dataArray[$i]['GameTitle'];
         $gameID = $dataArray[$i]['GameID'];
         $gameIcon = $dataArray[$i]['GameIcon'];
@@ -437,7 +471,7 @@ function RenderRecentlyAwardedComponent($user, $points)
         echo "</td>";
 
         echo "<td>";
-        //echo "<a href='/user/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
+        // echo "<a href='/user/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
         echo GetUserAndTooltipDiv($nextUser, true);
         echo "</td>";
 

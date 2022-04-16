@@ -20,4 +20,4 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 $response['Response'] = UploadUserPic($user, $filename, $rawImage);
 
 settype($response['Success'], 'boolean');
-echo json_encode($response);
+echo json_encode($response, JSON_THROW_ON_ERROR);

@@ -73,6 +73,28 @@ https://youtu.be/dMH0bHeiRNg
 example.org (no link)
 www.example.org (no link)
 
+Trailing sentence-punctuation characters are NOT part of URL:
+https://example.com.
+https://example.com?
+https://example.com?test
+https://example.com/?test=test,test.test%20test+test(test)&test-test!
+https://example.com/?test=test,test.test%20test+test(test)&test-test,
+https://example.com/?test=test,test.test%20test+test(test)&test-test.
+https://example.com/?test=test,test.test%20test+test(test)&test-test. continue
+https://example.com/?test=test,test.test%20test+test(test)&test-test?
+https://example.com/?test=test,test.test%20test+test(test)&test-test;
+https://example.com/?test=test,test.test%20test+test(test)&test-test:
+https://example.com/?test=test,test.test%20test+test(test)&test-test"
+https://example.com/?test=test,test.test%20test+test(test)&test-test'
+https://example.com/?test=test,test.test%20test+test(test)&test-test)
+https://example.com/?test=test,test.test%20test+test(test)&test-test(
+https://example.com/?test=https://example.com/?test=test,test.test%20test+test(test)&test-test
+[url="https://example.com/?test=test,test.test%20test+test(test)&test-test"]
+[url=https://example.com/?test=test,test.test%20test+test(test)&test-test]https://example.com/?test=test,test.test%20test+test(test)&test-test[/url]
+
+Trailing hyphens ARE part of URL (matches most markdown parsers):
+https://example.com/?test=test,test.test%20test+test(test)&test-test-
+
 [url="retroachievements.org#1"] | [url="retroachievements.org#2"]
 [url="https://retroachievements.org#1"] | [url="https://retroachievements.org#2"]
 [url=http://retroachievements.org#1] | [url=http://retroachievements.org#2]
@@ -146,7 +168,7 @@ RenderSharedHeader();
 ?>
 <body>
 <script src='/vendor/wz_tooltip.js'></script>
-<div style="width:560px">
+<div style="width:560px;margin:10px;">
     <h1>Shortcode</h1>
     <?php echo Shortcode::render($payload, ['imgur' => true]) ?>
 </div>

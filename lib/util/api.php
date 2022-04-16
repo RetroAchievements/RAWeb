@@ -29,6 +29,6 @@ function apiErrorResponse($error)
     echo json_encode([
         'Success' => false,
         'Error' => $error,
-    ]);
+    ], JSON_THROW_ON_ERROR);
     exit;
 }

@@ -1,5 +1,6 @@
 <?php
 
+use RA\Permissions;
 use RA\Shortcode\Shortcode;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -8,14 +9,14 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $user = RA_ReadCookie('RA_User');
 $cookieRaw = RA_ReadCookie('RA_Cookie');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
     if (getAccountDetails($user, $userDetails) == false) {
-        //	Immediate redirect if we cannot validate user!
+        // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
         exit;
     }
 } else {
-    //	Immediate redirect if we cannot validate cookie!
+    // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
@@ -56,7 +57,7 @@ RenderHtmlHead("Send Message");
       });
     });
 
-    //	Focus on the first relevant field
+    // Focus on the first relevant field
     if ($('#messagedest').val().length == 0)
       $('#messagedest').focus();
     else

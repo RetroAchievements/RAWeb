@@ -23,7 +23,6 @@ function updateSubscription($subjectType, $subjectID, $userID, $state)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult === false) {
-        // error_log(__FUNCTION__ . ": " . mysqli_error($db));
         log_sql_fail();
         return false;
     }
@@ -93,7 +92,6 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
 
     $dbResult = s_mysql_query($query);
     if ($dbResult === false) {
-        // error_log(__FUNCTION__ . ": " . mysqli_error($db));
         log_sql_fail();
         return false;
     }

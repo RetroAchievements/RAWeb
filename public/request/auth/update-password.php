@@ -32,7 +32,7 @@ if ($newpass1 == $user) {
 if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken)) {
     RemovePasswordResetToken($user);
     if (changePassword($user, $newpass1)) {
-        //	Perform auto-login:
+        // Perform auto-login:
         generateCookie($user, $newCookie);
         RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
         generateAppToken($user, $tokenInOut);

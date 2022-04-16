@@ -20,15 +20,12 @@ function SQL_ASSERT($dbResult)
 function sanitiseSQL($query)
 {
     if (mb_strrchr($query, ';') !== false) {
-        // error_log(__FUNCTION__ . " failed(;): query:$query");
         return false;
     } else {
         if (mb_strrchr($query, '\\') !== false) {
-            // error_log(__FUNCTION__ . " failed(\\): query:$query");
             return false;
         } else {
             if (mb_strstr($query, "--") !== false) {
-                // error_log(__FUNCTION__ . " failed(--): query:$query");
                 return false;
             } else {
                 return true;

@@ -1,5 +1,7 @@
 #!/bin/sh
+# exit on error
+set -e
 
 php composer.phar install
 
-printf "\n✅ post-merge hook\n\n"
+printf "\n✅ post-merge OK\n\n"

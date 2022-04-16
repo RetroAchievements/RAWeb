@@ -93,7 +93,7 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
                     'mylink' => "/achievement/$nextID",
                     'category' => "Achievements",
                 ];
-            } else { //	$nextRow['Type'] == 3
+            } else { // $nextRow['Type'] == 3
                 $dataOut[] = [
                     'label' => $nextTitle,
                     'id' => $nextID,
@@ -106,5 +106,5 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
     }
 }
 
-echo json_encode($dataOut);
+echo json_encode($dataOut, JSON_THROW_ON_ERROR);
 flush();

@@ -21,8 +21,6 @@ $query = "UPDATE UserAccounts SET websitePrefs='$prefs', Updated=NOW() WHERE Use
 
 $dbResult = s_mysql_query($query);
 if ($dbResult !== false) {
-    // log_sql_fail();
-    // error_log(__FILE__ . " user $user to site prefs: $prefs - associate successful!");
     echo "OK";
 } else {
     log_sql_fail();

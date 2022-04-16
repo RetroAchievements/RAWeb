@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\Permissions;
 use RA\Shortcode\Shortcode;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
 
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
@@ -112,7 +113,7 @@ RenderHtmlStart(true);
         echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
         echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
         echo " &raquo; <b>$achievementTitle</b>";
-        echo "</div>"; //navpath
+        echo "</div>"; // navpath
 
         echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
@@ -126,10 +127,9 @@ RenderHtmlStart(true);
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
         echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
-        echo "</div>"; //achievemententryicon
+        echo "</div>"; // achievemententryicon
         echo "</td>";
 
-        //echo "<td style='float: left;'>";    //Horrible dont do this
         echo "<td>";
         echo "<div id='achievemententry'>";
 
@@ -140,7 +140,7 @@ RenderHtmlStart(true);
         echo "<a href='/achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
         echo "$desc<br>";
 
-        echo "</div>"; //achievemententry
+        echo "</div>"; // achievemententry
         echo "</td>";
 
         echo "</tr>";
@@ -181,7 +181,7 @@ RenderHtmlStart(true);
         if ($achievedLocal) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
-            echo "<div id='resetboxcontent'>";
+            echo "<div id='resetboxcontent' style='display: none'>";
             echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='a' value='$achievementID'>";
@@ -194,7 +194,7 @@ RenderHtmlStart(true);
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             if ($permissions >= Permissions::Developer) {
                 echo "<li>Set embedded video URL:</li>";
@@ -249,8 +249,8 @@ RenderHtmlStart(true);
             echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
             echo "</div>";
 
-            echo "</div>"; //    devboxcontent
-            echo "</div>"; //    devbox
+            echo "</div>"; // devboxcontent
+            echo "</div>"; // devbox
         }
 
         if (!empty($embedVidURL)) {
@@ -266,15 +266,14 @@ RenderHtmlStart(true);
             $permissions
         );
 
-        echo "</div>"; //achievement
+        echo "</div>"; // achievement
 
         /**
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div id='recentwinners'>";
         echo "<h3>Winners</h3>";
-
-        if (count($winnerInfo) == 0) {
+        if (empty($winnerInfo)) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {
             echo "<table><tbody>";
@@ -303,12 +302,6 @@ RenderHtmlStart(true);
                 }
                 echo "</td>";
 
-                //echo "<a href='/user/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
-                //var_dump( $userObject );
-                //echo GetUserAndTooltipDiv( $userObject['User'], FALSE );
-                //echo " (" . $userObject['RAPoints'] . ")";
-                //echo "</td>";
-
                 echo "<td>";
                 echo "<small>$niceDateWon</small>";
                 echo "</td>";
@@ -318,8 +311,7 @@ RenderHtmlStart(true);
 
             echo "</tbody></table>";
         }
-
-        echo "</div>"; //RecentWinners;
+        echo "</div>";
         ?>
     </div>
     <div id="rightcontainer">

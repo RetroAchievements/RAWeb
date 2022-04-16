@@ -1,15 +1,18 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Unregistered)) {
+if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Unregistered)) {
     if (getAccountDetails($user, $userDetails) == false) {
-        //	Immediate redirect if we cannot validate user!
+        // Immediate redirect if we cannot validate user!
         header("Location: " . getenv('APP_URL') . "?e=accountissue");
         exit;
     }
 } else {
-    //	Immediate redirect if we cannot validate cookie!
+    // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }

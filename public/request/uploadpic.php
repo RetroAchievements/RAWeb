@@ -1,9 +1,9 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
-
-use RA\Permissions;
 
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
@@ -20,7 +20,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
 }
 
 $allowedGameImageTypes = ["GAME_ICON", "GAME_TITLE", "GAME_INGAME", "GAME_BOXART"];
-$allowedTypes = array_merge(["NEWS"], $allowedGameImageTypes); //, "ACHIEVEMENT"
+$allowedTypes = array_merge(["NEWS"], $allowedGameImageTypes); // , "ACHIEVEMENT"
 $uploadType = requestInputPost('t', "");
 
 $returnID = requestInputPost('i', 0, 'integer');
@@ -35,40 +35,33 @@ $allowedExts = ["png", "jpeg", "jpg", "gif", "bmp"];
 $filenameParts = explode(".", $_FILES["file"]["name"]);
 $extension = mb_strtolower(end($filenameParts));
 
-if ($_FILES["file"]["size"] > 1048576) {
+if ($_FILES["file"]["size"] > 1_048_576) {
     echo "Error: image too big! Must be smaller than 1mb!";
-    return;
+    exit;
 }
 if ($extension == null || mb_strlen($extension) < 1) {
     echo "Error: no file detected. Did you pick a file for upload?";
-    return;
+    exit;
 }
 if (!in_array($extension, $allowedExts)) {
     echo "Error: image type ($extension) not supported! Supported types: .png, .jpeg, .gif";
-    return;
+    exit;
 }
 if (!in_array($uploadType, $allowedTypes)) {
     echo "Error: upload authorisation not given. Are you uploading from retroachievements.org?";
-    return;
+    exit;
 }
 if ($_FILES["file"]["error"] > 0) {
     echo "Error: " . $_FILES["file"]["error"] . "<br />";
-    return;
+    exit;
 }
-$tempImage = null;
 $tempFile = $_FILES["file"]["tmp_name"];
-switch ($extension) {
-    case 'png':
-        $tempImage = imagecreatefrompng($tempFile);
-        break;
-    case 'jpg':
-    case 'jpeg':
-        $tempImage = imagecreatefromjpeg($tempFile);
-        break;
-    case 'gif':
-        $tempImage = imagecreatefromgif($tempFile);
-        break;
-}
+$tempImage = match ($extension) {
+    'png' => imagecreatefrompng($tempFile),
+    'jpg', 'jpeg' => imagecreatefromjpeg($tempFile),
+    'gif' => imagecreatefromgif($tempFile),
+    default => null
+};
 
 if (!$tempImage) {
     header("Location: " . getenv('APP_URL') . "/game/$returnID?e=error");
@@ -85,7 +78,7 @@ $newImageFilename = $destPath . $nextImageFilenameStr . ".png";
 
 [$width, $height] = getimagesize($tempFile);
 
-//	Scale the resulting image to fit within the following limits:
+// Scale the resulting image to fit within the following limits:
 $maxImageSizeWidth = 160;
 $maxImageSizeHeight = 160;
 
@@ -112,18 +105,14 @@ $targetHeight = $height;
 
 if ($targetWidth > $maxImageSizeWidth) {
     $wScaling = 1.0 / ($targetWidth / $maxImageSizeWidth);
-    // error_log("WScaling is $wScaling, so width $targetWidth and height $targetHeight become...");
     $targetWidth = $targetWidth * $wScaling;
     $targetHeight = $targetHeight * $wScaling;
-    // error_log("$targetWidth and $targetHeight");
 }
-//	IF, after potentially being reduced, the height's still too big, scale again
+// IF, after potentially being reduced, the height's still too big, scale again
 if ($targetHeight > $maxImageSizeHeight) {
     $vScaling = 1.0 / ($targetHeight / $maxImageSizeHeight);
-    // error_log("VScaling is $vScaling, so width $targetWidth and height $targetHeight become...");
     $targetWidth = $targetWidth * $vScaling;
     $targetHeight = $targetHeight * $vScaling;
-    // error_log("$targetWidth and $targetHeight");
 }
 
 $newImage = imagecreatetruecolor($targetWidth, $targetHeight);
@@ -143,7 +132,7 @@ $newImageIter = str_pad($nextImageFilename + 1, 6, "0", STR_PAD_LEFT);
 file_put_contents($imageIterFilename, $newImageIter);
 
 if ($uploadType == "NEWS") {
-    //header( "Location: " . getenv('APP_URL') . "/submitnews.php?e=uploadok&g=/$newImageFilename" );
+    // header( "Location: " . getenv('APP_URL') . "/submitnews.php?e=uploadok&g=/$newImageFilename" );
     echo "OK:/$newImageFilename";
     exit;
 }

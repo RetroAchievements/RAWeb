@@ -36,4 +36,4 @@ if ($gameData['NumAchievements'] ?? false) {
     $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
 }
 
-echo json_encode($gameData);
+echo json_encode($gameData, JSON_THROW_ON_ERROR);

@@ -5,16 +5,16 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!validateGetChars("v")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $eCookie = requestInputSanitized('v');
 
 if (validateEmailValidationString($eCookie, $user)) {
-    //	Valid!
+    // Valid!
     generateCookie($user, $cookieOut);
     header("Location: " . getenv('APP_URL') . "/?e=validatedEmail");
 } else {
-    //	Not valid!
+    // Not valid!
     echo "Could not validate account!<br>";
 }

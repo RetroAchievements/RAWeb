@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -36,8 +37,6 @@ getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
 //	the past week
 $userScoreData = getAwardedList($userPage, 0, 1000);
-
-//var_dump( $userScoreData );
 
 RenderHtmlStart(true);
 RenderHtmlHead("$userPage's Legacy");
@@ -82,7 +81,7 @@ RenderHtmlHead("$userPage's Legacy");
     var optionsTotalScore = {
       backgroundColor: 'transparent',
       title: '<?php echo $sortByGraphName; ?>',
-      titleTextStyle: { color: '#186DEE' }, //cc9900
+      titleTextStyle: { color: '#186DEE' }, // cc9900
       hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
       vAxis: { textStyle: { color: '#186DEE' } },
       legend: { position: 'none' },
@@ -94,7 +93,7 @@ RenderHtmlHead("$userPage's Legacy");
     var dataBestDays = new google.visualization.DataTable();
 
     // Declare columns
-    dataBestDays.addColumn('string', 'Date');	//	NOT date! this is non-continuous data
+    dataBestDays.addColumn('string', 'Date'); // NOT date! this is non-continuous data
     dataBestDays.addColumn('number', 'Points Earned');
 
     dataBestDays.addRows([
@@ -127,8 +126,7 @@ RenderHtmlHead("$userPage's Legacy");
                 $value = $nextNumAwarded;
             }
 
-            //echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
-            echo "[ '$dateStr', $value ]";
+            echo "['$dateStr', $value]";
         }
         ?>
     ]);
@@ -175,7 +173,7 @@ RenderHtmlHead("$userPage's Legacy");
         var dateFormatted = dataTotalScore.getFormattedValue(chartScoreProgress.getSelection()[0].row, 0);
 
         var d = new Date(Date.parse(dateFormatted));
-        var dAdj = new Date(d.getTime() + 60000 * 60 * 12);	//	Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
+        var dAdj = new Date(d.getTime() + 60000 * 60 * 12);	// Adjusted by 60000 (min) times 60 (hour) times 12 (middle of day)
 
         var nUnix = parseInt(dAdj.getTime() / 1000);
 
