@@ -179,9 +179,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     // Determine which consoles the dev has created content for
                     $devConsoles = [];
                     foreach ($consoleList as $consoleID => $consoleName) {
-                        $consoleGames = array_filter($gamesList, function ($game) use ($consoleID) {
-                            return $game['ConsoleID'] == $consoleID;
-                        });
+                        $consoleGames = array_filter($gamesList, fn ($game) => $game['ConsoleID'] == $consoleID);
                         if (!empty($consoleGames)) {
                             $devConsoles[$consoleName] = $consoleGames;
                         }

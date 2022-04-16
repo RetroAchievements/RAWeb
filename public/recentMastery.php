@@ -14,17 +14,7 @@ $offset = max($offset, 0);
 $friends = requestInputSanitized('f', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
 
-switch ($friends) {
-    case 0: // Global
-        $lbUsers = "";
-        break;
-    case 1: // Friends
-        $lbUsers = "Friends";
-        break;
-    default:
-        $lbUsers = "";
-        break;
-}
+$lbUsers = $friends === 1 ? 'Friends' : '';
 
 if ($friends == 1) {
     $data = getRecentMasteryData($date, $user, $offset, $maxCount + 1);
