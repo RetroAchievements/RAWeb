@@ -22,6 +22,8 @@ services:
     volumes:
       - .:/srv/web
       - ./docker/php/configs/php-ini-overrides.ini:/usr/local/etc/php/conf.d/php-ini-overrides.ini:ro
+      - ./docker/php/configs/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./docker/php/configs/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
     networks:
       - raweb
   mysql:
