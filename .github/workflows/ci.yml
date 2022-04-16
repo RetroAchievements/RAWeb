@@ -55,5 +55,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Install
         run: npm install
-      - name: Analyse
+      - name: Lint
         run: npm run lint
