@@ -283,10 +283,7 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
               UPDATE User=User, AchievementID=AchievementID, Date=Date, HardcoreMode=HardcoreMode";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult === false)
-        return false;
-
-    return true;
+    return $dbResult !== false;
 }
 
 function HasAward($user, $achIDToAward)

@@ -234,7 +234,7 @@ function getGameMetadataByFlags(
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-              WHERE ach.GameID = $gameID
+              WHERE ach.GameID = $gameID AND ach.Flags = 3
               AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
               GROUP BY aw.HardcoreMode";
     $dbResult = s_mysql_query($query);
@@ -869,7 +869,7 @@ function getTotalUniquePlayers($gameID, $requestedBy)
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE gd.ID = $gameID
+        WHERE gd.ID = $gameID AND ach.Flags = 3
           AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
     ";
 
@@ -1341,6 +1341,8 @@ function updateGameAssetMetrics($gameID)
 
 function updateGamePlayerMetrics($gameID)
 {
+    // this is a very expensive query for any set with more than a few hundred players
+    // TODO: build from UserGameMetrics
     $query = "UPDATE GameData gd
               LEFT JOIN (
                 SELECT a.GameID, count(DISTINCT aw.User) as PlayerCount
