@@ -8,7 +8,7 @@ if [ ${#modifiedPhpFiles} -gt 0 ]; then
     vendor/bin/phpstan analyse --memory-limit 512M --no-progress
 
     printf "\n⏳ composer lint\n"
-    vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none ${modifiedPhpFiles}
+    vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php ${modifiedPhpFiles}
 
 #    printf "\n⏳ composer test\n"
 #    phpunit
