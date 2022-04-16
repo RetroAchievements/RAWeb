@@ -357,25 +357,44 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         $sortBy = 1;
     }
 
-    $query .= match ($sortBy) {
-        11 => "ORDER BY gd.ConsoleID, Title DESC ",
-        2 => "ORDER BY gd.ConsoleID, NumAchievements DESC, Title ",
-        12 => "ORDER BY gd.ConsoleID, NumAchievements ASC, Title ",
-        3 => "ORDER BY gd.ConsoleID, MaxPointsAvailable DESC, Title ",
-        13 => "ORDER BY gd.ConsoleID, MaxPointsAvailable, Title ",
-        4 => "ORDER BY NumLBs DESC, gd.ConsoleID, MaxPointsAvailable, Title ",
-        14 => "ORDER BY NumLBs, gd.ConsoleID, MaxPointsAvailable, Title ",
+    $orderBy = match ($sortBy) {
+        1 => "Title",
+        11 => "Title DESC",
+        2 => "NumAchievements DESC, MaxPointsAvailable DESC",
+        12 => "NumAchievements, MaxPointsAvailable",
+        3 => "MaxPointsAvailable DESC, NumAchievements DESC",
+        13 => "MaxPointsAvailable, NumAchievements",
+        4 => "NumLBs DESC, MaxPointsAvailable DESC",
+        14 => "NumLBs, MaxPointsAvailable",
         5 => $ticketsFlag
-                ? "ORDER BY OpenTickets DESC, gd.ConsoleID, MaxPointsAvailable, Title "
-                : "ORDER BY gd.ConsoleID, Title ",
+                ? "OpenTickets DESC "
+                : "",
         15 => $ticketsFlag
-                ? "ORDER BY OpenTickets, gd.ConsoleID, MaxPointsAvailable, Title "
-                : "ORDER BY gd.ConsoleID, Title DESC ",
-        6 => "ORDER BY gd.ConsoleID, DateModified DESC, Title ",
-        16 => "ORDER BY gd.ConsoleID, DateModified ASC, Title DESC ",
-        // 1
-        default => "ORDER BY gd.ConsoleID, Title ",
+                ? "OpenTickets"
+                : "",
+        6 => "DateModified DESC",
+        16 => "DateModified",
+        default => "",
     };
+
+    if (!empty($orderBy)) {
+        if (!str_contains($orderBy, "Title")) {
+            if ($sortBy < 10) {
+                $orderBy .= ", Title";
+            } else {
+                $orderBy .= ", Title DESC";
+            }
+        }
+        if ($consoleID == 0) {
+            if (str_contains($orderBy, "Title DESC")) {
+                $orderBy .= ", ConsoleName DESC";
+            } else {
+                $orderBy .= ", ConsoleName";
+            }
+        }
+
+        $query .= "ORDER BY $orderBy ";
+    }
 
     if ($count > 0) {
         $query = substr_replace($query, "SQL_CALC_FOUND_ROWS ", 7, 0);
