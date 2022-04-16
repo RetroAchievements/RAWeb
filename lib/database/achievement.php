@@ -271,6 +271,7 @@ function getAchievementBadgeFilename($id)
     return $data['BadgeName'];
 }
 
+// private function - should only be called from addEarnedAchievementJSON
 function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
 {
     sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
@@ -284,12 +285,6 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
     $dbResult = s_mysql_query($query);
     if ($dbResult === false)
         return false;
-
-    updateAchievementMetrics($achIDToAward);
-
-    // TODO: update UserGameMetrics
-    //       if a UserGameMetrics entry gets created, then we also need to call updateGamePlayerMetrics
-    //       use mysqli_affected_rows to detect insert vs. update
 
     return true;
 }
@@ -393,6 +388,15 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
         }
 
         return $retVal;
+    }
+
+    // update the earn rate for the achievement
+    updateAchievementMetrics($achIDToAward);
+
+    // if this is the first achievement the user has earned for the game, we have to add
+    // the player to the game metrics
+    if ($completion['NumAwarded'] == 1) {
+        updateGamePlayerMetrics($achData['GameID']);
     }
 
     $pointsToGive = $achData['Points'];
@@ -521,8 +525,10 @@ function UploadNewAchievement(
                 $author
             );
 
-            // uploaded new achievement
-            updateGameAssetMetrics($gameID);
+            // if this was uploaded directly to core (unexpected), add it to the game metrics
+            if ($type == 3) {
+                updateGameAssetMetrics($gameID);
+            }
 
             return true;
         } else {
@@ -625,13 +631,8 @@ function UploadNewAchievement(
                     );
                 }
 
-                if ($changingAchSet) {
-                    updateGameAssetMetrics($gameID);
-                    // TODO: if any players have earned this achievement we'll have to update their
-                    //       UserGameMetrics and the GamePlayerMetrics
-                } else if ($changingPoints) {
-                    updateGameAssetMetrics($gameID);
-                    // TODO: if any players have earned this achievement we'll have to update their UserGameMetrics
+                if ($changingAchSet || $changingPoints) {
+                    updateAchievementPointsMetrics($idInOut, $gameID, $changingAchSet, $changingPoints);
                 }
 
                 return true;
@@ -929,9 +930,7 @@ function updateAchievementFlags($achID, $newFlags)
     }
 
     $achData = GetAchievementData(is_array($achID) ? $achID[0] : $achID);
-    updateGameAssetMetrics($achData['GameID']);
-    // TODO: if any players have earned this achievement we'll have to update their
-    //       UserGameMetrics and the GamePlayerMetrics
+    updateAchievementPointsMetrics($achID, $achData['GameID'], true, false);
     return true;
 }
 
@@ -1483,5 +1482,29 @@ function updateAchievementMetrics($achievementID)
         return true;
     } else {
         return false;
+    }
+}
+
+function updateAchievementPointsMetrics($achievementID, $gameID, $changingAchSet, $changingPoints)
+{
+    // update the CoreAchievementCount and Points metrics
+    updateGameAssetMetrics($gameID);
+
+    // if any players have earned this achievement, we have to update their UserGameMetrics
+    $query = "SELECT DISTINCT User FROM Awarded WHERE AchievementID=$achievementID";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        $found = false;
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            // TODO: update UserGameMetrics
+            $found = true;
+        }
+
+        // if we're promoting/demoting an achievement and we found a player who has earned it
+        // we need to recalculate the number of players for the set (in case it was the only
+        // achievement earned by the player).
+        if ($found && $changingAchSet) {
+            updateGamePlayerMetrics($gameID);
+        }
     }
 }
