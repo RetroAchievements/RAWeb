@@ -13,7 +13,7 @@ function getNiceDate($timestamp, $justDay = false, $locale = 'EN-GB')
     $todayTimestampDate = strtotime(date('F j, Y'));
     $yesterdayTimestampDate = strtotime(date("F j, Y", time() - 60 * 60 * 24));
 
-    //	Convert timestamp to day
+    // Convert timestamp to day
     $timestampDate = strtotime(date('F j, Y' . $timestamp));
 
     if ($timestampDate == $todayTimestampDate) {

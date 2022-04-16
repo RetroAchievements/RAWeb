@@ -1,0 +1,111 @@
+# To be used with a JetBrains IDE HTTP Client
+
+### GetAchievementCount
+# curl -X GET --location "http://{{host}}/API/API_GetAchievementCount.php?y={{apiToken}}&z={{apiUser}}&i={{game}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetAchievementCount.php?y={{apiToken}}&z={{apiUser}}&i={{game}}
+Accept: application/json
+
+### GetAchievementDistribution
+# curl -X GET --location "http://{{host}}/API/API_GetAchievementDistribution.php?y={{apiToken}}&z={{apiUser}}&i={{game}}&h=1&f=3" -H "Accept: application/json"
+GET {{host}}/API/API_GetAchievementDistribution.php?y={{apiToken}}&z={{apiUser}}&i={{game}}&h=1&f=3
+Accept: application/json
+
+### GetAchievementOfTheWeek
+# curl -X GET --location "http://{{host}}/API/API_GetAchievementOfTheWeek.php?y={{apiToken}}&z={{apiUser}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetAchievementOfTheWeek.php?y={{apiToken}}&z={{apiUser}}
+Accept: application/json
+
+### GetAchievementsEarnedBetween
+# curl -X GET --location "http://{{host}}/API/API_GetAchievementsEarnedBetween.php?y={{apiToken}}&z={{apiUser}}&u={{user}}&f=1550000000&t=1610000000" -H "Accept: application/json"
+GET {{host}}/API/API_GetAchievementsEarnedBetween.php?y={{apiToken}}&z={{apiUser}}&u={{user}}&f=1550000000&t=1610000000
+Accept: application/json
+
+### GetAchievementsEarnedOnDay
+# curl -X GET --location "http://{{host}}/API/API_GetAchievementsEarnedOnDay.php?y={{apiToken}}&z={{apiUser}}&u={{user}}&d=2019-02-12" -H "Accept: application/json"
+GET {{host}}/API/API_GetAchievementsEarnedOnDay.php?y={{apiToken}}&z={{apiUser}}&u={{user}}&d=2019-02-12
+Accept: application/json
+
+### GetAchievementUnlocks
+# curl -X GET --location "http://{{host}}/API/API_GetAchievementUnlocks.php?y={{apiToken}}&z={{apiUser}}&a={{achievement}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetAchievementUnlocks.php?y={{apiToken}}&z={{apiUser}}&a={{achievement}}
+Accept: application/json
+
+### GetConsoleIDs
+# curl -X GET --location "http://{{host}}/API/API_GetConsoleIDs.php?y={{apiToken}}&z={{apiUser}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetConsoleIDs.php?y={{apiToken}}&z={{apiUser}}
+Accept: application/json
+
+### GetFeed
+# curl -X GET --location "http://{{host}}/API/API_GetFeed.php?y={{apiToken}}&z={{apiUser}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetFeed.php?y={{apiToken}}&z={{apiUser}}
+Accept: application/json
+
+### GetGame
+# curl -X GET --location "http://{{host}}/API/API_GetGame.php?y={{apiToken}}&z={{apiUser}}&i={{game}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetGame.php?y={{apiToken}}&z={{apiUser}}&i={{game}}
+Accept: application/json
+
+### GetGameExtended
+# curl -X GET --location "http://{{host}}/API/API_GetGameExtended.php?y={{apiToken}}&z={{apiUser}}&i={{game}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetGameExtended.php?y={{apiToken}}&z={{apiUser}}&i={{game}}
+Accept: application/json
+
+### GetGameInfoAndUserProgress
+# curl -X GET --location "http://{{host}}/API/API_GetGameInfoAndUserProgress.php?y={{apiToken}}&z={{apiUser}}&u={{user}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetGameInfoAndUserProgress.php?y={{apiToken}}&z={{apiUser}}&u={{user}}
+Accept: application/json
+
+### GetGameList
+# curl -X GET --location "http://{{host}}/API/API_GetGameList.php?y={{apiToken}}&z={{apiUser}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetGameList.php?y={{apiToken}}&z={{apiUser}}&i={{console}}
+Accept: application/json
+
+### GetGameRankAndScore
+# curl -X GET --location "http://{{host}}/API/API_GetGameRankAndScore.php?y={{apiToken}}&z={{apiUser}}&g={{game}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetGameRankAndScore.php?y={{apiToken}}&z={{apiUser}}&g={{game}}
+Accept: application/json
+
+### GetGameRating
+# curl -X GET --location "http://{{host}}/API/API_GetGameRating.php?y={{apiToken}}&z={{apiUser}}&i={{game}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetGameRating.php?y={{apiToken}}&z={{apiUser}}&i={{game}}
+Accept: application/json
+
+### GetTicketData
+# curl -X GET --location "http://{{host}}/API/API_GetTicketData.php?y={{apiToken}}&z={{apiUser}}&i={{ticket}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetTicketData.php?y={{apiToken}}&z={{apiUser}}&i={{ticket}}
+Accept: application/json
+
+### GetTopTenUsers
+# curl -X GET --location "http://{{host}}/API/API_GetTopTenUsers.php?y={{apiToken}}&z={{apiUser}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetTopTenUsers.php?y={{apiToken}}&z={{apiUser}}
+Accept: application/json
+
+### GetUserCompletedGames
+# curl -X GET --location "http://{{host}}/API/API_GetUserCompletedGames.php?y={{apiToken}}&z={{apiUser}}&u={{user}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetUserCompletedGames.php?y={{apiToken}}&z={{apiUser}}&u={{user}}
+Accept: application/json
+
+### GetUserGameRankAndScore
+# curl -X GET --location "http://{{host}}/API/API_GetUserGameRankAndScore.php?y={{apiToken}}&z={{apiUser}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetUserGameRankAndScore.php?y={{apiToken}}&z={{apiUser}}&g={{game}}&u={{user}}
+Accept: application/json
+
+### GetUserProgress
+# curl -X GET --location "http://{{host}}/API/API_GetUserProgress.php?y={{apiToken}}&z={{apiUser}}&i={{game}}&u={{user}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetUserProgress.php?y={{apiToken}}&z={{apiUser}}&i={{game}}&u={{user}}
+Accept: application/json
+
+### GetUserRankAndScore
+# curl -X GET --location "http://{{host}}/API/API_GetUserRankAndScore.php?y={{apiToken}}&z={{apiUser}}&u={{user}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetUserRankAndScore.php?y={{apiToken}}&z={{apiUser}}&u={{user}}
+Accept: application/json
+
+### GetUserRecentlyPlayedGames
+# curl -X GET --location "http://{{host}}/API/API_GetUserRecentlyPlayedGames.php?y={{apiToken}}&z={{apiUser}}&u={{user}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetUserRecentlyPlayedGames.php?y={{apiToken}}&z={{apiUser}}&u={{user}}
+Accept: application/json
+
+### GetUserSummary
+# curl -X GET --location "http://{{host}}/API/API_GetUserSummary.php?y={{apiToken}}&z={{apiUser}}&u={{user}}" -H "Accept: application/json"
+GET {{host}}/API/API_GetUserSummary.php?y={{apiToken}}&z={{apiUser}}&u={{user}}
+Accept: application/json

@@ -15,7 +15,7 @@ if (empty($achievementID)) {
         'Achievement' => ['ID' => null],
         'StartAt' => null,
     ]);
-    return;
+    exit;
 }
 
 $achievementData = GetAchievementMetadataJSON($achievementID);
@@ -55,14 +55,10 @@ if (empty($startAt)) {
 }
 
 if (!empty($startAt)) {
-    $winnerInfo = array_filter($winnerInfo, function ($unlock) use ($startAt) {
-        return (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt);
-    });
+    $winnerInfo = array_filter($winnerInfo, fn ($unlock) => (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt));
 }
 
-usort($winnerInfo, function ($a, $b) {
-    return strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']);
-});
+usort($winnerInfo, fn ($a, $b) => strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']));
 
 echo json_encode([
     'Achievement' => $achievement,
@@ -73,4 +69,4 @@ echo json_encode([
     'TotalPlayers' => (int) ($numPossibleWinners ?? 0),
     'Unlocks' => array_values($winnerInfo ?? []),
     'UnlocksCount' => (int) ($numWinners ?? 0),
-]);
+], JSON_THROW_ON_ERROR);

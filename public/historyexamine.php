@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -49,7 +50,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
         echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br><br>";
 
-        //echo "<a href='history.php?u=$userPage'>Back to $userPage's Legacy</a>";
+        // echo "<a href='history.php?u=$userPage'>Back to $userPage's Legacy</a>";
 
         echo "<br>";
 
@@ -57,9 +58,9 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "<table class='smalltable xsmall'><tbody>";
 
-        //$sort1 = ($sortBy==1) ? 11 : 1;
-        //$sort2 = ($sortBy==2) ? 12 : 2;
-        //$sort3 = ($sortBy==3) ? 13 : 3;
+        // $sort1 = ($sortBy==1) ? 11 : 1;
+        // $sort2 = ($sortBy==2) ? 12 : 2;
+        // $sort3 = ($sortBy==3) ? 13 : 3;
 
         echo "<tr>";
         echo "<th>At</th>";
@@ -70,14 +71,12 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         echo "<th>Game Title</th>";
         echo "</tr>";
 
-        //var_dump( $achEarnedOnDay );
-
-        //	Merge if poss and count
-        $achCount = count($achEarnedOnDay);
+        // Merge if poss and count
+        $achCount = is_countable($achEarnedOnDay) ? count($achEarnedOnDay) : 0;
         $pointsCount = 0;
-        //foreach( $achEarnedOnDay as $achEarned )
+        // foreach( $achEarnedOnDay as $achEarned )
 
-        //	Tally all
+        // Tally all
         for ($i = 0; $i < $achCount; $i++) {
             $achID = $achEarnedOnDay[$i]['AchievementID'];
             $achPoints = $achEarnedOnDay[$i]['Points'];
@@ -86,33 +85,27 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         $achEarnedLib = [];
 
-        //	Store all NORMAL into $achEarnedLib
+        // Store all NORMAL into $achEarnedLib
         for ($i = 0; $i < $achCount; $i++) {
             $achID = $achEarnedOnDay[$i]['AchievementID'];
-            //var_dump( $achEarnedOnDay[$i] );
             if ($achEarnedOnDay[$i]['HardcoreMode'] == 0) {
                 $achEarnedLib[$achID] = $achEarnedOnDay[$i];
             }
         }
 
-        //	Potentially overwrite HARDCORE into $achEarnedLib
+        // Potentially overwrite HARDCORE into $achEarnedLib
         for ($i = 0; $i < $achCount; $i++) {
             $achID = $achEarnedOnDay[$i]['AchievementID'];
             if ($achEarnedOnDay[$i]['HardcoreMode'] == 1) {
-                //if( isset( $achEarnedLib[$achID] ) && $achEarnedLib[$achID]['HardcoreMode'] == 1 )
-                //	Ordinary ach also exists: notify in points col
+                // if( isset( $achEarnedLib[$achID] ) && $achEarnedLib[$achID]['HardcoreMode'] == 1 )
+                // Ordinary ach also exists: notify in points col
                 $achEarnedLib[$achID] = $achEarnedOnDay[$i];
                 $achPoints = $achEarnedLib[$achID]['Points'];
                 $achEarnedLib[$achID]['PointsNote'] = "<span class='hardcore'>(+$achPoints)</span>";
             }
         }
 
-        function dateCompare($a, $b)
-        {
-            return $a['Date'] > $b['Date'];
-        }
-
-        usort($achEarnedLib, "dateCompare");
+        usort($achEarnedLib, fn ($a, $b) => $a['Date'] <=> $b['Date']);
 
         foreach ($achEarnedLib as $achEarned) {
             $achAwardedAt = $achEarned['Date'];
@@ -120,7 +113,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             $achTitle = $achEarned['Title'];
             $achDesc = $achEarned['Description'];
             $achPoints = $achEarned['Points'];
-            $achPointsNote = isset($achEarned['PointsNote']) ? $achEarned['PointsNote'] : '';
+            $achPointsNote = $achEarned['PointsNote'] ?? '';
             $achAuthor = $achEarned['Author'];
             $achGameID = $achEarned['GameID'];
             $achGameTitle = $achEarned['GameTitle'];
@@ -129,10 +122,11 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             $achBadgeName = $achEarned['BadgeName'];
             $hardcoreMode = $achEarned['HardcoreMode'];
 
-            //$pointsCount 	+= $achPoints;
+            sanitize_outputs($achTitle, $achDesc);
 
-            //$dateUnix 		= strtotime( "$nextDay-$nextMonth-$nextYear" );
-            //$dateStr 		= getNiceDate( $dateUnix, TRUE );
+            // $pointsCount += $achPoints;
+            // $dateUnix = strtotime( "$nextDay-$nextMonth-$nextYear" );
+            // $dateStr = getNiceDate( $dateUnix, TRUE );
 
             echo "<tr>";
 

@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -136,13 +137,21 @@ RenderHtmlHead("Report Broken Achievement");
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="checksum">Checksum</label></td>
+                    <td><label for="checksum">RetroAchievements Hash</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
                             <?php
-                            foreach (getHashListByGameID($gameID) as $listKey => $hashArray) {
-                                foreach ($hashArray as $hashKey => $hash) {
+                            $hashes = getHashListByGameID($gameID);
+                            foreach ($hashes as $hashData) {
+                                if (!empty($hashData['Name'])) {
+                                    $hash = $hashData['Hash'];
+                                    echo "<option value='$hash'>$hash - " . $hashData['Name'] . "</option>";
+                                }
+                            }
+                            foreach ($hashes as $hashData) {
+                                if (empty($hashData['Name'])) {
+                                    $hash = $hashData['Hash'];
                                     echo "<option value='$hash'>$hash</option>";
                                 }
                             }

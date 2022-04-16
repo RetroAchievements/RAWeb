@@ -1,8 +1,12 @@
 <?php
+
+use RA\ArticleType;
+use RA\Permissions;
+use RA\SubscriptionSubjectType;
+use RA\UserPref;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
-
-use RA\Permissions;
 
 /*
   DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash
@@ -54,10 +58,75 @@ $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
 
 $pageTitle = "$gameTitle ($consoleName)";
 
-$gameAlts = getGameAlternatives($gameID);
+$relatedGames = getGameAlternatives($gameID);
+$gameAlts = [];
+$gameHubs = [];
+$gameSubsets = [];
+$subsetPrefix = $gameData['Title'] . " [Subset - ";
+foreach ($relatedGames as $gameAlt) {
+    if ($gameAlt['ConsoleName'] == 'Hubs') {
+        $gameHubs[] = $gameAlt;
+    } else {
+        if (substr($gameAlt['Title'], 0, strlen($subsetPrefix)) == $subsetPrefix) {
+            $gameSubsets[] = $gameAlt;
+        } else {
+            $gameAlts[] = $gameAlt;
+        }
+    }
+}
+
+$v = requestInputSanitized('v', 0, 'integer');
+if ($v != 1 && $isFullyFeaturedGame) {
+    foreach ($gameHubs as $hub) {
+        if ($hub['Title'] == '[Theme - Mature]') {
+            if (getAccountDetails($user, $accountDetails) &&
+                BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+                break;
+            }
+
+            RenderHtmlStart(true); ?>
+<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
+    <?php RenderSharedHeader(); ?>
+    <?php RenderTitleTag($pageTitle); ?>
+</head>
+<body>
+<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
+<?php RenderToolbar($user, $permissions);
+            echo "<div id='mainpage'>";
+            echo "<div id='leftcontainer'>";
+            echo "<div class='navpath'>";
+            echo "<a href='/gameList.php'>All Games</a>";
+            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
+            echo " &raquo; <b>$gameTitle</b>";
+            echo "</div>";
+            echo "<h3 class='longheader'>$pageTitle</h3>"; ?>
+  <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
+  <br/>
+  <div id="confirmation">
+    Are you sure that you want to view this game?
+    <br/>
+    <br/>
+    <form id='consentform' action='/game/<?php echo $gameID ?>' method='get' style='float:left'>
+      <input type='hidden' name='v' value='1'/>
+      <input type='submit' value='Yes. I&apos;m an adult'/>
+    </form>
+    <form id='escapeform' action='/gameList.php' method='get' style='float:left; margin-left:16px'>
+      <input type='hidden' name='c' value='<?php echo $consoleID ?>'/>
+      <input type='submit' value='Not Interested'/>
+    </form>
+  </div>
+</div>
+</div>
+<?php RenderFooter(); ?>
+</body>
+<?php RenderHtmlEnd();
+            exit;
+        }
+    }
+}
 
 $achDist = null;
-$authorInfo = null;
+$authorInfo = [];
 $commentData = null;
 $cookie = null;
 $gameTopAchievers = null;
@@ -79,22 +148,8 @@ $isSoleAuthor = false;
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
-    if ($numDistinctPlayersCasual == 0) {
-        $numDistinctPlayersCasual = 1;
-    }
-    if ($numDistinctPlayersHardcore == 0) {
-        $numDistinctPlayersHardcore = 1; //??
-    }
 
-    $totalUniquePlayers = getTotalUniquePlayers($gameID, $user);
-    if ($numDistinctPlayersCasual < $totalUniquePlayers) {
-        $numDistinctPlayersCasual = $totalUniquePlayers;
-    }
-    if ($numDistinctPlayersHardcore < $totalUniquePlayers) {
-        $numDistinctPlayersHardcore = $totalUniquePlayers;
-    }
-
-    $achDist = getAchievementDistribution($gameID, 0, $user, $flags); // for now, only retrieve casual!
+    $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
 
@@ -146,7 +201,7 @@ if ($isFullyFeaturedGame) {
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
-    //Get the top ten players at this game:
+    // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID, $user);
 
     // Determine if the logged in user is the sole author of the set
@@ -171,7 +226,6 @@ RenderHtmlStart(true);
         <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
     <?php endif ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
@@ -214,8 +268,7 @@ RenderHtmlStart(true);
           <?php $numGridlines = $numAchievements; ?>
         var optionsTotalScore = {
           backgroundColor: 'transparent',
-          //title: 'Achievement Distribution',
-          titleTextStyle: {color: '#186DEE'}, //cc9900
+          titleTextStyle: {color: '#186DEE'}, // cc9900
           hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
           vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
           legend: {position: 'none'},
@@ -228,7 +281,7 @@ RenderHtmlStart(true);
         function resize() {
           chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
           chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
-          //google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
+          // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
         }
 
         window.onload = resize();
@@ -304,9 +357,6 @@ RenderHtmlStart(true);
             $('.ratingachlabel').html('Rating: ' + lastKnownAchRating.toFixed(2) + ' (' + achRatingNumVotes + ' votes)');
 
           },
-          error: function (temp, temp1, temp2) {
-            alert('Error ' + temp + temp1 + temp2);
-          },
         });
       }
 
@@ -317,9 +367,6 @@ RenderHtmlStart(true);
           success: function (results) {
             GetRating(<?php echo $gameID; ?>);
           },
-          error: function (temp, temp1, temp2) {
-            alert('Error ' + temp + temp1 + temp2);
-          },
         });
       }
 
@@ -329,10 +376,10 @@ RenderHtmlStart(true);
         // Add these handlers onload, they don't exist yet
         $('.starimg').hover(
           function () {
-            //	On hover
+            // On hover
 
             if ($(this).parent().is($('#ratingach'))) {
-              //	Ach:
+              // Ach:
               var numStars = 0;
               if ($(this).hasClass('1star'))
                 numStars = 1;
@@ -347,7 +394,7 @@ RenderHtmlStart(true);
 
               SetLitStars('#ratingach', numStars);
             } else {
-              //	Game:
+              // Game:
               var numStars = 0;
               if ($(this).hasClass('1star'))
                 numStars = 1;
@@ -365,7 +412,7 @@ RenderHtmlStart(true);
           },
           function () {
             // On leave
-            //GetRating( <?php echo $gameID; ?> );
+            // GetRating( <?php echo $gameID; ?> );
           });
 
         $('.rating').hover(
@@ -374,7 +421,7 @@ RenderHtmlStart(true);
           },
           function () {
             // On leave
-            //GetRating( <?php echo $gameID; ?> );
+            // GetRating( <?php echo $gameID; ?> );
             if ($(this).is($('#ratingach')))
               SetLitStars('#ratingach', lastKnownAchRating);
             else
@@ -424,7 +471,7 @@ RenderHtmlStart(true);
               $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
               $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
 
-              //If the user has not requested a set for this game
+              // If the user has not requested a set for this game
               if (thisGame == 0) {
                 if (remaining <= 0) {
                   $('.setRequestLabel').html('<h4>No Requests Remaining</h4>');
@@ -439,10 +486,6 @@ RenderHtmlStart(true);
               } else {
                 $('.setRequestLabel').html('<h4>Withdraw Request</h4>');
               }
-
-            },
-            error: function (temp, temp1, temp2) {
-              alert('Error ' + temp + temp1 + temp2);
             },
           });
       }
@@ -457,9 +500,6 @@ RenderHtmlStart(true);
             dataType: 'json',
             success: function (results) {
               getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
-            },
-            error: function (temp, temp1, temp2) {
-              alert('Error ' + temp + temp1 + temp2);
             },
           });
       }
@@ -513,32 +553,19 @@ RenderHtmlStart(true);
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
+            echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
-            if ($developer) {
-                echo "<tr>";
-                echo "<td>Developer:</td>";
-                echo "<td><b>$developer</b></td>";
-                echo "</tr>";
-            }
-            if ($publisher) {
-                echo "<tr>";
-                echo "<td>Publisher:</td>";
-                echo "<td><b>$publisher</b></td>";
-                echo "</tr>";
-            }
-            if ($genre) {
-                echo "<tr>";
-                echo "<td>Genre:</td>";
-                echo "<td><b>$genre</b></td>";
-                echo "</tr>";
-            }
-            if ($released) {
-                echo "<tr>";
-                echo "<td>First released:</td>";
-                echo "<td><b>$released</b></td>";
-                echo "</tr>";
+            if ($isFullyFeaturedGame) {
+                RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
+                RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
+                RenderMetadataTableRow('Genre', $genre, $gameHubs, ['Subgenre']);
+                RenderMetadataTableRow('Released', $released, null);
+            } else {
+                RenderMetadataTableRow('Developer', $developer, null);
+                RenderMetadataTableRow('Publisher', $publisher, null);
+                RenderMetadataTableRow('Genre', $genre, null);
+                RenderMetadataTableRow('Released', $released, null);
             }
             echo "</tbody></table>";
             echo "</tr>";
@@ -565,15 +592,23 @@ RenderHtmlStart(true);
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-                echo "<div id='devboxcontent'>";
+                echo "<div id='devboxcontent' style='display: none'>";
 
                 // Display the option to switch between viewing core/unofficial for non-hub page
                 if ($isFullyFeaturedGame) {
                     if ($flags == $unofficialFlag) {
-                        echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
+                        if ($v == 1) {
+                            echo "<div><a href='/game/$gameID?v=1'>View Core Achievements</a></div>";
+                        } else {
+                            echo "<div><a href='/game/$gameID'>View Core Achievements</a></div>";
+                        }
                         echo "<div><a href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
                     } else {
-                        echo "<div><a href='/gameInfo.php?ID=$gameID&f=5'>View Unofficial Achievements</a></div>";
+                        if ($v == 1) {
+                            echo "<div><a href='/game/$gameID?f=5&v=1'>View Unofficial Achievements</a></div>";
+                        } else {
+                            echo "<div><a href='/game/$gameID?f=5'>View Unofficial Achievements</a></div>";
+                        }
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
                 }
@@ -592,7 +627,7 @@ RenderHtmlStart(true);
 
                 if ($isFullyFeaturedGame) {
                     if ($permissions >= Permissions::Developer) {
-                        echo "<div><a href='/attemptunlink.php?g=$gameID'>Unlink Game</a></div>";
+                        echo "<div><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                         echo "<div><a href='/request/game/recalculate-points-ratio.php?g=$gameID'>Recalculate True Ratios</a></div>";
                     }
                     echo "<div><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></div>";
@@ -600,10 +635,10 @@ RenderHtmlStart(true);
                     echo "<div><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
 
                     echo "<div>";
-                    $isSubscribedToTickets = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameTickets, $gameID, $userID);
+                    $isSubscribedToTickets = isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID);
                     RenderUpdateSubscriptionForm(
                         "updateticketssub",
-                        \RA\SubscriptionSubjectType::GameTickets,
+                        SubscriptionSubjectType::GameTickets,
                         $gameID,
                         $isSubscribedToTickets
                     );
@@ -613,10 +648,10 @@ RenderHtmlStart(true);
                     echo "</div>";
 
                     echo "<div>";
-                    $isSubscribedToAchievements = isUserSubscribedTo(\RA\SubscriptionSubjectType::GameAchievements, $gameID, $userID);
+                    $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
                     RenderUpdateSubscriptionForm(
                         "updateachievementssub",
-                        \RA\SubscriptionSubjectType::GameAchievements,
+                        SubscriptionSubjectType::GameAchievements,
                         $gameID,
                         $isSubscribedToAchievements
                     );
@@ -690,9 +725,9 @@ RenderHtmlStart(true);
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div>Similar Games</div>";
+                    echo "<div>Relations</div>";
                     echo "<table><tbody>";
-                    if (count($gameAlts) > 0) {
+                    if (!empty($relatedGames)) {
                         echo "<tr><td>";
                         echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
@@ -701,7 +736,7 @@ RenderHtmlStart(true);
                         echo "<select name='m'>";
                         echo "<option value='0' selected>-</option>";
 
-                        foreach ($gameAlts as $gameAlt) {
+                        foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
                             $gameAltTitle = $gameAlt['Title'];
                             $gameAltConsole = $gameAlt['ConsoleName'];
@@ -713,6 +748,7 @@ RenderHtmlStart(true);
 
                             echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
                         }
+
                         echo "</select>";
                         echo "<input type='submit' style='float: right;' value='Remove' size='37'>";
                         echo "</form>";
@@ -826,7 +862,7 @@ RenderHtmlStart(true);
                     if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
                         echo "<div class='devbox'>";
                         echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
-                        echo "<div id='resetboxcontent'>";
+                        echo "<div id='resetboxcontent' style='display: none'>";
                         echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
                         echo "<input type='hidden' name='u' value='$user'>";
                         echo "<input type='hidden' name='g' value='$gameID'>";
@@ -911,9 +947,9 @@ RenderHtmlStart(true);
                     echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
                     echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
                     // TODO sorting by "date won" isn't implemented yet.
-                    //if(isset($user)) {
+                    // if(isset($user)) {
                     //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
-                    //}
+                    // }
                     echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
                     echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
 
@@ -960,9 +996,14 @@ RenderHtmlStart(true);
                             $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
 
                             $wonBy = $nextAch['NumAwarded'];
-                            $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
-                            $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                            if ($numDistinctPlayersCasual == 0) {
+                                $completionPctCasual = "0";
+                                $completionPctHardcore = "0";
+                            } else {
+                                $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
+                                $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                            }
 
                             if ($user == "" || !$achieved) {
                                 $achBadgeName .= "_lock";
@@ -1020,7 +1061,7 @@ RenderHtmlStart(true);
                             } else {
                                 echo "won by $wonBy of $numDistinctPlayersCasual ($pctAwardedCasual%)<br>";
                             }
-                            echo "</div>"; //progressbar
+                            echo "</div>"; // progressbar
 
                             echo "<div class='achievementdata'>";
                             echo GetAchievementAndTooltipDiv(
@@ -1044,7 +1085,7 @@ RenderHtmlStart(true);
                             if ($achieved) {
                                 echo "<div class='date smalltext'>unlocked on<br>$dateAch<br></div>";
                             }
-                            echo "</div>"; //    achievemententry
+                            echo "</div>"; // achievemententry
                             echo "</td>";
                             echo "</tr>";
                         }
@@ -1054,8 +1095,8 @@ RenderHtmlStart(true);
             }
 
             if (!$isFullyFeaturedGame) {
-                if (count($gameAlts) > 0) {
-                    RenderGameAlts($gameAlts, false);
+                if (!empty($relatedGames)) {
+                    RenderGameAlts($relatedGames, null);
                 }
             }
 
@@ -1064,11 +1105,11 @@ RenderHtmlStart(true);
 
             if ($isFullyFeaturedGame) {
                 $recentPlayerData = getGameRecentPlayers($gameID, 10);
-                if (count($recentPlayerData) > 0) {
+                if (!empty($recentPlayerData)) {
                     RenderRecentGamePlayers($recentPlayerData);
                 }
 
-                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, \RA\ArticleType::Game, $permissions >= Permissions::Admin);
+                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions >= Permissions::Admin);
             }
             ?>
         </div>
@@ -1104,15 +1145,19 @@ RenderHtmlStart(true);
                 if ($numAchievements == 0) {
                     echo "<li><a class='info-button' href='/setRequestors.php?g=$gameID'><span>📜</span>Set Requestors</a></li>";
                 }
-                //if( $flags == $unofficialFlag )
-                //echo "<li><a class='info-button' href='/game/$gameID'><span>🏆</span>View Core Achievements</a></li>";
-                //else
-                //echo "<li><a class='info-button' href='/gameInfo.php?ID=$gameID&f=5'><span>🏆</span>View Unofficial Achievements</a></li>";
                 echo "</ul><br>";
             }
 
+            if (count($gameSubsets) > 0) {
+                RenderGameAlts($gameSubsets, 'Subsets');
+            }
+
             if (count($gameAlts) > 0) {
-                RenderGameAlts($gameAlts);
+                RenderGameAlts($gameAlts, 'Similar Games');
+            }
+
+            if (count($gameHubs) > 0) {
+                RenderGameAlts($gameHubs, 'In Collections');
             }
 
             if ($user == null) {

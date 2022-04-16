@@ -1,63 +1,91 @@
 version: '3.7'
 services:
-
-  mysql:
-    image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - 64110:3306
-    volumes:
-      - mysql-data:/var/lib/mysql # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile#L67
-      - ./database:/docker-entrypoint-initdb.d/
-      - ./resources/docker/mysql/configs/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
-    command:
-      - "--default-authentication-plugin=mysql_native_password"
-
   nginx:
     image: nginx:1.18
     ports:
-      - ${HTTP_PORT}:80
-      - ${HTTPS_PORT}:443
+      - '${APP_PORT:-8080}:80'
     volumes:
       - .:/srv/web
-      - ./resources/docker/nginx/configs/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./resources/docker/nginx/configs/fastcgi.conf:/etc/nginx/fastcgi.conf:ro
-      - ./resources/docker/nginx/configs/sites-enabled:/etc/nginx/sites-enabled:ro
-      - ./resources/docker/nginx/configs/snippets:/etc/nginx/snippets:ro
-      - ./resources/docker/nginx/logs:/var/log/nginx
+      - ./docker/nginx/configs/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/configs/fastcgi.conf:/etc/nginx/fastcgi.conf:ro
+      - ./docker/nginx/configs/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./docker/nginx/configs/snippets:/etc/nginx/snippets:ro
+      - ./docker/nginx/logs:/var/log/nginx
+    networks:
+      - raweb
     depends_on:
       - php
-    links:
-      - php
-
+      - mysql
   php:
-    build: ./resources/docker/php
+    build: ./docker/php
+    image: raweb/app
     volumes:
       - .:/srv/web
-      - ./resources/docker/php/configs/php-ini-overrides.ini:/usr/local/etc/php/conf.d/php-ini-overrides.ini:ro
-      - ./resources/docker/php/configs/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-      - ./resources/docker/php/configs/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
-    links:
-      - mysql
-
+      - ./docker/php/configs/php-ini-overrides.ini:/usr/local/etc/php/conf.d/php-ini-overrides.ini:ro
+      - ./docker/php/configs/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./docker/php/configs/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+    networks:
+      - raweb
+  mysql:
+    image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
+    environment:
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile#L67
+      - ./database:/docker-entrypoint-initdb.d/
+      - ./docker/mysql/configs/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+    networks:
+      - raweb
+    command:
+      - "--default-authentication-plugin=mysql_native_password"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin # https://github.com/phpmyadmin/docker/blob/master/fpm-alpine/Dockerfile
     environment:
       PMA_ARBITRARY: 1
       PMA_HOST: mysql
-      PMA_USER: ${DB_USERNAME}
-      PMA_PASSWORD: ${DB_PASSWORD}
+      PMA_USER: '${DB_USERNAME}'
+      PMA_PASSWORD: '${DB_PASSWORD}'
       PMA_PORT: 3306
     ports:
-      - ${PHPMYADMIN_PORT}:80
+      - '${FORWARD_PHPMYADMIN_PORT:-8081}:80'
 #    volumes:
-#      - /sessions
-#      - ~/docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
-#      - /custom/phpmyadmin/theme/:/www/themes/theme/
-
+#      - ./docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+    networks:
+      - raweb
+  mailhog:
+    image: 'mailhog/mailhog:latest'
+    ports:
+      - '${FORWARD_MAILHOG_PORT:-1025}:1025'
+      - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
+    networks:
+      - raweb
+  minio:
+    image: 'minio/minio:latest'
+    ports:
+      - '${FORWARD_MINIO_PORT:-9000}:9000'
+      - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
+    environment:
+      MINIO_ROOT_USER: 'sail'
+      MINIO_ROOT_PASSWORD: 'password'
+    volumes:
+      - 'minio-data:/data'
+    networks:
+      - raweb
+    command: minio server /data/minio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      retries: 3
+      timeout: 5s
+networks:
+  raweb:
+    driver: bridge
 volumes:
   mysql-data:
+    driver: local
+  minio-data:
+    driver: local

@@ -1,8 +1,7 @@
 env:
   browser: true
 
-extends:
-  airbnb-base
+extends: airbnb-base
 
 globals:
   Atomics: readonly
@@ -10,7 +9,7 @@ globals:
 
 # very basic javascript
 parserOptions:
-  ecmaVersion: 5
+  ecmaVersion: 6
   sourceType: script
 
 ignorePatterns:

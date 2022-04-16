@@ -1,9 +1,10 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 header("Location: " . getenv('APP_URL'));
-return;
+exit;
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('i', 0, 'integer');
@@ -25,8 +26,6 @@ $sortBy = requestInputQuery('s', 1);
 
 getCommonlyEarnedAchievements($consoleIDInput, $offset, $count, $awardedData);
 
-//var_dump( $awardedData );
-
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
@@ -43,7 +42,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
     <div id='fullcontainer'>
         <?php
         echo "<div class='navpath'>";
-        echo "<b>Most Awarded Achievements</b>";    //	NB. This will be a stub page
+        echo "<b>Most Awarded Achievements</b>";    // NB. This will be a stub page
         echo "</div>";
 
         echo "<div class='detaillist'>";
@@ -100,27 +99,27 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         // echo "<br>";
         // }
 
-        //echo "<div class='rightfloat'>* = ordered by</div>";
+        // echo "<div class='rightfloat'>* = ordered by</div>";
 
         echo "<table class='smalltable xsmall'><tbody>";
 
-        //$sort1 = ($sortBy==1) ? 11 : 1;
-        //$sort2 = ($sortBy==2) ? 12 : 2;
-        //$sort3 = ($sortBy==3) ? 13 : 3;
-        //$sort4 = ($sortBy==4) ? 14 : 4;
-        //$sort5 = ($sortBy==5) ? 15 : 5;
+        // $sort1 = ($sortBy==1) ? 11 : 1;
+        // $sort2 = ($sortBy==2) ? 12 : 2;
+        // $sort3 = ($sortBy==3) ? 13 : 3;
+        // $sort4 = ($sortBy==4) ? 14 : 4;
+        // $sort5 = ($sortBy==5) ? 15 : 5;
 
-        //$mark1 = ($sortBy%10==1) ? '&nbsp;*' : '';
-        //$mark2 = ($sortBy%10==2) ? '&nbsp;*' : '';
-        //$mark3 = ($sortBy%10==3) ? '&nbsp;*' : '';
-        //$mark4 = ($sortBy%10==4) ? '&nbsp;*' : '';
-        //$mark5 = ($sortBy%10==5) ? '&nbsp;*' : '';
+        // $mark1 = ($sortBy%10==1) ? '&nbsp;*' : '';
+        // $mark2 = ($sortBy%10==2) ? '&nbsp;*' : '';
+        // $mark3 = ($sortBy%10==3) ? '&nbsp;*' : '';
+        // $mark4 = ($sortBy%10==4) ? '&nbsp;*' : '';
+        // $mark5 = ($sortBy%10==5) ? '&nbsp;*' : '';
 
-        //echo "<th><a href='/achievementList.php?s=$sort1&p=$params'>Title</a>$mark1</th>";
-        //echo "<th><a href='/achievementList.php?s=$sort2&p=$params'>Description</a>$mark2</th>";
-        //echo "<th><a href='/achievementList.php?s=$sort3&p=$params'>Points</a>$mark3</th>";
-        //echo "<th><a href='/achievementList.php?s=$sort4&p=$params'>Author</a>$mark4</th>";
-        //echo "<th><a href='/achievementList.php?s=$sort5&p=$params'>Game Title</a>$mark5</th>";
+        // echo "<th><a href='/achievementList.php?s=$sort1&p=$params'>Title</a>$mark1</th>";
+        // echo "<th><a href='/achievementList.php?s=$sort2&p=$params'>Description</a>$mark2</th>";
+        // echo "<th><a href='/achievementList.php?s=$sort3&p=$params'>Points</a>$mark3</th>";
+        // echo "<th><a href='/achievementList.php?s=$sort4&p=$params'>Author</a>$mark4</th>";
+        // echo "<th><a href='/achievementList.php?s=$sort5&p=$params'>Game Title</a>$mark5</th>";
 
         echo "<th>Title</th>";
         echo "<th>Description</th>";
@@ -153,11 +152,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
                 $consoleName
             );
 
-            if ($achCount++ % 2 == 0) {
-                echo "<tr>";
-            } else {
-                echo "<tr>";
-            }
+            echo "<tr>";
 
             echo "<td style='min-width:25%'>";
             echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
@@ -171,9 +166,9 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "$achPoints";
             echo "</td>";
 
-            //echo "<td>";
-            //echo GetUserAndTooltipDiv( $achAuthor, FALSE );
-            //echo "</td>";
+            // echo "<td>";
+            // echo GetUserAndTooltipDiv( $achAuthor, FALSE );
+            // echo "</td>";
 
             echo "<td>";
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
@@ -195,7 +190,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "<a href='/awardedList.php?s=$sortBy&amp;o=$prevOffset&amp;p=$params&amp;i=$consoleIDInput'>&lt; Previous $maxCount</a> - ";
         }
         if ($achCount == $maxCount) {
-            //	Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/awardedList.php?s=$sortBy&amp;o=$nextOffset&amp;p=$params&amp;i=$consoleIDInput'>Next $maxCount &gt;</a>";
         }

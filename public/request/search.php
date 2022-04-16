@@ -36,14 +36,14 @@ $query = "(
     (
     SELECT '3' AS Type, ua.User AS ID, ua.User AS Title, CONCAT( CHAR(47), \"UserPic\", CHAR(47), ua.User, \".png\" ) AS Icon
     FROM UserAccounts AS ua
-    WHERE ua.User LIKE '%$searchTerm%'
+    WHERE ua.User LIKE '%$searchTerm%' AND ua.Permissions >= 0
     ORDER BY ua.User
     LIMIT 0, 7
 ) ";
 
 if ($source == 'gamecompare' || $source == 'user') {
     $query = "SELECT '3' AS Type, ua.User AS ID, ua.User AS Title FROM UserAccounts AS ua
-				  WHERE ua.User LIKE '%$searchTerm%'
+				  WHERE ua.User LIKE '%$searchTerm%' AND ua.Permissions >= 0
 				  ORDER BY ua.User
 				  LIMIT 0, 10 ";
 }
@@ -93,7 +93,7 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
                     'mylink' => "/achievement/$nextID",
                     'category' => "Achievements",
                 ];
-            } else { //	$nextRow['Type'] == 3
+            } else { // $nextRow['Type'] == 3
                 $dataOut[] = [
                     'label' => $nextTitle,
                     'id' => $nextID,
@@ -106,5 +106,5 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
     }
 }
 
-echo json_encode($dataOut);
+echo json_encode($dataOut, JSON_THROW_ON_ERROR);
 flush();

@@ -23,14 +23,14 @@ function getMD5List($consoleID)
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             settype($nextData['GameID'], 'integer');
             $retVal[$nextData['MD5']] = $nextData['GameID'];
-            //echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
+            // echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
         }
     }
 
     return $retVal;
 }
 
-function getHashListByGameID($gameID, $getUser = false)
+function getHashListByGameID($gameID)
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -38,15 +38,10 @@ function getHashListByGameID($gameID, $getUser = false)
         return false;
     }
 
-    $selectString = "SELECT MD5 AS hash";
-    if ($getUser === true) {
-        $selectString .= ", User";
-    }
-
-    $query = "
-    $selectString
-    FROM GameHashLibrary
-    WHERE GameID = $gameID";
+    $query = "SELECT MD5 AS Hash, Name, Labels, User
+              FROM GameHashLibrary
+              WHERE GameID = $gameID
+              ORDER BY Name, Hash";
 
     $retVal = [];
     $dbResult = s_mysql_query($query);
@@ -66,14 +61,12 @@ function getGameIDFromMD5($md5)
     $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
     $dbResult = s_mysql_query($query);
 
-    //error_log( $query );
     if ($dbResult !== false && mysqli_num_rows($dbResult) >= 1) {
         $data = mysqli_fetch_assoc($dbResult);
         settype($data['GameID'], 'integer');
 
         return $data['GameID'];
     } else {
-        //error_log( __FUNCTION__ . " failed: could not find $md5!" );
         return 0;
     }
 }
@@ -150,4 +143,37 @@ function getTotalHashes()
     } else {
         return false;
     }
+}
+
+function updateHashDetails($gameID, $hash, $name, $labels)
+{
+    sanitize_sql_inputs($gameID, $hash, $name, $labels);
+
+    $query = "UPDATE GameHashLibrary
+              SET Name=";
+
+    if (!empty($name)) {
+        $query .= "'$name'";
+    } else {
+        $query .= "NULL";
+    }
+
+    $query .= ", Labels = ";
+
+    if (!empty($labels)) {
+        $query .= "'$labels'";
+    } else {
+        $query .= "NULL";
+    }
+
+    $query .= " WHERE GameID = $gameID AND MD5 = '$hash'";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+
+    if ($dbResult == false) {
+        log_sql_fail();
+    }
+
+    return $dbResult != null;
 }

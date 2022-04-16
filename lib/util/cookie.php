@@ -16,15 +16,14 @@ function RA_ReadCookie($cookieName): ?string
 
 function RA_SetCookie($cookieName, $cookieValue, $expire = 0, $httponly = false)
 {
-    return setcookie($cookieName, $cookieValue, $expire, $path = "/", getenv('SESSION_DOMAIN'), false, $httponly);
-    // return setcookie($cookieName, $cookieValue, [
-    //     'expires' => $expire,
-    //     'path' => '/',
-    //     'domain' => getenv('SESSION_DOMAIN'),
-    //     'samesite' => 'lax',
-    //     'secure' => getenv('SESSION_SECURE_COOKIE'),
-    //     'httponly' => $httponly,
-    // ]);
+    return setcookie($cookieName, $cookieValue, [
+        'expires' => $expire,
+        'path' => "/",
+        'domain' => getenv('SESSION_DOMAIN'),
+        'samesite' => 'lax',
+        'secure' => getenv('SESSION_SECURE_COOKIE'),
+        'httponly' => $httponly,
+    ]);
 }
 
 function RA_CookieExists($cookieName): bool

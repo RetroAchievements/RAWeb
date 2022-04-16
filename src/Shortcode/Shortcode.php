@@ -46,12 +46,13 @@ final class Shortcode
         $input = preg_replace('~\[user="?([^]"]*)"?]~i', '[user="$1"]', $input);
 
         // pass bbcode style url labeling to link handler
-        $input = preg_replace('~\[url="?([^]"]*)"?](.+)\[/url]~i', '[link url="$1"]$2[/link]', $input);
+        $input = preg_replace('~\[url="?([^]"]*)"?](!\[)\[/url]~i', '[link url="$1"]$2[/link]', $input);
 
         // case insensitive
         foreach ($this->handlers->getNames() as $tag) {
-            $input = preg_replace("~$tag]~i", "$tag]", $input);
-            $input = preg_replace("~\[$tag~i", "[$tag", $input);
+            $input = preg_replace("~\[/$tag]~i", "[/$tag]", $input); // closing tag
+            $input = preg_replace("~\[$tag]~i", "[$tag]", $input); // opening tag
+            $input = preg_replace("~\[$tag=~i", "[$tag=", $input); // opening tag with value
         }
 
         $events = new EventContainer();
@@ -82,12 +83,25 @@ final class Shortcode
 
     private function renderUrlLink(ShortcodeInterface $shortcode): string
     {
-        return '<a href="' . ($shortcode->getBbCode() ?: $shortcode->getContent()) . '">' . ($shortcode->getContent() ?: $shortcode->getBbCode()) . '</a>';
+        return '<a href="' . $this->protocolPrefix($shortcode->getBbCode() ?: $shortcode->getContent()) . '">' . ($shortcode->getContent() ?: $this->protocolPrefix($shortcode->getBbCode())) . '</a>';
     }
 
     private function renderLink(ShortcodeInterface $shortcode): string
     {
-        return '<a href="' . ($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
+        return '<a href="' . $this->protocolPrefix($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
+    }
+
+    private function protocolPrefix(string $href): string
+    {
+        $scheme = parse_url($href, PHP_URL_SCHEME);
+
+        if (empty($scheme)) {
+            $href = 'https://' . ltrim($href, '/');
+        } elseif ($scheme === 'http') {
+            $href = str_replace('http://', 'https://', $href);
+        }
+
+        return $href;
     }
 
     private function renderCode(ShortcodeInterface $shortcode): string
@@ -99,7 +113,7 @@ final class Shortcode
     {
         $content = $shortcode->getContent();
 
-        $id = uniqid((string) mt_rand(10000, 99999));
+        $id = uniqid((string) random_int(10000, 99999));
 
         // remove leading break
         $content = preg_replace('/^(?:<br\s*\/?>\s*)+/', '', $content);
@@ -168,19 +182,19 @@ final class Shortcode
 
     private function linkifyBasicURLs($text)
     {
+        // see https://stackoverflow.com/a/2271552/580651:
+        // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
+        // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
+        // lookahead: (?<![!,.?;:"\'()-])
         $text = preg_replace(
             '~
-            (https?://[a-z0-9_./?=&#%:+(),-]+)
+            (https?://[\w!#$%&\'()*+,./:;=?@\[\]-]+(?<![!,.?;:"\'()]))
             (?!                 # Assert URL is not pre-linked.
-              [?=&+%\w.-]*      # Allow URL (query) remainder.
-              (?:               # Group pre-linked alternatives.
-                [^<>]*>         # Either inside a start tag,
-                | [^<>]*</a>   # or inside <a> element text contents.
-              )                 # End recognized pre-linked alts.
+              [^<>]*>           # Either inside a start tag,
+              | [^<>]*</a>      # End recognized pre-linked alts.
             )                   # End negative lookahead assertion.
-            ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
             ~ix',
-            ' <a href="$1" target="_blank" rel="noopener">$1</a> ',
+            '<a href="$1" target="_blank" rel="noopener">$1</a>',
             $text
         );
 
@@ -211,10 +225,10 @@ final class Shortcode
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:[0-9A-Z-]+\.)?   # Optional subdomain.
                 (?:                 # Group host alternatives.
-                  youtu\.be/       # Either youtu.be (trailing slash required),
+                  youtu\.be/        # Either youtu.be (trailing slash required),
                 | youtube\.com      # or youtube.com followed by
                   \S*               # Allow anything up to VIDEO_ID,
-                  [^\w\-\s]         # but char before ID is non-ID char.
+                  [^\w\\-\s]        # but char before ID is non-ID char.
                 )                   # End host alternatives.
                 ([\w\-]{11})        # $1: VIDEO_ID is exactly 11 chars.
                 (?=[^\w\-]|$)       # Assert next char is non-ID or EOS.
@@ -222,7 +236,7 @@ final class Shortcode
                   [?=&+%\w.-]*      # Allow URL (query) remainder.
                   (?:               # Group pre-linked alternatives.
                     [^<>]*>         # Either inside a start tag,
-                    | [^<>]*</a>   # or inside <a> element text contents.
+                    | [^<>]*</a>    # or inside <a> element text contents.
                   )                 # End recognized pre-linked alts.
                 )                   # End negative lookahead assertion.
                 ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
@@ -311,11 +325,12 @@ final class Shortcode
         ~ix';
 
         preg_match_all($pattern, $text, $matches);
-        if (!count($matches[0])) {
+        if (empty($matches[0])) {
             return $text;
         }
         $replacements = [];
-        for ($i = 0; $i < count($matches[0]); $i++) {
+        $matchesCount = is_countable($matches[0]) ? count($matches[0]) : 0;
+        for ($i = 0; $i < $matchesCount; $i++) {
             $id = $matches[1][$i];
             $extension = $matches[2][$i] ?? null;
             $extension = $extension === '.gif' ? '.gifv' : $extension;

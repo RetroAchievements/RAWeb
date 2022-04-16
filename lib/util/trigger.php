@@ -10,7 +10,7 @@ function parseOperand($mem)
         case '~':           $type = 'Inverted'; $mem = substr($mem, 1); break;
     }
 
-    $size = '?';
+    $size = '';
     $max = strlen($mem);
     if ($max > 3 && $mem[0] == '0' && $mem[1] == 'x') {
         switch ($mem[2]) {
@@ -57,7 +57,7 @@ function parseOperand($mem)
             case '+': case '-': case '.':
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
-                $size = 'Value';
+                $type = 'Float';
                 $count = 1;
                 if ($mem[1] == '+' || $mem[1] == '-') {
                     $count++;
@@ -75,7 +75,7 @@ function parseOperand($mem)
 
         $mem = substr($mem, 2);
     } elseif ($max > 1 && $mem[0] == 'h' || $mem[0] == 'H') {
-        $size = 'Value';
+        $type = 'Value';
 
         $mem = substr($mem, 1);
         $count = 0;
@@ -88,7 +88,7 @@ function parseOperand($mem)
         $mem = substr($mem, $count);
         return [$type, $size, $value, $mem];
     } else {
-        $size = 'Value';
+        $type = 'Value';
         if ($mem[0] == 'v' || $mem[0] == 'V') {
             $mem = substr($mem, 1);
         }
@@ -133,6 +133,14 @@ function parseOperand($mem)
     return [$type, $size, $address, $mem];
 }
 
+function isScalerOperator($cmp)
+{
+    return match ($cmp) {
+        '*', '/', '&' => true,
+        default => false,
+    };
+}
+
 function parseCondition($mem)
 {
     $flag = '';
@@ -170,9 +178,11 @@ function parseCondition($mem)
 
     [$lType, $lSize, $lMemory, $mem] = parseOperand($mem);
 
-    if ($scalable && $mem == '=0') {
-        $mem = ''; // AddSource X=0 should just be AddSource X
-    } elseif (strlen($mem) > 0) {
+    if (strlen($mem) == 0) {
+        // no operator
+    } elseif ($scalable && !isScalerOperator($mem[0])) {
+        $mem = ''; // non-scaler operator ignored for scalable operations
+    } else {
         $cmp = $mem[0];
         $cmplen = 1;
         switch ($mem[0]) {
@@ -216,6 +226,17 @@ function parseCondition($mem)
     return [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits];
 }
 
+function getNoteForAddress($memNotes, $address)
+{
+    foreach ($memNotes as $nextMemNote) {
+        if ($nextMemNote['Address'] === $address) {
+            return $nextMemNote['Note'];
+        }
+    }
+
+    return null;
+}
+
 function getAchievementPatchReadableHTML($mem, $memNotes)
 {
     $tableHeader = '
@@ -236,7 +257,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
 
     // separating CoreGroup and AltGroups
     $groups = preg_split("/(?<!0x)S/", $mem);
-    for ($i = 0; $i < count($groups); $i++) {
+    $groupsCount = is_countable($groups) ? count($groups) : 0;
+    for ($i = 0; $i < $groupsCount; $i++) {
         $res .= "<tr><td colspan=10><p style='text-align: center'><strong>";
         $res .= $i === 0 ? "Core Group" : "Alt Group $i";
         $res .= "</p></strong></td></tr>\n";
@@ -248,20 +270,12 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         for ($j = 0; $j < count($reqs); $j++) {
             [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits] = parseCondition($reqs[$j]);
 
-            $lTooltip = $rTooltip = null;
-            foreach ($memNotes as $nextMemNote) {
-                if ($nextMemNote['Address'] === $lMemory) {
-                    $lTooltip = " title=\"" . htmlspecialchars($nextMemNote['Note']) . "\"";
-                    $codeNotes[$lMemory] = '<strong><u>' . $lMemory . '</u></strong>: ' . htmlspecialchars($nextMemNote['Note']);
-                }
-
-                if ($rSize && $nextMemNote['Address'] === $rMemVal) {
-                    $rTooltip = " title=\"" . htmlspecialchars($nextMemNote['Note']) . "\"";
-                    $codeNotes[$rMemVal] = '<strong><u>' . $rMemVal . '</u></strong>: ' . htmlspecialchars($nextMemNote['Note']);
-                }
-
-                if ($lTooltip && $rTooltip) {
-                    break;
+            $lTooltip = '';
+            if ($lSize) {
+                $lNote = getNoteForAddress($memNotes, $lMemory);
+                if ($lNote) {
+                    $lTooltip = " title=\"" . htmlspecialchars($lNote) . "\"";
+                    $codeNotes[$lMemory] = '<strong><u>' . $lMemory . '</u></strong>: ' . htmlspecialchars($lNote);
                 }
             }
 
@@ -273,6 +287,15 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             if (!$cmp) {
                 $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
             } else {
+                $rTooltip = '';
+                if ($rSize) {
+                    $rNote = getNoteForAddress($memNotes, $rMemVal);
+                    if ($rNote) {
+                        $rTooltip = " title=\"" . htmlspecialchars($rNote) . "\"";
+                        $codeNotes[$rMemVal] = '<strong><u>' . $rMemVal . '</u></strong>: ' . htmlspecialchars($rNote);
+                    }
+                }
+
                 $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";
                 $res .= "\n  <td> " . $rType . " </td>";
                 $res .= "\n  <td> " . $rSize . " </td>";

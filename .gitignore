@@ -1,16 +1,9 @@
-/lib/database/releases.php
 /node_modules
-/public/hot
-/public/storage
-/storage/*.key
-/storage/version
 /vendor
 /tmp
 /.idea
 /.vscode
 /.vagrant
-Homestead.json
-Homestead.yaml
 LocalValetDriver.php
 npm-debug.log
 yarn-error.log
@@ -26,6 +19,7 @@ nbproject
 .php_cs.cache
 .php-cs-fixer.cache
 test*.php
+
 /public/Badge
 /public/Images
 /public/UserPic
@@ -37,9 +31,5 @@ test*.php
 /public/google*
 /public/tmp
 
-/resources/docker/nginx/logs/*
-
-cronjobs/playersonline.log
-cronjobs/cronlog.log
-cghooks.lock
-
+/lib/database/releases.php
+/tests/http/http-client.private.env.json

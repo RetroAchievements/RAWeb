@@ -27,8 +27,6 @@ $xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
 
 $numArticles = getLatestNewAchievements(40, $feedData);
 
-//var_dump( $feedData );
-//$query  = "SELECT ach.ID, ach.GameID, ach.Title, ach.Description, ach.Points, gd.Title AS GameTitle, ach.DateCreated, ach.BadgeName, c.Name AS ConsoleName ";
 $lastID = 0;
 for ($i = 0; $i < $numArticles; $i++) {
     $nextData = $feedData[$i];
@@ -59,14 +57,14 @@ for ($i = 0; $i < $numArticles; $i++) {
         $lastID = $nextData['ID'];
     }
 
-    //$payload contains relative URLs, which need converting to absolute URLs
+    // $payload contains relative URLs, which need converting to absolute URLs
     $payload = str_replace("href='/", "href='" . getenv('APP_URL') . "/", $payload);
     $payload = str_replace("href=\"/", "href=\"" . getenv('APP_URL') . "/", $payload);
     $payload = str_replace("src='/", "src='" . getenv('APP_URL') . "/", $payload);
     $payload = str_replace("src=\"/", "src=\"" . getenv('APP_URL') . "/", $payload);
 
-    //	Strip tags from title (incl html markup :S)
-    //	?!
+    // Strip tags from title (incl html markup :S)
+    // ?!
 
     $article->appendChild($dom->createElement('title', $title));
     $article->appendChild($dom->createElement('link', $link));

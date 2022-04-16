@@ -13,4 +13,4 @@ $retVal['Score'] = getScore($user);
 $retVal['Rank'] = getUserRank($user);
 $retVal['TotalRanked'] = countRankedUsers();
 
-echo json_encode($retVal);
+echo json_encode($retVal, JSON_THROW_ON_ERROR);

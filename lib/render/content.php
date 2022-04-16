@@ -1,16 +1,5 @@
 <?php
 
-function RenderTwitterFeed()
-{
-    echo "<div class='component stream'>";
-    echo "<h3>Twitter Feed</h3>";
-
-    echo "<a class='twitter-timeline'  href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'  data-widget-id='365153450822103040'>Tweets by @RetroCheevos</a>";
-    echo "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\"://platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
-
-    echo "</div>";
-}
-
 function RenderTutorialComponent()
 {
     echo "<div class='component tutorial' >";
@@ -41,48 +30,10 @@ function RenderWelcomeComponent()
     </div>";
 }
 
-function RenderDeveloperStats($user, $type)
-{
-    echo "<div class='component'>";
-    echo "<h3>Developer Stats</h3>";
-
-    $devData = GetDeveloperStats(99, $type);
-    if (count($devData) > 0) {
-        $tableType = ($type == 2) ? "Num Achievements Won By Others" : (($type == 1) ? "Num Points Allocated" : "Num Achievements Developed");
-
-        echo "<table><tbody>";
-        echo "<tr><th>Rank</th><th>Developer</th><th>$tableType</th></tr>";
-
-        for ($i = 0; $i < count($devData); $i++) {
-            $nextData = $devData[$i];
-
-            $rank = $i + 1;
-            $developer = $nextData['Author'];
-            $numAchievements = $nextData['NumCreated'];
-
-            echo "<tr>";
-            echo "<td>$rank</td>";
-
-            echo "<td><div class='fixheightcell'>";
-            echo GetUserAndTooltipDiv($developer, true);
-            echo GetUserAndTooltipDiv($developer, false);
-            echo "</div></td>";
-
-            echo "<td>$numAchievements</td>";
-
-            echo "</tr>";
-        }
-        echo "</tbody></table>";
-
-        echo "</div>";
-    }
-}
-
 function RenderDocsComponent()
 {
     echo "
       <div class='component' style='text-align: center'>
-        <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
             <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
@@ -99,23 +50,8 @@ function RenderCurrentlyOnlineComponent()
 
     $playersArray = getCurrentlyOnlinePlayers();
 
-    $numPlayers = count($playersArray);
+    $numPlayers = is_countable($playersArray) ? count($playersArray) : 0;
     echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
-
-    //$numOutput = 0;
-    //foreach( $playersArray as $nextPlayer )
-    //{
-    //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
-    //    {
-    //        echo " and ";
-    //    }
-    //    elseif( $numOutput > 0 )
-    //    {
-    //        echo ", ";
-    //    }
-    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
-    //    $numOutput++;
-    //}
 
     echo "</div>";
 
@@ -170,8 +106,13 @@ function RenderActivePlayersComponent()
                 <small id='activeplayers-update' data-bind='text: lastUpdateRender'></small>
             </div>
         </div>
-        <script type="text/javascript" src="/js/activePlayersBootstrap.js"></script>
     HTML;
+
+    if (getenv('APP_ENV') === 'local') {
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap.js?' . random_int(0, mt_getrandmax()) . '"></script>';
+    } else {
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap-' . VERSION . '.js"></script>';
+    }
 }
 
 function RenderAOTWComponent($achID, $forumTopicID)
@@ -218,37 +159,6 @@ function RenderAOTWComponent($achID, $forumTopicID)
 
     echo "<span class='clickablebutton'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
 
-    echo "</div>";
-
-    echo "</div>";
-}
-
-function RenderDemoVideosComponent()
-{
-    $width = '392'; //600px
-    $height = $width * (3.0 / 4.0); //'100%'; //400px
-
-    echo "<div id='demo' >";
-
-    echo "<h2>Demos</h2>";
-
-    echo "<h4>Using RAGens</h4>";
-
-    echo "<div class='videocontainer' >";
-    echo "<iframe style='border:0;' width='$width' height='$height' src='//www.youtube.com/embed/rKY2mZjurJw' allowfullscreen></iframe>";
-    //echo "<iframe src='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' frameborder='0' allowfullscreen></iframe>";
-    //echo "<object data='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' style='width:300px;'></object>";
-    echo "</div>";
-
-    echo "<h4>Finding Memory Addresses</h4>";
-
-    echo "<div class='videocontainer' >";
-    echo "<object type='application/x-shockwave-flash' width='$width' height='$height' data='//www.twitch.tv/widgets/archive_embed_player.swf' id='clip_embed_player_flash' >
-        <param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf' />
-        <param name='allowScriptAccess' value='always' />
-        <param name='allowNetworking' value='all' />
-        <param name='flashvars' value='auto_play=false&amp;channel=" . getenv('TWITCH_CHANNEL') . "&amp;title=Finding%2BMemory%2BAddresses&amp;chapter_id=2674100&amp;start_volume=25' />
-        </object>";
     echo "</div>";
 
     echo "</div>";

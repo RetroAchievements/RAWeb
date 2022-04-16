@@ -42,7 +42,9 @@ return [
                 28, // Virtual Boy (Cores: Beetle VB)
                 29, // MSX
                 33, // SG-1000
+                37, // Amstrad CPC
                 39, // Saturn
+                40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
@@ -89,7 +91,9 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 28, // Virtual Boy (Cores: Beetle VB)
                 29, // MSX
                 33, // SG-1000
+                37, // Amstrad CPC (Core: Cap32)
                 39, // Saturn
+                40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision

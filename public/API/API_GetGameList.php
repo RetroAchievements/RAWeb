@@ -8,11 +8,11 @@ runPublicApiMiddleware();
 $consoleID = requestInputQuery('i', null, 'integer');
 if ($consoleID < 0) {
     echo json_encode(['success' => false]);
-    return;
+    exit;
 }
 
 $officialFlag = requestInputQuery('f', false, 'boolean');
 
 getGamesList($consoleID, $dataOut, $officialFlag);
 
-echo utf8_encode(json_encode($dataOut));
+echo utf8_encode(json_encode($dataOut, JSON_THROW_ON_ERROR));

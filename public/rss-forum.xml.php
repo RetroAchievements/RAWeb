@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -25,15 +27,12 @@ $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Forum 
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
 $xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
 
-$numPostsFound = getRecentForumPosts(0, 30, 120, $recentPostsData);
-//$feedData = array_reverse( $recentPostsData );
+$numPostsFound = getRecentForumPosts(0, 30, 120, Permissions::Registered, $recentPostsData);
 
 $lastID = 0;
 
 for ($i = 0; $i < $numPostsFound; $i++) {
     $nextData = $recentPostsData[$i];
-    //var_dump( $nextData );
-    //continue;
 
     $article = $dom->createElement("item");
     $article = $xmlRoot->appendChild($article);
@@ -53,7 +52,7 @@ for ($i = 0; $i < $numPostsFound; $i++) {
     $article->appendChild($dom->createElement('link', $link));
     $article->appendChild($dom->createElement('description', $payload));
     $article->appendChild($dom->createElement('pubDate', $date));
-    //$article->appendChild( $dom->createElement( 'guid',  $nextData['CommentID'] ) );
+    // $article->appendChild( $dom->createElement( 'guid',  $nextData['CommentID'] ) );
 }
 
 header('Content-type: text/xml');

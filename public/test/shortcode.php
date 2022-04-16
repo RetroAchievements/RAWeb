@@ -9,6 +9,9 @@ $username = 'Scott';
 $user = GetUserData($username);
 
 $payload = <<<EOF
+
+Unchanged case: [SLUS-00752] [BAR]
+
 [b][i][u][s]Formatting[/s][/u][/i][/b]
 [b][i][u][s]Scrambled Formatting[/i][/b][/u][/s]
 
@@ -16,7 +19,7 @@ $payload = <<<EOF
 
 [b][i]Code Blocks[/i][/b]
 
-[Code]inline code[/CODE]
+[Code]inline code with mismatching tag case[/CODE]
 
 [code]
 multi
@@ -57,8 +60,9 @@ https://youtu.be/dMH0bHeiRNg
 
 [b][i]Links[/i][/b]
 
-[ach=1]
-[ach="2"]
+[ach=1] ach=1
+[ach="2"] ach="2" (quoted)
+[ACH=3] ACH=3 (case corrected)
 [game=3]
 [game="4"]
 [ticket=5]
@@ -69,12 +73,35 @@ https://youtu.be/dMH0bHeiRNg
 example.org (no link)
 www.example.org (no link)
 
-[url="https://retroachievements.org"]
-[url=https://retroachievements.org]
-[url]https://retroachievements.org[/url]
-[url=https://retroachievements.org]URL Shortcode[/url]
+Trailing sentence-punctuation characters are NOT part of URL:
+https://example.com.
+https://example.com?
+https://example.com?test
+https://example.com/?test=test,test.test%20test+test(test)&test-test!
+https://example.com/?test=test,test.test%20test+test(test)&test-test,
+https://example.com/?test=test,test.test%20test+test(test)&test-test.
+https://example.com/?test=test,test.test%20test+test(test)&test-test. continue
+https://example.com/?test=test,test.test%20test+test(test)&test-test?
+https://example.com/?test=test,test.test%20test+test(test)&test-test;
+https://example.com/?test=test,test.test%20test+test(test)&test-test:
+https://example.com/?test=test,test.test%20test+test(test)&test-test"
+https://example.com/?test=test,test.test%20test+test(test)&test-test'
+https://example.com/?test=test,test.test%20test+test(test)&test-test)
+https://example.com/?test=test,test.test%20test+test(test)&test-test(
+https://example.com/?test=https://example.com/?test=test,test.test%20test+test(test)&test-test
+[url="https://example.com/?test=test,test.test%20test+test(test)&test-test"]
+[url=https://example.com/?test=test,test.test%20test+test(test)&test-test]https://example.com/?test=test,test.test%20test+test(test)&test-test[/url]
 
-[link url="https://retroachievements.org"]URL Shortcode[/link]
+Trailing hyphens ARE part of URL (matches most markdown parsers):
+https://example.com/?test=test,test.test%20test+test(test)&test-test-
+
+[url="retroachievements.org#1"] | [url="retroachievements.org#2"]
+[url="https://retroachievements.org#1"] | [url="https://retroachievements.org#2"]
+[url=http://retroachievements.org#1] | [url=http://retroachievements.org#2]
+[url]https://retroachievements.org#1[/url] | [url]https://retroachievements.org#2[/url]
+[url=https://retroachievements.org#1]URL Shortcode #1[/url] | [url=https://retroachievements.org#2]URL Shortcode #2[/url]
+
+[link url="https://retroachievements.org#1"]Link Shortcode #1[/link] | [link url="http://retroachievements.org#1"]Link Shortcode #2 HTTP -> HTTPS[/link]
 
 <a href="https://www.retroachievements.org">HTML</a>
 https://retroachievements.org/user/{$username}
@@ -141,7 +168,7 @@ RenderSharedHeader();
 ?>
 <body>
 <script src='/vendor/wz_tooltip.js'></script>
-<div style="width:560px">
+<div style="width:560px;margin:10px;">
     <h1>Shortcode</h1>
     <?php echo Shortcode::render($payload, ['imgur' => true]) ?>
 </div>

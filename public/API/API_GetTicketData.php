@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 runPublicApiMiddleware();
 
 $baseUrl = getenv('APP_URL') . '/ticketmanager.php';
-$defaultTicketFilter = 2041; //2041 sets all filters active except for Closed and Resolved
+$defaultTicketFilter = 2041; // 2041 sets all filters active except for Closed and Resolved
 $count = 10;
 $offset = 0;
 
@@ -17,8 +17,8 @@ if ($ticketID > 0) {
     $ticketData = getTicket($ticketID);
     if ($ticketData == false) {
         http_response_code(404);
-        echo json_encode(['error' => "Ticket ID $ticketID not found"]);
-        return;
+        echo json_encode(['error' => "Ticket ID $ticketID not found"], JSON_THROW_ON_ERROR);
+        exit;
     }
 
     $reportTypes = ['', "Triggered at a wrong time", "Doesn't trigger"];
@@ -28,8 +28,8 @@ if ($ticketID > 0) {
     $ticketData['ReportTypeDescription'] = $reportTypes[$ticketData['ReportType']];
 
     $ticketData['URL'] = $baseUrl . "?i=$ticketID";
-    echo json_encode($ticketData);
-    return;
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
+    exit;
 }
 
 // same logic used in ticketmanager.php
@@ -41,8 +41,8 @@ $gamesTableFlag = requestInputQuery('f', 0, 'integer');
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
     $ticketData['URL'] = $baseUrl . "?f=$gamesTableFlag";
-    echo json_encode($ticketData);
-    return;
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
+    exit;
 }
 
 // getting ticket info for a specific user
@@ -76,8 +76,8 @@ if (isValidUsername($assignedToUser)) {
         }
     }
     $ticketData['URL'] = $baseUrl . "?u=$assignedToUser";
-    echo json_encode($ticketData);
-    return;
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
+    exit;
 }
 $assignedToUser = null;
 
@@ -96,12 +96,12 @@ if ($gameIDGiven > 0) {
         );
         $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
 
-        echo json_encode($ticketData);
-        return;
+        echo json_encode($ticketData, JSON_THROW_ON_ERROR);
+        exit;
     }
     http_response_code(404);
-    echo json_encode(['error' => "Game ID $gameIDGiven not found"]);
-    return;
+    echo json_encode(['error' => "Game ID $gameIDGiven not found"], JSON_THROW_ON_ERROR);
+    exit;
 }
 
 // getting data for a specific achievement
@@ -110,20 +110,20 @@ if ($achievementIDGiven > 0) {
     $achievementData = GetAchievementData($achievementIDGiven);
     if (!$achievementData) {
         http_response_code(404);
-        echo json_encode(['error' => "Achievement ID $achievementIDGiven not found"]);
-        return;
+        echo json_encode(['error' => "Achievement ID $achievementIDGiven not found"], JSON_THROW_ON_ERROR);
+        exit;
     }
     $ticketData['AchievementID'] = $achievementIDGiven;
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
-    echo json_encode($ticketData);
-    return;
+    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
+    exit;
 }
 
 // getting the 10 most recent tickets
 $ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, $defaultTicketFilter);
 $ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null);
 $ticketData['URL'] = $baseUrl;
-echo json_encode($ticketData);
+echo json_encode($ticketData, JSON_THROW_ON_ERROR);

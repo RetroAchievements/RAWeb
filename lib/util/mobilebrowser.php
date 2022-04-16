@@ -111,9 +111,9 @@ function IsMobileBrowser()
         }
     }
 
-    //if (strpos(strtolower($_SERVER['ALL_HTTP']),'OperaMini') > 0) {
-    //    $mobile_browser++;
-    //}
+    // if (strpos(strtolower($_SERVER['ALL_HTTP']),'OperaMini') > 0) {
+    //     $mobile_browser++;
+    // }
 
     if (isset($_SERVER['HTTP_USER_AGENT']) && (mb_strpos(mb_strtolower($_SERVER['HTTP_USER_AGENT']), 'windows') > 0)) {
         $mobile_browser = 0;

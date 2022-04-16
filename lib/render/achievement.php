@@ -13,12 +13,13 @@ function GetAchievementAndTooltipDiv(
     $smallBadgeSize = 32,
     $imgclass = 'badgeimg'
 ): string {
-    $tooltipIconSize = 64; //96;
+    $tooltipIconSize = 64; // 96;
 
     sanitize_outputs(
         $achName,
         $consoleName,
-        $gameName
+        $gameName,
+        $achPoints
     );
 
     $achNameStr = $achName;
@@ -38,7 +39,7 @@ function GetAchievementAndTooltipDiv(
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
-    $tooltip = attributeEscape($tooltip);
+    $tooltip = tipEscape($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";

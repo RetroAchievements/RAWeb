@@ -1,14 +1,67 @@
 <?php
 
-use Aws\CommandInterface;
 use Aws\CommandPool;
-use Aws\Exception\AwsException;
-use Aws\ResultInterface;
 use Aws\Ses\SesClient;
 use RA\ArticleType;
 use RA\Permissions;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\Email;
 
-function mail_ses($to, $subject = '(No subject)', $message = '')
+function sendRAEmail($to, $header, $body): bool
+{
+    return mail_utf8($to, $header, stripslashes(nl2br($body)));
+}
+
+function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
+{
+    if (empty($to)) {
+        return false;
+    }
+
+    if (getenv('MAIL_MAILER') === 'smtp') {
+        return mail_smtp($to, $subject, $message);
+    }
+
+    if (getenv('MAIL_MAILER') === 'ses') {
+        return mail_ses($to, $subject, $message);
+    }
+
+    return mail_log($to, $subject, $message);
+}
+
+function mail_log($to, $subject = '(No subject)', $message = ''): bool
+{
+    error_log("MAIL to $to: $subject");
+    error_log($message);
+
+    return true;
+}
+
+function mail_smtp($to, $subject = '(No subject)', $message = ''): bool
+{
+    $transport = Transport::fromDsn(sprintf(
+        'smtp://%s:%s@%s:%s',
+        getenv('MAIL_USERNAME'),
+        getenv('MAIL_PASSWORD'),
+        getenv('MAIL_HOST'),
+        getenv('MAIL_PORT'),
+    ));
+
+    $mailer = new Mailer($transport);
+
+    $email = (new Email())
+        ->from(getenv('MAIL_FROM_NAME') . ' <' . getenv('MAIL_FROM_ADDRESS') . '>')
+        ->to($to)
+        ->subject($subject)
+        ->html($message);
+
+    $mailer->send($email);
+
+    return true;
+}
+
+function mail_ses($to, $subject = '(No subject)', $message = ''): bool
 {
     $client = new SesClient([
         'version' => 'latest',
@@ -89,38 +142,18 @@ function mail_ses($to, $subject = '(No subject)', $message = '')
     } catch (Exception $e) {
         // echo sprintf('Error: %s' . PHP_EOL, $e->getMessage());
         error_log('Amazon SES Exception : ' . $e->getMessage());
+
         return false;
     }
 }
 
-function mail_utf8($to, $from_user, $from_email, $subject = '(No subject)', $message = '')
+function sendValidationEmail($user, $email): bool
 {
-    if (empty($to)) {
-        return false;
-    }
-
-    if (getenv('MAIL_DRIVER') === 'ses') {
-        // let amazon ses handle mail sending
-        return mail_ses($to, $subject, $message);
-    }
-
-    $from_user = "=?UTF-8?B?" . base64_encode($from_user) . "?=";
-    $subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
-    $headers = "From: $from_user <$from_email>\r\n" .
-        "Reply-To: $from_user <$from_email>\r\n" .
-        "MIME-Version: 1.0\r\n" .
-        "Content-type: text/html; charset=UTF-8\r\n";
-
-    return mail($to, $subject, $message, $headers, "-f" . $from_email);
-}
-
-function sendValidationEmail($user, $email)
-{
-    //    This generates and stores (and returns) a new email validation string in the DB.
+    // This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailValidationString($user);
     $strEmailLink = getenv('APP_URL') . "/validateEmail.php?v=$strValidation";
 
-    //$subject = "RetroAchievements.org - Confirm Email: $user";
+    // $subject = "RetroAchievements.org - Confirm Email: $user";
     $subject = "Welcome to RetroAchievements.org, $user";
 
     $msg = "You or someone using your email address has attempted to sign up for an account at <a href='" . getenv('APP_URL') . "'>RetroAchievements.org</a><br>" .
@@ -135,22 +168,14 @@ function sendValidationEmail($user, $email)
         "<br>" .
         "-- Your friends at <a href='" . getenv('APP_URL') . "'>RetroAchievements.org</a><br>";
 
-    // error_log(__FUNCTION__ . " sending mail to $user at address $email");
-
-    $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $subject, $msg);
-
-    // error_log(__FUNCTION__ . " return val: $retVal");
-
-    return $retVal;
+    return mail_utf8($email, $subject, $msg);
 }
 
-function sendFriendEmail($user, $email, $type, $friend)
+function sendFriendEmail($user, $email, $type, $friend): bool
 {
     settype($type, 'integer');
-    // error_log(__FUNCTION__ . " $user, $email, $type, $friend");
 
     if ($user == $friend) {
-        // error_log(__FUNCTION__ . "not sending mail: what is happening... ( $user == $friend )");
         return false;
     }
 
@@ -158,17 +183,16 @@ function sendFriendEmail($user, $email, $type, $friend)
     $link = '';
     $emailReason = '';
 
-    if ($type == 0) { //    Requesting to be your friend
+    if ($type == 0) { // Requesting to be your friend
         $emailTitle = "New Friend Request from $friend";
         $emailReason = "sent you a friend request";
         $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
-    } elseif ($type == 1) { //    Friend request confirmed
+    } elseif ($type == 1) { // Friend request confirmed
         $emailTitle = "New Friend confirmed: $friend";
         $emailReason = "confirmed your friend request";
         $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } else {
-        // error_log(__FUNCTION__ . " bad times...");
-        return false; //    must break early! No nonsense emails please!
+        return false; // must break early! No nonsense emails please!
     }
 
     $msg = "Hello $user!<br>" .
@@ -179,19 +203,7 @@ function sendFriendEmail($user, $email, $type, $friend)
         "<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 
-    if (isAtHome()) {
-        error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-        error_log($email);
-        error_log($emailTitle);
-        error_log($msg);
-        $retVal = true;
-    } else {
-        // error_log(__FUNCTION__ . " sending friend mail to $user at address $email");
-        $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        // error_log(__FUNCTION__ . " return val: $retVal");
-    }
-
-    return $retVal;
+    return mail_utf8($email, $emailTitle, $msg);
 }
 
 function sendActivityEmail(
@@ -203,7 +215,7 @@ function sendActivityEmail(
     $articleTitle,
     $threadInvolved = null,
     $altURLTarget = null
-) {
+): bool {
     if ($user == $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
         return false;
     }
@@ -274,46 +286,18 @@ function sendActivityEmail(
         "<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 
-    if (isAtHome()) {
-        error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-        error_log($email);
-        error_log($emailTitle);
-        error_log($msg);
-        $retVal = true;
-    } else {
-        // error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
-        $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        // error_log(__FUNCTION__ . " return val: $retVal");
-    }
-
-    return $retVal;
+    return mail_utf8($email, $emailTitle, $msg);
 }
 
-function sendRAEmail($to, $header, $body)
-{
-    $body = stripslashes(nl2br($body));
-
-    if (isAtHome()) {
-        error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-        error_log($to);
-        error_log($header);
-        error_log($body);
-        return true;
-    }
-
-    return mail_utf8($to, "RetroAchievements.org", "noreply@retroachievements.org", $header, $body);
-}
-
-function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
+function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser): bool
 {
     if ($user == $fromUser) {
-        // error_log(__FUNCTION__ . " not sending mail: I wrote this! ($user == $fromUser)");
         return false;
     }
 
     $content = stripslashes(nl2br($contentIn));
 
-    //    Also used for Generic text:
+    // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
     $link = "<a href='" . getenv('APP_URL') . "/inbox.php'>here</a>";
 
@@ -326,22 +310,10 @@ function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser)
         "<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 
-    if (isAtHome()) {
-        error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-        error_log($email);
-        error_log($emailTitle);
-        error_log($msg);
-        $retVal = true;
-    } else {
-        // error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
-        $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        // error_log(__FUNCTION__ . " return val: $retVal");
-    }
-
-    return $retVal;
+    return mail_utf8($email, $emailTitle, $msg);
 }
 
-function SendPasswordResetEmail($user, $email, $token)
+function SendPasswordResetEmail($user, $email, $token): bool
 {
     $emailTitle = "Password Reset Request";
     $link = "<a href='" . getenv('APP_URL') . "/resetPassword.php?u=$user&amp;t=$token'>Confirm Your Email Address</a>";
@@ -352,15 +324,5 @@ function SendPasswordResetEmail($user, $email, $token)
         "Thanks!<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 
-    if (isAtHome()) {
-        error_log(__FUNCTION__ . " dumping mail, not sending... no mailserver!");
-        error_log("Email: " . $email . ", Title: " . $emailTitle . ", Msg: " . $msg);
-        $retVal = true;
-    } else {
-        // error_log(__FUNCTION__ . " sending activity mail to $user at address $email");
-        $retVal = mail_utf8($email, "RetroAchievements.org", "noreply@retroachievements.org", $emailTitle, $msg);
-        // error_log(__FUNCTION__ . " return val: $retVal");
-    }
-
-    return $retVal;
+    return mail_utf8($email, $emailTitle, $msg);
 }

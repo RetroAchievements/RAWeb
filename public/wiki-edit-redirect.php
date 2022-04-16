@@ -1,11 +1,11 @@
 <?php
 
 if (!requestInputSanitized('page')) {
-    return;
+    exit;
 }
 $page = pathinfo($_GET['page'])['filename'];
 if (empty($page)) {
-    return;
+    exit;
 }
 // path rewrites
 switch ($page) {

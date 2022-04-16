@@ -74,6 +74,7 @@ input[disabled='disabled'] {
 input[type="submit"], button {
   font-size: 12px;
   padding: 1px 4px;
+  cursor: pointer;
 }
 
 h1, h2, h3, h4 {
@@ -172,6 +173,10 @@ a:hover {
 
 .justify-content-between {
   justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
 }
 
 /* --------------- */
@@ -609,6 +614,7 @@ td, tr, img {
 
 #feed td.iconscommentsingle {
   padding: 2px;
+  vertical-align: top;
 }
 
 #feed td.iconscomment img {
@@ -1009,11 +1015,12 @@ th {
 
 /* Forum */
 
-#commentTextarea {
+.comment-textarea {
   padding: 4px;
+  flex-grow: 1;
 }
 
-#commentTextarea::placeholder {
+.comment-textarea::placeholder {
   font-size: 1.1em;
 }
 
@@ -1021,6 +1028,21 @@ th {
   padding: 6px 4px;
   vertical-align: top;
   word-break: break-word;
+}
+
+.comment-submit-button {
+  background: none;
+  border: none;
+}
+
+.comment-loading-indicator {
+  display: none;
+  padding: 6px;
+}
+
+.form-error {
+  color: rgb(222, 0, 0);
+  display: none;
 }
 
 .smalltext {
@@ -1248,18 +1270,6 @@ div.rating a.starlit {
 
 a.setRequestLabel {
   cursor: pointer;
-}
-
-#preload-01 {
-  background: url('/Images/dropdown.gif') no-repeat -9999px -9999px;
-}
-
-#preload-02 {
-  background: url('/Images/center_hassub.png') no-repeat -9999px -9999px;
-}
-
-#preload-03 {
-  background: url('/Images/sub_hover.png') no-repeat -9999px -9999px;
 }
 
 /*.patron {*/
