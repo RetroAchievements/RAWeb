@@ -809,6 +809,8 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut, $user)
     if ($dbResult !== false) {
         global $db;
         $lbIDOut = mysqli_insert_id($db);
+
+        updateGameAssetMetrics($gameID);
         return true;
     } else {
         return false;
@@ -950,13 +952,12 @@ function duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)
         $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
                                     VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i), '$user', NOW())";
         $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            global $db;
-            mysqli_insert_id($db);
-        } else {
+        if ($dbResult === false) {
             return false;
         }
     }
+
+    updateGameAssetMetrics($gameID);
     return true;
 }
 
@@ -980,11 +981,23 @@ function requestDeleteLB($lbID)
     sanitize_sql_inputs($lbID);
     settype($lbID, 'integer');
 
+    $query = "SELECT GameID FROM LeaderboardDef WHERE ID='$lbID'";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false) {
+        return false;
+    }
+
+    if (mysqli_num_rows($dbResult) != 1) {
+        return true;
+    }
+    $gameID = mysqli_fetch_assoc($dbResult)['GameID'];
+
     $query = "DELETE FROM LeaderboardDef WHERE ID = $lbID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         s_mysql_query("INSERT INTO DeletedModels SET ModelType='LeaderboardDef', ModelID=$lbID");
+        updateGameAssetMetrics($gameID);
     }
     return $dbResult !== false;
 }

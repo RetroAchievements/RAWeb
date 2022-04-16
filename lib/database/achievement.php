@@ -78,7 +78,7 @@ function GetAchievementData($id)
 {
     sanitize_sql_inputs($id);
     settype($id, "integer");
-    $query = "SELECT * FROM Achievements WHERE ID=$id";
+    $query = "SELECT ID, GameID, Title, Description, BadgeName FROM Achievements WHERE ID=$id";
     $dbResult = s_mysql_query($query);
 
     if ($dbResult == false || mysqli_num_rows($dbResult) != 1) {
@@ -282,7 +282,16 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
               UPDATE User=User, AchievementID=AchievementID, Date=Date, HardcoreMode=HardcoreMode";
 
     $dbResult = s_mysql_query($query);
-    return $dbResult !== false;
+    if ($dbResult === false)
+        return false;
+
+    updateAchievementMetrics($achIDToAward);
+
+    // TODO: update UserGameMetrics
+    //       if a UserGameMetrics entry gets created, then we also need to call updateGamePlayerMetrics
+    //       use mysqli_affected_rows to detect insert vs. update
+
+    return true;
 }
 
 function HasAward($user, $achIDToAward)
@@ -513,6 +522,7 @@ function UploadNewAchievement(
             );
 
             // uploaded new achievement
+            updateGameAssetMetrics($gameID);
 
             return true;
         } else {
@@ -613,6 +623,15 @@ function UploadNewAchievement(
                         "$author edited this achievement's $editString.",
                         $author
                     );
+                }
+
+                if ($changingAchSet) {
+                    updateGameAssetMetrics($gameID);
+                    // TODO: if any players have earned this achievement we'll have to update their
+                    //       UserGameMetrics and the GamePlayerMetrics
+                } else if ($changingPoints) {
+                    updateGameAssetMetrics($gameID);
+                    // TODO: if any players have earned this achievement we'll have to update their UserGameMetrics
                 }
 
                 return true;
@@ -905,7 +924,15 @@ function updateAchievementFlags($achID, $newFlags)
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    return $dbResult !== false;
+    if ($dbResult === false) {
+        return false;
+    }
+
+    $achData = GetAchievementData(is_array($achID) ? $achID[0] : $achID);
+    updateGameAssetMetrics($achData['GameID']);
+    // TODO: if any players have earned this achievement we'll have to update their
+    //       UserGameMetrics and the GamePlayerMetrics
+    return true;
 }
 
 function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
