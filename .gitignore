@@ -13,6 +13,7 @@ nbproject
 .~lock.*
 .buildpath
 .DS_Store
+.eslintcache
 .idea
 .project
 .settings

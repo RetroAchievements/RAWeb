@@ -44,3 +44,16 @@ jobs:
         run: composer install
       - name: Analyse
         run: composer analyse
+
+  eslint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    name: eslint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install
+        run: npm install
+      - name: Lint
+        run: npm run lint
