@@ -206,7 +206,7 @@ function getAllTickets(
     $resolvedByUser = null,
     $givenGameID = null,
     $givenAchievementID = null,
-    $ticketFilters = 131065, //131065 sets all filters active except for Closed, Resolved and Karma
+    $ticketFilters = 131065, // 131065 sets all filters active except for Closed, Resolved and Karma
     $getUnofficial = false
 ) {
     sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
@@ -269,15 +269,12 @@ function getAllTickets(
     $devActiveCond = getDevActiveCondition($ticketFilters);
     if ($devActiveCond === null) {
         return $retVal;
-    } else if ($devActiveCond != "") {
+    } elseif ($devActiveCond != "") {
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
     // Karama condition
     $karmaCond = getKarmaCondition($ticketFilters);
-    if ($karmaCond === null) {
-        return $retVal;
-    } 
 
     // official/unofficial filter (ignore when a specific achievement is requested)
     $achFlagCond = '';
@@ -502,26 +499,24 @@ function countOpenTickets(
     $devActiveCond = getDevActiveCondition($ticketFilters);
     if ($devActiveCond === null) {
         return 0;
-    } else if ($devActiveCond != "") {
+    } elseif ($devActiveCond != "") {
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
     // Karama condition
     $resolverJoin = "";
     $karmaCond = getKarmaCondition($ticketFilters);
-    if ($karmaCond === null) {
-        return 0;
-    } else if ($karmaCond != "") {
+    if ($karmaCond != "") {
         $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID";
     }
 
-    //Author condition
+    // Author condition
     $authorCond = "";
     if ($assignedToUser != null) {
         $authorCond = " AND ach.Author LIKE '$assignedToUser'";
     }
 
-    //Reporter condition
+    // Reporter condition
     $reporterCond = "";
     $reporterJoin = "";
     if ($reportedByUser != null) {
@@ -529,16 +524,16 @@ function countOpenTickets(
         $reporterCond = " AND ua.User LIKE '$reportedByUser'";
     }
 
-    //Resolver condition
+    // Resolver condition
     $resolverCond = "";
     if ($resolvedByUser != null) {
         $resolverCond = " AND ua2.User LIKE '$resolvedByUser'";
-        if ($resolverJoin == ""){
+        if ($resolverJoin == "") {
             $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID";
-        }     
+        }
     }
 
-    //Game condition
+    // Game condition
     $gameCond = "";
     if ($gameID != null) {
         $gameCond = " AND ach.GameID LIKE '$gameID'";
@@ -777,7 +772,7 @@ function getDevActiveCondition($ticketFilters)
  * Gets the karma condition to put into the main ticket query.
  *
  * @param int $ticketFilters the current ticket filters in place
- * @return string|null
+ * @return string
  */
 function getKarmaCondition($ticketFilters)
 {
@@ -785,8 +780,9 @@ function getKarmaCondition($ticketFilters)
 
     if ($karmaTickets) {
         return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author AND tick.ReportState IN (0,2)";
+    } else {
+        return "";
     }
-    return "";
 }
 
 /**

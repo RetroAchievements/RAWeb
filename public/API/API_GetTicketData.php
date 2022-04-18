@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 runPublicApiMiddleware();
 
 $baseUrl = getenv('APP_URL') . '/ticketmanager.php';
-$defaultTicketFilter = 131065; //131065 sets all filters active except for Closed and Resolved
+$defaultTicketFilter = 131065; // 131065 sets all filters active except for Closed and Resolved
 $count = 10;
 $offset = 0;
 
@@ -126,6 +126,6 @@ if ($achievementIDGiven > 0) {
 
 // getting the 10 most recent tickets
 $ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, null, null, $defaultTicketFilter);
-$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter,null, null , null, null);
+$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null, null, null);
 $ticketData['URL'] = $baseUrl;
 echo json_encode($ticketData, JSON_THROW_ON_ERROR);

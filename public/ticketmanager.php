@@ -16,8 +16,8 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 131065; //131065 sets all filters active except for Closed Resolved and Karma
-$allTicketsFilter = 131071; //const
+$defaultFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Karma
+$allTicketsFilter = 131071; // const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
 $reportStates = ["Closed", "Open", "Resolved"];
@@ -116,9 +116,9 @@ if ($ticketID != 0) {
 
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
-    //sets all filters enabled so we get closed/resolved tickets as well
+    // sets all filters enabled so we get closed/resolved tickets as well
     $altTicketData = getAllTickets(0, 99, null, null, null, null, null, $ticketData['AchievementID'], $allTicketsFilter);
-    //var_dump($altTicketData);
+    // var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
@@ -132,6 +132,8 @@ if ($ticketID != 0) {
 }
 
 $assignedToUser = null;
+$reportedByUser = null;
+$resolvedByUser = null;
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
 if ($ticketID == 0) {
@@ -447,7 +449,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Active Dev Filters
+                // Active Dev Filters
                 echo "<div>";
                 echo "<b>Dev Status:</b> ";
 
@@ -468,7 +470,7 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                //Karma Filters
+                // Karma Filters
                 echo "<div>";
                 echo "<b>Karma:</b> ";
 
@@ -628,6 +630,8 @@ RenderHtmlHead($pageTitle);
                         $gameTitle,
                         $consoleName,
                         $reportNotes,
+                        $reportedBy,
+                        $resolvedBy
                     );
 
                     if ($rowCount++ % 2 == 0) {
@@ -730,6 +734,8 @@ RenderHtmlHead($pageTitle);
                     $consoleName,
                     $mode,
                     $reportNotes,
+                    $reportedBy,
+                    $resolvedBy
                 );
 
                 echo "<table><tbody>";
