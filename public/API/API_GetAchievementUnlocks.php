@@ -7,6 +7,8 @@ runPublicApiMiddleware();
 
 $user = null;
 $achievementID = (int) (requestInputQuery('a') ?? null);
+$count = min(requestInputQuery('c', 50), 500);
+$offset = requestInputQuery('o', 0);
 
 if (empty($achievementID)) {
     echo json_encode([
@@ -38,7 +40,7 @@ $console = [
     'Title' => $achievementData['ConsoleName'] ?? null,
 ];
 
-getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user);
+getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, $offset, $count);
 
 usort($winnerInfo, fn ($a, $b) => strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']));
 
