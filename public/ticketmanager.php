@@ -333,22 +333,23 @@ RenderHtmlHead($pageTitle);
                 // State Filters
                 echo "<div>";
                 echo "<b>Ticket State:</b> ";
+                $standardFilterURL = '/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=';
                 if ($openTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 0)) . "'>*Open</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 0)) . "'>*Open</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 0)) . "'>Open</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 0)) . "'>Open</a> | ";
                 }
 
                 if ($closedTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 1)) . "'>*Closed</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 1)) . "'>*Closed</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 1)) . "'>Closed</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 1)) . "'>Closed</a> | ";
                 }
 
                 if ($resolvedTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 2)) . "'>*Resolved</a></b>";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 2)) . "'>*Resolved</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 2)) . "'>Resolved</a>";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 2)) . "'>Resolved</a>";
                 }
                 echo "</div>";
 
@@ -356,15 +357,15 @@ RenderHtmlHead($pageTitle);
                 echo "<div>";
                 echo "<b>Report Type:</b> ";
                 if ($triggeredTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 3)) . "'>*Triggered at wrong time</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 3)) . "'>*Triggered at wrong time</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 3)) . "'>Triggered at wrong time</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 3)) . "'>Triggered at wrong time</a> | ";
                 }
 
                 if ($didNotTriggerTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 4)) . "'>*Doesn't Trigger</a></b>";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 4)) . "'>*Doesn't Trigger</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 4)) . "'>Doesn't Trigger</a>";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 4)) . "'>Doesn't Trigger</a>";
                 }
                 echo "</div>";
 
@@ -372,15 +373,15 @@ RenderHtmlHead($pageTitle);
                 echo "<div>";
                 echo "<b>Hash:</b> ";
                 if ($hashKnownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 5)) . "'>*Contains Hash</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 5)) . "'>*Contains Hash</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 5)) . "'>Contains Hash</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 5)) . "'>Contains Hash</a> | ";
                 }
 
                 if ($hashUnknownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 6)) . "'>*Hash Unknown</a></b>";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 6)) . "'>*Hash Unknown</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 6)) . "'>Hash Unknown</a>";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 6)) . "'>Hash Unknown</a>";
                 }
                 echo "</div>";
 
@@ -388,43 +389,44 @@ RenderHtmlHead($pageTitle);
                 echo "<div>";
                 echo "<b>Emulator:</b> ";
                 if ($raEmulatorTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 7)) . "'>*RA Emulator</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 7)) . "'>*RA Emulator</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 7)) . "'>RA Emulator</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 7)) . "'>RA Emulator</a> | ";
                 }
 
                 if ($rarchKnownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 8)) . "'>*RetroArch - Defined</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 8)) . "'>*RetroArch - Defined</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 8)) . "'>RetroArch - Defined</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 8)) . "'>RetroArch - Defined</a> | ";
                 }
 
                 if ($rarchUnknownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 9)) . "'>*RetroArch - Undefined</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 9)) . "'>*RetroArch - Undefined</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 9)) . "'>RetroArch - Undefined</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 9)) . "'>RetroArch - Undefined</a> | ";
                 }
 
                 if ($emulatorUnknownTickets) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 10)) . "'>*Emulator Unknown</a></b>";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 10)) . "'>*Emulator Unknown</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 10)) . "'>Emulator Unknown</a>";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 10)) . "'>Emulator Unknown</a>";
                 }
                 echo "</div>";
 
                 // Core/Unofficial Filters - These filters are mutually exclusive
                 echo "<div>";
                 echo "<b>Achievement State:</b> ";
+                $gamesFilterUrl = '/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=';
                 if ($gamesTableFlag != 5) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=3&t=$ticketFilters'>*Core</a></b> | ";
+                    echo "<b><a href=$gamesFilterUrl" . "3&t=$ticketFilters'>*Core</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=3&t=$ticketFilters'>Core</a> | ";
+                    echo "<a href=$gamesFilterUrl" . "3&t=$ticketFilters'>Core</a> | ";
                 }
 
                 if ($gamesTableFlag == 5) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=5&t=$ticketFilters'>*Unofficial</a></b>";
+                    echo "<b><a href=$gamesFilterUrl" . "5&t=$ticketFilters'>*Unofficial</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=5&t=$ticketFilters'>Unofficial</a>";
+                    echo "<a href=$gamesFilterUrl" . "5&t=$ticketFilters'>Unofficial</a>";
                 }
                 echo "</div>";
 
@@ -433,19 +435,19 @@ RenderHtmlHead($pageTitle);
                 echo "<b>Mode:</b> ";
 
                 if ($modeUnknown) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 11)) . "'>*Unknown</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 11)) . "'>*Unknown</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 11)) . "'>Unknown</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 11)) . "'>Unknown</a> | ";
                 }
                 if ($modeHardcore) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 12)) . "'>*Hardcore</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 12)) . "'>*Hardcore</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 12)) . "'>Hardcore</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 12)) . "'>Hardcore</a> | ";
                 }
                 if ($modeSoftcore) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 13)) . "'>*Softcore</a></b>";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 13)) . "'>*Softcore</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 13)) . "'>Softcore</a>";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 13)) . "'>Softcore</a>";
                 }
                 echo "</div>";
 
@@ -454,19 +456,19 @@ RenderHtmlHead($pageTitle);
                 echo "<b>Dev Status:</b> ";
 
                 if ($devInactive) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 14)) . "'>*Inactive</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 14)) . "'>*Inactive</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 14)) . "'>Inactive</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 14)) . "'>Inactive</a> | ";
                 }
                 if ($devActive) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 15)) . "'>*Active</a></b> | ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 15)) . "'>*Active</a></b> | ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 15)) . "'>Active</a> | ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 15)) . "'>Active</a> | ";
                 }
                 if ($devJunior) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 16)) . "'>*Junior</a></b>";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 16)) . "'>*Junior</a></b>";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 16)) . "'>Junior</a>";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 16)) . "'>Junior</a>";
                 }
                 echo "</div>";
 
@@ -475,9 +477,9 @@ RenderHtmlHead($pageTitle);
                 echo "<b>Resolved By:</b> ";
 
                 if ($karmaStatus) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 17)) . "'>*Not Author</a></b> ";
+                    echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 17)) . "'>*Not Author</a></b> ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 17)) . "'>Not Author</a> ";
+                    echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 17)) . "'>Not Author</a> ";
                 }
                 echo "</div>";
 
@@ -691,7 +693,7 @@ RenderHtmlHead($pageTitle);
                     if ($prevOffset < 0) {
                         $prevOffset = 0;
                     }
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=$ticketFilters'>First</a> - ";
+                    echo "<a href='$standardFilterURL" . "$ticketFilters'>First</a> - ";
                     echo "<a href='/ticketmanager.php?o=$prevOffset&g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=$ticketFilters'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($rowCount == $maxCount) {
