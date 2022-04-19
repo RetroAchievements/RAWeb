@@ -472,12 +472,12 @@ RenderHtmlHead($pageTitle);
 
                 // Karma Filters
                 echo "<div>";
-                echo "<b>Karma:</b> ";
+                echo "<b>Resolved By:</b> ";
 
                 if ($karmaStatus) {
-                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 17)) . "'>*Karma</a></b> ";
+                    echo "<b><a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters & ~(1 << 17)) . "'>*Not Author</a></b> ";
                 } else {
-                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 17)) . "'>Karma</a> ";
+                    echo "<a href='/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=" . ($ticketFilters | (1 << 17)) . "'>Not Author</a> ";
                 }
                 echo "</div>";
 
@@ -511,7 +511,7 @@ RenderHtmlHead($pageTitle);
                         echo "<b>Clear Filter </b>";
                     }
 
-                    echo "<input size='28' name='u' type='text' value='$assignedToUser'>";
+                    echo "<input size='28' name='u' type='text' value=''>";
                     echo "&nbsp";
                     echo "<input type='submit' value='Select'>";
                     echo "</p>";
@@ -538,7 +538,7 @@ RenderHtmlHead($pageTitle);
                     } else {
                         echo "<b>Clear Filter </b>";
                     }
-                    echo "<input size='28' name='r' type='text' value='$reportedByUser'>";
+                    echo "<input size='28' name='p' type='text' value=''>";
                     echo "&nbsp";
                     echo "<input type='submit' value='Select'>";
                     echo "</p>";
@@ -565,7 +565,7 @@ RenderHtmlHead($pageTitle);
                     } else {
                         echo "<b>Clear Filter </b>";
                     }
-                    echo "<input size='28' name='r' type='text' value='$resolvedByUser'>";
+                    echo "<input size='28' name='r' type='text' value=''>";
                     echo "&nbsp";
                     echo "<input type='submit' value='Select'>";
                     echo "</p>";

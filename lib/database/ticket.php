@@ -507,7 +507,7 @@ function countOpenTickets(
     $resolverJoin = "";
     $karmaCond = getKarmaCondition($ticketFilters);
     if ($karmaCond != "") {
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID";
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (0,2)";
     }
 
     // Author condition
@@ -529,7 +529,7 @@ function countOpenTickets(
     if ($resolvedByUser != null) {
         $resolverCond = " AND ua2.User LIKE '$resolvedByUser'";
         if ($resolverJoin == "") {
-            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID";
+            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (0,2)";
         }
     }
 
@@ -779,7 +779,7 @@ function getKarmaCondition($ticketFilters)
     $karmaTickets = ($ticketFilters & (1 << 17));
 
     if ($karmaTickets) {
-        return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author AND tick.ReportState IN (0,2)";
+        return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
     } else {
         return "";
     }
