@@ -16,7 +16,7 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Karma
+$defaultFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Author
 $allTicketsFilter = 131071; // const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
@@ -328,7 +328,7 @@ RenderHtmlHead($pageTitle);
                 $devInactive = ($ticketFilters & (1 << 14));
                 $devActive = ($ticketFilters & (1 << 15));
                 $devJunior = ($ticketFilters & (1 << 16));
-                $karmaStatus = ($ticketFilters & (1 << 17));
+                $notAuthorStatus = ($ticketFilters & (1 << 17));
 
                 // State Filters
                 echo "<div>";
@@ -472,11 +472,11 @@ RenderHtmlHead($pageTitle);
                 }
                 echo "</div>";
 
-                // Karma Filters
+                // Resolved By Filter
                 echo "<div>";
                 echo "<b>Resolved By:</b> ";
 
-                if ($karmaStatus) {
+                if ($notAuthorStatus) {
                     echo "<b><a href='$standardFilterURL" . ($ticketFilters & ~(1 << 17)) . "'>*Not Author</a></b> ";
                 } else {
                     echo "<a href='$standardFilterURL" . ($ticketFilters | (1 << 17)) . "'>Not Author</a> ";

@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 runPublicApiMiddleware();
 
 $baseUrl = getenv('APP_URL') . '/ticketmanager.php';
-$defaultTicketFilter = 131065; // 131065 sets all filters active except for Closed and Resolved
+$defaultTicketFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Author
 $count = 10;
 $offset = 0;
 
