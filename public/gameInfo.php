@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\ObjectType;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 use RA\UserPref;
@@ -210,6 +211,9 @@ if ($isFullyFeaturedGame) {
     }
 }
 
+$gameRating = getGameRating($gameID);
+$minimumNumberOfRatingsToDisplay = 5;
+
 sanitize_outputs(
     $gameTitle,
     $consoleName,
@@ -289,8 +293,10 @@ RenderHtmlStart(true);
       }
     </script>
     <script>
-      var lastKnownAchRating = 0;
-      var lastKnownGameRating = 0;
+      var lastKnownAchRating = <?= $gameRating[ObjectType::Achievement]['AvgPct'] ?>;
+      var lastKnownGameRating = <?= $gameRating[ObjectType::Game]['AvgPct'] ?>;
+      var lastKnownAchRatingCount = <?= $gameRating[ObjectType::Achievement]['NumVotes'] ?>;
+      var lastKnownGameRatingCount = <?= $gameRating[ObjectType::Game]['NumVotes'] ?>;
 
       function SetLitStars(container, numStars) {
         $(container + ' a').removeClass('starlit');
@@ -332,30 +338,37 @@ RenderHtmlStart(true);
         }
       }
 
-      function GetRating(gameID) {
+      function UpdateRating(container, label, rating, raters) {
+        if (raters < <?= $minimumNumberOfRatingsToDisplay ?>) {
+          SetLitStars(container, 0);
+          label.html('More ratings needed (' + raters + ' votes)');
+        } else {
+          SetLitStars(container, rating);
+          label.html('Rating: ' + rating.toFixed(2) + ' (' + raters + ' votes)');
+        }
+      }
 
-        $('#ratinggame a').removeClass('starlit');
-        $('#ratingach a').removeClass('starlit');
+      function UpdateRatings() {
+        UpdateRating('#ratinggame', $('.ratinggamelabel'), lastKnownGameRating, lastKnownGameRatingCount);
+        UpdateRating('#ratingach', $('.ratingachlabel'), lastKnownAchRating, lastKnownAchRatingCount);
+      }
 
-        $('.ratinggamelabel').html('Rating: ...');
-        $('.ratingachlabel').html('Rating: ...');
+      function GetRating(gameID, ratingObjectType) {
+
+        if (ratingObjectType == <?= ObjectType::Game ?>) {
+          $('.ratinggamelabel').html('Rating: ...');
+        } else {
+          $('.ratingachlabel').html('Rating: ...');
+        }
 
         $.ajax({
           url: '/request/game/rating.php?i=' + gameID,
           dataType: 'json',
           success: function (results) {
-            results.GameID;
             lastKnownGameRating = parseFloat(results.Ratings['Game']);
             lastKnownAchRating = parseFloat(results.Ratings['Achievements']);
-            var gameRatingNumVotes = results.Ratings['GameNumVotes'];
-            var achRatingNumVotes = results.Ratings['AchievementsNumVotes'];
-
-            SetLitStars('#ratinggame', lastKnownGameRating);
-            SetLitStars('#ratingach', lastKnownAchRating);
-
-            $('.ratinggamelabel').html('Rating: ' + lastKnownGameRating.toFixed(2) + ' (' + gameRatingNumVotes + ' votes)');
-            $('.ratingachlabel').html('Rating: ' + lastKnownAchRating.toFixed(2) + ' (' + achRatingNumVotes + ' votes)');
-
+            lastKnownGameRatingCount = results.Ratings['GameNumVotes'];
+            lastKnownAchRatingCount = results.Ratings['AchievementsNumVotes'];
           },
         });
       }
@@ -365,7 +378,7 @@ RenderHtmlStart(true);
           url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
           dataType: 'json',
           success: function (results) {
-            GetRating(<?php echo $gameID; ?>);
+            GetRating(gameID, ratingObjectType);
           },
         });
       }
@@ -409,23 +422,12 @@ RenderHtmlStart(true);
 
               SetLitStars('#ratinggame', numStars);
             }
-          },
-          function () {
-            // On leave
-            // GetRating( <?php echo $gameID; ?> );
           });
 
         $('.rating').hover(
           function () {
-            // On hover
-          },
-          function () {
             // On leave
-            // GetRating( <?php echo $gameID; ?> );
-            if ($(this).is($('#ratingach')))
-              SetLitStars('#ratingach', lastKnownAchRating);
-            else
-              SetLitStars('#ratinggame', lastKnownGameRating);
+            UpdateRatings();
           });
 
         $('.starimg').click(function () {
@@ -448,10 +450,6 @@ RenderHtmlStart(true);
 
           SubmitRating(<?php echo $gameID; ?>, ratingType, numStars);
         });
-
-        if ($('.rating').length) {
-          GetRating(<?php echo $gameID; ?>);
-        }
 
       });
 
@@ -858,6 +856,42 @@ RenderHtmlStart(true);
                     }
                 }
 
+                $renderRatingControl = function($label, $containername, $labelname, $rating, $voters) use ($minimumNumberOfRatingsToDisplay)
+                {
+                    echo "<div style='float: right; margin-left: 20px'>";
+
+                    echo "<h4>$label</h4>";
+
+                    if ($voters < $minimumNumberOfRatingsToDisplay) {
+                        $labelcontent = "More ratings needed ($voters votes)";
+
+                        $star1 = $star2 = $star3 = $star4 = $star5 = "";
+                    } else {
+                        $labelcontent = "Rating: " . number_format($rating, 2) . " ($voters votes)";
+
+                        $star1 = ($rating >= 1.0) ? "starlit" : (($rating >= 0.5) ? "starhalf" : "");
+                        $star2 = ($rating >= 2.0) ? "starlit" : (($rating >= 1.5) ? "starhalf" : "");
+                        $star3 = ($rating >= 3.0) ? "starlit" : (($rating >= 2.5) ? "starhalf" : "");
+                        $star4 = ($rating >= 4.0) ? "starlit" : (($rating >= 3.5) ? "starhalf" : "");
+                        $star5 = ($rating >= 5.0) ? "starlit" : (($rating >= 4.5) ? "starhalf" : "");
+                    }
+
+                    echo "<div class='rating' id='$containername'>";
+                    echo "<a class='starimg $star1 1star'>1</a>";
+                    echo "<a class='starimg $star2 2star'>2</a>";
+                    echo "<a class='starimg $star3 3star'>3</a>";
+                    echo "<a class='starimg $star4 4star'>4</a>";
+                    echo "<a class='starimg $star5 5star'>5</a>";
+                    echo "</div>";
+
+                    echo "<div style='float: left; clear: left'>";
+                    echo "<span class='$labelname'>$labelcontent</span>";
+                    echo "</div>";
+
+                    echo "</div>";
+                    echo "<br>";
+                };
+
                 if ($user !== null && $numAchievements > 0) {
                     if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
                         echo "<div class='devbox'>";
@@ -871,21 +905,7 @@ RenderHtmlStart(true);
                         echo "</div></div>";
                     }
 
-                    echo "<div style='float: right; clear: both;'>";
-
-                    echo "<h4>Game Rating</h4>";
-
-                    echo "<div class='rating' id='ratinggame'>";
-                    echo "<a class='starimg starlit 1star'>1</a>";
-                    echo "<a class='starimg starlit 2star'>2</a>";
-                    echo "<a class='starimg starlit 3star'>3</a>";
-                    echo "<a class='starimg starlit 4star'>4</a>";
-                    echo "<a class='starimg starlit 5star'>5</a>";
-                    echo "</div>";
-                    echo "<span class='ratinggamelabel'>?</span>";
-
-                    echo "</div>";
-                    echo "<br>";
+                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[ObjectType::Game]['AvgPct'], $gameRating[ObjectType::Game]['NumVotes']);
                 }
 
                 // Only show set request option for logged in users, games without achievements, and core achievement page
@@ -901,24 +921,11 @@ RenderHtmlStart(true);
                     echo "</div>";
                 }
 
-                /* if( $user !== NULL && $numAchievements > 0 )
-                  {
-                  echo "<div style='float: right; clear: both;'>";
-
-                  echo "<h4>Achievements Rating</h4>";
-
-                  echo "<div class='rating' id='ratingach'>";
-                  echo "<a class='starimg starlit 1star'>1</a>";
-                  echo "<a class='starimg starlit 2star'>2</a>";
-                  echo "<a class='starimg starlit 3star'>3</a>";
-                  echo "<a class='starimg starlit 4star'>4</a>";
-                  echo "<a class='starimg starlit 5star'>5</a>";
-                  echo "</div>";
-                  echo "<span class='ratingachlabel'>?</span>";
-
-                  echo "</div>";
-                  echo "<br>";
-                  } */
+                /*
+                if( $user !== NULL && $numAchievements > 0 ) {
+                    $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[ObjectType::Achievement]['AvgPct'], $gameRating[ObjectType::Achievement]['NumVotes']);
+                }
+                */
 
                 echo "<div style='clear: both;'>";
                 echo "&nbsp;";

@@ -1,5 +1,7 @@
 <?php
 
+use RA\ObjectType;
+
 function getGameRating($gameID)
 {
     sanitize_sql_inputs($gameID);
@@ -16,6 +18,15 @@ function getGameRating($gameID)
     $retVal = [];
     while ($nextRow = mysqli_fetch_array($dbResult)) {
         $retVal[$nextRow['RatingObjectType']] = $nextRow;
+    }
+
+    if (!isset($retVal[ObjectType::Game])) {
+        $retVal[ObjectType::Game]['AvgPct'] = 0.0;
+        $retVal[ObjectType::Game]['NumVotes'] = 0;
+    }
+    if (!isset($retVal[ObjectType::Achievement])) {
+        $retVal[ObjectType::Achievement]['AvgPct'] = 0.0;
+        $retVal[ObjectType::Achievement]['NumVotes'] = 0;
     }
 
     return $retVal;
