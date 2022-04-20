@@ -11,9 +11,9 @@ $gameRating = getGameRating($gameID);
 
 $gameData = [];
 $gameData['GameID'] = $gameID;
-$gameData['Ratings']['Game'] = $gameRating[ObjectType::Game]['AvgPct'];
-$gameData['Ratings']['Achievements'] = $gameRating[ObjectType::Achievement]['AvgPct'];
-$gameData['Ratings']['GameNumVotes'] = $gameRating[ObjectType::Game]['NumVotes'];
-$gameData['Ratings']['AchievementsNumVotes'] = $gameRating[ObjectType::Achievement]['NumVotes'];
+$gameData['Ratings']['Game'] = $gameRating[ObjectType::Game]['AverageRating'];
+$gameData['Ratings']['Achievements'] = $gameRating[ObjectType::Achievement]['AverageRating'];
+$gameData['Ratings']['GameNumVotes'] = $gameRating[ObjectType::Game]['RatingCount'];
+$gameData['Ratings']['AchievementsNumVotes'] = $gameRating[ObjectType::Achievement]['RatingCount'];
 
 echo json_encode($gameData, JSON_THROW_ON_ERROR);

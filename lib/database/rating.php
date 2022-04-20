@@ -2,31 +2,67 @@
 
 use RA\ObjectType;
 
-function getGameRating($gameID)
+function getGameRating($gameID, $user = null)
 {
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
-    $query = "SELECT r.RatingObjectType, SUM(r.RatingValue)/COUNT(r.RatingValue) AS AvgPct, COUNT(r.RatingValue) AS NumVotes
-              FROM Rating AS r
-              WHERE r.RatingID = $gameID
-              GROUP BY r.RatingObjectType";
-
-    global $db;
-    $dbResult = mysqli_query($db, $query);    // NB. query has a forward slash in! Cannot use s_mysql_query
-    SQL_ASSERT($dbResult);
+    $newRatings = function () {
+        return [
+            'RatingCount' => 0,
+            'Rating1' => 0,
+            'Rating2' => 0,
+            'Rating3' => 0,
+            'Rating4' => 0,
+            'Rating5' => 0,
+        ];
+    };
 
     $retVal = [];
+    $retVal[ObjectType::Game] = $newRatings();
+    $retVal[ObjectType::Achievement] = $newRatings();
+
+    sanitize_sql_inputs($gameID);
+    settype($gameID, 'integer');
+    $query = "SELECT r.RatingObjectType, r.RatingValue, COUNT(r.RatingValue) AS NumVotes
+              FROM Rating AS r
+              WHERE r.RatingID = $gameID
+              GROUP BY r.RatingObjectType, r.RatingValue";
+
+    global $db;
+    $dbResult = mysqli_query($db, $query);
+    SQL_ASSERT($dbResult);
+
     while ($nextRow = mysqli_fetch_array($dbResult)) {
-        $retVal[$nextRow['RatingObjectType']] = $nextRow;
+        $type = $nextRow['RatingObjectType'];
+        $retVal[$type]['RatingCount'] += $nextRow['NumVotes'];
+        $retVal[$type]['Rating' . $nextRow['RatingValue']] += $nextRow['NumVotes'];
     }
 
-    if (!isset($retVal[ObjectType::Game])) {
-        $retVal[ObjectType::Game]['AvgPct'] = 0.0;
-        $retVal[ObjectType::Game]['NumVotes'] = 0;
+    foreach ($retVal as &$ratingData) {
+        if ($ratingData['RatingCount'] == 0) {
+            $ratingData['AverageRating'] = 0.0;
+        } else {
+            $ratingData['AverageRating'] =
+                floatval($ratingData['Rating1'] * 1 +
+                         $ratingData['Rating2'] * 2 +
+                         $ratingData['Rating3'] * 3 +
+                         $ratingData['Rating4'] * 4 +
+                         $ratingData['Rating5'] * 5) / $ratingData['RatingCount'];
+        }
     }
-    if (!isset($retVal[ObjectType::Achievement])) {
-        $retVal[ObjectType::Achievement]['AvgPct'] = 0.0;
-        $retVal[ObjectType::Achievement]['NumVotes'] = 0;
+
+    if (!empty($user)) {
+        foreach ($retVal as &$ratingData) {
+            $ratingData['UserRating'] = 0;
+        }
+
+        sanitize_sql_inputs($user);
+        $query = "SELECT RatingObjectType, RatingValue FROM Rating WHERE RatingID=$gameID AND User='$user'";
+        $dbResult = mysqli_query($db, $query);
+        SQL_ASSERT($dbResult);
+
+        while ($nextRow = mysqli_fetch_array($dbResult)) {
+            $type = $nextRow['RatingObjectType'];
+            $retVal[$type]['UserRating'] = $nextRow['RatingValue'];
+        }
     }
 
     return $retVal;
