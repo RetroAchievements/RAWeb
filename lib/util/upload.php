@@ -4,7 +4,7 @@ use Aws\S3\S3Client;
 
 function UploadToS3($filenameSrc, $filenameDest)
 {
-    if (!getenv('AWS_ACCESS_KEY_ID') && !in_array(getenv('APP_ENV'), ['local'])) {
+    if (!getenv('AWS_ACCESS_KEY_ID') || in_array(getenv('APP_ENV'), ['local'])) {
         // nothing to do here
         return;
     }
