@@ -17,7 +17,16 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
     exit;
 }
 
-$response['Response'] = UploadUserPic($user, $filename, $rawImage);
-
+$uploadResponse = UploadUserPic($user, $filename, $rawImage);
+$response['Success'] = $uploadResponse['Success'];
+unset($uploadResponse['Success']);
 settype($response['Success'], 'boolean');
+
+if ($uploadResponse['Error']) {
+    $response['Error'] = $uploadResponse['Error'];
+    unset($uploadResponse['Error']);
+}
+
+$response['Response'] = $uploadResponse;
+
 echo json_encode($response, JSON_THROW_ON_ERROR);

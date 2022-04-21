@@ -58,11 +58,6 @@ function UploadUserPic($user, $filename, $rawImage)
 
         $existingUserFile = __DIR__ . "/../../public/UserPic/$user.png";
 
-        if ($extension == 'bmp') {
-            $response['Success'] = false;
-            return $response;
-        }
-
         $tempImage = null;
 
         // Allow transparent backgrounds for .png and .gif files
@@ -72,28 +67,44 @@ function UploadUserPic($user, $filename, $rawImage)
             imagecolortransparent($newImage, $background);
             imagealphablending($newImage, false);
             imagesavealpha($newImage, true);
+
             if ($extension == 'png') {
                 $tempImage = imagecreatefrompng($tempFilename);
-            }
-            if ($extension == 'gif') {
+            } else {
                 $tempImage = imagecreatefromgif($tempFilename);
             }
+
+            if (!$tempImage) {
+                $response['Success'] = false;
+                $response['Error'] = "Failed to process $extension file";
+                return $response;
+            }
+
             imagecopy($newImage, $tempImage, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize);
-        } else {
-            if ($extension == 'jpg' || $extension == 'jpeg') {
-                $tempImage = imagecreatefromjpeg($tempFilename);
+        } elseif ($extension == 'jpg' || $extension == 'jpeg') {
+            $tempImage = imagecreatefromjpeg($tempFilename);
+            if (!$tempImage) {
+                $response['Success'] = false;
+                $response['Error'] = 'Failed to process JPEG file';
+                return $response;
             }
 
             $newImage = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
+
             // Create a black rect, size 128x128
             $blackRect = imagecreatetruecolor($userPicDestSize, $userPicDestSize);
-
             if ($blackRect === false) {
-                exit('Cannot Initialize new GD image stream');
+                $response['Success'] = false;
+                $response['Error'] = 'Cannot initialize new GD image stream';
+                return $response;
             }
 
             // Copy the black rect onto our image
             imagecopy($newImage, $blackRect, 0, 0, 0, 0, $userPicDestSize, $userPicDestSize);
+        } else {
+            $response['Success'] = false;
+            $response['Error'] = "Unsupported file type: $extension";
+            return $response;
         }
 
         // Reduce the input file size
@@ -173,6 +184,12 @@ function UploadBadgeImage($file)
                             $tempImage = imagecreatefromgif($fileTempName);
                         }
                     }
+                }
+
+                if (!$tempImage) {
+                    $response['Error'] = "Failed to process $extension image";
+                    $response['Success'] = false;
+                    return $response;
                 }
 
                 [$width, $height] = getimagesize($fileTempName);
