@@ -16,7 +16,7 @@ abstract class SubscriptionSubjectType
 
     public const GameAchievements = "GameAchievements";
 
-    public static function fromArticleType($articleType)
+    public static function fromArticleType(int $articleType)
     {
         return match ($articleType) {
             ArticleType::Game => SubscriptionSubjectType::GameWall,
