@@ -858,10 +858,15 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     return $retval;
 }
 
-function getTotalUniquePlayers($gameID, $requestedBy)
+function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false)
 {
-    sanitize_sql_inputs($gameID, $requestedBy);
+    sanitize_sql_inputs($gameID, $requestedBy, $hardcoreOnly);
     settype($gameID, 'integer');
+
+    $hardcoreJoin = "";
+    if ($hardcoreOnly) {
+        $hardcoreJoin = " AND aw.HardcoreMode = 1";
+    }
 
     $query = "
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers
@@ -870,7 +875,8 @@ function getTotalUniquePlayers($gameID, $requestedBy)
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
         WHERE gd.ID = $gameID
-          AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
+        $hardcoreJoin
+        AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
     ";
 
     $dbResult = s_mysql_query($query);
