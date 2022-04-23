@@ -223,7 +223,6 @@ function getAllTickets(
     if (!empty($reportedByUser) && isValidUsername($reportedByUser)) {
         $innerCond .= " AND ua.User = '$reportedByUser'";
     }
-    $resolverJoin = "";
     if (!empty($resolvedByUser) && isValidUsername($resolvedByUser)) {
         $innerCond .= " AND ua2.User = '$resolvedByUser'";
     }

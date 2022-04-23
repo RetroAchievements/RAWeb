@@ -16,7 +16,7 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Author
+$defaultFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Achievement Developer
 $allTicketsFilter = 131071; // const
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
@@ -319,7 +319,7 @@ RenderHtmlHead($pageTitle);
                 $devInactive = ($ticketFilters & (1 << 14));
                 $devActive = ($ticketFilters & (1 << 15));
                 $devJunior = ($ticketFilters & (1 << 16));
-                $notAuthorStatus = ($ticketFilters & (1 << 17));
+                $notAchievementDeveloper = ($ticketFilters & (1 << 17));
 
                 sanitize_outputs($assignedToUser, $reportedByUser, $resolvedByUser);
 
@@ -482,10 +482,10 @@ RenderHtmlHead($pageTitle);
                     echo "<div>";
                     echo "<b>Resolved By:</b> ";
 
-                    if ($notAuthorStatus) {
-                        echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 17)) . "'>*Not Author</a></b> ";
+                    if ($notAchievementDeveloper) {
+                        echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 17)) . "'>*Not Achievement Developer</a></b> ";
                     } else {
-                        echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 17)) . "'>Not Author</a> ";
+                        echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 17)) . "'>Not Achievement Developer</a> ";
                     }
                     echo "</div>";
                 }
@@ -794,6 +794,11 @@ RenderHtmlHead($pageTitle);
                 echo GetUserAndTooltipDiv($reportedBy, false);
                 echo "</td>";
 
+                echo "<td>";
+                echo GetUserAndTooltipDiv($resolvedBy, true);
+                echo GetUserAndTooltipDiv($resolvedBy, false);
+                echo "</td>";
+
                 echo "<td class='smalldate'>";
                 echo $niceReportedAt;
                 echo "</td>";
@@ -804,7 +809,7 @@ RenderHtmlHead($pageTitle);
                 echo "<td>";
                 echo "Notes: ";
                 echo "</td>";
-                echo "<td colspan='6'>";
+                echo "<td colspan='7'>";
                 echo "<code>$reportNotes</code>";
                 echo "</td>";
                 echo "</tr>";
@@ -814,7 +819,7 @@ RenderHtmlHead($pageTitle);
                     echo "<td>";
                     echo "Mode: ";
                     echo "</td>";
-                    echo "<td colspan='6'>";
+                    echo "<td colspan='7'>";
                     echo "<b>$reportModes[$mode]</b>";
                     echo "</td>";
                     echo "</tr>";
@@ -824,13 +829,13 @@ RenderHtmlHead($pageTitle);
                 echo "<td>";
                 echo "Report Type: ";
                 echo "</td>";
-                echo "<td colspan='6'>";
+                echo "<td colspan='7'>";
                 echo ($reportType == 1) ? "<b>Triggered at wrong time</b>" : "<b>Doesn't Trigger</b>";
                 echo "</td>";
                 echo "</tr>";
 
                 echo "<tr>";
-                echo "<td></td><td colspan='6'>";
+                echo "<td></td><td colspan='7'>";
                 echo "<div class='temp'>";
                 echo "<a href='ticketmanager.php?g=$gameID'>View other tickets for this game</a>";
                 echo "</div>";
@@ -840,7 +845,7 @@ RenderHtmlHead($pageTitle);
                 if ($numOpenTickets > 0 || $numClosedTickets > 0) {
                     if ($numOpenTickets > 0) {
                         echo "<tr>";
-                        echo "<td></td><td colspan='6'>";
+                        echo "<td></td><td colspan='7'>";
                         echo "Found $numOpenTickets other open tickets for this achievement: ";
 
                         foreach ($altTicketData as $nextTicket) {
@@ -858,7 +863,7 @@ RenderHtmlHead($pageTitle);
                     }
                     if ($numClosedTickets > 0) {
                         echo "<tr>";
-                        echo "<td></td><td colspan='6'>";
+                        echo "<td></td><td colspan='7'>";
                         echo "Found $numClosedTickets closed tickets for this achievement: ";
 
                         foreach ($altTicketData as $nextTicket) {
@@ -877,7 +882,7 @@ RenderHtmlHead($pageTitle);
                     }
                 } else {
                     echo "<tr>";
-                    echo "<td></td><td colspan='6'>";
+                    echo "<td></td><td colspan='7'>";
                     echo "<div class='temp'>";
                     echo "No other tickets found for this achievement";
                     echo "</div>";
@@ -886,7 +891,7 @@ RenderHtmlHead($pageTitle);
                 }
 
                 echo "<tr>";
-                echo "<td></td><td colspan='6'>";
+                echo "<td></td><td colspan='7'>";
                 echo "<div class='temp'>";
                 $awardCount = getAwardsSince($achID, $reportedAt);
                 echo "This achievement has been earned " . $awardCount['softcoreCount'] . " <b>(" . $awardCount['hardcoreCount'] . ")</b> "
@@ -899,7 +904,7 @@ RenderHtmlHead($pageTitle);
                     echo "<tr>";
 
                     echo "<td>Reporter:</td>";
-                    echo "<td colspan='6'>";
+                    echo "<td colspan='7'>";
                     echo "<div class='smallicon'>";
                     echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
@@ -913,7 +918,7 @@ RenderHtmlHead($pageTitle);
                 }
 
                 echo "<tr>";
-                echo "<td></td><td colspan='6'>";
+                echo "<td></td><td colspan='7'>";
 
                 $numAchievements = getUserUnlockDates($reportedBy, $gameID, $unlockData);
                 $unlockData[] = ['ID' => 0, 'Title' => 'Ticket Created', 'Date' => $reportedAt, 'HardcoreMode' => 0];
@@ -942,7 +947,7 @@ RenderHtmlHead($pageTitle);
                 echo "</td></tr>";
 
                 if ($numAchievements > 0 && $permissions >= Permissions::Developer) {
-                    echo "<tr><td></td><td colspan='6'>";
+                    echo "<tr><td></td><td colspan='7'>";
 
                     echo "<div class='devbox'>";
                     echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Click to show player unlock history for this game</span><br>";
@@ -983,7 +988,7 @@ RenderHtmlHead($pageTitle);
                 if ($user == $reportedBy || $permissions >= Permissions::Developer) {
                     echo "<tr>";
 
-                    echo "<td>Action: </td><td colspan='6'>";
+                    echo "<td>Action: </td><td colspan='7'>";
                     echo "<div class='smallicon'>";
                     echo "<span>";
 
