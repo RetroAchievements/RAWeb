@@ -860,7 +860,7 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
 
 function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false)
 {
-    sanitize_sql_inputs($gameID, $requestedBy, $hardcoreOnly);
+    sanitize_sql_inputs($gameID, $requestedBy);
     settype($gameID, 'integer');
 
     $hardcoreJoin = "";
