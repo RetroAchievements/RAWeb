@@ -5,6 +5,7 @@ use RA\ArticleType;
 use RA\Models\TicketModel;
 use RA\SubscriptionSubjectType;
 use RA\TicketFilters;
+use RA\TicketState;
 
 function isAllowedToSubmitTickets($user)
 {
@@ -333,12 +334,15 @@ function getTicket($ticketID)
 
 function updateTicket($user, $ticketID, $ticketVal, $reason = null)
 {
-    sanitize_sql_inputs($ticketI, $ticketVal);
+    sanitize_sql_inputs($ticketID, $ticketVal);
 
     $userID = getUserIDFromUser($user);
 
+    // get the ticket data before updating so we know what the previous state was
+    $ticketData = getTicket($ticketID);
+
     $resolvedFields = "";
-    if ($ticketVal != 1) {
+    if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
         $resolvedFields = ", ResolvedAt=NOW(), ResolvedByUserID=$userID ";
     }
 
@@ -348,19 +352,17 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $ticketData = getTicket($ticketID);
         $userReporter = $ticketData['ReportedBy'];
         $achID = $ticketData['AchievementID'];
         $achTitle = $ticketData['AchievementTitle'];
         $gameTitle = $ticketData['GameTitle'];
         $consoleName = $ticketData['ConsoleName'];
 
-        $status = null;
+        $status = TicketState::toString($ticketVal);
         $comment = null;
 
         switch ($ticketVal) {
-            case 0:
-                $status = "Closed";
+            case TicketState::Closed:
                 if ($reason == "Demoted") {
                     updateAchievementFlags($achID, 5);
                 }
@@ -368,16 +370,22 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
                 postActivity($user, ActivityType::ClosedTicket, $achID);
                 break;
 
-            case 1: // Open
-                $status = "Open";
-                $comment = "Ticket reopened by $user.";
-                postActivity($user, ActivityType::OpenedTicket, $achID);
+            case TicketState::Open:
+                if ($ticketData['ReportState'] == TicketState::Request) {
+                    $comment = "Ticket reassigned to author by $user.";
+                } else {
+                    $comment = "Ticket reopened by $user.";
+                    postActivity($user, ActivityType::OpenedTicket, $achID);
+                }
                 break;
 
-            case 2: // Resolved
-                $status = "Resolved";
+            case TicketState::Resolved:
                 $comment = "Ticket resolved as fixed by $user.";
                 postActivity($user, ActivityType::ClosedTicket, $achID);
+                break;
+
+            case TicketState::Request:
+                $comment = "Ticket reassigned to reporter by $user.";
                 break;
         }
 
@@ -408,9 +416,9 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
     }
 }
 
-function countOpenTicketsByDev($dev)
+function countRequestTicketsByUser($user)
 {
-    if ($dev == null) {
+    if ($user == null) {
         return null;
     }
 
@@ -420,8 +428,8 @@ function countOpenTicketsByDev($dev)
         SELECT count(*) as count
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-        LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5) AND tick.ReportState = 1";
+        LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
+        WHERE ua.User = '$user' AND ach.Flags IN (3, 5) AND tick.ReportState = " . TicketState::Request;
 
     $dbResult = s_mysql_query($query);
 
@@ -430,6 +438,39 @@ function countOpenTicketsByDev($dev)
     } else {
         return false;
     }
+}
+
+function countOpenTicketsByDev($dev)
+{
+    if ($dev == null) {
+        return null;
+    }
+
+    sanitize_sql_inputs($dev);
+
+    $retVal = [
+        TicketState::Open => 0,
+        TicketState::Request => 0,
+    ];
+
+    $query = "
+        SELECT tick.ReportState, count(*) as Count
+        FROM Ticket AS tick
+        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
+        LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
+        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5) 
+        AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
+        GROUP BY tick.ReportState";
+
+    $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false) {
+        while ($nextData = mysqli_fetch_assoc($dbResult)) {
+            $retVal[$nextData['ReportState']] = $nextData['Count'];
+        }
+    }
+
+    return $retVal;
 }
 
 function countOpenTicketsByAchievement($achievementID)
@@ -443,7 +484,7 @@ function countOpenTicketsByAchievement($achievementID)
     $query = "
         SELECT COUNT(*) as count
         FROM Ticket
-        WHERE AchievementID = $achievementID AND ReportState = 1";
+        WHERE AchievementID = $achievementID AND ReportState IN (" . TicketState::Open . "," . TicketState::Request . ')';
 
     $dbResult = s_mysql_query($query);
 
@@ -507,7 +548,7 @@ function countOpenTickets(
     $resolverJoin = "";
     $notAuthorCond = getNotAuthorCondition($ticketFilters);
     if ($notAuthorCond != "") {
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (0,2)";
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
     // Author condition
@@ -529,7 +570,7 @@ function countOpenTickets(
     if ($resolvedByUser != null) {
         $resolverCond = " AND ua2.User LIKE '$resolvedByUser'";
         if ($resolverJoin == "") {
-            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (0,2)";
+            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
         }
     }
 
@@ -588,7 +629,7 @@ function gamesSortedByOpenTickets($count)
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState = 1 AND ach.Flags = 3
+            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = 3
         GROUP BY
             gd.ID
         ORDER BY
@@ -614,36 +655,29 @@ function gamesSortedByOpenTickets($count)
  */
 function getStateCondition($ticketFilters)
 {
-    $openTickets = ($ticketFilters & TicketFilters::StateOpen);
-    $closedTickets = ($ticketFilters & TicketFilters::StateClosed);
-    $resolvedTickets = ($ticketFilters & TicketFilters::StateResolved);
+    $states = [];
+    if ($ticketFilters & TicketFilters::StateOpen) {
+        $states[] = TicketState::Open;
+    }
+    if ($ticketFilters & TicketFilters::StateClosed) {
+        $states[] = TicketState::Closed;
+    }
+    if ($ticketFilters & TicketFilters::StateResolved) {
+        $states[] = TicketState::Resolved;
+    }
+    if ($ticketFilters & TicketFilters::StateRequest) {
+        $states[] = TicketState::Request;
+    }
 
-    if ($openTickets && $closedTickets && $resolvedTickets) {
+    if (count($states) == 4) {
+        // all states selected, no need to filter
         return "";
-    } elseif ($openTickets || $closedTickets || $resolvedTickets) {
-        $stateCond = " AND tick.ReportState IN (";
-        if ($openTickets) {
-            $stateCond .= "1";
-        }
-
-        if ($closedTickets) {
-            if ($openTickets) {
-                $stateCond .= ",";
-            }
-            $stateCond .= "0";
-        }
-
-        if ($resolvedTickets) {
-            if ($openTickets || $closedTickets) {
-                $stateCond .= ",";
-            }
-            $stateCond .= "2";
-        }
-        $stateCond .= ")";
-        return $stateCond;
-    } else {
+    } elseif (count($states) == 0) {
+        // no states selected, can't matching anything
         return null;
     }
+
+    return " AND tick.ReportState IN (" . implode(',', $states) . ')';
 }
 
 /**
@@ -959,13 +993,13 @@ function getNumberOfTicketsClosedForOthers($user)
 
     $retVal = [];
     $query = "SELECT a.Author, COUNT(a.Author) AS TicketCount,
-              SUM(CASE WHEN t.ReportState LIKE '0' THEN 1 ELSE 0 END) AS ClosedCount,
-              SUM(CASE WHEN t.ReportState LIKE '2' THEN 1 ELSE 0 END) AS ResolvedCount
+              SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
+              SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolvedByUserID
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE t.ReportState NOT LIKE '1'
+              WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND ua.User NOT LIKE '$user'
               AND a.Author NOT LIKE '$user'
               AND ua2.User LIKE '$user'

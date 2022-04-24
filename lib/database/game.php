@@ -3,6 +3,7 @@
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
+use RA\TicketState;
 
 function getGameData($gameID)
 {
@@ -293,7 +294,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
             LEFT JOIN
                 Achievements AS ach ON ach.ID = tick.AchievementID
             WHERE
-                tick.ReportState = 1
+                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
             GROUP BY
                 ach.GameID
         ) as ticks ON ticks.GameID = gd.ID ";
