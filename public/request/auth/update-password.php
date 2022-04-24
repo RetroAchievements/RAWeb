@@ -15,17 +15,19 @@ $newpass1 = requestInputPost('x');
 $newpass2 = requestInputPost('y');
 
 if ($newpass1 !== $newpass2) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=passinequal");
+    if (!isset($passResetToken)) {
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=passinequal");
+    } elseif (isValidPasswordResetToken($user, $passResetToken)) {
+        header("Location: " . getenv('APP_URL') . "/resetPassword.php?u=$user&t=$passResetToken&e=passinequal");
+    }
     exit;
 }
-
-if (mb_strlen($newpass1) < 8) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
-    exit;
-}
-
-if ($newpass1 == $user) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
+if (mb_strlen($newpass1) < 8 || $newpass1 == $user) {
+    if (!isset($passResetToken)) {
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=badnewpass");
+    } elseif (isValidPasswordResetToken($user, $passResetToken)) {
+        header("Location: " . getenv('APP_URL') . "/resetPassword.php?u=$user&t=$passResetToken&e=badnewpass");
+    }
     exit;
 }
 
@@ -37,9 +39,9 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
         RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
         generateAppToken($user, $tokenInOut);
 
-        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=changepassok");
+        header("Location: " . getenv('APP_URL') . "/resetPassword.php?e=changepassok");
     } else {
-        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=generalerror");
+        header("Location: " . getenv('APP_URL') . "/resetPassword.php?e=generalerror");
     }
     exit;
 }
