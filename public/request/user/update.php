@@ -25,10 +25,14 @@ if ($propertyType == 0) {
     $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
     if ($response['Success']) {
         if ($value >= Permissions::JuniorDeveloper) {
-            if (setAccountForumPostAuth($user, $permissions, $targetUser, 1)) {
-                header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
+            if (getUserForumPostAuth($targetUser) == 0) {
+                if (setAccountForumPostAuth($user, $permissions, $targetUser, 1)) {
+                    header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
+                } else {
+                    echo "FAILED!";
+                }
             } else {
-                echo "FAILED!";
+                header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
             }
         } else {
             header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
