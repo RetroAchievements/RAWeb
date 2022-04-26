@@ -32,6 +32,14 @@ RenderHtmlStart(true);
 RenderHtmlHead("$userPage's Legacy - $dateStr");
 ?>
 <body>
+<script>
+  function convertDate() {
+    var field = document.gotodateform.dateinput;
+    var timestamp = new Date(field.value).getTime() / 1000;
+    document.gotodateform.d.value = timestamp;
+    return true;
+ }
+</script>
 <?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
@@ -44,11 +52,19 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         echo " &raquo; <b>$dateStr</b>";
         echo "</div>";
 
-        echo "<h3 class='longheader'>History - $dateStr</h3>";
+        echo "<h3 class='longheader'>History</h3>";
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
+        echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
+        echo "<label for='d'><b>Jump to Date: </b></label>";
+        echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateInput) . "' />";
+        echo "<input type='hidden' name='d' value='$dateInput' />";
+        echo "<input type='hidden' name='u' value='$userPage' />";
+        echo "<input type='submit' value='Goto Date'/>";
+        echo "</form>";
+        echo "<br>";
 
         // echo "<a href='history.php?u=$userPage'>Back to $userPage's Legacy</a>";
 
@@ -63,12 +79,12 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         // $sort3 = ($sortBy==3) ? 13 : 3;
 
         echo "<tr>";
-        echo "<th>At</th>";
-        echo "<th>Title</th>";
+        echo "<th>When</th>";
+        echo "<th>Achievement</th>";
         echo "<th>Description</th>";
         echo "<th>Points</th>";
         echo "<th>Author</th>";
-        echo "<th>Game Title</th>";
+        echo "<th>Game</th>";
         echo "</tr>";
 
         // Merge if poss and count
@@ -135,17 +151,14 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
-            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $achGameTitle, $achBadgeName, true);
+            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $achGameTitle, $achBadgeName, true, false, '', 32, $hardcoreMode ? 'goldimage' : '');
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
             echo "$achDesc";
-            if ($hardcoreMode) {
-                echo " <span class='hardcore'>(Hardcore!)</span>";
-            }
             echo "</td>";
 
-            echo "<td>";
+            echo "<td nowrap>";
             echo "$achPoints $achPointsNote";
             echo "</td>";
 
