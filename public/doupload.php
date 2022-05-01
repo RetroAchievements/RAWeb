@@ -25,7 +25,16 @@ if (isset($_FILES["file"]) && isset($_FILES["file"]["name"])) {
 
 switch ($requestType) {
     case "uploadbadgeimage":
-        $response['Response'] = UploadBadgeImage($_FILES["file"]);
+        $uploadResponse = UploadBadgeImage($_FILES["file"]);
+        $response['Success'] = $uploadResponse['Success'];
+        unset($uploadResponse['Success']);
+
+        if ($uploadResponse['Error']) {
+            $response['Error'] = $uploadResponse['Error'];
+            unset($uploadResponse['Error']);
+        }
+
+        $response['Response'] = $uploadResponse;
         break;
 
     default:
