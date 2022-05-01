@@ -4,27 +4,6 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
 
-function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
-{
-    sanitize_sql_inputs($md5Hash);
-
-    $query = "SELECT ID, GameName FROM GameData WHERE GameMD5='$md5Hash'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== null) {
-        $data = mysqli_fetch_assoc($dbResult);
-        if ($data !== null) {
-            $gameIDOut = $data['ID'];
-            $gameTitleOut = $data['GameName'];
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-
 function getGameData($gameID)
 {
     sanitize_sql_inputs($gameID);
@@ -858,10 +837,15 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     return $retval;
 }
 
-function getTotalUniquePlayers($gameID, $requestedBy)
+function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false)
 {
     sanitize_sql_inputs($gameID, $requestedBy);
     settype($gameID, 'integer');
+
+    $hardcoreJoin = "";
+    if ($hardcoreOnly) {
+        $hardcoreJoin = " AND aw.HardcoreMode = 1";
+    }
 
     $query = "
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers
@@ -870,7 +854,8 @@ function getTotalUniquePlayers($gameID, $requestedBy)
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
         WHERE gd.ID = $gameID
-          AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
+        $hardcoreJoin
+        AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
     ";
 
     $dbResult = s_mysql_query($query);
