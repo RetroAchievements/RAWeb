@@ -8,9 +8,9 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 // what is being (un-)subscribed? and where should we go back to at the end?
 
-$returnUrl = requestInputPost("return_url");
-$subjectType = requestInputPost("subject_type");
-$subjectID = requestInputPost("subject_id");
+$returnUrl = requestInputPost('return_url', null, 'string');
+$subjectType = requestInputPost('subject_type', null, 'string');
+$subjectID = requestInputPost('subject_id', 0, 'integer');
 
 if ($subjectType === null || $subjectID === null || $returnUrl === null) {
     exit;

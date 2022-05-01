@@ -395,6 +395,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
 {
     $pointRequirement = "";
 
+    settype($lbType, 'integer');
     $whereCond = match ($lbType) {
         // Daily
         0 => "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)",
@@ -475,6 +476,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             break;
     }
 
+    settype($untracked, 'integer');
     $untrackedCond = match ($untracked) {
         0 => "AND Untracked = 0",
         1 => "AND Untracked = 1",

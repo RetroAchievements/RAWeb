@@ -1244,7 +1244,8 @@ span.hardcore {
 div.rating {
   cursor: pointer;
   display: block;
-  float: right;
+  float: left;
+  clear: left;
 }
 
 div.rating a {

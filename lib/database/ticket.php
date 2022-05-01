@@ -202,9 +202,11 @@ function getAllTickets(
     $offset = 0,
     $limit = 50,
     $assignedToUser = null,
+    $reportedByUser = null,
+    $resolvedByUser = null,
     $givenGameID = null,
     $givenAchievementID = null,
-    $ticketFilters = 2041, // 2041 sets all filters active except for Closed and Resolved
+    $ticketFilters = 131065, // 131065 sets all filters active except for Closed, Resolved and Not Author
     $getUnofficial = false
 ) {
     sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
@@ -217,6 +219,12 @@ function getAllTickets(
     $innerCond = "TRUE";
     if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
         $innerCond .= " AND ach.Author = '$assignedToUser'";
+    }
+    if (!empty($reportedByUser) && isValidUsername($reportedByUser)) {
+        $innerCond .= " AND ua.User = '$reportedByUser'";
+    }
+    if (!empty($resolvedByUser) && isValidUsername($resolvedByUser)) {
+        $innerCond .= " AND ua2.User = '$resolvedByUser'";
     }
     if ($givenGameID != 0) {
         $innerCond .= " AND gd.ID = $givenGameID";
@@ -243,6 +251,7 @@ function getAllTickets(
         return $retVal;
     }
 
+    // Mode condition
     $modeCond = getModeCondition($ticketFilters);
     if ($modeCond === null) {
         return $retVal;
@@ -253,6 +262,18 @@ function getAllTickets(
     if ($emulatorCond === null) {
         return $retVal;
     }
+
+    // Developer Active condition
+    $devJoin = "";
+    $devActiveCond = getDevActiveCondition($ticketFilters);
+    if ($devActiveCond === null) {
+        return $retVal;
+    } elseif ($devActiveCond != "") {
+        $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
+    }
+
+    // Karama condition
+    $notAuthorCond = getNotAuthorCondition($ticketFilters);
 
     // official/unofficial filter (ignore when a specific achievement is requested)
     $achFlagCond = '';
@@ -270,11 +291,10 @@ function getAllTickets(
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
-              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond
+              $devJoin
+              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
-
-    // echo $query;
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -435,12 +455,14 @@ function countOpenTicketsByAchievement($achievementID)
 
 function countOpenTickets(
     $unofficialFlag = false,
-    $ticketFilters = 16377, // sets all filters active except for Closed and Resolved
+    $ticketFilters = 131065, // sets all filters active except for Closed, Resolved and Not Author
     // move this to constants...
     $assignedToUser = null,
+    $reportedByUser = null,
+    $resolvedByUser = null,
     $gameID = null
 ) {
-    sanitize_sql_inputs($assignedToUser, $gameID);
+    sanitize_sql_inputs($assignedToUser, $reportedByUser, $resolvedByUser, $gameID);
 
     // State condition
     $stateCond = getStateCondition($ticketFilters);
@@ -471,10 +493,43 @@ function countOpenTickets(
         return 0;
     }
 
+    // Developer Active condition
+    $devJoin = "";
+    $devActiveCond = getDevActiveCondition($ticketFilters);
+    if ($devActiveCond === null) {
+        return 0;
+    } elseif ($devActiveCond != "") {
+        $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
+    }
+
+    // Not Author condition
+    $resolverJoin = "";
+    $notAuthorCond = getNotAuthorCondition($ticketFilters);
+    if ($notAuthorCond != "") {
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (0,2)";
+    }
+
     // Author condition
     $authorCond = "";
     if ($assignedToUser != null) {
         $authorCond = " AND ach.Author LIKE '$assignedToUser'";
+    }
+
+    // Reporter condition
+    $reporterCond = "";
+    $reporterJoin = "";
+    if ($reportedByUser != null) {
+        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
+        $reporterCond = " AND ua.User LIKE '$reportedByUser'";
+    }
+
+    // Resolver condition
+    $resolverCond = "";
+    if ($resolvedByUser != null) {
+        $resolverCond = " AND ua2.User LIKE '$resolvedByUser'";
+        if ($resolverJoin == "") {
+            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (0,2)";
+        }
     }
 
     // Game condition
@@ -491,7 +546,10 @@ function countOpenTickets(
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond";
+        $reporterJoin
+        $resolverJoin
+        $devJoin
+        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $reporterCond $resolverCond";
 
     $dbResult = s_mysql_query($query);
 
@@ -629,6 +687,7 @@ function getHashCondition($ticketFilters)
     }
     return null;
 }
+
 function getModeCondition($ticketFilters)
 {
     $modeUnknown = ($ticketFilters & (1 << 11));
@@ -666,6 +725,63 @@ function getModeCondition($ticketFilters)
     }
     $subquery .= ")";
     return $subquery;
+}
+
+/**
+ * Gets the developer active condition to put into the main ticket query.
+ *
+ * @param int $ticketFilters the current ticket filters in place
+ * @return string|null
+ */
+function getDevActiveCondition($ticketFilters)
+{
+    $devInactive = ($ticketFilters & (1 << 14));
+    $devActive = ($ticketFilters & (1 << 15));
+    $devJunior = ($ticketFilters & (1 << 16));
+
+    if ($devInactive && $devActive && $devJunior) {
+        return "";
+    } elseif ($devInactive || $devActive || $devJunior) {
+        $stateCond = " AND ua3.Permissions IN (";
+        if ($devInactive) {
+            $stateCond .= "-1,0,1";
+        }
+
+        if ($devActive) {
+            if ($devInactive) {
+                $stateCond .= ",";
+            }
+            $stateCond .= "3,4";
+        }
+
+        if ($devJunior) {
+            if ($devInactive || $devActive) {
+                $stateCond .= ",";
+            }
+            $stateCond .= "2";
+        }
+        $stateCond .= ")";
+        return $stateCond;
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Gets the Not Author condition to put into the main ticket query.
+ *
+ * @param int $ticketFilters the current ticket filters in place
+ * @return string
+ */
+function getNotAuthorCondition($ticketFilters)
+{
+    $notAuthorTickets = ($ticketFilters & (1 << 17));
+
+    if ($notAuthorTickets) {
+        return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
+    } else {
+        return "";
+    }
 }
 
 /**
