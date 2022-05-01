@@ -976,7 +976,7 @@ function getAchievementWonData(
     $numWinners = $data['NumEarned'];
     $gameID = $data['GameID'];   // Grab GameID at this point
 
-    $numPossibleWinners = getTotalUniquePlayers($gameID, $user);
+    $numPossibleWinners = getTotalUniquePlayers($gameID, $user, false);
 
     $numRecentWinners = 0;
 
@@ -1099,41 +1099,34 @@ function recalculateTrueRatio($gameID)
     $query = "SELECT ach.ID, ach.Points, COUNT(*) AS NumAchieved
               FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 0
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 1 
+              AND NOT ua.Untracked
               GROUP BY ach.ID";
 
     $dbResult = s_mysql_query($query);
     SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
-        $achData = [];
-        $totalEarners = 0;
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $achData[$nextData['ID']] = $nextData;
-            if ($nextData['NumAchieved'] > $totalEarners) {
-                $totalEarners = $nextData['NumAchieved'];
-            }
-        }
+        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true);
 
-        if ($totalEarners == 0) { // force all unachieved to be 1
-            $totalEarners = 1;
+        if ($numHardcoreWinners == 0) { // force all unachieved to be 1
+            $numHardcoreWinners = 1;
         }
 
         $ratioTotal = 0;
-
-        foreach ($achData as $nextAch) {
-            $achID = $nextAch['ID'];
-            $achPoints = (int) $nextAch['Points'];
-            $numAchieved = (int) $nextAch['NumAchieved'];
+        while ($nextData = mysqli_fetch_assoc($dbResult)) {
+            $achID = $nextData['ID'];
+            $achPoints = (int) $nextData['Points'];
+            $numAchieved = (int) $nextData['NumAchieved'];
 
             if ($numAchieved == 0) { // force all unachieved to be 1
                 $numAchieved = 1;
             }
 
             $ratioFactor = 0.4;
-            $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($totalEarners / $numAchieved) * $ratioFactor));
+            $newTrueRatio = ($achPoints * (1.0 - $ratioFactor)) + ($achPoints * (($numHardcoreWinners / $numAchieved) * $ratioFactor));
             $trueRatio = (int) $newTrueRatio;
-
             $ratioTotal += $trueRatio;
 
             $query = "UPDATE Achievements AS ach
