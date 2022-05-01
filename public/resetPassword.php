@@ -24,6 +24,14 @@ RenderHtmlHead("Password Reset");
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
+        if ($errorCode == 'badnewpass') {
+            echo "<div id=\"warning\">Info: Errors changing your password, passwords too short!</div>";
+        } elseif ($errorCode == 'passinequal') {
+            echo "<div id=\"warning\">Info: Errors changing your password, new passwords were not identical!</div>";
+        } elseif ($errorCode == 'changepassok') {
+            echo "<div id=\"warning\">Info: Password changed OK!</div>";
+        }
+
         echo "<h2 class='longheader'>Password Reset</h2>";
 
         if ($allowNewPasswordEntry == null) {
