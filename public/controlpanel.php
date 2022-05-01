@@ -228,8 +228,14 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
   function onUploadImageComplete(data) {
     $('#loadingiconavatar').fadeTo(100, 0.0);
-    var d = new Date();
-    $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
+
+    var result = $.parseJSON(data);
+    if (result.Success) {
+      var d = new Date();
+      $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
+    } else {
+      alert('Upload failed!\n' + result.Error);
+    }
   }
 
   function validateEmail() {
