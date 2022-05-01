@@ -54,6 +54,8 @@ function GetAchievementAndTooltipDiv(
 
         if ($smallBadgeOnly) {
             $displayable = "";
+        } else {
+            $smallBadge .= ' ';
         }
     }
 
