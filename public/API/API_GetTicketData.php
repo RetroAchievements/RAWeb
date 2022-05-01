@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 runPublicApiMiddleware();
 
 $baseUrl = getenv('APP_URL') . '/ticketmanager.php';
-$defaultTicketFilter = 2041; // 2041 sets all filters active except for Closed and Resolved
+$defaultTicketFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Achievement Developer
 $count = 10;
 $offset = 0;
 
@@ -92,6 +92,8 @@ if ($gameIDGiven > 0) {
             $gamesTableFlag == 5, // 5 is the magic number for Unofficial
             $defaultTicketFilter,
             $assignedToUser,
+            null,
+            null,
             $gameIDGiven
         );
         $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
@@ -123,7 +125,7 @@ if ($achievementIDGiven > 0) {
 }
 
 // getting the 10 most recent tickets
-$ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, $defaultTicketFilter);
-$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null);
+$ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, null, null, $defaultTicketFilter);
+$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null, null, null);
 $ticketData['URL'] = $baseUrl;
 echo json_encode($ticketData, JSON_THROW_ON_ERROR);
