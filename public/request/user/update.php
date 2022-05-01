@@ -24,7 +24,19 @@ if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, 
 if ($propertyType == 0) {
     $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
     if ($response['Success']) {
-        header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
+        if ($value >= Permissions::JuniorDeveloper) {
+            if (getUserForumPostAuth($targetUser) == 0) {
+                if (setAccountForumPostAuth($user, $permissions, $targetUser, 1)) {
+                    header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
+                } else {
+                    echo "FAILED!";
+                }
+            } else {
+                header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
+            }
+        } else {
+            header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
+        }
     } else {
         echo "Failed: " . $response['Error'];
     }
