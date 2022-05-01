@@ -4,27 +4,6 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
 
-function getGameFromHash($md5Hash, &$gameIDOut, &$gameTitleOut)
-{
-    sanitize_sql_inputs($md5Hash);
-
-    $query = "SELECT ID, GameName FROM GameData WHERE GameMD5='$md5Hash'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== null) {
-        $data = mysqli_fetch_assoc($dbResult);
-        if ($data !== null) {
-            $gameIDOut = $data['ID'];
-            $gameTitleOut = $data['GameName'];
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-
 function getGameData($gameID)
 {
     sanitize_sql_inputs($gameID);
