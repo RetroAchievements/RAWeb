@@ -1,12 +1,16 @@
 <?php
 
+use RA\TicketFilters;
+use RA\TicketState;
+use RA\TicketType;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
 runPublicApiMiddleware();
 
 $baseUrl = getenv('APP_URL') . '/ticketmanager.php';
-$defaultTicketFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Achievement Developer
+$defaultTicketFilter = TicketFilters::Default;
 $count = 10;
 $offset = 0;
 
@@ -21,11 +25,8 @@ if ($ticketID > 0) {
         exit;
     }
 
-    $reportTypes = ['', "Triggered at a wrong time", "Doesn't trigger"];
-    $reportStates = ["Closed", "Open", "Resolved"];
-
-    $ticketData['ReportStateDescription'] = $reportStates[$ticketData['ReportState']];
-    $ticketData['ReportTypeDescription'] = $reportTypes[$ticketData['ReportType']];
+    $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
+    $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
 
     $ticketData['URL'] = $baseUrl . "?i=$ticketID";
     echo json_encode($ticketData, JSON_THROW_ON_ERROR);
@@ -58,15 +59,15 @@ if (isValidUsername($assignedToUser)) {
     $userTicketInfo = getTicketsForUser($assignedToUser);
     foreach ($userTicketInfo as $ticket) {
         switch ($ticket['ReportState']) {
-            case 0:
+            case TicketState::Closed:
                 $ticketData['Closed'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case 1:
+            case TicketState::Open:
                 $ticketData['Open'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;
-            case 2:
+            case TicketState::Resolved:
                 $ticketData['Resolved'] += $ticket['TicketCount'];
                 $ticketData['Total'] += $ticket['TicketCount'];
                 break;

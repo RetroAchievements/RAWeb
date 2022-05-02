@@ -4,6 +4,7 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\Models\TicketModel;
 use RA\SubscriptionSubjectType;
+use RA\TicketFilters;
 
 function isAllowedToSubmitTickets($user)
 {
@@ -206,7 +207,7 @@ function getAllTickets(
     $resolvedByUser = null,
     $givenGameID = null,
     $givenAchievementID = null,
-    $ticketFilters = 131065, // 131065 sets all filters active except for Closed, Resolved and Not Author
+    $ticketFilters = TicketFilters::Default,
     $getUnofficial = false
 ) {
     sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
@@ -455,12 +456,12 @@ function countOpenTicketsByAchievement($achievementID)
 
 function countOpenTickets(
     $unofficialFlag = false,
-    $ticketFilters = 131065, // sets all filters active except for Closed, Resolved and Not Author
-    // move this to constants...
+    $ticketFilters = TicketFilters::Default,
     $assignedToUser = null,
     $reportedByUser = null,
     $resolvedByUser = null,
-    $gameID = null
+    $gameID = null,
+    $achievementID = null
 ) {
     sanitize_sql_inputs($assignedToUser, $reportedByUser, $resolvedByUser, $gameID);
 
@@ -535,7 +536,10 @@ function countOpenTickets(
     // Game condition
     $gameCond = "";
     if ($gameID != null) {
-        $gameCond = " AND ach.GameID LIKE '$gameID'";
+        $gameCond = " AND ach.GameID = $gameID";
+    }
+    if ($achievementID != null) {
+        $gameCond .= " AND ach.ID = $achievementID";
     }
 
     settype($unofficialFlag, 'boolean');
@@ -610,9 +614,9 @@ function gamesSortedByOpenTickets($count)
  */
 function getStateCondition($ticketFilters)
 {
-    $openTickets = ($ticketFilters & (1 << 0));
-    $closedTickets = ($ticketFilters & (1 << 1));
-    $resolvedTickets = ($ticketFilters & (1 << 2));
+    $openTickets = ($ticketFilters & TicketFilters::StateOpen);
+    $closedTickets = ($ticketFilters & TicketFilters::StateClosed);
+    $resolvedTickets = ($ticketFilters & TicketFilters::StateResolved);
 
     if ($openTickets && $closedTickets && $resolvedTickets) {
         return "";
@@ -650,8 +654,8 @@ function getStateCondition($ticketFilters)
  */
 function getReportTypeCondition($ticketFilters)
 {
-    $triggeredTickets = ($ticketFilters & (1 << 3));
-    $didNotTriggerTickets = ($ticketFilters & (1 << 4));
+    $triggeredTickets = ($ticketFilters & TicketFilters::TypeTriggeredAtWrongTime);
+    $didNotTriggerTickets = ($ticketFilters & TicketFilters::TypeDidNotTrigger);
 
     if ($triggeredTickets && $didNotTriggerTickets) {
         return "";
@@ -673,8 +677,8 @@ function getReportTypeCondition($ticketFilters)
  */
 function getHashCondition($ticketFilters)
 {
-    $hashKnownTickets = ($ticketFilters & (1 << 5));
-    $hashUnknownTickets = ($ticketFilters & (1 << 6));
+    $hashKnownTickets = ($ticketFilters & TicketFilters::HashKnown);
+    $hashUnknownTickets = ($ticketFilters & TicketFilters::HashUnknown);
 
     if ($hashKnownTickets && $hashUnknownTickets) {
         return "";
@@ -690,9 +694,9 @@ function getHashCondition($ticketFilters)
 
 function getModeCondition($ticketFilters)
 {
-    $modeUnknown = ($ticketFilters & (1 << 11));
-    $modeHardcore = ($ticketFilters & (1 << 12));
-    $modeSoftcore = ($ticketFilters & (1 << 13));
+    $modeUnknown = ($ticketFilters & TicketFilters::HardcoreUnknown);
+    $modeHardcore = ($ticketFilters & TicketFilters::HardcoreOn);
+    $modeSoftcore = ($ticketFilters & TicketFilters::HardcoreOff);
 
     if ($modeUnknown && $modeHardcore && $modeSoftcore) {
         return "";
@@ -735,9 +739,9 @@ function getModeCondition($ticketFilters)
  */
 function getDevActiveCondition($ticketFilters)
 {
-    $devInactive = ($ticketFilters & (1 << 14));
-    $devActive = ($ticketFilters & (1 << 15));
-    $devJunior = ($ticketFilters & (1 << 16));
+    $devInactive = ($ticketFilters & TicketFilters::DevInactive);
+    $devActive = ($ticketFilters & TicketFilters::DevActive);
+    $devJunior = ($ticketFilters & TicketFilters::DevJunior);
 
     if ($devInactive && $devActive && $devJunior) {
         return "";
@@ -775,7 +779,7 @@ function getDevActiveCondition($ticketFilters)
  */
 function getNotAuthorCondition($ticketFilters)
 {
-    $notAuthorTickets = ($ticketFilters & (1 << 17));
+    $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonAuthor);
 
     if ($notAuthorTickets) {
         return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
@@ -792,10 +796,10 @@ function getNotAuthorCondition($ticketFilters)
  */
 function getEmulatorCondition($ticketFilters)
 {
-    $raEmulatorTickets = ($ticketFilters & (1 << 7));
-    $rarchKnownTickets = ($ticketFilters & (1 << 8));
-    $rarchUnknownTickets = ($ticketFilters & (1 << 9));
-    $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
+    $raEmulatorTickets = ($ticketFilters & TicketFilters::EmulatorRA);
+    $rarchKnownTickets = ($ticketFilters & TicketFilters::EmulatorRetroArchCoreSpecified);
+    $rarchUnknownTickets = ($ticketFilters & TicketFilters::EmulatorRetroArchCoreNotSpecified);
+    $emulatorUnknownTickets = ($ticketFilters & TicketFilters::EmulatorUnknown);
 
     if ($raEmulatorTickets && $rarchKnownTickets && $rarchUnknownTickets && $emulatorUnknownTickets) {
         return "";
