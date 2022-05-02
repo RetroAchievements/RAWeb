@@ -1100,8 +1100,8 @@ function recalculateTrueRatio($gameID)
               FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND aw.HardcoreMode = 1 
-              AND NOT ua.Untracked
+              WHERE ach.GameID = $gameID AND ach.Flags = 3 AND (aw.HardcoreMode = 1 OR aw.HardcoreMode IS NULL)
+              AND (NOT ua.Untracked OR ua.Untracked IS NULL)
               GROUP BY ach.ID";
 
     $dbResult = s_mysql_query($query);
