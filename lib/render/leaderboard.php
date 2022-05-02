@@ -408,10 +408,8 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     // Set the date names if we are choosing anything but All Time
     $whereDateAchievement = "";
     $whereDateAward = "";
-    if (mb_strlen($whereCond) > 0) {
-        $whereDateAchievement = "AND aw.Date";
-        $whereDateAward = "AND sa.AwardDate";
-    }
+    $whereDateAchievement = "AND aw.Date";
+    $whereDateAward = "AND sa.AwardDate";
 
     // Determine ascending or descending order
     settype($sort, 'integer');
