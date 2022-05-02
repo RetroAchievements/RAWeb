@@ -1184,7 +1184,9 @@ RenderHtmlStart(true);
 
                     $numOpenTickets = countOpenTickets(
                         requestInputSanitized('f') == $unofficialFlag,
-                        requestInputSanitized('t', 16377),
+                        requestInputSanitized('t', 131065),
+                        null,
+                        null,
                         null,
                         $gameID
                     );
