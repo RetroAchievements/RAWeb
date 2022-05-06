@@ -659,18 +659,11 @@ function getAge($user)
  *
  * @param string $user the user to get the rank for
  * @param int $type 0 for points rank, anything else for retro points rank
- * @return int rank of the user
+ * @return ?int rank of the user
  */
 function getUserRank($user, $type = 0)
 {
     sanitize_sql_inputs($user);
-
-    // $query = "
-    //     SELECT (COUNT(*) + 1) AS UserRank
-    //     FROM UserAccounts
-    //     WHERE NOT Untracked
-    //       AND RAPoints > (SELECT RAPoints FROM UserAccounts WHERE User = '$user')
-    // ";
 
     if ($type == 0) {
         $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked";
@@ -678,7 +671,7 @@ function getUserRank($user, $type = 0)
         $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked";
     }
 
-    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
+    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
                 FROM UserAccounts AS ua
                 $joinCond
                 WHERE ua.User = '$user'";
@@ -686,12 +679,16 @@ function getUserRank($user, $type = 0)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
+        if ($data['Untracked']) {
+            return null;
+        }
+
         return (int) $data['UserRank'];
     }
 
     log_sql_fail();
 
-    return 0;
+    return null;
 }
 
 function countRankedUsers()
@@ -988,6 +985,9 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
 
     $limit = ($numAchievements == 0) ? 5000 : $numAchievements;
 
+    // TODO: because of the "ORDER BY HardcoreAchieved", this query only returns non-hardcore
+    //       unlocks if the user has more than $limit unlocks. Note that $limit appears to be
+    //       default (5000) for all use cases except API_GetUserSummary
     $query = "SELECT ach.ID, ach.GameID, gd.Title AS GameTitle, ach.Title, ach.Description, ach.Points, ach.BadgeName, (!ISNULL(aw.User)) AS IsAwarded, aw.Date AS DateAwarded, (aw.HardcoreMode) AS HardcoreAchieved
               FROM Achievements AS ach
               LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
