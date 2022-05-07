@@ -50,10 +50,19 @@ $numRecentWinners = 0;
 getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
 
 $dateWonLocal = "";
-foreach ($winnerInfo as $userWon => $userObject) {
-    if ($userWon == $user) {
+foreach ($winnerInfo as $userObject) {
+    if ($userObject['User'] == $user) {
         $dateWonLocal = $userObject['DateAwarded'];
         break;
+    }
+}
+
+if ($dateWonLocal === "") {
+    $hasAward = HasAward($user, $achievementID);
+    if ($hasAward['HasHardcore']) {
+        $dateWonLocal = $hasAward['HardcoreDate'];
+    } elseif ($hasAward['HasRegular']) {
+        $dateWonLocal = $hasAward['RegularDate'];
     }
 }
 
@@ -272,14 +281,15 @@ RenderHtmlStart(true);
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div id='recentwinners'>";
-        echo "<h3>Winners</h3>";
+        echo "<h3>Recent Winners</h3>";
         if (empty($winnerInfo)) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {
             echo "<table><tbody>";
             echo "<tr><th colspan='2'>User</th><th>Hardcore?</th><th>Earned On</th></tr>";
             $iter = 0;
-            foreach ($winnerInfo as $userWinner => $userObject) {
+            foreach ($winnerInfo as $userObject) {
+                $userWinner = $userObject['User'];
                 if ($userWinner == null || $userObject['DateAwarded'] == null) {
                     continue;
                 }
