@@ -2,6 +2,9 @@
 
 use RA\ArticleType;
 use RA\Permissions;
+use RA\TicketFilters;
+use RA\TicketState;
+use RA\TicketType;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -16,11 +19,9 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $ticketID = requestInputSanitized('i', 0, 'integer');
-$defaultFilter = 131065; // 131065 sets all filters active except for Closed Resolved and Not Achievement Developer
-$allTicketsFilter = 131071; // const
+$defaultFilter = TicketFilters::Default;
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
 
-$reportStates = ["Closed", "Open", "Resolved"];
 $reportModes = ["Softcore", "Hardcore"];
 
 $altTicketData = null;
@@ -48,54 +49,54 @@ if ($ticketID != 0) {
 
         case "resolved":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 2;
+                $ticketState = TicketState::Resolved;
             }
             break;
 
         case "demoted":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 0;
+                $ticketState = TicketState::Closed;
                 $reason = "Demoted";
             }
             break;
 
         case "not-enough-info":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 0;
+                $ticketState = TicketState::Closed;
                 $reason = "Not enough information";
             }
             break;
 
         case "wrong-rom":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 0;
+                $ticketState = TicketState::Closed;
                 $reason = "Wrong ROM";
             }
             break;
 
         case "network":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 0;
+                $ticketState = TicketState::Closed;
                 $reason = "Network problems";
             }
             break;
 
         case "unable-to-reproduce":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 0;
+                $ticketState = TicketState::Closed;
                 $reason = "Unable to reproduce";
             }
             break;
 
         case "closed-other":
             if ($permissions >= Permissions::Developer) {
-                $ticketState = 0;
+                $ticketState = TicketState::Closed;
                 $reason = "See the comments";
             }
             break;
 
         case "reopen":
-            $ticketState = 1;
+            $ticketState = TicketState::Open;
             break;
 
         default:
@@ -117,13 +118,13 @@ if ($ticketID != 0) {
     $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
 
     // sets all filters enabled so we get closed/resolved tickets as well
-    $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], $allTicketsFilter);
+    $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All);
     // var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
 
-        if ($pastTicket["ReportState"] == 1 && $pastTicket["ID"] !== $ticketID) {
+        if ($pastTicket["ReportState"] == TicketState::Open && $pastTicket["ID"] !== $ticketID) {
             $numOpenTickets++;
         }
     }
@@ -136,8 +137,9 @@ $reportedByUser = null;
 $resolvedByUser = null;
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
+$achievementIDGiven = 0;
 if ($ticketID == 0) {
-    $gamesTableFlag = requestInputSanitized('f', null, 'integer');
+    $gamesTableFlag = requestInputSanitized('f', 3, 'integer');
     if ($gamesTableFlag == 1) {
         $count = requestInputSanitized('c', 100, 'integer');
         $ticketData = gamesSortedByOpenTickets($count);
@@ -239,7 +241,7 @@ RenderHtmlHead($pageTitle);
             }
             if ($gamesTableFlag == 5) {
                 $openTicketsCount = countOpenTickets(true);
-                $filteredTicketsCount = countOpenTickets(true, $ticketFilters, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven);
+                $filteredTicketsCount = countOpenTickets(true, $ticketFilters, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven, $achievementIDGiven);
                 if ($ticketID == 0) {
                     echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open Unofficial Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
                 } else {
@@ -247,7 +249,7 @@ RenderHtmlHead($pageTitle);
                 }
             } else {
                 $openTicketsCount = countOpenTickets();
-                $filteredTicketsCount = countOpenTickets(false, $ticketFilters, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven);
+                $filteredTicketsCount = countOpenTickets(false, $ticketFilters, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven, $achievementIDGiven);
                 if ($ticketID == 0) {
                     echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
                 } else {
@@ -302,303 +304,167 @@ RenderHtmlHead($pageTitle);
                     Each filter is represented by a bit in the $ticketFilters variable.
                     This allows us to easily determine which filters are active as well as toggle them back and forth.
                  */
-                $openTickets = ($ticketFilters & (1 << 0));
-                $closedTickets = ($ticketFilters & (1 << 1));
-                $resolvedTickets = ($ticketFilters & (1 << 2));
-                $triggeredTickets = ($ticketFilters & (1 << 3));
-                $didNotTriggerTickets = ($ticketFilters & (1 << 4));
-                $hashKnownTickets = ($ticketFilters & (1 << 5));
-                $hashUnknownTickets = ($ticketFilters & (1 << 6));
-                $raEmulatorTickets = ($ticketFilters & (1 << 7));
-                $rarchKnownTickets = ($ticketFilters & (1 << 8));
-                $rarchUnknownTickets = ($ticketFilters & (1 << 9));
-                $emulatorUnknownTickets = ($ticketFilters & (1 << 10));
-                $modeUnknown = ($ticketFilters & (1 << 11));
-                $modeHardcore = ($ticketFilters & (1 << 12));
-                $modeSoftcore = ($ticketFilters & (1 << 13));
-                $devInactive = ($ticketFilters & (1 << 14));
-                $devActive = ($ticketFilters & (1 << 15));
-                $devJunior = ($ticketFilters & (1 << 16));
-                $notAchievementDeveloper = ($ticketFilters & (1 << 17));
+                $openTickets = ($ticketFilters & TicketFilters::StateOpen);
+                $closedTickets = ($ticketFilters & TicketFilters::StateClosed);
+                $resolvedTickets = ($ticketFilters & TicketFilters::StateResolved);
 
                 sanitize_outputs($assignedToUser, $reportedByUser, $resolvedByUser);
 
                 // State Filters
+                $createLink = function ($flag, $value, $flag2 = null, $value2 = null) use ($gameIDGiven, $achievementIDGiven, $assignedToUser, $reportedByUser, $resolvedByUser, $gamesTableFlag, $ticketFilters) {
+                    $appendParam = function (&$link, $param, $fallback, $default) use ($flag, $value, $flag2, $value2) {
+                        $param_value = ($flag == $param) ? $value : (($flag2 == $param) ? $value2 : $fallback);
+                        if ($param_value != $default) {
+                            $link .= str_contains($link, '?') ? '&' : '?';
+                            $link .= $param . '=' . $param_value;
+                        }
+                    };
+
+                    $link = "/ticketmanager.php";
+                    $appendParam($link, 'g', $gameIDGiven, null);
+                    $appendParam($link, 'a', $achievementIDGiven, null);
+                    $appendParam($link, 'u', $assignedToUser, null);
+                    $appendParam($link, 'p', $reportedByUser, null);
+                    $appendParam($link, 'r', $resolvedByUser, null);
+                    $appendParam($link, 'f', $gamesTableFlag, 3);
+                    $appendParam($link, 't', $ticketFilters, TicketFilters::Default);
+                    return $link;
+                };
+
+                $linkFilter = function (string $label, int $ticketFilter) use ($ticketFilters, $createLink) {
+                    if ($ticketFilters & $ticketFilter) {
+                        // when clearing Closed or Resolved bit and the other is not set, also clear ResolvedByNonAuthor bit
+                        if (($ticketFilters & (TicketFilters::StateClosed | TicketFilters::StateResolved)) == $ticketFilter) {
+                            $ticketFilter |= TicketFilters::ResolvedByNonAuthor;
+                        }
+
+                        return "<b><a href='" . $createLink('t', $ticketFilters & ~$ticketFilter) . "'>*$label</a></b>";
+                    } else {
+                        return "<a href='" . $createLink('t', $ticketFilters | $ticketFilter) . "'>$label</a>";
+                    }
+                };
+
                 echo "<div>";
                 echo "<b>Ticket State:</b> ";
-                $standardFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=";
-                $coreFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=3&t=";
-                $unofficialFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=5&t=";
-                $noResolverFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=&f=$gamesTableFlag&t=";
-
-                if ($openTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 0)) . "'>*Open</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 0)) . "'>Open</a> | ";
-                }
-
-                if ($closedTickets) {
-                    if ($resolvedTickets) {
-                        echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 1)) . "'>*Closed</a></b> | ";
-                    } else {
-                        echo "<b><a href='$noResolverFilterUrl" . ($ticketFilters & ~(1 << 1) & ~(1 << 17)) . "'>*Closed</a></b> | ";
-                    }
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 1)) . "'>Closed</a> | ";
-                }
-
-                if ($resolvedTickets) {
-                    if ($closedTickets) {
-                        echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 2)) . "'>*Resolved</a></b>";
-                    } else {
-                        echo "<b><a href='$noResolverFilterUrl" . ($ticketFilters & ~(1 << 2) & ~(1 << 17)) . "'>*Resolved</a></b>";
-                    }
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 2)) . "'>Resolved</a>";
-                }
+                echo $linkFilter(TicketState::toString(TicketState::Open), TicketFilters::StateOpen) . ' | ';
+                echo $linkFilter(TicketState::toString(TicketState::Closed), TicketFilters::StateClosed) . ' | ';
+                echo $linkFilter(TicketState::toString(TicketState::Resolved), TicketFilters::StateResolved);
                 echo "</div>";
 
                 // Report Type Filters
                 echo "<div>";
                 echo "<b>Report Type:</b> ";
-                if ($triggeredTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 3)) . "'>*Triggered at wrong time</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 3)) . "'>Triggered at wrong time</a> | ";
-                }
-
-                if ($didNotTriggerTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 4)) . "'>*Doesn't Trigger</a></b>";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 4)) . "'>Doesn't Trigger</a>";
-                }
+                echo $linkFilter(TicketType::toString(TicketType::TriggeredAtWrongTime), TicketFilters::TypeTriggeredAtWrongTime) . ' | ';
+                echo $linkFilter(TicketType::toString(TicketType::DidNotTrigger), TicketFilters::TypeDidNotTrigger);
                 echo "</div>";
 
                 // Hash Filters
                 echo "<div>";
                 echo "<b>Hash:</b> ";
-                if ($hashKnownTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 5)) . "'>*Contains Hash</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 5)) . "'>Contains Hash</a> | ";
-                }
-
-                if ($hashUnknownTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 6)) . "'>*Hash Unknown</a></b>";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 6)) . "'>Hash Unknown</a>";
-                }
+                echo $linkFilter('Contains Hash', TicketFilters::HashKnown) . ' | ';
+                echo $linkFilter('Hash Unknown', TicketFilters::HashUnknown);
                 echo "</div>";
 
                 // Emulator Filters
                 echo "<div>";
                 echo "<b>Emulator:</b> ";
-                if ($raEmulatorTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 7)) . "'>*RA Emulator</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 7)) . "'>RA Emulator</a> | ";
-                }
-
-                if ($rarchKnownTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 8)) . "'>*RetroArch - Defined</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 8)) . "'>RetroArch - Defined</a> | ";
-                }
-
-                if ($rarchUnknownTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 9)) . "'>*RetroArch - Undefined</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 9)) . "'>RetroArch - Undefined</a> | ";
-                }
-
-                if ($emulatorUnknownTickets) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 10)) . "'>*Emulator Unknown</a></b>";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 10)) . "'>Emulator Unknown</a>";
-                }
+                echo $linkFilter('RA Emulator', TicketFilters::EmulatorRA) . ' | ';
+                echo $linkFilter('RetroArch - Core Specified', TicketFilters::EmulatorRetroArchCoreSpecified) . ' | ';
+                echo $linkFilter('RetroArch - Core Not Specified', TicketFilters::EmulatorRetroArchCoreNotSpecified) . ' | ';
+                echo $linkFilter('Unknown', TicketFilters::EmulatorUnknown);
                 echo "</div>";
 
                 // Core/Unofficial Filters - These filters are mutually exclusive
                 echo "<div>";
                 echo "<b>Achievement State:</b> ";
-
                 if ($gamesTableFlag != 5) {
-                    echo "<b><a href=$coreFilterUrl" . "$ticketFilters'>*Core</a></b> | ";
+                    echo "<b><a href='" . $createLink('f', 5) . "'>*Core</a></b> | ";
+                    echo "<a href='" . $createLink('f', 5) . "'>Unofficial</a>";
                 } else {
-                    echo "<a href=$coreFilterUrl" . "$ticketFilters'>Core</a> | ";
-                }
-
-                if ($gamesTableFlag == 5) {
-                    echo "<b><a href=$unofficialFilterUrl" . "$ticketFilters'>*Unofficial</a></b>";
-                } else {
-                    echo "<a href=$unofficialFilterUrl" . "$ticketFilters'>Unofficial</a>";
+                    echo "<a href='" . $createLink('f', 3) . "'>Core</a> | ";
+                    echo "<b><a href='" . $createLink('f', 3) . "'>*Unofficial</a></b>";
                 }
                 echo "</div>";
 
                 // Mode Filters
                 echo "<div>";
                 echo "<b>Mode:</b> ";
-
-                if ($modeUnknown) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 11)) . "'>*Unknown</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 11)) . "'>Unknown</a> | ";
-                }
-                if ($modeHardcore) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 12)) . "'>*Hardcore</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 12)) . "'>Hardcore</a> | ";
-                }
-                if ($modeSoftcore) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 13)) . "'>*Softcore</a></b>";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 13)) . "'>Softcore</a>";
-                }
+                echo $linkFilter('Unknown', TicketFilters::HardcoreUnknown) . ' | ';
+                echo $linkFilter('Hardcore', TicketFilters::HardcoreOn) . ' | ';
+                echo $linkFilter('Softcore', TicketFilters::HardcoreOff);
                 echo "</div>";
 
                 // Active Dev Filters
                 echo "<div>";
                 echo "<b>Dev Status:</b> ";
-
-                if ($devInactive) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 14)) . "'>*Inactive</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 14)) . "'>Inactive</a> | ";
-                }
-                if ($devActive) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 15)) . "'>*Active</a></b> | ";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 15)) . "'>Active</a> | ";
-                }
-                if ($devJunior) {
-                    echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 16)) . "'>*Junior</a></b>";
-                } else {
-                    echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 16)) . "'>Junior</a>";
-                }
+                echo $linkFilter('Inactive', TicketFilters::DevInactive) . ' | ';
+                echo $linkFilter('Active', TicketFilters::DevActive) . ' | ';
+                echo $linkFilter('Junior', TicketFilters::DevJunior);
                 echo "</div>";
 
                 // Resolved By Filter
                 if ($closedTickets || $resolvedTickets) {
                     echo "<div>";
                     echo "<b>Resolved By:</b> ";
-
-                    if ($notAchievementDeveloper) {
-                        echo "<b><a href='$standardFilterUrl" . ($ticketFilters & ~(1 << 17)) . "'>*Not Achievement Developer</a></b> ";
-                    } else {
-                        echo "<a href='$standardFilterUrl" . ($ticketFilters | (1 << 17)) . "'>Not Achievement Developer</a> ";
-                    }
+                    echo $linkFilter('Not Achievement Developer', TicketFilters::ResolvedByNonAuthor);
                     echo "</div>";
                 }
 
                 // Clear Filter
                 if ($ticketFilters != $defaultFilter || $gamesTableFlag == 5) {
                     echo "<div>";
-                    echo "<a href='$coreFilterUrl" . $defaultFilter . "'>Clear Filter</a>";
+                    echo "<a href='" . $createLink('t', $defaultFilter, 'f', 3) . "'>Clear Filter</a>";
                     echo "</div>";
                 }
                 echo "</div>";
 
-                if (isset($user) || !empty($assignedToUser)) {
-                    $noDevFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=";
-                    $devFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$user&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=";
-                    echo "<form class='form-inline' action='$noDevFilterUrl" . "$ticketFilters' method='POST'>";
+                $userFilter = function ($label, $param, $filteredUser) use ($createLink, $user) {
+                    if (isset($user) || !empty($filteredUser)) {
+                        echo "<form class='form-inline' action='" . $createLink($param, null) . "' method='POST'>";
 
-                    echo "<p><b>Developer:</b> ";
-                    if (isset($user)) {
-                        if ($assignedToUser == $user) {
-                            echo "<b>$user</b> | ";
-                        } else {
-                            echo "<a href='$devFilterUrl" . "$ticketFilters'>$user</a> | ";
-                        }
-                    }
-
-                    if (!empty($assignedToUser) && $assignedToUser !== $user) {
-                        echo "<b>$assignedToUser</b> | ";
-                    }
-
-                    if (!empty($assignedToUser)) {
-                        echo "<a href='$noDevFilterUrl" . "$ticketFilters'>Clear Filter </a>";
-                    } else {
-                        echo "<b>Clear Filter </b>";
-                    }
-
-                    echo "<input size='28' name='u' type='text' value=''>";
-                    echo "&nbsp";
-                    echo "<input type='submit' value='Select'>";
-                    echo "</p>";
-                    echo "</form>";
-                }
-
-                if (isset($user) || !empty($reportedByUser)) {
-                    $noReporterFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=&r=$resolvedByUser&f=$gamesTableFlag&t=";
-                    $reporterFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$user&r=$resolvedByUser&f=$gamesTableFlag&t=";
-                    echo "<form action='$noReporterFilterUrl" . "$ticketFilters' method='POST'>";
-                    echo "<p><b>Reporter:</b> ";
-                    if (isset($user)) {
-                        if ($reportedByUser == $user) {
-                            echo "<b>$user</b> | ";
-                        } else {
-                            echo "<a href='$reporterFilterUrl" . "$ticketFilters'>$user</a> | ";
-                        }
-                    }
-
-                    if (!empty($reportedByUser) && $reportedByUser !== $user) {
-                        echo "<b>$reportedByUser</b> | ";
-                    }
-
-                    if (!empty($reportedByUser)) {
-                        echo "<a href='$noReporterFilterUrl" . "$ticketFilters'>Clear Filter </a>";
-                    } else {
-                        echo "<b>Clear Filter </b>";
-                    }
-                    echo "<input size='28' name='p' type='text' value=''>";
-                    echo "&nbsp";
-                    echo "<input type='submit' value='Select'>";
-                    echo "</p>";
-                    echo "</form>";
-                }
-
-                if ($closedTickets || $resolvedTickets) {
-                    $resolverFilterUrl = "/ticketmanager.php?g=$gameIDGiven&u=$assignedToUser&p=$reportedByUser&r=$user&f=$gamesTableFlag&t=";
-                    if (isset($user) || !empty($resolvedByUser)) {
-                        echo "<form action='$noResolverFilterUrl" . "$ticketFilters' method='POST'>";
-                        echo "<p><b>Resolver:</b> ";
+                        echo "<p><b>$label:</b> ";
                         if (isset($user)) {
-                            if ($resolvedByUser == $user) {
-                                echo "<b>$user</b> | ";
+                            if ($filteredUser == $user) {
+                                echo "<b><a href='" . $createLink($param, null) . "'>*$user</a></b> | ";
                             } else {
-                                echo "<a href='$resolverFilterUrl" . "$ticketFilters'>$user</a> | ";
+                                echo "<a href='" . $createLink($param, $user) . "'>$user</a> | ";
                             }
                         }
 
-                        if (!empty($resolvedByUser) && $resolvedByUser !== $user) {
-                            echo "<b>$resolvedByUser</b> | ";
+                        if (!empty($filteredUser) && $filteredUser !== $user) {
+                            echo "<b><a href='" . $createLink($param, null) . "'>*$filteredUser</a></b> | ";
                         }
 
-                        if (!empty($resolvedByUser)) {
-                            echo "<a href='$noResolverFilterUrl" . "$ticketFilters'>Clear Filter </a>";
-                        } else {
-                            echo "<b>Clear Filter </b>";
-                        }
-                        echo "<input size='28' name='r' type='text' value=''>";
+                        echo "<input size='28' name='$param' type='text' value=''>";
                         echo "&nbsp";
                         echo "<input type='submit' value='Select'>";
                         echo "</p>";
                         echo "</form>";
                     }
+                };
+
+                $userFilter('Developer', 'u', $assignedToUser);
+                $userFilter('Reporter', 'p', $reportedByUser);
+
+                if ($closedTickets || $resolvedTickets) {
+                    $userFilter('Resolver', 'r', $resolvedByUser);
                 }
 
                 if (!empty($gameIDGiven)) {
                     $noGameFilterUrl = "/ticketmanager.php?g=&u=$assignedToUser&p=$reportedByUser&r=$resolvedByUser&f=$gamesTableFlag&t=";
-                    echo "<p><b>Game</b>";
+                    echo "<div class='embedded mb-1'>";
+
+                    echo "<div><b>Game:</b> ";
+                    echo "<b><a href='" . $createLink('g', null, 'a', null) . "'>*$gameTitle ($consoleName)</a></b>";
+                    echo "</div>";
+
                     if (!empty($achievementIDGiven)) {
-                        echo "<b>/Achievement</b>: ";
-                        echo "<a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
-                        echo " | <b>$achievementTitle</b>";
-                    } else {
-                        echo ": <b>$gameTitle ($consoleName)</b>";
+                        echo "<div><b>Achievement:</b> ";
+                        echo "<b><a href='" . $createLink('a', null) . "'>*$achievementTitle</a></b>";
+                        echo "</div>";
                     }
-                    echo " | <a href='$noGameFilterUrl" . "$ticketFilters'>Clear Filter</a></p>";
+
+                    echo "</div>";
                 }
 
                 echo "<table><tbody>";
@@ -662,7 +528,7 @@ RenderHtmlHead($pageTitle);
                     echo "</td>";
 
                     echo "<td>";
-                    echo $reportStates[$reportState];
+                    echo TicketState::toString($reportState);
                     echo "</td>";
 
                     echo "<td style='min-width:25%'>";
@@ -703,19 +569,20 @@ RenderHtmlHead($pageTitle);
                 echo "</div>";
 
                 echo "<div class='rightalign row'>";
+                $baseLink = $createLink(null, null);
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
                     if ($prevOffset < 0) {
                         $prevOffset = 0;
                     }
-                    echo "<a href='$standardFilterUrl" . "$ticketFilters'>First</a> - ";
-                    echo "<a href='$standardFilterUrl" . "$ticketFilters&o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='$baseLink'>First</a> - ";
+                    echo "<a href='$baseLink&o=$prevOffset'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($rowCount == $maxCount) {
                     // Max number fetched, i.e. there are more. Can goto next $maxCount.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='$standardFilterUrl" . "$ticketFilters&o=$nextOffset'>Next $maxCount &gt;</a>";
-                    echo " - <a href='$standardFilterUrl" . "$ticketFilters&o=" . ($filteredTicketsCount - ($maxCount - 1)) . "'>Last</a>";
+                    echo "<a href='$baseLink&o=$nextOffset'>Next $maxCount &gt;</a>";
+                    echo " - <a href='$baseLink&o=" . ($filteredTicketsCount - ($maxCount - 1)) . "'>Last</a>";
                 }
                 echo "</div>";
             } else {
@@ -773,7 +640,7 @@ RenderHtmlHead($pageTitle);
                 echo "</td>";
 
                 echo "<td>";
-                echo $reportStates[$reportState];
+                echo TicketState::toString($reportState);
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
@@ -853,7 +720,7 @@ RenderHtmlHead($pageTitle);
                             settype($nextTicketID, 'integer');
                             settype($ticketID, 'integer');
 
-                            if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] == 1)) {
+                            if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] == TicketState::Open)) {
                                 echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
                             }
                         }
@@ -872,7 +739,7 @@ RenderHtmlHead($pageTitle);
                             settype($ticketID, 'integer');
                             settype($nextTicket['ReportState'], 'integer');
 
-                            if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] !== 1)) {
+                            if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] !== TicketState::Open)) {
                                 echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
                             }
                         }
@@ -999,7 +866,7 @@ RenderHtmlHead($pageTitle);
                     echo "<select name='action' required>";
                     echo "<option value='' disabled selected hidden>Choose an action...</option>";
 
-                    if ($reportState == 1) {
+                    if ($reportState == TicketState::Open) {
                         if ($user == $reportedBy && $permissions < Permissions::Developer) {
                             echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
                         } elseif ($permissions >= Permissions::Developer) {
