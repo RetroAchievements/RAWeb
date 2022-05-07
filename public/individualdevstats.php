@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\TicketState;
+
 RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
 
 $dev = requestInputSanitized('u');
@@ -431,17 +433,17 @@ $prevID = 0;
 $userTicketInfo = getTicketsForUser($dev);
 foreach ($userTicketInfo as $ticketData) {
     switch ($ticketData['ReportState']) {
-        case 0:
+        case TicketState::Closed:
             $userTickets['closed'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueClosed']++;
             break;
-        case 1:
+        case TicketState::Open:
             $userTickets['open'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueOpen']++;
             break;
-        case 2:
+        case TicketState::Resolved:
             $userTickets['resolved'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueResolved']++;
