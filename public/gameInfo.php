@@ -4,6 +4,7 @@ use RA\ArticleType;
 use RA\ObjectType;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
+use RA\TicketFilters;
 use RA\UserPref;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -1184,7 +1185,7 @@ RenderHtmlStart(true);
 
                     $numOpenTickets = countOpenTickets(
                         requestInputSanitized('f') == $unofficialFlag,
-                        requestInputSanitized('t', 131065),
+                        requestInputSanitized('t', TicketFilters::Default),
                         null,
                         null,
                         null,
