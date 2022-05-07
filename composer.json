@@ -9,15 +9,14 @@
         "ext-mysqli": "*",
         "ext-gd": "*",
         "ext-json": "*",
-        "asika/autolink": "1.*",
         "vlucas/phpdotenv": "^5.0",
-        "aws/aws-sdk-php": "^3.52",
+        "aws/aws-sdk-php": "^3.0",
         "thunderer/shortcode": "^0.7.4"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.0",
-        "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^1.5",
+        "friendsofphp/php-cs-fixer": "^3.8",
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.6",
         "rector/rector": "^0.12.16",
         "symfony/mailer": "^6.0"
     },
@@ -49,6 +48,7 @@
     "scripts": {
         "analyse": "@stan",
         "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
+        "stan-clear": "vendor/bin/phpstan clear-result-cache",
         "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
         "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
         "rector": "vendor/bin/rector process",

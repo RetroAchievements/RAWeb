@@ -83,7 +83,7 @@ function getHashList($offset, $count, $searchedHash): array
     sanitize_sql_inputs($offset, $count, $searchedHash);
 
     $searchQuery = "";
-    if ($searchedHash !== null || $searchedHash != "") {
+    if (!empty($searchedHash)) {
         $offset = 0;
         $count = 1;
         $searchQuery = " WHERE h.MD5='" . $searchedHash . "'";

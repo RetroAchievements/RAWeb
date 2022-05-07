@@ -39,7 +39,7 @@ if ($_FILES["file"]["size"] > 1_048_576) {
     echo "Error: image too big! Must be smaller than 1mb!";
     exit;
 }
-if ($extension == null || mb_strlen($extension) < 1) {
+if (empty($extension)) {
     echo "Error: no file detected. Did you pick a file for upload?";
     exit;
 }
