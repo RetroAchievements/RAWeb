@@ -213,7 +213,7 @@ function getGameMetadataByFlags(
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-              WHERE ach.GameID = $gameID
+              WHERE ach.GameID = $gameID AND ach.Flags = $flags
               AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
               GROUP BY aw.HardcoreMode";
     $dbResult = s_mysql_query($query);
