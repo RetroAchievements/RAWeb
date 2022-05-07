@@ -292,8 +292,10 @@ function HasAward($user, $achIDToAward)
     $retVal = [];
     $retVal['HasRegular'] = false;
     $retVal['HasHardcore'] = false;
+    $retVal['RegularDate'] = null;
+    $retVal['HardcoreDate'] = null;
 
-    $query = "SELECT HardcoreMode
+    $query = "SELECT HardcoreMode, Date
               FROM Awarded
               WHERE AchievementID = '$achIDToAward' AND User = '$user'";
 
@@ -301,8 +303,10 @@ function HasAward($user, $achIDToAward)
     while ($nextData = mysqli_fetch_assoc($dbResult)) {
         if ($nextData['HardcoreMode'] == 0) {
             $retVal['HasRegular'] = true;
+            $retVal['RegularDate'] = $nextData['Date'];
         } elseif ($nextData['HardcoreMode'] == 1) {
             $retVal['HasHardcore'] = true;
+            $retVal['HardcoreDate'] = $nextData['Date'];
         }
     }
 
@@ -967,6 +971,7 @@ function getAchievementWonData(
         ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
         WHERE ach.ID = $achID
     ";
+
     $dbResult = s_mysql_query($query);
     if ($dbResult == false) {
         return false;
@@ -978,46 +983,25 @@ function getAchievementWonData(
 
     $numPossibleWinners = getTotalUniquePlayers($gameID, $user, false);
 
-    $numRecentWinners = 0;
-
     // Get recent winners, and their most recent activity:
-    $query = "SELECT aw.User, ua.RAPoints, aw.Date AS DateAwarded, aw.HardcoreMode
-              FROM Awarded AS aw
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE ( !ua.Untracked || ua.User = \"$user\" ) AND AchievementID=$achID
-              ORDER BY aw.Date DESC";
-
-    // double limit amount - still not correct this way
-    $query .= " LIMIT $offset, " . ($limit * 2);
+    $query = "SELECT ua.User, ua.RAPoints,
+                     IFNULL(aw_hc.Date, aw_sc.Date) AS DateAwarded,
+                     CASE WHEN aw_hc.Date IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode
+              FROM UserAccounts ua
+              INNER JOIN
+                     (SELECT User, Date FROM Awarded WHERE AchievementID = $achID AND HardcoreMode = 0) AS aw_sc
+                     ON aw_sc.User = ua.User
+              LEFT JOIN
+                     (SELECT User, Date FROM Awarded WHERE AchievementID = $achID AND HardcoreMode = 1) AS aw_hc
+                     ON aw_hc.User = ua.User
+              WHERE (NOT ua.Untracked OR ua.User = \"$user\" )
+              ORDER BY DateAwarded DESC
+              LIMIT $offset, $limit";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            if (isset($winnerInfo[$db_entry['User']]) && $winnerInfo[$db_entry['User']]['HardcoreMode'] == 1) {
-                // Prefer this value
-                continue;
-            }
-
-            // This will overwrite hardcore if found, in order; meaning the result will be
-            // either hardcore has been earned ever, or not at all by this user
-            $winnerInfo[$db_entry['User']] = $db_entry;
-            $numRecentWinners++;
-        }
-    }
-
-    if ($user !== null && !array_key_exists($user, $winnerInfo)) {
-        // Do the same again if I wasn't found:
-        $query = "SELECT aw.User, aw.Date AS DateAwarded, aw.HardcoreMode
-                  FROM Awarded AS aw
-                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                  WHERE aw.AchievementID=$achID AND aw.User='$user'
-                  ORDER BY aw.Date DESC, HardcoreMode ASC";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                $winnerInfo[$db_entry['User']] = $db_entry;
-                $numRecentWinners++;
-            }
+            $winnerInfo[] = $db_entry;
         }
     }
 
