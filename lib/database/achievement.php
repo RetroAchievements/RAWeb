@@ -981,7 +981,7 @@ function getAchievementWonData(
     $numWinners = $data['NumEarned'];
     $gameID = $data['GameID'];   // Grab GameID at this point
 
-    $numPossibleWinners = getTotalUniquePlayers($gameID, $user, false);
+    $numPossibleWinners = getTotalUniquePlayers($gameID, $user, false, null);
 
     // Get recent winners, and their most recent activity:
     $query = "SELECT ua.User, ua.RAPoints,
@@ -1092,7 +1092,7 @@ function recalculateTrueRatio($gameID)
     SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
-        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true);
+        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true, 3);
 
         if ($numHardcoreWinners == 0) { // force all unachieved to be 1
             $numHardcoreWinners = 1;
