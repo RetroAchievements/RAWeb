@@ -25,6 +25,8 @@ $commentPayload = requestInputPost('c');
 
 if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {
     if ($articleType == ArticleType::AchievementTicket) {
+        // if a user is responding to a ticket in the Request state,
+        // automatically change the state back to Open
         $ticketData = getTicket($articleID);
         if ($ticketData['ReportState'] == TicketState::Request && $ticketData['ReportedBy'] == $user) {
             updateTicket($user, $articleID, TicketState::Open);
