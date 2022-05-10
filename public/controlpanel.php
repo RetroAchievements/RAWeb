@@ -280,8 +280,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-motto.php'>";
                 echo "<input class='fullwidth' name='m' value=\"$userMottoString\" maxlength='49' id='usermottoinput' placeholder='Add your motto here! (No profanity please!)' />";
-                echo "<input type='hidden' name='u' VALUE='$user'>";
-                echo "<input type='hidden' name='c' VALUE='$cookie'>";
                 echo "<input value='Set Motto' name='submit' type='submit' size='37' />";
                 echo "</form>";
                 echo "</td>";
@@ -294,8 +292,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                 echo "<form method='POST' action='/request/user/update-wall.php'>";
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
                 echo "<input type='checkbox' name='v' value='1' id='userwallactive' $checkedStr/>";
-                echo "<input type='hidden' name='u' value='$user'>";
-                echo "<input type='hidden' name='c' value='$cookie'>";
                 echo "<input type='hidden' name='t' value='wall'>";
                 echo "<input value='Save' name='submit' type='submit' size='37' />";
                 echo "</form>";
@@ -510,8 +506,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                     </tr>
                     </tbody>
                 </table>
-                <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-                <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
             </form>
         </div>
         <div class='component'>

@@ -8,10 +8,9 @@ if (!ValidatePOSTChars("u")) {
     exit;
 }
 
-$user = requestInputPost('u');
+$userIn = requestInputPost('u');
 
-getcookie($userIn, $cookie);
-if ($user == $userIn && validateUser_cookie($user, $cookie, 0) == false) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails) || $user != $userIn) {
     echo "ERROR2";
     exit;
 }

@@ -89,42 +89,6 @@ function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
     );
 }
 
-function validateUser_cookie(&$user, $cookie, $permissionRequired, &$permissions = 0): bool
-{
-    return validateFromCookie($user, $points, $permissions, $permissionRequired);
-}
-
-function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissionRequired = 0): bool
-{
-    $userOut = RA_ReadCookie("RA_User");
-    $cookie = RA_ReadCookie("RA_Cookie");
-
-    sanitize_sql_inputs($userOut);
-
-    if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 2 || !isValidUsername($userOut)) {
-        // There is no cookie
-        return false;
-    } else {
-        // Cookie maybe stale: check it!
-        $query = "SELECT User, cookie, RAPoints, Permissions FROM UserAccounts WHERE User='$userOut'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult == false) {
-            return false;
-        } else {
-            $data = mysqli_fetch_array($dbResult);
-            if ($data['cookie'] == $cookie) {
-                $pointsOut = $data['RAPoints'];
-                $userOut = $data['User']; // Case correction
-                $permissionsOut = $data['Permissions'];
-
-                return $permissionsOut >= $permissionRequired;
-            } else {
-                return false;
-            }
-        }
-    }
-}
-
 function getCookie(&$userOut, &$cookieOut)
 {
     $userOut = RA_ReadCookie('RA_User');

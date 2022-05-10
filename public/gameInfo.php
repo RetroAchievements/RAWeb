@@ -624,7 +624,7 @@ RenderHtmlStart(true);
 
                 // Display leaderboard management options depending on the current number of leaderboards
                 if ($numLeaderboards == 0) {
-                    echo "<div><a href='/request/leaderboard/create.php?u=$user&c=$cookie&g=$gameID'>Create First Leaderboard</a></div>";
+                    echo "<div><a href='/request/leaderboard/create.php?g=$gameID'>Create First Leaderboard</a></div>";
                 } else {
                     echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }

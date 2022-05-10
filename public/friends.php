@@ -57,8 +57,8 @@ RenderHtmlHead("Friends");
                 echo "<td style='vertical-align:middle;'>";
                 echo "<div class='buttoncollection'>";
                 echo "<span style='display:block;'><a href='/createmessage.php?t=$user'>Send&nbsp;Message</a></span>";
-                echo "<span style='display:block;'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$nextFriendName&amp;a=0'>Remove&nbsp;Friend</a></span>";
-                echo "<span style='display:block;'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$nextFriendName&amp;a=-1'>Block&nbsp;User</a></span>";
+                echo "<span style='display:block;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=0'>Remove&nbsp;Friend</a></span>";
+                echo "<span style='display:block;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=-1'>Block&nbsp;User</a></span>";
                 echo "</div>";
                 echo "</td>";
 

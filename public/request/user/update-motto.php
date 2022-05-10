@@ -1,20 +1,20 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidatePOSTChars("ucm")) {
+if (!ValidatePOSTChars("m")) {
     header("Location: " . getenv('APP_URL') . "?e=invalidparams");
     exit;
 }
 
-$user = requestInputPost('u');
-$cookie = requestInputPost('c');
 $newMotto = requestInputPost('m');
 
 sanitize_sql_inputs($user, $cookie, $newMotto);
 
-if (validateUser_cookie($user, $cookie, 1)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     $query = "
 			UPDATE UserAccounts
 			SET Motto='$newMotto', Updated=NOW()

@@ -14,11 +14,8 @@ $source = requestInputQuery('u');
 $lbID = requestInputQuery('i');
 $gameID = requestInputQuery('g');
 
-getCookie($user, $cookie);
-
 if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer) &&
-    $source == $user &&
-    validateUser_cookie($user, $cookie, 2)) {
+    $source == $user) {
     if (requestDeleteLB($lbID)) {
         header("Location: " . getenv('APP_URL') . "/leaderboardList.php?e=deleteok&g=$gameID");
         exit;

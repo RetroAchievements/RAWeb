@@ -145,10 +145,8 @@ RenderHtmlHead($pageTitle);
         echo "<ul>";
         if (isset($gameID)) {
             echo "<li>";
-            echo "<a href='/request/leaderboard/create.php?u=$user&c=$cookie&g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a></br>";
+            echo "<a href='/request/leaderboard/create.php?g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a></br>";
             echo "<form method='post' action='/request/leaderboard/create.php'> ";
-            echo "<input type='hidden' name='u' value='$user' />";
-            echo "<input type='hidden' name='c' value='$cookie' />";
             echo "<input type='hidden' name='g' value='$gameID' />";
             echo "Duplicate leaderboard ID: ";
             echo "<input style='width: 10%;' type='number' min=1 value=1 name='l' /> ";
@@ -161,8 +159,6 @@ RenderHtmlHead($pageTitle);
         } else {
             echo "<li>Add new leaderboard<br>";
             echo "<form method='post' action='/request/leaderboard/create.php' >";
-            echo "<input type='hidden' name='u' value='$user' />";
-            echo "<input type='hidden' name='c' value='$cookie' />";
             echo "<select name='g'>";
             foreach ($gamesList as $nextGame) {
                 $nextGameID = $nextGame['ID'];
