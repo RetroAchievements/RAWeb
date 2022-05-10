@@ -26,7 +26,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " (" . $consoleList[$consoleIDInput] . ")";
 }
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
@@ -169,8 +169,7 @@ RenderHtmlStart();
 RenderHtmlHead("Supported Games" . $requestedConsole);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <div class="largelist">

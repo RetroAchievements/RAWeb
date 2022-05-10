@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
@@ -56,8 +56,7 @@ RenderHtmlHead($lbUsers . " Ranking - " . $lbType);
 ?>
 <body>
 <?php
-RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-RenderToolbar($user, $permissions);
+RenderHeader($userDetails);
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>

@@ -18,7 +18,7 @@ if (ctype_alnum($userPage) == false) {
     exit;
 }
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
@@ -153,8 +153,7 @@ RenderHtmlStart(true);
     <?php RenderTitleTag($pageTitle); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });

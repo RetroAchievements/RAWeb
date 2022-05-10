@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Unregistered)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
@@ -62,8 +62,7 @@ RenderHtmlStart();
 RenderHtmlHead("Game Compare");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <div id="gamecompare">

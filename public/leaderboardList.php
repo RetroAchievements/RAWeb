@@ -8,7 +8,10 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
 
 getCookie($user, $cookie);
 
@@ -58,8 +61,7 @@ RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function ReloadLBPageByConsole() {
     var ID = $('#consoleselector').val();
@@ -180,7 +182,7 @@ RenderHtmlHead($pageTitle);
     }
 
     if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        echo "<div id='warning'>Status: OK!</div>";
+        echo "<div id='warning'></div>";
     }
 
     if (!isset($gameData)) {

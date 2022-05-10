@@ -5,7 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
@@ -23,8 +23,7 @@ RenderHtmlStart();
 RenderHtmlHead('Code Notes');
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id='mainpage'>
     <div id="fullcontainer">
         <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>

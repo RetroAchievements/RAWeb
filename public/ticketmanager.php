@@ -9,7 +9,7 @@ use RA\TicketType;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails)) {
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -190,8 +190,7 @@ RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">

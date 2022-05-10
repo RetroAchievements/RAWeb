@@ -132,22 +132,27 @@ function getCookie(&$userOut, &$cookieOut)
 }
 
 function RA_ValidateCookie(
+    &$userOut,
+    &$permissionsOut,
     &$userDetailsOut,
     $minPermissions = null
 ): bool {
-    $user = RA_ReadCookie('RA_User');
+    $userOut = RA_ReadCookie('RA_User');
     $cookie = RA_ReadCookie('RA_Cookie');
+    $permissionsOut = Permissions::Unregistered;
 
-    if (mb_strlen($cookie) >= 10 && isValidUsername($user)) {
-        if (getAccountDetails($user, $userDetailsOut)) {
+    if (mb_strlen($cookie) >= 10 && isValidUsername($userOut)) {
+        if (getAccountDetails($userOut, $userDetailsOut)) {
+            $permissionsOut = $userDetailsOut['Permissions'];
+
             if (strcmp($userDetailsOut['cookie'], $cookie) === 0 &&
-                    $userDetailsOut['Permissions'] != Permissions::Banned) {
+                    $permissionsOut != Permissions::Banned) {
                 // valid active account. update the last activity timestamp
-                userActivityPing($user);
+                userActivityPing($userOut);
 
                 // validate permissions for the current page if required
                 if (isset($minPermissions)) {
-                    return $permissionOut >= $minPermissions;
+                    return $permissionsOut >= $minPermissions;
                 }
 
                 // return true meaning 'logged in'
@@ -173,62 +178,14 @@ function RA_ReadCookieCredentials(
     $minPermissions = null,
     &$userIDOut = null
 ): bool {
-    // Promise some values:
-    $userOut = RA_ReadCookie('RA_User');
-    $cookie = RA_ReadCookie('RA_Cookie');
-    $pointsOut = 0;
-    $truePointsOut = 0;
-    $unreadMessagesOut = 0;
-    $permissionOut = 0;
+    $result = RA_ValidateCookie($userOut, $permissionOut, $userDetails, $minPermissions);
 
-    if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 10 || !isValidUsername($userOut)) {
-        RA_ClearCookie('RA_User');
-        RA_ClearCookie('RA_Cookie');
-        $userOut = null;
+    $pointsOut = $userDetails['RAPoints'] ?? 0;
+    $unreadMessagesOut = $userDetails['UnreadMessageCount'] ?? 0;
+    $truePointsOut = $userDetails['TrueRAPoints'] ?? 0;
+    $userIDOut = $userDetails['ID'] ?? 0;
 
-        return false;
-    }
-
-    sanitize_sql_inputs($userOut);
-
-    $query = "SELECT ua.cookie, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions, ua.ID
-              FROM UserAccounts AS ua
-              WHERE User='$userOut'";
-
-    $result = s_mysql_query($query);
-    if ($result == false) {
-        RA_ClearCookie('RA_User');
-        RA_ClearCookie('RA_Cookie');
-        $userOut = null;
-
-        return false;
-    } else {
-        $dbResult = mysqli_fetch_array($result);
-        $serverCookie = $dbResult['cookie'];
-        if (strcmp($serverCookie, $cookie) !== 0 || $dbResult['Permissions'] == -1) {
-            RA_ClearCookie('RA_User');
-            RA_ClearCookie('RA_Cookie');
-            $userOut = null;
-
-            return false;
-        } else {
-            userActivityPing($userOut);
-
-            // Cookies match: now validate permissions if required
-            $pointsOut = $dbResult['RAPoints'];
-            $unreadMessagesOut = $dbResult['UnreadMessageCount'];
-            $truePointsOut = $dbResult['TrueRAPoints'];
-            $permissionOut = $dbResult['Permissions'];
-            $userIDOut = $dbResult['ID'];
-
-            // Only compare if requested, otherwise return true meaning 'logged in'
-            if (isset($minPermissions)) {
-                return $permissionOut >= $minPermissions;
-            } else {
-                return true;
-            }
-        }
-    }
+    return $result;
 }
 
 function RA_ReadTokenCredentials(

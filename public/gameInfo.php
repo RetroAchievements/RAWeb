@@ -22,9 +22,10 @@ if ($gameID == null || $gameID == 0) {
 }
 
 $friendScores = [];
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
+$userID = $userDetails['ID'] ?? 0;
 
 $errorCode = requestInputSanitized('e');
 
@@ -92,8 +93,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
     <?php RenderTitleTag($pageTitle); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions);
+<?php RenderHeader($userDetails);
             echo "<div id='mainpage'>";
             echo "<div id='leftcontainer'>";
             echo "<div class='navpath'>";
@@ -233,8 +233,7 @@ RenderHtmlStart(true);
     <?php RenderTitleTag($pageTitle); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <?php if ($isFullyFeaturedGame): ?>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>

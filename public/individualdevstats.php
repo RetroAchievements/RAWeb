@@ -5,7 +5,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\TicketState;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $dev = requestInputSanitized('u');
 $errorCode = requestInputSanitized('e');
@@ -524,8 +524,7 @@ RenderHtmlStart();
 RenderHtmlHead("$dev's Developer Stats");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>

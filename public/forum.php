@@ -7,7 +7,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $forumList = getForumList($permissions, $requestedCategoryID);
 
@@ -32,8 +32,7 @@ RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php RenderErrorCodeWarning($errorCode); ?>

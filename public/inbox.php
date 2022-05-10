@@ -13,7 +13,7 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails)) {
     // Trying to visit someone's inbox while not being logged in :S
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -36,8 +36,7 @@ if ($outbox) {
 
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function MarkAsRead(msgID) {
     $('#msgInline' + msgID).toggle();

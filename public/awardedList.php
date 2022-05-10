@@ -9,7 +9,7 @@ exit;
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('i', 0, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
@@ -36,8 +36,7 @@ RenderHtmlStart();
 RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php

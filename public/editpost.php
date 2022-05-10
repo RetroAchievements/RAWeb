@@ -5,13 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
-    if (getAccountDetails($user, $userDetails) == false) {
-        // Immediate redirect if we cannot validate user!	//TBD: pass args?
-        header("Location: " . getenv('APP_URL') . "?e=accountissue");
-        exit;
-    }
-} else {
+if (!RA_ValidateCookie($user, $permissions, $userDetails)) {
     // Immediate redirect if we cannot validate cookie!	//TBD: pass args?
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -50,8 +44,7 @@ RenderHtmlStart();
 RenderHtmlHead("Edit post");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php

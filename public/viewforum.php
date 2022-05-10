@@ -5,7 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -68,8 +68,7 @@ RenderHtmlStart();
 RenderHtmlHead("View forum: $thisForumTitle");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <div id="forums">

@@ -7,7 +7,7 @@ use RA\Shortcode\Shortcode;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+RA_ValidateCookie($user, $permissions, $userDetails);
 
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 
@@ -83,8 +83,7 @@ RenderHtmlStart(true);
 </head>
 
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <?php if ($permissions >= Permissions::Developer): ?>
     <script>
         function PostEmbedUpdate() {
