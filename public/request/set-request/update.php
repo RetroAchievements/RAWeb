@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $gameID = requestInputQuery('i', null, 'integer');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     $setRequestList = getUserRequestList($user);
     $totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
     $totalRequests['gameRequests'] = getSetRequestCount($gameID);

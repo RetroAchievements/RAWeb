@@ -11,7 +11,7 @@ if (!ValidatePOSTChars("act")) {
     exit;
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     echo "FAILED!";
     exit;
 }

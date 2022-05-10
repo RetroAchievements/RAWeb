@@ -169,25 +169,6 @@ function RA_ValidateCookie(
     return false;
 }
 
-function RA_ReadCookieCredentials(
-    &$userOut,
-    &$pointsOut,
-    &$truePointsOut,
-    &$unreadMessagesOut,
-    &$permissionOut,
-    $minPermissions = null,
-    &$userIDOut = null
-): bool {
-    $result = RA_ValidateCookie($userOut, $permissionOut, $userDetails, $minPermissions);
-
-    $pointsOut = $userDetails['RAPoints'] ?? 0;
-    $unreadMessagesOut = $userDetails['UnreadMessageCount'] ?? 0;
-    $truePointsOut = $userDetails['TrueRAPoints'] ?? 0;
-    $userIDOut = $userDetails['ID'] ?? 0;
-
-    return $result;
-}
-
 function RA_ReadTokenCredentials(
     &$userOut,
     $token,

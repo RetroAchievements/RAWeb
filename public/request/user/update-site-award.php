@@ -20,7 +20,7 @@ if (ValidatePOSTChars("tdev")) {
     }
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails)) {
     echo "FAILED!";
     exit;
 }

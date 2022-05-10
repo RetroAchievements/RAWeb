@@ -16,7 +16,7 @@ $gameID = requestInputPost('g');
 $field = requestInputPost('f');
 $value = requestInputPost('v');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     if ($field == 4) {
         $name = requestInputPost('n');
         $labels = requestInputPost('l');

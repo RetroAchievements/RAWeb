@@ -11,8 +11,8 @@ $commentID = requestInput('c', 0, 'integer');
 $response = [];
 $response['ArtID'] = $articleID;
 $response['CommentID'] = $commentID;
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered, $userID)) {
-    $response['Success'] = RemoveComment($articleID, $commentID, $userID, $permissions);
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    $response['Success'] = RemoveComment($articleID, $commentID, $userDetails['ID'], $permissions);
 } else {
     $response['Success'] = false;
 }

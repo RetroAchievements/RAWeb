@@ -11,7 +11,7 @@ $user = requestInput('u');
 $filename = requestInput('f');
 $rawImage = requestInput('i');
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     http_response_code(401);
     echo json_encode(['Success' => false]);
     exit;
