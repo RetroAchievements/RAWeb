@@ -358,7 +358,11 @@ function getAccountDetails(&$user, &$dataOut)
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created, DeleteRequested, Deleted
+    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, TrueRAPoints,
+                     cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
+                     fbUser, fbPrefs, ApiKey, ContribCount, ContribYield,
+                     RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
+                     Created, DeleteRequested, Untracked
                 FROM UserAccounts
                 WHERE User='$user'
                 AND Deleted IS NULL";
@@ -1688,6 +1692,14 @@ function getMostAwardedGames($gameIDs)
         }
     }
     return $retVal;
+}
+
+function getDeleteTime($deleteRequested): string
+{
+    if (empty($deleteRequested))
+        return null;
+
+    return date('Y-m-d', strtotime($deleteRequested) + 60 * 60 * 24 * 14);
 }
 
 function cancelDeleteRequest($username): bool

@@ -3,7 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+$userDetails = null;
+RA_ValidateCookie($userDetails);
 
 $playersOnlineArray = [];
 
@@ -32,8 +33,7 @@ RenderHtmlHead();
 ?>
 <body>
 <?php
-RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-RenderToolbar($user, $permissions);
+RenderHeader($userDetails);
 ?>
 <link type='text/css' rel='stylesheet' href='/rcarousel/widget/css/rcarousel.css'/>
 <link type='text/css' rel='stylesheet' href='/rcarousel/rcarousel-ra.css'/>

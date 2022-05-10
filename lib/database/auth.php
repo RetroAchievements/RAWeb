@@ -131,6 +131,39 @@ function getCookie(&$userOut, &$cookieOut)
     $cookieOut = RA_ReadCookie('RA_Cookie');
 }
 
+function RA_ValidateCookie(
+    &$userDetailsOut,
+    $minPermissions = null
+): bool {
+    $user = RA_ReadCookie('RA_User');
+    $cookie = RA_ReadCookie('RA_Cookie');
+
+    if (mb_strlen($cookie) >= 10 && isValidUsername($user)) {
+        if (getAccountDetails($user, $userDetailsOut)) {
+            if (strcmp($userDetailsOut['cookie'], $cookie) === 0 &&
+                    $userDetailsOut['Permissions'] != Permissions::Banned) {
+                // valid active account. update the last activity timestamp
+                userActivityPing($user);
+
+                // validate permissions for the current page if required
+                if (isset($minPermissions)) {
+                    return $permissionOut >= $minPermissions;
+                }
+
+                // return true meaning 'logged in'
+                return true;
+            }
+        }
+    }
+
+    // invalid credentials, clear the cookies and return failure
+    RA_ClearCookie('RA_User');
+    RA_ClearCookie('RA_Cookie');
+
+    $userDetailsOut = null;
+    return false;
+}
+
 function RA_ReadCookieCredentials(
     &$userOut,
     &$pointsOut,
