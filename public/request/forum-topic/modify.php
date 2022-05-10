@@ -15,7 +15,7 @@ $topicID = requestInputPost('t');
 $field = requestInputPost('f');
 $value = requestInputPost('v');
 
-if (validateFromCookie($user, $unused, $permissions, Permissions::Registered)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     if (requestModifyTopic($user, $permissions, $topicID, $field, $value)) {
         if ($field == ModifyTopicField::DeleteTopic) {
             header("location: " . getenv('APP_URL') . "/forum.php?e=delete_ok");

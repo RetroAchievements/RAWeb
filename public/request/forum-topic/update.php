@@ -16,7 +16,7 @@ if (!ValidatePOSTChars("uctpi")) {
     exit;
 }
 
-if (validateUser_cookie($user, $cookie, 1, $permissions)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     if (getSingleTopicComment($commentID, $commentData) == false) {
         header("location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment");
         exit;

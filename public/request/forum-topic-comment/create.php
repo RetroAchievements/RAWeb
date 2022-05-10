@@ -14,7 +14,7 @@ if (!ValidatePOSTChars("tp")) {
     exit;
 }
 
-if (validateFromCookie($user, $unused, $permissions, Permissions::Registered)) {
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     if (submitTopicComment($user, $topicID, null, $commentPayload, $newCommentID)) {
         // Good!
         header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$newCommentID");

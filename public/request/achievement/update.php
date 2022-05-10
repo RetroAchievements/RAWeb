@@ -23,7 +23,7 @@ if (ValidatePOSTChars("uafv")) {
     }
 }
 
-if (!validateFromCookie($user, $points, $permissions, Permissions::JuniorDeveloper)) {
+if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     echo "FAILED! Unauthenticaed";
     exit;
 }

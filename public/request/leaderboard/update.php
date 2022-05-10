@@ -22,7 +22,7 @@ $lbDisplayOrder = requestInputPost('o');
 
 getCookie($user, $cookie);
 
-if (validateFromCookie($user, $points, $permissions, Permissions::JuniorDeveloper)
+if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
     $prevUpdated = strtotime($prevData["LBUpdated"]);
