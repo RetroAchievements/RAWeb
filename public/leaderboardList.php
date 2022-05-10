@@ -13,8 +13,6 @@ if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer
     exit;
 }
 
-getCookie($user, $cookie);
-
 $permissions = 0;
 if (isset($user)) {
     $permissions = getUserPermissions($user);

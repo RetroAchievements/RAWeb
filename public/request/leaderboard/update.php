@@ -20,8 +20,6 @@ $lbFormat = requestInputPost('f');
 $lbLowerIsBetter = requestInputPost('l');
 $lbDisplayOrder = requestInputPost('o');
 
-getCookie($user, $cookie);
-
 if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);

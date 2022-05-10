@@ -130,7 +130,6 @@ if ($v != 1 && $isFullyFeaturedGame) {
 $achDist = null;
 $authorInfo = [];
 $commentData = null;
-$cookie = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
@@ -154,8 +153,6 @@ if ($isFullyFeaturedGame) {
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
-
-    getCookie($user, $cookie);
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 

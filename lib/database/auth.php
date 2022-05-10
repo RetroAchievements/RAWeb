@@ -89,12 +89,6 @@ function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
     );
 }
 
-function getCookie(&$userOut, &$cookieOut)
-{
-    $userOut = RA_ReadCookie('RA_User');
-    $cookieOut = RA_ReadCookie('RA_Cookie');
-}
-
 function RA_ValidateCookie(
     &$userOut,
     &$permissionsOut,

@@ -37,7 +37,6 @@ $thisAuthor = $commentData['Author'];
 // $thisCategoryID = $topicData['CategoryID'];
 // $thisCategoryName = $topicData['CategoryName'];
 
-getCookie($user, $cookieRaw);
 $errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
@@ -58,10 +57,8 @@ RenderHtmlHead("Edit post");
         echo "<tbody>";
 
         echo "<form action='/request/forum-topic/update.php' method='post'>";
-        echo "<input type='hidden' value='$cookieRaw' name='c'>";
         echo "<input type='hidden' value='$requestedComment' name='i'>";
         echo "<input type='hidden' value='$thisTopicID' name='t'>";
-        echo "<input type='hidden' value='$user' name='u'>";
         // echo "<input type='hidden' value='$requestedForumID' name='f'>";
         echo "<tr>" . "<td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
         echo "<tr>" . "<td>Topic:</td><td><input type='text' readonly class='fullwidth' value='$thisTopicTitle'></td></tr>";

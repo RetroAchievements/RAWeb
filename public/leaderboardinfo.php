@@ -40,7 +40,6 @@ $consoleName = $lbData['ConsoleName'];
 $forumTopicID = $lbData['ForumTopicID'];
 
 $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
-getCookie($user, $cookie);
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);

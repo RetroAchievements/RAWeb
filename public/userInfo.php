@@ -105,8 +105,6 @@ sanitize_outputs(
 
 $errorCode = requestInputSanitized('e');
 
-getCookie($user, $cookie);
-
 $pageTitle = "$userPage";
 
 $userPagePoints = getScore($userPage);
