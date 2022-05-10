@@ -1696,8 +1696,9 @@ function getMostAwardedGames($gameIDs)
 
 function getDeleteTime($deleteRequested): string
 {
-    if (empty($deleteRequested))
+    if (empty($deleteRequested)) {
         return null;
+    }
 
     return date('Y-m-d', strtotime($deleteRequested) + 60 * 60 * 24 * 14);
 }

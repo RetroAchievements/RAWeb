@@ -111,12 +111,12 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
     echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a>";
 
     if (!empty($deleteRequested)) {
-        echo "<div style='text-align: center; font-size:14px; color:#dd0000'>Your account is marked to be deleted on " . 
+        echo "<div style='text-align: center; font-size:14px; color:#dd0000'>Your account is marked to be deleted on " .
             getDeleteTime($deleteRequested) . "</div>";
     }
 
     echo "</div>";
-    
+
     echo "<div class='login'>";
 
     if ($user == false) {
