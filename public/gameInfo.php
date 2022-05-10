@@ -82,8 +82,7 @@ $v = requestInputSanitized('v', 0, 'integer');
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
-            if (getAccountDetails($user, $accountDetails) &&
-                BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+            if (BitSet($userDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
                 break;
             }
 

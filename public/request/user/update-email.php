@@ -25,10 +25,8 @@ if ($email !== $email2) {
             if ($dbResult) {
                 sendValidationEmail($user, $email);
 
-                if (getAccountDetails($user, $userData)) {
-                    addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
-                        $user . ' changed their email address');
-                }
+                addArticleComment('Server', ArticleType::UserModeration, $userDetail['ID'],
+                    $user . ' changed their email address');
 
                 header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_changeok");
             } else {
