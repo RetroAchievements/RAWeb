@@ -112,7 +112,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     if (!empty($deleteRequested)) {
         echo "<div style='text-align: center; font-size:14px; color:#dd0000'>Your account is marked to be deleted on " .
-            getDeleteTime($deleteRequested) . "</div>";
+            getDeleteDate($deleteRequested) . "</div>";
     }
 
     echo "</div>";

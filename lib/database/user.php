@@ -1694,7 +1694,7 @@ function getMostAwardedGames($gameIDs)
     return $retVal;
 }
 
-function getDeleteTime($deleteRequested): string
+function getDeleteDate($deleteRequested): string
 {
     if (empty($deleteRequested)) {
         return null;
@@ -1726,8 +1726,8 @@ function deleteRequest($username, $date = null): bool
         return false;
     }
 
-    // Cap permissions to 1
-    $permission = min($user['Permissions'], 1);
+    // Cap permissions
+    $permission = min($user['Permissions'], Permissions::Registered);
 
     $date ??= date('Y-m-d H:i:s');
     $query = "UPDATE UserAccounts u SET u.DeleteRequested = '$date', u.Permissions = $permission WHERE u.User = '$username'";
@@ -1736,6 +1736,8 @@ function deleteRequest($username, $date = null): bool
     if ($dbResult !== false) {
         addArticleComment('Server', ArticleType::UserModeration, $user['ID'],
             $username . ' requested account deletion');
+
+        SendDeleteRequestEmail($username, $user['EmailAddress'], $date);
     }
 
     return $dbResult !== false;
