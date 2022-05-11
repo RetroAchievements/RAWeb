@@ -445,3 +445,24 @@ function RenderThemeSelector()
     }
     echo "</select>";
 }
+
+function RenderPaginator($numItems, $perPage, $offset, $urlPrefix)
+{
+    if ($offset > 0) {
+        $prevOffset = $offset - $perPage;
+        echo "<a href='$urlPrefix$prevOffset'>&lt;</a>&nbsp;";
+    }
+
+    echo "Page <select class='gameselector' onchange='window.location=\"$urlPrefix\" + this.options[this.selectedIndex].value'>";
+    $pages = floor(($numItems + $perPage - 1) / $perPage);
+    for ($i = 1; $i <= $pages; $i++) {
+        $pageOffset = ($i - 1) * $perPage;
+        echo "<option value='$pageOffset'" . (($offset == $pageOffset) ? " selected" : "") . ">$i</option>";
+    }
+    echo "</select> of $pages";
+
+    $nextOffset = $offset + $perPage;
+    if ($nextOffset < $numItems) {
+        echo "&nbsp;<a href='$urlPrefix$nextOffset'>&gt;</a>";
+    }
+}

@@ -222,23 +222,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                     if ($maxCount != 0 && $gamesCount > $maxCount) {
                         // Add page traversal links
                         echo "\n<br/><div class='rightalign row'>";
-                        if ($offset > 0) {
-                            $prevOffset = $offset - $maxCount;
-                            echo "<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$prevOffset'>&lt;</a>&nbsp;";
-                        }
-
-                        echo "Page <select class='gameselector' onchange='window.location=\"/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=\" + this.options[this.selectedIndex].value'>";
-                        $pages = floor(($gamesCount + $maxCount - 1) / $maxCount);
-                        for ($i = 1; $i <= $pages; $i++) {
-                            $pageOffset = ($i - 1) * $maxCount;
-                            echo "<option value='$pageOffset'" . (($offset == $pageOffset) ? " selected" : "") . ">$i</option>";
-                        }
-                        echo "</select> of $pages";
-
-                        $nextOffset = $offset + $maxCount;
-                        if ($nextOffset < $gamesCount) {
-                            echo "&nbsp;<a href='/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=$nextOffset'>&gt;</a>";
-                        }
+                        RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=");
                         echo "</div>";
                     }
                 }
