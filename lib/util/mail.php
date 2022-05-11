@@ -333,7 +333,7 @@ function SendDeleteRequestEmail($user, $email, $deleteRequested): bool
 
     $msg = "Hello $user,<br>" .
         "Your account has been marked for deletion.<br>" .
-        "If you do not cancel this request before " . getDeleteDate($deleteRequested) . "," .
+        "If you do not cancel this request before " . getDeleteDate($deleteRequested) . ", " .
         "you will no longer be able to access your account.<br>" .
         "Thanks!<br>" .
         "-- Your friends at RetroAchievements.org<br>";

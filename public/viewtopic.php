@@ -380,7 +380,7 @@ RenderHtmlStart();
             echo "</tbody></table></div>";
         } else {
             echo "</tbody></table></div>";
-            RenderLoginComponent($user, $points, $errorCode, true);
+            echo "<br/>You must log in before you can join this conversation.<br/>";
         }
         ?>
         <br>
