@@ -743,7 +743,7 @@ RenderHtmlStart(true);
                         echo "<input type='hidden' name='i' value='$gameID'>";
 
                         echo "To remove:";
-                        echo "<select name='m'>";
+                        echo "<select name='m[]' style='resize:auto' multiple>";
                         echo "<option value='0' selected>-</option>";
 
                         foreach ($relatedGames as $gameAlt) {
