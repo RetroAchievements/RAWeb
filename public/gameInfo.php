@@ -744,7 +744,6 @@ RenderHtmlStart(true);
 
                         echo "To remove:";
                         echo "<select name='m[]' style='resize:auto' multiple>";
-                        echo "<option value='0' selected>-</option>";
 
                         foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
