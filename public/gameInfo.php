@@ -743,8 +743,7 @@ RenderHtmlStart(true);
                         echo "<input type='hidden' name='i' value='$gameID'>";
 
                         echo "To remove:";
-                        echo "<select name='m'>";
-                        echo "<option value='0' selected>-</option>";
+                        echo "<select name='m[]' style='resize:auto' multiple>";
 
                         foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
@@ -760,7 +759,7 @@ RenderHtmlStart(true);
                         }
 
                         echo "</select>";
-                        echo "<input type='submit' style='float: right;' value='Remove' size='37'>";
+                        echo "<input type='submit' style='float: right;' value='Remove' size='37' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'>";
                         echo "</form>";
                         echo "</td></tr>";
                     }
