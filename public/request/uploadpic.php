@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=badcredentials");
     exit;

@@ -43,7 +43,7 @@ foreach ($bannedTitles as $nextWord) {
     }
 }
 
-if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     $topicID = null;
     if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $topicID)) {
         // Good!

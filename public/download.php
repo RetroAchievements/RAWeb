@@ -6,7 +6,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $emulators = getActiveEmulatorReleases();
 $consoles = getConsoleList();
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $errorCode = requestInputSanitized('e');
 $staticData = getStaticData();

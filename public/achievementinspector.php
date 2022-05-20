@@ -5,7 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     exit;
 }
 

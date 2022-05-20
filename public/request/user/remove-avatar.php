@@ -12,7 +12,7 @@ if (!ValidatePOSTChars("u")) {
 
 $user = requestInputPost('u');
 
-if (RA_ValidateCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
+if (authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
     if ($user !== $actingUser && $permissions < Permissions::Admin) {
         header("Location: " . getenv('APP_URL') . "/user/" . $user);
         return false;

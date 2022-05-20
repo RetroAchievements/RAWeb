@@ -7,7 +7,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $forumList = getForumList($permissions, $requestedCategoryID);
 

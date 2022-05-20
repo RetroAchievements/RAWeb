@@ -5,7 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);

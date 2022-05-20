@@ -16,7 +16,7 @@ $value = requestInputPost('v', 0, 'integer');
 
 global $db;
 $changeErrorCode = null;
-if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     if ($prefType == 'wall') {
         $query = "UPDATE UserAccounts
                 SET UserWallActive=$value, Updated=NOW()

@@ -12,7 +12,7 @@ if (!ValidateGETChars("g")) {
 
 $gameID = requestInputQuery('g');
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     header("Location: " . getenv('APP_URL') . "/forum.php?e=badcredentials");
     exit;
 }

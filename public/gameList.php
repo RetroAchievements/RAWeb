@@ -26,7 +26,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " (" . $consoleList[$consoleIDInput] . ")";
 }
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];

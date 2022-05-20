@@ -11,7 +11,7 @@ $maxCount = 25;
 
 $perms = requestInputQuery('p', 1, 'integer');
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $showUntracked = false;
 if (isset($user) && $permissions >= Permissions::Admin) {

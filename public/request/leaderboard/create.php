@@ -9,7 +9,7 @@ $gameID = requestInput('g');
 $leaderboardID = requestInput('l');
 $duplicateNumber = requestInput('n');
 
-if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     if (isset($leaderboardID) && isset($duplicateNumber)) {
         if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");

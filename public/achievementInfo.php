@@ -7,7 +7,7 @@ use RA\Shortcode\Shortcode;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 

@@ -10,7 +10,7 @@ if (!ValidateGETChars("m")) {
 
 $messageID = requestInputQuery('m');
 
-if (RA_ValidateCookie($user, $permissions, $userDetails)) {
+if (authenticateFromCookie($user, $permissions, $userDetails)) {
     if (DeleteMessage($user, $messageID)) {
         header("Location: " . getenv('APP_URL') . "/inbox.php?e=deleteok");
         exit;

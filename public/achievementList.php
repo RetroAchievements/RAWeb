@@ -7,7 +7,7 @@ $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('z', 0, 'integer');
 $mobileBrowser = IsMobileBrowser();
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 

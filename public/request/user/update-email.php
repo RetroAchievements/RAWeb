@@ -19,7 +19,7 @@ if ($email !== $email2) {
     if (filter_var($email, FILTER_VALIDATE_EMAIL) == false) {
         header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badnewemail");
     } else {
-        if (RA_ValidateCookie($user, $permissions, $userDetail)) {
+        if (authenticateFromCookie($user, $permissions, $userDetail)) {
             $query = "UPDATE UserAccounts SET EmailAddress='$email', Permissions=0, Updated=NOW() WHERE User='$user'";
             $dbResult = s_mysql_query($query);
             if ($dbResult) {

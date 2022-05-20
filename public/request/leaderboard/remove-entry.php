@@ -11,7 +11,7 @@ $targetUser = requestInput('t');
 $reason = requestInputPost('r');
 $returnUrl = getenv('APP_URL') . '/leaderboardinfo.php?i=' . $leaderboardId;
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     header('Location: ' . $returnUrl . '&success=false');
     exit;
 }

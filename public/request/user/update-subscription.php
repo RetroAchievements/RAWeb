@@ -21,7 +21,7 @@ $requiredPermissions = match ($subjectType) {
     default => Permissions::Registered,
 };
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, $requiredPermissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissions)) {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
     exit;
 }

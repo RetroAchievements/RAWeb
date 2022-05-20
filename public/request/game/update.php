@@ -19,7 +19,7 @@ $removeGameAlt = requestInputPost('m');
 
 $newForumTopic = requestInputPost('f', null, 'integer');
 
-if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     // Only allow jr. devs if they are the sole author of the set
     if ($permissions == Permissions::JuniorDeveloper) {
         if (!checkIfSoleDeveloper($user, $gameID)) {

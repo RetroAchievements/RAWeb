@@ -6,7 +6,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 header("Location: " . getenv('APP_URL'));
 exit;
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 50;
 

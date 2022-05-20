@@ -12,7 +12,7 @@ $newsArticleID = requestInputSanitized('n', 0, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;

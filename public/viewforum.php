@@ -5,7 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');

@@ -12,7 +12,7 @@ $global = requestInputSanitized('g', null, 'integer');
 $activityID = requestInputSanitized('a', null, 'integer');
 $individual = requestInputSanitized('i', null, 'integer');
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 // Max: last 50 messages:
 $maxMessages = 50;

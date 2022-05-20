@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }

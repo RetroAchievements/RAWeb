@@ -11,7 +11,7 @@ if (!ValidateGETChars("fa")) {
 $friend = requestInputQuery('f');
 $action = requestInputQuery('a');
 
-if (RA_ValidateCookie($user, $permissions, $userDetail)) {
+if (authenticateFromCookie($user, $permissions, $userDetail)) {
     $returnVal = changeFriendStatus($user, $friend, $action);
     header("Location: " . getenv('APP_URL') . "/user/$friend?e=$returnVal");
 } else {

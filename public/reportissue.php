@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 $cookieRaw = RA_ReadCookie('RA_Cookie');
 
 $achievementID = requestInputSanitized('i', 0, 'integer');

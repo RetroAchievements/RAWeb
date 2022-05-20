@@ -22,7 +22,7 @@ if ($gameID == null || $gameID == 0) {
 }
 
 $friendScores = [];
-if (RA_ValidateCookie($user, $permissions, $userDetails)) {
+if (authenticateFromCookie($user, $permissions, $userDetails)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
 $userID = $userDetails['ID'] ?? 0;

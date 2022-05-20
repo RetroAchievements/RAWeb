@@ -20,7 +20,7 @@ $lbFormat = requestInputPost('f');
 $lbLowerIsBetter = requestInputPost('l');
 $lbDisplayOrder = requestInputPost('o');
 
-if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)
     && $source == $user) {
     $prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
     $prevUpdated = strtotime($prevData["LBUpdated"]);

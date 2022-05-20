@@ -5,7 +5,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\TicketState;
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $dev = requestInputSanitized('u');
 $errorCode = requestInputSanitized('e');

@@ -18,7 +18,7 @@ if (ctype_alnum($userPage) == false) {
     exit;
 }
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 

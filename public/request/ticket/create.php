@@ -36,7 +36,7 @@ if (isset($_POST['note'])) {
     $note = $appendNote;
 }
 
-if (RA_ValidateCookie($user, $permissions, $userDetail)) {
+if (authenticateFromCookie($user, $permissions, $userDetail)) {
     $success = submitNewTickets($user, $achievementID, $problemType, $hardcore, $note, $msgOut);
     if ($msgOut == "FAILED!") {
         header("Location: " . getenv('APP_URL') . "/achievement/$achievementID?e=issue_failed");

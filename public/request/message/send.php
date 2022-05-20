@@ -12,7 +12,7 @@ $recipient = requestInputPost('d');
 $title = requestInputPost('t');
 $payload = requestInputPost('m');
 
-if (RA_ValidateCookie($user, $permissions, $userDetail)) {
+if (authenticateFromCookie($user, $permissions, $userDetail)) {
     if (isUserBlocking($recipient, $user)) {
         // recipient has blocked the user. just pretend the message was sent
         header("Location: " . getenv('APP_URL') . "/inbox.php?e=sentok");

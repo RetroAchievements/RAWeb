@@ -8,7 +8,7 @@ $maxCount = 25;
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount;
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData);
 

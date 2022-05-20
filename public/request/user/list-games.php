@@ -10,7 +10,7 @@ if (!ValidatePOSTChars("u")) {
 
 $userIn = requestInputPost('u');
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails) || $user != $userIn) {
+if (!authenticateFromCookie($user, $permissions, $userDetails) || $user != $userIn) {
     echo "ERROR2";
     exit;
 }

@@ -9,7 +9,7 @@ exit;
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('i', 0, 'integer');
 
-RA_ValidateCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 

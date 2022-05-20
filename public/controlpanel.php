@@ -6,7 +6,7 @@ use RA\UserPref;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;

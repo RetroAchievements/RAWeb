@@ -14,7 +14,7 @@ $newMotto = requestInputPost('m');
 
 sanitize_sql_inputs($user, $cookie, $newMotto);
 
-if (RA_ValidateCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     $query = "
 			UPDATE UserAccounts
 			SET Motto='$newMotto', Updated=NOW()

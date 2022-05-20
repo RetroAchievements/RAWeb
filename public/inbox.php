@@ -13,7 +13,7 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
 
-if (!RA_ValidateCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     // Trying to visit someone's inbox while not being logged in :S
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
