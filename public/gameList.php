@@ -173,6 +173,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
 <?php RenderToolbar($user, $permissions); ?>
 <div id="mainpage">
     <div id="fullcontainer">
+        <?php RenderConsoleMessage((int) $consoleIDInput) ?>
         <div class="largelist">
             <?php
                 if ($dev !== null) {
