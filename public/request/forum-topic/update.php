@@ -5,13 +5,11 @@ use RA\Permissions;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-$user = requestInputPost('u');
-$cookie = requestInputPost('c');
 $topicID = requestInputPost('t');
 $commentPayload = requestInputPost('p');
 $commentID = requestInputPost('i');
 
-if (!ValidatePOSTChars("uctpi")) {
+if (!ValidatePOSTChars("tpi")) {
     header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams");
     exit;
 }
