@@ -19,13 +19,21 @@ class GameHash extends BaseModel
     use HasFactory;
     use Searchable;
     use SoftDeletes;
-    use LogsActivity;
+    // TODO use LogsActivity;
+
+    // TODO rename GameHashLibrary table to game_hashes
+    // TODO rename MD5 column to md5
+    // TODO rename Name column to name
+    // TODO rename Created column to created_at
+    // TODO drop GameID, migrate to game_hash_sets relation
+    // TODO drop game_hashes_md5_unique
+    protected $table = 'GameHashLibrary';
 
     protected $fillable = [
         'hash',
-        'md5',
+        'MD5',
         'system_id',
-        'name',
+        'Name',
         'description',
     ];
 
@@ -54,15 +62,15 @@ class GameHash extends BaseModel
         return $this->only([
             'id',
             'hash',
-            'name',
+            'Name',
             'description',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        // return $this->isPublished();
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == actions
@@ -110,11 +118,17 @@ class GameHash extends BaseModel
 
     // == relations
 
+    /**
+     * @return BelongsTo<System, GameHash>
+     */
     public function system(): BelongsTo
     {
         return $this->belongsTo(System::class);
     }
 
+    /**
+     * @return BelongsToMany<GameHashSet>
+     */
     public function gameHashSets(): BelongsToMany
     {
         return $this->belongsToMany(GameHashSet::class, 'game_hash_set_hashes')

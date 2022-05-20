@@ -1,19 +1,19 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'game' => 'required|integer|exists:GameData,ID',
     'claim_type' => ['required', 'integer', Rule::in(ClaimType::cases())],
     'set_type' => ['required', 'integer', Rule::in(ClaimSetType::cases())],
     'create_topic' => 'sometimes|boolean',

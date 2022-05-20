@@ -11,7 +11,7 @@ use Spatie\Permission\Models\Permission;
 
 class RolesTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (Role::count() > 0) {
             return;

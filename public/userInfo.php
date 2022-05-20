@@ -1,15 +1,15 @@
 <?php
 
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
-use LegacyApp\Community\Enums\ClaimSpecial;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Enums\Rank;
-use LegacyApp\Community\Enums\RankType;
-use LegacyApp\Community\Enums\UserAction;
-use LegacyApp\Community\Enums\UserRelationship;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSorting;
+use App\Community\Enums\ClaimSpecial;
+use App\Community\Enums\ClaimType;
+use App\Community\Enums\Rank;
+use App\Community\Enums\RankType;
+use App\Community\Enums\UserAction;
+use App\Community\Enums\UserRelationship;
+use App\Site\Enums\Permissions;
 
 $userPage = request('user');
 if (empty($userPage) || !isValidUsername($userPage)) {

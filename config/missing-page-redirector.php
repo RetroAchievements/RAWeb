@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Support\Redirector\LegacyRedirector;
+use App\Support\Redirector\LegacyRedirector;
 use Symfony\Component\HttpFoundation\Response;
 
 return [

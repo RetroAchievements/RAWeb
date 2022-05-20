@@ -1,8 +1,8 @@
 <?php
 
-use LegacyApp\Community\Models\News;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
+use App\Community\Models\News;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);

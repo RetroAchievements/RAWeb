@@ -49,7 +49,6 @@ $project_path = getcwd();
 $finder = Finder::create()
     ->in([
         $project_path . '/app',
-        $project_path . '/app_legacy',
         $project_path . '/config',
         $project_path . '/database',
         $project_path . '/lang',
@@ -58,7 +57,7 @@ $finder = Finder::create()
         $project_path . '/tests',
     ])
     // ->filter(fn (SplFileInfo $filename) => !in_array($filename->getRealPath(), [
-    //     $project_path . '/app_legacy/Helpers/util/recaptcha.php',
+    //     $project_path . '/app/Helpers/util/recaptcha.php',
     // ]))
         ->name('*.php');
 

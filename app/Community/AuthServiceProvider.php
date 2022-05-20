@@ -16,6 +16,7 @@ use App\Community\Models\News;
 use App\Community\Models\NewsComment;
 use App\Community\Models\TriggerTicket;
 use App\Community\Models\UserActivity;
+use App\Community\Models\UserActivityLegacy;
 use App\Community\Models\UserComment;
 use App\Community\Policies\AchievementCommentPolicy;
 use App\Community\Policies\CommentPolicy;
@@ -28,7 +29,8 @@ use App\Community\Policies\MessagePolicy;
 use App\Community\Policies\NewsCommentPolicy;
 use App\Community\Policies\NewsPolicy;
 use App\Community\Policies\TriggerTicketPolicy;
-use App\Community\Policies\UserActitvityPolicy;
+use App\Community\Policies\UserActivityLegacyPolicy;
+use App\Community\Policies\UserActivityPolicy;
 use App\Community\Policies\UserCommentPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -46,7 +48,8 @@ class AuthServiceProvider extends ServiceProvider
         News::class => NewsPolicy::class,
         NewsComment::class => NewsCommentPolicy::class,
         TriggerTicket::class => TriggerTicketPolicy::class,
-        UserActivity::class => UserActitvityPolicy::class,
+        UserActivity::class => UserActivityPolicy::class,
+        UserActivityLegacy::class => UserActivityLegacyPolicy::class,
         UserComment::class => UserCommentPolicy::class,
     ];
 

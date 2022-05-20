@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimFilters;
 
 /*
  *  API_GetActiveClaims - returns information about all (1000 max) active set claims.

@@ -7,26 +7,31 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('comments', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('origin_id')->nullable();
-            $table->nullableMorphs('commentable');
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->text('body')->nullable();
-            $table->timestampTz('created_at')->nullable();
-            $table->timestampTz('updated_at')->nullable();
+        Schema::table('Comment', function (Blueprint $table) {
+            $table->bigIncrements('ID')->change();
+
+            $table->unsignedBigInteger('UserID')->nullable()->change();
+
+            // nullable morphs
+            $table->string('commentable_type')->nullable()->after('UserID');
+            $table->unsignedBigInteger('commentable_id')->nullable()->after('commentable_type');
+
             $table->softDeletesTz();
 
-            $table->unique('origin_id');
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            // nullable morphs
+            $table->index(['commentable_type', 'commentable_id'], 'comments_commentable_index');
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::table('Comment', function (Blueprint $table) {
+            $table->dropIndex('comments_commentable_index');
+            $table->dropColumn('commentable_type');
+            $table->dropColumn('commentable_id');
+            $table->dropSoftDeletesTz();
+        });
     }
 };

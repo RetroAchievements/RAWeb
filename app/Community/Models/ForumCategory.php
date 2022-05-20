@@ -15,9 +15,18 @@ class ForumCategory extends BaseModel
     use Searchable;
     use SoftDeletes;
 
+    // TODO rename ForumCategory table to forum_categories
+    // TODO rename ID column to id
+    // TODO rename Name column to title
+    // TODO rename Description column to description
+    // TODO rename DisplayOrder column to order_column
+    // TODO rename Created column to created_at
+    // TODO rename Updated column to updated_at
+    protected $table = 'ForumCategory';
+
     protected $fillable = [
-        'title',
-        'description',
+        'Name',
+        'Description',
     ];
 
     // == search
@@ -25,16 +34,16 @@ class ForumCategory extends BaseModel
     public function toSearchableArray(): array
     {
         return $this->only([
-            'id',
-            'title',
-            'description',
+            'ID',
+            'Name',
+            'Description',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        // TODO: return $this->isPublished();
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == accessors
@@ -54,10 +63,18 @@ class ForumCategory extends BaseModel
         return $this->title ? '-' . Str::slug($this->title) : '';
     }
 
+    public function getTitleAttribute(): string
+    {
+        return $this->Name;
+    }
+
     // == mutators
 
     // == relations
 
+    /**
+     * @return HasMany<Forum>
+     */
     public function forums(): HasMany
     {
         return $this->hasMany(Forum::class);

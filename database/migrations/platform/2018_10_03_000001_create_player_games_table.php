@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
         /*
          * the relation that makes up the active library of a user
@@ -18,26 +18,33 @@ return new class() extends Migration {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('game_id');
 
-            /*
-             * anything achievement unlock related is stored on the opt-in sets
-             */
-            // $table->unsignedInteger('achievements_version')->nullable();
-            // $table->string('achievements_version_hash')->nullable();
-            // $table->unsignedInteger('achievements_total')->nullable();
-            // $table->unsignedInteger('achievements_unlocked')->nullable();
-            // $table->unsignedInteger('achievements_unlocked_hardcore')->nullable();
-            // $table->unsignedDecimal('completion', 10, 9)->nullable();
-            // $table->unsignedDecimal('completion_hardcore', 10, 9)->nullable();
-            // $table->timestampTz('last_unlock_at')->nullable();
-            // $table->timestampTz('last_unlock_hardcore_at')->nullable();
+            $table->string('achievements_version_hash')->nullable();
 
-            /*
-             * those are stored in player_sessions which is handy as it will serve as another update indicator
-             * on game sessions
-             */
-            // $table->string('rich_presence')->nullable();
-            // $table->timestampTz('rich_presence_updated_at')->nullable();
-            // $table->index('rich_presence_updated_at');
+            $table->unsignedInteger('achievements_total')->nullable();
+            $table->unsignedInteger('achievements_unlocked')->nullable();
+            $table->unsignedInteger('achievements_unlocked_hardcore')->nullable();
+            $table->unsignedDecimal('completion_percentage', 20, 16)->nullable(); // calculated completion (unlocked_hardcore * 2 + unlocked_casual-unlocked_hardcore) / achievements_total * 2
+            $table->unsignedDecimal('completion_percentage_hardcore', 10, 9)->nullable();
+            $table->boolean('missing_timestamps')->default(false);
+            $table->timestampTz('last_played_at')->nullable();
+            $table->unsignedInteger('time_taken')->nullable(); // first_lock until last_unlock
+            $table->timestampTz('time_taken_hardcore')->nullable(); // first_unlock_hardcore until last_unlock_hardcore
+            $table->jsonb('completion_dates')->nullable();
+            $table->jsonb('completion_dates_hardcore')->nullable();
+            $table->timestampTz('completed_at')->nullable();
+            $table->timestampTz('completed_hardcore_at')->nullable();
+            $table->timestampTz('last_unlock_at')->nullable(); // any, hardcore or casual
+            $table->timestampTz('last_unlock_hardcore_at')->nullable();
+            $table->timestampTz('first_unlock_at')->nullable(); // any, hardcore or casual
+            $table->timestampTz('first_unlock_hardcore_at')->nullable();
+            $table->timestampTz('started_at')->nullable(); // any, hardcore or casual
+            $table->timestampTz('started_hardcore_at')->nullable(); // hardcore only - also determines if it's a hardcore activated game
+            $table->timestampTz('metrics_updated_at')->nullable();
+
+            $table->unsignedInteger('points_total')->nullable();
+            $table->unsignedInteger('points')->nullable();
+            $table->unsignedInteger('points_weighted_total')->nullable();
+            $table->unsignedInteger('points_weighted')->nullable();
 
             $table->timestampsTz();
             $table->softDeletesTz();
@@ -46,10 +53,9 @@ return new class() extends Migration {
              * a game can only be once in a user's library
              */
             $table->unique(['user_id', 'game_id']);
-            // $table->index(['game_id', 'achievements_version']);
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
+            $table->foreign('game_id')->references('ID')->on('GameData')->onDelete('cascade');
         });
 
         Schema::create('player_sessions', function (Blueprint $table) {
@@ -69,17 +75,10 @@ return new class() extends Migration {
              */
             $table->unsignedBigInteger('game_id');
 
-            /*
-             * add some fancy rich presence
-             * remember the time when it was last updated
-             * if it went stale in the meantime we would not want to display it, that'd be just odd
-             */
+            $table->boolean('hardcore')->nullable();
+
             $table->text('rich_presence')->nullable();
             $table->timestampTz('rich_presence_updated_at')->nullable();
-
-            /*
-             * TODO: anything that is useful for in-depth cheat detection should go here
-             */
 
             /*
              * derived from start & end date
@@ -95,13 +94,13 @@ return new class() extends Migration {
             /*
              * do not remove when a player is deleted -> historic game session info might still be relevant for tickets
              */
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
-            $table->foreign('game_hash_id')->references('id')->on('game_hashes')->onDelete('cascade');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
+            $table->foreign('game_id')->references('ID')->on('GameData')->onDelete('cascade');
+            $table->foreign('game_hash_id')->references('ID')->on('GameHashLibrary')->onDelete('cascade');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('player_sessions');
         Schema::dropIfExists('player_games');

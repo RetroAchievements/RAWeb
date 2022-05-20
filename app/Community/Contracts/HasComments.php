@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 interface HasComments
 {
+    // @phpstan-ignore-next-line
     public function comments(): MorphMany;
 }

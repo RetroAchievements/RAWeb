@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Legacy;
 
+use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class DatabaseTest extends TestCase

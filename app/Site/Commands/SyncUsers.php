@@ -42,8 +42,7 @@ class SyncUsers extends Command
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('UserAccounts');
+        return DB::table('UserAccounts');
     }
 
     protected function preProcessEntity(object $origin, array $transformed): array

@@ -8,22 +8,23 @@ use App\Community\Models\Forum;
 use App\Community\Models\ForumCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 class ForumTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (Forum::count() > 0) {
             return;
         }
 
-        $forumData = collect([
+        $forumData = new Collection([
             [
                 'id' => 1,
                 'title' => 'Community',
                 'description' => 'Anything goes in here! How are you today?',
                 'order_column' => 1,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 24,
                         'title' => 'Chat',
@@ -72,7 +73,7 @@ class ForumTableSeeder extends Seeder
                 'title' => 'Mega Drive / Genesis (RAGens)',
                 'description' => 'Discussion about Mega Drive/Genesis games and the RAGens app itself.',
                 'order_column' => 2,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 10,
                         'title' => 'Requests/Ideas',
@@ -90,7 +91,7 @@ class ForumTableSeeder extends Seeder
                 'title' => 'SNES (RASnes9x)',
                 'description' => 'What was your favourite SNES game? Post here about SNES games and about the RASnes9x app.',
                 'order_column' => 3,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 13,
                         'title' => 'Requests/Ideas',
@@ -108,7 +109,7 @@ class ForumTableSeeder extends Seeder
                 'title' => 'NES',
                 'description' => 'For the hardest challenges, and the best victories. This is where it all began',
                 'order_column' => 4,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 19,
                         'title' => 'Bug Reports',
@@ -126,7 +127,7 @@ class ForumTableSeeder extends Seeder
                 'title' => 'GB/GBA (RAVBA)',
                 'description' => 'The Golden Era of Handheld Gaming - whether it\'s Tetris, Mario or Pokemon, discuss your favourite GB/GBA titles here!',
                 'order_column' => 5,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 17,
                         'title' => 'Bug Reports',
@@ -144,7 +145,7 @@ class ForumTableSeeder extends Seeder
                 'title' => 'PC Engine',
                 'description' => 'A niche gem of a console, missed by most. The TurboGrafx16/PC Engine brought some unique arcade titles to the home.',
                 'order_column' => 6,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 22,
                         'title' => 'Requests/Ideas',
@@ -163,7 +164,7 @@ class ForumTableSeeder extends Seeder
                 'title' => 'Developers',
                 'description' => 'For general discussion about developing achievements.',
                 'order_column' => 7,
-                'forums' => collect([
+                'forums' => new Collection([
                     [
                         'id' => 15,
                         'title' => 'Development Help',

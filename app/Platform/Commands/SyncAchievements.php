@@ -35,8 +35,7 @@ class SyncAchievements extends Command
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('Achievements')
+        return DB::table('Achievements')
             ->select('Achievements.*', 'UserAccounts.ID as AuthorID')
             /*
              * by inner joining games we can make sure only achievements with a valid game attached are imported

@@ -83,7 +83,7 @@ class RouteServiceProvider extends ServiceProvider
                 //     Route::group(['prefix' => 'topics'], function () {
                 //         Route::resource('comment', ForumTopicCommentController::class)
                 //             ->only('show')
-                //             ->names(['show' => 'forum-topic.comment.show'])
+                //             ->names(['show' => 'forum-topic-comment.show'])
                 //             ->shallow();
                 //     });
 
@@ -92,7 +92,7 @@ class RouteServiceProvider extends ServiceProvider
                 //     ], function () {
                 //         // keep topic comment store nested -> has to be child of a topic
                 //         Route::resource('topic.comment', ForumTopicCommentController::class)
-                //             ->only('store')->names(['store' => 'forum-topic.comment.store']);
+                //             ->only('store')->names(['store' => 'forum-topic-comment.store']);
 
                 //         Route::group([
                 //             'prefix' => 'topics',
@@ -105,9 +105,9 @@ class RouteServiceProvider extends ServiceProvider
                 //                     'destroy'
                 //                 )
                 //                 ->names([
-                //                     'edit' => 'forum-topic.comment.edit',
-                //                     'update' => 'forum-topic.comment.update',
-                //                     'destroy' => 'forum-topic.comment.destroy',
+                //                     'edit' => 'forum-topic-comment.edit',
+                //                     'update' => 'forum-topic-comment.update',
+                //                     'destroy' => 'forum-topic-comment.destroy',
                 //                 ])
                 //                 ->shallow();
                 //         });
@@ -128,7 +128,7 @@ class RouteServiceProvider extends ServiceProvider
 
                 //     Route::resource('forum', ForumController::class)->only('create', 'store', 'edit', 'update');
 
-                //     // Route::get('posts/clearing', [ForumCommentController::class, 'clearing'])->name('forum-topic.comments.clearing');
+                //     // Route::get('posts/clearing', [ForumCommentController::class, 'clearing'])->name('forum-topic-comments.clearing');
                 // });
 
                 /*

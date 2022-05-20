@@ -37,7 +37,7 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
         $username = \mb_strlen($username) < 2 ? '???' : $username;
         $username = \mb_strlen($username) > 32 ? \mb_substr($username, 0, 29) . '..' : $username;
 
-        $avatar = $user->avatar_url;
+        $avatar = asset($user->avatar_url);
 
         // $username = $this->incident->subject->username;
         // $username = \mb_strlen($username) < 2 ? '???' : $username;
@@ -46,7 +46,6 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
 
         $embeds = [];
         $messageElements = [];
-        $changeElements = [];
         $footerElements = [];
         $fields = [];
         $descriptionElements = [];

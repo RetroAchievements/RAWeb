@@ -9,7 +9,7 @@ use App\Platform\Models\System;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
-use stdClass;
+use Illuminate\Support\Collection;
 
 class NoIntroImport extends Command
 {
@@ -70,8 +70,7 @@ class NoIntroImport extends Command
             throw new Exception('Aborting. No system ID given nor was a system detected successfully by name.');
         }
 
-        /** @var System $system */
-        $noIntroHashes = collect($jsonDat->datafile->game)->filter(fn ($hash) => !empty($hash->rom));
+        $noIntroHashes = (new Collection($jsonDat->datafile->game))->filter(fn ($hash) => !empty($hash->rom));
 
         // dd($newRoms->filter(function ($hash) {
         //     return $hash->name !== $hash->description;
@@ -113,7 +112,6 @@ class NoIntroImport extends Command
         $bar = $this->output->createProgressBar($noIntroHashes->count());
         $bar->setRedrawFrequency(10);
         foreach ($noIntroHashes as $noIntroHash) {
-            /** @var stdClass $noIntroHash */
             $parentId = null;
             if ($noIntroHash->cloneof ?? null) {
                 $parent = GameHash::where('name', $noIntroHash->cloneof)->first();

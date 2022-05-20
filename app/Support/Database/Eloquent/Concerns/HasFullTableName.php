@@ -10,6 +10,6 @@ trait HasFullTableName
     {
         $model = new static();
 
-        return with($model)->getConnection()->getTablePrefix() . with($model)->getTable();
+        return $model->getConnection()->getTablePrefix() . $model->getTable();
     }
 }

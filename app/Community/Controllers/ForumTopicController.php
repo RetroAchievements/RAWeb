@@ -7,10 +7,10 @@ namespace App\Community\Controllers;
 use App\Community\Models\Forum;
 use App\Community\Models\ForumTopic;
 use App\Community\Requests\ForumTopicRequest;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class ForumTopicController extends \App\Http\Controller
 {
@@ -31,9 +31,8 @@ class ForumTopicController extends \App\Http\Controller
     {
         $this->authorize('create', [ForumTopic::class, $forum]);
 
-        $input = collect($request->validated());
+        $input = (new Collection($request->validated()));
 
-        /** @var ForumTopic $forumTopic */
         $forumTopic = new ForumTopic($input->toArray());
         $forumTopic->user_id = $request->user()->id;
         $forumTopic = $forum->topics()->save($forumTopic);
@@ -49,11 +48,6 @@ class ForumTopicController extends \App\Http\Controller
         if (!$this->resolvesToSlug($topic->slug, $slug)) {
             return redirect($topic->canonicalUrl);
         }
-
-        /*
-         * eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect($topic->body);
 
         $topic->load([
             'forum',

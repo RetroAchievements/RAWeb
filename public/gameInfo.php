@@ -1,19 +1,19 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimType;
+use App\Community\Enums\RatingType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Enums\TicketFilters;
+use App\Community\Enums\TicketState;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\ImageType;
+use App\Platform\Enums\UnlockMode;
+use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 use Carbon\Carbon;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Enums\RatingType;
-use LegacyApp\Community\Enums\SubscriptionSubjectType;
-use LegacyApp\Community\Enums\TicketFilters;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\ImageType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Enums\UserPreference;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {

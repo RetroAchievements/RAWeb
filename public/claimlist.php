@@ -1,13 +1,13 @@
 <?php
 
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimSorting;
+use App\Community\Enums\ClaimSpecial;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Str;
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimSorting;
-use LegacyApp\Community\Enums\ClaimSpecial;
-use LegacyApp\Community\Enums\ClaimStatus;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

@@ -1,10 +1,10 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementPoints;
+use App\Platform\Enums\AchievementType;
+use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Platform\Enums\AchievementPoints;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

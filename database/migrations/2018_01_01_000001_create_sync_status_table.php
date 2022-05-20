@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
         if (Schema::hasTable('sync_status')) {
             return;
@@ -21,8 +21,8 @@ return new class() extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        // nope
+        Schema::dropIfExists('sync_status');
     }
 };

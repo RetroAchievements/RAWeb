@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
+use App\Platform\Models\GameHash;
 use App\Site\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\AllowedSort;
@@ -52,6 +53,9 @@ class GameHashGrid extends Grid
         ];
     }
 
+    /**
+     * @return Builder<GameHash>
+     */
     protected function query(): Builder
     {
         $query = parent::query();

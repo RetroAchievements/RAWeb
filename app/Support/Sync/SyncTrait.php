@@ -103,7 +103,7 @@ trait SyncTrait
         $this->info($message);
     }
 
-    protected function incrementalSync($syncTime): void
+    protected function incrementalSync(Carbon $syncTime): void
     {
         $start = microtime(true);
 
@@ -316,6 +316,8 @@ trait SyncTrait
     }
 
     /**
+     * @param Collection<int, object> $entities
+     * @return Collection<int, SyncEntity>
      * @throws Exception
      */
     protected function transform(Collection $entities): Collection
@@ -330,7 +332,7 @@ trait SyncTrait
     protected function transformEntity(object $entity): SyncEntity
     {
         $referenceValue = $entity->{$this->referenceKey};
-        $entity = collect($entity)
+        $entity = (new Collection($entity))
             ->filter(function ($value, $key) {
                 if (empty($this->keyMap[$key])) {
                     $this->unhandledKeys[$key] = true;
@@ -412,10 +414,12 @@ trait SyncTrait
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table($this->referenceTable);
+        return DB::table($this->referenceTable);
     }
 
+    /**
+     * @param Collection<int, SyncEntity> $entities
+     */
     protected function store(Collection $entities): void
     {
         $this->line('Storing chunk of ' . $entities->count() . ' items');

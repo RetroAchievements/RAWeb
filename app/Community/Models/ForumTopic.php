@@ -4,25 +4,37 @@ declare(strict_types=1);
 
 namespace App\Community\Models;
 
-use App\Community\Contracts\HasComments;
-use App\Community\Events\ForumTopicCreated;
+use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Shortcode\HasShortcodeFields;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 
-class ForumTopic extends BaseModel implements HasComments
+class ForumTopic extends BaseModel
 {
-    use HasShortcodeFields;
+    use Searchable;
     use SoftDeletes;
 
+    // TODO rename ForumTopic table to forum_topics
+    // TODO rename ID column to id
+    // TODO rename ForumID to forum_id
+    // TODO rename Title to title
+    // TODO rename AuthorID to author_id
+    // TODO rename DateCreated to created_at
+    // TODO rename Updated to updated_at
+    // TODO refactor RequiredPermissions to use RBAC
+    // TODO add body from first comment as that's the topic itself
+    // TODO drop Author -> derived
+    protected $table = 'ForumTopic';
+
+    public const CREATED_AT = 'DateCreated';
+
     protected $fillable = [
-        'title',
-        'body',
+        'Title',
     ];
 
     protected $with = [
@@ -36,28 +48,20 @@ class ForumTopic extends BaseModel implements HasComments
 
     protected $observables = [];
 
-    /**
-     * @see HasShortcodeFields
-     */
-    protected array $shortcodeFields = [
-        'body',
-    ];
-
     // == search
 
     public function toSearchableArray(): array
     {
         return $this->only([
             'id',
-            'title',
-            'body',
+            'Title',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        // return $this->isPublished();
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == accessors
@@ -88,21 +92,33 @@ class ForumTopic extends BaseModel implements HasComments
 
     // == relations
 
+    /**
+     * @return BelongsTo<User, ForumTopic>
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Site\Models\User::class);
+        return $this->belongsTo(User::class, 'AuthorID');
     }
 
+    /**
+     * @return BelongsTo<Forum, ForumTopic>
+     */
     public function forum(): BelongsTo
     {
-        return $this->belongsTo(Forum::class);
+        return $this->belongsTo(Forum::class, 'ForumID');
     }
 
-    public function comments(): MorphMany
+    /**
+     * @return HasMany<ForumTopicComment>
+     */
+    public function comments(): HasMany
     {
-        return $this->morphMany(ForumTopicComment::class, 'commentable')->with('user');
+        return $this->hasMany(ForumTopicComment::class, 'ForumTopicID')->with('user');
     }
 
+    /**
+     * @return MorphOne<Comment>
+     */
     public function latestComment(): MorphOne
     {
         return $this->morphOne(Comment::class, 'commentable')->latestOfMany();
@@ -112,6 +128,8 @@ class ForumTopic extends BaseModel implements HasComments
 
     /**
      * Order by latest comment dynamic relationship
+     *
+     * @param Builder<ForumTopic> $query
      */
     public function scopeOrderByLatestActivity(Builder $query, string $direction = 'asc'): void
     {

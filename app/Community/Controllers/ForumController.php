@@ -7,7 +7,6 @@ namespace App\Community\Controllers;
 use App\Community\Models\Forum;
 use App\Community\Models\ForumCategory;
 use App\Community\Requests\ForumRequest;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,11 +43,6 @@ class ForumController extends \App\Http\Controller
             ->with('latestComment')
             ->orderbyLatestActivity('desc')
             ->paginate();
-
-        /*
-         * eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect($topics->pluck('body'));
 
         return view('forum.show')
             ->with('category', $forum->category)

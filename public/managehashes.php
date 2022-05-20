@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\ArticleType;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);

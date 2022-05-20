@@ -38,8 +38,7 @@ class SyncNews extends Command
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('News')
+        return DB::table('News')
             ->select('News.*', 'UserAccounts.ID as AuthorID')
             ->join('UserAccounts', 'UserAccounts.User', '=', 'News.Author');
     }

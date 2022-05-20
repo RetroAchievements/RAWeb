@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
+use App\Platform\Models\System;
 use App\Site\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -63,9 +64,12 @@ class SystemGrid extends Grid
         ];
     }
 
+    /**
+     * @return Builder<System>
+     */
     protected function query(): Builder
     {
-        $query = $this->resourceQuery();
+        $query = parent::query();
 
         $query->withCount(['games', 'achievements', 'emulators']);
 

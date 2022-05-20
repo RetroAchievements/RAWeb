@@ -11,8 +11,8 @@
  *    int        [value]   number of players who have earned that many achievements
  */
 
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\UnlockMode;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\UnlockMode;
 
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);

@@ -33,8 +33,7 @@ class SyncForumTopics extends Command
             $this->incremental = false;
         }
 
-        $query = DB::connection('mysql_legacy')
-            ->table(function ($query) {
+        $query = DB::table(function ($query) {
                 $query->from('ForumTopic')
                     ->select('ForumTopic.*', 'UserAccounts.ID as ExistingAuthorID')
                     ->addSelect([
@@ -118,8 +117,7 @@ class SyncForumTopics extends Command
          */
         $commentableType = resource_type(ForumTopic::class);
 
-        $comments = DB::connection('mysql_legacy')
-            ->table('ForumTopicComment')
+        $comments = DB::table('ForumTopicComment')
             ->select('ForumTopicComment.*', 'UserAccounts.ID as ExistingAuthorID')
             ->where('ForumTopicID', $transformed->id)
             ->orderBy('DateCreated')

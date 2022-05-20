@@ -234,23 +234,12 @@ return [
         App\Api\RouteServiceProvider::class,
 
         /*
-         * Legacy Api & Connect Providers
-         */
-        LegacyApp\Connect\RouteServiceProvider::class,
-        LegacyApp\Api\RouteServiceProvider::class,
-
-        /*
          * Platform Service Providers
          */
         App\Platform\AppServiceProvider::class,
         App\Platform\AuthServiceProvider::class,
         App\Platform\EventServiceProvider::class,
         App\Platform\RouteServiceProvider::class,
-
-        /*
-         * Legacy Platform Service Providers
-         */
-        LegacyApp\Platform\AppServiceProvider::class,
 
         /*
          * Community Service Providers
@@ -261,17 +250,11 @@ return [
         App\Community\RouteServiceProvider::class,
 
         /*
-         * Legacy Community Service Providers
-         */
-        LegacyApp\Community\AppServiceProvider::class,
-
-        /*
          * Support Service Providers
          */
         App\Support\Filesystem\FilesystemServiceProvider::class,
         App\Support\HashId\HashIdServiceProvider::class,
         App\Support\Settings\SettingsServiceProvider::class,
-        App\Support\Sync\SyncServiceProvider::class,
 
         /*
          * Site Providers
@@ -283,14 +266,6 @@ return [
         // App\Site\FortifyServiceProvider::class,
         // App\Site\HorizonServiceProvider::class,
         App\Site\RouteServiceProvider::class,
-
-        /*
-         * Legacy Site Providers
-         */
-        LegacyApp\Site\AppServiceProvider::class,
-        LegacyApp\Site\AuthServiceProvider::class,
-        // LegacyApp\Site\EventServiceProvider::class,
-        LegacyApp\Site\RouteServiceProvider::class,
     ],
 
     /*

@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Platform\Models\System;
+use App\Platform\Models\System;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

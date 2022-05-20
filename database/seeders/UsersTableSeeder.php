@@ -13,7 +13,7 @@ class UsersTableSeeder extends Seeder
 {
     use SeedsUsers;
 
-    public function run()
+    public function run(): void
     {
         if (User::find(1_000_001)) {
             return;

@@ -1,8 +1,8 @@
 <?php
 
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\ClaimSetType;
+use App\Platform\Enums\AchievementType;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);

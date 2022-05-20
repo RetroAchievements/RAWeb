@@ -17,9 +17,20 @@ class Forum extends BaseModel
     use Searchable;
     use SoftDeletes;
 
+    // TODO rename Forum table to forums
+    // TODO rename ID column to id
+    // TODO rename CategoryID to forum_category_id
+    // TODO rename Title to title
+    // TODO rename Description to description
+    // TODO rename DisplayOrder to order_column
+    // TODO rename Created to created_at
+    // TODO rename Updated to updated_at
+    // TODO drop LatestCommentID -> derived
+    protected $table = 'Forum';
+
     protected $fillable = [
-        'title',
-        'description',
+        'Title',
+        'Description',
     ];
 
     protected $with = [
@@ -31,16 +42,16 @@ class Forum extends BaseModel
     public function toSearchableArray(): array
     {
         return $this->only([
-            'id',
-            'title',
-            'description',
+            'ID',
+            'Title',
+            'Description',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        // return $this->isPublished();
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == accessors
@@ -65,19 +76,27 @@ class Forum extends BaseModel
 
     // == relations
 
+    /**
+     * @return BelongsTo<ForumCategory, Forum>
+     */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ForumCategory::class, 'forum_category_id');
+        return $this->belongsTo(ForumCategory::class, 'CategoryID');
     }
 
+    /**
+     * @return HasMany<ForumTopic>
+     */
     public function topics(): HasMany
     {
         return $this->hasMany(ForumTopic::class);
     }
 
+    /**
+     * @return HasManyThrough<ForumTopicComment>
+     */
     public function comments(): HasManyThrough
     {
-        return $this->hasManyThrough(ForumTopicComment::class, ForumTopic::class, 'forum_id', 'commentable_id')
-            ->where('commentable_type', resource_type(static::class));
+        return $this->hasManyThrough(ForumTopicComment::class, ForumTopic::class, 'ForumID', 'ForumTopicID');
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Site\Models\User;
+use App\Community\Enums\TicketState;
+use App\Site\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

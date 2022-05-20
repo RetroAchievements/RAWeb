@@ -41,6 +41,8 @@ class DeleteUsers extends Command
 
     /**
      * treat as deleted
+     *
+     * @return Collection<int, array{id: int, name: string}>
      */
     private function testAccounts(): Collection
     {

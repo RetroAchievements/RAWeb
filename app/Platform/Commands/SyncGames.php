@@ -40,8 +40,7 @@ class SyncGames extends Command
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('GameData')
+        return DB::table('GameData')
             ->select('GameData.*')
             /*
              * by inner joining systems we can make sure only games with a valid system attached are imported

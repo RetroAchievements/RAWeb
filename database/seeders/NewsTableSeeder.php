@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 
 class NewsTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (News::count() > 0) {
             return;

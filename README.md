@@ -36,6 +36,10 @@ extension=sockets
 
 A [local valet driver](LocalValetDriver.php) is provided.
 
+## Upgrade
+
+Refer to the [upgrade guides](docs/upgrade) to upgrade your existing installation.
+
 ## Installation
 
 ```shell

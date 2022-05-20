@@ -114,8 +114,8 @@ class SyncPlayerAchievements extends Command
                     'duration' => 0,
                 ]);
                 // have to set these outside of the constructor or it gets overwritten
-                $lastPlayerSession->created_at = $unlockDate;
-                $lastPlayerSession->updated_at = $unlockDate;
+                $lastPlayerSession->setAttribute('created_at', $unlockDate);
+                $lastPlayerSession->setAttribute('updated_at', $unlockDate);
 
                 // use "timestamps=false" to prevent created_at/updated_at from being set to now()
                 $lastPlayerSession->save(['timestamps' => false]);

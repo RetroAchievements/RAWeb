@@ -1,9 +1,9 @@
 <?php
 
+use App\Community\Enums\ClaimSetType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);

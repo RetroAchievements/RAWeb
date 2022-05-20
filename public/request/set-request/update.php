@@ -1,20 +1,20 @@
 <?php
 
+use App\Community\Actions\AddGameToListAction;
+use App\Community\Actions\RemoveGameFromListAction;
+use App\Community\Enums\UserGameListType;
+use App\Platform\Models\Game;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Actions\AddGameToListAction;
-use LegacyApp\Community\Actions\RemoveGameFromListAction;
-use LegacyApp\Community\Enums\UserGameListType;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'game' => 'required|integer|exists:GameData,ID',
 ]);
 
 $gameID = (int) $input['game'];

@@ -7,31 +7,43 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('recipient_id')->nullable();
-            $table->unsignedBigInteger('sender_id')->nullable();
-            $table->text('title')->nullable();
-            $table->text('body')->nullable();
-            $table->timestampTz('sent_at')->nullable();
-            $table->timestampTz('read_at')->nullable();
+        Schema::table('Messages', function (Blueprint $table) {
+            $table->bigIncrements('ID')->change();
 
-            $table->timestamp('recipient_deleted_at', 0)->nullable();
-            $table->timestamp('sender_deleted_at', 0)->nullable();
+            $table->unsignedBigInteger('recipient_id')->nullable()->after('ID');
+            $table->unsignedBigInteger('sender_id')->nullable()->after('recipient_id');
+
+            $table->timestampTz('read_at')->nullable()->after('TimeSent');
+
+            // should be dropped
+            $table->boolean('Unread')->default(1)->change();
+            $table->unsignedInteger('Type')->nullable()->change();
+
+            $table->timestamp('recipient_deleted_at')->nullable();
+            $table->timestamp('sender_deleted_at')->nullable();
 
             $table->softDeletesTz();
 
             $table->index('read_at');
 
-            $table->foreign('recipient_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('sender_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('recipient_id', 'messages_recipient_id_foreign')->references('ID')->on('UserAccounts')->onDelete('set null');
+            $table->foreign('sender_id', 'messages_sender_id_foreign')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::table('Messages', function (Blueprint $table) {
+            $table->dropForeign('messages_recipient_id_foreign');
+            $table->dropForeign('messages_sender_id_foreign');
+            $table->dropColumn('recipient_id');
+            $table->dropColumn('sender_id');
+            $table->dropColumn('read_at');
+            $table->dropColumn('recipient_deleted_at');
+            $table->dropColumn('sender_deleted_at');
+            $table->dropSoftDeletesTz();
+        });
     }
 };

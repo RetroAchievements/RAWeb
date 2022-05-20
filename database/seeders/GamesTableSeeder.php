@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class GamesTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (Game::count() > 0) {
             return;

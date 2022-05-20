@@ -7,6 +7,7 @@ namespace Database\Seeders\Concerns;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 
 trait SeedsUsers
@@ -16,7 +17,7 @@ trait SeedsUsers
         $safeUsername = '__' . $username;
 
         // see if username matches a role
-        $role = collect(config('roles'))->firstWhere('name', $username);
+        $role = (new Collection(config('roles')))->firstWhere('name', $username);
         if ($role) {
             $safeRoleName = str_replace('-', '', $role['name']);
         }

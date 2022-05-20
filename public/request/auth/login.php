@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Community\Enums\ActivityType;
+use App\Community\Enums\ActivityType;
 
 $user = request()->post('u') ?? '';
 $pass = request()->post('p') ?? '';

@@ -46,6 +46,7 @@ class LinkLatestIntegrationReleaseAction
             );
         }
 
+        /** @var Media|null $build */
         $build = $latestStableMinimumRelease->getMedia('build_x64')->last();
         if ($build && realpath($build->getPath()) !== false) {
             $this->filesystem->link(

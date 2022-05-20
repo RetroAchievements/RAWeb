@@ -1,18 +1,18 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\UserAction;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\UserAction;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'target' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'target' => 'required|string|exists:UserAccounts,User',
     'property' => ['required', 'integer', Rule::in(UserAction::cases())],
     'value' => 'required|integer',
 ]);

@@ -35,8 +35,7 @@ class SyncPlayerRichPresence extends Command
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('UserAccounts')
+        return DB::table('UserAccounts')
             ->where('LastGameId', '>', 0)
             ->whereNotNull('RichPresenceMsgDate')
             ->select('User', 'LastGameID', 'RichPresenceMsg', 'RichPresenceMsgDate');

@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\AwardType;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\AwardType;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);

@@ -20,7 +20,8 @@ fi
 modifiedJsFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.js')"
 if [ ${#modifiedJsFiles} -gt 0 ]; then
     printf "\n⏳ npm run lint:eslint\n"
-    npx eslint --quiet ${modifiedJsFiles}
+#    npx eslint --quiet ${modifiedJsFiles}
+    npx eslint --quiet
 fi
 
 #modifiedCssFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.css')"

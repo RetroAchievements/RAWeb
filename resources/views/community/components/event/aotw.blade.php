@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Site\Models\StaticData;
+use App\Site\Models\StaticData;
 
 $staticData = StaticData::first();
 

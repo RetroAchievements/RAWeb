@@ -38,19 +38,21 @@ class Kernel extends HttpKernel
             \App\Site\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Site\Middleware\UserPreferences::class,
-            // TODO find out why throttling hits after first request on production
-            // 'throttle:web',
+            // TODO Web Interceptor middleware
+            // TODO 'throttle:web',
         ],
 
         'api' => [
             \App\Api\Middleware\AccessControlAllowOriginWildcard::class,
             'json',
-            // 'throttle:api',
+            // TODO Api Interceptor middleware
+            // TODO 'throttle:api',
         ],
 
         'connect' => [
             'json',
-            // 'throttle:connect',
+            // TODO Connect Interceptor middleware
+            // TODO 'throttle:connect',
         ],
     ];
 

@@ -10,8 +10,8 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required_without:achievement|integer|exists:mysql_legacy.GameData,ID',
-    'achievement' => 'required_without:game|integer|exists:mysql_legacy.Achievements,ID',
+    'game' => 'required_without:achievement|integer|exists:GameData,ID',
+    'achievement' => 'required_without:game|integer|exists:Achievements,ID',
 ]);
 
 $userModel = User::firstWhere('User', $user);

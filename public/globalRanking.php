@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\RankType;
-use LegacyApp\Platform\Enums\UnlockMode;
+use App\Community\Enums\RankType;
+use App\Platform\Enums\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

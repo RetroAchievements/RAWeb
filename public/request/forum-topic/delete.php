@@ -1,11 +1,11 @@
 <?php
 
+use App\Community\Models\ForumTopic;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
+use App\Support\Database\Models\DeletedModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Models\ForumTopic;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
-use LegacyApp\Support\Database\Models\DeletedModels;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
@@ -15,7 +15,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 $user = request()->user();
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'topic' => 'required|integer|exists:mysql_legacy.ForumTopic,ID',
+    'topic' => 'required|integer|exists:ForumTopic,ID',
 ]);
 
 /** @var ForumTopic $topic */

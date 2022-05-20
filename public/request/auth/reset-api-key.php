@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Site\Enums\Permissions;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.error'));

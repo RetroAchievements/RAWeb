@@ -6,6 +6,7 @@ namespace App\Site\Components\Concerns;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 trait DeferLoading
 {
@@ -18,6 +19,9 @@ trait DeferLoading
         $this->ready = true;
     }
 
+    /**
+     * @return array|LengthAwarePaginator<Model>|Collection<int, Model>|null
+     */
     protected function loadDeferred(): array|null|LengthAwarePaginator|Collection
     {
         if ($this->defer && !$this->ready) {

@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Models\System;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = (int) request()->input('z', 0);

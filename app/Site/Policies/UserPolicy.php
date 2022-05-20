@@ -154,24 +154,26 @@ class UserPolicy
         /*
          * admins may not delete other admins
          */
-        if ($user->hasRole(Role::ADMINISTRATOR)) {
-            if ($model->hasRole(Role::ADMINISTRATOR)) {
-                return false;
-            }
-        }
+        // if ($user->hasRole(Role::ADMINISTRATOR)) {
+        //     if ($model->hasRole(Role::ADMINISTRATOR)) {
+        //         return false;
+        //     }
+        // }
 
         /*
          * moderators may not delete admins or other moderators
          */
-        if ($user->hasRole(Role::MODERATOR)) {
-            if ($model->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
-                return false;
-            }
-        }
+        // if ($user->hasRole(Role::MODERATOR)) {
+        //     if ($model->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
+        //         return false;
+        //     }
+        // }
 
-        return $user->hasAnyRole([
-            Role::ADMINISTRATOR,
-            Role::MODERATOR,
-        ]);
+        // return $user->hasAnyRole([
+        //     Role::ADMINISTRATOR,
+        //     Role::MODERATOR,
+        // ]);
+
+        return false;
     }
 }

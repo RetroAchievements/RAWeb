@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
+use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Site\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
@@ -79,6 +80,9 @@ class GameGrid extends Grid
         ];
     }
 
+    /**
+     * @return Builder<Game>
+     */
     protected function query(): Builder
     {
         $query = parent::query();

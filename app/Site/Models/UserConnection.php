@@ -36,6 +36,9 @@ class UserConnection extends BaseModel
 
     // == relations
 
+    /**
+     * @return BelongsTo<User, UserConnection>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

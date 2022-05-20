@@ -3,14 +3,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-    './storage/framework/views/*.php',
-    './resources/views/**/*.blade.php',
-    './resources/js/**/*.ts',
-    //  legacy
-    './app_legacy/Helpers/render/*.php',
-    './app_legacy/Helpers/util/*.php',
+    './app/Helpers/render/*.php',
+    './app/Helpers/util/*.php',
     './public/*.php',
+    './resources/js/**/*.ts',
+    './resources/views/**/*.blade.php',
+    './storage/framework/views/*.php',
+    './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
   ],
 
   corePlugins: {

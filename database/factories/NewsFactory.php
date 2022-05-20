@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Community\Models\News;
 use Database\Seeders\Concerns\SeedsUsers;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<News>
+ */
 class NewsFactory extends Factory
 {
     use SeedsUsers;
+
+    protected $model = News::class;
 
     /**
      * @return array<string, mixed>

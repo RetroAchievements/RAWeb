@@ -1,12 +1,12 @@
 <?php
 
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimSorting;
-use LegacyApp\Community\Enums\ClaimSpecial;
-use LegacyApp\Community\Enums\ClaimStatus;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimSorting;
+use App\Community\Enums\ClaimSpecial;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     abort(401);

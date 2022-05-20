@@ -7,7 +7,6 @@ namespace App\Community\Components;
 use App\Community\Models\AchievementComment;
 use App\Platform\Models\Achievement;
 use App\Site\Components\Grid;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -43,6 +42,9 @@ class AchievementComments extends Grid
         );
     }
 
+    /**
+     * @return Builder<AchievementComment>
+     */
     protected function query(): Builder
     {
         /** @var Achievement $achievement */
@@ -64,11 +66,6 @@ class AchievementComments extends Grid
     protected function load(): ?LengthAwarePaginator
     {
         parent::load();
-
-        /*
-         * intercept to eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect(collect($this->results->items())->pluck('body'));
 
         return $this->results;
     }

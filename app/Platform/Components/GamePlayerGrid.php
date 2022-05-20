@@ -43,6 +43,9 @@ class GamePlayerGrid extends Grid
         ];
     }
 
+    /**
+     * @return Builder<PlayerSession>
+     */
     protected function query(): Builder
     {
         // find the latest session for each user who has played the game

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
+use App\Community\Models\News;
 use App\Site\Components\Grid;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\AllowedSort;
@@ -66,6 +66,9 @@ class NewsGrid extends Grid
         ];
     }
 
+    /**
+     * @return Builder<News>
+     */
     protected function query(): Builder
     {
         $query = $this->resourceQuery();
@@ -78,8 +81,6 @@ class NewsGrid extends Grid
     protected function load(): ?LengthAwarePaginator
     {
         $results = parent::load();
-
-        ShortcodeModelCollector::collect(collect($results)->pluck('lead'));
 
         return $results;
     }

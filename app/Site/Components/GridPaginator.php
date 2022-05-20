@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Site\Components;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+/**
+ * @extends LengthAwarePaginator<Model>
+ */
 class GridPaginator extends LengthAwarePaginator
 {
     // public function loopedRank($loop)
