@@ -64,11 +64,6 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
         return false;
     }
 
-    // Hack for 'development tutorial game'
-    if ($gameID == 10971) {
-        return false;
-    }
-
     global $db;
 
     if (!isset($user) || !isset($gameID) || !isset($address)) {
@@ -116,11 +111,6 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
  */
 function submitCodeNote($user, $gameID, $address, $note): bool
 {
-    // Hack for 'development tutorial game'
-    if ($gameID == 10971) {
-        return false;
-    }
-
     global $db;
     sanitize_sql_inputs($user, $gameID, $address, $note);
 

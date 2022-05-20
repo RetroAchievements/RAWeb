@@ -16,7 +16,7 @@ abstract class AwardType
 
     public const PATREON_SUPPORTER = 6;
 
-    public static $active = [
+    public static array $active = [
         self::MASTERY,
         self::ACHIEVEMENT_UNLOCKS_YIELD,
         self::ACHIEVEMENT_POINTS_YIELD,

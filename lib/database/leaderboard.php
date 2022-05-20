@@ -849,12 +849,6 @@ function UploadNewLeaderboard(
         }
     }
 
-    // Hack for 'development tutorial game'
-    if ($gameID == 10971) {
-        $errorOut = "Tutorial: Leaderboard upload! This reply is happening on the server, to say that we have successfully received your leaderboard data.";
-        return false;
-    }
-
     if (!isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
         $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
         return false;

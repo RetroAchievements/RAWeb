@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -452,28 +453,27 @@ function UploadNewAchievement(
     $progressFmt,
     $points,
     $mem,
-    $type,
+    int $type,
     &$idInOut,
     $badge,
     &$errorOut
-) {
+): bool {
     settype($gameID, 'integer');
     settype($type, 'integer');
     settype($points, 'integer');
 
     // Prevent <= registered users from uploading or modifying achievements
-    if (getUserPermissions($author) <= Permissions::Registered) {
+    if (getUserPermissions($author) < Permissions::JuniorDeveloper) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
         return false;
     }
 
-    // Hack for 'development tutorial game'
-    if ($gameID == 10971) {
-        $errorOut = "Tutorial: Achievement upload! This reply is happening on the server, to say that we have successfully received your achievement data.";
+    if (!in_array($type, AchievementType::FLAGS)) {
+        $errorOut = "Invalid type flag";
         return false;
     }
 
-    if ($type == 3 && !isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
+    if ($type === AchievementType::OFFICIAL_CORE && !isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
         return false;
     }
@@ -536,14 +536,16 @@ function UploadNewAchievement(
             $changingLogic = ($data['MemAddr'] != $mem);
 
             $userPermissions = getUserPermissions($author);
-            if ($type == 3 || $changingAchSet) { // If modifying core or changing achievement state
+            if ($type === AchievementType::OFFICIAL_CORE || $changingAchSet) { // If modifying core or changing achievement state
                 // changing ach set detected; user is $author, permissions is $userPermissions, target set is $type
                 if ($userPermissions < Permissions::Developer) {
                     // Must be developer to modify core!
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
                     return false;
                 }
-            } elseif ($type == 5) { // If modifying unofficial
+            }
+
+            if ($type === AchievementType::UNOFFICIAL) { // If modifying unofficial
                 // Only allow jr. devs to modify unofficial if they are the author
                 if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] != $author) {
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
@@ -575,7 +577,7 @@ function UploadNewAchievement(
                 postActivity($author, ActivityType::EditAchievement, $idInOut);
 
                 if ($changingAchSet) {
-                    if ($type == 3) {
+                    if ($type === AchievementType::OFFICIAL_CORE) {
                         addArticleComment(
                             "Server",
                             ArticleType::Achievement,
@@ -583,7 +585,7 @@ function UploadNewAchievement(
                             "$author promoted this achievement to the Core set.",
                             $author
                         );
-                    } elseif ($type == 5) {
+                    } elseif ($type === AchievementType::UNOFFICIAL) {
                         addArticleComment(
                             "Server",
                             ArticleType::Achievement,
