@@ -85,52 +85,15 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
             // echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
             echo "<h2>$requestedForum</h2>";
-            echo "$thisForumDescription<br>";
-
-            if ($permissions >= Permissions::Registered) {
-                echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
-            }
-
-            /* Forum pagination */
-            $forumPagination = "";
+            echo "$thisForumDescription<br><br>";
 
             if ($numTotalTopics > $count) {
-                $forumPagination .= "<tr>";
-
-                $forumPagination .= "<td class='forumpagetabs' colspan='2'>";
-                $forumPagination .= "<div class='forumpagetabs'>";
-
-                $forumPagination .= "Page:&nbsp;";
-                $pageOffset = ($offset / $count);
-                $numPages = ceil($numTotalTopics / $count);
-
-                if ($pageOffset > 0) {
-                    $prevOffs = $offset - $count;
-                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$prevOffs'>&lt;</a> ";
-                }
-
-                for ($i = 0; $i < $numPages; $i++) {
-                    $nextOffs = $i * $count;
-                    $pageNum = $i + 1;
-
-                    if ($nextOffs == $offset) {
-                        $forumPagination .= "<span class='forumpagetab current'>$pageNum</span> ";
-                    } else {
-                        $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>$pageNum</a> ";
-                    }
-                }
-
-                if ($offset + $count < $numTotalTopics) {
-                    $nextOffs = $offset + $count;
-                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>&gt;</a> ";
-                }
-
-                $forumPagination .= "</div>";
-                $forumPagination .= "</td>";
-                $forumPagination .= "</tr>";
+                RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
             }
 
-            echo $forumPagination;
+            if ($permissions >= Permissions::Registered) {
+                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</div></a>";
+            }
 
             echo "<table><tbody>";
             echo "<tr class='forumsheader'>";
@@ -143,8 +106,6 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "</tr>";
 
             $topicCount = is_countable($topicList) ? count($topicList) : 0;
-
-            $topicIter = 0;
 
             // Output all topics, and offer 'prev/next page'
             foreach ($topicList as $topicData) {
@@ -201,16 +162,21 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "</tr>";
             }
 
+            if ($topicCount % 2 == 1) {
+                echo "<tr><td colspan=5 class='smalltext'></td></tr>";
+            }
+            echo "<tr><td colspan=5 class='smalltext'></td></tr>";
+
             echo "</tbody></table>";
 
-            echo $forumPagination;
-
-            echo "<br>";
+            if ($numTotalTopics > $count) {
+                RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
+            }
 
             if ($permissions >= Permissions::Registered) {
-                echo "<div class='rightlink'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
+                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
             } else {
-                echo "<div class='rightlink'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
+                echo "<div class='rightfloat'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
             }
 
             echo "<br>";

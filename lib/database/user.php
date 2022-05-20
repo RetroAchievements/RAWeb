@@ -4,6 +4,7 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\AwardThreshold;
 use RA\Permissions;
+use RA\TicketState;
 
 function generateEmailValidationString($user)
 {
@@ -1458,7 +1459,7 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
     LEFT JOIN
         Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
     LEFT JOIN
-        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState = 1)
+        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     WHERE
         ContribCount > 0 AND ContribYield > 0
         $stateCond

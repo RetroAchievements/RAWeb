@@ -94,19 +94,6 @@ RenderHtmlStart();
 
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
-        echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
-        RenderUpdateSubscriptionForm(
-            "updatetopicsubscription",
-            SubscriptionSubjectType::ForumTopic,
-            $thisTopicID,
-            $isSubscribed
-        );
-        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
-        echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
-        echo "</a>";
-        echo "</div>";
-        echo "<br style='clear:both;'>";
-
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
@@ -171,41 +158,23 @@ RenderHtmlStart();
         echo "<div class='table-wrapper'>";
         echo "<table><tbody>";
 
+        echo "<tr><td colspan=2>";
         if ($numTotalComments > $count) {
-            echo "<tr>";
-
-            echo "<td class='forumpagetabs' colspan='2'>";
-            echo "<div class='forumpagetabs'>";
-
-            echo "Page:&nbsp;";
-            $pageOffset = ($offset / $count);
-            $numPages = ceil($numTotalComments / $count);
-
-            if ($pageOffset > 0) {
-                $prevOffs = $offset - $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$prevOffs'>&lt;</a> ";
-            }
-
-            for ($i = 0; $i < $numPages; $i++) {
-                $nextOffs = $i * $count;
-                $pageNum = $i + 1;
-
-                if ($nextOffs == $offset) {
-                    echo "<span class='forumpagetab current'>$pageNum</span> ";
-                } else {
-                    echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>$pageNum</a> ";
-                }
-            }
-
-            if ($offset + $count < $numTotalComments) {
-                $nextOffs = $offset + $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>&gt;</a> ";
-            }
-
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
+            RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
         }
+
+        echo "<div class='smalltext rightfloat' style='padding: 3px'>";
+        RenderUpdateSubscriptionForm(
+            "updatetopicsubscription",
+            SubscriptionSubjectType::ForumTopic,
+            $thisTopicID,
+            $isSubscribed
+        );
+        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
+        echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+        echo "</a>";
+        echo "</div>";
+        echo "</td></tr>";
 
         echo "<tr class='topiccommentsheader'>";
         echo "<th>Author</th>";
@@ -301,41 +270,16 @@ RenderHtmlStart();
             echo "</tr>";
         }
 
+        if (count($commentList) % 2 == 1) {
+            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
+        }
+
         if ($numTotalComments > $count) {
-            echo "<tr>";
-
-            echo "<td class='forumpagetabs' colspan='2'>";
-            echo "<div class='forumpagetabs'>";
-
-            echo "Page:&nbsp;";
-            $pageOffset = ($offset / $count);
-            $numPages = ceil($numTotalComments / $count);
-
-            if ($pageOffset > 0) {
-                $prevOffs = $offset - $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$prevOffs'>&lt;</a> ";
-            }
-
-            for ($i = 0; $i < $numPages; $i++) {
-                $nextOffs = $i * $count;
-                $pageNum = $i + 1;
-
-                if ($nextOffs == $offset) {
-                    echo "<span class='forumpagetab current'>$pageNum</span> ";
-                } else {
-                    echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>$pageNum</a> ";
-                }
-            }
-
-            if ($offset + $count < $numTotalComments) {
-                $nextOffs = $offset + $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>&gt;</a> ";
-            }
-
-            echo "</div>";
-            echo "</td>";
-
-            echo "</tr>";
+            echo "<tr><td colspan=2>";
+            RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
+            echo "</td></tr>";
+        } else {
+            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
         }
 
         if ($user !== null && $user !== "" && $thisTopicID != 0) {

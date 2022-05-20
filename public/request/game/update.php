@@ -35,7 +35,13 @@ if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Junio
     } else {
         if (isset($newGameAlt) || isset($removeGameAlt)) {
             // new alt provided/alt to be removed
-            requestModifyGameAlt($gameID, $newGameAlt, $removeGameAlt);
+            if (is_array($removeGameAlt)) {
+                foreach ($removeGameAlt as &$gameAlt) {
+                    requestModifyGameAlt($gameID, $newGameAlt, $gameAlt);
+                }
+            } else {
+                requestModifyGameAlt($gameID, $newGameAlt, $removeGameAlt);
+            }
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
             exit;
         } else {

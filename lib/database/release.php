@@ -80,7 +80,8 @@ function isValidConsoleId(int $consoleId): bool
         // 68, // Sega Pico
         // 69, // Mega Duck
         // 70, // Zeebo
-        // 71, // Arduboy
+        71, // Arduboy
+        72, // WASM-4
         // 100, // Hubs (not an actual console)
         101 => true, // Events (not an actual console)
         default => false,

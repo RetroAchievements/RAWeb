@@ -95,6 +95,10 @@ if ($ticketID != 0) {
             }
             break;
 
+        case "request":
+            $ticketState = TicketState::Request;
+            break;
+
         case "reopen":
             $ticketState = TicketState::Open;
             break;
@@ -115,7 +119,7 @@ if ($ticketID != 0) {
         $ticketData = getTicket($ticketID);
     }
 
-    $numArticleComments = getArticleComments(7, $ticketID, 0, 20, $commentData);
+    $numArticleComments = getArticleComments(ArticleType::AchievementTicket, $ticketID, 0, 20, $commentData);
 
     // sets all filters enabled so we get closed/resolved tickets as well
     $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All);
@@ -303,7 +307,6 @@ RenderHtmlHead($pageTitle);
                     Each filter is represented by a bit in the $ticketFilters variable.
                     This allows us to easily determine which filters are active as well as toggle them back and forth.
                  */
-                $openTickets = ($ticketFilters & TicketFilters::StateOpen);
                 $closedTickets = ($ticketFilters & TicketFilters::StateClosed);
                 $resolvedTickets = ($ticketFilters & TicketFilters::StateResolved);
 
@@ -346,6 +349,7 @@ RenderHtmlHead($pageTitle);
                 echo "<div>";
                 echo "<b>Ticket State:</b> ";
                 echo $linkFilter(TicketState::toString(TicketState::Open), TicketFilters::StateOpen) . ' | ';
+                echo $linkFilter(TicketState::toString(TicketState::Request), TicketFilters::StateRequest) . ' | ';
                 echo $linkFilter(TicketState::toString(TicketState::Closed), TicketFilters::StateClosed) . ' | ';
                 echo $linkFilter(TicketState::toString(TicketState::Resolved), TicketFilters::StateResolved);
                 echo "</div>";
@@ -772,19 +776,44 @@ RenderHtmlHead($pageTitle);
                     echo "<td>Reporter:</td>";
                     echo "<td colspan='7'>";
                     echo "<div class='smallicon'>";
-                    echo "<span>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
                     $msgPayload = rawurlencode($msgPayload);
                     $msgTitle = rawurlencode("Bug Report ($gameTitle)");
                     echo "<a href='createmessage.php?t=$reportedBy&amp;s=$msgTitle&p=$msgPayload'>Contact the reporter - $reportedBy</a>";
-                    echo "</span>";
                     echo "</div>";
                     echo "</td>";
                     echo "</tr>";
+
+                    if ($reportState == TicketState::Open) {
+                        $lastComment = null;
+                        foreach ($commentData as $comment) {
+                            if ($comment['User'] != 'Server') {
+                                $lastComment = $comment;
+                            }
+                        }
+                        if ($lastComment != null && ($lastComment['User'] == $user || $lastComment['User'] == $achAuthor)) {
+                            echo "<tr><td/><td colspan='6'>";
+                            echo "<div class='smallicon'>";
+                            echo "<a href='ticketmanager.php?i=$ticketID&action=request'>Transfer to reporter - $reportedBy</a>";
+                            echo "</div>";
+                            echo "</td></tr>";
+                        }
+                    } elseif ($reportState == TicketState::Request) {
+                        echo "<tr><td/><td colspan='6'>";
+                        echo "<div class='smallicon'>";
+                        echo "<a href='ticketmanager.php?i=$ticketID&action=reopen'>Transfer to author - $achAuthor</a>";
+                        echo "</div>";
+                        echo "</td></tr>";
+                    }
                 }
 
                 echo "<tr>";
-                echo "<td></td><td colspan='7'>";
+                if ($permissions >= Permissions::Developer) {
+                    echo "<td></td>";
+                } else {
+                    echo "<td>Reporter:</td>";
+                }
+                echo "<td colspan='7'>";
 
                 $numAchievements = getUserUnlockDates($reportedBy, $gameID, $unlockData);
                 $unlockData[] = ['ID' => 0, 'Title' => 'Ticket Created', 'Date' => $reportedAt, 'HardcoreMode' => 0];
@@ -865,7 +894,7 @@ RenderHtmlHead($pageTitle);
                     echo "<select name='action' required>";
                     echo "<option value='' disabled selected hidden>Choose an action...</option>";
 
-                    if ($reportState == TicketState::Open) {
+                    if ($reportState == TicketState::Open || $reportState == TicketState::Request) {
                         if ($user == $reportedBy && $permissions < Permissions::Developer) {
                             echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
                         } elseif ($permissions >= Permissions::Developer) {
