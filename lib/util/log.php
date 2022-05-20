@@ -3,7 +3,7 @@
 /**
  * @throws Exception
  */
-function log_sql_fail()
+function log_sql_fail(): void
 {
     global $db;
     $error = mysqli_error($db);

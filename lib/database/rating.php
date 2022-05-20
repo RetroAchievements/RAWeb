@@ -2,7 +2,7 @@
 
 use RA\ObjectType;
 
-function getGameRating($gameID, $user = null)
+function getGameRating($gameID, $user = null): array
 {
     $newRatings = function () {
         return [
@@ -28,7 +28,6 @@ function getGameRating($gameID, $user = null)
 
     global $db;
     $dbResult = mysqli_query($db, $query);
-    SQL_ASSERT($dbResult);
 
     while ($nextRow = mysqli_fetch_array($dbResult)) {
         $type = $nextRow['RatingObjectType'];
@@ -57,7 +56,6 @@ function getGameRating($gameID, $user = null)
         sanitize_sql_inputs($user);
         $query = "SELECT RatingObjectType, RatingValue FROM Rating WHERE RatingID=$gameID AND User='$user'";
         $dbResult = mysqli_query($db, $query);
-        SQL_ASSERT($dbResult);
 
         while ($nextRow = mysqli_fetch_array($dbResult)) {
             $type = $nextRow['RatingObjectType'];
@@ -68,7 +66,7 @@ function getGameRating($gameID, $user = null)
     return $retVal;
 }
 
-function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
+function submitGameRating($user, $ratingType, $ratingID, $ratingValue): bool
 {
     sanitize_sql_inputs($user, $ratingType, $ratingID, $ratingValue);
     settype($ratingType, 'integer');
@@ -81,27 +79,4 @@ function submitGameRating($user, $ratingType, $ratingID, $ratingValue)
 
     $dbResult = s_mysql_query($query);
     return $dbResult !== false;
-}
-
-function getGamesByRating($offset, $count)
-{
-    sanitize_sql_inputs($offset, $count);
-
-    $query = "SELECT gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName, AVG(RatingValue) AS AvgVote, COUNT(RatingID) AS NumVotes
-FROM Rating 
-LEFT JOIN GameData gd ON gd.ID = RatingID
-LEFT JOIN Console c ON c.ID = gd.ConsoleID
-WHERE RatingObjectType=1 
-GROUP BY RatingID 
-ORDER BY AvgVote DESC, NumVotes DESC
-LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    $retVal = [];
-    while ($nextRow = mysqli_fetch_array($dbResult)) {
-        $retVal[] = $nextRow;
-    }
-
-    return $retVal;
 }

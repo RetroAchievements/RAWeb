@@ -53,7 +53,7 @@ $userCompletedGames = [];
 
 // Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-$userCompletedGamesListCount = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
+$userCompletedGamesListCount = count($userCompletedGamesList);
 
 // Merge all elements of $userCompletedGamesList into one unique list
 for ($i = 0; $i < $userCompletedGamesListCount; $i++) {

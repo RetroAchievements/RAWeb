@@ -31,6 +31,7 @@ if ($permissions == Permissions::JuniorDeveloper) {
         if (ValidatePOSTChars("g")) {
             $gameID = requestInputPost('g', null, 'integer');
         } else {
+            // TODO do not allow GET requests, POST only
             if (ValidateGETChars("g")) {
                 $gameID = requestInputQuery('g', null, 'integer');
             } else {

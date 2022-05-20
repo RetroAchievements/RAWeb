@@ -1,12 +1,10 @@
 <?php
 
-function performSearch($searchQuery, $offset, $count, $permissions, &$searchResultsOut)
+function performSearch($searchQuery, $offset, $count, $permissions, &$searchResultsOut): int
 {
     global $db;
 
     sanitize_sql_inputs($searchQuery, $offset, $count);
-
-    $resultCount = 0;
 
     $query = "
     (
@@ -70,13 +68,16 @@ function performSearch($searchQuery, $offset, $count, $permissions, &$searchResu
 
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-    } else {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $searchResultsOut[$resultCount] = $nextData;
-            $resultCount++;
-        }
+
+        return 0;
+    }
+
+    $resultCount = 0;
+    while ($nextData = mysqli_fetch_assoc($dbResult)) {
+        $searchResultsOut[$resultCount] = $nextData;
+        $resultCount++;
     }
 
     return $resultCount;

@@ -5,7 +5,7 @@ use RA\ArticleType;
 use RA\Permissions;
 use RA\TicketState;
 
-function getGameData($gameID)
+function getGameData($gameID): ?array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -31,7 +31,7 @@ function getGameData($gameID)
     }
 }
 
-function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData)
+function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData): string
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, "integer");
@@ -59,10 +59,10 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
         }
     }
 
-    return $gameTitle;
+    return (string) $gameTitle;
 }
 
-function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = null, $flag = null)
+function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = null, $flag = null): int
 {
     return getGameMetadataByFlags($gameID, $user, $achievementDataOut, $gameDataOut, $sortBy, $user2, $flag);
 }
@@ -75,7 +75,7 @@ function getGameMetadataByFlags(
     $sortBy = 1,
     $user2 = null,
     $flags = 0
-) {
+): int {
     sanitize_sql_inputs($gameID, $user, $user2, $flags);
     settype($gameID, 'integer');
     settype($sortBy, 'integer');
@@ -235,7 +235,7 @@ function getGameMetadataByFlags(
     return $numAchievements;
 }
 
-function getGameAlternatives($gameID)
+function getGameAlternatives($gameID): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -267,12 +267,12 @@ function getGameAlternatives($gameID)
     return $results;
 }
 
-function getGamesListWithNumAchievements($consoleID, &$dataOut, $sortBy)
+function getGamesListWithNumAchievements($consoleID, &$dataOut, $sortBy): int
 {
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy);
 }
 
-function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false, $filter = 0, $offset = 0, $count = 0)
+function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = false, $filter = 0, $offset = 0, $count = 0): int
 {
     sanitize_sql_inputs($dev, $consoleID, $offset, $count);
 
@@ -404,10 +404,10 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         }
     }
 
-    return $numGamesFound;
+    return (int) $numGamesFound;
 }
 
-function getGamesListData($consoleID, $officialFlag = false)
+function getGamesListData($consoleID, $officialFlag = false): array
 {
     sanitize_sql_inputs($consoleID);
     settype($consoleID, 'integer');
@@ -442,13 +442,13 @@ function getGamesListData($consoleID, $officialFlag = false)
     return $retVal;
 }
 
-function getGamesList($consoleID, &$dataOut, $officialFlag = false)
+function getGamesList($consoleID, &$dataOut, $officialFlag = false): int
 {
     $dataOut = getGamesListData($consoleID, $officialFlag);
-    return is_countable($dataOut) ? count($dataOut) : 0;
+    return count($dataOut);
 }
 
-function getGamesListDataNamesOnly($consoleID, $officialFlag = false)
+function getGamesListDataNamesOnly($consoleID, $officialFlag = false): array
 {
     $retval = [];
 
@@ -461,26 +461,7 @@ function getGamesListDataNamesOnly($consoleID, $officialFlag = false)
     return $retval;
 }
 
-function getAllocatedForGame($gameID, &$allocatedPoints, &$numAchievements)
-{
-    sanitize_sql_inputs($gameID);
-
-    $query = "SELECT SUM(ach.Points) AS AllocatedPoints, COUNT(ID) AS NumAchievements FROM Achievements AS ach ";
-    $query .= "WHERE ach.Flags = 3 AND ach.GameID = $gameID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $allocatedPoints = $data['AllocatedPoints'];
-        $numAchievements = $data['NumAchievements'];
-        return true;
-    } else {
-        log_sql_fail();
-        return false;
-    }
-}
-
-function getAchievementIDs($gameID)
+function getAchievementIDs($gameID): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -507,7 +488,7 @@ function getAchievementIDs($gameID)
     return $retVal;
 }
 
-function getGameIDFromTitle($gameTitleIn, $consoleID)
+function getGameIDFromTitle($gameTitleIn, $consoleID): int
 {
     sanitize_sql_inputs($consoleID);
     $gameTitle = sanitizeTitle($gameTitleIn);
@@ -520,14 +501,14 @@ function getGameIDFromTitle($gameTitleIn, $consoleID)
     $dbResult = s_mysql_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
         settype($retVal['ID'], 'integer');
-        return $retVal['ID'];
+        return (int) $retVal['ID'];
     } else {
         log_sql_fail();
         return 0;
     }
 }
 
-function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery)
+function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
 {
     sanitize_sql_inputs($gameID, $user, $isHardcore);
     settype($isHardcore, 'integer');
@@ -555,7 +536,7 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery)
     return [];
 }
 
-function requestModifyGameData($gameID, $developer, $publisher, $genre, $released)
+function requestModifyGameData($gameID, $developer, $publisher, $genre, $released): bool
 {
     sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released);
 
@@ -566,14 +547,14 @@ function requestModifyGameData($gameID, $developer, $publisher, $genre, $release
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     }
 
     return $dbResult != null;
 }
 
-function requestModifyGame($author, $gameID, $field, $value)
+function requestModifyGame($author, $gameID, $field, $value): bool
 {
     sanitize_sql_inputs($gameID, $field, $value);
 
@@ -623,7 +604,7 @@ function requestModifyGame($author, $gameID, $field, $value)
     return $result;
 }
 
-function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
+function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null): void
 {
     if (isset($toAdd)) {
         // Replace all non-numberic characters with comma so the string has a common delimiter.
@@ -651,7 +632,7 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null)
     }
 }
 
-function requestModifyGameForumTopic($gameID, $newForumTopic)
+function requestModifyGameForumTopic($gameID, $newForumTopic): bool
 {
     sanitize_sql_inputs($gameID, $newForumTopic);
     settype($gameID, 'integer');
@@ -679,15 +660,8 @@ function requestModifyGameForumTopic($gameID, $newForumTopic)
 
 /**
  * Gets the achievement distribution to display on the game page.
- *
- * @param int $gameID game ID to get achievement distribution for
- * @param int $hardcore casual (0) or hardcore (1) flag
- * @param string $requestedBy user requesting the achievement distribution information
- * @param int $flags core (3) or unofficial (5) achievement flag
- *
- * @return array of achievement distribution information to plot on the game page
  */
-function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags, $numAchievements = null)
+function getAchievementDistribution(int $gameID, int $hardcore, string $requestedBy, int $flags, $numAchievements = null): array
 {
     sanitize_sql_inputs($gameID, $hardcore, $requestedBy, $flags);
     settype($gameID, 'integer');
@@ -712,7 +686,6 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags, $n
         GROUP BY InnerTable.AwardedCount";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -739,7 +712,7 @@ function getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags, $n
     return $retval;
 }
 
-function getMostPopularGames($offset, $count, $method)
+function getMostPopularGames($offset, $count, $method): array
 {
     sanitize_sql_inputs($offset, $count, $method);
     settype($method, 'integer');
@@ -788,7 +761,6 @@ function getMostPopularGames($offset, $count, $method)
     }
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -827,7 +799,6 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     }
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -865,13 +836,12 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
     ";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     $data = mysqli_fetch_assoc($dbResult);
     return $data['UniquePlayers'];
 }
 
-function getGameRecentPlayers($gameID, $maximum_results = 0)
+function getGameRecentPlayers($gameID, $maximum_results = 0): array
 {
     sanitize_sql_inputs($gameID, $maximum_results);
     settype($gameID, 'integer');
@@ -888,7 +858,6 @@ function getGameRecentPlayers($gameID, $maximum_results = 0)
     }
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -901,13 +870,8 @@ function getGameRecentPlayers($gameID, $maximum_results = 0)
 
 /**
  * Gets a game's high scorers or latest masters.
- *
- * @param int $gameID game ID to get high score information for
- * @param string $requestedBy user requesting the information
- *
- * @return array of user information to display on the High Scores section of a game page
  */
-function getGameTopAchievers($gameID, $requestedBy)
+function getGameTopAchievers(int $gameID, string $requestedBy): array
 {
     sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
 
@@ -917,7 +881,6 @@ function getGameTopAchievers($gameID, $requestedBy)
 
     $query = "SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         if ($data = mysqli_fetch_assoc($dbResult)) {
@@ -937,7 +900,6 @@ function getGameTopAchievers($gameID, $requestedBy)
                 ORDER BY TotalScore DESC, LastAward ASC";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -962,7 +924,7 @@ function getGameTopAchievers($gameID, $requestedBy)
     return $retval;
 }
 
-function getGameRankAndScore($gameID, $requestedBy)
+function getGameRankAndScore($gameID, $requestedBy): ?array
 {
     sanitize_sql_inputs($gameID, $requestedBy);
 
@@ -986,7 +948,6 @@ function getGameRankAndScore($gameID, $requestedBy)
    ) SELECT * FROM data WHERE User = '$requestedBy'";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
@@ -997,63 +958,7 @@ function getGameRankAndScore($gameID, $requestedBy)
     return $retval;
 }
 
-// Game Title and Alts (Dupe Handling)
-
-function submitAlternativeGameTitle($user, $md5, $gameTitleDest, $consoleID, &$idOut)
-{
-    sanitize_sql_inputs($user, $md5, $gameTitleDest, $consoleID);
-
-    if (!isset($md5) || mb_strlen($md5) != 32) {
-        return false;
-    }
-
-    // Redirect the given md5 to an existing gameID:
-    $idOut = getGameIDFromTitle($gameTitleDest, $consoleID);
-    if ($idOut == 0) {
-        // CANNOT find this existing game title! ($user requested $md5 forward to '$gameTitleDest')
-        return false;
-    }
-
-    $query = "SELECT COUNT(*) AS NumEntries, GameID FROM GameHashLibrary WHERE MD5='$md5'";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        log_sql_fail();
-        return false;
-    }
-    $data = mysqli_fetch_assoc($dbResult);
-    if ($data['NumEntries'] == 0) {
-        // Add new name
-        $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$idOut', '$user' )";
-        $dbResult = s_mysql_query($query);
-        SQL_ASSERT($dbResult);
-
-        if ($dbResult === false) {
-            log_sql_fail();
-            return false;
-        }
-
-        return true;
-    }
-    if ($data['NumEntries'] == 1) {
-        // Looks like it's already here?
-        $existingRedirTo = $dbResult['GameID'];
-        if ($existingRedirTo === $md5) {
-            return false;
-        }
-        // Update existing redir entry
-        $query = "UPDATE GameHashLibrary SET GameID='$idOut' WHERE MD5='$md5'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult === false) {
-            log_sql_fail();
-            return false;
-        }
-        return true;
-    }
-    // failed MULTIPLE ENTRIES IN GameHashLibrary! ( " . $data['NumEntries'] . " ) $user, $md5 and $idOut"
-    return false;
-}
-
-function createNewGame($titleIn, $consoleID)
+function createNewGame($titleIn, $consoleID): ?array
 {
     sanitize_sql_inputs($consoleID);
     settype($consoleID, 'integer');
@@ -1078,7 +983,7 @@ function createNewGame($titleIn, $consoleID)
     return null;
 }
 
-function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $description)
+function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $description): array
 {
     $unsanitizedDescription = $description;
     sanitize_sql_inputs($user, $md5, $gameIDin, $consoleID, $description);
@@ -1178,57 +1083,16 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
     return $retVal;
 }
 
-function sanitizeTitle($titleIn)
+function sanitizeTitle($titleIn): string
 {
     // Remove single quotes, replace with double quotes:
     $title = str_replace("'", "''", $titleIn);
     $title = str_replace("/", "-", $title);
     $title = str_replace("\\", "-", $title);
-    return $title;
+    return (string) $title;
 }
 
-function submitGameTitle($user, $md5, $titleIn, $consoleID, &$idOut)
-{
-    sanitize_sql_inputs($user, $md5, $consoleID);
-    settype($consoleID, 'integer');
-
-    if ($consoleID == 0) {
-        return false;
-    }
-
-    if (mb_strlen($titleIn) < 2) {
-        return false;
-    }
-
-    $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        if (mysqli_num_rows($dbResult) == 0) {
-            // The MD5 for this game doesn't yet exist in our DB. Insert a new game:
-            $idOut = createNewGame($titleIn, $consoleID);
-
-            if ($idOut !== 0) {
-                $query = "INSERT INTO GameHashLibrary (MD5, GameID, User) VALUES( '$md5', '$idOut', '$user' )";
-                $dbResult = s_mysql_query($query);
-                if ($dbResult !== false) {
-                    return true;
-                } else {
-                    log_sql_fail();
-                    return false;
-                }
-            } else {
-            }
-        } else {
-            // unsupported - submitting a game title for a game that already has an associated title.
-            return false;
-        }
-    } else {
-        log_sql_fail();
-        return false;
-    }
-}
-
-function requestModifyRichPresence($gameID, $dataIn)
+function requestModifyRichPresence($gameID, $dataIn): bool
 {
     sanitize_sql_inputs($gameID, $dataIn);
     settype($gameID, 'integer');
@@ -1237,7 +1101,6 @@ function requestModifyRichPresence($gameID, $dataIn)
 
     global $db;
     $dbResult = mysqli_query($db, $query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult) {
         return true;
@@ -1246,14 +1109,13 @@ function requestModifyRichPresence($gameID, $dataIn)
     }
 }
 
-function getRichPresencePatch($gameID, &$dataOut)
+function getRichPresencePatch($gameID, &$dataOut): bool
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
 
     $query = "SELECT gd.RichPresencePatch FROM GameData AS gd WHERE gd.ID = $gameID ";
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
@@ -1266,13 +1128,8 @@ function getRichPresencePatch($gameID, &$dataOut)
 
 /**
  * Checks to see if a user is the sole author of a set.
- *
- * @param string $user user to check authorship for
- * @param int $gameID game to check authorship for
- *
- * @return bool true if sole author, false otherwise
  */
-function checkIfSoleDeveloper($user, $gameID)
+function checkIfSoleDeveloper(string $user, int $gameID): bool
 {
     sanitize_sql_inputs($user, $gameID);
     settype($gameID, 'integer');
@@ -1284,7 +1141,6 @@ function checkIfSoleDeveloper($user, $gameID)
         AND ach.Flags = 3";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     $userFound = false;
     if ($dbResult !== false) {

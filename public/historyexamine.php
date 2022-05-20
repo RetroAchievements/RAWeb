@@ -87,7 +87,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         echo "</tr>";
 
         // Merge if poss and count
-        $achCount = is_countable($achEarnedOnDay) ? count($achEarnedOnDay) : 0;
+        $achCount = count($achEarnedOnDay);
         $pointsCount = 0;
         // foreach( $achEarnedOnDay as $achEarned )
 

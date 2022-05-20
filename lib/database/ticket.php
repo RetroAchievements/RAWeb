@@ -8,7 +8,7 @@ use RA\SubscriptionSubjectType;
 use RA\TicketFilters;
 use RA\TicketState;
 
-function isAllowedToSubmitTickets($user)
+function isAllowedToSubmitTickets($user): bool
 {
     return isValidUsername($user)
         && getUserActivityRange($user, $firstLogin, $lastLogin)
@@ -17,7 +17,7 @@ function isAllowedToSubmitTickets($user)
         && $userInfo[0]['GameID'];
 }
 
-function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RAHash)
+function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RAHash): array
 {
     sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $RAHash);
 
@@ -57,7 +57,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
         $dbResult = mysqli_query($db, $query); // Unescaped?
         $ticketID = mysqli_insert_id($db);
 
-        if ($dbResult == false) {
+        if (!$dbResult) {
             $errorsEncountered = true;
             log_sql_fail();
         } else {
@@ -109,7 +109,7 @@ $bugReportDetails";
     return $returnMsg;
 }
 
-function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $noteIn, &$summaryMsgOut)
+function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $noteIn, &$summaryMsgOut): bool
 {
     if (!isAllowedToSubmitTickets($userSubmitter)) {
         $summaryMsgOut = "FAILED!";
@@ -145,7 +145,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
         $dbResult = mysqli_query($db, $query); // Unescaped?
         $ticketID = mysqli_insert_id($db);
 
-        if ($dbResult == false) {
+        if (!$dbResult) {
             $errorsEncountered = true;
             log_sql_fail();
         } else {
@@ -211,7 +211,7 @@ function getAllTickets(
     $givenAchievementID = null,
     $ticketFilters = TicketFilters::Default,
     $getUnofficial = false
-) {
+): array {
     sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
 
     $retVal = [];
@@ -309,7 +309,7 @@ function getAllTickets(
     return $retVal;
 }
 
-function getTicket($ticketID)
+function getTicket($ticketID): ?array
 {
     sanitize_sql_inputs($ticketID);
 
@@ -326,14 +326,14 @@ function getTicket($ticketID)
               ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult);
-    } else {
-        return false;
+    if (!$dbResult) {
+        return null;
     }
+
+    return mysqli_fetch_assoc($dbResult);
 }
 
-function updateTicket($user, $ticketID, $ticketVal, $reason = null)
+function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
 {
     sanitize_sql_inputs($ticketID, $ticketVal);
 
@@ -352,72 +352,72 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
               WHERE ID=$ticketID";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $userReporter = $ticketData['ReportedBy'];
-        $achID = $ticketData['AchievementID'];
-        $achTitle = $ticketData['AchievementTitle'];
-        $gameTitle = $ticketData['GameTitle'];
-        $consoleName = $ticketData['ConsoleName'];
-
-        $status = TicketState::toString($ticketVal);
-        $comment = null;
-
-        switch ($ticketVal) {
-            case TicketState::Closed:
-                if ($reason == "Demoted") {
-                    updateAchievementFlags($achID, AchievementType::UNOFFICIAL);
-                }
-                $comment = "Ticket closed by $user. Reason: \"$reason\".";
-                postActivity($user, ActivityType::ClosedTicket, $achID);
-                break;
-
-            case TicketState::Open:
-                if ($ticketData['ReportState'] == TicketState::Request) {
-                    $comment = "Ticket reassigned to author by $user.";
-                } else {
-                    $comment = "Ticket reopened by $user.";
-                    postActivity($user, ActivityType::OpenedTicket, $achID);
-                }
-                break;
-
-            case TicketState::Resolved:
-                $comment = "Ticket resolved as fixed by $user.";
-                postActivity($user, ActivityType::ClosedTicket, $achID);
-                break;
-
-            case TicketState::Request:
-                $comment = "Ticket reassigned to reporter by $user.";
-                break;
-        }
-
-        addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
-
-        getAccountDetails($userReporter, $reporterData);
-        $email = $reporterData['EmailAddress'];
-
-        $emailTitle = "Ticket status changed";
-
-        $msg = "Hello $userReporter!<br>" .
-            "<br>" .
-            "$achTitle - $gameTitle ($consoleName)<br>" .
-            "<br>" .
-            "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
-            "<br>Comment: $comment" .
-            "<br>" .
-            "Click <a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
-            "<br>" .
-            "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
-            "<br>" .
-            "-- Your friends at RetroAchievements.org<br>";
-
-        return mail_utf8($email, $emailTitle, $msg);
-    } else {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
+
+    $userReporter = $ticketData['ReportedBy'];
+    $achID = $ticketData['AchievementID'];
+    $achTitle = $ticketData['AchievementTitle'];
+    $gameTitle = $ticketData['GameTitle'];
+    $consoleName = $ticketData['ConsoleName'];
+
+    $status = TicketState::toString($ticketVal);
+    $comment = null;
+
+    switch ($ticketVal) {
+        case TicketState::Closed:
+            if ($reason == TicketState::REASON_DEMOTED) {
+                updateAchievementFlags($achID, AchievementType::UNOFFICIAL);
+            }
+            $comment = "Ticket closed by $user. Reason: \"$reason\".";
+            postActivity($user, ActivityType::ClosedTicket, $achID);
+            break;
+
+        case TicketState::Open:
+            if ($ticketData['ReportState'] == TicketState::Request) {
+                $comment = "Ticket reassigned to author by $user.";
+            } else {
+                $comment = "Ticket reopened by $user.";
+                postActivity($user, ActivityType::OpenedTicket, $achID);
+            }
+            break;
+
+        case TicketState::Resolved:
+            $comment = "Ticket resolved as fixed by $user.";
+            postActivity($user, ActivityType::ClosedTicket, $achID);
+            break;
+
+        case TicketState::Request:
+            $comment = "Ticket reassigned to reporter by $user.";
+            break;
+    }
+
+    addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
+
+    getAccountDetails($userReporter, $reporterData);
+    $email = $reporterData['EmailAddress'];
+
+    $emailTitle = "Ticket status changed";
+
+    $msg = "Hello $userReporter!<br>" .
+        "<br>" .
+        "$achTitle - $gameTitle ($consoleName)<br>" .
+        "<br>" .
+        "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
+        "<br>Comment: $comment" .
+        "<br>" .
+        "Click <a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
+        "<br>" .
+        "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
+        "<br>" .
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($email, $emailTitle, $msg);
 }
 
-function countRequestTicketsByUser($user)
+function countRequestTicketsByUser($user): ?int
 {
     if ($user == null) {
         return null;
@@ -434,14 +434,14 @@ function countRequestTicketsByUser($user)
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['count'];
-    } else {
-        return false;
+    if (!$dbResult) {
+        return 0;
     }
+
+    return (int) mysqli_fetch_assoc($dbResult)['count'];
 }
 
-function countOpenTicketsByDev($dev)
+function countOpenTicketsByDev($dev): ?array
 {
     if ($dev == null) {
         return null;
@@ -474,12 +474,12 @@ function countOpenTicketsByDev($dev)
     return $retVal;
 }
 
-function countOpenTicketsByAchievement($achievementID)
+function countOpenTicketsByAchievement($achievementID): int
 {
     sanitize_sql_inputs($achievementID);
     settype($achievementID, 'integer');
     if ($achievementID <= 0) {
-        return false;
+        return 0;
     }
 
     $query = "
@@ -490,10 +490,10 @@ function countOpenTicketsByAchievement($achievementID)
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['count'];
-    } else {
-        return false;
+        return (int) mysqli_fetch_assoc($dbResult)['count'];
     }
+
+    return 0;
 }
 
 function countOpenTickets(
@@ -504,7 +504,7 @@ function countOpenTickets(
     $resolvedByUser = null,
     $gameID = null,
     $achievementID = null
-) {
+): int {
     sanitize_sql_inputs($assignedToUser, $reportedByUser, $resolvedByUser, $gameID);
 
     // State condition
@@ -599,14 +599,14 @@ function countOpenTickets(
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['count'];
-    } else {
-        return false;
+    if (!$dbResult) {
+        return 0;
     }
+
+    return (int) mysqli_fetch_assoc($dbResult)['count'];
 }
 
-function gamesSortedByOpenTickets($count)
+function gamesSortedByOpenTickets($count): array
 {
     sanitize_sql_inputs($count);
     settype($count, 'integer');
@@ -650,11 +650,8 @@ function gamesSortedByOpenTickets($count)
 
 /**
  * Gets the ticket state condition to put into the main ticket query.
- *
- * @param int $ticketFilters the current ticket filters in place
- * @return string|null
  */
-function getStateCondition($ticketFilters)
+function getStateCondition(int $ticketFilters): ?string
 {
     $states = [];
     if ($ticketFilters & TicketFilters::StateOpen) {
@@ -683,11 +680,8 @@ function getStateCondition($ticketFilters)
 
 /**
  * Gets the ticket report type condition to put into the main ticket query.
- *
- * @param int $ticketFilters the current ticket filters in place
- * @return string|null
  */
-function getReportTypeCondition($ticketFilters)
+function getReportTypeCondition(int $ticketFilters): ?string
 {
     $triggeredTickets = ($ticketFilters & TicketFilters::TypeTriggeredAtWrongTime);
     $didNotTriggerTickets = ($ticketFilters & TicketFilters::TypeDidNotTrigger);
@@ -706,11 +700,8 @@ function getReportTypeCondition($ticketFilters)
 
 /**
  * Gets the ticket hash condition to put into the main ticket query.
- *
- * @param int $ticketFilters the current ticket filters in place
- * @return string|null
  */
-function getHashCondition($ticketFilters)
+function getHashCondition(int $ticketFilters): ?string
 {
     $hashKnownTickets = ($ticketFilters & TicketFilters::HashKnown);
     $hashUnknownTickets = ($ticketFilters & TicketFilters::HashUnknown);
@@ -727,7 +718,7 @@ function getHashCondition($ticketFilters)
     return null;
 }
 
-function getModeCondition($ticketFilters)
+function getModeCondition(int $ticketFilters): ?string
 {
     $modeUnknown = ($ticketFilters & TicketFilters::HardcoreUnknown);
     $modeHardcore = ($ticketFilters & TicketFilters::HardcoreOn);
@@ -768,11 +759,8 @@ function getModeCondition($ticketFilters)
 
 /**
  * Gets the developer active condition to put into the main ticket query.
- *
- * @param int $ticketFilters the current ticket filters in place
- * @return string|null
  */
-function getDevActiveCondition($ticketFilters)
+function getDevActiveCondition(int $ticketFilters): ?string
 {
     $devInactive = ($ticketFilters & TicketFilters::DevInactive);
     $devActive = ($ticketFilters & TicketFilters::DevActive);
@@ -808,11 +796,8 @@ function getDevActiveCondition($ticketFilters)
 
 /**
  * Gets the Not Author condition to put into the main ticket query.
- *
- * @param int $ticketFilters the current ticket filters in place
- * @return string
  */
-function getNotAuthorCondition($ticketFilters)
+function getNotAuthorCondition(int $ticketFilters): string
 {
     $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonAuthor);
 
@@ -825,11 +810,8 @@ function getNotAuthorCondition($ticketFilters)
 
 /**
  * Gets the ticket emulator condition to put into the main ticket query.
- *
- * @param int $ticketFilters the current ticket filters in place
- * @return string|null
  */
-function getEmulatorCondition($ticketFilters)
+function getEmulatorCondition(int $ticketFilters): ?string
 {
     $raEmulatorTickets = ($ticketFilters & TicketFilters::EmulatorRA);
     $rarchKnownTickets = ($ticketFilters & TicketFilters::EmulatorRetroArchCoreSpecified);
@@ -872,11 +854,8 @@ function getEmulatorCondition($ticketFilters)
 
 /**
  * Gets the total number of tickets and ticket states for a specific user.
- *
- * @param string $user to get ticket data for
- * @return array of user ticket data
  */
-function getTicketsForUser($user)
+function getTicketsForUser(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -899,11 +878,8 @@ function getTicketsForUser($user)
 
 /**
  * Gets the user developed game with the most amount of tickets.
- *
- * @param string $user to get ticket data for
- * @return array|null of user ticket data
  */
-function getUserGameWithMostTickets($user)
+function getUserGameWithMostTickets(string $user): ?array
 {
     sanitize_sql_inputs($user);
 
@@ -928,11 +904,8 @@ function getUserGameWithMostTickets($user)
 
 /**
  * Gets the user developed achievement with the most amount of tickets.
- *
- * @param string $user to get ticket data for
- * @return array|null of user ticket data
  */
-function getUserAchievementWithMostTickets($user)
+function getUserAchievementWithMostTickets(string $user): ?array
 {
     sanitize_sql_inputs($user);
 
@@ -957,11 +930,8 @@ function getUserAchievementWithMostTickets($user)
 
 /**
  * Gets the user who created the most tickets for another user.
- *
- * @param string $user to get ticket data for
- * @return array|null of user ticket data
  */
-function getUserWhoCreatedMostTickets($user)
+function getUserWhoCreatedMostTickets(string $user): ?array
 {
     sanitize_sql_inputs($user);
 
@@ -984,11 +954,8 @@ function getUserWhoCreatedMostTickets($user)
 
 /**
  * Gets the number of tickets closed/resolved for other users.
- *
- * @param string $user to get ticket data for
- * @return array of user ticket data
  */
-function getNumberOfTicketsClosedForOthers($user)
+function getNumberOfTicketsClosedForOthers(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -1017,7 +984,7 @@ function getNumberOfTicketsClosedForOthers($user)
     return $retVal;
 }
 
-function GetTicketModel($ticketId)
+function GetTicketModel(int $ticketId): ?TicketModel
 {
     $ticketDbResult = getTicket($ticketId);
 
@@ -1025,7 +992,5 @@ function GetTicketModel($ticketId)
         return null;
     }
 
-    $ticketModel = new TicketModel($ticketDbResult);
-
-    return $ticketModel;
+    return new TicketModel($ticketDbResult);
 }

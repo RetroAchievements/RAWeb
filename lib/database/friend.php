@@ -1,6 +1,6 @@
 <?php
 
-function changeFriendStatus($user, $friend, $action)
+function changeFriendStatus($user, $friend, $action): string
 {
     sanitize_sql_inputs($user, $friend, $action);
     settype($action, 'integer');
@@ -110,137 +110,29 @@ function changeFriendStatus($user, $friend, $action)
         log_sql_fail();
         return "sqlfail";
     }
+
+    return "error";
 }
 
-function addFriend($user, $friendToAdd)
-{
-    sanitize_sql_inputs($user, $friendToAdd);
-
-    $query = "SELECT * FROM Friends WHERE (User='$user' AND Friend='$friendToAdd') OR (User='$friendToAdd' AND Friend='$user')";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $numRows = mysqli_num_rows($dbResult);
-        if ($numRows == 0) {
-            // New friend request
-            // Add as a confirmed friend for me
-            $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ( '$user', '$friendToAdd', '1' )";
-            $dbResult = s_mysql_query($query);
-            if ($dbResult == false) {
-                log_sql_fail();
-            }
-
-            // Add as a pending friend for him
-            $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ( '$friendToAdd', '$user', '0' )";
-            $dbResult = s_mysql_query($query);
-            if ($dbResult == false) {
-                log_sql_fail();
-            }
-
-            return true;
-        } else {
-            // Friend request already sent. To simply this, just fail, call "confirmFriend" instead!
-            return false;
-        }
-    } else {
-        log_sql_fail();
-        return false;
-    }
-}
-
-function confirmFriend($user, $friendToConfirm)
-{
-    sanitize_sql_inputs($user, $friendToConfirm);
-
-    $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friendToConfirm'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $numRows = mysqli_num_rows($dbResult);
-
-        if ($numRows == 1) {
-            $query = "UPDATE Friends SET Friendship='1' WHERE User='$user' AND Friend='$friendToConfirm'";
-            if (s_mysql_query($query) !== false) {
-                // Accepted successfully :)
-                return true;
-            } else {
-                log_sql_fail();
-                return false;
-            }
-        } else {
-            return false;
-        }
-    } else {
-        log_sql_fail();
-        return false;
-    }
-}
-
-function blockFriend($user, $friendToConfirm)
-{
-    sanitize_sql_inputs($user, $friendToConfirm);
-
-    $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friendToConfirm'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $numRows = mysqli_num_rows($dbResult);
-
-        if ($numRows == 1) {
-            $query = "UPDATE Friends SET Friendship='-1' WHERE User='$user' AND Friend='$friendToConfirm'";
-            if (s_mysql_query($query) !== false) {
-                // Accepted successfully :)
-                return true;
-            } else {
-                log_sql_fail();
-                return false;
-            }
-        } else {
-            return false;
-        }
-    } else {
-        log_sql_fail();
-        return false;
-    }
-}
-
-function isFriendsWith($user, $friend)
-{
-    sanitize_sql_inputs($user, $friend);
-
-    $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$friend'";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        return false;
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-    if ($data == false) {
-        return false;
-    }
-
-    return $data['Friendship'] == '1';
-}
-
-function isUserBlocking($user, $possibly_blocked_user)
+function isUserBlocking($user, $possibly_blocked_user): bool
 {
     sanitize_sql_inputs($user, $possibly_blocked_user);
 
     $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$possibly_blocked_user'";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         return false;
     }
 
     $data = mysqli_fetch_assoc($dbResult);
-    if ($data == false) {
+    if (!$data) {
         return false;
     }
 
     return $data['Friendship'] == '-1';
 }
 
-function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
+function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -253,33 +145,6 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
     if (!ctype_alnum($user)) {
         return 0;
     }
-
-    // s_mysql_query( "CREATE VIEW _FriendList AS SELECT f.Friend FROM Friends as f WHERE f.User = '$user'" );
-    // s_mysql_query( "CREATE VIEW _ThisAwarded AS SELECT aw.User, aw.AchievementID, aw.Date FROM Awarded AS aw WHERE aw.AchievementID IN ( SELECT ID FROM Achievements WHERE Achievements.GameID = '$gameID' )" );
-
-    // $query      = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, act.LastUpdate
-    //            FROM _ThisAwarded AS aw
-    //            NATURAL JOIN _FriendList
-    //            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-    //            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-    //            LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
-    //            WHERE aw.User = _FriendList.Friend
-    //            GROUP BY aw.User
-    //            ORDER BY TotalPoints DESC, aw.User";
-
-    // Concatenated queries:
-    // $query = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, act.LastUpdate
-    // FROM (
-    // SELECT aw.User, aw.AchievementID, aw.Date FROM Awarded AS aw WHERE aw.AchievementID IN
-    // ( SELECT ID FROM Achievements WHERE Achievements.GameID = '$gameID' )
-    // ) AS aw
-    // NATURAL JOIN ( SELECT f.Friend FROM Friends as f WHERE f.User = '$user' ) AS _FriendList
-    // LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-    // LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-    // LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
-    // WHERE aw.User = _FriendList.Friend
-    // GROUP BY aw.User
-    // ORDER BY TotalPoints DESC, aw.User ";
 
     // Less dependent subqueries :)
     $query = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, ua.RichPresenceMsg, act.LastUpdate 
@@ -326,13 +191,10 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut)
         log_sql_fail();
     }
 
-    // s_mysql_query( "DROP VIEW _FriendList" );
-    // s_mysql_query( "DROP VIEW _ThisAwarded" );
-
     return $numFriends;
 }
 
-function GetFriendList($user)
+function GetFriendList($user): array
 {
     sanitize_sql_inputs($user);
 
@@ -347,7 +209,7 @@ function GetFriendList($user)
               ORDER BY ua.LastActivityID DESC";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     } else {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
@@ -359,13 +221,3 @@ function GetFriendList($user)
 
     return $friendList;
 }
-
-// function getLastKnownActivity( $user )
-// {
-//     $query = "SELECT act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2
-//         FROM UserAccounts AS ua
-//         LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
-//         WHERE ua.User = '$user'";
-//     $dbResult = s_mysql_query( $query );
-//     return mysqli_fetch_assoc( $dbResult );
-// }

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase
 {
-    public function testTests()
+    public function testTests(): void
     {
         $this->assertTrue(true);
     }

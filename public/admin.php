@@ -320,7 +320,7 @@ switch ($action) {
             $ids = str_replace(',', ' ', $achievementIDs);
             $ids = str_replace('  ', ' ', $ids);
             $ids = explode(' ', $ids);
-            $winners = getWinnersOfAchievements($ids, $startTime, $endTime, $hardcoreMode);
+            $winners = getWinnersOfAchievements($ids, $startTime, $endTime, (int) $hardcoreMode);
 
             $keys = array_keys($winners);
             for ($i = 0; $i < count($winners); $i++) {

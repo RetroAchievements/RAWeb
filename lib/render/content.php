@@ -48,9 +48,7 @@ function RenderCurrentlyOnlineComponent(): void
     echo "<h3>Currently Online</h3>";
     echo "<div id='playersonlinebox' class='infobox'>";
 
-    $playersArray = getCurrentlyOnlinePlayers();
-
-    $numPlayers = is_countable($playersArray) ? count($playersArray) : 0;
+    $numPlayers = count(getCurrentlyOnlinePlayers());
     echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
 
     echo "</div>";

@@ -1,8 +1,11 @@
 <?php
 
+use RA\AwardType;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+// TODO do not allow GET requests, POST only
 if (ValidatePOSTChars("tdev")) {
     $awardType = requestInputPost('t', null, 'integer');
     $awardData = requestInputPost('d', null, 'integer');
@@ -28,7 +31,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 /**
  * change display order for all entries if it's a "stacking" award type
  */
-if (in_array($awardType, [2, 3])) {
+if (in_array($awardType, [AwardType::ACHIEVEMENT_UNLOCKS_YIELD, AwardType::ACHIEVEMENT_POINTS_YIELD])) {
     $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
         "AND AwardType = $awardType " .
         "AND AwardDataExtra = $awardDataExtra";

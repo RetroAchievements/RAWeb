@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
 use RA\TicketFilters;
@@ -133,7 +134,7 @@ if ($ticketID != 0) {
         }
     }
 
-    $numClosedTickets = ((is_countable($altTicketData) ? count($altTicketData) : 0) - $numOpenTickets) - 1;
+    $numClosedTickets = count($altTicketData) - $numOpenTickets - 1;
 }
 
 $assignedToUser = null;
@@ -169,11 +170,17 @@ if ($ticketID == 0) {
             $gameIDGiven = $achievementData['GameID']; // overwrite the given game ID
         }
 
-        if ($gamesTableFlag == 5) {
-            $ticketData = getAllTickets($offset, $count, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven, $achievementIDGiven, $ticketFilters, true);
-        } else {
-            $ticketData = getAllTickets($offset, $count, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven, $achievementIDGiven, $ticketFilters);
-        }
+        $ticketData = getAllTickets(
+            $offset,
+            $count,
+            $assignedToUser,
+            $reportedByUser,
+            $resolvedByUser,
+            $gameIDGiven,
+            $achievementIDGiven,
+            $ticketFilters,
+            $gamesTableFlag === AchievementType::UNOFFICIAL
+        );
     }
 }
 
@@ -200,7 +207,7 @@ RenderHtmlHead($pageTitle);
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
-        if ($gamesTableFlag == 1) {
+        if ($gamesTableFlag === 1) {
             echo "<a href='/ticketmanager.php'>$pageTitle</a></b> &raquo; <b>Games With Open Tickets";
         } else {
             if ($ticketID == 0) {
@@ -242,23 +249,17 @@ RenderHtmlHead($pageTitle);
             if (!isValidUsername($resolvedByUser)) {
                 $resolvedByUser = null;
             }
-            if ($gamesTableFlag == 5) {
-                $openTicketsCount = countOpenTickets(true);
-                $filteredTicketsCount = countOpenTickets(true, $ticketFilters, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven, $achievementIDGiven);
-                if ($ticketID == 0) {
-                    echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open Unofficial Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
-                } else {
-                    echo "<h3 class='longheader'>Inspect Ticket</h3>";
-                }
-            } else {
-                $openTicketsCount = countOpenTickets();
-                $filteredTicketsCount = countOpenTickets(false, $ticketFilters, $assignedToUser, $reportedByUser, $resolvedByUser, $gameIDGiven, $achievementIDGiven);
-                if ($ticketID == 0) {
-                    echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
-                } else {
-                    echo "<h3 class='longheader'>Inspect Ticket</h3>";
-                }
-            }
+            $openTicketsCount = countOpenTickets($gamesTableFlag === AchievementType::UNOFFICIAL);
+            $filteredTicketsCount = countOpenTickets(
+                $gamesTableFlag === AchievementType::UNOFFICIAL,
+                $ticketFilters,
+                $assignedToUser,
+                $reportedByUser,
+                $resolvedByUser,
+                $gameIDGiven,
+                $achievementIDGiven
+            );
+            echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementType::UNOFFICIAL ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
         }
 
         echo "<div class='detaillist'>";
@@ -330,6 +331,7 @@ RenderHtmlHead($pageTitle);
                     $appendParam($link, 'r', $resolvedByUser, null);
                     $appendParam($link, 'f', $gamesTableFlag, 3);
                     $appendParam($link, 't', $ticketFilters, TicketFilters::Default);
+
                     return $link;
                 };
 
@@ -414,7 +416,7 @@ RenderHtmlHead($pageTitle);
                 }
 
                 // Clear Filter
-                if ($ticketFilters != $defaultFilter || $gamesTableFlag == 5) {
+                if ($ticketFilters != $defaultFilter || $gamesTableFlag === AchievementType::UNOFFICIAL) {
                     echo "<div>";
                     echo "<a href='" . $createLink('t', $defaultFilter, 'f', 3) . "'>Clear Filter</a>";
                     echo "</div>";
@@ -763,7 +765,7 @@ RenderHtmlHead($pageTitle);
                 echo "<tr>";
                 echo "<td></td><td colspan='7'>";
                 echo "<div class='temp'>";
-                $awardCount = getAwardsSince($achID, $reportedAt);
+                $awardCount = getAwardsSince((int) $achID, $reportedAt);
                 echo "This achievement has been earned " . $awardCount['softcoreCount'] . " <b>(" . $awardCount['hardcoreCount'] . ")</b> "
                     . ($awardCount['hardcoreCount'] == 1 ? "time" : "times") . " since this ticket was created.";
                 echo "</div>";
@@ -856,7 +858,8 @@ RenderHtmlHead($pageTitle);
                             echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
                         } else {
                             echo GetAchievementAndTooltipDiv($unlockEntry['ID'], $unlockEntry['Title'], $unlockEntry['Description'],
-                                                            $unlockEntry['Points'], $gameTitle, $unlockEntry['BadgeName'], true);
+                                $unlockEntry['Points'], $gameTitle, $unlockEntry['BadgeName'], true
+                            );
                         }
                         echo "</td><td>";
                         $unlockDate = getNiceDate(strtotime($unlockEntry['Date']));

@@ -175,18 +175,18 @@ final class Shortcode
         return GetTicketAndTooltipDiv($ticketModel);
     }
 
-    private function embedUser($username): string
+    private function embedUser(string $username): string
     {
         return GetUserAndTooltipDiv($username, false);
     }
 
-    private function linkifyBasicURLs($text)
+    private function linkifyBasicURLs(string $text): string
     {
         // see https://stackoverflow.com/a/2271552/580651:
         // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
         // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
         // lookahead: (?<![!,.?;:"\'()-])
-        $text = preg_replace(
+        return (string) preg_replace(
             '~
             (https?://[\w!#$%&\'()*+,./:;=?@\[\]-]+(?<![!,.?;:"\'()]))
             (?!                 # Assert URL is not pre-linked.
@@ -197,20 +197,17 @@ final class Shortcode
             '<a href="$1" target="_blank" rel="noopener">$1</a>',
             $text
         );
-
-        return $text;
     }
 
-    private function embedVideo($videoUrl): string
+    private function embedVideo(string $videoUrl): string
     {
         return '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="' . $videoUrl . '" allowfullscreen></iframe></div>';
     }
 
     /**
      * from http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
-     * @param mixed $text
      */
-    private function autoEmbedYouTube($text)
+    private function autoEmbedYouTube(string $text): string
     {
         // http://www.youtube.com/v/YbKzgRwF91w
         // http://www.youtube.com/watch?v=1zMHaHPXqqg
@@ -220,7 +217,7 @@ final class Shortcode
         // https://www.youtube.com/watch?v=1YiNYWpwn7o
         // www.youtube.com/watch?v=Yjba9rvs4iU
 
-        $text = preg_replace(
+        return (string) preg_replace(
             '~
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:[0-9A-Z-]+\.)?   # Optional subdomain.
@@ -244,11 +241,9 @@ final class Shortcode
             $this->embedVideo('//www.youtube-nocookie.com/embed/$1$2'),
             $text
         );
-
-        return $text;
     }
 
-    private function autoEmbedTwitch($text): string
+    private function autoEmbedTwitch(string $text): string
     {
         if (mb_strpos($text, "twitch.tv") === false) {
             return $text;
@@ -259,7 +254,7 @@ final class Shortcode
         // https://www.twitch.tv/videos/270709956
         // https://www.twitch.tv/gamingwithmist/v/40482810
 
-        $text = preg_replace(
+        $text = (string) preg_replace(
             '~
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:www.)?           # Optional subdomain.
@@ -293,7 +288,7 @@ final class Shortcode
             $text
         );
 
-        return $text;
+        return (string) $text;
     }
 
     private function autoEmbedImgur(string $text): string
@@ -305,7 +300,7 @@ final class Shortcode
         // https://i.imgur.com/bciLIYm.mp4
 
         // https://imgur.com/gallery/bciLIYm -> no extension -> will be ignored (turns out as link)
-        // https://imgur.com/a/bciLIYm.gif -> replaced by gifv - potentially broken if it's a static image
+        // https://imgur.com/a/bciLIYm.gif -> replaced by gif - potentially broken if it's a static image
         // https://imgur.com/a/bciLIYm.jpg -> downloads as gif if original is a gif, potentially large :/ can't do much about that
 
         $pattern = '~
@@ -341,8 +336,7 @@ final class Shortcode
                 $replacements[$i] = '<a href="//imgur.com/' . $id . '" target="_blank" rel="noopener"><img class="injectinlineimage" src="//i.imgur.com/' . $id . '.jpg" alt=""><div class="text-right mb-3"><small>view on imgur</small></div></a>';
             }
         }
-        $text = preg_replace_array($pattern, $replacements, $text);
 
-        return $text;
+        return preg_replace_array($pattern, $replacements, $text);
     }
 }
