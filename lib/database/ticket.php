@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Models\TicketModel;
@@ -364,7 +365,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null)
         switch ($ticketVal) {
             case TicketState::Closed:
                 if ($reason == "Demoted") {
-                    updateAchievementFlags($achID, 5);
+                    updateAchievementFlags($achID, AchievementType::UNOFFICIAL);
                 }
                 $comment = "Ticket closed by $user. Reason: \"$reason\".";
                 postActivity($user, ActivityType::ClosedTicket, $achID);

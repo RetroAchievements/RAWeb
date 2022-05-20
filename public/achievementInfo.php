@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
 use RA\Shortcode\Shortcode;
@@ -19,7 +20,7 @@ if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == f
 
 $achievementTitle = $dataOut['AchievementTitle'];
 $desc = $dataOut['Description'];
-$achFlags = $dataOut['Flags'];
+$achFlags = (int) $dataOut['Flags'];
 $achPoints = $dataOut['Points'];
 $achTruePoints = $dataOut['TrueRatio'];
 $gameTitle = $dataOut['GameTitle'];
@@ -86,28 +87,54 @@ RenderHtmlStart(true);
 <?php RenderHeader($userDetails); ?>
 <?php if ($permissions >= Permissions::Developer): ?>
     <script>
-        function PostEmbedUpdate() {
-            var url = $('#embedurlinput').val();
-            url = replaceAll('http', '_http_', url);
+      function PostEmbedUpdate() {
+        var url = $('#embedurlinput').val();
+        url = replaceAll('http', '_http_', url);
 
-            var posting = $.post('/request/achievement/update.php', {
-                u: '<?php echo $user; ?>',
-                a: <?php echo $achievementID; ?>,
-                f: 2,
-                v: url,
-            });
-            posting.done(onUpdateEmbedComplete);
-            $('#warning').html('Status: Updating...');
+        var posting = $.post('/request/achievement/update.php', {
+          u: '<?php echo $user; ?>',
+          a: <?php echo $achievementID; ?>,
+          f: 2,
+          v: url,
+        });
+        posting.done(function (data) {
+          if (data !== 'OK') {
+            $('#warning').html('Status: Errors...');
+          } else {
+            $('#warning').html('Status: Loading...');
+            window.location.reload();
+          }
+        });
+        $('#warning').html('Status: Updating...');
+      }
+
+      function updateAchievementTypeFlag(typeFlag) {
+        if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OFFICIAL_CORE ?> ? 'promote' : 'demote')} these achievements?`)) {
+          return;
         }
 
-        function onUpdateEmbedComplete(data) {
-            if (data !== 'OK') {
-                $('#warning').html('Status: Errors...');
-            } else {
-                $('#warning').html('Status: Loading...');
-                window.location.reload();
+        $.ajax({
+          type: "POST",
+          url: '/request/achievement/update.php',
+          dataType: "json",
+          data: {
+            'a': <?= $achievementID ?>,
+            'f': 3,
+            'u': '<?= $user ?>',
+            'v': typeFlag
+          },
+          error: function (xhr, status, error) {
+            alert('Error: ' + (error || 'unknown error'));
+          }
+        })
+          .done(function (data) {
+            if (!data.success) {
+              alert('Error: ' + (data.error || 'unknown error'));
+              return;
             }
-        }
+            document.location.reload();
+          });
+      }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -165,7 +192,7 @@ RenderHtmlStart(true);
 
         echo "<p class='smalldata'>";
         echo "<small>";
-        if ($achFlags == 5) {
+        if ($achFlags === AchievementType::UNOFFICIAL) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
@@ -241,10 +268,11 @@ RenderHtmlStart(true);
                 <?php
                 echo "<div style='clear:both;'></div>";
 
-                if ($achFlags == 3) {
-                    echo "<li>State: Official&nbsp;<a onclick='return ConfirmDemotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
-                } elseif ($achFlags == 5) {
-                    echo "<li>State: Unofficial&nbsp;<a onclick='return ConfirmPromotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                if ($achFlags === AchievementType::OFFICIAL_CORE) {
+                    echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::UNOFFICIAL . ")'>Demote To Unofficial</button></li>";
+                }
+                if ($achFlags === AchievementType::UNOFFICIAL) {
+                    echo "<li>State: Unofficial&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OFFICIAL_CORE . ")'>Promote To Official</button></li>";
                 }
             }
 
