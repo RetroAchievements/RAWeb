@@ -662,7 +662,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
             SELECT c.ID, c.UserID, c.Payload, c.Submitted, c.Edited
             FROM Comment AS c
             WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID
-            ORDER BY c.Submitted DESC
+            ORDER BY c.Submitted DESC, c.ID DESC
             LIMIT $offset, $count
         ) AS LatestComments
         LEFT JOIN UserAccounts AS ua ON ua.ID = LatestComments.UserID";
