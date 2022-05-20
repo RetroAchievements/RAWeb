@@ -16,7 +16,7 @@ abstract class AwardType
 
     public const PATREON_SUPPORTER = 6;
 
-    public const ACTIVE = [
+    private const ACTIVE = [
         self::MASTERY,
         self::ACHIEVEMENT_UNLOCKS_YIELD,
         self::ACHIEVEMENT_POINTS_YIELD,
