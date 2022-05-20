@@ -22,7 +22,7 @@ $title = str_replace("_http_", "http", $title);
 $link = str_replace("_http_", "http", $link);
 $image = str_replace("_http_", "http", $image);
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     requestModifyNews($author, $id, $title, $payload, $link, $image);
 
     echo "OK";

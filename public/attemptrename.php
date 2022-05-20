@@ -5,12 +5,10 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ReadCookieCredentials(
+if (!authenticateFromCookie(
     $user,
-    $points,
-    $truePoints,
-    $unreadMessageCount,
     $permissions,
+    $userDetails,
     Permissions::Developer
 )) {
     // Immediate redirect if we cannot validate user!	//TBD: pass args?
@@ -50,8 +48,7 @@ RenderHtmlStart();
 RenderHtmlHead("Rename Game Entry ($consoleName)");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <h2>Rename Game Entry</h2>

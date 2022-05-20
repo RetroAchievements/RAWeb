@@ -35,7 +35,7 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
     if (changePassword($user, $newpass1)) {
         // Perform auto-login:
         generateCookie($user, $newCookie);
-        RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+        authenticateFromCookie($user, $permissions, $userDetails);
         generateAppToken($user, $tokenInOut);
 
         header("Location: " . getenv('APP_URL') . "/resetPassword.php?e=changepassok");

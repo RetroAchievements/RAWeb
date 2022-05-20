@@ -5,13 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Unregistered)) {
-    if (getAccountDetails($user, $userDetails) == false) {
-        // Immediate redirect if we cannot validate user!
-        header("Location: " . getenv('APP_URL') . "?e=accountissue");
-        exit;
-    }
-} else {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -27,8 +21,7 @@ RenderHtmlStart();
 RenderHtmlHead("Friends");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <h2>Friends</h2>
@@ -64,8 +57,8 @@ RenderHtmlHead("Friends");
                 echo "<td style='vertical-align:middle;'>";
                 echo "<div class='buttoncollection'>";
                 echo "<span style='display:block;'><a href='/createmessage.php?t=$user'>Send&nbsp;Message</a></span>";
-                echo "<span style='display:block;'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$nextFriendName&amp;a=0'>Remove&nbsp;Friend</a></span>";
-                echo "<span style='display:block;'><a href='/request/friend/update.php?u=$user&amp;c=$cookie&amp;f=$nextFriendName&amp;a=-1'>Block&nbsp;User</a></span>";
+                echo "<span style='display:block;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=0'>Remove&nbsp;Friend</a></span>";
+                echo "<span style='display:block;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=-1'>Block&nbsp;User</a></span>";
                 echo "</div>";
                 echo "</td>";
 

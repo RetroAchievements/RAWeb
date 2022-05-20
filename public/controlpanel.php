@@ -6,13 +6,7 @@ use RA\UserPref;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
-    if (getAccountDetails($user, $userDetails) == false) {
-        // Immediate redirect if we cannot validate user!
-        header("Location: " . getenv('APP_URL') . "?e=accountissue");
-        exit;
-    }
-} else {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -259,8 +253,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
 
   GetAllResettableGamesList();
 </script>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php RenderErrorCodeWarning($errorCode); ?>
@@ -287,8 +280,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-motto.php'>";
                 echo "<input class='fullwidth' name='m' value=\"$userMottoString\" maxlength='49' id='usermottoinput' placeholder='Add your motto here! (No profanity please!)' />";
-                echo "<input type='hidden' name='u' VALUE='$user'>";
-                echo "<input type='hidden' name='c' VALUE='$cookie'>";
                 echo "<input value='Set Motto' name='submit' type='submit' size='37' />";
                 echo "</form>";
                 echo "</td>";
@@ -301,8 +292,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                 echo "<form method='POST' action='/request/user/update-wall.php'>";
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
                 echo "<input type='checkbox' name='v' value='1' id='userwallactive' $checkedStr/>";
-                echo "<input type='hidden' name='u' value='$user'>";
-                echo "<input type='hidden' name='c' value='$cookie'>";
                 echo "<input type='hidden' name='t' value='wall'>";
                 echo "<input value='Save' name='submit' type='submit' size='37' />";
                 echo "</form>";
@@ -517,8 +506,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                     </tr>
                     </tbody>
                 </table>
-                <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-                <input TYPE="hidden" NAME="c" VALUE="<?php echo $cookie; ?>">
             </form>
         </div>
         <div class='component'>
@@ -564,7 +551,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
             <?php if ($userDetails['DeleteRequested']): ?>
                 <p>
                     You requested to have your account deleted on <?= $userDetails['DeleteRequested'] ?> (UTC).<br>
-                    Your account will be permanently deleted on <?= date('Y-m-d', strtotime($userDetails['DeleteRequested']) + 60 * 60 * 24 * 14) ?>.
+                    Your account will be permanently deleted on <?= getDeleteDate($userDetails['DeleteRequested']) ?>.
                 </p>
                 <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure you want to cancel your account deletion request?');">
                     <input type="submit" value="Cancel account deletion request">

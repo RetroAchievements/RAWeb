@@ -12,7 +12,7 @@ $global = requestInputSanitized('g', null, 'integer');
 $activityID = requestInputSanitized('a', null, 'integer');
 $individual = requestInputSanitized('i', null, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 // Max: last 50 messages:
 $maxMessages = 50;
@@ -55,8 +55,7 @@ RenderHtmlHead($pageTitle);
   });
 </script>
 
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <div id="mainpage">
     <div id="leftcontainer">

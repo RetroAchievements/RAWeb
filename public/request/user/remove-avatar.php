@@ -12,8 +12,9 @@ if (!ValidatePOSTChars("u")) {
 
 $user = requestInputPost('u');
 
-if (validateUser_cookie($actingUser, null, Permissions::Registered)) {
-    if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {
+if (authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
+    if ($user !== $actingUser && $permissions < Permissions::Admin) {
+        header("Location: " . getenv('APP_URL') . "/user/" . $user);
         return false;
     }
     removeAvatar($user);

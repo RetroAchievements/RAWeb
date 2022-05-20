@@ -18,8 +18,7 @@ RenderHtmlStart();
 RenderHtmlHead("Password Reset");
 ?>
 <body>
-<?php RenderTitleBar(null, 0, 0, 0, $errorCode); ?>
-<?php RenderToolbar(null, 0); ?>
+<?php RenderHeader(null); ?>
 
 <div id="mainpage">
     <div id="fullcontainer">

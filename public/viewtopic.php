@@ -8,7 +8,8 @@ use RA\SubscriptionSubjectType;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
+authenticateFromCookie($user, $permissions, $userDetails);
+$userID = $userDetails['ID'] ?? 0;
 
 // Fetch topic ID
 $requestedTopicID = requestInputSanitized('t', 0, 'integer');
@@ -78,8 +79,7 @@ RenderHtmlStart();
 </head>
 
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <div id="mainpage">
     <?php RenderErrorCodeWarning($errorCode); ?>
@@ -324,7 +324,7 @@ RenderHtmlStart();
             echo "</tbody></table></div>";
         } else {
             echo "</tbody></table></div>";
-            RenderLoginComponent($user, $points, $errorCode, true);
+            echo "<br/>You must log in before you can join this conversation.<br/>";
         }
         ?>
         <br>

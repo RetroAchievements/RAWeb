@@ -12,7 +12,7 @@ $newsArticleID = requestInputSanitized('n', 0, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
@@ -22,8 +22,7 @@ RenderHtmlStart();
 RenderHtmlHead("Manage News");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function onSubmitNews() {
     var title = $('#NewsTitle').val();

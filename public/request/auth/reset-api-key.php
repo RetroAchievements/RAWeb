@@ -10,7 +10,7 @@ if (!ValidatePOSTChars("cu")) {
     exit;
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     http_response_code(401);
     echo json_encode(['Success' => false]);
     exit;

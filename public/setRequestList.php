@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -54,8 +54,7 @@ RenderHtmlHead("Set Requests");
 ?>
 <body>
 <?php
-RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-RenderToolbar($user, $permissions);
+RenderHeader($userDetails);
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>

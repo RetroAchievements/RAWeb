@@ -5,13 +5,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Registered)) {
-    if (getAccountDetails($user, $userDetails) == false) {
-        // Immediate redirect if we cannot validate user!	//TBD: pass args?
-        header("Location: " . getenv('APP_URL') . "?e=accountissue");
-        exit;
-    }
-} else {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     // Immediate redirect if we cannot validate cookie!	//TBD: pass args?
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
@@ -35,15 +29,13 @@ $thisForumDescription = $forumData['ForumDescription'];
 $thisCategoryID = $forumData['CategoryID'];
 $thisCategoryName = $forumData['CategoryName'];
 
-getCookie($user, $cookieRaw);
 $errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
 RenderHtmlHead("Create topic: $thisForumTitle");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <div id="forums">
@@ -61,10 +53,9 @@ RenderHtmlHead("Create topic: $thisForumTitle");
             echo "<tbody>";
 
             echo "<form action='/request/forum-topic/create.php' method='post'>";
-            echo "<input type='hidden' value='$cookieRaw' name='c'>";
             echo "<input type='hidden' value='$requestedForumID' name='f'>";
             echo "<tr>" . "<td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
-            echo "<tr>" . "<td>Author:</td><td><input type='text' readonly value='$user' name='u'></td></tr>";
+            echo "<tr>" . "<td>Author:</td><td><input type='text' readonly value='$user'></td></tr>";
             echo "<tr>" . "<td>Title:</td><td><input class='fullwidth' type='text' value='' name='t'></td></tr>";
             echo "<tr>" . "<td>Message:</td><td>";
 

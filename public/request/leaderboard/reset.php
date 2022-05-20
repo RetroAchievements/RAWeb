@@ -16,7 +16,7 @@ $lbid = requestInputQuery('i');
 
 // Double check cookie as well
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer) &&
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer) &&
     ($source == $user)) {
     requestResetLB($lbid);
 
