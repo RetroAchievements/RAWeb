@@ -213,7 +213,7 @@ function getGameMetadataByFlags(
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-              WHERE ach.GameID = $gameID
+              WHERE ach.GameID = $gameID AND ach.Flags = $flags
               AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
               GROUP BY aw.HardcoreMode";
     $dbResult = s_mysql_query($query);
@@ -837,14 +837,19 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     return $retval;
 }
 
-function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false)
+function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $flags = null)
 {
     sanitize_sql_inputs($gameID, $requestedBy);
     settype($gameID, 'integer');
 
-    $hardcoreJoin = "";
+    $hardcoreCond = "";
     if ($hardcoreOnly) {
-        $hardcoreJoin = " AND aw.HardcoreMode = 1";
+        $hardcoreCond = " AND aw.HardcoreMode = 1";
+    }
+
+    $achievementStateCond = "";
+    if ($flags !== null) {
+        $achievementStateCond = "AND ach.Flags = $flags";
     }
 
     $query = "
@@ -854,7 +859,7 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false)
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
         WHERE gd.ID = $gameID
-        $hardcoreJoin
+        $hardcoreCond $achievementStateCond
         AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
     ";
 
