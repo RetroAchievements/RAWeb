@@ -23,6 +23,7 @@ $gamesList = [];
 $codeNotes = [];
 
 $achievementData = null;
+$consoleID = 0;
 $consoleName = null;
 $gameIcon = null;
 $gameTitle = null;
@@ -31,6 +32,7 @@ if ($gameIDSpecified) {
     getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
+    $consoleID = $gameData['ConsoleID'];
     $gameIcon = $gameData['ImageIcon'];
     sanitize_outputs($gameTitle, $consoleName);
 
@@ -141,7 +143,7 @@ RenderHtmlHead("Manage Achievements");
 
         echo "<div style='text-align:center'><p><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
         if ($flag == 5) {
-            if ($fullModifyOK) {
+            if ($fullModifyOK && isValidConsoleId($consoleID)) {
                 echo "<a class='updateAchievements' value='3'>Promote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
