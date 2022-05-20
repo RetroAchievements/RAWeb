@@ -13,13 +13,11 @@ $count = requestInputSanitized('c', $maxCount, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     // Trying to visit someone's inbox while not being logged in :S
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
-
-getCookie($user, $cookieRaw);
 
 RenderHtmlStart();
 
@@ -36,8 +34,7 @@ if ($outbox) {
 
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function MarkAsRead(msgID) {
     $('#msgInline' + msgID).toggle();
@@ -212,7 +209,7 @@ if ($outbox) {
                     echo "<div class='buttoncollection rightfloat'>";
                     echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
                     echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a></span>";
-                    echo "<span class='rightalign clickablebutton'><a href='/request/message/delete.php?u=$user&amp;c=$cookieRaw&amp;m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
+                    echo "<span class='rightalign clickablebutton'><a href='/request/message/delete.php?m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
                     echo "</div>";
                 }
 

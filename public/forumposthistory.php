@@ -8,7 +8,7 @@ $maxCount = 25;
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData);
 
@@ -18,8 +18,7 @@ RenderHtmlStart();
 RenderHtmlHead("Forum Recent Posts");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <div id="forums">

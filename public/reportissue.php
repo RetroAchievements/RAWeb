@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 $cookieRaw = RA_ReadCookie('RA_Cookie');
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
@@ -39,8 +39,7 @@ RenderHtmlStart(true);
 RenderHtmlHead("Report Broken Achievement");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
@@ -63,8 +62,6 @@ RenderHtmlHead("Report Broken Achievement");
         <h3 class="longheader">Report Broken Achievement</h3>
 
         <form action="/request/ticket/create.php" method="post">
-            <input type="hidden" value="<?php echo $user ?>" name="u">
-            <input type="hidden" value="<?php echo $cookieRaw ?>" name="c">
             <input type="hidden" value="<?php echo $achievementID ?>" name="i">
             <table>
                 <tbody>

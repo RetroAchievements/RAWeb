@@ -11,7 +11,7 @@ $maxCount = 25;
 
 $perms = requestInputQuery('p', 1, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $showUntracked = false;
 if (isset($user) && $permissions >= Permissions::Admin) {
@@ -35,8 +35,7 @@ RenderHtmlStart();
 RenderHtmlHead("Users");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php

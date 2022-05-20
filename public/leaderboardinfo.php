@@ -6,7 +6,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
@@ -40,7 +40,6 @@ $consoleName = $lbData['ConsoleName'];
 $forumTopicID = $lbData['ForumTopicID'];
 
 $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
-getCookie($user, $cookie);
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);
@@ -61,8 +60,7 @@ RenderHtmlStart(true);
     <?php RenderTitleTag($pageTitle); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <div id="mainpage">
     <div id="leftcontainer">

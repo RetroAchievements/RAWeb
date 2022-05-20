@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\Permissions;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -404,15 +405,22 @@ switch ($requestType) {
         break;
 
     case "uploadachievement":
-        $newTitle = requestInput('n');
-        $newDesc = requestInput('d');
-        $newPoints = requestInput('z', 0, 'integer');
-        $newMemString = requestInput('m');
-        $newFlags = requestInput('f', 0, 'integer');
-        $newBadge = requestInput('b');
-
         $errorOut = "";
-        $response['Success'] = UploadNewAchievement($user, $gameID, $newTitle, $newDesc, ' ', ' ', ' ', $newPoints, $newMemString, $newFlags, $achievementID, $newBadge, $errorOut);
+        $response['Success'] = UploadNewAchievement(
+            author: $user,
+            gameID: $gameID,
+            title: requestInput('n'),
+            desc: requestInput('d'),
+            progress: ' ',
+            progressMax: ' ',
+            progressFmt: ' ',
+            points: requestInput('z', 0, 'integer'),
+            mem: requestInput('m'),
+            type: requestInput('f', AchievementType::UNOFFICIAL, 'integer'),
+            idInOut: $achievementID,
+            badge: requestInput('b'),
+            errorOut: $errorOut
+        );
         $response['AchievementID'] = $achievementID;
         $response['Error'] = $errorOut;
         break;

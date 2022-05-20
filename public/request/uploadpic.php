@@ -7,13 +7,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 
 $imageIterFilename = __DIR__ . "/../ImageIter.txt";
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::JuniorDeveloper)) {
-    if (getAccountDetails($user, $userDetails) == false) {
-        // Immediate redirect if we cannot validate user!
-        header("Location: " . getenv('APP_URL') . "?e=accountissue");
-        exit;
-    }
-} else {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=badcredentials");
     exit;

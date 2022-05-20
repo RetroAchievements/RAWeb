@@ -8,9 +8,10 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-
-getCookie($user, $cookie);
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+    header("Location: " . getenv('APP_URL'));
+    exit;
+}
 
 $permissions = 0;
 if (isset($user)) {
@@ -58,8 +59,7 @@ RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function ReloadLBPageByConsole() {
     var ID = $('#consoleselector').val();
@@ -143,10 +143,8 @@ RenderHtmlHead($pageTitle);
         echo "<ul>";
         if (isset($gameID)) {
             echo "<li>";
-            echo "<a href='/request/leaderboard/create.php?u=$user&c=$cookie&g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a></br>";
+            echo "<a href='/request/leaderboard/create.php?g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a></br>";
             echo "<form method='post' action='/request/leaderboard/create.php'> ";
-            echo "<input type='hidden' name='u' value='$user' />";
-            echo "<input type='hidden' name='c' value='$cookie' />";
             echo "<input type='hidden' name='g' value='$gameID' />";
             echo "Duplicate leaderboard ID: ";
             echo "<input style='width: 10%;' type='number' min=1 value=1 name='l' /> ";
@@ -159,8 +157,6 @@ RenderHtmlHead($pageTitle);
         } else {
             echo "<li>Add new leaderboard<br>";
             echo "<form method='post' action='/request/leaderboard/create.php' >";
-            echo "<input type='hidden' name='u' value='$user' />";
-            echo "<input type='hidden' name='c' value='$cookie' />";
             echo "<select name='g'>";
             foreach ($gamesList as $nextGame) {
                 $nextGameID = $nextGame['ID'];
@@ -180,7 +176,7 @@ RenderHtmlHead($pageTitle);
     }
 
     if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        echo "<div id='warning'>Status: OK!</div>";
+        echo "<div id='warning'></div>";
     }
 
     if (!isset($gameData)) {

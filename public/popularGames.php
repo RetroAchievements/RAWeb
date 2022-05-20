@@ -6,7 +6,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 header("Location: " . getenv('APP_URL'));
 exit;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 50;
 
@@ -22,8 +22,7 @@ RenderHtmlStart();
 RenderHtmlHead("Most Popular Games");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php

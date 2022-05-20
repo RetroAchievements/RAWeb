@@ -326,3 +326,17 @@ function SendPasswordResetEmail($user, $email, $token): bool
 
     return mail_utf8($email, $emailTitle, $msg);
 }
+
+function SendDeleteRequestEmail($user, $email, $deleteRequested): bool
+{
+    $emailTitle = "Account Deletion Request";
+
+    $msg = "Hello $user,<br>" .
+        "Your account has been marked for deletion.<br>" .
+        "If you do not cancel this request before " . getDeleteDate($deleteRequested) . ", " .
+        "you will no longer be able to access your account.<br>" .
+        "Thanks!<br>" .
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($email, $emailTitle, $msg);
+}

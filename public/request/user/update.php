@@ -15,7 +15,7 @@ if (ValidatePOSTorGETChars("tpv")) {
     exit;
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Admin)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     echo "FAILED!";
     exit;
 }

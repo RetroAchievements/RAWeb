@@ -15,7 +15,7 @@ $title = requestInputPost('t');
 $link = requestInputPost('l');
 $id = requestInputPost('i', null, 'integer');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, Permissions::Developer) &&
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer) &&
     ($author == $user)) {
     $link = str_replace("_http_", "http", $link);
 

@@ -21,12 +21,12 @@ $requiredPermissions = match ($subjectType) {
     default => Permissions::Registered,
 };
 
-if (!validateFromCookie($user, $unused, $permissions, $requiredPermissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissions)) {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
     exit;
 }
 
-$userID = getUserIDFromUser($user);
+$userID = $userDetails['ID'];
 if ($userID == 0) {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
     exit;

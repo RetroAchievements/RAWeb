@@ -359,7 +359,11 @@ function getAccountDetails(&$user, &$dataOut)
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created, DeleteRequested, Deleted
+    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, TrueRAPoints,
+                     cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
+                     fbUser, fbPrefs, APIKey, ContribCount, ContribYield,
+                     RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
+                     Created, DeleteRequested, Untracked
                 FROM UserAccounts
                 WHERE User='$user'
                 AND Deleted IS NULL";
@@ -1691,6 +1695,15 @@ function getMostAwardedGames($gameIDs)
     return $retVal;
 }
 
+function getDeleteDate($deleteRequested): string
+{
+    if (empty($deleteRequested)) {
+        return '';
+    }
+
+    return date('Y-m-d', strtotime($deleteRequested) + 60 * 60 * 24 * 14);
+}
+
 function cancelDeleteRequest($username): bool
 {
     getAccountDetails($username, $user);
@@ -1714,8 +1727,8 @@ function deleteRequest($username, $date = null): bool
         return false;
     }
 
-    // Cap permissions to 1
-    $permission = min($user['Permissions'], 1);
+    // Cap permissions
+    $permission = min($user['Permissions'], Permissions::Registered);
 
     $date ??= date('Y-m-d H:i:s');
     $query = "UPDATE UserAccounts u SET u.DeleteRequested = '$date', u.Permissions = $permission WHERE u.User = '$username'";
@@ -1724,6 +1737,8 @@ function deleteRequest($username, $date = null): bool
     if ($dbResult !== false) {
         addArticleComment('Server', ArticleType::UserModeration, $user['ID'],
             $username . ' requested account deletion');
+
+        SendDeleteRequestEmail($username, $user['EmailAddress'], $date);
     }
 
     return $dbResult !== false;

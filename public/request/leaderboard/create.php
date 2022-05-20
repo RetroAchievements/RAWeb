@@ -5,20 +5,11 @@ use RA\Permissions;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-$user = requestInputPost('u');
-$cookie = requestInputPost('c');
-$gameID = requestInputPost('g');
-$leaderboardID = requestInputPost('l');
-$duplicateNumber = requestInputPost('n');
-if (!isset($user)) {
-    $user = requestInputQuery('u');
-    $cookie = requestInputQuery('c');
-    $gameID = requestInputQuery('g');
-    $leaderboardID = requestInputQuery('l');
-    $duplicateNumber = requestInputQuery('n');
-}
+$gameID = requestInput('g');
+$leaderboardID = requestInput('l');
+$duplicateNumber = requestInput('n');
 
-if (validateUser_cookie($user, $cookie, Permissions::JuniorDeveloper)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     if (isset($leaderboardID) && isset($duplicateNumber)) {
         if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
             header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");
