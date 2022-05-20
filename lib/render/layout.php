@@ -252,14 +252,16 @@ function RenderToolbar($user, $permissions = 0)
     echo "<li class='dropdown-header'>Other</li>";
     echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
     echo "<li><a href='/gameList.php?c=37'>Amstrad CPC</a></li>";
-    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
+    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
+    echo "<li><a href='/gameList.php?c=71'>Arduboy</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
     echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
     echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
+    echo "<li><a href='/gameList.php?c=72'>WASM-4</a></li>";
     echo "<li><a href='/gameList.php?c=63'>Watara Supervision</a></li>";
     echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
     echo "</ul>";
