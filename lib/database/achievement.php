@@ -900,7 +900,7 @@ function updateAchievementEmbedVideo($achID, $newURL)
     return $dbResult !== false;
 }
 
-function updateAchievementFlags($achID, $newFlags)
+function updateAchievementFlags(int|string|array $achID, int $newFlags): bool
 {
     $achievementIDs = is_array($achID) ? implode(', ', $achID) : $achID;
 

@@ -512,14 +512,6 @@ function copy(text) {
   inp.remove();
 }
 
-function ConfirmDemotion() {
-  return confirm('Are you sure you want to demote this achievement?');
-}
-
-function ConfirmPromotion() {
-  return confirm('Are you sure you want to promote this achievement?');
-}
-
 function initializeTextareaCounter() {
   var textareaCounters = document.getElementsByClassName('textarea-counter');
   for (var i = 0; i < textareaCounters.length; i++) {
