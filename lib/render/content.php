@@ -1,6 +1,6 @@
 <?php
 
-function RenderTutorialComponent()
+function RenderTutorialComponent(): void
 {
     echo "<div class='component tutorial' >";
     echo "<h3>How Do I Play?</h3>";
@@ -12,7 +12,7 @@ function RenderTutorialComponent()
     echo "</div>";
 }
 
-function RenderWelcomeComponent()
+function RenderWelcomeComponent(): void
 {
     echo "
     <div class='component welcome'>
@@ -30,7 +30,7 @@ function RenderWelcomeComponent()
     </div>";
 }
 
-function RenderDocsComponent()
+function RenderDocsComponent(): void
 {
     echo "
       <div class='component' style='text-align: center'>
@@ -42,7 +42,7 @@ function RenderDocsComponent()
       </div>";
 }
 
-function RenderCurrentlyOnlineComponent()
+function RenderCurrentlyOnlineComponent(): void
 {
     echo "<div class='component'>";
     echo "<h3>Currently Online</h3>";
@@ -59,7 +59,7 @@ function RenderCurrentlyOnlineComponent()
     echo "</div>";
 }
 
-function RenderActivePlayersComponent()
+function RenderActivePlayersComponent(): void
 {
     echo <<<HTML
         <div id='active-players-component' class='component activeplayerscomponent'>
@@ -115,7 +115,7 @@ function RenderActivePlayersComponent()
     }
 }
 
-function RenderAOTWComponent($achID, $forumTopicID)
+function RenderAOTWComponent($achID, $forumTopicID): void
 {
     $achData = [];
     if (!getAchievementMetadata($achID, $achData)) {
@@ -162,4 +162,16 @@ function RenderAOTWComponent($achID, $forumTopicID)
     echo "</div>";
 
     echo "</div>";
+}
+
+function RenderConsoleMessage(int $consoleId): void
+{
+    // PS2
+    if ($consoleId === 21) {
+        echo <<<HTML
+            <div style="margin-bottom: 10px">
+                <a href="/viewtopic.php?t=11108" class="info-button">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. There is no <abbr title="Estimated time of arrival">ETA</abbr> at this time. Click for more details. ⚠️</a>
+            </div>
+        HTML;
+    }
 }

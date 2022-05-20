@@ -529,6 +529,7 @@ RenderHtmlStart(true);
 <div id="mainpage">
     <div id="<?= $isFullyFeaturedGame ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php RenderErrorCodeWarning($errorCode); ?>
+        <?php RenderConsoleMessage((int) $consoleID) ?>
         <div id="achievement">
             <?php
             sanitize_outputs(
