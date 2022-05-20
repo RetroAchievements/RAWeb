@@ -1,6 +1,8 @@
 <?php
 
 use RA\Permissions;
+use RA\TicketFilters;
+use RA\TicketState;
 
 function RenderHtmlStart($isOpenGraphPage = false)
 {
@@ -158,13 +160,36 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         echo ")";
         echo "</a>";
 
+        $openTickets = 0;
+        $devRequestTickets = 0;
         if ($permissions >= Permissions::Developer) {
-            $openTickets = countOpenTicketsByDev($user);
-            if ($openTickets > 0) {
-                echo " - <a href='/ticketmanager.php?u=$user'>";
-                echo "<font color='red'>Tickets: <strong>$openTickets</strong></font>";
-                echo "</a>";
-            }
+            $openTicketsData = countOpenTicketsByDev($user);
+            $openTickets = $openTicketsData[TicketState::Open];
+            $devRequestTickets = $openTicketsData[TicketState::Request];
+        }
+
+        $requestTickets = countRequestTicketsByUser($user);
+
+        $prefix = 'Tickets: ';
+        $separator = '-';
+        if ($openTickets) {
+            $filter = TicketFilters::Default & ~TicketFilters::StateRequest;
+            echo " $separator <a href='/ticketmanager.php?u=$user&t=$filter'>";
+            echo "<font color='red'>$prefix<strong>$openTickets</strong></font>";
+            echo "</a>";
+            $prefix = '';
+            $separator = '/';
+        }
+
+        if ($devRequestTickets > 0) {
+            $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
+            echo " $separator <a href='/ticketmanager.php?u=$user&t=$filter'>$prefix$devRequestTickets</a>";
+            $prefix = '';
+            $separator = '/';
+        }
+        if ($requestTickets > 0) {
+            $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
+            echo " $separator <a href='/ticketmanager.php?p=$user&t=$filter'>$prefix$requestTickets</a>";
         }
 
         echo "</p>";
