@@ -1,23 +1,22 @@
 <?php
 
 use RA\ArticleType;
+use RA\Permissions;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidatePOSTChars("uct")) {
+if (!ValidatePOSTChars("t")) {
     header("Location: " . getenv('APP_URL') . "?e=invalidparams");
     exit;
 }
 
-$user = requestInputPost('u');
-$cookie = requestInputPost('c');
 $prefType = requestInputPost('t');
 $value = requestInputPost('v', 0, 'integer');
 
 global $db;
 $changeErrorCode = null;
-if (validateUser_cookie($user, $cookie, 1)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     if ($prefType == 'wall') {
         $query = "UPDATE UserAccounts
                 SET UserWallActive=$value, Updated=NOW()

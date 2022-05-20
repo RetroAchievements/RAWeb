@@ -12,7 +12,7 @@ if (!ValidatePOSTChars('g')) {
 
 $gameID = requestInputPost('g', null, 'integer');
 
-if (validateFromCookie($user, $points, $permissions, Permissions::Unregistered)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     echo "OK:";
 
     $numUnlocks = getUserUnlocksDetailed($user, $gameID, $dataOut);

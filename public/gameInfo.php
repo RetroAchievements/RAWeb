@@ -22,9 +22,10 @@ if ($gameID == null || $gameID == 0) {
 }
 
 $friendScores = [];
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID)) {
+if (authenticateFromCookie($user, $permissions, $userDetails)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
+$userID = $userDetails['ID'] ?? 0;
 
 $errorCode = requestInputSanitized('e');
 
@@ -81,8 +82,7 @@ $v = requestInputSanitized('v', 0, 'integer');
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
-            if (getAccountDetails($user, $accountDetails) &&
-                BitSet($accountDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+            if (BitSet($userDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
                 break;
             }
 
@@ -92,8 +92,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
     <?php RenderTitleTag($pageTitle); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions);
+<?php RenderHeader($userDetails);
             echo "<div id='mainpage'>";
             echo "<div id='leftcontainer'>";
             echo "<div class='navpath'>";
@@ -130,7 +129,6 @@ if ($v != 1 && $isFullyFeaturedGame) {
 $achDist = null;
 $authorInfo = [];
 $commentData = null;
-$cookie = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
@@ -154,8 +152,6 @@ if ($isFullyFeaturedGame) {
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
 
     $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
-
-    getCookie($user, $cookie);
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
@@ -233,8 +229,7 @@ RenderHtmlStart(true);
     <?php RenderTitleTag($pageTitle); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <?php if ($isFullyFeaturedGame): ?>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
@@ -626,7 +621,7 @@ RenderHtmlStart(true);
 
                 // Display leaderboard management options depending on the current number of leaderboards
                 if ($numLeaderboards == 0) {
-                    echo "<div><a href='/request/leaderboard/create.php?u=$user&c=$cookie&g=$gameID'>Create First Leaderboard</a></div>";
+                    echo "<div><a href='/request/leaderboard/create.php?g=$gameID'>Create First Leaderboard</a></div>";
                 } else {
                     echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }

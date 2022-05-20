@@ -98,7 +98,7 @@ function RenderTitleTag($title = null)
     // </script>";
 }
 
-function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0)
+function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null)
 {
     settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
@@ -110,7 +110,14 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "<div id='title'>";
 
-    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a></div>";
+    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a>";
+
+    if (!empty($deleteRequested)) {
+        echo "<div style='text-align: center; font-size:14px; color:#dd0000'>Your account is marked to be deleted on " .
+            getDeleteDate($deleteRequested) . "</div>";
+    }
+
+    echo "</div>";
 
     echo "<div class='login'>";
 
@@ -379,6 +386,22 @@ function RenderToolbar($user, $permissions = 0)
 
     echo "</ul>";
     echo "</div>";
+}
+
+function RenderHeader($userDetails)
+{
+    $errorCode = requestInputSanitized('e');
+
+    if ($userDetails) {
+        RenderTitleBar($userDetails['User'], $userDetails['RAPoints'],
+            $userDetails['TrueRAPoints'], $userDetails['UnreadMessageCount'],
+            $errorCode, $userDetails['Permissions'],
+            $userDetails['DeleteRequested']);
+        RenderToolbar($userDetails['User'], $userDetails['Permissions']);
+    } else {
+        RenderTitleBar(null, 0, 0, 0, $errorCode);
+        RenderToolbar(null, 0);
+    }
 }
 
 function RenderFooter()
