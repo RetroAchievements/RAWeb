@@ -16,10 +16,15 @@ abstract class AwardType
 
     public const PATREON_SUPPORTER = 6;
 
-    public static array $active = [
+    public const ACTIVE = [
         self::MASTERY,
         self::ACHIEVEMENT_UNLOCKS_YIELD,
         self::ACHIEVEMENT_POINTS_YIELD,
         self::PATREON_SUPPORTER,
     ];
+
+    public static function isActive(int $value): bool
+    {
+        return in_array($value, self::ACTIVE);
+    }
 }

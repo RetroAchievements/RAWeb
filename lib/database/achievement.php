@@ -468,7 +468,7 @@ function UploadNewAchievement(
         return false;
     }
 
-    if (!in_array($type, AchievementType::FLAGS)) {
+    if (!AchievementType::isValid($type)) {
         $errorOut = "Invalid type flag";
         return false;
     }

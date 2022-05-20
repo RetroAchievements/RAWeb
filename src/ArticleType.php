@@ -24,7 +24,7 @@ abstract class ArticleType
 
     public const GameHash = 10;
 
-    private const VALUES = [
+    private const VALID = [
         self::Game,
         self::Achievement,
         self::User,
@@ -37,13 +37,8 @@ abstract class ArticleType
         self::GameHash,
     ];
 
-    public static function values(): array
-    {
-        return self::VALUES;
-    }
-
     public static function isValid($value): bool
     {
-        return in_array($value, self::values());
+        return in_array($value, self::VALID);
     }
 }
