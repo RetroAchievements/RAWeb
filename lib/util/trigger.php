@@ -62,7 +62,11 @@ function parseOperand($mem)
                 if ($mem[1] == '+' || $mem[1] == '-') {
                     $count++;
                 }
-                while ($count < $max && (ctype_digit($mem[$count]) || $mem[$count] == '.')) {
+                $periodCount = 0; // Stop after reaching first period used for float
+                while ($count < $max && (ctype_digit($mem[$count]) || $periodCount < 1)) {
+                    if ($mem[$count] == '.') {
+                        $periodCount++;
+                    }
                     $count++;
                 }
 
