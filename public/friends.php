@@ -11,8 +11,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unre
     exit;
 }
 
-$cookie = $userDetails['cookie'];
-
 $friendsList = getFriendList($user);
 
 $errorCode = requestInputSanitized('e');

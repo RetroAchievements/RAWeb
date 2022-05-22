@@ -90,37 +90,39 @@ function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
 }
 
 function authenticateFromCookie(
-    &$userOut,
-    &$permissionsOut,
-    &$userDetailsOut,
-    $minPermissions = null
+    ?string &$userOut,
+    ?int &$permissionsOut,
+    ?array &$userDetailsOut,
+    ?int $minPermissions = null
 ): bool {
-    $userOut = RA_ReadCookie('RA_User');
-    $cookie = RA_ReadCookie('RA_Cookie');
+    $userOut = null;
     $permissionsOut = Permissions::Unregistered;
 
-    if (mb_strlen($cookie) >= 10 && isValidUsername($userOut)) {
-        if (getAccountDetails($userOut, $userDetailsOut)) {
-            $permissionsOut = $userDetailsOut['Permissions'];
+    // RA_User cookie no longer used, clear it out for security purposes
+    if (RA_CookieExists('RA_User')) {
+        RA_ClearCookie('RA_User');
+    }
 
-            if (strcmp($userDetailsOut['cookie'], $cookie) === 0 &&
-                    $permissionsOut != Permissions::Banned) {
-                // valid active account. update the last activity timestamp
-                userActivityPing($userOut);
+    $cookie = RA_ReadCookie('RA_Cookie');
+    if (getAccountDetailsFromCookie($cookie, $userDetailsOut)) {
+        $userOut = $userDetailsOut['User'];
+        $permissionsOut = $userDetailsOut['Permissions'];
 
-                // validate permissions for the current page if required
-                if (isset($minPermissions)) {
-                    return $permissionsOut >= $minPermissions;
-                }
+        if ($permissionsOut != Permissions::Banned) {
+            // valid active account. update the last activity timestamp
+            userActivityPing($userOut);
 
-                // return true meaning 'logged in'
-                return true;
+            // validate permissions for the current page if required
+            if (isset($minPermissions)) {
+                return $permissionsOut >= $minPermissions;
             }
+
+            // return true meaning 'logged in'
+            return true;
         }
     }
 
     // invalid credentials, clear the cookies and return failure
-    RA_ClearCookie('RA_User');
     RA_ClearCookie('RA_Cookie');
 
     $userDetailsOut = null;

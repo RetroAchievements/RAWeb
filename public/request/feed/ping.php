@@ -25,7 +25,11 @@ exit;
 // if ($mode == 'RetrieveNew') {
 //     // get the id of the last message retrieved by the client
 //     $id = $_POST['id'];
-//     $user = $_POST['user'] ?? null;
+//     $feedPrefs = RA_ReadCookie('RAPrefs_Feed');
+//     if ($feedPrefs == '1') {
+//         // user only wants friend activity, attempt to identify user
+//         authenticateFromCookie($user, $permissions, $userDetails);
+//     }
 // }
 //
 // // Clear the output

@@ -12,6 +12,8 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     exit;
 }
 
+// cookie only returns the most common account details. go get the rest
+getAccountDetails($user, $userDetails);
 $points = $userDetails['RAPoints'];
 $fbUser = $userDetails['fbUser'];
 $fbPrefs = $userDetails['fbPrefs'];
@@ -24,7 +26,6 @@ $userWallActive = $userDetails['UserWallActive'];
 $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
-$cookie = RA_ReadCookie('RA_Cookie');
 $errorCode = requestInputSanitized('e');
 
 RenderHtmlStart();
@@ -302,8 +303,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                 echo "<td>Remove all comments from my User Wall:</td>";
                 echo "<td>";
                 echo "<form method='POST' action='/request/user/update-wall.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
-                echo "<input type='hidden' name='u' value='$user'>";
-                echo "<input type='hidden' name='c' value='$cookie'>";
                 echo "<input type='hidden' name='t' value='cleanwall'>";
                 echo "<input value='Delete All Comments' name='submit' type='submit' size='37' />";
                 echo "</form>";
@@ -326,8 +325,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
             echo "<input size='60' readonly type='text' value='$apiKey' />";
             echo "<form method='POST' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
             $checkedStr = ($userWallActive == 1) ? "checked" : "";
-            echo "<input type='hidden' name='u' value='$user'>";
-            echo "<input type='hidden' name='c' value='$cookie'>";
             echo "<input value='Reset Web API key' name='submit' type='submit' size='37' />";
             echo "</form>";
             echo "</td>";
@@ -340,8 +337,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
             echo "Resetting the key will log you out of all emulators.<br>";
             echo "<form method='POST' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
             $checkedStr = ($userWallActive == 1) ? "checked" : "";
-            echo "<input type='hidden' name='u' value='$user'>";
-            echo "<input type='hidden' name='c' value='$cookie'>";
             echo "<input value='Reset Connect Key' name='submit' type='submit' size='37' />";
             echo "</form>";
             echo "</td>";
