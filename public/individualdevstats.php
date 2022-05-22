@@ -351,7 +351,7 @@ foreach ($userArchInfo as $achievement) {
         $firstAchievement = $achievement;
         $lastAchievement = $achievement;
     } else {
-        if ($hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
+        if ($hardestAchievement['Points'] == 0 || $hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
             $hardestAchievement = $achievement;
         }
         if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && (($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
