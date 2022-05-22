@@ -479,6 +479,8 @@ function UploadNewAchievement(
     }
 
     $dbAuthor = $author;
+    $rawDesc = $desc;
+    $rawTitle = $title;
     sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor);
 
     // Assume authorised!
@@ -532,7 +534,7 @@ function UploadNewAchievement(
             $changingAchSet = ($data['Flags'] != $type);
             $changingPoints = ($data['Points'] != $points);
             $changingBadge = ($data['BadgeName'] != $badge);
-            $changingWording = ($data['Title'] != $title || $data['Description'] != $desc);
+            $changingWording = ($data['Title'] != $rawTitle || $data['Description'] != $rawDesc);
             $changingLogic = ($data['MemAddr'] != $mem);
 
             $userPermissions = getUserPermissions($author);

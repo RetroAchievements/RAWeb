@@ -1,5 +1,25 @@
 <?php
 
+/*
+ *  API_GetGameList - returns games for the specified console
+ *    i : console id
+ *    f : 1=only return games where NumAchievements > 0 (default: 0)
+ *    h : 1=also return hashes (default: 0)
+ *
+ *  array
+ *   object     [value]
+ *    string     ID                unique identifier of the game
+ *    string     Title             title of the game
+ *    string     ConsoleID         unique identifier of the console
+ *    string     ConsoleName       name of the console
+ *    string     ImageIcon         site-relative path to the game's icon image
+ *    int        NumAchievements   number of core achievements for the game
+ *    int        NumLeaderboards   number of leaderboards for the game
+ *    int        Points            total number of points the game's achievements are worth
+ *    array      Hashes
+ *     string     [value]          RetroAchievements hash associated to the game
+ */
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
 

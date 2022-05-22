@@ -1,5 +1,26 @@
 <?php
 
+/*
+ *  API_GetUserRecentlyPlayedGames
+ *    u : username
+ *    o : offset - number of entries to skip (default: 0)
+ *    c : count - number of games to return (default: 10, max: 50)
+ *
+ *  array
+ *   object     [value]
+ *    string     GameID                   unique identifier of the game
+ *    string     Title                    name of the game
+ *    string     NumPossibleAchievements  count of core achievements associated to the game
+ *    string     PossibleScore            total points the game's achievements are worth
+ *    int        ConsoleID                unique identifier of the console associated to the game
+ *    string     ConsoleName              name of the console associated to the game
+ *    string     ImageIcon                site-relative path to the game's icon image
+ *    datetime   LastPlayed               when the user last played the game
+ *    string     MyVote                   user's rating of the game (1-5)
+ *    int        NumAchieved              number of achievements earned by the user
+ *    int        ScoreAchieved            number of points earned by the user
+ */
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
 
