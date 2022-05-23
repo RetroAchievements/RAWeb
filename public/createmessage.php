@@ -6,9 +6,6 @@ use RA\Shortcode\Shortcode;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-$user = RA_ReadCookie('RA_User');
-$cookieRaw = RA_ReadCookie('RA_Cookie');
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");

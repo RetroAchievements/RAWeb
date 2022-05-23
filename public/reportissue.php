@@ -4,7 +4,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 authenticateFromCookie($user, $permissions, $userDetails);
-$cookieRaw = RA_ReadCookie('RA_Cookie');
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 

@@ -148,7 +148,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         }
     } else {
         echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right' width='64' height='64' class='userpic'>";
+        echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right; margin-left:6px' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";

@@ -200,22 +200,32 @@ function generateCookie($user, &$cookie)
     if (!isset($user) || $user == false) {
         return false;
     }
+
     sanitize_sql_inputs($user);
 
-    $cookie = rand_string(16);
-    $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
+    // while unlikely, it is imperative that this value is unique
+    do {
+        $cookie = rand_string(96);
 
-    $result = s_mysql_query($query);
+        $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
+        $result = s_mysql_query($query);
+        if ($result === false) {
+            return false;
+        }
+
+        $query = "SELECT count(*) AS Count FROM UserAccounts WHERE cookie='$cookie'";
+        $result = s_mysql_query($query);
+        if ($result === false) {
+            return false;
+        }
+
+        $row = mysqli_fetch_array($result);
+    } while ($row['Count'] > 1);
+
     $expDays = 7;
     $expiry = time() + 60 * 60 * 24 * $expDays;
-    if ($result !== false) {
-        RA_SetCookie('RA_User', $user, $expiry, false);
-        RA_SetCookie('RA_Cookie', $cookie, $expiry, true);
-        return true;
-    } else {
-        RA_ClearCookie('RA_User');
-        return false;
-    }
+    RA_SetCookie('RA_Cookie', $cookie, $expiry, true);
+    return true;
 }
 
 function generateAppToken($user, &$tokenOut)
@@ -376,6 +386,33 @@ function getAccountDetails(&$user, &$dataOut)
         $user = $dataOut['User'];    // Fix case!
         return true;
     }
+}
+
+function getAccountDetailsFromCookie(?string $cookie): ?array
+{
+    if (empty($cookie)) {
+        return null;
+    }
+
+    sanitize_sql_inputs($cookie);
+
+    // ID, User, and Permissions are used to identify the user and their permissions
+    // DeleteRequested is used to show the "Your account is marked to be deleted" banner
+    // RAPoints, TrueRAPoints, and UnreadMessageCount are used for the logged-in user area
+    // websitePrefs allows pages to enable/disable functionality
+    $query = "SELECT ID, User, Permissions, DeleteRequested,
+                     RAPoints, TrueRAPoints, UnreadMessageCount,
+                     websitePrefs
+                FROM UserAccounts
+                WHERE cookie='$cookie'
+                AND Deleted IS NULL";
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
+        return null;
+    }
+
+    return mysqli_fetch_array($dbResult) ?: null;
 }
 
 function getUserIDFromUser($user)
