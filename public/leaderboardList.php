@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     header("Location: " . getenv('APP_URL'));
     exit;
 }
