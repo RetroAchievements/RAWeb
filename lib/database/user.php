@@ -388,10 +388,10 @@ function getAccountDetails(&$user, &$dataOut)
     }
 }
 
-function getAccountDetailsFromCookie(?string $cookie, ?array &$dataOut): bool
+function getAccountDetailsFromCookie(?string $cookie): ?array
 {
     if (empty($cookie)) {
-        return false;
+        return null;
     }
 
     sanitize_sql_inputs($cookie);
@@ -408,12 +408,11 @@ function getAccountDetailsFromCookie(?string $cookie, ?array &$dataOut): bool
                 AND Deleted IS NULL";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
-        return false;
+    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
+        return null;
     }
 
-    $dataOut = mysqli_fetch_array($dbResult);
-    return true;
+    return mysqli_fetch_array($dbResult) ?: null;
 }
 
 function getUserIDFromUser($user)
