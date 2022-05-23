@@ -62,8 +62,14 @@ function parseOperand($mem)
                 if ($mem[1] == '+' || $mem[1] == '-') {
                     $count++;
                 }
-                while ($count < $max && (ctype_digit($mem[$count]) || $mem[$count] == '.')) {
+                while ($count < $max && ctype_digit($mem[$count])) {
                     $count++;
+                }
+                if ($count < $max && $mem[$count] == '.') {
+                    $count++;
+                    while ($count < $max && ctype_digit($mem[$count])) {
+                        $count++;
+                    }
                 }
 
                 $value = substr($mem, 1, $count - 1); // ignore 'f'
