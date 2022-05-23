@@ -104,7 +104,7 @@ function authenticateFromCookie(
     }
 
     $cookie = RA_ReadCookie('RA_Cookie');
-    if (getAccountDetailsFromCookie($cookie, $userDetailsOut)) {
+    if ($userDetailsOut = getAccountDetailsFromCookie($cookie)) {
         $userOut = $userDetailsOut['User'];
         $permissionsOut = $userDetailsOut['Permissions'];
 
