@@ -1210,10 +1210,6 @@ RenderHtmlStart(true);
                 RenderGameAlts($gameHubs, 'In Collections');
             }
 
-            if ($user == null) {
-                RenderTutorialComponent();
-            }
-
             RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
 
             echo "<div id='achdistribution' class='component' >";
