@@ -20,7 +20,7 @@ if (!$userMassData) {
 
 $dateInput = requestInputSanitized('d', 0);
 
-$userPagePoints = getScore($userPage);
+$userPagePoints = getPlayerPoints($userPage);
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 

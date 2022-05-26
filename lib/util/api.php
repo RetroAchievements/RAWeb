@@ -1,13 +1,7 @@
 <?php
 
-if (!function_exists('runIntegrationApiMiddleware')) {
-    function runIntegrationApiMiddleware()
-    {
-    }
-}
-
 if (!function_exists('runPublicApiMiddleware')) {
-    function runPublicApiMiddleware()
+    function runPublicApiMiddleware(): void
     {
         /**
          * allow access from browsers' script context
@@ -22,13 +16,4 @@ if (!function_exists('runPublicApiMiddleware')) {
             exit;
         }
     }
-}
-
-function apiErrorResponse($error)
-{
-    echo json_encode([
-        'Success' => false,
-        'Error' => $error,
-    ], JSON_THROW_ON_ERROR);
-    exit;
 }

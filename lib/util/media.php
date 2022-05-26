@@ -2,9 +2,25 @@
 
 use Aws\S3\S3Client;
 
-function UploadToS3($filenameSrc, $filenameDest)
+function removeAvatar($user): void
 {
-    if (!getenv('AWS_ACCESS_KEY_ID') || in_array(getenv('APP_ENV'), ['local'])) {
+    /**
+     * remove avatar - replaced by default content
+     */
+    $avatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/' . $user . '.png';
+    if (file_exists($avatarFile)) {
+        unlink($avatarFile);
+    }
+    if (!filter_var(getenv('RA_AVATAR_FALLBACK'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
+        $defaultAvatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/_User.png';
+        copy($defaultAvatarFile, $avatarFile);
+    }
+}
+
+function UploadToS3($filenameSrc, $filenameDest): void
+{
+    if (!getenv('AWS_ACCESS_KEY_ID') || getenv('APP_ENV') == 'local') {
+        // TODO allow using minio locally
         // nothing to do here
         return;
     }
@@ -22,7 +38,7 @@ function UploadToS3($filenameSrc, $filenameDest)
     ]);
 }
 
-function UploadUserPic($user, $filename, $rawImage)
+function UploadUserPic($user, $filename, $rawImage): array
 {
     $response = [];
 
@@ -115,7 +131,7 @@ function UploadUserPic($user, $filename, $rawImage)
 
         $success = imagepng($newImage, $existingUserFile);
 
-        if ($success == false) {
+        if (!$success) {
             // UploadUserPic failed: Issues copying to UserPic/$user.png
             // echo "Issues encountered - these have been reported and will be fixed - sorry for the inconvenience... please try another file!";
             $response['Error'] = "Issues copying to UserPic/$user.png";
@@ -134,7 +150,7 @@ function UploadUserPic($user, $filename, $rawImage)
     return $response;
 }
 
-function UploadBadgeImage($file)
+function UploadBadgeImage($file): array
 {
     $response = [];
 

@@ -1,6 +1,6 @@
 <?php
 
-function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos = '', $overloadVideoID = 0)
+function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos = '', $overloadVideoID = 0): void
 {
     echo "<div class='component $componentPos stream' >";
     echo "<h3>Twitch Stream</h3>";
@@ -24,13 +24,13 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         $vidChapter = mb_substr($vidURL, mb_strrpos($vidURL, "/") + 1);
 
         $videoHTML = '<iframe
-    src="https://player.twitch.tv/?' . getenv('TWITCH_CHANNEL') . '"
-    height="' . $vidHeight . '"
-    width="' . $vidWidth . '"
-    frameborder="0"
-    scrolling="no"
-    allowfullscreen="true">
-</iframe>';
+            src="https://player.twitch.tv/?' . getenv('TWITCH_CHANNEL') . '"
+            height="' . $vidHeight . '"
+            width="' . $vidWidth . '"
+            frameborder="0"
+            scrolling="no"
+            allowfullscreen="true">
+        </iframe>';
     } else {
         $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=false" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     }

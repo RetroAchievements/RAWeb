@@ -1,11 +1,11 @@
 <?php
 
-function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame)
+function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame): void
 {
     echo "<div id='gamecompare' class='component' >";
     echo "<h3>Friends</h3>";
+    echo "<div class='nicebox'>";
     if (isset($friendScores)) {
-        echo "<div class='nicebox'>";
         echo "Compare to your friend:<br>";
         echo "<table><tbody>";
         foreach ($friendScores as $friendScoreName => $friendData) {
@@ -36,10 +36,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
         echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
         echo "&nbsp;<input type='submit' value='Select' />";
         echo "</form>";
-
-        echo "</div>";
     } else {
-        echo "<div class='nicebox'>";
         echo "RetroAchievements is a lot more fun with friends!<br><br>";
         if ($user == null) {
             echo "<a href='/createaccount.php'>Create an account</a> or login and start earning achievements today!<br>";
@@ -54,7 +51,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
             echo "&nbsp;<input type='submit' value='Select' />";
             echo "</form>";
         }
-        echo "</div>";
     }
+    echo "</div>";
     echo "</div>";
 }

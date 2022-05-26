@@ -1,6 +1,6 @@
 <?php
 
-function IsMobileBrowser()
+function IsMobileBrowser(): bool
 {
     $mobile_browser = '0';
 

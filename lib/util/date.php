@@ -1,12 +1,13 @@
 <?php
 
-function getNiceTime($timestamp, $locale = 'EN-GB')
+function getNiceTime($timestamp, $locale = 'EN-GB'): string
 {
     setlocale(LC_ALL, $locale);
+
     return strftime("%H:%M", $timestamp);
 }
 
-function getNiceDate($timestamp, $justDay = false, $locale = 'EN-GB')
+function getNiceDate($timestamp, $justDay = false, $locale = 'EN-GB'): string
 {
     setlocale(LC_ALL, $locale);
 
@@ -26,7 +27,7 @@ function getNiceDate($timestamp, $justDay = false, $locale = 'EN-GB')
         }
     }
 
-    if ($justDay == false) {
+    if (!$justDay) {
         $dateOut .= strftime(", %H:%M", $timestamp);
     }
 

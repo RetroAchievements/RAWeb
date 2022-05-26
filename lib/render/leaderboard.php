@@ -12,7 +12,7 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
     );
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' alt='Game Icons'>";
     $tooltip .= "<div>";
     $tooltip .= "<b>$lbName</b>";
     $tooltip .= "<br>$lbDesc";
@@ -68,7 +68,7 @@ function RenderGameLeaderboardsComponent($lbData): void
             echo "<tr class='altdark'>";
             echo "<td>";
             echo GetUserAndTooltipDiv($bestScoreUser, true);
-            echo GetUserAndTooltipDiv($bestScoreUser, false);
+            echo GetUserAndTooltipDiv($bestScoreUser);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
@@ -94,12 +94,8 @@ function RenderGameLeaderboardsComponent($lbData): void
 
 /**
  * Renders the friends and global ranking.
- *
- * @param string $user to render leaderboard for
- * @param bool $friendsOnly render friends leaderboard
- * @param int $numToFetch number if entries to show in the leaderboard
  */
-function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
+function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $numToFetch = 10): void
 {
     $lbTypes = [
         "Daily_",
@@ -117,7 +113,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
 
     echo "<div id='leaderboard' class='component' >";
 
-    if ($friendsOnly == true) {
+    if ($friendsOnly) {
         echo "<h3>Friends Ranking</h3>";
         $tabClass = "friendstab";
         if ($friendCount == 0) {
@@ -150,7 +146,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                 echo "<div id='" . $lbTypes[$j] . $id . "' class='tabcontent" . $tabClass . "'>";
             }
 
-            if ($friendsOnly == true) {
+            if ($friendsOnly) {
                 $data = getGlobalRankingData($j, 5, $currentDate, null, $user, 0, 0, $friendCount, 1);
             } else {
                 $data = getGlobalRankingData($j, 5, $currentDate, null, null, 0, 0, $numToFetch, 1);
@@ -168,7 +164,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
             foreach ($data as $dataPoint) {
                 // Stop adding rows if we hit the number of items to display
                 // We still want to continue lopping through the list to get the user rank.
-                if ($friendsOnly == true) {
+                if ($friendsOnly) {
                     if ($rank == $numToFetch + 1) {
                         $keepAddingRows = false;
                         // Break out if we have already displayed the user
@@ -189,7 +185,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     echo "<td class='rank'>" . $rank . "</td>";
                     echo "<td>";
                     echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                    echo GetUserAndTooltipDiv($dataPoint['User'], false);
+                    echo GetUserAndTooltipDiv($dataPoint['User']);
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
@@ -209,7 +205,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
             }
 
             // Display the current user at the bottom of the list if they are not already included
-            if ($user !== null && $userListed == false) {
+            if ($user !== null && !$userListed) {
                 $userData = getGlobalRankingData($j, 5, $currentDate, $user, null, 0, 0, 1, 1);
                 if (count($userData) > 0) {
                     echo "<tr><td colspan='3'></td></tr>";
@@ -224,7 +220,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
                     }
                     echo "<td>";
                     echo GetUserAndTooltipDiv($userData[0]['User'], true);
-                    echo GetUserAndTooltipDiv($userData[0]['User'], false);
+                    echo GetUserAndTooltipDiv($userData[0]['User']);
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
@@ -237,7 +233,7 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
             echo "</tbody></table>";
 
             // Display the more buttons that link to the global ranking page for the specific leaderboard type
-            if ($friendsOnly == false) {
+            if (!$friendsOnly) {
                 echo "<span class='morebutton'><a href='/globalRanking.php?t=" . $j . "'>more...</a></span>";
             } else {
                 echo "<span class='morebutton'><a href='/globalRanking.php?t=" . $j . "&f=1'>more...</a></span>";
@@ -250,12 +246,8 @@ function RenderScoreLeaderboardComponent($user, $friendsOnly, $numToFetch = 10)
 
 /**
  * Creates the High scores tables on game pages
- *
- * @param string $user the logged in user
- * @param array $gameTopAchievers top 10 highest scoreres for the game
- * @param array $gameLatestMasters top 10 latest masters for the game
  */
-function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMasters)
+function RenderTopAchieversComponent($user, array $gameTopAchievers, array $gameLatestMasters): void
 {
     echo "<div id='leaderboard' class='component' >";
 
@@ -358,7 +350,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
  * retro ratio, completed awards and mastered awards.
  *
  * Results are configurable based on input parameters, allowing sorting on each of the
- * abobe stats, returning data for a specific user, returning data for a specific users friends,
+ * above stats, returning data for a specific user, returning data for a specific users friends,
  * tracked/untracked filtering, and filtering on a day/week/month/year/all time based on any input date.
  *
  * @param int $lbType Leaderboard timeframe type
@@ -391,7 +383,7 @@ function RenderTopAchieversComponent($user, $gameTopAchievers, $gameLatestMaster
  *            1 - Just Points and Retro Points. Used for the sidebar rankings.
  * @return array Leaderboard data to display
  */
-function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50, $info = 0)
+function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50, $info = 0): array
 {
     $pointRequirement = "";
 
@@ -479,7 +471,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
         default => "",
     };
 
-    // Run the All Time ranking query
+    // Run the All-Time ranking query
     $retVal = [];
     if ($lbType == 2) {
         if ($info == 0) {

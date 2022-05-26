@@ -32,7 +32,7 @@ if ($dev != null) {
 }
 
 $sortBy = requestInputSanitized('s', 17, 'integer');
-$achCount = getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
+$achCount = getAchievementsList($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {

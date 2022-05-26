@@ -11,7 +11,7 @@ function RenderCommentsComponent(
     $articleID,
     $articleTypeID,
     $permissions
-) {
+): void {
     $userID = getUserIDFromUser($user);
 
     echo "<div class='commentscomponent'>";
@@ -90,7 +90,7 @@ function RenderArticleComment(
     $articleTypeID,
     $commentID,
     $allowDelete
-) {
+): void {
     $class = '';
     $deleteIcon = '';
 
@@ -126,7 +126,7 @@ function RenderArticleComment(
     echo "</tr>";
 }
 
-function RenderCommentInputRow($user, $articleTypeId, $articleId)
+function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";

@@ -753,7 +753,7 @@ RenderHtmlHead($pageTitle);
                 echo "<tr>";
                 echo "<td></td><td colspan='7'>";
                 echo "<div class='temp'>";
-                $awardCount = getAwardsSince((int) $achID, $reportedAt);
+                $awardCount = getUnlocksSince((int) $achID, $reportedAt);
                 echo "This achievement has been earned " . $awardCount['softcoreCount'] . " <b>(" . $awardCount['hardcoreCount'] . ")</b> "
                     . ($awardCount['hardcoreCount'] == 1 ? "time" : "times") . " since this ticket was created.";
                 echo "</div>";

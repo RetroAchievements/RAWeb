@@ -1,13 +1,13 @@
 <?php
 
-function RenderFeedComponent($user)
+function RenderFeedComponent($user): void
 {
     echo "<div class='left'>";
 
     echo "<div style='float:right;'>";
     $feedFriendsPrefs = 0;
     if (isset($user)) {
-        $feedFriendsPrefs = RA_ReadCookie("RAPrefs_Feed");
+        $feedFriendsPrefs = readCookie("RAPrefs_Feed");
         $selGlobal = ($feedFriendsPrefs == 1) ? '' : 'checked';
         $selFriends = ($feedFriendsPrefs == 1) ? 'checked' : '';
         echo "<input type='radio' name='feedpref' $selGlobal onclick=\"refreshFeed(false);\" > Global<br>";
@@ -36,7 +36,7 @@ function RenderFeedComponent($user)
     echo "</div>";
 }
 
-function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null)
+function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null): string
 {
     $site ??= getenv('APP_URL');
 
@@ -115,7 +115,7 @@ function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null)
     return $retHTML;
 }
 
-function getFeedItemHTML($feedData, $user)
+function getFeedItemHTML($feedData, $user): string
 {
     $retHTML = '';
 
@@ -568,12 +568,12 @@ function getFeedItemHTML($feedData, $user)
     return $retHTML;
 }
 
-function RenderFeedItem($feedData, $user)
+function RenderFeedItem($feedData, $user): void
 {
     echo getFeedItemHTML($feedData, $user);
 }
 
-function RenderFeedComment($user, $comment, $submittedDate)
+function RenderFeedComment($user, $comment, $submittedDate): void
 {
     echo "<tr class='feed_comment'>";
 

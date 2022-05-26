@@ -48,7 +48,7 @@ $numWinners = 0;
 $numPossibleWinners = 0;
 $numRecentWinners = 0;
 
-getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
+getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
 
 $dateWonLocal = "";
 foreach ($winnerInfo as $userObject) {
@@ -59,7 +59,7 @@ foreach ($winnerInfo as $userObject) {
 }
 
 if ($dateWonLocal === "") {
-    $hasAward = HasAward($user, $achievementID);
+    $hasAward = playerHasUnlock($user, $achievementID);
     if ($hasAward['HasHardcore']) {
         $dateWonLocal = $hasAward['HardcoreDate'];
     } elseif ($hasAward['HasRegular']) {

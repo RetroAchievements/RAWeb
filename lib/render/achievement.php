@@ -67,7 +67,7 @@ function GetAchievementAndTooltipDiv(
         "</div>";
 }
 
-function RenderRecentlyUploadedComponent($numToFetch)
+function RenderRecentlyUploadedComponent($numToFetch): void
 {
     echo "<div class='component'>";
     echo "<h3>New Achievements</h3>";

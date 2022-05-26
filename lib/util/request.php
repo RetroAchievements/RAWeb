@@ -1,6 +1,6 @@
 <?php
 
-function requestInputQuery(string $key, $default = null, $type = null)
+function requestInputQuery(string $key, $default = null, $type = null): mixed
 {
     $input = $_GET[$key] ?? $default;
 
@@ -11,7 +11,7 @@ function requestInputQuery(string $key, $default = null, $type = null)
     return $input;
 }
 
-function requestInputPost(string $key, $default = null, $type = null)
+function requestInputPost(string $key, $default = null, $type = null): mixed
 {
     $input = $_POST[$key] ?? $default;
 
@@ -22,7 +22,7 @@ function requestInputPost(string $key, $default = null, $type = null)
     return $input;
 }
 
-function requestInput(string $key, $default = null, $type = null)
+function requestInput(string $key, $default = null, $type = null): mixed
 {
     $input = requestInputPost($key);
     if (!$input) {
@@ -39,12 +39,8 @@ function requestInput(string $key, $default = null, $type = null)
 
 /**
  * Get request input sanitized for output
- *
- * @param mixed|null $default
- * @param mixed|null $type
- * @return mixed|string|null
  */
-function requestInputSanitized(string $key, $default = null, $type = null)
+function requestInputSanitized(string $key, mixed $default = null, mixed $type = null): mixed
 {
     if (!$type || $type === 'string') {
         $input = requestInput($key, $default, $type);
@@ -53,7 +49,7 @@ function requestInputSanitized(string $key, $default = null, $type = null)
     return requestInput($key, $default, $type);
 }
 
-function ValidatePOSTChars($charsIn)
+function ValidatePOSTChars($charsIn): bool
 {
     $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
@@ -64,7 +60,7 @@ function ValidatePOSTChars($charsIn)
     return true;
 }
 
-function ValidateGETChars($charsIn)
+function ValidateGETChars($charsIn): bool
 {
     $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
@@ -77,7 +73,7 @@ function ValidateGETChars($charsIn)
 }
 
 // TODO do not allow GET requests, POST only
-function ValidatePOSTorGETChars($charsIn)
+function ValidatePOSTorGETChars($charsIn): bool
 {
     $numChars = mb_strlen($charsIn);
     for ($i = 0; $i < $numChars; $i++) {
@@ -89,12 +85,4 @@ function ValidatePOSTorGETChars($charsIn)
     }
 
     return true;
-}
-
-function CurrentPageURL(): string
-{
-    // $pageURL = $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
-    $pageURL = 'https://';
-    $pageURL .= $_SERVER['SERVER_PORT'] != '80' ? $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"] : $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-    return $pageURL;
 }

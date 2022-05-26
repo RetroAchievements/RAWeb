@@ -1,6 +1,6 @@
 <?php
 
-function RenderShortcodeButtons()
+function RenderShortcodeButtons(): void
 {
     echo "<div class='buttoncollection'>";
     echo "<span class='clickablebutton text-link' onclick='injectShortcode(\"[b]\", \"[/b]\")'><b>b</b></span>";
