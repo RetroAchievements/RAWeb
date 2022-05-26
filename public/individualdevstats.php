@@ -23,7 +23,7 @@ $userContribYield = $userArchInfo[0]['ContribYield'];
 
 // Get sets and achievements per console data for pie charts
 $setsPerConsole = getUserSetsPerConsole($dev);
-$achievementsPerConsole = getUserAchievemetnsPerConsole($dev);
+$achievementsPerConsole = getUserAchievementsPerConsole($dev);
 
 // Initialise any dev game variables
 $gamesList = [];

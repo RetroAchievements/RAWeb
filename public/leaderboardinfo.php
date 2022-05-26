@@ -42,7 +42,7 @@ $forumTopicID = $lbData['ForumTopicID'];
 $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
-$numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);
+$numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20, $commentData);
 
 $errorCode = requestInputSanitized('e');
 
@@ -247,7 +247,7 @@ RenderHtmlStart(true);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderGameLeaderboardsComponent($gameID, $allGameLBData);
+        RenderGameLeaderboardsComponent($allGameLBData);
         ?>
     </div>
 

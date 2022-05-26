@@ -11,7 +11,7 @@ $redir = $_POST["r"];
 $fbUser = "";
 $cookie = "";
 
-if (validateUser($user, $pass, $fbUser, 0)) {
+if (authenticateFromPassword($user, $pass)) {
     generateCookie($user, $cookie);
 
     // TBD: Check for messages, updates? etc

@@ -1,6 +1,6 @@
 <?php
 
-function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
+function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
 {
     sanitize_sql_inputs($user, $listOffset, $maxDays);
     settype($sortBy, 'integer');
@@ -47,7 +47,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy)
     return $retVal;
 }
 
-function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
+function getAchievementsEarnedBetween($dateStart, $dateEnd, $user): array
 {
     $retVal = [];
 
@@ -91,7 +91,7 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user)
     return $retVal;
 }
 
-function getAchievementsEarnedOnDay($dateInput, $user)
+function getAchievementsEarnedOnDay($dateInput, $user): array
 {
     $dateStrStart = date("Y-m-d 00:00:00", $dateInput);
     $dateStrEnd = date("Y-m-d 23:59:59", $dateInput);
@@ -99,7 +99,7 @@ function getAchievementsEarnedOnDay($dateInput, $user)
     return getAchievementsEarnedBetween($dateStrStart, $dateStrEnd, $user);
 }
 
-function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $dateTo = null)
+function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $dateTo = null): array
 {
     sanitize_sql_inputs($user, $listOffset, $maxToFetch, $dateFrom, $dateTo);
 

@@ -6,6 +6,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+// TODO do not allow GET requests, POST only
 if (ValidatePOSTorGETChars("tpv")) {
     $targetUser = requestInput('t');
     $propertyType = requestInput('p', null, 'integer');
@@ -25,8 +26,8 @@ if ($propertyType == 0) {
     $response = SetAccountPermissionsJSON($user, $permissions, $targetUser, $value);
     if ($response['Success']) {
         if ($value >= Permissions::JuniorDeveloper) {
-            if (getUserForumPostAuth($targetUser) == 0) {
-                if (setAccountForumPostAuth($user, $permissions, $targetUser, 1)) {
+            if (!getUserForumPostAuth($targetUser)) {
+                if (setAccountForumPostAuth($user, $permissions, $targetUser, authorize: true)) {
                     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
                 } else {
                     echo "FAILED!";
@@ -45,7 +46,7 @@ if ($propertyType == 0) {
 
 // Forum post permissions
 if ($propertyType == 1) {
-    if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
+    if (setAccountForumPostAuth($user, $permissions, $targetUser, authorize: (bool) $value)) {
         header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
     } else {
         echo "FAILED!";
