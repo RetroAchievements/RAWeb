@@ -79,7 +79,7 @@ RenderHtmlHead("$userPage's Legacy");
 
     var optionsTotalScore = {
       backgroundColor: 'transparent',
-      title: '<?php echo $sortByGraphName; ?>',
+      title: '<?= $sortByGraphName ?>',
       titleTextStyle: { color: '#186DEE' }, // cc9900
       hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
       vAxis: { textStyle: { color: '#186DEE' } },
@@ -132,7 +132,7 @@ RenderHtmlHead("$userPage's Legacy");
 
     var optionsBestDays = {
       backgroundColor: 'transparent',
-      title: '<?php echo $sortByGraphName; ?>',
+      title: '<?= $sortByGraphName ?>',
       titleTextStyle: { color: '#186DEE' },
       hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
       vAxis: { textStyle: { color: '#186DEE' } },

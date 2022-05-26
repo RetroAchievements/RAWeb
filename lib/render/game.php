@@ -27,7 +27,7 @@ function GetGameAndTooltipDiv(
     $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . asset($gameIcon) . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleStr;
@@ -38,7 +38,7 @@ function GetGameAndTooltipDiv(
     $displayable = "";
 
     if (!$justText) {
-        $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . asset($gameIcon) . "' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
     }
 
     if (!$justImage) {
@@ -155,7 +155,7 @@ function RenderGameAlts($gameAlts, $headerText = null): void
     echo "</div>";
 }
 
-function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = []): void
+function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLabels = []): void
 {
     $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
 

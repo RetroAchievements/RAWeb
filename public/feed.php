@@ -48,7 +48,7 @@ RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
 <body>
-<link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?php echo getenv('APP_URL') ?>/rss-activity'/>
+<link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?= getenv('APP_URL') ?>/rss-activity'/>
 <script>
   $(document).ready(function () {
     focusOnArticleID(getParameterByName('a'));
@@ -61,7 +61,7 @@ RenderHtmlHead($pageTitle);
     <div id="leftcontainer">
 
         <div id="globalfeed">
-            <h2><?php echo $pageTitle; ?></h2>
+            <h2><?= $pageTitle ?></h2>
             <?php
             echo "<table width='550' id='feed' style='width:100%' ><tbody>";
 

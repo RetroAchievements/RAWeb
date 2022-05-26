@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 }
 
 try {
-    UploadAvatar($user, requestInputPost('i'));
+    $imagePath = UploadNewsImage(requestInputPost('i'));
 } catch (Exception $exception) {
     echo json_encode([
         'Success' => false,
@@ -21,4 +21,4 @@ try {
     exit;
 }
 
-echo json_encode(['Success' => true]);
+echo json_encode(['Filename' => $imagePath, 'Success' => true]);

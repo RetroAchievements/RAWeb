@@ -67,5 +67,7 @@ require_once __DIR__ . '/util/mobile-browser.php';
 require_once __DIR__ . '/util/permissions.php';
 require_once __DIR__ . '/util/recaptcha.php';
 require_once __DIR__ . '/util/request.php';
+require_once __DIR__ . '/util/path.php';
 require_once __DIR__ . '/util/string.php';
 require_once __DIR__ . '/util/trigger.php';
+require_once __DIR__ . '/util/url.php';

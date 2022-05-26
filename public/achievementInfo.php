@@ -92,8 +92,8 @@ RenderHtmlStart(true);
         url = replaceAll('http', '_http_', url);
 
         var posting = $.post('/request/achievement/update.php', {
-          u: '<?php echo $user; ?>',
-          a: <?php echo $achievementID; ?>,
+          u: '<?= $user ?>',
+          a: <?= $achievementID ?>,
           f: 2,
           v: url,
         });
@@ -152,8 +152,8 @@ RenderHtmlStart(true);
 
         echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
-        $fileSuffix = ($user == "" || ($achievedLocal == false)) ? "_lock.png" : ".png";
-        $badgeFullPath = getenv('ASSET_URL') . "/Badge/" . $badgeName . $fileSuffix;
+        $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
+        $badgeFullPath = asset("Badge/$badgeName$fileSuffix.png");
 
         echo "<table class='nicebox'><tbody>";
 

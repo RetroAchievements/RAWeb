@@ -100,7 +100,7 @@ if ($dbResult !== false) {
      * disabled by default for local development
      */
     if (!filter_var(getenv('RA_AVATAR_FALLBACK'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
-        copy(getenv('DOC_ROOT') . "public/UserPic/_User.png", getenv('DOC_ROOT') . "public/UserPic/$user.png");
+        copy(public_path('UserPic/_User.png'), public_path("UserPic/$user.png"));
     }
 
     header("Location: " . getenv('APP_URL') . "/?e=validateEmailPlease");

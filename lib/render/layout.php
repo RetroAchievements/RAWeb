@@ -73,8 +73,8 @@ function RenderSharedHeader(): void
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description): void
 {
     echo "<meta property='og:type' content='retroachievements:$OGType'>\n";
-    echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL'>\n";
-    echo "<meta property='og:url' content='" . getenv('APP_URL') . "$thisURL'>\n";
+    echo "<meta property='og:image' content='" . asset($imageURL) . "'>\n";
+    echo "<meta property='og:url' content='" . url($thisURL) . "'>\n";
     echo "<meta property='og:title' content=\"$title\">\n";
     echo "<meta property='og:description' content=\"$description\">\n";
 }
@@ -157,7 +157,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
 
-        $mailboxIcon = $unreadMessageCount > 0 ? getenv('ASSET_URL') . '/Images/_MailUnread.png' : getenv('ASSET_URL') . '/Images/_Mail.png';
+        $mailboxIcon = asset('Images/' . ($unreadMessageCount > 0 ? '_MailUnread' : '_Mail') . '.png');
         echo "<a href='/inbox.php'>";
         echo "<img id='mailboxicon' alt='Mailbox Icon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";

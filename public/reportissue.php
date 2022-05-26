@@ -52,16 +52,16 @@ RenderHtmlHead("Report Broken Achievement");
     <div id="fullcontainer">
         <div class="navpath">
             <a href="/gameList.php">All Games</a>
-            &raquo; <a href="/gameList.php?c=<?php echo $consoleName ?>"><?php echo $consoleName ?></a>
-            &raquo; <a href="/game/<?php echo $gameID ?>"><?php echo $gameTitle ?></a>
-            &raquo; <a href="/achievement/<?php echo $achievementID ?>"><?php echo $achievementTitle ?></a>
+            &raquo; <a href="/gameList.php?c=<?= $consoleName ?>"><?= $consoleName ?></a>
+            &raquo; <a href="/game/<?= $gameID ?>"><?= $gameTitle ?></a>
+            &raquo; <a href="/achievement/<?= $achievementID ?>"><?= $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>
 
         <h3 class="longheader">Report Broken Achievement</h3>
 
         <form action="/request/ticket/create.php" method="post">
-            <input type="hidden" value="<?php echo $achievementID ?>" name="i">
+            <input type="hidden" value="<?= $achievementID ?>" name="i">
             <table>
                 <tbody>
                 <tr>

@@ -38,44 +38,37 @@ RenderHtmlHead("Manage News");
     link = replaceAll('http', '_http_', link);
 
     var author = $('#NewsAuthor').val();
-    var posting = $.post('/request/news/update.php', { a: author, p: payload, t: title, l: link, g: imageurl, i: <?php echo $newsArticleID; ?> });
-    posting.done(onPostComplete);
-    //$("body").find( "#warning" ).html( "Status: Updating..." );
-  }
-
-  function onPostComplete(data) {
-    if (data !== 'OK') {
-      //$("body").find( "#warning" ).html( "Status: Errors..." );
-    } else {
-      //$("body").find( "#warning" ).html( "Status: Loading..." );
-      window.location = '/index.php?e=newspostsuccess';
-    }
+    var posting = $.post('/request/news/update.php', { a: author, p: payload, t: title, l: link, g: imageurl, i: <?= $newsArticleID ?> });
+    posting.done(function (data) {
+      var result = $.parseJSON(data);
+      if (result.Success) {
+        window.location = '/index.php?e=newspostsuccess';
+      } else {
+        alert('Upload failed!\n' + result.Error);
+      }
+    });
   }
 
   function UploadImage() {
     var photo = document.getElementById('uploadimagefile');
     var file = photo.files[0];
-
     var reader = new FileReader();
     reader.onload = function () {
-
       $('#loadingicon').fadeTo(100, 1.0);
-
-      $.post('/request/news/image-upload.php', { t: 'NEWS', f: file.name.split('.').pop(), i: reader.result }, onUploadImageComplete);
+      $.post('/request/news/update-image.php', { i: reader.result },
+        function (data) {
+          $('#loadingicon').fadeTo(100, 0.0);
+          var result = $.parseJSON(data);
+          if (result.Success) {
+            $('#NewsImage').val(asset(result.Filename));
+            $('#NewsImagePreview').attr('src', $('#NewsImage').val());
+          } else {
+            alert('Upload failed!\n' + result.Error);
+          }
+        });
     };
-
     reader.readAsDataURL(file);
     return false;
-  }
-
-  function onUploadImageComplete(data) {
-    $('#loadingicon').fadeTo(100, 0.0);
-    if (data.substr(0, 3) !== 'OK:') {
-      alert(data);
-      return;
-    }
-    $('#NewsImage').val('<?php echo getenv('ASSET_URL') ?>' + data.substr(3));
-    $('#NewsImagePreview').attr('src', $('#NewsImage').val());
   }
 </script>
 <div id="mainpage">
@@ -178,7 +171,7 @@ RenderHtmlHead("Manage News");
         echo "Image: <input id='NewsImage' size='44' type='text' name='g' value='$newsImage' onchange=\"$('#NewsImagePreview').attr( 'src', $('#NewsImage').val() ); return false;\">";
         echo "</td>";
         echo "<td>";
-        echo "&nbsp;<img id='loadingicon' style='opacity: 0;' src='" . getenv('ASSET_URL') . "/Images/loading.gif' alt='loading icon' />";
+        echo "&nbsp;<img id='loadingicon' style='opacity: 0;' src='" . asset('Images/loading.gif') . "' alt='loading icon' />";
         echo "&nbsp;New image:";
         echo "<input type='file' style='float: right;' name='file' id='uploadimagefile' onchange=\"return UploadImage();\" /> <br>";
         echo "</td>";
