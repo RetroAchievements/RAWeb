@@ -90,12 +90,35 @@
  *  API_GetTicketData - returns ticket statistics for the specified game
  *    g : game id
  *    f=5 : query for tickets against unofficial achievements (default: core achievements)
+ *    d=1 : specifies that the Tickets field should be populated
  *
  *  int        GameID                  unique identifier of the game
  *  string     GameTitle               title of the game
  *  string     ConsoleName             name of the console associated to the game
  *  string     OpenTickets             number of open tickets
  *  string     URL                     URL to the list of tickets associated to the game
+ *  array      Tickets                 more details on open tickets (only present if requested)
+ *   string     ID                     unique identifier of the ticket
+ *   string     AchievementID          unique identifier of the achievement associated to the ticket
+ *   string     AchievementTitle       title of the achievement
+ *   string     AchievementDesc        description of the achievement
+ *   string     Points                 number of points the achievement
+ *   string     BadgeName              unique identifier of the badge image for the achievement
+ *   string     AchievementAuthor      user who originally created the achievement
+ *   string     GameID                 unique identifier of the game associated to the achievement
+ *   string     GameTitle              title of the game
+ *   string     GameIcon               site-relative path to the game's icon image
+ *   string     ConsoleName            name of the console associated to the game
+ *   datetime   ReportedAt             when the ticket was created
+ *   string     ReportType             unique identifier of the ticket type
+ *   string     ReportTypeDescription  text description of the ticket type
+ *   string     ReportState            unique identifier of the ticket state
+ *   string     ReportStateDescription text description of the ticket state
+ *   string     Hardcore               "1"=Hardcore, "0"=not Hardcore, null=unknown
+ *   string     ReportNotes            summary of the problem as reported by the user
+ *   string     ReportedBy             user that created the ticket
+ *   datetime   ResolvedAt             when the ticket was closed
+ *   string     ResolvedBy             user that closed the ticket
  */
 
 /*
@@ -211,6 +234,16 @@ if ($gameIDGiven > 0) {
             $gameIDGiven
         );
         $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
+
+        $details = requestInputQuery('d', 0, 'integer');
+        if ($details == 1) {
+            $ticketData['Tickets'] = getAllTickets($offset, $count, null, null, null, $gameIDGiven, null, $defaultTicketFilter);
+
+            foreach ($ticketData['Tickets'] as &$ticket) {
+                $ticket['ReportStateDescription'] = TicketState::toString($ticket['ReportState']);
+                $ticket['ReportTypeDescription'] = TicketType::toString($ticket['ReportType']);
+            }
+        }
 
         echo json_encode($ticketData, JSON_THROW_ON_ERROR);
         exit;
