@@ -64,7 +64,7 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
     echo "<table><tbody>";
     echo "<tr><th colspan='2'>Game</th><th>Times Played</th></tr>";
 
-    $numItems = is_countable($historyData) ? count($historyData) : 0;
+    $numItems = count($historyData);
     for ($i = 0; $i < $numItems; $i++) {
         $nextData = $historyData[$i];
         $nextID = $nextData['ID'];

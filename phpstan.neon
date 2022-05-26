@@ -11,6 +11,7 @@ parameters:
     ignoreErrors:
         - '#Parameter (.*) of function htmlentities expects#'
     excludePaths:
+        - src/RetroAchievementsWebApiClient.php
         # unrelated directories
         - public/tmp
         # disabled features
@@ -20,7 +21,5 @@ parameters:
         - public/feed.php
         - public/popularGames.php
         - public/rss-activity.xml.php
-        # composer utility
-        - src/Utility/ComposerScripts.php
         # third party
         - lib/util/recaptcha.php

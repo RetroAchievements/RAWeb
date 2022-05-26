@@ -2,7 +2,7 @@
 
 use RA\Permissions;
 
-function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
+function authenticateFromPassword(&$user, $pass): bool
 {
     if (!isValidUsername($user)) {
         return false;
@@ -12,7 +12,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
 
     $query = "SELECT User, Password, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
-    if ($result == false) {
+    if (!$result) {
         return false;
     }
 
@@ -36,10 +36,9 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
         return false;
     }
 
-    $fbUser = $row['fbUser'];
     $user = $row['User'];
 
-    return $row['Permissions'] >= $permissionRequired;
+    return $row['Permissions'] >= Permissions::Unregistered;
 }
 
 function changePassword($user, $pass): bool
@@ -74,21 +73,6 @@ function migratePassword($user, $pass): string
     return $hashedPassword;
 }
 
-function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
-{
-    $fbUser = 0; // TBD: Remove!
-
-    return RA_ReadTokenCredentials(
-        $user,
-        $token,
-        $pointsUnused,
-        $truePointsUnused,
-        $unreadMessagesUnused,
-        $permissionsUnused,
-        $permissionRequired
-    );
-}
-
 function authenticateFromCookie(
     ?string &$userOut,
     ?int &$permissionsOut,
@@ -106,9 +90,9 @@ function authenticateFromCookie(
     $cookie = RA_ReadCookie('RA_Cookie');
     if ($userDetailsOut = getAccountDetailsFromCookie($cookie)) {
         $userOut = $userDetailsOut['User'];
-        $permissionsOut = $userDetailsOut['Permissions'];
+        $permissionsOut = (int) $userDetailsOut['Permissions'];
 
-        if ($permissionsOut != Permissions::Banned) {
+        if ($permissionsOut !== Permissions::Banned) {
             // valid active account. update the last activity timestamp
             userActivityPing($userOut);
 
@@ -129,14 +113,10 @@ function authenticateFromCookie(
     return false;
 }
 
-function RA_ReadTokenCredentials(
+function authenticateFromAppToken(
     &$userOut,
     $token,
-    &$pointsOut,
-    &$truePointsOut,
-    &$unreadMessagesOut,
-    &$permissionOut,
-    $permissionRequired = null
+    &$permissionOut
 ): bool {
     if ($userOut == null || $userOut == '') {
         return false;
@@ -154,23 +134,17 @@ function RA_ReadTokenCredentials(
               FROM UserAccounts AS ua
               WHERE User='$userOut'";
     $result = s_mysql_query($query);
-    if ($result == false) {
-        return false;
-    } else {
+    if ($result) {
         $row = mysqli_fetch_array($result);
-        $permissionOut = $row['Permissions'];
-        if ($row['appToken'] == $token) {
+        $permissionOut = (int) $row['Permissions'];
+        if ($row['appToken'] === $token) {
             $userOut = $row['User']; // Case correction
-            if (isset($permissionRequired)) {
-                return $permissionOut >= $permissionRequired;
-            } else {
-                return true;
-            }
-        } else {
-            // failed: passwords don't match for user:$userOut (given: $token, should be " . $row['appToken'] . ")
-            return false;
+
+            return true;
         }
     }
+
+    return false;
 }
 
 function generateAPIKey($user): string
@@ -192,7 +166,7 @@ function generateAPIKey($user): string
               WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         return "";
     }
 
@@ -211,7 +185,7 @@ function GetAPIKey($user): ?string
         WHERE ua.User = '$user' AND ua.Permissions >= " . Permissions::Registered;
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         return null;
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
@@ -220,7 +194,7 @@ function GetAPIKey($user): ?string
     }
 }
 
-function LogSuccessfulAPIAccess($user)
+function LogSuccessfulAPIAccess($user): void
 {
     sanitize_sql_inputs($user);
 
@@ -245,7 +219,7 @@ function ValidateAPIKey($user, $key): bool
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         // errors validating API Key for $user (given: $key)
         return false;
     }
@@ -278,7 +252,6 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken): bool
             . "WHERE ua.User='$usernameIn' AND ua.PasswordResetToken='$passwordResetToken'";
 
         $dbResult = s_mysql_query($query);
-        SQL_ASSERT($dbResult);
 
         if (mysqli_num_rows($dbResult) == 1) {
             return true;
@@ -307,7 +280,6 @@ function RequestPasswordReset($usernameIn): bool
               WHERE ua.User='$username'";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     SendPasswordResetEmail($username, $emailAddress, $newToken);
 

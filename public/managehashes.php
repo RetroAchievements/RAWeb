@@ -26,7 +26,7 @@ if (empty($gameID)) {
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
 $hashes = getHashListByGameID($gameID);
-$numLinks = is_countable($hashes) ? count($hashes) : 0;
+$numLinks = count($hashes);
 
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];

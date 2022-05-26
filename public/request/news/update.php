@@ -15,7 +15,7 @@ $payload = requestInputPost('p');
 $title = requestInputPost('t');
 $link = requestInputPost('l');
 $image = requestInputPost('g');
-$id = requestInputPost('i', null);
+$id = requestInputPost('i', null, 'integer');
 
 $payload = str_replace("_http_", "http", $payload);
 $title = str_replace("_http_", "http", $title);

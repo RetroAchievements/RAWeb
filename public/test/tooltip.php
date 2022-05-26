@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 RenderHtmlStart();
 RenderSharedHeader();
 
-function tooltip_row(string $text)
+function tooltip_row(string $text): void
 {
     $badge = '00000';
     echo "    <tr>\n";

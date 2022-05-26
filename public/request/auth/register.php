@@ -3,17 +3,12 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-function checkEmail($email)
-{
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
-}
-
 $user = $_POST["u"];
 $pass = $_POST["p"];
 $email = $_POST["e"];
 $email2 = $_POST["f"];
 
-if (ctype_alnum($user) == false) {
+if (!ctype_alnum($user)) {
     echo "Username ($user) must consist only of letters or numbers. Please retry.<br>";
     return false;
 }
@@ -43,7 +38,7 @@ if ($email !== $email2) {
     return false;
 }
 
-if (!checkEmail($email)) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     echo "Email is not valid... please retry.<br>";
     return false;
 }

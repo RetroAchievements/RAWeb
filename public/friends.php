@@ -24,7 +24,7 @@ RenderHtmlHead("Friends");
     <div id="fullcontainer">
         <h2>Friends</h2>
         <?php
-        if (!isset($friendsList)) {
+        if (empty($friendsList)) {
             echo "You don't appear to have friends registered here yet. Why not leave a comment on the <a href='/forum.php'>forums</a> or <a href='/userList.php'>browse the user pages</a> to find someone to add to your friend list?<br>";
         } else {
             echo "<table><tbody>";

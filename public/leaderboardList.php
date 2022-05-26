@@ -271,7 +271,7 @@ RenderHtmlHead($pageTitle);
 
         if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             // Allow leaderboard edits for devs and jr. devs if they are the author
-            if ($permissions >= Permissions::Developer || ($lbAuthor == $user && $permissions == Permissions::JuniorDeveloper)) {
+            if ($permissions >= Permissions::Developer || ($lbAuthor == $user && $permissions === Permissions::JuniorDeveloper)) {
                 $editAllowed = true;
             } else {
                 $editAllowed = false;

@@ -147,7 +147,7 @@ if ($outbox) {
             echo "<th style='width:100%'>Title</th>";
             echo "</tr>";
 
-            $totalMsgs = is_countable($allMessages) ? count($allMessages) : 0;
+            $totalMsgs = count($allMessages);
 
             for ($i = 0; $i < $totalMsgs; $i++) {
                 $msgID = $allMessages[$i]['ID'];

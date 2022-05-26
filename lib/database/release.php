@@ -88,11 +88,7 @@ function isValidConsoleId(int $consoleId): bool
     };
 }
 
-/**
- * @param int $integrationId
- * @return array|null
- */
-function getEmulatorReleaseByIntegrationId($integrationId)
+function getEmulatorReleaseByIntegrationId(int $integrationId): ?array
 {
     $releases = getReleasesFromFile();
     $emulators = $releases['emulators'] ?? [];
@@ -100,28 +96,19 @@ function getEmulatorReleaseByIntegrationId($integrationId)
     return $emulators[$integrationId] ?? null;
 }
 
-/**
- * @return array|null
- */
-function getIntegrationRelease()
+function getIntegrationRelease(): ?array
 {
     $releases = getReleasesFromFile();
 
     return $releases['integration'] ?? null;
 }
 
-/**
- * @return array|null
- */
-function getReleasesFromFile()
+function getReleasesFromFile(): ?array
 {
     return file_exists(__DIR__ . '/releases.php') ? require_once __DIR__ . '/releases.php' : null;
 }
 
-/**
- * @return array
- */
-function getActiveEmulatorReleases()
+function getActiveEmulatorReleases(): array
 {
     $consoles = getConsoleList();
     $releases = getReleasesFromFile();
