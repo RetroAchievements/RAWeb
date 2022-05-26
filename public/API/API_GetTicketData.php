@@ -237,7 +237,7 @@ if ($gameIDGiven > 0) {
 
         $details = requestInputQuery('d', 0, 'integer');
         if ($details == 1) {
-            $ticketData['Tickets'] = getAllTickets($offset, $count, null, null, null, $gameIDGiven, null, $defaultTicketFilter);
+            $ticketData['Tickets'] = getAllTickets($offset, $count, givenGameID: $gameIDGiven, ticketFilters: $defaultTicketFilter);
 
             foreach ($ticketData['Tickets'] as &$ticket) {
                 $ticket['ReportStateDescription'] = TicketState::toString($ticket['ReportState']);
