@@ -5,66 +5,24 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
 
-function getAchievementFeedData(
-    $id,
-    &$titleOut,
-    &$descOut,
-    &$pointsOut,
-    &$badgeFilenameOut,
-    &$gameTitleOut,
-    &$gameIDOut,
-    &$consoleNameOut
-) {
-    sanitize_sql_inputs($id);
-    settype($id, "integer");
-
-    // Updated: embed gametitle, console
-    $query = "SELECT a.Title, a.Description, a.Points, a.BadgeName, g.Title AS GameTitle, g.ID AS GameID, c.Name AS ConsoleName FROM Achievements AS a ";
-    $query .= "LEFT JOIN GameData AS g ON g.ID = a.GameID ";
-    $query .= "LEFT JOIN Console AS c ON c.ID = g.ConsoleID ";
-    $query .= "WHERE a.ID='$id'";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        log_sql_fail();
-        return false;
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-    if ($data == false) {
-        log_sql_fail();
-        return false;
-    }
-
-    $titleOut = $data['Title'];
-    $descOut = $data['Description'];
-    $pointsOut = $data['Points'];
-    $badgeFilenameOut = $data['BadgeName'];
-    $gameTitleOut = $data['GameTitle'];
-    $gameIDOut = $data['GameID'];
-    $consoleNameOut = $data['ConsoleName'];
-
-    return true;
-}
-
-function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
+function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut): string
 {
     sanitize_sql_inputs($id);
     settype($id, "integer");
 
-    // Updated: embed gametitle
+    // Updated: embed game title
     $query = "SELECT a.Title, g.Title AS GameTitle, g.ID as GameID FROM Achievements AS a 
                 LEFT JOIN GameData AS g ON g.ID = a.GameID 
                 WHERE a.ID = '$id'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return "";
     }
 
     $data = mysqli_fetch_assoc($dbResult);
-    if ($data == false) {
+    if (!$data) {
         log_sql_fail();
         return "";
     }
@@ -75,25 +33,20 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut)
     return $data['Title'];
 }
 
-function GetAchievementData($id)
+function GetAchievementData($id): ?array
 {
     sanitize_sql_inputs($id);
     settype($id, "integer");
     $query = "SELECT * FROM Achievements WHERE ID=$id";
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false || mysqli_num_rows($dbResult) != 1) {
+    if (!$dbResult || mysqli_num_rows($dbResult) != 1) {
         error_log(__FUNCTION__ . " failed: Achievement $id doesn't exist!");
 
         return null;
     } else {
         return mysqli_fetch_assoc($dbResult);
     }
-}
-
-function getAchievementsList($consoleIDInput, $user, $sortBy, $params, $count, $offset, &$dataOut, $achFlags = 3)
-{
-    return getAchievementsListByDev($consoleIDInput, $user, $sortBy, $params, $count, $offset, $dataOut, $achFlags);
 }
 
 function getAchievementsListByDev(
@@ -106,7 +59,7 @@ function getAchievementsListByDev(
     &$dataOut,
     $achFlags = 3,
     $dev = null
-) {
+): int {
     sanitize_sql_inputs(
         $consoleIDInput,
         $user,
@@ -224,7 +177,7 @@ function getAchievementsListByDev(
     return $achCount;
 }
 
-function GetAchievementMetadataJSON($achID)
+function GetAchievementMetadataJSON($achID): ?array
 {
     sanitize_sql_inputs($achID);
     $retVal = [];
@@ -240,39 +193,21 @@ function GetAchievementMetadataJSON($achID)
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-        $retVal = mysqli_fetch_assoc($dbResult);
-    } else {
-        log_sql_fail();
+        return mysqli_fetch_assoc($dbResult);
     }
+    log_sql_fail();
 
-    return $retVal;
+    return null;
 }
 
-function GetAchievementMetadata($achievementID, &$dataOut)
+function GetAchievementMetadata($achievementID, &$dataOut): bool
 {
     $dataOut = GetAchievementMetadataJSON($achievementID);
 
     return !empty($dataOut);
 }
 
-function getAchievementBadgeFilename($id)
-{
-    sanitize_sql_inputs($id);
-
-    $query = "SELECT BadgeName FROM Achievements WHERE ID = '$id'";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        log_sql_fail();
-        return "00000";
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return $data['BadgeName'];
-}
-
-function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
+function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore): bool
 {
     sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
     settype($isHardcore, 'integer');
@@ -286,7 +221,7 @@ function InsertAwardedAchievementDB($user, $achIDToAward, $isHardcore)
     return $dbResult !== false;
 }
 
-function HasAward($user, $achIDToAward)
+function HasAward($user, $achIDToAward): array
 {
     sanitize_sql_inputs($user, $achIDToAward);
 
@@ -314,7 +249,7 @@ function HasAward($user, $achIDToAward)
     return $retVal;
 }
 
-function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
+function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore): array
 {
     sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
     settype($achIDToAward, 'integer');
@@ -345,7 +280,7 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
         return $retVal;
     }
 
-    if ($achData['Flags'] == 5) { // do not award Unofficial achievements
+    if ((int) $achData['Flags'] === AchievementType::UNOFFICIAL) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements are not awarded";
         return $retVal;
     }
@@ -363,7 +298,7 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
         $awardedOK &= InsertAwardedAchievementDB($user, $achIDToAward, false);
     }
 
-    if ($awardedOK == false) {
+    if (!$awardedOK) {
         $retVal['Error'] = "Issues allocating awards for user";
         return $retVal;
     }
@@ -401,7 +336,7 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
 
     $query = "UPDATE UserAccounts SET RAPoints=RAPoints+$pointsToGive, Updated=NOW() WHERE User='$user'";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         $retVal['Error'] = "Could not add points for this user?";
         error_log(__FUNCTION__ . " failed: cannot add new achievement to DB! $user, $achIDToAward");
         return $retVal;
@@ -420,12 +355,11 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
     // Removed: this needs rethinking! //##SD TBD
     // recalculateTrueRatio( $gameID );    // Heavy!
     // Add TA to the player for this achievement, NOW that the TA value has been recalculated
-    // Select the NEW TA from this achievement, as it has just been recalc'd
+    // Select the NEW TA from this achievement, as it has just been recalculated
     $query = "SELECT TrueRatio
               FROM Achievements
               WHERE ID='$achIDToAward'";
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     $data = mysqli_fetch_assoc($dbResult);
     $newTA = $data['TrueRatio'];
@@ -438,7 +372,6 @@ function addEarnedAchievementJSON($user, $achIDToAward, $isHardcore)
               SET TrueRAPoints=TrueRAPoints+$newTA
               WHERE User='$user'";
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     return $retVal;
 }
@@ -597,22 +530,20 @@ function UploadNewAchievement(
                         );
                     }
                 } else {
-                    $stringArray = [];
-
+                    $fields = [];
                     if ($changingPoints) {
-                        array_push($stringArray, "points");
+                        $fields[] = "points";
                     }
                     if ($changingBadge) {
-                        array_push($stringArray, "badge");
+                        $fields[] = "badge";
                     }
                     if ($changingWording) {
-                        array_push($stringArray, "wording");
+                        $fields[] = "wording";
                     }
                     if ($changingLogic) {
-                        array_push($stringArray, "logic");
+                        $fields[] = "logic";
                     }
-
-                    $editString = implode(', ', $stringArray);
+                    $editString = implode(', ', $fields);
 
                     addArticleComment(
                         "Server",
@@ -635,13 +566,13 @@ function UploadNewAchievement(
     }
 }
 
-function resetAchievements($user, $gameID)
+function resetAchievements($user, $gameID): int
 {
     sanitize_sql_inputs($user, $gameID);
     settype($gameID, 'integer');
 
     if (empty($gameID)) {
-        return false;
+        return 0;
     }
 
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ( SELECT ID FROM Achievements WHERE Achievements.GameID='$gameID')";
@@ -649,16 +580,14 @@ function resetAchievements($user, $gameID)
     $numRowsDeleted = 0;
     if (s_mysql_query($query) !== false) {
         global $db;
-        $numRowsDeleted = mysqli_affected_rows($db);
-    } else {
-        // Delete op failed (no permissions?)!
+        $numRowsDeleted = (int) mysqli_affected_rows($db);
     }
 
     recalcScore($user);
     return $numRowsDeleted;
 }
 
-function resetSingleAchievement($user, $achID)
+function resetSingleAchievement($user, $achID): bool
 {
     sanitize_sql_inputs($user, $achID);
     settype($achID, 'integer');
@@ -670,7 +599,7 @@ function resetSingleAchievement($user, $achID)
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID'";
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     }
 
@@ -678,7 +607,7 @@ function resetSingleAchievement($user, $achID)
     return true;
 }
 
-function getRecentlyEarnedAchievements($count, $user, &$dataOut)
+function getRecentlyEarnedAchievements($count, $user, &$dataOut): int
 {
     sanitize_sql_inputs($count, $user);
     settype($count, 'integer');
@@ -700,20 +629,20 @@ function getRecentlyEarnedAchievements($count, $user, &$dataOut)
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return 0;
-    } else {
-        $i = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$i] = $db_entry;
-            $i++;
-        }
-        return $i;
     }
+
+    $i = 0;
+    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+        $dataOut[$i] = $db_entry;
+        $i++;
+    }
+    return $i;
 }
 
-function GetAchievementsPatch($gameID, $flags)
+function GetAchievementsPatch($gameID, $flags): array
 {
     sanitize_sql_inputs($gameID, $flags);
     settype($gameID, 'integer');
@@ -750,7 +679,7 @@ function GetAchievementsPatch($gameID, $flags)
     return $retVal;
 }
 
-function GetPatchData($gameID, $flags, $user)
+function GetPatchData($gameID, $flags, $user): array
 {
     sanitize_sql_inputs($gameID, $flags, $user);
     settype($gameID, 'integer');
@@ -758,128 +687,19 @@ function GetPatchData($gameID, $flags, $user)
 
     $retVal = [];
 
-    if ($gameID == 0) {
-        // cannot lookup game with gameID $gameID for user $user
-    } else {
-        $retVal = array_merge(getGameData($gameID));
-
-        $retVal['Achievements'] = GetAchievementsPatch($gameID, $flags);
-        $retVal['Leaderboards'] = GetLBPatch($gameID);
+    if (empty($gameID)) {
+        // cannot look up game with gameID $gameID for user $user
+        return $retVal;
     }
+    $retVal = array_merge(getGameData($gameID));
+
+    $retVal['Achievements'] = GetAchievementsPatch($gameID, $flags);
+    $retVal['Leaderboards'] = GetLBPatch($gameID);
+
     return $retVal;
 }
 
-function getPatch($gameID, $flags, $user, $andLeaderboards)
-{
-    sanitize_sql_inputs($gameID, $flags, $user);
-    settype($gameID, 'integer');
-    settype($flags, 'integer');
-
-    getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopicID, $gameData);
-
-    $minVer = "0.001";
-    if ($consoleID == 1) { // Mega Drive
-        $minVer = "0.042";
-    } // "0.028";
-    elseif ($consoleID == 2) { // N64
-        $minVer = "0.008";
-    } // ??
-    elseif ($consoleID == 3) { // SNES
-        $minVer = "0.008";
-    }
-
-    echo $minVer . "\n";
-    echo $gameTitle . "\n";
-
-    if ($gameID == 0) {
-        // cannot lookup game with gameID $gameID for user $user
-        return false;
-    }
-
-    $query = "SELECT ID, MemAddr, Title, Description, Progress, ProgressMax, ProgressFormat, Points, Author, DateModified, DateCreated, VotesPos, VotesNeg, BadgeName FROM Achievements ";
-    $query .= "WHERE GameID='$gameID' AND Flags='$flags' ";
-    $query .= "ORDER BY DisplayOrder";
-
-    global $db;
-
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            // Unix time
-            $dateStr = strtotime($db_entry["DateCreated"]);
-            $dateCreatedSecs = date("U", $dateStr);
-            $dateStr = strtotime($db_entry["DateModified"]);
-            $dateModifiedSecs = date("U", $dateStr);
-
-            $points = $db_entry["Points"];
-            settype($points, 'integer');
-
-            if (!isset($db_entry["Author"])) {
-                $db_entry["Author"] = "Unknown";
-            }
-
-            if (!isset($db_entry["Progress"]) || $db_entry["Progress"] == '') {
-                $db_entry["Progress"] = ' ';
-            }
-            if (!isset($db_entry["ProgressMax"]) || $db_entry["ProgressMax"] == '') {
-                $db_entry["ProgressMax"] = ' ';
-            }
-            if (!isset($db_entry["ProgressFormat"]) || $db_entry["ProgressFormat"] == '') {
-                $db_entry["ProgressFormat"] = ' ';
-            }
-
-            echo $db_entry["ID"] . ":" .
-                $db_entry["MemAddr"] . ":" .
-                $db_entry["Title"] . ":" .
-                $db_entry["Description"] . ":" .
-                $db_entry["Progress"] . ":" .
-                $db_entry["ProgressMax"] . ":" .
-                $db_entry["ProgressFormat"] . ":" .
-                $db_entry["Author"] . ":" .
-                $points . ":" .
-                $dateCreatedSecs . ":" .
-                $dateModifiedSecs . ":" .
-                $db_entry["VotesPos"] . ":" .
-                $db_entry["VotesNeg"] . ":" .
-                $db_entry["BadgeName"];
-
-            echo "\n";
-        }
-
-        // if( $flags == 3 ) // core
-        // postActivity( $user, 3, $title );
-
-        if ($andLeaderboards) {
-            $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.Title, ld.Description
-                      FROM LeaderboardDef AS ld
-                      WHERE ld.GameID = $gameID
-                      ORDER BY ld.DisplayOrder, ld.ID ";
-
-            global $db;
-            $dbResult = mysqli_query($db, $query);
-            if ($dbResult !== false) {
-                while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                    echo 'L' . $db_entry['ID'] .
-                        '::' . $db_entry['Mem'] .
-                        '::FOR:' . $db_entry['Format'] .
-                        '::TTL:' . $db_entry['Title'] .
-                        '::DES:' . $db_entry['Description'];
-
-                    echo "\n";
-                }
-            } else {
-                // No leaderboards found: this is probably normal.
-            }
-        }
-
-        return true;
-    } else {
-        log_sql_fail();
-        return false;
-    }
-}
-
-function updateAchievementDisplayID($achID, $newID)
+function updateAchievementDisplayID($achID, $newID): bool
 {
     sanitize_sql_inputs($achID, $newID);
 
@@ -889,7 +709,7 @@ function updateAchievementDisplayID($achID, $newID)
     return $dbResult !== false;
 }
 
-function updateAchievementEmbedVideo($achID, $newURL)
+function updateAchievementEmbedVideo($achID, $newURL): bool
 {
     $newURL = strip_tags($newURL);
     sanitize_sql_inputs($achID, $newURL);
@@ -916,7 +736,7 @@ function updateAchievementFlags(int|string|array $achID, int $newFlags): bool
     return $dbResult !== false;
 }
 
-function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
+function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut): bool
 {
     sanitize_sql_inputs($consoleID, $offset, $count);
 
@@ -941,12 +761,12 @@ function getCommonlyEarnedAchievements($consoleID, $offset, $count, &$dataOut)
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[] = $db_entry;
         }
-        return true;
     } else {
         log_sql_fail();
         // failed: consoleID:$consoleID offset:$offset, count:$count
-        return true;
     }
+
+    return true;
 }
 
 function getAchievementWonData(
@@ -958,7 +778,7 @@ function getAchievementWonData(
     $user,
     $offset = 0,
     $limit = 50
-) {
+): bool {
     sanitize_sql_inputs($achID, $user, $offset, $limit);
 
     $winnerInfo = [];
@@ -977,7 +797,7 @@ function getAchievementWonData(
     ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         return false;
     }
 
@@ -1012,7 +832,7 @@ function getAchievementWonData(
     return true;
 }
 
-function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null)
+function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, $friendsOnly = null): array
 {
     sanitize_sql_inputs($achID, $offset, $count, $user, $friendsOnly);
 
@@ -1034,7 +854,6 @@ function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
 
     // Fetch the total number of players for this game:
     $retVal['TotalPlayers'] = getGameNumUniquePlayersByAwards($retVal['GameID']);
-    settype($retVal['TotalPlayers'], 'integer');
 
     $extraWhere = "";
     if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
@@ -1060,7 +879,7 @@ function getAchievementRecentWinnersData($achID, $offset, $count, $user = null, 
     return $retVal;
 }
 
-function getGameNumUniquePlayersByAwards($gameID)
+function getGameNumUniquePlayersByAwards($gameID): int
 {
     sanitize_sql_inputs($gameID);
 
@@ -1077,10 +896,10 @@ function getGameNumUniquePlayersByAwards($gameID)
     $dbResult = s_mysql_query($query);
     $data = mysqli_fetch_assoc($dbResult);
 
-    return $data['TotalPlayers'];
+    return (int) $data['TotalPlayers'];
 }
 
-function recalculateTrueRatio($gameID)
+function recalculateTrueRatio($gameID): bool
 {
     sanitize_sql_inputs($gameID);
 
@@ -1093,7 +912,6 @@ function recalculateTrueRatio($gameID)
               GROUP BY ach.ID";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true, 3);
@@ -1137,12 +955,9 @@ function recalculateTrueRatio($gameID)
 }
 
 /**
- * Gets the number of softcore and hardcore awards for an achieveemnt since a given time.
- *
- * @param int $id achievement to gets awards count for
- * @param string $date the date to get awards count since
+ * Gets the number of softcore and hardcore awards for an achievement since a given time.
  */
-function getAwardsSince($id, $date): array
+function getAwardsSince(int $id, string $date): array
 {
     sanitize_sql_inputs($id, $date);
     settype($id, "integer");
@@ -1173,11 +988,8 @@ function getAwardsSince($id, $date): array
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
- *
- * @param string $user to get achievement data for
- * @return array of achievement count per console
  */
-function getUserAchievemetnsPerConsole($user)
+function getUserAchievementsPerConsole(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -1203,11 +1015,8 @@ function getUserAchievemetnsPerConsole($user)
 
 /**
  * Gets the number of sets worked on by the user for each console they have worked on.
- *
- * @param string $user to get set data for
- * @return array of set count per console
  */
-function getUserSetsPerConsole($user)
+function getUserSetsPerConsole(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -1233,11 +1042,8 @@ function getUserSetsPerConsole($user)
 
 /**
  * Gets information for all achievements made by the user.
- *
- * @param string $user to get achievement data for
- * @return array of achievement data
  */
-function getUserAchievementInformation($user)
+function getUserAchievementInformation(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -1263,11 +1069,8 @@ function getUserAchievementInformation($user)
 
 /**
  * Gets the number of time the user has obtained (softcore and hardcore) their own achievements.
- *
- * @param string $user to get obtained achievement data for
- * @return array|null of obtained achievement data
  */
-function getOwnAchievementsObtained($user)
+function getOwnAchievementsObtained(string $user): bool|array|null
 {
     sanitize_sql_inputs($user);
 
@@ -1292,12 +1095,9 @@ function getOwnAchievementsObtained($user)
 }
 
 /**
- * Gets data for other users that have earned achievemetns for the input user.
- *
- * @param string $user to get obtained achievement data for
- * @return array of achievement obtainer data
+ * Gets data for other users that have earned achievements for the input user.
  */
-function getObtainersOfSpecificUser($user)
+function getObtainersOfSpecificUser(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -1329,13 +1129,8 @@ function getObtainersOfSpecificUser($user)
 
 /**
  * Gets recently obtained achievements created by the user.
- *
- * @param array $achievementIDs array of achievement IDs
- * @param int $offset starting point to return items
- * @param int $count number of items to return
- * @return array of recently obtained achievements
  */
-function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 200)
+function getRecentObtainedAchievements(array $achievementIDs, int $offset = 0, int $count = 200): array
 {
     $achievementIDs = implode(",", $achievementIDs);
     sanitize_sql_inputs($achievementIDs, $offset, $count);
@@ -1361,13 +1156,7 @@ function getRecentObtainedAchievements($achievementIDs, $offset = 0, $count = 20
 }
 
 /**
- * Gets a list of users who have won a achievement or list of achievements within a given timerange.
- *
- * @param array $achievementIDs Achievement ID or array of achievement IDs
- * @param string $startTime starting point to return items
- * @param string $endTime number of items to return
- * @param int $hardcoreMode get hardcore winners
- * @return array of of winners for each input achievement ID
+ * Gets a list of users who have won an achievement or list of achievements within a given time-range.
  */
 function getWinnersOfAchievements($achievementIDs, $startTime, $endTime, $hardcoreMode): array
 {

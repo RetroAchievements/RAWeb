@@ -153,7 +153,7 @@ if (in_array($uploadType, $allowedGameImageTypes)) {
     $query = "UPDATE GameData AS gd SET $param='/Images/$nextImageFilenameStr.png' WHERE gd.ID = $returnID";
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     }
 

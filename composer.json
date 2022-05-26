@@ -52,6 +52,8 @@
         "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
         "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
         "rector": "vendor/bin/rector process",
+        "test": "vendor/bin/phpunit",
+        "coverage": "php -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
         "post-install-cmd": [
             "git config core.hooksPath ./.hooks"
         ]

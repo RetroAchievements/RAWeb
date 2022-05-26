@@ -44,7 +44,7 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
     }
     exit;
 }
-if (validateUser($user, $pass, $fbUser, 0)) {
+if (authenticateFromPassword($user, $pass)) {
     RemovePasswordResetToken($user);
     if (changePassword($user, $newpass1)) {
         generateAppToken($user, $tokenInOut);

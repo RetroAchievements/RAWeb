@@ -29,7 +29,7 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
         "</div>";
 }
 
-function RenderGameLeaderboardsComponent($gameID, $lbData)
+function RenderGameLeaderboardsComponent($lbData): void
 {
     $numLBs = is_countable($lbData) ? count($lbData) : 0;
     echo "<div class='component'>";

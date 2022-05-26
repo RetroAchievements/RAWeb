@@ -9,6 +9,8 @@ abstract class TicketState
     public const Resolved = 2;
     public const Request = 3;
 
+    public const REASON_DEMOTED = 'Demoted';
+
     public static function toString(int $type): string
     {
         return match ($type) {

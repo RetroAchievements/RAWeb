@@ -9,7 +9,7 @@ $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$forumList = getForumList($permissions, $requestedCategoryID);
+$forumList = getForumList($requestedCategoryID);
 
 $numUnofficialLinks = 0;
 if ($permissions >= Permissions::Developer) {

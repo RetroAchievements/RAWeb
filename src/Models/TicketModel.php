@@ -43,7 +43,7 @@ class TicketModel
         $this->closedBy = $this->sanitize($ticketDbResult['ResolvedBy']);
     }
 
-    private function sanitize(?string $input)
+    private function sanitize(?string $input): string
     {
         return htmlentities($input, ENT_COMPAT, null, false);
     }

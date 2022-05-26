@@ -151,7 +151,7 @@ if ($isFullyFeaturedGame) {
 
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
 
-    $numArticleComments = getArticleComments(1, $gameID, 0, 20, $commentData);
+    $numArticleComments = getArticleComments(ArticleType::Game, $gameID, 0, 20, $commentData);
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
@@ -1218,7 +1218,7 @@ RenderHtmlStart(true);
             echo "</div>";
 
             RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
-            RenderGameLeaderboardsComponent($gameID, $lbData);
+            RenderGameLeaderboardsComponent($lbData);
             ?>
         </div>
     <?php endif ?>
