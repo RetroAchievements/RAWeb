@@ -11,7 +11,7 @@ $token = requestInput('t');
 
 $bounceReferrer = requestInput('b'); // TBD: Remove!
 
-if (!RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!authenticateFromAppToken($user, $token, $permissions)) {
     http_response_code(401);
     echo json_encode(['Success' => false]);
     exit;

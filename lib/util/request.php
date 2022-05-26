@@ -76,6 +76,7 @@ function ValidateGETChars($charsIn)
     return true;
 }
 
+// TODO do not allow GET requests, POST only
 function ValidatePOSTorGETChars($charsIn)
 {
     $numChars = mb_strlen($charsIn);
@@ -90,38 +91,10 @@ function ValidatePOSTorGETChars($charsIn)
     return true;
 }
 
-function CurrentPageURL()
+function CurrentPageURL(): string
 {
     // $pageURL = $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
     $pageURL = 'https://';
     $pageURL .= $_SERVER['SERVER_PORT'] != '80' ? $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"] : $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
     return $pageURL;
-}
-
-function ParseCURLGetImage($url)
-{
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_URL, getenv('APP_URL') . "/$url");
-    curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-
-    $result = curl_exec($ch);
-    curl_close($ch);
-
-    return $result;
-}
-
-function ParseCURLPage($url, $postString = "")
-{
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, getenv('APP_URL') . "/$url");
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postString);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $result = curl_exec($ch);
-    curl_close($ch);
-
-    return $result;
 }

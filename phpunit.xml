@@ -1,29 +1,21 @@
-<phpunit bootstrap="./tests/bootstrap.php"
-         backupGlobals="false"
-         backupStaticAttributes="false"
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         stopOnError="false"
-         stopOnFailure="false"
-         stopOnIncomplete="false"
-         stopOnSkipped="false"
-         timeoutForSmallTests="1"
-         timeoutForMediumTests="10"
-         timeoutForLargeTests="60"
-         verbose="false"
 >
+    <coverage>
+        <include>
+            <directory suffix=".php">./public</directory>
+            <directory suffix=".php">./src</directory>
+            <directory suffix=".php">./lib</directory>
+        </include>
+    </coverage>
     <testsuites>
         <testsuite name="application test suite">
             <directory>./tests/src</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
     <php>
         <ini name="date.timezone" value="UTC"/>
     </php>

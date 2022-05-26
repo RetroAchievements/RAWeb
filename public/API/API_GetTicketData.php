@@ -132,6 +132,7 @@
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
+use RA\AchievementType;
 use RA\TicketFilters;
 use RA\TicketState;
 use RA\TicketType;
@@ -226,7 +227,7 @@ if ($gameIDGiven > 0) {
         $ticketData['GameTitle'] = $gameTitle;
         $ticketData['ConsoleName'] = $consoleName;
         $ticketData['OpenTickets'] = countOpenTickets(
-            $gamesTableFlag == 5, // 5 is the magic number for Unofficial
+            $gamesTableFlag == AchievementType::UNOFFICIAL,
             $defaultTicketFilter,
             null,
             null,

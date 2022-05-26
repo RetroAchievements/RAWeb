@@ -6,7 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
-    // Immediate redirect if we cannot validate user!
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -17,276 +16,11 @@ $newsArticleID = requestInputSanitized('n', null, 'integer');
 $newsCount = getLatestNewsHeaders(0, 999, $newsData);
 $activeNewsArticle = null;
 
-function tailCustom($filepath, $lines = 1, $adaptive = true)
-{
-
-    // Open file
-    $f = @fopen($filepath, "rb");
-    if ($f === false) {
-        return false;
-    }
-
-    // Sets buffer size
-    if (!$adaptive) {
-        $buffer = 4096;
-    } else {
-        $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
-    }
-
-    // Jump to last character
-    fseek($f, -1, SEEK_END);
-
-    if (fread($f, 1) != "\n") {
-        $lines--;
-    }
-
-    // Start reading
-    $output = '';
-    $chunk = '';
-
-    // While we would like more
-    while (ftell($f) > 0 && $lines >= 0) {
-
-        // Figure out how far back we should jump
-        $seek = min(ftell($f), $buffer);
-
-        // Do the jump (backwards, relative to where we are)
-        fseek($f, -$seek, SEEK_CUR);
-
-        // Read a chunk and prepend it to our output
-        $output = ($chunk = fread($f, $seek)) . $output;
-
-        // Jump back to where we started reading
-        fseek($f, -mb_strlen($chunk), SEEK_CUR);
-
-        // Decrease our line counter
-        $lines -= mb_substr_count($chunk, "\n");
-    }
-
-    while ($lines++ < 0) {
-
-        // Find first newline and remove all text before that
-        $output = mb_substr($output, mb_strpos($output, "\n") + 1);
-    }
-
-    // Close file and return
-    fclose($f);
-    return trim($output);
-}
-
 $action = requestInputSanitized('action');
 $message = null;
 switch ($action) {
-    // case 'regenapi':
-    //     $query = "SELECT User FROM UserAccounts";
-    //     $dbResult = s_mysql_query($query);
-    //
-    //     $userList = '';
-    //     while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    //         $userList[] = $db_entry['User'];
-    //     }
-    //
-    //     $numRegens = 0;
-    //     foreach ($userList as $nextTempUser) {
-    //         $newKey = generateAPIKey($nextTempUser);
-    //         if ($newKey !== "") {
-    //             $numRegens++;
-    //         }
-    //     }
-    //
-    //     echo "REGENERATED $numRegens APIKEYS!<br>";
-    //     break;
-    // case 'regenapione':
-    //     $targetUser = requestInputSanitized('t');
-    //     $newKey = generateAPIKey($targetUser);
-    //     echo "New API Key for $targetUser: $newKey<br>";
-    //     break;
-    // case 'recalcdev':
-    //     $query = "SELECT User FROM UserAccounts";
-    //     $dbResult = s_mysql_query($query);
-    //
-    //     $userList = '';
-    //     while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    //         $userList[] = $db_entry['User'];
-    //     }
-    //
-    //     $numRegens = 0;
-    //     foreach ($userList as $nextTempUser) {
-    //         $valid = recalculateDevelopmentContributions($nextTempUser);
-    //         echo "$nextTempUser<br>";
-    //         if ($valid) {
-    //             $numRegens++;
-    //         }
-    //     }
-    //
-    //     echo "REGENERATED $numRegens developer contribution totals!<br>";
-    //     break;
-    // case 'reconstructsiteawards':
-    //     $tgtPlayer = requestInputSanitized('t', null);
-    //
-    //     $query = "DELETE FROM SiteAwards WHERE AwardType = 1";
-    //     if ($tgtPlayer !== null) {
-    //         $query .= " AND User = '$tgtPlayer'";
-    //     }
-    //
-    //     $dbResult = s_mysql_query($query);
-    //
-    //     $query = "SELECT User FROM UserAccounts";
-    //     if ($tgtPlayer !== null) {
-    //         $query .= " WHERE User = '$tgtPlayer'";
-    //     }
-    //
-    //     $dbResult = s_mysql_query($query);
-    //
-    //     $userList = [];
-    //     if ($dbResult !== false) {
-    //         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    //             $userList[] = $db_entry['User'];
-    //         }
-    //     } else {
-    //         echo "Error accessing UserAccounts";
-    //         exit;
-    //     }
-    //
-    //     $numAccounts = count($userList);
-    //     for ($i = 0; $i < $numAccounts; $i++) {
-    //         $user = $userList[$i];
-    //
-    //         echo "Updating $user...<br>";
-    //
-    //         $query = "	SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon , aw.HardcoreMode
-    //             FROM Awarded AS aw
-    //             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-    //             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-    //             LEFT JOIN
-    //                 ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags=3 GROUP BY GameID )
-    //                 AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > 5
-    //             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-    //             WHERE aw.User='$user' AND ach.Flags = 3
-    //             GROUP BY ach.GameID, aw.HardcoreMode, gd.Title
-    //             ORDER BY PctWon DESC, inner1.MaxPossible DESC, gd.Title";
-    //
-    //         $dbResult = s_mysql_query($query);
-    //
-    //         if ($dbResult !== false) {
-    //             $listOfAwards = [];
-    //
-    //             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    //                 $listOfAwards[] = $db_entry;
-    //                 //$nextElem = $db_entry;
-    //                 //$nextGameID = $nextElem['GameID'];
-    //                 // if( $nextElem['PctWon'] == 2.0 )
-    //                 // {
-    //                 // $gameTitle = $nextElem['Title'];
-    //                 // echo "Mastered $gameTitle<br>";
-    //                 // //	Add award:
-    //                 // AddSiteAward( $user, 1, $nextElem['GameID'], 1 );
-    //                 // }
-    //                 // if( $nextElem['PctWon'] >= 1.0 )	//noooo!!!!
-    //                 // {
-    //                 // $gameTitle = $nextElem['Title'];
-    //                 // echo "Completed $gameTitle<br>";
-    //                 // //	Add award:
-    //                 // AddSiteAward( $user, 1, $nextElem['GameID'], 0 );
-    //                 // }
-    //             }
-    //
-    //             $awardAddedHC = [];
-    //
-    //             foreach ($listOfAwards as $nextAward) {
-    //                 if ($nextAward['HardcoreMode'] == 1) {
-    //                     if ($nextAward['PctWon'] == 1.0) {
-    //                         $gameTitle = $nextAward['Title'];
-    //                         $gameID = $nextAward['GameID'];
-    //                         echo "MASTERED $gameTitle<br>";
-    //                         //	Add award:
-    //                         AddSiteAward($user, 1, $gameID, 1);
-    //
-    //                         $awardAddedHC[] = $gameID;
-    //                     }
-    //                 }
-    //             }
-    //
-    //             foreach ($listOfAwards as $nextAward) {
-    //                 if ($nextAward['HardcoreMode'] == 0) {
-    //                     //	Check it hasnt already been added as a non-HC award
-    //                     if ($nextAward['PctWon'] == 1.0) {
-    //                         $gameTitle = $nextAward['Title'];
-    //                         $gameID = $nextAward['GameID'];
-    //
-    //                         if (!in_array($gameID, $awardAddedHC)) {
-    //                             echo "Completed $gameTitle<br>";
-    //                             //	Add award:
-    //                             AddSiteAward($user, 1, $gameID, 0);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     break;
-    // case 'recalcsiteawards':
-    //     $tgtPlayer = requestInputSanitized('t', null);
-    //     {
-    //         $query = "DELETE FROM SiteAwards WHERE ( AwardType = 2 || AwardType = 3 || AwardType = 5 )";
-    //         if ($tgtPlayer !== null) {
-    //             $query .= " AND User = '$tgtPlayer'";
-    //         }
-    //
-    //         global $db;
-    //         $unusedDBResult = mysqli_query($db, $query);
-    //     }
-    //     {
-    //         $query = "SELECT User, ContribCount, ContribYield, fbUser FROM UserAccounts";
-    //         if ($tgtPlayer !== null) {
-    //             $query .= " WHERE User = '$tgtPlayer'";
-    //         }
-    //
-    //         $dbResult = mysqli_query($db, $query);
-    //
-    //         $userList = '';
-    //         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-    //             $userList[] = [
-    //                 $db_entry['User'],
-    //                 $db_entry['ContribCount'],
-    //                 $db_entry['ContribYield'],
-    //                 $db_entry['fbUser'],
-    //             ];
-    //         }
-    //
-    //         $numRecalced = 0;
-    //         foreach ($userList as $nextTempUser) {
-    //             $nextUser = $nextTempUser[0];
-    //             $nextCount = $nextTempUser[1];
-    //             $nextYield = $nextTempUser[2];
-    //             $nextFBUser = $nextTempUser[3];
-    //
-    //             for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
-    //                 if ($nextCount >= RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
-    //                     // This developer has arrived at this point boundary!
-    //                     AddSiteAward($nextUser, 2, $i);
-    //                     $numRecalced++;
-    //                 }
-    //             }
-    //             for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
-    //                 if ($nextYield >= RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
-    //                     // This developer is newly above this point boundary!
-    //                     AddSiteAward($nextUser, 3, $i);
-    //                     $numRecalced++;
-    //                 }
-    //             }
-    //
-    //             if (isset($nextFBUser) && mb_strlen($nextFBUser) > 2) {
-    //                 echo "$nextUser has signed up for FB, add FB award!<br>";
-    //                 AddSiteAward($nextUser, 5, 0);
-    //             }
-    //         }
-    //
-    //         echo "RECALCULATED $numRecalced site awards!<br>";
-    //     }
-    //     break;
     case 'getachids':
-        $gameIDs = explode(',', requestInputSanitized('g'));
+        $gameIDs = separateList(requestInputSanitized('g'));
         foreach ($gameIDs as $nextGameID) {
             $ids = getAchievementIDs($nextGameID);
             $message = implode(', ', $ids["AchievementIDs"] ?? []);
@@ -311,16 +45,10 @@ switch ($action) {
                 if (strtotime($endTime)) {
                     // invalid start, valid end
                     $dateString = " before $endTime";
-                } else {
-                    // invalid start and end
-                    // no date string needed
                 }
             }
 
-            $ids = str_replace(',', ' ', $achievementIDs);
-            $ids = str_replace('  ', ' ', $ids);
-            $ids = explode(' ', $ids);
-            $winners = getWinnersOfAchievements($ids, $startTime, $endTime, $hardcoreMode);
+            $winners = getWinnersOfAchievements(separateList($achievementIDs), $startTime, $endTime, (int) $hardcoreMode);
 
             $keys = array_keys($winners);
             for ($i = 0; $i < count($winners); $i++) {
@@ -332,7 +60,7 @@ switch ($action) {
 
         break;
     case 'giveaward':
-        $awardAchievementID = requestInputSanitized('a', null);
+        $awardAchievementID = requestInputSanitized('a');
         $awardAchievementUser = requestInputSanitized('u');
         $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
 
@@ -345,9 +73,7 @@ switch ($action) {
                     continue;
                 }
                 $message .= "<strong>$validUser</strong>:<br>";
-                $ids = str_replace(',', ' ', $awardAchievementID);
-                $ids = str_replace('  ', ' ', $ids);
-                $ids = explode(' ', $ids);
+                $ids = separateList($awardAchievementID);
                 foreach ($ids as $nextID) {
                     $message .= "- $nextID: ";
                     $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
@@ -365,35 +91,6 @@ switch ($action) {
             }
         }
         break;
-    // case 'recalctrueratio':
-    //     set_time_limit(3000);
-    //     $query = "SELECT MAX(ID) FROM GameData";
-    //     $dbResult = s_mysql_query($query);
-    //     $data = mysqli_fetch_assoc($dbResult);
-    //     $numGames = $data['MAX(ID)'];
-    //     for ($i = 1; $i <= $numGames; $i++) {
-    //         echo "Recalculating TA for Game ID: $i<br>";
-    //         recalculateTrueRatio($i);
-    //
-    //         ob_flush();
-    //         flush();
-    //     }
-    //     echo "Recalc'd TA for $numGames games!";
-    //     exit;
-    //     break;
-    // case 'recalcplayerscores':
-    //     set_time_limit(3000);
-    //     getUserList(1, 0, 99999, $userData, "");
-    //     echo "Recalc players scores: " . count($userData) . " to process...";
-    //     foreach ($userData as $nextUser) {
-    //         echo "Player: " . $nextUser['User'] . " recalc (was TA: " . $nextUser['TrueRAPoints'] . ")<br>";
-    //         recalcScore($nextUser['User']);
-    //         ob_flush();
-    //         flush();
-    //     }
-    //     echo "Recalc'd TA for " . count($userData) . " players!";
-    //     exit;
-    //     break;
     case 'updatestaticdata':
         $aotwAchID = requestInputSanitized('a', 0, 'integer');
         $aotwForumID = requestInputSanitized('f', 0, 'integer');
@@ -543,7 +240,7 @@ RenderHtmlHead('Admin Tools');
                     </tr>
                     <tr>
                         <td class="text-nowrap">
-                            <label for="award_achievement_id">Achievement ID</label>
+                            <label for="award_achievement_id">Achievement IDs</label>
                         </td>
                         <td>
                             <input id='award_achievement_id' name='a'>

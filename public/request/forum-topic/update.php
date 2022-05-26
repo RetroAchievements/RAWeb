@@ -15,7 +15,7 @@ if (!ValidatePOSTChars("tpi")) {
 }
 
 if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    if (getSingleTopicComment($commentID, $commentData) == false) {
+    if (!getSingleTopicComment($commentID, $commentData)) {
         header("location: " . getenv('APP_URL') . "/forum.php?e=unknowncomment");
         exit;
     }

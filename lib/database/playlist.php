@@ -1,6 +1,6 @@
 <?php
 
-function requestModifyVid($author, &$id, $title, $link)
+function requestModifyVid($author, &$id, $title, $link): int
 {
     sanitize_sql_inputs($author, $title, $link);
     $title = str_replace("'", "''", $title);
@@ -10,7 +10,7 @@ function requestModifyVid($author, &$id, $title, $link)
         global $db;
         $dbResult = mysqli_query($db, $query);
 
-        if ($dbResult === false) {
+        if (!$dbResult) {
             log_sql_fail();
         }
     } else {
