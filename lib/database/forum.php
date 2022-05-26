@@ -460,9 +460,19 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
     }
 }
 
-function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$dataOut): ?int
+function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$dataOut, $fromUser = null): ?int
 {
-    sanitize_sql_inputs($offset, $count, $numMessageChars);
+    sanitize_sql_inputs($offset, $count, $numMessageChars, $fromUser);
+
+    if (!empty($fromUser)) {
+        $userClause = "ftc.Author='$fromUser'";
+        if ($permissions < Permissions::Admin) {
+            $userClause .= " AND ftc.Authorised=1";
+        }
+    } else {
+        $userClause = "ftc.Authorised=1";
+    }
+
     // 02:08 21/02/2014 - cater for 20 spam messages
     $countPlusSpam = $count + 20;
     $query = "
@@ -479,7 +489,7 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$
         (
             SELECT * 
             FROM ForumTopicComment AS ftc
-            WHERE ftc.Authorised = 1
+            WHERE $userClause
             ORDER BY ftc.DateCreated DESC
             LIMIT $offset, $countPlusSpam
         ) AS LatestComments

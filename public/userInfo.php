@@ -269,7 +269,10 @@ RenderHtmlStart(true);
         }
         echo "<br>";
 
-        echo "<a href='/setRequestList.php?u=$userPage'> Requested Sets</a>"
+        echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
+        echo "<br>";
+
+        echo "<a href='/setRequestList.php?u=$userPage'>Requested Sets</a>"
             . " - " . $userSetRequestInformation['used']
             . " of " . $userSetRequestInformation['total'] . " Requests Made";
         echo "<br><br>";

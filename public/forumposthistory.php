@@ -10,7 +10,8 @@ $count = $maxCount;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData);
+$forUser = requestInputSanitized('u');
+$numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData, $forUser);
 
 $errorCode = requestInputSanitized('e');
 
@@ -25,7 +26,12 @@ RenderHtmlHead("Forum Recent Posts");
             <?php
             echo "<div class='navpath'>";
             echo "<a href='/forum.php'>Forum Index</a>";
-            echo " &raquo; <b>Forum Post History</b></a>";
+            if ($forUser != null) {
+                echo " &raquo; <a href='/forumposthistory.php'>Forum Post History</a>";
+                echo " &raquo; <b>$forUser</b>";
+            } else {
+                echo " &raquo; <b>Forum Post History</b>";
+            }
             echo "</div>";
 
             echo "<h3 class='longheader'>Forum Post History</h3>";
@@ -75,14 +81,20 @@ RenderHtmlHead("Forum Recent Posts");
             echo "</tbody></table></div>";
 
             echo "<div class='rightalign row'>";
+            $baseUrl = '/forumposthistory.php';
+            if ($forUser != null) {
+                $baseUrl .= "?u=$forUser&o=";
+            } else {
+                $baseUrl .= "?o=";
+            }
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                echo "<a href='/forumposthistory.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                echo "<a href='$baseUrl$prevOffset'>&lt; Previous $maxCount</a> - ";
             }
             if ($numPostsFound == $maxCount) {
                 // Max number fetched, i.e. there are more. Can goto next 25.
                 $nextOffset = $offset + $maxCount;
-                echo "<a href='/forumposthistory.php?o=$nextOffset'>Next $maxCount &gt;</a>";
+                echo "<a href='$baseUrl$nextOffset'>Next $maxCount &gt;</a>";
             }
             echo "</div>";
             ?>
