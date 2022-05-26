@@ -71,7 +71,7 @@ switch ($field) {
         // Flags
         if (!AchievementType::isValid((int) $value)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Bad request: invalid type flag (' . $value . ')']);
+            echo json_encode(['success' => false, 'error' => 'Bad request: invalid type flag (' . $value . ')'], JSON_THROW_ON_ERROR);
             exit;
         }
 

@@ -54,7 +54,7 @@ RenderHtmlHead("Linked Hashes");
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-        echo "\n<br>Currently this game has <b>" . count($hashes) . "</b> unique hashes registered for it:<br><br>";
+        echo "\n<br>Currently this game has <b>" . count((array) $hashes) . "</b> unique hashes registered for it:<br><br>";
 
         echo "<ul>";
         $hasUnlabeledHashes = false;

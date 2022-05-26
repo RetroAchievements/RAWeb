@@ -4,16 +4,14 @@ use RA\ObjectType;
 
 function getGameRating($gameID, $user = null): array
 {
-    $newRatings = function () {
-        return [
-            'RatingCount' => 0,
-            'Rating1' => 0,
-            'Rating2' => 0,
-            'Rating3' => 0,
-            'Rating4' => 0,
-            'Rating5' => 0,
-        ];
-    };
+    $newRatings = fn () => [
+        'RatingCount' => 0,
+        'Rating1' => 0,
+        'Rating2' => 0,
+        'Rating3' => 0,
+        'Rating4' => 0,
+        'Rating5' => 0,
+    ];
 
     $retVal = [];
     $retVal[ObjectType::Game] = $newRatings();
