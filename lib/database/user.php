@@ -547,8 +547,6 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
               ORDER BY RAPoints DESC 
               LIMIT 0, $count ";
 
-    // echo $query;
-
     $dbResult = s_mysql_query($query);
 
     if (!$dbResult || mysqli_num_rows($dbResult) == 0) {
@@ -1013,8 +1011,6 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
             $gameIDsCSV .= ", " . $recentlyPlayedData[$i]['GameID'];
         }
 
-        // echo $gameIDsCSV;
-
         getUserProgress($user, $gameIDsCSV, $awardedData);
 
         $libraryOut['Awarded'] = $awardedData;
@@ -1033,8 +1029,6 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
                   UNION
                   SELECT (f.User = '$localUser') AS Local, f.Friend, f.Friendship FROM Friends AS f
                   WHERE (f.User = '$user' && f.Friend = '$localUser') ";
-
-        // echo $query;
 
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {

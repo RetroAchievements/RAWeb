@@ -149,8 +149,6 @@ function getGameMetadataByFlags(
     WHERE ach.GameID = $gameID AND ach.Flags = $flags
     $orderBy";
 
-    // echo $query;
-
     $numAchievements = 0;
 
     $dbResult = s_mysql_query($query);

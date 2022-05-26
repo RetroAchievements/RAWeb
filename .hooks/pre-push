@@ -4,14 +4,14 @@ set -e
 
 modifiedPhpFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.php')"
 if [ ${#modifiedPhpFiles} -gt 0 ]; then
-    printf "\n⏳ composer analyse\n"
-    vendor/bin/phpstan analyse --memory-limit 512M --no-progress
-
     printf "\n⏳ composer lint\n"
     vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php ${modifiedPhpFiles}
 
     printf "\n⏳ composer test\n"
     vendor/bin/phpunit
+
+    printf "\n⏳ composer analyse\n"
+    vendor/bin/phpstan analyse --memory-limit 512M --no-progress
 fi
 
 modifiedJsFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.js')"
