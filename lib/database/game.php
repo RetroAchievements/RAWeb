@@ -1083,13 +1083,13 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
     return $retVal;
 }
 
-function sanitizeTitle($titleIn): string
+function sanitizeTitle(string $titleIn): string
 {
     // Remove single quotes, replace with double quotes:
     $title = str_replace("'", "''", $titleIn);
     $title = str_replace("/", "-", $title);
-    $title = str_replace("\\", "-", $title);
-    return (string) $title;
+
+    return str_replace("\\", "-", $title);
 }
 
 function requestModifyRichPresence($gameID, $dataIn): bool

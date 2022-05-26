@@ -417,10 +417,10 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function countRequestTicketsByUser($user): ?int
+function countRequestTicketsByUser($user): int
 {
     if ($user == null) {
-        return null;
+        return 0;
     }
 
     sanitize_sql_inputs($dev);

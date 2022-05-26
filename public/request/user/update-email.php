@@ -23,24 +23,24 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-if (authenticateFromCookie($user, $permissions, $userDetail)) {
-    $dbResult = s_mysql_query(
-        "UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", Updated=NOW() WHERE User='$user'"
-    );
-
-    if (!$dbResult) {
-        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_generalerror");
-        exit;
-    }
-
-    sendValidationEmail($user, $email);
-
-    addArticleComment('Server', ArticleType::UserModeration, $userDetail['ID'],
-        $user . ' changed their email address'
-    );
-
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_changeok");
+if (!authenticateFromCookie($user, $permissions, $userDetail)) {
+    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badcredentials");
     exit;
 }
 
-header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badcredentials");
+$dbResult = s_mysql_query(
+    "UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", Updated=NOW() WHERE User='$user'"
+);
+
+if (!$dbResult) {
+    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_generalerror");
+    exit;
+}
+
+sendValidationEmail($user, $email);
+
+addArticleComment('Server', ArticleType::UserModeration, $userDetail['ID'],
+    $user . ' changed their email address'
+);
+
+header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_changeok");

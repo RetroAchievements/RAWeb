@@ -177,7 +177,7 @@ function getAchievementsListByDev(
     return $achCount;
 }
 
-function GetAchievementMetadataJSON($achID): array
+function GetAchievementMetadataJSON($achID): ?array
 {
     sanitize_sql_inputs($achID);
     $retVal = [];
@@ -193,12 +193,11 @@ function GetAchievementMetadataJSON($achID): array
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-        $retVal = mysqli_fetch_assoc($dbResult);
-    } else {
-        log_sql_fail();
+        return mysqli_fetch_assoc($dbResult);
     }
+    log_sql_fail();
 
-    return $retVal;
+    return null;
 }
 
 function GetAchievementMetadata($achievementID, &$dataOut): bool

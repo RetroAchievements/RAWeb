@@ -275,7 +275,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
     return true;
 }
 
-function getActivityMetadata($activityID)
+function getActivityMetadata($activityID): ?array
 {
     sanitize_sql_inputs($activityID);
 

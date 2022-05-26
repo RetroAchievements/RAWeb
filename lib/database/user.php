@@ -107,43 +107,43 @@ function removeAvatar($user): void
     }
 }
 
-function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permissions): bool
+function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, bool $authorize): bool
 {
-    sanitize_sql_inputs($user, $permissions);
-    settype($permissions, 'integer');
+    sanitize_sql_inputs($user, $authorize);
 
     // $sourceUser is setting $user's forum post permissions.
 
-    if ($permissions == Permissions::Unregistered) {
+    if (!$authorize) {
         // This user is a spam user: remove all their posts and set their account as banned.
-        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            // Also ban the spammy user!
-            RemoveUnauthorisedForumPosts($user);
-
-            SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $user, Permissions::Spam);
-
-            return true;
+        if (!$dbResult) {
+            return false;
         }
-    } elseif ($permissions == Permissions::Registered) {
-        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            AuthoriseAllForumPosts($user);
 
-            if (getAccountDetails($user, $userData)) {
-                addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
-                    $sourceUser . ' authorized user\'s forum posts'
-                );
-            }
+        // Also ban the spammy user!
+        RemoveUnauthorisedForumPosts($user);
 
-            // SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)
-            return true;
-        }
+        SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $user, Permissions::Spam);
+
+        return true;
     }
 
-    return false;
+    $query = "UPDATE UserAccounts SET ManuallyVerified = 1, Updated=NOW() WHERE User='$user'";
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
+        return false;
+    }
+    AuthoriseAllForumPosts($user);
+
+    if (getAccountDetails($user, $userData)) {
+        addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
+            $sourceUser . ' authorized user\'s forum posts'
+        );
+    }
+
+    // SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)
+    return true;
 }
 
 function validateEmailValidationString($emailCookie, &$user): bool
@@ -435,7 +435,7 @@ function getUserFromID($userID): string
     return "";
 }
 
-function getUserMetadataFromID($userID): array
+function getUserMetadataFromID($userID): ?array
 {
     sanitize_sql_inputs($userID);
 
@@ -446,7 +446,7 @@ function getUserMetadataFromID($userID): array
         return mysqli_fetch_assoc($dbResult);
     }
 
-    return [];
+    return null;
 }
 
 function getUserUnlockDates($user, $gameID, &$dataOut): int
@@ -646,7 +646,7 @@ function GetScore($user): int
 /**
  * Gets the account age in years for the input user.
  */
-function getAge(string $user): ?int
+function getAge(string $user): int
 {
     sanitize_sql_inputs($user);
 
@@ -655,22 +655,22 @@ function getAge(string $user): ?int
               WHERE ua.User='$user'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $result = mysqli_fetch_assoc($dbResult);
-
-        if (!$result) {
-            return null;
-        }
-        $created = strtotime($result['Created']);
-        $curDate = strtotime(date('Y-m-d H:i:s'));
-        $diff = $curDate - $created;
-
-        $years = floor($diff / (365 * 60 * 60 * 24));
-
-        return (int) $years;
-    } else {
+    if (!$dbResult) {
         return 0;
     }
+
+    $result = mysqli_fetch_assoc($dbResult);
+    if (!$result) {
+        return 0;
+    }
+
+    $created = strtotime($result['Created']);
+    $curDate = strtotime(date('Y-m-d H:i:s'));
+    $diff = $curDate - $created;
+
+    $years = floor($diff / (365 * 60 * 60 * 24));
+
+    return (int) $years;
 }
 
 /**
@@ -693,21 +693,21 @@ function getUserRank(string $user, int $type = 0): ?int
                 WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        if ($data['Untracked']) {
-            return null;
-        }
+    if (!$dbResult) {
+        log_sql_fail();
 
-        return (int) $data['UserRank'];
+        return null;
     }
 
-    log_sql_fail();
+    $data = mysqli_fetch_assoc($dbResult);
+    if ($data['Untracked']) {
+        return null;
+    }
 
-    return null;
+    return (int) $data['UserRank'];
 }
 
-function countRankedUsers(): ?int
+function countRankedUsers(): int
 {
     $query = "
         SELECT COUNT(*) AS count
@@ -717,11 +717,11 @@ function countRankedUsers(): ?int
     ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return (int) mysqli_fetch_assoc($dbResult)['count'];
+    if (!$dbResult) {
+        return 0;
     }
 
-    return null;
+    return (int) mysqli_fetch_assoc($dbResult)['count'];
 }
 
 function updateAchievementVote($achID, $posDiff, $negDiff): bool

@@ -27,7 +27,7 @@ if ($propertyType == 0) {
     if ($response['Success']) {
         if ($value >= Permissions::JuniorDeveloper) {
             if (!getUserForumPostAuth($targetUser)) {
-                if (setAccountForumPostAuth($user, $permissions, $targetUser, Permissions::Registered)) {
+                if (setAccountForumPostAuth($user, $permissions, $targetUser, authorize: true)) {
                     header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
                 } else {
                     echo "FAILED!";
@@ -46,7 +46,7 @@ if ($propertyType == 0) {
 
 // Forum post permissions
 if ($propertyType == 1) {
-    if (setAccountForumPostAuth($user, $permissions, $targetUser, $value)) {
+    if (setAccountForumPostAuth($user, $permissions, $targetUser, authorize: (bool) $value)) {
         header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=OK");
     } else {
         echo "FAILED!";
