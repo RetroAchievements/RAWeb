@@ -1,17 +1,5 @@
 <?php
 
-function RenderTutorialComponent(): void
-{
-    echo "<div class='component tutorial' >";
-    echo "<h3>How Do I Play?</h3>";
-    echo "<p>";
-    echo "<a href='/'>RetroAchievements</a> provides emulators for your PC where you can earn achievements while you play games!<br><br>";
-    echo "<i>\"...like Xbox Live&trade; for emulation!\"</i><br><br>";
-    echo "<a href='/download.php'>Download an emulator</a> for your chosen console, <a href='//www.retrode.com/'>find</a> some <a href='//www.lmgtfy.com/?q=download+mega+drive+roms'>ROMs</a> and join the fun!";
-    echo "</p>";
-    echo "</div>";
-}
-
 function RenderWelcomeComponent(): void
 {
     echo "
