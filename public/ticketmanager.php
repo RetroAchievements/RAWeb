@@ -15,7 +15,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     exit;
 }
 
-$maxCount = 100;
+$maxCount = 50;
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
@@ -575,20 +575,8 @@ RenderHtmlHead($pageTitle);
 
                 echo "<div class='rightalign row'>";
                 $baseLink = $createLink(null, null);
-                if ($offset > 0) {
-                    $prevOffset = $offset - $maxCount;
-                    if ($prevOffset < 0) {
-                        $prevOffset = 0;
-                    }
-                    echo "<a href='$baseLink'>First</a> - ";
-                    echo "<a href='$baseLink&o=$prevOffset'>&lt; Previous $maxCount</a> - ";
-                }
-                if ($rowCount == $maxCount) {
-                    // Max number fetched, i.e. there are more. Can goto next $maxCount.
-                    $nextOffset = $offset + $maxCount;
-                    echo "<a href='$baseLink&o=$nextOffset'>Next $maxCount &gt;</a>";
-                    echo " - <a href='$baseLink&o=" . ($filteredTicketsCount - ($maxCount - 1)) . "'>Last</a>";
-                }
+                $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
+                RenderPaginator($filteredTicketsCount, $maxCount, $offset, "${baseLink}o=");
                 echo "</div>";
             } else {
                 $nextTicket = $ticketData;
