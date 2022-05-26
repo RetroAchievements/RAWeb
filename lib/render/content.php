@@ -1,29 +1,6 @@
 <?php
 
-function RenderTwitterFeed()
-{
-    echo "<div class='component stream'>";
-    echo "<h3>Twitter Feed</h3>";
-
-    echo "<a class='twitter-timeline'  href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'  data-widget-id='365153450822103040'>Tweets by @RetroCheevos</a>";
-    echo "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\"://platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
-
-    echo "</div>";
-}
-
-function RenderTutorialComponent()
-{
-    echo "<div class='component tutorial' >";
-    echo "<h3>How Do I Play?</h3>";
-    echo "<p>";
-    echo "<a href='/'>RetroAchievements</a> provides emulators for your PC where you can earn achievements while you play games!<br><br>";
-    echo "<i>\"...like Xbox Live&trade; for emulation!\"</i><br><br>";
-    echo "<a href='/download.php'>Download an emulator</a> for your chosen console, <a href='//www.retrode.com/'>find</a> some <a href='//www.lmgtfy.com/?q=download+mega+drive+roms'>ROMs</a> and join the fun!";
-    echo "</p>";
-    echo "</div>";
-}
-
-function RenderWelcomeComponent()
+function RenderWelcomeComponent(): void
 {
     echo "
     <div class='component welcome'>
@@ -41,48 +18,10 @@ function RenderWelcomeComponent()
     </div>";
 }
 
-function RenderDeveloperStats($user, $type)
-{
-    echo "<div class='component'>";
-    echo "<h3>Developer Stats</h3>";
-
-    $devData = GetDeveloperStats(99, $type);
-    if (count($devData) > 0) {
-        $tableType = ($type == 2) ? "Num Achievements Won By Others" : (($type == 1) ? "Num Points Allocated" : "Num Achievements Developed");
-
-        echo "<table><tbody>";
-        echo "<tr><th>Rank</th><th>Developer</th><th>$tableType</th></tr>";
-
-        for ($i = 0; $i < count($devData); $i++) {
-            $nextData = $devData[$i];
-
-            $rank = $i + 1;
-            $developer = $nextData['Author'];
-            $numAchievements = $nextData['NumCreated'];
-
-            echo "<tr>";
-            echo "<td>$rank</td>";
-
-            echo "<td><div class='fixheightcell'>";
-            echo GetUserAndTooltipDiv($developer, true);
-            echo GetUserAndTooltipDiv($developer, false);
-            echo "</div></td>";
-
-            echo "<td>$numAchievements</td>";
-
-            echo "</tr>";
-        }
-        echo "</tbody></table>";
-
-        echo "</div>";
-    }
-}
-
-function RenderDocsComponent()
+function RenderDocsComponent(): void
 {
     echo "
       <div class='component' style='text-align: center'>
-        <!--h3>Documentation</h3-->
         <div id='docsbox' class='infobox'>
           <div>
             <a href='https://docs.retroachievements.org/' target='_blank' rel='noopener'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
@@ -91,31 +30,14 @@ function RenderDocsComponent()
       </div>";
 }
 
-function RenderCurrentlyOnlineComponent()
+function RenderCurrentlyOnlineComponent(): void
 {
     echo "<div class='component'>";
     echo "<h3>Currently Online</h3>";
     echo "<div id='playersonlinebox' class='infobox'>";
 
-    $playersArray = getCurrentlyOnlinePlayers();
-
-    $numPlayers = count($playersArray);
+    $numPlayers = count(getCurrentlyOnlinePlayers());
     echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
-
-    //$numOutput = 0;
-    //foreach( $playersArray as $nextPlayer )
-    //{
-    //    if( $numOutput > 0 && $numOutput == $numPlayers - 1 )
-    //    {
-    //        echo " and ";
-    //    }
-    //    elseif( $numOutput > 0 )
-    //    {
-    //        echo ", ";
-    //    }
-    //    echo GetUserAndTooltipDiv( $nextPlayer[ 'User' ], FALSE );
-    //    $numOutput++;
-    //}
 
     echo "</div>";
 
@@ -123,7 +45,7 @@ function RenderCurrentlyOnlineComponent()
     echo "</div>";
 }
 
-function RenderActivePlayersComponent()
+function RenderActivePlayersComponent(): void
 {
     echo <<<HTML
         <div id='active-players-component' class='component activeplayerscomponent'>
@@ -170,11 +92,16 @@ function RenderActivePlayersComponent()
                 <small id='activeplayers-update' data-bind='text: lastUpdateRender'></small>
             </div>
         </div>
-        <script type="text/javascript" src="/js/activePlayersBootstrap.js"></script>
     HTML;
+
+    if (getenv('APP_ENV') === 'local') {
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap.js?' . random_int(0, mt_getrandmax()) . '"></script>';
+    } else {
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap-' . VERSION . '.js"></script>';
+    }
 }
 
-function RenderAOTWComponent($achID, $forumTopicID)
+function RenderAOTWComponent($achID, $forumTopicID): void
 {
     $achData = [];
     if (!getAchievementMetadata($achID, $achData)) {
@@ -223,33 +150,14 @@ function RenderAOTWComponent($achID, $forumTopicID)
     echo "</div>";
 }
 
-function RenderDemoVideosComponent()
+function RenderConsoleMessage(int $consoleId): void
 {
-    $width = '392'; //600px
-    $height = $width * (3.0 / 4.0); //'100%'; //400px
-
-    echo "<div id='demo' >";
-
-    echo "<h2>Demos</h2>";
-
-    echo "<h4>Using RAGens</h4>";
-
-    echo "<div class='videocontainer' >";
-    echo "<iframe style='border:0;' width='$width' height='$height' src='//www.youtube.com/embed/rKY2mZjurJw' allowfullscreen></iframe>";
-    //echo "<iframe src='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' frameborder='0' allowfullscreen></iframe>";
-    //echo "<object data='https://www.youtube-nocookie.com/v/rKY2mZjurJw?hl=en&amp;fs=1' style='width:300px;'></object>";
-    echo "</div>";
-
-    echo "<h4>Finding Memory Addresses</h4>";
-
-    echo "<div class='videocontainer' >";
-    echo "<object type='application/x-shockwave-flash' width='$width' height='$height' data='//www.twitch.tv/widgets/archive_embed_player.swf' id='clip_embed_player_flash' >
-        <param name='movie' value='//www.twitch.tv/widgets/archive_embed_player.swf' />
-        <param name='allowScriptAccess' value='always' />
-        <param name='allowNetworking' value='all' />
-        <param name='flashvars' value='auto_play=false&amp;channel=" . getenv('TWITCH_CHANNEL') . "&amp;title=Finding%2BMemory%2BAddresses&amp;chapter_id=2674100&amp;start_volume=25' />
-        </object>";
-    echo "</div>";
-
-    echo "</div>";
+    // PS2
+    if ($consoleId === 21) {
+        echo <<<HTML
+            <div style="margin-bottom: 10px">
+                <a href="/viewtopic.php?t=11108" class="info-button">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. There is no <abbr title="Estimated time of arrival">ETA</abbr> at this time. Click for more details. ⚠️</a>
+            </div>
+        HTML;
+    }
 }

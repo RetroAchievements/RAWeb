@@ -3,16 +3,15 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidateGETChars("ucm")) {
+// TODO do not allow GET requests, POST only
+if (!ValidateGETChars("m")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
-$user = requestInputQuery('u');
-$cookie = requestInputQuery('c');
 $messageID = requestInputQuery('m');
 
-if (validateUser_cookie($user, $cookie, 0) == true) {
+if (authenticateFromCookie($user, $permissions, $userDetails)) {
     if (DeleteMessage($user, $messageID)) {
         header("Location: " . getenv('APP_URL') . "/inbox.php?e=deleteok");
         exit;

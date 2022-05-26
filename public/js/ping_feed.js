@@ -172,7 +172,7 @@ function initFeed() {
 }
 
 function refreshFeed(friendsOnly) {
-  var user = readCookie('RA_User');
+  var user = readCookie('RA_Cookie');
   if (user == null) {
     friendsOnly = false;
   }
@@ -221,13 +221,6 @@ function requestNewFeed() {
       // is already in progress
       if (xmlHttpGetFeed.readyState === 4 || xmlHttpGetFeed.readyState === 0) {
         var feedPrefs = readCookie('RAPrefs_Feed');
-        var user = readCookie('RA_User');
-
-        if (user === '') {
-          feedPrefs = '0';
-        }
-
-        var individualQS = (feedPrefs === '1') ? '&user=' + user : '';
 
         // we will store the parameters used to make the server request
         var params = '';
@@ -236,7 +229,7 @@ function requestNewFeed() {
           params = cacheFeed.shift();
         } else {
           // if the cache is empty, just retrieve new messages
-          params = 'mode=RetrieveNew' + individualQS + '&id=' + lastFeedID;
+          params = 'mode=RetrieveNew&id=' + lastFeedID;
         }
 
         // call the server page to execute the server-side operation
@@ -806,7 +799,7 @@ function pushFeedItem(
   insertRowHtml += '<td class=\'feeditem ' + rowClass + '\'>' + rowData + '</td>';
 
   // Add 'edit' if appropriate:
-  var localUser = readCookie('RA_User');
+  var localUser = readCookie('RA_Cookie');
   if (localUser !== null) {
     // Discrepancy between article type and activity type: feed activity is always article type 5!!
     // insertRowHtml += "<td class='editbutton'><img src='" + window.assetUrl + "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '" + acttype.toString() + "' )\" /></td>";

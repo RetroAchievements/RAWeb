@@ -1,4 +1,7 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -8,19 +11,19 @@ $maxCount = 25;
 
 $perms = requestInputQuery('p', 1, 'integer');
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $showUntracked = false;
-if (isset($user) && $permissions >= \RA\Permissions::Admin) {
+if (isset($user) && $permissions >= Permissions::Admin) {
     $showUntracked = requestInputSanitized('u', null, 'boolean');
-} elseif ($perms < \RA\Permissions::Unregistered || $perms > \RA\Permissions::Admin) {
+} elseif ($perms < Permissions::Unregistered || $perms > Permissions::Admin) {
     $perms = 1;
 }
 
 $userCount = getUserListByPerms($sortBy, $offset, $maxCount, $userListData, $user, $perms, $showUntracked);
 
 $permissionName = null;
-if ($perms >= \RA\Permissions::Spam && $perms <= \RA\Permissions::Admin) {
+if ($perms >= Permissions::Spam && $perms <= Permissions::Admin) {
     $permissionName = PermissionsToString($perms);
 } elseif ($showUntracked) { // meleu: using -99 magic number for untracked (I know, it's sloppy)
     $perms = -99;
@@ -32,8 +35,7 @@ RenderHtmlStart();
 RenderHtmlHead("Users");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
@@ -54,18 +56,13 @@ RenderHtmlHead("Users");
 
         echo "<p>Filter: ";
 
-        //if( $permissionName == NULL )
-        //    echo "<b>All Users</b>";
-        //else
-        //    echo "<a href='/userList.php?s=$sortBy'>All Users</a>";
-
-        if ($perms == \RA\Permissions::Unregistered) {
+        if ($perms == Permissions::Unregistered) {
             echo "<b>Unregistered</b>";
         } else {
             echo "<a href='/userList.php?s=$sortBy&p=0'>Unregistered</a>";
         }
 
-        for ($i = \RA\Permissions::Registered; $i <= \RA\Permissions::Admin; $i++) {
+        for ($i = Permissions::Registered; $i <= Permissions::Admin; $i++) {
             echo " | ";
 
             if (!$showUntracked && $i == $perms && is_int($perms)) {
@@ -76,7 +73,7 @@ RenderHtmlHead("Users");
         }
         echo "</p>";
 
-        if (isset($user) && $permissions >= \RA\Permissions::Admin) {
+        if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<p>";
             echo "Filters for admins (always includes Untracked users):<br>";
             if ($permissionName == "Untracked") {
@@ -85,7 +82,7 @@ RenderHtmlHead("Users");
                 echo "<a href='/userList.php?s=$sortBy&u=1&p=-99'>All Untracked users</a>";
             }
 
-            for ($i = \RA\Permissions::Spam; $i <= \RA\Permissions::Admin; $i++) {
+            for ($i = Permissions::Spam; $i <= Permissions::Admin; $i++) {
                 echo " | ";
 
                 if ($showUntracked && $i == $perms && is_int($perms)) {
@@ -156,7 +153,7 @@ RenderHtmlHead("Users");
             echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>&lt; Previous $maxCount</a> - ";
         }
         if ($userCount == $maxCount) {
-            //	Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Next $maxCount &gt;</a>";
         }

@@ -2,7 +2,7 @@
 
 use RA\Permissions;
 
-function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
+function authenticateFromPassword(&$user, $pass): bool
 {
     if (!isValidUsername($user)) {
         return false;
@@ -12,7 +12,7 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
 
     $query = "SELECT User, Password, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
-    if ($result == false) {
+    if (!$result) {
         return false;
     }
 
@@ -36,10 +36,9 @@ function validateUser(&$user, $pass, &$fbUser, $permissionRequired): bool
         return false;
     }
 
-    $fbUser = $row['fbUser'];
     $user = $row['User'];
 
-    return $row['Permissions'] >= $permissionRequired;
+    return $row['Permissions'] >= Permissions::Unregistered;
 }
 
 function changePassword($user, $pass): bool
@@ -74,146 +73,52 @@ function migratePassword($user, $pass): string
     return $hashedPassword;
 }
 
-function validateUser_app(&$user, $token, &$fbUser, $permissionRequired): bool
-{
-    $fbUser = 0; //    TBD: Remove!
-
-    return RA_ReadTokenCredentials(
-        $user,
-        $token,
-        $pointsUnused,
-        $truePointsUnused,
-        $unreadMessagesUnused,
-        $permissionsUnused,
-        $permissionRequired
-    );
-}
-
-function validateUser_cookie(&$user, $cookie, $permissionRequired, &$permissions = 0): bool
-{
-    return validateFromCookie($user, $points, $permissions, $permissionRequired);
-}
-
-function validateFromCookie(&$userOut, &$pointsOut, &$permissionsOut, $permissionRequired = 0): bool
-{
-    $userOut = RA_ReadCookie("RA_User");
-    $cookie = RA_ReadCookie("RA_Cookie");
-
-    sanitize_sql_inputs($userOut);
-
-    if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 2 || !isValidUsername($userOut)) {
-        //    There is no cookie
-        return false;
-    } else {
-        //    Cookie maybe stale: check it!
-        $query = "SELECT User, cookie, RAPoints, Permissions FROM UserAccounts WHERE User='$userOut'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult == false) {
-            // error_log(__FUNCTION__ . " failed: bad query: $query");
-            return false;
-        } else {
-            $data = mysqli_fetch_array($dbResult);
-            if ($data['cookie'] == $cookie) {
-                $pointsOut = $data['RAPoints'];
-                $userOut = $data['User']; //    Case correction
-                $permissionsOut = $data['Permissions'];
-
-                return $permissionsOut >= $permissionRequired;
-            } else {
-                // error_log(__FUNCTION__ . " failed: cookie doesn't match for user:$userOut (given: $cookie, should be " . $data['cookie'] . ")");
-                return false;
-            }
-        }
-    }
-}
-
-function getCookie(&$userOut, &$cookieOut)
-{
-    $userOut = RA_ReadCookie('RA_User');
-    $cookieOut = RA_ReadCookie('RA_Cookie');
-}
-
-function RA_ReadCookieCredentials(
-    &$userOut,
-    &$pointsOut,
-    &$truePointsOut,
-    &$unreadMessagesOut,
-    &$permissionOut,
-    $minPermissions = null,
-    &$userIDOut = null
+function authenticateFromCookie(
+    ?string &$userOut,
+    ?int &$permissionsOut,
+    ?array &$userDetailsOut,
+    ?int $minPermissions = null
 ): bool {
-    //    Promise some values:
-    $userOut = RA_ReadCookie('RA_User');
-    $cookie = RA_ReadCookie('RA_Cookie');
-    $pointsOut = 0;
-    $truePointsOut = 0;
-    $unreadMessagesOut = 0;
-    $permissionOut = 0;
+    $userOut = null;
+    $permissionsOut = Permissions::Unregistered;
 
-    if (mb_strlen($userOut) < 2 || mb_strlen($cookie) < 10 || !isValidUsername($userOut)) {
+    // RA_User cookie no longer used, clear it out for security purposes
+    if (RA_CookieExists('RA_User')) {
         RA_ClearCookie('RA_User');
-        RA_ClearCookie('RA_Cookie');
-        $userOut = null;
-
-        //error_log( __FUNCTION__ . " User invalid, bailing..." );
-        return false;
     }
 
-    sanitize_sql_inputs($userOut);
+    $cookie = RA_ReadCookie('RA_Cookie');
+    if ($userDetailsOut = getAccountDetailsFromCookie($cookie)) {
+        $userOut = $userDetailsOut['User'];
+        $permissionsOut = (int) $userDetailsOut['Permissions'];
 
-    $query = "SELECT ua.cookie, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions, ua.ID
-              FROM UserAccounts AS ua
-              WHERE User='$userOut'";
-
-    $result = s_mysql_query($query);
-    if ($result == false) {
-        RA_ClearCookie('RA_User');
-        RA_ClearCookie('RA_Cookie');
-        $userOut = null;
-
-        //error_log( __FUNCTION__ . " failed: bad query: query:$query" );
-        return false;
-    } else {
-        $dbResult = mysqli_fetch_array($result);
-        $serverCookie = $dbResult['cookie'];
-        if (strcmp($serverCookie, $cookie) !== 0 || $dbResult['Permissions'] == -1) {
-            RA_ClearCookie('RA_User');
-            RA_ClearCookie('RA_Cookie');
-            $userOut = null;
-
-            //error_log( __FUNCTION__ . " failed: bad cookie: query:$query cookies: local:$cookie server:$serverCookie. Removing it!" );
-            return false;
-        } else {
+        if ($permissionsOut !== Permissions::Banned) {
+            // valid active account. update the last activity timestamp
             userActivityPing($userOut);
 
-            //    Cookies match: now validate permissions if required
-            $pointsOut = $dbResult['RAPoints'];
-            $unreadMessagesOut = $dbResult['UnreadMessageCount'];
-            $truePointsOut = $dbResult['TrueRAPoints'];
-            $permissionOut = $dbResult['Permissions'];
-            $userIDOut = $dbResult['ID'];
-
-            //    Only compare if requested, otherwise return true meaning 'logged in'
+            // validate permissions for the current page if required
             if (isset($minPermissions)) {
-                return $permissionOut >= $minPermissions;
-            } else {
-                return true;
+                return $permissionsOut >= $minPermissions;
             }
+
+            // return true meaning 'logged in'
+            return true;
         }
     }
+
+    // invalid credentials, clear the cookies and return failure
+    RA_ClearCookie('RA_Cookie');
+
+    $userDetailsOut = null;
+    return false;
 }
 
-function RA_ReadTokenCredentials(
+function authenticateFromAppToken(
     &$userOut,
     $token,
-    &$pointsOut,
-    &$truePointsOut,
-    &$unreadMessagesOut,
-    &$permissionOut,
-    $permissionRequired = null
+    &$permissionOut
 ): bool {
     if ($userOut == null || $userOut == '') {
-        // error_log(__FUNCTION__ . " failed: no user given: $userOut, $token ");
         return false;
     }
     if (!isValidUsername($userOut)) {
@@ -229,24 +134,17 @@ function RA_ReadTokenCredentials(
               FROM UserAccounts AS ua
               WHERE User='$userOut'";
     $result = s_mysql_query($query);
-    if ($result == false) {
-        // error_log(__FUNCTION__ . " failed: bad query: $query");
-        return false;
-    } else {
+    if ($result) {
         $row = mysqli_fetch_array($result);
-        $permissionOut = $row['Permissions'];
-        if ($row['appToken'] == $token) {
-            $userOut = $row['User']; //    Case correction
-            if (isset($permissionRequired)) {
-                return $permissionOut >= $permissionRequired;
-            } else {
-                return true;
-            }
-        } else {
-            // error_log(__FUNCTION__ . " failed: passwords don't match for user:$userOut (given: $token, should be " . $row['appToken'] . ")");
-            return false;
+        $permissionOut = (int) $row['Permissions'];
+        if ($row['appToken'] === $token) {
+            $userOut = $row['User']; // Case correction
+
+            return true;
         }
     }
+
+    return false;
 }
 
 function generateAPIKey($user): string
@@ -254,12 +152,10 @@ function generateAPIKey($user): string
     sanitize_sql_inputs($user);
 
     if (!getAccountDetails($user, $userData)) {
-        // error_log(__FUNCTION__ . " API Key gen fail 1: not a user?");
         return "";
     }
 
     if ($userData['Permissions'] < Permissions::Registered) {
-        // error_log(__FUNCTION__ . " API Key gen fail 2: not a full account!");
         return "";
     }
 
@@ -270,9 +166,7 @@ function generateAPIKey($user): string
               WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //log_email(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
-        // error_log(__FUNCTION__ . " API Key gen fail 3: sql fail?!");
+    if (!$dbResult) {
         return "";
     }
 
@@ -291,10 +185,7 @@ function GetAPIKey($user): ?string
         WHERE ua.User = '$user' AND ua.Permissions >= " . Permissions::Registered;
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        // error_log(__FUNCTION__);
-        // error_log("errors fetching API Key for $user!");
-        //log_email(__FUNCTION__ . " cannot fetch API key for $user");
+    if (!$dbResult) {
         return null;
     } else {
         $db_entry = mysqli_fetch_assoc($dbResult);
@@ -303,7 +194,7 @@ function GetAPIKey($user): ?string
     }
 }
 
-function LogSuccessfulAPIAccess($user)
+function LogSuccessfulAPIAccess($user): void
 {
     sanitize_sql_inputs($user);
 
@@ -328,10 +219,8 @@ function ValidateAPIKey($user, $key): bool
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
-        // error_log(__FUNCTION__);
-        // error_log("errors validating API Key for $user (given: $key)!");
-        //log_email(__FUNCTION__ . " errors validating API Key for $user (given: $key)!");
+    if (!$dbResult) {
+        // errors validating API Key for $user (given: $key)
         return false;
     }
 
@@ -363,7 +252,6 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken): bool
             . "WHERE ua.User='$usernameIn' AND ua.PasswordResetToken='$passwordResetToken'";
 
         $dbResult = s_mysql_query($query);
-        SQL_ASSERT($dbResult);
 
         if (mysqli_num_rows($dbResult) == 1) {
             return true;
@@ -392,7 +280,6 @@ function RequestPasswordReset($usernameIn): bool
               WHERE ua.User='$username'";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     SendPasswordResetEmail($username, $emailAddress, $newToken);
 

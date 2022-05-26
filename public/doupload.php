@@ -9,9 +9,9 @@ $requestType = requestInput('r');
 $user = requestInput('u');
 $token = requestInput('t');
 
-$bounceReferrer = requestInput('b'); //	TBD: Remove!
+$bounceReferrer = requestInput('b'); // TBD: Remove!
 
-if (!RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!authenticateFromAppToken($user, $token, $permissions)) {
     http_response_code(401);
     echo json_encode(['Success' => false]);
     exit;
@@ -25,7 +25,16 @@ if (isset($_FILES["file"]) && isset($_FILES["file"]["name"])) {
 
 switch ($requestType) {
     case "uploadbadgeimage":
-        $response['Response'] = UploadBadgeImage($_FILES["file"]);
+        $uploadResponse = UploadBadgeImage($_FILES["file"]);
+        $response['Success'] = $uploadResponse['Success'];
+        unset($uploadResponse['Success']);
+
+        if ($uploadResponse['Error']) {
+            $response['Error'] = $uploadResponse['Error'];
+            unset($uploadResponse['Error']);
+        }
+
+        $response['Response'] = $uploadResponse;
         break;
 
     default:
@@ -36,4 +45,4 @@ switch ($requestType) {
 }
 
 settype($response['Success'], 'boolean');
-echo json_encode($response);
+echo json_encode($response, JSON_THROW_ON_ERROR);

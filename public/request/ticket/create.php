@@ -3,13 +3,11 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidatePOSTChars("ucipm")) {
+if (!ValidatePOSTChars("ipm")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
-$user = requestInputPost('u');
-$cookie = requestInputPost('c');
 $achievementID = requestInputPost('i');
 $problemType = requestInputPost('p');
 $modeS = requestInputPost('m');
@@ -20,7 +18,7 @@ if (isset($_POST['note'])) {
     $appendNote = $_POST['note']['description'];
 
     if (!empty(trim($_POST['note']['checksum']))) {
-        $appendNote .= "\nMD5: " . $_POST['note']['checksum'];
+        $appendNote .= "\nRetroAchievements Hash: " . $_POST['note']['checksum'];
     }
 
     if (!empty(trim($_POST['note']['emulator']))) {
@@ -38,7 +36,7 @@ if (isset($_POST['note'])) {
     $note = $appendNote;
 }
 
-if (validateUser_cookie($user, $cookie, 0) == true) {
+if (authenticateFromCookie($user, $permissions, $userDetail)) {
     $success = submitNewTickets($user, $achievementID, $problemType, $hardcore, $note, $msgOut);
     if ($msgOut == "FAILED!") {
         header("Location: " . getenv('APP_URL') . "/achievement/$achievementID?e=issue_failed");

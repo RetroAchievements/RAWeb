@@ -1,11 +1,12 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 header("Location: " . getenv('APP_URL'));
-return;
+exit;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 50;
 
@@ -21,8 +22,7 @@ RenderHtmlStart();
 RenderHtmlHead("Most Popular Games");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php
@@ -116,7 +116,7 @@ RenderHtmlHead("Most Popular Games");
             echo "<a href='/popularGames.php?o=$prevOffset&amp;p=$method'>&lt; Previous $maxCount</a> - ";
         }
         if ($count == $maxCount) {
-            //	Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/popularGames.php?o=$nextOffset&amp;p=$method'>Next $maxCount &gt;</a>";
         }

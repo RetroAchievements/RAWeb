@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -7,9 +8,9 @@ $maxCount = 25;
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
-$numPostsFound = getRecentForumPosts($offset, $count, 90, $recentPostsData);
+$numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData);
 
 $errorCode = requestInputSanitized('e');
 
@@ -17,8 +18,7 @@ RenderHtmlStart();
 RenderHtmlHead("Forum Recent Posts");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <div id="forums">
@@ -30,7 +30,7 @@ RenderHtmlHead("Forum Recent Posts");
 
             echo "<h3 class='longheader'>Forum Post History</h3>";
 
-            //	Output all forums fetched, by category
+            // Output all forums fetched, by category
 
             $lastCategory = "_init";
 
@@ -48,8 +48,6 @@ RenderHtmlHead("Forum Recent Posts");
             echo "</tr>";
 
             foreach ($recentPostsData as $topicPostData) {
-                //var_dump( $topicPostData );
-
                 $postMessage = $topicPostData['ShortMsg'];
                 $postAuthor = $topicPostData['Author'];
                 $forumTopicID = $topicPostData['ForumTopicID'];
@@ -57,6 +55,8 @@ RenderHtmlHead("Forum Recent Posts");
                 $forumCommentID = $topicPostData['CommentID'];
                 $postTime = $topicPostData['PostedAt'];
                 $nicePostTime = getNiceDate(strtotime($postTime));
+
+                sanitize_outputs($forumTopicTitle, $postMessage);
 
                 echo "<tr>";
 
@@ -80,7 +80,7 @@ RenderHtmlHead("Forum Recent Posts");
                 echo "<a href='/forumposthistory.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
             }
             if ($numPostsFound == $maxCount) {
-                //	Max number fetched, i.e. there are more. Can goto next 25.
+                // Max number fetched, i.e. there are more. Can goto next 25.
                 $nextOffset = $offset + $maxCount;
                 echo "<a href='/forumposthistory.php?o=$nextOffset'>Next $maxCount &gt;</a>";
             }

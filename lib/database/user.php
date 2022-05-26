@@ -1,40 +1,44 @@
 <?php
 
 use RA\ActivityType;
+use RA\ArticleType;
+use RA\AwardThreshold;
 use RA\Permissions;
+use RA\TicketState;
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//    Accounts
-//////////////////////////////////////////////////////////////////////////////////////////
-
-function generateEmailValidationString($user)
+function generateEmailValidationString($user): ?string
 {
     $emailCookie = rand_string(16);
-    // $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
-    $expiry = time() + 60 * 60 * 24 * 7;
+    $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
 
     sanitize_sql_inputs($user);
 
-    $query = "INSERT INTO EmailConfirmations VALUES( '$user', '$emailCookie', $expiry )";
-    // log_sql($query);
+    $query = "INSERT INTO EmailConfirmations (User, EmailCookie, Expires) VALUES( '$user', '$emailCookie', '$expiry' )";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-        return false;
+
+        return null;
     }
 
-    //    Clear permissions til they validate their email.
-    SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Unregistered);
+    // Clear permissions til they validate their email.
+    SetAccountPermissionsJSON('Server', Permissions::Admin, $user, Permissions::Unregistered);
 
     return $emailCookie;
 }
 
-function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetUser, $targetUserNewPermissions)
+function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetUser, $targetUserNewPermissions): array
 {
+    $retVal = [];
     sanitize_sql_inputs($actingUser, $targetUser, $targetUserNewPermissions);
     settype($targetUserNewPermissions, 'integer');
 
-    $targetUserCurrentPermissions = getUserPermissions($targetUser);
+    if (!getAccountDetails($targetUser, $targetUserData)) {
+        $retVal['Success'] = false;
+        $retVal['Error'] = "$targetUser not found";
+    }
+
+    $targetUserCurrentPermissions = $targetUserData['Permissions'];
 
     $retVal = [
         'DestUser' => $targetUser,
@@ -62,14 +66,16 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     if (!$permissionChangeAllowed) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Not allowed!";
+
         return $retVal;
     }
 
     $query = "UPDATE UserAccounts SET Permissions = $targetUserNewPermissions, Updated=NOW() WHERE User='$targetUser'";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Cannot find user: '$targetUser'!";
+
         return $retVal;
     }
 
@@ -79,10 +85,14 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
 
     $retVal['Success'] = true;
 
+    addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
+        $actingUser . ' set account type to ' . PermissionsToString($targetUserNewPermissions)
+    );
+
     return $retVal;
 }
 
-function removeAvatar($user)
+function removeAvatar($user): void
 {
     /**
      * remove avatar - replaced by default content
@@ -91,132 +101,130 @@ function removeAvatar($user)
     if (file_exists($avatarFile)) {
         unlink($avatarFile);
     }
-    if (!getenv('RA_AVATAR_FALLBACK')) {
+    if (!filter_var(getenv('RA_AVATAR_FALLBACK'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
         $defaultAvatarFile = rtrim(getenv('DOC_ROOT'), '/') . '/public/UserPic/_User.png';
         copy($defaultAvatarFile, $avatarFile);
     }
 }
 
-function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, $permissions)
+function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, bool $authorize): bool
 {
-    sanitize_sql_inputs($user, $permissions);
-    settype($permissions, 'integer');
+    sanitize_sql_inputs($user, $authorize);
 
-    //    $sourceUser is setting $user's forum post permissions.
+    // $sourceUser is setting $user's forum post permissions.
 
-    if ($permissions == 0) {
-        //    This user is a spam user: remove all their posts and set their account as banned.
-        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
-        // log_sql($query);
+    if (!$authorize) {
+        // This user is a spam user: remove all their posts and set their account as banned.
+        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            //    Also ban the spammy user!
-            RemoveUnauthorisedForumPosts($user);
-
-            SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $user, Permissions::Spam);
-            return true;
-        } else {
-            //    Unrecognised  user
-            // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
+        if (!$dbResult) {
             return false;
         }
-    } elseif ($permissions == 1) {
-        $query = "UPDATE UserAccounts SET ManuallyVerified = $permissions, Updated=NOW() WHERE User='$user'";
-        // log_sql($query);
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            AuthoriseAllForumPosts($user);
 
-            // error_log(__FUNCTION__ . " SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)");
-            return true;
-        } else {
-            //    Unrecognised  user
-            // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
-            return false;
-        }
-    } else { //    ?
-        //    Unrecognised stuff
-        // error_log(__FUNCTION__ . " failed: cannot update $user in UserAccounts??! $user, $permissions");
+        // Also ban the spammy user!
+        RemoveUnauthorisedForumPosts($user);
+
+        SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $user, Permissions::Spam);
+
+        return true;
+    }
+
+    $query = "UPDATE UserAccounts SET ManuallyVerified = 1, Updated=NOW() WHERE User='$user'";
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
         return false;
     }
+    AuthoriseAllForumPosts($user);
+
+    if (getAccountDetails($user, $userData)) {
+        addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
+            $sourceUser . ' authorized user\'s forum posts'
+        );
+    }
+
+    // SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)
+    return true;
 }
 
-function validateEmailValidationString($emailCookie, &$user)
+function validateEmailValidationString($emailCookie, &$user): bool
 {
     sanitize_sql_inputs($emailCookie);
 
     $query = "SELECT * FROM EmailConfirmations WHERE EmailCookie='$emailCookie'";
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        if (mysqli_num_rows($dbResult) == 1) {
-            $data = mysqli_fetch_assoc($dbResult);
-            $user = $data['User'];
+    if (!$dbResult) {
+        log_sql_fail();
 
-            if (getUserPermissions($user) != Permissions::Unregistered) {
-                return false;
-            }
+        return false;
+    }
 
-            $query = "DELETE FROM EmailConfirmations WHERE User='$user'";
-            // log_sql($query);
-            $dbResult = s_mysql_query($query);
-            if ($dbResult !== false) {
-                $response = SetAccountPermissionsJSON('Scott', Permissions::Admin, $user, Permissions::Registered);
-                if ($response['Success']) {
-                    static_addnewregistereduser($user);
-                    generateAPIKey($user);
-                    // error_log(__FUNCTION__ . " SUCCESS: validated email address for $user");
-                    return true;
-                } else {
-                    // error_log(__FUNCTION__ . " failed: cant set user's permissions to 1?? $user, $emailCookie - " . $response['Error']);
-                    return false;
-                }
-            } else {
-                log_sql_fail();
-                // error_log(__FUNCTION__ . " failed: can't remove the email confirmation we just found??! $user, $emailCookie");
-                return false;
-            }
-        } else {
-            //    Unrecognised cookie or user
-            // log_sql_fail();
-            // error_log(__FUNCTION__ . " failed: $emailCookie num rows found:" . mysqli_num_rows($dbResult));
+    if (mysqli_num_rows($dbResult) == 1) {
+        $data = mysqli_fetch_assoc($dbResult);
+        $user = $data['User'];
+
+        if (getUserPermissions($user) != Permissions::Unregistered) {
             return false;
         }
-    } else {
-        //    Unrecognised db query
-        log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: $emailCookie !$dbResult");
-        return false;
+
+        $query = "DELETE FROM EmailConfirmations WHERE User='$user'";
+        $dbResult = s_mysql_query($query);
+        if (!$dbResult) {
+            log_sql_fail();
+
+            return false;
+        }
+
+        $response = SetAccountPermissionsJSON('Server', Permissions::Admin, $user, Permissions::Registered);
+        if ($response['Success']) {
+            static_addnewregistereduser($user);
+            generateAPIKey($user);
+
+            // SUCCESS: validated email address for $user
+            return true;
+        }
     }
+
+    return false;
 }
 
-function generateCookie($user, &$cookie)
+function generateCookie($user, &$cookie): bool
 {
-    if (!isset($user) || $user == false) {
+    if (empty($user)) {
         return false;
     }
+
     sanitize_sql_inputs($user);
 
-    $cookie = rand_string(16);
-    $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
+    // while unlikely, it is imperative that this value is unique
+    do {
+        $cookie = rand_string(96);
 
-    $result = s_mysql_query($query);
+        $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
+        $result = s_mysql_query($query);
+        if ($result === false) {
+            return false;
+        }
+
+        $query = "SELECT count(*) AS Count FROM UserAccounts WHERE cookie='$cookie'";
+        $result = s_mysql_query($query);
+        if ($result === false) {
+            return false;
+        }
+
+        $row = mysqli_fetch_array($result);
+    } while ($row['Count'] > 1);
+
     $expDays = 7;
     $expiry = time() + 60 * 60 * 24 * $expDays;
-    if ($result !== false) {
-        RA_SetCookie('RA_User', $user, $expiry, false);
-        RA_SetCookie('RA_Cookie', $cookie, $expiry, true);
-        return true;
-    } else {
-        // error_log(__FUNCTION__ . " failed: cannot update DB: $query");
-        RA_ClearCookie('RA_User');
-        return false;
-    }
+    RA_SetCookie('RA_Cookie', $cookie, $expiry, true);
+
+    return true;
 }
 
-function generateAppToken($user, &$tokenOut)
+function generateAppToken($user, &$tokenOut): bool
 {
-    if (!isset($user) || $user == false) {
+    if (empty($user)) {
         return false;
     }
     sanitize_sql_inputs($user);
@@ -228,16 +236,15 @@ function generateAppToken($user, &$tokenOut)
     $result = s_mysql_query($query);
     if ($result !== false) {
         $tokenOut = $newToken;
+
         return true;
     } else {
         return false;
     }
 }
 
-function loginApp($user, $pass, $token)
+function loginApp($user, $pass, $token): array
 {
-    //error_log( __FUNCTION__ . "user:$user, tokenInOut:$tokenInOut" );
-
     sanitize_sql_inputs($user, $token);
 
     $query = null;
@@ -247,15 +254,15 @@ function loginApp($user, $pass, $token)
     $tokenProvided = (isset($token) && mb_strlen($token) >= 1);
 
     if (!isset($user) || $user == false || mb_strlen($user) < 2) {
-        // error_log(__FUNCTION__ . " username failed: empty user");
+        // username failed: empty user
     } else {
         if ($passwordProvided) {
-            //    Password provided, validate it
-            if (validateUser($user, $pass, $fbUser, 0)) {
+            // Password provided, validate it
+            if (authenticateFromPassword($user, $pass)) {
                 $query = "SELECT RAPoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
             }
         } elseif ($tokenProvided) {
-            //    Token provided, look for match
+            // Token provided, look for match
             $query = "SELECT RAPoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
         }
     }
@@ -263,59 +270,59 @@ function loginApp($user, $pass, $token)
     if (!$query) {
         $response['Success'] = false;
         $response['Error'] = "Invalid User/Password combination. Please try again";
+
         return $response;
     }
 
-    //error_log( $query );
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        if ($data !== false && mysqli_num_rows($dbResult) == 1) {
-            //    Test for expired tokens!
-            if ($tokenProvided) {
-                $expiry = $data['appTokenExpiry'];
-                if (time() > strtotime($expiry)) {
-                    generateAppToken($user, $token);
-                    //    Expired!
-                    // error_log(__FUNCTION__ . " failed6: user:$user, tokenInOut:$tokenInOut, $expiry, " . strtotime($expiry));
-                    $response['Success'] = false;
-                    $response['Error'] = "Automatic login failed (token expired), please login manually";
-                }
+    if (!$dbResult) {
+        $response['Success'] = false;
+        $response['Error'] = "Invalid User/Password combination. Please try again";
+
+        return $response;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+    if ($data !== false && mysqli_num_rows($dbResult) == 1) {
+        // Test for expired tokens!
+        if ($tokenProvided) {
+            $expiry = $data['appTokenExpiry'];
+            if (time() > strtotime($expiry)) {
+                generateAppToken($user, $token);
+                // Expired!
+                $response['Success'] = false;
+                $response['Error'] = "Automatic login failed (token expired), please login manually";
+
+                return $response;
             }
-
-            if (mb_strlen($data['appToken']) != 16) {   //    Generate if new
-                generateAppToken($user, $tokenInOut);
-            } else {
-                //    Return old token if not
-                $token = $data['appToken'];
-
-                //    Update app token expiry now anyway
-                $expDays = 14;
-                $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
-                $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
-                // log_sql($query);
-                s_mysql_query($query);
-            }
-
-            postActivity($user, ActivityType::Login, "");
-
-            $response['Success'] = true;
-            $response['User'] = $user;
-            $response['Token'] = $token;
-            $response['Score'] = $data['RAPoints'];
-            settype($response['Score'], "integer");
-            $response['Messages'] = GetMessageCount($user, $totalMessageCount);
-            $response['Permissions'] = $data['Permissions'];
-            settype($response['Permissions'], "integer");
-            $response['AccountType'] = PermissionsToString($response['Permissions']);
-        } else {
-            // error_log(__FUNCTION__ . " failed5: user:$user, tokenInOut:$tokenInOut");
-            $response['Success'] = false;
-            $response['Error'] = "Invalid User/Password combination. Please try again";
         }
+
+        if (mb_strlen($data['appToken']) !== 16) {   // Generate if new
+            generateAppToken($user, $tokenInOut);
+        } else {
+            // Return old token if not
+            $token = $data['appToken'];
+
+            // Update app token expiry now anyway
+            $expDays = 14;
+            $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
+            $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
+            s_mysql_query($query);
+        }
+
+        postActivity($user, ActivityType::Login, "");
+
+        $response['Success'] = true;
+        $response['User'] = $user;
+        $response['Token'] = $token;
+        $response['Score'] = $data['RAPoints'];
+        settype($response['Score'], "integer");
+        $response['Messages'] = GetMessageCount($user, $totalMessageCount);
+        $response['Permissions'] = $data['Permissions'];
+        settype($response['Permissions'], "integer");
+        $response['AccountType'] = PermissionsToString($response['Permissions']);
     } else {
-        // query failure
         $response['Success'] = false;
         $response['Error'] = "Invalid User/Password combination. Please try again";
     }
@@ -323,62 +330,79 @@ function loginApp($user, $pass, $token)
     return $response;
 }
 
-function getUserAppToken($user)
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT appToken FROM UserAccounts WHERE User='$user'";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        return $data['appToken'];
-    }
-
-    return "";
-}
-
-function GetUserData($user)
+function GetUserData($user): ?array
 {
     sanitize_sql_inputs($user);
 
     $query = "SELECT * FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false || mysqli_num_rows($dbResult) != 1) {
+    if (!$dbResult || mysqli_num_rows($dbResult) != 1) {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: Achievement $id doesn't exist!");
+
+        // failed: Achievement $id doesn't exist!
         return null;
     } else {
         return mysqli_fetch_assoc($dbResult);
     }
 }
 
-function getAccountDetails(&$user, &$dataOut)
+function getAccountDetails(&$user, &$dataOut): bool
 {
     if (!isset($user) || mb_strlen($user) < 2) {
-        // error_log(__FUNCTION__ . " failed: user:$user");
         return false;
     }
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, cookie, User, EmailAddress, Permissions, RAPoints, TrueRAPoints, fbUser, fbPrefs, websitePrefs, LastActivityID, Motto, ContribCount, ContribYield, APIKey, UserWallActive, Untracked, RichPresenceMsg, LastGameID, LastLogin, Created, DeleteRequested, Deleted
+    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, TrueRAPoints,
+                     cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
+                     fbUser, fbPrefs, APIKey, ContribCount, ContribYield,
+                     RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
+                     Created, DeleteRequested, Untracked
                 FROM UserAccounts
                 WHERE User='$user'
                 AND Deleted IS NULL";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false || mysqli_num_rows($dbResult) !== 1) {
-        // error_log(__FUNCTION__ . " failed: user:$user, query:$query");
+    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
         return false;
     } else {
         $dataOut = mysqli_fetch_array($dbResult);
-        $user = $dataOut['User'];    //    Fix case!
+        $user = $dataOut['User'];    // Fix case!
+
         return true;
     }
 }
 
-function getUserIDFromUser($user)
+function getAccountDetailsFromCookie(?string $cookie): ?array
+{
+    if (empty($cookie)) {
+        return null;
+    }
+
+    sanitize_sql_inputs($cookie);
+
+    // ID, User, and Permissions are used to identify the user and their permissions
+    // DeleteRequested is used to show the "Your account is marked to be deleted" banner
+    // RAPoints, TrueRAPoints, and UnreadMessageCount are used for the logged-in user area
+    // websitePrefs allows pages to enable/disable functionality
+    $query = "SELECT ID, User, Permissions, DeleteRequested,
+                     RAPoints, TrueRAPoints, UnreadMessageCount,
+                     websitePrefs
+                FROM UserAccounts
+                WHERE cookie='$cookie'
+                AND Deleted IS NULL";
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
+        return null;
+    }
+
+    return mysqli_fetch_array($dbResult) ?: null;
+}
+
+function getUserIDFromUser($user): int
 {
     sanitize_sql_inputs($user);
 
@@ -387,14 +411,15 @@ function getUserIDFromUser($user)
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['ID'] ?? 0;
-    } else {
-        // error_log(__FUNCTION__ . " cannot find user $user.");
-        return 0;
+
+        return (int) ($data['ID'] ?? 0);
     }
+
+    // cannot find user $user
+    return 0;
 }
 
-function getUserFromID($userID)
+function getUserFromID($userID): string
 {
     sanitize_sql_inputs($userID);
 
@@ -403,14 +428,14 @@ function getUserFromID($userID)
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['User'];
-    } else {
-        // error_log(__FUNCTION__ . " cannot find user $user.");
-        return "";
+
+        return (string) $data['User'];
     }
+
+    return "";
 }
 
-function getUserMetadataFromID($userID)
+function getUserMetadataFromID($userID): ?array
 {
     sanitize_sql_inputs($userID);
 
@@ -419,41 +444,44 @@ function getUserMetadataFromID($userID)
 
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
-    } else {
-        // error_log(__FUNCTION__ . " cannot find user $user.");
-        return 0;
     }
+
+    return null;
 }
 
-function getUserStats($user)
+function getUserUnlockDates($user, $gameID, &$dataOut): int
 {
-}
+    sanitize_sql_inputs($user, $gameID);
 
-function getUserUnlockAchievement($user, $achievementID, &$dataOut)
-{
-    sanitize_sql_inputs($user, $achievementID);
-
-    $query = "SELECT ach.ID, aw.HardcoreMode, aw.Date
-        FROM Achievements AS ach
-        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.ID = '$achievementID' AND aw.User = '$user'";
+    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
+        FROM Achievements ach
+        INNER JOIN Awarded AS aw ON ach.ID = aw.AchievementID
+        WHERE ach.GameID = $gameID AND aw.User = '$user'
+        ORDER BY ach.ID, aw.HardcoreMode DESC";
 
     $dbResult = s_mysql_query($query);
 
     $dataOut = [];
 
-    if ($dbResult === false) {
-        return false;
+    if (!$dbResult) {
+        return 0;
     }
 
+    $lastID = 0;
     while ($data = mysqli_fetch_assoc($dbResult)) {
+        $achID = $data['ID'];
+        if ($lastID == $achID) {
+            continue;
+        }
+
         $dataOut[] = $data;
+        $lastID = $achID;
     }
 
     return count($dataOut);
 }
 
-function getUserUnlocksDetailed($user, $gameID, &$dataOut)
+function getUserUnlocksDetailed($user, $gameID, &$dataOut): int
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -476,7 +504,7 @@ function getUserUnlocksDetailed($user, $gameID, &$dataOut)
     return count($dataOut);
 }
 
-function GetUserUnlocksData($user, $gameID, $hardcoreMode)
+function GetUserUnlocksData($user, $gameID, $hardcoreMode): array
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -496,14 +524,7 @@ function GetUserUnlocksData($user, $gameID, $hardcoreMode)
     return $retVal;
 }
 
-// TODO: Deprecate
-function getUserUnlocks($user, $gameID, &$dataOut, $hardcoreMode)
-{
-    $dataOut = GetUserUnlocksData($user, $gameID, $hardcoreMode);
-    return count($dataOut);
-}
-
-function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
+function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
 {
     sanitize_sql_inputs($count, $ofFriend);
     settype($count, 'integer');
@@ -514,9 +535,9 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
 
     $subquery = "WHERE !ua.Untracked";
     if (isset($ofFriend)) {
-        //$subquery = "WHERE ua.User IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$ofFriend' )
-        //              OR ua.User = '$ofFriend' ";
-        //    Only users whom I have added:
+        // $subquery = "WHERE ua.User IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$ofFriend' )
+        // OR ua.User = '$ofFriend' ";
+        // Only users whom I have added:
         $subquery = "WHERE !ua.Untracked AND ua.User IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$ofFriend' AND f.Friendship = 1 )";
     }
 
@@ -526,18 +547,17 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
               ORDER BY RAPoints DESC 
               LIMIT 0, $count ";
 
-    //echo $query;
+    // echo $query;
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false || mysqli_num_rows($dbResult) == 0) {
-        //    This is acceptible if the user doesn't have any friends!
-        //error_log( __FUNCTION__ . " failed: none found: count:$count query:$query" );
+    if (!$dbResult || mysqli_num_rows($dbResult) == 0) {
+        // This is acceptible if the user doesn't have any friends!
         return 0;
     } else {
         $i = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            //$dataOut[$i][0] = $db_entry["ID"];
+            // $dataOut[$i][0] = $db_entry["ID"];
             $dataOut[$i][1] = $db_entry["User"];
             $dataOut[$i][2] = $db_entry["RAPoints"];
             $dataOut[$i][3] = $db_entry["TrueRAPoints"];
@@ -550,11 +570,8 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null)
 
 /**
  * Gets the number of friends for the input user.
- *
- * @param string $user to get friend count for
- * @return int|null The number of friends for the user
  */
-function getFriendCount($user)
+function getFriendCount(string $user): ?int
 {
     sanitize_sql_inputs($user);
 
@@ -571,7 +588,7 @@ function getFriendCount($user)
     }
 }
 
-function getUserForumPostAuth($user)
+function getUserForumPostAuth($user): bool
 {
     sanitize_sql_inputs($user);
 
@@ -580,15 +597,16 @@ function getUserForumPostAuth($user)
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['ManuallyVerified'];
+
+        return (bool) $data['ManuallyVerified'];
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " issues! $userIn");
+
         return $user;
     }
 }
 
-function validateUsername($userIn)
+function validateUsername($userIn): ?string
 {
     sanitize_sql_inputs($userIn);
 
@@ -597,15 +615,16 @@ function validateUsername($userIn)
 
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        return $data['User'];
+
+        return (string) $data['User'];
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " issues! $userIn");
+
         return null;
     }
 }
 
-function GetScore($user)
+function GetScore($user): int
 {
     sanitize_sql_inputs($user);
 
@@ -616,27 +635,18 @@ function GetScore($user)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $result = mysqli_fetch_assoc($dbResult);
-
-        if (!$result) {
-            return null;
+        if ($result) {
+            return (int) $result['RAPoints'];
         }
-
-        $points = $result['RAPoints'];
-        settype($points, 'integer');
-        return $points;
-    } else {
-        // error_log(__FUNCTION__ . " failed: user:$user");
-        return 0;
     }
+
+    return 0;
 }
 
 /**
  * Gets the account age in years for the input user.
- *
- * @param string $user to get account age for
- * @return int|null The number of years the account has been created for
  */
-function getAge($user)
+function getAge(string $user): int
 {
     sanitize_sql_inputs($user);
 
@@ -645,66 +655,59 @@ function getAge($user)
               WHERE ua.User='$user'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $result = mysqli_fetch_assoc($dbResult);
-
-        if (!$result) {
-            return null;
-        }
-        $created = strtotime($result['Created']);
-        $curDate = strtotime(date('Y-m-d H:i:s'));
-        $diff = $curDate - $created;
-
-        $years = floor($diff / (365 * 60 * 60 * 24));
-        return (int) $years;
-    } else {
-        // error_log(__FUNCTION__ . " failed: user:$user");
+    if (!$dbResult) {
         return 0;
     }
+
+    $result = mysqli_fetch_assoc($dbResult);
+    if (!$result) {
+        return 0;
+    }
+
+    $created = strtotime($result['Created']);
+    $curDate = strtotime(date('Y-m-d H:i:s'));
+    $diff = $curDate - $created;
+
+    $years = floor($diff / (365 * 60 * 60 * 24));
+
+    return (int) $years;
 }
 
 /**
  * Gets the points or retro points rank of the user.
- *
- * @param string $user the user to get the rank for
- * @param int $type 0 for points rank, anything else for retro points rank
- * @return int rank of the user
  */
-function getUserRank($user, $type = 0)
+function getUserRank(string $user, int $type = 0): ?int
 {
     sanitize_sql_inputs($user);
 
-    // $query = "
-    //     SELECT (COUNT(*) + 1) AS UserRank
-    //     FROM UserAccounts
-    //     WHERE NOT Untracked
-    //       AND RAPoints > (SELECT RAPoints FROM UserAccounts WHERE User = '$user')
-    // ";
-
+    // 0 for points rank, anything else for retro points rank
     if ($type == 0) {
         $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked";
     } else {
         $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked";
     }
 
-    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
+    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
                 FROM UserAccounts AS ua
                 $joinCond
                 WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        return (int) $data['UserRank'];
+    if (!$dbResult) {
+        log_sql_fail();
+
+        return null;
     }
 
-    log_sql_fail();
-    // error_log(__FUNCTION__ . " could not find $user in db?!");
+    $data = mysqli_fetch_assoc($dbResult);
+    if ($data['Untracked']) {
+        return null;
+    }
 
-    return 0;
+    return (int) $data['UserRank'];
 }
 
-function countRankedUsers()
+function countRankedUsers(): int
 {
     $query = "
         SELECT COUNT(*) AS count
@@ -714,89 +717,31 @@ function countRankedUsers()
     ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['count'];
-    } else {
-        return false;
+    if (!$dbResult) {
+        return 0;
     }
+
+    return (int) mysqli_fetch_assoc($dbResult)['count'];
 }
 
-function updateAchievementVote($achID, $posDiff, $negDiff)
+function updateAchievementVote($achID, $posDiff, $negDiff): bool
 {
     sanitize_sql_inputs($achID, $posDiff, $negDiff);
 
-    //    Tell achievement $achID that it's vote count has been changed by $posDiff and $negDiff
+    // Tell achievement $achID that it's vote count has been changed by $posDiff and $negDiff
 
     $query = "UPDATE Achievements SET VotesPos=VotesPos+$posDiff, VotesNeg=VotesNeg+$negDiff, Updated=NOW() WHERE ID=$achID";
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return true;
-    } else {
+    if (!$dbResult) {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed(;): achID:$achID, posDiff:$posDiff, negDiff:$negDiff");
-        return false;
-    }
-}
 
-function applyVote($user, $achID, $vote)
-{
-    sanitize_sql_inputs($user, $achID, $vote);
-    settype($vote, 'integer');
-    if ($vote != 1 && $vote != -1) {
-        // error_log(__FUNCTION__ . " failed: illegal vote:$vote by user:$user, achID:$achID");
         return false;
     }
 
-    $posVote = ($vote == 1);
-    $negVote = ($vote == -1);
-    settype($posVote, 'integer');
-    settype($negVote, 'integer');
-
-    $query = "SELECT * FROM Votes WHERE User='$user' AND AchievementID='$achID'";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false && mysqli_num_rows($dbResult) == 0) {
-        //    Vote not yet cast - add it newly!
-        $query = "INSERT INTO Votes (User, AchievementID, Vote) VALUES ( '$user', '$achID', $vote )";
-        // log_sql($query);
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            return updateAchievementVote($achID, $posVote, $negVote);
-        } else {
-            log_sql_fail();
-            // error_log(__FUNCTION__ . " failed(;): user:$user, achID:$achID, vote:$vote");
-            return false;
-        }
-    } else {
-        //    Vote already cast: update it to the selected one.
-        $data = mysqli_fetch_assoc($dbResult);
-        $voteAlreadyCast = $data['Vote'];
-        if ($voteAlreadyCast == $vote) {
-            //    Vote already posted... ignore?
-            // error_log(__FUNCTION__ . " warning: Identical vote already cast. ($user, $achID)");
-            return true;
-        } else {
-            $query = "UPDATE Votes SET Vote=$vote WHERE User='$user' AND AchievementID='$achID'";
-
-            $dbResult = s_mysql_query($query);
-            if ($dbResult !== false) {
-                //    Updated Votes. Now update ach:
-                if ($vote == 1 && $voteAlreadyCast == -1) {
-                    //    Changing my vote to pos
-                    return updateAchievementVote($achID, 1, -1);
-                } else {
-                    //    Changing my vote to neg
-                    return updateAchievementVote($achID, -1, 1);
-                }
-            } else {
-                log_sql_fail();
-                // error_log(__FUNCTION__ . " failed(;): user:$user, achID:$achID, vote:$vote");
-                return false;
-            }
-        }
-    }
+    return true;
 }
 
-function getUserActivityRange($user, &$firstLogin, &$lastLogin)
+function getUserActivityRange($user, &$firstLogin, &$lastLogin): bool
 {
     sanitize_sql_inputs($user);
 
@@ -816,14 +761,14 @@ function getUserActivityRange($user, &$firstLogin, &$lastLogin)
     return false;
 }
 
-function getUserProgress($user, $gameIDsCSV, &$dataOut)
+function getUserProgress($user, $gameIDsCSV, &$dataOut): ?int
 {
     if (empty($gameIDsCSV) || !isValidUsername($user)) {
         return null;
     }
     sanitize_sql_inputs($user);
 
-    //    Create null entries so that we pass 'something' back.
+    // Create null entries so that we pass 'something' back.
     $gameIDsArray = explode(',', $gameIDsCSV);
     $gameIDs = [];
     foreach ($gameIDsArray as $gameID) {
@@ -838,17 +783,14 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
     }
     $gameIDs = implode(',', $gameIDs);
 
-    //    Count num possible achievements
+    // Count num possible achievements
     $query = "SELECT GameID, COUNT(*) AS AchCount, SUM(ach.Points) AS PointCount FROM Achievements AS ach
               WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDs )
               GROUP BY ach.GameID
               HAVING COUNT(*)>0 ";
 
-    //error_log( $query );
-
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        // error_log(__FUNCTION__ . "buggered up somehow. $user, $gameIDsCSV");
+    if (!$dbResult) {
         return 0;
     }
 
@@ -861,8 +803,8 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
         $dataOut[$data['GameID']]['ScoreAchievedHardcore'] = 0;
     }
 
-    //    Foreach return value from this, cross reference with 'earned' achievements. If not found, assume 0.
-    //    Count earned achievements
+    // Foreach return value from this, cross reference with 'earned' achievements. If not found, assume 0.
+    // Count earned achievements
     $query = "SELECT GameID, COUNT(*) AS AchCount, SUM( ach.Points ) AS PointCount, aw.HardcoreMode
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON aw.AchievementID = ach.ID
@@ -870,8 +812,7 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
               GROUP BY aw.HardcoreMode, ach.GameID";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        // error_log(__FUNCTION__ . "buggered up in the second part. $user, $gameIDsCSV");
+    if (!$dbResult) {
         return 0;
     }
 
@@ -888,13 +829,13 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut)
     return 0;
 }
 
-function GetAllUserProgress($user, $consoleID)
+function GetAllUserProgress($user, $consoleID): array
 {
     $retVal = [];
     sanitize_sql_inputs($user, $consoleID);
     settype($consoleID, 'integer');
 
-    //Title,
+    // Title,
     $query = "SELECT ID, IFNULL( AchCounts.NumAch, 0 ) AS NumAch, IFNULL( MyAwards.NumIAchieved, 0 ) AS Earned, IFNULL( MyAwardsHC.NumIAchieved, 0 ) AS HCEarned
             FROM GameData AS gd
             LEFT JOIN (
@@ -924,9 +865,9 @@ function GetAllUserProgress($user, $consoleID)
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            //    Auto:
-            //$retVal[] = $nextData;
-            //    Manual:
+            // Auto:
+            // $retVal[] = $nextData;
+            // Manual:
             $nextID = $nextData['ID'];
             unset($nextData['ID']);
 
@@ -941,7 +882,7 @@ function GetAllUserProgress($user, $consoleID)
     return $retVal;
 }
 
-function getUsersGameList($user, &$dataOut)
+function getUsersGameList($user, &$dataOut): int
 {
     sanitize_sql_inputs($user);
 
@@ -955,10 +896,7 @@ function getUsersGameList($user, &$dataOut)
         GROUP BY gd.ID";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //log_email(__FUNCTION__ . " failed with $user");
-
-        // error_log(__FUNCTION__ . "1 $user ");
+    if (!$dbResult) {
         return 0;
     }
 
@@ -969,7 +907,7 @@ function getUsersGameList($user, &$dataOut)
         $gamelistCSV .= ', ' . $nextData['ID'];
     }
 
-    //    Get totals:
+    // Get totals:
     $query = "SELECT ach.GameID, gd.Title, COUNT(ach.ID) AS NumAchievements
             FROM Achievements AS ach
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -977,9 +915,7 @@ function getUsersGameList($user, &$dataOut)
             GROUP BY ach.GameID ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //log_email($query);
-        // error_log(__FUNCTION__ . "2 $user ");
+    if (!$dbResult) {
         return 0;
     }
 
@@ -993,17 +929,16 @@ function getUsersGameList($user, &$dataOut)
     return $i;
 }
 
-function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$dataOut)
+function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$dataOut): void
 {
     sanitize_sql_inputs($user, $numAchievements);
     settype($numAchievements, 'integer');
 
-    $gameIDsArray = explode(',', $gameIDsCSV);
-
-    $numIDs = count($gameIDsArray);
-    if ($numIDs == 0) {
+    if (empty($gameIDsCSV)) {
         return;
     }
+
+    $gameIDsArray = explode(',', $gameIDsCSV);
 
     $gameIDs = [];
     foreach ($gameIDsArray as $gameID) {
@@ -1013,9 +948,10 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
     $gameIDs = implode(',', $gameIDs);
 
     $limit = ($numAchievements == 0) ? 5000 : $numAchievements;
-    //echo $numIDs;
-    //error_log( $gameIDsCSV );
 
+    // TODO: because of the "ORDER BY HardcoreAchieved", this query only returns non-hardcore
+    //       unlocks if the user has more than $limit unlocks. Note that $limit appears to be
+    //       default (5000) for all use cases except API_GetUserSummary
     $query = "SELECT ach.ID, ach.GameID, gd.Title AS GameTitle, ach.Title, ach.Description, ach.Points, ach.BadgeName, (!ISNULL(aw.User)) AS IsAwarded, aw.Date AS DateAwarded, (aw.HardcoreMode) AS HardcoreAchieved
               FROM Achievements AS ach
               LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
@@ -1029,19 +965,17 @@ function getUsersRecentAwardedForGames($user, $gameIDsCSV, $numAchievements, &$d
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
         }
-    } else {
-        // error_log(__FUNCTION__ . " something's gone wrong :( $user, $gameIDsCSV, $numAchievements");
     }
 }
 
-function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements, $localUser)
+function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements, $localUser): void
 {
     sanitize_sql_inputs($user, $localUser);
 
     getAccountDetails($user, $userInfo);
 
     if (!$userInfo) {
-        return null;
+        return;
     }
 
     $libraryOut = [];
@@ -1068,9 +1002,9 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     $libraryOut['UserWallActive'] = $userInfo['UserWallActive'];
     $libraryOut['Motto'] = $userInfo['Motto'];
 
-    $libraryOut['Rank'] = getUserRank($user); //    ANOTHER call... can't we cache this?
+    $libraryOut['Rank'] = getUserRank($user); // ANOTHER call... can't we cache this?
 
-    $numRecentlyPlayed = count($recentlyPlayedData);
+    $numRecentlyPlayed = is_countable($recentlyPlayedData) ? count($recentlyPlayedData) : 0;
 
     if ($numRecentlyPlayed > 0) {
         $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
@@ -1079,7 +1013,7 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
             $gameIDsCSV .= ", " . $recentlyPlayedData[$i]['GameID'];
         }
 
-        //echo $gameIDsCSV;
+        // echo $gameIDsCSV;
 
         getUserProgress($user, $gameIDsCSV, $awardedData);
 
@@ -1100,14 +1034,14 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
                   SELECT (f.User = '$localUser') AS Local, f.Friend, f.Friendship FROM Friends AS f
                   WHERE (f.User = '$user' && f.Friend = '$localUser') ";
 
-        //echo $query;
+        // echo $query;
 
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 if ($db_entry['Local'] == 1) {
                     $libraryOut['Friendship'] = $db_entry['Friendship'];
-                } else { //if( $db_entry['Local'] == 0 )
+                } else { // if ( $db_entry['Local'] == 0 )
                     $libraryOut['FriendReciprocation'] = $db_entry['Friendship'];
                 }
             }
@@ -1117,15 +1051,15 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     }
 }
 
-function getControlPanelUserInfo($user, &$libraryOut)
+function getControlPanelUserInfo($user, &$libraryOut): bool
 {
     sanitize_sql_inputs($user);
 
     $libraryOut = [];
     $libraryOut['Played'] = [];
-    //getUserActivityRange( $user, $firstLogin, $lastLogin );
-    //$libraryOut['MemberSince'] = $firstLogin;
-    //$libraryOut['LastLogin'] = $lastLogin;
+    // getUserActivityRange( $user, $firstLogin, $lastLogin );
+    // $libraryOut['MemberSince'] = $firstLogin;
+    // $libraryOut['LastLogin'] = $lastLogin;
 
     $query = "SELECT gd.ID, c.Name AS ConsoleName, gd.Title AS GameTitle, COUNT(*) AS NumAwarded, Inner1.NumPossible
                 FROM Awarded AS aw
@@ -1142,26 +1076,19 @@ function getControlPanelUserInfo($user, &$libraryOut)
                 ORDER BY gd.Title, gd.ConsoleID";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $libraryOut['Played'][] = $db_entry;
-        }   //    use as raw array to preserve order!
-
-        return true;
-    } else {
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
-
         return false;
     }
+
+    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+        $libraryOut['Played'][] = $db_entry;
+    }   // use as raw array to preserve order!
+
+    return true;
 }
 
-function getUserList($sortBy, $offset, $count, &$dataOut, $requestedBy)
-{
-    return getUserListByPerms($sortBy, $offset, $count, $dataOut, $requestedBy, $permissions, false);
-}
-
-function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &$perms = null, $showUntracked = false)
+function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &$perms = null, $showUntracked = false): int
 {
     sanitize_sql_inputs($offset, $count, $requestedBy, $perms);
     settype($offset, 'integer');
@@ -1193,38 +1120,17 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     }
 
     settype($sortBy, 'integer');
-    switch ($sortBy) {
-        case 1: // Default sort:
-            $orderBy = "ua.User ASC ";
-            break;
-        case 11:
-            $orderBy = "ua.User DESC ";
-            break;
-
-        case 2: // RAPoints
-            $orderBy = "ua.RAPoints DESC ";
-            break;
-        case 12:
-            $orderBy = "ua.RAPoints ASC ";
-            break;
-
-        case 3: // NumAwarded
-            $orderBy = "NumAwarded DESC ";
-            break;
-        case 13:
-            $orderBy = "NumAwarded ASC ";
-            break;
-
-        case 4: // LastLogin
-            $orderBy = "ua.LastLogin DESC ";
-            break;
-        case 14:
-            $orderBy = "ua.LastLogin ASC ";
-            break;
-
-        default:
-            $orderBy = "ua.User ASC ";
-    }
+    $orderBy = match ($sortBy) {
+        1 => "ua.User ASC ",
+        11 => "ua.User DESC ",
+        2 => "ua.RAPoints DESC ",
+        12 => "ua.RAPoints ASC ",
+        3 => "NumAwarded DESC ",
+        13 => "NumAwarded ASC ",
+        4 => "ua.LastLogin DESC ",
+        14 => "ua.LastLogin ASC ",
+        default => "ua.User ASC ",
+    };
 
     $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
                 (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded                
@@ -1242,17 +1148,13 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
             $numFound++;
         }
     } else {
-        // error_log(__FUNCTION__);
         log_sql_fail();
     }
 
     return $numFound;
 }
 
-/**
- * @return int|mixed|string
- */
-function getUserPermissions(?string $user)
+function getUserPermissions(?string $user): int
 {
     if ($user == null) {
         return 0;
@@ -1262,17 +1164,18 @@ function getUserPermissions(?string $user)
 
     $query = "SELECT Permissions FROM UserAccounts WHERE User='$user'";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
+
         return 0;
-    } else {
-        $data = mysqli_fetch_assoc($dbResult);
-        return $data['Permissions'];
     }
+
+    $data = mysqli_fetch_assoc($dbResult);
+
+    return (int) $data['Permissions'];
 }
 
-function getUsersCompletedGamesAndMax($user)
+function getUsersCompletedGamesAndMax($user): array
 {
     $retVal = [];
 
@@ -1285,7 +1188,7 @@ function getUsersCompletedGamesAndMax($user)
     $requiredFlags = 3;
     $minAchievementsForCompletion = 5;
 
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
+    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -1306,15 +1209,12 @@ function getUsersCompletedGamesAndMax($user)
             $retVal[$gamesFound] = $db_entry;
             $gamesFound++;
         }
-    } else {
-        //log_email($query);
-        //log_email("failing");
     }
 
     return $retVal;
 }
 
-function getUsersSiteAwards($user, $showHidden = false)
+function getUsersSiteAwards($user, $showHidden = false): array
 {
     sanitize_sql_inputs($user);
 
@@ -1325,7 +1225,7 @@ function getUsersSiteAwards($user, $showHidden = false)
     }
 
     $hiddenQuery = "";
-    if ($showHidden == false) {
+    if (!$showHidden) {
         $hiddenQuery = "AND saw.DisplayOrder > -1";
     }
 
@@ -1358,7 +1258,7 @@ function getUsersSiteAwards($user, $showHidden = false)
             $numFound++;
         }
 
-        //Updated way to "squash" duplicate awards to work with the new site award ordering implementation
+        // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
         $completedGames = [];
         $masteredGames = [];
 
@@ -1373,11 +1273,11 @@ function getUsersSiteAwards($user, $showHidden = false)
             }
         }
 
-        //Get a single list of games both completed and mastered
+        // Get a single list of games both completed and mastered
         if (count($completedGames) > 0 && count($masteredGames) > 0) {
             $multiAwardGames = array_intersect($completedGames, $masteredGames);
 
-            //For games that have been both completed and mastered, remove the completed entry from the award array.
+            // For games that have been both completed and mastered, remove the completed entry from the award array.
             foreach ($multiAwardGames as $game) {
                 $index = 0;
                 foreach ($retVal as $award) {
@@ -1392,28 +1292,24 @@ function getUsersSiteAwards($user, $showHidden = false)
             }
         }
 
-        //Remove blank indexes
+        // Remove blank indexes
         $retVal = array_values(array_filter($retVal));
-    } else {
-        //log_email($query);
-        //log_email("failing");
     }
 
     return $retVal;
 }
 
-function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
+function AddSiteAward($user, $awardType, $data, $dataExtra = 0): void
 {
     sanitize_sql_inputs($user, $awardType, $data, $dataExtra);
     settype($awardType, 'integer');
-    //settype( $data, 'integer' );    //    nullable
+    // settype( $data, 'integer' );    // nullable
     settype($dataExtra, 'integer');
 
     $displayOrder = 0;
     $query = "SELECT MAX( DisplayOrder ) FROM SiteAwards WHERE User = '$user'";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     } else {
         $dbData = mysqli_fetch_assoc($dbResult);
@@ -1424,15 +1320,8 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0)
 
     $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder) 
                             VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
-    // log_sql($query);
     global $db;
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult != null) {
-        //error_log( "AddSiteAward OK! $user, $awardType, $data" );
-        //log_email( __FUNCTION__ . " $user, $awardType, $data" );
-    } else {
-        //log_email("Failed AddSiteAward: $query");
-    }
+    mysqli_query($db, $query);
 }
 
 function GetDeveloperStats($count, $type)
@@ -1461,13 +1350,13 @@ function GetDeveloperStats($count, $type)
     }
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     $retVal = [];
     while ($db_entry = mysqli_fetch_assoc($dbResult)) {
         settype($db_entry['NumCreated'], 'integer');
         $retVal[] = $db_entry;
     }
+
     return $retVal;
 }
 
@@ -1478,54 +1367,34 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
     settype($count, 'integer');
     settype($devFilter, 'integer');
 
-    switch ($devFilter) {
-        case 1: // Active
-            $stateCond = " AND ua.Permissions >= " . Permissions::Developer;
-            break;
-        case 2: // Junior
-            $stateCond = " AND ua.Permissions = " . Permissions::JuniorDeveloper;
-            break;
-        case 3: // Active + Junior
-            $stateCond = " AND ua.Permissions >= " . Permissions::JuniorDeveloper;
-            break;
-        case 4: // Inactive
-            $stateCond = " AND ua.Permissions <= " . Permissions::Registered;
-            break;
-        case 5: // Active + Inactive
-            $stateCond = " AND ua.Permissions <> " . Permissions::JuniorDeveloper;
-            break;
-        case 6: // Junior + Inactive
-            $stateCond = " AND ua.Permissions <= " . Permissions::JuniorDeveloper;
-            break;
-        case 0: // Active + Junior + Inactive
-        case 7:
-        default:
-            $stateCond = "";
-    }
+    $stateCond = match ($devFilter) {
+        // Active
+        1 => " AND ua.Permissions >= " . Permissions::Developer,
+        // Junior
+        2 => " AND ua.Permissions = " . Permissions::JuniorDeveloper,
+        // Active + Junior
+        3 => " AND ua.Permissions >= " . Permissions::JuniorDeveloper,
+        // Inactive
+        4 => " AND ua.Permissions <= " . Permissions::Registered,
+        // Active + Inactive
+        5 => " AND ua.Permissions <> " . Permissions::JuniorDeveloper,
+        // Junior + Inactive
+        6 => " AND ua.Permissions <= " . Permissions::JuniorDeveloper,
+        // Active + Junior + Inactive
+        default => "",
+    };
 
-    switch ($sortBy) {
-        case 1: // number of points allocated
-            $order = "ContribYield DESC";
-            break;
-        case 2: // number of achievements won by others
-            $order = "ContribCount DESC";
-            break;
-        case 3:
-            $order = "OpenTickets DESC";
-            break;
-        case 4:
-            $order = "TicketRatio DESC";
-            break;
-        case 5:
-            $order = "LastLogin DESC";
-            break;
-        case 6:
-            $order = "Author ASC";
-            break;
-        case 0:
-        default:
-            $order = "Achievements DESC";
-    }
+    $order = match ($sortBy) {
+        // number of points allocated
+        1 => "ContribYield DESC",
+        // number of achievements won by others
+        2 => "ContribCount DESC",
+        3 => "OpenTickets DESC",
+        4 => "TicketRatio DESC",
+        5 => "LastLogin DESC",
+        6 => "Author ASC",
+        default => "Achievements DESC",
+    };
 
     $query = "
     SELECT
@@ -1542,7 +1411,7 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
     LEFT JOIN
         Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
     LEFT JOIN
-        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState = 1)
+        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     WHERE
         ContribCount > 0 AND ContribYield > 0
         $stateCond
@@ -1561,8 +1430,6 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7)
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $retVal[] = $nextData;
         }
-    } else {
-        // error_log(__FUNCTION__ . " failed?! $count");
     }
 
     return $retVal;
@@ -1575,8 +1442,8 @@ function GetUserFields($username, $fields)
     $fieldsCSV = implode(",", $fields);
     $query = "SELECT $fieldsCSV FROM UserAccounts AS ua
               WHERE ua.User = '$username'";
-    //error_log( $query );
     $dbResult = s_mysql_query($query);
+
     return mysqli_fetch_assoc($dbResult);
 }
 
@@ -1588,6 +1455,7 @@ function HasPatreonBadge($usernameIn): bool
         . "WHERE sa.AwardType = 6 AND sa.User = '$usernameIn'";
 
     $dbResult = s_mysql_query($query);
+
     return mysqli_num_rows($dbResult) > 0;
 }
 
@@ -1603,7 +1471,7 @@ function SetPatreonSupporter($usernameIn, $enable)
     }
 }
 
-function SetUserTrackedStatus($usernameIn, $isUntracked)
+function SetUserUntrackedStatus($usernameIn, $isUntracked)
 {
     sanitize_sql_inputs($usernameIn, $isUntracked);
 
@@ -1623,6 +1491,7 @@ function getUserCardData($user, &$userCardInfo)
 
     if (!$userInfo) {
         $userCardInfo = null;
+
         return;
     }
 
@@ -1631,7 +1500,7 @@ function getUserCardData($user, &$userCardInfo)
     $userCardInfo['TotalPoints'] = $userInfo['RAPoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $userCardInfo['Permissions'] = $userInfo['Permissions'];
-    $userCardInfo['Motto'] = htmlspecialchars($userInfo['Motto']);
+    $userCardInfo['Motto'] = $userInfo['Motto'];
     $userCardInfo['Rank'] = getUserRank($user);
     $userCardInfo['Untracked'] = $userInfo['Untracked'];
     $userCardInfo['LastActivity'] = $userInfo['LastLogin'];
@@ -1655,14 +1524,10 @@ function recalcScore($user)
               WHERE User = '$user' ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        // global $db;
-        // var_dump(mysqli_error($db));
-        // error_log(__FUNCTION__ . " failed for $user!");
+    if (!$dbResult) {
         return false;
     } else {
-        //error_log( __FUNCTION__ );
-        //error_log( "recalc'd $user's score as " . getScore($user) . ", OK!" );
+        // recalc'd $user's score as " . getScore($user) . ", OK!
         return true;
     }
 }
@@ -1677,27 +1542,25 @@ function attributeDevelopmentAuthor($author, $points)
     $oldContribCount = (int) $oldResults['ContribCount'];
     $oldContribYield = (int) $oldResults['ContribYield'];
 
-    //    Update the fact that this author made an achievement that just got earned.
+    // Update the fact that this author made an achievement that just got earned.
     $query = "UPDATE UserAccounts AS ua
               SET ua.ContribCount = ua.ContribCount+1, ua.ContribYield = ua.ContribYield + $points
               WHERE ua.User = '$author'";
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     } else {
-        //error_log( __FUNCTION__ . " $author, $points" );
-
-        for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
-            if ($oldContribCount < RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= RA\AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
-                //This developer has arrived at this point boundary!
+        for ($i = 0; $i < count(AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
+            if ($oldContribCount < AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
+                // This developer has arrived at this point boundary!
                 AddSiteAward($author, 2, $i);
             }
         }
-        for ($i = 0; $i < count(RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
-            if ($oldContribYield < RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= RA\AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
-                //This developer is newly above this point boundary!
+        for ($i = 0; $i < count(AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
+            if ($oldContribYield < AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
+                // This developer is newly above this point boundary!
                 AddSiteAward($author, 3, $i);
             }
         }
@@ -1708,7 +1571,7 @@ function recalculateDevelopmentContributions($user)
 {
     sanitize_sql_inputs($user);
 
-    //##SD Should be rewritten using a single inner table... damnit!
+    // ##SD Should be rewritten using a single inner table... damnit!
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.ContribCount = (
@@ -1725,16 +1588,13 @@ function recalculateDevelopmentContributions($user)
 
     $dbResult = s_mysql_query($query);
 
-    return $dbResult != false;
+    return !$dbResult;
 }
 
-/*
+/**
  * Gets completed and mastered counts for all users who have played the passed in games.
- *
- * @param Array $gameIDs game ID to check awards for
- * @return Array|NULL of user completed and mastered data
  */
-function getMostAwardedUsers($gameIDs)
+function getMostAwardedUsers(array $gameIDs): array
 {
     $retVal = [];
     $query = "SELECT ua.User,
@@ -1754,16 +1614,14 @@ function getMostAwardedUsers($gameIDs)
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 
-/*
+/**
  * Gets completed and mastered counts for all the passed in games.
- *
- * @param Array $gameIDs game ID to check awards for
- * @return Array|NULL of game data
  */
-function getMostAwardedGames($gameIDs)
+function getMostAwardedGames(array $gameIDs): array
 {
     $retVal = [];
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
@@ -1784,7 +1642,17 @@ function getMostAwardedGames($gameIDs)
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
+}
+
+function getDeleteDate($deleteRequested): string
+{
+    if (empty($deleteRequested)) {
+        return '';
+    }
+
+    return date('Y-m-d', strtotime($deleteRequested) + 60 * 60 * 24 * 14);
 }
 
 function cancelDeleteRequest($username): bool
@@ -1793,6 +1661,13 @@ function cancelDeleteRequest($username): bool
 
     $query = "UPDATE UserAccounts u SET u.DeleteRequested = NULL WHERE u.User = '$username'";
     $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false) {
+        addArticleComment('Server', ArticleType::UserModeration, $user['ID'],
+            $username . ' canceled account deletion'
+        );
+    }
+
     return $dbResult !== false;
 }
 
@@ -1804,23 +1679,32 @@ function deleteRequest($username, $date = null): bool
         return false;
     }
 
-    // Cap permissions to 1
-    $permission = min($user['Permissions'], 1);
+    // Cap permissions
+    $permission = min($user['Permissions'], Permissions::Registered);
 
-    $date = $date ?? date('Y-m-d H:i:s');
+    $date ??= date('Y-m-d H:i:s');
     $query = "UPDATE UserAccounts u SET u.DeleteRequested = '$date', u.Permissions = $permission WHERE u.User = '$username'";
     $dbResult = s_mysql_query($query);
+
+    if ($dbResult !== false) {
+        addArticleComment('Server', ArticleType::UserModeration, $user['ID'],
+            $username . ' requested account deletion'
+        );
+
+        SendDeleteRequestEmail($username, $user['EmailAddress'], $date);
+    }
+
     return $dbResult !== false;
 }
 
-function deleteOverdueUserAccounts()
+function deleteOverdueUserAccounts(): void
 {
     $threshold = date('Y-m-d 08:00:00', time() - 60 * 60 * 24 * 14);
 
     $query = "SELECT * FROM UserAccounts u WHERE u.DeleteRequested <= '$threshold' AND u.Deleted IS NULL ORDER BY u.DeleteRequested";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
+    if (!$dbResult) {
         return;
     }
 
@@ -1829,7 +1713,7 @@ function deleteOverdueUserAccounts()
     }
 }
 
-function clearAccountData($user)
+function clearAccountData($user): void
 {
     global $db;
 
@@ -1840,39 +1724,40 @@ function clearAccountData($user)
 
     if (empty($userId) || empty($username)) {
         echo "FAIL" . PHP_EOL;
+
         return;
     }
 
     $dbResult = s_mysql_query("DELETE FROM Activity WHERE User = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db);
     }
     $dbResult = s_mysql_query("DELETE FROM Awarded WHERE User = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
     $dbResult = s_mysql_query("DELETE FROM EmailConfirmations WHERE User = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
     $dbResult = s_mysql_query("DELETE FROM Friends WHERE User = '$username' OR Friend = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
     $dbResult = s_mysql_query("DELETE FROM Rating WHERE User = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
     $dbResult = s_mysql_query("DELETE FROM SetRequest WHERE User = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
     $dbResult = s_mysql_query("DELETE FROM SiteAwards WHERE User = '$username'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
     $dbResult = s_mysql_query("DELETE FROM Subscription WHERE UserID = '$userId'");
-    if ($dbResult == false) {
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
 
@@ -1905,8 +1790,9 @@ function clearAccountData($user)
         u.RichPresenceMsgDate = null,
         u.PasswordResetToken = null,
         u.Deleted = NOW()
-        WHERE ID = '$userId'");
-    if ($dbResult == false) {
+        WHERE ID = '$userId'"
+    );
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
 
@@ -1917,9 +1803,8 @@ function clearAccountData($user)
 
 /**
  * APIKey doesn't have to be reset -> permission >= Registered
- * @param mixed $permissions
  */
-function banAccountByUsername(string $username, $permissions)
+function banAccountByUsername(string $username, $permissions): void
 {
     global $db;
 
@@ -1927,6 +1812,7 @@ function banAccountByUsername(string $username, $permissions)
 
     if (empty($username)) {
         echo "FAIL" . PHP_EOL;
+
         return;
     }
 
@@ -1946,8 +1832,9 @@ function banAccountByUsername(string $username, $permissions)
         u.RichPresenceMsg = null, 
         u.RichPresenceMsgDate = null, 
         u.PasswordResetToken = '' 
-        WHERE u.User='$username'");
-    if ($dbResult == false) {
+        WHERE u.User='$username'"
+    );
+    if (!$dbResult) {
         echo mysqli_error($db) . PHP_EOL;
     }
 

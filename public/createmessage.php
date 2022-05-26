@@ -1,21 +1,13 @@
 <?php
 
+use RA\Permissions;
 use RA\Shortcode\Shortcode;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-$user = RA_ReadCookie('RA_User');
-$cookieRaw = RA_ReadCookie('RA_Cookie');
-
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
-    if (getAccountDetails($user, $userDetails) == false) {
-        //	Immediate redirect if we cannot validate user!
-        header("Location: " . getenv('APP_URL') . "?e=accountissue");
-        exit;
-    }
-} else {
-    //	Immediate redirect if we cannot validate cookie!
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    // Immediate redirect if we cannot validate cookie!
     header("Location: " . getenv('APP_URL') . "?e=notloggedin");
     exit;
 }
@@ -32,7 +24,9 @@ $messageContextData = null;
 if ($messageContextID != -1) {
     $messageContextData = GetMessage($user, $messageContextID);
     $messageContextTitle = "RE: " . $messageContextData['Title'];
-    $messageContextPayload = Shortcode::render($messageContextData['Payload']);
+    $messageContextPayload = $messageContextData['Payload'];
+    sanitize_outputs($messageContextPayload);
+    $messageContextPayload = Shortcode::render($messageContextPayload);
 }
 
 $errorCode = requestInputSanitized('e');
@@ -54,7 +48,7 @@ RenderHtmlHead("Send Message");
       });
     });
 
-    //	Focus on the first relevant field
+    // Focus on the first relevant field
     if ($('#messagedest').val().length == 0)
       $('#messagedest').focus();
     else
@@ -69,8 +63,7 @@ RenderHtmlHead("Send Message");
 
   $(document).ready(onUserChange);
 </script>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <div id="mainpage">
     <div id='fullcontainer'>
@@ -95,8 +88,6 @@ RenderHtmlHead("Send Message");
             echo "<tbody>";
 
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
-            echo "<input type='hidden' value='$user' name='u'>";
-            echo "<input type='hidden' value='$cookieRaw' name='c'>";
             $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";

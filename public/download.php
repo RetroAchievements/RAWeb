@@ -1,11 +1,12 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $emulators = getActiveEmulatorReleases();
 $consoles = getConsoleList();
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $errorCode = requestInputSanitized('e');
 $staticData = getStaticData();
@@ -14,8 +15,7 @@ RenderHtmlStart();
 RenderHtmlHead("Download a client");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
 

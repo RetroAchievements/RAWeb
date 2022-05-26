@@ -1,22 +1,21 @@
 <?php
 
+use RA\ModifyTopicField;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-use RA\ModifyTopicField;
-
 if (!ValidatePOSTChars("tfv")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $topicID = requestInputPost('t');
 $field = requestInputPost('f');
 $value = requestInputPost('v');
 
-// error_log("requestModifyTopic, " . $field . ", " . "$value");
-
-if (validateFromCookie($user, $unused, $permissions, \RA\Permissions::Registered)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     if (requestModifyTopic($user, $permissions, $topicID, $field, $value)) {
         if ($field == ModifyTopicField::DeleteTopic) {
             header("location: " . getenv('APP_URL') . "/forum.php?e=delete_ok");

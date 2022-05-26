@@ -1,4 +1,7 @@
 <?php
+
+use RA\AchievementType;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -6,7 +9,7 @@ $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('z', 0, 'integer');
 $mobileBrowser = IsMobileBrowser();
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
@@ -18,17 +21,10 @@ $dev = requestInputSanitized('d');
 if ($user == null) {
     $params = 3;
 }
-
-$flags = null;
-switch ($params) {
-    case 5:
-        $flags = 5;
-        break;
-    case 3:
-    default:
-        $flags = 3;
-        break;
-}
+$flags = match ($params) {
+    5 => 5,
+    default => 3,
+};
 
 $dev_param = null;
 if ($dev != null) {
@@ -48,15 +44,14 @@ RenderHtmlStart();
 RenderHtmlHead("Achievement List" . $requestedConsole);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
         echo "<div class='navpath'>";
         if ($requestedConsole == "") {
             echo "<b>Achievement List</b>";
-        } //    NB. This will be a stub page
+        } // NB. This will be a stub page
         echo "</div>";
 
         echo "<div class='detaillist'>";
@@ -70,15 +65,15 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<div class='d-flex flex-wrap justify-content-between'>";
         echo "<div>";
 
-        echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
+        echo $params !== AchievementType::OFFICIAL_CORE ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::OFFICIAL_CORE . "$dev_param'>" : "<b>";
         echo "Achievements in Core Sets";
-        echo $params !== 3 ? "</a>" : "</b>";
+        echo $params !== AchievementType::OFFICIAL_CORE ? "</a>" : "</b>";
         echo "<br>";
 
         if ($user !== null) {
-            echo $params !== 5 ? "<a href='/achievementList.php?s=$sortBy&p=5$dev_param'>" : "<b>";
+            echo $params !== AchievementType::UNOFFICIAL ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::UNOFFICIAL . "$dev_param'>" : "<b>";
             echo "Achievements in Unofficial Sets";
-            echo $params !== 5 ? "</a>" : "</b>";
+            echo $params !== AchievementType::UNOFFICIAL ? "</a>" : "</b>";
             echo "<br>";
 
             echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";
@@ -153,7 +148,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         }
 
         foreach ($achData as $achEntry) {
-            //$query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
+            // $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
 
             $achID = $achEntry['ID'];
             $achTitle = $achEntry['AchievementTitle'];
@@ -225,7 +220,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
             echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param'>&lt; Previous $maxCount</a> - ";
         }
         if ($achCount == $maxCount) {
-            //    Max number fetched, i.e. there are more. Can goto next 25.
+            // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/achievementList.php?s=$sortBy&o=$nextOffset&p=$params$dev_param'>Next $maxCount &gt;</a>";
         }

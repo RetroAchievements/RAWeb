@@ -3,13 +3,11 @@
 /**
  * Update a subscription, i.e, either subscribe or unsubscribe a given user to or from a subject.
  *
- * @param string $subjectType subject type
- * @param int $subjectID subject id
- * @param int $userID user id
  * @param bool $state whether the user is to be subscribed (true) or unsubscribed (false)
  * @return bool whether the update was successful
+ * @throws Exception
  */
-function updateSubscription($subjectType, $subjectID, $userID, $state)
+function updateSubscription(string $subjectType, int $subjectID, int $userID, bool $state): bool
 {
     sanitize_sql_inputs($subjectType, $subjectID, $userID, $state);
     settype($state, 'integer');
@@ -22,8 +20,7 @@ function updateSubscription($subjectType, $subjectID, $userID, $state)
     ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        // error_log(__FUNCTION__ . ": " . mysqli_error($db));
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -34,14 +31,12 @@ function updateSubscription($subjectType, $subjectID, $userID, $state)
 /**
  * Checks whether a given user is subscribed to a subject, whether implicitly or explicitly.
  *
- * @param string $subjectType subject type
- * @param int $subjectID subject id
- * @param int $userID user id
- * @param string $implicitSubscriptionQry optional sql query capable of identifying the existence of an implicit
+ * @param string|null $implicitSubscriptionQry optional sql query capable of identifying the existence of an implicit
  *                                         subscription to the subject (must be usable inside an EXISTS clause)
  * @return bool whether the user is subscribed to the subject
+ * @throws Exception
  */
-function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscriptionQry = null)
+function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, string $implicitSubscriptionQry = null): bool
 {
     if (!$userID) {
         return false;
@@ -92,8 +87,7 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
     }
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        // error_log(__FUNCTION__ . ": " . mysqli_error($db));
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -106,14 +100,13 @@ function isUserSubscribedTo($subjectType, $subjectID, $userID, $implicitSubscrip
 /**
  * Retrieves the list of users that are subscribed to a given subject either implicitly or explicitly.
  *
- * @param string $subjectType subject type
- * @param int $subjectID subject id
  * @param ?int $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
  * @param ?string $implicitSubscriptionQry sql query that returns the set of users that are implicitly subscribed to
  *                                        the subject (must return whole UserAccounts rows)
  * @return array of subscribers, each as an assoc array with "User" and "Email Address" keys
+ * @throws Exception
  */
-function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $implicitSubscriptionQry = null)
+function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePrefs = null, string $implicitSubscriptionQry = null): array
 {
     sanitize_sql_inputs($subjectType, $subjectID, $reqWebsitePrefs);
 
@@ -161,7 +154,7 @@ function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $im
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult === false) {
+    if (!$dbResult) {
         log_sql_fail();
         return [];
     }
@@ -171,12 +164,8 @@ function getSubscribersOf($subjectType, $subjectID, $reqWebsitePrefs = null, $im
 
 /**
  * Merges two lists of subscribers as returned by `getSubscribersOf`.
- *
- * @param array $subscribersA
- * @param array $subscribersB
- * @return array
  */
-function mergeSubscribers($subscribersA, $subscribersB)
+function mergeSubscribers(array $subscribersA, array $subscribersB): array
 {
     // not efficient, but we'll never be dealing with *very* large lists here...
 

@@ -1,6 +1,6 @@
 <?php
 
-function GetLatestNewsData($offset, $count)
+function GetLatestNewsData($offset, $count): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -21,18 +21,13 @@ function GetLatestNewsData($offset, $count)
     return $retVal;
 }
 
-/**
- * @param mixed $offset
- * @param mixed $numItems
- * @param mixed $dataOut
- */
-function getLatestNewsHeaders($offset, $numItems, &$dataOut)
+function getLatestNewsHeaders($offset, $numItems, &$dataOut): int
 {
     $dataOut = GetLatestNewsData($offset, $numItems);
     return count($dataOut);
 }
 
-function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
+function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL): int
 {
     sanitize_sql_inputs($payload, $link, $imageURL, $title);
 
@@ -40,29 +35,20 @@ function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
 
     if (isset($id) && $id != 0) {
         $query = "UPDATE News SET Title='$title', Payload='$payload', Link='$link', Image='$imageURL' WHERE ID='$id'";
-        // log_sql($query);
         $dbResult = mysqli_query($db, $query);
 
-        if ($dbResult !== false) {
-            // log_sql_fail();
-            // error_log(__FUNCTION__ . " updated by $author! $id, $title, $payload");
-        } else {
+        if (!$dbResult) {
             log_sql_fail();
-            // error_log(__FUNCTION__ . " failed! $id, $title, $payload");
         }
     } else {
         $query = "INSERT INTO News (Timestamp, Title, Payload, Author, Link, Image) 
                     VALUES (NOW(), '$title', '$payload', '$author', '$link', '$imageURL')";
-        // log_sql($query);
         $dbResult = mysqli_query($db, $query);
 
         if ($dbResult !== false) {
-            // log_sql_fail();
-            // error_log(__FUNCTION__ . " created by $author! $title, $payload");
             $id = mysqli_insert_id($db);
         } else {
             log_sql_fail();
-            // error_log(__FUNCTION__ . " failed2! $title, $payload");
         }
     }
 

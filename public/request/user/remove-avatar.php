@@ -1,9 +1,9 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-use RA\Permissions;
 
 if (!ValidatePOSTChars("u")) {
     echo "FAILED";
@@ -12,8 +12,9 @@ if (!ValidatePOSTChars("u")) {
 
 $user = requestInputPost('u');
 
-if (validateUser_cookie($actingUser, null, Permissions::Unregistered)) {
-    if ($user !== $actingUser && !validateUser_cookie($actingUser, null, Permissions::Admin)) {
+if (authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
+    if ($user !== $actingUser && $permissions < Permissions::Admin) {
+        header("Location: " . getenv('APP_URL') . "/user/" . $user);
         return false;
     }
     removeAvatar($user);

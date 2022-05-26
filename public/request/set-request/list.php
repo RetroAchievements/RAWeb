@@ -10,4 +10,4 @@ $setRequestList = getUserRequestList($user);
 $totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
 $totalRequests['gameRequests'] = getSetRequestCount($gameID);
 
-echo json_encode($totalRequests);
+echo json_encode($totalRequests, JSON_THROW_ON_ERROR);

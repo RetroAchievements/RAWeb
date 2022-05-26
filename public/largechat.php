@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\Permissions;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $errorCode = requestInputSanitized('e');
 $vidID = requestInputSanitized('v', 0, 'integer');
@@ -14,8 +15,7 @@ RenderHtmlStart();
 RenderHtmlHead("RA Cinema");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   var archiveURLs = [];
   var archiveTitles = [];
@@ -27,11 +27,11 @@ RenderHtmlHead("RA Cinema");
   $dbResult = s_mysql_query($query);
 
   while ($nextData = mysqli_fetch_assoc($dbResult)) {
-      //$archiveURLs[ $nextData['ID'] ] = $nextData;
+      // $archiveURLs[ $nextData['ID'] ] = $nextData;
       $nextID = $nextData['ID'];
       $nextURL = $nextData['Link'];
       $nextTitle = htmlspecialchars($nextData['Title']);
-      echo "archiveURLs[ $nextID ] = \"$nextURL\";";    //	Push this to JS
+      echo "archiveURLs[ $nextID ] = \"$nextURL\";";    // Push this to JS
       echo "archiveTitles[ $nextID ] = \"$nextTitle\";";
   }
   ?>
@@ -47,20 +47,14 @@ RenderHtmlHead("RA Cinema");
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }
 
-  function onPostComplete(data) {
-    alert(data);
-    if (data !== 'OK') {
-      //$("body").find( "#warning" ).html( "Status: Errors..." );
-    } else {
-      //$("body").find( "#warning" ).html( "Status: Loading..." );
-      window.location.reload();
-    }
+  function onPostComplete() {
+    window.location.reload();
   }
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
-        //	left
+        // left
         RenderTwitchTVStream(600, 500, 'left', $vidID);
 
         if ($mobileSetting == 1) {
@@ -70,7 +64,7 @@ RenderHtmlHead("RA Cinema");
         if ($permissions >= Permissions::Developer) {
             echo "<div>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Extra (click to show):</span>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             $vidTitle = "";
             $vidLink = "";

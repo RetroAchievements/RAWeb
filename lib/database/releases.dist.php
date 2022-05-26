@@ -42,7 +42,9 @@ return [
                 28, // Virtual Boy (Cores: Beetle VB)
                 29, // MSX
                 33, // SG-1000
+                37, // Amstrad CPC
                 39, // Saturn
+                40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
@@ -50,6 +52,8 @@ return [
                 51, // Atari 7800
                 53, // WonderSwan
                 63, // Watara Supervision
+                71, // Arduboy
+                72, // WASM-4
             ],
             'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
 Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
@@ -89,7 +93,9 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 28, // Virtual Boy (Cores: Beetle VB)
                 29, // MSX
                 33, // SG-1000
+                37, // Amstrad CPC (Core: Cap32)
                 39, // Saturn
+                40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
@@ -98,6 +104,8 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 51, // Atari 7800
                 53, // WonderSwan
                 63, // Watara Supervision
+                71, // Arduboy
+                72, // WASM-4
             ],
         ],
         Emulators::RAppleWin => [

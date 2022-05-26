@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
@@ -17,9 +19,9 @@ $removeGameAlt = requestInputPost('m');
 
 $newForumTopic = requestInputPost('f', null, 'integer');
 
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::JuniorDeveloper)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     // Only allow jr. devs if they are the sole author of the set
-    if ($permissions == \RA\Permissions::JuniorDeveloper) {
+    if ($permissions == Permissions::JuniorDeveloper) {
         if (!checkIfSoleDeveloper($user, $gameID)) {
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
             exit;
@@ -32,9 +34,14 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
         exit;
     } else {
         if (isset($newGameAlt) || isset($removeGameAlt)) {
-            //	new alt provided/alt to be removed
-            // error_log("Provided $newGameAlt and $removeGameAlt to submitgamedata");
-            requestModifyGameAlt($gameID, $newGameAlt, $removeGameAlt);
+            // new alt provided/alt to be removed
+            if (is_array($removeGameAlt)) {
+                foreach ($removeGameAlt as &$gameAlt) {
+                    requestModifyGameAlt($gameID, $newGameAlt, $gameAlt);
+                }
+            } else {
+                requestModifyGameAlt($gameID, $newGameAlt, $removeGameAlt);
+            }
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
             exit;
         } else {
@@ -52,7 +59,7 @@ if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $
                         exit;
                     }
                 } else {
-                    //	unknown?
+                    // unknown?
                     header("location: " . getenv('APP_URL') . "/game/$gameID?e=unrecognised");
                     exit;
                 }

@@ -4,8 +4,9 @@ use RA\ActivityType;
 use RA\ArticleType;
 use RA\ObjectType;
 use RA\Permissions;
+use RA\SubscriptionSubjectType;
 
-function getMostRecentActivity($user, $type, $data)
+function getMostRecentActivity($user, $type, $data): ?array
 {
     sanitize_sql_inputs($user, $type, $data);
 
@@ -21,36 +22,32 @@ function getMostRecentActivity($user, $type, $data)
               WHERE act.ID =
                 ( SELECT MAX(Activity.ID) FROM Activity WHERE $innerClause ) ";
 
-    //error_log( __FUNCTION__ . ">" . $query );
-
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed! $user, $type, $data");
-        return false;
+        return null;
     }
 
     return mysqli_fetch_assoc($dbResult);
 }
 
-function updateActivity($activityID)
+function updateActivity($activityID): void
 {
     sanitize_sql_inputs($activityID);
 
-    //    Update the last update value of given activity
+    // Update the last update value of given activity
     $query = "UPDATE Activity
               SET Activity.lastupdate = NOW()
               WHERE Activity.ID = $activityID ";
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed! $activityID");
     }
 }
 
-function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
+function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore): bool
 {
     sanitize_sql_inputs($user, $gameID, $isHardcore);
     settype($isHardcore, 'integer');
@@ -62,11 +59,10 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 
     $dbResult = s_mysql_query($query);
 
-    SQL_ASSERT($dbResult);
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function postActivity($userIn, $activity, $customMsg, $isalt = null)
+function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
 {
     global $db;
 
@@ -179,7 +175,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
             break;
 
         case ActivityType::CompleteGame:
-            //    Completed a game!
+            // Completed a game!
             $gameID = $customMsg;
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
 
@@ -209,33 +205,35 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
 
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
-
-        default:
         case ActivityType::Unknown:
+        default:
             error_log(__FUNCTION__ . " received unknown activity: $activity");
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
             break;
     }
 
     $dbResult = mysqli_query($db, $query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-    } else {
-        /**
-         * Update UserAccount
-         */
-        $newActID = mysqli_insert_id($db);
-        $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult == false) {
-            log_sql_fail();
-        }
+        return false;
     }
 
-    return $dbResult !== false;
+    /**
+     * Update UserAccount
+     */
+    $newActID = mysqli_insert_id($db);
+    $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
+    $dbResult = s_mysql_query($query);
+
+    if (!$dbResult) {
+        log_sql_fail();
+        return false;
+    }
+
+    return true;
 }
 
-function userActivityPing($user)
+function userActivityPing($user): bool
 {
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
@@ -247,7 +245,7 @@ function userActivityPing($user)
               WHERE ua.User = '$user' ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -255,7 +253,7 @@ function userActivityPing($user)
     return true;
 }
 
-function UpdateUserRichPresence($user, $gameID, $presenceMsg)
+function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
 {
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
@@ -269,7 +267,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 
     global $db;
     $dbResult = mysqli_query($db, $query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -277,7 +275,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     return true;
 }
 
-function getActivityMetadata($activityID)
+function getActivityMetadata($activityID): ?array
 {
     sanitize_sql_inputs($activityID);
 
@@ -288,7 +286,7 @@ function getActivityMetadata($activityID)
     return mysqli_fetch_assoc($dbResult);
 }
 
-function RemoveComment($articleID, $commentID, $userID, $permissions)
+function RemoveComment($articleID, $commentID, $userID, $permissions): bool
 {
     settype($articleID, 'integer');
     settype($commentID, 'integer');
@@ -299,16 +297,14 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
               WHERE ArticleID = $articleID AND ID = $commentID";
 
     // if not UserWall's owner nor admin, check if it's the author
-    if ($articleID != $userID && $permissions < \RA\Permissions::Admin) {
+    if ($articleID != $userID && $permissions < Permissions::Admin) {
         $query .= " AND UserID = $userID";
     }
-
-    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     } else {
@@ -317,25 +313,23 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
     }
 }
 
-function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
+function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null): bool
 {
-    if (!\RA\ArticleType::isValid($articleType)) {
+    if (!ArticleType::isValid($articleType)) {
         return false;
     }
 
     sanitize_sql_inputs($activityID, $commentPayload);
 
-    //    Note: $user is the person who just made a comment.
+    // Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
     if ($userID == 0) {
-        // error_log(__FUNCTION__ . "error3: $user, $articleType, $articleID, $commentPayload");
         return false;
     }
 
-    //error_log( __FUNCTION__ . $commentPayload );
-    //    Replace all single quotes with double quotes (to work with MYSQL DB)
-    //$commentPayload = str_replace( "'", "''", $commentPayload );
+    // Replace all single quotes with double quotes (to work with MYSQL DB)
+    // $commentPayload = str_replace( "'", "''", $commentPayload );
 
     if (is_array($articleID)) {
         $arrayCount = count($articleID);
@@ -350,17 +344,16 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     } else {
         $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
     }
-    // log_sql($query);
 
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
 
-    //    Inform Subscribers of this comment:
+    // Inform Subscribers of this comment:
     if (is_array($articleID)) {
         foreach ($articleID as $id) {
             informAllSubscribersAboutActivity($articleType, $id, $user, $onBehalfOfUser);
@@ -372,7 +365,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     return true;
 }
 
-function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor, $onBehalfOfUser)
+function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor, $onBehalfOfUser): void
 {
     $subscribers = [];
     $subjectAuthor = null;
@@ -437,39 +430,39 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
     }
 }
 
-function getSubscribersOfGameWall($gameID)
+function getSubscribersOfGameWall($gameID): array
 {
     return getSubscribersOfArticle(1, $gameID, (1 << 1));
 }
 
-function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor)
+function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor): array
 {
     // users directly subscribed to the achievement
     $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
 
     // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /*(1 << 1)*/);
+    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /* (1 << 1) */);
 
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
 
-function getSubscribersOfUserWall($userID, $userName)
+function getSubscribersOfUserWall($userID, $userName): array
 {
     return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
 }
 
-function getSubscribersOfFeedActivity($activityID, $author)
+function getSubscribersOfFeedActivity($activityID, $author): array
 {
     return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
 }
 
-function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
+function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
 {
     // users directly subscribed to the ticket
     $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
 
     // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(\RA\SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /*(1 << 1)*/);
+    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
 
     return mergeSubscribers($ticketSubs, $gameTicketsSubs);
 }
@@ -480,7 +473,7 @@ function getSubscribersOfArticle(
     $reqWebsitePrefs,
     $subjectAuthor = null,
     $noExplicitSubscriptions = false
-) {
+): array {
     $websitePrefsFilter = ($noExplicitSubscriptions !== true
         ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
 
@@ -504,7 +497,7 @@ function getSubscribersOfArticle(
 
     if ($noExplicitSubscriptions) {
         $dbResult = s_mysql_query($qry);
-        if ($dbResult === false) {
+        if (!$dbResult) {
             log_sql_fail();
             return [];
         }
@@ -512,7 +505,7 @@ function getSubscribersOfArticle(
         return mysqli_fetch_all($dbResult, MYSQLI_ASSOC);
     }
 
-    $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
+    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
     if ($subjectType === null) {
         return [];
     }
@@ -525,19 +518,19 @@ function getSubscribersOfArticle(
     );
 }
 
-function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global')
+function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global'): int
 {
     sanitize_sql_inputs($user, $maxMessages, $offset, $latestFeedID);
     settype($maxMessages, "integer");
     settype($offset, "integer");
 
-    if ($type == 'activity') {      //    Find just this activity, ONLY!
+    if ($type == 'activity') { // Find just this activity, ONLY!
         $subquery = "act.ID = $latestFeedID ";
-    } elseif ($type == 'friends') {     //    User has been provided: find my friends!
+    } elseif ($type == 'friends') { // User has been provided: find my friends!
         $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' OR act.user IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$user' AND f.Friendship = 1 ) )";
-    } elseif ($type == 'individual') {    //    User and 'individual', just this user's feed!
+    } elseif ($type == 'individual') { // User and 'individual', just this user's feed!
         $subquery = "act.ID > $latestFeedID AND ( act.user = '$user' )";
-    } else { //if( $type == 'global' )                    //    Otherwise, global feed
+    } else { // Otherwise, global feed
         $subquery = "act.ID > $latestFeedID ";
     }
 
@@ -573,8 +566,6 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     // do not add anything user (ua) related to the WHERE clause or it will re-evaluate all entries again
     // filter the results instead
 
-    //error_log( $query );
-
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $dataOut = [];
@@ -582,19 +573,20 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
         $i = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$i] = $db_entry;
+            $dataOut[$i]['timestamp'] = strtotime($dataOut[$i]['timestamp']);
+            $dataOut[$i]['CommentPostedAt'] = strtotime($dataOut[$i]['CommentPostedAt']);
             $i++;
         }
 
         return $i;
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " Failed! user=$user");
     }
 
     return 0;
 }
 
-function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
+function getRecentlyPlayedGames($user, $offset, $count, &$dataOut): int
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -606,12 +598,12 @@ function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
     // GROUP BY g.ID
     // ORDER BY MAX(act.lastupdate) DESC
     // LIMIT $offset, $count ";
-    //    19:30 02/02/2014 rewritten without MAX() and using an inner query. ~300% faster but I don't know why... :(
-    //    02:51 03/02/2014 re-rewritten with MAX()
-    //    01:38 15/02/2014 re-readded 'AND act.activitytype = 3' to inner query. act.data is not necessarily a game, therefore we need this '3' part.
-    //    22:56 18/02/2014 re-re-readded 'MAX() to inner.
-    //    08:05 01/10/2014 removed outer activitytype=3, added rating
-    //{$ObjectType::Game}
+    // 19:30 02/02/2014 rewritten without MAX() and using an inner query. ~300% faster but I don't know why... :(
+    // 02:51 03/02/2014 re-rewritten with MAX()
+    // 01:38 15/02/2014 re-readded 'AND act.activitytype = 3' to inner query. act.data is not necessarily a game, therefore we need this '3' part.
+    // 22:56 18/02/2014 re-re-readded 'MAX() to inner.
+    // 08:05 01/10/2014 removed outer activitytype=3, added rating
+    // {$ObjectType::Game}
 
     $query = "
 SELECT Inner1.data AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon, Inner1.lastupdate AS LastPlayed, r.RatingValue AS MyVote
@@ -635,29 +627,19 @@ LIMIT $offset, $count";
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             $dataOut[$numFound] = $data;
-            //$dataOut[$data['GameID']] = $data;
+            // $dataOut[$data['GameID']] = $data;
             $numFound++;
         }
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " had issues... $user, $offset, $count");
     }
 
     return $numFound;
 }
 
-function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut)
+function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut): int
 {
     sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
-
-    //    $articleTypeID
-    //    1 = Game
-    //    2 = Achievement
-    //    3 = User
-    //    4 = News (unused)
-    //    5 = feed Activity
-    //    6 = LB
-    //    7 = Ticket
 
     $dataOut = [];
 
@@ -670,7 +652,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
             SELECT c.ID, c.UserID, c.Payload, c.Submitted, c.Edited
             FROM Comment AS c
             WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID
-            ORDER BY c.Submitted DESC
+            ORDER BY c.Submitted DESC, c.ID DESC
             LIMIT $offset, $count
         ) AS LatestComments
         LEFT JOIN UserAccounts AS ua ON ua.ID = LatestComments.UserID";
@@ -682,21 +664,20 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
             $numArticleComments++;
         }
     } else {
-        // error_log(__FUNCTION__ . " failed, $articleTypeID, $articleID, $offset, $count ");
         log_sql_fail();
     }
 
-    //    Fetch the last elements by submitted, but return them here in top-down order.
+    // Fetch the last elements by submitted, but return them here in top-down order.
     $dataOut = array_reverse($dataOut);
 
     return $numArticleComments;
 }
 
-function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
+function isUserSubscribedToArticleComments($articleType, $articleID, $userID): bool
 {
     sanitize_sql_inputs($articleType, $articleID, $userID);
 
-    $subjectType = \RA\SubscriptionSubjectType::fromArticleType($articleType);
+    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
 
     if ($subjectType === null) {
         return false;
@@ -719,13 +700,13 @@ function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
     );
 }
 
-function getCurrentlyOnlinePlayers()
+function getCurrentlyOnlinePlayers(): array
 {
     $recentMinutes = 10;
 
     $playersFound = [];
 
-    //    Select all users active in the last 10 minutes:
+    // Select all users active in the last 10 minutes:
     $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity, act.data as GameID
               FROM UserAccounts AS ua
               LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
@@ -741,13 +722,12 @@ function getCurrentlyOnlinePlayers()
         }
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed3");
     }
 
     return $playersFound;
 }
 
-function getLatestRichPresenceUpdates()
+function getLatestRichPresenceUpdates(): array
 {
     $playersFound = [];
 
@@ -772,13 +752,12 @@ function getLatestRichPresenceUpdates()
         }
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed3: user:$user gameID:$gameID");
     }
 
     return $playersFound;
 }
 
-function getLatestNewAchievements($numToFetch, &$dataOut)
+function getLatestNewAchievements($numToFetch, &$dataOut): int
 {
     sanitize_sql_inputs($numToFetch);
 
@@ -800,13 +779,12 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
         }
     } else {
         log_sql_fail();
-        // error_log(__FUNCTION__ . " failed: $numToFetch");
     }
 
     return $numFound;
 }
 
-function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
+function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): array
 {
     sanitize_sql_inputs($daysRange, $offset, $count);
 

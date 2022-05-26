@@ -1,8 +1,9 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
@@ -36,17 +37,11 @@ switch ($type) {
         break;
 }
 
-switch ($friends) {
-    case 0: // Global
-        $lbUsers = "Global";
-        break;
-    case 1: // Friends
-        $lbUsers = "Friends";
-        break;
-    default:
-        $lbUsers = "";
-        break;
-}
+$lbUsers = match ($friends) {
+    0 => "Global",
+    1 => "Friends",
+    default => "",
+};
 
 if ($friends == 1) {
     // We do a maxCount + 1 so that if we get maxCount + 1 rows returned we know
@@ -61,8 +56,7 @@ RenderHtmlHead($lbUsers . " Ranking - " . $lbType);
 ?>
 <body>
 <?php
-RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-RenderToolbar($user, $permissions);
+RenderHeader($userDetails);
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>

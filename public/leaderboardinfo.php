@@ -1,11 +1,12 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\Permissions;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
@@ -18,7 +19,7 @@ $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
-$numEntries = count($lbData['Entries']);
+$numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 
 $lbTitle = $lbData['LBTitle'];
 $lbDescription = $lbData['LBDesc'];
@@ -39,10 +40,9 @@ $consoleName = $lbData['ConsoleName'];
 $forumTopicID = $lbData['ForumTopicID'];
 
 $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
-getCookie($user, $cookie);
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
-$numArticleComments = getArticleComments(6, $lbID, 0, 20, $commentData);
+$numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20, $commentData);
 
 $errorCode = requestInputSanitized('e');
 
@@ -58,11 +58,9 @@ RenderHtmlStart(true);
     "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
 ); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <div id="mainpage">
     <div id="leftcontainer">
@@ -105,7 +103,7 @@ RenderHtmlStart(true);
             if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
                 echo "<div class='devbox'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-                echo "<div id='devboxcontent'>";
+                echo "<div id='devboxcontent' style='display: none'>";
 
                 echo "<ul>";
                 echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
@@ -144,10 +142,10 @@ RenderHtmlStart(true);
                 echo "</div>";
             }
 
-            //    Not implemented
-            //if( $friendsOnly )
+            // Not implemented
+            // if( $friendsOnly )
             //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br><br>";
-            //else
+            // else
             //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
 
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
@@ -160,11 +158,9 @@ RenderHtmlStart(true);
             $resultsDrawn = 0;
             $nextRank = 1;
 
-            //for( $i = 0; $i < $numEntries; $i++ )
-            //var_dump( $lbData );
+            // for( $i = 0; $i < $numEntries; $i++ )
             foreach ($lbData['Entries'] as $nextEntry) {
-                //$nextEntry = $lbData[$i];
-                //var_dump( $nextEntry );
+                // $nextEntry = $lbData[$i];
 
                 $nextUser = $nextEntry['User'];
                 $nextScore = $nextEntry['Score'];
@@ -177,11 +173,11 @@ RenderHtmlStart(true);
                 $lastEntry = ($resultsDrawn + 1 == $numEntries);
                 $userAppendedInResults = ($numEntries > $count);
 
-                //echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
+                // echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
                 if ($lastEntry && $isLocal && $userAppendedInResults) {
-                    //    This is the local, outside-rank user at the end of the table
-                    echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; //    Dirty!
+                    // This is the local, outside-rank user at the end of the table
+                    echo "<tr class='last'><td colspan='4' class='small'>&nbsp;</td></tr>"; // Dirty!
                 } else {
                     $numActualEntries++;
                 }
@@ -224,16 +220,16 @@ RenderHtmlStart(true);
                 echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a></span> - ";
             }
 
-            //echo "$numActualEntries";
+            // echo "$numActualEntries";
 
             if ($numActualEntries == $count) {
-                //    Max number fetched, i.e. there are more. Can goto next 20.
+                // Max number fetched, i.e. there are more. Can goto next 20.
                 $nextOffset = $offset + $count;
                 echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a></span>";
             }
             echo "</div>";
 
-            //    Render article comments
+            // Render article comments
             RenderCommentsComponent(
                 $user,
                 $numArticleComments,
@@ -251,7 +247,7 @@ RenderHtmlStart(true);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderGameLeaderboardsComponent($gameID, $allGameLBData);
+        RenderGameLeaderboardsComponent($allGameLBData);
         ?>
     </div>
 

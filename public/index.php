@@ -1,19 +1,21 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $playersOnlineArray = [];
 
 if (file_exists("../storage/logs/playersonline.log")) {
     $playersOnlineCSV = file_get_contents("../storage/logs/playersonline.log");
 
-    $playersCSV = preg_split('/\n|\r\n?/', $playersOnlineCSV);
+    $playersCsv = preg_split('/\n|\r\n?/', $playersOnlineCSV);
+    $playersCsvCount = is_countable($playersCsv) ? count($playersCsv) : 0;
 
     for ($i = 0; $i < 48; $i++) {
-        if (isset($playersCSV[count($playersCSV) - ($i + 2)])) {
-            $playersOnlineArray[] = $playersCSV[count($playersCSV) - ($i + 2)];
+        if (isset($playersCsv[$playersCsvCount - ($i + 2)])) {
+            $playersOnlineArray[] = $playersCsv[count($playersCsv) - ($i + 2)];
         }
     }
 }
@@ -22,11 +24,6 @@ $errorCode = requestInputSanitized('e');
 $mobileBrowser = IsMobileBrowser();
 
 RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
-// if ($mobileBrowser) {
-//if( !RA_CookieExists( 'RAPrefs_CSS' ) )
-//	RA_SetCookie( 'RAPrefs_CSS', '/css/rac_mobile.css' );
-//LoadCSS( '/css/_mobile.css' );
-// }
 
 $mostPopularCount = requestInputSanitized('p', 10, 'integer');
 
@@ -35,8 +32,7 @@ RenderHtmlHead();
 ?>
 <body>
 <?php
-RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-RenderToolbar($user, $permissions);
+RenderHeader($userDetails);
 ?>
 <link type='text/css' rel='stylesheet' href='/rcarousel/widget/css/rcarousel.css'/>
 <link type='text/css' rel='stylesheet' href='/rcarousel/rcarousel-ra.css'/>
@@ -75,7 +71,7 @@ RenderToolbar($user, $permissions);
             $timestamp = strtotime("-$mins minutes", strtotime($now));
 
             $yr = date("Y", $timestamp);
-            $month = date("m", $timestamp) - 1; //	PHP-js datetime
+            $month = date("m", $timestamp) - 1; // PHP-js datetime
             $day = date("d", $timestamp);
             $hour = date("G", $timestamp);
             $min = date("i", $timestamp);
@@ -91,9 +87,7 @@ RenderToolbar($user, $permissions);
 
     var optionsTotalScore = {
       backgroundColor: 'transparent',
-      //title: 'Achievement Distribution',
-      titleTextStyle: { color: '#186DEE' }, //cc9900
-      //hAxis: {textStyle: {color: '#186DEE'}, gridlines:{count:24, color: '#334433'}, minorGridlines:{count:0}, format:'#', slantedTextAngle:90, maxAlternation:0 },
+      titleTextStyle: { color: '#186DEE' }, // cc9900
       hAxis: { textStyle: { color: '#186DEE' } },
       vAxis: { textStyle: { color: '#186DEE' }, viewWindow: { min: 0 }, format: '#' },
       legend: { position: 'none' },
@@ -115,7 +109,6 @@ RenderToolbar($user, $permissions);
 </script>
 
 <script>
-  //<![CDATA[
   $(function () {
     function generatePages() {
       var _total, i, _link;
@@ -154,7 +147,6 @@ RenderToolbar($user, $permissions);
     }
 
     function onPrev() {
-      //alert( "onPrev" );
     }
 
     $('#carousel').rcarousel(
@@ -184,16 +176,12 @@ RenderToolbar($user, $permissions);
       },
     ).click(
       function () {
-        //alert( "Handler for .click() called." );
-        //$( 'body' ).find( '.newstext' ).fadeTo( 0, 0 );
         $('.newstitle').css('opacity', 0.0).delay(500).fadeTo('slow', 1.0);
         $('.newstext').css('opacity', 0.0).delay(900).fadeTo('slow', 1.0);
         $('.newsauthor').css('opacity', 0.0).delay(1100).fadeTo('slow', 1.0);
-        // $('.wrapper').pixastic('desaturate')
       },
     );
   });
-  //]]>
 </script>
 <script src="vendor/jquery.githubRepoWidget.js"></script>
 <div id='mainpage'>
@@ -204,13 +192,11 @@ RenderToolbar($user, $permissions);
             RenderWelcomeComponent();
         }
         RenderNewsComponent();
-        //RenderFeedComponent( $user );
-        //RenderDemoVideosComponent();
         RenderRecentlyUploadedComponent(5);
         RenderActivePlayersComponent();
         RenderCurrentlyOnlineComponent();
         echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
-        RenderRecentForumPostsComponent(4);
+        RenderRecentForumPostsComponent($permissions, 4);
         ?>
     </div>
     <div id="rightcontainer" style="padding-top: 20px">
@@ -222,19 +208,7 @@ RenderToolbar($user, $permissions);
         echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'https://news.retroachievements.org/\' target="_blank" rel="noopener">📰 RANews</a></div>';
         RenderDocsComponent();
         RenderAOTWComponent($staticData['Event_AOTW_AchievementID'], $staticData['Event_AOTW_ForumID']);
-        //RenderTwitchTVStream();
-        if ($user !== null) {
-            // RenderScoreLeaderboardComponent($user, true);
-        }
-        //RenderMostPopularTitles( 7, 0, $mostPopularCount );
-        // RenderScoreLeaderboardComponent($user, false);
         RenderStaticDataComponent($staticData);
-        //RenderTwitterFeed();
-        //echo "<h3>Development Progress</h3>";
-        //echo "<div class='github-widget' data-repo='RetroAchievements/RASuite'></div>";
-        // if( $mobileBrowser ) {
-        //     RenderDemoVideosComponent();
-        // }
         ?>
     </div>
 </div>

@@ -1,21 +1,18 @@
 <?php
 
-function static_addnewachievement($id)
+function static_addnewachievement($id): void
 {
     sanitize_sql_inputs($id);
 
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumAchievements=sd.NumAchievements+1, sd.LastCreatedAchievementID='$id'";
-    // log_sql($query);
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //    ONLY if it goes wrong, report an error.
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function static_addnewgame($id)
+function static_addnewgame($id): void
 {
     sanitize_sql_inputs($id);
 
@@ -24,100 +21,81 @@ function static_addnewgame($id)
     $query .= "SET sd.NumGames = (SELECT COUNT(DISTINCT ach.GameID) ";
     $query .= "                   FROM GameData gd ";
     $query .= "                   INNER JOIN Achievements ach ON ach.GameID = gd.ID), sd.LastCreatedGameID = '$id'";
-    //$query = "UPDATE StaticData AS sd ";
-    //$query .= "SET sd.NumGames = sd.NumGames+1, sd.LastCreatedGameID = '$id'";
-    // log_sql($query);
+    // $query = "UPDATE StaticData AS sd ";
+    // $query .= "SET sd.NumGames = sd.NumGames+1, sd.LastCreatedGameID = '$id'";
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //    ONLY if it goes wrong, report an error.
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function static_addnewregistereduser($user)
+function static_addnewregistereduser($user): void
 {
     sanitize_sql_inputs($user);
 
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumRegisteredUsers = sd.NumRegisteredUsers+1, sd.LastRegisteredUser = '$user', sd.LastRegisteredUserAt = NOW()";
-    // log_sql($query);
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //    ONLY if it goes wrong, report an error.
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function static_setlastearnedachievement($id, $user, $points)
+function static_setlastearnedachievement($id, $user, $points): void
 {
     sanitize_sql_inputs($id, $user, $points);
 
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumAwarded = sd.NumAwarded+1, sd.LastAchievementEarnedID = '$id', sd.LastAchievementEarnedByUser = '$user', sd.LastAchievementEarnedAt = NOW(), sd.TotalPointsEarned=sd.TotalPointsEarned+$points";
-    // log_sql($query);
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //    ONLY if it goes wrong, report an error.
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function static_setlastupdatedgame($id)
+function static_setlastupdatedgame($id): void
 {
     sanitize_sql_inputs($id);
 
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.LastUpdatedGameID = '$id'";
-    // log_sql($query);
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //    ONLY if it goes wrong, report an error.
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function static_setlastupdatedachievement($id)
+function static_setlastupdatedachievement($id): void
 {
     sanitize_sql_inputs($id);
 
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.LastUpdatedAchievementID = '$id'";
-    // log_sql($query);
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
-        //    ONLY if it goes wrong, report an error.
-        // error_log(__FUNCTION__);
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function static_setnextgametoscan($gameID)
+function static_setnextgametoscan($gameID): void
 {
     sanitize_sql_inputs($gameID);
 
     $query = "UPDATE StaticData AS sd
               SET sd.NextGameToScan = '$gameID'";
-    $dbResult = s_mysql_query($query);
-
-    SQL_ASSERT($dbResult);
+    s_mysql_query($query);
 }
 
-function static_setnextusertoscan($userID)
+function static_setnextusertoscan($userID): void
 {
     sanitize_sql_inputs($userID);
 
     $query = "UPDATE StaticData AS sd
               SET sd.NextUserIDToScan = '$userID'";
-    $dbResult = s_mysql_query($query);
-
-    SQL_ASSERT($dbResult);
+    s_mysql_query($query);
 }
 
-function getStaticData()
+function getStaticData(): ?array
 {
     $query = "SELECT sd.*, ach.Title AS LastAchievementEarnedTitle, gd.Title AS NextGameTitleToScan, gd.ImageIcon AS NextGameToScanIcon, c.Name AS NextGameToScanConsole, ua.User AS NextUserToScan
               FROM StaticData AS sd
@@ -127,12 +105,11 @@ function getStaticData()
               LEFT JOIN UserAccounts AS ua ON ua.ID = sd.NextUserIDToScan ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult);
+    if (!$dbResult) {
+        log_sql_fail();
+
+        return null;
     }
 
-    // error_log(__FUNCTION__);
-    log_sql_fail();
-
-    return null;
+    return mysqli_fetch_assoc($dbResult);
 }

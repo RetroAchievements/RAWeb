@@ -1,12 +1,14 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
 use RA\Shortcode\Shortcode;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 
@@ -18,7 +20,7 @@ if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == f
 
 $achievementTitle = $dataOut['AchievementTitle'];
 $desc = $dataOut['Description'];
-$achFlags = $dataOut['Flags'];
+$achFlags = (int) $dataOut['Flags'];
 $achPoints = $dataOut['Points'];
 $achTruePoints = $dataOut['TrueRatio'];
 $gameTitle = $dataOut['GameTitle'];
@@ -49,16 +51,25 @@ $numRecentWinners = 0;
 getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
 
 $dateWonLocal = "";
-foreach ($winnerInfo as $userWon => $userObject) {
-    if ($userWon == $user) {
+foreach ($winnerInfo as $userObject) {
+    if ($userObject['User'] == $user) {
         $dateWonLocal = $userObject['DateAwarded'];
         break;
     }
 }
 
+if ($dateWonLocal === "") {
+    $hasAward = HasAward($user, $achievementID);
+    if ($hasAward['HasHardcore']) {
+        $dateWonLocal = $hasAward['HardcoreDate'];
+    } elseif ($hasAward['HasRegular']) {
+        $dateWonLocal = $hasAward['RegularDate'];
+    }
+}
+
 $achievedLocal = ($dateWonLocal !== "");
 
-$numArticleComments = getArticleComments(2, $achievementID, 0, 20, $commentData);
+$numArticleComments = getArticleComments(ArticleType::Achievement, $achievementID, 0, 20, $commentData);
 
 getCodeNotes($gameID, $codeNotes);
 
@@ -70,36 +81,60 @@ RenderHtmlStart(true);
     <?php RenderSharedHeader(); ?>
     <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
     <?php RenderTitleTag($achievementTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <?php if ($permissions >= Permissions::Developer): ?>
     <script>
-        function PostEmbedUpdate() {
-            var url = $('#embedurlinput').val();
-            url = replaceAll('http', '_http_', url);
+      function PostEmbedUpdate() {
+        var url = $('#embedurlinput').val();
+        url = replaceAll('http', '_http_', url);
 
-            var posting = $.post('/request/achievement/update.php', {
-                u: '<?php echo $user; ?>',
-                a: <?php echo $achievementID; ?>,
-                f: 2,
-                v: url,
-            });
-            posting.done(onUpdateEmbedComplete);
-            $('#warning').html('Status: Updating...');
+        var posting = $.post('/request/achievement/update.php', {
+          u: '<?php echo $user; ?>',
+          a: <?php echo $achievementID; ?>,
+          f: 2,
+          v: url,
+        });
+        posting.done(function (data) {
+          if (data !== 'OK') {
+            $('#warning').html('Status: Errors...');
+          } else {
+            $('#warning').html('Status: Loading...');
+            window.location.reload();
+          }
+        });
+        $('#warning').html('Status: Updating...');
+      }
+
+      function updateAchievementTypeFlag(typeFlag) {
+        if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OFFICIAL_CORE ?> ? 'promote' : 'demote')} these achievements?`)) {
+          return;
         }
 
-        function onUpdateEmbedComplete(data) {
-            if (data !== 'OK') {
-                $('#warning').html('Status: Errors...');
-            } else {
-                $('#warning').html('Status: Loading...');
-                window.location.reload();
+        $.ajax({
+          type: "POST",
+          url: '/request/achievement/update.php',
+          dataType: "json",
+          data: {
+            'a': <?= $achievementID ?>,
+            'f': 3,
+            'u': '<?= $user ?>',
+            'v': typeFlag
+          },
+          error: function (xhr, status, error) {
+            alert('Error: ' + (error || 'unknown error'));
+          }
+        })
+          .done(function (data) {
+            if (!data.success) {
+              alert('Error: ' + (data.error || 'unknown error'));
+              return;
             }
-        }
+            document.location.reload();
+          });
+      }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -113,7 +148,7 @@ RenderHtmlStart(true);
         echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
         echo " &raquo; <a href='/game/$gameID'>$gameTitle</a>";
         echo " &raquo; <b>$achievementTitle</b>";
-        echo "</div>"; //navpath
+        echo "</div>"; // navpath
 
         echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
@@ -127,10 +162,9 @@ RenderHtmlStart(true);
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
         echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
-        echo "</div>"; //achievemententryicon
+        echo "</div>"; // achievemententryicon
         echo "</td>";
 
-        //echo "<td style='float: left;'>";    //Horrible dont do this
         echo "<td>";
         echo "<div id='achievemententry'>";
 
@@ -141,7 +175,7 @@ RenderHtmlStart(true);
         echo "<a href='/achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
         echo "$desc<br>";
 
-        echo "</div>"; //achievemententry
+        echo "</div>"; // achievemententry
         echo "</td>";
 
         echo "</tr>";
@@ -158,7 +192,7 @@ RenderHtmlStart(true);
 
         echo "<p class='smalldata'>";
         echo "<small>";
-        if ($achFlags == 5) {
+        if ($achFlags === AchievementType::UNOFFICIAL) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
@@ -182,7 +216,7 @@ RenderHtmlStart(true);
         if ($achievedLocal) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
-            echo "<div id='resetboxcontent'>";
+            echo "<div id='resetboxcontent' style='display: none'>";
             echo "<form id='resetform' action='/request/user/reset-achievements.php' method='post'>";
             echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='a' value='$achievementID'>";
@@ -195,7 +229,7 @@ RenderHtmlStart(true);
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             if ($permissions >= Permissions::Developer) {
                 echo "<li>Set embedded video URL:</li>";
@@ -234,10 +268,11 @@ RenderHtmlStart(true);
                 <?php
                 echo "<div style='clear:both;'></div>";
 
-                if ($achFlags == 3) {
-                    echo "<li>State: Official&nbsp;<a onclick='return ConfirmDemotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=5'>Demote To Unofficial</a></li>";
-                } elseif ($achFlags == 5) {
-                    echo "<li>State: Unofficial&nbsp;<a onclick='return ConfirmPromotion();' href='/request/achievement/update.php?a=$achievementID&amp;f=3&amp;u=$user&amp;v=3'>Promote To Official</a></li>";
+                if ($achFlags === AchievementType::OFFICIAL_CORE) {
+                    echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::UNOFFICIAL . ")'>Demote To Unofficial</button></li>";
+                }
+                if ($achFlags === AchievementType::UNOFFICIAL) {
+                    echo "<li>State: Unofficial&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OFFICIAL_CORE . ")'>Promote To Official</button></li>";
                 }
             }
 
@@ -250,8 +285,8 @@ RenderHtmlStart(true);
             echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
             echo "</div>";
 
-            echo "</div>"; //    devboxcontent
-            echo "</div>"; //    devbox
+            echo "</div>"; // devboxcontent
+            echo "</div>"; // devbox
         }
 
         if (!empty($embedVidURL)) {
@@ -267,21 +302,21 @@ RenderHtmlStart(true);
             $permissions
         );
 
-        echo "</div>"; //achievement
+        echo "</div>"; // achievement
 
         /**
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div id='recentwinners'>";
-        echo "<h3>Winners</h3>";
-
-        if (count($winnerInfo) == 0) {
+        echo "<h3>Recent Winners</h3>";
+        if (empty($winnerInfo)) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {
             echo "<table><tbody>";
             echo "<tr><th colspan='2'>User</th><th>Hardcore?</th><th>Earned On</th></tr>";
             $iter = 0;
-            foreach ($winnerInfo as $userWinner => $userObject) {
+            foreach ($winnerInfo as $userObject) {
+                $userWinner = $userObject['User'];
                 if ($userWinner == null || $userObject['DateAwarded'] == null) {
                     continue;
                 }
@@ -304,12 +339,6 @@ RenderHtmlStart(true);
                 }
                 echo "</td>";
 
-                //echo "<a href='/user/$userWinner'><img alt='Won by $userWinner' title='$userWinner' src='/UserPic/$userWinner.png' width='32' height='32'/></a>";
-                //var_dump( $userObject );
-                //echo GetUserAndTooltipDiv( $userObject['User'], FALSE );
-                //echo " (" . $userObject['RAPoints'] . ")";
-                //echo "</td>";
-
                 echo "<td>";
                 echo "<small>$niceDateWon</small>";
                 echo "</td>";
@@ -319,8 +348,7 @@ RenderHtmlStart(true);
 
             echo "</tbody></table>";
         }
-
-        echo "</div>"; //RecentWinners;
+        echo "</div>";
         ?>
     </div>
     <div id="rightcontainer">
@@ -328,7 +356,7 @@ RenderHtmlStart(true);
         if ($user !== null) {
             RenderScoreLeaderboardComponent($user, true);
         }
-        RenderGameLeaderboardsComponent($gameID, $lbData);
+        RenderGameLeaderboardsComponent($lbData);
         ?>
     </div>
 </div>

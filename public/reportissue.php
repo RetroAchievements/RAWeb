@@ -1,9 +1,9 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-$cookieRaw = RA_ReadCookie('RA_Cookie');
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 
@@ -38,8 +38,7 @@ RenderHtmlStart(true);
 RenderHtmlHead("Report Broken Achievement");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <script>
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
@@ -62,8 +61,6 @@ RenderHtmlHead("Report Broken Achievement");
         <h3 class="longheader">Report Broken Achievement</h3>
 
         <form action="/request/ticket/create.php" method="post">
-            <input type="hidden" value="<?php echo $user ?>" name="u">
-            <input type="hidden" value="<?php echo $cookieRaw ?>" name="c">
             <input type="hidden" value="<?php echo $achievementID ?>" name="i">
             <table>
                 <tbody>
@@ -136,13 +133,21 @@ RenderHtmlHead("Report Broken Achievement");
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="checksum">Checksum</label></td>
+                    <td><label for="checksum">RetroAchievements Hash</label></td>
                     <td>
                         <select name="note[checksum]" id="checksum" required>
                             <option value="Unknown">I don't know.</option>
                             <?php
-                            foreach (getHashListByGameID($gameID) as $listKey => $hashArray) {
-                                foreach ($hashArray as $hashKey => $hash) {
+                            $hashes = getHashListByGameID($gameID);
+                            foreach ($hashes as $hashData) {
+                                if (!empty($hashData['Name'])) {
+                                    $hash = $hashData['Hash'];
+                                    echo "<option value='$hash'>$hash - " . $hashData['Name'] . "</option>";
+                                }
+                            }
+                            foreach ($hashes as $hashData) {
+                                if (empty($hashData['Name'])) {
+                                    $hash = $hashData['Hash'];
                                     echo "<option value='$hash'>$hash</option>";
                                 }
                             }

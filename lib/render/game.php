@@ -11,8 +11,9 @@ function GetGameAndTooltipDiv(
     $imgSizeOverride = 32,
     $justText = false
 ): string {
-    $tooltipIconSize = 64; //96;
+    $tooltipIconSize = 64;
 
+    $gameNameEscaped = attributeEscape($gameName);
     sanitize_outputs(
         $gameName,
         $consoleName
@@ -26,15 +27,13 @@ function GetGameAndTooltipDiv(
     $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleStr;
     $tooltip .= "</div>";
     $tooltip .= "</div>";
-    $tooltip = attributeEscape($tooltip);
-
-    $gameNameEscaped = attributeEscape($gameName);
+    $tooltip = tipEscape($tooltip);
 
     $displayable = "";
 
@@ -108,12 +107,11 @@ function RenderBoxArt($imagePath)
     echo "</div>";
 }
 
-function RenderGameAlts($gameAlts, $showTitle = true)
+function RenderGameAlts($gameAlts, $headerText = null)
 {
     echo "<div class='component gamealts'>";
-    if ($showTitle) {
-        echo "<h3>Similar Games</h3>";
-        echo "Have you tried:<br>";
+    if ($headerText) {
+        echo "<h3>$headerText</h3>";
     }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
@@ -133,18 +131,21 @@ function RenderGameAlts($gameAlts, $showTitle = true)
         );
 
         $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
+        if (!$isFullyFeaturedGame) {
+            $consoleName = null;
+        }
 
         echo "<td>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
         echo "</td>";
 
-        echo "<td " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
+        echo "<td style='width: 100%' " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
         echo "</td>";
 
         if ($isFullyFeaturedGame) {
             echo "<td>";
-            echo "$points points<span class='TrueRatio'> ($totalTP)</span>";
+            echo "<span style='white-space: nowrap'>$points points</span><span class='TrueRatio'> ($totalTP)</span>";
             echo "</td>";
         }
 
@@ -152,6 +153,53 @@ function RenderGameAlts($gameAlts, $showTitle = true)
     }
     echo "</tbody></table>";
     echo "</div>";
+}
+
+function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = [])
+{
+    $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
+
+    if ($gameHubs) {
+        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues) {
+            $hubPrefix = "[$hubCategory - ";
+            foreach ($gameHubs as $hub) {
+                $title = $hub['Title'];
+                if (substr($title, 0, strlen($hubPrefix)) == $hubPrefix) {
+                    $value = substr($title, strlen($hubPrefix), -1);
+                    $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+
+                    $key = array_search($value, $gameDataValues);
+                    if ($key === false) {
+                        // attempt to match "Hack - XXX" to "Hacks - XXX" hub
+                        $value = substr(str_replace($hubCategory, rtrim($hubCategory, "s"), $title), 1, -1);
+                        $key = array_search($value, $gameDataValues);
+                        if ($key !== false) {
+                            $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+                        }
+                    }
+
+                    if ($key !== false) {
+                        $gameDataValues[$key] = $link;
+                    } else {
+                        $gameDataValues[] = $link;
+                    }
+                }
+            }
+        };
+
+        $mergeMetadata($label);
+
+        foreach ($altLabels as $altLabel) {
+            $mergeMetadata($altLabel);
+        }
+    }
+
+    if (!empty($gameDataValues)) {
+        echo "<tr>";
+        echo "<td style='white-space: nowrap'>$label:</td>";
+        echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
+        echo "</tr>";
+    }
 }
 
 function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0)

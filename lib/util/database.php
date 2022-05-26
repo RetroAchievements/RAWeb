@@ -1,6 +1,6 @@
 <?php
 
-function sanitize_sql_inputs(&...$inputs)
+function sanitize_sql_inputs(&...$inputs): void
 {
     global $db;
     foreach ($inputs as &$input) {
@@ -10,25 +10,15 @@ function sanitize_sql_inputs(&...$inputs)
     }
 }
 
-function SQL_ASSERT($dbResult)
-{
-    if ($dbResult == false) {
-        log_sql_fail();
-    }
-}
-
-function sanitiseSQL($query)
+function sanitiseSQL($query): bool
 {
     if (mb_strrchr($query, ';') !== false) {
-        // error_log(__FUNCTION__ . " failed(;): query:$query");
         return false;
     } else {
         if (mb_strrchr($query, '\\') !== false) {
-            // error_log(__FUNCTION__ . " failed(\\): query:$query");
             return false;
         } else {
             if (mb_strstr($query, "--") !== false) {
-                // error_log(__FUNCTION__ . " failed(--): query:$query");
                 return false;
             } else {
                 return true;
@@ -37,7 +27,7 @@ function sanitiseSQL($query)
     }
 }
 
-function s_mysql_query($query)
+function s_mysql_query($query): mysqli_result|bool
 {
     global $db;
     if (sanitiseSQL($query)) {

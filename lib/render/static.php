@@ -61,23 +61,21 @@ function RenderStaticDataComponent($staticData)
 
     echo "The last registered user was ";
     echo GetUserAndTooltipDiv($lastRegisteredUser, false);
-    //echo "<a href='/user/$lastRegisteredUser'>$lastRegisteredUser</a>";
+    // echo "<a href='/user/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br>";
 
-    //echo "<br>";
-    //echo "Next game to scan: ";
-    //echo GetGameAndTooltipDiv( $nextGameToScanID, $nextGameToScan, $nextGameToScanIcon, $nextGameConsoleToScan, FALSE, 32, TRUE );
-    //echo "<br>";
-    //echo "Next user to scan: ";
-    //echo GetUserAndTooltipDiv( $nextUserToScan, FALSE );
-    //echo "The last achievement earned was ";
-    //echo "<a href='/achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
-    //echo " by ";
-    //echo "<a href='/user/$lastAchievementEarnedByUser'>$lastAchievementEarnedByUser</a><br>";
+    // echo "<br>";
+    // echo "Next game to scan: ";
+    // echo GetGameAndTooltipDiv( $nextGameToScanID, $nextGameToScan, $nextGameToScanIcon, $nextGameConsoleToScan, FALSE, 32, TRUE );
+    // echo "<br>";
+    // echo "Next user to scan: ";
+    // echo GetUserAndTooltipDiv( $nextUserToScan, FALSE );
+    // echo "The last achievement earned was ";
+    // echo "<a href='/achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
+    // echo " by ";
+    // echo "<a href='/user/$lastAchievementEarnedByUser'>$lastAchievementEarnedByUser</a><br>";
 
     echo "</div>";
-
-    //var_dump( $staticData );
 
     echo "</div>";
 }

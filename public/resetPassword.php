@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -17,16 +18,23 @@ RenderHtmlStart();
 RenderHtmlHead("Password Reset");
 ?>
 <body>
-<?php RenderTitleBar(null, 0, 0, 0, $errorCode); ?>
-<?php RenderToolbar(null, 0); ?>
+<?php RenderHeader(null); ?>
 
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
+        if ($errorCode == 'badnewpass') {
+            echo "<div id=\"warning\">Info: Errors changing your password, passwords too short!</div>";
+        } elseif ($errorCode == 'passinequal') {
+            echo "<div id=\"warning\">Info: Errors changing your password, new passwords were not identical!</div>";
+        } elseif ($errorCode == 'changepassok') {
+            echo "<div id=\"warning\">Info: Password changed OK!</div>";
+        }
+
         echo "<h2 class='longheader'>Password Reset</h2>";
 
         if ($allowNewPasswordEntry == null) {
-            //	Request username for password reset:
+            // Request username for password reset:
             echo "<h4 class='longheader'>Enter username for password reset:</h2>";
 
             echo "<div class='longer'>";
@@ -37,7 +45,7 @@ RenderHtmlHead("Password Reset");
             echo "</form>";
             echo "</div>";
         } else {
-            //	Enter new password for this user:
+            // Enter new password for this user:
             echo "<h4 class='longheader'>Enter new Password for $user:</h4>";
 
             echo "<div class='longer'>";

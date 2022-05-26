@@ -1,23 +1,26 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
+authenticateFromCookie($user, $permissions, $userDetails);
+
 $forumList = getForumList($requestedCategoryID);
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
-
 $numUnofficialLinks = 0;
-if ($permissions >= \RA\Permissions::Developer) {
+if ($permissions >= Permissions::Developer) {
     $unofficialLinks = getUnauthorisedForumLinks();
-    $numUnofficialLinks = count($unofficialLinks);
+    $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
 
 $pageTitle = "Forum Index";
 $requestedCategory = "";
-if ($requestedCategoryID !== 0 && count($forumList) > 0) {
-    $requestedCategory = $forumList[0]['CategoryName'];    //	Fetch any elements data
+if ($requestedCategoryID !== 0 && !empty($forumList)) {
+    $requestedCategory = $forumList[0]['CategoryName'];    // Fetch any elements data
     $pageTitle .= ": " . $requestedCategory;
 }
 
@@ -29,8 +32,7 @@ RenderHtmlStart();
 RenderHtmlHead($pageTitle);
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php RenderErrorCodeWarning($errorCode); ?>
@@ -46,7 +48,7 @@ RenderHtmlHead($pageTitle);
             }
             echo "</div>";
 
-            //	Output all forums fetched, by category
+            // Output all forums fetched, by category
 
             if ($numUnofficialLinks > 0) {
                 echo "<br><a href='/viewforum.php?f=0'><b>Developer Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
@@ -65,7 +67,7 @@ RenderHtmlHead($pageTitle);
 
                 if ($nextCategory != $lastCategory) {
                     if ($lastCategory !== "_init") {
-                        //	We are starting another table, but we need to close the last one!
+                        // We are starting another table, but we need to close the last one!
                         echo "</tbody>";
                         echo "</table>";
                         echo "<br>";
@@ -91,7 +93,7 @@ RenderHtmlHead($pageTitle);
                     $lastCategory = $nextCategory;
                 }
 
-                //	Output one forum, then loop
+                // Output one forum, then loop
                 $nextForumID = $forumData['ID'];
                 $nextForumTitle = $forumData['Title'];
                 $nextForumDesc = $forumData['Description'];
@@ -127,7 +129,7 @@ RenderHtmlHead($pageTitle);
                 echo "<span class='smalldate'>$nextForumCreatedNiceDate</span><br>";
                 if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
                     echo GetUserAndTooltipDiv($nextForumLastPostAuthor, true);
-                    //echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
+                    // echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
                     echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>[View]</a>";
                 }
                 echo "</div>";
@@ -144,7 +146,7 @@ RenderHtmlHead($pageTitle);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderRecentForumPostsComponent(8);
+        RenderRecentForumPostsComponent($permissions, 8);
         ?>
     </div>
 </div>

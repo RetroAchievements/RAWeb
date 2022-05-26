@@ -1,8 +1,11 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $errorCode = requestInputSanitized('e');
 $type = requestInputSanitized('t', 0, 'integer');
@@ -14,8 +17,7 @@ RenderHtmlHead("Developer Stats");
 ?>
 <body>
 <?php
-RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions);
-RenderToolbar($user, $permissions);
+RenderHeader($userDetails);
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
@@ -32,15 +34,15 @@ RenderToolbar($user, $permissions);
         echo "<div>";
         echo "<b>Developer Status:</b> ";
         if ($activeDev) {
-            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 0)) . "'>*" . PermissionsToString(\RA\Permissions::Developer) . "</a></b> | ";
+            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 0)) . "'>*" . PermissionsToString(Permissions::Developer) . "</a></b> | ";
         } else {
-            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 0)) . "'>" . PermissionsToString(\RA\Permissions::Developer) . "</a> | ";
+            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 0)) . "'>" . PermissionsToString(Permissions::Developer) . "</a> | ";
         }
 
         if ($juniorDev) {
-            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 1)) . "'>*" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</a></b> | ";
+            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 1)) . "'>*" . PermissionsToString(Permissions::JuniorDeveloper) . "</a></b> | ";
         } else {
-            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 1)) . "'>" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</a> | ";
+            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 1)) . "'>" . PermissionsToString(Permissions::JuniorDeveloper) . "</a> | ";
         }
 
         if ($inactiveDev) {
@@ -69,7 +71,7 @@ RenderToolbar($user, $permissions);
         echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=4&f=$devFilter'>Ticket Ratio (%)</a>" . ($type == 4 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>" . ($type == 2 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>" . ($type == 1 ? "*" : "") . "</th>";
-        // echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == 5 ? "*" : "") . "</th>";
+        // echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == AchievementType::UNOFFICIAL ? "*" : "") . "</th>";
 
         $userCount = 0;
         foreach ($devStatsList as $devStats) {
@@ -86,9 +88,9 @@ RenderToolbar($user, $permissions);
             echo "<td class='text-nowrap'><div class='fixheightcell'>";
             echo GetUserAndTooltipDiv($dev, false);
             echo "<br><small>";
-            if ($devStats['Permissions'] == \RA\Permissions::JuniorDeveloper) {
-                echo PermissionsToString(\RA\Permissions::JuniorDeveloper);
-            } elseif ($devStats['Permissions'] <= \RA\Permissions::JuniorDeveloper) {
+            if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
+                echo PermissionsToString(Permissions::JuniorDeveloper);
+            } elseif ($devStats['Permissions'] <= Permissions::JuniorDeveloper) {
                 echo "Inactive";
             }
             echo "</small>";

@@ -1,24 +1,27 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions);
+authenticateFromCookie($user, $permissions, $userDetails);
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 25, 'integer');
 
 $numUnofficialLinks = 0;
-if ($permissions >= \RA\Permissions::Admin) {
+if ($permissions >= Permissions::Admin) {
     $unofficialLinks = getUnauthorisedForumLinks();
-    $numUnofficialLinks = count($unofficialLinks);
+    $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
 
 $numTotalTopics = 0;
 
 if ($requestedForumID == 0) {
-    if ($permissions >= \RA\Permissions::Admin) {
-        //	Continue
+    if ($permissions >= Permissions::Admin) {
+        // Continue
         $viewingUnauthorisedForumLinks = true;
     } else {
         header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
@@ -46,7 +49,7 @@ if ($requestedForumID == 0) {
     $thisCategoryID = $forumDataOut['CategoryID'];
     $thisCategoryName = $forumDataOut['CategoryName'];
 
-    $topicList = getForumTopics($requestedForumID, $offset, $count, $numTotalTopics);
+    $topicList = getForumTopics($requestedForumID, $offset, $count, $permissions, $numTotalTopics);
 
     $requestedForum = $thisForumTitle;
 }
@@ -65,8 +68,7 @@ RenderHtmlStart();
 RenderHtmlHead("View forum: $thisForumTitle");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <div id="forums">
@@ -81,54 +83,17 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
             }
 
-            //echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
+            // echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
             echo "<h2>$requestedForum</h2>";
-            echo "$thisForumDescription<br>";
-
-            if ($permissions >= \RA\Permissions::Registered) {
-                echo "<a href='createtopic.php?f=$thisForumID'><div class='rightlink'>[Create New Topic]</div></a>";
-            }
-
-            /* Forum pagination */
-            $forumPagination = "";
+            echo "$thisForumDescription<br><br>";
 
             if ($numTotalTopics > $count) {
-                $forumPagination .= "<tr>";
-
-                $forumPagination .= "<td class='forumpagetabs' colspan='2'>";
-                $forumPagination .= "<div class='forumpagetabs'>";
-
-                $forumPagination .= "Page:&nbsp;";
-                $pageOffset = ($offset / $count);
-                $numPages = ceil($numTotalTopics / $count);
-
-                if ($pageOffset > 0) {
-                    $prevOffs = $offset - $count;
-                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$prevOffs'>&lt;</a> ";
-                }
-
-                for ($i = 0; $i < $numPages; $i++) {
-                    $nextOffs = $i * $count;
-                    $pageNum = $i + 1;
-
-                    if ($nextOffs == $offset) {
-                        $forumPagination .= "<span class='forumpagetab current'>$pageNum</span> ";
-                    } else {
-                        $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>$pageNum</a> ";
-                    }
-                }
-
-                if ($offset + $count < $numTotalTopics) {
-                    $nextOffs = $offset + $count;
-                    $forumPagination .= "<a class='forumpagetab' href='/viewforum.php?f=$requestedForumID&amp;o=$nextOffs'>&gt;</a> ";
-                }
-
-                $forumPagination .= "</div>";
-                $forumPagination .= "</td>";
-                $forumPagination .= "</tr>";
+                RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
             }
 
-            echo $forumPagination;
+            if ($permissions >= Permissions::Registered) {
+                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</div></a>";
+            }
 
             echo "<table><tbody>";
             echo "<tr class='forumsheader'>";
@@ -136,19 +101,15 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "<th class='fullwidth'>Topics</th>";
             echo "<th>Author</th>";
             echo "<th>Replies</th>";
-            //echo "<th>Views</th>";
+            // echo "<th>Views</th>";
             echo "<th class='text-nowrap'>Last post</th>";
             echo "</tr>";
 
-            $topicCount = count($topicList);
+            $topicCount = is_countable($topicList) ? count($topicList) : 0;
 
-            $topicIter = 0;
-
-            //	Output all topics, and offer 'prev/next page'
+            // Output all topics, and offer 'prev/next page'
             foreach ($topicList as $topicData) {
-                //var_dump( $topicData );
-
-                //	Output one forum, then loop
+                // Output one forum, then loop
                 $nextTopicID = $topicData['ForumTopicID'];
                 $nextTopicTitle = $topicData['TopicTitle'];
                 $nextTopicPreview = $topicData['TopicPreview'];
@@ -187,30 +148,35 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<td class='author'>";
                 echo GetUserAndTooltipDiv($nextTopicAuthor, $mobileBrowser);
                 echo "</td>";
-                //echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
+                // echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
                 echo "<td class='replies'>$nextTopicNumReplies</td>";
-                //echo "<td class='views'>$nextForumNumViews</td>";
+                // echo "<td class='views'>$nextForumNumViews</td>";
                 echo "<td class='lastpost'>";
                 echo "<div class='lastpost'>";
                 echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
-                //echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
+                // echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
                 echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
             }
 
+            if ($topicCount % 2 == 1) {
+                echo "<tr><td colspan=5 class='smalltext'></td></tr>";
+            }
+            echo "<tr><td colspan=5 class='smalltext'></td></tr>";
+
             echo "</tbody></table>";
 
-            echo $forumPagination;
+            if ($numTotalTopics > $count) {
+                RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
+            }
 
-            echo "<br>";
-
-            if ($permissions >= \RA\Permissions::Registered) {
-                echo "<div class='rightlink'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
+            if ($permissions >= Permissions::Registered) {
+                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
             } else {
-                echo "<div class='rightlink'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
+                echo "<div class='rightfloat'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
             }
 
             echo "<br>";
@@ -220,7 +186,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
     </div>
     <div id="rightcontainer">
         <?php
-        RenderRecentForumPostsComponent(8);
+        RenderRecentForumPostsComponent($permissions, 8);
         ?>
     </div>
 </div>

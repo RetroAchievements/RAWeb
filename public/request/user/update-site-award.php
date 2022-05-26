@@ -1,8 +1,11 @@
 <?php
 
+use RA\AwardType;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+// TODO do not allow GET requests, POST only
 if (ValidatePOSTChars("tdev")) {
     $awardType = requestInputPost('t', null, 'integer');
     $awardData = requestInputPost('d', null, 'integer');
@@ -15,21 +18,20 @@ if (ValidatePOSTChars("tdev")) {
         $awardDataExtra = requestInputQuery('e', null, 'integer');
         $value = requestInputQuery('v', null, 'integer');
     } else {
-        // error_log("FAILED access to requestupdatesiteaward.php");
         echo "FAILED";
-        return;
+        exit;
     }
 }
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     echo "FAILED!";
-    return;
+    exit;
 }
 
 /**
  * change display order for all entries if it's a "stacking" award type
  */
-if (in_array($awardType, [2, 3])) {
+if (in_array($awardType, [AwardType::ACHIEVEMENT_UNLOCKS_YIELD, AwardType::ACHIEVEMENT_POINTS_YIELD])) {
     $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
         "AND AwardType = $awardType " .
         "AND AwardDataExtra = $awardDataExtra";
@@ -42,6 +44,5 @@ if (in_array($awardType, [2, 3])) {
 if (s_mysql_query($query)) {
     echo "OK";
 } else {
-    // error_log("requestupdatesiteaward.php failed?! 1" . var_dump($_POST));
     echo "FAILED!";
 }

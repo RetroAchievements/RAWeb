@@ -1,9 +1,12 @@
 <?php
+
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-if (!RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Registered)) {
-    //	Immediate redirect if we cannot validate user!	//TBD: pass args?
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    // Immediate redirect if we cannot validate user!	//TBD: pass args?
     header("Location: " . getenv('APP_URL'));
     exit;
 }
@@ -24,9 +27,9 @@ if ($gameIDSpecified) {
     $gameTitle = $gameData['Title'];
     $gameIcon = $gameData['ImageIcon'];
     $forumTopicID = $gameData['ForumTopicID'];
-    $hashes = getHashListByGameID($gameID, true);
+    $hashes = getHashListByGameID($gameID);
 } else {
-    //	Immediate redirect: this is pointless otherwise!
+    // Immediate redirect: this is pointless otherwise!
     header("Location: " . getenv('APP_URL'));
 }
 
@@ -34,15 +37,14 @@ RenderHtmlStart();
 RenderHtmlHead("Linked Hashes");
 ?>
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
 
         <h2>List of Linked Hashes</h2>
 
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
         echo "<br><br>";
 
         echo "<p><b>Hashes are used to confirm if two copies of a file are identical. " .
@@ -52,23 +54,62 @@ RenderHtmlHead("Linked Hashes");
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-        echo "Currently this game has <b>" . count($hashes) . "</b> unique hashes registered for it:<br><br>";
+        echo "\n<br>Currently this game has <b>" . count($hashes) . "</b> unique hashes registered for it:<br><br>";
 
         echo "<ul>";
+        $hasUnlabeledHashes = false;
         foreach ($hashes as $hash) {
-            echo "<li>";
-            echo "<code>  " . $hash['hash'] . "</code>";
-            if (!empty($hash['User'])) {
-                echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+            if (empty($hash['Name'])) {
+                $hasUnlabeledHashes = true;
+                continue;
             }
-            echo "</li>";
-        }
-        echo "</ul>";
 
+            $hashName = $hash['Name'];
+            sanitize_outputs($hashName);
+            echo "<li><p><b>$hashName</b>";
+            if (!empty($hash['Labels'])) {
+                foreach (explode(',', $hash['Labels']) as $label) {
+                    if (empty($label)) {
+                        continue;
+                    }
+
+                    $image = "/Images/labels/" . $label . '.png';
+                    if (file_exists(__DIR__ . $image)) {
+                        echo ' <img class="injectinlineimage" src="' . $image . '">';
+                    } else {
+                        echo ' [' . $label . ']';
+                    }
+                }
+            }
+
+            echo '<br/><code> ' . $hash['Hash'] . '</code>';
+            if (!empty($hash['User'])) {
+                echo ' linked by ' . GetUserAndTooltipDiv($hash['User']);
+            }
+            echo '</p></li>';
+        }
+
+        if ($hasUnlabeledHashes) {
+            echo '<li><p><b>Unlabeled</b><br/>';
+            foreach ($hashes as $hash) {
+                if (!empty($hash['Name'])) {
+                    continue;
+                }
+
+                echo '<code> ' . $hash['Hash'] . '</code>';
+                if (!empty($hash['User'])) {
+                    echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+                }
+                echo '<br/>';
+            }
+            echo "</p></li>";
+        }
+
+        echo "</ul>";
         echo "<br>";
 
         if ($forumTopicID > 0) {
-            echo "Descriptions for these hashes may be listed on the <a href='viewtopic.php?t=$forumTopicID'>official forum topic</a>.<br/>";
+            echo "Additional information for these hashes may be listed on the <a href='viewtopic.php?t=$forumTopicID'>official forum topic</a>.<br/>";
         }
 
         ?>

@@ -1,22 +1,22 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+// TODO do not allow GET requests, POST only
 if (!ValidateGETChars('uig')) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $source = requestInputQuery('u');
 $lbID = requestInputQuery('i');
 $gameID = requestInputQuery('g');
 
-getCookie($user, $cookie);
-
-if (RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, \RA\Permissions::Developer) &&
-    $source == $user &&
-    validateUser_cookie($user, $cookie, 2)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer) &&
+    $source == $user) {
     if (requestDeleteLB($lbID)) {
         header("Location: " . getenv('APP_URL') . "/leaderboardList.php?e=deleteok&g=$gameID");
         exit;

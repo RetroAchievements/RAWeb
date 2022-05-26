@@ -8,16 +8,15 @@ if (!ValidatePOSTChars("u")) {
     exit;
 }
 
-$user = requestInputPost('u');
+$userIn = requestInputPost('u');
 
-getcookie($userIn, $cookie);
-if ($user == $userIn && validateUser_cookie($user, $cookie, 0) == false) {
+if (!authenticateFromCookie($user, $permissions, $userDetails) || $user != $userIn) {
     echo "ERROR2";
     exit;
 }
 
 if (getControlPanelUserInfo($user, $userData)) {
-    echo json_encode($userData['Played']);
+    echo json_encode($userData['Played'], JSON_THROW_ON_ERROR);
 } else {
     echo "ERROR3";
 }

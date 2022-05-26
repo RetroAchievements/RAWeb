@@ -1,12 +1,15 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ModifyTopicField;
 use RA\Permissions;
 use RA\Shortcode\Shortcode;
+use RA\SubscriptionSubjectType;
 
-RA_ReadCookieCredentials($user, $points, $truePoints, $unreadMessageCount, $permissions, null, $userID);
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+authenticateFromCookie($user, $permissions, $userDetails);
+$userID = $userDetails['ID'] ?? 0;
 
 // Fetch topic ID
 $requestedTopicID = requestInputSanitized('t', 0, 'integer');
@@ -17,12 +20,6 @@ if ($requestedTopicID == 0) {
 }
 
 getTopicDetails($requestedTopicID, $topicData);
-// temporary workaround to fix some game's forum topics
-//if( getTopicDetails( $requestedTopicID, $topicData ) == FALSE )
-//{
-//header( "location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic2" );
-//exit;
-//}
 
 if ($permissions < $topicData['RequiredPermissions']) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=nopermission");
@@ -44,14 +41,13 @@ if (!empty($gotoCommentID)) {
 $commentList = getTopicComments($requestedTopicID, $offset, $count, $numTotalComments);
 
 // We CANNOT have a topic with no comments... this doesn't make sense.
-if ($commentList == null || count($commentList) == 0) {
+if (empty($commentList)) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic3");
     exit;
 }
 
 $thisTopicID = $topicData['ID'];
 settype($thisTopicID, 'integer');
-//$thisTopicID = $requestedTopicID; //??!?
 $thisTopicAuthor = $topicData['Author'];
 $thisTopicAuthorID = $topicData['AuthorID'];
 $thisTopicCategory = $topicData['Category'];
@@ -80,12 +76,10 @@ RenderHtmlStart();
 <head>
     <?php RenderSharedHeader(); ?>
     <?php RenderTitleTag($pageTitle); ?>
-    <?php RenderGoogleTracking(); ?>
 </head>
 
 <body>
-<?php RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions); ?>
-<?php RenderToolbar($user, $permissions); ?>
+<?php RenderHeader($userDetails); ?>
 
 <div id="mainpage">
     <?php RenderErrorCodeWarning($errorCode); ?>
@@ -100,24 +94,10 @@ RenderHtmlStart();
 
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
-        echo "<div class='smalltext rightfloat' style='padding-bottom: 6px'>";
-        RenderUpdateSubscriptionForm(
-            "updatetopicsubscription",
-            \RA\SubscriptionSubjectType::ForumTopic,
-            $thisTopicID,
-            $isSubscribed
-        );
-        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
-        echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
-        echo "</a>";
-        echo "</div>";
-        echo "<br style='clear:both;'>";
-
-        //if( isset( $user ) && $permissions >= Permissions::Registered )
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
-            echo "<div id='devboxcontent'>";
+            echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<div>Change Topic Title:</div>";
             echo "<form action='/request/forum-topic/modify.php' method='post' >";
@@ -145,11 +125,11 @@ RenderHtmlStart();
                 echo "<div>Restrict Topic:</div>";
                 echo "<form action='/request/forum-topic/modify.php' method='post' >";
                 echo "<select name='v'>";
-                echo "<option value='0' $selected0>" . PermissionsToString(\RA\Permissions::Unregistered) . "</option>";
-                echo "<option value='1' $selected1>" . PermissionsToString(\RA\Permissions::Registered) . "</option>";
-                echo "<option value='2' $selected2>" . PermissionsToString(\RA\Permissions::JuniorDeveloper) . "</option>";
-                echo "<option value='3' $selected3>" . PermissionsToString(\RA\Permissions::Developer) . "</option>";
-                echo "<option value='4' $selected4>" . PermissionsToString(\RA\Permissions::Admin) . "</option>";
+                echo "<option value='0' $selected0>" . PermissionsToString(Permissions::Unregistered) . "</option>";
+                echo "<option value='1' $selected1>" . PermissionsToString(Permissions::Registered) . "</option>";
+                echo "<option value='2' $selected2>" . PermissionsToString(Permissions::JuniorDeveloper) . "</option>";
+                echo "<option value='3' $selected3>" . PermissionsToString(Permissions::Developer) . "</option>";
+                echo "<option value='4' $selected4>" . PermissionsToString(Permissions::Admin) . "</option>";
                 echo "</select>";
                 echo "<input type='hidden' name='t' value='$thisTopicID'>";
                 echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "'>";
@@ -178,41 +158,23 @@ RenderHtmlStart();
         echo "<div class='table-wrapper'>";
         echo "<table><tbody>";
 
+        echo "<tr><td colspan=2>";
         if ($numTotalComments > $count) {
-            echo "<tr>";
-
-            echo "<td class='forumpagetabs' colspan='2'>";
-            echo "<div class='forumpagetabs'>";
-
-            echo "Page:&nbsp;";
-            $pageOffset = ($offset / $count);
-            $numPages = ceil($numTotalComments / $count);
-
-            if ($pageOffset > 0) {
-                $prevOffs = $offset - $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$prevOffs'>&lt;</a> ";
-            }
-
-            for ($i = 0; $i < $numPages; $i++) {
-                $nextOffs = $i * $count;
-                $pageNum = $i + 1;
-
-                if ($nextOffs == $offset) {
-                    echo "<span class='forumpagetab current'>$pageNum</span> ";
-                } else {
-                    echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>$pageNum</a> ";
-                }
-            }
-
-            if ($offset + $count < $numTotalComments) {
-                $nextOffs = $offset + $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>&gt;</a> ";
-            }
-
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
+            RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
         }
+
+        echo "<div class='smalltext rightfloat' style='padding: 3px'>";
+        RenderUpdateSubscriptionForm(
+            "updatetopicsubscription",
+            SubscriptionSubjectType::ForumTopic,
+            $thisTopicID,
+            $isSubscribed
+        );
+        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
+        echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
+        echo "</a>";
+        echo "</div>";
+        echo "</td></tr>";
 
         echo "<tr class='topiccommentsheader'>";
         echo "<th>Author</th>";
@@ -221,8 +183,6 @@ RenderHtmlStart();
 
         // Output all topics, and offer 'prev/next page'
         foreach ($commentList as $commentData) {
-            //var_dump( $commentData );
-
             // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
             $nextCommentPayload = $commentData['Payload'];
@@ -310,41 +270,16 @@ RenderHtmlStart();
             echo "</tr>";
         }
 
+        if (count($commentList) % 2 == 1) {
+            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
+        }
+
         if ($numTotalComments > $count) {
-            echo "<tr>";
-
-            echo "<td class='forumpagetabs' colspan='2'>";
-            echo "<div class='forumpagetabs'>";
-
-            echo "Page:&nbsp;";
-            $pageOffset = ($offset / $count);
-            $numPages = ceil($numTotalComments / $count);
-
-            if ($pageOffset > 0) {
-                $prevOffs = $offset - $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$prevOffs'>&lt;</a> ";
-            }
-
-            for ($i = 0; $i < $numPages; $i++) {
-                $nextOffs = $i * $count;
-                $pageNum = $i + 1;
-
-                if ($nextOffs == $offset) {
-                    echo "<span class='forumpagetab current'>$pageNum</span> ";
-                } else {
-                    echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>$pageNum</a> ";
-                }
-            }
-
-            if ($offset + $count < $numTotalComments) {
-                $nextOffs = $offset + $count;
-                echo "<a class='forumpagetab' href='/viewtopic.php?t=$requestedTopicID&amp;o=$nextOffs'>&gt;</a> ";
-            }
-
-            echo "</div>";
-            echo "</td>";
-
-            echo "</tr>";
+            echo "<tr><td colspan=2>";
+            RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
+            echo "</td></tr>";
+        } else {
+            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
         }
 
         if ($user !== null && $user !== "" && $thisTopicID != 0) {
@@ -382,30 +317,19 @@ RenderHtmlStart();
             echo "</form>";
 
             echo "</td>";
-
             echo "</tr>";
-
             echo "</tbody></table>";
 
-            //echo "<div class=\"posteddate\">Posted: $nextCommentDateCreatedNiceDate</div>";
-            //echo "<div class=\"usercommenttext\">";
-            //RenderTopicCommentPayload( $nextCommentPayload );
-            //echo "</div>";
-            //echo "</td>";
             echo "</tr>";
-
             echo "</tbody></table></div>";
         } else {
             echo "</tbody></table></div>";
-            RenderLoginComponent($user, $points, $errorCode, true);
+            echo "<br/>You must log in before you can join this conversation.<br/>";
         }
-
         ?>
         <br>
     </div>
 </div>
-
 <?php RenderFooter(); ?>
-
 </body>
 <?php RenderHtmlEnd(); ?>

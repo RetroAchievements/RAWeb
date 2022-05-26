@@ -1,117 +1,99 @@
 <?php
 
+use RA\AchievementType;
+use RA\ArticleType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (ValidatePOSTChars("uafv")) {
-    $user = requestInputPost('u');
-    $achID = requestInputPost('a', null, 'integer');
-    $field = requestInputPost('f', null, 'integer');
-    $value = requestInputPost('v');
-} else {
-    if (ValidateGETChars("uafv")) {
-        $user = requestInputQuery('u');
-        $achID = requestInputQuery('a', null, 'integer');
-        $field = requestInputQuery('f', null, 'integer');
-        $value = requestInputQuery('v');
-    } else {
-        // error_log("FAILED access to requestupdateachievements.php");
-        echo "FAILED";
-        return;
-    }
+if (!ValidatePOSTChars("uafv")) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
+    exit;
 }
 
-if (!validateFromCookie($user, $points, $permissions, \RA\Permissions::JuniorDeveloper)) {
-    echo "FAILED! Unauthenticaed";
-    return;
+$user = requestInputPost('u');
+$achievementId = requestInputPost('a'); // can be array or integer als string. cast where needed
+$field = requestInputPost('f', null, 'integer');
+$value = requestInputPost('v');
+
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    exit;
 }
 
 // Only allow jr. devs to update the display order and they are the sole author of the set
-if ($permissions == \RA\Permissions::JuniorDeveloper) {
+if ($permissions == Permissions::JuniorDeveloper) {
     $jrDevAllowed = false;
     if ($field == 1) {
         if (ValidatePOSTChars("g")) {
             $gameID = requestInputPost('g', null, 'integer');
         } else {
+            // TODO do not allow GET requests, POST only
             if (ValidateGETChars("g")) {
                 $gameID = requestInputQuery('g', null, 'integer');
             } else {
-                echo "FAILED";
-                return;
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Bad request']);
+                exit;
             }
         }
         $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
     }
 
     if (!$jrDevAllowed) {
-        echo "FAILED! Insufficient permissions";
-        return;
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Forbidden']);
+        exit;
     }
 }
 
-// error_log("Warning: $user changing achievement ID $achID, field $field");
 $commentText = null;
 switch ($field) {
     case 1:
         // display order
-        settype($value, "integer");
-        if (updateAchievementDisplayID($achID, $value)) {
-            echo "OK";
-            return;
+        if (updateAchievementDisplayID((int) $achievementId, $value)) {
+            echo json_encode(['success' => true, 'message' => 'OK']);
+            exit;
         }
-        // error_log("requestupdateachievement.php failed?! 1" . var_dump($_POST));
-        echo "FAILED!";
         break;
     case 2:
         // Embed video
         $value = str_replace("_http_", "http", $value);
-        if (updateAchievementEmbedVideo($achID, $value)) {
-            //header( "Location: " . getenv('APP_URL') . "/achievement/$achID?e=OK" );
-            echo "OK";
-            return;
+        if (updateAchievementEmbedVideo((int) $achievementId, $value)) {
+            echo json_encode(['success' => true, 'message' => 'OK']);
+            exit;
         }
-        // error_log("requestupdateachievement.php failed?! 2" . var_dump($_POST));
-        echo "FAILED!";
         break;
     case 3:
         // Flags
-        $validFlags = [3, 5];
-        settype($value, "integer");
-        if (!in_array($value, $validFlags)) {
-            echo "FAILED!";
+        if (!AchievementType::isValid((int) $value)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Bad request: invalid type flag (' . $value . ')']);
+            exit;
         }
-        if (updateAchievementFlags($achID, $value)) {
-            header("Location: " . getenv('APP_URL') . "/achievement/$achID?e=changeok");
-            if ($value == 3) {
+
+        $achievement = GetAchievementMetadataJSON((int) (is_array($achievementId) ? $achievementId[0] : $achievementId));
+        if ((int) $value === AchievementType::OFFICIAL_CORE && !isValidConsoleId($achievement['ConsoleID'])) {
+            echo json_encode(['success' => false, 'error' => 'Invalid Console']);
+            exit;
+        }
+
+        if (updateAchievementFlags($achievementId, (int) $value)) {
+            if ($value == AchievementType::OFFICIAL_CORE) {
                 $commentText = 'promoted this achievement to the Core set';
             }
-            if ($value == 5) {
+            if ($value == AchievementType::UNOFFICIAL) {
                 $commentText = 'demoted this achievement to Unofficial';
             }
-            addArticleComment("Server", \RA\ArticleType::Achievement, $achID, "\"$user\" $commentText.", $user);
-        } else {
-            // error_log("requestupdateachievement.php failed?! 3" . var_dump($_POST));
-            echo "FAILED!";
+            addArticleComment("Server", ArticleType::Achievement, $achievementId, "\"$user\" $commentText.", $user);
+            echo json_encode(['success' => true, 'message' => 'OK']);
+            exit;
         }
-        break;
-    case 4:
-        // Promote/Demote Selected
-        settype($value, "integer");
-        $achIDs = requestInputPost('achievementArray');
-        if (updateAchievementFlags($achIDs, $value)) {
-            if ($value == 3) {
-                $commentText = 'promoted this achievement to the Core set';
-            }
-            if ($value == 5) {
-                $commentText = 'demoted this achievement to Unofficial';
-            }
-            addArticleComment("Server", \RA\ArticleType::Achievement, $achIDs, "\"$user\" $commentText.", $user);
-        } else {
-            echo "FAILED!";
-        }
-        break;
-    default:
-        // error_log("requestupdateachievement.php failed?!" . var_dump($_POST));
-        echo "FAILED!";
         break;
 }
+
+echo json_encode(['success' => false, 'error' => 'Something went wrong']);
+exit;

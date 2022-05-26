@@ -1,36 +1,32 @@
 <?php
 
+use RA\Permissions;
+use RA\SubscriptionSubjectType;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 // what is being (un-)subscribed? and where should we go back to at the end?
 
-$returnUrl = requestInputPost("return_url");
-$subjectType = requestInputPost("subject_type");
-$subjectID = requestInputPost("subject_id");
+$returnUrl = requestInputPost('return_url', null, 'string');
+$subjectType = requestInputPost('subject_type', null, 'string');
+$subjectID = requestInputPost('subject_id', 0, 'integer');
 
 if ($subjectType === null || $subjectID === null || $returnUrl === null) {
     exit;
 }
 
-// can the user perform this operation?
+$requiredPermissions = match ($subjectType) {
+    SubscriptionSubjectType::GameTickets, SubscriptionSubjectType::GameAchievements => Permissions::JuniorDeveloper,
+    default => Permissions::Registered,
+};
 
-switch ($subjectType) {
-    case \RA\SubscriptionSubjectType::GameTickets:
-    case \RA\SubscriptionSubjectType::GameAchievements:
-        $requiredPermissions = \RA\Permissions::JuniorDeveloper;
-        break;
-    default:
-        $requiredPermissions = \RA\Permissions::Registered;
-        break;
-}
-
-if (!validateFromCookie($user, $unused, $permissions, $requiredPermissions)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissions)) {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
     exit;
 }
 
-$userID = getUserIDFromUser($user);
+$userID = $userDetails['ID'];
 if ($userID == 0) {
     header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
     exit;

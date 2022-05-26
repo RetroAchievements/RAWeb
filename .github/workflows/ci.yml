@@ -44,3 +44,38 @@ jobs:
         run: composer install
       - name: Analyse
         run: composer analyse
+
+  phpunit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.0]
+    name: phpunit (PHP ${{ matrix.php }})
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+          tools: composer:v2
+          coverage: none
+      - name: Install
+        run: composer install
+      - name: Test
+        run: composer test
+
+  eslint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    name: eslint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install
+        run: npm install
+      - name: Lint
+        run: npm run lint

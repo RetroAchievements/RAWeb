@@ -1,0 +1,7 @@
+#!/bin/sh
+# exit on error
+set -e
+
+# consider using pre-push instead
+
+printf "\n✅ pre-commit OK\n\n"

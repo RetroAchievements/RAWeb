@@ -1,16 +1,18 @@
 <?php
 
+use RA\Permissions;
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 if (!ValidatePOSTChars('g')) {
     echo "FAILED";
-    return;
+    exit;
 }
 
 $gameID = requestInputPost('g', null, 'integer');
 
-if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Unregistered)) {
+if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     echo "OK:";
 
     $numUnlocks = getUserUnlocksDetailed($user, $gameID, $dataOut);
@@ -21,9 +23,9 @@ if (validateFromCookie($user, $points, $permissions, \RA\Permissions::Unregister
         }
 
         $achievementIds[] = $nextAwarded['ID'];
-        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        //	_:_ delim 1
+        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        // _:_ delim 1
 
-        echo $nextAwarded['ID'] . "::";            //	::	delim 2
+        echo $nextAwarded['ID'] . "::";            // ::	delim 2
     }
 
     exit;

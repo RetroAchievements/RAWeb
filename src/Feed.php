@@ -8,15 +8,15 @@ class Feed
     /*
      The retrieveNewMessages method retrieves the new messages that have
      been posted to the server.
-     - the $id parameter is sent by the client and it
+     - the $id parameter is sent by the client, and it
      represents the id of the last message received by the client. Messages
      more recent by $id will be fetched from the database and returned to
      the client in XML format.
     */
-    public function retrieveNewMessages($id = 0, $user = null)
+    public function retrieveNewMessages($id = 0, $user = null): string
     {
         // escape the variable data
-        //$id = $this->mMysqli->real_escape_string($id);
+        // $id = $this->mMysqli->real_escape_string($id);
         // compose the SQL query that retrieves new messages
 
         $mode = 'global';
@@ -86,11 +86,10 @@ class Feed
                     '<feedCommentPostedAt><![CDATA[' . $feedCommentPostedAt . ']]></feedCommentPostedAt>';
             }
             // close the database connection as soon as possible
-            //$result->close();
+            // $result->close();
         }
 
         // finish the XML response and return it
-        $response = $response . '</response>';
-        return $response;
+        return $response . '</response>';
     }
 }

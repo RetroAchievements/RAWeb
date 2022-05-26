@@ -3,17 +3,16 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidateGETChars("ucfa")) {
+// TODO do not allow GET requests, POST only
+if (!ValidateGETChars("fa")) {
     echo "FAILED";
-    return;
+    exit;
 }
 
-$user = requestInputQuery('u');
-$cookie = requestInputQuery('c');
 $friend = requestInputQuery('f');
 $action = requestInputQuery('a');
 
-if (validateUser_cookie($user, $cookie, 0) == true) {
+if (authenticateFromCookie($user, $permissions, $userDetail)) {
     $returnVal = changeFriendStatus($user, $friend, $action);
     header("Location: " . getenv('APP_URL') . "/user/$friend?e=$returnVal");
 } else {
