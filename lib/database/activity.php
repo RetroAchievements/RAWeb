@@ -6,7 +6,7 @@ use RA\ObjectType;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
-function getMostRecentActivity($user, $type, $data)
+function getMostRecentActivity($user, $type, $data): ?array
 {
     sanitize_sql_inputs($user, $type, $data);
 
@@ -23,15 +23,15 @@ function getMostRecentActivity($user, $type, $data)
                 ( SELECT MAX(Activity.ID) FROM Activity WHERE $innerClause ) ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-        return false;
+        return null;
     }
 
     return mysqli_fetch_assoc($dbResult);
 }
 
-function updateActivity($activityID)
+function updateActivity($activityID): void
 {
     sanitize_sql_inputs($activityID);
 
@@ -42,12 +42,12 @@ function updateActivity($activityID)
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     }
 }
 
-function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
+function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore): bool
 {
     sanitize_sql_inputs($user, $gameID, $isHardcore);
     settype($isHardcore, 'integer');
@@ -59,11 +59,10 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)
 
     $dbResult = s_mysql_query($query);
 
-    SQL_ASSERT($dbResult);
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function postActivity($userIn, $activity, $customMsg, $isalt = null)
+function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
 {
     global $db;
 
@@ -214,24 +213,27 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null)
     }
 
     $dbResult = mysqli_query($db, $query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
-    } else {
-        /**
-         * Update UserAccount
-         */
-        $newActID = mysqli_insert_id($db);
-        $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult == false) {
-            log_sql_fail();
-        }
+        return false;
     }
 
-    return $dbResult !== false;
+    /**
+     * Update UserAccount
+     */
+    $newActID = mysqli_insert_id($db);
+    $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
+    $dbResult = s_mysql_query($query);
+
+    if (!$dbResult) {
+        log_sql_fail();
+        return false;
+    }
+
+    return true;
 }
 
-function userActivityPing($user)
+function userActivityPing($user): bool
 {
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
@@ -243,7 +245,7 @@ function userActivityPing($user)
               WHERE ua.User = '$user' ";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -251,7 +253,7 @@ function userActivityPing($user)
     return true;
 }
 
-function UpdateUserRichPresence($user, $gameID, $presenceMsg)
+function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
 {
     if (!isset($user) || mb_strlen($user) < 2) {
         return false;
@@ -265,7 +267,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
 
     global $db;
     $dbResult = mysqli_query($db, $query);
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -273,7 +275,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg)
     return true;
 }
 
-function getActivityMetadata($activityID)
+function getActivityMetadata($activityID): ?array
 {
     sanitize_sql_inputs($activityID);
 
@@ -284,7 +286,7 @@ function getActivityMetadata($activityID)
     return mysqli_fetch_assoc($dbResult);
 }
 
-function RemoveComment($articleID, $commentID, $userID, $permissions)
+function RemoveComment($articleID, $commentID, $userID, $permissions): bool
 {
     settype($articleID, 'integer');
     settype($commentID, 'integer');
@@ -302,7 +304,7 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     } else {
@@ -311,7 +313,7 @@ function RemoveComment($articleID, $commentID, $userID, $permissions)
     }
 }
 
-function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null)
+function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null): bool
 {
     if (!ArticleType::isValid($articleType)) {
         return false;
@@ -346,7 +348,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
         return false;
     }
@@ -363,7 +365,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     return true;
 }
 
-function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor, $onBehalfOfUser)
+function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor, $onBehalfOfUser): void
 {
     $subscribers = [];
     $subjectAuthor = null;
@@ -428,12 +430,12 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
     }
 }
 
-function getSubscribersOfGameWall($gameID)
+function getSubscribersOfGameWall($gameID): array
 {
     return getSubscribersOfArticle(1, $gameID, (1 << 1));
 }
 
-function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor)
+function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor): array
 {
     // users directly subscribed to the achievement
     $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
@@ -444,17 +446,17 @@ function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
 
-function getSubscribersOfUserWall($userID, $userName)
+function getSubscribersOfUserWall($userID, $userName): array
 {
     return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
 }
 
-function getSubscribersOfFeedActivity($activityID, $author)
+function getSubscribersOfFeedActivity($activityID, $author): array
 {
     return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
 }
 
-function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID)
+function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
 {
     // users directly subscribed to the ticket
     $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
@@ -471,7 +473,7 @@ function getSubscribersOfArticle(
     $reqWebsitePrefs,
     $subjectAuthor = null,
     $noExplicitSubscriptions = false
-) {
+): array {
     $websitePrefsFilter = ($noExplicitSubscriptions !== true
         ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
 
@@ -495,7 +497,7 @@ function getSubscribersOfArticle(
 
     if ($noExplicitSubscriptions) {
         $dbResult = s_mysql_query($qry);
-        if ($dbResult === false) {
+        if (!$dbResult) {
             log_sql_fail();
             return [];
         }
@@ -516,7 +518,7 @@ function getSubscribersOfArticle(
     );
 }
 
-function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global')
+function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global'): int
 {
     sanitize_sql_inputs($user, $maxMessages, $offset, $latestFeedID);
     settype($maxMessages, "integer");
@@ -584,7 +586,7 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     return 0;
 }
 
-function getRecentlyPlayedGames($user, $offset, $count, &$dataOut)
+function getRecentlyPlayedGames($user, $offset, $count, &$dataOut): int
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -635,21 +637,9 @@ LIMIT $offset, $count";
     return $numFound;
 }
 
-function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut)
+function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut): int
 {
     sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
-
-    // $articleTypeID
-    // 1 = Game
-    // 2 = Achievement
-    // 3 = User
-    // 4 = News (unused)
-    // 5 = feed Activity
-    // 6 = LB
-    // 7 = Ticket
-    // 8 = Forum
-    // 9 = User Moderation
-    // 10 = Game Hash
 
     $dataOut = [];
 
@@ -683,7 +673,7 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     return $numArticleComments;
 }
 
-function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
+function isUserSubscribedToArticleComments($articleType, $articleID, $userID): bool
 {
     sanitize_sql_inputs($articleType, $articleID, $userID);
 
@@ -710,7 +700,7 @@ function isUserSubscribedToArticleComments($articleType, $articleID, $userID)
     );
 }
 
-function getCurrentlyOnlinePlayers()
+function getCurrentlyOnlinePlayers(): array
 {
     $recentMinutes = 10;
 
@@ -737,7 +727,7 @@ function getCurrentlyOnlinePlayers()
     return $playersFound;
 }
 
-function getLatestRichPresenceUpdates()
+function getLatestRichPresenceUpdates(): array
 {
     $playersFound = [];
 
@@ -767,7 +757,7 @@ function getLatestRichPresenceUpdates()
     return $playersFound;
 }
 
-function getLatestNewAchievements($numToFetch, &$dataOut)
+function getLatestNewAchievements($numToFetch, &$dataOut): int
 {
     sanitize_sql_inputs($numToFetch);
 
@@ -794,7 +784,7 @@ function getLatestNewAchievements($numToFetch, &$dataOut)
     return $numFound;
 }
 
-function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
+function GetMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): array
 {
     sanitize_sql_inputs($daysRange, $offset, $count);
 

@@ -2,7 +2,7 @@
 
 use RA\UserPref;
 
-function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
+function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn): bool
 {
     $messagePayload = nl2br($messagePayloadIn);
 
@@ -34,7 +34,7 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn)
     }
 }
 
-function GetMessageCount($user, &$totalMessageCount)
+function GetMessageCount($user, &$totalMessageCount): int
 {
     sanitize_sql_inputs($user);
 
@@ -58,25 +58,23 @@ function GetMessageCount($user, &$totalMessageCount)
         GROUP BY Unread";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             if ($data['Unread'] == 1) {
-                $unreadMessageCount = $data['NumFound'];
+                $unreadMessageCount = (int) $data['NumFound'];
             }
 
-            $totalMessageCount += $data['NumFound'];
+            $totalMessageCount += (int) $data['NumFound'];
         }
 
-        settype($unreadMessageCount, 'integer');
         return $unreadMessageCount;
     } else {
         return 0;
     }
 }
 
-function GetSentMessageCount($user)
+function GetSentMessageCount($user): int
 {
     sanitize_sql_inputs($user);
 
@@ -93,37 +91,17 @@ function GetSentMessageCount($user)
     ";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            $messageCount = $data['NumFound'];
+            $messageCount = (int) $data['NumFound'];
         }
-
-        settype($messageCount, 'integer');
     }
 
     return $messageCount;
 }
 
-function GetTotalMessageCount($user)
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT COUNT(*) AS NumUnreadMessages
-              FROM Messages AS msg
-              WHERE msg.UserTo = '$user'";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        return $data['NumUnreadMessages'];
-    } else {
-        return 0;
-    }
-}
-
-function GetMessage($user, $id)
+function GetMessage($user, $id): ?array
 {
     sanitize_sql_inputs($user, $id);
 
@@ -132,41 +110,19 @@ function GetMessage($user, $id)
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        $numFound = mysqli_num_rows($dbResult);
-        if ($numFound > 0) {
-            return mysqli_fetch_assoc($dbResult);
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-
-function GetUnreadMessages($user, $offset, $count)
-{
-    sanitize_sql_inputs($user, $offset, $count);
-
-    $retval = [];
-
-    $query = "SELECT * FROM Messages AS msg
-              WHERE msg.UserTo='$user' AND msg.Unread = 1
-              ORDER BY msg.TimeSent DESC
-              LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
+    if (!$dbResult) {
+        return null;
     }
 
-    return $retval;
+    $numFound = mysqli_num_rows($dbResult);
+    if ($numFound > 0) {
+        return mysqli_fetch_assoc($dbResult);
+    }
+
+    return null;
 }
 
-function GetAllMessages($user, $offset, $count, $unreadOnly)
+function GetAllMessages($user, $offset, $count, $unreadOnly): array
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -195,7 +151,7 @@ function GetAllMessages($user, $offset, $count, $unreadOnly)
     return $retval;
 }
 
-function GetSentMessages($user, $offset, $count)
+function GetSentMessages($user, $offset, $count): array
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -217,7 +173,7 @@ function GetSentMessages($user, $offset, $count)
     return $retval;
 }
 
-function UpdateCachedUnreadTotals($user)
+function UpdateCachedUnreadTotals($user): void
 {
     sanitize_sql_inputs($user);
 
@@ -233,10 +189,9 @@ function UpdateCachedUnreadTotals($user)
     ), Updated=NOW() WHERE ua.User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 }
 
-function markMessageAsRead($user, $messageID, $setAsUnread = 0)
+function markMessageAsRead($user, $messageID, $setAsUnread = 0): bool
 {
     sanitize_sql_inputs($user, $messageID);
 
@@ -247,7 +202,6 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0)
             WHERE msg.ID = $messageID";
 
     $dbResult = s_mysql_query($query);
-    SQL_ASSERT($dbResult);
 
     if ($dbResult !== false) {
         UpdateCachedUnreadTotals($user);
@@ -256,13 +210,13 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0)
     return $dbResult !== false;
 }
 
-function DeleteMessage($user, $messageID)
+function DeleteMessage($user, $messageID): bool
 {
     sanitize_sql_inputs($user, $messageID);
 
     $messageToDelete = GetMessage($user, $messageID);
 
-    if ($messageToDelete == false) {
+    if (!$messageToDelete) {
         return false;
     } elseif ($messageToDelete['UserTo'] !== $user) {
         return false;

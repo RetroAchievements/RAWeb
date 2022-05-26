@@ -48,7 +48,7 @@ switch ($action) {
                 }
             }
 
-            $winners = getWinnersOfAchievements(separateList($achievementIDs), $startTime, $endTime, $hardcoreMode);
+            $winners = getWinnersOfAchievements(separateList($achievementIDs), $startTime, $endTime, (int) $hardcoreMode);
 
             $keys = array_keys($winners);
             for ($i = 0; $i < count($winners); $i++) {

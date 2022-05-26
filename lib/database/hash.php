@@ -1,6 +1,6 @@
 <?php
 
-function getMD5List($consoleID)
+function getMD5List($consoleID): array
 {
     sanitize_sql_inputs($consoleID);
     settype($consoleID, 'integer');
@@ -30,12 +30,12 @@ function getMD5List($consoleID)
     return $retVal;
 }
 
-function getHashListByGameID($gameID)
+function getHashListByGameID($gameID): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
     if ($gameID < 1) {
-        return false;
+        return [];
     }
 
     $query = "SELECT MD5 AS Hash, Name, Labels, User
@@ -73,12 +73,8 @@ function getGameIDFromMD5($md5)
 
 /**
  * Gets the list of hashes and hash information from the databased using the input offset and count.
- *
- * @param int $offset
- * @param int $count
- * @param string $searchedHash
  */
-function getHashList($offset, $count, $searchedHash): array
+function getHashList($offset, $count, string $searchedHash): array
 {
     sanitize_sql_inputs($offset, $count, $searchedHash);
 
@@ -171,7 +167,7 @@ function updateHashDetails($gameID, $hash, $name, $labels)
     global $db;
     $dbResult = mysqli_query($db, $query);
 
-    if ($dbResult == false) {
+    if (!$dbResult) {
         log_sql_fail();
     }
 

@@ -69,7 +69,7 @@ if ($dateWonLocal === "") {
 
 $achievedLocal = ($dateWonLocal !== "");
 
-$numArticleComments = getArticleComments(2, $achievementID, 0, 20, $commentData);
+$numArticleComments = getArticleComments(ArticleType::Achievement, $achievementID, 0, 20, $commentData);
 
 getCodeNotes($gameID, $codeNotes);
 
@@ -356,7 +356,7 @@ RenderHtmlStart(true);
         if ($user !== null) {
             RenderScoreLeaderboardComponent($user, true);
         }
-        RenderGameLeaderboardsComponent($gameID, $lbData);
+        RenderGameLeaderboardsComponent($lbData);
         ?>
     </div>
 </div>
