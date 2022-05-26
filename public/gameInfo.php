@@ -734,12 +734,12 @@ RenderHtmlStart(true);
                     echo "<div>Relations</div>";
                     echo "<table><tbody>";
                     if (!empty($relatedGames)) {
-                        echo "<tr><td>";
+                        echo "<tr>";
                         echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
 
                         echo "To remove:";
-                        echo "<select name='m[]' style='resize:auto' multiple>";
+                        echo "<select name='m[]' style='resize:vertical;overflow:auto;width:100%;height:125px' multiple>";
 
                         foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
@@ -757,7 +757,7 @@ RenderHtmlStart(true);
                         echo "</select>";
                         echo "<input type='submit' style='float: right;' value='Remove' size='37' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'>";
                         echo "</form>";
-                        echo "</td></tr>";
+                        echo "</tr>";
                     }
 
                     echo "<tr><td>";
