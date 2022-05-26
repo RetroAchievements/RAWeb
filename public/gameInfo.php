@@ -674,7 +674,7 @@ RenderHtmlStart(true);
                         echo "<input type='hidden' name='t' value='GAME_TITLE'>";
                         echo "<label for='game_title'>Update title screenshot</label><br>";
                         echo "<input type='file' name='file' id='game_title'>";
-                        echo "<input type='submit' name='submit' style='float: right;' value='Submit'>";
+                        echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
 
                         echo "<form class='mb-2' method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
@@ -682,7 +682,7 @@ RenderHtmlStart(true);
                         echo "<input type='hidden' name='t' value='GAME_INGAME'>";
                         echo "<label for='game_ingame'>Update ingame screenshot</label><br>";
                         echo "<input type='file' name='file' id='game_ingame'>";
-                        echo "<input type='submit' name='submit' style='float: right;' value='Submit'>";
+                        echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
                     }
                 }
@@ -693,7 +693,7 @@ RenderHtmlStart(true);
                     echo "<label for='game_icon'>Update game icon</label><br>";
                     echo "<input type='hidden' name='t' value='GAME_ICON'>";
                     echo "<input type='file' name='file' id='game_icon'>";
-                    echo "<input type='submit' name='submit' style='float: right;' value='Submit'>";
+                    echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                     echo "</form>";
 
                     if ($isFullyFeaturedGame) {
@@ -702,7 +702,7 @@ RenderHtmlStart(true);
                         echo "<label for='game_boxart'>Update game boxart</label><br>";
                         echo "<input type='hidden' name='t' value='GAME_BOXART'>";
                         echo "<input type='file' name='file' id='game_boxart'>";
-                        echo "<input type='submit' name='submit' style='float: right;' value='Submit'>";
+                        echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
                     }
 
@@ -720,63 +720,49 @@ RenderHtmlStart(true);
                 }
 
                 if ($permissions >= Permissions::Admin) {
-                    echo "<tr><td>";
-                    echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data' style='margin-bottom:10px'>";
                     echo "New Forum Topic ID:";
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='text' name='f' size='20'>";
-                    echo "<input type='submit' style='float: right;' value='Submit' size='37'>";
+                    echo "<input type='submit' style='float: right' value='Submit'>";
                     echo "</form>";
-                    echo "</td></tr>";
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div>Relations</div>";
-                    echo "<table><tbody>";
                     if (!empty($relatedGames)) {
-                        echo "<tr><td>";
-                        echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
-
-                        echo "To remove:";
-                        echo "<select name='m[]' style='resize:auto' multiple>";
-
+                        echo "<div>Remove related games:</div>";
+                        echo "<select name='m[]' style='resize:vertical;overflow:auto;width:100%;height:125px' multiple>";
                         foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
                             $gameAltTitle = $gameAlt['Title'];
                             $gameAltConsole = $gameAlt['ConsoleName'];
-
                             sanitize_outputs(
                                 $gameAltTitle,
                                 $gameAltConsole,
                             );
-
                             echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
                         }
-
                         echo "</select>";
-                        echo "<input type='submit' style='float: right;' value='Remove' size='37' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'>";
+                        echo "<div class='text-right'><input type='submit' value='Remove' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'></div>";
                         echo "</form>";
-                        echo "</td></tr>";
                     }
 
-                    echo "<tr><td>";
-                    echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
-                    echo "To add (game ID):";
+                    echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                    echo "<div>Add related game (game ID):</div>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='text' name='n' class='searchboxgame' size='20'>";
-                    echo "<input type='submit' style='float: right;' value='Add' size='37'>";
+                    echo "<input type='submit' style='float: right' value='Add'>";
                     echo "</form>";
-                    echo "</td></tr>";
-                    echo "</tbody></table>";
                 }
                 if ($isFullyFeaturedGame) {
                     echo "<div>Update <a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script:</div>";
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                        echo "<form method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' value='$gameID' name='i'>";
                         echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea><br>";
-                        echo "<input type='submit' style='float: right;' value='Submit' size='37'>";
+                        echo "<div class='text-right'><input type='submit' value='Submit'></div>";
                         echo "</form>";
                     } else {
                         echo "<textarea style='height:320px;' class='code fullwidth' readonly>$richPresenceData</textarea><br>";
