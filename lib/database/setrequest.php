@@ -1,11 +1,8 @@
 <?php
 /**
  * Gets a list of set requests made by a given user.
- *
- * @param string $user the user to get a list of set requests from
- * @return array
  */
-function getUserRequestList($user)
+function getUserRequestList(string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -43,13 +40,8 @@ function getUserRequestList($user)
 
 /**
  * Gets the total and remaining set requests left for the given user.
- *
- * @param string $user the user to get set request information for
- * @param array $list input list of set requests
- * @param int $gameID the game to check if a the user has made a set request for
- * @return array
  */
-function getUserRequestsInformation($user, $list, $gameID = -1)
+function getUserRequestsInformation(string $user, array $list, int $gameID = -1): array
 {
     $requests = [];
     $requests['total'] = 0;
@@ -100,13 +92,8 @@ function getUserRequestsInformation($user, $list, $gameID = -1)
  * Toggles a user set request.
  * If the user has not requested the set then add an entry to the database.
  * If the user has requested the set then remove it from the database.
- *
- * @param string $user the user to toggle a set request for
- * @param int $gameID
- * @param int $remaining remaining set requests for the user
- * @return bool
  */
-function toggleSetRequest($user, $gameID, $remaining)
+function toggleSetRequest(string $user, int $gameID, int $remaining): bool
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -155,11 +142,8 @@ function toggleSetRequest($user, $gameID, $remaining)
 
 /**
  * Gets the number of set requests for a given game.
- *
- * @param int $gameID the game to get the number of set requests for
- * @return int
  */
-function getSetRequestCount($gameID)
+function getSetRequestCount(int $gameID): int
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -182,10 +166,8 @@ function getSetRequestCount($gameID)
 
 /**
  * Gets a list of set requestors for a given game.
- *
- * @param int $gameID the game to get set requestors for
  */
-function getSetRequestorsList($gameID): array|bool
+function getSetRequestorsList(int $gameID): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -193,7 +175,7 @@ function getSetRequestorsList($gameID): array|bool
     $retVal = [];
 
     if ($gameID < 1) {
-        return false;
+        return [];
     }
 
     $query = "
@@ -218,13 +200,8 @@ function getSetRequestorsList($gameID): array|bool
 
 /**
  * Gets a list of the most requested sets without core achievements.
- *
- * @param int|array|null $console the console (or array of consoles) to get games for
- * @param int $offset offset starting position for returned games
- * @param int $count number of games to return
- * @return array
  */
-function getMostRequestedSetsList($console, $offset, $count)
+function getMostRequestedSetsList(array|int|null $console, int $offset, int $count): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -276,11 +253,8 @@ function getMostRequestedSetsList($console, $offset, $count)
 
 /**
  * Gets the number of set-less games with at least one set request.
- *
- * @param int|array|null $console the console (or array of consoles) to get game count for
- * @return bool|mixed|string
  */
-function getGamesWithRequests($console)
+function getGamesWithRequests(array|int|null $console): int
 {
     $query = "
         SELECT
@@ -305,9 +279,9 @@ function getGamesWithRequests($console)
 
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['Games'];
-    } else {
-        return false;
+    if (!$dbResult) {
+        return 0;
     }
+
+    return (int) mysqli_fetch_assoc($dbResult)['Games'];
 }

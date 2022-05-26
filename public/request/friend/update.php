@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+// TODO do not allow GET requests, POST only
 if (!ValidateGETChars("fa")) {
     echo "FAILED";
     exit;

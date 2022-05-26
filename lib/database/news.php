@@ -1,6 +1,6 @@
 <?php
 
-function GetLatestNewsData($offset, $count)
+function GetLatestNewsData($offset, $count): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -21,18 +21,13 @@ function GetLatestNewsData($offset, $count)
     return $retVal;
 }
 
-/**
- * @param mixed $offset
- * @param mixed $numItems
- * @param mixed $dataOut
- */
-function getLatestNewsHeaders($offset, $numItems, &$dataOut)
+function getLatestNewsHeaders($offset, $numItems, &$dataOut): int
 {
     $dataOut = GetLatestNewsData($offset, $numItems);
-    return is_countable($dataOut) ? count($dataOut) : 0;
+    return count($dataOut);
 }
 
-function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
+function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL): int
 {
     sanitize_sql_inputs($payload, $link, $imageURL, $title);
 
@@ -42,7 +37,7 @@ function requestModifyNews($author, &$id, $title, $payload, $link, $imageURL)
         $query = "UPDATE News SET Title='$title', Payload='$payload', Link='$link', Image='$imageURL' WHERE ID='$id'";
         $dbResult = mysqli_query($db, $query);
 
-        if ($dbResult === false) {
+        if (!$dbResult) {
             log_sql_fail();
         }
     } else {

@@ -2,7 +2,7 @@
 
 use RA\Permissions;
 
-function getCodeNotesData($gameID)
+function getCodeNotesData($gameID): array
 {
     $codeNotesOut = [];
 
@@ -29,7 +29,7 @@ function getCodeNotesData($gameID)
     return $codeNotesOut;
 }
 
-function getCodeNotes($gameID, &$codeNotesOut)
+function getCodeNotes($gameID, &$codeNotesOut): bool
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -102,63 +102,9 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
 }
 
 /**
- * @deprecated
- * @see submitCodeNote2()
- * @param mixed $user
- * @param mixed $gameID
- * @param mixed $address
- * @param mixed $note
- */
-function submitCodeNote($user, $gameID, $address, $note): bool
-{
-    global $db;
-    sanitize_sql_inputs($user, $gameID, $address, $note);
-
-    $userID = getUserIDFromUser($user);
-
-    // turn '0x00000f' into '15'
-    $addressAsInt = hexdec(mb_substr($address, 2));
-
-    // $note = str_replace( "'", "''", $note );
-
-    // Remove hashes. Sorry. hash is now a delim.
-    $note = str_replace("#", "_", $note);
-
-    $query = "UPDATE CodeNotes AS cn
-              SET cn.AuthorID = $userID, cn.Note = CONVERT(\"$note\" USING ASCII)
-              WHERE cn.Address = $addressAsInt AND cn.GameID = $gameID ";
-
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        if (mysqli_affected_rows($db) == 0) {
-            // Insert required
-            $query = "INSERT INTO CodeNotes VALUES ( $gameID, $addressAsInt, $userID, CONVERT(\"$note\" USING ASCII) )";
-
-            global $db;
-            $dbResult = mysqli_query($db, $query);
-            if ($dbResult == false) {
-                log_sql_fail();
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    } else {
-        log_sql_fail();
-
-        return false;
-    }
-}
-
-/**
  * Gets the number of code notes created for each game the user has created any notes for.
- *
- * @param string $user to get code note data for
- * @return array of games and code note counts
  */
-function getCodeNoteCounts($user)
+function getCodeNoteCounts(string $user): array
 {
     sanitize_sql_inputs($user);
 

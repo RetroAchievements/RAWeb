@@ -34,7 +34,7 @@ $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $sho
 
 sanitize_outputs($requestedConsole);
 
-function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showConsoleName, $showTotals)
+function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showConsoleName, $showTotals): void
 {
     echo "\n<div class='table-wrapper'><table><tbody>";
 

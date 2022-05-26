@@ -1,5 +1,7 @@
 <?php
 
+use RA\AchievementType;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -63,15 +65,15 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<div class='d-flex flex-wrap justify-content-between'>";
         echo "<div>";
 
-        echo $params !== 3 ? "<a href='/achievementList.php?s=$sortBy&p=3$dev_param'>" : "<b>";
+        echo $params !== AchievementType::OFFICIAL_CORE ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::OFFICIAL_CORE . "$dev_param'>" : "<b>";
         echo "Achievements in Core Sets";
-        echo $params !== 3 ? "</a>" : "</b>";
+        echo $params !== AchievementType::OFFICIAL_CORE ? "</a>" : "</b>";
         echo "<br>";
 
         if ($user !== null) {
-            echo $params !== 5 ? "<a href='/achievementList.php?s=$sortBy&p=5$dev_param'>" : "<b>";
+            echo $params !== AchievementType::UNOFFICIAL ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::UNOFFICIAL . "$dev_param'>" : "<b>";
             echo "Achievements in Unofficial Sets";
-            echo $params !== 5 ? "</a>" : "</b>";
+            echo $params !== AchievementType::UNOFFICIAL ? "</a>" : "</b>";
             echo "<br>";
 
             echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";

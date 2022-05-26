@@ -6,14 +6,8 @@
  *
  * Results are configurable based on input parameters allowing returning data for a specific users friends
  * and selecting a specific date
- *
- * @param string $date Date to grab information from
- * @param string $friendsOf User to get friends data for
- * @param int $offset starting point to return rows
- * @param int $count number of rows to return
- * @return array Leaderboard data to display
  */
-function getRecentMasteryData($date, $friendsOf = null, $offset = 0, $count = 50)
+function getRecentMasteryData(string $date, string $friendsOf = null, int $offset = 0, int $count = 50): array
 {
     // Determine the friends condition
     $friendCondAward = "";

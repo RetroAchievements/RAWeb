@@ -32,10 +32,10 @@ $errorCode = "OK";
 $validLogin = false;
 $permissions = null;
 if (!empty($token) /* && strlen( $token ) == 16 */) {
-    $validLogin = RA_ReadTokenCredentials($user, $token, $points, $truePoints, $unreadMessageCount, $permissions);
+    $validLogin = authenticateFromAppToken($user, $token, $permissions);
 }
 
-function DoRequestError($errorMsg)
+function DoRequestError($errorMsg): void
 {
     global $response;
     $response['Success'] = false;

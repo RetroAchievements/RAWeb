@@ -10,8 +10,8 @@ if [ ${#modifiedPhpFiles} -gt 0 ]; then
     printf "\n⏳ composer lint\n"
     vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php ${modifiedPhpFiles}
 
-#    printf "\n⏳ composer test\n"
-#    phpunit
+    printf "\n⏳ composer test\n"
+    vendor/bin/phpunit
 fi
 
 modifiedJsFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.js')"

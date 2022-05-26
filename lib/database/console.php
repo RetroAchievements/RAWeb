@@ -1,6 +1,6 @@
 <?php
 
-function getConsoleList()
+function getConsoleList(): array
 {
     $query = "SELECT ID, Name FROM Console";
     $dbResult = s_mysql_query($query);
@@ -16,7 +16,7 @@ function getConsoleList()
     return $consoleList;
 }
 
-function getConsoleIDs()
+function getConsoleIDs(): array
 {
     $retVal = [];
 
