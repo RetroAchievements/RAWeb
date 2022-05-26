@@ -7,7 +7,7 @@ if (!function_exists('dump')) {
             echo '<pre>';
         }
         foreach ($args as $arg) {
-            print_r($arg);
+            echo print_r($arg, true) . (is_array($arg) ? '' : PHP_EOL);
         }
         if (php_sapi_name() !== 'cli') {
             echo '</pre>';
