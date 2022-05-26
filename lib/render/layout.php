@@ -499,8 +499,10 @@ function RenderThemeSelector()
 function RenderPaginator($numItems, $perPage, $offset, $urlPrefix)
 {
     if ($offset > 0) {
+        echo "<a title='First' href='${urlPrefix}0'>&#x226A;</a>&nbsp;";
+
         $prevOffset = $offset - $perPage;
-        echo "<a href='$urlPrefix$prevOffset'>&lt;</a>&nbsp;";
+        echo "<a title='Previous' href='$urlPrefix$prevOffset'>&lt;</a>&nbsp;";
     }
 
     echo "Page <select class='gameselector' onchange='window.location=\"$urlPrefix\" + this.options[this.selectedIndex].value'>";
@@ -513,6 +515,10 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix)
 
     $nextOffset = $offset + $perPage;
     if ($nextOffset < $numItems) {
-        echo "&nbsp;<a href='$urlPrefix$nextOffset'>&gt;</a>";
+        echo "&nbsp;<a title='Next' href='$urlPrefix$nextOffset'>&gt;</a>";
+
+        $lastOffset = $numItems - 1; // 0-based
+        $lastOffset = $lastOffset - ($lastOffset % $perPage);
+        echo "&nbsp;<a title='Last' href='$urlPrefix$lastOffset'>&#x226B;</a>";
     }
 }
