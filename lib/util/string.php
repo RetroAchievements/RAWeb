@@ -55,3 +55,20 @@ function rand_string($length)
 
     return $str;
 }
+
+function separateList(string $items): array
+{
+    // replace allowed delimiters with spaces
+    $items = str_replace([
+        ',',
+        ';',
+        "\t",
+        '|',
+    ], ' ', $items);
+
+    // split into array, remove empty values, reset keys
+    $items = explode(' ', $items);
+    $items = array_filter($items);
+
+    return array_values($items);
+}
