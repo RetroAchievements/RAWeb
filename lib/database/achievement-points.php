@@ -1,5 +1,7 @@
 <?php
 
+use RA\AchievementType;
+
 function recalculateTrueRatio($gameID): bool
 {
     sanitize_sql_inputs($gameID);
@@ -15,7 +17,7 @@ function recalculateTrueRatio($gameID): bool
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true, 3);
+        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true, AchievementType::OFFICIAL_CORE);
 
         if ($numHardcoreWinners == 0) { // force all unachieved to be 1
             $numHardcoreWinners = 1;

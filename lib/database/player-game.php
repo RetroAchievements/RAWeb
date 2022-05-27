@@ -1,6 +1,8 @@
 <?php
 
+use RA\AchievementType;
 use RA\ActivityType;
+use RA\Permissions;
 
 function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
 {
@@ -9,7 +11,7 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
 
     $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
-              WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
+              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OFFICIAL_CORE;
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -47,7 +49,7 @@ function getGameRankAndScore($gameID, $requestedBy): ?array
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
         WHERE ( !ua.Untracked OR ua.User = '$requestedBy') 
-          AND ach.Flags = 3 
+          AND ach.Flags = " . AchievementType::OFFICIAL_CORE . " 
           AND gd.ID = $gameID
         GROUP BY aw.User
         ORDER BY TotalScore DESC, LastAward ASC
@@ -242,7 +244,7 @@ function getUsersCompletedGamesAndMax($user): array
 
     sanitize_sql_inputs($user);
 
-    $requiredFlags = 3;
+    $requiredFlags = AchievementType::OFFICIAL_CORE;
     $minAchievementsForCompletion = 5;
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
@@ -312,7 +314,7 @@ function getGameRecentPlayers($gameID, $maximum_results = 0): array
 
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
               FROM UserAccounts AS ua
-              WHERE ua.LastGameID = $gameID AND ua.Permissions >= 0
+              WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Registered . "
               ORDER BY ua.RichPresenceMsgDate DESC";
 
     if ($maximum_results > 0) {
@@ -356,10 +358,10 @@ function getGameTopAchievers(int $gameID, string $requestedBy): array
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                 WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
-                  AND ach.Flags = 3 
+                  AND ach.Flags = " . AchievementType::OFFICIAL_CORE . " 
                   AND gd.ID = $gameID
                 GROUP BY aw.User
-                ORDER BY TotalScore DESC, LastAward ASC";
+                ORDER BY TotalScore DESC, LastAward";
 
     $dbResult = s_mysql_query($query);
 
@@ -426,7 +428,7 @@ function getMostPopularGames($offset, $count, $method): array
         //             FROM Activity AS act
         //             LEFT JOIN GameData AS gd ON gd.ID = act.data
         //             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        //             WHERE act.activitytype = 3 AND !ISNULL( gd.ID )
+        //             WHERE act.activitytype = " . AchievementType::OFFICIAL_CORE . " AND !ISNULL( gd.ID )
         //             GROUP BY gd.ID, act.User
         //         ) AS Inner1
         //         GROUP BY Inner1.ID

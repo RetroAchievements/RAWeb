@@ -41,7 +41,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     $retVal['Success'] = false;
 
     if ($achIDToAward <= 0) {
-        $retVal['Error'] = "Achievement ID <= 0! Cannot unlocl";
+        $retVal['Error'] = "Achievement ID <= 0! Cannot unlock";
         return $retVal;
     }
 
