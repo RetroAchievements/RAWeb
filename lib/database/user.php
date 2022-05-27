@@ -516,7 +516,7 @@ function GetUserFields($username, $fields): ?array
 /**
  * Returns the information displayed in the usercard.
  */
-function getUserCardData(string $user, &$userCardInfo): void
+function getUserCardData($user, &$userCardInfo): void
 {
     getAccountDetails($user, $userInfo);
 
