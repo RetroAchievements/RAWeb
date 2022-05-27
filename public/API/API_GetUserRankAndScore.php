@@ -18,7 +18,7 @@ $user = requestInputQuery('u', null);
 
 $retVal = [];
 
-$retVal['Score'] = getScore($user);
+$retVal['Score'] = getPlayerPoints($user);
 $retVal['Rank'] = getUserRank($user);
 $retVal['TotalRanked'] = countRankedUsers();
 

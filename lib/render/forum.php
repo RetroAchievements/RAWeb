@@ -1,6 +1,6 @@
 <?php
 
-function RenderRecentForumPostsComponent($permissions, $numToFetch = 4)
+function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
 {
     echo "<div class='component'>";
     echo "<h3>Forum Activity</h3>";

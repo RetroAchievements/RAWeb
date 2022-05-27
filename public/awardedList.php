@@ -24,7 +24,7 @@ if ($user == null) {
 
 $sortBy = requestInputQuery('s', 1);
 
-getCommonlyEarnedAchievements($consoleIDInput, $offset, $count, $awardedData);
+getCommonlyUnlocked($consoleIDInput, $offset, $count, $awardedData);
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {

@@ -1,6 +1,6 @@
 <?php
 
-function RenderErrorCodeWarning(?string $errorCode)
+function RenderErrorCodeWarning(?string $errorCode): void
 {
     if (empty($errorCode)) {
         return;

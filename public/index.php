@@ -21,9 +21,6 @@ if (file_exists("../storage/logs/playersonline.log")) {
 }
 $staticData = getStaticData();
 $errorCode = requestInputSanitized('e');
-$mobileBrowser = IsMobileBrowser();
-
-RA_SetCookie("RA_MobileActive", $mobileBrowser, time() + 60 * 60 * 24 * 30);
 
 $mostPopularCount = requestInputSanitized('p', 10, 'integer');
 

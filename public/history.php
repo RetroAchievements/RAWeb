@@ -31,7 +31,7 @@ if ($sortBy == 2 || $sortBy == 12) {
 
 $errorCode = requestInputSanitized('e');
 
-$userPagePoints = getScore($userPage);
+$userPagePoints = getPlayerPoints($userPage);
 
 getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 

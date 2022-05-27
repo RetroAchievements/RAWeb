@@ -159,7 +159,7 @@ RenderHeader($userDetails);
             // Loop through each set request and display them if they do not have any achievements
             foreach ($setRequestList as $request) {
                 if ($flag == 0) {
-                    if (empty(getAchievementIDs($request['GameID'])['AchievementIDs'])) {
+                    if (empty(getAchievementIDsByGame($request['GameID'])['AchievementIDs'])) {
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";
@@ -167,7 +167,7 @@ RenderHeader($userDetails);
                         echo "</td>";
                     }
                 } else {
-                    if (empty(getAchievementIDs($request['GameID'])['AchievementIDs'])) {
+                    if (empty(getAchievementIDsByGame($request['GameID'])['AchievementIDs'])) {
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";

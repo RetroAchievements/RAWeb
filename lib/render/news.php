@@ -1,6 +1,6 @@
 <?php
 
-function RenderNewsComponent()
+function RenderNewsComponent(): void
 {
     $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
     if (!$numNewsItems) {
@@ -27,7 +27,7 @@ function RenderNewsComponent()
     echo "</div>";
 }
 
-function RenderNewsHeader($newsData)
+function RenderNewsHeader($newsData): void
 {
     $title = $newsData['Title'];
     $payload = $newsData['Payload'];

@@ -1,6 +1,6 @@
 <?php
 
-function RenderStaticDataComponent($staticData)
+function RenderStaticDataComponent($staticData): void
 {
     echo "<div class='component statistics'>";
     echo "<h3>Statistics</h3>";
@@ -17,18 +17,18 @@ function RenderStaticDataComponent($staticData)
 
     $lastRegisteredUser = $staticData['LastRegisteredUser'];
     $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
-    $lastAchievementEarnedID = $staticData['LastAchievementEarnedID'];
-    $lastAchievementEarnedTitle = $staticData['LastAchievementEarnedTitle'];
-    $lastAchievementEarnedByUser = $staticData['LastAchievementEarnedByUser'];
-    $lastAchievementEarnedAt = $staticData['LastAchievementEarnedAt'];
+    // $lastAchievementEarnedID = $staticData['LastAchievementEarnedID'];
+    // $lastAchievementEarnedTitle = $staticData['LastAchievementEarnedTitle'];
+    // $lastAchievementEarnedByUser = $staticData['LastAchievementEarnedByUser'];
+    // $lastAchievementEarnedAt = $staticData['LastAchievementEarnedAt'];
     $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-    $nextGameToScanID = $staticData['NextGameToScan'];
-    $nextGameToScan = $staticData['NextGameTitleToScan'];
-    $nextGameToScanIcon = $staticData['NextGameToScanIcon'];
-    $nextGameConsoleToScan = $staticData['NextGameToScanConsole'];
+    // $nextGameToScanID = $staticData['NextGameToScan'];
+    // $nextGameToScan = $staticData['NextGameTitleToScan'];
+    // $nextGameToScanIcon = $staticData['NextGameToScanIcon'];
+    // $nextGameConsoleToScan = $staticData['NextGameToScanConsole'];
 
-    $nextUserToScan = $staticData['NextUserToScan'];
+    // $nextUserToScan = $staticData['NextUserToScan'];
 
     $niceRegisteredAt = date("d M\nH:i", strtotime($lastRegisteredUserAt));
 
@@ -60,7 +60,7 @@ function RenderStaticDataComponent($staticData)
     echo "<br>";
 
     echo "The last registered user was ";
-    echo GetUserAndTooltipDiv($lastRegisteredUser, false);
+    echo GetUserAndTooltipDiv($lastRegisteredUser);
     // echo "<a href='/user/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br>";
 

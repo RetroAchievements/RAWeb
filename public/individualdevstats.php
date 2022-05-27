@@ -403,7 +403,7 @@ foreach ($obtainers as $obtainer) {
 // Get last 200 achievements obtained by others
 // Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
 $maxRecentAchievements = 200;
-$recentlyObtainedAchievements = getRecentObtainedAchievements($achievementIDs, 0, $maxRecentAchievements);
+$recentlyObtainedAchievements = getRecentUnlocks($achievementIDs, 0, $maxRecentAchievements);
 
 // Initialize code note variables
 $mostNotedGame = [];

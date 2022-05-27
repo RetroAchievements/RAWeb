@@ -19,14 +19,13 @@ if ($permissions >= Permissions::Admin) {
 
 $numTotalTopics = 0;
 
-if ($requestedForumID == 0) {
-    if ($permissions >= Permissions::Admin) {
-        // Continue
-        $viewingUnauthorisedForumLinks = true;
-    } else {
-        header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
-        exit;
-    }
+if ($requestedForumID == 0 && $permissions < Permissions::Admin) {
+    header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
+    exit;
+}
+
+if ($requestedForumID == 0 && $permissions >= Permissions::Admin) {
+    $viewingUnauthorisedForumLinks = true;
 
     $thisForumID = 0;
     $thisForumTitle = "Unauthorised Links";
@@ -38,7 +37,7 @@ if ($requestedForumID == 0) {
 
     $requestedForum = "Unauthorised Links";
 } else {
-    if (getForumDetails($requestedForumID, $forumDataOut) == false) {
+    if (!getForumDetails($requestedForumID, $forumDataOut)) {
         header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
         exit;
     }

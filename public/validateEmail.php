@@ -10,7 +10,7 @@ if (!validateGetChars("v")) {
 
 $eCookie = requestInputSanitized('v');
 
-if (validateEmailValidationString($eCookie, $user)) {
+if (validateEmailVerificationToken($eCookie, $user)) {
     // Valid!
     generateCookie($user, $cookieOut);
     header("Location: " . getenv('APP_URL') . "/?e=validatedEmail");

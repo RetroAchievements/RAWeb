@@ -4,25 +4,24 @@ use RA\Permissions;
 use RA\TicketFilters;
 use RA\TicketState;
 
-function RenderHtmlStart($isOpenGraphPage = false)
+function RenderHtmlStart($isOpenGraphPage = false): void
 {
     echo "<!doctype html>";
-    // echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML+RDFa 1.0//EN' 'http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd'>\n";
-    echo "<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
+    echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
 
     if ($isOpenGraphPage) {
-        echo "prefix=\"og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#\" ";
+        echo "prefix=\"og: https://ogp.me/ns# retroachievements: https://ogp.me/ns/apps/retroachievements#\" ";
     }
 
     echo ">\n";
 }
 
-function RenderHtmlEnd()
+function RenderHtmlEnd(): void
 {
     echo "</html>";
 }
 
-function RenderHtmlHead($pageTitle = null)
+function RenderHtmlHead($pageTitle = null): void
 {
     echo "<head>";
     RenderSharedHeader();
@@ -30,7 +29,7 @@ function RenderHtmlHead($pageTitle = null)
     echo "</head>";
 }
 
-function RenderSharedHeader()
+function RenderSharedHeader(): void
 {
     echo "<link rel='icon' type='image/png' href='/favicon.png'>\n";
     echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
@@ -65,13 +64,13 @@ function RenderSharedHeader()
     } else {
         echo "<link rel='stylesheet' href='/css/styles-" . VERSION . ".css' media='screen'>\n";
     }
-    $customCSS = RA_ReadCookie('RAPrefs_CSS');
+    $customCSS = readCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
         echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
     }
 }
 
-function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description)
+function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description): void
 {
     echo "<meta property='og:type' content='retroachievements:$OGType'>\n";
     echo "<meta property='og:image' content='" . getenv('ASSET_URL') . "$imageURL'>\n";
@@ -80,7 +79,7 @@ function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $descript
     echo "<meta property='og:description' content=\"$description\">\n";
 }
 
-function RenderTitleTag($title = null)
+function RenderTitleTag($title = null): void
 {
     echo "<title>";
     if ($title !== null) {
@@ -98,7 +97,7 @@ function RenderTitleTag($title = null)
     // </script>";
 }
 
-function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null)
+function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null): void
 {
     settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
@@ -121,7 +120,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "<div class='login'>";
 
-    if ($user == false) {
+    if (!$user) {
         echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br>";
 
@@ -182,7 +181,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
         if ($openTickets) {
             $filter = TicketFilters::Default & ~TicketFilters::StateRequest;
             echo " $separator <a href='/ticketmanager.php?u=$user&t=$filter'>";
-            echo "<font color='red'>$prefix<strong>$openTickets</strong></font>";
+            echo "<span style='color: red;'>$prefix<strong>$openTickets</strong></span>";
             echo "</a>";
             $prefix = '';
             $separator = '/';
@@ -208,7 +207,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
     echo "</div>";
 }
 
-function RenderToolbar($user, $permissions = 0)
+function RenderToolbar($user, $permissions = 0): void
 {
     echo "<div id='innermenu'>";
     echo "<ul id='menuholder'>";
@@ -388,7 +387,7 @@ function RenderToolbar($user, $permissions = 0)
     echo "</div>";
 }
 
-function RenderHeader($userDetails)
+function RenderHeader($userDetails): void
 {
     $errorCode = requestInputSanitized('e');
 
@@ -404,7 +403,7 @@ function RenderHeader($userDetails)
     }
 }
 
-function RenderFooter()
+function RenderFooter(): void
 {
     echo "<div style='clear:both;'></div>";
 
@@ -470,7 +469,7 @@ function RenderFooter()
     echo "</footer>";
 }
 
-function RenderThemeSelector()
+function RenderThemeSelector(): void
 {
     $dirContent = scandir('./css/');
 
@@ -484,7 +483,7 @@ function RenderThemeSelector()
         }
     }
 
-    $currentCustomCSS = RA_ReadCookie('RAPrefs_CSS');
+    $currentCustomCSS = readCookie('RAPrefs_CSS');
     $currentCustomCSS = $currentCustomCSS ?: '/css/rac_blank.css';
 
     echo "<select id='themeselect' onchange='ResetTheme(); return false;'>";
@@ -496,7 +495,7 @@ function RenderThemeSelector()
     echo "</select>";
 }
 
-function RenderPaginator($numItems, $perPage, $offset, $urlPrefix)
+function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
 {
     if ($offset > 0) {
         echo "<a title='First' href='${urlPrefix}0'>&#x226A;</a>&nbsp;";

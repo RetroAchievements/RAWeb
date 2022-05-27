@@ -16,4 +16,4 @@ runPublicApiMiddleware();
 
 $gameID = requestInputQuery('i');
 
-echo json_encode(getAchievementIDs($gameID), JSON_THROW_ON_ERROR);
+echo json_encode(getAchievementIDsByGame($gameID), JSON_THROW_ON_ERROR);

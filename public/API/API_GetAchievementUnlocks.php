@@ -70,7 +70,7 @@ $console = [
     'Title' => $achievementData['ConsoleName'] ?? null,
 ];
 
-getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, $offset, $count);
+getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, $offset, $count);
 
 echo json_encode([
     'Achievement' => $achievement,

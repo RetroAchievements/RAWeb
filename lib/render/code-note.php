@@ -1,6 +1,6 @@
 <?php
 
-function RenderCodeNotes($codeNotes, $showDisclaimer = false)
+function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
 {
     echo "<h3>Code Notes</h3>";
 
