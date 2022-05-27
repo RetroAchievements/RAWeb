@@ -82,7 +82,7 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-getAchievementWonData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 500);
+getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 500);
 
 /**
  * reset unlocks if there is no start date to prevent listing invalid entries
@@ -104,7 +104,7 @@ echo json_encode([
     'ForumTopic' => $forumTopic,
     'Game' => $game,
     'StartAt' => $startAt,
-    'TotalPlayers' => (int) ($numPossibleWinners ?? 0),
+    'TotalPlayers' => $numPossibleWinners ?? 0,
     'Unlocks' => array_values($winnerInfo ?? []),
-    'UnlocksCount' => (int) ($numWinners ?? 0),
+    'UnlocksCount' => $numWinners ?? 0,
 ], JSON_THROW_ON_ERROR);

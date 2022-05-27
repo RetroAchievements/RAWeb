@@ -47,7 +47,7 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
     $requests['total'] = 0;
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;
-    $points = GetScore($user);
+    $points = getPlayerPoints($user);
 
     // logic behind the amount of requests based on player's score:
     $boundariesAndChunks = [
@@ -67,13 +67,13 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
     }
 
     // adding the number of years the user is here
-    $requests['total'] += getAge($user);
+    $requests['total'] += getAccountAge($user);
 
     // Determine how many of the users current requests are still valid.
     // Requests made for games that since received achievements do not count towards a used request
     foreach ($list as $request) {
         // If the game does not have achievements then it counts as a legit request
-        if (empty(getAchievementIDs($request['GameID'])['AchievementIDs'])) {
+        if (empty(getAchievementIDsByGame($request['GameID'])['AchievementIDs'])) {
             $requests['used']++;
         }
 

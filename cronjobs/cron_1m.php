@@ -46,7 +46,7 @@ $userID = $staticData['NextUserIDToScan'];
 $user = '';
 for ($i = 0; $i < 3; $i++) {
     $user = getUserFromID($userID);
-    recalcScore($user);
+    recalculatePlayerPoints($user);
     $userID = GetNextHighestUserID($userID);
 }
 static_setnextusertoscan($userID);

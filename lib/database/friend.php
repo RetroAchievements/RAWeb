@@ -221,3 +221,23 @@ function GetFriendList($user): array
 
     return $friendList;
 }
+
+/**
+ * Gets the number of friends for the input user.
+ */
+function getFriendCount(string $user): ?int
+{
+    sanitize_sql_inputs($user);
+
+    $query = "SELECT COUNT(*) AS FriendCount
+              FROM Friends
+              WHERE User LIKE '$user'
+              AND Friendship = 1";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        return (int) mysqli_fetch_assoc($dbResult)['FriendCount'];
+    } else {
+        return null;
+    }
+}

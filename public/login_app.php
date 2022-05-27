@@ -8,8 +8,8 @@ $user = requestInputPost('u', null);
 $pass = requestInputPost('p', null);
 $token = requestInputPost('t', null);
 
-$response = loginApp($user, $pass, $token);
-if ($response['Success'] == false) {
+$response = authenticateFromPasswordOrAppToken($user, $pass, $token);
+if (!$response['Success']) {
     http_response_code(401);
 }
 

@@ -188,7 +188,7 @@ function UpdateCachedUnreadTotals($user): void
         ) InnerTable
     ), Updated=NOW() WHERE ua.User = '$user'";
 
-    $dbResult = s_mysql_query($query);
+    s_mysql_query($query);
 }
 
 function markMessageAsRead($user, $messageID, $setAsUnread = 0): bool

@@ -37,11 +37,11 @@ function GetGameAndTooltipDiv(
 
     $displayable = "";
 
-    if ($justText == false) {
+    if (!$justText) {
         $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . getenv('ASSET_URL') . "$gameIcon' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
     }
 
-    if ($justImage == false) {
+    if (!$justImage) {
         $displayable .= "$gameName $consoleStr";
     }
 
@@ -52,7 +52,7 @@ function GetGameAndTooltipDiv(
         "</div>";
 }
 
-function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
+function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): void
 {
     $historyData = GetMostPopularTitles($daysRange, $offset, $count);
 
@@ -95,19 +95,19 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10)
     echo "</div>";
 }
 
-function RenderBoxArt($imagePath)
+function RenderBoxArt($imagePath): void
 {
     echo "<div class='component gamescreenshots'>";
     echo "<h3>Box Art</h3>";
     echo "<table><tbody>";
     echo "<tr><td>";
-    echo "<img src='$imagePath' style='max-width:100%;' />";
+    echo "<img src='$imagePath' style='max-width:100%;' alt='Boxart'/>";
     echo "</td></tr>";
     echo "</tbody></table>";
     echo "</div>";
 }
 
-function RenderGameAlts($gameAlts, $headerText = null)
+function RenderGameAlts($gameAlts, $headerText = null): void
 {
     echo "<div class='component gamealts'>";
     if ($headerText) {
@@ -130,7 +130,7 @@ function RenderGameAlts($gameAlts, $headerText = null)
             $consoleName,
         );
 
-        $isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
+        $isFullyFeaturedGame = $consoleName != 'Hubs';
         if (!$isFullyFeaturedGame) {
             $consoleName = null;
         }
@@ -155,7 +155,7 @@ function RenderGameAlts($gameAlts, $headerText = null)
     echo "</div>";
 }
 
-function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = [])
+function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = []): void
 {
     $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
 
@@ -164,7 +164,7 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = 
             $hubPrefix = "[$hubCategory - ";
             foreach ($gameHubs as $hub) {
                 $title = $hub['Title'];
-                if (substr($title, 0, strlen($hubPrefix)) == $hubPrefix) {
+                if (str_starts_with($title, $hubPrefix)) {
                     $value = substr($title, strlen($hubPrefix), -1);
                     $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
 
@@ -202,7 +202,7 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs, $altLabels = 
     }
 }
 
-function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0)
+function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0): void
 {
     sanitize_outputs(
         $gameTitle,
@@ -217,7 +217,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
     }
 }
 
-function RenderRecentGamePlayers($recentPlayerData)
+function RenderRecentGamePlayers($recentPlayerData): void
 {
     echo "<div class='component'>Recent Players:";
     echo "<table class='smalltable'><tbody>";

@@ -37,21 +37,21 @@ if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Junio
             // new alt provided/alt to be removed
             if (is_array($removeGameAlt)) {
                 foreach ($removeGameAlt as &$gameAlt) {
-                    requestModifyGameAlt($gameID, $newGameAlt, $gameAlt);
+                    modifyGameAlternatives($gameID, $newGameAlt, $gameAlt);
                 }
             } else {
-                requestModifyGameAlt($gameID, $newGameAlt, $removeGameAlt);
+                modifyGameAlternatives($gameID, $newGameAlt, $removeGameAlt);
             }
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
             exit;
         } else {
             if (isset($developer) && isset($publisher) && isset($genre) && isset($released)) {
-                requestModifyGameData($gameID, $developer, $publisher, $genre, $released);
+                modifyGameData($gameID, $developer, $publisher, $genre, $released);
                 header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
                 exit;
             } else {
                 if (isset($newForumTopic)) {
-                    if (requestModifyGameForumTopic($gameID, $newForumTopic)) {
+                    if (modifyGameForumTopic($gameID, $newForumTopic)) {
                         header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
                         exit;
                     } else {

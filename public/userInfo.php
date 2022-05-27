@@ -107,7 +107,7 @@ $errorCode = requestInputSanitized('e');
 
 $pageTitle = "$userPage";
 
-$userPagePoints = getScore($userPage);
+$userPagePoints = getPlayerPoints($userPage);
 
 $daysRecentProgressToShow = 14; // fortnight
 
@@ -568,8 +568,8 @@ RenderHtmlStart(true);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderSiteAwards(getUsersSiteAwards($userPage, false));
-        RenderCompletedGamesList($userPage, $userCompletedGamesList);
+        RenderSiteAwards(getUsersSiteAwards($userPage));
+        RenderCompletedGamesList($userCompletedGamesList);
 
         echo "<div id='achdistribution' class='component' >";
         echo "<h3>Recent Progress</h3>";

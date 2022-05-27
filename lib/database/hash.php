@@ -74,7 +74,7 @@ function getGameIDFromMD5($md5)
 /**
  * Gets the list of hashes and hash information from the databased using the input offset and count.
  */
-function getHashList($offset, $count, string $searchedHash): array
+function getHashList($offset, $count, $searchedHash): array
 {
     sanitize_sql_inputs($offset, $count, $searchedHash);
 

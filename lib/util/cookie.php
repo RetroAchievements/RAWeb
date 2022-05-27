@@ -1,20 +1,20 @@
 <?php
 
-function RA_ClearCookie($cookieName)
+function clearCookie($cookieName): void
 {
-    RA_SetCookie($cookieName, '', 1);
+    applyCookie($cookieName, '', 1);
 }
 
-function RA_ReadCookie($cookieName): ?string
+function readCookie($cookieName): ?string
 {
-    if (RA_CookieExists($cookieName)) {
+    if (cookieExists($cookieName)) {
         return htmlspecialchars($_COOKIE[$cookieName]);
     }
 
     return null;
 }
 
-function RA_SetCookie($cookieName, $cookieValue, $expire = 0, $httponly = false)
+function applyCookie($cookieName, $cookieValue, $expire = 0, $httponly = false): bool
 {
     return setcookie($cookieName, $cookieValue, [
         'expires' => $expire,
@@ -26,7 +26,7 @@ function RA_SetCookie($cookieName, $cookieValue, $expire = 0, $httponly = false)
     ]);
 }
 
-function RA_CookieExists($cookieName): bool
+function cookieExists($cookieName): bool
 {
     return array_key_exists($cookieName, $_COOKIE) && $_COOKIE[$cookieName] !== false;
 }

@@ -22,7 +22,7 @@ switch ($action) {
     case 'getachids':
         $gameIDs = separateList(requestInputSanitized('g'));
         foreach ($gameIDs as $nextGameID) {
-            $ids = getAchievementIDs($nextGameID);
+            $ids = getAchievementIDsByGame($nextGameID);
             $message = implode(', ', $ids["AchievementIDs"] ?? []);
         }
         break;
@@ -48,7 +48,7 @@ switch ($action) {
                 }
             }
 
-            $winners = getWinnersOfAchievements(separateList($achievementIDs), $startTime, $endTime, (int) $hardcoreMode);
+            $winners = getUnlocksInDateRange(separateList($achievementIDs), $startTime, $endTime, (int) $hardcoreMode);
 
             $keys = array_keys($winners);
             for ($i = 0; $i < count($winners); $i++) {
@@ -76,7 +76,7 @@ switch ($action) {
                 $ids = separateList($awardAchievementID);
                 foreach ($ids as $nextID) {
                     $message .= "- $nextID: ";
-                    $awardResponse = addEarnedAchievementJSON($validUser, $nextID, $awardAchHardcore);
+                    $awardResponse = unlockAchievement($validUser, $nextID, $awardAchHardcore);
                     if (empty($awardResponse) || !$awardResponse['Success']) {
                         $message .= array_key_exists('Error', $awardResponse)
                             ? $awardResponse['Error']
@@ -86,8 +86,8 @@ switch ($action) {
                     }
                     $message .= "<br>";
                 }
-                recalcScore($validUser);
-                $message .= "- Recalculated Score: " . GetScore($validUser) . "<br>";
+                recalculatePlayerPoints($validUser);
+                $message .= "- Recalculated Score: " . getPlayerPoints($validUser) . "<br>";
             }
         }
         break;

@@ -30,7 +30,7 @@ if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Devel
         exit;
     }
 
-    if (requestModifyGame($author, $gameID, $field, $value)) {
+    if (modifyGame($author, $gameID, $field, $value)) {
         if ($field == 3) { // Only return status when unlinking hash
             echo "OK";
             exit;

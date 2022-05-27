@@ -20,7 +20,7 @@ if (!$permOk) {
     exit;
 }
 
-if (recalcScore($userIn)) {
+if (recalculatePlayerPoints($userIn)) {
     header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=recalc_ok");
     exit;
 } else {

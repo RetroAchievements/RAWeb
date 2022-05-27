@@ -1,6 +1,6 @@
 <?php
 
-function sanitize_outputs(&...$outputs)
+function sanitize_outputs(&...$outputs): void
 {
     foreach ($outputs as &$output) {
         if (!empty($output)) {
@@ -9,28 +9,28 @@ function sanitize_outputs(&...$outputs)
     }
 }
 
-function attributeEscape($input)
+function attributeEscape(string $input): string
 {
     // htmlspecialchars escapes a bunch of stuff that the tooltip can't handle
     // (like &rsquo; $frac12; and &deg;). when placed in title or alt fields.
     // just do the bare minimum.
     $input = str_replace("'", "&#39;", $input);
-    $input = str_replace('"', "&quot;", $input);
-    return $input;
+
+    return str_replace('"', "&quot;", $input);
 }
 
-function tipEscape($input)
+function tipEscape(string $input): string
 {
     // the Tip() function expects single quotes to be escaped, and other html reserved
     // characters to be converted to entities.
     $input = htmlentities($input, ENT_COMPAT | ENT_HTML401);
     // ENT_COMPAT will not convert single quotes. do so ourself.
     $input = str_replace("'", "\'", $input);
-    $input = str_replace("\n", "<br/>", $input);
-    return $input;
+
+    return str_replace("\n", "<br/>", $input);
 }
 
-function isValidUsername($userTest)
+function isValidUsername($userTest): bool
 {
     if (
         empty($userTest)
@@ -44,7 +44,7 @@ function isValidUsername($userTest)
     return true;
 }
 
-function rand_string($length)
+function rand_string($length): string
 {
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     $size = mb_strlen($chars);

@@ -101,7 +101,7 @@ RenderHtmlHead("Reorder Site Awards");
         ?>
     </div>
     <div id="rightcontainer">
-        <?php RenderSiteAwards(getUsersSiteAwards($user, false)) ?>
+        <?php RenderSiteAwards(getUsersSiteAwards($user)) ?>
     </div>
 </div>
 <?php RenderFooter(); ?>

@@ -31,7 +31,7 @@ $errorCode = "OK";
 
 $validLogin = false;
 $permissions = null;
-if (!empty($token) /* && strlen( $token ) == 16 */) {
+if (!empty($token)) {
     $validLogin = authenticateFromAppToken($user, $token, $permissions);
 }
 
@@ -54,9 +54,6 @@ $credentialsOK = match ($requestType) {
     /**
      * Registration required and user=local
      */
-    // "addfriend",
-    // "modifyfriend",
-    // "removecomment",
     "achievementwondata",
     "awardachievement",
     "getfriendlist",
@@ -69,14 +66,6 @@ $credentialsOK = match ($requestType) {
     "unlocks",
     "uploadachievement",
     "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
-    /**
-     * Developer status required
-     */
-    // case "createnewlb":
-    // case "recalctrueratio":
-    // case "removelbentry":
-    //     $credentialsOK = $validLogin && ($permissions >= Permissions::Developer);
-    //     break;
     /**
      * Anything else is public. Includes login
      */
@@ -97,7 +86,7 @@ switch ($requestType) {
     case "login": // From App!
         $user = requestInput('u');
         $rawPass = requestInput('p');
-        $response = loginApp($user, $rawPass, $token);
+        $response = authenticateFromPasswordOrAppToken($user, $rawPass, $token);
         break;
 
     /**
@@ -133,17 +122,6 @@ switch ($requestType) {
         $response['CodeNotes'] = getCodeNotesData($gameID);
         $response['GameID'] = $gameID;
         break;
-
-    // case "currentactivity": // requestcurrentlyactiveplayers
-    //     $response['CurrentActivity'] = getLatestRichPresenceUpdates();
-    //     break;
-    // case "currentlyonline":
-    //     $response['CurrentlyOnline'] = getCurrentlyOnlinePlayers();
-    //     break;
-    // case "developerstats":
-    //     $response['DeveloperStats'] = GetDeveloperStats(99, 0);
-    //     break;
-
     case "gameid":
         $md5 = requestInput('m');
         $response['GameID'] = getGameIDFromMD5($md5);
@@ -205,11 +183,6 @@ switch ($requestType) {
             ? $baseDownloadUrl . $integration['latest_version_url_x64']
             : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
-
-    // case "news":
-    //     $response['News'] = GetLatestNewsData($offset, $count);
-    //     break;
-
     case "ping":
         $activityMessage = requestInputPost('m', null);
         $response['Success'] = userActivityPing($user);
@@ -219,71 +192,18 @@ switch ($requestType) {
         }
         break;
 
-    // case "resetpassword":
-    //     $username = requestInput('u');
-    //     $response['Response'] = RequestPasswordReset($username);
-    //     break;
-    // case "setpassword":
-    //     $username = requestInput( 'u' );
-    //     $newPassword = requestInput( 'p' );
-    //     $success = changePassword( $username, $newPassword );
-    //
-    //     //  If changed OK, auto-login - doesn't appear to work?
-    //     // if( validateUser( $username, $newPassword, $fbUser, 0 ) )
-    //     // {
-    //     //     generateCookie( $user, $cookie );
-    //     // }
-    //     $response[ 'Success' ] = $success;
-    //     $response[ 'Cookie' ] = $cookie;
-    //     DoRequestError('Deprecated');
-    //     break;
-    // case "score":
-    //     $user = requestInput('u');
-    //     $response['Score'] = GetScore($user);
-    //     $response['User'] = $user;
-    //     break;
-    // case "staticdata":
-    //     $response['StaticData'] = getStaticData();
-    //     break;
-
-    // case "userpic":
-    // {
-    //     // Special case
-    //     $targetUser = requestInput('i');
-    //     $destURL = getenv('APP_URL') . "/UserPic/$targetUser" . ".png";
-    //
-    //     header('Content-type: image/png');
-    //     readfile($destURL);
-    //     exit;
-    // }
-    // case "badge":
-    // {
-    //     // DO NOT USE: access URL directly please!
-    //     // Special case
-    //     $badgeURI = requestInput('i');
-    //     $destURL = getenv('ASSET_URL') . "/Badge/$badgeURI" . ".png";
-    //
-    //     header('Content-type: image/png');
-    //     readfile($destURL);
-    //     exit;
-    // }
-
-    /**
+    /*
      * User-based (require credentials)
      */
+
     case "achievementwondata":
         $friendsOnly = requestInput('f', 0, 'integer');
         $response['Offset'] = $offset;
         $response['Count'] = $count;
         $response['FriendsOnly'] = $friendsOnly;
         $response['AchievementID'] = $achievementID;
-        $response['Response'] = getAchievementRecentWinnersData($achievementID, $offset, $count, $user, $friendsOnly);
+        $response['Response'] = getRecentUnlocksPlayersData($achievementID, $offset, $count, $user, $friendsOnly);
         break;
-
-    // case "addfriend":
-    //     $newFriend = requestInput('n');
-    //     $response['Success'] = AddFriend($user, $newFriend);
-    //     break;
 
     case "awardachievement":
         $achIDToAward = requestInput('a', 0, 'integer');
@@ -291,15 +211,10 @@ switch ($requestType) {
         /**
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
          */
-        $response = array_merge($response, addEarnedAchievementJSON($user, $achIDToAward, $hardcore));
-        $response['Score'] = GetScore($user);
+        $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
+        $response['Score'] = getPlayerPoints($user);
         $response['AchievementID'] = $achIDToAward;
         break;
-
-    // case "createnewlb":
-    //     $response['Success'] = SubmitNewLeaderboard($gameID, $lbID);
-    //     $response['NewLeaderboardID'] = $lbID;
-    //     break;
 
     case "getfriendlist":
         $response['Friends'] = GetFriendList($user);
@@ -312,12 +227,6 @@ switch ($requestType) {
         $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly, $nearby);
         break;
 
-    // case "modifyfriend":
-    //     $friend = requestInput('f');
-    //     $action = requestInput('a');
-    //     $response['Response'] = changeFriendStatus($user, $friend, $action);
-    //     break;
-
     case "patch":
         $flags = requestInput('f', 0, 'integer');
         // $hardcore = requestInput('h', 0, 'integer'); // not used
@@ -329,22 +238,6 @@ switch ($requestType) {
         $activityMessage = requestInput('m');
         $response['Success'] = postActivity($user, $activityType, $activityMessage);
         break;
-
-    // case "recalctrueratio":
-    //     $response['Success'] = recalculateTrueRatio($gameID);
-    //     break;
-    // case "removecomment":
-    //     $articleID = requestInput('a', 0, 'integer');
-    //     $commentID = requestInput('c', 0, 'integer');
-    //     $response['Success'] = RemoveComment($articleID, $commentID);
-    //     $response['ArtID'] = $articleID;
-    //     $response['CommentID'] = $commentID;
-    //     break;
-    // case "removelbentry":
-    //     $lbID = requestInput('l', 0, 'integer');
-    //     $targetUser = requestInput('t');
-    //     $response['Success'] = RemoveLeaderboardEntry($targetUser, $lbID);
-    //     break;
 
     case "richpresencepatch":
         $response['Success'] = getRichPresencePatch($gameID, $richPresenceData);

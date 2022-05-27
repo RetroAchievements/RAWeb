@@ -1,6 +1,5 @@
 <?php
 
-use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
 use RA\TicketState;
@@ -459,33 +458,6 @@ function getGamesListDataNamesOnly($consoleID, $officialFlag = false): array
     return $retval;
 }
 
-function getAchievementIDs($gameID): array
-{
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
-
-    $retVal = [];
-    $retVal['GameID'] = $gameID;
-
-    // Get all achievement IDs
-    $query = "SELECT ach.ID AS ID
-              FROM Achievements AS ach
-              WHERE ach.GameID = $gameID AND ach.Flags = 3
-              ORDER BY ach.ID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $achIDs = [];
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            settype($data['ID'], 'integer');
-            $achIDs[] = $data['ID'];
-        }
-        $retVal['AchievementIDs'] = $achIDs;
-    }
-
-    return $retVal;
-}
-
 function getGameIDFromTitle($gameTitleIn, $consoleID): int
 {
     sanitize_sql_inputs($consoleID);
@@ -506,35 +478,7 @@ function getGameIDFromTitle($gameTitleIn, $consoleID): int
     }
 }
 
-function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
-{
-    sanitize_sql_inputs($gameID, $user, $isHardcore);
-    settype($isHardcore, 'integer');
-
-    $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
-              WHERE ach.GameID = $gameID AND ach.Flags = 3 ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $minToCompleteGame = 5;
-
-        $data = mysqli_fetch_assoc($dbResult);
-        if ($postMastery && ($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
-            // Every achievement earned!
-            // Test that this wasn't very recently posted!
-            if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
-                postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
-            }
-        }
-
-        return $data;
-    }
-
-    return [];
-}
-
-function requestModifyGameData($gameID, $developer, $publisher, $genre, $released): bool
+function modifyGameData($gameID, $developer, $publisher, $genre, $released): bool
 {
     sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released);
 
@@ -552,7 +496,7 @@ function requestModifyGameData($gameID, $developer, $publisher, $genre, $release
     return $dbResult != null;
 }
 
-function requestModifyGame($author, $gameID, $field, $value): bool
+function modifyGame($author, $gameID, $field, $value): bool
 {
     sanitize_sql_inputs($gameID, $field, $value);
 
@@ -602,7 +546,7 @@ function requestModifyGame($author, $gameID, $field, $value): bool
     return $result;
 }
 
-function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null): void
+function modifyGameAlternatives($gameID, $toAdd = null, $toRemove = null): void
 {
     if (isset($toAdd)) {
         // Replace all non-numberic characters with comma so the string has a common delimiter.
@@ -630,7 +574,7 @@ function requestModifyGameAlt($gameID, $toAdd = null, $toRemove = null): void
     }
 }
 
-function requestModifyGameForumTopic($gameID, $newForumTopic): bool
+function modifyGameForumTopic($gameID, $newForumTopic): bool
 {
     sanitize_sql_inputs($gameID, $newForumTopic);
     settype($gameID, 'integer');
@@ -654,119 +598,6 @@ function requestModifyGameForumTopic($gameID, $newForumTopic): bool
         }
     }
     return false;
-}
-
-/**
- * Gets the achievement distribution to display on the game page.
- */
-function getAchievementDistribution(int $gameID, int $hardcore, string $requestedBy, int $flags, $numAchievements = null): array
-{
-    sanitize_sql_inputs($gameID, $hardcore, $requestedBy, $flags);
-    settype($gameID, 'integer');
-    settype($hardcore, 'integer');
-    settype($flags, 'integer');
-    $retval = [];
-
-    // Returns an array of the number of players who have achieved each total, up to the max.
-    $query = "
-        SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
-        FROM (
-            SELECT COUNT(*) AS AwardedCount
-            FROM Awarded AS aw
-            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = " . $flags . "
-              AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
-            GROUP BY aw.User
-            ORDER BY AwardedCount DESC
-        ) AS InnerTable
-        GROUP BY InnerTable.AwardedCount";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $awardedCount = $data['AwardedCount'];
-            $numUnique = $data['NumUniquePlayers'];
-            settype($awardedCount, 'integer');
-            settype($numUnique, 'integer');
-            $retval[$awardedCount] = $numUnique;
-        }
-
-        // fill the gaps and sort
-        if ($numAchievements === null) {
-            $numAchievements = getGameMetadataByFlags($gameID, $requestedBy, $achievementData, $gameData, 1, null, $flags);
-        }
-
-        for ($i = 1; $i <= $numAchievements; $i++) {
-            if (!array_key_exists($i, $retval)) {
-                $retval[$i] = 0;
-            }
-        }
-        ksort($retval);
-    }
-
-    return $retval;
-}
-
-function getMostPopularGames($offset, $count, $method): array
-{
-    sanitize_sql_inputs($offset, $count, $method);
-    settype($method, 'integer');
-
-    $retval = [];
-
-    if ($method == 0) {
-        // By num awards given:
-        $query = "    SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, gd.TotalTruePoints, c.Name AS ConsoleName,     SUM(NumTimesAwarded) AS NumRecords
-                    FROM GameData AS gd
-                    LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                    LEFT OUTER JOIN (
-                        SELECT
-                            COALESCE(aw.cnt, 0) AS NumTimesAwarded,
-                            GameID
-                        FROM
-                            Achievements AS ach
-                        LEFT OUTER JOIN (
-                            SELECT
-                                AchievementID,
-                                count(*) cnt
-                            FROM
-                                Awarded
-                            GROUP BY
-                                AchievementID) aw ON ach.ID = aw.AchievementID
-                        GROUP BY
-                            ach.ID) aw ON aw.GameID = gd.ID
-                    GROUP BY gd.ID
-                    ORDER BY NumRecords DESC
-                    LIMIT $offset, $count";
-    } else {
-        return $retval;
-        // $query = "    SELECT COUNT(*) AS NumRecords, Inner1.*
-        //         FROM
-        //         (
-        //             SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, gd.TotalTruePoints, c.Name AS ConsoleName
-        //             FROM Activity AS act
-        //             LEFT JOIN GameData AS gd ON gd.ID = act.data
-        //             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        //             WHERE act.activitytype = 3 AND !ISNULL( gd.ID )
-        //             GROUP BY gd.ID, act.User
-        //         ) AS Inner1
-        //         GROUP BY Inner1.ID
-        //         ORDER BY NumRecords DESC
-        //         LIMIT $offset, $count";
-    }
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
-    }
-
-    return $retval;
 }
 
 function getGameListSearch($offset, $count, $method, $consoleID = null): array
@@ -795,155 +626,6 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     if (!$query) {
         return $retval;
     }
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
-    }
-
-    return $retval;
-}
-
-function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $flags = null)
-{
-    sanitize_sql_inputs($gameID, $requestedBy);
-    settype($gameID, 'integer');
-
-    $hardcoreCond = "";
-    if ($hardcoreOnly) {
-        $hardcoreCond = " AND aw.HardcoreMode = 1";
-    }
-
-    $achievementStateCond = "";
-    if ($flags !== null) {
-        $achievementStateCond = "AND ach.Flags = $flags";
-    }
-
-    $query = "
-        SELECT COUNT(DISTINCT aw.User) As UniquePlayers
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE gd.ID = $gameID
-        $hardcoreCond $achievementStateCond
-        AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
-    ";
-
-    $dbResult = s_mysql_query($query);
-
-    $data = mysqli_fetch_assoc($dbResult);
-    return $data['UniquePlayers'];
-}
-
-function getGameRecentPlayers($gameID, $maximum_results = 0): array
-{
-    sanitize_sql_inputs($gameID, $maximum_results);
-    settype($gameID, 'integer');
-
-    $retval = [];
-
-    $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
-              FROM UserAccounts AS ua
-              WHERE ua.LastGameID = $gameID AND ua.Permissions >= 0
-              ORDER BY ua.RichPresenceMsgDate DESC";
-
-    if ($maximum_results > 0) {
-        $query .= " LIMIT $maximum_results";
-    }
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
-    }
-
-    return $retval;
-}
-
-/**
- * Gets a game's high scorers or latest masters.
- */
-function getGameTopAchievers(int $gameID, string $requestedBy): array
-{
-    sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
-
-    $high_scores = [];
-    $masters = [];
-    $mastery_score = 0;
-
-    $query = "SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        if ($data = mysqli_fetch_assoc($dbResult)) {
-            $mastery_score = $data['Points'];
-        }
-    }
-
-    $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
-                  AND ach.Flags = 3 
-                  AND gd.ID = $gameID
-                GROUP BY aw.User
-                ORDER BY TotalScore DESC, LastAward ASC";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            if (count($high_scores) < 10) {
-                array_push($high_scores, $data);
-            }
-
-            if ($data['TotalScore'] == $mastery_score) {
-                if (count($masters) == 10) {
-                    array_shift($masters);
-                }
-                array_push($masters, $data);
-            } elseif (count($high_scores) == 10) {
-                break;
-            }
-        }
-    }
-
-    $retval = [];
-    $retval['Masters'] = array_reverse($masters);
-    $retval['HighScores'] = $high_scores;
-    return $retval;
-}
-
-function getGameRankAndScore($gameID, $requestedBy): ?array
-{
-    sanitize_sql_inputs($gameID, $requestedBy);
-
-    if (empty($gameID) || !isValidUsername($requestedBy)) {
-        return null;
-    }
-    $retval = [];
-
-    $query = "WITH data
-    AS (SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward,
-        ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ( !ua.Untracked OR ua.User = '$requestedBy') 
-          AND ach.Flags = 3 
-          AND gd.ID = $gameID
-        GROUP BY aw.User
-        ORDER BY TotalScore DESC, LastAward ASC
-   ) SELECT * FROM data WHERE User = '$requestedBy'";
 
     $dbResult = s_mysql_query($query);
 
@@ -1122,34 +804,4 @@ function getRichPresencePatch($gameID, &$dataOut): bool
     } else {
         return false;
     }
-}
-
-/**
- * Checks to see if a user is the sole author of a set.
- */
-function checkIfSoleDeveloper(string $user, int $gameID): bool
-{
-    sanitize_sql_inputs($user, $gameID);
-    settype($gameID, 'integer');
-
-    $query = "
-        SELECT distinct(Author) AS Author FROM Achievements AS ach
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE ach.GameID = $gameID
-        AND ach.Flags = 3";
-
-    $dbResult = s_mysql_query($query);
-
-    $userFound = false;
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            if ($user != $data['Author']) {
-                return false;
-            } else {
-                $userFound = true;
-            }
-        }
-    }
-
-    return $userFound;
 }
