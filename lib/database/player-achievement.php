@@ -132,25 +132,11 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
         attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
     }
 
-    // Update GameData
-    // Removed: this needs rethinking! //##SD TBD
-    // recalculateTrueRatio( $gameID );    // Heavy!
-    // Add TA to the player for this achievement, NOW that the TA value has been recalculated
-    // Select the NEW TA from this achievement, as it has just been recalculated
-    $query = "SELECT TrueRatio
-              FROM Achievements
-              WHERE ID='$achIDToAward'";
-    $dbResult = s_mysql_query($query);
-
-    $data = mysqli_fetch_assoc($dbResult);
-    $newTA = $data['TrueRatio'];
-    settype($newTA, 'integer');
-
-    // Pack back into $achData
-    $achData['TrueRatio'] = $newTA;
-
+    // NOTE: TrueRatio has not yet been updated at this point. This will eventually be corrected by recalculatePlayerPoints()
+    $trueRatio = $achData['TrueRatio'];
+    settype($trueRatio, 'integer');
     $query = "UPDATE UserAccounts
-              SET TrueRAPoints=TrueRAPoints+$newTA
+              SET TrueRAPoints=TrueRAPoints+$trueRatio
               WHERE User='$user'";
     s_mysql_query($query);
 
