@@ -3,8 +3,8 @@
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
-use RA\Models\TicketModel;
 use RA\SubscriptionSubjectType;
+use RA\Ticket;
 use RA\TicketFilters;
 use RA\TicketState;
 
@@ -369,7 +369,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
     switch ($ticketVal) {
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED) {
-                updateAchievementFlags($achID, AchievementType::UNOFFICIAL);
+                updateAchievementFlags($achID, AchievementType::Unofficial);
             }
             $comment = "Ticket closed by $user. Reason: \"$reason\".";
             postActivity($user, ActivityType::ClosedTicket, $achID);
@@ -984,7 +984,7 @@ function getNumberOfTicketsClosedForOthers(string $user): array
     return $retVal;
 }
 
-function GetTicketModel(int $ticketId): ?TicketModel
+function GetTicketModel(int $ticketId): ?Ticket
 {
     $ticketDbResult = getTicket($ticketId);
 
@@ -992,5 +992,5 @@ function GetTicketModel(int $ticketId): ?TicketModel
         return null;
     }
 
-    return new TicketModel($ticketDbResult);
+    return new Ticket($ticketDbResult);
 }

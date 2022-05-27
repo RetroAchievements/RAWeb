@@ -1,6 +1,6 @@
 <?php
 
-use RA\ObjectType;
+use RA\RatingType;
 
 function getGameRating($gameID, $user = null): array
 {
@@ -14,8 +14,8 @@ function getGameRating($gameID, $user = null): array
     ];
 
     $retVal = [];
-    $retVal[ObjectType::Game] = $newRatings();
-    $retVal[ObjectType::Achievement] = $newRatings();
+    $retVal[RatingType::Game] = $newRatings();
+    $retVal[RatingType::Achievement] = $newRatings();
 
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');

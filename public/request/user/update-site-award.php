@@ -31,7 +31,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 /**
  * change display order for all entries if it's a "stacking" award type
  */
-if (in_array($awardType, [AwardType::ACHIEVEMENT_UNLOCKS_YIELD, AwardType::ACHIEVEMENT_POINTS_YIELD])) {
+if (in_array($awardType, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
     $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
         "AND AwardType = $awardType " .
         "AND AwardDataExtra = $awardDataExtra";

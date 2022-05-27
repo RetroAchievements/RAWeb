@@ -237,7 +237,7 @@ function UploadNewAchievement(
         return false;
     }
 
-    if ($type === AchievementType::OFFICIAL_CORE && !isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
+    if ($type === AchievementType::OfficialCore && !isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
         return false;
     }
@@ -302,7 +302,7 @@ function UploadNewAchievement(
             $changingLogic = ($data['MemAddr'] != $mem);
 
             $userPermissions = getUserPermissions($author);
-            if ($type === AchievementType::OFFICIAL_CORE || $changingAchSet) { // If modifying core or changing achievement state
+            if ($type === AchievementType::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
                 // changing ach set detected; user is $author, permissions is $userPermissions, target set is $type
                 if ($userPermissions < Permissions::Developer) {
                     // Must be developer to modify core!
@@ -311,7 +311,7 @@ function UploadNewAchievement(
                 }
             }
 
-            if ($type === AchievementType::UNOFFICIAL) { // If modifying unofficial
+            if ($type === AchievementType::Unofficial) { // If modifying unofficial
                 // Only allow jr. devs to modify unofficial if they are the author
                 if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] != $author) {
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
@@ -343,7 +343,7 @@ function UploadNewAchievement(
                 postActivity($author, ActivityType::EditAchievement, $idInOut);
 
                 if ($changingAchSet) {
-                    if ($type === AchievementType::OFFICIAL_CORE) {
+                    if ($type === AchievementType::OfficialCore) {
                         addArticleComment(
                             "Server",
                             ArticleType::Achievement,
@@ -351,7 +351,7 @@ function UploadNewAchievement(
                             "$author promoted this achievement to the Core set.",
                             $author
                         );
-                    } elseif ($type === AchievementType::UNOFFICIAL) {
+                    } elseif ($type === AchievementType::Unofficial) {
                         addArticleComment(
                             "Server",
                             ArticleType::Achievement,

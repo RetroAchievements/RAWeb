@@ -310,7 +310,7 @@ switch ($requestType) {
             progressFmt: ' ',
             points: requestInput('z', 0, 'integer'),
             mem: requestInput('m'),
-            type: requestInput('f', AchievementType::UNOFFICIAL, 'integer'),
+            type: requestInput('f', AchievementType::Unofficial, 'integer'),
             idInOut: $achievementID,
             badge: requestInput('b'),
             errorOut: $errorOut

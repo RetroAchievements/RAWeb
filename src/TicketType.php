@@ -5,6 +5,7 @@ namespace RA;
 abstract class TicketType
 {
     public const TriggeredAtWrongTime = 1;
+
     public const DidNotTrigger = 2;
 
     public static function toString(int $type): string

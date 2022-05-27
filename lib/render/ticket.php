@@ -1,10 +1,10 @@
 <?php
 
-use RA\Models\TicketModel;
+use RA\Ticket;
 use RA\TicketState;
 use RA\TicketType;
 
-function GetTicketAndTooltipDiv(TicketModel $ticket): string
+function GetTicketAndTooltipDiv(Ticket $ticket): string
 {
     $tooltipIconSize = 64;
     $ticketStateClass = match ($ticket->ticketState) {

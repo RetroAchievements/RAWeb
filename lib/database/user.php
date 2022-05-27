@@ -31,7 +31,7 @@ function getAccountDetails(&$user, &$dataOut): bool
 
     $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, TrueRAPoints,
                      cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
-                     fbUser, fbPrefs, APIKey, ContribCount, ContribYield,
+                     APIKey, ContribCount, ContribYield,
                      RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
                      Created, DeleteRequested, Untracked
                 FROM UserAccounts

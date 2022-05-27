@@ -2,9 +2,8 @@
 
 use RA\ActivityType;
 use RA\ArticleType;
-use RA\ObjectType;
 use RA\Permissions;
-use RA\SubscriptionSubjectType;
+use RA\RatingType;
 
 function getMostRecentActivity($user, $type, $data): ?array
 {
@@ -365,94 +364,6 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
     return true;
 }
 
-function getSubscribersOfGameWall($gameID): array
-{
-    return getSubscribersOfArticle(1, $gameID, (1 << 1));
-}
-
-function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor): array
-{
-    // users directly subscribed to the achievement
-    $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
-
-    // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /* (1 << 1) */);
-
-    return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
-}
-
-function getSubscribersOfUserWall($userID, $userName): array
-{
-    return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
-}
-
-function getSubscribersOfFeedActivity($activityID, $author): array
-{
-    return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
-}
-
-function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
-{
-    // users directly subscribed to the ticket
-    $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
-
-    // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
-
-    return mergeSubscribers($ticketSubs, $gameTicketsSubs);
-}
-
-function getSubscribersOfArticle(
-    $articleType,
-    $articleID,
-    $reqWebsitePrefs,
-    $subjectAuthor = null,
-    $noExplicitSubscriptions = false
-): array {
-    $websitePrefsFilter = ($noExplicitSubscriptions !== true
-        ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
-
-    $authorQry = ($subjectAuthor === null ? "" : "
-        UNION
-        SELECT _ua.*
-        FROM UserAccounts as _ua
-        WHERE _ua.User = '$subjectAuthor'
-              $websitePrefsFilter
-    ");
-
-    $qry = "
-        SELECT DISTINCT _ua.*
-        FROM Comment AS _c
-        INNER JOIN UserAccounts as _ua ON _ua.ID = _c.UserID
-        WHERE _c.ArticleType = $articleType
-              AND _c.ArticleID = $articleID
-              $websitePrefsFilter
-        $authorQry
-    ";
-
-    if ($noExplicitSubscriptions) {
-        $dbResult = s_mysql_query($qry);
-        if (!$dbResult) {
-            log_sql_fail();
-            return [];
-        }
-
-        return mysqli_fetch_all($dbResult, MYSQLI_ASSOC);
-    }
-
-    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
-    if ($subjectType === null) {
-        return [];
-    }
-
-    return getSubscribersOf(
-        $subjectType,
-        $articleID,
-        (1 << 0),  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
-        $qry
-    );
-}
-
 function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $type = 'global'): int
 {
     sanitize_sql_inputs($user, $maxMessages, $offset, $latestFeedID);
@@ -538,7 +449,7 @@ function getRecentlyPlayedGames($user, $offset, $count, &$dataOut): int
     // 01:38 15/02/2014 re-readded 'AND act.activitytype = 3' to inner query. act.data is not necessarily a game, therefore we need this '3' part.
     // 22:56 18/02/2014 re-re-readded 'MAX() to inner.
     // 08:05 01/10/2014 removed outer activitytype=3, added rating
-    // {$ObjectType::Game}
+    // {$RatingType::Game}
 
     $query = "
 SELECT Inner1.data AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon, Inner1.lastupdate AS LastPlayed, r.RatingValue AS MyVote
@@ -551,7 +462,7 @@ FROM (
  ) AS Inner1
 LEFT JOIN GameData AS gd ON gd.ID = Inner1.data
 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-LEFT JOIN Rating AS r ON r.RatingObjectType = " . ObjectType::Game . " AND r.RatingID=Inner1.data AND r.User='$user'
+LEFT JOIN Rating AS r ON r.RatingObjectType = " . RatingType::Game . " AND r.RatingID=Inner1.data AND r.User='$user'
 LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
@@ -606,33 +517,6 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
     $dataOut = array_reverse($dataOut);
 
     return $numArticleComments;
-}
-
-function isUserSubscribedToArticleComments($articleType, $articleID, $userID): bool
-{
-    sanitize_sql_inputs($articleType, $articleID, $userID);
-
-    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
-
-    if ($subjectType === null) {
-        return false;
-    }
-
-    return isUserSubscribedTo(
-        $subjectType,
-        $articleID,
-        $userID,
-        "
-            SELECT DISTINCT ua.*
-            FROM
-                Comment AS c
-                LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
-            WHERE
-                c.ArticleType = $articleType
-                AND c.ArticleID = $articleID
-                AND c.UserID = $userID
-        "
-    );
 }
 
 function getCurrentlyOnlinePlayers(): array

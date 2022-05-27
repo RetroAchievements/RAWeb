@@ -227,7 +227,7 @@ if ($gameIDGiven > 0) {
         $ticketData['GameTitle'] = $gameTitle;
         $ticketData['ConsoleName'] = $consoleName;
         $ticketData['OpenTickets'] = countOpenTickets(
-            $gamesTableFlag == AchievementType::UNOFFICIAL,
+            $gamesTableFlag == AchievementType::Unofficial,
             $defaultTicketFilter,
             null,
             null,

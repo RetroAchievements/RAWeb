@@ -17,7 +17,7 @@ function recalculateTrueRatio($gameID): bool
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
-        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true, AchievementType::OFFICIAL_CORE);
+        $numHardcoreWinners = getTotalUniquePlayers($gameID, null, true, AchievementType::OfficialCore);
 
         if ($numHardcoreWinners == 0) { // force all unachieved to be 1
             $numHardcoreWinners = 1;

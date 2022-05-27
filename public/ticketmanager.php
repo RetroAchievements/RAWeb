@@ -179,7 +179,7 @@ if ($ticketID == 0) {
             $gameIDGiven,
             $achievementIDGiven,
             $ticketFilters,
-            $gamesTableFlag === AchievementType::UNOFFICIAL
+            $gamesTableFlag === AchievementType::Unofficial
         );
     }
 }
@@ -249,9 +249,9 @@ RenderHtmlHead($pageTitle);
             if (!isValidUsername($resolvedByUser)) {
                 $resolvedByUser = null;
             }
-            $openTicketsCount = countOpenTickets($gamesTableFlag === AchievementType::UNOFFICIAL);
+            $openTicketsCount = countOpenTickets($gamesTableFlag === AchievementType::Unofficial);
             $filteredTicketsCount = countOpenTickets(
-                $gamesTableFlag === AchievementType::UNOFFICIAL,
+                $gamesTableFlag === AchievementType::Unofficial,
                 $ticketFilters,
                 $assignedToUser,
                 $reportedByUser,
@@ -259,7 +259,7 @@ RenderHtmlHead($pageTitle);
                 $gameIDGiven,
                 $achievementIDGiven
             );
-            echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementType::UNOFFICIAL ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
+            echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementType::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
         }
 
         echo "<div class='detaillist'>";
@@ -416,7 +416,7 @@ RenderHtmlHead($pageTitle);
                 }
 
                 // Clear Filter
-                if ($ticketFilters != $defaultFilter || $gamesTableFlag === AchievementType::UNOFFICIAL) {
+                if ($ticketFilters != $defaultFilter || $gamesTableFlag === AchievementType::Unofficial) {
                     echo "<div>";
                     echo "<a href='" . $createLink('t', $defaultFilter, 'f', 3) . "'>Clear Filter</a>";
                     echo "</div>";

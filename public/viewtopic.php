@@ -1,8 +1,8 @@
 <?php
 
-use RA\ModifyTopicField;
+use RA\ForumTopicAction;
 use RA\Permissions;
-use RA\Shortcode\Shortcode;
+use RA\Shortcode;
 use RA\SubscriptionSubjectType;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -103,7 +103,7 @@ RenderHtmlStart();
             echo "<form action='/request/forum-topic/modify.php' method='post' >";
             echo "<input type='text' name='v' value='$thisTopicTitle' size='51' >";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
-            echo "<input type='hidden' name='f' value='" . ModifyTopicField::ModifyTitle . "'>";
+            echo "<input type='hidden' name='f' value='" . ForumTopicAction::ModifyTitle . "'>";
             echo "<input type='submit' name='submit' value='Submit' size='37'>";
             echo "</form>";
 
@@ -112,7 +112,7 @@ RenderHtmlStart();
                 echo "<form action='/request/forum-topic/modify.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
                 echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
                 echo "<input type='hidden' name='t' value='$thisTopicID' />";
-                echo "<input type='hidden' name='f' value='" . ModifyTopicField::DeleteTopic . "'>";
+                echo "<input type='hidden' name='f' value='" . ForumTopicAction::DeleteTopic . "'>";
                 echo "<input type='submit' name='submit' value='Delete Permanently' size='37'>";
                 echo "</form>";
 
@@ -132,7 +132,7 @@ RenderHtmlStart();
                 echo "<option value='4' $selected4>" . PermissionsToString(Permissions::Admin) . "</option>";
                 echo "</select>";
                 echo "<input type='hidden' name='t' value='$thisTopicID'>";
-                echo "<input type='hidden' name='f' value='" . ModifyTopicField::RequiredPermissions . "'>";
+                echo "<input type='hidden' name='f' value='" . ForumTopicAction::ChangeRequiredPermissions . "'>";
                 echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37'>";
                 echo "</form>";
             }

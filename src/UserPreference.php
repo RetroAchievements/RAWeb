@@ -2,7 +2,7 @@
 
 namespace RA;
 
-abstract class UserPref
+abstract class UserPreference
 {
     public const EmailOn_ActivityComment = 0;
 

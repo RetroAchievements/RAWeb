@@ -1,8 +1,8 @@
 <?php
 
-namespace RA\Models;
+namespace RA;
 
-class TicketModel
+class Ticket
 {
     public int $ticketId;
     public int $achievementId;
