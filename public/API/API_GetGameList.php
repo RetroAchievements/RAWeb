@@ -16,6 +16,9 @@
  *    int        NumAchievements   number of core achievements for the game
  *    int        NumLeaderboards   number of leaderboards for the game
  *    int        Points            total number of points the game's achievements are worth
+ *    datetime   DateModified      when the last modification was made
+ *                                 NOTE: this only tracks modifications to the achievements of the game,
+ *                                       but is consistent with the data reported in the site game list.
  *    array      Hashes
  *     string     [value]          RetroAchievements hash associated to the game
  */
@@ -47,6 +50,7 @@ foreach ($dataOut as &$entry) {
         'NumAchievements' => $entry['NumAchievements'] ?? 0,
         'NumLeaderboards' => $entry['NumLBs'] ?? 0,
         'Points' => $entry['MaxPointsAvailable'] ?? 0,
+        'DateModified' => $entry['DateModified'],
     ];
     settype($responseEntry['NumAchievements'], 'integer');
     settype($responseEntry['NumLeaderboards'], 'integer');
