@@ -335,7 +335,7 @@ function getGameRecentPlayers($gameID, $maximum_results = 0): array
 /**
  * Gets a game's high scorers or latest masters.
  */
-function getGameTopAchievers(int $gameID, string $requestedBy): array
+function getGameTopAchievers(int $gameID, ?string $requestedBy): array
 {
     sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
 
@@ -368,14 +368,14 @@ function getGameTopAchievers(int $gameID, string $requestedBy): array
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             if (count($high_scores) < 10) {
-                array_push($high_scores, $data);
+                $high_scores[] = $data;
             }
 
             if ($data['TotalScore'] == $mastery_score) {
                 if (count($masters) == 10) {
                     array_shift($masters);
                 }
-                array_push($masters, $data);
+                $masters[] = $data;
             } elseif (count($high_scores) == 10) {
                 break;
             }
