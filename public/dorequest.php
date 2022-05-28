@@ -197,7 +197,7 @@ switch ($requestType) {
      */
 
     case "achievementwondata":
-        $friendsOnly = requestInput('f', 0, 'integer');
+        $friendsOnly = (int) requestInput('f', 0);
         $response['Offset'] = $offset;
         $response['Count'] = $count;
         $response['FriendsOnly'] = $friendsOnly;

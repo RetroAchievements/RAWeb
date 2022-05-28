@@ -68,7 +68,7 @@ function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $s
 
 function getGameMetadataByFlags(
     $gameID,
-    $user,
+    ?string $user,
     &$achievementDataOut,
     &$gameDataOut,
     $sortBy = 1,

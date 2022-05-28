@@ -13,7 +13,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $achievementID = requestInputSanitized('ID', 0, 'integer');
 
 $dataOut = null;
-if ($achievementID == 0 || getAchievementMetadata($achievementID, $dataOut) == false) {
+if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
     header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
     exit;
 }

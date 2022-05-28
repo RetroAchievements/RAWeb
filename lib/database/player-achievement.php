@@ -3,15 +3,20 @@
 use RA\AchievementType;
 use RA\ActivityType;
 
-function playerHasUnlock(string $user, $achievementId): array
+function playerHasUnlock(?string $user, $achievementId): array
 {
     sanitize_sql_inputs($user, $achievementId);
 
-    $retVal = [];
-    $retVal['HasRegular'] = false;
-    $retVal['HasHardcore'] = false;
-    $retVal['RegularDate'] = null;
-    $retVal['HardcoreDate'] = null;
+    $retVal = [
+        'HasRegular' => false,
+        'HasHardcore' => false,
+        'RegularDate' => null,
+        'HardcoreDate' => null,
+    ];
+
+    if (empty($user)) {
+        return $retVal;
+    }
 
     $query = "SELECT HardcoreMode, Date
               FROM Awarded
@@ -37,8 +42,9 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     settype($achIDToAward, 'integer');
     settype($isHardcore, 'integer');
 
-    $retVal = [];
-    $retVal['Success'] = false;
+    $retVal = [
+        'Success' => false,
+    ];
 
     if ($achIDToAward <= 0) {
         $retVal['Error'] = "Achievement ID <= 0! Cannot unlock";
@@ -367,7 +373,7 @@ function getAchievementUnlocksData(
     return true;
 }
 
-function getRecentUnlocksPlayersData($achID, $offset, $count, $user = null, $friendsOnly = null): array
+function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = null, $friendsOnly = null): array
 {
     sanitize_sql_inputs($achID, $offset, $count, $user, $friendsOnly);
 
@@ -544,7 +550,7 @@ function getUnlocksInDateRange($achievementIDs, $startTime, $endTime, $hardcoreM
 /**
  * Gets the achievement distribution to display on the game page.
  */
-function getAchievementDistribution(int $gameID, int $hardcore, string $requestedBy, int $flags, $numAchievements = null): array
+function getAchievementDistribution(int $gameID, int $hardcore, ?string $requestedBy, int $flags, $numAchievements = null): array
 {
     sanitize_sql_inputs($gameID, $hardcore, $requestedBy, $flags);
     settype($gameID, 'integer');
