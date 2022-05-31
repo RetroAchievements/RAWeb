@@ -1,7 +1,5 @@
 <?php
 
-use RA\FilenameIterator;
-
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -32,7 +30,7 @@ if ($requestType !== 'uploadbadgeimage') {
 }
 
 try {
-    UploadBadgeImage($_FILES['file']);
+    $badgeIterator = UploadBadgeImage($_FILES['file']);
 } catch (Exception $exception) {
     echo json_encode([
         'Success' => false,
@@ -45,6 +43,6 @@ echo json_encode([
     'Success' => true,
     'Response' => [
         // RALibretro uses BadgeIter to associate the uploaded badge to the achievement
-        'BadgeIter' => FilenameIterator::getBadgeIterator(),
+        'BadgeIter' => $badgeIterator,
     ],
 ]);

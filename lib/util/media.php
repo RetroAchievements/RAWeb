@@ -102,7 +102,7 @@ function createFileArrayFromDataUrl(string $dataUrl): array
 /**
  * @throws Exception
  */
-function UploadBadgeImage(array $file): void
+function UploadBadgeImage(array $file): string
 {
     validateFile($file);
     $sourceImage = createImageFromExtension($file);
@@ -131,6 +131,8 @@ function UploadBadgeImage(array $file): void
 
     UploadToS3(public_path($imagePath), $imagePath);
     UploadToS3(public_path($imagePathLocked), $imagePathLocked);
+
+    return $badgeIterator;
 }
 
 /**
