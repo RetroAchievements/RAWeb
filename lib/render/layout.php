@@ -157,7 +157,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
 
-        $mailboxIcon = asset('Images/' . ($unreadMessageCount > 0 ? '_MailUnread' : '_Mail') . '.png');
+        $mailboxIcon = $unreadMessageCount > 0 ? asset('Images/_MailUnread.png') : asset('Images/_Mail.png');
         echo "<a href='/inbox.php'>";
         echo "<img id='mailboxicon' alt='Mailbox Icon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
         echo "&nbsp;";

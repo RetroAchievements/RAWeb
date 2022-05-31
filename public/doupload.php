@@ -44,9 +44,7 @@ try {
 echo json_encode([
     'Success' => true,
     'Response' => [
-        // TODO does RALibretro need the iterator?
+        // RALibretro uses BadgeIter to associate the uploaded badge to the achievement
         'BadgeIter' => FilenameIterator::getBadgeIterator(),
-        'Filename' => $_FILES['file']['name'],
-        'Size' => $_FILES['file']['size'],
     ],
 ]);
