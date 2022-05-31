@@ -1,5 +1,10 @@
 <?php
 
+function redirect(string $url): void
+{
+    header('Location: ' . url($url));
+}
+
 function requestInputQuery(string $key, $default = null, $type = null): mixed
 {
     $input = $_GET[$key] ?? $default;

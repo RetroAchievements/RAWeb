@@ -174,7 +174,7 @@ RenderHtmlHead("Manage Achievements");
 
             $achBadgeName = $achievementEntry['BadgeName'];
             $achDisplayOrder = $achievementEntry['DisplayOrder'];
-            $achBadgeFile = getenv('ASSET_URL') . "/Badge/$achBadgeName" . ".png";
+            $achBadgeFile = asset("Badge/$achBadgeName.png");
 
             sanitize_outputs($achTitle, $achDesc);
 

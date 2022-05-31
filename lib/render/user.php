@@ -248,7 +248,7 @@ function RenderRecentlyAwardedComponent(): void
         $achDesc = $dataArray[$i]['Description'];
         $achPoints = $dataArray[$i]['Points'];
         $badgeName = $dataArray[$i]['BadgeName'];
-        // $badgeFullPath = getenv('ASSET_URL')."/Badge/" . $badgeName . ".png";
+        // $badgeFullPath = asset("Badge/$badgeName.png");
         $gameTitle = $dataArray[$i]['GameTitle'];
         $gameID = $dataArray[$i]['GameID'];
         $gameIcon = $dataArray[$i]['GameIcon'];

@@ -1,3 +1,7 @@
+function asset(uri) {
+  return window.assetUrl + '/' + uri.replace(/^\/|\/$/g, '');
+}
+
 var shortMonths = [
   'Jan',
   'Feb',
@@ -168,8 +172,7 @@ function GetAchievementAndTooltipDiv(
 ) {
   var tooltipImageSize = 64;
   var tooltip = '<div id=\'objtooltip\'>'
-    + '<img src=\'' + window.assetUrl + '/Badge/'
-    + badgeName + '.png\' width=' + tooltipImageSize + ' height='
+    + '<img src=\'' + asset(`Badge/${badgeName}.png`) + '\' width=' + tooltipImageSize + ' height='
     + tooltipImageSize + ' />'
     + '<b>' + achName + ' (' + achPoints.toString() + ')</b><br>'
     + '<i>(' + gameName + ')</i><br>'
@@ -183,8 +186,7 @@ function GetAchievementAndTooltipDiv(
   var smallBadge = '';
   var displayable = achName + ' (' + achPoints.toString() + ')';
   if (inclSmallBadge) {
-    var smallBadgePath = window.assetUrl + '/Badge/'
-      + badgeName + '.png';
+    var smallBadgePath = asset(`Badge/${badgeName}.png`);
     smallBadge = '<img width=\'32\' height=\'32\' style=\'floatimg\' src=\''
       + smallBadgePath + '\' alt="' + achName + '" title="' + achName
       + '" class=\'badgeimg\' />';

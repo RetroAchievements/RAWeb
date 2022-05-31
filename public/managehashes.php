@@ -49,7 +49,7 @@ function UpdateHashDetails(user, hash) {
     $warning.html('Status: updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
-    var posting = $.post('/request/game/modify.php', { u: user, g: <?php echo $gameID ?>, f: 4, v: hash, n: name, l: labels });
+    var posting = $.post('/request/game/modify.php', { u: user, g: <?= $gameID ?>, f: 4, v: hash, n: name, l: labels });
     posting.done(function (data) {
         if (data !== 'OK') {
             $warning.html('Status: Errors...' + data);

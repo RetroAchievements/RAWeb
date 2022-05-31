@@ -181,7 +181,7 @@ function refreshFeed(friendsOnly) {
 
   $feed.empty();
   $feed.html(
-    '<tr id=\'feedloadingfirstrow\'><td class=\'feedcell\'><img src=\'' + window.assetUrl + '/Images/loading.gif\' width=\'16\' height=\'16\'/></td><td class=\'feedcell\'></td><td class=\'feedcellmessage\'>Loading feed...</td></tr>'
+    '<tr id=\'feedloadingfirstrow\'><td class=\'feedcell\'><img src=\'' + asset('Images/loading.gif') + '\' width=\'16\' height=\'16\'/></td><td class=\'feedcell\'></td><td class=\'feedcellmessage\'>Loading feed...</td></tr>'
   );
 
   cacheFeed = [];
@@ -802,8 +802,8 @@ function pushFeedItem(
   var localUser = readCookie('RA_Cookie');
   if (localUser !== null) {
     // Discrepancy between article type and activity type: feed activity is always article type 5!!
-    // insertRowHtml += "<td class='editbutton'><img src='" + window.assetUrl + "/Images/Edit.png' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '" + acttype.toString() + "' )\" /></td>";
-    insertRowHtml += '<td class=\'editbutton\'><img src=\'' + window.assetUrl + '/Images/Edit.png\' width=\'16\' height=\'16\' style=\'cursor: pointer;\' onclick="insertEditForm( \''
+    // insertRowHtml += "<td class='editbutton'><img src='" + asset('Images/Edit.png') + "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '" + rowID.toString() + "', '" + acttype.toString() + "' )\" /></td>";
+    insertRowHtml += '<td class=\'editbutton\'><img src=\'' + asset('Images/Edit.png') + '\' width=\'16\' height=\'16\' style=\'cursor: pointer;\' onclick="insertEditForm( \''
       + rowID.toString() + '\', \'5\' )" /></td>';
   }
 

@@ -27,7 +27,7 @@ function GetAchievementAndTooltipDiv(
     $gameNameStr = $gameName;
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "/Badge/$badgeName" . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . asset("Badge/$badgeName.png") . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$achNameStr</b><br>";
     $tooltip .= "$achDescStr<br>";
@@ -50,7 +50,7 @@ function GetAchievementAndTooltipDiv(
     if ($inclSmallBadge) {
         $achNameAttr = attributeEscape($achName);
         $smallBadgePath = "/Badge/$badgeName" . ".png";
-        $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='$imgclass' />";
+        $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src='" . asset($smallBadgePath) . "' alt='$achNameAttr' title='$achNameAttr' class='$imgclass' />";
 
         if ($smallBadgeOnly) {
             $displayable = "";
