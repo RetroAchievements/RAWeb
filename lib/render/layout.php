@@ -126,7 +126,7 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
         echo "<form method='post' action='/request/auth/login.php'>";
         echo "<div>";
-        echo "<input type='hidden' name='r' value='" . $_SERVER['REQUEST_URI'] . "'>";
+        echo "<input type='hidden' name='r' value='" . ($_SERVER['REQUEST_URI'] ?? '') . "'>";
         echo "<table><tbody>";
         echo "<tr>";
         echo "<td>User:&nbsp;</td>";
@@ -387,7 +387,7 @@ function RenderToolbar($user, $permissions = 0): void
     echo "</div>";
 }
 
-function RenderHeader($userDetails): void
+function RenderHeader(?array $userDetails): void
 {
     $errorCode = requestInputSanitized('e');
 

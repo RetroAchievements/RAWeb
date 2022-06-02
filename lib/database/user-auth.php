@@ -236,10 +236,10 @@ function getAccountDetailsFromCookie(?string $cookie): ?array
     return mysqli_fetch_array($dbResult) ?: null;
 }
 
-function generateCookie($user, &$cookie): bool
+function generateCookie($user): ?string
 {
     if (empty($user)) {
-        return false;
+        return null;
     }
 
     sanitize_sql_inputs($user);
@@ -251,13 +251,13 @@ function generateCookie($user, &$cookie): bool
         $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
         $result = s_mysql_query($query);
         if ($result === false) {
-            return false;
+            return null;
         }
 
         $query = "SELECT count(*) AS Count FROM UserAccounts WHERE cookie='$cookie'";
         $result = s_mysql_query($query);
         if ($result === false) {
-            return false;
+            return null;
         }
 
         $row = mysqli_fetch_array($result);
@@ -267,7 +267,7 @@ function generateCookie($user, &$cookie): bool
     $expiry = time() + 60 * 60 * 24 * $expDays;
     applyCookie('RA_Cookie', $cookie, $expiry, true);
 
-    return true;
+    return $cookie;
 }
 
 /*

@@ -2,15 +2,9 @@
 
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
- *
- * @param string $user the user to get information on
- * @param bool $imageInstead if true return the div for the user avatar, if false return the div for the username
- * @param string|null $customLink custom link if passed in
- * @param int $iconSizeDisplayable custom avatar size if passed in
- * @param string $iconClassDisplayable custom icon display class if passed in
  */
 function GetUserAndTooltipDiv(
-    $user,
+    ?string $user,
     $imageInstead = false,
     $customLink = null,
     $iconSizeDisplayable = 32,
