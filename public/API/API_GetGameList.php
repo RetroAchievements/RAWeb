@@ -19,6 +19,7 @@
  *    datetime   DateModified      when the last modification was made
  *                                 NOTE: this only tracks modifications to the achievements of the game,
  *                                       but is consistent with the data reported in the site game list.
+ *    int        ForumTopicID      unique identifier of the official forum topic for the game
  *    array      Hashes
  *     string     [value]          RetroAchievements hash associated to the game
  */
@@ -51,6 +52,7 @@ foreach ($dataOut as &$entry) {
         'NumLeaderboards' => $entry['NumLBs'] ?? 0,
         'Points' => $entry['MaxPointsAvailable'] ?? 0,
         'DateModified' => $entry['DateModified'],
+        'ForumTopicID' => $entry['ForumTopicID'],
     ];
     settype($responseEntry['NumAchievements'], 'integer');
     settype($responseEntry['NumLeaderboards'], 'integer');
