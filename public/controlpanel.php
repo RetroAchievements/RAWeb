@@ -1,7 +1,7 @@
 <?php
 
 use RA\Permissions;
-use RA\UserPref;
+use RA\UserPreference;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -15,8 +15,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 // cookie only returns the most common account details. go get the rest
 getAccountDetails($user, $userDetails);
 $points = $userDetails['RAPoints'];
-$fbUser = $userDetails['fbUser'];
-$fbPrefs = $userDetails['fbPrefs'];
 $websitePrefs = $userDetails['websitePrefs'];
 $emailAddr = $userDetails['EmailAddress'];
 $permissions = $userDetails['Permissions'];
@@ -31,9 +29,9 @@ $errorCode = requestInputSanitized('e');
 RenderHtmlStart();
 RenderHtmlHead("My Settings");
 
-function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
+function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): void
 {
-    echo "<input id='UserPref$userPref' type='checkbox' ";
+    echo "<input id='UserPreference$userPref' type='checkbox' ";
     echo "onchange='DoChangeUserPrefs(); return false;' value='1'";
 
     if ($state) {
@@ -51,83 +49,78 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
   function GetAllResettableGamesList() {
     $('#resetgameselector').empty();
 
-    var posting = $.post('/request/user/list-games.php', {u: '<?php echo $user; ?>'});
-    posting.done(OnGetAllResettableGamesList);
+    var posting = $.post('/request/user/list-games.php', {u: '<?= $user ?>'});
+    posting.done(function (data) {
+      if (data !== 'ERROR3') {
+        var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
+        htmlToAdd += '<option value="">--</option>';
 
-    $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
-  }
+        var gameList = JSON.parse(data);
 
-  function OnGetAllResettableGamesList(data) {
-    if (data !== 'ERROR3') {
-      var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
-      htmlToAdd += '<option value="">--</option>';
+        for (var i = 0; i < gameList.length; ++i) {
+          var object = gameList[i];
 
-      var gameList = JSON.parse(data);
+          var nextID = object.ID;
+          var console = htmlEntities(object.ConsoleName);
+          var title = htmlEntities(object.GameTitle);
+          var numAw = object.NumAwarded;
+          var numPoss = object.NumPossible;
 
-      for (var i = 0; i < gameList.length; ++i) {
-        var object = gameList[i];
+          htmlToAdd += '<option value=\'' + nextID + '\'>' + title + ' (' + console + ') (' + numAw + ' / ' + numPoss + ' won)';
+        }
 
-        var nextID = object.ID;
-        var console = htmlEntities(object.ConsoleName);
-        var title = htmlEntities(object.GameTitle);
-        var numAw = object.NumAwarded;
-        var numPoss = object.NumPossible;
+        htmlToAdd += '</select>';
 
-        htmlToAdd += '<option value=\'' + nextID + '\'>' + title + ' (' + console + ') (' + numAw + ' / ' + numPoss + ' won)';
+        $('#resetgameselector').html(htmlToAdd);
+
+        $('#loadingiconreset').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
       }
 
-      htmlToAdd += '</select>';
+      ResetFetchAwarded();
+    });
 
-      $('#resetgameselector').html(htmlToAdd);
-
-      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
-    }
-
-    ResetFetchAwarded();
+    $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
   }
 
   function ResetFetchAwarded() {
     var gameID = parseInt($('#resetgameselector :selected').val());
     if (gameID > 0) {
-      var posting = $.post('/request/user/list-unlocks.php', {u: '<?php echo $user; ?>', g: gameID});
-      posting.done(onFetchComplete);
+      var posting = $.post('/request/user/list-unlocks.php', {u: '<?= $user ?>', g: gameID});
+      posting.done(function (data) {
+        if (data.substr(0, 2) !== 'OK') {
+          $('#warning').html('Status: Errors...');
+          alert(data);
+        } else {
+          $('#warning').html('Status: OK...');
+
+          var achList = data.substr(3);
+          var achData = achList.split('::');
+
+          if (achData.length > 0 && achData[0].length > 0) {
+            $('#resetachievementscontainer').append('<option value=\'9999999\' >All achievements for this game</option>');
+          }
+
+          for (var index = 0; index < achData.length; ++index) {
+            var nextData = achData[index];
+            var dataChunks = nextData.split('_:_');
+            if (dataChunks.length < 2) {
+              continue;
+            }
+            var achTitle = htmlEntities(dataChunks[0]);
+            var achID = htmlEntities(dataChunks[1]);
+            if (achID[0] == 'h') {
+              // Hardcore:
+              achTitle = achTitle + ' (Hardcore)';
+              $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
+            } else {
+              // Casual:
+              $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
+            }
+          }
+        }
+      });
       $('#resetachievementscontainer').empty();
       $('#warning').html('Status: Updating...');
-    }
-  }
-
-  function onFetchComplete(data) {
-    if (data.substr(0, 2) !== 'OK') {
-      $('#warning').html('Status: Errors...');
-      alert(data);
-    } else {
-      $('#warning').html('Status: OK...');
-
-      var achList = data.substr(3);
-      var achData = achList.split('::');
-
-      if (achData.length > 0 && achData[0].length > 0) {
-        $('#resetachievementscontainer').append('<option value=\'9999999\' >All achievements for this game</option>');
-      }
-
-      for (var index = 0; index < achData.length; ++index) {
-        var nextData = achData[index];
-        var dataChunks = nextData.split('_:_');
-        if (dataChunks.length < 2) {
-          continue;
-        }
-        var achTitle = htmlEntities(dataChunks[0]);
-        var achID = htmlEntities(dataChunks[1]);
-        if (achID[0] == 'h') {
-          // Hardcore:
-          achTitle = achTitle + ' (Hardcore)';
-          $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
-        } else {
-          // Casual:
-          $('#resetachievementscontainer').append('<option value=\'' + achID + '\'>' + achTitle + '</option>');
-        }
-      }
-
     }
   }
 
@@ -150,17 +143,17 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       if (gameId > 0 && confirm('Reset all achievements for ' + gameName + '?')) {
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
-        var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', g: gameID});
+        var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', g: gameID});
         posting.done(onResetComplete);
         $('#warning').html('Status: Updating...');
-        $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+        $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
       }
     } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
-      var posting = $.post('/request/user/reset-achievements.php', {u: '<?php echo $user; ?>', a: achID, h: isHardcore});
+      var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', a: achID, h: isHardcore});
       posting.done(onResetComplete);
       $('#warning').html('Status: Updating...');
-      $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
+      $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
     }
   }
 
@@ -169,7 +162,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       alert(data);
       return;
     }
-    $('#loadingiconreset').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+    $('#loadingiconreset').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
     if ($('#resetachievementscontainer').children('option').length > 2)
       ResetFetchAwarded(); // Just reset ach. list
     else
@@ -180,13 +173,13 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
   function DoChangeUserPrefs() {
     var newUserPrefs = 0;
     for (i = 0; i < 7; ++i) { // 0-6 are set if checked
-      var checkbox = document.getElementById('UserPref' + i);
+      var checkbox = document.getElementById('UserPreference' + i);
       if (checkbox != null && checkbox.checked)
         newUserPrefs += (1 << i);
     }
 
     for (i = 8; i < 15; ++i) { // 8-14 are set if checked
-      var checkbox = document.getElementById('UserPref' + i);
+      var checkbox = document.getElementById('UserPreference' + i);
       if (checkbox != null && checkbox.checked)
         newUserPrefs += (1 << i);
     }
@@ -196,41 +189,35 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
     if (checkbox != null && !checkbox.checked)
       newUserPrefs += (1 << 7);
 
-    $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/loading.gif').fadeTo(100, 1.0);
-    var posting = $.post('/request/user/update-notification.php', {u: '<?php echo $user; ?>', p: newUserPrefs});
-    posting.done(OnChangeUserPrefs);
-  }
-
-  function OnChangeUserPrefs() {
-    $('#loadingicon').attr('src', '<?php echo getenv('ASSET_URL') ?>/Images/tick.png').delay(750).fadeTo('slow', 0.0);
+    $('#loadingicon').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
+    var posting = $.post('/request/user/update-notification.php', {u: '<?= $user ?>', p: newUserPrefs});
+    posting.done(function () {
+      $('#loadingicon').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
+    });
   }
 
   function UploadNewAvatar() {
     // New file
     var photo = document.getElementById('uploadimagefile');
     var file = photo.files[0];
-
     var reader = new FileReader();
     reader.onload = function () {
-
       $('#loadingiconavatar').fadeTo(100, 1.0);
-      $.post('/request/user/update-avatar.php', {f: file.name.split('.').pop(), i: reader.result}, onUploadImageComplete);
-    };
+      $.post('/request/user/update-avatar.php', { i: reader.result },
+        function (data) {
+          $('#loadingiconavatar').fadeTo(100, 0.0);
 
+          var result = $.parseJSON(data);
+          if (result.Success) {
+            var d = new Date();
+            $('.userpic').attr('src', '/UserPic/<?= $user ?>' + '.png?' + d.getTime());
+          } else {
+            alert('Upload failed!\n' + result.Error);
+          }
+        });
+    };
     reader.readAsDataURL(file);
     return false;
-  }
-
-  function onUploadImageComplete(data) {
-    $('#loadingiconavatar').fadeTo(100, 0.0);
-
-    var result = $.parseJSON(data);
-    if (result.Success) {
-      var d = new Date();
-      $('.userpic').attr('src', '/UserPic/<?php echo $user; ?>' + '.png?' + d.getTime());
-    } else {
-      alert('Upload failed!\n' + result.Error);
-    }
   }
 
   function validateEmail() {
@@ -246,7 +233,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
       return false;
     }
     <?php if ($permissions >= Permissions::Developer): ?>
-    return confirm("Are you sure that you want to do this?\n\nChanging your email address will revoke your priveledges and you will need to have them restored by staff.");
+    return confirm("Are you sure that you want to do this?\n\nChanging your email address will revoke your privileges and you will need to have them restored by staff.");
     <?php else: ?>
     return true;
     <?php endif ?>
@@ -260,16 +247,17 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
         <?php RenderErrorCodeWarning($errorCode); ?>
         <div class='component'>
             <h2>User Details</h2>
+            <div class="embedded d-flex justify-content-between">
+                <div>
+                    <div><strong><a href="/user/<?= $user ?>"><?= $user ?></a></strong> (<?= $points ?> points)</div>
+                    <div>Account: (<?= $permissions ?>) <?= PermissionsToString($permissions) ?></div>
+                    <?php if (!empty($userMotto) && mb_strlen($userMotto) > 1) : ?>
+                        <span class="usermotto"><?= $userMotto ?></span>
+                    <?php endif ?>
+                </div>
+                <img class="userpic" src="/UserPic/<?= $user ?>.png" alt="<?= $user ?> avatar" width='96' height='96' />
+            </div>
             <?php
-            // Render user panel
-            echo "<p style='min-height:62px'>";
-            echo "<img class='userpic' src='/UserPic/$user.png' alt='$user' style='text-align:right' width='64' height='64'>";
-            echo "<strong><a href='/user/$user'>$user</a></strong> ($points points)<br>";
-            echo "Account: ($permissions) " . PermissionsToString($permissions) . "<br>";
-            if (!empty($userMotto) && mb_strlen($userMotto) > 1) {
-                echo "<span class='usermotto'>$userMotto</span><br>";
-            }
-            echo "</p>";
             if ($permissions == Permissions::Unregistered) {
                 echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
             }
@@ -360,47 +348,47 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                 </tr>
                 <tr>
                     <td>If someone comments on my activity:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_ActivityComment, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_ActivityComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_ActivityComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_ActivityComment, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone comments on an achievement I created:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_AchievementComment, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_AchievementComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_AchievementComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_AchievementComment, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone comments on my user wall:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_UserWallComment, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_UserWallComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_UserWallComment, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_UserWallComment, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone comments on a forum topic I'm involved in:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_ForumReply, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_ForumReply, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_ForumReply, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_ForumReply, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone adds me as a friend:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_AddFriend, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_AddFriend, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_AddFriend, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_AddFriend, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone sends me a private message:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_PrivateMessage, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_PrivateMessage, true, "disabled checked") ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_PrivateMessage, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_PrivateMessage, true, "disabled checked") ?></td>
                 </tr>
                 <tr>
                     <td>With the weekly RA Newsletter:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::EmailOn_Newsletter, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOn_Newsletter, true, "disabled") ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_Newsletter, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_Newsletter, true, "disabled") ?></td>
                 </tr>
                 <tr>
                     <td>When viewing a game with mature content:</td>
                     <td/>
-                    <td><?php RenderUserPref($websitePrefs, UserPref::SiteMsgOff_MatureContent, false) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOff_MatureContent, false) ?></td>
                 </tr>
                 </tbody>
             </table>
-            <img id='loadingicon' style='opacity: 0; float: right;' src='<?php echo getenv('ASSET_URL') ?>/Images/loading.gif' width='16' height='16' alt='loading icon'/>
+            <img id='loadingicon' style='opacity: 0; float: right;' src='<?= asset('Images/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
         </div>
         <div class='component'>
             <h3>Change Password</h3>
@@ -446,7 +434,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                     </tr>
                     <tr>
                         <td></td>
-                        <td><input type="hidden" name="u" value="<?php echo $user; ?>"></td>
+                        <td><input type="hidden" name="u" value="<?= $user ?>"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -480,7 +468,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
                     <tr>
                         <td class='firstrow'>Old Email Address:</td>
                         <td>
-                            <div class="field_container"><input type="text" class="inputtext" name="o" size='30' disabled VALUE="<?php echo $emailAddr; ?>"/></div>
+                            <div class="field_container"><input type="text" class="inputtext" name="o" size='30' disabled VALUE="<?= $emailAddr ?>"/></div>
                         </td>
                     </tr>
                     <tr>
@@ -518,7 +506,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
             echo "</div></td></tr>";
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
-            echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . getenv('ASSET_URL') . "/Images/loading.gif' width='16' height='16' alt='loading icon' />";
+            echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . asset('Images/loading.gif') . "' width='16' height='16' alt='loading icon' />";
             echo "</td></tr></tbody></table>";
             ?>
         </div>
@@ -529,7 +517,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
         NOTE: deprecated - will be restored inv2
         Enter password to confirm! Please note: this is <b>not</b> reversible!
         <form method=post action="requestresetachievements.php">
-        <INPUT TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
+        <INPUT TYPE="hidden" NAME="u" VALUE="<?= $user ?>">
         <INPUT TYPE="password" NAME="p" VALUE="">
         <INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
         </form>
@@ -559,41 +547,41 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null)
         </div>
     </div>
     <?php if ($permissions >= Permissions::Registered): ?>
-    <div id="rightcontainer">
-        <div class='component'>
-            <h3>Request Score Recalculation</h3>
-            <form method=post action="/request/user/recalculate-score.php">
-                <input TYPE="hidden" NAME="u" VALUE="<?php echo $user; ?>">
-                If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
-                <input value="Recalculate My Score" type='submit' size='37'>
-            </form>
+        <div id="rightcontainer">
+            <div class='component'>
+                <h3>Request Score Recalculation</h3>
+                <form method=post action="/request/user/recalculate-score.php">
+                    <input TYPE="hidden" NAME="u" VALUE="<?= $user ?>">
+                    If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
+                    <input value="Recalculate My Score" type='submit' size='37'>
+                </form>
+            </div>
+            <div class='component'>
+                <h2>Avatar</h2>
+                <div style="margin-bottom: 10px">
+                    New image should be less than 1MB, png/jpeg/gif supported.
+                </div>
+                <div style="margin-bottom: 10px">
+                    <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
+                    <img id="loadingiconavatar" style="opacity: 0; float: right;"
+                         src="<?= asset('Images/loading.gif') ?>"
+                         width="16" height="16" alt="loading">
+                </div>
+                <div style="margin-bottom: 10px">
+                    After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+                </div>
+                <div style="margin-bottom: 10px">
+                    Reset your avatar to default by removing your current one:
+                </div>
+                <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
+                    <input type="hidden" name="u" value="<?= $user ?>">
+                    <input type="submit" value="Remove Avatar">
+                </form>
+            </div>
+            <div class='component'>
+                <a href="reorderSiteAwards.php">Reorder site awards</a>
+            </div>
         </div>
-        <div class='component'>
-            <h2>Avatar</h2>
-            <div style="margin-bottom: 10px">
-                New image should be less than 1MB, png/jpeg/gif supported.
-            </div>
-            <div style="margin-bottom: 10px">
-                <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
-                <img id="loadingiconavatar" style="opacity: 0; float: right;"
-                     src="<?php echo getenv('ASSET_URL') ?>/Images/loading.gif"
-                     width="16" height="16" alt="loading">
-            </div>
-            <div style="margin-bottom: 10px">
-                After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
-            </div>
-            <div style="margin-bottom: 10px">
-                Reset your avatar to default by removing your current one:
-            </div>
-            <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
-                <input type="hidden" name="u" value="<?= $user ?>">
-                <input type="submit" value="Remove Avatar">
-            </form>
-        </div>
-        <div class='component'>
-            <a href="reorderSiteAwards.php">Reorder site awards</a>
-        </div>
-    </div>
     <?php endif ?>
 </div>
 <?php RenderFooter(); ?>

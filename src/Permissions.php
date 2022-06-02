@@ -17,6 +17,4 @@ abstract class Permissions
     public const Developer = 3;
 
     public const Admin = 4;
-
-    public const Root = 5;
 }

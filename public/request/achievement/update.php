@@ -76,16 +76,16 @@ switch ($field) {
         }
 
         $achievement = GetAchievementMetadataJSON((int) (is_array($achievementId) ? $achievementId[0] : $achievementId));
-        if ((int) $value === AchievementType::OFFICIAL_CORE && !isValidConsoleId($achievement['ConsoleID'])) {
+        if ((int) $value === AchievementType::OfficialCore && !isValidConsoleId($achievement['ConsoleID'])) {
             echo json_encode(['success' => false, 'error' => 'Invalid Console']);
             exit;
         }
 
         if (updateAchievementFlags($achievementId, (int) $value)) {
-            if ($value == AchievementType::OFFICIAL_CORE) {
+            if ($value == AchievementType::OfficialCore) {
                 $commentText = 'promoted this achievement to the Core set';
             }
-            if ($value == AchievementType::UNOFFICIAL) {
+            if ($value == AchievementType::Unofficial) {
                 $commentText = 'demoted this achievement to Unofficial';
             }
             addArticleComment("Server", ArticleType::Achievement, $achievementId, "\"$user\" $commentText.", $user);

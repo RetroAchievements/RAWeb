@@ -142,7 +142,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
                 echo "<tr>";
 
-                echo "<td class='unreadicon p-1'><img src='" . getenv('ASSET_URL') . "/Images/ForumTopicUnread32.gif' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
+                echo "<td class='unreadicon p-1'><img src='" . asset('Images/ForumTopicUnread32.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
                 echo "<td class='topictitle'><a alt='Posted $nextTopicPostedNiceDate' title='Posted on $nextTopicPostedNiceDate' href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a><br><div id='topicpreview'>$nextTopicPreview...</div></td>";
                 echo "<td class='author'>";
                 echo GetUserAndTooltipDiv($nextTopicAuthor, $mobileBrowser);

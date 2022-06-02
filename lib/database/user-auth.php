@@ -102,7 +102,7 @@ function authenticateFromPassword(&$user, $pass): bool
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT User, Password, SaltedPass, fbUser, cookie, Permissions FROM UserAccounts WHERE User='$user'";
+    $query = "SELECT User, Password, SaltedPass, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
     if (!$result) {
         return false;

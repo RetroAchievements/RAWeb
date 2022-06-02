@@ -3,8 +3,6 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-$response = ['Success' => true];
-
 $requestType = requestInput('r');
 $user = requestInput('u');
 $token = requestInput('t');
@@ -19,30 +17,32 @@ if (!authenticateFromAppToken($user, $token, $permissions)) {
 
 // Infer request type from app
 // TODO: remove if not required anymore
-if (isset($_FILES["file"]) && isset($_FILES["file"]["name"])) {
-    $requestType = mb_substr($_FILES["file"]["name"], 0, -4);
+if (isset($_FILES['file']) && isset($_FILES['file']['name'])) {
+    $requestType = mb_substr($_FILES['file']['name'], 0, -4);
 }
 
-switch ($requestType) {
-    case "uploadbadgeimage":
-        $uploadResponse = UploadBadgeImage($_FILES["file"]);
-        $response['Success'] = $uploadResponse['Success'];
-        unset($uploadResponse['Success']);
-
-        if ($uploadResponse['Error']) {
-            $response['Error'] = $uploadResponse['Error'];
-            unset($uploadResponse['Error']);
-        }
-
-        $response['Response'] = $uploadResponse;
-        break;
-
-    default:
-        $errorMsg = "Unknown Request: '" . $requestType . "'";
-        $response['Success'] = false;
-        $response['Error'] = $errorMsg;
-        break;
+if ($requestType !== 'uploadbadgeimage') {
+    echo json_encode([
+        'Success' => false,
+        'Error' => "Unknown Request: '$requestType'",
+    ]);
+    exit;
 }
 
-settype($response['Success'], 'boolean');
-echo json_encode($response, JSON_THROW_ON_ERROR);
+try {
+    $badgeIterator = UploadBadgeImage($_FILES['file']);
+} catch (Exception $exception) {
+    echo json_encode([
+        'Success' => false,
+        'Error' => $exception->getMessage(),
+    ]);
+    exit;
+}
+
+echo json_encode([
+    'Success' => true,
+    'Response' => [
+        // RALibretro uses BadgeIter to associate the uploaded badge to the achievement
+        'BadgeIter' => $badgeIterator,
+    ],
+]);

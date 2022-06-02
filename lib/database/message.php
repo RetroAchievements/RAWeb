@@ -1,6 +1,6 @@
 <?php
 
-use RA\UserPref;
+use RA\UserPreference;
 
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn): bool
 {
@@ -21,7 +21,7 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn):
             $websitePrefs = $userDetails['websitePrefs'];
             $destEmail = $userDetails['EmailAddress'];
 
-            if (BitSet($websitePrefs, UserPref::EmailOn_PrivateMessage)) {
+            if (BitSet($websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
                 sendPrivateMessageEmail($destUser, $destEmail, $messageTitle, $messagePayload, $author);
             }
         }

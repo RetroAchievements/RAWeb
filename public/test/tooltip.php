@@ -1,6 +1,6 @@
 <?php
 
-use RA\Models\TicketModel;
+use RA\Ticket;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../lib/bootstrap.php';
@@ -57,7 +57,7 @@ function tooltip_row(string $text): void
         'ResolvedAt' => null,
         'ResolvedBy' => null,
     ];
-    $ticket = new TicketModel($ticketData);
+    $ticket = new Ticket($ticketData);
     echo "</td>\n        <td>";
     echo GetTicketAndTooltipDiv($ticket);
 

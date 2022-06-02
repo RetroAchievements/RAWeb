@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Test;
+namespace Test\Util;
 
 use PHPUnit\Framework\TestCase;
 
-final class UtilTest extends TestCase
+final class StringTest extends TestCase
 {
     public function testSeparateList()
     {

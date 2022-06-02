@@ -11,7 +11,7 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
 
     $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
-              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OFFICIAL_CORE;
+              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore;
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -49,7 +49,7 @@ function getGameRankAndScore($gameID, $requestedBy): ?array
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
         WHERE ( !ua.Untracked OR ua.User = '$requestedBy') 
-          AND ach.Flags = " . AchievementType::OFFICIAL_CORE . " 
+          AND ach.Flags = " . AchievementType::OfficialCore . " 
           AND gd.ID = $gameID
         GROUP BY aw.User
         ORDER BY TotalScore DESC, LastAward ASC
@@ -244,7 +244,7 @@ function getUsersCompletedGamesAndMax($user): array
 
     sanitize_sql_inputs($user);
 
-    $requiredFlags = AchievementType::OFFICIAL_CORE;
+    $requiredFlags = AchievementType::OfficialCore;
     $minAchievementsForCompletion = 5;
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
@@ -358,7 +358,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                 WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
-                  AND ach.Flags = " . AchievementType::OFFICIAL_CORE . " 
+                  AND ach.Flags = " . AchievementType::OfficialCore . " 
                   AND gd.ID = $gameID
                 GROUP BY aw.User
                 ORDER BY TotalScore DESC, LastAward";

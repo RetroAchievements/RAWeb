@@ -18,5 +18,6 @@
     </testsuites>
     <php>
         <ini name="date.timezone" value="UTC"/>
+        <env name="APP_URL" value="http://localhost" />
     </php>
 </phpunit>

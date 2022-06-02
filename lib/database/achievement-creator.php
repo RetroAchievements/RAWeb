@@ -15,7 +15,7 @@ function getUserAchievementsPerConsole(string $user): array
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
-              AND a.Flags = " . AchievementType::OFFICIAL_CORE . "
+              AND a.Flags = " . AchievementType::OfficialCore . "
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY AchievementCount DESC, ConsoleName";
@@ -42,7 +42,7 @@ function getUserSetsPerConsole(string $user): array
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
-              AND a.Flags = " . AchievementType::OFFICIAL_CORE . "
+              AND a.Flags = " . AchievementType::OfficialCore . "
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
@@ -70,7 +70,7 @@ function getUserAchievementInformation(string $user): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = '$user'
               WHERE Author LIKE '$user'
-              AND a.Flags = " . AchievementType::OFFICIAL_CORE . "
+              AND a.Flags = " . AchievementType::OfficialCore . "
               AND gd.ConsoleID NOT IN (100, 101)
               ORDER BY a.DateCreated";
 
@@ -99,7 +99,7 @@ function getOwnAchievementsObtained(string $user): bool|array|null
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author LIKE '$user'
               AND aw.User LIKE '$user'
-              AND a.Flags = " . AchievementType::OFFICIAL_CORE . "
+              AND a.Flags = " . AchievementType::OfficialCore . "
               AND gd.ConsoleID NOT IN (100, 101)";
 
     $dbResult = s_mysql_query($query);
@@ -128,7 +128,7 @@ function getObtainersOfSpecificUser(string $user): array
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE a.Author LIKE '$user'
               AND aw.User NOT LIKE '$user'
-              AND a.Flags = " . AchievementType::OFFICIAL_CORE . "
+              AND a.Flags = " . AchievementType::OfficialCore . "
               AND gd.ConsoleID NOT IN (100, 101)
               AND Untracked = 0
               GROUP BY aw.User
@@ -155,7 +155,7 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
         SELECT distinct(Author) AS Author FROM Achievements AS ach
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         WHERE ach.GameID = $gameID
-        AND ach.Flags = " . AchievementType::OFFICIAL_CORE . "";
+        AND ach.Flags = " . AchievementType::OfficialCore . "";
 
     $dbResult = s_mysql_query($query);
 

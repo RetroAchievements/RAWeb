@@ -1,7 +1,7 @@
 <?php
 
 use RA\Permissions;
-use RA\Shortcode\Shortcode;
+use RA\Shortcode;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';

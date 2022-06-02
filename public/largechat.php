@@ -42,7 +42,7 @@ RenderHtmlHead("RA Cinema");
     var url = bodyTag.find('#videourlinput').val();
     url = replaceAll('http', '_http_', url);
 
-    var posting = $.post('/request/playlist/update.php', { a: '<?php echo $user; ?>', i: <?php echo $vidID; ?>, t: title, l: url });
+    var posting = $.post('/request/playlist/update.php', { a: '<?= $user ?>', i: <?= $vidID ?>, t: title, l: url });
     posting.done(onPostComplete);
     //$("body").find( "#warning" ).html( "Status: Updating..." );
   }

@@ -3,7 +3,7 @@
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
-use RA\Shortcode\Shortcode;
+use RA\Shortcode;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -92,8 +92,8 @@ RenderHtmlStart(true);
         url = replaceAll('http', '_http_', url);
 
         var posting = $.post('/request/achievement/update.php', {
-          u: '<?php echo $user; ?>',
-          a: <?php echo $achievementID; ?>,
+          u: '<?= $user ?>',
+          a: <?= $achievementID ?>,
           f: 2,
           v: url,
         });
@@ -109,7 +109,7 @@ RenderHtmlStart(true);
       }
 
       function updateAchievementTypeFlag(typeFlag) {
-        if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OFFICIAL_CORE ?> ? 'promote' : 'demote')} these achievements?`)) {
+        if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
           return;
         }
 
@@ -152,8 +152,8 @@ RenderHtmlStart(true);
 
         echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
-        $fileSuffix = ($user == "" || ($achievedLocal == false)) ? "_lock.png" : ".png";
-        $badgeFullPath = getenv('ASSET_URL') . "/Badge/" . $badgeName . $fileSuffix;
+        $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
+        $badgeFullPath = asset("Badge/$badgeName$fileSuffix.png");
 
         echo "<table class='nicebox'><tbody>";
 
@@ -192,7 +192,7 @@ RenderHtmlStart(true);
 
         echo "<p class='smalldata'>";
         echo "<small>";
-        if ($achFlags === AchievementType::UNOFFICIAL) {
+        if ($achFlags === AchievementType::Unofficial) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
@@ -268,11 +268,11 @@ RenderHtmlStart(true);
                 <?php
                 echo "<div style='clear:both;'></div>";
 
-                if ($achFlags === AchievementType::OFFICIAL_CORE) {
-                    echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::UNOFFICIAL . ")'>Demote To Unofficial</button></li>";
+                if ($achFlags === AchievementType::OfficialCore) {
+                    echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
                 }
-                if ($achFlags === AchievementType::UNOFFICIAL) {
-                    echo "<li>State: Unofficial&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OFFICIAL_CORE . ")'>Promote To Official</button></li>";
+                if ($achFlags === AchievementType::Unofficial) {
+                    echo "<li>State: Unofficial&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
                 }
             }
 

@@ -98,7 +98,7 @@ RenderHtmlHead("FAQ");
 		';
 
         echo "<h4 class='longheader' id='faq10'>I want to stream on my twitch channel/make a fan site/buy a T-Shirt with RetroAchievements!</h4>";
-        echo "<p>Enjoy! Do whatever you like; here's a <a href='" . getenv('ASSET_URL') . "/Images/RA_LogoLarge.png'>link to a high-resolution logo</a>. Please enjoy responsibly and spread the word about RA as you wish ;)<br><br>";
+        echo "<p>Enjoy! Do whatever you like; here's a <a href='" . asset('Images/RA_LogoLarge.png') . "'>link to a high-resolution logo</a>. Please enjoy responsibly and spread the word about RA as you wish ;)<br><br>";
 
         echo "<h4 class='longheader' id='faq11'>How can I assign a controller button to view the achievement overlay?</h4>";
         echo "<p>Some of the emulators should already be setup for this. Generally ESC on the keyboard should activate it, but if you want to assign it to a controller, see <a href='" . getenv('APP_URL') . "/viewtopic.php?t=2323&c=12084'>this link</a>.<br><br>";

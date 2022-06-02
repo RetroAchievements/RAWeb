@@ -202,7 +202,7 @@ RenderHtmlHead("Game Compare");
                     }
                 } else {
                     echo "<div style='float:right;' >";
-                    echo "<img class='awardremote' src='" . getenv('ASSET_URL') . "/Badge/$badgeName" . "_lock.png' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
+                    echo "<img class='awardremote' src='" . asset("Badge/$badgeName" . '_lock.png') . "' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
                     echo "</div>";
                 }
                 echo "</td>";

@@ -65,15 +65,15 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<div class='d-flex flex-wrap justify-content-between'>";
         echo "<div>";
 
-        echo $params !== AchievementType::OFFICIAL_CORE ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::OFFICIAL_CORE . "$dev_param'>" : "<b>";
+        echo $params !== AchievementType::OfficialCore ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::OfficialCore . "$dev_param'>" : "<b>";
         echo "Achievements in Core Sets";
-        echo $params !== AchievementType::OFFICIAL_CORE ? "</a>" : "</b>";
+        echo $params !== AchievementType::OfficialCore ? "</a>" : "</b>";
         echo "<br>";
 
         if ($user !== null) {
-            echo $params !== AchievementType::UNOFFICIAL ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::UNOFFICIAL . "$dev_param'>" : "<b>";
+            echo $params !== AchievementType::Unofficial ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::Unofficial . "$dev_param'>" : "<b>";
             echo "Achievements in Unofficial Sets";
-            echo $params !== AchievementType::UNOFFICIAL ? "</a>" : "</b>";
+            echo $params !== AchievementType::Unofficial ? "</a>" : "</b>";
             echo "<br>";
 
             echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";

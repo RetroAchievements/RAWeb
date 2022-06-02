@@ -1,19 +1,15 @@
 <?php
 
 use RA\ArticleType;
-use RA\ObjectType;
+use RA\ImageType;
 use RA\Permissions;
+use RA\RatingType;
 use RA\SubscriptionSubjectType;
 use RA\TicketFilters;
-use RA\UserPref;
+use RA\UserPreference;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
-
-/*
-  DONT FORGET! All URLS within Game, User or Achievement MUST have an extra forward slash
-  as they are all in a pseudo-directory of /game etc.
- */
 
 $gameID = requestInputSanitized('ID', null, 'integer');
 if ($gameID == null || $gameID == 0) {
@@ -57,7 +53,7 @@ $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
-$isFullyFeaturedGame = !in_array($consoleName, ['Hubs']);
+$isFullyFeaturedGame = $consoleName !== 'Hubs';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
@@ -70,7 +66,7 @@ foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
     } else {
-        if (substr($gameAlt['Title'], 0, strlen($subsetPrefix)) == $subsetPrefix) {
+        if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
             $gameSubsets[] = $gameAlt;
         } else {
             $gameAlts[] = $gameAlt;
@@ -82,7 +78,7 @@ $v = requestInputSanitized('v', 0, 'integer');
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
-            if (BitSet($userDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+            if (BitSet($userDetails['websitePrefs'], UserPreference::SiteMsgOff_MatureContent)) {
                 break;
             }
 
@@ -107,12 +103,12 @@ if ($v != 1 && $isFullyFeaturedGame) {
     Are you sure that you want to view this game?
     <br/>
     <br/>
-    <form id='consentform' action='/game/<?php echo $gameID ?>' method='get' style='float:left'>
+    <form id='consentform' action='/game/<?= $gameID ?>' method='get' style='float:left'>
       <input type='hidden' name='v' value='1'/>
       <input type='submit' value='Yes. I&apos;m an adult'/>
     </form>
     <form id='escapeform' action='/gameList.php' method='get' style='float:left; margin-left:16px'>
-      <input type='hidden' name='c' value='<?php echo $consoleID ?>'/>
+      <input type='hidden' name='c' value='<?= $consoleID ?>'/>
       <input type='submit' value='Not Interested'/>
     </form>
   </div>
@@ -269,8 +265,8 @@ RenderHtmlStart(true);
         var optionsTotalScore = {
           backgroundColor: 'transparent',
           titleTextStyle: {color: '#186DEE'}, // cc9900
-          hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $numGridlines; ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
-          vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?php echo $largestWonByCount + 1; ?>}, viewWindow: {min: 0}, format: '#'},
+          hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $numGridlines ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
+          vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $largestWonByCount + 1 ?>}, viewWindow: {min: 0}, format: '#'},
           legend: {position: 'none'},
           chartArea: {'width': '85%', 'height': '78%'},
           height: 260,
@@ -289,10 +285,10 @@ RenderHtmlStart(true);
       }
     </script>
     <script>
-      var lastKnownAchRating = <?= $gameRating[ObjectType::Achievement]['AverageRating'] ?>;
-      var lastKnownGameRating = <?= $gameRating[ObjectType::Game]['AverageRating'] ?>;
-      var lastKnownAchRatingCount = <?= $gameRating[ObjectType::Achievement]['RatingCount'] ?>;
-      var lastKnownGameRatingCount = <?= $gameRating[ObjectType::Game]['RatingCount'] ?>;
+      var lastKnownAchRating = <?= $gameRating[RatingType::Achievement]['AverageRating'] ?>;
+      var lastKnownGameRating = <?= $gameRating[RatingType::Game]['AverageRating'] ?>;
+      var lastKnownAchRatingCount = <?= $gameRating[RatingType::Achievement]['RatingCount'] ?>;
+      var lastKnownGameRatingCount = <?= $gameRating[RatingType::Game]['RatingCount'] ?>;
 
       function SetLitStars(container, numStars) {
         $(container + ' a').removeClass('starlit');
@@ -355,7 +351,7 @@ RenderHtmlStart(true);
           url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
           dataType: 'json',
           success: function (results) {
-            if (ratingObjectType == <?= ObjectType::Game ?>) {
+            if (ratingObjectType == <?= RatingType::Game ?>) {
               $('.ratinggamelabel').html('Rating: ...');
             } else {
               $('.ratingachlabel').html('Rating: ...');
@@ -372,7 +368,7 @@ RenderHtmlStart(true);
 
                 UpdateRatings();
 
-                if (ratingObjectType == <?= ObjectType::Game ?>) {
+                if (ratingObjectType == <?= RatingType::Game ?>) {
                   index = ratinggametooltip.indexOf("Your rating: ") + 13;
                   index2 = ratinggametooltip.indexOf("</td>", index);
                   ratinggametooltip = ratinggametooltip.substring(0, index) + value + "<br><i>Distribution may have changed</i>" + ratinggametooltip.substring(index2);
@@ -455,7 +451,7 @@ RenderHtmlStart(true);
           if ($(this).parent().is($('#ratingach')))
             ratingType = 3;
 
-          SubmitRating(<?php echo $gameID; ?>, ratingType, numStars);
+          SubmitRating(<?= $gameID ?>, ratingType, numStars);
         });
 
       });
@@ -504,18 +500,18 @@ RenderHtmlStart(true);
             url: '/request/set-request/update.php?i=' + gameID,
             dataType: 'json',
             success: function (results) {
-              getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
+              getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
             },
           });
       }
 
       $(function () {
         $('.setRequestLabel').click(function () {
-          submitSetRequest('<?php echo $user; ?>', <?php echo $gameID; ?>);
+          submitSetRequest('<?= $user ?>', <?= $gameID ?>);
         });
 
         if ($('.setRequestLabel').length) {
-          getSetRequestInformation('<?php echo $user; ?>', <?php echo $gameID; ?>);
+          getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
         }
 
       });
@@ -551,7 +547,7 @@ RenderHtmlStart(true);
             $publisher = $gameData['Publisher'] ?? null;
             $genre = $gameData['Genre'] ?? null;
             $released = $gameData['Released'] ?? null;
-            $imageIcon = $gameData['ImageIcon'];
+            $imageIcon = asset($gameData['ImageIcon']);
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
@@ -559,20 +555,21 @@ RenderHtmlStart(true);
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px; vertical-align: top' ><img src='$imageIcon' title='$pageTitleAttr' width='96' height='96'></td>";
+            echo "<td style='width:110px; padding: 7px; vertical-align: top' >";
+            echo "<img src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
+            echo "</td>";
             echo "<td>";
             echo "<table class='gameinfo'><tbody>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
                 RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
                 RenderMetadataTableRow('Genre', $genre, $gameHubs, ['Subgenre']);
-                RenderMetadataTableRow('Released', $released, null);
             } else {
-                RenderMetadataTableRow('Developer', $developer, null);
-                RenderMetadataTableRow('Publisher', $publisher, null);
-                RenderMetadataTableRow('Genre', $genre, null);
-                RenderMetadataTableRow('Released', $released, null);
+                RenderMetadataTableRow('Developer', $developer);
+                RenderMetadataTableRow('Publisher', $publisher);
+                RenderMetadataTableRow('Genre', $genre);
             }
+            RenderMetadataTableRow('Released', $released);
             echo "</tbody></table>";
             echo "</tr>";
             echo "</tbody></table>";
@@ -669,39 +666,43 @@ RenderHtmlStart(true);
                     echo "<br>";
 
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                        echo "<form class='mb-2' method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
-                        echo "<input type='hidden' name='t' value='GAME_TITLE'>";
-                        echo "<label for='game_title'>Update title screenshot</label><br>";
-                        echo "<input type='file' name='file' id='game_title'>";
+                        echo "<input type='hidden' name='t' value='" . ImageType::GameTitle . "'>";
+                        echo "<label>Title screenshot<br>";
+                        echo "<input type='file' name='file'>";
+                        echo "</label>";
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
 
-                        echo "<form class='mb-2' method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
-                        echo "<input type='hidden' name='t' value='GAME_INGAME'>";
-                        echo "<label for='game_ingame'>Update ingame screenshot</label><br>";
-                        echo "<input type='file' name='file' id='game_ingame'>";
+                        echo "<input type='hidden' name='t' value='" . ImageType::GameInGame . "'>";
+                        echo "<label>Ingame screenshot<br>";
+                        echo "<input type='file' name='file' id='" . ImageType::GameInGame . "'>";
+                        echo "</label>";
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
                     }
                 }
 
                 if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                    echo "<form class='mb-2' method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<label for='game_icon'>Update game icon</label><br>";
-                    echo "<input type='hidden' name='t' value='GAME_ICON'>";
-                    echo "<input type='file' name='file' id='game_icon'>";
+                    echo "<input type='hidden' name='t' value='" . ImageType::GameIcon . "'>";
+                    echo "<label>Game icon<br>";
+                    echo "<input type='file' name='file'>";
+                    echo "</label>";
                     echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                     echo "</form>";
 
                     if ($isFullyFeaturedGame) {
-                        echo "<form class='mb-2' method='post' action='/request/uploadpic.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
-                        echo "<label for='game_boxart'>Update game boxart</label><br>";
-                        echo "<input type='hidden' name='t' value='GAME_BOXART'>";
-                        echo "<input type='file' name='file' id='game_boxart'>";
+                        echo "<input type='hidden' name='t' value='" . ImageType::GameBoxArt . "'>";
+                        echo "<label>Game box art<br>";
+                        echo "<input type='file' name='file'>";
+                        echo "</label>";
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
                     }
@@ -932,7 +933,7 @@ RenderHtmlStart(true);
                         echo "</div></div>";
                     }
 
-                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[ObjectType::Game]);
+                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
                 }
 
                 // Only show set request option for logged in users, games without achievements, and core achievement page
@@ -950,7 +951,7 @@ RenderHtmlStart(true);
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
-                    $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[ObjectType::Achievement]);
+                    $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[RatingType::Achievement]);
                 }
                 */
 

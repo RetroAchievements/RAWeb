@@ -1,6 +1,6 @@
 <?php
 
-use RA\Shortcode\Shortcode;
+use RA\Shortcode;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -42,7 +42,7 @@ if ($outbox) {
     // If was unread
     var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle');
     if (unread.contents().length) {
-      var posting = $.post('/request/message/read.php', { u: '<?php echo $user; ?>', m: msgID, r: 0 });
+      var posting = $.post('/request/message/read.php', { u: '<?= $user ?>', m: msgID, r: 0 });
       posting.done(onMarkAsRead);
     }
   }
@@ -71,7 +71,7 @@ if ($outbox) {
   }
 
   function MarkAsUnread(msgID) {
-    var posting = $.post('/request/message/read.php', { u: '<?php echo $user; ?>', m: msgID, r: 1 });
+    var posting = $.post('/request/message/read.php', { u: '<?= $user ?>', m: msgID, r: 1 });
     posting.done(onMarkAsUnread);
   }
 

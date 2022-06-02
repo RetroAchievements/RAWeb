@@ -97,7 +97,7 @@ function RenderArticleComment(
     if ($user && $user == $localUser || $allowDelete) {
         $class .= ' localuser';
 
-        $img = "<img src='" . getenv('ASSET_URL') . "/Images/cross.png' width='16' height='16' alt='delete comment'/>";
+        $img = "<img src='" . asset('Images/cross.png') . "' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
@@ -130,7 +130,8 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
-    $assetUrl = getenv('ASSET_URL');
+    $submitImageUrl = asset('Images/Submit.png');
+    $loadingImageUrl = asset('Images/loading.gif');
 
     echo <<<EOL
         <tr id="comment_$commentId">
@@ -151,10 +152,10 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
                             id="comment_textarea_$commentId"
                         ></textarea>
                         <button class="comment-submit-button">
-                            <img src="$assetUrl/Images/Submit.png" alt="Submit">
+                            <img src="$submitImageUrl" alt="Submit">
                         </button>
                         <span class="comment-loading-indicator">
-                            <img src="$assetUrl/Images/loading.gif" alt="Loading">
+                            <img src="$loadingImageUrl" alt="Loading">
                         </span>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>

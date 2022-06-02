@@ -1,6 +1,7 @@
 <?php
 
 use RA\AchievementType;
+use RA\FilenameIterator;
 use RA\Permissions;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -97,10 +98,10 @@ switch ($requestType) {
         $response['Response'] = GetAllUserProgress($user, $consoleID);
         break;
 
+    // TODO: still used?
     case "badgeiter":
         $response['FirstBadge'] = 80;
-        $response['NextBadge'] = file_get_contents(__DIR__ . "/BadgeIter.txt");
-        settype($response['NextBadge'], 'integer');
+        $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
         break;
 
     // TODO: Deprecate - not used anymore
@@ -309,7 +310,7 @@ switch ($requestType) {
             progressFmt: ' ',
             points: requestInput('z', 0, 'integer'),
             mem: requestInput('m'),
-            type: requestInput('f', AchievementType::UNOFFICIAL, 'integer'),
+            type: requestInput('f', AchievementType::Unofficial, 'integer'),
             idInOut: $achievementID,
             badge: requestInput('b'),
             errorOut: $errorOut

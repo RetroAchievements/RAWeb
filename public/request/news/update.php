@@ -22,12 +22,11 @@ $title = str_replace("_http_", "http", $title);
 $link = str_replace("_http_", "http", $link);
 $image = str_replace("_http_", "http", $image);
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
-    requestModifyNews($author, $id, $title, $payload, $link, $image);
-
-    echo "OK";
-    exit;
-} else {
-    echo "FAILED!";
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
+
+requestModifyNews($author, $id, $title, $payload, $link, $image);
+echo json_encode(['Success' => true]);

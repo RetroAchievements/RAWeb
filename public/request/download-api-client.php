@@ -1,6 +1,6 @@
 <?php
 
-$file = __DIR__ . "/../../src/RetroAchievementsWebApiClient.php";
+$file = base_path('src/RetroAchievementsWebApiClient.php');
 $fp = @fopen($file, 'rb');
 if (mb_strstr($_SERVER['HTTP_USER_AGENT'], "MSIE")) {
     header('Content-Type: "application/octet-stream"');

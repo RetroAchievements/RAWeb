@@ -1,6 +1,6 @@
 <?php
 
-namespace RA\Shortcode;
+namespace RA;
 
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
 use Thunder\Shortcode\EventContainer\EventContainer;
