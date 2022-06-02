@@ -316,7 +316,9 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
         }
     }
 
-    $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName, COUNT( ach.ID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable, lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints $selectTickets,
+    $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
+                COUNT( ach.ID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable,
+                lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints, gd.ForumTopicID $selectTickets,
                 $moreSelectCond
                 CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
                 FROM GameData AS gd
@@ -382,6 +384,9 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            if ($db_entry['ForumTopicID'] != null) {
+                settype($db_entry['ForumTopicID'], 'integer');
+            }
             $dataOut[] = $db_entry;
         }
     } else {
