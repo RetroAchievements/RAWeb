@@ -1,11 +1,11 @@
 <?php
 
+use RA\SubscriptionSubjectType;
+
 /**
  * Update a subscription, i.e, either subscribe or unsubscribe a given user to or from a subject.
  *
  * @param bool $state whether the user is to be subscribed (true) or unsubscribed (false)
- * @return bool whether the update was successful
- * @throws Exception
  */
 function updateSubscription(string $subjectType, int $subjectID, int $userID, bool $state): bool
 {
@@ -21,7 +21,6 @@ function updateSubscription(string $subjectType, int $subjectID, int $userID, bo
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
-        log_sql_fail();
         return false;
     }
 
@@ -33,10 +32,8 @@ function updateSubscription(string $subjectType, int $subjectID, int $userID, bo
  *
  * @param string|null $implicitSubscriptionQry optional sql query capable of identifying the existence of an implicit
  *                                         subscription to the subject (must be usable inside an EXISTS clause)
- * @return bool whether the user is subscribed to the subject
- * @throws Exception
  */
-function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, string $implicitSubscriptionQry = null): bool
+function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?string $implicitSubscriptionQry = null): bool
 {
     if (!$userID) {
         return false;
@@ -56,6 +53,8 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, st
     } else {
         // either there's an explicit subscription...
         // ...or there's an implicit subscription without an explicit unsubscription
+        // optional sql query capable of identifying the existence of an implicit
+        // subscription to the subject (must be usable inside an EXISTS clause)
         $query = "
             SELECT 1
             FROM Subscription
@@ -88,7 +87,6 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, st
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
-        log_sql_fail();
         return false;
     }
 
@@ -103,8 +101,6 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, st
  * @param ?int $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
  * @param ?string $implicitSubscriptionQry sql query that returns the set of users that are implicitly subscribed to
  *                                        the subject (must return whole UserAccounts rows)
- * @return array of subscribers, each as an assoc array with "User" and "Email Address" keys
- * @throws Exception
  */
 function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePrefs = null, string $implicitSubscriptionQry = null): array
 {
@@ -155,7 +151,6 @@ function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePr
     $dbResult = s_mysql_query($query);
 
     if (!$dbResult) {
-        log_sql_fail();
         return [];
     }
 
@@ -184,4 +179,119 @@ function mergeSubscribers(array $subscribersA, array $subscribersB): array
     }
 
     return $subscribersA;
+}
+
+function getSubscribersOfGameWall($gameID): array
+{
+    return getSubscribersOfArticle(1, $gameID, (1 << 1));
+}
+
+function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor): array
+{
+    // users directly subscribed to the achievement
+    $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
+
+    // devs subscribed to the achievement through the game
+    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /* (1 << 1) */);
+
+    return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
+}
+
+function getSubscribersOfUserWall($userID, $userName): array
+{
+    return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
+}
+
+function getSubscribersOfFeedActivity($activityID, $author): array
+{
+    return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
+}
+
+function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
+{
+    // users directly subscribed to the ticket
+    $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
+
+    // devs subscribed to the ticket through the game
+    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
+
+    return mergeSubscribers($ticketSubs, $gameTicketsSubs);
+}
+
+function getSubscribersOfArticle(
+    $articleType,
+    $articleID,
+    $reqWebsitePrefs,
+    $subjectAuthor = null,
+    $noExplicitSubscriptions = false
+): array {
+    $websitePrefsFilter = ($noExplicitSubscriptions !== true
+        ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
+
+    $authorQry = ($subjectAuthor === null ? "" : "
+        UNION
+        SELECT _ua.*
+        FROM UserAccounts as _ua
+        WHERE _ua.User = '$subjectAuthor'
+              $websitePrefsFilter
+    ");
+
+    $qry = "
+        SELECT DISTINCT _ua.*
+        FROM Comment AS _c
+        INNER JOIN UserAccounts as _ua ON _ua.ID = _c.UserID
+        WHERE _c.ArticleType = $articleType
+              AND _c.ArticleID = $articleID
+              $websitePrefsFilter
+        $authorQry
+    ";
+
+    if ($noExplicitSubscriptions) {
+        $dbResult = s_mysql_query($qry);
+        if (!$dbResult) {
+            log_sql_fail();
+            return [];
+        }
+
+        return mysqli_fetch_all($dbResult, MYSQLI_ASSOC);
+    }
+
+    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
+    if ($subjectType === null) {
+        return [];
+    }
+
+    return getSubscribersOf(
+        $subjectType,
+        $articleID,
+        (1 << 0),  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
+        $qry
+    );
+}
+
+function isUserSubscribedToArticleComments($articleType, $articleID, $userID): bool
+{
+    sanitize_sql_inputs($articleType, $articleID, $userID);
+
+    $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
+
+    if ($subjectType === null) {
+        return false;
+    }
+
+    return isUserSubscribedTo(
+        $subjectType,
+        $articleID,
+        $userID,
+        "
+            SELECT DISTINCT ua.*
+            FROM
+                Comment AS c
+                LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
+            WHERE
+                c.ArticleType = $articleType
+                AND c.ArticleID = $articleID
+                AND c.UserID = $userID
+        "
+    );
 }

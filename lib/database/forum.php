@@ -1,7 +1,7 @@
 <?php
 
 use RA\ArticleType;
-use RA\ModifyTopicField;
+use RA\ForumTopicAction;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
@@ -529,7 +529,7 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value): bool
     $result = false;
 
     switch ($field) {
-        case ModifyTopicField::ModifyTitle:
+        case ForumTopicAction::ModifyTitle:
             if (($permissions >= Permissions::Admin) || ($user == $topicData['Author'])) {
                 global $db;
                 $query = "  UPDATE ForumTopic AS ft
@@ -546,7 +546,7 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value): bool
                 $result = false;
             }
             break;
-        case ModifyTopicField::DeleteTopic:
+        case ForumTopicAction::DeleteTopic:
             if ($permissions >= Permissions::Admin) {
                 $query = "  DELETE FROM ForumTopic
                             WHERE ID=$topicID";
@@ -563,7 +563,7 @@ function requestModifyTopic($user, $permissions, $topicID, $field, $value): bool
                 $result = false;
             }
             break;
-        case ModifyTopicField::RequiredPermissions:
+        case ForumTopicAction::ChangeRequiredPermissions:
             if ($permissions >= Permissions::Admin) {
                 $query = "  UPDATE ForumTopic AS ft
                             SET RequiredPermissions='$value'

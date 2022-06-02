@@ -4,12 +4,13 @@ namespace RA;
 
 abstract class AchievementType
 {
-    public const OFFICIAL_CORE = 3;
-    public const UNOFFICIAL = 5;
+    public const OfficialCore = 3;
+
+    public const Unofficial = 5;
 
     private const VALID = [
-        self::OFFICIAL_CORE,
-        self::UNOFFICIAL,
+        self::OfficialCore,
+        self::Unofficial,
     ];
 
     public static function isValid(int $type): bool

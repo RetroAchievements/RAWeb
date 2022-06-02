@@ -2,11 +2,11 @@
 
 use RA\ArticleType;
 use RA\ImageType;
-use RA\ObjectType;
 use RA\Permissions;
+use RA\RatingType;
 use RA\SubscriptionSubjectType;
 use RA\TicketFilters;
-use RA\UserPref;
+use RA\UserPreference;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -78,7 +78,7 @@ $v = requestInputSanitized('v', 0, 'integer');
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
-            if (BitSet($userDetails['websitePrefs'], UserPref::SiteMsgOff_MatureContent)) {
+            if (BitSet($userDetails['websitePrefs'], UserPreference::SiteMsgOff_MatureContent)) {
                 break;
             }
 
@@ -285,10 +285,10 @@ RenderHtmlStart(true);
       }
     </script>
     <script>
-      var lastKnownAchRating = <?= $gameRating[ObjectType::Achievement]['AverageRating'] ?>;
-      var lastKnownGameRating = <?= $gameRating[ObjectType::Game]['AverageRating'] ?>;
-      var lastKnownAchRatingCount = <?= $gameRating[ObjectType::Achievement]['RatingCount'] ?>;
-      var lastKnownGameRatingCount = <?= $gameRating[ObjectType::Game]['RatingCount'] ?>;
+      var lastKnownAchRating = <?= $gameRating[RatingType::Achievement]['AverageRating'] ?>;
+      var lastKnownGameRating = <?= $gameRating[RatingType::Game]['AverageRating'] ?>;
+      var lastKnownAchRatingCount = <?= $gameRating[RatingType::Achievement]['RatingCount'] ?>;
+      var lastKnownGameRatingCount = <?= $gameRating[RatingType::Game]['RatingCount'] ?>;
 
       function SetLitStars(container, numStars) {
         $(container + ' a').removeClass('starlit');
@@ -351,7 +351,7 @@ RenderHtmlStart(true);
           url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
           dataType: 'json',
           success: function (results) {
-            if (ratingObjectType == <?= ObjectType::Game ?>) {
+            if (ratingObjectType == <?= RatingType::Game ?>) {
               $('.ratinggamelabel').html('Rating: ...');
             } else {
               $('.ratingachlabel').html('Rating: ...');
@@ -368,7 +368,7 @@ RenderHtmlStart(true);
 
                 UpdateRatings();
 
-                if (ratingObjectType == <?= ObjectType::Game ?>) {
+                if (ratingObjectType == <?= RatingType::Game ?>) {
                   index = ratinggametooltip.indexOf("Your rating: ") + 13;
                   index2 = ratinggametooltip.indexOf("</td>", index);
                   ratinggametooltip = ratinggametooltip.substring(0, index) + value + "<br><i>Distribution may have changed</i>" + ratinggametooltip.substring(index2);
@@ -933,7 +933,7 @@ RenderHtmlStart(true);
                         echo "</div></div>";
                     }
 
-                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[ObjectType::Game]);
+                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
                 }
 
                 // Only show set request option for logged in users, games without achievements, and core achievement page
@@ -951,7 +951,7 @@ RenderHtmlStart(true);
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
-                    $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[ObjectType::Achievement]);
+                    $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[RatingType::Achievement]);
                 }
                 */
 

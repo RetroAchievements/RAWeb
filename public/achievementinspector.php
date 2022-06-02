@@ -65,7 +65,7 @@ RenderHtmlHead("Manage Achievements");
       }
     }
 
-    if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OFFICIAL_CORE ?> ? 'promote' : 'demote')} these achievements?`)) {
+    if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
       return;
     }
 
@@ -104,10 +104,10 @@ RenderHtmlHead("Manage Achievements");
         echo "<div id='fullcontainer'>";
     }
 
-    if ($flag === AchievementType::UNOFFICIAL) {
+    if ($flag === AchievementType::Unofficial) {
         echo "<h2 class='longheader'>Unofficial Achievement Inspector</h2>";
     }
-    if ($flag === AchievementType::OFFICIAL_CORE) {
+    if ($flag === AchievementType::OfficialCore) {
         echo "<h2 class='longheader'>Core Achievement Inspector</h2>";
     }
 
@@ -123,21 +123,21 @@ RenderHtmlHead("Manage Achievements");
         }
 
         if ($fullModifyOK) {
-            echo "</br></br>You can " . ($flag === AchievementType::UNOFFICIAL ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementType::UNOFFICIAL ? "Promote" : "Demote") . " Selected' " .
+            echo "</br></br>You can " . ($flag === AchievementType::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementType::Unofficial ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
         echo "<div style='text-align:center'><p><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
-        if ($flag === AchievementType::UNOFFICIAL) {
+        if ($flag === AchievementType::Unofficial) {
             if ($fullModifyOK) {
-                echo "<a class='pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::OFFICIAL_CORE . ")'>Promote Selected</a> | ";
+                echo "<a class='pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::OfficialCore . ")'>Promote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
         }
-        if ($flag === AchievementType::OFFICIAL_CORE) {
+        if ($flag === AchievementType::OfficialCore) {
             if ($fullModifyOK) {
-                echo "<a class='pointer'onclick='updateAchievementsTypeFlag(" . AchievementType::UNOFFICIAL . ")'>Demote Selected</a> | ";
+                echo "<a class='pointer'onclick='updateAchievementsTypeFlag(" . AchievementType::Unofficial . ")'>Demote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
         }

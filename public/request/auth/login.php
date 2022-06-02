@@ -8,7 +8,6 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 $user = $_POST["u"];
 $pass = $_POST["p"];
 $redir = $_POST["r"];
-$fbUser = "";
 $cookie = "";
 
 if (authenticateFromPassword($user, $pass)) {

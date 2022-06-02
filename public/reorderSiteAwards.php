@@ -62,13 +62,13 @@ RenderHtmlHead("Reorder Site Awards");
                     $awardGameConsole
                 );
 
-                if ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
+                if ($awardType == AwardType::AchievementUnlocksYield) {
                     $awardTitle = "Achievements Earned by Others";
-                } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
+                } elseif ($awardType == AwardType::AchievementPointsYield) {
                     $awardTitle = "Achievement Points Earned by Others";
-                } elseif ($awardType == AwardType::REFERRALS) {
+                } elseif ($awardType == AwardType::Referrals) {
                     $awardTitle = "Referral Award";
-                } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
+                } elseif ($awardType == AwardType::PatreonSupporter) {
                     $awardTitle = "Patreon Supporter";
                 }
 

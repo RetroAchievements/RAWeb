@@ -5,9 +5,9 @@ use RA\AwardType;
 
 function SeparateAwards($userAwards): array
 {
-    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] != 'Events'));
+    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::MASTERY && $award['ConsoleName'] == 'Events');
+    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
 
     $devEventsPrefix = "[Dev Events - ";
     $devEventsHub = "[Central - Developer Events]";
@@ -24,7 +24,7 @@ function SeparateAwards($userAwards): array
 
     $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
 
-    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::MASTERY && AwardType::isActive((int) $award['AwardType'])) ||
+    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType'])) ||
         in_array($award, $devEventAwards)
     ));
 
@@ -113,7 +113,7 @@ function RenderAward($award, $imageSize, $clickable = true): void
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
 
-    if ($awardType == AwardType::MASTERY) {
+    if ($awardType == AwardType::Mastery) {
         if ($awardDataExtra == '1') {
             $tooltip = "MASTERED $awardGameTitle ($awardGameConsole)";
             $imgclass = 'goldimage';
@@ -125,12 +125,12 @@ function RenderAward($award, $imageSize, $clickable = true): void
         }
         $imagepath = $awardGameImage;
         $linkdest = "/game/$awardData";
-    } elseif ($awardType == AwardType::ACHIEVEMENT_UNLOCKS_YIELD) {
+    } elseif ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
         $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
         $imagepath = "/Images/_Trophy" . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
         $linkdest = ''; // TBD: referrals page?
-    } elseif ($awardType == AwardType::ACHIEVEMENT_POINTS_YIELD) {
+    } elseif ($awardType == AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
         $tooltip = "Awarded for producing many valuable achievements, providing over " . AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
         if ($awardData == 0) {
@@ -147,11 +147,11 @@ function RenderAward($award, $imageSize, $clickable = true): void
             $imagepath = "/Images/trophy-gold.png";
         }
         $linkdest = ''; // TBD: referrals page?
-    } elseif ($awardType == AwardType::REFERRALS) {
+    } elseif ($awardType == AwardType::Referrals) {
         $tooltip = "Referred $awardData members";
         $imagepath = "/Badge/00083.png";
         $linkdest = ''; // TBD: referrals page?
-    } elseif ($awardType == AwardType::PATREON_SUPPORTER) {
+    } elseif ($awardType == AwardType::PatreonSupporter) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
         $imagepath = '/Images/PatreonBadge.png';
         $linkdest = 'https://www.patreon.com/retroachievements';

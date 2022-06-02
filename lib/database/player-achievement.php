@@ -68,7 +68,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
         return $retVal;
     }
 
-    if ((int) $achData['Flags'] === AchievementType::UNOFFICIAL) { // do not award Unofficial achievements
+    if ((int) $achData['Flags'] === AchievementType::Unofficial) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
         return $retVal;
     }
