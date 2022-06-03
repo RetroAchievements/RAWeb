@@ -150,6 +150,8 @@ RenderHtmlHead("Game Compare");
                 $achDesc = $nextAch['Description'];
                 $achPoints = $nextAch['Points'];
 
+                sanitize_outputs($achTitle, $achDesc);
+
                 $maxPoints += $achPoints;
 
                 $badgeName = $nextAch['BadgeName'];
