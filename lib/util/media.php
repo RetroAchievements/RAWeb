@@ -6,20 +6,33 @@ use RA\ImageType;
 
 function UploadToS3(string $filenameSrc, string $filenameDest): void
 {
-    if (!getenv('AWS_ACCESS_KEY_ID') || getenv('APP_ENV') == 'local') {
-        // TODO allow using minio locally
+    if (!getenv('AWS_ACCESS_KEY_ID')) {
         // nothing to do here
         return;
     }
 
-    $client = new S3Client([
-        'region' => getenv('AWS_DEFAULT_REGION'),
+    // allow using minio locally
+    $usingMinio = str_contains(getenv('ASSET_URL'), getenv('FORWARD_MINIO_PORT'));
+    if (getenv('APP_ENV') === 'local' && !$usingMinio) {
+        return;
+    }
+
+    $options = [
         'version' => 'latest',
-    ]);
+        'region' => getenv('AWS_DEFAULT_REGION'),
+    ];
+
+    if ($usingMinio) {
+        $options['endpoint'] = getenv('AWS_ENDPOINT');
+        $options['use_path_style_endpoint'] = true;
+    }
+
+    $client = new S3Client($options);
 
     $client->putObject([
         'Bucket' => getenv('AWS_BUCKET'),
-        'Key' => $filenameDest,
+        // no leading slashes as it would be treated as a different folder
+        'Key' => ltrim($filenameDest, '/'),
         'Body' => fopen($filenameSrc, 'r+'),
         'CacheControl' => 'max-age=2628000',
     ]);
@@ -37,9 +50,7 @@ function validateFile(array $file): bool
         throw new Exception($file['error']);
     }
 
-    $filenameParts = explode(".", $file['name']);
-    $extension = mb_strtolower(end($filenameParts));
-
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
     if (!in_array($extension, ['png', 'jpeg', 'jpg', 'gif'])) {
         throw new Exception('Invalid file type');
     }
