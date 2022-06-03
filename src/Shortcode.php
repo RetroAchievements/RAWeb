@@ -76,8 +76,9 @@ final class Shortcode
         }
         $html = $this->autoEmbedYouTube($html);
         $html = $this->autoEmbedTwitch($html);
+        $html = $this->autolinkRetroachievementsUrls($html);
 
-        return $this->linkifyBasicURLs($html);
+        return $this->autolinkUrls($html);
     }
 
     private function renderUrlLink(ShortcodeInterface $shortcode): string
@@ -188,7 +189,30 @@ final class Shortcode
         return GetUserAndTooltipDiv($username, false);
     }
 
-    private function linkifyBasicURLs(string $text): string
+    private function autolinkRetroachievementsUrls(string $text): string
+    {
+        // see https://stackoverflow.com/a/2271552/580651:
+        // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
+        // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
+        // lookahead: (?<![!,.?;:"\'()-])
+        return (string) preg_replace(
+            '~
+                (?:https?://)?      # Optional scheme. Either http or https.
+                (?:www.)?           # Optional subdomain.
+                retroachievements\.        # Host.
+                ([\w!#$%&\'()*+,./:;=?@\[\]-]+
+                (?<![!,.?;:"\'()]))
+                (?!                 # Assert URL is not pre-linked.
+                  [^<>]*>           # Either inside a start tag,
+                  | [^<>]*</a>      # End recognized pre-linked alts.
+                )                   # End negative lookahead assertion.
+            ~ix',
+            '<a href="https://retroachievements.$1">https://retroachievements.$1</a>',
+            $text
+        );
+    }
+
+    private function autolinkUrls(string $text): string
     {
         // see https://stackoverflow.com/a/2271552/580651:
         // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
