@@ -2,6 +2,7 @@
 
 use RA\ArticleType;
 use RA\Permissions;
+use RA\UserAction;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -346,8 +347,8 @@ RenderHtmlStart(true);
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<tr>";
-                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
-                echo "<input type='hidden' name='p' value='0' />";
+                echo "<form method='post' action='/request/user/update.php'>";
+                echo "<input type='hidden' name='p' value='" . UserAction::UpdatePermissions . "' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
                 echo "<td>";
                 echo "<input type='submit' style='float: right;' value='Update Account Type' />";
@@ -372,7 +373,7 @@ RenderHtmlStart(true);
             $newValue = $userIsUntracked ? 0 : 1;
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/update.php'>";
-            echo "<input type='hidden' name='p' value='3' />";
+            echo "<input type='hidden' name='p' value='" . UserAction::TrackedStatus . "' />";
             echo "<input type='hidden' name='t' value='$userPage' />";
             echo "<input type='hidden' name='v' value='$newValue' />";
             echo "<input type='submit' style='float: right;' value='Toggle Tracked Status' />";
@@ -383,7 +384,7 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/update.php'>";
-            echo "<input type='hidden' name='p' value='2' />";
+            echo "<input type='hidden' name='p' value='" . UserAction::PatreonBadge . "' />";
             echo "<input type='hidden' name='t' value='$userPage' />";
             echo "<input type='hidden' name='v' value='0' />";
             echo "<input type='submit' style='float: right;' value='Toggle Patreon Supporter' />";
