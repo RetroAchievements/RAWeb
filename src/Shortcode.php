@@ -91,8 +91,12 @@ final class Shortcode
         return '<a href="' . $this->protocolPrefix($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
     }
 
-    private function protocolPrefix(string $href): string
+    private function protocolPrefix(?string $href): string
     {
+        if (empty($href)) {
+            return '';
+        }
+
         $scheme = parse_url($href, PHP_URL_SCHEME);
 
         if (empty($scheme)) {
@@ -177,6 +181,10 @@ final class Shortcode
 
     private function embedUser(?string $username): string
     {
+        if (empty($username)) {
+            return '';
+        }
+
         return GetUserAndTooltipDiv($username, false);
     }
 

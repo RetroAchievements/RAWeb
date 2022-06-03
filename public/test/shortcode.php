@@ -60,13 +60,18 @@ https://youtu.be/dMH0bHeiRNg
 
 [b][i]Links[/i][/b]
 
+[ach=]
 [ach=1] ach=1
 [ach="2"] ach="2" (quoted)
 [ACH=3] ACH=3 (case corrected)
+[game=]
 [game=3]
 [game="4"]
+[ticket=]
 [ticket=5]
 [ticket="6"]
+[user=]
+[user=_nope]
 [user={$username}]
 [user]{$username}[/user]
 
@@ -95,6 +100,7 @@ https://example.com/?test=https://example.com/?test=test,test.test%20test+test(t
 Trailing hyphens ARE part of URL (matches most markdown parsers):
 https://example.com/?test=test,test.test%20test+test(test)&test-test-
 
+[url=]
 [url="retroachievements.org#1"] | [url="retroachievements.org#2"]
 [url="https://retroachievements.org#1"] | [url="https://retroachievements.org#2"]
 [url=http://retroachievements.org#1] | [url=http://retroachievements.org#2]
@@ -109,6 +115,7 @@ https://retroachievements.org/user/{$username}
 
 [b][i]Images[/i][/b]
 
+[img=]
 https://retroachievements.org/Images/043749.png
 [img=https://retroachievements.org/Images/043749.png]
 
