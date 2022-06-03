@@ -21,6 +21,11 @@ if ($requestedTopicID == 0) {
 
 getTopicDetails($requestedTopicID, $topicData);
 
+if (empty($topicData)) {
+    header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic");
+    exit;
+}
+
 if ($permissions < $topicData['RequiredPermissions']) {
     header("location: " . getenv('APP_URL') . "/forum.php?e=nopermission");
     exit;

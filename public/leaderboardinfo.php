@@ -19,6 +19,12 @@ $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
+
+if (empty($lbData['LBID'] ?? null)) {
+    redirect(url(getenv('APP_URL') . "?e=error"));
+    exit;
+}
+
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 
 $lbTitle = $lbData['LBTitle'];

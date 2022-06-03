@@ -88,6 +88,7 @@ RenderHtmlHead("Send Message");
             echo "<tbody>";
 
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
+            echo "<input type='hidden' value='$user' name='u'>";
             $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";

@@ -34,7 +34,7 @@ if (isset($passResetToken) && isValidPasswordResetToken($user, $passResetToken))
     RemovePasswordResetToken($user);
     if (changePassword($user, $newpass1)) {
         // Perform auto-login:
-        generateCookie($user, $newCookie);
+        generateCookie($user);
         authenticateFromCookie($user, $permissions, $userDetails);
         generateAppToken($user, $tokenInOut);
 

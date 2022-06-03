@@ -46,7 +46,7 @@ The environment configuration file (`.env`) contains a sensible set of default v
 
     - Enter the credentials of you local database instance (`DB_*`).
     - URL to where `index.php` can be found (`APP_URL`).
-    - URL to where static assets, like images, are stored (`APP_STATIC_URL`). Most likely the same as `APP_URL` in a local environment.
+    - URL to where static assets, like images, are stored (`ASSET_URL`). Most likely the same as `APP_URL` in a local environment.
 
 3. Add image assets:
 
