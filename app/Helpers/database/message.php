@@ -21,7 +21,7 @@ function CreateNewMessage(string $author, string $destUser, string $messageTitle
             $websitePrefs = $userDetails['websitePrefs'];
             $destEmail = $userDetails['EmailAddress'];
 
-            if (BitSet($websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
+            if (isBitSet($websitePrefs, UserPreference::EmailOn_PrivateMessage)) {
                 sendPrivateMessageEmail($destUser, $destEmail, $messageTitle, $messagePayload, $author);
             }
         }

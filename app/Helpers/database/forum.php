@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 use Illuminate\Support\Collection;
 
 function getForumList(int $categoryID = 0): array
@@ -359,7 +360,7 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
     $subscribers = getSubscribersOf(
         SubscriptionSubjectType::ForumTopic,
         $topicID,
-        1 << 3,
+        UserPreference::EmailOn_ForumReply,
         "
             SELECT DISTINCT ua.*
             FROM

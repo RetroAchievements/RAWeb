@@ -1,6 +1,6 @@
 <?php
 
-function BitSet(int $value, int $flagBit): bool
+function isBitSet(int|string $value, int $index): bool
 {
-    return ($value & (1 << $flagBit)) !== 0;
+    return ((int) $value & (1 << $index)) !== 0;
 }

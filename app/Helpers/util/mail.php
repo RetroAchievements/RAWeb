@@ -206,7 +206,7 @@ function informAllSubscribersAboutActivity(
     switch ($articleType) {
         case ArticleType::Game:
             $gameData = getGameData($articleID);
-            $subscribers = getSubscribersOfGameWall($articleID);
+            $subscribers = getSubscribersOfGame($articleID);
             $articleTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
             $urlTarget = "game/$articleID";
             break;
@@ -230,12 +230,12 @@ function informAllSubscribersAboutActivity(
         case ArticleType::News:  // News
             break;
 
-        case ArticleType::Activity:  // Activity (feed)
-            $activityData = getActivityMetadata($articleID);
-            $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
-            $subjectAuthor = $activityData['User'];
-            $articleTitle = $activityData['User'];
-            break;
+        // case ArticleType::Activity:  // Activity (feed)
+        //     $activityData = getActivityMetadata($articleID);
+        //     $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
+        //     $subjectAuthor = $activityData['User'];
+        //     $articleTitle = $activityData['User'];
+        //     break;
 
         case ArticleType::Leaderboard:  // Leaderboard
             // cannot currently subscribe to leaderboard
