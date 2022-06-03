@@ -107,6 +107,9 @@ https://example.com/?test=test,test.test%20test+test(test)&test-test-
 [url]https://retroachievements.org#1[/url] | [url]https://retroachievements.org#2[/url]
 [url=https://retroachievements.org#1]URL Shortcode #1[/url] | [url=https://retroachievements.org#2]URL Shortcode #2[/url]
 
+http://mother3.fobby.net/blog/
+[url=http://mother3.fobby.net/blog/]
+
 [link url="https://retroachievements.org#1"]Link Shortcode #1[/link] | [link url="http://retroachievements.org#1"]Link Shortcode #2 HTTP -> HTTPS[/link]
 
 <a href="https://www.retroachievements.org">HTML</a>

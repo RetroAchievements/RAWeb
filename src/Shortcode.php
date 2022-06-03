@@ -76,9 +76,8 @@ final class Shortcode
         }
         $html = $this->autoEmbedYouTube($html);
         $html = $this->autoEmbedTwitch($html);
-        $html = $this->linkifyBasicURLs($html);
 
-        return $html;
+        return $this->linkifyBasicURLs($html);
     }
 
     private function renderUrlLink(ShortcodeInterface $shortcode): string
@@ -98,10 +97,11 @@ final class Shortcode
         }
 
         $scheme = parse_url($href, PHP_URL_SCHEME);
+        $host = parse_url($href, PHP_URL_HOST);
 
         if (empty($scheme)) {
             $href = 'https://' . ltrim($href, '/');
-        } elseif ($scheme === 'http') {
+        } elseif ($scheme === 'http' && str_ends_with($host, 'retroachievements.org')) {
             $href = str_replace('http://', 'https://', $href);
         }
 
