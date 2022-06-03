@@ -48,7 +48,7 @@
         "test": "vendor/bin/phpunit",
         "coverage": "php -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
         "post-install-cmd": [
-            "git config core.hooksPath ./.hooks"
+            "[ $COMPOSER_DEV_MODE -eq 0 ] || git config core.hooksPath ./.hooks"
         ]
     }
 }
