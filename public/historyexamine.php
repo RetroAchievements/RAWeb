@@ -65,17 +65,11 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         echo "</form>";
         echo "<br>";
 
-        // echo "<a href='history.php?u=$userPage'>Back to $userPage's Legacy</a>";
-
         echo "<br>";
 
         echo "</div>";
 
         echo "<table class='smalltable xsmall'><tbody>";
-
-        // $sort1 = ($sortBy==1) ? 11 : 1;
-        // $sort2 = ($sortBy==2) ? 12 : 2;
-        // $sort3 = ($sortBy==3) ? 13 : 3;
 
         echo "<tr>";
         echo "<th>When</th>";

@@ -5,6 +5,11 @@ function redirect(string $url): void
     header('Location: ' . url($url));
 }
 
+function back(): string
+{
+    return url($_SERVER['HTTP_REFERER'] ?? '');
+}
+
 function requestInputQuery(string $key, $default = null, $type = null): mixed
 {
     $input = $_GET[$key] ?? $default;

@@ -372,22 +372,6 @@ jQuery(document).ready(function onReady($) {
     $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
     return false;
   });
-
-  var $resetForm = $('#resetform');
-  $resetForm.submit(function () {
-    if (!window.confirm('Are you sure you want to reset this progress?')) {
-      return false;
-    }
-    $.post(
-      $(this).attr('action'),
-      $(this).serialize(),
-      setTimeout(function () {
-        window.location.reload();
-      }, 100),
-      'json'
-    );
-    return false;
-  });
 });
 
 $(function () {

@@ -211,10 +211,11 @@ RenderHtmlHead("$userPage's Legacy");
                 <div>
                 </div>
                 <div>
-                    Filter by user:<br>
                     <form action="history.php">
-                        <input size="28" name="u" type="text" value="<?= $userPage ?>">
-                        &nbsp;
+                        <label>
+                            Filter by user:<br>
+                            <input size="28" name="u" type="text" value="<?= $userPage ?>">
+                        </label>
                         <input type="submit" value="Select">
                     </form>
                 </div>

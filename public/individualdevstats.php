@@ -10,6 +10,11 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $dev = requestInputSanitized('u');
 $errorCode = requestInputSanitized('e');
 
+if (empty($dev)) {
+    redirect(url(''));
+    exit;
+}
+
 $userArchInfo = getUserAchievementInformation($dev);
 
 // Only get stats if the user has a contribute count
@@ -646,10 +651,11 @@ RenderHtmlHead("$dev's Developer Stats");
                 <div>
                 </div>
                 <div>
-                    Filter by developer:<br>
                     <form action="individualdevstats.php">
-                        <input size="28" name="u" type="text" value="<?= $dev ?>">
-                        &nbsp;
+                        <label>
+                            Filter by developer:<br>
+                            <input size="28" name="u" type="text" value="<?= $dev ?>">
+                        </label>
                         <input type="submit" value="Select">
                     </form>
                 </div>

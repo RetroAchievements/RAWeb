@@ -316,7 +316,6 @@ RenderHtmlStart();
                 >$defaultMessage</textarea><br>
             EOF;
             echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div><br>";
-            echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version
             echo "</form>";
