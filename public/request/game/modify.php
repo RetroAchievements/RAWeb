@@ -1,6 +1,5 @@
 <?php
 
-use RA\ArticleType;
 use RA\GameAction;
 use RA\Permissions;
 
@@ -21,33 +20,29 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     exit;
 }
 
-if ($field === GameAction::UpdateHash) {
-    $name = requestInputPost('n');
-    $labels = requestInputPost('l');
-    if (updateHashDetails($gameID, $value, $name, $labels)) {
-        // Log hash update
-        addArticleComment("Server", ArticleType::GameHash, $gameID, $value . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
+switch ($field) {
+    case GameAction::ModifyTitle:
+        if (modifyGameTitle($user, $gameID, $value)) {
+            header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
+        } else {
+            header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
+        }
+        exit;
+
+    case GameAction::UnlinkHash:
+        removeHash($user, $gameID, $value);
         echo "OK";
         exit;
-    }
-    echo "FAILED!";
-    exit;
+
+    case GameAction::UpdateHash:
+        $name = requestInputPost('n');
+        $labels = requestInputPost('l');
+        $result = updateHashDetails($user, $gameID, $value, $name, $labels);
+        break;
+
+    default:
+        header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
+        exit;
 }
 
-if (modifyGame($user, $gameID, $field, $value)) {
-    if ($field == GameAction::UnlinkHash) {
-        // Only return status when unlinking hash
-        echo "OK";
-        exit;
-    }
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
-    exit;
-} else {
-    if ($field == GameAction::UnlinkHash) {
-        // Only return status when unlinking hash
-        echo "FAILED!";
-        exit;
-    }
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
-    exit;
-}
+echo $result ? "OK" : "FAILED!";

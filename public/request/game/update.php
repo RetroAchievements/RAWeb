@@ -29,29 +29,23 @@ if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Junio
     }
 
     if (isset($richPresence)) {
-        requestModifyRichPresence($gameID, $richPresence);
+        requestModifyRichPresence($user, $gameID, $richPresence);
         header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
         exit;
     } else {
         if (isset($newGameAlt) || isset($removeGameAlt)) {
             // new alt provided/alt to be removed
-            if (is_array($removeGameAlt)) {
-                foreach ($removeGameAlt as &$gameAlt) {
-                    modifyGameAlternatives($gameID, $newGameAlt, $gameAlt);
-                }
-            } else {
-                modifyGameAlternatives($gameID, $newGameAlt, $removeGameAlt);
-            }
+            modifyGameAlternatives($user, $gameID, $newGameAlt, $removeGameAlt);
             header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
             exit;
         } else {
             if (isset($developer) && isset($publisher) && isset($genre) && isset($released)) {
-                modifyGameData($gameID, $developer, $publisher, $genre, $released);
+                modifyGameData($user, $gameID, $developer, $publisher, $genre, $released);
                 header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
                 exit;
             } else {
                 if (isset($newForumTopic)) {
-                    if (modifyGameForumTopic($gameID, $newForumTopic)) {
+                    if (modifyGameForumTopic($user, $gameID, $newForumTopic)) {
                         header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
                         exit;
                     } else {
