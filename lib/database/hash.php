@@ -121,32 +121,24 @@ function getHashList($offset, $count, $searchedHash): array
 
 /**
  * Gets the total number of hashes in the database.
- *
- * @return bool|mixed|string
  */
-function getTotalHashes()
+function getTotalHashes(): int
 {
-    $query = "
-    SELECT
-        COUNT(*) AS TotalHashes
-    FROM GameHashLibrary;";
-
     global $db;
-    $dbResult = mysqli_query($db, $query);
+    $dbResult = mysqli_query($db, "SELECT COUNT(*) AS TotalHashes FROM GameHashLibrary");
 
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult)['TotalHashes'];
-    } else {
-        return false;
+    if (!$dbResult) {
+        return 0;
     }
+
+    return (int) mysqli_fetch_assoc($dbResult)['TotalHashes'];
 }
 
-function updateHashDetails($gameID, $hash, $name, $labels)
+function updateHashDetails($gameID, $hash, $name, $labels): bool
 {
     sanitize_sql_inputs($gameID, $hash, $name, $labels);
 
-    $query = "UPDATE GameHashLibrary
-              SET Name=";
+    $query = "UPDATE GameHashLibrary SET Name=";
 
     if (!empty($name)) {
         $query .= "'$name'";

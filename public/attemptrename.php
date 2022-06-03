@@ -1,5 +1,6 @@
 <?php
 
+use RA\GameAction;
 use RA\Permissions;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -53,8 +54,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
     <div id="fullcontainer">
         <h2>Rename Game Entry</h2>
         <?php
-
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
+        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
         echo "<br><br>";
 
         echo "Renaming game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName.<br>";
@@ -62,7 +62,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
 
         echo "<form method=post action='/request/game/modify.php'>";
         echo "<input type='hidden' name='g' value='$gameID' />";
-        echo "<input type='hidden' name='f' value='1' />";
+        echo "<input type='hidden' name='f' value='" . GameAction::ModifyTitle . "' />";
         echo "New Name: <input type='text' name='v' value=\"$gameTitle\" size='60' />";
         echo "&nbsp;<input type='submit' value='Submit' />";
         echo "</form>";

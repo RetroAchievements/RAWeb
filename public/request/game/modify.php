@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\GameAction;
 use RA\Permissions;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
@@ -11,8 +12,8 @@ if (!ValidatePOSTChars("gfv")) {
     exit;
 }
 
-$gameID = requestInputPost('g');
-$field = requestInputPost('f');
+$gameID = (int) requestInputPost('g');
+$field = (int) requestInputPost('f');
 $value = requestInputPost('v');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
@@ -20,28 +21,30 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     exit;
 }
 
-if ($field == 4) {
+if ($field === GameAction::UpdateHash) {
     $name = requestInputPost('n');
     $labels = requestInputPost('l');
     if (updateHashDetails($gameID, $value, $name, $labels)) {
         // Log hash update
         addArticleComment("Server", ArticleType::GameHash, $gameID, $value . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
         echo "OK";
-    } else {
-        echo "FAILED!";
+        exit;
     }
+    echo "FAILED!";
     exit;
 }
 
 if (modifyGame($user, $gameID, $field, $value)) {
-    if ($field == 3) { // Only return status when unlinking hash
+    if ($field == GameAction::UnlinkHash) {
+        // Only return status when unlinking hash
         echo "OK";
         exit;
     }
     header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
     exit;
 } else {
-    if ($field == 3) { // Only return status when unlinking hash
+    if ($field == GameAction::UnlinkHash) {
+        // Only return status when unlinking hash
         echo "FAILED!";
         exit;
     }
