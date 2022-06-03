@@ -793,14 +793,19 @@ function UploadNewLeaderboard(
             $displayOrder = $data['DisplayOrder'];
             $originalAuthor = $data['Author'] ?? "Unknown";
             settype($displayOrder, 'integer');
+        } else {
+            $errorOut = "Unknown leaderboard";
+            return false;
         }
     }
 
-    // Prevent <= registered users from uploading or modifying leaderboards
+    // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = getUserPermissions($author);
-    if ($userPermissions < Permissions::JuniorDeveloper || $author != $originalAuthor) {
-        $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
-        return false;
+    if ($userPermissions < Permissions::Developer) {
+        if ($userPermissions < Permissions::JuniorDeveloper || $author != $originalAuthor) {
+            $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+            return false;
+        }
     }
 
     if (!isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
