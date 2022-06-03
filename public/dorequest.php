@@ -98,8 +98,8 @@ switch ($requestType) {
         $response['Response'] = GetAllUserProgress($user, $consoleID);
         break;
 
-    // TODO: still used?
     case "badgeiter":
+        // Used by RALibretro achievement editor
         $response['FirstBadge'] = 80;
         $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
         break;
@@ -223,9 +223,9 @@ switch ($requestType) {
 
     case "lbinfo":
         $lbID = requestInput('i', 0, 'integer');
-        $nearby = true; // Nearby entry behavior has no effect if $user is null
-        $friendsOnly = 0; // TBD
-        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly, $nearby);
+        // Note: Nearby entry behavior has no effect if $user is null
+        // TBD: friendsOnly
+        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, friendsOnly: 0, nearby: true);
         break;
 
     case "patch":
@@ -273,7 +273,7 @@ switch ($requestType) {
         $validation = requestInput('v'); // Ignore for now?
         $response['Response'] = SubmitLeaderboardEntryJSON($user, $lbID, $score, $validation);
         $response['Success'] = $response['Response']['Success']; // Passthru
-        if ($response['Success'] == false) {
+        if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];
         }
         break;
