@@ -152,11 +152,6 @@ switch ($requestType) {
             break;
         }
 
-        if (empty($emulatorId)) {
-            DoRequestError("Unknown client");
-            break;
-        }
-
         $emulator = getEmulatorReleaseByIntegrationId($emulatorId);
 
         if ($emulator === null) {
