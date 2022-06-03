@@ -5,28 +5,18 @@ use RA\ActivityType;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-$user = $_POST["u"];
-$pass = $_POST["p"];
-$redir = $_POST["r"];
-$cookie = "";
+$user = requestInputPost('u');
+$pass = requestInputPost('p');
+$redirect = requestInputPost('r', '/');
+$redirect = str_replace(['&e=', '?e=', 'incorrectpassword', 'notloggedin'], '', $redirect);
 
-if (authenticateFromPassword($user, $pass)) {
-    generateCookie($user, $cookie);
-
-    // TBD: Check for messages, updates? etc
-    // Post activity of login:
-    postActivity($user, ActivityType::Login, null);
-
-    // Remove 'incorrect password' from redir url:
-    $redir = str_replace("e=incorrectpassword", "", $redir);
-    // Remove 'notloggedin'
-    $redir = str_replace("e=notloggedin", "", $redir);
-
-    header("Location: " . getenv('APP_URL') . "$redir");
-} else {
-    if (isset($redir) && mb_stristr($redir, "?")) {
-        header("Location: " . getenv('APP_URL') . "$redir&e=incorrectpassword"); // if redir has a query string, append errorcode!
-    } else {
-        header("Location: " . getenv('APP_URL') . "$redir?e=incorrectpassword");
-    }
+if (!authenticateFromPassword($user, $pass)) {
+    redirect($redirect . (parse_url($redirect, PHP_URL_QUERY) ? '&' : '?') . 'e=incorrectpassword');
+    exit;
 }
+
+generateCookie($user);
+
+postActivity($user, ActivityType::Login, null);
+
+redirect(url($redirect));

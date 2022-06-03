@@ -175,7 +175,7 @@ final class Shortcode
         return GetTicketAndTooltipDiv($ticketModel);
     }
 
-    private function embedUser(string $username): string
+    private function embedUser(?string $username): string
     {
         return GetUserAndTooltipDiv($username, false);
     }

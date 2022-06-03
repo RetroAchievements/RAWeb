@@ -12,7 +12,7 @@ $eCookie = requestInputSanitized('v');
 
 if (validateEmailVerificationToken($eCookie, $user)) {
     // Valid!
-    generateCookie($user, $cookieOut);
+    generateCookie($user);
     header("Location: " . getenv('APP_URL') . "/?e=validatedEmail");
 } else {
     // Not valid!
