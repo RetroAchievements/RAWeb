@@ -147,8 +147,13 @@ switch ($requestType) {
         $emulatorId = requestInput('e');
         $consoleId = requestInput('c');
 
-        if ($emulatorId === null && $consoleId !== null) {
+        if (empty($emulatorId) && !empty($consoleId)) {
             DoRequestError("Lookup by Console ID has been deprecated");
+            break;
+        }
+
+        if (empty($emulatorId)) {
+            DoRequestError("Unknown client");
             break;
         }
 
