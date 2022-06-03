@@ -6,7 +6,7 @@ use RA\Permissions;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidatePOSTChars("ugfv")) {
+if (!ValidatePOSTChars("gfv")) {
     echo "FAILED";
     exit;
 }
@@ -19,6 +19,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     echo "FAILED!";
     exit;
 }
+
 if ($field == 4) {
     $name = requestInputPost('n');
     $labels = requestInputPost('l');

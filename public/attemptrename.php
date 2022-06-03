@@ -60,12 +60,12 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
         echo "Renaming game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName.<br>";
         echo "Please enter a new name below:<br><br>";
 
-        echo "<FORM method=post action='/request/game/modify.php'>";
+        echo "<form method=post action='/request/game/modify.php'>";
         echo "<input type='hidden' name='g' value='$gameID' />";
         echo "<input type='hidden' name='f' value='1' />";
         echo "New Name: <input type='text' name='v' value=\"$gameTitle\" size='60' />";
         echo "&nbsp;<input type='submit' value='Submit' />";
-        echo "</FORM>";
+        echo "</form>";
 
         echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt%20to%20Rename%20a%20title'>leave a message for admins</a> and they'll help sort it.</div>";
         ?>
