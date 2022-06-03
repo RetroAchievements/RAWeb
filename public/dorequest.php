@@ -144,8 +144,8 @@ switch ($requestType) {
         break;
 
     case "latestclient":
-        $emulatorId = requestInput('e');
-        $consoleId = requestInput('c');
+        $emulatorId = requestInput('e', null, 'integer');
+        $consoleId = requestInput('c', null, 'integer');
 
         if (empty($emulatorId) && !empty($consoleId)) {
             DoRequestError("Lookup by Console ID has been deprecated");
