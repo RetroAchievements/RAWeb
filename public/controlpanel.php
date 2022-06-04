@@ -414,6 +414,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             }
             ?>
             <form method='post' action='/request/auth/update-password.php'>
+                <input type="hidden" name="u" value="<?= $user ?>">
                 <table>
                     <tbody>
                     <tr>
@@ -431,10 +432,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     <tr>
                         <td></td>
                         <td><input value="Change Password" name='submit' type='submit' size='37'></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td><input type="hidden" name="u" value="<?= $user ?>"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -468,7 +465,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     <tr>
                         <td class='firstrow'>Old Email Address:</td>
                         <td>
-                            <div class="field_container"><input type="text" class="inputtext" name="o" size='30' disabled VALUE="<?= $emailAddr ?>"/></div>
+                            <div class="field_container"><input type="text" class="inputtext" name="o" size='30' disabled value="<?= $emailAddr ?>"/></div>
                         </td>
                     </tr>
                     <tr>
@@ -517,9 +514,8 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         NOTE: deprecated - will be restored inv2
         Enter password to confirm! Please note: this is <b>not</b> reversible!
         <form method=post action="requestresetachievements.php">
-        <INPUT TYPE="hidden" NAME="u" VALUE="<?= $user ?>">
-        <INPUT TYPE="password" NAME="p" VALUE="">
-        <INPUT value="Permanently Reset Achievements!" type='submit' size='67'>
+        <input type="password" name="p" value="">
+        <input value="Permanently Reset Achievements!" type='submit' size='67'>
         </form>
         </div>
         */ ?>
@@ -551,7 +547,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             <div class='component'>
                 <h3>Request Score Recalculation</h3>
                 <form method=post action="/request/user/recalculate-score.php">
-                    <input TYPE="hidden" NAME="u" VALUE="<?= $user ?>">
+                    <input type="hidden" name="u" value="<?= $user ?>">
                     If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
                     <input value="Recalculate My Score" type='submit' size='37'>
                 </form>
@@ -574,7 +570,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     Reset your avatar to default by removing your current one:
                 </div>
                 <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
-                    <input type="hidden" name="u" value="<?= $user ?>">
                     <input type="submit" value="Remove Avatar">
                 </form>
             </div>

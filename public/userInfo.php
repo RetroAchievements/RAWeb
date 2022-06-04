@@ -2,6 +2,7 @@
 
 use RA\ArticleType;
 use RA\Permissions;
+use RA\UserAction;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -346,8 +347,8 @@ RenderHtmlStart(true);
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<tr>";
-                echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
-                echo "<input type='hidden' name='p' value='0' />";
+                echo "<form method='post' action='/request/user/update.php'>";
+                echo "<input type='hidden' name='p' value='" . UserAction::UpdatePermissions . "' />";
                 echo "<input type='hidden' name='t' value='$userPage' />";
                 echo "<td>";
                 echo "<input type='submit' style='float: right;' value='Update Account Type' />";
@@ -371,10 +372,10 @@ RenderHtmlStart(true);
 
             $newValue = $userIsUntracked ? 0 : 1;
             echo "<tr><td>";
-            echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
-            echo "<input TYPE='hidden' NAME='p' VALUE='3' />";
-            echo "<input TYPE='hidden' NAME='t' VALUE='$userPage' />";
-            echo "<input TYPE='hidden' NAME='v' VALUE='$newValue' />";
+            echo "<form method='post' action='/request/user/update.php'>";
+            echo "<input type='hidden' name='p' value='" . UserAction::TrackedStatus . "' />";
+            echo "<input type='hidden' name='t' value='$userPage' />";
+            echo "<input type='hidden' name='v' value='$newValue' />";
             echo "<input type='submit' style='float: right;' value='Toggle Tracked Status' />";
             echo "</form>";
             echo "</td><td style='width: 100%'>";
@@ -382,8 +383,8 @@ RenderHtmlStart(true);
             echo "</td></tr>";
 
             echo "<tr><td>";
-            echo "<form method='post' action='/request/user/update.php' enctype='multipart/form-data'>";
-            echo "<input type='hidden' name='p' value='2' />";
+            echo "<form method='post' action='/request/user/update.php'>";
+            echo "<input type='hidden' name='p' value='" . UserAction::PatreonBadge . "' />";
             echo "<input type='hidden' name='t' value='$userPage' />";
             echo "<input type='hidden' name='v' value='0' />";
             echo "<input type='submit' style='float: right;' value='Toggle Patreon Supporter' />";
@@ -393,15 +394,14 @@ RenderHtmlStart(true);
             echo "</td></tr>";
 
             echo "<tr><td>";
-            echo "<form method='post' action='/request/user/recalculate-score.php' enctype='multipart/form-data'>";
-            echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
+            echo "<form method='post' action='/request/user/recalculate-score.php'>";
             echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
             echo "</form>";
             echo "</td></tr>";
 
             echo "<tr><td>";
-            echo "<form method='post' action='/request/user/remove-avatar.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
-            echo "<input TYPE='hidden' NAME='u' VALUE='$userPage' />";
+            echo "<form method='post' action='/request/user/remove-avatar.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
+            echo "<input type='hidden' name='u' value='$userPage' />";
             echo "<input type='submit' style='float: right;' value='Remove Avatar' />";
             echo "</form>";
             echo "</td></tr>";

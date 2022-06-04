@@ -256,6 +256,7 @@ RenderHtmlStart();
             if ($showDisclaimer) {
                 echo "<br><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
                 if ($showAuthoriseTools) {
+                    // TODO should be form requests. allowing these kind of actions with get requests introduces security risks
                     echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
                     echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
                 }
@@ -316,7 +317,6 @@ RenderHtmlStart();
                 >$defaultMessage</textarea><br>
             EOF;
             echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div><br>";
-            echo "<input type='hidden' name='u' value='$user'>";
             echo "<input type='hidden' name='t' value='$thisTopicID'>";
             echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version
             echo "</form>";

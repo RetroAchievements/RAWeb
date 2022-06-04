@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\GameAction;
 use RA\Permissions;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -49,7 +50,7 @@ function UpdateHashDetails(user, hash) {
     $warning.html('Status: updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
-    var posting = $.post('/request/game/modify.php', { u: user, g: <?= $gameID ?>, f: 4, v: hash, n: name, l: labels });
+    var posting = $.post('/request/game/modify.php', { g: <?= $gameID ?>, f: <?= GameAction::UpdateHash ?>, v: hash, n: name, l: labels });
     posting.done(function (data) {
         if (data !== 'OK') {
             $warning.html('Status: Errors...' + data);
@@ -72,7 +73,7 @@ function UnlinkHash(user, gameID, hash, elem) {
     }
     var $warning = $('#warning');
     $warning.html('Status: updating...');
-    var posting = $.post('/request/game/modify.php', { u: user, g: gameID, f: 3, v: hash });
+    var posting = $.post('/request/game/modify.php', { g: gameID, f: <?= GameAction::UnlinkHash ?>, v: hash });
     posting.done(function (data) {
         if (data !== 'OK') {
             $warning.html('Status: Errors...' + data);

@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\GameAction;
 use RA\Permissions;
 use RA\TicketState;
 
@@ -509,14 +510,12 @@ function modifyGame($author, $gameID, $field, $value): bool
 
     settype($field, 'integer');
     switch ($field) {
-        case 1: // Title
+        case GameAction::ModifyTitle:
             if (!isset($value) || mb_strlen($value) < 2) {
                 return false;
             }
 
             $newTitle = $value;
-            // $newTitle = str_replace( "/", "&#47;", $newTitle );
-            // $newTitle = str_replace( "\\", "&#92;", $newTitle );
 
             $query = "UPDATE GameData SET Title='$newTitle' WHERE ID=$gameID";
 
@@ -526,18 +525,13 @@ function modifyGame($author, $gameID, $field, $value): bool
             $result = $dbResult !== false;
             break;
 
-        /**
-         * UPDATE: do not allow destructive actions until proper failovers are in place
-         */
-        // case 2: // GameHashTable
-        //     $query = "DELETE FROM GameHashLibrary WHERE GameID=$gameID";
-        //     log_sql( "$user: $query" );
-        //     $dbResult = s_mysql_query( $query );
-        //
-        //     return ( $dbResult !== FALSE );
+        // UPDATE: do not allow destructive actions until proper failovers are in place
+        // case GameAction::UnlinkAllHashes:
+        //     $dbResult = s_mysql_query("DELETE FROM GameHashLibrary WHERE GameID=$gameID");
+        //     $result = $dbResult !== false;
         //     break;
 
-        case 3: // delete a single hash entry
+        case GameAction::UnlinkHash:
             $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$value'";
             $dbResult = s_mysql_query($query);
 
