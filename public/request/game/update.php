@@ -38,14 +38,14 @@ $result = null;
 
 if (isset($richPresence)) {
     $result = modifyGameRichPresence($user, $gameID, $richPresence);
-} else if (isset($newGameAlt) || isset($removeGameAlt)) {
-    // new alt provided/alt to be removed
-    $result = modifyGameAlternatives($user, $gameID, $newGameAlt, $removeGameAlt);
-} else if (isset($developer) && isset($publisher) && isset($genre) && isset($released)) {
+} elseif (isset($newGameAlt) || isset($removeGameAlt)) {
+    modifyGameAlternatives($user, $gameID, $newGameAlt, $removeGameAlt);
+    $result = true;
+} elseif (isset($developer) && isset($publisher) && isset($genre) && isset($released)) {
     $result = modifyGameData($user, $gameID, $developer, $publisher, $genre, $released);
-} else if (isset($newForumTopic)) {
+} elseif (isset($newForumTopic)) {
     $result = modifyGameForumTopic($user, $gameID, $newForumTopic);
-} else if (isset($title)) {
+} elseif (isset($title)) {
     if ($permissions == Permissions::JuniorDeveloper) {
         // Junior Developer not allowed to modify title, even if they are the sole author
         $result = false;

@@ -1,6 +1,5 @@
 <?php
 
-use RA\GameAction;
 use RA\Permissions;
 
 require_once __DIR__ . '/../vendor/autoload.php';
