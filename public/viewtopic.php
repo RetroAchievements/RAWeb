@@ -256,7 +256,7 @@ RenderHtmlStart();
             if ($showDisclaimer) {
                 echo "<br><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
                 if ($showAuthoriseTools) {
-                    // TODO should be form requests. allowing these kind of actions with get requests is nonsense
+                    // TODO should be form requests. allowing these kind of actions with get requests introduces security risks
                     echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
                     echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
                 }
