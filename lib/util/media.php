@@ -12,7 +12,7 @@ function UploadToS3(string $filenameSrc, string $filenameDest): void
     }
 
     // allow using minio locally
-    $usingMinio = str_contains(getenv('ASSET_URL'), getenv('FORWARD_MINIO_PORT'));
+    $usingMinio = !empty(getenv('FORWARD_MINIO_PORT')) && str_contains(getenv('ASSET_URL'), getenv('FORWARD_MINIO_PORT'));
     if (getenv('APP_ENV') === 'local' && !$usingMinio) {
         return;
     }
