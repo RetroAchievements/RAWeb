@@ -35,7 +35,7 @@ foreach ($userGamesList as $nextGameID => $nextGameData) {
     $nextConsoleName = $nextGameData['ConsoleName'];
 
     $numAchieved = $nextGameData['NumAchieved'];
-    $numPossibleAchievements = $nextGameData['NumAchievements'];
+    $numPossibleAchievements = $nextGameData['NumAchievements'] ?? 0;
     $gamesPlayedWithAchievements[$nextGameID] = "$nextGameTitle ($nextConsoleName) ($numAchieved / $numPossibleAchievements won)";
 }
 
@@ -57,6 +57,13 @@ if (isset($achievementData)) {
         }
     }
 }
+
+sanitize_outputs(
+    $gameTitle,
+    $consoleName,
+    $gameIcon,
+    $user,
+);
 
 RenderHtmlStart();
 RenderHtmlHead("Game Compare");
@@ -88,6 +95,7 @@ RenderHtmlHead("Game Compare");
             echo "<select name='ID'>";
             foreach ($gamesPlayedWithAchievements as $nextGameID => $nextGameTitle) {
                 $selected = ($nextGameID == $gameID) ? "SELECTED" : "";
+                sanitize_outputs($nextGameTitle);
                 echo "<option value='$nextGameID' $selected>$nextGameTitle</option>";
             }
             echo "</select>";
@@ -141,6 +149,8 @@ RenderHtmlHead("Game Compare");
                 $achTitle = $nextAch['Title'];
                 $achDesc = $nextAch['Description'];
                 $achPoints = $nextAch['Points'];
+
+                sanitize_outputs($achTitle, $achDesc);
 
                 $maxPoints += $achPoints;
 

@@ -9,8 +9,12 @@ function sanitize_outputs(&...$outputs): void
     }
 }
 
-function attributeEscape(string $input): string
+function attributeEscape(?string $input): string
 {
+    if (!$input) {
+        return '';
+    }
+
     // htmlspecialchars escapes a bunch of stuff that the tooltip can't handle
     // (like &rsquo; $frac12; and &deg;). when placed in title or alt fields.
     // just do the bare minimum.
