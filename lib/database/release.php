@@ -88,7 +88,7 @@ function isValidConsoleId(int $consoleId): bool
     };
 }
 
-function getEmulatorReleaseByIntegrationId(int $integrationId): ?array
+function getEmulatorReleaseByIntegrationId(?int $integrationId): ?array
 {
     $releases = getReleasesFromFile();
     $emulators = $releases['emulators'] ?? [];

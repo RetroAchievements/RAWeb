@@ -10,7 +10,7 @@ State PRs from feature branches towards the latest default branch.
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability, please send an on-site message to [RAdmin](http://retroachievements.org/user/RAdmin). 
+If you discover a security vulnerability, please send an on-site message to [RAdmin](https://retroachievements.org/user/RAdmin). 
 
 ## Coding Style
 
