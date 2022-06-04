@@ -7,6 +7,8 @@ require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 $gameID = requestInputPost('i', null, 'integer');
 
+$title = requestInputPost('t');
+
 $developer = requestInputPost('d');
 $publisher = requestInputPost('p');
 $genre = requestInputPost('g');
@@ -17,50 +19,46 @@ $richPresence = requestInputPost('x');
 $newGameAlt = requestInputPost('n');
 $removeGameAlt = requestInputPost('m');
 
-$newForumTopic = requestInputPost('f', null, 'integer');
+$newForumTopic = requestInputPost('f');
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
-    // Only allow jr. devs if they are the sole author of the set
-    if ($permissions == Permissions::JuniorDeveloper) {
-        if (!checkIfSoleDeveloper($user, $gameID)) {
-            header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
-            exit;
-        }
-    }
-
-    if (isset($richPresence)) {
-        requestModifyRichPresence($user, $gameID, $richPresence);
-        header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
-        exit;
-    } else {
-        if (isset($newGameAlt) || isset($removeGameAlt)) {
-            // new alt provided/alt to be removed
-            modifyGameAlternatives($user, $gameID, $newGameAlt, $removeGameAlt);
-            header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
-            exit;
-        } else {
-            if (isset($developer) && isset($publisher) && isset($genre) && isset($released)) {
-                modifyGameData($user, $gameID, $developer, $publisher, $genre, $released);
-                header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
-                exit;
-            } else {
-                if (isset($newForumTopic)) {
-                    if (modifyGameForumTopic($user, $gameID, $newForumTopic)) {
-                        header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
-                        exit;
-                    } else {
-                        header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
-                        exit;
-                    }
-                } else {
-                    // unknown?
-                    header("location: " . getenv('APP_URL') . "/game/$gameID?e=unrecognised");
-                    exit;
-                }
-            }
-        }
-    }
-} else {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     header("location: " . getenv('APP_URL') . "/game/$gameID?e=notloggedin");
     exit;
+}
+
+// Only allow jr. devs if they are the sole author of the set
+if ($permissions == Permissions::JuniorDeveloper) {
+    if (!checkIfSoleDeveloper($user, $gameID)) {
+        header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
+        exit;
+    }
+}
+
+$result = null;
+
+if (isset($richPresence)) {
+    $result = modifyGameRichPresence($user, $gameID, $richPresence);
+} else if (isset($newGameAlt) || isset($removeGameAlt)) {
+    // new alt provided/alt to be removed
+    $result = modifyGameAlternatives($user, $gameID, $newGameAlt, $removeGameAlt);
+} else if (isset($developer) && isset($publisher) && isset($genre) && isset($released)) {
+    $result = modifyGameData($user, $gameID, $developer, $publisher, $genre, $released);
+} else if (isset($newForumTopic)) {
+    $result = modifyGameForumTopic($user, $gameID, $newForumTopic);
+} else if (isset($title)) {
+    if ($permissions == Permissions::JuniorDeveloper) {
+        // Junior Developer not allowed to modify title, even if they are the sole author
+        $result = false;
+    } else {
+        $result = modifyGameTitle($user, $gameID, $title);
+    }
+}
+
+if ($result === true) {
+    header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
+} elseif ($result == false) {
+    header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
+} else {
+    // unknown?
+    header("location: " . getenv('APP_URL') . "/game/$gameID?e=unrecognised");
 }

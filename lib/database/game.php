@@ -808,7 +808,7 @@ function sanitizeTitle(string $titleIn): string
     return str_replace("\\", "-", $title);
 }
 
-function requestModifyRichPresence(string $user, int $gameID, string $dataIn): bool
+function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
 {
     getRichPresencePatch($gameID, $existingData);
     if ($existingData == $dataIn) {

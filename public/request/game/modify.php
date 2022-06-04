@@ -21,14 +21,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 }
 
 switch ($field) {
-    case GameAction::ModifyTitle:
-        if (modifyGameTitle($user, $gameID, $value)) {
-            header("location: " . getenv('APP_URL') . "/game/$gameID?e=modify_game_ok");
-        } else {
-            header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
-        }
-        exit;
-
     case GameAction::UnlinkHash:
         removeHash($user, $gameID, $value);
         echo "OK";
@@ -41,7 +33,6 @@ switch ($field) {
         break;
 
     default:
-        header("location: " . getenv('APP_URL') . "/game/$gameID?e=errors_in_modify_game");
         exit;
 }
 
