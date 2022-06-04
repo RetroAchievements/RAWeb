@@ -770,7 +770,7 @@ RenderHtmlStart(true);
                     }
                 }
 
-                $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 20, $modificationCommentData);
+                $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
                 RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
 
                 echo "</div>"; // devboxcontent
