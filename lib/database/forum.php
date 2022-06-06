@@ -303,7 +303,7 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
     $commentPayload = str_replace(">", "&gt;", $commentPayload);
     // $commentPayload = strip_tags( $commentPayload );
 
-    $authFlags = getUserForumPostAuth($user);
+    $authFlags = getUserForumPostAuth($user) ? 1 : 0;
 
     $query = "INSERT INTO ForumTopicComment VALUES ( NULL, $topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
 
