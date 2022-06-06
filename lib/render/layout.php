@@ -408,9 +408,9 @@ function RenderFooter(): void
 
     echo "<footer id='footer'>";
 
-    echo "<div class='themeselect-wrapper'>";
+    echo "<label class='themeselect-wrapper'>";
     RenderThemeSelector();
-    echo "</div>";
+    echo "</label>";
 
     echo "<div style='clear:both;'></div>";
 

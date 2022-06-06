@@ -219,6 +219,7 @@ a:hover {
 .themeselect-wrapper {
   float: right;
   color: rgb(44, 151, 250);
+  margin-bottom: 25px;
 }
 
 .themeselect-wrapper #themeselect{
