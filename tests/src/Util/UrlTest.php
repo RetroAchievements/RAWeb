@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Test\Util;
 
-use PHPUnit\Framework\TestCase;
+use Test\TestCase;
 
 final class UrlTest extends TestCase
 {

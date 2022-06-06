@@ -2,7 +2,6 @@
 
 namespace Test;
 
-use PHPUnit\Framework\TestCase;
 use RA\Shortcode;
 
 final class ShortcodeTest extends TestCase
