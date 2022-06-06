@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementAction;
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -92,9 +93,8 @@ RenderHtmlStart(true);
         url = replaceAll('http', '_http_', url);
 
         var posting = $.post('/request/achievement/update.php', {
-          u: '<?= $user ?>',
           a: <?= $achievementID ?>,
-          f: 2,
+          f: <?= AchievementAction::EmbedVideo ?>,
           v: url,
         });
         posting.done(function (data) {
@@ -119,8 +119,7 @@ RenderHtmlStart(true);
           dataType: "json",
           data: {
             'a': <?= $achievementID ?>,
-            'f': 3,
-            'u': '<?= $user ?>',
+            'f': <?= AchievementAction::Flags ?>,
             'v': typeFlag
           },
           error: function (xhr, status, error) {

@@ -13,11 +13,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     exit;
 }
 
-$permissions = 0;
-if (isset($user)) {
-    $permissions = getUserPermissions($user);
-}
-
 $maxCount = 25;
 
 $count = 25;
@@ -77,7 +72,7 @@ RenderHtmlHead($pageTitle);
 </script>
 <?php if ($permissions >= Permissions::JuniorDeveloper): ?>
     <script>
-      function UpdateLeaderboard(user, lbID) {
+      function UpdateLeaderboard(lbID) {
         var lbTitle = $.trim($('#LB_' + lbID + '_Title').val());
         var lbDesc = $.trim($('#LB_' + lbID + '_Desc').val());
         var lbFormat = $.trim($('#LB_' + lbID + '_Format').val());
@@ -90,7 +85,7 @@ RenderHtmlHead($pageTitle);
         var lbMem = 'STA:' + lbMem1 + '::CAN:' + lbMem2 + '::SUB:' + lbMem3 + '::VAL:' + lbMem4;
         var lbLowerIsBetter = $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0';
 
-        var posting = $.post('/request/leaderboard/update.php', { u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder });
+        var posting = $.post('/request/leaderboard/update.php', { i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder });
         posting.done(onUpdateComplete);
 
         $('#warning').html('Status: updating...');
@@ -390,7 +385,7 @@ RenderHtmlHead($pageTitle);
                 echo "&#124;";
                 echo "</div>";
                 if ($editAllowed) {
-                    echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
+                    echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$lbID')\" value='Update'></div>";
                 }
             } else {
                 echo "<div style='float:left;' >";
@@ -409,7 +404,7 @@ RenderHtmlHead($pageTitle);
                 echo "&#124;";
                 echo "</div>";
 
-                echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
+                echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$lbID')\" value='Update'></div>";
             }
 
             echo "</td>";
@@ -420,11 +415,11 @@ RenderHtmlHead($pageTitle);
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 32, false);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justImage: true);
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justText: true);
             echo "</td>";
 
             // echo "<td class='text-nowrap'>";

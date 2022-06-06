@@ -49,7 +49,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
   function GetAllResettableGamesList() {
     $('#resetgameselector').empty();
 
-    var posting = $.post('/request/user/list-games.php', {u: '<?= $user ?>'});
+    var posting = $.post('/request/user/list-games.php');
     posting.done(function (data) {
       if (data !== 'ERROR3') {
         var htmlToAdd = '<select id=\'resetgameselector\' onchange="ResetFetchAwarded()" >';
@@ -85,7 +85,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
   function ResetFetchAwarded() {
     var gameID = parseInt($('#resetgameselector :selected').val());
     if (gameID > 0) {
-      var posting = $.post('/request/user/list-unlocks.php', {u: '<?= $user ?>', g: gameID});
+      var posting = $.post('/request/user/list-unlocks.php', { g: gameID });
       posting.done(function (data) {
         if (data.substr(0, 2) !== 'OK') {
           $('#warning').html('Status: Errors...');
@@ -143,14 +143,14 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
       if (gameId > 0 && confirm('Reset all achievements for ' + gameName + '?')) {
         // 'All Achievements' selected: reset this game entirely!
         var gameID = $('#resetgameselector :selected').val();
-        var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', g: gameID});
+        var posting = $.post('/request/user/reset-achievements.php', { g: gameID });
         posting.done(onResetComplete);
         $('#warning').html('Status: Updating...');
         $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
       }
     } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
-      var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', a: achID, h: isHardcore});
+      var posting = $.post('/request/user/reset-achievements.php', { a: achID, h: isHardcore });
       posting.done(onResetComplete);
       $('#warning').html('Status: Updating...');
       $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
@@ -395,22 +395,18 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             <?php
             if ($errorCode == 'baddata' || $errorCode == 'generalerror') {
                 echo "<div id=\"warning\">Info: Errors changing your password. Please check and try again!</div>";
-            } else {
-                if ($errorCode == 'badnewpass') {
-                    echo "<div id=\"warning\">Info: Errors changing your password, passwords too short!</div>";
-                } else {
-                    if ($errorCode == 'passinequal') {
-                        echo "<div id=\"warning\">Info: Errors changing your password, new passwords were not identical!</div>";
-                    } else {
-                        if ($errorCode == 'badpassold') {
-                            echo "<div id=\"warning\">Info: Errors changing your password, old password was incorrect!</div>";
-                        } else {
-                            if ($errorCode == 'changepassok') {
-                                echo "<div id=\"warning\">Info: Password changed OK!</div>";
-                            }
-                        }
-                    }
-                }
+            }
+            if ($errorCode == 'badnewpass') {
+                echo "<div id=\"warning\">Info: Errors changing your password, passwords too short!</div>";
+            }
+            if ($errorCode == 'passinequal') {
+                echo "<div id=\"warning\">Info: Errors changing your password, new passwords were not identical!</div>";
+            }
+            if ($errorCode == 'badpassold') {
+                echo "<div id=\"warning\">Info: Errors changing your password, old password was incorrect!</div>";
+            }
+            if ($errorCode == 'changepassok') {
+                echo "<div id=\"warning\">Info: Password changed OK!</div>";
             }
             ?>
             <form method='post' action='/request/auth/update-password.php'>

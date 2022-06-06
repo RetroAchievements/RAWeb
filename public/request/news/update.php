@@ -17,6 +17,7 @@ $link = requestInputPost('l');
 $image = requestInputPost('g');
 $id = requestInputPost('i', null, 'integer');
 
+// TODO are those still required?
 $payload = str_replace("_http_", "http", $payload);
 $title = str_replace("_http_", "http", $title);
 $link = str_replace("_http_", "http", $link);
@@ -29,4 +30,4 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 }
 
 requestModifyNews($author, $id, $title, $payload, $link, $image);
-echo json_encode(['Success' => true]);
+echo json_encode(['success' => true]);

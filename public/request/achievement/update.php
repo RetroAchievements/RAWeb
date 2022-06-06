@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementAction;
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -7,13 +8,12 @@ use RA\Permissions;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidatePOSTChars("uafv")) {
+if (!ValidatePOSTChars("afv")) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
     exit;
 }
 
-$user = requestInputPost('u');
 $achievementId = requestInputPost('a'); // can be array or integer als string. cast where needed
 $field = requestInputPost('f', null, 'integer');
 $value = requestInputPost('v');
@@ -52,14 +52,13 @@ if ($permissions == Permissions::JuniorDeveloper) {
 
 $commentText = null;
 switch ($field) {
-    case 1:
-        // display order
+    case AchievementAction::DisplayOrder:
         if (updateAchievementDisplayID((int) $achievementId, $value)) {
             echo json_encode(['success' => true, 'message' => 'OK']);
             exit;
         }
         break;
-    case 2:
+    case AchievementAction::EmbedVideo:
         // Embed video
         $value = str_replace("_http_", "http", $value);
         if (updateAchievementEmbedVideo((int) $achievementId, $value)) {
@@ -67,8 +66,7 @@ switch ($field) {
             exit;
         }
         break;
-    case 3:
-        // Flags
+    case AchievementAction::Flags:
         if (!AchievementType::isValid((int) $value)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Bad request: invalid type flag (' . $value . ')'], JSON_THROW_ON_ERROR);

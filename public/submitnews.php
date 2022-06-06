@@ -41,10 +41,10 @@ RenderHtmlHead("Manage News");
     var posting = $.post('/request/news/update.php', { a: author, p: payload, t: title, l: link, g: imageurl, i: <?= $newsArticleID ?> });
     posting.done(function (data) {
       var result = $.parseJSON(data);
-      if (result.Success) {
+      if (result.success) {
         window.location = '/index.php?e=newspostsuccess';
       } else {
-        alert('Upload failed!\n' + result.Error);
+        alert('Upload failed!\n' + result.error);
       }
     });
   }
@@ -59,11 +59,11 @@ RenderHtmlHead("Manage News");
         function (data) {
           $('#loadingicon').fadeTo(100, 0.0);
           var result = $.parseJSON(data);
-          if (result.Success) {
-            $('#NewsImage').val(asset(result.Filename));
+          if (result.success) {
+            $('#NewsImage').val(asset(result.filename));
             $('#NewsImagePreview').attr('src', $('#NewsImage').val());
           } else {
-            alert('Upload failed!\n' + result.Error);
+            alert('Upload failed!\n' + result.error);
           }
         });
     };

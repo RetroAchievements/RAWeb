@@ -3,17 +3,22 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
-if (!ValidatePOSTChars("um")) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+    echo 'FAILED';
     exit;
 }
 
-$user = requestInputPost('u');
-$messageID = requestInputPost('m', null, 'integer');
+$messageID = (int) requestInputPost('m');
+$messageReadStatus = (int) requestInputPost('r', 0);    // normally set as read
 
-$messageReadStatus = requestInputPost('r', 0);    // normally set as read
+if (empty($messageID)) {
+    echo 'FAILED';
+    exit;
+}
 
 if (markMessageAsRead($user, $messageID, $messageReadStatus)) {
     echo "OK:" . $messageID;
-} else {
-    echo "FAILED!";
+    exit;
 }
+
+echo "FAILED!";

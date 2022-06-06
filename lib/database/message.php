@@ -199,7 +199,7 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0): bool
 
     $query = "UPDATE Messages AS msg
             SET msg.Unread=$newReadStatus
-            WHERE msg.ID = $messageID";
+            WHERE msg.ID = $messageID AND msg.UserTo = '$user'";
 
     $dbResult = s_mysql_query($query);
 

@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementAction;
 use RA\AchievementType;
 use RA\Permissions;
 
@@ -55,6 +56,28 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
+  function updateDisplayOrder(objID, gameID) {
+    var inputText = $('#' + objID).val();
+    var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+    var posting = $.post(
+      '/request/achievement/update.php',
+      {
+        a: objID.substr(4),
+        g: gameID,
+        f: <?= AchievementAction::DisplayOrder ?>,
+        v: inputNum,
+      }
+    );
+    posting.done(function (data) {
+      if (data !== 'OK') {
+        $('#warning').html('Status: Errors...' + data);
+      } else {
+        $('#warning').html('Status: OK!');
+      }
+    });
+    $('#warning').html('Status: updating...');
+  }
+
   function updateAchievementsTypeFlag(typeFlag) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
     var checkboxes = document.querySelectorAll("[name^='achievement']");
@@ -79,8 +102,7 @@ RenderHtmlHead("Manage Achievements");
       dataType: "json",
       data: {
         'a': achievements,
-        'f': 3,
-        'u': '<?= $user ?>',
+        'f': <?= AchievementAction::Flags ?>,
         'v': typeFlag
       },
       error: function (xhr, status, error) {

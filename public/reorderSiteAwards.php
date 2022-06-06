@@ -19,6 +19,29 @@ RenderHtmlHead("Reorder Site Awards");
 ?>
 <body>
 <?php RenderHeader($userDetails); ?>
+<script>
+  function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
+    var inputText = $('#' + objID).val();
+    var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
+    var posting = $.post(
+      '/request/user/update-site-award.php',
+      {
+        t: awardType,
+        d: awardData,
+        e: awardDataExtra,
+        v: inputNum,
+      }
+    );
+    posting.done(function (data) {
+      if (data !== 'OK') {
+        $('#warning').html('Status: Errors...' + data);
+      } else {
+        $('#warning').html('Status: OK!');
+      }
+    });
+    $('#warning').html('Status: updating...');
+  }
+</script>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php

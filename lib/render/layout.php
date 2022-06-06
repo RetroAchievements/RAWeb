@@ -366,7 +366,7 @@ function RenderToolbar($user, $permissions = 0): void
 
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-        $searchQuery = attributeEscape(requestInputQuery('s', null));
+        $searchQuery = attributeEscape(requestInputQuery('s', ''));
     }
     echo "<form action='/searchresults.php' method='get'>";
     echo "<div class='searchbox'>";

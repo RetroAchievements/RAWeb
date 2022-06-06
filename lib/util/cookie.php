@@ -21,7 +21,7 @@ function applyCookie($cookieName, $cookieValue, $expire = 0, $httponly = false):
         'path' => "/",
         'domain' => getenv('SESSION_DOMAIN'),
         'samesite' => 'lax',
-        'secure' => getenv('SESSION_SECURE_COOKIE'),
+        'secure' => filter_var(getenv('SESSION_SECURE_COOKIE'), FILTER_VALIDATE_BOOLEAN),
         'httponly' => $httponly,
     ]);
 }

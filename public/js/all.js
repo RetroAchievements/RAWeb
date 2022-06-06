@@ -91,47 +91,6 @@ function focusOnArticleID(id) {
   $('#art_' + id).scrollIntoView();
 }
 
-function updateDisplayOrder(user, objID, gameID) {
-  var inputText = $('#' + objID).val();
-  var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
-  var posting = $.post(
-    '/request/achievement/update.php',
-    {
-      u: user,
-      a: objID.substr(4),
-      g: gameID,
-      f: 1,
-      v: inputNum,
-    }
-  );
-  posting.done(onUpdateDisplayOrderComplete);
-  $('#warning').html('Status: updating...');
-}
-
-function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
-  var inputText = $('#' + objID).val();
-  var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
-  var posting = $.post(
-    '/request/user/update-site-award.php',
-    {
-      t: awardType,
-      d: awardData,
-      e: awardDataExtra,
-      v: inputNum,
-    }
-  );
-  posting.done(onUpdateDisplayOrderComplete);
-  $('#warning').html('Status: updating...');
-}
-
-function onUpdateDisplayOrderComplete(data) {
-  if (data !== 'OK') {
-    $('#warning').html('Status: Errors...' + data);
-  } else {
-    $('#warning').html('Status: OK!');
-  }
-}
-
 function injectShortcode(start, end) {
   var commentTextarea = document.getElementById('commentTextarea');
   if (commentTextarea !== undefined) {
