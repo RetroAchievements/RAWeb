@@ -36,7 +36,7 @@ RenderHtmlHead("Download a client");
                     <?= nl2br($emulator['description']) ?><br>
                 <?php endif ?>
                 <?php if ($emulator['link'] ?? false): ?>
-                    <a class="" href="<?= $emulator['link'] ?>" target="_blank">Documentation</a>
+                    <a class="" href="<?= $emulator['link'] ?>">Documentation</a>
                 <?php endif ?>
             </div>
             <div class="mb-3 download-flex">
