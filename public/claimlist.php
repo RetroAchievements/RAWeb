@@ -331,7 +331,7 @@ RenderHeader($userDetails);
             echo "</tbody></table></div>";
 
             // Add page traversal links
-            if ($maxCount != 0 && ((int) $totalClaims) > $maxCount) {
+            if (((int) $totalClaims) > $maxCount) {
                 echo "\n<br/><div class='rightalign row'>";
                 RenderPaginator($totalClaims, $maxCount, $offset, "/claimlist.php?s=$sortType&f=$claimFilter&u=$username&g=$gameID&o=");
                 echo "</div>";
