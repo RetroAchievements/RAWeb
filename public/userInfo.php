@@ -120,6 +120,11 @@ $userScoreData = getAwardedList(
     date("Y-m-d H:i:s", time())
 );
 
+// Get claim data if the user has jr dev or above permissions
+if (getActiveClaimCount($userPage, true, true) > 0) {
+    $userClaimData = getFilteredClaimData(0, 415, 13, false, $userPage); // Active claims sorted by game title
+}
+
 // Also add current.
 // $numScoreDataElements = count($userScoreData);
 // $userScoreData[$numScoreDataElements]['Year'] = (int)date('Y');
@@ -290,15 +295,35 @@ RenderHtmlStart(true);
         $contribCount = $userMassData['ContribCount'];
         $contribYield = $userMassData['ContribYield'];
         if ($contribCount > 0) {
-            echo "<strong>$userPage Developer Stats:</strong><br>";
+            echo "<strong>$userPage Developer Information:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
             echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
+            echo "<a href='/claimlist.php?u=$userPage'>View claim information for <b>$userPage</b>.</a></br>";
             if (isset($user) && $permissions >= Permissions::Registered) {
                 $openTicketsData = countOpenTicketsByDev($userPage);
                 echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . array_sum($openTicketsData) . "</b></a><br>";
             }
             echo "Achievements won by others: <b>$contribCount</b><br>";
             echo "Points awarded to others: <b>$contribYield</b><br><br>";
+        }
+
+        // Display the users active claims
+        if (isset($userClaimData) && count($userClaimData) > 0) {
+            echo "<b>$userPage's</b> current claims:</br>";
+            foreach ($userClaimData as $claim) {
+                $details = "";
+                $isCollab = $claim['ClaimType'] == 1;
+                $isSpecial = $claim['Special'] == 1;
+                if ($isCollab) {
+                    $details = " Collaboration";
+                } else {
+                    if (!$isSpecial) {
+                        $details = "*";
+                    }
+                }
+                echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName'], false, 22) . $details . '<br>';
+            }
+            echo "* Counts against reservation limit</br></br>";
         }
 
         echo "</div>"; // usersummary

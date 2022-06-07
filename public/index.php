@@ -190,6 +190,7 @@ RenderHeader($userDetails);
         }
         RenderNewsComponent();
         RenderRecentlyUploadedComponent(5);
+        renderNewClaimsComponent(5);
         RenderActivePlayersComponent();
         RenderCurrentlyOnlineComponent();
         echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
