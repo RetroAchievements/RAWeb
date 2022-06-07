@@ -24,7 +24,7 @@ abstract class ArticleType
 
     public const GameHash = 10;
 
-    public const GameModification = 11;
+    public const GameModification = 12;
 
     private const VALID = [
         self::Game,
