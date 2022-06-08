@@ -418,9 +418,9 @@ function RenderFooter(): void
 
     echo "<div>";
     echo "<h4>Documentation</h4>";
-    echo "<div><a href='https://docs.retroachievements.org/Developers-Code-of-Conduct/' target='_blank'>Developers Code of Conduct</a></div>";
-    echo "<div><a href='https://docs.retroachievements.org/Users-Code-of-Conduct/' target='_blank'>Users Code of Conduct</a></div>";
-    echo "<div><a href='https://docs.retroachievements.org/FAQ/' target='_blank'>FAQ</a></div>";
+    echo "<div><a href='https://docs.retroachievements.org/Developers-Code-of-Conduct/'>Developers Code of Conduct</a></div>";
+    echo "<div><a href='https://docs.retroachievements.org/Users-Code-of-Conduct/'>Users Code of Conduct</a></div>";
+    echo "<div><a href='https://docs.retroachievements.org/FAQ/'>FAQ</a></div>";
     echo "<div><a href='/APIDemo.php'>API</a></div>";
     echo "</div>";
 
@@ -434,37 +434,25 @@ function RenderFooter(): void
     echo "<div>";
     echo "<h4>Connect</h4>";
     if (getenv('PATREON_USER_ID')) {
-        echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "' target='_blank'>Patreon</a></div>";
+        echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "'>Patreon</a></div>";
     }
     if (getenv('DISCORD_INVITE_ID')) {
-        echo "<div><a href='https://discord.gg/" . getenv('DISCORD_INVITE_ID') . "' target='_blank'>Discord</a></div>";
+        echo "<div><a href='https://discord.gg/" . getenv('DISCORD_INVITE_ID') . "'>Discord</a></div>";
     }
     if (getenv('GITHUB_ORG')) {
-        echo "<div><a href='https://github.com/" . getenv('GITHUB_ORG') . "' target='_blank'>GitHub</a></div>";
+        echo "<div><a href='https://github.com/" . getenv('GITHUB_ORG') . "'>GitHub</a></div>";
     }
     if (getenv('TWITCH_CHANNEL')) {
-        echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "' target='_blank'>Twitch</a></div>";
+        echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "'>Twitch</a></div>";
     }
     if (getenv('FACEBOOK_CHANNEL')) {
-        echo "<div><a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/' target='_blank'>Facebook</a></div>";
+        echo "<div><a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/'>Facebook</a></div>";
     }
     if (getenv('TWITTER_CHANNEL')) {
-        echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "' target='_blank'>Twitter</a></div>";
+        echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'>Twitter</a></div>";
     }
     echo "<div><a href='/rss.php'>RSS</a></div>";
     echo "</div>";
-
-    // echo "<div>Content by <a href='http://www.immensegames.com' target='_blank'>Immense Games</a></div>";
-
-    // global $g_numQueries;
-    // global $g_pageLoadAt;
-    // $loadDuration = microtime(true) - $g_pageLoadAt;
-    // echo "<p>";
-    // echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
-    // if ($loadDuration > 2.4) {
-    //     error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
-    // }
-    // echo "</p>";
 
     echo "</footer>";
 }
