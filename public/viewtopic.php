@@ -121,20 +121,16 @@ RenderHtmlStart();
                 echo "<input type='submit' name='submit' value='Delete Permanently' size='37'>";
                 echo "</form>";
 
-                $selected0 = ($thisTopicPermissions == 0) ? 'selected' : '';
-                $selected1 = ($thisTopicPermissions == 1) ? 'selected' : '';
-                $selected2 = ($thisTopicPermissions == 2) ? 'selected' : '';
-                $selected3 = ($thisTopicPermissions == 3) ? 'selected' : '';
-                $selected4 = ($thisTopicPermissions == 4) ? 'selected' : '';
-
                 echo "<div>Restrict Topic:</div>";
                 echo "<form action='/request/forum-topic/modify.php' method='post' >";
                 echo "<select name='v'>";
-                echo "<option value='0' $selected0>" . PermissionsToString(Permissions::Unregistered) . "</option>";
-                echo "<option value='1' $selected1>" . PermissionsToString(Permissions::Registered) . "</option>";
-                echo "<option value='2' $selected2>" . PermissionsToString(Permissions::JuniorDeveloper) . "</option>";
-                echo "<option value='3' $selected3>" . PermissionsToString(Permissions::Developer) . "</option>";
-                echo "<option value='4' $selected4>" . PermissionsToString(Permissions::Admin) . "</option>";
+
+                foreach (Permissions::ValidUserPermissions as $selectablePermission) {
+                    $selected = ($thisTopicPermissions == $selectablePermission) ? ' selected' : '';
+                    echo "<option value='$selectablePermission'$selected>" .
+                        Permissions::toString($selectablePermission) . "</option>";
+                }
+
                 echo "</select>";
                 echo "<input type='hidden' name='t' value='$thisTopicID'>";
                 echo "<input type='hidden' name='f' value='" . ForumTopicAction::ChangeRequiredPermissions . "'>";

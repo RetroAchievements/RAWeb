@@ -79,9 +79,8 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
         $response['Score'] = $data['RAPoints'];
         settype($response['Score'], "integer");
         $response['Messages'] = GetMessageCount($user, $totalMessageCount);
-        $response['Permissions'] = $data['Permissions'];
-        settype($response['Permissions'], "integer");
-        $response['AccountType'] = PermissionsToString($response['Permissions']);
+        $response['Permissions'] = (int) $data['Permissions'];
+        $response['AccountType'] = Permissions::toString($response['Permissions']);
     } else {
         $response['Success'] = false;
         $response['Error'] = "Invalid User/Password combination. Please try again";

@@ -83,7 +83,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
     $retVal['Success'] = true;
 
     addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
-        $actingUser . ' set account type to ' . PermissionsToString($targetUserNewPermissions)
+        $actingUser . ' set account type to ' . Permissions::toString($targetUserNewPermissions)
     );
 
     return $retVal;
