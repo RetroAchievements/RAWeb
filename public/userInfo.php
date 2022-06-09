@@ -247,7 +247,7 @@ RenderHtmlStart(true);
         if ($niceDateLogin) {
             echo "Last Activity: $niceDateLogin<br>";
         }
-        echo "Account Type: <b>[" . PermissionsToString($userMassData['Permissions']) . "]</b><br>";
+        echo "Account Type: <b>[" . Permissions::toString($userMassData['Permissions']) . "]</b><br>";
         echo "<br>";
 
         $retRatio = 0.0;
@@ -359,9 +359,9 @@ RenderHtmlStart(true);
                 // while( $i <= $permissions && ( $i <= Permissions::Developer || $user == 'Scott' ) )
                 while ($i <= $permissions) {
                     if ($userMassData['Permissions'] == $i) {
-                        echo "<option value='$i' selected >($i): " . PermissionsToString($i) . " (current)</option>";
+                        echo "<option value='$i' selected >($i): " . Permissions::toString($i) . " (current)</option>";
                     } else {
-                        echo "<option value='$i'>($i): " . PermissionsToString($i) . "</option>";
+                        echo "<option value='$i'>($i): " . Permissions::toString($i) . "</option>";
                     }
                     $i++;
                 }

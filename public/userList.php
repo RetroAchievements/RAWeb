@@ -24,7 +24,7 @@ $userCount = getUserListByPerms($sortBy, $offset, $maxCount, $userListData, $use
 
 $permissionName = null;
 if ($perms >= Permissions::Spam && $perms <= Permissions::Admin) {
-    $permissionName = PermissionsToString($perms);
+    $permissionName = Permissions::toString($perms);
 } elseif ($showUntracked) { // meleu: using -99 magic number for untracked (I know, it's sloppy)
     $perms = -99;
     $permissionName = "Untracked";
@@ -56,21 +56,15 @@ RenderHtmlHead("Users");
 
         echo "<p>Filter: ";
 
-        if ($perms == Permissions::Unregistered) {
-            echo "<b>Unregistered</b>";
-        } else {
-            echo "<a href='/userList.php?s=$sortBy&p=0'>Unregistered</a>";
-        }
-
-        for ($i = Permissions::Registered; $i <= Permissions::Admin; $i++) {
-            echo " | ";
-
+        $permLinks = [];
+        foreach (Permissions::ValidUserPermissions as $i) {
             if (!$showUntracked && $i == $perms && is_int($perms)) {
-                echo "<b>" . PermissionsToString($i) . "</b>";
+                $permLinks[] = "<b>" . Permissions::toString($i) . "</b>";
             } else {
-                echo "<a href='/userList.php?s=$sortBy&p=$i'>" . PermissionsToString($i) . "</a>";
+                $permLinks[] = "<a href='/userList.php?s=$sortBy&p=$i'>" . Permissions::toString($i) . "</a>";
             }
         }
+        echo implode(' | ', $permLinks);
         echo "</p>";
 
         if (isset($user) && $permissions >= Permissions::Admin) {
@@ -82,13 +76,13 @@ RenderHtmlHead("Users");
                 echo "<a href='/userList.php?s=$sortBy&u=1&p=-99'>All Untracked users</a>";
             }
 
-            for ($i = Permissions::Spam; $i <= Permissions::Admin; $i++) {
+            foreach (Permissions::AllPermissions as $i) {
                 echo " | ";
 
                 if ($showUntracked && $i == $perms && is_int($perms)) {
-                    echo "<b>" . PermissionsToString($i) . "</b>";
+                    echo "<b>" . Permissions::toString($i) . "</b>";
                 } else {
-                    echo "<a href='/userList.php?s=$sortBy&u=1&p=$i'>" . PermissionsToString($i) . "</a>";
+                    echo "<a href='/userList.php?s=$sortBy&u=1&p=$i'>" . Permissions::toString($i) . "</a>";
                 }
             }
             echo "</p>";

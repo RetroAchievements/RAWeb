@@ -250,7 +250,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             <div class="embedded d-flex justify-content-between">
                 <div>
                     <div><strong><a href="/user/<?= $user ?>"><?= $user ?></a></strong> (<?= $points ?> points)</div>
-                    <div>Account: (<?= $permissions ?>) <?= PermissionsToString($permissions) ?></div>
+                    <div>Account: (<?= $permissions ?>) <?= Permissions::toString($permissions) ?></div>
                     <?php if (!empty($userMotto) && mb_strlen($userMotto) > 1) : ?>
                         <span class="usermotto"><?= $userMotto ?></span>
                     <?php endif ?>

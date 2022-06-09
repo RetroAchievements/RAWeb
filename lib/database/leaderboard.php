@@ -802,7 +802,8 @@ function UploadNewLeaderboard(
     // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = getUserPermissions($author);
     if ($userPermissions < Permissions::Developer) {
-        if ($userPermissions < Permissions::JuniorDeveloper || $author != $originalAuthor) {
+        if ($userPermissions < Permissions::JuniorDeveloper ||
+            (!empty($originalAuthor) && $author != $originalAuthor)) {
             $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
             return false;
         }

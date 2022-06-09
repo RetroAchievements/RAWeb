@@ -1,5 +1,7 @@
 <?php
 
+use RA\Permissions;
+
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  */
@@ -39,7 +41,7 @@ function _GetUserAndTooltipDiv(
     $userMotto = $userCardInfo['Motto'];
     $userPoints = $userCardInfo['TotalPoints'];
     $userTruePoints = $userCardInfo['TotalTruePoints'];
-    $userAccountType = PermissionsToString($userCardInfo['Permissions']);
+    $userAccountType = Permissions::toString($userCardInfo['Permissions']);
     $userRank = $userCardInfo['Rank'];
     $userUntracked = $userCardInfo['Untracked'];
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
