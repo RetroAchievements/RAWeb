@@ -1,6 +1,9 @@
 <?php
 
 use RA\ArticleType;
+use RA\ClaimFilters;
+use RA\ClaimSetType;
+use RA\ClaimType;
 use RA\ImageType;
 use RA\Permissions;
 use RA\RatingType;
@@ -225,7 +228,7 @@ if ($isFullyFeaturedGame) {
     $claimListLength = count($claimData);
 
     // Get the first entry returnd for the primary claim data
-    if ($claimListLength > 0 && $claimData[0]['ClaimType'] == 0) {
+    if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
         $primaryClaimUser = $claimData[0]['User'];
         $primaryClaimMinutesActive = $claimData[0]['MinutesActive'];
         $primaryClaimMinutesLeft = $claimData[0]['MinutesLeft'];
@@ -747,7 +750,7 @@ RenderHtmlStart(true);
                         }
 
                         // Show the Claim History option for >= junior developer
-                        echo "<div><a href='/claimlist.php?g=$gameID&f=511'>View Claim History</a></div>";
+                        echo "<div><a href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>View Claim History</a></div>";
 
                         $escapedGameTitle = attributeEscape($gameTitle);
 
@@ -1112,16 +1115,18 @@ RenderHtmlStart(true);
                     echo "<h4>Claim Information</h4>";
 
                     $claimExpiration = null;
+                    $primaryClaim = 1;
                     if ($claimListLength > 0) {
                         echo "Claimed by: ";
                         foreach ($claimData as $claim) {
-                            $claimUser = $claim['User'];
-                            $claimExpiration = $claim['Expiration'];
-                            echo GetUserAndTooltipDiv($claimUser, false);
+                            $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
+                            $claimExpiration = getNiceDate(strtotime($claim['Expiration']));
+                            echo GetUserAndTooltipDiv($claim['User'], false) . $revisionText;
                             if ($claimListLength > 1) {
                                 echo ", ";
                             }
                             $claimListLength--;
+                            $primaryClaim = 0;
                         }
                         echo "<br>";
                         echo "Expires on: $claimExpiration";

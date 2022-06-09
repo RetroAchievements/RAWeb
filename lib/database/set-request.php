@@ -1,4 +1,7 @@
 <?php
+
+use RA\ClaimStatus;
+
 /**
  * Gets a list of set requests made by a given user.
  */
@@ -14,7 +17,7 @@ function getUserRequestList(string $user): array
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status = 0 , sc.User, NULL))) AS Claims
+            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
         LEFT JOIN
@@ -235,7 +238,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status = 0 , sc.User, NULL))) AS Claims
+            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
         LEFT JOIN

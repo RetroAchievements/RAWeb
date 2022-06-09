@@ -1,6 +1,10 @@
 <?php
 
 use RA\ArticleType;
+use RA\ClaimFilters;
+use RA\ClaimSorting;
+use RA\ClaimSpecial;
+use RA\ClaimType;
 use RA\Permissions;
 use RA\UserAction;
 
@@ -122,7 +126,7 @@ $userScoreData = getAwardedList(
 
 // Get claim data if the user has jr dev or above permissions
 if (getActiveClaimCount($userPage, true, true) > 0) {
-    $userClaimData = getFilteredClaimData(0, 415, 13, false, $userPage); // Active claims sorted by game title
+    $userClaimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::GameAscending, false, $userPage); // Active claims sorted by game title
 }
 
 // Also add current.
@@ -312,10 +316,10 @@ RenderHtmlStart(true);
             echo "<b>$userPage's</b> current claims:</br>";
             foreach ($userClaimData as $claim) {
                 $details = "";
-                $isCollab = $claim['ClaimType'] == 1;
-                $isSpecial = $claim['Special'] == 1;
+                $isCollab = $claim['ClaimType'] == ClaimType::Collaboration;
+                $isSpecial = $claim['Special'] != ClaimSpecial::None;
                 if ($isCollab) {
-                    $details = " Collaboration";
+                    $details = " (" . ClaimType::toString(ClaimType::Collaboration) . ")";
                 } else {
                     if (!$isSpecial) {
                         $details = "*";

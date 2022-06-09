@@ -12,7 +12,7 @@ if (!ValidateGETChars("gf")) {
 }
 
 $gameID = requestInputQuery('g');
-$fromClaim = requestInputQuery('f');
+$fromClaim = requestInputQuery('f', 0);
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     header("Location: " . getenv('APP_URL') . "/forum.php?e=badcredentials");

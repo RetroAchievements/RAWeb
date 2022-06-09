@@ -1,5 +1,11 @@
 <?php
 
+use RA\ClaimFilters;
+use RA\ClaimSetType;
+use RA\ClaimSorting;
+use RA\ClaimSpecial;
+use RA\ClaimStatus;
+use RA\ClaimType;
 use RA\Permissions;
 
 /**
@@ -10,9 +16,9 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
 {
     sanitize_sql_inputs($user, $gameID, $claimType, $setType, $special);
 
-    if ($claimType == 0) { // Primary Claim
+    if ($claimType == ClaimType::Primary) { // Primary Claim
         // Prevent if user has no available slots except for when they are the sole dev of the set
-        if ($special == 0 && getActiveClaimCount($user, false) >= permissionsToClaim($permissions)) {
+        if ($special == ClaimSpecial::None && getActiveClaimCount($user, false) >= permissionsToClaim($permissions)) {
             return false;
         }
 
@@ -20,7 +26,7 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
             INSERT INTO
                 SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
             VALUES
-                ('$user', '$gameID', '$claimType', '$setType', '0', '0', '$special', NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), NOW())";
+                ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '$special', NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), NOW())";
 
         if (s_mysql_query($query)) {
             return true;
@@ -31,8 +37,8 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
             INSERT INTO
                 SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
             VALUES
-                ('$user', '$gameID', '$claimType', '$setType', '0', '0', '0', NOW(),
-                (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status = 0 AND ClaimType = 0) AS sc),
+                ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '" . ClaimSpecial::None . "', NOW(),
+                (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status = " . ClaimStatus::Active . " AND ClaimType = " . ClaimType::Primary . ") AS sc),
                 NOW())";
 
         if (s_mysql_query($query)) {
@@ -51,7 +57,7 @@ function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false):
 
     $claimTypeCondition = '';
     if ($isPrimaryClaim) {
-        $claimTypeCondition = 'AND ClaimType = 0';
+        $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
     }
 
     $query = "
@@ -60,7 +66,7 @@ function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false):
         FROM
             SetClaim
         WHERE
-            Status = 0
+            Status = " . ClaimStatus::Active . "
             $claimTypeCondition
             AND User = '$user'
             AND GameID = '$gameID'";
@@ -91,11 +97,11 @@ function completeClaim(string $user, int $gameID): bool
             UPDATE
                 SetClaim
             SET
-                Status = 1,
+                Status = " . ClaimStatus::Complete . ",
                 Finished = NOW(),
                 Updated = NOW()
             WHERE
-                Status = 0
+                Status = " . ClaimStatus::Active . "
                 AND GameID = '$gameID'";
 
         if (s_mysql_query($query)) {
@@ -116,11 +122,11 @@ function dropClaim(string $user, int $gameID): bool
         UPDATE
             SetClaim
         SET
-            Status = 2,
+            Status =  " . ClaimStatus::Dropped . ",
             Finished = NOW(),
             Updated = NOW()
         WHERE
-            Status = 0
+            Status = " . ClaimStatus::Active . "
             AND User = '$user'
             AND GameID = '$gameID'";
 
@@ -147,9 +153,9 @@ function extendClaim(string $user, int $gameID): bool
                 Finished = DATE_ADD(Finished, INTERVAL 3 MONTH),
                 Updated = NOW()
             WHERE
-                Status = 0
+                Status = " . ClaimStatus::Active . "
                 AND GameID = '$gameID'
-                AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080";
+                AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
         if (s_mysql_query($query)) {
             return true;
@@ -191,7 +197,7 @@ function getClaimData(int $gameID, bool $getFullData = true): array
             SetClaim sc
         WHERE
             sc.GameID = '$gameID'
-            AND sc.Status = 0
+            AND sc.Status = " . ClaimStatus::Active . "
         ORDER BY
             sc.ClaimType ASC";
 
@@ -212,27 +218,31 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  * Results are configurable based on input parameters, allowing sorting on each of the
  * above stats and returning data for a specific user or game.
  */
-function getFilteredClaimData(int $gameID = 0, int $claimFilter = 511, int $sortType = 8, bool $getExpiringOnly = false, ?string $username = null, bool $getCount = false, int $offset = 0, int $limit = 50): array|int
+function getFilteredClaimData(int $gameID = 0, int $claimFilter = ClaimFilters::AllFilters, int $sortType = ClaimSorting::ClaimDateDescending, bool $getExpiringOnly = false, ?string $username = null, bool $getCount = false, int $offset = 0, int $limit = 50): array|int
 {
     $retVal = [];
     sanitize_sql_inputs($gameID, $username);
 
-    $primaryClaim = ($claimFilter & (1 << 0));
-    $collaborationClaim = ($claimFilter & (1 << 1));
-    $newSetClaim = ($claimFilter & (1 << 2));
-    $revisionClaim = ($claimFilter & (1 << 3));
-    $activeClaim = ($claimFilter & (1 << 4));
-    $completeClaim = ($claimFilter & (1 << 5));
-    $droppedClaim = ($claimFilter & (1 << 6));
-    $developerClaim = ($claimFilter & (1 << 7));
-    $juniorDeveloperClaim = ($claimFilter & (1 << 8));
+    $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
+    $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
+    $newSetClaim = ($claimFilter & ClaimFilters::NewSetClaim);
+    $revisionClaim = ($claimFilter & ClaimFilters::RevisionClaim);
+    $activeClaim = ($claimFilter & ClaimFilters::ActiveClaim);
+    $completeClaim = ($claimFilter & ClaimFilters::CompleteClaim);
+    $droppedClaim = ($claimFilter & ClaimFilters::DroppedClaim);
+    $specialNoneClaim = ($claimFilter & ClaimFilters::SpecialNone);
+    $specialRevisionClaim = ($claimFilter & ClaimFilters::SpecialOwnRevision);
+    $specialRolloutClaim = ($claimFilter & ClaimFilters::SpecialFreeRollout);
+    $specialScheduledClaim = ($claimFilter & ClaimFilters::SpecialScheduledRelease);
+    $developerClaim = ($claimFilter & ClaimFilters::DeveloperClaim);
+    $juniorDeveloperClaim = ($claimFilter & ClaimFilters::JuniorDeveloperClaim);
 
     // Create claim type condition
     $claimTypeCondition = '';
     if ($primaryClaim && !$collaborationClaim) {
-        $claimTypeCondition = 'AND sc.ClaimType = 0';
+        $claimTypeCondition = 'AND sc.ClaimType = ' . ClaimType::Primary;
     } elseif (!$primaryClaim && $collaborationClaim) {
-        $claimTypeCondition = 'AND sc.ClaimType = 1';
+        $claimTypeCondition = 'AND sc.ClaimType = ' . ClaimType::Collaboration;
     } elseif (!$primaryClaim && !$collaborationClaim) {
         if ($getCount) {
             return 0;
@@ -243,9 +253,9 @@ function getFilteredClaimData(int $gameID = 0, int $claimFilter = 511, int $sort
     // Create set type condition
     $setTypeCondition = '';
     if ($newSetClaim && !$revisionClaim) {
-        $setTypeCondition = 'AND sc.SetType = 0';
+        $setTypeCondition = 'AND sc.SetType = ' . ClaimSetType::NewSet;
     } elseif (!$newSetClaim && $revisionClaim) {
-        $setTypeCondition = 'AND sc.SetType = 1';
+        $setTypeCondition = 'AND sc.SetType = ' . ClaimSetType::Revision;
     } elseif (!$newSetClaim && !$revisionClaim) {
         if ($getCount) {
             return 0;
@@ -256,22 +266,38 @@ function getFilteredClaimData(int $gameID = 0, int $claimFilter = 511, int $sort
     // Create the claim status condition
     $statusCondition = '';
     if ($activeClaim && $completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (0, 1)';
+        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Active . ', ' . ClaimStatus::Complete . ')';
     } elseif ($activeClaim && !$completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (0, 2)';
+        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Active . ', ' . ClaimStatus::Dropped . ')';
     } elseif ($activeClaim && !$completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status = 0';
+        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Active;
     } elseif (!$activeClaim && $completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (1, 2)';
+        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Complete . ', ' . ClaimStatus::Dropped . ')';
     } elseif (!$activeClaim && $completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status = 1';
+        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Complete;
     } elseif (!$activeClaim && !$completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status = 2';
+        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Dropped;
     } elseif (!$activeClaim && !$completeClaim && !$droppedClaim) {
         if ($getCount) {
             return 0;
         }
         return $retVal;
+    }
+
+    // Create the special condition
+    $str = '';
+    $str .= ($specialNoneClaim ? ClaimSpecial::None . ',' : '');
+    $str .= ($specialRevisionClaim ? ClaimSpecial::OwnRevision . ',' : '');
+    $str .= ($specialRolloutClaim ? ClaimSpecial::FreeRollout . ',' : '');
+    $str .= ($specialScheduledClaim ? ClaimSpecial::ScheduledRelease : '');
+
+    if (!(strlen($str) % 2)) { // Remove trailing comma if necessary
+        $str = rtrim($str, ",");
+    }
+
+    $specialCondition = 'AND FALSE';
+    if (strlen($str) > 0) {
+        $specialCondition = "AND sc.Special IN ($str)";
     }
 
     // Create the developer status condition
@@ -321,7 +347,7 @@ function getFilteredClaimData(int $gameID = 0, int $claimFilter = 511, int $sort
     // Get expiring claims only
     $havingCondition = '';
     if ($getExpiringOnly) {
-        $havingCondition = "HAVING MinutesLeft <= 10080";
+        $havingCondition = "HAVING MinutesLeft <= 10080"; // 7 days = 7 * 24 * 60
     }
 
     // Get either the filtered count or the filtered data
@@ -362,6 +388,7 @@ function getFilteredClaimData(int $gameID = 0, int $claimFilter = 511, int $sort
             $claimTypeCondition
             $setTypeCondition
             $statusCondition
+            $specialCondition
             $devStatusCondition
             $userCondition
             $gameCondition
@@ -399,12 +426,12 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
 
     $claimTypeCondition = '';
     if (!$countCollaboration) {
-        $claimTypeCondition = 'AND ClaimType = 0';
+        $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
     }
 
     $specialCondition = '';
     if (!$countSpecial) {
-        $specialCondition = 'AND Special = 0';
+        $specialCondition = 'AND Special = ' . ClaimSpecial::None;
     }
 
     $query = "
@@ -417,7 +444,7 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
             $userCondition
             $claimTypeCondition
             $specialCondition
-            AND Status = 0";
+            AND Status = " . ClaimStatus::Active;
 
     $dbResult = s_mysql_query($query);
 
@@ -471,8 +498,8 @@ function getExpiringClaim(string $user): array
             SetClaim AS sc
         WHERE
             sc.User = '$user'
-            AND sc.Status = 0
-            AND sc.Special < 3";
+            AND sc.Status = " . ClaimStatus::Active . "
+            AND sc.Special != " . ClaimSpecial::ScheduledRelease;
 
     $dbResult = s_mysql_query($query);
 

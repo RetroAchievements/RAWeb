@@ -1,5 +1,8 @@
 <?php
 
+use RA\ClaimFilters;
+use RA\ClaimSorting;
+
 /*
  *  API_GetActiveClaims - returns information about all (1000 max) active set claims.
  *
@@ -30,4 +33,4 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 
 runPublicApiMiddleware();
 
-echo json_encode(getFilteredClaimData(0, 415, 8, false, null, false, 0, 1000), JSON_THROW_ON_ERROR);
+echo json_encode(getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, false, 0, 1000), JSON_THROW_ON_ERROR);

@@ -1,5 +1,8 @@
 <?php
 
+use RA\ClaimFilters;
+use RA\ClaimSorting;
+
 /*
  *  API_GetUserClaims - returns information about a all users set claims
  *    u : username
@@ -33,4 +36,4 @@ runPublicApiMiddleware();
 
 $user = requestInputQuery('u', null);
 
-echo json_encode(getFilteredClaimData(0, 511, 8, false, $user, false), JSON_THROW_ON_ERROR);
+echo json_encode(getFilteredClaimData(0, ClaimFilters::AllFilters, ClaimSorting::ClaimDateDescending, false, $user, false), JSON_THROW_ON_ERROR);

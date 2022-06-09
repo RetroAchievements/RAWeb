@@ -1,5 +1,8 @@
 <?php
 
+use RA\ClaimFilters;
+use RA\ClaimSorting;
+
 /**
  * Creates the New Set Claims component.
  */
@@ -8,7 +11,7 @@ function renderNewClaimsComponent(int $count): void
     echo "<div class='component'>";
     echo "<h3>New Set Claims</h3>";
 
-    $claimData = getFilteredClaimData(0, 415, 8, false, null, false, 0, $count);
+    $claimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, false, 0, $count);
 
     echo "<tbody><table>";
     echo "<th>User</th>";

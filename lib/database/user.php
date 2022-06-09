@@ -1,6 +1,7 @@
 <?php
 
 use RA\AwardThreshold;
+use RA\ClaimStatus;
 use RA\Permissions;
 use RA\TicketState;
 
@@ -477,7 +478,7 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7): array
     LEFT JOIN
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     LEFT JOIN
-        SetClaim AS sc ON (sc.User = ua.User AND sc.Status = 0)
+        SetClaim AS sc ON (sc.User = ua.User AND sc.Status = " . ClaimStatus::Active . ")
     WHERE
         ContribCount > 0 AND ContribYield > 0
         $stateCond

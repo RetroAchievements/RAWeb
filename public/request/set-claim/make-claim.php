@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
 use RA\ArticleType;
+use RA\ClaimSetType;
+use RA\ClaimType;
 use RA\Permissions;
 
 $gameID = requestInputQuery('i', null, 'integer');
@@ -14,10 +16,10 @@ $createForumTopic = requestInputQuery('f', 0, 'integer');
 if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     $special = (int) checkIfSoleDeveloper($user, $gameID);
     if (insertClaim($user, $gameID, $claimType, $setType, $special, $permissions)) { // Check that the claim was successfully added
-        if ($claimType == 0) {
-            addArticleComment("Server", ArticleType::SetClaim, $gameID, "Primary " . ($setType == 1 ? "revision" : "") . " claim made by " . $user);
+        if ($claimType == ClaimType::Primary) {
+            addArticleComment("Server", ArticleType::SetClaim, $gameID, ClaimType::toString(ClaimType::Primary) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $user);
         } else {
-            addArticleComment("Server", ArticleType::SetClaim, $gameID, "Collaboration " . ($setType == 1 ? "revision" : "") . " claim made by " . $user);
+            addArticleComment("Server", ArticleType::SetClaim, $gameID, ClaimType::toString(ClaimType::Collaboration) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $user);
         }
 
         if ($createForumTopic && $permissions >= Permissions::Developer) { // Create forum topic if developer

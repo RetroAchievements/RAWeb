@@ -1,11 +1,20 @@
 <?php
+
+use RA\ClaimFilters;
+use RA\ClaimSetType;
+use RA\ClaimSorting;
+use RA\ClaimSpecial;
+use RA\ClaimStatus;
+use RA\ClaimType;
+use RA\Permissions;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$defaultFilter = 415; // Show all active claims
-$defaultSorting = 8; // Sort by claim date
+$defaultFilter = ClaimFilters::Default; // Show all active claims
+$defaultSorting = ClaimSorting::ClaimDateDescending; // Sort by claim date
 $maxCount = 50;
 $offset = 0;
 $totalClaims = 0;
@@ -13,40 +22,19 @@ $totalClaims = 0;
 $errorCode = requestInputSanitized('e');
 $type = requestInputSanitized('t', 0, 'integer');
 $username = requestInputSanitized('u', null);
-$claimFilter = requestInputSanitized('f', $defaultFilter, 'integer');
+$claimFilters = requestInputSanitized('f', $defaultFilter, 'integer');
 $sortType = requestInputSanitized('s', $defaultSorting, 'integer');
 $gameID = requestInputSanitized('g', null, 'integer');
 $limit = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', $offset, 'integer');
 
 if ($type == 0) { // Get general data
-    $claimData = getFilteredClaimData($gameID, $claimFilter, $sortType, false, $username, false, $offset, $limit);
-    $totalClaims = getFilteredClaimData($gameID, $claimFilter, $sortType, false, $username, true);
+    $claimData = getFilteredClaimData($gameID, $claimFilters, $sortType, false, $username, false, $offset, $limit);
+    $totalClaims = getFilteredClaimData($gameID, $claimFilters, $sortType, false, $username, true);
 } else { // Get expiring data
-    $claimData = getFilteredClaimData(0, $defaultFilter, 19, true, $username, false); // Active sorted by expiring
+    $claimData = getFilteredClaimData(0, $defaultFilter, ClaimSorting::FinishedDateAscending, true, $username, false); // Active sorted by expiring
 }
 $activeClaimCount = getActiveClaimCount();
-
-// Filter flags
-$primaryClaim = ($claimFilter & (1 << 0));
-$collaborationClaim = ($claimFilter & (1 << 1));
-$newSetClaim = ($claimFilter & (1 << 2));
-$revisionClaim = ($claimFilter & (1 << 3));
-$activeClaim = ($claimFilter & (1 << 4));
-$completeClaim = ($claimFilter & (1 << 5));
-$droppedClaim = ($claimFilter & (1 << 6));
-$developerClaim = ($claimFilter & (1 << 7));
-$juniorDeveloperClaim = ($claimFilter & (1 << 8));
-
-// Sorting flags
-$sortUser = ($sortType == 2) ? 12 : 2;           // User
-$sortGame = ($sortType == 3) ? 13 : 3;           // Game
-$sortClaimType = ($sortType == 4) ? 14 : 4;      // Claim Type
-$sortSetType = ($sortType == 5) ? 15 : 5;        // Set Type
-$sortClaimStatus = ($sortType == 6) ? 16 : 6;    // Claim Status
-$sortSpecial = ($sortType == 7) ? 17 : 7;        // Special
-$sortClaimDate = ($sortType == 8) ? 18 : 8;      // Claim Date
-$sortExpirationDate = ($sortType == 9) ? 19 : 9; // Expiration Date
 
 if (!empty($gameID)) {
     getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
@@ -75,82 +63,92 @@ RenderHeader($userDetails);
         if ($type == 0) { // Show standard claim list
             echo "<h3>Claim List - $activeClaimCount Active Claims</h3>";
             echo "<h4>Filters - $totalClaims Claims Filtered</h4>";
+            echo "<div class='embedded mb-1'>";
+
+            $createLink = function ($flag, $value, $flag2 = null, $value2 = null) use ($sortType, $claimFilters, $username, $gameID) {
+                $appendParam = function (&$link, $param, $fallback, $default) use ($flag, $value, $flag2, $value2) {
+                    $param_value = ($flag == $param) ? $value : (($flag2 == $param) ? $value2 : $fallback);
+                    if ($param_value != $default) {
+                        $link .= str_contains($link, '?') ? '&' : '?';
+                        $link .= $param . '=' . $param_value;
+                    }
+                };
+
+                $link = "/claimlist.php";
+                $appendParam($link, 's', $sortType, 8);
+                $appendParam($link, 'f', $claimFilters, ClaimFilters::Default);
+                $appendParam($link, 'u', $username, null);
+                $appendParam($link, 'g', $gameID, null);
+                return $link;
+            };
+
+            $linkFilter = function (string $label, int $claimFilter) use ($claimFilters, $createLink) {
+                if ($claimFilters & $claimFilter) {
+                    return "<b><a href='" . $createLink('f', $claimFilters & ~$claimFilter) . "'>*$label</a></b>";
+                } else {
+                    return "<a href='" . $createLink('f', $claimFilters | $claimFilter) . "'>$label</a>";
+                }
+            };
+
+            $linkSorting = function (string $label, int $sort1, int $sort2) use ($sortType, $createLink) {
+                $colspan = '';
+                if ($sort1 == ClaimSorting::UserDescending) {
+                    $colspan = " colspan='2'";
+                }
+
+                if (($sortType % 10) == $sort1) { // if on the current sort header
+                    if ($sortType == $sort2) {
+                        return "<th $colspan><b><a href='" . $createLink('s', $sort1) . "'>$label &#9650;</a></b></th>"; // Ascending
+                    } else {
+                        return "<th $colspan><b><a href='" . $createLink('s', $sort2) . "'>$label &#9660;</a></b></th>"; // Descending
+                    }
+                } else {
+                    return "<th $colspan><a href='" . $createLink('s', $sort1) . "'>$label</a></th>";
+                }
+            };
 
             // Claim Type filter
-            echo "<div class='embedded mb-1'>";
             echo "<div>";
             echo "<b>Claim Type:</b> ";
-            if ($primaryClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 0)) . "&u=$username&g=$gameID'>*Primary</a></b> | ";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 0)) . "&u=$username&g=$gameID'>Primary</a> | ";
-            }
-
-            if ($collaborationClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 1)) . "&u=$username&g=$gameID'>*Collaboration</a></b>";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 1)) . "&u=$username&g=$gameID'>Collaboration</a>";
-            }
+            echo $linkFilter(ClaimType::toString(ClaimType::Primary), ClaimFilters::PrimaryClaim) . ' | ';
+            echo $linkFilter(ClaimType::toString(ClaimType::Collaboration), ClaimFilters::CollaborationClaim);
             echo "</div>";
 
             // Set Type filter
             echo "<div>";
             echo "<b>Set Type:</b> ";
-            if ($newSetClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 2)) . "&u=$username&g=$gameID'>*New Set</a></b> | ";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 2)) . "&u=$username&g=$gameID'>New Set</a> | ";
-            }
-
-            if ($revisionClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 3)) . "&u=$username&g=$gameID'>*Revision</a></b>";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 3)) . "&u=$username&g=$gameID'>Revision</a>";
-            }
+            echo $linkFilter(ClaimSetType::toString(ClaimSetType::NewSet), ClaimFilters::NewSetClaim) . ' | ';
+            echo $linkFilter(ClaimSetType::toString(ClaimSetType::Revision), ClaimFilters::RevisionClaim);
             echo "</div>";
 
             // Claim Status filter
             echo "<div>";
             echo "<b>Claim Status:</b> ";
-            if ($activeClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 4)) . "&u=$username&g=$gameID'>*Active</a></b> | ";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 4)) . "&u=$username&g=$gameID'>Active</a> | ";
-            }
+            echo $linkFilter(ClaimStatus::toString(ClaimStatus::Active), ClaimFilters::ActiveClaim) . ' | ';
+            echo $linkFilter(ClaimStatus::toString(ClaimStatus::Complete), ClaimFilters::CompleteClaim) . ' | ';
+            echo $linkFilter(ClaimStatus::toString(ClaimStatus::Dropped), ClaimFilters::DroppedClaim);
+            echo "</div>";
 
-            if ($completeClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 5)) . "&u=$username&g=$gameID'>*Complete</a></b> | ";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 5)) . "&u=$username&g=$gameID'>Complete</a> | ";
-            }
-
-            if ($droppedClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 6)) . "&u=$username&g=$gameID'>*Dropped</a></b>";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 6)) . "&u=$username&g=$gameID'>Dropped</a>";
-            }
+            // Special filter
+            echo "<div>";
+            echo "<b>Special:</b> ";
+            echo $linkFilter(ClaimSpecial::toString(ClaimSpecial::None), ClaimFilters::SpecialNone) . ' | ';
+            echo $linkFilter(ClaimSpecial::toString(ClaimSpecial::OwnRevision), ClaimFilters::SpecialOwnRevision) . ' | ';
+            echo $linkFilter(ClaimSpecial::toString(ClaimSpecial::FreeRollout), ClaimFilters::SpecialFreeRollout) . ' | ';
+            echo $linkFilter(ClaimSpecial::toString(ClaimSpecial::ScheduledRelease), ClaimFilters::SpecialScheduledRelease);
             echo "</div>";
 
             // Developer Status filter
             echo "<div>";
             echo "<b>Developer Status:</b> ";
-            if ($developerClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 7)) . "&u=$username&g=$gameID'>*Developer</a></b> | ";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 7)) . "&u=$username&g=$gameID'>Developer</a> | ";
-            }
-
-            if ($juniorDeveloperClaim) {
-                echo "<b><a href='/claimlist.php?s=$sortType&f=" . ($claimFilter & ~(1 << 8)) . "&u=$username&g=$gameID'>*Junior Developer</a></b>";
-            } else {
-                echo "<a href='/claimlist.php?s=$sortType&f=" . ($claimFilter | (1 << 8)) . "&u=$username&g=$gameID'>Junior Developer</a>";
-            }
+            echo $linkFilter(Permissions::toString(Permissions::Developer), ClaimFilters::DeveloperClaim) . ' | ';
+            echo $linkFilter(Permissions::toString(Permissions::JuniorDeveloper), ClaimFilters::JuniorDeveloperClaim);
             echo "</div>";
 
             // Clear Filter
-            if ($claimFilter != $defaultFilter) {
+            if ($claimFilters != $defaultFilter) {
                 echo "<div>";
-                echo "<a href='/claimlist.php?s=$sortType&f=" . $defaultFilter . "&u=$username&g=$gameID'>Clear Filter</a>";
+                echo "<a href='" . $createLink('f', $defaultFilter) . "'>Clear Filter</a>";
                 echo "</div>";
             }
             echo "</div>";
@@ -162,7 +160,7 @@ RenderHeader($userDetails);
                     if ($username == $user) {
                         echo "<b>$user</b> | ";
                     } else {
-                        echo "<a href='/claimlist.php?s=$sortType&f=$claimFilter&u=$user&g=$gameID'>$user</a> | ";
+                        echo "<a href='" . $createLink('u', $user) . "'>$user</a> | ";
                     }
                 }
 
@@ -171,7 +169,7 @@ RenderHeader($userDetails);
                 }
 
                 if (!empty($username)) {
-                    echo "<a href='/claimlist.php?s=$sortType&f=$claimFilter&g=$gameID'>Clear Filter</a>";
+                    echo "<a href='" . $createLink('u', null) . "'>Clear Filter</a>";
                 } else {
                     echo "<b>Clear Filter</b>";
                 }
@@ -182,117 +180,21 @@ RenderHeader($userDetails);
             if (!empty($gameID)) {
                 echo "<p><b>Game</b>";
                 echo ": <b>$gameTitle ($consoleName)</b>";
-                echo " | <a href='/claimlist.php?s=$sortType&f=$claimFilter&u=$username'>Clear Filter</a></p>";
+                echo " | <a href='" . $createLink('g', null) . "'>Clear Filter</a></p>";
             }
             echo "<br style='clear:both'>";
 
             echo "<div class='table-wrapper'><table><tbody>";
 
-            // Sortable User header
-            if (($sortType % 10) == 2) {
-                if ($sortUser == 2) {
-                    echo "<th colspan='2'><b><a href='/claimlist.php?s=$sortUser&f=$claimFilter&u=$username&g=$gameID'>User &#9650;</a></b></th>";
-                } else {
-                    echo "<th colspan='2'><b><a href='/claimlist.php?s=$sortUser&f=$claimFilter&u=$username&g=$gameID'>User &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th colspan='2'><a href='/claimlist.php?s=$sortUser&f=$claimFilter&u=$username&g=$gameID'>User</a></th>";
-            }
-
-            // Sortable Game header
-            if (($sortType % 10) == 3) {
-                if ($sortGame == 3) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortGame&f=$claimFilter&u=$username&g=$gameID'>Game &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortGame&f=$claimFilter&u=$username&g=$gameID'>Game &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortGame&f=$claimFilter&u=$username&g=$gameID'>Game</a></th>";
-            }
-
-            // Sortable Claim Type header
-            if (($sortType % 10) == 4) {
-                if ($sortClaimType == 4) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortClaimType&f=$claimFilter&u=$username&g=$gameID'>Claim Type &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortClaimType&f=$claimFilter&u=$username&g=$gameID'>Claim Type &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortClaimType&f=$claimFilter&u=$username&g=$gameID'>Claim Type</a></th>";
-            }
-
-            // Sortable Set Type header
-            if (($sortType % 10) == 5) {
-                if ($sortSetType == 5) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortSetType&f=$claimFilter&u=$username&g=$gameID'>Set Type &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortSetType&f=$claimFilter&u=$username&g=$gameID'>Set Type &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortSetType&f=$claimFilter&u=$username&g=$gameID'>Set Type</a></th>";
-            }
-
-            // Sortable Claim Status header
-            if (($sortType % 10) == 6) {
-                if ($sortClaimStatus == 6) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortClaimStatus&f=$claimFilter&u=$username&g=$gameID'>Claim Status &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortClaimStatus&f=$claimFilter&u=$username&g=$gameID'>Claim Status &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortClaimStatus&f=$claimFilter&u=$username&g=$gameID'>Claim Status</a></th>";
-            }
-
-            // Sortable Special header
-            $specialTooltip = "0: Standard Claim\n1: Own Revision Claim\n2: Free Rollout Claim\n3: Approved for Future Release";
-            if (($sortType % 10) == 7) {
-                if ($sortSpecial == 7) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortSpecial&f=$claimFilter&u=$username&g=$gameID' title='$specialTooltip'>Special &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortSpecial&f=$claimFilter&u=$username&g=$gameID' title='$specialTooltip'>Special &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortSpecial&f=$claimFilter&u=$username&g=$gameID' title='$specialTooltip'>Special</a></th>";
-            }
-
-            // Sortable Expiration Date header
-            if (($sortType % 10) == 8) {
-                if ($sortClaimDate == 8) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortClaimDate&f=$claimFilter&u=$username&g=$gameID'>Claim Date &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortClaimDate&f=$claimFilter&u=$username&g=$gameID'>Claim Date &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortClaimDate&f=$claimFilter&u=$username&g=$gameID'>Claim Date</a></th>";
-            }
-
-            // Create the finished date text depending on which status' are filtered in
-            $dateText = 'Expiration / Completion / Drop';
-            if ($activeClaim && $completeClaim && !$droppedClaim) {
-                $dateText = 'Expiration / Completion';
-            } elseif ($activeClaim && !$completeClaim && $droppedClaim) {
-                $dateText = 'Expiration / Drop';
-            } elseif ($activeClaim && !$completeClaim && !$droppedClaim) {
-                $dateText = 'Expiration';
-            } elseif (!$activeClaim && $completeClaim && $droppedClaim) {
-                $dateText = 'Completion / Drop';
-            } elseif (!$activeClaim && $completeClaim && !$droppedClaim) {
-                $dateText = 'Completion';
-            } elseif (!$activeClaim && !$completeClaim && $droppedClaim) {
-                $dateText = 'Drop';
-            }
-            $dateText .= ' Date';
-
-            // Sortable Expiration Date header
-            if (($sortType % 10) == 9) {
-                if ($sortExpirationDate == 9) {
-                    echo "<th><b><a href='/claimlist.php?s=$sortExpirationDate&f=$claimFilter&u=$username&g=$gameID'>$dateText &#9650;</a></b></th>";
-                } else {
-                    echo "<th><b><a href='/claimlist.php?s=$sortExpirationDate&f=$claimFilter&u=$username&g=$gameID'>$dateText &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<th><a href='/claimlist.php?s=$sortExpirationDate&f=$claimFilter&u=$username&g=$gameID'>$dateText</a></th>";
-            }
+            // Sortable table headers
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::GameDescending), ClaimSorting::GameDescending, ClaimSorting::GameAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimTypeDescending), ClaimSorting::ClaimTypeDescending, ClaimSorting::ClaimTypeAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::SetTypeDescending), ClaimSorting::SetTypeDescending, ClaimSorting::SetTypeAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimStatusDescending), ClaimSorting::ClaimStatusDescending, ClaimSorting::ClaimStatusAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::SpecialDescending), ClaimSorting::SpecialDescending, ClaimSorting::SpecialAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimDateDescending), ClaimSorting::ClaimDateDescending, ClaimSorting::ClaimDateAscending);
+            echo $linkSorting(ClaimSorting::toString(ClaimSorting::FinishedDateDescending, $claimFilters), ClaimSorting::FinishedDateDescending, ClaimSorting::FinishedDateDescending);
 
             // Loop through the claims and display them in the table
             foreach ($claimData as $claim) {
@@ -306,36 +208,35 @@ RenderHeader($userDetails);
                 echo "<td>";
                 echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
                 echo "</td>";
-                echo "<td>" . ($claim['ClaimType'] == 0 ? "Primary" : "Collaboration") . "</td>";
-                echo "<td>" . ($claim['SetType'] == 0 ? "New" : "Revision") . "</td>";
+                echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
+                echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
                 echo "<td>";
                 switch ($claim['Status']) {
-                    case 0:
-                        echo "Active";
+                    case ClaimStatus::Active:
+                        echo ClaimStatus::toString(ClaimStatus::Active);
                         break;
-                    case 1:
-                        echo "Complete";
+                    case ClaimStatus::Complete:
+                        echo ClaimStatus::toString(ClaimStatus::Complete);
                         break;
-                    case 2:
-                        echo "Dropped";
+                    case ClaimStatus::Dropped:
+                        echo ClaimStatus::toString(ClaimStatus::Dropped);
                         break;
                     default:
-                        echo "Active";
+                        echo ClaimStatus::toString(ClaimStatus::Active);
                         break;
                 }
                 echo "</td>";
-                echo "<td>" . $claim['Special'] . "</td>";
+                echo "<td>" . ClaimSpecial::toString($claim['Special']) . "</td>";
                 echo "<td>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
                 echo "<td>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td></tr>";
             }
             echo "</tbody></table></div>";
 
-            // Add page traversal links
-            if (((int) $totalClaims) > $maxCount) {
-                echo "\n<br/><div class='rightalign row'>";
-                RenderPaginator($totalClaims, $maxCount, $offset, "/claimlist.php?s=$sortType&f=$claimFilter&u=$username&g=$gameID&o=");
-                echo "</div>";
-            }
+            echo "<div class='rightalign row'>";
+            $baseLink = $createLink(null, null);
+            $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
+            RenderPaginator($totalClaims, $maxCount, $offset, "${baseLink}o=");
+            echo "</div>";
         } else { // Show expiring claims
             echo "<h3>Expiring Claims</h3>";
 
@@ -366,13 +267,13 @@ RenderHeader($userDetails);
             }
 
             echo "<div class='table-wrapper'><table><tbody>";
-            echo "<th colspan='2'>User</th>";
-            echo "<th>Game</th>";
-            echo "<th>Claim Type</th>";
-            echo "<th>Set Type</th>";
-            echo "<th>Special</th>";
-            echo "<th>Claim Date</th>";
-            echo "<th><b>Expiration Date &#9660;</b></th>";
+            echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
+            echo "<th>" . ClaimSorting::toString(ClaimSorting::GameDescending) . "</th>";
+            echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
+            echo "<th>" . ClaimSorting::toString(ClaimSorting::SetTypeDescending) . "</th>";
+            echo "<th>" . ClaimSorting::toString(ClaimSorting::SpecialDescending) . "</th>";
+            echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimDateDescending) . "</th>";
+            echo "<th><b>" . ClaimSorting::toString(ClaimSorting::FinishedDateDescending) . " &#9660;</b></th>";
             echo "<th>Expiration Status</th>";
 
             // Loop through the claims and display them in the table
@@ -388,9 +289,9 @@ RenderHeader($userDetails);
                 echo "<td>";
                 echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
                 echo "</td>";
-                echo "<td>" . ($claim['ClaimType'] == 0 ? "Primary" : "Collaboration") . "</td>";
-                echo "<td>" . ($claim['SetType'] == 0 ? "New" : "Revision") . "</td>";
-                echo "<td>" . $claim['Special'] . "</td>";
+                echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
+                echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+                echo "<td>" . ClaimSpecial::toString($claim['Special']) . "</td>";
                 echo "<td>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
                 echo "<td>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
                 $minutesLeft = $claim['MinutesLeft'];
