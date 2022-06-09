@@ -408,12 +408,6 @@ function RenderFooter(): void
 
     echo "<footer id='footer'>";
 
-    echo "<label class='themeselect-wrapper'>";
-    RenderThemeSelector();
-    echo "</label>";
-
-    echo "<div style='clear:both;'></div>";
-
     echo "<div id='footer-flex'>";
 
     echo "<div>";
@@ -474,6 +468,12 @@ function RenderFooter(): void
     // echo "</p>";
 
     echo "</div>";
+
+    echo "<label class='themeselect-wrapper'>";
+    RenderThemeSelector();
+    echo "</label>";
+
+    echo "<div style='clear:both;'></div>";
 
     echo "</footer>";
 

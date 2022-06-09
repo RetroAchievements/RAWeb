@@ -217,9 +217,9 @@ a:hover {
 }
 
 .themeselect-wrapper {
-  float: right;
+  display: block;
   color: rgb(44, 151, 250);
-  margin-bottom: 25px;
+  margin-top: 25px;
 }
 
 .themeselect-wrapper #themeselect{
@@ -903,21 +903,25 @@ td, tr, img {
 
 .searchbox-top {
   float: right;
-  border-left: 10px solid #1a1a1a;
+  border-left: 15px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  width: 340px;
 }
 
 .searchbox-top .searchboxinput{
   border: none;
   padding: 10px;
-  background-color: #111111;
+  background-color: transparent;
   color: #FFF;
   height: 42px;
+  width: 100%;
   vertical-align: top;
 }
 
 .searchbox-top input[type="submit"]{
   border: none;
-  background-color: #111111;
+  background-color: transparent;
   color: #FFF;
   padding: 5px 15px;
   height: 42px;
@@ -970,7 +974,7 @@ td, tr, img {
 @media only screen and (max-width: 980px) {
   .searchbox-top {
     border-left: none;
-    border-top: 10px solid #1a1a1a;
+    border-top: 15px solid #1a1a1a;
     width: 100%;
     display: flex;
     justify-content: space-between;
