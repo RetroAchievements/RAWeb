@@ -1,4 +1,4 @@
 <?php
 
-const VERSION = '1.86.0';
+const VERSION = '1.88.0';
 const MIN_POINTS = 500;
