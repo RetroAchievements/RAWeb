@@ -227,7 +227,7 @@ if ($isFullyFeaturedGame) {
     $claimData = getClaimData($gameID, true);
     $claimListLength = count($claimData);
 
-    // Get the first entry returnd for the primary claim data
+    // Get the first entry returned for the primary claim data
     if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
         $primaryClaimUser = $claimData[0]['User'];
         $primaryClaimMinutesActive = $claimData[0]['MinutesActive'];

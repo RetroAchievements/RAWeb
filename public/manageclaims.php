@@ -107,7 +107,7 @@ RenderHeader($userDetails);
 
     var newDoneDate = $('#doneDate_' + claimID).val();
     if (newDoneDate != doneDate) {
-        comment += "Finished date: " + newDoneDate + ".";
+        comment += "End Date: " + newDoneDate + ".";
         somethingChanged = 1;
     }
 
@@ -155,7 +155,7 @@ RenderHeader($userDetails);
         echo "<b>" . ClaimSpecial::toString(ClaimSpecial::ScheduledRelease) . "</b> - Set approved for future release, does not take up a claim spot.</br>";
         echo "</br><u>Claim Date</u></br>";
         echo "Date the developer made the claim.</br>";
-        echo "</br><u>Expiration / Completion / Drop Date</u></br>";
+        echo "</br><u>End Date</u></br>";
         echo "Date the claim will expire, has been completed or was dropped depending on the claim status.</br>";
         echo "</div></br>";
 
@@ -166,7 +166,7 @@ RenderHeader($userDetails);
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimStatusDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::SpecialDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimDateDescending) . " &#9660;</th>";
-        echo "<th>Finished Date</th>";
+        echo "<th>End Date</th>";
         echo "<th>Update</th>";
 
         $userCount = 0;

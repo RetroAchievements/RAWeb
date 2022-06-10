@@ -203,12 +203,12 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
             $expiringClaims = getExpiringClaim($user);
             if ($expiringClaims["Expired"] > 0) {
                 echo "<br clear='left'/>";
-                echo "<a href='/claimlist.php?t=1&u=$user'>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
                 echo "<font color='red'>Claim Expired</font>";
                 echo "</a>";
             } elseif ($expiringClaims["Expiring"] > 0) {
                 echo "<br clear='left'/>";
-                echo "<a href='/claimlist.php?t=1&u=$user'>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
                 echo "<font color='red'>Claim Expiring Soon</font>";
                 echo "</a>";
             }
@@ -368,7 +368,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
-        echo "<li><a href='/claimlist.php?t=1'>Expiring Claims</a></li>";
+        echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         // Admin
