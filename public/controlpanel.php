@@ -144,22 +144,21 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         var gameID = $('#resetgameselector :selected').val();
         var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', g: gameID});
         posting.done(onResetComplete);
-        showStatusMessage('Updating...');
         $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
       }
     } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
       var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', a: achID, h: isHardcore});
       posting.done(onResetComplete);
-      showStatusMessage('Updating...');
       $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
     }
   }
 
   function onResetComplete(data) {
-    alert(data);
     if (data.substr(0, 2) !== 'OK') {
-      showStatusFailure('Error: ' + data);
+      alert(data);
+      //showStatusFailure('Error: ' + data);
+      $('#loadingiconreset').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
       return;
     }
     $('#loadingiconreset').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
@@ -475,13 +474,13 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             <?php
             echo "<table><tbody>";
             echo "<tr><td>Game:</td>";
-            echo "<td><select id='resetgameselector' onchange=\"ResetFetchAwarded()\" >";
+            echo "<td><select style='width: 400px' id='resetgameselector' onchange=\"ResetFetchAwarded()\" >";
             echo "<option value=''>--</option>";
             echo "</select></td></tr>";
 
             echo "<tr><td>Achievement:</td>";
             echo "<td><div id='resetachievementscontrol'>";
-            echo "<select id='resetachievementscontainer'></select>";    // Filled by JS
+            echo "<select style='width: 400px' id='resetachievementscontainer'></select>";    // Filled by JS
             echo "</div></td></tr>";
 
             echo "<tr><td></td><td><input value='Reset Progress for Selection' type='submit' onclick=\"ResetProgressForSelection()\" >";
