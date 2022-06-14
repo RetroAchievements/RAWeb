@@ -247,8 +247,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         <div class='detaillist'>
         <?php
             RenderStatusWidget(
-                message: ($permissions == Permissions::Unregistered) ? 
-                    "Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!" : null,
                 errorMessage: match ($errorCode) {
                     'baddata' => 'Errors changing your password. Please check and try again!',
                     'generalerror' => 'Errors changing your password. Please check and try again!',
@@ -268,6 +266,10 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     default => null,
                 }
             );
+
+            if ($permissions == Permissions::Unregistered) {
+                echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
+            }
         ?>
         <div class='component'>
             <h2>User Details</h2>

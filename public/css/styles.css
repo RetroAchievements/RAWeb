@@ -395,8 +395,6 @@ td, tr, img {
   margin-bottom: 4px;
   margin-top: 4px;
   color: #dd0000;
-  position: sticky;
-  top: 0;
   background: #292929;
   padding: 3px;
 }

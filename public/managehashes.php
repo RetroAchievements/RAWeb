@@ -46,14 +46,13 @@ RenderHtmlHead("Manage Game Hashes");
 <?php RenderHeader($userDetails); ?>
 <script>
 function UpdateHashDetails(user, hash) {
-    var $warning = $('#warning');
-    $warning.html('Status: updating...');
+    showStatusMessage('Updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
     var posting = $.post('/request/game/modify.php', { g: <?= $gameID ?>, f: <?= GameAction::UpdateHash ?>, v: hash, n: name, l: labels });
     posting.done(function (data) {
         if (data !== 'OK') {
-            $warning.html('Status: Errors...' + data);
+            showStatusFailure('Error: ' + data);
             return;
         }
 
@@ -63,7 +62,7 @@ function UpdateHashDetails(user, hash) {
 
         $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
 
-        $warning.html('Status: OK!');
+        showStatusSuccess('Succeeded');
     })
 }
 
@@ -71,12 +70,11 @@ function UnlinkHash(user, gameID, hash, elem) {
     if (confirm('Are you sure you want to unlink the hash ' + hash + '?') === false) {
         return;
     }
-    var $warning = $('#warning');
-    $warning.html('Status: updating...');
+    showStatusMessage('Updating...');
     var posting = $.post('/request/game/modify.php', { g: gameID, f: <?= GameAction::UnlinkHash ?>, v: hash });
     posting.done(function (data) {
         if (data !== 'OK') {
-            $warning.html('Status: Errors...' + data);
+            showStatusFailure('Error: ' + data);
             return;
         }
 
@@ -93,7 +91,7 @@ function UnlinkHash(user, gameID, hash, elem) {
 
         $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
 
-        $warning.html('Status: OK!');
+        showStatusSuccess('Succeeded');
     })
 }
 </script>
@@ -104,7 +102,8 @@ function UnlinkHash(user, gameID, hash, elem) {
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
 
-        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div><br>";
+        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
+        RenderStatusWidget();
 
         echo "<div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div><br>";
 
