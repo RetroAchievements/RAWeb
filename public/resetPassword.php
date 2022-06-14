@@ -26,12 +26,12 @@ RenderHtmlHead("Password Reset");
         echo "<h2 class='longheader'>Password Reset</h2>";
 
         RenderStatusWidget(
-            errorMessage: match($errorCode) {
+            errorMessage: match ($errorCode) {
                 'badnewpass' => 'Errors changing your password, passwords too short!',
                 'passinequal' => 'Errors changing your password, new passwords were not identical!',
                 default => null,
             },
-            successMessage: match($errorCode) {
+            successMessage: match ($errorCode) {
                 'changepassok' => 'Password changed OK!',
                 default => null,
             }

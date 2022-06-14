@@ -259,7 +259,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     'e_badcredentials' => 'Errors changing your email address, session invalid. Please log out and back in, and try again!',
                     default => null,
                 },
-                successMessage: match($errorCode) {
+                successMessage: match ($errorCode) {
                     'changepassok' => 'Password changed OK!',
                     'e_changeok' => 'Email address changed OK!',
                     default => null,

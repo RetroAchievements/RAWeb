@@ -26,7 +26,7 @@ function RenderErrorCodeWarning(?string $errorCode): void
         'subscription_update_fail' => "Failed to update topic subscription.",
         default => null,
     },
-    successMessage: match($errorCode) {
+    successMessage: match ($errorCode) {
         'changeok' => "Info: Change(s) made successfully!",
         'delete_ok' => "Info: Deleted OK!",
         'deleteok' => "Info: Message deleted OK!",
@@ -51,7 +51,7 @@ function RenderErrorCodeWarning(?string $errorCode): void
         'validatedemail' => "Email validated!",
         default => null,
     },
-    message: match($errorCode) {
+    message: match ($errorCode) {
         'checkyouremail' => "Please check your email for further instructions.",
         'notloggedin' => "Please log in.",
         'validateemailplease' => "An email has been sent to the email address you supplied. Please click the link in that email.",
