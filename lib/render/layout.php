@@ -510,7 +510,15 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
     }
 }
 
-function RenderStatusWidget()
+function RenderStatusWidget(?string $message = null, ?string $errorMessage = null, ?string $successMessage = null)
 {
-    echo "<div id='status' style='display: none'></div>";
+    if (!empty($errorMessage)) {
+        echo "<div id='status' class='failure'>$errorMessage</div>";
+    } elseif (!empty($successMessage)) {
+        echo "<div id='status' class='success'>$successMessage</div>";
+    } elseif (!empty($message)) {
+        echo "<div id='status'>$message</div>";
+    } else {
+        echo "<div id='status' style='display: none'></div>";
+    }
 }

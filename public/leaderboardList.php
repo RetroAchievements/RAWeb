@@ -98,7 +98,7 @@ RenderHtmlHead($pageTitle);
             showStatusSuccess('Succeeded');
         });
 
-        showStatusMessage('Status: updating...');
+        showStatusMessage('Updating...');
       }
     </script>
 <?php endif ?>

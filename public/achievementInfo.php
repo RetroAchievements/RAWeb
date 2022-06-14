@@ -91,21 +91,28 @@ RenderHtmlStart(true);
         var url = $('#embedurlinput').val();
         url = replaceAll('http', '_http_', url);
 
-        var posting = $.post('/request/achievement/update.php', {
-          u: '<?= $user ?>',
-          a: <?= $achievementID ?>,
-          f: 2,
-          v: url,
-        });
-        posting.done(function (data) {
-          if (data !== 'OK') {
-            $('#warning').html('Status: Errors...');
-          } else {
-            $('#warning').html('Status: Loading...');
-            window.location.reload();
+        showStatusMessage('Updating...');
+        $.ajax({
+          type: "POST",
+          url: '/request/achievement/update.php',
+          dataType: "json",
+          data: {
+            'u': '<?= $user ?>',
+            'a': <?= $achievementID ?>,
+            'f': 2,
+            'v': url
+          },
+          error: function (xhr, status, error) {
+            showStatusFailure('Error: ' + (error || 'unknown error'));
           }
-        });
-        $('#warning').html('Status: Updating...');
+        })
+          .done(function (data) {
+            if (!data.success) {
+              showStatusFailure('Error: ' + (data.error || 'unknown error'));
+              return;
+            }
+            document.location.reload();
+          });
       }
 
       function updateAchievementTypeFlag(typeFlag) {
@@ -113,6 +120,7 @@ RenderHtmlStart(true);
           return;
         }
 
+        showStatusMessage('Updating...');
         $.ajax({
           type: "POST",
           url: '/request/achievement/update.php',
@@ -124,12 +132,12 @@ RenderHtmlStart(true);
             'v': typeFlag
           },
           error: function (xhr, status, error) {
-            alert('Error: ' + (error || 'unknown error'));
+            showStatusFailure('Error: ' + (error || 'unknown error'));
           }
         })
           .done(function (data) {
             if (!data.success) {
-              alert('Error: ' + (data.error || 'unknown error'));
+              showStatusFailure('Error: ' + (data.error || 'unknown error'));
               return;
             }
             document.location.reload();
@@ -231,6 +239,7 @@ RenderHtmlStart(true);
             echo "<div id='devboxcontent' style='display: none'>";
 
             if ($permissions >= Permissions::Developer) {
+                RenderStatusWidget();
                 echo "<li>Set embedded video URL:</li>";
                 echo "<table><tbody>";
                 echo "<input type='hidden' name='a' value='$achievementID' />";

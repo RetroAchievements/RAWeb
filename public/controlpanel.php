@@ -88,10 +88,9 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
       var posting = $.post('/request/user/list-unlocks.php', {u: '<?= $user ?>', g: gameID});
       posting.done(function (data) {
         if (data.substr(0, 2) !== 'OK') {
-          $('#warning').html('Status: Errors...');
-          alert(data);
+          showStatusFailure('Error: ' + data);
         } else {
-          $('#warning').html('Status: OK...');
+          hideStatusMessage();
 
           var achList = data.substr(3);
           var achData = achList.split('::');
@@ -120,7 +119,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         }
       });
       $('#resetachievementscontainer').empty();
-      $('#warning').html('Status: Updating...');
+      showStatusMessage('Updating...');
     }
   }
 
@@ -145,21 +144,22 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         var gameID = $('#resetgameselector :selected').val();
         var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', g: gameID});
         posting.done(onResetComplete);
-        $('#warning').html('Status: Updating...');
+        showStatusMessage('Updating...');
         $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
       }
     } else if (achID > 0 && confirm('Reset achievement ' + achName + '?')) {
       // Particular achievement selected: reset just this achievement
       var posting = $.post('/request/user/reset-achievements.php', {u: '<?= $user ?>', a: achID, h: isHardcore});
       posting.done(onResetComplete);
-      $('#warning').html('Status: Updating...');
+      showStatusMessage('Updating...');
       $('#loadingiconreset').attr('src', '<?= asset('Images/loading.gif') ?>').fadeTo(100, 1.0);
     }
   }
 
   function onResetComplete(data) {
+    alert(data);
     if (data.substr(0, 2) !== 'OK') {
-      alert(data);
+      showStatusFailure('Error: ' + data);
       return;
     }
     $('#loadingiconreset').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
@@ -212,7 +212,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             var d = new Date();
             $('.userpic').attr('src', '/UserPic/<?= $user ?>' + '.png?' + d.getTime());
           } else {
-            alert('Upload failed!\n' + result.Error);
+            showStatusFailure('Upload failed: ' + result.Error);
           }
         });
     };
@@ -225,11 +225,11 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
     var newEmail = document.forms['updateEmail']['e'].value;
     var verifyEmail = document.forms['updateEmail']['f'].value;
     if (newEmail != verifyEmail) {
-      alert("New email addresses are not identical");
+      showStatusFailure("New email addresses are not identical");
       return false;
     }
     if (newEmail == oldEmail) {
-      alert("New email address is same as old email address");
+      showStatusFailure("New email address is same as old email address");
       return false;
     }
     <?php if ($permissions >= Permissions::Developer): ?>
@@ -244,7 +244,31 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
 <?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
-        <?php RenderErrorCodeWarning($errorCode); ?>
+        <div class='detaillist'>
+        <?php
+            RenderStatusWidget(
+                message: ($permissions == Permissions::Unregistered) ? 
+                    "Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!" : null,
+                errorMessage: match ($errorCode) {
+                    'baddata' => 'Errors changing your password. Please check and try again!',
+                    'generalerror' => 'Errors changing your password. Please check and try again!',
+                    'badnewpass' => 'Errors changing your password, passwords too short!',
+                    'passinequal' => 'Errors changing your password, new passwords were not identical!',
+                    'badpassold' => 'Errors changing your password, old password was incorrect!',
+                    'e_baddata' => 'Errors changing your email address. Please check and try again!',
+                    'e_generalerror' => 'Errors changing your email address. Please check and try again!',
+                    'e_badnewemail' => 'Errors changing your email address, the new email doesn\'t appear to be valid!',
+                    'e_notmatch' => 'Errors changing your email address, new emails were not identical!',
+                    'e_badcredentials' => 'Errors changing your email address, session invalid. Please log out and back in, and try again!',
+                    default => null,
+                },
+                successMessage: match($errorCode) {
+                    'changepassok' => 'Password changed OK!',
+                    'e_changeok' => 'Email address changed OK!',
+                    default => null,
+                }
+            );
+        ?>
         <div class='component'>
             <h2>User Details</h2>
             <div class="embedded d-flex justify-content-between">
@@ -258,9 +282,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                 <img class="userpic" src="/UserPic/<?= $user ?>.png" alt="<?= $user ?> avatar" width='96' height='96' />
             </div>
             <?php
-            if ($permissions == Permissions::Unregistered) {
-                echo "<div id='warning'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
-            }
             echo "<table><tbody>";
             if ($permissions >= Permissions::Registered) {
                 $userMottoString = !empty($userMotto) ? $userMotto : "";
@@ -392,27 +413,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         </div>
         <div class='component'>
             <h3>Change Password</h3>
-            <?php
-            if ($errorCode == 'baddata' || $errorCode == 'generalerror') {
-                echo "<div id=\"warning\">Info: Errors changing your password. Please check and try again!</div>";
-            } else {
-                if ($errorCode == 'badnewpass') {
-                    echo "<div id=\"warning\">Info: Errors changing your password, passwords too short!</div>";
-                } else {
-                    if ($errorCode == 'passinequal') {
-                        echo "<div id=\"warning\">Info: Errors changing your password, new passwords were not identical!</div>";
-                    } else {
-                        if ($errorCode == 'badpassold') {
-                            echo "<div id=\"warning\">Info: Errors changing your password, old password was incorrect!</div>";
-                        } else {
-                            if ($errorCode == 'changepassok') {
-                                echo "<div id=\"warning\">Info: Password changed OK!</div>";
-                            }
-                        }
-                    }
-                }
-            }
-            ?>
             <form method='post' action='/request/auth/update-password.php'>
                 <input type="hidden" name="u" value="<?= $user ?>">
                 <table>
@@ -439,26 +439,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         </div>
         <div class='component'>
             <h3>Change Email Address</h3>
-            <?php
-            switch ($errorCode) {
-                case 'e_baddata':
-                case 'e_generalerror':
-                    echo "<div id=\"warning\">Info: Errors changing your email address. Please check and try again!</div>";
-                    break;
-                case 'e_badnewemail':
-                    echo "<div id=\"warning\">Info: Errors changing your email address, the new email doesn't appear to be valid!</div>";
-                    break;
-                case 'e_notmatch':
-                    echo "<div id=\"warning\">Info: Errors changing your email address, new emails were not identical!</div>";
-                    break;
-                case 'e_badcredentials':
-                    echo "<div id=\"warning\">Info: Errors changing your email address, session invalid. Please log out and back in, and try again!</div>";
-                    break;
-                case 'e_changeok':
-                    echo "<div id=\"warning\">Info: Email address changed OK!</div>";
-                    break;
-            }
-            ?>
             <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return validateEmail()'>
                 <table>
                     <tbody>
@@ -540,6 +520,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     <input type="submit" value="Request account deletion">
                 </form>
             <?php endif ?>
+        </div>
         </div>
     </div>
     <?php if ($permissions >= Permissions::Registered): ?>

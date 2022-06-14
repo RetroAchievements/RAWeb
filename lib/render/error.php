@@ -47,8 +47,5 @@ function RenderErrorCodeWarning(?string $errorCode): void
         'validateemailplease' => "An email has been sent to the email address you supplied. Please click the link in that email.",
     ];
     $message = $errorMessages[mb_strtolower($errorCode)] ?? null;
-    if (!$message) {
-        return;
-    }
-    echo "<div id='warning'>$message</div>";
+    RenderStatusWidget($message);
 }

@@ -417,6 +417,10 @@ function showStatusFailure(message) {
   $('#status').html(message);
 }
 
+function hideStatusMessage() {
+  $('#status').hide();
+}
+
 function ResetTheme() {
   // Unload all themes...
   var allLinks = document.getElementsByTagName('link');
