@@ -399,6 +399,24 @@ function removeComment(artTypeID, artID, commentID) {
   return true;
 }
 
+function showStatusMessage(message) {
+  $('#status').removeClass('success');
+  $('#status').removeClass('failure');
+  $('#status').show();
+  $('#status').html(message);
+}
+
+function showStatusSuccess(message) {
+  $('#status').addClass('success');
+  $('#status').html(message);
+  $('#status').delay(2000).fadeOut();
+}
+
+function showStatusFailure(message) {
+  $('#status').addClass('failure');
+  $('#status').html(message);
+}
+
 function ResetTheme() {
   // Unload all themes...
   var allLinks = document.getElementsByTagName('link');

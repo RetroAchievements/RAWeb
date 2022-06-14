@@ -509,3 +509,8 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
         echo "&nbsp;<a title='Last' href='$urlPrefix$lastOffset'>&#x226B;</a>";
     }
 }
+
+function RenderStatusWidget()
+{
+    echo "<div id='status' style='display: none'></div>";
+}
