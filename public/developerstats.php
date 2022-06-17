@@ -34,15 +34,15 @@ RenderHeader($userDetails);
         echo "<div>";
         echo "<b>Developer Status:</b> ";
         if ($activeDev) {
-            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 0)) . "'>*" . PermissionsToString(Permissions::Developer) . "</a></b> | ";
+            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 0)) . "'>*" . Permissions::toString(Permissions::Developer) . "</a></b> | ";
         } else {
-            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 0)) . "'>" . PermissionsToString(Permissions::Developer) . "</a> | ";
+            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 0)) . "'>" . Permissions::toString(Permissions::Developer) . "</a> | ";
         }
 
         if ($juniorDev) {
-            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 1)) . "'>*" . PermissionsToString(Permissions::JuniorDeveloper) . "</a></b> | ";
+            echo "<b><a href='/developerstats.php?t=$type&f=" . ($devFilter & ~(1 << 1)) . "'>*" . Permissions::toString(Permissions::JuniorDeveloper) . "</a></b> | ";
         } else {
-            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 1)) . "'>" . PermissionsToString(Permissions::JuniorDeveloper) . "</a> | ";
+            echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 1)) . "'>" . Permissions::toString(Permissions::JuniorDeveloper) . "</a> | ";
         }
 
         if ($inactiveDev) {
@@ -89,7 +89,7 @@ RenderHeader($userDetails);
             echo GetUserAndTooltipDiv($dev, false);
             echo "<br><small>";
             if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
-                echo PermissionsToString(Permissions::JuniorDeveloper);
+                echo Permissions::toString(Permissions::JuniorDeveloper);
             } elseif ($devStats['Permissions'] <= Permissions::JuniorDeveloper) {
                 echo "Inactive";
             }

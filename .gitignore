@@ -21,7 +21,6 @@ nbproject
 .php_cs.cache
 .php-cs-fixer.cache
 .phpunit.result.cache
-test*.php
 
 /public/Badge
 /public/Images

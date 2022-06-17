@@ -2,7 +2,6 @@
 
 namespace Test;
 
-use PHPUnit\Framework\TestCase;
 use RA\Shortcode;
 
 final class ShortcodeTest extends TestCase
@@ -25,7 +24,7 @@ final class ShortcodeTest extends TestCase
         );
 
         $this->assertSame(
-            '<a href="http://example.com" target="_blank" rel="noopener">http://example.com</a>.',
+            '<a href="http://example.com">http://example.com</a>.',
             Shortcode::render('http://example.com.')
         );
 
