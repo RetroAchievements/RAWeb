@@ -1,0 +1,127 @@
+:root {
+  --footer-height-md: 320px;
+  --footer-height-lg: 350px;
+  --news-teaser-height: 200px;
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  position: relative;
+}
+
+@media screen(md) {
+  body.with-footer {
+    padding-bottom: calc(var(--footer-height-md));
+  }
+}
+
+@media screen(lg) {
+  body.with-footer {
+    padding-bottom: calc(var(--footer-height-lg));
+  }
+}
+
+/*@media screen(md) {
+  body.with-footer.with-news {
+    padding-bottom: calc(var(--footer-height-md) + var(--news-teaser-height));
+  }
+}
+
+@media screen(lg) {
+  body.with-footer.with-news {
+    padding-bottom: calc(var(--footer-height-lg) + var(--news-teaser-height));
+  }
+}*/
+
+body:not([wide]) .container {
+  max-width: theme('screens.lg');
+}
+
+.brand-top h1 {
+  color: inherit;
+  font-size: 45px;
+  border: none;
+}
+
+.brand-top .description {
+  font-size: 12.5px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+}
+
+.brand-top .logo-container a {
+  display: inline-block;
+}
+
+.brand-top .logo {
+  max-height: 83px;
+}
+
+.brand-top .logo .logo-legacy {
+  width: 100%;
+  max-width: 500px;
+}
+
+.brand-top .logo:not(.logo-legacy-lg) {
+  max-width: 500px;
+}
+
+section {
+  position: relative;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+footer {
+  padding-bottom: 30px;
+  letter-spacing: 0.3px;
+}
+
+@media screen(md) {
+  footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--footer-height-md);
+  }
+
+  /*.with-news footer {
+    height: var(--footer-height-md) + var(--news-teaser-height);
+  }*/
+}
+
+@media screen(lg) {
+  footer {
+    height: var(--footer-height-lg);
+  }
+
+  /*.with-news footer {
+    height: var(--footer-height-lg) + var(--news-teaser-height);
+  }*/
+}
+
+.background {
+  position: absolute;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.background-texture {
+  opacity: 0.2;
+}

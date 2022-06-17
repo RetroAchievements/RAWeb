@@ -1,13 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+use Illuminate\Support\Facades\Validator;
 
-if (!ValidatePOSTChars("u")) {
-    header("Location: " . getenv('APP_URL') . "/index.php?e=baddata");
-    exit;
-}
+$input = Validator::validate(request()->post(), [
+    'username' => 'required',
+]);
 
-$user = requestInputPost('u');
-RequestPasswordReset($user);
-header("Location: " . getenv('APP_URL') . "/index.php?e=checkyouremail");
+RequestPasswordReset($input['username']);
+
+return back()->with('message', __('legacy.email_check'));

@@ -12,8 +12,8 @@ function UploadToS3(string $filenameSrc, string $filenameDest): void
     }
 
     // allow using minio locally
-    $usingMinio = !empty(getenv('FORWARD_MINIO_PORT')) && str_contains(getenv('ASSET_URL'), getenv('FORWARD_MINIO_PORT'));
-    if (getenv('APP_ENV') === 'local' && !$usingMinio) {
+    $usingMinio = !empty(env('FORWARD_MINIO_PORT')) && str_contains(env('ASSET_URL'), env('FORWARD_MINIO_PORT'));
+    if (app()->environment('local') && !$usingMinio) {
         return;
     }
 
@@ -245,7 +245,7 @@ function UploadAvatar(string $user, string $base64ImageData): void
     }
 
     // touch user entry
-    global $db;
+    $db = getMysqliConnection();
     mysqli_query($db, "UPDATE UserAccounts SET Updated=NOW() WHERE User='$user'");
 }
 
@@ -254,11 +254,6 @@ function removeAvatar(string $user): void
     $avatarFile = public_path('UserPic/' . $user . '.png');
     if (file_exists($avatarFile)) {
         unlink($avatarFile);
-    }
-    if (!filter_var(getenv('RA_AVATAR_FALLBACK'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
-        // replace avatar with default/fallback avatar
-        $defaultAvatarFile = public_path('UserPic/_User.png');
-        copy($defaultAvatarFile, $avatarFile);
     }
 }
 

@@ -24,10 +24,10 @@ function GetGameAndTooltipDiv(
         $consoleStr = "($consoleName)";
     }
 
-    $gameIcon = $gameIcon != null ? $gameIcon : "/Images/PlayingIcon32.png";
+    $gameIcon = $gameIcon != null ? $gameIcon : "assets/images/activity/playing.webp";
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . asset($gameIcon) . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . media_asset($gameIcon) . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleStr;
@@ -38,11 +38,11 @@ function GetGameAndTooltipDiv(
     $displayable = "";
 
     if (!$justText) {
-        $displayable = "<img loading='lazy' alt='' title=\"$gameNameEscaped\" src='" . asset($gameIcon) . "' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg' />";
+        $displayable = "<img loading='lazy' alt=\"$gameNameEscaped\" src='" . media_asset($gameIcon) . "' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg'>";
     }
 
     if (!$justImage) {
-        $displayable .= "$gameName $consoleStr";
+        $displayable .= " $gameName $consoleStr";
     }
 
     return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
@@ -237,7 +237,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
 function RenderRecentGamePlayers($recentPlayerData): void
 {
     echo "<div class='component'>Recent Players:";
-    echo "<table class='smalltable'><tbody>";
+    echo "<table><tbody>";
     echo "<tr><th>User</th><th>When</th><th>Activity</th>";
 
     foreach ($recentPlayerData as $recentPlayer) {

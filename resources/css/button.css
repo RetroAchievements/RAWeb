@@ -1,0 +1,87 @@
+.btn, button, [type="button"], [type="reset"], [type="submit"] {
+  background-color: var(--embed-color);
+  /*color: var(--link-color);*/
+  /*border: 1px solid var(--link-color);*/
+  color: var(--menu-link-color);
+  border: 1px solid var(--menu-link-color);
+  cursor: pointer;
+  line-height: 1em;
+  padding: 0.4em 0.6em;
+  border-radius: 4px;
+  display: inline-block;
+  letter-spacing: 0.25px;
+}
+.btn:hover, button:hover, [type="button"]:hover, [type="reset"]:hover, [type="submit"]:hover {
+  color: var(--menu-link-hover-color);
+  border: 1px solid var(--menu-link-color);
+}
+
+.btn-theme {
+  color: var(--link-color);
+  border-color: var(--link-color);
+}
+.btn-theme:hover {
+  color: var(--link-hover-color);
+  border-color: var(--link-hover-color);
+}
+
+.btn-borderless {
+  border-color: transparent;
+}
+.btn-borderless:hover {
+  border-color: transparent;
+}
+
+.btn-link {
+  color: var(--link-color);
+  border-color: transparent;
+}
+.btn-link:hover {
+  color: var(--link-hover-color);
+  border-color: transparent;
+}
+
+.btn-primary {
+  color: theme('colors.blue.500');
+  border-color: theme('colors.blue.500');
+}
+[data-theme=""] .btn-primary,
+[data-theme="blue"] .btn-primary {
+  color: theme('colors.green.500');
+  border-color: theme('colors.green.500');
+}
+[data-theme=""] .btn-primary:hover,
+[data-theme="blue"] .btn-primary:hover {
+  color: var(--menu-link-hover-color);
+  border: 1px solid var(--menu-link-color);
+}
+
+.btn-warning {
+  color: theme('colors.orange.500');
+  border-color: theme('colors.orange.500');
+}
+[data-theme="orange"] .btn-warning {
+  color: theme('colors.fuchsia.500');
+  border-color: theme('colors.fuchsia.500');
+}
+[data-theme="orange"] .btn-warning:hover {
+  color: var(--menu-link-hover-color);
+  border: 1px solid var(--menu-link-color);
+}
+
+.btn-danger {
+  color: theme('colors.red.500');
+  border-color: theme('colors.red.500');
+}
+[data-theme="red"] .btn-danger {
+  color: theme('colors.fuchsia.500');
+  border-color: theme('colors.fuchsia.500');
+}
+[data-theme="red"] .btn-danger:hover {
+  color: var(--menu-link-hover-color);
+  border: 1px solid var(--menu-link-color);
+}
+
+.btn .icon {
+  font-size: 0.75em;
+}

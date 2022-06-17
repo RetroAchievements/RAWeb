@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+use App\Legacy\Models\News;
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 
@@ -23,43 +22,42 @@ $xmlRoot->appendChild($xmlns);
 
 $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org news feed'));
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
-$xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
+$xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
-$numNews = getLatestNewsHeaders(0, 20, $newsData);
+$newsData = News::orderByDesc('ID')->take(20)->get();
 
-for ($i = 0; $i < $numNews; $i++) {
+foreach ($newsData as $news) {
     $article = $dom->createElement("item");
     $article = $xmlRoot->appendChild($article);
 
-    $newsID = $newsData[$i]['ID'];
-    $newsDate = date("D, d M Y H:i:s O", $newsData[$i]['TimePosted']);
-    $newsImage = $newsData[$i]['Image'];
-    $newsAuthor = $newsData[$i]['Author'];
-    $newsLink = getenv('APP_URL');
-    $newsTitle = "<![CDATA[" . htmlspecialchars($newsData[$i]['Title']) . "]]>";
+    $newsID = $news['ID'];
+    $newsDate = date("D, d M Y H:i:s O", $news['TimePosted']);
+    $newsImage = $news['Image'];
+    $newsAuthor = $news['Author'];
+    $newsLink = config('app.url');
+    $newsTitle = "<![CDATA[" . htmlspecialchars($news['Title']) . "]]>";
 
     // Image first?
     $payload = "<a href='$newsLink'><img style='padding: 5px;' src='$newsImage' /></a>";
     $payload .= "<br>\r\n";
-    $payload .= $newsData[$i]['Payload'];
+    $payload .= $news['Payload'];
 
     $newsPayload = "<![CDATA[" . htmlspecialchars($payload) . "]]>";
 
     // $newsPayload contains relative URLs, which need converting to absolute URLs
-    $newsPayload = str_replace("href='/", "href='" . getenv('APP_URL') . "/", $newsPayload);
-    $newsPayload = str_replace("href=\"/", "href=\"" . getenv('APP_URL') . "/", $newsPayload);
-    $newsPayload = str_replace("src='/", "src='" . getenv('APP_URL') . "/", $newsPayload);
-    $newsPayload = str_replace("src=\"/", "src=\"" . getenv('APP_URL') . "/", $newsPayload);
+    $newsPayload = str_replace("href='/", "href='" . config('app.url') . "/", $newsPayload);
+    $newsPayload = str_replace("href=\"/", "href=\"" . config('app.url') . "/", $newsPayload);
+    $newsPayload = str_replace("src='/", "src='" . config('app.url') . "/", $newsPayload);
+    $newsPayload = str_replace("src=\"/", "src=\"" . config('app.url') . "/", $newsPayload);
 
     // Strip tags from title (incl html markup :S)
     // ?!
 
-    $article->appendChild($dom->createElement('title', $newsTitle));
+    $article->appendChild($dom->createElement('title', htmlentities($newsTitle)));
     $article->appendChild($dom->createElement('link', $newsLink));
-    $article->appendChild($dom->createElement('description', $newsPayload));
+    $article->appendChild($dom->createElement('description', htmlentities($newsPayload)));
     $article->appendChild($dom->createElement('pubDate', $newsDate));
     // $article->appendChild( $dom->createElement( 'id', $newsID ) );
 }
 
-header('Content-type: text/xml');
-echo html_entity_decode($dom->saveXML());
+return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);

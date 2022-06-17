@@ -2,9 +2,6 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 $sortBy = requestInputQuery('s', null, 'integer');
 $offset = requestInputQuery('o', null, 'integer');
 $maxCount = 25;
@@ -30,12 +27,8 @@ if ($perms >= Permissions::Spam && $perms <= Permissions::Admin) {
     $permissionName = "Untracked";
 }
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Users");
+RenderContentStart("Users");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
@@ -51,10 +44,10 @@ RenderHtmlHead("Users");
 
         echo "</b></div>";
 
-        echo "<div class='largelist'>";
+        echo "<div>";
         echo "<h2 class='longheader'>User List:</h2>";
 
-        echo "<p>Filter: ";
+        echo "<p class='embedded'>Filter: ";
 
         $permLinks = [];
         foreach (Permissions::ValidUserPermissions as $i) {
@@ -68,7 +61,7 @@ RenderHtmlHead("Users");
         echo "</p>";
 
         if (isset($user) && $permissions >= Permissions::Admin) {
-            echo "<p>";
+            echo "<p class='embedded'>";
             echo "Filters for admins (always includes Untracked users):<br>";
             if ($permissionName == "Untracked") {
                 echo "<b>All Untracked users</b>";
@@ -158,6 +151,4 @@ RenderHtmlHead("Users");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

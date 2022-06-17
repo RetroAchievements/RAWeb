@@ -1,20 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+use Illuminate\Support\Facades\Validator;
 
-if (!validateGetChars("v")) {
-    echo "FAILED";
-    exit;
+$input = Validator::validate(request()->query(), [
+    'v' => 'required',
+], customAttributes: [
+    'v' => 'token',
+]);
+
+if (validateEmailVerificationToken($input['v'], $user)) {
+    redirect(route('home'))->with('success', __('legacy.success.email_validate'));
 }
 
-$eCookie = requestInputSanitized('v');
-
-if (validateEmailVerificationToken($eCookie, $user)) {
-    // Valid!
-    generateCookie($user);
-    header("Location: " . getenv('APP_URL') . "/?e=validatedEmail");
-} else {
-    // Not valid!
-    echo "Could not validate account!<br>";
-}
+return redirect(route('home'))->withErrors(__('legacy.error.token'));

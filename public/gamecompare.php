@@ -2,16 +2,12 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
+    abort(401);
+}
 
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
-
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
-}
 
 $totalFriends = getAllFriendsProgress($user, $gameID, $friendScores);
 
@@ -22,8 +18,6 @@ $consoleName = $gameData['ConsoleName'];
 $gameTitle = $gameData['Title'];
 
 $gameIcon = $gameData['ImageIcon'];
-
-$errorCode = requestInputSanitized('e');
 
 $gamesPlayedWithAchievements = [];
 $numGamesPlayedWithAchievements = 0;
@@ -65,11 +59,8 @@ sanitize_outputs(
     $user,
 );
 
-RenderHtmlStart();
-RenderHtmlHead("Game Compare");
+RenderContentStart("Game Compare");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <div id="gamecompare">
@@ -91,6 +82,7 @@ RenderHtmlHead("Game Compare");
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
 
             echo "<form method=get action='/gamecompare.php'>";
+            echo csrf_field();
             echo "<input type='hidden' name='f' value='$user2'>";
             echo "<select name='ID'>";
             foreach ($gamesPlayedWithAchievements as $nextGameID => $nextGameTitle) {
@@ -107,7 +99,7 @@ RenderHtmlHead("Game Compare");
 
             $iconSize = 48;
 
-            echo "<table class='smalltable gamecompare'><tbody>";
+            echo "<table><tbody>";
             echo "<tr>";
 
             echo "<th>";
@@ -186,7 +178,7 @@ RenderHtmlHead("Game Compare");
                 echo "</td>";
 
                 echo "<td class='comparecenter'>";
-                echo "<p>";
+                echo "<p class='embedded'>";
                 echo "<a href=\"Achievement/$achID\"><strong>$achTitle</strong></a><br>";
                 echo "$achDesc<br>";
                 echo "($achPoints Points)";
@@ -214,7 +206,7 @@ RenderHtmlHead("Game Compare");
                     }
                 } else {
                     echo "<div style='float:right;' >";
-                    echo "<img class='awardremote' src='" . asset("Badge/$badgeName" . '_lock.png') . "' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
+                    echo "<img class='awardremote' src='" . media_asset("Badge/$badgeName" . '_lock.png') . "' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
                     echo "</div>";
                 }
                 echo "</td>";
@@ -279,6 +271,4 @@ RenderHtmlHead("Game Compare");
         <?php RenderGameCompare($user, $gameID, $friendScores, $totalPossible); ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Legacy\Models\User;
 use RA\ActivityType;
 use RA\Permissions;
 
@@ -76,10 +77,8 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
         $response['Success'] = true;
         $response['User'] = $user;
         $response['Token'] = $token;
-        $response['Score'] = $data['RAPoints'];
-        $response['SoftcoreScore'] = $data['RASoftcorePoints'];
-        settype($response['Score'], "integer");
-        settype($response['SoftcoreScore'], "integer");
+        $response['Score'] = (int) $data['RAPoints'];
+        $response['SoftcoreScore'] = (int) $data['RASoftcorePoints'];
         $response['Messages'] = GetMessageCount($user, $totalMessageCount);
         $response['Permissions'] = (int) $data['Permissions'];
         $response['AccountType'] = Permissions::toString($response['Permissions']);
@@ -103,7 +102,7 @@ function authenticateFromPassword(&$user, $pass): bool
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT User, Password, SaltedPass, cookie, Permissions FROM UserAccounts WHERE User='$user'";
+    $query = "SELECT ID, User, Password, SaltedPass, cookie, Permissions FROM UserAccounts WHERE User='$user'";
     $result = s_mysql_query($query);
     if (!$result) {
         return false;
@@ -118,7 +117,7 @@ function authenticateFromPassword(&$user, $pass): bool
     $hashedPassword = $row['Password'];
 
     if (mb_strlen($row['SaltedPass']) === 32) {
-        $pepperedPassword = md5($pass . getenv('RA_PASSWORD_SALT'));
+        $pepperedPassword = md5($pass . env('RA_PASSWORD_SALT'));
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
@@ -128,6 +127,8 @@ function authenticateFromPassword(&$user, $pass): bool
     if (!password_verify($pass, $hashedPassword)) {
         return false;
     }
+
+    auth()->loginUsingId($row['ID']);
 
     $user = $row['User'];
 
@@ -173,102 +174,45 @@ function migratePassword($user, $pass): string
 function authenticateFromCookie(
     ?string &$userOut,
     ?int &$permissionsOut,
-    ?array &$userDetailsOut,
+    ?array &$userDetailsOut = null,
     ?int $minPermissions = null
 ): bool {
     $userOut = null;
     $permissionsOut = Permissions::Unregistered;
 
-    // RA_User cookie no longer used, clear it out for security purposes
-    if (cookieExists('RA_User')) {
-        clearCookie('RA_User');
+    // remove legacy cookies
+    cookie()->forget('RA_User');
+    cookie()->forget('RA_Cookie');
+    cookie()->forget('RAPrefs_CSS');
+
+    /** @var ?User $user */
+    $user = auth()->user();
+
+    if (!$user) {
+        return false;
     }
 
-    $cookie = readCookie('RA_Cookie');
-    if ($userDetailsOut = getAccountDetailsFromCookie($cookie)) {
-        $userOut = $userDetailsOut['User'];
-        $permissionsOut = (int) $userDetailsOut['Permissions'];
+    $userDetailsOut = $user->toArray();
+    $userOut = $user->getAttribute('User');
+    $permissionsOut = $user->getAttribute('Permissions');
 
-        if ($permissionsOut !== Permissions::Banned) {
-            // valid active account. update the last activity timestamp
-            userActivityPing($userOut);
-
-            // validate permissions for the current page if required
-            if (isset($minPermissions)) {
-                return $permissionsOut >= $minPermissions;
-            }
-
-            // return true meaning 'logged in'
-            return true;
-        }
+    if ($permissionsOut === Permissions::Banned) {
+        return false;
     }
 
-    // invalid credentials, clear the cookies and return failure
-    clearCookie('RA_Cookie');
+    // valid active account. update the last activity timestamp
+    userActivityPing($userOut);
 
-    $userDetailsOut = null;
-    return false;
-}
-
-function getAccountDetailsFromCookie(?string $cookie): ?array
-{
-    if (empty($cookie)) {
-        return null;
-    }
-
-    sanitize_sql_inputs($cookie);
-
-    // ID, User, and Permissions are used to identify the user and their permissions
-    // DeleteRequested is used to show the "Your account is marked to be deleted" banner
-    // RAPoints, TrueRAPoints, and UnreadMessageCount are used for the logged-in user area
-    // websitePrefs allows pages to enable/disable functionality
-    $query = "SELECT ID, User, Permissions, DeleteRequested,
-                     RAPoints, TrueRAPoints, RASoftcorePoints, UnreadMessageCount,
-                     websitePrefs
-                FROM UserAccounts
-                WHERE cookie='$cookie'
-                AND Deleted IS NULL";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
-        return null;
-    }
-
-    return mysqli_fetch_array($dbResult) ?: null;
-}
-
-function generateCookie($user): ?string
-{
-    if (empty($user)) {
-        return null;
-    }
-
-    sanitize_sql_inputs($user);
-
-    // while unlikely, it is imperative that this value is unique
-    do {
-        $cookie = rand_string(96);
-
-        $query = "UPDATE UserAccounts SET cookie='$cookie', Updated=NOW() WHERE User='$user'";
-        $result = s_mysql_query($query);
-        if ($result === false) {
-            return null;
+    // validate permissions for the current page if required
+    if (isset($minPermissions) && $permissionsOut < $minPermissions) {
+        if (request()->wantsJson()) {
+            abort(403);
         }
 
-        $query = "SELECT count(*) AS Count FROM UserAccounts WHERE cookie='$cookie'";
-        $result = s_mysql_query($query);
-        if ($result === false) {
-            return null;
-        }
+        return false;
+    }
 
-        $row = mysqli_fetch_array($result);
-    } while ($row['Count'] > 1);
-
-    $expDays = 7;
-    $expiry = time() + 60 * 60 * 24 * $expDays;
-    applyCookie('RA_Cookie', $cookie, $expiry, true);
-
-    return $cookie;
+    return true;
 }
 
 /*
@@ -292,21 +236,17 @@ function authenticateFromAppToken(
 
     sanitize_sql_inputs($userOut);
 
-    $query = "SELECT ua.User, ua.appToken, ua.RAPoints, ua.UnreadMessageCount, ua.TrueRAPoints, ua.Permissions
-              FROM UserAccounts AS ua
-              WHERE User='$userOut'";
-    $result = s_mysql_query($query);
-    if ($result) {
-        $row = mysqli_fetch_array($result);
-        $permissionOut = (int) $row['Permissions'];
-        if ($row['appToken'] === $token) {
-            $userOut = $row['User']; // Case correction
+    /** @var ?User $user */
+    $user = auth('connect-token-legacy')->user();
 
-            return true;
-        }
+    if (!$user) {
+        return false;
     }
 
-    return false;
+    $userOut = $user->getAttribute('User');
+    $permissionOut = $user->getAttribute('Permissions');
+
+    return true;
 }
 
 function generateAppToken($user, &$tokenOut): bool
@@ -332,6 +272,7 @@ function generateAppToken($user, &$tokenOut): bool
 
 /*
  * WEB API Key
+ * TODO replace with passport personal token
  */
 
 function generateAPIKey($user): string
@@ -379,41 +320,4 @@ function GetAPIKey($user): ?string
 
         return $db_entry['APIKey'];
     }
-}
-
-function LogSuccessfulAPIAccess($user): void
-{
-    sanitize_sql_inputs($user);
-
-    $query = "UPDATE UserAccounts AS ua
-              SET ua.APIUses=ua.APIUses+1
-              WHERE ua.User = '$user' ";
-
-    s_mysql_query($query);
-}
-
-function ValidateAPIKey($user, $key): bool
-{
-    sanitize_sql_inputs($user, $key);
-
-    if (mb_strlen($key) < 20 || !isValidUsername($user)) {
-        return false;
-    }
-
-    $query = "SELECT COUNT(*)
-              FROM UserAccounts AS ua
-              WHERE ua.User = '$user' AND ua.Permissions >= 1 AND ua.APIKey = '$key' ";
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        // errors validating API Key for $user (given: $key)
-        return false;
-    }
-
-    LogSuccessfulAPIAccess($user);
-
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return $data['COUNT(*)'] != 0;
 }

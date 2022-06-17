@@ -4,7 +4,13 @@ var ActivePlayersViewModel = function () {
   this.hasError = ko.observable(false);
   this.lastUpdate = ko.observable(new Date());
   this.shouldMenuBeVisible = ko.observable(false);
-  this.playerFilterText = ko.observable(localStorage.getItem('filterString') || '').extend({ rateLimit: { timeout: 300, method: 'notifyWhenChangesStop' } });
+  this.playerFilterText = ko.observable(localStorage.getItem('filterString') || '')
+    .extend({
+      rateLimit: {
+        timeout: 300,
+        method: 'notifyWhenChangesStop'
+      }
+    });
   this.isLoading = ko.observable(false);
   this.rememberFiltersValue = ko.observable(localStorage.getItem('rememberFilters'));
 
@@ -79,25 +85,20 @@ var ActivePlayersViewModel = function () {
 
   this.RefreshActivePlayers = function () {
     self.isLoading(true);
-    $.ajax({
-      url: '/request/user/list-currently-active.php',
-      method: 'GET',
-      success: function (data) {
+    $.post('/request/user/list-currently-active.php')
+      .done(function (data) {
         self.players([]);
         data.forEach((player) => {
           self.players.push(self.ConvertToObservablePlayer(player));
         });
-
         self.lastUpdate(new Date());
         self.hasError(false);
-      },
-      error: function () {
-        self.hasError(true);
-      },
-      complete: function () {
         self.isLoading(false);
-      }
-    });
+      })
+      .fail(function () {
+        self.hasError(true);
+        self.isLoading(false);
+      });
   };
 
   this.RefreshActivePlayers();

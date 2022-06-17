@@ -11,31 +11,18 @@ use RA\RankType;
 use RA\UserAction;
 use RA\UserRelationship;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-$userPage = requestInputSanitized('ID');
-if ($userPage == null || mb_strlen($userPage) == 0) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
-}
-
-if (ctype_alnum($userPage) == false) {
-    // NB. this is triggering for odd reasons? Why would a non-user hit this page?
-    header("Location: " . getenv('APP_URL'));
-    exit;
+$userPage = request('user');
+if (empty($userPage) || !ctype_alnum($userPage)) {
+    abort(404);
 }
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-// Get general info
 getUserPageInfo($userPage, $userMassData, $maxNumGamesToFetch, 0, $user);
-if (!$userMassData) {
-    http_response_code(404);
-    echo "User not found";
-    exit;
+if (empty($userMassData)) {
+    abort(404);
 }
 
 $userMotto = $userMassData['Motto'];
@@ -106,8 +93,6 @@ sanitize_outputs(
     $userMassData['RichPresenceMsg']
 );
 
-$errorCode = requestInputSanitized('e');
-
 $pageTitle = "$userPage";
 
 $daysRecentProgressToShow = 14; // fortnight
@@ -143,21 +128,14 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
 //
 // $numScoreDataElements++;
 
-RenderHtmlStart(true);
-?>
-<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader(); ?>
-    <?php RenderOpenGraphMetadata(
+RenderOpenGraphMetadata(
     $userPage,
     "user",
     "/UserPic/$userPage" . ".png",
     "/user/$userPage",
-    "User page for $userPage"
-); ?>
-    <?php RenderTitleTag($pageTitle); ?>
-</head>
-<body>
-<?php RenderHeader($userDetails); ?>
+    "$userPage Profile"
+);
+?>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
@@ -221,15 +199,13 @@ RenderHtmlStart(true);
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
-        RenderErrorCodeWarning($errorCode);
-
         echo "<div class='navpath'>";
         echo "<a href='/userList.php'>All Users</a>";
         echo " &raquo; <b>$userPage</b>";
         echo "</div>";
 
         echo "<div class='usersummary'>";
-        echo "<h3 class='longheader' >$userPage's User Page</h3>";
+        echo "<h3 class='longheader' >$userPage</h3>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
@@ -362,7 +338,7 @@ RenderHtmlStart(true);
         }
 
         // Display the users active claims
-        if (isset($userClaimData) && count($userClaimData) > 0) {
+        if (isset($userClaimData) && (is_countable($userClaimData) ? count($userClaimData) : 0) > 0) {
             echo "<b>$userPage's</b> current claims:</br>";
             foreach ($userClaimData as $claim) {
                 $details = "";
@@ -383,7 +359,7 @@ RenderHtmlStart(true);
         echo "</div>"; // usersummary
 
         if (isset($user) && $permissions >= Permissions::Admin) {
-            echo "<div class='devbox'>";
+            echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br>";
             echo "<div id='devboxcontent' style='display: none'>";
 
@@ -392,12 +368,13 @@ RenderHtmlStart(true);
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<tr>";
                 echo "<form method='post' action='/request/user/update.php'>";
-                echo "<input type='hidden' name='p' value='" . UserAction::UpdatePermissions . "' />";
-                echo "<input type='hidden' name='t' value='$userPage' />";
+                echo csrf_field();
+                echo "<input type='hidden' name='property' value='" . UserAction::UpdatePermissions . "' />";
+                echo "<input type='hidden' name='target' value='$userPage' />";
                 echo "<td>";
                 echo "<input type='submit' style='float: right;' value='Update Account Type' />";
                 echo "</td><td>";
-                echo "<select name='v' >";
+                echo "<select name='value' >";
                 $i = Permissions::Banned;
                 // Don't do this, looks weird when trying to change someone above you
                 // while( $i <= $permissions && ( $i <= Permissions::Developer || $user == 'Scott' ) )
@@ -417,9 +394,10 @@ RenderHtmlStart(true);
             $newValue = $userIsUntracked ? 0 : 1;
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/update.php'>";
-            echo "<input type='hidden' name='p' value='" . UserAction::TrackedStatus . "' />";
-            echo "<input type='hidden' name='t' value='$userPage' />";
-            echo "<input type='hidden' name='v' value='$newValue' />";
+            echo csrf_field();
+            echo "<input type='hidden' name='property' value='" . UserAction::TrackedStatus . "' />";
+            echo "<input type='hidden' name='target' value='$userPage' />";
+            echo "<input type='hidden' name='value' value='$newValue' />";
             echo "<input type='submit' style='float: right;' value='Toggle Tracked Status' />";
             echo "</form>";
             echo "</td><td style='width: 100%'>";
@@ -428,9 +406,10 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/update.php'>";
-            echo "<input type='hidden' name='p' value='" . UserAction::PatreonBadge . "' />";
-            echo "<input type='hidden' name='t' value='$userPage' />";
-            echo "<input type='hidden' name='v' value='0' />";
+            echo csrf_field();
+            echo "<input type='hidden' name='property' value='" . UserAction::PatreonBadge . "' />";
+            echo "<input type='hidden' name='target' value='$userPage' />";
+            echo "<input type='hidden' name='value' value='0' />";
             echo "<input type='submit' style='float: right;' value='Toggle Patreon Supporter' />";
             echo "</form>";
             echo "</td><td>";
@@ -439,6 +418,7 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
+            echo csrf_field();
             echo "<input type='hidden' name='u' value='$userPage' />";
             echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
             echo "</form>";
@@ -446,6 +426,7 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/remove-avatar.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
+            echo csrf_field();
             echo "<input type='hidden' name='u' value='$userPage' />";
             echo "<input type='submit' style='float: right;' value='Remove Avatar' />";
             echo "</form>";
@@ -502,7 +483,7 @@ RenderHtmlStart(true);
                 settype($numAchievedHardcore, "integer");
                 settype($scoreEarnedHardcore, "integer");
 
-                echo "<div class='userpagegames'>";
+                echo "<div class='userpagegames mb-3'>";
 
                 RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore);
 
@@ -566,12 +547,10 @@ RenderHtmlStart(true);
 
                 echo "</div>";
             }
-
-            echo "<br>";
         }
 
         if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='rightalign'><a href='/user/$userPage?g=15'>more...</a></div><br>";
+            echo "<div class='text-right mt-5'><a class='btn btn-link' href='/user/$userPage?g=15'>more...</a></div>";
         }
 
         echo "</div>"; // recentlyplayed
@@ -604,10 +583,10 @@ RenderHtmlStart(true);
         RenderSiteAwards(getUsersSiteAwards($userPage));
         RenderCompletedGamesList($userCompletedGamesList);
 
-        echo "<div id='achdistribution' class='component' >";
+        echo "<div id='achdistribution' class='component'>";
         echo "<h3>Recent Progress</h3>";
-        echo "<div id='chart_recentprogress'></div>";
-        echo "<div class='rightalign'><a href='/history.php?u=$userPage'>more...</a></div>";
+        echo "<div id='chart_recentprogress' class='mb-5'></div>";
+        echo "<div class='text-right'><a class='btn btn-link' href='/history.php?u=$userPage'>more...</a></div>";
         echo "</div>";
 
         if ($user !== null && $user === $userPage) {
@@ -616,6 +595,4 @@ RenderHtmlStart(true);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

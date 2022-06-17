@@ -1,19 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+use Illuminate\Support\Facades\Validator;
 
-if (!ValidatePOSTChars("um")) {
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+    abort(401);
 }
 
-$user = requestInputPost('u');
-$messageID = requestInputPost('m', null, 'integer');
+$input = Validator::validate(request()->post(), [
+    'message' => 'required|integer',
+    'status' => 'required|integer|in:0,1',
+]);
 
-$messageReadStatus = requestInputPost('r', 0);    // normally set as read
-
-if (markMessageAsRead($user, $messageID, $messageReadStatus)) {
-    echo "OK:" . $messageID;
-} else {
-    echo "FAILED!";
+if (markMessageAsRead($user, $input['message'], $input['status'])) {
+    if ((int) $input['status'] === 1) {
+        return response()->json(['message' => __('legacy.success.ok')]);
+    }
+    return true;
 }
+
+abort(400);

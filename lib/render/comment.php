@@ -16,26 +16,24 @@ function RenderCommentsComponent(
 
     echo "<div class='commentscomponent'>";
 
-    echo "<div class='leftfloat'>";
+    echo "<div class='flex justify-between items-center mb-3'>";
+    echo "<div>";
     if ($numComments == 0) {
         echo "<i>No comments</i><br>";
     } else {
         echo "Recent comment(s):<br>";
     }
     echo "</div>";
-
     if (isset($user)) {
         $subjectType = SubscriptionSubjectType::fromArticleType($articleTypeID);
         if ($subjectType !== null) {
             $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
-            echo "<div class='smalltext rightfloat'>";
-            RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed);
-            echo "<a href='#' onclick='document.getElementById(\"updatesubscription\").submit(); return false;'>";
-            echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
-            echo "</a>";
+            echo "<div>";
+            RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed, 'comments');
             echo "</div>";
         }
     }
+    echo "</div>";
 
     echo "<table id='feed'><tbody>";
 
@@ -56,7 +54,7 @@ function RenderCommentsComponent(
             $lastID = $commentData[$i]['ID'];
         }
 
-        $canDeleteComments = ($articleTypeID == ArticleType::User) && ($userID == $articleID) || $permissions >= Permissions::Admin;
+        $canDeleteComments = $articleTypeID == ArticleType::User && $userID == $articleID || $permissions >= Permissions::Admin;
 
         RenderArticleComment(
             $articleID,
@@ -97,7 +95,7 @@ function RenderArticleComment(
     if ($user && $user == $localUser || $allowDelete) {
         $class .= ' localuser';
 
-        $img = "<img src='" . asset('Images/cross.png') . "' width='16' height='16' alt='delete comment'/>";
+        $img = "<img src='" . asset('assets/images/icon/cross.png') . "' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
@@ -131,8 +129,9 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
-    $submitImageUrl = asset('Images/Submit.png');
-    $loadingImageUrl = asset('Images/loading.gif');
+    $submitImageUrl = asset('assets/images/icon/submit.png');
+    $loadingImageUrl = asset('assets/images/icon/loading.gif');
+    $csrfField = csrf_field();
 
     echo <<<EOL
         <tr id="comment_$commentId">
@@ -141,13 +140,14 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
                 <img alt="$user" title="$user" class="badgeimg" src="/UserPic/$user.png" width="32" height="32">
             </td>
             <td colspan="3">
-                <form action="/request/comment/create.php" onsubmit="onSubmitComment(event)">
-                    <input type="hidden" name="a" value="$articleId">
-                    <input type="hidden" name="t" value="$articleTypeId">
-                    <div class="d-flex align-items-center">
+                <form action="/request/comment/create.php" method="post">
+                    $csrfField
+                    <input type="hidden" name="commentable_id" value="$articleId">
+                    <input type="hidden" name="commentable_type" value="$articleTypeId">
+                    <div class="flex align-center">
                         <textarea
-                            class="comment-textarea" 
-                            name="c"
+                            class="comment-textarea"
+                            name="body"
                             maxlength="2000"
                             placeholder="Enter a comment here..."
                             id="comment_textarea_$commentId"

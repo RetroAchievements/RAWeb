@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 function GetNextHighestGameID($givenID)
 {
     $query = "SELECT MIN(ID) AS NextID FROM GameData
@@ -46,7 +43,9 @@ $userID = $staticData['NextUserIDToScan'];
 $user = '';
 for ($i = 0; $i < 3; $i++) {
     $user = getUserFromID($userID);
-    recalculatePlayerPoints($user);
+    if (!empty($user)) {
+        recalculatePlayerPoints($user);
+    }
     $userID = GetNextHighestUserID($userID);
 }
 static_setnextusertoscan($userID);

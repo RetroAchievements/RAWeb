@@ -1,12 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+return redirect(route('home'));
 
-header("Location: " . getenv('APP_URL'));
-exit;
-
-$errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', null, 'integer');
 $global = requestInputSanitized('g', null, 'integer');
 $activityID = requestInputSanitized('a', null, 'integer');
@@ -44,19 +39,14 @@ if (isset($activityID)) {
     $pageTitle = "Activity Feed";
 }
 
-RenderHtmlStart();
-RenderHtmlHead($pageTitle);
+RenderContentStart($pageTitle);
 ?>
-<body>
-<link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?= getenv('APP_URL') ?>/rss-activity'/>
+<link rel='alternate' type='application/rss+xml' title='Global Feed' href='<?= config('app.url') ?>/rss-activity'/>
 <script>
   $(document).ready(function () {
     focusOnArticleID(getParameterByName('a'));
   });
 </script>
-
-<?php RenderHeader($userDetails); ?>
-
 <div id="mainpage">
     <div id="leftcontainer">
 
@@ -146,7 +136,4 @@ RenderHtmlHead($pageTitle);
 
 </div>
 
-<?php RenderFooter(); ?>
-
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

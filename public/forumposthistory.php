@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 $maxCount = 25;
 
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -13,13 +10,8 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $forUser = requestInputSanitized('u');
 $numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData, $forUser);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart();
-RenderHtmlHead("Forum Recent Posts");
+RenderContentStart("Forum Recent Posts");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <div id="forums">
@@ -102,6 +94,4 @@ RenderHtmlHead("Forum Recent Posts");
         </div>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

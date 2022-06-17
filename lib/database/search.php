@@ -2,7 +2,7 @@
 
 function performSearch($searchQuery, $offset, $count, $permissions, &$searchResultsOut): int
 {
-    global $db;
+    $db = getMysqliConnection();
 
     sanitize_sql_inputs($searchQuery, $offset, $count);
 

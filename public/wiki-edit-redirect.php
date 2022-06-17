@@ -1,17 +1,17 @@
 <?php
 
-if (!requestInputSanitized('page')) {
-    exit;
-}
-$page = pathinfo($_GET['page'])['filename'];
+$page = request()->query('page');
 if (empty($page)) {
-    exit;
+    abort(400);
 }
-// path rewrites
-switch ($page) {
-    case 'index':
-        $page = 'Home';
-        break;
+
+$page = pathinfo($page)['filename'];
+if (empty($page)) {
+    abort(400);
+}
+
+if ($page == 'index') {
+    $page = 'Home';
 }
 
 $repoDomainMap = [
@@ -21,8 +21,7 @@ $repoDomainMap = [
 $repo = $repoDomainMap[parse_url($_SERVER['HTTP_REFERER'])['host']] ?? null;
 
 if (empty($repo)) {
-    header("location: https://github.com/RetroAchievements");
-    exit;
+    return redirect('https://github.com/RetroAchievements');
 }
 
-header("location: https://github.com/RetroAchievements/$repo/wiki/$page/_edit");
+return redirect("https://github.com/RetroAchievements/$repo/wiki/$page/_edit");

@@ -1,10 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-header("Location: " . getenv('APP_URL'));
-exit;
+return redirect(route('home'));
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -17,12 +13,8 @@ $method = requestInputSanitized('p', 0, 'integer');
 $gameData = getMostPopularGames($offset, $count, $method);
 
 $mobileBrowser = IsMobileBrowser();
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Most Popular Games");
+RenderContentStart("Most Popular Games");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php
@@ -46,7 +38,7 @@ RenderHtmlHead("Most Popular Games");
         //
         // echo " | ";
 
-        echo "<table class='smalltable xsmall'><tbody>";
+        echo "<table><tbody>";
 
         echo "<th>Rank</th>";
         echo "<th>Game</th>";
@@ -125,6 +117,4 @@ RenderHtmlHead("Most Popular Games");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

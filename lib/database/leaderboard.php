@@ -1,12 +1,14 @@
 <?php
 
+use App\Legacy\Models\DeletedModels;
+use App\Legacy\Models\User;
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
 
 function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation): array
 {
-    global $db;
+    $db = getMysqliConnection();
     sanitize_sql_inputs($user, $lbID, $newEntry);
 
     $retVal = [];
@@ -135,7 +137,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
     } else {
         if (mysqli_num_rows($dbResult) == 0) {
             // No data found; add new element!
-            $query = "INSERT INTO LeaderboardEntry (LeaderboardID, UserID, Score, DateSubmitted) 
+            $query = "INSERT INTO LeaderboardEntry (LeaderboardID, UserID, Score, DateSubmitted)
                 VALUES ( $lbID, (SELECT ID FROM UserAccounts WHERE User='$user'), $newEntry, NOW() )";
 
             $dbResult = s_mysql_query($query);
@@ -196,7 +198,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
     return true;
 }
 
-function removeLeaderboardEntry($user, $lbID): array
+function removeLeaderboardEntry($user, $lbID, &$score): bool
 {
     sanitize_sql_inputs($user, $lbID);
 
@@ -207,27 +209,29 @@ function removeLeaderboardEntry($user, $lbID): array
 
     $dbResult = s_mysql_query($query);
     $data = mysqli_fetch_assoc($dbResult);
-    $scoreFormatted = GetFormattedLeaderboardEntry($data['Format'], $data['Score']);
 
-    $retVal = [];
-    $retVal['Success'] = true;
-    $retVal['Score'] = $scoreFormatted;
+    if (!$data) {
+        return false;
+    }
+
+    $score = GetFormattedLeaderboardEntry($data['Format'], $data['Score']);
 
     $userID = getUserIDFromUser($user);
-    if ($userID > 0) {
-        $query = "DELETE FROM LeaderboardEntry
-                  WHERE ( LeaderboardID = $lbID AND UserID = $userID )";
-
-        s_mysql_query($query);
-
-        global $db;
-        if (mysqli_affected_rows($db) == 0) {
-            $retVal['Success'] = false;
-        }
-    } else {
-        $retVal['Success'] = false;
+    if (!$userID) {
+        return false;
     }
-    return $retVal;
+
+    $query = "DELETE FROM LeaderboardEntry
+              WHERE ( LeaderboardID = $lbID AND UserID = $userID )";
+
+    s_mysql_query($query);
+
+    $db = getMysqliConnection();
+    if (mysqli_affected_rows($db) == 0) {
+        return false;
+    }
+
+    return true;
 }
 
 function GetLeaderboardRankingJSON($user, $lbID): array
@@ -441,11 +445,11 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
         }
 
         // Now get entries:
-        $query = "SELECT ua.User, le.Score, le.DateSubmitted, 
-                  CASE WHEN !lbd.LowerIsBetter 
+        $query = "SELECT ua.User, le.Score, le.DateSubmitted,
+                  CASE WHEN !lbd.LowerIsBetter
                   THEN RANK() OVER(ORDER BY le.Score DESC)
                   ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
-                  CASE WHEN !lbd.LowerIsBetter 
+                  CASE WHEN !lbd.LowerIsBetter
                   THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
                   ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
                   FROM LeaderboardEntry AS le
@@ -485,11 +489,11 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
             if ($userFound == false && !$nearby) {
                 // Go find user's score in this table, if it exists!
                 $query = "SELECT User, Score, DateSubmitted, UserRank, UserIndex FROM
-                         (SELECT ua.User, le.Score, le.DateSubmitted, 
-                          CASE WHEN !lbd.LowerIsBetter 
+                         (SELECT ua.User, le.Score, le.DateSubmitted,
+                          CASE WHEN !lbd.LowerIsBetter
                           THEN RANK() OVER(ORDER BY le.Score DESC)
                           ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
-                          CASE WHEN !lbd.LowerIsBetter 
+                          CASE WHEN !lbd.LowerIsBetter
                           THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
                           ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
                           FROM LeaderboardEntry AS le
@@ -596,8 +600,8 @@ function getLeaderboardUserPosition($lbID, $user, &$lbPosition): bool
     sanitize_sql_inputs($lbID, $user);
 
     $query = "SELECT UserIndex FROM
-                         (SELECT ua.User, le.Score, le.DateSubmitted, 
-                          CASE WHEN !lbd.LowerIsBetter 
+                         (SELECT ua.User, le.Score, le.DateSubmitted,
+                          CASE WHEN !lbd.LowerIsBetter
                           THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
                           ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
                           FROM LeaderboardEntry AS le
@@ -680,18 +684,18 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
             break;
     }
 
-    $query = "SELECT ld.ID, 
-                     ld.Title, 
-                     ld.Description, 
-                     ld.Format, 
-                     ld.Mem, 
-                     ld.DisplayOrder, 
-                     leInner.NumResults, 
-                     ld.LowerIsBetter, 
+    $query = "SELECT ld.ID,
+                     ld.Title,
+                     ld.Description,
+                     ld.Format,
+                     ld.Mem,
+                     ld.DisplayOrder,
+                     leInner.NumResults,
+                     ld.LowerIsBetter,
                      ld.Author,
-                     gd.ID AS GameID, 
-                     gd.ImageIcon AS GameIcon, 
-                     gd.Title AS GameTitle, 
+                     gd.ID AS GameID,
+                     gd.ImageIcon AS GameIcon,
+                     gd.Title AS GameTitle,
                      c.Name AS ConsoleName,
                      c.ID AS ConsoleID
                 FROM LeaderboardDef AS ld
@@ -739,7 +743,7 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
               ld.DisplayOrder = '$lbDisplayOrder'
               WHERE ld.ID = $lbID";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         return true;
@@ -757,13 +761,13 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut, $user): bool
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
+    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created)
                                 VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
                                 (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '$user', NOW())";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        global $db;
+        $db = getMysqliConnection();
         $lbIDOut = mysqli_insert_id($db);
         return true;
     } else {
@@ -864,13 +868,13 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
 
     // Get the leaderboard info to duplicate
     $getQuery = "
-            SELECT Mem, 
-                   Format, 
-                   Title, 
-                   Description, 
-                   LowerIsBetter, 
-                   (SELECT Max(DisplayOrder) FROM LeaderboardDef WHERE GameID = $gameID) AS DisplayOrder 
-            FROM   LeaderboardDef 
+            SELECT Mem,
+                   Format,
+                   Title,
+                   Description,
+                   LowerIsBetter,
+                   (SELECT Max(DisplayOrder) FROM LeaderboardDef WHERE GameID = $gameID) AS DisplayOrder
+            FROM   LeaderboardDef
             WHERE  ID = $leaderboardID";
 
     $dbResult = s_mysql_query($getQuery);
@@ -889,11 +893,11 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
 
     // Create the duplicate entries
     for ($i = 1; $i <= $duplicateNumber; $i++) {
-        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created) 
+        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created)
                                     VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i), '$user', NOW())";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
-            global $db;
+            $db = getMysqliConnection();
             mysqli_insert_id($db);
         } else {
             return false;
@@ -926,7 +930,13 @@ function requestDeleteLB($lbID): bool
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        s_mysql_query("INSERT INTO DeletedModels SET ModelType='LeaderboardDef', ModelID=$lbID");
+        /** @var User $user */
+        $user = request()->user();
+        DeletedModels::create([
+            'ModelType' => 'LeaderboardDef',
+            'ModelID' => $lbID,
+            'DeletedByUserID' => $user->ID,
+        ]);
     }
     return $dbResult !== false;
 }

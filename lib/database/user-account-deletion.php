@@ -72,7 +72,7 @@ function deleteOverdueUserAccounts(): void
 
 function clearAccountData($user): void
 {
-    global $db;
+    $db = getMysqliConnection();
 
     $userId = $user['ID'];
     $username = $user['User'];

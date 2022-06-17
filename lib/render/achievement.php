@@ -27,7 +27,7 @@ function GetAchievementAndTooltipDiv(
     $gameNameStr = $gameName;
 
     $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . asset("Badge/$badgeName.png") . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . media_asset("Badge/$badgeName.png") . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$achNameStr</b><br>";
     $tooltip .= "$achDescStr<br>";
@@ -50,7 +50,7 @@ function GetAchievementAndTooltipDiv(
     if ($inclSmallBadge) {
         $achNameAttr = attributeEscape($achName);
         $smallBadgePath = "/Badge/$badgeName" . ".png";
-        $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src='" . asset($smallBadgePath) . "' alt='$achNameAttr' title='$achNameAttr' class='$imgclass' />";
+        $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src='" . media_asset($smallBadgePath) . "' alt='$achNameAttr' title='$achNameAttr' class='$imgclass'>";
 
         if ($smallBadgeOnly) {
             $displayable = "";
@@ -112,7 +112,7 @@ function RenderRecentlyUploadedComponent($numToFetch): void
         }
         echo "</tbody></table>";
         echo "<br>";
-        echo "<div class='morebutton'><a href='/achievementList.php?s=17'>more...</a></div>";
+        echo "<div class='text-right'><a class='btn btn-link' href='/achievementList.php?s=17'>more...</a></div>";
     }
     echo "</div>";
 }

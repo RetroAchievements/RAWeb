@@ -1,23 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 use RA\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$userPage = requestInputSanitized('u', $user);
-if (!isset($userPage)) {
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+$userPage = request()->query('u');
+if (empty($userPage)) {
+    abort(404);
 }
 
 getUserPageInfo($userPage, $userMassData, 0, 0, $user);
 if (!$userMassData) {
-    http_response_code(404);
-    echo "User not found";
-    exit;
+    abort(404);
 }
 
 $dateInput = requestInputSanitized('d', 0);
@@ -34,12 +28,8 @@ $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 
 $dateStr = strftime("%d %b %Y", $dateInput);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart(true);
-RenderHtmlHead("$userPage's Legacy - $dateStr");
+RenderContentStart("$userPage's Legacy - $dateStr");
 ?>
-<body>
 <script>
   function convertDate() {
     var field = document.gotodateform.dateinput;
@@ -48,7 +38,6 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
     return true;
  }
 </script>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php
@@ -86,7 +75,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "</div>";
 
-        echo "<table class='smalltable xsmall'><tbody>";
+        echo "<table><tbody>";
 
         echo "<tr>";
         echo "<th>When</th>";
@@ -180,6 +169,4 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

@@ -2,11 +2,7 @@
 
 use RA\Ticket;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-RenderHtmlStart();
-RenderSharedHeader();
+RenderContentStart();
 
 function tooltip_row(string $text): void
 {
@@ -65,9 +61,7 @@ function tooltip_row(string $text): void
     echo "</td>\n";
     echo "    </tr>\n";
 }
-
 ?>
-<body>
 <script src='/vendor/wz_tooltip.js'></script>
 <div style="width:1024px">
     <h1>Tooltip</h1>
@@ -84,4 +78,4 @@ function tooltip_row(string $text): void
 ?>
     </table>
 </div>
-</body>
+<?php RenderContentEnd(); ?>

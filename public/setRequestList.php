@@ -1,18 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
 $maxCount = 50;
 $offset = 0;
 
 $username = requestInputSanitized('u');
-$errorCode = requestInputSanitized('e');
 $selectedConsole = requestInputSanitized('s', null, 'integer');
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', $offset, 'integer');
@@ -49,18 +44,11 @@ if (empty($username)) {
     $userSetRequestInformation = getUserRequestsInformation($username, $setRequestList);
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Set Requests");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Set Requests");
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning($errorCode);
-
         $gameCounter = 0;
 
         if ($username === null) {
@@ -214,6 +202,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

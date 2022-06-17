@@ -1,22 +1,16 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $userPage = requestInputSanitized('u', $user);
 
 if (!isset($userPage) || !isValidUsername($userPage)) {
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+    abort(404);
 }
 
 getUserPageInfo($userPage, $userMassData, 0, 0, $user);
 if (!$userMassData) {
-    http_response_code(404);
-    echo "User not found";
-    exit;
+    abort(404);
 }
 
 $listOffset = requestInputSanitized('o', 0, 'integer');
@@ -28,8 +22,6 @@ $sortByGraphName = 'Total Points';
 if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
-
-$errorCode = requestInputSanitized('e');
 
 $userPageHardcorePoints = 0;
 $userPageSoftcorePoints = 0;
@@ -44,11 +36,8 @@ getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 //	the past week
 $userScoreData = getAwardedList($userPage);
 
-RenderHtmlStart(true);
-RenderHtmlHead("$userPage's Legacy");
+RenderContentStart("$userPage's Legacy");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
   google.load('visualization', '1.0', { 'packages': ['corechart'] });
@@ -215,7 +204,7 @@ RenderHtmlHead("$userPage's Legacy");
         ?>
 
         <?php if ($user !== null): ?>
-            <div class="d-flex flex-wrap justify-content-between">
+            <div class="flex flex-wrap justify-between">
                 <div>
                 </div>
                 <div>
@@ -290,6 +279,4 @@ RenderHtmlHead("$userPage's Legacy");
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

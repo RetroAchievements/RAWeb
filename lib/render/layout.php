@@ -1,199 +1,109 @@
 <?php
 
+use App\Legacy\Models\User;
 use RA\Permissions;
 use RA\TicketFilters;
 use RA\TicketState;
 
-function RenderHtmlStart($isOpenGraphPage = false): void
+// see resources/views/layouts/app.blade.php
+// see resources/views/partials/head.blade.php
+
+function RenderContentStart($pageTitle = null): void
 {
-    echo "<!doctype html>";
-    echo "<html xmlns='https://www.w3.org/1999/xhtml' lang='en' xml:lang='en' ";
+    // hijack view variables
+    view()->share('pageTitle', $pageTitle);
 
-    if ($isOpenGraphPage) {
-        echo "prefix=\"og: https://ogp.me/ns# retroachievements: https://ogp.me/ns/apps/retroachievements#\" ";
-    }
-
-    echo ">\n";
+    // TBD add legacy content wrapper start
 }
 
-function RenderHtmlEnd(): void
+function RenderContentEnd(): void
 {
-    echo "</html>";
-}
-
-function RenderHtmlHead($pageTitle = null): void
-{
-    echo "<head>";
-    RenderSharedHeader();
-    RenderTitleTag($pageTitle);
-    echo "</head>";
-}
-
-function RenderSharedHeader(): void
-{
-    echo "<link rel='icon' type='image/png' href='/favicon.png'>\n";
-    echo "<link rel='image_src' href='/Images/RA_Logo10.png'>\n";
-    echo "<meta http-equiv='content-type' content='text/html; charset=UTF-8'>\n";
-    echo "<meta name='robots' content='all'>\n";
-    echo "<meta name='description' content='Adding achievements to your favourite retro games since 2012'>\n";
-    echo "<meta name='keywords' content='games, retro, computer games, mega drive, genesis, rom, emulator, achievements'>\n";
-    echo "<meta name='viewport' content='width=device-width,user-scalable = no'/>\n";
-
-    echo '<meta name="theme-color" content="#2C2E30">';
-    echo '<meta name="msapplication-TileColor" content="#2C2E30">';
-    echo '<meta name="msapplication-TileImage" content="/favicon.png">';
-    echo '<link rel="shortcut icon" type="image/png" href="/favicon.png" sizes="16x16 32x32 64x64">';
-    echo '<link rel="apple-touch-icon" sizes="120x120" href="/favicon.png">';
-
-    echo "<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css'>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script>\n";
-    echo "<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>\n";
-    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js'></script>";
-    echo "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css' />";
-    echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>";
-    echo "<script src='https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js' integrity='sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=' crossorigin='anonymous'></script>";
-
-    echo "<script>window.assetUrl='" . getenv('ASSET_URL') . "'</script>\n";
-    if (getenv('APP_ENV') === 'local') {
-        echo "<script src='/js/all.js?v=" . random_int(0, mt_getrandmax()) . "'></script>\n";
-    } else {
-        echo "<script src='/js/all-" . VERSION . ".js'></script>\n";
-    }
-    if (getenv('APP_ENV') === 'local') {
-        echo "<link rel='stylesheet' href='/css/styles.css?" . random_int(0, mt_getrandmax()) . "' media='screen'>\n";
-    } else {
-        echo "<link rel='stylesheet' href='/css/styles-" . VERSION . ".css' media='screen'>\n";
-    }
-    $customCSS = readCookie('RAPrefs_CSS');
-    if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link id='theme-style' rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
-    }
+    // TBD add legacy content wrapper end
 }
 
 function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description): void
 {
-    echo "<meta property='og:type' content='retroachievements:$OGType'>\n";
-    echo "<meta property='og:image' content='" . asset($imageURL) . "'>\n";
-    echo "<meta property='og:url' content='" . url($thisURL) . "'>\n";
-    echo "<meta property='og:title' content=\"$title\">\n";
-    echo "<meta property='og:description' content=\"$description\">\n";
-}
-
-function RenderTitleTag($title = null): void
-{
-    echo "<title>";
-    if ($title !== null) {
-        echo "$title - ";
+    // hijack view variables
+    view()->share('pageTitle', $title);
+    view()->share('pageDescription', $description);
+    if ($OGType) {
+        view()->share('pageType', 'retroachievements:' . $OGType);
     }
-    echo getenv('APP_NAME');
-    echo "</title>";
-    // <!-- YAY XMAS! -->
-    // echo "<script src='js/snowstorm.js'></script>
-    // <script>
-    //     $( function() {
-    //         // Onload:
-    //         $('body').append( \"<img src='https://i.retroachievements.org/Images/003754.png' width='280' height='280' style='position:fixed;left:0px;top:0px;width:100%;height:100%;z-index:-50;'>\" );
-    //     });
-    // </script>";
+    view()->share('pageImage', asset($imageURL));
 }
 
-function RenderTitleBar($user, $points, $truePoints, $softcorePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null): void
+function RenderTitleBar(): void
 {
-    $mainPointString = "";
-    $secondaryPointString = "";
-    settype($unreadMessageCount, "integer");
-    settype($truePoints, 'integer');
+    /** @var ?User $user */
+    $user = request()->user();
 
-    // js tooltip code is basically on every page:
-    echo "<script src='/vendor/wz_tooltip.js'></script>";
+    $username = $user?->getAttribute('User');
+    $points = $user?->getAttribute('RAPoints');
+    $softcorePoints = $user?->getAttribute('RASoftcorePoints');
+    $truePoints = $user?->getAttribute('TrueRAPoints');
+    $permissions = $user?->getAttribute('Permissions');
+    $unreadMessageCount = $user?->getAttribute('UnreadMessageCount');
+    $deleteRequested = $user?->getAttribute('DeleteRequested');
 
-    echo "<div id='topborder'></div>\n";
-
-    echo "<div id='title'>";
-
-    echo "<div id='logocontainer'><a id='logo' href='/'><img src='/Images/RA_Logo10.png' alt='Retro Achievements logo'></a>";
-
+    echo "<div class='p-4 flex-1'>";
+    echo "<a href='/'><img style='max-width:635px;width:100%' src='" . asset('assets/images/ra-logo-sm.webp') . "' alt='RetroAchievements logo'></a>";
     if (!empty($deleteRequested)) {
-        echo "<div style='text-align: center; font-size:14px; color:#dd0000'>Your account is marked to be deleted on " .
+        echo "<div class='text-center text-red-600 text-base' >Your account is marked to be deleted on " .
             getDeleteDate($deleteRequested) . "</div>";
     }
-
     echo "</div>";
 
-    if (!$user) {
-        echo "<div class='login'>";
-        echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
-        echo "<b>login</b> to " . getenv('APP_NAME') . ":<br>";
+    echo "<div class='login lg:my-4 px-5 py-3'>";
 
-        echo "<form method='post' action='/request/auth/login.php'>";
-        echo "<div>";
-        echo "<input type='hidden' name='r' value='" . ($_SERVER['REQUEST_URI'] ?? '') . "'>";
-        echo "<table><tbody>";
-        echo "<tr>";
-        echo "<td>User:&nbsp;</td>";
-        echo "<td><input type='text' name='u' size='16' class='loginbox' value=''></td>";
-        echo "<td></td>";
-        echo "</tr>";
-        echo "<tr>";
-        echo "<td>Pass:&nbsp;</td>";
-        echo "<td><input type='password' name='p' size='16' class='loginbox' value=''></td>";
-        echo "<td style='width: 45%'><input type='submit' value='Login' name='submit' class='loginbox'></td>";
-        echo "</tr>";
-        echo "</tbody></table>";
+    if (!$user) {
+        echo "<form class='flex justify-center items-end gap-2' method='post' action='/request/auth/login.php'>";
+        echo csrf_field();
+        echo "<div class='flex flex-col gap-1'>";
+        echo "<input class='w-full' type='text' placeholder='Username' name='u'>";
+        echo "<input class='w-full' type='password' placeholder='Password' name='p'>";
+        echo "<a href='/resetPassword.php'>Forgot password?</a>";
+        echo "</div>";
+        echo "<div class='flex flex-col gap-1 flex-1'>";
+        echo "<input type='submit' value='Login' name='submit' class='loginbox'>";
+        echo "<a href='/createaccount.php'>Register</a>";
         echo "</div>";
         echo "</form>";
-
-        if (!isset($errorCode)) {
-            echo "<div class='rightalign'>...or <a href='/createaccount.php'>create a new account</a></div>";
-        }
     } else {
-        echo "<div class='login'>";
-        echo "<p>";
-        echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right; margin-left:6px' width='64' height='64' class='userpic'>";
+        echo "<div class='flex justify-between gap-2'>";
 
-        if ($errorCode == "validatedEmail") {
-            echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
-        } else {
-            if ($points > 0) {
-                $mainPointString = "($points) <span class='TrueRatio'>($truePoints) </span><br>";
-                if ($softcorePoints > 0) {
-                    $secondaryPointString = "<span class='softcore'>($softcorePoints softcore)</span>";
-                }
-            } elseif ($softcorePoints > 0) {
-                $mainPointString = "<span class='softcore'>($softcorePoints softcore)</span><br>";
-            } else {
-                $mainPointString = "<br>";
-            }
-            echo "<strong><a href='/user/$user'>$user</a></strong> " . $mainPointString;
+        echo "<img class='order-2' src='/UserPic/$username.png' alt='Profile Picture' width='64' height='64' class='userpic'>";
+
+        echo "<div class='grow flex flex-col justify-between'>";
+
+        echo "<div>";
+        echo "<strong><a href='/user/$username'>" . $username . "</a></strong>";
+        echo "</div>";
+
+        echo "<div class='flex gap-2'>";
+        if ($points > 0) {
+            echo "<span>($points)</span>";
+            echo "<span class='TrueRatio'>($truePoints)</span>";
         }
+        if ($softcorePoints > 0) {
+            echo "<span class='softcore'>($softcorePoints softcore)</span>";
+        }
+        echo "</div>";
 
-        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a> " . $secondaryPointString . "<br>";
-
-        $mailboxIcon = $unreadMessageCount > 0 ? asset('Images/_MailUnread.png') : asset('Images/_Mail.png');
-        echo "<a href='/inbox.php'>";
-        echo "<img id='mailboxicon' alt='Mailbox Icon' style='float:left' src='$mailboxIcon' width='20' height='20'/>";
-        echo "&nbsp;";
-        echo "(";
-        echo "<span id='mailboxcount'>$unreadMessageCount</span>";
-        echo ")";
-        echo "</a>";
-
+        echo "<div class='flex gap-2'>";
         $openTickets = 0;
         $devRequestTickets = 0;
         if ($permissions >= Permissions::Developer) {
-            $openTicketsData = countOpenTicketsByDev($user);
+            $openTicketsData = countOpenTicketsByDev($username);
             $openTickets = $openTicketsData[TicketState::Open];
             $devRequestTickets = $openTicketsData[TicketState::Request];
         }
-
-        $requestTickets = countRequestTicketsByUser($user);
-
+        $requestTickets = countRequestTicketsByUser($username);
         $prefix = 'Tickets: ';
         $separator = '-';
         if ($openTickets) {
             $filter = TicketFilters::Default & ~TicketFilters::StateRequest;
-            echo " $separator <a href='/ticketmanager.php?u=$user&t=$filter'>";
-            echo "<span style='color: red;'>$prefix<strong>$openTickets</strong></span>";
+            echo " $separator <a href='/ticketmanager.php?u=$username&t=$filter'>";
+            echo "<span class='text-danger'>$prefix<strong>$openTickets</strong></span>";
             echo "</a>";
             $prefix = '';
             $separator = '/';
@@ -201,43 +111,59 @@ function RenderTitleBar($user, $points, $truePoints, $softcorePoints, $unreadMes
 
         if ($devRequestTickets > 0) {
             $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
-            echo " $separator <a href='/ticketmanager.php?u=$user&t=$filter'>$prefix$devRequestTickets</a>";
+            echo " $separator <a href='/ticketmanager.php?u=$username&t=$filter'>$prefix$devRequestTickets</a>";
             $prefix = '';
             $separator = '/';
         }
         if ($requestTickets > 0) {
             $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
-            echo " $separator <a href='/ticketmanager.php?p=$user&t=$filter'>$prefix$requestTickets</a>";
+            echo " $separator <a href='/ticketmanager.php?p=$username&t=$filter'>$prefix$requestTickets</a>";
         }
+        echo "</div>";
 
         // Display claim expiring message if necessary
+        echo "<div class='flex gap-2'>";
         if ($permissions >= Permissions::JuniorDeveloper) {
-            $expiringClaims = getExpiringClaim($user);
+            $expiringClaims = getExpiringClaim($username);
             if ($expiringClaims["Expired"] > 0) {
-                echo "<br clear='left'/>";
-                echo "<a href='/expiringclaims.php?u=$user'>";
-                echo "<font color='red'>Claim Expired</font>";
+                echo "<a href='/expiringclaims.php?u=$username'>";
+                echo "<span class='text-danger'>Claim Expired</span>";
                 echo "</a>";
             } elseif ($expiringClaims["Expiring"] > 0) {
-                echo "<br clear='left'/>";
-                echo "<a href='/expiringclaims.php?u=$user'>";
-                echo "<font color='red'>Claim Expiring Soon</font>";
+                echo "<a href='/expiringclaims.php?u=$username'>";
+                echo "<span class='text-danger'>Claim Expiring Soon</span>";
                 echo "</a>";
             }
         }
-        echo "</p>";
+        echo "</div>";
+
+        echo "<div class='flex gap-2 items-center'>";
+        $mailboxIcon = $unreadMessageCount > 0 ? asset('assets/images/icon/mail-unread.png') : asset('assets/images/icon/mail.png');
+        echo "<a href='/inbox.php'>";
+        echo "<img class='mr-1' id='mailboxicon' alt='Mailbox Icon' src='$mailboxIcon'/>";
+        echo "<span id='mailboxcount'>$unreadMessageCount</span>";
+        echo "</a>";
+        echo "<form class='inline-block' action='/request/auth/logout.php' method='post'>";
+        echo csrf_field();
+        echo "<button class='btn btn-link p-0'>Logout</button>";
+        echo "</form>";
+        echo "</div>";
+
+        echo "</div>";
+        echo "</div>";
     }
-
-    echo "<br>";
-    echo "</div>";
-
     echo "</div>";
 }
 
-function RenderToolbar($user, $permissions = 0): void
+function RenderToolbar(): void
 {
-    echo "<div id='innermenu'>";
-    echo "<ul id='menuholder'>";
+    /** @var ?User $user */
+    $user = request()->user();
+
+    $username = $user?->getAttribute('User');
+    $permissions = $user?->getAttribute('Permissions') ?? 0;
+
+    echo "<ul class='flex-1'>";
 
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
@@ -345,23 +271,21 @@ function RenderToolbar($user, $permissions = 0): void
 
     echo "<li><a href='/download.php'>Download</a></li>";
 
-    if (isset($user) && $user != "") {
+    if ($user) {
         echo "<li><a href='#'>My Pages</a>";
         echo "<div>";
         echo "<ul>";
-        echo "<li><a href='/user/$user'>Profile</a></li>";
-        echo "<li><a href='/gameList.php?d=$user'>My Sets</a></li>";
-        echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
-        echo "<li><a href='/claimlist.php?u=$user'>My Claims</a></li>";
+        echo "<li><a href='/user/$username'>Profile</a></li>";
+        echo "<li><a href='/gameList.php?d=$username'>My Sets</a></li>";
+        echo "<li><a href='/ticketmanager.php?u=$username'>My Tickets</a></li>";
+        echo "<li><a href='/claimlist.php?u=$username'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
         echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
-        echo "<li><a href='/setRequestList.php?u=$user'>Requested Sets</a></li>";
+        echo "<li><a href='/setRequestList.php?u=$username'>Requested Sets</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
-        echo "<li class='divider'></li>";
-        echo "<li><a href='/request/auth/logout.php'>Log Out</a></li>";
         echo "</ul>";
         echo "</div>";
         echo "</li>";
@@ -391,6 +315,10 @@ function RenderToolbar($user, $permissions = 0): void
             echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
             echo "<li><a href='/admin.php'>Admin Tools</a></li>";
         }
+        if (auth()->user()->can('viewLogs')) {
+            echo "<li class='divider'></li>";
+            echo "<li><a href='" . route('blv.index') . "'>Logs</a></li>";
+        }
         echo "</ul>";
         echo "</div>";
         echo "</li>";
@@ -400,142 +328,13 @@ function RenderToolbar($user, $permissions = 0): void
 
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-        $searchQuery = attributeEscape(requestInputQuery('s', null));
+        $searchQuery = attributeEscape(requestInputQuery('s', ''));
     }
-    echo "<form action='/searchresults.php' method='get'>";
-    echo "<div class='searchbox-top'>";
+    echo "<form class='flex searchbox-top' action='/searchresults.php'>";
     // echo "Search:&nbsp;";
-    echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
-    echo "&nbsp;";
+    echo "<input name='s' type='text' class='flex-1 searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "<input type='submit' value='🔎︎' title='Search the site'>";
-    echo "</div>";
     echo "</form>";
-
-    echo '<div style="clear:both;"></div>';
-
-    echo "</div>";
-}
-
-function RenderHeader(?array $userDetails): void
-{
-    $errorCode = requestInputSanitized('e');
-
-    if ($userDetails) {
-        RenderTitleBar($userDetails['User'], $userDetails['RAPoints'],
-            $userDetails['TrueRAPoints'], $userDetails['RASoftcorePoints'], $userDetails['UnreadMessageCount'],
-            $errorCode, $userDetails['Permissions'],
-            $userDetails['DeleteRequested']);
-        RenderToolbar($userDetails['User'], $userDetails['Permissions']);
-    } else {
-        RenderTitleBar(null, 0, 0, 0, 0, $errorCode);
-        RenderToolbar(null, 0);
-    }
-}
-
-function RenderFooter(): void
-{
-    echo "<div style='clear:both;'></div>";
-
-    echo "<div class='footer-wrapper'>";
-
-    echo "<footer id='footer'>";
-
-    echo "<div id='footer-flex'>";
-
-    echo "<div>";
-    echo "<h4>RetroAchievements</h4>";
-    echo "<div><a href='/achievementList.php'>Achievements</a></div>";
-    echo "<div><a href='/leaderboardList.php'>Leaderboards</a></div>";
-    echo "<div><a href='/gameList.php'>Games</a></div>";
-    echo "</div>";
-
-    echo "<div>";
-    echo "<h4>Documentation</h4>";
-    echo "<div><a href='https://docs.retroachievements.org/Developers-Code-of-Conduct/'>Developers Code of Conduct</a></div>";
-    echo "<div><a href='https://docs.retroachievements.org/Users-Code-of-Conduct/'>Users Code of Conduct</a></div>";
-    echo "<div><a href='https://docs.retroachievements.org/FAQ/'>FAQ</a></div>";
-    echo "<div><a href='/APIDemo.php'>API</a></div>";
-    echo "</div>";
-
-    echo "<div>";
-    echo "<h4>Community</h4>";
-    echo "<div><a href='/forum.php'>Forums</a></div>";
-    echo "<div><a href='/userList.php'>Users</a></div>";
-    echo "<div><a href='/developerstats.php'>Developers</a></div>";
-    echo "</div>";
-
-    echo "<div>";
-    echo "<h4>Connect</h4>";
-    if (getenv('PATREON_USER_ID')) {
-        echo "<div><a href='https://www.patreon.com/bePatron?u=" . getenv('PATREON_USER_ID') . "'>Patreon</a></div>";
-    }
-    if (getenv('DISCORD_INVITE_ID')) {
-        echo "<div><a href='https://discord.gg/" . getenv('DISCORD_INVITE_ID') . "'>Discord</a></div>";
-    }
-    if (getenv('GITHUB_ORG')) {
-        echo "<div><a href='https://github.com/" . getenv('GITHUB_ORG') . "'>GitHub</a></div>";
-    }
-    if (getenv('TWITCH_CHANNEL')) {
-        echo "<div><a href='https://twitch.tv/" . getenv('TWITCH_CHANNEL') . "'>Twitch</a></div>";
-    }
-    if (getenv('FACEBOOK_CHANNEL')) {
-        echo "<div><a href='https://www.facebook.com/" . getenv('FACEBOOK_CHANNEL') . "/'>Facebook</a></div>";
-    }
-    if (getenv('TWITTER_CHANNEL')) {
-        echo "<div><a href='https://twitter.com/" . getenv('TWITTER_CHANNEL') . "'>Twitter</a></div>";
-    }
-    echo "<div><a href='/rss.php'>RSS</a></div>";
-    echo "</div>";
-
-    // echo "<div>Content by <a href='http://www.immensegames.com' target='_blank'>Immense Games</a></div>";
-
-    // global $g_numQueries;
-    // global $g_pageLoadAt;
-    // $loadDuration = microtime(true) - $g_pageLoadAt;
-    // echo "<p>";
-    // echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
-    // if ($loadDuration > 2.4) {
-    //     error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
-    // }
-    // echo "</p>";
-
-    echo "</div>";
-
-    echo "<label class='themeselect-wrapper'>";
-    RenderThemeSelector();
-    echo "</label>";
-
-    echo "<div style='clear:both;'></div>";
-
-    echo "</footer>";
-
-    echo "</div>";
-}
-
-function RenderThemeSelector(): void
-{
-    $dirContent = scandir('./css/');
-
-    $cssFileList = [];
-    foreach ($dirContent as $filename) {
-        $fileStart = mb_strpos($filename, "rac_");
-        if ($fileStart !== false) {
-            $filename = mb_substr($filename, $fileStart + 4);
-            $filename = mb_substr($filename, 0, mb_strlen($filename) - 4);
-            $cssFileList[] = $filename;
-        }
-    }
-
-    $currentCustomCSS = readCookie('RAPrefs_CSS');
-    $currentCustomCSS = $currentCustomCSS ?: '/css/rac_blank.css';
-
-    echo "Select theme: <select id='themeselect' onchange='changeTheme(); return false;'>";
-    foreach ($cssFileList as $nextCSS) {
-        $cssFull = "/css/rac_" . $nextCSS . ".css";
-        $selected = (strcmp($currentCustomCSS, $cssFull) == 0) ? 'selected' : '';
-        echo "<option $selected value='$cssFull'>$nextCSS</option>";
-    }
-    echo "</select>";
 }
 
 function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
@@ -562,18 +361,5 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
         $lastOffset = $numItems - 1; // 0-based
         $lastOffset = $lastOffset - ($lastOffset % $perPage);
         echo "&nbsp;<a title='Last' href='$urlPrefix$lastOffset'>&#x226B;</a>";
-    }
-}
-
-function RenderStatusWidget(?string $message = null, ?string $errorMessage = null, ?string $successMessage = null)
-{
-    if (!empty($errorMessage)) {
-        echo "<div id='status' class='failure'>$errorMessage</div>";
-    } elseif (!empty($successMessage)) {
-        echo "<div id='status' class='success'>$successMessage</div>";
-    } elseif (!empty($message)) {
-        echo "<div id='status'>$message</div>";
-    } else {
-        echo "<div id='status' style='display: none'></div>";
     }
 }

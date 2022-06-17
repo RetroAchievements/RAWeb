@@ -1,40 +1,30 @@
-# This is a .htaccess file.
-#
-# You can place commands in this file to instruct the web
-# server to do things.
-#
-# Lines beginning with a # are comments and are ignored by the server.
-#
-# If you place a directive in this file that the server does not
-# understand, you may get an "Internal Server Error" page when
-# visiting your website.
-
-# The following option allows directory indexing (Shows a listing
-# of your web area when you visit an empty folder).
-# Note: This option is commented out.
-
-# Options +Indexes
 Options +FollowSymLinks
 
-RewriteEngine on
-RewriteBase   /
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
 
-RewriteRule ^achievement/([0-9]*)(.*) achievementInfo.php?ID=$1&$2 [QSA,NC,L]
-RewriteRule ^user/(.*)?(.*)$ userInfo.php?ID=$1&$2 [QSA,NC,L]
-RewriteRule ^game/([0-9]*)?(.*) gameInfo.php?ID=$1&$2 [QSA,NC,L]
+    RewriteEngine on
+    RewriteBase /
 
-# follow https://github.com/RetroAchievements/RAWeb/wiki/Getting-Started#add-image-assets to have the missing assets locally
-#RewriteRule ^Images/(.*) https://static.retroachievements.org/Images/$1 [NC,L]
-#RewriteRule ^Badge/(.*) https://static.retroachievements.org/Badge/$1 [NC,L]
+    RewriteRule ^rss-news$ rss-news.xml.php [NC,L]
+    RewriteRule ^rss-newachievements$ rss-newachievements.xml.php [NC,L]
+    RewriteRule ^rss-activity$ rss-activity.xml.php [NC,L]
+    RewriteRule ^rss-forum$ rss-forum.xml.php [NC,L]
 
-RewriteRule ^rss-news$ rss-news.xml.php [NC,L]
-RewriteRule ^rss-newachievements$ rss-newachievements.xml.php [NC,L]
-RewriteRule ^rss-activity$ rss-activity.xml.php [NC,L]
-RewriteRule ^rss-forum$ rss-forum.xml.php [NC,L]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-RewriteRule ^api.retroachievements.org/(.*) retroachievements.org/API/$1 [NC,L]
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
 
-RewriteCond %{HTTP_HOST} ^www.retroachievements.org$ [NC]
-RewriteRule ^(.*)$ https://retroachievements.org/$1 [R=301,L]
-
-#RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # TODO change back to index.php as soon as landing page has been migrated
+    RewriteRule ^ index.php [L]
+</IfModule>

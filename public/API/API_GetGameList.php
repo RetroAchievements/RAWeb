@@ -24,15 +24,9 @@
  *     string     [value]          RetroAchievements hash associated to the game
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
 $consoleID = requestInputQuery('i', null, 'integer');
 if ($consoleID < 0) {
-    echo json_encode(['success' => false]);
-    exit;
+    return response()->json(['success' => false]);
 }
 
 $withAchievements = requestInputQuery('f', false, 'boolean');
@@ -76,4 +70,4 @@ if ($withHashes) {
     }
 }
 
-echo json_encode($response, JSON_THROW_ON_ERROR);
+return response()->json($response);

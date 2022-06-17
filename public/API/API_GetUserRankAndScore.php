@@ -10,21 +10,18 @@
  *  string     TotalRanked     total number of ranked users
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
+$user = requestInputQuery('u');
 
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
-
-$retVal = [];
-
-$retVal['Score'] = 0;
-if (getPlayerPoints($user, $userPoints)) {
-    $retVal['Score'] = $userPoints['RAPoints'];
-    $retVal['SoftcoreScore'] = $userPoints['RASoftcorePoints'];
+$points = 0;
+$softcorePoints = 0;
+if (getPlayerPoints($user, $playerPoints)) {
+    $score = $playerPoints['RAPoints'];
+    $softcorePoints = $playerPoints['RASoftcorePoints'];
 }
-$retVal['Rank'] = getUserRank($user);
-$retVal['TotalRanked'] = countRankedUsers();
 
-echo json_encode($retVal, JSON_THROW_ON_ERROR);
+return response()->json([
+    'Score' => $points,
+    'SoftcoreScore' => $softcorePoints,
+    'Rank' => getUserRank($user),
+    'TotalRanked' => countRankedUsers(),
+]);

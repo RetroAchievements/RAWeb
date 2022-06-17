@@ -13,14 +13,7 @@
  *    string     UserRank         position of user on the game's High Scores list
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
 $gameId = requestInputQuery('g');
 $username = requestInputQuery('u');
 
-$results = getGameRankAndScore($gameId, $username);
-
-echo json_encode($results, JSON_THROW_ON_ERROR);
+return response()->json(getGameRankAndScore($gameId, $username));

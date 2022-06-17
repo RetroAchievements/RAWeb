@@ -2,34 +2,23 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
 
 $gameID = requestInput('g');
 $leaderboardID = requestInput('l');
 $duplicateNumber = requestInput('n');
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
-    if (isset($leaderboardID) && isset($duplicateNumber)) {
-        if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
-            header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");
-            exit;
-        } else {
-            header("Location: " . getenv('APP_URL') . "/leaderboardList.php&e=cannotcreate");
-            exit;
-        }
-    } else {
-        $lbID = null;
-        if (submitNewLeaderboard($gameID, $lbID, $user)) {
-            // Good!
-            header("Location: " . getenv('APP_URL') . "/leaderboardList.php?g=$gameID&e=ok");
-            exit;
-        } else {
-            header("Location: " . getenv('APP_URL') . "/leaderboardList.php&e=cannotcreate");
-            exit;
-        }
+if (isset($leaderboardID) && isset($duplicateNumber)) {
+    if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
+        return back()->with('success', __('legacy.success.ok'));
     }
 } else {
-    header("Location: " . getenv('APP_URL') . "/?e=badcredentials");
-    exit;
+    $lbID = null;
+    if (submitNewLeaderboard($gameID, $lbID, $user)) {
+        return back()->with('success', __('legacy.success.ok'));
+    }
 }
+
+return back()->withErrors(__('legacy.error.error'));

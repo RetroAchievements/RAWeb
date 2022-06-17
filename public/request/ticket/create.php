@@ -1,17 +1,27 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+use App\Legacy\Models\User;
+use Illuminate\Support\Facades\Validator;
 
-if (!ValidatePOSTChars("ipm")) {
-    echo "FAILED";
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetail)) {
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$achievementID = requestInputPost('i');
-$problemType = requestInputPost('p');
-$modeS = requestInputPost('m');
-$hardcore = ($modeS === "2") ? 1 : 0;
+/** @var User $user */
+$user = request()->user();
+
+$input = Validator::validate(request()->post(), [
+    'achievement' => 'required|integer|exists:mysql_legacy.Achievements,ID',
+    'mode' => 'required|boolean',
+    'issue' => 'required|integer|min:1|max:2',
+    'note' => 'sometimes|string|max:2',
+]);
+
+$achievementID = (int) $input['achievement'];
+$problemType = $input['issue'];
+$hardcore = (int) $input['mode'];
+
+// TODO untangle $_POST['note']
 
 $note = null;
 if (isset($_POST['note'])) {
@@ -36,15 +46,8 @@ if (isset($_POST['note'])) {
     $note = $appendNote;
 }
 
-if (authenticateFromCookie($user, $permissions, $userDetail)) {
-    $success = submitNewTickets($user, $achievementID, $problemType, $hardcore, $note, $msgOut);
-    if ($msgOut == "FAILED!") {
-        header("Location: " . getenv('APP_URL') . "/achievement/$achievementID?e=issue_failed");
-    } else {
-        header("Location: " . getenv('APP_URL') . "/achievement/$achievementID?e=issue_submitted");
-    }
-
-    echo $msgOut;
-} else {
-    echo "FAILED: Cannot validate user! Try logging out and back in, or confirming your email.";
+if (submitNewTickets($user, $achievementID, $problemType, $hardcore, $note, $msgOut)) {
+    return back()->with('success', __('legacy.success.ok'));
 }
+
+return back()->withErrors(__('legacy.error.error'));

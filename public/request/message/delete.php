@@ -1,23 +1,18 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
 
 // TODO do not allow GET requests, POST only
 if (!ValidateGETChars("m")) {
     echo "FAILED";
-    exit;
 }
 
 $messageID = requestInputQuery('m');
 
-if (authenticateFromCookie($user, $permissions, $userDetails)) {
-    if (DeleteMessage($user, $messageID)) {
-        header("Location: " . getenv('APP_URL') . "/inbox.php?e=deleteok");
-        exit;
-    } else {
-        echo "FAILED:Could not delete message!";
-    }
-} else {
-    echo "FAILED:Could not validate cookie - please login again!";
+if (DeleteMessage($user, $messageID)) {
+    return back()->with('success', __('legacy.success.delete'));
 }
+
+return back()->withErrors(__('legacy.error.error'));

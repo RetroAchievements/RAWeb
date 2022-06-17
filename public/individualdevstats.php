@@ -1,26 +1,20 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 use RA\TicketState;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
+// TODO validate
 $dev = requestInputSanitized('u');
-$errorCode = requestInputSanitized('e');
-
 if (empty($dev)) {
-    redirect(url(''));
-    exit;
+    return redirect(route('home'));
 }
 
 $userArchInfo = getUserAchievementInformation($dev);
 
-// Only get stats if the user has a contribute count
+// Only get stats if the user has a contribution count
 if (empty($userArchInfo)) {
-    header("Location: " . getenv('APP_URL') . "/user/" . $dev);
-    exit;
+    return redirect(route('user.show', $dev));
 }
 
 $userContribCount = $userArchInfo[0]['ContribCount'];
@@ -525,22 +519,18 @@ if ($userTickets['total'] == 0) {
     $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'] / $userTickets['total'];
 }
 
-RenderHtmlStart();
-RenderHtmlHead("$dev's Developer Stats");
+RenderContentStart("$dev's Developer Stats");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
-
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
         <?php if ($userContribCount > 0) { ?>
         var gamesData = google.visualization.arrayToDataTable([
-        ['System', 'Number of Sets'],
-        <?php
+            ['System', 'Number of Sets'],
+            <?php
             $count = 0;
             foreach ($setsPerConsole as $info) {
                 if ($count++ > 0) {
@@ -555,8 +545,8 @@ RenderHtmlHead("$dev's Developer Stats");
         ]);
 
         var achievementData = google.visualization.arrayToDataTable([
-        ['Console', 'Achievement per console'],
-        <?php
+            ['Console', 'Achievement per console'],
+            <?php
             $count = 0;
             foreach ($achievementsPerConsole as $info) {
                 if ($count++ > 0) {
@@ -574,16 +564,19 @@ RenderHtmlHead("$dev's Developer Stats");
         let chartAreaHeight = '60%';
 
         /* Render smaller charts on mobile */
-        if(window.innerWidth < 640){
+        if (window.innerWidth < 640) {
             chartWidth = 300;
             chartAreaHeight = '50%';
         }
 
         var gameOptions = {
             title: 'Games Developed for Per Console',
-               'width': chartWidth,
-               'height': 325,
-            'chartArea': {'width': '100%', 'height': chartAreaHeight},
+            width: chartWidth,
+            height: 325,
+            chartArea: {
+                width: '100%',
+                height: chartAreaHeight
+            },
             pieSliceText: 'value-and-percentage',
             titleTextStyle: {
                 color: '#2C97FA',
@@ -608,9 +601,12 @@ RenderHtmlHead("$dev's Developer Stats");
 
         var achievementOptions = {
             title: 'Achievements Created Per Console',
-               'width': chartWidth,
-               'height': 325,
-            'chartArea': {'width': '100%', 'height': chartAreaHeight},
+            width: chartWidth,
+            height: 325,
+            chartArea: {
+                width: '100%',
+                height: chartAreaHeight
+            },
             pieSliceText: 'value-and-percentage',
             titleTextStyle: {
                 color: '#2C97FA',
@@ -642,12 +638,12 @@ RenderHtmlHead("$dev's Developer Stats");
     <div id='fullcontainer'>
         <div class="navpath">
             <?php
-                echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
+            echo "<b><a href='/userList.php'>All Users</a> &raquo; <a href='/user/$dev'>$dev</a> &raquo; Developer Stats</b>";
             ?>
         </div>
 
         <?php if ($user !== null): ?>
-            <div class="d-flex flex-wrap justify-content-between">
+            <div class="flex flex-wrap justify-between">
                 <div>
                 </div>
                 <div>
@@ -1321,6 +1317,4 @@ RenderHtmlHead("$dev's Developer Stats");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

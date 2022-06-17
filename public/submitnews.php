@@ -1,210 +1,125 @@
 <?php
 
+use App\Legacy\Models\News;
+use App\Legacy\Models\User;
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-$errorCode = requestInputSanitized('e');
-$newsImageInput = requestInputSanitized('g');
-$newsArticleID = requestInputSanitized('n', 0, 'integer');
-
-$newsCount = getLatestNewsHeaders(0, 999, $newsData);
-$activeNewsArticle = null;
-
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
-    // Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header("Location: " . getenv('APP_URL'));
-    exit;
+if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
+    abort(401);
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Manage News");
+/** @var User $user */
+$user = request()->user();
+
+$newsId = (int) request()->query('news');
+$newsItems = News::orderByDesc('ID')->take(500)->get();
+
+/** @var ?News $news */
+$news = $newsItems->firstWhere('ID', $newsId);
+$newsTitle = $news['Title'] ?? '';
+$newsContent = $news['Payload'] ?? '';
+$newsAuthor = $news['Author'] ?? $user->User;
+$newsLink = $news['Link'] ?? '';
+$newsImage = old('image', $news['Image'] ?? '');
+
+RenderContentStart("Manage News");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
+<div id="mainpage">
+    <div id="fullcontainer">
+        <div class="mb-5">
+            <h2 class="longheader">Manage News</h2>
+            <p class="embedded">
+                Here you can submit new articles or modify old articles that can be viewed on the frontpage of the site.<br>
+                Please note: news images will be scaled to 470px width, and (currently) drawn at 220px height.
+            </p>
+        </div>
+        <form action="/request/news/update.php" method="post">
+            <?= csrf_field() ?>
+            <input type="hidden" name="news" value="<?= $newsId ?>">
+            <table>
+                <colgroup>
+                    <col style="width: 150px">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td><label for="id">News</label></td>
+                    <td>
+                        <select id="id" name="ab" onchange="if (this.selectedIndex >= 0) window.location = '/submitnews.php?news=' + this.value; return false;">
+                            <option value="">--New--</option>
+                            <?php foreach ($newsItems as $newsItem): ?>
+                                <?php /** @var News $newsItem */ ?>
+                                <option value="<?= $newsItem->ID ?>" <?= $newsItem->ID == $newsId ? 'selected' : '' ?>><?= $newsItem->Timestamp->format('Y-m-d H:i') ?> - <?= $newsItem->Title ?></option>
+                            <?php endforeach ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="title">Title</label></td>
+                    <td>
+                        <input class="w-full" id="title" type="text" name="title" value="<?= old('title', $newsTitle) ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="link">Link</label> (optional)</td>
+                    <td>
+                        <input class="w-full" id="link" type="text" name="link" value="<?= old('link', $newsLink) ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="align-top"><label for="image">Image</label></td>
+                    <td>
+                        <div class="mb-3">
+                            <input class="w-full" id="image" type="text" name="image" value="<?= $newsImage ?>"
+                                   onchange="$('#imagePreview img').attr( 'src', $('#image').val() );$('#imagePreview').show()"
+                            >
+                        </div>
+                        <div id="imagePreview" class="mb-3" style="<?= $newsImage ? '' : 'display:none' ?>">
+                            <img src="<?= $newsImage ?>" width="470" alt="News header image preview">
+                        </div>
+                        <input type="file" name="file" id="uploadimagefile" onchange="return UploadImage();">
+                        <img id="loadingicon" style="opacity: 0;" alt="loading icon" src="<?= asset('assets/images/icon/loading.gif') ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="align-top"><label for="body">Content</label></td>
+                    <td>
+                        <textarea class="w-full resize-y min-h-[250px]" id="body" rows="15" name="body"><?= old('body', $newsContent) ?></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="author">Author</label></td>
+                    <td>
+                        <div class="flex justify-between">
+                            <div>
+                                <input id="author" type="text" value="<?= $newsAuthor ?>" readonly>
+                            </div>
+                            <button class="btn btn-primary">Submit</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
 <script>
-  function onSubmitNews() {
-    var title = $('#NewsTitle').val();
-    title = replaceAll('http', '_http_', title);
-
-    var payload = $('#NewsPayload').val();
-    payload = replaceAll('http', '_http_', payload);
-
-    var imageurl = $('#NewsImage').val();
-    imageurl = replaceAll('http', '_http_', imageurl);
-
-    var link = $('#NewsLink').val();
-    link = replaceAll('http', '_http_', link);
-
-    var author = $('#NewsAuthor').val();
-    var posting = $.post('/request/news/update.php', { a: author, p: payload, t: title, l: link, g: imageurl, i: <?= $newsArticleID ?> });
-    posting.done(function (data) {
-      var result = $.parseJSON(data);
-      if (result.Success) {
-        window.location = '/index.php?e=newspostsuccess';
-      } else {
-        alert('Upload failed!\n' + result.Error);
-      }
-    });
-  }
-
-  function UploadImage() {
+function UploadImage() {
     var photo = document.getElementById('uploadimagefile');
     var file = photo.files[0];
     var reader = new FileReader();
     reader.onload = function () {
-      $('#loadingicon').fadeTo(100, 1.0);
-      $.post('/request/news/update-image.php', { i: reader.result },
-        function (data) {
-          $('#loadingicon').fadeTo(100, 0.0);
-          var result = $.parseJSON(data);
-          if (result.Success) {
-            $('#NewsImage').val(asset(result.Filename));
-            $('#NewsImagePreview').attr('src', $('#NewsImage').val());
-          } else {
-            alert('Upload failed!\n' + result.Error);
-          }
-        });
+        $('#loadingicon').fadeTo(100, 1.0);
+        $.post('/request/news/upload-image.php', { image: reader.result },
+            function (data) {
+                $('#loadingicon').fadeTo(100, 0.0);
+                var image = asset(data.filename);
+                $('#image').val(image);
+                $('#imagePreview img').attr('src', image);
+                $('#imagePreview').show();
+            });
     };
     reader.readAsDataURL(file);
     return false;
-  }
+}
 </script>
-<div id="mainpage">
-    <div id="fullcontainer">
-        <div class="navpath">
-            <b>Manage News</b>
-        </div>
-
-        <div class="largelist">
-            <h2 class="longheader">How to use</h2>
-            <p>
-                Here you can submit new articles or modify old articles that can be viewed on the frontpage of the site.<br>
-                Please note: news images will be scaled to 470px width, and (currently) drawn at 220px height.
-            </p>
-            <br>
-        </div>
-
-        <h2 class="longheader">Submit News</h2>
-        <?php
-        $yOffs = 0;
-        // RenderTwitchTVStream( $yOffs );
-
-        // echo "<div class='right'>";
-        // echo "<h2 class='longheader'>Upload news image</h2>";
-        // echo "470px max width! Image size will be scaled to fit.<br>";
-        //
-        // // echo "<form style='padding: 2px;' method='post' enctype='multipart/form-data' >";
-        // echo "<input type='submit' name='submit' style='float: right;' value='Select News Image' />";
-        // // echo "</form>";
-        //
-        // echo "<br>";
-        // echo "</div>";
-
-        RenderErrorCodeWarning($errorCode);
-
-        echo "Select Existing or Create New:&nbsp;";
-        echo "<select name='ab' onchange=\"if (this.selectedIndex >= 0) window.location = '/submitnews.php?n=' + this.value; return false;\" >";
-
-        echo "<option value=0>--New Post--</option>";
-        for ($i = 0; $i < $newsCount; $i++) {
-            $nextNews = $newsData[$i];
-            $nextID = $nextNews['ID'];
-            $nextTitle = $nextNews['Title'];
-
-            $selected = ($nextID == $newsArticleID) ? "selected" : "";
-
-            echo "<option value='$nextID' $selected><a href='/submitnews.php?n=$nextID'>$nextID - $nextTitle</a></option>";
-
-            if ($nextNews['ID'] == $newsArticleID) {
-                $activeNewsArticle = $nextNews;
-            }
-        }
-        echo "</select><br>";
-
-        if (isset($newsArticleID) && $newsArticleID != 0) {
-            echo "ID: <input type='text' name='i' size='2' value='$newsArticleID' readonly><br><br> ";
-        }
-
-        $newsTitle = "";
-        if (isset($activeNewsArticle)) {
-            $newsTitle = $activeNewsArticle['Title'];
-        }
-
-        $newsContent = "";
-        if (isset($activeNewsArticle)) {
-            $newsContent = $activeNewsArticle['Payload'];
-        }
-
-        $newsAuthor = $user;
-        if (isset($activeNewsArticle)) {
-            $newsAuthor = $activeNewsArticle['Author'];
-        }
-
-        $newsLink = "";
-        if (isset($activeNewsArticle)) {
-            $newsLink = $activeNewsArticle['Link'];
-        }
-
-        $newsImage = $newsImageInput;
-        if (isset($activeNewsArticle)) {
-            $newsImage = $activeNewsArticle['Image'];
-        }
-
-        echo "<table><tbody>";
-
-        echo "<tr>";
-        echo "<td colspan='2'>";
-        echo "Title: <input id='NewsTitle' type='text' name='t' style='width: 80%; float: right;' value='$newsTitle' ><br>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td colspan='2'>";
-        echo "Link (optional): <input id='NewsLink' type='text' name='l' style='width: 80%; float: right;' value='$newsLink'><br>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td>";
-        echo "Image: <input id='NewsImage' size='44' type='text' name='g' value='$newsImage' onchange=\"$('#NewsImagePreview').attr( 'src', $('#NewsImage').val() ); return false;\">";
-        echo "</td>";
-        echo "<td>";
-        echo "&nbsp;<img id='loadingicon' style='opacity: 0;' src='" . asset('Images/loading.gif') . "' alt='loading icon' />";
-        echo "&nbsp;New image:";
-        echo "<input type='file' style='float: right;' name='file' id='uploadimagefile' onchange=\"return UploadImage();\" /> <br>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td colspan='2'>";
-        echo "Preview: <br>";
-        echo "<div class='submitnewstestimageholder'>";
-        echo "<img id='NewsImagePreview' src='$newsImage' width='470' style='margin:0;' /><br>";
-        echo "</div>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td colspan='2'>";
-        echo "Article Content (most HTML supported): <br>";
-        echo "<textarea id='NewsPayload' rows='10' cols='80' name='p' style='width: 100%;'>$newsContent</textarea><br>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td colspan='2'>";
-        echo "<input onclick=\"onSubmitNews()\" type='submit' name='submit' size='37' style='float: right;' value='Submit News Article!' />";
-        echo "Author: <input id='NewsAuthor' type='text' name='a' value='$newsAuthor' readonly><br>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "</tbody></table>";
-        ?>
-        <br>
-    </div>
-</div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

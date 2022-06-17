@@ -2,36 +2,22 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-if (!authenticateFromCookie(
-    $user,
-    $permissions,
-    $userDetails,
-    Permissions::Developer
-)) {
-    // Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header("Location: " . getenv('APP_URL'));
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+    abort(401);
 }
 
-$gameID = requestInputSanitized('g', null, 'integer');
-$errorCode = requestInputSanitized('e');
+$gameID = (int) request()->query('g');
+if (empty($gameID)) {
+    abort(404);
+}
 
 $achievementList = [];
 $gamesList = [];
 
-if (empty($gameID)) {
-    // Immediate redirect: this is pointless otherwise!
-    header("Location: " . getenv('APP_URL'));
-}
-
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
 if (empty($gameData)) {
-    // Immediate redirect: this is pointless otherwise!
-    header("Location: " . getenv('APP_URL') . "?e=unknowngame");
+    abort(404);
 }
 
 $consoleName = $gameData['ConsoleName'];
@@ -44,11 +30,8 @@ sanitize_outputs(
     $gameTitle,
 );
 
-RenderHtmlStart();
-RenderHtmlHead("Rename Game Entry ($consoleName)");
+RenderContentStart("Rename Game Entry ($consoleName)");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <h2>Rename Game Entry</h2>
@@ -60,16 +43,15 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
         echo "Please enter a new name below:<br><br>";
 
         echo "<form method=post action='/request/game/update.php'>";
+        echo csrf_field();
         echo "<input type='hidden' name='i' value='$gameID' />";
         echo "New Name: <input type='text' name='t' value=\"$gameTitle\" size='60' />";
         echo "&nbsp;<input type='submit' value='Submit' />";
         echo "</form>";
 
-        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt%20to%20Rename%20a%20title'>leave a message for admins</a> and they'll help sort it.</div>";
+        echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt%20to%20Rename%20a%20title'>leave a message for admins</a> and they'll help sort it.</div>";
         ?>
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

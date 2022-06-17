@@ -1,32 +1,47 @@
 <?php
 
+use App\Legacy\Models\News;
+use App\Legacy\Models\User;
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-if (!ValidatePOSTChars("aptlg")) {
-    echo "FAILED";
-    exit;
+if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
+    abort(401);
 }
 
-$author = requestInputPost('a');
-$payload = requestInputPost('p');
-$title = requestInputPost('t');
-$link = requestInputPost('l');
-$image = requestInputPost('g');
-$id = requestInputPost('i', null, 'integer');
+/** @var User $user */
+$user = request()->user();
 
-$payload = str_replace("_http_", "http", $payload);
-$title = str_replace("_http_", "http", $title);
-$link = str_replace("_http_", "http", $link);
-$image = str_replace("_http_", "http", $image);
+$input = Validator::validate(request()->post(), [
+    'news' => 'sometimes|integer',
+    'body' => 'required|string',
+    'title' => 'required|string',
+    'link' => 'required|nullable|url',
+    'image' => 'required|url',
+]);
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit;
+$id = (int) $input['news'];
+
+if (empty($id)) {
+    /** @var News $news */
+    $news = News::create([
+        'Title' => $input['title'],
+        'Payload' => $input['body'],
+        'Author' => $user->User,
+        'Link' => $input['link'],
+        'Image' => $input['image'],
+    ]);
+
+    return redirect(url('/submitnews.php?news=' . $news->ID))->with(['success' => __('legacy.success.create')]);
 }
 
-requestModifyNews($author, $id, $title, $payload, $link, $image);
-echo json_encode(['Success' => true]);
+/** @var News $news */
+$news = News::findOrFail($id);
+$news->update([
+    'Title' => $input['title'],
+    'Payload' => $input['body'],
+    'Link' => $input['link'],
+    'Image' => $input['image'],
+]);
+
+return back()->with(['success' => __('legacy.success.update')]);

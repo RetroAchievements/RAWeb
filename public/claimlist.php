@@ -8,9 +8,6 @@ use RA\ClaimStatus;
 use RA\ClaimType;
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $defaultFilter = ClaimFilters::Default; // Show all active claims
@@ -19,7 +16,6 @@ $maxCount = 50;
 $offset = 0;
 $totalClaims = 0;
 
-$errorCode = requestInputSanitized('e');
 $username = requestInputSanitized('u', null);
 $claimFilters = requestInputSanitized('f', $defaultFilter, 'integer');
 $sortType = requestInputSanitized('s', $defaultSorting, 'integer');
@@ -41,17 +37,11 @@ sanitize_outputs(
     $consoleName,
 );
 
-RenderHtmlStart();
-RenderHtmlHead("Claim List");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Claim List");
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning($errorCode);
         echo "<h3>Claim List - $activeClaimCount Active Claims</h3>";
         echo "<h4>Filters - $totalClaims Claims Filtered</h4>";
         echo "<div class='embedded mb-1'>";
@@ -146,7 +136,7 @@ RenderHeader($userDetails);
 
         // Username filter
         if (isset($user) || !empty($username)) {
-            echo "<p><b>User:</b> ";
+            echo "<p class='embedded'><b>User:</b> ";
             if (isset($user)) {
                 if ($username == $user) {
                     echo "<b>$user</b> | ";
@@ -169,7 +159,7 @@ RenderHeader($userDetails);
 
         // Game filter
         if (!empty($gameID)) {
-            echo "<p><b>Game</b>";
+            echo "<p class='embedded'><b>Game</b>";
             echo ": <b>$gameTitle ($consoleName)</b>";
             echo " | <a href='" . $createLink('g', null) . "'>Clear Filter</a></p>";
         }
@@ -216,6 +206,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

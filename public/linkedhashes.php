@@ -2,42 +2,25 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    // Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
-$gameID = requestInputSanitized('g', null, 'integer');
-$errorCode = requestInputSanitized('e');
-
-$gameIDSpecified = (isset($gameID) && $gameID != 0);
-$consoleName = null;
-$gameIcon = null;
-$gameTitle = null;
-$hashes = null;
-$forumTopicID = 0;
-if ($gameIDSpecified) {
-    getGameMetadata($gameID, $user, $achievementData, $gameData);
-    $consoleName = $gameData['ConsoleName'];
-    $consoleID = $gameData['ConsoleID'];
-    $gameTitle = $gameData['Title'];
-    $gameIcon = $gameData['ImageIcon'];
-    $forumTopicID = $gameData['ForumTopicID'];
-    $hashes = getHashListByGameID($gameID);
-} else {
-    // Immediate redirect: this is pointless otherwise!
-    header("Location: " . getenv('APP_URL'));
+$gameID = (int) request()->query('g');
+if (empty($gameID)) {
+    abort(404);
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Linked Hashes");
+getGameMetadata($gameID, $user, $achievementData, $gameData);
+$consoleName = $gameData['ConsoleName'];
+$consoleID = $gameData['ConsoleID'];
+$gameTitle = $gameData['Title'];
+$gameIcon = $gameData['ImageIcon'];
+$forumTopicID = $gameData['ForumTopicID'];
+$hashes = getHashListByGameID($gameID);
+
+RenderContentStart("Linked Hashes");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
 
@@ -47,7 +30,7 @@ RenderHtmlHead("Linked Hashes");
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
         echo "<br><br>";
 
-        echo "<p><b>Hashes are used to confirm if two copies of a file are identical. " .
+        echo "<p class='embedded'><b>Hashes are used to confirm if two copies of a file are identical. " .
              "We use it to ensure the player is using the same ROM as the achievement developer, or a compatible one." .
              "<br/><br/>RetroAchievements only hashes portions of larger games to minimize load times, and strips " .
              "headers on smaller ones. Details on how the hash is generated for each system can be found " .
@@ -66,16 +49,16 @@ RenderHtmlHead("Linked Hashes");
 
             $hashName = $hash['Name'];
             sanitize_outputs($hashName);
-            echo "<li><p><b>$hashName</b>";
+            echo "<li><p class='embedded'><b>$hashName</b>";
             if (!empty($hash['Labels'])) {
                 foreach (explode(',', $hash['Labels']) as $label) {
                     if (empty($label)) {
                         continue;
                     }
 
-                    $image = "/Images/labels/" . $label . '.png';
+                    $image = "/assets/images/labels/" . $label . '.png';
                     if (file_exists(__DIR__ . $image)) {
-                        echo ' <img class="injectinlineimage" src="' . $image . '">';
+                        echo ' <img class="injectinlineimage" src="' . asset($image) . '">';
                     } else {
                         echo ' [' . $label . ']';
                     }
@@ -90,7 +73,7 @@ RenderHtmlHead("Linked Hashes");
         }
 
         if ($hasUnlabeledHashes) {
-            echo '<li><p><b>Unlabeled</b><br/>';
+            echo '<li><p class="embedded"><b>Unlabeled</b><br/>';
             foreach ($hashes as $hash) {
                 if (!empty($hash['Name'])) {
                     continue;
@@ -116,6 +99,4 @@ RenderHtmlHead("Linked Hashes");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

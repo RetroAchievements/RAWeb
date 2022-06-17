@@ -11,7 +11,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
         echo "<br/><br/>";
     }
 
-    echo "<table class='smalltable xsmall'><tbody>";
+    echo "<table><tbody>";
 
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 

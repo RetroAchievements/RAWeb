@@ -1,5 +1,7 @@
 <?php
 
+// TODO migrate to/replace with controllers, models, views
+
 require_once __DIR__ . '/database/achievement.php';
 require_once __DIR__ . '/database/achievement-creator.php';
 require_once __DIR__ . '/database/achievement-points.php';
@@ -10,12 +12,10 @@ require_once __DIR__ . '/database/game.php';
 require_once __DIR__ . '/database/hash.php';
 require_once __DIR__ . '/database/leaderboard.php';
 require_once __DIR__ . '/database/message.php';
-require_once __DIR__ . '/database/news.php';
 require_once __DIR__ . '/database/player-achievement.php';
 require_once __DIR__ . '/database/player-game.php';
 require_once __DIR__ . '/database/player-history.php';
 require_once __DIR__ . '/database/player-rank.php';
-require_once __DIR__ . '/database/playlist.php';
 require_once __DIR__ . '/database/rating.php';
 require_once __DIR__ . '/database/release.php';
 require_once __DIR__ . '/database/search.php';
@@ -38,7 +38,6 @@ require_once __DIR__ . '/render/achievement.php';
 require_once __DIR__ . '/render/code-note.php';
 require_once __DIR__ . '/render/comment.php';
 require_once __DIR__ . '/render/content.php';
-require_once __DIR__ . '/render/error.php';
 require_once __DIR__ . '/render/forum.php';
 require_once __DIR__ . '/render/game.php';
 require_once __DIR__ . '/render/layout.php';
@@ -55,20 +54,15 @@ require_once __DIR__ . '/render/twitch.php';
 require_once __DIR__ . '/render/user.php';
 require_once __DIR__ . '/render/user-activity-feed.php';
 
-require_once __DIR__ . '/util/api.php';
 require_once __DIR__ . '/util/array.php';
 require_once __DIR__ . '/util/bit.php';
 require_once __DIR__ . '/util/cookie.php';
 require_once __DIR__ . '/util/database.php';
 require_once __DIR__ . '/util/date.php';
-require_once __DIR__ . '/util/debug.php';
-require_once __DIR__ . '/util/log.php';
 require_once __DIR__ . '/util/mail.php';
 require_once __DIR__ . '/util/media.php';
 require_once __DIR__ . '/util/mobile-browser.php';
 require_once __DIR__ . '/util/recaptcha.php';
 require_once __DIR__ . '/util/request.php';
-require_once __DIR__ . '/util/path.php';
 require_once __DIR__ . '/util/string.php';
 require_once __DIR__ . '/util/trigger.php';
-require_once __DIR__ . '/util/url.php';

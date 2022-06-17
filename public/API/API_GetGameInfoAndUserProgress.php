@@ -47,11 +47,6 @@
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
 $gameID = requestInputQuery('g');
 $targetUser = requestInputQuery('u');
 getGameMetadata($gameID, $targetUser, $achData, $gameData);
@@ -83,4 +78,4 @@ if ($gameData['NumAchievements'] ?? false) {
     $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
 }
 
-echo json_encode($gameData, JSON_THROW_ON_ERROR);
+return response()->json($gameData);

@@ -1,35 +1,32 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-if (!ValidatePOSTChars("m")) {
-    header("Location: " . getenv('APP_URL') . "?e=invalidparams");
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    abort(401);
 }
 
-$newMotto = requestInputPost('m');
+$input = Validator::validate(request()->post(), [
+    'motto' => 'sometimes|nullable|string|max:50',
+]);
+
+$newMotto = $input['motto'];
 
 sanitize_sql_inputs($user, $cookie, $newMotto);
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    $query = "
-			UPDATE UserAccounts
-			SET Motto='$newMotto', Updated=NOW()
-			WHERE User='$user'";
+// TODO use model, remove extra sanitization
+$query = "
+        UPDATE UserAccounts
+        SET Motto='$newMotto', Updated=NOW()
+        WHERE User='$user'";
 
-    global $db;
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        $changeErrorCode = "changeok";
-    } else {
-        log_sql_fail();
-        $changeErrorCode = "changeerror";
-    }
-} else {
-    $changeErrorCode = "changeerror";
+$db = getMysqliConnection();
+$dbResult = mysqli_query($db, $query);
+if (!$dbResult) {
+    log_sql_fail();
+
+    return back()->withErrors(__('legacy.error.error'));
 }
 
-header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=$changeErrorCode");
+return back()->with('success', __('legacy.success.change'));

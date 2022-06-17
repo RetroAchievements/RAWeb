@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 50;
@@ -18,12 +15,8 @@ $consoleID = requestInputSanitized('i', 0, 'integer');
 
 $gameData = getGameListSearch($offset, $count, $method, $consoleID);
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Game Search");
+RenderContentStart("Game Search");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
@@ -35,9 +28,9 @@ RenderHtmlHead("Game Search");
 
         echo "<h3 class='longheader'>Game Search</h3>";
 
-        echo "<p>Showing: games by largest RetroRatio:</p>";
+        echo "<p class='embedded'>Showing: games by largest RetroRatio:</p>";
 
-        echo "<p>Show: ";
+        echo "<p class='embedded'>Show: ";
 
         foreach ($consoleList as $nextConsoleID => $nextConsoleName) {
             if ($nextConsoleID > 0) {
@@ -149,6 +142,4 @@ RenderHtmlHead("Game Search");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

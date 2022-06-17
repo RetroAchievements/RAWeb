@@ -13,13 +13,9 @@ use RA\TicketFilters;
 use RA\TicketState;
 use RA\UserPreference;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-$gameID = requestInputSanitized('ID', null, 'integer');
-if ($gameID == null || $gameID == 0) {
-    header("Location: " . getenv('APP_URL') . "?e=urlissue");
-    exit;
+$gameID = (int) request('game');
+if (empty($gameID)) {
+    abort(404);
 }
 
 $friendScores = [];
@@ -27,8 +23,6 @@ if (authenticateFromCookie($user, $permissions, $userDetails)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
 $userID = $userDetails['ID'] ?? 0;
-
-$errorCode = requestInputSanitized('e');
 
 $officialFlag = AchievementType::OfficialCore;
 $unofficialFlag = AchievementType::Unofficial;
@@ -46,9 +40,8 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
 
 $numAchievements = getGameMetadataByFlags($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags);
 
-if (!isset($gameData)) {
-    echo "Invalid game ID!";
-    exit;
+if (empty($gameData)) {
+    abort(404);
 }
 
 $gameTitle = $gameData['Title'];
@@ -81,53 +74,49 @@ foreach ($relatedGames as $gameAlt) {
 }
 
 $v = requestInputSanitized('v', 0, 'integer');
+$gate = false;
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
             if ($userDetails && BitSet($userDetails['websitePrefs'], UserPreference::SiteMsgOff_MatureContent)) {
                 break;
             }
-
-            RenderHtmlStart(true); ?>
-<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader(); ?>
-    <?php RenderTitleTag($pageTitle); ?>
-</head>
-<body>
-<?php RenderHeader($userDetails);
-            echo "<div id='mainpage'>";
-            echo "<div id='leftcontainer'>";
-            echo "<div class='navpath'>";
-            echo "<a href='/gameList.php'>All Games</a>";
-            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-            echo " &raquo; <b>$gameTitle</b>";
-            echo "</div>";
-            echo "<h3 class='longheader'>$pageTitle</h3>"; ?>
-  <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
-  <br/>
-  <div id="confirmation">
-    Are you sure that you want to view this game?
-    <br/>
-    <br/>
-    <form id='consentform' action='/game/<?= $gameID ?>' method='get' style='float:left'>
-      <input type='hidden' name='v' value='1'/>
-      <input type='submit' value='Yes. I&apos;m an adult'/>
-    </form>
-    <form id='escapeform' action='/gameList.php' method='get' style='float:left; margin-left:16px'>
-      <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-      <input type='submit' value='Not Interested'/>
-    </form>
-  </div>
-</div>
-</div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd();
-            exit;
+            $gate = true;
         }
     }
 }
-
+?>
+<?php if ($gate): ?>
+    <?php RenderContentStart($pageTitle) ?>
+    <div id='mainpage'>
+        <div id='leftcontainer'>
+            <div class='navpath'>
+                <a href='/gameList.php'>All Games</a>
+                &raquo; <a href='/gameList.php?c=?<?= $consoleID ?>'><?= $consoleName ?></a>
+                &raquo; <b><?= $gameTitle ?></b>
+            </div>
+            <h3 class='longheader'><?= $pageTitle ?></h3>
+            <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
+            <br/>
+            <div id="confirmation">
+                Are you sure that you want to view this game?
+                <br/>
+                <br/>
+                <form id='consentform' action='/game/<?= $gameID ?>' style='float:left'>
+                    <input type='hidden' name='v' value='1'/>
+                    <input type='submit' value='Yes. I&apos;m an adult'/>
+                </form>
+                <form id='escapeform' action='/gameList.php' style='float:left; margin-left:16px'>
+                    <input type='hidden' name='c' value='<?= $consoleID ?>'/>
+                    <input type='submit' value='Not Interested'/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php RenderContentEnd(); ?>
+    <?php return ?>
+<?php endif ?>
+<?php
 $achDist = null;
 $authorInfo = [];
 $commentData = null;
@@ -250,25 +239,18 @@ sanitize_outputs(
     $pageTitle,
     $user,
 );
-
-RenderHtmlStart(true);
 ?>
-<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader(); ?>
-    <?php if ($isFullyFeaturedGame): ?>
-        <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
-    <?php endif ?>
-    <?php RenderTitleTag($pageTitle); ?>
-</head>
-<body>
-<?php RenderHeader($userDetails); ?>
+<?php if ($isFullyFeaturedGame): ?>
+    <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
+<?php endif ?>
+<?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-      google.load('visualization', '1.0', {'packages': ['corechart']});
-      google.setOnLoadCallback(drawCharts);
+    google.load('visualization', '1.0', { 'packages': ['corechart'] });
+    google.setOnLoadCallback(drawCharts);
 
-      function drawCharts() {
+    function drawCharts() {
         var dataTotalScore = new google.visualization.DataTable();
 
         // Declare columns
@@ -297,305 +279,313 @@ RenderHtmlStart(true);
             }
             ?>
         ]);
-          <?php $numGridlines = $numAchievements; ?>
+        <?php $numGridlines = $numAchievements; ?>
         var optionsTotalScore = {
-          backgroundColor: 'transparent',
-          titleTextStyle: {color: '#186DEE'}, // cc9900
-          hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $numGridlines ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
-          vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $largestWonByCount + 1 ?>}, viewWindow: {min: 0}, format: '#'},
-          legend: {position: 'none'},
-          chartArea: {'width': '85%', 'height': '78%'},
-          height: 260,
-          colors: ['#cc9900'],
-          pointSize: 4,
+            backgroundColor: 'transparent',
+            titleTextStyle: { color: '#186DEE' }, // cc9900
+            hAxis: {
+                textStyle: { color: '#186DEE' },
+                gridlines: {
+                    count: <?= $numGridlines ?>,
+                    color: '#334433'
+                },
+                minorGridlines: { count: 0 },
+                format: '#',
+                slantedTextAngle: 90,
+                maxAlternation: 0
+            },
+            vAxis: {
+                textStyle: { color: '#186DEE' },
+                gridlines: { count: <?= $largestWonByCount + 1 ?> },
+                viewWindow: { min: 0 },
+                format: '#'
+            },
+            legend: { position: 'none' },
+            chartArea: {
+                'width': '85%',
+                'height': '78%'
+            },
+            height: 260,
+            colors: ['#cc9900'],
+            pointSize: 4,
         };
 
         function resize() {
-          chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
-          chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
-          // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
+            chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
+            chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
+            // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
         }
 
         window.onload = resize();
         window.onresize = resize;
-      }
+    }
     </script>
     <script>
-      var lastKnownAchRating = <?= $gameRating[RatingType::Achievement]['AverageRating'] ?>;
-      var lastKnownGameRating = <?= $gameRating[RatingType::Game]['AverageRating'] ?>;
-      var lastKnownAchRatingCount = <?= $gameRating[RatingType::Achievement]['RatingCount'] ?>;
-      var lastKnownGameRatingCount = <?= $gameRating[RatingType::Game]['RatingCount'] ?>;
+    var lastKnownAchRating = <?= $gameRating[RatingType::Achievement]['AverageRating'] ?>;
+    var lastKnownGameRating = <?= $gameRating[RatingType::Game]['AverageRating'] ?>;
+    var lastKnownAchRatingCount = <?= $gameRating[RatingType::Achievement]['RatingCount'] ?>;
+    var lastKnownGameRatingCount = <?= $gameRating[RatingType::Game]['RatingCount'] ?>;
 
-      function SetLitStars(container, numStars) {
+    function SetLitStars(container, numStars) {
         $(container + ' a').removeClass('starlit');
         $(container + ' a').removeClass('starhalf');
 
-        if (numStars >= 0.5)
-          $(container + ' a:first-child').addClass('starhalf');
-        if (numStars >= 1.5)
-          $(container + ' a:first-child + a').addClass('starhalf');
-        if (numStars >= 2.5)
-          $(container + ' a:first-child + a + a').addClass('starhalf');
-        if (numStars >= 3.5)
-          $(container + ' a:first-child + a + a + a').addClass('starhalf');
-        if (numStars >= 4.5)
-          $(container + ' a:first-child + a + a + a + a').addClass('starhalf');
+        if (numStars >= 0.5) {
+            $(container + ' a:first-child').addClass('starhalf');
+        }
+        if (numStars >= 1.5) {
+            $(container + ' a:first-child + a').addClass('starhalf');
+        }
+        if (numStars >= 2.5) {
+            $(container + ' a:first-child + a + a').addClass('starhalf');
+        }
+        if (numStars >= 3.5) {
+            $(container + ' a:first-child + a + a + a').addClass('starhalf');
+        }
+        if (numStars >= 4.5) {
+            $(container + ' a:first-child + a + a + a + a').addClass('starhalf');
+        }
 
         if (numStars >= 1) {
-          $(container + ' a:first-child').removeClass('starhalf');
-          $(container + ' a:first-child').addClass('starlit');
+            $(container + ' a:first-child').removeClass('starhalf');
+            $(container + ' a:first-child').addClass('starlit');
         }
 
         if (numStars >= 2) {
-          $(container + ' a:first-child + a').removeClass('starhalf');
-          $(container + ' a:first-child + a').addClass('starlit');
+            $(container + ' a:first-child + a').removeClass('starhalf');
+            $(container + ' a:first-child + a').addClass('starlit');
         }
 
         if (numStars >= 3) {
-          $(container + ' a:first-child + a + a').removeClass('starhalf');
-          $(container + ' a:first-child + a + a').addClass('starlit');
+            $(container + ' a:first-child + a + a').removeClass('starhalf');
+            $(container + ' a:first-child + a + a').addClass('starlit');
         }
 
         if (numStars >= 4) {
-          $(container + ' a:first-child + a + a + a').removeClass('starhalf');
-          $(container + ' a:first-child + a + a + a').addClass('starlit');
+            $(container + ' a:first-child + a + a + a').removeClass('starhalf');
+            $(container + ' a:first-child + a + a + a').addClass('starlit');
         }
 
         if (numStars >= 5) {
-          $(container + ' a:first-child + a + a + a + a').removeClass('starhalf');
-          $(container + ' a:first-child + a + a + a + a').addClass('starlit');
+            $(container + ' a:first-child + a + a + a + a').removeClass('starhalf');
+            $(container + ' a:first-child + a + a + a + a').addClass('starlit');
         }
-      }
+    }
 
-      function UpdateRating(container, label, rating, raters) {
+    function UpdateRating(container, label, rating, raters) {
         if (raters < <?= $minimumNumberOfRatingsToDisplay ?>) {
-          SetLitStars(container, 0);
-          label.html('More ratings needed (' + raters + ' votes)');
+            SetLitStars(container, 0);
+            label.html('More ratings needed (' + raters + ' votes)');
         } else {
-          SetLitStars(container, rating);
-          label.html('Rating: ' + rating.toFixed(2) + ' (' + raters + ' votes)');
+            SetLitStars(container, rating);
+            label.html('Rating: ' + rating.toFixed(2) + ' (' + raters + ' votes)');
         }
-      }
+    }
 
-      function UpdateRatings() {
+    function UpdateRatings() {
         UpdateRating('#ratinggame', $('.ratinggamelabel'), lastKnownGameRating, lastKnownGameRatingCount);
         UpdateRating('#ratingach', $('.ratingachlabel'), lastKnownAchRating, lastKnownAchRatingCount);
-      }
+    }
 
-      function SubmitRating(gameID, ratingObjectType, value) {
-        $.ajax({
-          url: '/request/game/update-rating.php?i=' + gameID + '&t=' + ratingObjectType + '&v=' + value,
-          dataType: 'json',
-          success: function (results) {
-            if (ratingObjectType == <?= RatingType::Game ?>) {
-              $('.ratinggamelabel').html('Rating: ...');
-            } else {
-              $('.ratingachlabel').html('Rating: ...');
-            }
+    function SubmitRating(gameID, ratingObjectType, value) {
+        $.post('/request/game/update-rating.php', {
+            game: gameID,
+            type: ratingObjectType,
+            rating: value
+        })
+            .done(function () {
+                $.post('/request/game/rating.php', {
+                    game: gameID,
+                })
+                    .done(function (results) {
+                        lastKnownGameRating = parseFloat(results.Ratings['Game']);
+                        lastKnownAchRating = parseFloat(results.Ratings['Achievements']);
+                        lastKnownGameRatingCount = results.Ratings['GameNumVotes'];
+                        lastKnownAchRatingCount = results.Ratings['AchievementsNumVotes'];
 
-            $.ajax({
-              url: '/request/game/rating.php?i=' + gameID,
-              dataType: 'json',
-              success: function (results) {
-                lastKnownGameRating = parseFloat(results.Ratings['Game']);
-                lastKnownAchRating = parseFloat(results.Ratings['Achievements']);
-                lastKnownGameRatingCount = results.Ratings['GameNumVotes'];
-                lastKnownAchRatingCount = results.Ratings['AchievementsNumVotes'];
+                        UpdateRatings();
 
-                UpdateRatings();
-
-                if (ratingObjectType == <?= RatingType::Game ?>) {
-                  index = ratinggametooltip.indexOf("Your rating: ") + 13;
-                  index2 = ratinggametooltip.indexOf("</td>", index);
-                  ratinggametooltip = ratinggametooltip.substring(0, index) + value + "<br><i>Distribution may have changed</i>" + ratinggametooltip.substring(index2);
-                } else {
-                  index = ratingachtooltip.indexOf("Your rating: ") + 13;
-                  index2 = ratingachtooltip.indexOf("</td>", index);
-                  ratingachtooltip = ratingachtooltip.substring(0, index) + value + "<br><i>Distribution may have changed</i>" + ratingachtooltip.substring(index2);
-                }
-              },
+                        if (ratingObjectType == <?= RatingType::Game ?>) {
+                            index = ratinggametooltip.indexOf('Your rating: ') + 13;
+                            index2 = ratinggametooltip.indexOf('</td>', index);
+                            ratinggametooltip = ratinggametooltip.substring(0, index) + value + '<br><i>Distribution may have changed</i>' + ratinggametooltip.substring(index2);
+                        } else {
+                            index = ratingachtooltip.indexOf('Your rating: ') + 13;
+                            index2 = ratingachtooltip.indexOf('</td>', index);
+                            ratingachtooltip = ratingachtooltip.substring(0, index) + value + '<br><i>Distribution may have changed</i>' + ratingachtooltip.substring(index2);
+                        }
+                    });
             });
-          },
-        });
-      }
+    }
 
-      // Onload:
-      $(function () {
-
-        // Add these handlers onload, they don't exist yet
+    $(function () {
         $('.starimg').hover(
-          function () {
-            // On hover
+            function () {
+                // On hover
 
-            if ($(this).parent().is($('#ratingach'))) {
-              // Ach:
-              var numStars = 0;
-              if ($(this).hasClass('1star'))
-                numStars = 1;
-              else if ($(this).hasClass('2star'))
-                numStars = 2;
-              else if ($(this).hasClass('3star'))
-                numStars = 3;
-              else if ($(this).hasClass('4star'))
-                numStars = 4;
-              else if ($(this).hasClass('5star'))
-                numStars = 5;
+                if ($(this).parent().is($('#ratingach'))) {
+                    // Ach:
+                    var numStars = 0;
+                    if ($(this).hasClass('1star')) {
+                        numStars = 1;
+                    } else if ($(this).hasClass('2star')) {
+                        numStars = 2;
+                    } else if ($(this).hasClass('3star')) {
+                        numStars = 3;
+                    } else if ($(this).hasClass('4star')) {
+                        numStars = 4;
+                    } else if ($(this).hasClass('5star')) {
+                        numStars = 5;
+                    }
 
-              SetLitStars('#ratingach', numStars);
-            } else {
-              // Game:
-              var numStars = 0;
-              if ($(this).hasClass('1star'))
-                numStars = 1;
-              else if ($(this).hasClass('2star'))
-                numStars = 2;
-              else if ($(this).hasClass('3star'))
-                numStars = 3;
-              else if ($(this).hasClass('4star'))
-                numStars = 4;
-              else if ($(this).hasClass('5star'))
-                numStars = 5;
+                    SetLitStars('#ratingach', numStars);
+                } else {
+                    // Game:
+                    var numStars = 0;
+                    if ($(this).hasClass('1star')) {
+                        numStars = 1;
+                    } else if ($(this).hasClass('2star')) {
+                        numStars = 2;
+                    } else if ($(this).hasClass('3star')) {
+                        numStars = 3;
+                    } else if ($(this).hasClass('4star')) {
+                        numStars = 4;
+                    } else if ($(this).hasClass('5star')) {
+                        numStars = 5;
+                    }
 
-              SetLitStars('#ratinggame', numStars);
-            }
-          });
+                    SetLitStars('#ratinggame', numStars);
+                }
+            });
 
         $('.rating').hover(
-          function () {
-            // On hover
-          },
-          function () {
-            // On leave
-            UpdateRatings();
-          });
+            function () {
+                // On hover
+            },
+            function () {
+                // On leave
+                UpdateRatings();
+            });
 
         $('.starimg').click(function () {
 
-          var numStars = 0;
-          if ($(this).hasClass('1star'))
-            numStars = 1;
-          else if ($(this).hasClass('2star'))
-            numStars = 2;
-          else if ($(this).hasClass('3star'))
-            numStars = 3;
-          else if ($(this).hasClass('4star'))
-            numStars = 4;
-          else if ($(this).hasClass('5star'))
-            numStars = 5;
+            var numStars = 0;
+            if ($(this).hasClass('1star')) {
+                numStars = 1;
+            } else if ($(this).hasClass('2star')) {
+                numStars = 2;
+            } else if ($(this).hasClass('3star')) {
+                numStars = 3;
+            } else if ($(this).hasClass('4star')) {
+                numStars = 4;
+            } else if ($(this).hasClass('5star')) {
+                numStars = 5;
+            }
 
-          var ratingType = 1;
-          if ($(this).parent().is($('#ratingach')))
-            ratingType = 3;
+            var ratingType = 1;
+            if ($(this).parent().is($('#ratingach'))) {
+                ratingType = 3;
+            }
 
-          SubmitRating(<?= $gameID ?>, ratingType, numStars);
+            SubmitRating(<?= $gameID ?>, ratingType, numStars);
         });
 
-      });
+    });
 
-      /**
-       * Displays set request information
-       */
-      function getSetRequestInformation(user, gameID) {
-        $.ajax(
-          {
-            url: '/request/set-request/list.php?i=' + gameID + '&u=' + user,
-            dataType: 'json',
-            success: function (results) {
-              var remaining = parseInt(results.remaining);
-              var gameTotal = parseInt(results.gameRequests);
-              var thisGame = results.requestedThisGame;
+    function getSetRequestInformation(user, gameID) {
+        $.post('/request/set-request/list.php', {
+            i: gameID,
+            u: user,
+        })
+            .done(function (results) {
+                var remaining = parseInt(results.remaining);
+                var gameTotal = parseInt(results.gameRequests);
+                var thisGame = results.requestedThisGame;
 
-              $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
-              $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
+                $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
+                $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
 
-              // If the user has not requested a set for this game
-              if (thisGame == 0) {
-                if (remaining <= 0) {
-                  $('.setRequestLabel').html('<h4>No Requests Remaining</h4>');
+                // If the user has not requested a set for this game
+                if (thisGame == 0) {
+                    if (remaining <= 0) {
+                        $('.setRequestLabel').html('<h4>No Requests Remaining</h4>');
 
-                  //Remove clickable text
-                  $('.setRequestLabel').each(function () {
-                    $('<h4>' + $(this).html() + '</h4>').replaceAll(this);
-                  });
+                        //Remove clickable text
+                        $('.setRequestLabel').each(function () {
+                            $('<h4>' + $(this).html() + '</h4>').replaceAll(this);
+                        });
+                    } else {
+                        $('.setRequestLabel').html('<h4>Request Set</h4>');
+                    }
                 } else {
-                  $('.setRequestLabel').html('<h4>Request Set</h4>');
+                    $('.setRequestLabel').html('<h4>Withdraw Request</h4>');
                 }
-              } else {
-                $('.setRequestLabel').html('<h4>Withdraw Request</h4>');
-              }
-            },
-          });
-      }
+            });
+    }
 
-      /**
-       * Submits a set requets
-       */
-      function submitSetRequest(user, gameID) {
-        $.ajax(
-          {
-            url: '/request/set-request/update.php?i=' + gameID,
-            dataType: 'json',
-            success: function (results) {
-              getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
-            },
-          });
-      }
+    function submitSetRequest(user, gameID) {
+        $.post('/request/set-request/update.php', {
+            i: gameID,
+        })
+            .done(function () {
+                getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
+            });
+    }
 
-      // When the set request text is clicked
-      $(function () {
+    // When the set request text is clicked
+    $(function () {
         $('.setRequestLabel').click(function () {
-          submitSetRequest('<?= $user ?>', <?= $gameID ?>);
+            submitSetRequest('<?= $user ?>', <?= $gameID ?>);
         });
 
         if ($('.setRequestLabel').length) {
-          getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
+            getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
         }
-      });
+    });
 
-      // Popup for making a claim
-      function makeClaim(gameTitle, revisionFlag, ticketFlag) {
+    // Popup for making a claim
+    function makeClaim(gameTitle, revisionFlag, ticketFlag) {
         var revisionMessage = '';
         if (revisionFlag) {
-          revisionMessage = 'Please ensure a revision plan has been posted and approved before making this claim.\n\n';
+            revisionMessage = 'Please ensure a revision plan has been posted and approved before making this claim.\n\n';
         }
 
         var ticketMessage = '';
         if (ticketFlag) {
-            ticketMessage = 'Please ensure any open tickets have been addressed before making this claim.\n\n'
+            ticketMessage = 'Please ensure any open tickets have been addressed before making this claim.\n\n';
         }
 
         var message = revisionMessage + ticketMessage + 'Are you sure you want to claim ' + gameTitle + '?';
         return confirm(message);
-      }
+    }
 
-      // Popup for dropping a claim
-      function dropClaim(gameTitle) {
+    // Popup for dropping a claim
+    function dropClaim(gameTitle) {
         var message = 'Are you sure you want to drop the claim for ' + gameTitle + '?';
         return confirm(message);
-      }
+    }
 
-      // Popup for extending a claim
-      function extendClaim(gameTitle) {
+    // Popup for extending a claim
+    function extendClaim(gameTitle) {
         var message = 'Are you sure you want to extend the claim for ' + gameTitle + '?';
         return confirm(message);
-      }
+    }
 
-      // Popup for claim completion confirmation
-      function completeClaim(gameTitle, earlyReleaseWarning) {
+    // Popup for claim completion confirmation
+    function completeClaim(gameTitle, earlyReleaseWarning) {
         var earlyReleaseMessage = '';
         if (earlyReleaseWarning) {
-            earlyReleaseMessage = 'Please ensure you have approval to complete this claim with 24 hours of the claim being made.\n\n'
+            earlyReleaseMessage = 'Please ensure you have approval to complete this claim with 24 hours of the claim being made.\n\n';
         }
 
-        var message = earlyReleaseMessage + 'This will inform all set requestors that new achievements have been added.\n\n'
+        var message = earlyReleaseMessage + 'This will inform all set requestors that new achievements have been added.\n\n';
         message += 'Are you sure you want to complete the claim for ' + gameTitle + '?';
         return confirm(message);
-      }
+    }
     </script>
 <?php endif ?>
 <div id="mainpage">
     <div id="<?= $isFullyFeaturedGame ? 'leftcontainer' : 'fullcontainer' ?>">
-        <?php RenderErrorCodeWarning($errorCode); ?>
         <?php RenderConsoleMessage((int) $consoleID) ?>
         <div id="achievement">
             <?php
@@ -617,7 +607,7 @@ RenderHtmlStart(true);
             $publisher = $gameData['Publisher'] ?? null;
             $genre = $gameData['Genre'] ?? null;
             $released = $gameData['Released'] ?? null;
-            $imageIcon = asset($gameData['ImageIcon']);
+            $imageIcon = media_asset($gameData['ImageIcon']);
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
@@ -663,7 +653,7 @@ RenderHtmlStart(true);
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
-                echo "<div class='devbox'>";
+                echo "<div class='devbox mb-3'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
                 echo "<div id='devboxcontent' style='display: none'>";
 
@@ -713,11 +703,9 @@ RenderHtmlStart(true);
                         "updateticketssub",
                         SubscriptionSubjectType::GameTickets,
                         $gameID,
-                        $isSubscribedToTickets
+                        $isSubscribedToTickets,
+                        'tickets'
                     );
-                    echo "<a href='#' onclick='document.getElementById(\"updateticketssub\").submit(); return false;'>";
-                    echo($isSubscribedToTickets ? "Unsubscribe from" : "Subscribe to") . " Tickets";
-                    echo "</a>";
                     echo "</div>";
 
                     echo "<div>";
@@ -726,11 +714,9 @@ RenderHtmlStart(true);
                         "updateachievementssub",
                         SubscriptionSubjectType::GameAchievements,
                         $gameID,
-                        $isSubscribedToAchievements
+                        $isSubscribedToAchievements,
+                        'achievement comments'
                     );
-                    echo "<a href='#' onclick='document.getElementById(\"updateachievementssub\").submit(); return false;'>";
-                    echo($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
-                    echo "</a>";
                     echo "</div>";
                     echo "<br>";
 
@@ -827,7 +813,8 @@ RenderHtmlStart(true);
                     }
 
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                        echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameTitle . "'>";
                         echo "<label>Title screenshot<br>";
@@ -836,7 +823,8 @@ RenderHtmlStart(true);
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
 
-                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                        echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameInGame . "'>";
                         echo "<label>In-game screenshot<br>";
@@ -848,7 +836,8 @@ RenderHtmlStart(true);
                 }
 
                 if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                    echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                    echo csrf_field();
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='hidden' name='t' value='" . ImageType::GameIcon . "'>";
                     echo "<label>Game icon<br>";
@@ -858,7 +847,8 @@ RenderHtmlStart(true);
                     echo "</form>";
 
                     if ($isFullyFeaturedGame) {
-                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                        echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameBoxArt . "'>";
                         echo "<label>Game box art<br>";
@@ -869,6 +859,7 @@ RenderHtmlStart(true);
                     }
 
                     echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                    echo csrf_field();
                     echo "<div>Update game details:</div>";
                     echo "<table><tbody>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
@@ -883,6 +874,7 @@ RenderHtmlStart(true);
 
                 if ($permissions >= Permissions::Admin) {
                     echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data' style='margin-bottom:10px'>";
+                    echo csrf_field();
                     echo "New Forum Topic ID:";
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='text' name='f' size='20'>";
@@ -893,6 +885,7 @@ RenderHtmlStart(true);
                 if ($permissions >= Permissions::Developer) {
                     if (!empty($relatedGames)) {
                         echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                        echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<div>Remove related games:</div>";
                         echo "<select name='m[]' style='resize:vertical;overflow:auto;width:100%;height:125px' multiple>";
@@ -912,6 +905,7 @@ RenderHtmlStart(true);
                     }
 
                     echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                    echo csrf_field();
                     echo "<div>Add related games (CSV of game IDs):</div>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='text' name='n' class='searchboxgame' size='20'>";
@@ -922,6 +916,7 @@ RenderHtmlStart(true);
                     echo "<div>Update <a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script:</div>";
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
                         echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                        echo csrf_field();
                         echo "<input type='hidden' value='$gameID' name='i'>";
                         echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea><br>";
                         echo "<div class='text-right'><input type='submit' value='Submit'></div>";
@@ -1057,6 +1052,7 @@ RenderHtmlStart(true);
                         echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
                         echo "<div id='resetboxcontent' style='display: none'>";
                         echo "<form action='/request/user/reset-achievements.php' method='post' onsubmit='return confirm(\"Are you sure you want to reset this progress?\")'>";
+                        echo csrf_field();
                         echo "<input type='hidden' name='g' value='$gameID'>";
                         echo "<input type='submit' value='Reset your progress for this game'>";
                         echo "</form>";
@@ -1375,6 +1371,4 @@ RenderHtmlStart(true);
         </div>
     <?php endif ?>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

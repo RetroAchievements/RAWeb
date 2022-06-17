@@ -64,7 +64,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
         return false;
     }
 
-    global $db;
+    $db = getMysqliConnection();
 
     if (!isset($user) || !isset($gameID) || !isset($address)) {
         return false;

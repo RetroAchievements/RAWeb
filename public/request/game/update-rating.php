@@ -1,23 +1,22 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use RA\Permissions;
+use RA\RatingType;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-$ratingID = requestInputQuery('i', null, 'integer');
-$ratingType = requestInputQuery('t', null, 'integer');
-$ratingValue = requestInputQuery('v', null, 'integer');
-
-$validRating = ($ratingType == 1 || $ratingType == 3) && ($ratingValue >= 1 && $ratingValue <= 5);
-
-if ($validRating
-      && authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    $success = submitGameRating($user, $ratingType, $ratingID, $ratingValue);
-} else {
-    $success = false;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    abort(401);
 }
 
-echo json_encode([
-    'Success' => $success,
-], JSON_THROW_ON_ERROR);
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'type' => ['required', Rule::in(RatingType::VALID)],
+    'rating' => 'required|integer|min:1|max:5',
+]);
+
+if (submitGameRating($user, $input['type'], $input['game'], $input['rating'])) {
+    return response()->json(['message' => __('legacy.success.ok')]);
+}
+
+abort(400);

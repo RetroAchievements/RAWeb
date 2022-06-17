@@ -107,7 +107,7 @@ function getHashList($offset, $count, $searchedHash): array
         h.Created DESC
     LIMIT $offset, $count";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     $retVal = [];
@@ -126,7 +126,7 @@ function getHashList($offset, $count, $searchedHash): array
  */
 function getTotalHashes(): int
 {
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, "SELECT COUNT(*) AS TotalHashes FROM GameHashLibrary");
 
     if (!$dbResult) {
@@ -173,7 +173,7 @@ function updateHashDetails(string $user, int $gameID, string $hash, ?string $nam
 
     $query .= " WHERE GameID = $gameID AND MD5 = '$hash'";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     if (!$dbResult) {

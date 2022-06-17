@@ -19,11 +19,11 @@ function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
         return false;
     }
 
-    if (getenv('MAIL_MAILER') === 'smtp') {
+    if (env('MAIL_MAILER') === 'smtp') {
         return mail_smtp($to, $subject, $message);
     }
 
-    if (getenv('MAIL_MAILER') === 'ses') {
+    if (env('MAIL_MAILER') === 'ses') {
         return mail_ses($to, $subject, $message);
     }
 
@@ -42,16 +42,16 @@ function mail_smtp($to, $subject = '(No subject)', $message = ''): bool
 {
     $transport = Transport::fromDsn(sprintf(
         'smtp://%s:%s@%s:%s',
-        getenv('MAIL_USERNAME'),
-        getenv('MAIL_PASSWORD'),
-        getenv('MAIL_HOST'),
-        getenv('MAIL_PORT'),
+        config('mail.mailers.smtp.username'),
+        config('mail.mailers.smtp.password'),
+        config('mail.mailers.smtp.host'),
+        config('mail.mailers.smtp.port'),
     ));
 
     $mailer = new Mailer($transport);
 
     $email = (new Email())
-        ->from(getenv('MAIL_FROM_NAME') . ' <' . getenv('MAIL_FROM_ADDRESS') . '>')
+        ->from(env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>')
         ->to($to)
         ->subject($subject)
         ->html($message);
@@ -65,7 +65,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
 {
     $client = new SesClient([
         'version' => 'latest',
-        'region' => getenv('AWS_DEFAULT_REGION'),
+        'region' => env('AWS_DEFAULT_REGION'),
         // Note: credentials are automatically pulled from .env when named properly
     ]);
 
@@ -80,7 +80,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
         $commands[] = $client->getCommand('SendEmail', [
             // Pass the message id so it can be updated after it is processed (it's ignored by SES)
             'x-message-id' => $i,
-            'Source' => getenv('MAIL_FROM_NAME') . ' <' . getenv('MAIL_FROM_ADDRESS') . '>',
+            'Source' => env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>',
             'Destination' => [
                 'ToAddresses' => [$recipient],
             ],
@@ -143,12 +143,12 @@ function sendValidationEmail($user, $email): bool
 {
     // This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailVerificationToken($user);
-    $strEmailLink = getenv('APP_URL') . "/validateEmail.php?v=$strValidation";
+    $strEmailLink = config('app.url') . "/validateEmail.php?v=$strValidation";
 
     // $subject = "RetroAchievements.org - Confirm Email: $user";
     $subject = "Welcome to RetroAchievements.org, $user";
 
-    $msg = "You or someone using your email address has attempted to sign up for an account at <a href='" . getenv('APP_URL') . "'>RetroAchievements.org</a><br>" .
+    $msg = "You or someone using your email address has attempted to sign up for an account at <a href='" . config('app.url') . "'>RetroAchievements.org</a><br>" .
         "<br>" .
         "If this was you, please click the following link to confirm this email address and complete sign up:<br>" .
         "<br>" .
@@ -158,7 +158,7 @@ function sendValidationEmail($user, $email): bool
         "<br>" .
         "Thanks! And hope to see you on the forums!<br>" .
         "<br>" .
-        "-- Your friends at <a href='" . getenv('APP_URL') . "'>RetroAchievements.org</a><br>";
+        "-- Your friends at <a href='" . config('app.url') . "'>RetroAchievements.org</a><br>";
 
     return mail_utf8($email, $subject, $msg);
 }
@@ -174,11 +174,11 @@ function sendFriendEmail($user, $email, $type, $friend): bool
     if ($type == 0) { // Requesting to be your friend
         $emailTitle = "$friend is now following you";
         $emailReason = "started following you";
-        $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
+        $link = "<a href='" . config('app.url') . "/user/$friend'>here</a>";
     } elseif ($type == 1) { // Friend request confirmed
         $emailTitle = "$friend is now following you";
         $emailReason = "followed you back";
-        $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
+        $link = "<a href='" . config('app.url') . "/user/$friend'>here</a>";
     } else {
         return false; // must break early! No nonsense emails please!
     }
@@ -280,19 +280,19 @@ function sendActivityEmail(
     switch ($articleType) {
         case ArticleType::Game:
             $emailTitle = "New Game Wall Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/game/$actID'>here</a>";
+            $link = "<a href='" . config('app.url') . "/game/$actID'>here</a>";
             $activityDescription = "the game wall for $articleTitle";
             break;
 
         case ArticleType::Achievement:
             $emailTitle = "New Achievement Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/achievement/$actID'>here</a>";
+            $link = "<a href='" . config('app.url') . "/achievement/$actID'>here</a>";
             $activityDescription = "the achievement wall for $articleTitle";
             break;
 
         case ArticleType::User:
             $emailTitle = "New User Wall Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/user/$altURLTarget'>here</a>";
+            $link = "<a href='" . config('app.url') . "/user/$altURLTarget'>here</a>";
             $activityDescription = "your user wall";
             if ($articleTitle != $user) {
                 $activityDescription = "$articleTitle's user wall";
@@ -301,19 +301,19 @@ function sendActivityEmail(
 
         case ArticleType::Leaderboard:
             $emailTitle = "New Leaderboard Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/leaderboardinfo.php?i=$actID'>here</a>";
+            $link = "<a href='" . config('app.url') . "/leaderboardinfo.php?i=$actID'>here</a>";
             $activityDescription = "the leaderboard wall for $articleTitle";
             break;
 
         case ArticleType::Forum:
             $emailTitle = "New Forum Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/$altURLTarget'>here</a>";
+            $link = "<a href='" . config('app.url') . "/$altURLTarget'>here</a>";
             $activityDescription = "the forum post \"$articleTitle\"";
             break;
 
         case ArticleType::AchievementTicket:
             $emailTitle = "New Ticket Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$actID'>here</a>";
+            $link = "<a href='" . config('app.url') . "/ticketmanager.php?i=$actID'>here</a>";
             $activityDescription = "the ticket you reported for $articleTitle";
             if (isset($threadInvolved)) {
                 $activityDescription = "a ticket for $articleTitle";
@@ -323,7 +323,7 @@ function sendActivityEmail(
         default:
             // generic messages
             $emailTitle = "New Activity Comment from $activityCommenter";
-            $link = "<a href='" . getenv('APP_URL') . "/feed.php?a=$actID'>here</a>";
+            $link = "<a href='" . config('app.url') . "/feed.php?a=$actID'>here</a>";
             $activityDescription = "Your latest activity";
             if (isset($threadInvolved)) {
                 $activityDescription = "A thread you've commented in";
@@ -352,7 +352,7 @@ function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser): 
 
     // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
-    $link = "<a href='" . getenv('APP_URL') . "/inbox.php'>here</a>";
+    $link = "<a href='" . config('app.url') . "/inbox.php'>here</a>";
 
     $msg = "Hello $user!<br>" .
         "You have received a new private message from $fromUser.<br><br>" .
@@ -369,7 +369,7 @@ function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser): 
 function SendPasswordResetEmail($user, $email, $token): bool
 {
     $emailTitle = "Password Reset Request";
-    $link = "<a href='" . getenv('APP_URL') . "/resetPassword.php?u=$user&amp;t=$token'>Confirm Your Email Address</a>";
+    $link = "<a href='" . config('app.url') . "/resetPassword.php?u=$user&amp;t=$token'>Reset your password</a>";
 
     $msg = "Hello $user!<br>" .
         "Your account has requested a password reset:<br>" .
@@ -401,7 +401,7 @@ function SendDeleteRequestEmail($user, $email, $deleteRequested): bool
 function sendSetRequestEmail(string $user, string $email, int $gameID, string $gameTitle): bool
 {
     $emailTitle = "New Achievements Released for " . $gameTitle;
-    $link = "<a href='" . getenv('APP_URL') . "/game/$gameID'>$gameTitle</a>";
+    $link = "<a href='" . config('app.url') . "/game/$gameID'>$gameTitle</a>";
 
     $msg = "Hello $user,<br>" .
         "A set that you have requested has received new achievements. Check out the new achievements added to $link.<br><br>" .

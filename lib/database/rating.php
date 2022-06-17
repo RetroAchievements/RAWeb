@@ -24,7 +24,7 @@ function getGameRating($gameID, $user = null): array
               WHERE r.RatingID = $gameID
               GROUP BY r.RatingObjectType, r.RatingValue";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     while ($nextRow = mysqli_fetch_array($dbResult)) {
@@ -67,9 +67,6 @@ function getGameRating($gameID, $user = null): array
 function submitGameRating($user, $ratingType, $ratingID, $ratingValue): bool
 {
     sanitize_sql_inputs($user, $ratingType, $ratingID, $ratingValue);
-    settype($ratingType, 'integer');
-    settype($ratingID, 'integer');
-    settype($ratingValue, 'integer');
 
     $query = "INSERT INTO Rating ( User, RatingObjectType, RatingID, RatingValue )
               VALUES( '$user', $ratingType, $ratingID, $ratingValue )

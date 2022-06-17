@@ -265,7 +265,7 @@ function getUsersCompletedGamesAndMax($user): array
         GROUP BY ach.GameID, aw.HardcoreMode, gd.Title
         ORDER BY PctWon DESC, inner1.MaxPossible DESC, gd.Title ";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     $gamesFound = 0;

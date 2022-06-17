@@ -2,6 +2,41 @@ function asset(uri) {
   return window.assetUrl + '/' + uri.replace(/^\/|\/$/g, '');
 }
 
+function mediaAsset(uri) {
+  return window.mediaAssetUrl + '/' + uri.replace(/^\/|\/$/g, '');
+}
+
+// global xhr headers
+$.ajaxSetup({
+  headers: {
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+  }
+});
+
+// global xhr error handler
+$(document).ajaxError(function (event, xhr, settings, thrownError) {
+  var message = thrownError;
+  try {
+    message = JSON.parse(xhr.responseText).message;
+  } catch (exception) {
+    //
+  }
+  showStatusFailure(message);
+});
+
+// global xhr success handler
+$(document).ajaxSuccess(function (event, xhr) {
+  var message = null;
+  try {
+    message = JSON.parse(xhr.responseText).message;
+  } catch (exception) {
+    //
+  }
+  if (message) {
+    showStatusSuccess(message);
+  }
+});
+
 var shortMonths = [
   'Jan',
   'Feb',
@@ -15,17 +50,6 @@ var shortMonths = [
   'Oct',
   'Nov',
   'Dec'];
-
-function readCookie(name) {
-  var nameEQ = name + '=';
-  var ca = document.cookie.split(';');
-  for (var i = 0; i < ca.length; i += 1) {
-    var c = ca[i];
-    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-  }
-  return null;
-}
 
 function htmlEntities(str) {
   return String(str)
@@ -45,35 +69,6 @@ function strPad(input, padLength, padString) {
   }
   padString = padString || '0';
   return new Array(padLength - input.length + 1).join(padString) + input;
-}
-
-function onSubmitComment(event) {
-  event.preventDefault();
-  var $form = $(event.currentTarget);
-  var $submit = $form.find('.comment-submit-button');
-  var $loading = $form.find('.comment-loading-indicator');
-  var $error = $form.find('.form-error');
-
-  var input = $form.serializeArray().reduce(function (obj, item) {
-    obj[item.name] = item.value;
-    return obj;
-  }, {});
-
-  // validate
-  $error.hide();
-  if (input.c.length === 0) {
-    $error.show();
-    $error.text('Comment is empty');
-    return false;
-  }
-
-  $submit.hide();
-  $loading.show();
-  $.post('/request/comment/create.php', input).done(function () {
-    window.location.reload();
-  });
-
-  return false;
 }
 
 function getParameterByName(name) {
@@ -131,7 +126,7 @@ function GetAchievementAndTooltipDiv(
 ) {
   var tooltipImageSize = 64;
   var tooltip = '<div id=\'objtooltip\'>'
-    + '<img src=\'' + asset(`Badge/${badgeName}.png`) + '\' width=' + tooltipImageSize + ' height='
+    + '<img src=\'' + mediaAsset(`Badge/${badgeName}.png`) + '\' width=' + tooltipImageSize + ' height='
     + tooltipImageSize + ' />'
     + '<b>' + achName + ' (' + achPoints.toString() + ')</b><br>'
     + '<i>(' + gameName + ')</i><br>'
@@ -145,7 +140,7 @@ function GetAchievementAndTooltipDiv(
   var smallBadge = '';
   var displayable = achName + ' (' + achPoints.toString() + ')';
   if (inclSmallBadge) {
-    var smallBadgePath = asset(`Badge/${badgeName}.png`);
+    var smallBadgePath = mediaAsset(`Badge/${badgeName}.png`);
     smallBadge = '<img width=\'32\' height=\'32\' style=\'floatimg\' src=\''
       + smallBadgePath + '\' alt="' + achName + '" title="' + achName
       + '" class=\'badgeimg\' />';
@@ -265,7 +260,7 @@ function GetLeaderboardAndTooltipDiv(
 }
 
 function UpdateMailboxCount(messageCount) {
-  $('#mailboxicon').attr('src', messageCount > 0 ? '/Images/_MailUnread.png' : '/Images/_Mail.png');
+  $('#mailboxicon').attr('src', messageCount > 0 ? '/assets/images/icon/mail-unread.png' : '/assets/images/icon/mail.png');
   $('#mailboxcount').html(messageCount);
 }
 
@@ -288,7 +283,15 @@ jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
   var $searchBoxInput = $('.searchboxinput');
-  $searchBoxInput.autocomplete({ source: '/request/search.php', minLength: 2 });
+  $searchBoxInput.autocomplete({
+    source: function (request, response) {
+      $.post('/request/search.php', request)
+        .done(function (data) {
+          response(data);
+        });
+    },
+    minLength: 2
+  });
   $searchBoxInput.autocomplete({
     select: function (event, ui) {
       return false;
@@ -300,7 +303,15 @@ jQuery(document).ready(function onReady($) {
   });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
-  $seachBoxCompareUser.autocomplete({ source: '/request/search.php?p=gamecompare', minLength: 2 });
+  $seachBoxCompareUser.autocomplete({
+    source: function (request, response) {
+      $.post('/request/search.php?p=gamecompare', request)
+        .done(function (data) {
+          response(data);
+        });
+    },
+    minLength: 2
+  });
   $seachBoxCompareUser.autocomplete({
     select: function (event, ui) {
       return false;
@@ -316,7 +327,15 @@ jQuery(document).ready(function onReady($) {
   });
 
   var $searchUser = $('.searchuser');
-  $searchUser.autocomplete({ source: '/request/search.php?p=user', minLength: 2 });
+  $searchUser.autocomplete({
+    source: function (request, response) {
+      $.post('/request/search.php?p=user', request)
+        .done(function (data) {
+          response(data);
+        });
+    },
+    minLength: 2
+  });
   $searchUser.autocomplete({
     select: function (event, ui) {
       var TABKEY = 9;
@@ -348,13 +367,13 @@ function removeComment(artTypeID, artID, commentID) {
     return false;
   }
 
-  var posting = $.post('/request/comment/delete.php', { a: artID, c: commentID });
-  posting.done(function (data) {
-    var result = $.parseJSON(data);
-    if (result.Success) {
+  $.post('/request/comment/delete.php', {
+    commentable_id: artID,
+    comment: commentID
+  })
+    .done(function () {
       $('#artcomment_' + artTypeID + '_' + artID + '_' + commentID).hide();
-    }
-  });
+    });
   return true;
 }
 
@@ -370,6 +389,7 @@ function showStatusSuccess(message) {
   var status = $('#status');
   status.addClass('success');
   status.html(message);
+  status.show();
   status.delay(2000).fadeOut();
 }
 
@@ -377,68 +397,47 @@ function showStatusFailure(message) {
   var status = $('#status');
   status.addClass('failure');
   status.html(message);
+  status.show();
 }
 
 function hideStatusMessage() {
   $('#status').hide();
 }
 
-function changeTheme() {
-  var cssToLoad = $('#themeselect :selected').val();
-  if ($('#theme-style').length > 0) {
-    $('#theme-style').attr('href', cssToLoad);
-  } else {
-    var cssLink = $('<link id="theme-style" rel="stylesheet" type="text/css" href="' + cssToLoad + '">');
-    $('head').append(cssLink);
-  }
-  setCookie('RAPrefs_CSS', cssToLoad);
-}
-
-function setCookie(cookiename, value) {
-  // Finally persist as a cookie
-  var days = 30;
-  var date = new Date();
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-  var expires = '; expires=' + date.toGMTString();
-  document.cookie = cookiename + '=' + value + expires + ';SameSite=lax';
-}
-
 function refreshOnlinePlayers() {
-  var posting = $.post('/request/user/list-currently-online.php');
-  posting.done(onRefreshOnlinePlayers);
+  $.post('/request/user/list-currently-online.php')
+    .done(function (data) {
+      var playerList = data;
+      var numPlayersOnline = playerList.length;
+
+      var htmlOut = '<div>There are currently <strong>' + numPlayersOnline
+        + '</strong> players online:</div>';
+
+      for (var i = 0; i < numPlayersOnline; i += 1) {
+        var player = playerList[i];
+
+        if (i > 0 && i === numPlayersOnline - 1) {
+          // last but one:
+          htmlOut += ' and ';
+        } else if (i > 0) {
+          htmlOut += ', ';
+        }
+
+        var extraText = '<br>' + player.LastActivityAt + ': ' + player.User + ' '
+          + player.LastActivity;
+        htmlOut += GetUserAndTooltipDiv(player.User, player.RAPoints, player.Motto, false, extraText);
+      }
+
+      var d = new Date();
+
+      $('#playersonlinebox').html(htmlOut);
+      $('#playersonlinebox').fadeTo('fast', 1.0);
+      $('#playersonline-update').html('Last updated at ' + d.toLocaleTimeString());
+      $('#playersonline-update').fadeTo('fast', 0.5);
+    });
 
   $('#playersonlinebox').fadeTo('fast', 0.0);
   $('#playersonline-update').fadeTo('fast', 0.0);
-}
-
-function onRefreshOnlinePlayers(data) {
-  var playerList = $.parseJSON(data);
-  var numPlayersOnline = playerList.length;
-
-  var htmlOut = '<div>There are currently <strong>' + numPlayersOnline
-    + '</strong> players online:</div>';
-
-  for (var i = 0; i < numPlayersOnline; i += 1) {
-    var player = playerList[i];
-
-    if (i > 0 && i === numPlayersOnline - 1) {
-      // last but one:
-      htmlOut += ' and ';
-    } else if (i > 0) {
-      htmlOut += ', ';
-    }
-
-    var extraText = '<br>' + player.LastActivityAt + ': ' + player.User + ' '
-      + player.LastActivity;
-    htmlOut += GetUserAndTooltipDiv(player.User, player.RAPoints, player.Motto, false, extraText);
-  }
-
-  var d = new Date();
-
-  $('#playersonlinebox').html(htmlOut);
-  $('#playersonlinebox').fadeTo('fast', 1.0);
-  $('#playersonline-update').html('Last updated at ' + d.toLocaleTimeString());
-  $('#playersonline-update').fadeTo('fast', 0.5);
 }
 
 function tabClick(evt, tabName, type) {
@@ -494,4 +493,5 @@ function initializeTextareaCounter() {
     }
   }
 }
+
 window.addEventListener('load', initializeTextareaCounter);

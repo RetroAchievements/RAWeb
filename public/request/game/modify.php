@@ -3,22 +3,19 @@
 use RA\GameAction;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+    abort(401);
+}
 
 if (!ValidatePOSTChars("gfv")) {
-    echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
-    exit;
+    abort(400);
 }
 
 $gameID = (int) requestInputPost('g');
 $field = (int) requestInputPost('f');
 $value = requestInputPost('v');
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit;
-}
+// TODO split requests
 
 switch ($field) {
     case GameAction::UnlinkHash:
@@ -32,12 +29,11 @@ switch ($field) {
         break;
 
     default:
-        echo json_encode(['success' => false, 'error' => 'Bad request: invalid field (' . $field . ')'], JSON_THROW_ON_ERROR);
-        exit;
+        abort(400);
 }
 
-if ($result) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'error' => 'Failed']);
+if (!$result) {
+    abort(400);
 }
+
+return response()->json(['message' => __('legacy.success.ok')]);

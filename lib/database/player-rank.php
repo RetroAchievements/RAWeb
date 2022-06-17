@@ -42,7 +42,7 @@ function recalculatePlayerPoints($user): bool
 
     $query = "UPDATE UserAccounts ua
                 LEFT JOIN (
-                    SELECT aw.User AS UserAwarded, 
+                    SELECT aw.User AS UserAwarded,
                     SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
                     SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.TrueRatio, 0)) AS TruePoints,
                     SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS TotalPoints
@@ -108,7 +108,7 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
     $query = "SELECT User, RAPoints, TrueRAPoints
               FROM UserAccounts AS ua
               $subquery
-              ORDER BY RAPoints DESC 
+              ORDER BY RAPoints DESC
               LIMIT 0, $count ";
 
     $dbResult = s_mysql_query($query);

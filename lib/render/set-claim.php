@@ -33,8 +33,7 @@ function renderNewClaimsComponent(int $count): void
     }
     echo "</tbody></table>";
 
-    echo "<br>";
-    echo "<div class='morebutton'><a href='/claimlist.php'>more...</a></div>";
+    echo "<div class='text-right'><a class='btn btn-link' href='/claimlist.php'>more...</a></div>";
     echo "</div>";
 }
 
@@ -70,7 +69,6 @@ function renderFinishedClaimsComponent(int $count): void
     }
     echo "</tbody></table>";
 
-    echo "<br>";
-    echo "<div class='morebutton'><a href='/claimlist.php?s=" . ClaimSorting::FinishedDateDescending . "&f=" . ClaimFilters::AllCompletedPrimaryClaims . "'>more...</a></div>";
+    echo "<div class='text-right'><a class='btn btn-link' href='/claimlist.php?s=" . ClaimSorting::FinishedDateDescending . "&f=" . ClaimFilters::AllCompletedPrimaryClaims . "'>more...</a></div>";
     echo "</div>";
 }

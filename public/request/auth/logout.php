@@ -1,8 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+use Illuminate\Support\Facades\Auth;
 
-clearCookie('RA_Cookie');
+Auth::guard()->logout();
 
-header("Location: " . getenv('APP_URL'));
+request()->session()->invalidate();
+request()->session()->regenerateToken();
+
+return redirect(route('home'));

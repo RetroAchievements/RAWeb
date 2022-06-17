@@ -63,8 +63,8 @@ function RenderGameLeaderboardsComponent($lbData): void
             // Title
             echo "<tr>";
             echo "<td colspan='2'>";
-            echo "<div class='fixheightcellsmaller'><a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a></div>";
-            echo "<div class='fixheightcellsmaller'>$lbDesc</div>";
+            echo "<div><a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a></div>";
+            echo "<div>$lbDesc</div>";
             echo "</td>";
             echo "</tr>";
 
@@ -161,7 +161,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
             $userListed = false;
             $keepAddingRows = true;
             $dateUnix = strtotime($currentDate);
-            echo "<table><tbody>";
+            echo "<table class='mb-3'><tbody>";
 
             // Create table headers
             echo "<tr><th>Rank</th><th>User</th><th>Points</th></tr>";
@@ -238,9 +238,9 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
 
             // Display the more buttons that link to the global ranking page for the specific leaderboard type
             if (!$friendsOnly) {
-                echo "<span class='morebutton'><a href='/globalRanking.php?t=" . $j . "'>more...</a></span>";
+                echo "<div class='text-right'><a class='btn btn-link' href='/globalRanking.php?t=" . $j . "'>more...</a></div>";
             } else {
-                echo "<span class='morebutton'><a href='/globalRanking.php?t=" . $j . "&f=1'>more...</a></span>";
+                echo "<div class='text-right'><a class='btn btn-link' href='/globalRanking.php?t=" . $j . "&f=1'>more...</a></div>";
             }
             echo "</div>";
         }
@@ -267,7 +267,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
 
     // Latest Masters Tab
     echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
-    echo "<table class='smalltable'><tbody>";
+    echo "<table><tbody>";
     echo "<tr><th>#</th><th>User</th><th>Mastered</th></tr>";
 
     for ($i = 0; $i < $numLatestMasters; $i++) {
@@ -336,7 +336,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo "</td>";
 
         echo "<td class='points'>";
-        echo "<span class='hoverable' title='Latest awarded at $nextLastAward'>$nextPoints</span>";
+        echo "<span class='cursor-help' title='Latest awarded at $nextLastAward'>$nextPoints</span>";
         echo "</td>";
 
         echo "</tr>";

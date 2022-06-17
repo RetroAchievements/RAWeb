@@ -3,43 +3,23 @@
 use RA\AwardType;
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    // Immediate redirect if we cannot validate cookie!
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+    abort(401);
 }
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart();
-RenderHtmlHead("Reorder Site Awards");
+RenderContentStart("Reorder Site Awards");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script>
 function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
-  var inputText = $('#' + objID).val();
-  var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
-  showStatusMessage('Updating...');
-  var posting = $.post(
-    '/request/user/update-site-award.php',
-    {
-      t: awardType,
-      d: awardData,
-      e: awardDataExtra,
-      v: inputNum,
-    }
-  );
-  posting.done(function (data) {
-    if (data !== 'OK') {
-      showStatusFailure('Error: ' + data);
-    } else {
-      showStatusSuccess('Succeeded');
-    }
-  });
+    var inputText = $('#' + objID).val();
+    var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
+    showStatusMessage('Updating...');
+    $.post('/request/user/update-site-award.php', {
+        type: awardType,
+        data: awardData,
+        extra: awardDataExtra,
+        number: inputNum,
+    });
 }
 </script>
 <div id="mainpage">
@@ -48,7 +28,7 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
         echo "<h2 class='longheader'>Reorder Site Awards</h2>";
         echo "<span class='clickablebutton'><a href='/reorderSiteAwards.php'>Refresh Page</a></span><br>";
 
-        echo "<p><b>Instructions:</b> These are your site awards as displayed on your user page. " .
+        echo "<p class='embedded'><b>Instructions:</b> These are your site awards as displayed on your user page. " .
             "The awards will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .
             "Adjust the numbers on the right to set an order for them to appear in. Setting a 'Display Order' value to -1 " .
             "will hide the site award. Any changes you make on this page will instantly " .
@@ -106,8 +86,6 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
             echo "</tbody></table>\n";
         }
 
-        RenderStatusWidget();
-
         $counter = 0;
         if (!empty($gameAwards)) {
             RenderAwardOrderTable("Game Awards", $gameAwards, $counter);
@@ -120,13 +98,10 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
         if (!empty($siteAwards)) {
             RenderAwardOrderTable("Site Awards", $siteAwards, $counter);
         }
-
         ?>
     </div>
     <div id="rightcontainer">
         <?php RenderSiteAwards(getUsersSiteAwards($user)) ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

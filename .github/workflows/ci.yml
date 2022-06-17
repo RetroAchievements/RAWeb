@@ -65,7 +65,7 @@ jobs:
       - name: Install
         run: composer install
       - name: Test
-        run: composer test
+        run: composer paratest
 
   eslint:
     runs-on: ubuntu-latest

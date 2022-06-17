@@ -35,21 +35,19 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
 
             echo "<div class='embedded mb-1'>";
             echo "<div style='line-height: 1em;'>";
-            echo GetUserAndTooltipDiv($author, true, null, 16);
+            echo GetUserAndTooltipDiv($author, true, iconSizeDisplayable: 16);
             echo " ";
-            echo GetUserAndTooltipDiv($author, false);
-            echo "<small>";
-            echo " on <span class='smalldate' style='width: auto'>$datePosted $postedAt</span> in ";
-            echo "</small>";
-            echo "<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
+            echo GetUserAndTooltipDiv($author);
+            echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
+            echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
             echo "</div>";
-            echo "<div class=''>$shortMsg</div>";
-            echo "<div class='text-right'><a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>[view]</a></div>";
+            echo "<div class='truncate' style='max-width:600px'>$shortMsg</div>";
+            echo "<div class='text-right'><a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a></div>";
             echo "</div>";
         }
     }
 
-    echo "<span class='morebutton'><a href='/forumposthistory.php'>more...</a></span>";
+    echo "<div class='text-right'><a class='btn btn-link' href='/forumposthistory.php'>more...</a></div>";
 
     echo "</div>";
 }

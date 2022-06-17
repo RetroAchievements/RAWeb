@@ -2,9 +2,6 @@
 
 use RA\AchievementType;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('z', 0, 'integer');
 $mobileBrowser = IsMobileBrowser();
@@ -39,12 +36,8 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Achievement List" . $requestedConsole);
+RenderContentStart("Achievement List" . $requestedConsole);
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
@@ -62,7 +55,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         }
         echo "Achievement List</h3>";
 
-        echo "<div class='d-flex flex-wrap justify-content-between'>";
+        echo "<div class='flex flex-wrap justify-between'>";
         echo "<div>";
 
         echo $params !== AchievementType::OfficialCore ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::OfficialCore . "$dev_param'>" : "<b>";
@@ -91,7 +84,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         if ($user !== null) {
             echo "<div>";
             echo "Filter by developer:<br>";
-            echo "<form method='get' action='/achievementList.php'>";
+            echo "<form action='/achievementList.php'>";
             echo "<input type='hidden' name='s' value='$sortBy'>";
             echo "<input type='hidden' name='p' value='$params'>";
             echo "<input size='28' name='d' type='text' value='$dev'>";
@@ -229,6 +222,4 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

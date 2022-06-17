@@ -1,10 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-header("Location: " . getenv('APP_URL'));
-exit;
+return redirect(route('home'));
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('i', 0, 'integer');
@@ -31,12 +27,8 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Achievement List" . $requestedConsole);
+RenderContentStart("Achievement List" . $requestedConsole);
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <?php
@@ -63,7 +55,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         // else echo "</b>";
         // echo "<br>";
 
-        echo "<p>Show: ";
+        echo "<p class='embedded'>Show: ";
 
         echo "<a href='awardedList.php?s=$sortBy&amp;o=0&amp;p=$params&amp;i=0'>All consoles</a>";
 
@@ -100,7 +92,7 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
 
         // echo "<div class='rightfloat'>* = ordered by</div>";
 
-        echo "<table class='smalltable xsmall'><tbody>";
+        echo "<table><tbody>";
 
         // $sort1 = ($sortBy==1) ? 11 : 1;
         // $sort2 = ($sortBy==2) ? 12 : 2;
@@ -199,7 +191,4 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
-
+<?php RenderContentEnd(); ?>

@@ -517,7 +517,7 @@ function modifyGameData(string $user, int $gameID, ?string $developer,
               SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released'
               WHERE gd.ID = $gameID";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     if (!$dbResult) {
@@ -540,7 +540,7 @@ function modifyGameTitle(string $user, int $gameID, string $value): bool
 
     $query = "UPDATE GameData SET Title='$value' WHERE ID=$gameID";
 
-    global $db;
+    $db = getMysqliConnection();
     if (!mysqli_query($db, $query)) {
         return false;
     }
@@ -626,7 +626,7 @@ function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bo
         return false;
     }
 
-    global $db;
+    $db = getMysqliConnection();
     $query = "UPDATE GameData SET ForumTopicID = $newForumTopic WHERE ID = $gameID";
     echo $query;
 
@@ -686,7 +686,7 @@ function createNewGame($titleIn, $consoleID): ?array
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints) 
                             VALUES ('$title', $consoleID, NULL, 0, '/Images/000001.png', '/Images/000002.png', '/Images/000002.png', '/Images/000002.png', NULL, NULL, NULL, NULL, 0, NULL, 0 )";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         $newID = mysqli_insert_id($db);
@@ -772,7 +772,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
             }
             $query .= " )";
 
-            global $db;
+            $db = getMysqliConnection();
             $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
                 /**
@@ -820,7 +820,7 @@ function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
     sanitize_sql_inputs($gameID, $dataIn);
     $query = "UPDATE GameData SET RichPresencePatch='$dataIn' WHERE ID=$gameID";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
     if (!$dbResult) {
         return false;

@@ -80,12 +80,7 @@
  *  string     ContribYield            points awarded to others
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
+$user = requestInputQuery('u');
 $recentGamesPlayed = requestInputQuery('g', 5);
 $recentAchievementsEarned = requestInputQuery('a', 10);
 
@@ -93,12 +88,10 @@ $retVal = [];
 getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);
 
 if (!$retVal) {
-    http_response_code(404);
-    echo json_encode([
+    return response()->json([
         'ID' => null,
         'User' => $user,
-    ], JSON_THROW_ON_ERROR);
-    exit;
+    ], 404);
 }
 
 getAccountDetails($user, $userDetails);
@@ -122,4 +115,4 @@ if ($retVal['LastActivity']) {
 }
 $retVal['Status'] = $status;
 
-echo json_encode($retVal, JSON_THROW_ON_ERROR);
+return response()->json($retVal);

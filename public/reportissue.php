@@ -1,17 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 
 $dataOut = null;
-if ($achievementID == 0 ||
-    getAchievementMetadata($achievementID, $dataOut) == false) {
-    header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
-    exit;
+if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
+    abort(404);
 }
 
 $emulators = getActiveEmulatorReleases();
@@ -32,13 +27,8 @@ sanitize_outputs(
     $consoleName
 );
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart(true);
-RenderHtmlHead("Report Broken Achievement");
+RenderContentStart("Report Broken Achievement");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script>
   function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
@@ -61,13 +51,14 @@ RenderHtmlHead("Report Broken Achievement");
         <h3 class="longheader">Report Broken Achievement</h3>
 
         <form action="/request/ticket/create.php" method="post">
-            <input type="hidden" value="<?= $achievementID ?>" name="i">
+            <?= csrf_field() ?>
+            <input type="hidden" value="<?= $achievementID ?>" name="achievement">
             <table>
                 <tbody>
                 <tr>
                     <td>Game</td>
                     <td style="width:80%">
-                        <?php echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName, false) ?>
+                        <?php echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName) ?>
                     </td>
                 </tr>
                 <tr>
@@ -87,12 +78,12 @@ RenderHtmlHead("Report Broken Achievement");
                 <tr class="alt">
                     <td><label for="issue">Issue</label></td>
                     <td>
-                        <select name="p" id="issue" required>
+                        <select name="issue" id="issue" required>
                             <option value="" disabled selected hidden>Select your issue...</option>
                             <option value="1">Triggered at wrong time</option>
                             <option value="2">Doesn't Trigger</option>
                         </select>
-                        <a href="/views/issueDescriptionModal.html" rel="modal:open">?</a>
+                        <a class="btn btn-link" href="/views/issueDescriptionModal.html" rel="modal:open">?</a>
                     </td>
                 </tr>
                 <tr>
@@ -110,7 +101,7 @@ RenderHtmlHead("Report Broken Achievement");
                     <td><label for="version">Emulator Version</label></td>
                     <td>
                         <input type="text" name="note[emulatorVersion]" id="version" required />
-                        <a href="/views/versionDescriptionModal.html" rel="modal:open">Why?</a>
+                        <a class="btn btn-link" href="/views/versionDescriptionModal.html" rel="modal:open">Why?</a>
                     </td>
                 </tr>
                 <tr id="core-row">
@@ -125,10 +116,10 @@ RenderHtmlHead("Report Broken Achievement");
                 <tr>
                     <td><label for="mode">Mode:</label></td>
                     <td>
-                        <select name="m" id="mode" required>
+                        <select name="mode" id="mode" required>
                             <option value="" disabled selected hidden>Soft/Hardcore?</option>
-                            <option value="1">Softcore</option>
-                            <option value="2">Hardcore</option>
+                            <option value="0">Softcore</option>
+                            <option value="1">Hardcore</option>
                         </select>
                     </td>
                 </tr>
@@ -153,7 +144,7 @@ RenderHtmlHead("Report Broken Achievement");
                             }
                             ?>
                         </select>
-                        <a href="/views/checksumDescriptionModal.html" rel="modal:open">?</a>
+                        <a class="btn btn-link" href="/views/checksumDescriptionModal.html" rel="modal:open">?</a>
                     </td>
                 </tr>
                 <tr>
@@ -168,8 +159,8 @@ RenderHtmlHead("Report Broken Achievement");
                 </tr>
                 <tr>
                     <td></td>
-                    <td colspan="2" class="fullwidth">
-                        <input style="float:right" type="submit" value="Submit Issue Report" size="37" data-bind="disable: descriptionIsUnhelpful" />
+                    <td colspan="2" class="text-right">
+                        <button class="btn btn-primary" data-bind="disable: descriptionIsUnhelpful">Submit Issue Report</button>
                     </td>
                 </tr>
                 </tbody>
@@ -198,6 +189,4 @@ RenderHtmlHead("Report Broken Achievement");
 
     ko.applyBindings(new ReportViewModel());
 </script>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

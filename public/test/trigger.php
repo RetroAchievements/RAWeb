@@ -1,17 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
 $triggers = [
     [
         'conditions' => '
              0xhFFFFFF=0xXFFFFFF
             _0xhFFFFFF=19229
-             
+
             _0xh888888
             _0xH888888
-             
+
             _0x 000000
             _0x100000
             _0x200000
@@ -28,18 +25,18 @@ $triggers = [
             _0xD00000
             _0xE00000
             _0xF00000
-            
+
             _0xI161616
-            
+
             _0xW242424
             _0xJ242424
-            
+
             _0xx323232
             _0xX323232
             _0xG323232
-            
+
             _0xK111111
-            
+
             _0xM111111
             _0xN111111
             _0xO111111
@@ -48,14 +45,14 @@ $triggers = [
             _0xR111111
             _0xS111111
             _0xT111111
-            
+
             _0xL444444
             _0xU444444
-            
+
             _0xV000000
             _0xY000000
             _0xZ000000
-            
+
             _P:0x55555
             _R:0x55555
             _A:0x55555
@@ -70,12 +67,12 @@ $triggers = [
             _T:0x55555
             _Z:0x55555
             _G:0x55555
-            
+
             _D0x777777
             _P0x777777
             _B0x777777
             _~0x777777
-            
+
             _FM999999
             _FF999999
             _FF999999>F98765.4.100
@@ -94,7 +91,7 @@ $triggers = [
             _F7.8
             _F8.9
             _F9.0
-            
+
             _V0
             _V2
             _V100
@@ -130,10 +127,8 @@ ffff - abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrs
     ],
 ];
 
-RenderHtmlStart();
-RenderSharedHeader();
+RenderContentStart();
 ?>
-<body>
 <div style="width:640px">
     <h1>Triggers</h1>
     <?php foreach ($triggers as $trigger): ?>
@@ -145,4 +140,4 @@ RenderSharedHeader();
         ?>
     <?php endforeach ?>
 </div>
-</body>
+<?php RenderContentEnd(); ?>

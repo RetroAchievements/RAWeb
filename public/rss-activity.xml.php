@@ -1,9 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-$site = getenv('APP_URL');
+$site = config('app.url');
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 
@@ -23,14 +20,12 @@ $xmlRoot = $xmlRoot->appendChild($xmlRoot2);
 
 $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Global Activity feed'));
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
-$xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
+$xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
 /**
  * exit early - no more feeds in v1
  */
-header('Content-type: text/xml');
-echo html_entity_decode($dom->saveXML());
-exit;
+return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);
 
 $user = requestInputSanitized('u');
 $feedtype = isset($user) ? 'friends' : 'global';
@@ -50,7 +45,7 @@ for ($i = 0; $i < $numArticles; $i++) {
     $user = $nextData['User'];
     $userPicURL = "$site/UserPic/$user" . ".png";
     $date = date("D, d M Y H:i:s O", $nextData['timestamp']);
-    $link = getenv('APP_URL') . '/feed.php?a=' . $nextData['ID'];
+    $link = config('app.url') . '/feed.php?a=' . $nextData['ID'];
 
     $title = getFeedItemTitle($feedData[$i], false);
 
@@ -70,17 +65,17 @@ for ($i = 0; $i < $numArticles; $i++) {
     }
 
     // $payload contains relative URLs, which need converting to absolute URLs
-    $payload = str_replace("href='/", "href='" . getenv('APP_URL') . "/", $payload);
-    $payload = str_replace("href=\"/", "href=\"" . getenv('APP_URL') . "/", $payload);
-    $payload = str_replace("src='/", "src='" . getenv('APP_URL') . "/", $payload);
-    $payload = str_replace("src=\"/", "src=\"" . getenv('APP_URL') . "/", $payload);
+    $payload = str_replace("href='/", "href='" . config('app.url') . "/", $payload);
+    $payload = str_replace("href=\"/", "href=\"" . config('app.url') . "/", $payload);
+    $payload = str_replace("src='/", "src='" . config('app.url') . "/", $payload);
+    $payload = str_replace("src=\"/", "src=\"" . config('app.url') . "/", $payload);
 
     // Strip tags from title (incl html markup :S)
     // ?!
 
-    $article->appendChild($dom->createElement('title', $title));
+    $article->appendChild($dom->createElement('title', htmlentities($title)));
     $article->appendChild($dom->createElement('link', $link));
-    $article->appendChild($dom->createElement('description', $payload));
+    $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
     // $article->appendChild( $dom->createElement( 'id', $newsID ) );
     // Skip comments
@@ -92,5 +87,4 @@ for ($i = 0; $i < $numArticles; $i++) {
     }
 }
 
-header('Content-type: text/xml');
-echo html_entity_decode($dom->saveXML());
+return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);

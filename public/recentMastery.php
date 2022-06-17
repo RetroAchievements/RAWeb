@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -8,7 +6,6 @@ $maxCount = 25;
 // First day with Game Awards
 $minDate = '2014-09-29';
 
-$errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
 $friends = requestInputSanitized('f', 0, 'integer');
@@ -22,17 +19,11 @@ if ($friends == 1) {
     $data = getRecentMasteryData($date, null, $offset, $maxCount + 1);
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Recent " . $lbUsers . " Masteries");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Recent " . $lbUsers . " Masteries");
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning($errorCode);
         echo "<h2 class='longheader'>Recent " . $lbUsers . " Masteries</h2>";
 
         // Add the leaderboard filters
@@ -56,7 +47,7 @@ RenderHeader($userDetails);
         }
 
         // Create the custom date filter
-        echo "<form action='/recentMastery.php' method='get'>";
+        echo "<form action='/recentMastery.php'>";
         echo "<label for='d'><b>Jump to Date: </b></label>";
         echo "<input type='hidden' name='t' value=" . 0 . ">";
         echo "<input type='date' name='d' value=" . $date . " min=$minDate max=" . date("Y-m-d") . "> ";
@@ -150,6 +141,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

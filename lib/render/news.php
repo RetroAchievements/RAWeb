@@ -1,19 +1,21 @@
 <?php
 
+use App\Legacy\Models\News;
+
 function RenderNewsComponent(): void
 {
-    $numNewsItems = getLatestNewsHeaders(0, 10, $newsHeaders);
-    if (!$numNewsItems) {
+    $newsData = News::orderByDesc('ID')->take(10)->get();
+    if ($newsData->isEmpty()) {
         return;
     }
 
-    echo "<div class='left'>";
+    echo "<div class='mb-4'>";
     echo "<h2>News</h2>";
     echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";
-    for ($i = 0; $i < $numNewsItems; $i++) {
-        RenderNewsHeader($newsHeaders[$i]);
+    foreach ($newsData as $news) {
+        RenderNewsHeader($news);
     }
     echo "</div>";
 

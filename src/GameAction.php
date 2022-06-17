@@ -2,6 +2,7 @@
 
 namespace RA;
 
+// TODO split requests
 abstract class GameAction
 {
     public const ModifyTitle = 1;

@@ -3,16 +3,9 @@
 use RA\Permissions;
 use RA\UserRelationship;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
-    // Immediate redirect if we cannot validate cookie!
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+    abort(401);
 }
-
-$errorCode = requestInputSanitized('e');
 
 $followingList = [];
 $blockedUsersList = [];
@@ -72,17 +65,12 @@ function RenderUserList(string $header, string $user, array $users, int $friends
     echo "</tbody></table>";
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Following");
+RenderContentStart("Following");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
+        <h2>Following</h2>
         <?php
-        RenderErrorCodeWarning($errorCode);
-
-        echo "<h2>Following</h2>";
         if (empty($followingList)) {
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
@@ -98,7 +86,7 @@ RenderHtmlHead("Following");
                 echo "</td>";
 
                 echo "<td style='text-align:left'>";
-                echo GetUserAndTooltipDiv($followingUser, false);
+                echo GetUserAndTooltipDiv($followingUser);
                 echo "</td>";
 
                 echo "<td>";
@@ -135,6 +123,4 @@ RenderHtmlHead("Following");
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

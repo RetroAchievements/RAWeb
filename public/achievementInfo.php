@@ -1,22 +1,22 @@
 <?php
 
+use App\Support\Shortcode\Shortcode;
 use RA\AchievementPoints;
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
-use RA\Shortcode;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$achievementID = requestInputSanitized('ID', 0, 'integer');
+$achievementID = (int) request('achievement');
+if (empty($achievementID)) {
+    abort(404);
+}
 
 $dataOut = null;
-if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
-    header("Location: " . getenv('APP_URL') . "?e=unknownachievement");
-    exit;
+getAchievementMetadata($achievementID, $dataOut);
+if (empty($dataOut)) {
+    abort(404);
 }
 
 $achievementTitle = $dataOut['AchievementTitle'];
@@ -35,6 +35,10 @@ $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
 $isSoleAuthor = false;
+
+$achievementTitleRaw = $dataOut['AchievementTitle'];
+$achievementDescriptionRaw = $dataOut['Description'];
+$gameTitleRaw = $dataOut['GameTitle'];
 
 sanitize_outputs(
     $achievementTitle,
@@ -80,18 +84,9 @@ $numArticleComments = getArticleComments(ArticleType::Achievement, $achievementI
 
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart(true);
+RenderOpenGraphMetadata("$achievementTitleRaw in $gameTitleRaw ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
+RenderContentStart($achievementTitleRaw);
 ?>
-<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader(); ?>
-    <?php RenderOpenGraphMetadata("$achievementTitle in $gameTitle ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "/achievement/$achievementID", "$gameTitle ($consoleName) - $desc"); ?>
-    <?php RenderTitleTag($achievementTitle); ?>
-</head>
-
-<body>
-<?php RenderHeader($userDetails); ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
     <script>
     function updateAchievementDetails() {
@@ -107,100 +102,53 @@ RenderHtmlStart(true);
             showStatusFailure('Error: Description too long');
             return;
         }
-        $.ajax({
-            type: "POST",
-            url: '/request/achievement/update-base.php',
-            dataType: "json",
-            data: {
-                'a': <?= $achievementID ?>,
-                't': $title.val(),
-                'd': $description.val(),
-                'p': $('#pointsinput').val(),
-            },
-            error: function (xhr, status, error) {
-                showStatusFailure('Error: ' + (error || 'unknown error'));
-            }
+
+        $.post('/request/achievement/update-base.php', {
+            achievement: <?= $achievementID ?>,
+            title: $title.val(),
+            description: $description.val(),
+            points: $('#pointsinput').val(),
         })
-            .done(function (data) {
-                if (!data.success) {
-                    showStatusFailure('Error: ' + (data.error || 'unknown error'));
-                    return;
-                }
-                window.location = window.location.href.split("?")[0] + "?e=modify_achievement_ok";
+            .done(function () {
+                location.reload();
             });
     }
-
-    <?php if ($permissions >= Permissions::Developer): ?>
-      function PostEmbedUpdate() {
-        var url = $('#embedurlinput').val();
-        url = replaceAll('http', '_http_', url);
-
-        showStatusMessage('Updating...');
-
-        if ( url == '') {
-            showStatusFailure('Error: Blank url');
-            return;
-        }
-
-        $.ajax({
-          type: "POST",
-          url: '/request/achievement/update.php',
-          dataType: "json",
-          data: {
-            'u': '<?= $user ?>',
-            'a': <?= $achievementID ?>,
-            'f': 2,
-            'v': url
-          },
-          error: function (xhr, status, error) {
-            showStatusFailure('Error: ' + (error || 'unknown error'));
-          }
-        })
-          .done(function (data) {
-            if (!data.success) {
-              showStatusFailure('Error: ' + (data.error || 'unknown error'));
-              return;
-            }
-            window.location = window.location.href.split("?")[0] + "?e=changeok";
-          });
-      }
-
-      function updateAchievementTypeFlag(typeFlag) {
-        if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
-          return;
-        }
-
-        showStatusMessage('Updating...');
-        $.ajax({
-          type: "POST",
-          url: '/request/achievement/update.php',
-          dataType: "json",
-          data: {
-            'a': <?= $achievementID ?>,
-            'f': 3,
-            'u': '<?= $user ?>',
-            'v': typeFlag
-          },
-          error: function (xhr, status, error) {
-            showStatusFailure('Error: ' + (error || 'unknown error'));
-          }
-        })
-          .done(function (data) {
-            if (!data.success) {
-              showStatusFailure('Error: ' + (data.error || 'unknown error'));
-              return;
-            }
-            window.location = window.location.href.split("?")[0] + "?e=changeok";
-          });
-      }
-      <?php endif ?>
     </script>
 <?php endif ?>
 
+<?php if ($permissions >= Permissions::Developer): ?>
+    <script>
+    function PostEmbedUpdate() {
+        var url = $('#embedurlinput').val();
+
+        showStatusMessage('Updating...');
+        $.post('/request/achievement/update-video.php', {
+            achievement: <?= $achievementID ?>,
+            video: url
+        })
+            .done(function () {
+                location.reload();
+            });
+    }
+
+    function updateAchievementTypeFlag(typeFlag) {
+        if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
+            return;
+        }
+        showStatusMessage('Updating...');
+        $.post('/request/achievement/update-flag.php', {
+            achievements: <?= $achievementID ?>,
+            flag: typeFlag,
+        })
+            .done(function () {
+                location.reload();
+            });
+    }
+    </script>
+<?php endif ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
-        RenderErrorCodeWarning($errorCode);
         echo "<div id='achievement'>";
 
         echo "<div class='navpath'>";
@@ -213,7 +161,7 @@ RenderHtmlStart(true);
         echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
-        $badgeFullPath = asset("Badge/$badgeName$fileSuffix.png");
+        $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
 
         echo "<table class='nicebox'><tbody>";
 
@@ -228,14 +176,18 @@ RenderHtmlStart(true);
         echo "<td>";
         echo "<div id='achievemententry'>";
 
+        echo "<div class='flex justify-between'>";
+        echo "<div>";
+        echo "<a href='/achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "$desc";
+        echo "</div>";
         if ($achievedLocal) {
             $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
-            echo "<small style='float: right; text-align: right;' class='smalldate'>unlocked on<br>$niceDateWon</small>";
+            echo "<div class='text-right' class='smalldate'>Unlocked on<br>$niceDateWon</div>";
         }
-        echo "<a href='/achievement/$achievementID'><strong>$achievementTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
-        echo "$desc<br>";
+        echo "</div>";
 
-        echo "</div>"; // achievemententry
+        echo "</div>";
         echo "</td>";
 
         echo "</tr>";
@@ -250,7 +202,7 @@ RenderHtmlStart(true);
         $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
         $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
 
-        echo "<p class='smalldata'>";
+        echo "<p class='embedded smalldata mb-3'>";
         echo "<small>";
         if ($achFlags === AchievementType::Unofficial) {
             echo "<b>Unofficial Achievement</b><br>";
@@ -259,25 +211,28 @@ RenderHtmlStart(true);
         echo "</small>";
         echo "</p>";
 
-        echo "Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)";
+        echo "<p class='mb-2'>Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)</p>";
 
         if (isset($user) && $permissions >= Permissions::Registered) {
-            echo "<br>";
             $countTickets = countOpenTicketsByAchievement($achievementID);
+            echo "<div class='flex justify-between mb-2'>";
             if ($countTickets > 0) {
-                echo "<small><a href='/ticketmanager.php?a=$achievementID'>This achievement has $countTickets open tickets</a></small><br>";
+                echo "<a href='/ticketmanager.php?a=$achievementID'>$countTickets open tickets</a>";
+            } else {
+                echo "<i>No open tickets</i>";
             }
             if (isAllowedToSubmitTickets($user)) {
-                echo "<small><a href='/reportissue.php?i=$achievementID'>Report an issue for this achievement.</a></small>";
+                echo "<a class='btn btn-link' href='/reportissue.php?i=$achievementID'>Report an issue</a>";
             }
+            echo "</div>";
         }
-        echo "<br>";
 
         if ($achievedLocal) {
-            echo "<div class='devbox'>";
+            echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
             echo "<div id='resetboxcontent' style='display: none'>";
             echo "<form action='/request/user/reset-achievements.php' method='post' onsubmit='return confirm(\"Are you sure you want to reset this progress?\")'>";
+            echo csrf_field();
             echo "<input type='hidden' name='a' value='$achievementID'>";
             echo "<input type='submit' value='Reset this achievement'>";
             echo "</form>";
@@ -289,7 +244,6 @@ RenderHtmlStart(true);
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent' style='display: none'>";
-            RenderStatusWidget();
 
             if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
                 echo "<div>Update achievement details:</div>";
@@ -306,7 +260,8 @@ RenderHtmlStart(true);
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
 
-                echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
+                echo "<form class='mb-2' method='post' action='/request/achievement/upload-image.php' enctype='multipart/form-data'>";
+                echo csrf_field();
                 echo "<label>Badge<br>";
                 echo "<input type='hidden' name='i' value='$achievementID'>";
                 echo "<input type='file' accept='.png,.jpg,.gif' name='file'>";
@@ -317,7 +272,7 @@ RenderHtmlStart(true);
 
             if ($permissions >= Permissions::Developer) {
                 echo "<div class='devbox'>";
-                echo "<li><span onclick=\"$('#embedcontent').toggle(); return false;\">Set embedded video URL: (Click to show accepted formats):</span><br></li>";
+                echo "<div><span onclick=\"$('#embedcontent').toggle(); return false;\">Set embedded video URL: (Click to show accepted formats):</span></div>";
                 echo "<div id='embedcontent' style='display: none'>";
                 echo "<div style='clear:both;'></div>"; ?>
                 Examples for accepted formats:<br>
@@ -348,7 +303,6 @@ RenderHtmlStart(true);
                 echo "<div style='clear:both;'></div>";
                 echo "</div>"; // embed devbox
                 echo "</div>"; // embed devbox
-                echo "<table><tbody>";
                 echo "<input type='hidden' name='a' value='$achievementID' />";
                 echo "<input type='hidden' name='f' value='2' />";
                 echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
@@ -356,10 +310,10 @@ RenderHtmlStart(true);
                 echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
 
                 if ($achFlags === AchievementType::OfficialCore) {
-                    echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
+                    echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
                 }
                 if ($achFlags === AchievementType::Unofficial) {
-                    echo "<li>State: Unofficial&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
+                    echo "<li>State: Unofficial&nbsp;<button class='btn btn-primary' type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
                 }
             }
 
@@ -445,6 +399,4 @@ RenderHtmlStart(true);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

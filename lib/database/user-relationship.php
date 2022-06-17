@@ -51,12 +51,12 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
                 }
             }
 
-            return "friendrequested";
+            return "user_follow";
 
         case UserRelationship::NotFollowing:
             return match ($oldStatus) {
-                UserRelationship::Following => "friendremoved",
-                UserRelationship::Blocked => "friendunblocked",
+                UserRelationship::Following => "user_unfollow",
+                UserRelationship::Blocked => "user_unblock",
                 default => "error",
             };
 
@@ -67,7 +67,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
                 $dbResult = s_mysql_query($query);
             }
 
-            return "friendblocked";
+            return "user_block";
 
         default:
             return "error";
@@ -116,24 +116,24 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
     $friendSubquery = GetFriendsSubquery($user, false);
 
     // Less dependent subqueries :)
-    $query = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, ua.RichPresenceMsg, act.LastUpdate 
-            FROM 
+    $query = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, ua.RichPresenceMsg, act.LastUpdate
+            FROM
             (
-                SELECT aw.User, aw.AchievementID, aw.Date 
-                FROM Awarded AS aw 
-                RIGHT JOIN 
-                ( 
-                    SELECT ID 
+                SELECT aw.User, aw.AchievementID, aw.Date
+                FROM Awarded AS aw
+                RIGHT JOIN
+                (
+                    SELECT ID
                     FROM Achievements AS ach
                     WHERE ach.GameID = '$gameID' AND ach.Flags = 3
                 ) AS Inner1 ON Inner1.ID = aw.AchievementID
                 WHERE aw.HardcoreMode = " . UnlockMode::Hardcore . "
-            ) AS aw 
-            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User 
-            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID 
-            LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID 
+            ) AS aw
+            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+            LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
             WHERE aw.User IN ( $friendSubquery )
-            GROUP BY aw.User 
+            GROUP BY aw.User
             ORDER BY TotalPoints DESC, aw.User";
 
     $dbResult = s_mysql_query($query);

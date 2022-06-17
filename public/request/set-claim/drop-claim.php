@@ -1,26 +1,23 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
 use RA\ArticleType;
 use RA\ClaimType;
 use RA\Permissions;
 
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
+
 $gameID = requestInputQuery('i', null, 'integer');
 $claimType = requestInputQuery('c', null, 'integer'); // 0 - Primary, 1 - Collaboration
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
-    if (dropClaim($user, $gameID)) { // Check that the claim was successfully dropped
-        if ($claimType == ClaimType::Primary) {
-            addArticleComment("Server", ArticleType::SetClaim, $gameID, "Primary claim dropped by " . $user);
-        } else {
-            addArticleComment("Server", ArticleType::SetClaim, $gameID, "Collaboration claim dropped by " . $user);
-        }
-        header("location: " . getenv('APP_URL') . "/game/$gameID");
+if (dropClaim($user, $gameID)) { // Check that the claim was successfully dropped
+    if ($claimType == ClaimType::Primary) {
+        addArticleComment("Server", ArticleType::SetClaim, $gameID, "Primary claim dropped by " . $user);
     } else {
-        header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
+        addArticleComment("Server", ArticleType::SetClaim, $gameID, "Collaboration claim dropped by " . $user);
     }
-} else {
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
+    return back()->with('success', __('legacy.success.ok'));
 }
+
+return back()->withErrors(__('legacy.error.error'));

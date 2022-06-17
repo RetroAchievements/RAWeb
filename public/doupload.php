@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+use Symfony\Component\HttpFoundation\Response;
 
 $requestType = requestInput('r');
 $user = requestInput('u');
@@ -10,9 +9,11 @@ $token = requestInput('t');
 $bounceReferrer = requestInput('b'); // TBD: Remove!
 
 if (!authenticateFromAppToken($user, $token, $permissions)) {
-    http_response_code(401);
-    echo json_encode(['Success' => false]);
-    exit;
+    return response()
+        ->json([
+            'Success' => false,
+            'Error' => "Unknown Request: '$requestType'",
+        ], Response::HTTP_UNAUTHORIZED);
 }
 
 // Infer request type from app
@@ -22,24 +23,22 @@ if (isset($_FILES['file']) && isset($_FILES['file']['name'])) {
 }
 
 if ($requestType !== 'uploadbadgeimage') {
-    echo json_encode([
+    return response()->json([
         'Success' => false,
         'Error' => "Unknown Request: '$requestType'",
     ]);
-    exit;
 }
 
 try {
     $badgeIterator = UploadBadgeImage($_FILES['file']);
 } catch (Exception $exception) {
-    echo json_encode([
+    return response()->json([
         'Success' => false,
         'Error' => $exception->getMessage(),
     ]);
-    exit;
 }
 
-echo json_encode([
+return response()->json([
     'Success' => true,
     'Response' => [
         // RALibretro uses BadgeIter to associate the uploaded badge to the achievement

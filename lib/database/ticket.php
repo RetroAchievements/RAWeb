@@ -29,7 +29,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
         return $returnMsg;
     }
 
-    global $db;
+    $db = getMysqliConnection();
 
     $note = $noteIn;
     $note .= "\nRetroAchievements Hash: $RAHash";
@@ -52,7 +52,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
 
         $idsFound++;
 
-        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
+        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID )
                                 VALUES ($achID, $submitterUserID, $reportType, '$note', NOW(), NULL, NULL )";
 
         $dbResult = mysqli_query($db, $query); // Unescaped?
@@ -77,7 +77,7 @@ Problem: $problemTypeStr
 Comment: $note
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
+" . config('app.url') . "/ticketmanager.php?i=$ticketID"
 . " Thanks!";
                 $bugReportMessage = "Hi, $achAuthor!
 [user=$userSubmitter] would like to report a bug with an achievement you've created:
@@ -120,7 +120,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
     $note = $noteIn;
     sanitize_sql_inputs($userSubmitter, $reportType, $hardcore, $note);
 
-    global $db;
+    $db = getMysqliConnection();
 
     $submitterUserID = getUserIDFromUser($userSubmitter);
     settype($reportType, 'integer');
@@ -140,7 +140,7 @@ function submitNewTickets($userSubmitter, $idsCSV, $reportType, $hardcore, $note
 
         $idsFound++;
 
-        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID ) 
+        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID )
                                 VALUES($achID, $submitterUserID, $reportType, $hardcore, \"$note\", NOW(), NULL, NULL )";
 
         $dbResult = mysqli_query($db, $query); // Unescaped?
@@ -164,7 +164,7 @@ Problem: $problemTypeStr
 Comment: $noteIn
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID"
+" . config('app.url') . "/ticketmanager.php?i=$ticketID"
 . " Thanks!";
 
                 $bugReportMessage = "Hi, $achAuthor!\r\n
@@ -409,7 +409,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
         "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
         "<br>Comment: $comment" .
         "<br>" .
-        "Click <a href='" . getenv('APP_URL') . "/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
+        "Click <a href='" . config('app.url') . "/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
         "<br>" .
         "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
         "<br>" .
@@ -460,7 +460,7 @@ function countOpenTicketsByDev($dev): ?array
         FROM Ticket AS tick
         LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5) 
+        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5)
         AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
         GROUP BY tick.ReportState";
 

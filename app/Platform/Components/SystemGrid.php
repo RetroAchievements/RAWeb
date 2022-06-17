@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Components;
+
+use App\Site\Components\Grid;
+use Illuminate\Database\Eloquent\Builder;
+
+class SystemGrid extends Grid
+{
+    public bool $updateQuery = true;
+
+    protected function resourceName(): string
+    {
+        return 'system';
+    }
+
+    protected function columns(): iterable
+    {
+        return [
+            // [
+            //     'key' => 'manufacturer',
+            //     'label' => false,
+            //     // 'label' => 'Manufacturer',
+            //     // 'sortBy' => 'manufacturer',
+            //     // 'sortDirection' => 'asc',
+            // ],
+            [
+                'key' => 'image',
+                'label' => false,
+            ],
+            [
+                'key' => 'name',
+                'label' => 'Name',
+                // 'sortBy' => 'name',
+                // 'sortDirection' => 'asc',
+            ],
+            [
+                'key' => 'achievements',
+                'label' => 'Achievements',
+                // 'sortBy' => 'achievements',
+                // 'sortDirection' => 'desc',
+            ],
+            [
+                'key' => 'games',
+                'label' => 'Games',
+                // 'sortBy' => 'games',
+                // 'sortDirection' => 'desc',
+            ],
+            [
+                'key' => 'emulators',
+                'label' => 'Emulators',
+                // 'sortBy' => 'emulators',
+                // 'sortDirection' => 'desc',
+            ],
+        ];
+    }
+
+    protected function allowedSorts(): array
+    {
+        return [
+        ];
+    }
+
+    protected function query(): Builder
+    {
+        $query = $this->resourceQuery();
+
+        $query->withCount(['games', 'achievements', 'emulators']);
+
+        return $query;
+    }
+}

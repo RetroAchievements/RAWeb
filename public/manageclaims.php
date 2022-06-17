@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 use RA\ArticleType;
 use RA\ClaimSetType;
@@ -11,14 +9,12 @@ use RA\ClaimType;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
-$gameID = requestInputSanitized('g', null, 'integer');
-
+$gameID = (int) request()->query('g');
 if (empty($gameID)) {
-    header("Location: " . getenv('APP_URL'));
+    abort(404);
 }
 
 $claimData = getFilteredClaimData($gameID);
@@ -28,12 +24,7 @@ $consoleName = $gameData['ConsoleName'];
 $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 
-RenderHtmlStart();
-RenderHtmlHead("Manage Claims");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Manage Claims");
 ?>
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <script src="/vendor/jquery.datetimepicker.full.min.js"></script>
@@ -112,7 +103,7 @@ RenderHeader($userDetails);
     }
 
     if (somethingChanged) {
-        var posting = $.post('/request/set-claim/update-claim.php', {
+        $.post('/request/set-claim/update-claim.php', {
             o: claimUser,
             i: claimID,
             g: <?= $gameID ?>,
@@ -123,10 +114,10 @@ RenderHeader($userDetails);
             d: newClaimDate,
             f: newDoneDate,
             m: comment
-        });
-        posting.done(function onUpdateComplete(data) {
-            location.reload();
         })
+            .done(function () {
+                location.reload();
+            });
     }
 }
 </script>
@@ -253,10 +244,7 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
-
+<?php RenderContentEnd(); ?>
 <script>
     jQuery('[id^=claimDate]').datetimepicker({
         format: 'Y-m-d H:i:s',

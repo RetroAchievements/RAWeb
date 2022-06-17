@@ -7,12 +7,8 @@ use RA\TicketFilters;
 use RA\TicketState;
 use RA\TicketType;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
 $maxCount = 50;
@@ -36,7 +32,6 @@ if ($ticketID != 0) {
     $ticketData = getTicket($ticketID);
     if ($ticketData == false) {
         $ticketID = 0;
-        $errorCode = 'notfound';
     }
 
     $action = requestInputSanitized('action', null);
@@ -124,7 +119,6 @@ if ($ticketID != 0) {
 
     // sets all filters enabled so we get closed/resolved tickets as well
     $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All);
-    // var_dump($altTicketData);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
@@ -196,14 +190,9 @@ sanitize_outputs(
 
 $pageTitle = "Ticket Manager";
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead($pageTitle);
+RenderContentStart($pageTitle);
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
-    <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
@@ -265,7 +254,7 @@ RenderHtmlHead($pageTitle);
         echo "<div class='detaillist'>";
 
         if ($gamesTableFlag == 1) {
-            echo "<p><b>If you're a developer and find games that you love in this list, consider helping to resolve their tickets.</b></p>";
+            echo "<p class='embedded'><b>If you're a developer and find games that you love in this list, consider helping to resolve their tickets.</b></p>";
             echo "<table><tbody>";
 
             echo "<th>Game</th>";
@@ -425,9 +414,10 @@ RenderHtmlHead($pageTitle);
 
                 $userFilter = function ($label, $param, $filteredUser) use ($createLink, $user) {
                     if (isset($user) || !empty($filteredUser)) {
-                        echo "<form class='form-inline' action='" . $createLink($param, null) . "' method='POST'>";
+                        echo "<form class='form-inline' action='" . $createLink($param, null) . "' method='post'>";
+                        echo csrf_field();
 
-                        echo "<p><b>$label:</b> ";
+                        echo "<p class='embedded'><b>$label:</b> ";
                         if (isset($user)) {
                             if ($filteredUser == $user) {
                                 echo "<b><a href='" . $createLink($param, null) . "'>*$user</a></b> | ";
@@ -879,7 +869,8 @@ RenderHtmlHead($pageTitle);
                     echo "<span>";
 
                     echo "<b>Please, add some comments about the action you're going to take.</b><br>";
-                    echo "<form method=post action='ticketmanager.php?i=$ticketID'>";
+                    echo "<form method=post action='ticketmanager.php>";
+                    echo csrf_field();
                     echo "<input type='hidden' name='i' value='$ticketID'>";
 
                     echo "<select name='action' required>";
@@ -958,6 +949,4 @@ RenderHtmlHead($pageTitle);
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

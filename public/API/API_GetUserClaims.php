@@ -29,11 +29,15 @@ use RA\ClaimSorting;
  *    string     MinutesLeft        time in minutes left until the claim expires
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
+$user = requestInputQuery('u');
 
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
-
-echo json_encode(getFilteredClaimData(0, ClaimFilters::AllFilters, ClaimSorting::ClaimDateDescending, false, $user, false), JSON_THROW_ON_ERROR);
+return response()->json(
+    getFilteredClaimData(
+        0,
+        ClaimFilters::AllFilters,
+        ClaimSorting::ClaimDateDescending,
+        false,
+        $user,
+        false
+    )
+);

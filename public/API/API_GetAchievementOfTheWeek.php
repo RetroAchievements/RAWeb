@@ -37,22 +37,16 @@
  *       filters the Unlocks to just those entries after StartAt.
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
 $staticData = getStaticData();
 $user = null;
 $achievementID = (int) ($staticData['Event_AOTW_AchievementID'] ?? null);
 $startAt = $staticData['Event_AOTW_StartAt'] ?? null;
 
 if (empty($achievementID)) {
-    echo json_encode([
+    return response()->json([
         'Achievement' => ['ID' => null],
         'StartAt' => null,
     ]);
-    exit;
 }
 
 $achievementData = GetAchievementMetadataJSON($achievementID);
@@ -98,7 +92,7 @@ if (!empty($startAt)) {
 // reverse order so newest winners are last
 usort($winnerInfo, fn ($a, $b) => strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']));
 
-echo json_encode([
+return response()->json([
     'Achievement' => $achievement,
     'Console' => $console,
     'ForumTopic' => $forumTopic,
@@ -107,4 +101,4 @@ echo json_encode([
     'TotalPlayers' => $numPossibleWinners ?? 0,
     'Unlocks' => array_values($winnerInfo ?? []),
     'UnlocksCount' => $numWinners ?? 0,
-], JSON_THROW_ON_ERROR);
+]);

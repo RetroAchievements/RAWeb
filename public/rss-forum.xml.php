@@ -2,10 +2,7 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-$site = getenv('APP_URL');
+$site = config('app.url');
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 
@@ -25,7 +22,7 @@ $xmlRoot = $xmlRoot->appendChild($xmlRoot2);
 
 $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Forum feed'));
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
-$xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
+$xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
 $numPostsFound = getRecentForumPosts(0, 30, 120, Permissions::Registered, $recentPostsData);
 
@@ -40,7 +37,7 @@ for ($i = 0; $i < $numPostsFound; $i++) {
     $user = $nextData['Author'];
     $userPicURL = "$site/UserPic/$user" . ".png";
     $date = date("D, d M Y H:i:s O", strtotime($nextData['PostedAt']));
-    $link = getenv('APP_URL') . '/viewtopic.php?t=' . $nextData['ForumTopicID']; // . '&amp;c=' . $nextData['CommentID'];
+    $link = config('app.url') . '/viewtopic.php?t=' . $nextData['ForumTopicID']; // . '&amp;c=' . $nextData['CommentID'];
 
     $title = htmlspecialchars($nextData['ForumTopicTitle']);
     $payload = htmlspecialchars($nextData['ShortMsg'] . "...");
@@ -48,12 +45,11 @@ for ($i = 0; $i < $numPostsFound; $i++) {
     $title = "<![CDATA[$title]]>";
     $payload = "<![CDATA[$payload]]>";
 
-    $article->appendChild($dom->createElement('title', $title));
+    $article->appendChild($dom->createElement('title', htmlentities($title)));
     $article->appendChild($dom->createElement('link', $link));
-    $article->appendChild($dom->createElement('description', $payload));
+    $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
     // $article->appendChild( $dom->createElement( 'guid',  $nextData['CommentID'] ) );
 }
 
-header('Content-type: text/xml');
-echo html_entity_decode($dom->saveXML());
+return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);

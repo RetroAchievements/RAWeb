@@ -1,59 +1,21 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-$forumID = requestInputPost('f');
-
-if (!ValidatePOSTChars("ftp")) {
-    header("Location: " . getenv('APP_URL') . "/createtopic.php?f=$forumID&e=invalidparams");
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$topicTitle = requestInputPost('t');
-$topicPayload = requestInputPost('p');
+$input = Validator::validate(request()->post(), [
+    'forum' => 'required|integer|exists:mysql_legacy.Forum,ID',
+    'title' => 'required|string|max:255',
+    'body' => 'required|string|max:60000',
+]);
 
-$bannedTitles = [
-    'kitchen',
-    'stilhaus',
-    'k i t c h e n',
-    'k,i,t,c,h,e,n',
-    'k.i.t.c.h.e.n',
-    'k*i*t*c*h*e*n',
-    'k\'i\'t\'c\'h\'e\'n',
-    'k_i_t_c_h_e_n',
-    's,t,i,l,h,a,u,s',
-    's*t*i*l*h*a*u*s',
-    'k itchen',
-    'ki tchen',
-    'kit chen',
-    'kitc hen',
-    'kitch en',
-    'kitche n',
-];
-
-$nextWord = $bannedTitles[0];
-foreach ($bannedTitles as $nextWord) {
-    $testTitle = mb_strtolower($topicTitle);
-    if (mb_strpos($testTitle, $nextWord) !== false) {
-        echo "Contains banned word: $nextWord (found in '$topicTitle').<br>Please try again.";
-        exit;
-    }
+$topicID = null;
+if (submitNewTopic($user, (int) $input['forum'], $input['title'], $input['body'], $topicID)) {
+    return redirect(url("/viewtopic.php?t=$topicID"))->with('success', __('legacy.success.create'));
 }
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    $topicID = null;
-    if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $topicID)) {
-        // Good!
-        header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID");
-        exit;
-    } else {
-        header("Location: " . getenv('APP_URL') . "/createtopic.php?e=issuessubmitting");
-        exit;
-    }
-} else {
-    header("Location: " . getenv('APP_URL') . "/createtopic.php?e=badcredentials");
-    exit;
-}
+return back()->withErrors(__('legacy.error.error'));

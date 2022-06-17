@@ -23,12 +23,7 @@
  *    int        ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
+$user = requestInputQuery('u');
 $count = min(requestInputQuery('c', 10), 50);
 $offset = requestInputQuery('o', 0);
 
@@ -53,4 +48,4 @@ if (!empty($recentlyPlayedData)) {
     $libraryOut['Awarded'] = $awardedData;
 }
 
-echo json_encode($recentlyPlayedData, JSON_THROW_ON_ERROR);
+return response()->json($recentlyPlayedData);

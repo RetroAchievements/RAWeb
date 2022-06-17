@@ -6,12 +6,17 @@ use PhpCsFixer\Finder;
 $rules = [
     /*
      * RuleSet cascades/overrides:
-     * @PhpCsFixer (risky)  https://raw.githubusercontent.com/FriendsOfPHP/PHP-CS-Fixer/2.18/src/RuleSet/Sets/PhpCsFixerSet.php
+     * @PhpCsFixer (risky)  https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/src/RuleSet/Sets/PhpCsFixerSet.php
      *      @Symfony        https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/src/RuleSet/Sets/SymfonySet.php
      *          @PSR12      https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/src/RuleSet/Sets/PSR12Set.php
      *              @PSR2   https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/src/RuleSet/Sets/PSR2Set.php
      */
     '@Symfony' => true,
+
+    // TODO remove and run
+    'braces' => false,
+    'no_unneeded_control_parentheses' => false,
+    'simple_to_complex_string_variable' => false,
 
     // @Symfony overrides
     'blank_line_before_statement' => false,
@@ -43,9 +48,14 @@ $rules = [
 $project_path = getcwd();
 $finder = Finder::create()
     ->in([
+        $project_path . '/app',
+        $project_path . '/config',
+        $project_path . '/database',
         $project_path . '/cronjobs',
+        $project_path . '/lang',
         $project_path . '/lib',
         $project_path . '/public',
+        $project_path . '/resources',
         $project_path . '/src',
         $project_path . '/tests',
     ])

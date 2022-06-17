@@ -218,7 +218,16 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  * Results are configurable based on input parameters, allowing sorting on each of the
  * above stats and returning data for a specific user or game.
  */
-function getFilteredClaimData(int $gameID = 0, int $claimFilter = ClaimFilters::AllFilters, int $sortType = ClaimSorting::ClaimDateDescending, bool $getExpiringOnly = false, ?string $username = null, bool $getCount = false, int $offset = 0, int $limit = 50): array|int
+function getFilteredClaimData(
+    int $gameID = 0,
+    int $claimFilter = ClaimFilters::AllFilters,
+    int $sortType = ClaimSorting::ClaimDateDescending,
+    bool $getExpiringOnly = false,
+    ?string $username = null,
+    bool $getCount = false,
+    int $offset = 0,
+    int $limit = 50
+): array|int
 {
     $retVal = [];
     sanitize_sql_inputs($gameID, $username);

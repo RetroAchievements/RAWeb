@@ -77,10 +77,10 @@ function getUserFromID($userID): string
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
 
-        return (string) $data['User'];
+        return $data ? (string) $data['User'] : '';
     }
 
-    return "";
+    return '';
 }
 
 function getUserMetadataFromID($userID): ?array
@@ -466,7 +466,7 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7): array
         OpenTickets ASC";
     // LIMIT 0, $count";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     $retVal = [];

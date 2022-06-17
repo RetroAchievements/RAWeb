@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 use RA\RankType;
 use RA\UnlockMode;
 
@@ -10,7 +7,6 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
-$errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
 $sort = requestInputSanitized('s', 5, 'integer');
@@ -61,17 +57,11 @@ $unlockMode = match ($sort % 10) {
     default => UnlockMode::Hardcore,
 };
 
-RenderHtmlStart();
-RenderHtmlHead($lbUsers . " Ranking - " . $lbType);
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart($lbUsers . " Ranking - " . $lbType);
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning($errorCode);
         echo "<h2 class='longheader'>" . $lbUsers . " Ranking - " . $lbType . "</h2>";
 
         // Add the leaderboard filters
@@ -130,7 +120,7 @@ RenderHeader($userDetails);
         echo "</div>";
 
         // Create the custom date folter
-        echo "<form action='/globalRanking.php' method='get'>";
+        echo "<form action='/globalRanking.php'>";
         echo "<label for='d'><b>Custom Date: </b></label>";
         echo "<input type='hidden' name='s' value=" . $sort . ">";
         echo "<input type='hidden' name='t' value=" . $type . ">";
@@ -355,6 +345,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

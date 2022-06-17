@@ -4,33 +4,27 @@ use RA\ArticleType;
 use RA\ImageType;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
-    redirect('?e=badcredentials');
-    exit;
+    return back()->withErrors(__('legacy.error.permissions'));
 }
+
+// TODO check
 
 $gameID = (int) requestInputPost('i', 0);
 $imageType = (string) requestInputPost('t');
 
 if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $gameID)) {
-    // Immediate redirect if the jr. dev attempting to upload the image is not the sole developer
-    redirect("game/$gameID?e=badcredentials");
-    exit;
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
 if (!ImageType::isValidGameImageType($imageType)) {
-    redirect("game/$gameID?e=uploadfailed");
-    exit;
+    return back()->withErrors(__('legacy.error.image_upload'));
 }
 
 try {
     $imagePath = UploadGameImage($_FILES['file'], $imageType);
-} catch (Exception $exception) {
-    redirect("game/$gameID?e=uploadfailed");
-    exit;
+} catch (Exception) {
+    return back()->withErrors(__('legacy.error.image_upload'));
 }
 
 $field = match ($imageType) {
@@ -41,15 +35,13 @@ $field = match ($imageType) {
     default => null,
 };
 if (!$field) {
-    redirect("game/$gameID?e=uploadfailed");
-    exit;
+    return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-global $db;
+$db = getMysqliConnection();
 $dbResult = mysqli_query($db, "UPDATE GameData AS gd SET $field='$imagePath' WHERE gd.ID = $gameID");
 if (!$dbResult) {
-    redirect("game/$gameID?e=uploadfailed");
-    exit;
+    return back()->withErrors(__('legacy.error.image_upload'));
 }
 
 $label = match ($imageType) {
@@ -62,4 +54,4 @@ $label = match ($imageType) {
 
 addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the $label");
 
-redirect("game/$gameID?e=uploadok");
+return back()->with('success', __('legacy.success.image_upload'));

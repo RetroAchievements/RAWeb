@@ -1,1 +1,0 @@
-ALTER TABLE LeaderboardDef MODIFY COLUMN DisplayOrder int(10) NOT NULL DEFAULT 0;

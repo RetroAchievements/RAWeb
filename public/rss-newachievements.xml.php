@@ -1,9 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
-$site = getenv('APP_URL');
+$site = config('app.url');
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 
@@ -23,7 +20,7 @@ $xmlRoot->appendChild($xmlns);
 
 $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org New Achievements feed'));
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
-$xmlRoot->appendChild($dom->createElement('link', getenv('APP_URL')));
+$xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
 $numArticles = getLatestNewAchievements(40, $feedData);
 
@@ -38,13 +35,13 @@ for ($i = 0; $i < $numArticles; $i++) {
     $achTitle = $nextData['Title'];
     $achBadge = $nextData['BadgeName'];
     $achPoints = $nextData['Points'];
-    $badgeURL = getenv('APP_URL') . "/Badge/" . $achBadge . ".png";
+    $badgeURL = config('app.url') . "/Badge/" . $achBadge . ".png";
     $gameID = $nextData['GameID'];
     $gameTitle = $nextData['GameTitle'];
     $consoleName = $nextData['ConsoleName'];
 
     $date = date("D, d M Y H:i:s O", $nextData['timestamp']);
-    $link = getenv('APP_URL') . '/achievement/' . $nextData['ID'];
+    $link = config('app.url') . '/achievement/' . $nextData['ID'];
     $simpleTitle = "$achTitle ($achPoints) ($gameTitle, $consoleName)";
     $payloadWithLinks = "<a href='$site/achievement/$achID'>$achTitle</a> ($achPoints) has been added for <a href='$site/game/$gameID'>$gameTitle</a> ($consoleName)";
 
@@ -58,19 +55,18 @@ for ($i = 0; $i < $numArticles; $i++) {
     }
 
     // $payload contains relative URLs, which need converting to absolute URLs
-    $payload = str_replace("href='/", "href='" . getenv('APP_URL') . "/", $payload);
-    $payload = str_replace("href=\"/", "href=\"" . getenv('APP_URL') . "/", $payload);
-    $payload = str_replace("src='/", "src='" . getenv('APP_URL') . "/", $payload);
-    $payload = str_replace("src=\"/", "src=\"" . getenv('APP_URL') . "/", $payload);
+    $payload = str_replace("href='/", "href='" . config('app.url') . "/", $payload);
+    $payload = str_replace("href=\"/", "href=\"" . config('app.url') . "/", $payload);
+    $payload = str_replace("src='/", "src='" . config('app.url') . "/", $payload);
+    $payload = str_replace("src=\"/", "src=\"" . config('app.url') . "/", $payload);
 
     // Strip tags from title (incl html markup :S)
     // ?!
 
-    $article->appendChild($dom->createElement('title', $title));
+    $article->appendChild($dom->createElement('title', htmlentities($title)));
     $article->appendChild($dom->createElement('link', $link));
-    $article->appendChild($dom->createElement('description', $payload));
+    $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
 }
 
-header('Content-type: text/xml');
-echo html_entity_decode($dom->saveXML());
+return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);

@@ -1,17 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-if (!requestInput('term')) {
-    exit;
+if (!request()->has('term')) {
+    return response()->json([]);
 }
 
-global $db;
-$searchTerm = $_REQUEST['term'];
+$searchTerm = request()->input('term');
 sanitize_sql_inputs($searchTerm);
 
-$source = requestInputQuery('p', null);
+$source = requestInputQuery('p');
 
 $query = "(
     SELECT '1' AS Type, gd.ID, CONCAT( gd.Title, \" (\", c.Name, \")\" ) AS Title, gd.ImageIcon AS Icon
@@ -106,5 +102,4 @@ if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
     }
 }
 
-echo json_encode($dataOut, JSON_THROW_ON_ERROR);
-flush();
+return response()->json($dataOut);

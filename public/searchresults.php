@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $searchQuery = requestInputSanitized('s', null);
@@ -15,12 +12,8 @@ if ($searchQuery !== null) {
     $resultsCount = performSearch($searchQuery, $offset, $maxCount, $permissions, $searchResults);
 }
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Search");
+RenderContentStart("Search");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
@@ -31,7 +24,7 @@ RenderHtmlHead("Search");
         echo "<h2 class='longheader'>Search</h2>";
 
         echo "<div class='searchbox longer'>";
-        echo "<form action='/searchresults.php' method='get'>";
+        echo "<form action='/searchresults.php'>";
         // echo "Search:&nbsp;";
         $searchQueryEscaped = attributeEscape($searchQuery);
         echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQueryEscaped' placeholder='Search the site...' />";
@@ -83,7 +76,7 @@ RenderHtmlHead("Search");
                             $achData = GetAchievementData($nextID);
                             $badgeID = $achData['BadgeName'];
                             echo "<td>";
-                            echo "<img src='" . asset('Badge/' . str_pad($badgeID, 5, '0', STR_PAD_LEFT) . '.png') . "' title='$nextTitle' alt='$nextTitle' width='32' height='32' />";
+                            echo "<img src='" . media_asset('Badge/' . str_pad($badgeID, 5, '0', STR_PAD_LEFT) . '.png') . "' title='$nextTitle' alt='$nextTitle' width='32' height='32' />";
                             echo "</td>";
                             echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
                         } else {
@@ -120,6 +113,4 @@ RenderHtmlHead("Search");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

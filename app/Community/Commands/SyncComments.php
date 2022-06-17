@@ -1,0 +1,105 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Community\Commands;
+
+use App\Community\Models\News;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\Leaderboard;
+use App\Site\Models\User;
+use App\Support\Sync\SyncTrait;
+use Exception;
+use Illuminate\Console\Command;
+
+class SyncComments extends Command
+{
+    use SyncTrait;
+
+    protected $signature = 'ra:sync:comments {--f|full} {--p|no-post}';
+
+    protected $description = 'Sync comments';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function handle(): void
+    {
+        $this->sync('comments');
+    }
+
+    protected function preProcessEntity(object $origin, array $transformed): array
+    {
+        $payload = null;
+
+        return $transformed;
+
+        /* @phpstan-ignore-next-line */
+        dd($origin);
+
+        /**
+         * cleanup
+         */
+        $payload = $origin->Payload;
+        $payload = trim($payload);
+
+        $commentableType = null;
+        switch ($origin->ArticleType) {
+            case 1:
+                // "Game"
+                $commentableType = resource_type(Game::class);
+                break;
+            case 2:
+                // "Achievement"
+                $commentableType = resource_type(Achievement::class);
+                break;
+            case 3:
+                // "User"
+                $commentableType = resource_type(User::class);
+                break;
+            case 4:
+                // "News"
+                $commentableType = resource_type(News::class);
+                break;
+            case 5:
+                // "Activity"
+                // skip activity comments
+                // $commentableType = resource_type(Activity::class);
+                break;
+            case 6:
+                // "Leaderboard"
+                $commentableType = resource_type(Leaderboard::class);
+                break;
+        }
+
+        if (empty($commentableType)) {
+            return [];
+        }
+
+        return $transformed;
+        // [
+        //     'commentable_id' => $origin->id,
+        //     'commentable_type' => $commentableType,
+        //     'origin_id' => $commentableType . '_' . $origin->ID,
+        //     'user_id' => $origin->ExistingAuthorID,
+        // ];
+
+        // $payload = \str_replace("\n\n", "\n", $payload);
+        // DB::connection('mysql')->table('comments')
+        //     ->insertUpdate([
+        //         'commentable_id' => $transformed->ArticleID,
+        //         'commentable_type' => $commentableType,
+        //         'origin_id' => $commentableType . '_' . $transformed->ID,
+        //         'user_id' => $transformed->AuthorID,
+        //         'body' => $payload,
+        //         'created_at' => $transformed->DateCreated,
+        //         'updated_at' => $transformed->DateModified,
+        //     ]);
+    }
+}

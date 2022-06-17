@@ -2,20 +2,11 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
-}
-
-$permissions = 0;
-if (isset($user)) {
-    $permissions = getUserPermissions($user);
+    abort(401);
 }
 
 $maxCount = 25;
@@ -43,8 +34,7 @@ if ($consoleIDInput) {
 }
 
 if (empty($consoleIDInput) && empty($gameID)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(404);
 }
 
 sanitize_outputs(
@@ -54,52 +44,40 @@ sanitize_outputs(
 
 $pageTitle = "Leaderboard List" . $requestedConsole;
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead($pageTitle);
+RenderContentStart($pageTitle);
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script>
-  function ReloadLBPageByConsole() {
+function ReloadLBPageByConsole() {
     var ID = $('#consoleselector').val();
     location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
-  }
+}
 
-  function ReloadLBPageByGame() {
+function ReloadLBPageByGame() {
     var ID = $('#gameselector').val();
     if (ID.indexOf('c_') === 0) {
-      location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
-      return;
+        location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
+        return;
     }
     location.href = '/leaderboardList.php?g=' + ID;
-  }
+}
 </script>
 <?php if ($permissions >= Permissions::JuniorDeveloper): ?>
     <script>
-      function UpdateLeaderboard(user, lbID) {
-        var lbTitle = $.trim($('#LB_' + lbID + '_Title').val());
-        var lbDesc = $.trim($('#LB_' + lbID + '_Desc').val());
-        var lbFormat = $.trim($('#LB_' + lbID + '_Format').val());
-        var lbDisplayOrder = $.trim($('#LB_' + lbID + '_DisplayOrder').val());
-        var lbMem1 = $.trim($('#LB_' + lbID + '_Mem1').val());
-        var lbMem2 = $.trim($('#LB_' + lbID + '_Mem2').val());
-        var lbMem3 = $.trim($('#LB_' + lbID + '_Mem3').val());
-        var lbMem4 = $.trim($('#LB_' + lbID + '_Mem4').val());
-
-        var lbMem = 'STA:' + lbMem1 + '::CAN:' + lbMem2 + '::SUB:' + lbMem3 + '::VAL:' + lbMem4;
-        var lbLowerIsBetter = $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0';
-
-        var posting = $.post('/request/leaderboard/update.php', { u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder });
-        posting.done(function (data) {
-          if (data !== 'OK')
-            showStatusError('Error: ' + data);
-          else
-            showStatusSuccess('Succeeded');
-        });
-
+    function UpdateLeaderboard(lbID) {
         showStatusMessage('Updating...');
-      }
+        $.post('/request/leaderboard/update.php', {
+            leaderboard: lbID,
+            title: $.trim($('#LB_' + lbID + '_Title').val()),
+            description: $.trim($('#LB_' + lbID + '_Desc').val()),
+            format: $.trim($('#LB_' + lbID + '_Format').val()),
+            trigger: 'STA:' + $.trim($('#LB_' + lbID + '_Mem1').val())
+                + '::CAN:' + $.trim($('#LB_' + lbID + '_Mem2').val())
+                + '::SUB:' + $.trim($('#LB_' + lbID + '_Mem3').val())
+                + '::VAL:' + $.trim($('#LB_' + lbID + '_Mem4').val()),
+            lowerIsBetter: $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0',
+            order:  $.trim($('#LB_' + lbID + '_DisplayOrder').val())
+        });
+    }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -140,7 +118,8 @@ RenderHtmlHead($pageTitle);
         if (isset($gameID)) {
             echo "<li>";
             echo "<a href='/request/leaderboard/create.php?g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a></br>";
-            echo "<form method='post' action='/request/leaderboard/create.php'> ";
+            echo "<form method='post' action='/request/leaderboard/create.php'>";
+            echo csrf_field();
             echo "<input type='hidden' name='g' value='$gameID' />";
             echo "Duplicate leaderboard ID: ";
             echo "<input style='width: 10%;' type='number' min=1 value=1 name='l' /> ";
@@ -152,7 +131,8 @@ RenderHtmlHead($pageTitle);
             echo "</li>";
         } else {
             echo "<li>Add new leaderboard<br>";
-            echo "<form method='post' action='/request/leaderboard/create.php' >";
+            echo "<form method='post' action='/request/leaderboard/create.php'>";
+            echo csrf_field();
             echo "<select name='g'>";
             foreach ($gamesList as $nextGame) {
                 $nextGameID = $nextGame['ID'];
@@ -169,10 +149,6 @@ RenderHtmlHead($pageTitle);
 
         echo "</div>";
         echo "</div>";
-    }
-
-    if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        RenderStatusWidget();
     }
 
     if (!isset($gameData)) {
@@ -207,12 +183,12 @@ RenderHtmlHead($pageTitle);
                 $isSelected = $nextEntry['ConsoleID'] == $consoleIDInput;
                 echo "<option value='c_{$nextEntry['ConsoleID']}' " . ($isSelected ? 'selected' : '') . ">-= $lastConsoleName =-</option>";
             }
-            echo "<option value='$gameID'> " . $nextEntry['GameTitle'] . " (" . $nextEntry['ConsoleName'] . ") (" . $nextEntry['NumLeaderboards'] . " LBs) " . "</option>";
+            echo "<option value='$gameID'> " . $nextEntry['GameTitle'] . " (" . $nextEntry['ConsoleName'] . ") (" . $nextEntry['NumLeaderboards'] . " LBs) Achievements</option>";
         }
         echo "</select>";
     }
 
-    echo "<table class='smalltable xsmall'><tbody>";
+    echo "<table><tbody>";
 
     $sort1 = ($sortBy == 1) ? 11 : 1;
     $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -344,10 +320,9 @@ RenderHtmlHead($pageTitle);
                 }
             }
 
-            echo "<table class='smalltable xsmall nopadding' ><tbody>";
-
+            echo "<table class='mb-3'><tbody>";
             echo "<tr>";
-            echo "<td style='width:10%;' >Start:</td>";
+            echo "<td style='width:10%;'>Start:</td>";
             echo "<td>";
             echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memStart' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
             echo "</td>";
@@ -377,36 +352,22 @@ RenderHtmlHead($pageTitle);
             echo "</tbody></table>";
 
             // Only display the entry count for jr. devs
+            echo "<div class='flex justify-between items-center'>";
+            echo "<a href='/leaderboardinfo.php?i=$lbID'>" . $lbNumEntries . " entries</a>";
+            echo "<div class='flex gap-2'>";
             if ($permissions == Permissions::JuniorDeveloper) {
-                echo "<div style='float:left;' >";
-                echo "&#124;";
-                echo "&nbsp;";
-                echo $lbNumEntries . " entries";
-                echo "&nbsp;";
-                echo "&#124;";
-                echo "</div>";
-                if ($editAllowed) {
-                    echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
-                }
+                echo " | ";
             } else {
-                echo "<div style='float:left;' >";
-                echo "&#124;";
-                echo "&nbsp;";
-                echo "<a href='/request/leaderboard/delete.php?u=$user&i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Permanently Delete?</a>";
-                echo "&nbsp;";
-                echo "&#124;";
-                echo "&nbsp;";
                 if ($lbNumEntries > 0) {
-                    echo "<a href='/request/leaderboard/reset.php?u=$user&i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset all $lbNumEntries entries?</a>";
-                } else {
-                    echo "0 entries";
+                    echo "<a class='btn btn-danger' href='/request/leaderboard/reset.php?i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset entries</a>";
                 }
-                echo "&nbsp;";
-                echo "&#124;";
-                echo "</div>";
-
-                echo "<div class='rightalign'><input type='submit' name='Update' onclick=\"UpdateLeaderboard('$user', '$lbID')\" value='Update'></div>";
+                echo "<a class='btn btn-danger' href='/request/leaderboard/delete.php?u=$user&i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Delete leaderboard</a>";
             }
+            echo "</div>";
+            if ($editAllowed) {
+                echo "<button type='button' class='btn btn-primary' onclick=\"UpdateLeaderboard('$lbID')\">Update</button>";
+            }
+            echo "</div>";
 
             echo "</td>";
             echo "</td>";
@@ -416,11 +377,11 @@ RenderHtmlHead($pageTitle);
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 32, false);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justImage: true);
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justText: true);
             echo "</td>";
 
             // echo "<td class='text-nowrap'>";
@@ -473,13 +434,11 @@ RenderHtmlHead($pageTitle);
 
 <?php
 if (!empty($codeNotes) && $permissions >= Permissions::JuniorDeveloper) {
-        echo "<div id='rightcontainer'>";
-        RenderCodeNotes($codeNotes);
-        echo "</div>";
-    }
+    echo "<div id='rightcontainer'>";
+    RenderCodeNotes($codeNotes);
+    echo "</div>";
+}
 ?>
 
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

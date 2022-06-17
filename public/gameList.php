@@ -2,9 +2,6 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $showCompleteGames = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
@@ -21,18 +18,11 @@ if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
     $offset = 0;
 }
 
-$requestedConsole = "";
-if ($consoleIDInput !== 0) {
-    $requestedConsole = " (" . $consoleList[$consoleIDInput] . ")";
-}
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
 $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $showTickets, $filter, $offset, $maxCount);
-
-sanitize_outputs($requestedConsole);
 
 function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showConsoleName, $showTotals): void
 {
@@ -164,16 +154,18 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
     echo "</tbody></table></div>";
 }
 
-$errorCode = requestInputSanitized('e');
-RenderHtmlStart();
-RenderHtmlHead("Supported Games" . $requestedConsole);
+$requestedConsole = "";
+if ($consoleIDInput !== 0) {
+    $requestedConsole = $consoleList[$consoleIDInput] . " ";
+}
+sanitize_outputs($requestedConsole);
+
+RenderContentStart($requestedConsole . "Games");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php RenderConsoleMessage((int) $consoleIDInput) ?>
-        <div class="largelist">
+        <div>
             <?php
                 if ($dev !== null) {
                     // Determine which consoles the dev has created content for
@@ -231,6 +223,4 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
         </div>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

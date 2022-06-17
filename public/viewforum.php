@@ -2,9 +2,6 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
@@ -20,8 +17,7 @@ if ($permissions >= Permissions::Admin) {
 $numTotalTopics = 0;
 
 if ($requestedForumID == 0 && $permissions < Permissions::Admin) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
-    exit;
+    abort(404);
 }
 
 if ($requestedForumID == 0 && $permissions >= Permissions::Admin) {
@@ -38,8 +34,7 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Admin) {
     $requestedForum = "Unauthorised Links";
 } else {
     if (!getForumDetails($requestedForumID, $forumDataOut)) {
-        header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
-        exit;
+        abort(404);
     }
 
     $thisForumID = $forumDataOut['ID'];
@@ -60,14 +55,8 @@ sanitize_outputs(
     $thisCategoryName,
 );
 
-$errorCode = requestInputSanitized('e');
-$mobileBrowser = IsMobileBrowser();
-
-RenderHtmlStart();
-RenderHtmlHead("View forum: $thisForumTitle");
+RenderContentStart("Forum: $thisForumTitle");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
         <div id="forums">
@@ -79,22 +68,27 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "</div>";
 
             if ($numUnofficialLinks > 0) {
-                echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
+                echo "<div class='my-3 bg-embedded p-2 rounded-sm'>";
+                echo "<b>Administrator Notice:</b> <a href='/viewforum.php?f=0'>$numUnofficialLinks unofficial posts need authorising: please verify them!</a>";
+                echo "</div>";
             }
 
             // echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
             echo "<h2>$requestedForum</h2>";
-            echo "$thisForumDescription<br><br>";
+            echo "<p class='mb-5'>$thisForumDescription</p>";
 
+            echo "<div class='flex justify-between items-center'>";
             if ($numTotalTopics > $count) {
+                echo "<div>";
                 RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
+                echo "</div>";
             }
-
             if ($permissions >= Permissions::Registered) {
-                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</div></a>";
+                echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
             }
+            echo "</div>";
 
-            echo "<table><tbody>";
+            echo "<table class='my-3'><tbody>";
             echo "<tr class='forumsheader'>";
             echo "<th></th>";
             echo "<th class='fullwidth'>Topics</th>";
@@ -142,44 +136,36 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
                 echo "<tr>";
 
-                echo "<td class='unreadicon p-1'><img src='" . asset('Images/ForumTopicUnread32.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
+                echo "<td class='unreadicon p-1'><img src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
                 echo "<td class='topictitle'><a alt='Posted $nextTopicPostedNiceDate' title='Posted on $nextTopicPostedNiceDate' href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a><br><div id='topicpreview'>$nextTopicPreview...</div></td>";
                 echo "<td class='author'>";
-                echo GetUserAndTooltipDiv($nextTopicAuthor, $mobileBrowser);
+                echo GetUserAndTooltipDiv($nextTopicAuthor);
                 echo "</td>";
                 // echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
                 echo "<td class='replies'>$nextTopicNumReplies</td>";
                 // echo "<td class='views'>$nextForumNumViews</td>";
                 echo "<td class='lastpost'>";
                 echo "<div class='lastpost'>";
-                echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
-                echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
+                echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor);
+                echo "<br><span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
                 // echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
-                echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
+                echo "<br><a class='btn btn-link' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
             }
-
-            if ($topicCount % 2 == 1) {
-                echo "<tr><td colspan=5 class='smalltext'></td></tr>";
-            }
-            echo "<tr><td colspan=5 class='smalltext'></td></tr>";
-
             echo "</tbody></table>";
 
+            echo "<div class='flex justify-between items-center'>";
             if ($numTotalTopics > $count) {
+                echo "<div>";
                 RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
+                echo "</div>";
             }
-
             if ($permissions >= Permissions::Registered) {
-                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
-            } else {
-                echo "<div class='rightfloat'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
+                echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
             }
-
-            echo "<br>";
-
+            echo "</div>";
             ?>
         </div>
     </div>
@@ -189,6 +175,4 @@ RenderHtmlHead("View forum: $thisForumTitle");
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

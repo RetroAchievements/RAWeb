@@ -25,12 +25,7 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
+$user = requestInputQuery('u');
 $unixTimeInputStart = requestInputQuery('f', "");
 $unixTimeInputEnd = requestInputQuery('t', "");
 
@@ -44,4 +39,4 @@ foreach ($data as &$nextData) {
     $nextData['GameURL'] = "/game/" . $nextData['GameID'];
 }
 
-echo json_encode($data, JSON_THROW_ON_ERROR);
+return response()->json($data);

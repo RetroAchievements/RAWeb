@@ -61,6 +61,7 @@ abstract class ClaimSorting
                 $dateText = 'Drop';
             }
             $dateText .= ' Date';
+
             return $dateText;
         }
 

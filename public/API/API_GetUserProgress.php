@@ -15,14 +15,9 @@
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
+$user = requestInputQuery('u');
 $gameCSV = requestInputQuery('i', "");
 
 getUserProgress($user, $gameCSV, $data);
 
-echo json_encode($data, JSON_THROW_ON_ERROR);
+return response()->json($data);

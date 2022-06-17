@@ -286,7 +286,7 @@ function UploadNewAchievement(
                 '$badge', 0, NULL,
                 0
             )";
-        global $db;
+        $db = getMysqliConnection();
         if (mysqli_query($db, $query) !== false) {
             $idInOut = mysqli_insert_id($db);
             postActivity($author, ActivityType::UploadAchievement, $idInOut);
@@ -339,7 +339,7 @@ function UploadNewAchievement(
 
             $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$type, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
 
-            global $db;
+            $db = getMysqliConnection();
             if (mysqli_query($db, $query) !== false) {
                 // if ($changingAchSet || $changingPoints) {
                 //     // When changing achievement set, all existing achievements that rely on this should be purged.
@@ -347,7 +347,6 @@ function UploadNewAchievement(
                 //     // nah, that's a bit harsh... esp if you're changing something tiny like the badge!!
                 //
                 //     // if (s_mysql_query($query) !== false) {
-                //     // global $db;
                 //     // $rowsAffected = mysqli_affected_rows($db);
                 //     // // great
                 //     // } else {
@@ -494,7 +493,7 @@ function updateAchievementEmbedVideo($achID, $newURL): bool
 
     $query = "UPDATE Achievements SET AssocVideo = '$newURL', Updated=NOW() WHERE ID = $achID";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     return $dbResult !== false;
@@ -508,7 +507,7 @@ function updateAchievementFlags(int|string|array $achID, int $newFlags): bool
 
     $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . $achievementIDs . ")";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     return $dbResult !== false;

@@ -2,28 +2,18 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$errorCode = requestInputSanitized('e');
 $type = requestInputSanitized('t', 0, 'integer');
 $defaultFilter = 7; // set all 3 status' to enabled
 $devFilter = requestInputSanitized('f', 7, 'integer');
 
-RenderHtmlStart();
-RenderHtmlHead("Developer Stats");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Developer Stats");
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <h3>Developer Stats</h3>
         <?php
-        RenderErrorCodeWarning($errorCode);
         $devStatsList = GetDeveloperStatsFull(100, $type, $devFilter);
 
         echo "<div class='embedded mb-1'>";
@@ -109,6 +99,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

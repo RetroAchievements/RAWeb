@@ -1,0 +1,137 @@
+.bg-body {
+  background-color: var(--bg-color);
+}
+
+.bg-embedded {
+  background-color: var(--embed-color);
+}
+
+.bg-box {
+  background-color: var(--box-bg-color);
+}
+
+.text-muted {
+  color: var(--text-color-muted);
+}
+
+/* Scheme */
+
+/* dark scheme */
+:root {
+  --bg-color: rgb(26, 26, 26); /*#1a1a1a*/
+  --box-bg-color: rgb(35, 35, 35); /*#2a2a2a*/
+  --embed-color: rgb(22, 22, 22); /*#161616*/
+  --heading-color: rgb(210, 210, 210);
+  /*--link-color: rgb(44, 151, 250);*/
+  --link-color: theme("colors.blue.400");
+  --link-hover-color: rgb(238 238 238); /*#EEEEEE*/
+  --menu-link-color: rgb(200, 200, 200);
+  --menu-link-hover-color: rgb(238 238 238);
+  --text-color: rgb(200, 200, 200);
+  --text-color-muted: rgb(75, 75, 75);
+}
+
+[data-scheme="black"] {
+  --bg-color: rgb(10, 10, 10);
+  --box-bg-color: rgb(20, 20, 20);
+  --embed-color: rgb(0, 0, 0);
+  --heading-color: rgb(200, 200, 200);
+  --menu-link-color: rgb(190, 190, 190);
+  --text-color: rgb(190, 190, 190);
+}
+
+[data-scheme="light"] {
+  /*--bg-color:rgb(248, 248, 248);*/
+  /*--box-bg-color: rgb(255, 255, 255);*/
+  --box-bg-color:rgb(248, 248, 248);
+  --bg-color: rgb(255, 255, 255);
+  --embed-color:  rgb(240, 240, 240);
+  --heading-color: rgb(50, 50, 50);
+  --link-hover-color: rgb(0, 0, 0);
+  --menu-link-color: rgb(66, 66, 66);
+  --menu-link-hover-color: rgb(0, 0, 0);
+  --text-color: rgb(66, 66, 66);
+  --text-color-muted: rgb(130, 130, 130);
+}
+
+/* Theme */
+/* https://tailwindcss.com/docs/customizing-colors */
+
+[data-theme=""] {
+  --heading-color: rgb(44, 151, 250);
+  --link-color: rgb(204, 153, 0); /*#CC9900*/
+  --text-color: rgb(44, 151, 250); /*#2C97FA*/
+}
+
+[data-theme="red"] {
+  /*--heading-color: rgb(212, 0, 12);*/
+  /*--link-color: rgb(240, 12, 0);*/
+  /*--link-hover-color: rgb(255, 100, 100);*/
+  --heading-color: theme("colors.red.700");
+  --text-color: theme("colors.red.700");
+  --link-color: rgb(240, 12, 0);
+  --link-hover-color: theme("colors.red.400");
+}
+[data-theme="red"][data-scheme="light"] {
+  --text-color: theme("colors.red.900");
+}
+
+[data-theme="green"] {
+  /*--heading-color: rgb(20, 174, 13);
+  --link-color: rgb(12, 255, 12);
+  --link-hover-color: rgb(200, 255, 200);*/
+  --heading-color: theme("colors.green.600");
+  --text-color: theme("colors.green.600");
+  --link-color: theme("colors.green.400");
+  --link-hover-color: theme("colors.green.200");
+}
+[data-theme="green"][data-scheme="light"] {
+  /*--link-color: rgb(20, 174, 13);*/
+  /*--link-hover-color: rgb(24, 212, 16);*/
+  --text-color: theme("colors.green.900");
+  --link-color: theme("colors.green.500");
+  --link-hover-color: theme("colors.green.400");
+}
+
+[data-theme="blue"] {
+  /*--heading-color: rgb(17, 102, 221);*/
+  /*--link-color: rgb(44, 151, 250);*/
+  /*--link-hover-color: rgb(92, 179, 253);*/
+  --heading-color: theme("colors.blue.600");
+  --text-color: theme("colors.blue.500");
+  --link-color: theme("colors.blue.400");
+  --link-hover-color: theme("colors.blue.200");
+}
+[data-theme="blue"][data-scheme="light"] {
+  --text-color: theme("colors.blue.900");
+  --link-color: theme("colors.blue.500");
+  --link-hover-color: theme("colors.blue.400");
+}
+
+[data-theme="orange"] {
+  /*--heading-color: rgb(253, 126, 20);*/
+  /*--link-color: rgb(253, 150, 20);*/
+  /*--link-hover-color: rgb(255, 193, 7);*/
+  --heading-color: theme("colors.orange.600");
+  --text-color: theme("colors.orange.600");
+  --link-color: theme("colors.orange.400");
+  --link-hover-color: theme("colors.orange.200");
+}
+[data-theme="orange"][data-scheme="light"] {
+  --text-color: theme("colors.orange.900");
+}
+
+[data-theme="pink"] {
+  /*--heading-color: rgb(255, 20, 200);*/
+  /*--link-color: rgb(255, 0, 170);*/
+  /*--link-hover-color: rgb(255, 102, 220);*/
+  --heading-color: theme("colors.pink.600");
+  --text-color: theme("colors.pink.600");
+  --link-color: theme("colors.pink.400");
+  --link-hover-color: theme("colors.pink.200");
+}
+[data-theme="pink"][data-scheme="light"] {
+  --text-color: theme("colors.pink.800");
+  --link-color: theme("colors.pink.500");
+  --link-hover-color: theme("colors.pink.400");
+}

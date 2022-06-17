@@ -178,7 +178,7 @@ function resetAchievements(string $user, $gameID): int
 
     $numRowsDeleted = 0;
     if (s_mysql_query($query) !== false) {
-        global $db;
+        $db = getMysqliConnection();
         $numRowsDeleted = (int) mysqli_affected_rows($db);
     }
 

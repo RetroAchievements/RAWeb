@@ -23,7 +23,7 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0): void
 
     $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder) 
                             VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
-    global $db;
+    $db = getMysqliConnection();
     mysqli_query($db, $query);
 }
 
@@ -61,7 +61,7 @@ function getUsersSiteAwards($user, $showHidden = false): array
     )
     ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     $numFound = 0;

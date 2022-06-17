@@ -3,11 +3,12 @@
 use RA\ArticleType;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+if (!authenticateFromCookie($user, $permissions, $userDetail)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
 
 if (!ValidatePOSTChars("ef")) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_baddata");
+    header("Location: " . config('app.url') . "/controlpanel.php?e=e_baddata");
     exit;
 }
 
@@ -15,16 +16,11 @@ $email = requestInputPost('e');
 $email2 = requestInputPost('f');
 
 if ($email !== $email2) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_notmatch");
+    header("Location: " . config('app.url') . "/controlpanel.php?e=e_notmatch");
     exit;
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badnewemail");
-    exit;
-}
-
-if (!authenticateFromCookie($user, $permissions, $userDetail)) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_badcredentials");
+    header("Location: " . config('app.url') . "/controlpanel.php?e=e_badnewemail");
     exit;
 }
 
@@ -33,8 +29,7 @@ $dbResult = s_mysql_query(
 );
 
 if (!$dbResult) {
-    header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_generalerror");
-    exit;
+    return back()->withErrors(__('legacy.error.error'));
 }
 
 sendValidationEmail($user, $email);
@@ -43,4 +38,4 @@ addArticleComment('Server', ArticleType::UserModeration, $userDetail['ID'],
     $user . ' changed their email address'
 );
 
-header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=e_changeok");
+return back()->with('success', __('legacy.success.change'));

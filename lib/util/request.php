@@ -1,15 +1,6 @@
 <?php
 
-function redirect(string $url): void
-{
-    header('Location: ' . url($url));
-}
-
-function back(): string
-{
-    return url($_SERVER['HTTP_REFERER'] ?? '');
-}
-
+// TODO replace with framework request input
 function requestInputQuery(string $key, $default = null, $type = null): mixed
 {
     $input = $_GET[$key] ?? $default;
@@ -21,6 +12,7 @@ function requestInputQuery(string $key, $default = null, $type = null): mixed
     return $input;
 }
 
+// TODO replace with framework request input
 function requestInputPost(string $key, $default = null, $type = null): mixed
 {
     $input = $_POST[$key] ?? $default;
@@ -32,6 +24,7 @@ function requestInputPost(string $key, $default = null, $type = null): mixed
     return $input;
 }
 
+// TODO replace with framework request input
 function requestInput(string $key, $default = null, $type = null): mixed
 {
     $input = requestInputPost($key);
@@ -50,6 +43,7 @@ function requestInput(string $key, $default = null, $type = null): mixed
 /**
  * Get request input sanitized for output
  */
+// TODO replace with escaped view variables
 function requestInputSanitized(string $key, mixed $default = null, mixed $type = null): mixed
 {
     if (!$type || $type === 'string') {
@@ -59,6 +53,7 @@ function requestInputSanitized(string $key, mixed $default = null, mixed $type =
     return requestInput($key, $default, $type);
 }
 
+// TODO replace with proper validation
 function ValidatePOSTChars($charsIn): bool
 {
     $numChars = mb_strlen($charsIn);
@@ -70,6 +65,7 @@ function ValidatePOSTChars($charsIn): bool
     return true;
 }
 
+// TODO replace with proper validation
 function ValidateGETChars($charsIn): bool
 {
     $numChars = mb_strlen($charsIn);
@@ -82,6 +78,7 @@ function ValidateGETChars($charsIn): bool
     return true;
 }
 
+// TODO replace with proper validation
 // TODO do not allow GET requests, POST only
 function ValidatePOSTorGETChars($charsIn): bool
 {

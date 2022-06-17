@@ -1,5 +1,7 @@
 <?php
 
+use App\Legacy\Models\DeletedModels;
+use App\Legacy\Models\User;
 use RA\UserPreference;
 
 function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn): bool
@@ -10,7 +12,7 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn):
 
     $query = "INSERT INTO Messages VALUES ( NULL, '$destUser', '$author', '$messageTitle', '$messagePayloadIn', NOW(), 1, 0 )";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         // Message sent!
@@ -30,6 +32,7 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn):
     } else {
         // Unconfirmed friend:
         log_sql_fail();
+
         return false;
     }
 }
@@ -40,6 +43,7 @@ function GetMessageCount($user, &$totalMessageCount): int
 
     if (!isset($user)) {
         $totalMessageCount = 0;
+
         return 0;
     }
 
@@ -199,7 +203,7 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0): bool
 
     $query = "UPDATE Messages AS msg
             SET msg.Unread=$newReadStatus
-            WHERE msg.ID = $messageID";
+            WHERE msg.ID = $messageID AND msg.UserTo = '$user'";
 
     $dbResult = s_mysql_query($query);
 
@@ -224,8 +228,15 @@ function DeleteMessage($user, $messageID): bool
         $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
-            s_mysql_query("INSERT INTO DeletedModels SET ModelType='Messages', ModelID=$messageID");
+            /** @var User $user */
+            $user = request()->user();
+            DeletedModels::create([
+                'ModelType' => 'Messages',
+                'ModelID' => $messageID,
+                'DeletedByUserID' => $user->ID,
+            ]);
         }
+
         return $dbResult !== false;
     }
 }

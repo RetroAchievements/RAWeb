@@ -1,12 +1,9 @@
 <?php
 
-use RA\ForumTopicAction;
+use App\Support\Shortcode\Shortcode;
 use RA\Permissions;
-use RA\Shortcode;
 use RA\SubscriptionSubjectType;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+use RA\UserAction;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 $userID = $userDetails['ID'] ?? 0;
@@ -15,20 +12,17 @@ $userID = $userDetails['ID'] ?? 0;
 $requestedTopicID = requestInputSanitized('t', 0, 'integer');
 
 if ($requestedTopicID == 0) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic");
-    exit;
+    abort(404);
 }
 
 getTopicDetails($requestedTopicID, $topicData);
 
 if (empty($topicData)) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic");
-    exit;
+    abort(404);
 }
 
 if ($permissions < $topicData['RequiredPermissions']) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=nopermission");
-    exit;
+    abort(403);
 }
 
 // Fetch other params
@@ -47,8 +41,7 @@ $commentList = getTopicComments($requestedTopicID, $offset, $count, $numTotalCom
 
 // We CANNOT have a topic with no comments... this doesn't make sense.
 if (empty($commentList)) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=unknowntopic3");
-    exit;
+    abort(404);
 }
 
 $thisTopicID = $topicData['ID'];
@@ -69,25 +62,13 @@ sanitize_outputs(
     $thisTopicTitle,
 );
 
-$pageTitle = "View topic: $thisTopicForum - $thisTopicTitle";
+$pageTitle = "Topic: $thisTopicForum - $thisTopicTitle";
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart();
+RenderContentStart($pageTitle);
 ?>
-
-<head>
-    <?php RenderSharedHeader(); ?>
-    <?php RenderTitleTag($pageTitle); ?>
-</head>
-
-<body>
-<?php RenderHeader($userDetails); ?>
-
 <div id="mainpage">
-    <?php RenderErrorCodeWarning($errorCode); ?>
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
@@ -100,41 +81,37 @@ RenderHtmlStart();
         echo "<h2 class='longheader'>$thisTopicTitle</h2>";
 
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
-            echo "<div class='devbox'>";
+            echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
             echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<div>Change Topic Title:</div>";
-            echo "<form action='/request/forum-topic/modify.php' method='post' >";
-            echo "<input type='text' name='v' value='$thisTopicTitle' size='51' >";
-            echo "<input type='hidden' name='t' value='$thisTopicID'>";
-            echo "<input type='hidden' name='f' value='" . ForumTopicAction::ModifyTitle . "'>";
+            echo "<form class='mb-3' action='/request/forum-topic/update-title.php' method='post' >";
+            echo csrf_field();
+            echo "<input type='hidden' name='topic' value='$thisTopicID'>";
+            echo "<input type='text' name='title' value='$thisTopicTitle' size='51' >";
             echo "<input type='submit' name='submit' value='Submit' size='37'>";
             echo "</form>";
 
             if ($permissions >= Permissions::Admin) {
-                echo "<div>Delete Topic:</div>";
-                echo "<form action='/request/forum-topic/modify.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
-                echo "<input type='hidden' name='v' value='$thisTopicID' size='51' >";
-                echo "<input type='hidden' name='t' value='$thisTopicID' />";
-                echo "<input type='hidden' name='f' value='" . ForumTopicAction::DeleteTopic . "'>";
-                echo "<input type='submit' name='submit' value='Delete Permanently' size='37'>";
-                echo "</form>";
-
                 echo "<div>Restrict Topic:</div>";
-                echo "<form action='/request/forum-topic/modify.php' method='post' >";
-                echo "<select name='v'>";
-
+                echo "<form class='mb-3' action='/request/forum-topic/update-permissions.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='topic' value='$thisTopicID'>";
+                echo "<select name='permissions'>";
                 foreach (Permissions::ValidUserPermissions as $selectablePermission) {
                     $selected = ($thisTopicPermissions == $selectablePermission) ? ' selected' : '';
                     echo "<option value='$selectablePermission'$selected>" .
                         Permissions::toString($selectablePermission) . "</option>";
                 }
-
                 echo "</select>";
-                echo "<input type='hidden' name='t' value='$thisTopicID'>";
-                echo "<input type='hidden' name='f' value='" . ForumTopicAction::ChangeRequiredPermissions . "'>";
                 echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37'>";
+                echo "</form>";
+
+                echo "<form action='/request/forum-topic/delete.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='topic' value='$thisTopicID' />";
+                echo "<button class='btn btn-danger'>Delete Permanently</button>";
                 echo "</form>";
             }
 
@@ -145,6 +122,7 @@ RenderHtmlStart();
             // {
             // echo "<li>Delete Topic!</li>";
             // echo "<form action='requestmodifytopic.php' >";
+            // echo csrf_field();
             // echo "<input type='hidden' name='i' value='$thisTopicID' />";
             // echo "<input type='hidden' name='f' value='1' />";
             // echo "&nbsp;";
@@ -156,32 +134,24 @@ RenderHtmlStart();
             echo "</div>";
         }
 
-        echo "<div class='table-wrapper'>";
-        echo "<table><tbody>";
-
-        echo "<tr><td colspan=2>";
+        echo "<div class='flex justify-between mb-3'>";
+        echo "<div>";
         if ($numTotalComments > $count) {
             RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
         }
-
-        echo "<div class='smalltext rightfloat' style='padding: 3px'>";
+        echo "</div>";
+        echo "<div>";
         RenderUpdateSubscriptionForm(
             "updatetopicsubscription",
             SubscriptionSubjectType::ForumTopic,
             $thisTopicID,
             $isSubscribed
         );
-        echo "<a href='#' onclick='document.getElementById(\"updatetopicsubscription\").submit(); return false;'>";
-        echo "(" . ($isSubscribed ? "Unsubscribe" : "Subscribe") . ")";
-        echo "</a>";
         echo "</div>";
-        echo "</td></tr>";
+        echo "</div>";
 
-        echo "<tr class='topiccommentsheader'>";
-        echo "<th>Author</th>";
-        echo "<th>Message</th>";
-        echo "</tr>";
-
+        echo "<div class='table-wrapper'>";
+        echo "<table><tbody>";
         // Output all topics, and offer 'prev/next page'
         foreach ($commentList as $commentData) {
             // Output one forum, then loop
@@ -234,57 +204,69 @@ RenderHtmlStart();
             }
 
             echo "<td class='commentavatar'>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor, false, null, 64);
-            echo "<br>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor, true, null, 64);
+            echo GetUserAndTooltipDiv($nextCommentAuthor, true, iconSizeDisplayable: 64);
             echo "</td>";
 
             echo "<td class='commentpayload' id='$nextCommentID'>";
 
-            echo "<div class='rightfloat forumlink'><img src='" . asset('Images/Link.png') . "' onclick='copy(\"" . getenv('APP_URL') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\"" . ")'</img></div>";
-
-            echo "<div class='smalltext rightfloat'>Posted: $nextCommentDateCreatedNiceDate";
-
-            if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
-                echo "&nbsp;<a href='/editpost.php?c=$nextCommentID'>(Edit&nbsp;Post)</a>";
-            }
-
+            echo "<div class='flex justify-between mb-2'>";
+            echo "<div>";
+            echo GetUserAndTooltipDiv($nextCommentAuthor);
             if ($showDisclaimer) {
-                echo "<br><span class='hoverable' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</span>";
-                if ($showAuthoriseTools) {
-                    // TODO should be form requests. allowing these kind of actions with get requests introduces security risks
-                    echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=1'>Authorise this user and all their posts?</a>";
-                    echo "<br><a href='/request/user/update.php?t=$nextCommentAuthor&amp;p=1&amp;v=0'>Permanently Block (spam)?</a>";
-                }
+                echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
             }
-
+            echo "<span class='smalltext text-muted ml-2'>$nextCommentDateCreatedNiceDate</span>";
             if ($nextCommentDateModified !== null) {
-                echo "<br>Last Edit: $nextCommentDateModifiedNiceDate</div>";
+                echo "<i class='smalltext ml-3'>(Edited $nextCommentDateModifiedNiceDate)</i>";
             }
             echo "</div>";
+            echo "<div class='flex gap-1'>";
+            if ($showAuthoriseTools) {
+                echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
+                echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
+                echo "<input type='hidden' name='value' value='1' />";
+                echo "<button class='btn btn-primary py-1'>Authorise</button>";
+                echo "</form>";
+                echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Permanently Block (spam)?\')'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
+                echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
+                echo "<input type='hidden' name='value' value='0' />";
+                echo "<button class='btn btn-danger py-1'>Block</button>";
+                echo "</form>";
+            }
+            if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
+                echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
+            }
+            echo "<span class='btn btn-borderless py-1' onclick='copy(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\"" . ");showStatusSuccess(\"Copied\")'>";
+            echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
+            echo "</span>";
+            echo "</div>";
+            echo "</div>";
 
-            echo "<br style='clear:both;'>";
             echo "<div class='topiccommenttext'>";
             echo Shortcode::render($nextCommentPayload);
             echo "</div>";
-            echo "</td>";
 
+            echo "</td>";
             echo "</tr>";
         }
 
         if (count($commentList) % 2 == 1) {
             echo "<tr><td colspan=2 class='smalltext'></td></tr>";
         }
+        echo "</tbody></table></div>";
 
         if ($numTotalComments > $count) {
-            echo "<tr><td colspan=2>";
+            echo "<div class='mb-3'>";
             RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
-            echo "</td></tr>";
-        } else {
-            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
+            echo "</div>";
         }
 
         if ($user !== null && $user !== "" && $thisTopicID != 0) {
+            echo "<table><tbody>";
             echo "<tr>";
 
             echo "<td class='commentavatar'>";
@@ -301,20 +283,23 @@ RenderHtmlStart();
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
+            echo csrf_field();
+            echo "<input type='hidden' name='topic' value='$thisTopicID'>";
             echo <<<EOF
-                <textarea 
-                    id="commentTextarea" 
-                    class="fullwidth" 
-                    rows="10" cols="63" 
-                    $inputEnabled 
-                    maxlength="60000" 
-                    name="p" 
+                <textarea
+                    id="commentTextarea"
+                    class="fullwidth mb-2"
+                    rows="10" cols="63"
+                    $inputEnabled
+                    maxlength="60000"
+                    name="body"
                     placeholder="Don't share links to copyrighted ROMs."
-                >$defaultMessage</textarea><br>
+                >$defaultMessage</textarea>
             EOF;
-            echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div><br>";
-            echo "<input type='hidden' name='t' value='$thisTopicID'>";
-            echo "<input style='float: right' type='submit' value='Submit' $inputEnabled size='37'/>";    // TBD: replace with image version
+            echo "<div class='flex justify-between mb-2'>";
+            echo "<span class='textarea-counter' data-textarea-id='commentTextarea'></span>";
+            echo "<button class='btn btn-primary' $inputEnabled>Submit</button>";    // TBD: replace with image version
+            echo "</div>";
             echo "</form>";
 
             echo "</td>";
@@ -324,13 +309,10 @@ RenderHtmlStart();
             echo "</tr>";
             echo "</tbody></table></div>";
         } else {
-            echo "</tbody></table></div>";
             echo "<br/>You must log in before you can join this conversation.<br/>";
         }
         ?>
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

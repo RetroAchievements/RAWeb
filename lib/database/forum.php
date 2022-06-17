@@ -1,7 +1,6 @@
 <?php
 
 use RA\ArticleType;
-use RA\ForumTopicAction;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
@@ -36,9 +35,11 @@ function getForumList($categoryID = 0): ?array
             $dataOut[$numResults] = $db_entry;
             $numResults++;
         }
+
         return $dataOut;
     } else {
         log_sql_fail();
+
         return null;
     }
 }
@@ -55,10 +56,12 @@ function getForumDetails($forumID, &$forumDataOut): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $forumDataOut = mysqli_fetch_assoc($dbResult);
+
         return $forumDataOut != null;
     } else {
         log_sql_fail();
         $forumDataOut = null;
+
         return false;
     }
 }
@@ -100,9 +103,11 @@ function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut):
                 $numResults++;
             }
         }
+
         return $dataOut;
     } else {
         log_sql_fail();
+
         return null;
     }
 }
@@ -127,9 +132,11 @@ function getUnauthorisedForumLinks(): ?array
             $dataOut[$numResults] = $db_entry;
             $numResults++;
         }
+
         return $dataOut;
     } else {
         log_sql_fail();
+
         return null;
     }
 }
@@ -147,9 +154,11 @@ function getTopicDetails($topicID, &$topicDataOut): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $topicDataOut = mysqli_fetch_assoc($dbResult);
+
         return $topicID == ($topicDataOut['ID'] ?? null);
     } else {
         $topicDataOut = null;
+
         return false;
     }
 }
@@ -184,9 +193,11 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut): ?array
             $dataOut[$numResults] = $db_entry;
             $numResults++;
         }
+
         return $dataOut;
     } else {
         log_sql_fail();
+
         return null;
     }
 }
@@ -195,13 +206,14 @@ function getSingleTopicComment($forumPostID, &$dataOut): bool
 {
     sanitize_sql_inputs($forumPostID);
     settype($forumPostID, 'integer');
-    $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified 
+    $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified
                 FROM ForumTopicComment
                 WHERE ID=$forumPostID";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $dataOut = mysqli_fetch_assoc($dbResult);
+
         return true;
     }
 
@@ -227,22 +239,16 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
 
     $query = "INSERT INTO ForumTopic (ForumID, Title, Author, AuthorID, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', '$user', $userID, NOW(), 0, 0 )";
 
-    global $db;
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        global $db;
-        $newTopicIDOut = mysqli_insert_id($db);
-
-        if (submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID)) {
-            return true;
-        } else {
-            log_sql_fail();
-            return false;
-        }
-    } else {
+    $db = getMysqliConnection();
+    if (!mysqli_query($db, $query)) {
         log_sql_fail();
+
         return false;
     }
+
+    $newTopicIDOut = mysqli_insert_id($db);
+
+    return submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID);
 }
 
 function setLatestCommentInForumTopic($topicID, $commentID): bool
@@ -282,12 +288,13 @@ function editTopicComment($commentID, $newPayload): bool
 
     $query = "UPDATE ForumTopicComment SET Payload = '$newPayload' WHERE ID=$commentID";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
     if ($dbResult !== false) {
         return true;
     } else {
         log_sql_fail();
+
         return false;
     }
 }
@@ -307,7 +314,7 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
 
     $query = "INSERT INTO ForumTopicComment VALUES ( NULL, $topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
     if ($dbResult !== false) {
         $newCommentIDOut = mysqli_insert_id($db);
@@ -329,6 +336,7 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
         return true;
     } else {
         log_sql_fail();
+
         return false;
     }
 }
@@ -387,9 +395,11 @@ function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offse
         }
 
         $offset = $pageOffset - $count;
+
         return true;
     } else {
         $offset = 0;
+
         return false;
     }
 }
@@ -450,10 +460,11 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
         "[url=$wikipediaURL]Wikipedia[/url]\n";
 
     if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $forumTopicID)) {
-        $query = "UPDATE GameData SET ForumTopicID = $forumTopicID 
+        $query = "UPDATE GameData SET ForumTopicID = $forumTopicID
                   WHERE ID=$gameID ";
 
         $dbResult = s_mysql_query($query);
+
         return $dbResult !== false;
     } else {
         return false;
@@ -485,9 +496,9 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$
             ft.ID AS ForumTopicID,
             ft.Title AS ForumTopicTitle,
             LatestComments.ID AS CommentID
-        FROM 
+        FROM
         (
-            SELECT * 
+            SELECT *
             FROM ForumTopicComment AS ftc
             WHERE $userClause
             ORDER BY ftc.DateCreated DESC
@@ -509,80 +520,28 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$
             $dataOut[$numResults] = $db_entry;
             $numResults++;
         }
+
         return $numResults;
     } else {
         log_sql_fail();
+
         return null;
     }
 }
 
-function requestModifyTopic($user, $permissions, $topicID, $field, $value): bool
+function updateTopicPermissions(int $topicId, int $permissions): bool
 {
-    sanitize_sql_inputs($topicID, $value);
-    settype($field, 'integer');
-    settype($topicID, 'integer');
+    $query = "  UPDATE ForumTopic AS ft
+                SET RequiredPermissions='$permissions'
+                WHERE ID=$topicId";
 
-    if (!getTopicDetails($topicID, $topicData)) {
+    if (!s_mysql_query($query)) {
+        log_sql_fail();
+
         return false;
     }
 
-    $result = false;
-
-    switch ($field) {
-        case ForumTopicAction::ModifyTitle:
-            if (($permissions >= Permissions::Admin) || ($user == $topicData['Author'])) {
-                global $db;
-                $query = "  UPDATE ForumTopic AS ft
-                            SET Title='$value'
-                            WHERE ID=$topicID";
-
-                if (mysqli_query($db, $query)) {
-                    $result = true;
-                } else {
-                    log_sql_fail();
-                    $result = false;
-                }
-            } else {
-                $result = false;
-            }
-            break;
-        case ForumTopicAction::DeleteTopic:
-            if ($permissions >= Permissions::Admin) {
-                $query = "  DELETE FROM ForumTopic
-                            WHERE ID=$topicID";
-
-                $dbResult = s_mysql_query($query);
-                if ($dbResult !== false) {
-                    s_mysql_query("INSERT INTO DeletedModels SET ModelType='ForumTopic', ModelID=$topicID");
-                    $result = true;
-                } else {
-                    log_sql_fail();
-                    $result = false;
-                }
-            } else {
-                $result = false;
-            }
-            break;
-        case ForumTopicAction::ChangeRequiredPermissions:
-            if ($permissions >= Permissions::Admin) {
-                $query = "  UPDATE ForumTopic AS ft
-                            SET RequiredPermissions='$value'
-                            WHERE ID=$topicID";
-
-                $dbResult = s_mysql_query($query);
-                if ($dbResult !== false) {
-                    $result = true;
-                } else {
-                    log_sql_fail();
-                    $result = false;
-                }
-            } else {
-                $result = false;
-            }
-            break;
-    }
-
-    return $result;
+    return true;
 }
 
 function RemoveUnauthorisedForumPosts($user): bool
@@ -593,13 +552,13 @@ function RemoveUnauthorisedForumPosts($user): bool
     $query = "DELETE FROM ForumTopicComment
               WHERE Author = '$user' AND Authorised = 0";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return true;
-    } else {
+    if (!s_mysql_query($query)) {
         log_sql_fail();
+
         return false;
     }
+
+    return true;
 }
 
 function AuthoriseAllForumPosts($user): bool
@@ -632,6 +591,7 @@ function AuthoriseAllForumPosts($user): bool
         return true;
     } else {
         log_sql_fail();
+
         return false;
     }
 }

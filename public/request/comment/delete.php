@@ -1,20 +1,19 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-$articleID = requestInput('a', 0, 'integer');
-$commentID = requestInput('c', 0, 'integer');
-
-$response = [];
-$response['ArtID'] = $articleID;
-$response['CommentID'] = $commentID;
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    $response['Success'] = RemoveComment($articleID, $commentID, $userDetails['ID'], $permissions);
-} else {
-    $response['Success'] = false;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    abort(401);
 }
 
-echo json_encode($response, JSON_THROW_ON_ERROR);
+$input = Validator::validate(request()->post(), [
+    'commentable_id' => 'required|integer',
+    'comment' => 'required|string|max:60000',
+]);
+
+if (RemoveComment((int) $input['commentable_id'], (int) $input['comment'], $userDetails['ID'], $permissions)) {
+    return response()->json(['message' => __('legacy.success.delete')]);
+}
+
+abort(400);

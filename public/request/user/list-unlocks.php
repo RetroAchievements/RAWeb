@@ -1,34 +1,32 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-if (!ValidatePOSTChars('g')) {
-    echo "FAILED";
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
+    abort(401);
 }
 
-$gameID = requestInputPost('g', null, 'integer');
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer',
+]);
 
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
-    echo "OK:";
+getUserUnlocksDetailed($user, $input['game'], $dataOut);
 
-    $numUnlocks = getUserUnlocksDetailed($user, $gameID, $dataOut);
-    $achievementIds = [];
-    foreach ($dataOut as $nextAwarded) {
-        if (in_array($nextAwarded['ID'], $achievementIds)) {
-            continue;
-        }
+$hardcoreUnlocks = collect($dataOut)
+    ->filter(fn ($achievement) => (bool) $achievement['HardcoreMode'])
+    ->keyBy('ID');
 
-        $achievementIds[] = $nextAwarded['ID'];
-        echo $nextAwarded['Title'] . " (" . $nextAwarded['Points'] . ")" . "_:_";        // _:_ delim 1
+$dataOut = collect($dataOut)
+    // results in unique IDs
+    ->keyBy('ID')
+    // merge on top to make sure hardcore unlocks take precedence
+    ->merge($hardcoreUnlocks)
+    ->map(function ($achievement) {
+        $achievement['HardcoreMode'] = (int) $achievement['HardcoreMode'];
 
-        echo $nextAwarded['ID'] . "::";            // ::	delim 2
-    }
+        return $achievement;
+    })
+    ->values();
 
-    exit;
-}
-
-echo "FAILED: Invalid User/Password combination.\n";
+return response()->json($dataOut);

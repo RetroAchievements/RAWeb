@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
 use RA\ArticleType;
 use RA\Permissions;
 
@@ -18,16 +15,12 @@ $doneDate = requestInputPost('f', null); // Done date
 $comment = requestInputPost('m', null); // Auso comment
 
 if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
-    if (updateClaim($claimID, $claimType, $setType, $status, $special, $claimDate, $doneDate)) {
-        addArticleComment("Server", ArticleType::SetClaim, $gameID, $comment);
-        $success = true;
-    } else {
-        $success = false;
-    }
-} else {
-    $success = false;
+    abort(401);
 }
 
-echo json_encode([
-    'Success' => $success,
-]);
+if (updateClaim($claimID, $claimType, $setType, $status, $special, $claimDate, $doneDate)) {
+    addArticleComment("Server", ArticleType::SetClaim, $gameID, $comment);
+    return response()->json(['message' => __('legacy.success.ok')]);
+}
+
+abort(400);

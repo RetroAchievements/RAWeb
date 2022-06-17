@@ -15,7 +15,7 @@
 #ui-carousel-next, #ui-carousel-prev {
 	width: 60px;
 	height: 240px;
-	background: url('/Images/arrow-left.png') center center no-repeat;
+	background: url('/assets/images/icon/arrow-left.png') center center no-repeat;
 	display: block;
 	position: absolute;
 	top: 0;
@@ -23,7 +23,7 @@
 
 #ui-carousel-next {
 	right: 0;
-	background-image: url('/Images/arrow-right.png');
+	background-image: url('/assets/images/icon/arrow-right.png');
 }
 
 #ui-carousel-prev {
@@ -47,7 +47,7 @@
 }
 
 .slide  p {
-	font: 32px/1 Ubuntu, sans-serif;	
+	font: 32px/1 Ubuntu, sans-serif;
 	color: #4d4d4d;
 	margin: 0;
 	padding: 0;
@@ -58,15 +58,15 @@
 	margin: 0 auto;
 	padding-top: 5px;
 }
-	
+
 .bullet {
-	background: url('/Images/page-off.png') center center no-repeat;
+	background: url('/assets/images/icon/page-off.png') center center no-repeat;
 	display: block;
 	width: 18px;
 	height: 18px;
 	margin: 0;
 	margin-right: 5px;
-	float: left;				
+	float: left;
 }
 
 /* --- MOBILE STYLES --- */

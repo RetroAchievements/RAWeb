@@ -1,0 +1,14 @@
+@import "breadcrumbs.css";
+@import "button.css";
+@import "icon.css";
+@import "layout.css";
+@import "theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* preflight is disabled - apply some reset styles manually */
+* {
+  box-sizing: border-box;
+}

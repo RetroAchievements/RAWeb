@@ -24,7 +24,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
         $vidChapter = mb_substr($vidURL, mb_strrpos($vidURL, "/") + 1);
 
         $videoHTML = '<iframe
-            src="https://player.twitch.tv/?' . getenv('TWITCH_CHANNEL') . '"
+            src="https://player.twitch.tv/?' . config('services.twitch.channel') . '"
             height="' . $vidHeight . '"
             width="' . $vidWidth . '"
             frameborder="0"
@@ -39,15 +39,11 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo $videoHTML;
     echo "</div>";
 
-    // echo "<div class='streamchat'>";
-    // echo "<iframe frameborder='0' scrolling='no' id='chat_embed' src='http://twitch.tv/chat/embed?channel=".getenv('TWITCH_CHANNEL')."&amp;popout_chat=true' height='$chatHeight' width='$chatWidth'></iframe>";
-    // echo "</div>";
-
     echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span>";
 
     if ($componentPos == 'left') {
         echo "<br /><br />";
-        echo "<form method='post'>";
+        echo "<form>";
         echo "Currently Watching:&nbsp;";
         echo "<select name='g' onchange=\"reloadTwitchContainer( this.value ); return false;\">";
         $selected = ($overloadVideoID == 0) ? 'selected' : '';

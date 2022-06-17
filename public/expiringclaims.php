@@ -6,9 +6,6 @@ use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimType;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $defaultFilter = ClaimFilters::Default; // Show all active claims
@@ -27,12 +24,7 @@ sanitize_outputs(
     $consoleName,
 );
 
-RenderHtmlStart();
-RenderHtmlHead("Expiring Claims");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Expiring Claims");
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
@@ -44,7 +36,7 @@ RenderHeader($userDetails);
         $expired = (int) $expiringClaims["Expired"];
         $expiring = (int) $expiringClaims["Expiring"];
         if ((isset($user) || !empty($username)) && ($expired + $expiring) > 0) {
-            echo "<p><b>User:</b> ";
+            echo "<p class='embedded'><b>User:</b> ";
             if (isset($user)) {
                 if ($username == $user) {
                     echo "<b>$user</b> | ";
@@ -106,6 +98,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

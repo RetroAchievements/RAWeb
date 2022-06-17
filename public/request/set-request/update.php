@@ -2,21 +2,17 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-$gameID = requestInputQuery('i', null, 'integer');
-
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    $setRequestList = getUserRequestList($user);
-    $totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
-    $totalRequests['gameRequests'] = getSetRequestCount($gameID);
-
-    $success = toggleSetRequest($user, $gameID, $totalRequests['remaining']);
-} else {
-    $success = false;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    abort(401);
 }
 
-echo json_encode([
-    'Success' => $success,
-], JSON_THROW_ON_ERROR);
+$gameID = requestInputQuery('i', null, 'integer');
+$setRequestList = getUserRequestList($user);
+$totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
+$totalRequests['gameRequests'] = getSetRequestCount($gameID);
+
+if (toggleSetRequest($user, $gameID, $totalRequests['remaining'])) {
+    return response()->json(['message' => __('legacy.success.ok')]);
+}
+
+abort(400);

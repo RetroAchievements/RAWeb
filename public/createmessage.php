@@ -1,15 +1,10 @@
 <?php
 
+use App\Support\Shortcode\Shortcode;
 use RA\Permissions;
-use RA\Shortcode;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    // Immediate redirect if we cannot validate cookie!
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+    abort(401);
 }
 
 $messageTo = requestInputSanitized('t', '');
@@ -29,46 +24,33 @@ if ($messageContextID != -1) {
     $messageContextPayload = Shortcode::render($messageContextPayload);
 }
 
-$errorCode = requestInputSanitized('e');
-
 $messageContextTitle = htmlspecialchars($messageContextTitle, ENT_QUOTES);
 
-RenderHtmlStart();
-RenderHtmlHead("Send Message");
+RenderContentStart("Send Message");
 ?>
-<body>
 <script>
-  $(function () {
-    $(':submit').click(function (e) {
-      $('.requiredinput').each(function () {
-        if ($(this).val().length == 0) {
-          $(this).effect('highlight', {}, 2000);
-          e.preventDefault();
-        }
-      });
-    });
-
+$(function () {
     // Focus on the first relevant field
-    if ($('#messagedest').val().length == 0)
-      $('#messagedest').focus();
-    else
-      $('#commentTextarea').focus();
-  });
+    var $recipient = $('#recipient');
+    if ($recipient.val().length === 0) {
+        $recipient.focus();
+    } else {
+        $('#commentTextarea').focus();
+    }
+});
 
-  function onUserChange() {
-    var target = $('#messagedest').val();
-    if (target.length > 2)
-      $('.searchusericon').attr('src', '/UserPic/' + target + '.png');
-  }
+function onUserChange() {
+    var recipient = $('#recipient').val();
+    if (recipient.length > 2) {
+        $('.searchusericon').attr('src', '/UserPic/' + recipient + '.png');
+    }
+}
 
-  $(document).ready(onUserChange);
+$(document).ready(onUserChange);
 </script>
-<?php RenderHeader($userDetails); ?>
-
 <div id="mainpage">
     <div id='fullcontainer'>
         <div id="forums">
-
             <?php
             echo "<div class='navpath'>";
             echo "<a href='inbox.php'>Inbox</a>";
@@ -79,7 +61,7 @@ RenderHtmlHead("Send Message");
 
             if ($messageContextData !== null) {
                 echo "In reply to ";
-                echo GetUserAndTooltipDiv($messageContextData['UserFrom'], false);
+                echo GetUserAndTooltipDiv($messageContextData['UserFrom']);
                 echo " who wrote:<br><br>";
                 echo "<div class='topiccommenttext'>$messageContextPayload</div>";
             }
@@ -88,27 +70,23 @@ RenderHtmlHead("Send Message");
             echo "<tbody>";
 
             echo "<form class='messageform' action='/request/message/send.php' method='post'>";
+            echo csrf_field();
             $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";
             echo "<td>User:</td>";
-            echo "<td><input type='text' value='$messageTo' name='d' id='messagedest' onblur='onUserChange(); return false;' class='requiredinput searchuser'></td>";
+            echo "<td><input type='text' value='$messageTo' name='recipient' id='recipient' onblur='onUserChange(); return false;' class='searchuser' required></td>";
             echo "<td style='width:10%'><img style='float:right' class='searchusericon' src='/UserPic/$destUser.png' width='64' height='64'/></td>";
             echo "</tr>";
-            echo "<tr>" . "<td>Title: </td><td colspan='2'><input class='requiredinput fullwidth' type='text' value='$messageContextTitle' name='t'></td></tr>";
-            echo "<tr>" . "<td>Message:</td><td colspan='2'>";
-
+            echo "<tr><td>Subject: </td><td colspan='2'><input class='fullwidth' type='text' value='$messageContextTitle' name='subject' required></td></tr>";
+            echo "<tr><td>Message:</td><td colspan='2'>";
             RenderShortcodeButtons();
-
-            echo "<textarea id='commentTextarea' class='requiredinput fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='m' placeholder='Enter your message here...'>$messageOutgoingPayload</textarea></td></tr>";
-            echo "<tr>" . "<td></td><td colspan='2' class='fullwidth'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
+            echo "<textarea id='commentTextarea' class='fullwidth forum messageTextarea' style='height:160px' rows='5' cols='61' name='message' placeholder='Enter your message here...' required>$messageOutgoingPayload</textarea></td></tr>";
+            echo "<tr><td></td><td colspan='2' class='fullwidth'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
             echo "</form>";
             echo "</tbody>";
             echo "</table>";
             ?>
-            <br>
-        </div> <!--  -->
+        </div>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

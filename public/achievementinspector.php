@@ -3,18 +3,13 @@
 use RA\AchievementType;
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$errorCode = requestInputSanitized('e');
 $flag = requestInputSanitized('f', 3, 'integer');
 
 $partialModifyOK = $permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID);
@@ -41,89 +36,55 @@ if ($gameIDSpecified) {
     getGamesList(0, $gamesList);
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Manage Achievements");
+RenderContentStart("Manage Achievements");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script>
-  // Checks or unchecks all boxes
-  function toggle(status) {
-    var checkboxes = document.querySelectorAll("[name^='achievement']");
+// Checks or unchecks all boxes
+function toggle(status) {
+    var checkboxes = document.querySelectorAll('[name^=\'achievement\']');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
-      checkboxes[i].checked = status;
+        checkboxes[i].checked = status;
     }
-  }
+}
 
-  function updateDisplayOrder(objID) {
+function updateDisplayOrder(objID) {
     var inputText = $('#' + objID).val();
     var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
     showStatusMessage('Updating...');
-    $.ajax({
-      type: 'POST',
-      url: '/request/achievement/update.php',
-      dataType: 'json',
-      data: {
-        u: '<?= $user ?>',
-        a: objID.substr(4),
-        g: <?= $gameID ?>,
-        f: 1,
-        v: inputNum,
-      },
-      error: function (xhr, status, serror) {
-        showStatusFailure('Error: ' + (error || 'unknown error'));
-      }
-   })
-     .done(function (data) {
-       if (!data.success) {
-         showStatusFailure('Error: ' + (data.error || 'unknown error'));
-         return;
-       }
-       showStatusSuccess('Succeeded');
-     });
-  }
+    $.post('/request/achievement/update-display-order.php', {
+        achievement: objID.substr(4),
+        game: <?= $gameID ?>,
+        number: inputNum,
+    });
+}
 
-  function updateAchievementsTypeFlag(typeFlag) {
+function updateAchievementsTypeFlag(typeFlag) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
-    var checkboxes = document.querySelectorAll("[name^='achievement']");
+    var checkboxes = document.querySelectorAll('[name^=\'achievement\']');
     var achievements = [];
     for (var i = 0, n = checkboxes.length; i < n; i++) {
-      if (checkboxes[i].checked) {
-        achievements.push(checkboxes[i].getAttribute("value"));
-      }
+        if (checkboxes[i].checked) {
+            achievements.push(checkboxes[i].getAttribute('value'));
+        }
     }
 
     if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
-      return;
+        return;
     }
 
     if (achievements.length === 0) {
-      return;
+        return;
     }
 
     showStatusMessage('Updating...');
-    $.ajax({
-      type: "POST",
-      url: '/request/achievement/update.php',
-      dataType: "json",
-      data: {
-        'a': achievements,
-        'f': 3,
-        'u': '<?= $user ?>',
-        'v': typeFlag
-      },
-      error: function (xhr, status, error) {
-        showStatusFailure('Error: ' + (error || 'unknown error'));
-      }
+    $.post('/request/achievement/update-flag.php', {
+        achievements: achievements,
+        flag: typeFlag,
     })
-      .done(function (data) {
-        if (!data.success) {
-          showStatusFailure('Error: ' + (data.error || 'unknown error'));
-          return;
-        }
-        document.location.reload();
-      });
-  }
+        .done(function () {
+            location.reload();
+        });
+}
 </script>
 <div id="mainpage">
     <?php
@@ -132,8 +93,6 @@ RenderHtmlHead("Manage Achievements");
     } else {
         echo "<div id='fullcontainer'>";
     }
-
-    RenderStatusWidget();
 
     if ($flag === AchievementType::Unofficial) {
         echo "<h2 class='longheader'>Unofficial Achievement Inspector</h2>";
@@ -159,7 +118,7 @@ RenderHtmlHead("Manage Achievements");
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
-        echo "<div style='text-align:center'><p><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
+        echo "<div style='text-align:center'><p class='embedded'><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
         if ($flag === AchievementType::Unofficial) {
             if ($fullModifyOK) {
                 echo "<a class='pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::OfficialCore . ")'>Promote Selected</a> | ";
@@ -205,7 +164,7 @@ RenderHtmlHead("Manage Achievements");
 
             $achBadgeName = $achievementEntry['BadgeName'];
             $achDisplayOrder = $achievementEntry['DisplayOrder'];
-            $achBadgeFile = asset("Badge/$achBadgeName.png");
+            $achBadgeFile = media_asset("Badge/$achBadgeName.png");
 
             sanitize_outputs($achTitle, $achDesc);
 
@@ -276,6 +235,4 @@ RenderHtmlHead("Manage Achievements");
     }
     ?>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

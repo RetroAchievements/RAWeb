@@ -137,12 +137,7 @@ use RA\TicketFilters;
 use RA\TicketState;
 use RA\TicketType;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
-$baseUrl = getenv('APP_URL') . '/ticketmanager.php';
+$baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;
 $count = min(requestInputQuery('c', 10), 100);
 $offset = requestInputQuery('o', 0);
@@ -151,18 +146,15 @@ $offset = requestInputQuery('o', 0);
 $ticketID = requestInput('i', 0, 'integer');
 if ($ticketID > 0) {
     $ticketData = getTicket($ticketID);
-    if ($ticketData == false) {
-        http_response_code(404);
-        echo json_encode(['error' => "Ticket ID $ticketID not found"], JSON_THROW_ON_ERROR);
-        exit;
+    if (!$ticketData) {
+        return response()->json(['error' => "Ticket ID $ticketID not found"], 404);
     }
 
     $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
     $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
 
     $ticketData['URL'] = $baseUrl . "?i=$ticketID";
-    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
-    exit;
+    return response()->json($ticketData);
 }
 
 // same logic used in ticketmanager.php
@@ -174,17 +166,14 @@ $gamesTableFlag = requestInputQuery('f', 0, 'integer');
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
     $ticketData['URL'] = $baseUrl . "?f=$gamesTableFlag";
-    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
-    exit;
+    return response()->json($ticketData);
 }
 
 // getting ticket info for a specific user
-$assignedToUser = requestInputQuery('u', null);
+$assignedToUser = requestInputQuery('u');
 if (!empty($assignedToUser)) {
     if (!isValidUsername($assignedToUser)) {
-        http_response_code(404);
-        echo json_encode(['error' => "User $assignedToUser not found"], JSON_THROW_ON_ERROR);
-        exit;
+        return response()->json(['error' => "User $assignedToUser not found"], 404);
     }
 
     $ticketData['User'] = $assignedToUser;
@@ -215,8 +204,7 @@ if (!empty($assignedToUser)) {
         }
     }
     $ticketData['URL'] = $baseUrl . "?u=$assignedToUser";
-    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
-    exit;
+    return response()->json($ticketData);
 }
 
 // getting data for a specific game
@@ -246,12 +234,9 @@ if ($gameIDGiven > 0) {
             }
         }
 
-        echo json_encode($ticketData, JSON_THROW_ON_ERROR);
-        exit;
+        return response()->json($ticketData);
     }
-    http_response_code(404);
-    echo json_encode(['error' => "Game ID $gameIDGiven not found"], JSON_THROW_ON_ERROR);
-    exit;
+    return response()->json(['error' => "Game ID $gameIDGiven not found"], 404);
 }
 
 // getting data for a specific achievement
@@ -259,17 +244,14 @@ $achievementIDGiven = requestInputQuery('a', null, 'integer');
 if ($achievementIDGiven > 0) {
     $achievementData = GetAchievementData($achievementIDGiven);
     if (!$achievementData) {
-        http_response_code(404);
-        echo json_encode(['error' => "Achievement ID $achievementIDGiven not found"], JSON_THROW_ON_ERROR);
-        exit;
+        return response()->json(['error' => "Achievement ID $achievementIDGiven not found"], 404);
     }
     $ticketData['AchievementID'] = $achievementIDGiven;
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
-    echo json_encode($ticketData, JSON_THROW_ON_ERROR);
-    exit;
+    return response()->json($ticketData);
 }
 
 // getting the 10 most recent tickets
@@ -282,4 +264,4 @@ foreach ($ticketData['RecentTickets'] as &$ticket) {
     $ticket['ReportTypeDescription'] = TicketType::toString($ticket['ReportType']);
 }
 
-echo json_encode($ticketData, JSON_THROW_ON_ERROR);
+return response()->json($ticketData);

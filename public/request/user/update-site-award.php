@@ -1,32 +1,23 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\AwardType;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-// TODO do not allow GET requests, POST only
-if (ValidatePOSTChars("tdev")) {
-    $awardType = requestInputPost('t', null, 'integer');
-    $awardData = requestInputPost('d', null, 'integer');
-    $awardDataExtra = requestInputPost('e', null, 'integer');
-    $value = requestInputPost('v', null, 'integer');
-} else {
-    if (ValidateGETChars("tdev")) {
-        $awardType = requestInputQuery('t', null, 'integer');
-        $awardData = requestInputQuery('d', null, 'integer');
-        $awardDataExtra = requestInputQuery('e', null, 'integer');
-        $value = requestInputQuery('v', null, 'integer');
-    } else {
-        echo "FAILED";
-        exit;
-    }
-}
-
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    echo "FAILED!";
-    exit;
+    abort(401);
 }
+
+$input = Validator::validate(request()->post(), [
+    'type' => 'required|integer',
+    'data' => 'required|integer',
+    'extra' => 'required|integer',
+    'number' => 'required|integer',
+]);
+
+$awardType = $input['type'];
+$awardData = $input['data'];
+$awardDataExtra = $input['extra'];
+$value = $input['number'];
 
 /**
  * change display order for all entries if it's a "stacking" award type
@@ -41,8 +32,8 @@ if (in_array($awardType, [AwardType::AchievementUnlocksYield, AwardType::Achieve
         "AND AwardData = $awardData";
 }
 
-if (s_mysql_query($query)) {
-    echo "OK";
-} else {
-    echo "FAILED!";
+if (!s_mysql_query($query)) {
+    abort(500);
 }
+
+return response()->json(['message' => __('legacy.success.ok')]);

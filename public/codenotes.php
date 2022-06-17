@@ -2,9 +2,6 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $gameID = requestInputSanitized('g', 1, 'integer');
@@ -17,13 +14,8 @@ sanitize_outputs(
 
 getCodeNotes($gameID, $codeNotes);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart();
-RenderHtmlHead('Code Notes');
+RenderContentStart('Code Notes');
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id='mainpage'>
     <div id="fullcontainer">
         <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
@@ -34,6 +26,4 @@ RenderHtmlHead('Code Notes');
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

@@ -2,17 +2,12 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
 $maxCount = 50;
 
-$errorCode = requestInputSanitized('e');
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 $searchedHash = requestInputSanitized('h', null);
@@ -23,22 +18,15 @@ if ($offset < 0) {
 $hashList = getHashList($offset, $count, $searchedHash);
 $totalHashes = getTotalHashes();
 
-RenderHtmlStart();
-RenderHtmlHead("Hash List");
-?>
-<body>
-<?php
-RenderHeader($userDetails);
+RenderContentStart("Hash List");
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        RenderErrorCodeWarning($errorCode);
-
         echo "<h2 class='longheader'>Search</h2>";
 
         echo "<div class='searchbox longer'>";
-        echo "<form action='/latesthasheslinked.php' method='get'>";
+        echo "<form action='/latesthasheslinked.php'>";
         echo "<input size='50' name='h' value='$searchedHash' />";
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search Hash' />";
@@ -104,6 +92,4 @@ RenderHeader($userDetails);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

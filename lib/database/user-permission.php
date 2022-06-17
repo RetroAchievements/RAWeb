@@ -155,7 +155,7 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, bool $a
  */
 function banAccountByUsername(string $username, $permissions): void
 {
-    global $db;
+    $db = getMysqliConnection();
 
     echo "BANNING $username ... ";
 

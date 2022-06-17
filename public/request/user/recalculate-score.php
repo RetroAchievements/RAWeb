@@ -2,23 +2,18 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-$targetUser = requestInputPost('u');
-
-if (!authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
-    header("Location: " . getenv('APP_URL') . "?e=badcredentials");
-    exit;
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (recalculatePlayerPoints($targetUser)) {
-    if ($targetUser !== $actingUser && $permissions >= Permissions::Admin) {
-        header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=ok");
-    } elseif ($targetUser == $actingUser) {
-        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=ok");
-    }
-    exit;
+$targetUser = request()->post('u');
+
+if ($targetUser !== $user && $permissions < Permissions::Admin) {
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=recalc_error");
+if (recalculatePlayerPoints($user)) {
+    return back()->with('success', __('legacy.success.points_recalculate'));
+}
+
+return back()->withErrors(__('legacy.error.error'));

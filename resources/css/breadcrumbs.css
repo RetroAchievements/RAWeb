@@ -1,0 +1,3 @@
+.breadcrumbs li + li:before {
+  content: "»";
+}

@@ -2,39 +2,24 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    // Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$errorCode = requestInputSanitized('e');
-
-$consoleName = null;
-$gameTitle = null;
-$gameIcon = null;
-$gameIDSpecified = (isset($gameID) && $gameID != 0);
-if ($gameIDSpecified) {
-    getGameMetadata($gameID, $user, $achievementData, $gameData);
-    $consoleName = $gameData['ConsoleName'];
-    $consoleID = $gameData['ConsoleID'];
-    $gameTitle = $gameData['Title'];
-    $gameIcon = $gameData['ImageIcon'];
-    $requestors = getSetRequestorsList($gameID);
-} else {
-    // Immediate redirect: this is pointless otherwise!
-    header("Location: " . getenv('APP_URL'));
+if (empty($gameID)) {
+    abort(404);
 }
 
-RenderHtmlStart();
-RenderHtmlHead("Set Requests");
+getGameMetadata($gameID, $user, $achievementData, $gameData);
+$consoleName = $gameData['ConsoleName'];
+$consoleID = $gameData['ConsoleID'];
+$gameTitle = $gameData['Title'];
+$gameIcon = $gameData['ImageIcon'];
+$requestors = getSetRequestorsList($gameID);
+
+RenderContentStart("Set Requests");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <h2>List of Set Requests</h2>
@@ -54,6 +39,4 @@ RenderHtmlHead("Set Requests");
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

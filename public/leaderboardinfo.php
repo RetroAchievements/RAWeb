@@ -3,15 +3,11 @@
 use RA\ArticleType;
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
-    header("Location: " . getenv('APP_URL') . "?e=urlissue");
-    exit;
+   abort(404);
 }
 
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -21,8 +17,7 @@ $friendsOnly = requestInputSanitized('f', 0, 'integer');
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
 
 if (empty($lbData['LBID'] ?? null)) {
-    redirect(url(getenv('APP_URL') . "?e=error"));
-    exit;
+    abort(404);
 }
 
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
@@ -50,28 +45,16 @@ $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20, $commentData);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart(true);
-?>
-<head prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
-    <?php RenderSharedHeader(); ?>
-    <?php RenderOpenGraphMetadata(
+RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
     "$gameIcon",
     "/leaderboardinfo.php?i=$lbID",
     "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
-); ?>
-    <?php RenderTitleTag($pageTitle); ?>
-</head>
-<body>
-<?php RenderHeader($userDetails); ?>
-
+);
+?>
 <div id="mainpage">
     <div id="leftcontainer">
-        <?php RenderErrorCodeWarning($errorCode); ?>
-
         <div id="lbinfo">
             <?php
             echo "<div class='navpath'>";
@@ -96,7 +79,7 @@ RenderHtmlStart(true);
             $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
             $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));
 
-            echo "<p class='smalldata'>";
+            echo "<p class='embedded smalldata'>";
             echo "<small>";
             if (is_null($lbAuthor)) {
                 echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
@@ -119,6 +102,7 @@ RenderHtmlStart(true);
                 if (!empty($lbData['Entries'])) {
                     echo "<tr><td>";
                     echo "<form method='post' action='/request/leaderboard/remove-entry.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
+                    echo csrf_field();
                     echo "<input type='hidden' name='l' value='$lbID' />";
                     echo "<input type='hidden' name='b' value='true' />";
 
@@ -137,8 +121,8 @@ RenderHtmlStart(true);
                     echo "</select>";
                     echo "</br>";
                     echo "Reason:";
-                    echo "<input type='text' name='r' value='' style='width: 50%;' placeholder='Please enter reason for removal'/>";
-                    echo "<input type='submit' style='float: right;' value='Submit' size='37'/>";
+                    echo "<input type='text' name='r' style='width: 50%;' placeholder='Please enter reason for removal'>";
+                    echo "<button>Submit</button>";
                     echo "</form>";
                     echo "</td></tr>";
                 }
@@ -258,6 +242,4 @@ RenderHtmlStart(true);
     </div>
 
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

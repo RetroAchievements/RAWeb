@@ -1,39 +1,34 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\ArticleType;
 use RA\Permissions;
 use RA\TicketState;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-// Sanitise!
-if (!ValidatePOSTChars("act")) {
-    echo "FAILED";
-    exit;
-}
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    echo "FAILED!";
-    exit;
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$articleID = requestInputPost('a', null, 'integer');
-$articleType = requestInputPost('t', null, 'integer');
+$input = Validator::validate(request()->post(), [
+    'body' => 'required|string|max:2000',
+    'commentable_id' => 'required|integer',
+    'commentable_type' => 'required|integer',
+]);
 
-$commentPayload = requestInputPost('c');
+$articleID = (int) $input['commentable_id'];
+$articleType = (int) $input['commentable_type'];
 
-if (addArticleComment($user, $articleType, $articleID, $commentPayload)) {
-    if ($articleType == ArticleType::AchievementTicket) {
-        // if a user is responding to a ticket in the Request state,
-        // automatically change the state back to Open
+if (addArticleComment($user, $articleType, $articleID, $input['body'])) {
+    // if a user is responding to a ticket in the Request state,
+    // automatically change the state back to Open
+    if ($articleType === ArticleType::AchievementTicket) {
         $ticketData = getTicket($articleID);
         if ($ticketData['ReportState'] == TicketState::Request && $ticketData['ReportedBy'] == $user) {
             updateTicket($user, $articleID, TicketState::Open);
         }
     }
 
-    echo $articleID;
-} else {
-    echo "FAILED!";
+    return back()->with('success', __('legacy.success.send'));
 }
+
+return back()->withErrors(__('legacy.error.error'));

@@ -22,11 +22,6 @@
  *  string     Released                   release date information for the game
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
 $gameID = requestInputQuery('i');
 $gameData = [];
 
@@ -37,4 +32,4 @@ $gameData['ConsoleID'] = $consoleID;
 $gameData['Console'] = $consoleName;
 $gameData['ForumTopicID'] = $forumTopicID;
 
-echo json_encode($gameData, JSON_THROW_ON_ERROR);
+return response()->json($gameData);

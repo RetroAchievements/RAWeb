@@ -4,26 +4,18 @@ use RA\ArticleType;
 use RA\GameAction;
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
-    // Immediate redirect if we cannot validate user!	//TBD: pass args?
-    header("Location: " . getenv('APP_URL'));
-    exit;
+    abort(401);
 }
 
 $gameID = requestInputSanitized('g', null, 'integer');
-$errorCode = requestInputSanitized('e');
+
+if (empty($gameID)) {
+    abort(404);
+}
 
 $achievementList = [];
 $gamesList = [];
-
-if (empty($gameID)) {
-    // Immediate redirect: this is pointless otherwise!
-    header("Location: " . getenv('APP_URL'));
-}
-
 getGameMetadata($gameID, $user, $achievementData, $gameData);
 
 $hashes = getHashListByGameID($gameID);
@@ -39,85 +31,53 @@ sanitize_outputs(
     $gameTitle,
 );
 
-RenderHtmlStart();
-RenderHtmlHead("Manage Game Hashes");
+RenderContentStart("Manage Game Hashes");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script>
 function UpdateHashDetails(user, hash) {
-    showStatusMessage('Updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
-    $.ajax({
-        type: "POST",
-        url: '/request/game/modify.php',
-        dataType: "json",
-        data: {
-            'g': <?= $gameID ?>,
-            'f': <?= GameAction::UpdateHash ?>,
-            'v': hash,
-            'n': name,
-            'l': labels
-        },
-        error: function (xhr, status, error) {
-            showStatusFailure('Error: ' + (error || 'unknown error'));
-        }
-    }).done(function (data) {
-        if (!data.success) {
-            showStatusFailure('Error: ' + (data.error || 'unknown error'));
-            return;
-        }
+    showStatusMessage('Updating...');
+    $.post('/request/game/modify.php', {
+        g: <?= $gameID ?>,
+        f: <?= GameAction::UpdateHash ?>,
+        v: hash,
+        n: name,
+        l: labels
+    })
+        .done(function () {
+            // Get comment date
+            var date = new Date();
+            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-        // Get comment date
-        var date = new Date();
-        var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
-
-        $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
-
-        showStatusSuccess('Succeeded');
-    });
+            $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
+        });
 }
 
 function UnlinkHash(user, gameID, hash, elem) {
     if (confirm('Are you sure you want to unlink the hash ' + hash + '?') === false) {
         return;
     }
-    var $warning = $('#warning');
-    $warning.html('Status: updating...');
-    $.ajax({
-        type: "POST",
-        url: '/request/game/modify.php',
-        dataType: "json",
-        data: {
-            'g': <?= $gameID ?>,
-            'f': <?= GameAction::UnlinkHash ?>,
-            'v': hash
-        },
-        error: function (xhr, status, error) {
-            showStatusFailure('Error: ' + (error || 'unknown error'));
-        }
-    }).done(function (data) {
-        if (!data.success) {
-            showStatusFailure('Error: ' + (data.error || 'unknown error'));
-            return;
-        }
-
-        // Remove hash from table
-        $(elem).closest('tr').remove();
-
-        // Update number of hashes linked
-        var cnt = $('#hashTable tr').length - 1
-        $("#hashCount").html("Currently this game has <b>" + cnt + "</b> unique hashes registered for it:");
-
-        // Get comment date
-        var date = new Date();
-        var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' +  date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
-
-        $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
-
-        showStatusSuccess('Succeeded');
+    showStatusMessage('Updating...');
+    $.post('/request/game/modify.php', {
+        g: <?= $gameID ?>,
+        f: <?= GameAction::UnlinkHash ?>,
+        v: hash
     })
+        .done(function () {
+            // Remove hash from table
+            $(elem).closest('tr').remove();
+
+            // Update number of hashes linked
+            var cnt = $('#hashTable tr').length - 1;
+            $('#hashCount').html('Currently this game has <b>' + cnt + '</b> unique hashes registered for it:');
+
+            // Get comment date
+            var date = new Date();
+            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
+
+            $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
+        });
 }
 </script>
 <div id="mainpage">
@@ -127,8 +87,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
 
-        echo "<br><div id='warning'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
-        RenderStatusWidget();
+        echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
 
         echo "<div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div><br>";
 
@@ -169,6 +128,4 @@ function UnlinkHash(user, gameID, hash, elem) {
         <br>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

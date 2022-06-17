@@ -1,9 +1,6 @@
 <?php
 
-use RA\Shortcode;
-
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
+use App\Support\Shortcode\Shortcode;
 
 $username = 'Scott';
 $user = GetUserData($username);
@@ -173,13 +170,11 @@ https://imgur.com/a/MaYu3L8.jpeg
 
 EOF;
 
-RenderHtmlStart();
-RenderSharedHeader();
+RenderContentStart();
 ?>
-<body>
 <script src='/vendor/wz_tooltip.js'></script>
 <div style="width:560px;margin:10px;">
     <h1>Shortcode</h1>
     <?php echo Shortcode::render($payload, ['imgur' => true]) ?>
 </div>
-</body>
+<?php RenderContentEnd(); ?>

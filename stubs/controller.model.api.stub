@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ namespacedModel }};
+use {{ rootNamespace }}Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class {{ class }} extends Controller
+{
+    public function index()
+    {
+        $this->authorize('viewAny', {{ model }}::class);
+    }
+
+    public function store({{ model }}Request $request)
+    {
+        $this->authorize('create', {{ model }}::class);
+    }
+
+    public function show({{ model }} ${{ modelVariable }})
+    {
+        $this->authorize('view', ${{ modelVariable }});
+    }
+
+    public function update({{ model }}Request $request, {{ model }} ${{ modelVariable }})
+    {
+        $this->authorize('update', ${{ modelVariable }});
+    }
+
+    public function destroy({{ model }} ${{ modelVariable }})
+    {
+        $this->authorize('delete', $user);
+    }
+}

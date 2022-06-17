@@ -2,8 +2,9 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
 
 $gameID = requestInputPost('i', null, 'integer');
 
@@ -21,16 +22,10 @@ $removeGameAlt = requestInputPost('m');
 
 $newForumTopic = requestInputPost('f');
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=notloggedin");
-    exit;
-}
-
 // Only allow jr. devs if they are the sole author of the set
 if ($permissions == Permissions::JuniorDeveloper) {
     if (!checkIfSoleDeveloper($user, $gameID)) {
-        header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
-        exit;
+        return back()->withErrors(__('legacy.error.permissions'));
     }
 }
 
@@ -54,11 +49,8 @@ if (isset($richPresence)) {
     }
 }
 
-if ($result === true) {
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=ok");
-} elseif ($result == false) {
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=error");
-} else {
-    // unknown?
-    header("location: " . getenv('APP_URL') . "/game/$gameID?e=unrecognised");
+if (!$result) {
+    return back()->withErrors(__('legacy.error.error'));
 }
+
+return back()->with('success', __('legacy.success.ok'));

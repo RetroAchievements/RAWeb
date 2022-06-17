@@ -8,7 +8,7 @@ abstract class AchievementType
 
     public const Unofficial = 5;
 
-    private const VALID = [
+    public const VALID = [
         self::OfficialCore,
         self::Unofficial,
     ];

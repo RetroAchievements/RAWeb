@@ -30,21 +30,15 @@
  *   string     HardcoreMode   "1" if unlocked in hardcore, otherwise "0"
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
 $user = null;
 $achievementID = (int) (requestInputQuery('a') ?? null);
 $count = min(requestInputQuery('c', 50), 500);
 $offset = requestInputQuery('o', 0);
 
 if (empty($achievementID)) {
-    echo json_encode([
+    return response()->json([
         'Achievement' => ['ID' => null],
     ]);
-    exit;
 }
 
 $achievementData = GetAchievementMetadataJSON($achievementID);
@@ -72,11 +66,11 @@ $console = [
 
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, $offset, $count);
 
-echo json_encode([
+return response()->json([
     'Achievement' => $achievement,
     'Console' => $console,
     'Game' => $game,
     'UnlocksCount' => (int) ($numWinners ?? 0),
     'TotalPlayers' => (int) ($numPossibleWinners ?? 0),
     'Unlocks' => array_values($winnerInfo ?? []),
-], JSON_THROW_ON_ERROR);
+]);

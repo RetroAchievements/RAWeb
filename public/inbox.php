@@ -1,142 +1,89 @@
 <?php
 
-use RA\Shortcode;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
+use App\Support\Shortcode\Shortcode;
 
 $maxCount = 10;
 
-$errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    // Trying to visit someone's inbox while not being logged in :S
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+    abort(401);
 }
-
-RenderHtmlStart();
 
 if ($outbox) {
     $unreadMessageCount = 0;
     $totalMessageCount = GetSentMessageCount($user);
     $allMessages = GetSentMessages($user, $offset, $count);
-    RenderHtmlHead('Outbox');
+    RenderContentStart('Outbox');
 } else {
     $unreadMessageCount = GetMessageCount($user, $totalMessageCount);
     $allMessages = GetAllMessages($user, $offset, $count, $unreadOnly);
-    RenderHtmlHead('Inbox');
+    RenderContentStart('Inbox');
 }
-
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <script>
-  function MarkAsRead(msgID) {
+function MarkAsRead(msgID) {
     $('#msgInline' + msgID).toggle();
 
     // If was unread
     var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle');
     if (unread.contents().length) {
-      var posting = $.post('/request/message/read.php', { u: '<?= $user ?>', m: msgID, r: 0 });
-      posting.done(onMarkAsRead);
+        $.post('/request/message/read.php', {
+            message: msgID,
+            status: 0
+        });
     }
-  }
+}
 
-  function onMarkAsRead(data) {
-    if (data.substr(0, 3) == 'OK:') {
-      var msgID = data.substr(3);
-      var titleID = '#msgInlineTitle' + msgID;
-
-      if ($(titleID).find('span').hasClass('unreadmsgtitle')) {
-        $(titleID).find('span').removeClass('unreadmsgtitle');
-
-        // Reduce the number of unread messages by 1
-        var numUnread = parseInt($('#messagecounttext').find('b').html());
-        numUnread = numUnread - 1;
-        $('#messagecounttext').find('b').html(numUnread);
-
-        UpdateMailboxCount(numUnread);
-
-        if (numUnread == 0) {
-          if ($('#messagecountcontainer').find('big').contents().length)
-            $('#messagecountcontainer').find('big').contents().unwrap();
-        }
-      }
-    }
-  }
-
-  function MarkAsUnread(msgID) {
-    var posting = $.post('/request/message/read.php', { u: '<?= $user ?>', m: msgID, r: 1 });
-    posting.done(onMarkAsUnread);
-  }
-
-  function onMarkAsUnread(data) {
-    if (data.substr(0, 3) == 'OK:') {
-      var msgID = data.substr(3);
-      $('#msgInline' + msgID).toggle();
-      var titleID = '#msgInlineTitle' + msgID;
-
-      if (!$(titleID).find('span').hasClass('unreadmsgtitle')) {
-        $(titleID).find('span').addClass('unreadmsgtitle');
-
-        // Increase the number of unread messages by 1
-        var numUnread = parseInt($('#messagecounttext').find('b').html());
-        numUnread = numUnread + 1;
-        $('#messagecounttext').find('b').html(numUnread);
-
-        if (numUnread > 0) {
-          if ($('#messagecountcontainer').find('big').contents().length == false)
-            $('#messagecountcontainer').contents().wrap('<big>');
-        }
-
-        UpdateMailboxCount(numUnread);
-      }
-    }
-  }
-
+function MarkAsUnread(msgID) {
+    $.post('/request/message/read.php', {
+        message: msgID,
+        status: 1
+    })
+        .done(function () {
+            location.reload();
+        });
+}
 </script>
 <div id="mainpage">
     <div id='fullcontainer'>
-        <?php
-        // Left
-        RenderErrorCodeWarning($errorCode);
-        ?>
-
         <div id="globalfeed">
             <?php
             if ($outbox) {
                 echo "<h2>Outbox</h2>";
 
-                echo "<div id='messagecounttext'>";
-                echo "<big>You have $totalMessageCount sent messages.</big>";
+                echo "<div class='mb-5'>You have <b>$totalMessageCount</b> sent messages.</div>";
+
+                echo "<div class='flex justify-between mb-5'>";
+                echo "<a class='btn btn-link' href='/inbox.php'>Inbox</a>";
+                echo "<div class='flex gap-2'>";
+                echo "<a class='btn btn-link' href='/createmessage.php'>Create New Message</a>";
                 echo "</div>";
-                echo "<a href='/inbox.php'>Inbox</a>";
+                echo "</div>";
             } else {
                 echo "<h2>Inbox</h2>";
 
-                echo "<div id='messagecounttext'>";
-                echo "<span id='messagecountcontainer'>";
-                echo "<big>You have <b>$unreadMessageCount</b> unread messages</big>";
-                echo "</span>";
-                echo " and $totalMessageCount total messages.";
+                echo "<div class='mb-5'>";
+                echo "<div>You have <b>$unreadMessageCount</b> unread of <b>$totalMessageCount</b> total messages.</div>";
                 echo "</div>";
 
-                echo "<a href='/inbox.php?s=1'>Outbox</a>";
-
-                echo "<span class='rightalign clickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
+                echo "<div class='flex justify-between mb-5'>";
+                echo "<a class='btn btn-link' href='/inbox.php?s=1'>Outbox</a>";
+                echo "<div class='flex gap-2'>";
                 if ($unreadOnly) {
-                    echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";
+                    echo "<a class='btn btn-link' href='/inbox.php?u=0'>View All Messages</a>";
                 } else {
-                    echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=1'>View Unread Only</a></span>";
+                    echo "<a class='btn btn-link' href='/inbox.php?u=1'>View Unread Only</a>";
                 }
+                echo "<a class='btn btn-link' href='/createmessage.php'>Create New Message</a>";
+                echo "</div>";
+                echo "</div>";
             }
 
-            echo "<table class='messagestable' id='messages'><tbody>";
+            echo "<table><tbody>";
             echo "<tr>";
             echo "<th>Date</th>";
             if ($outbox) {
@@ -206,10 +153,10 @@ if ($outbox) {
                 echo "<div class='topiccommenttext'>$msgPayload</div>";
 
                 if (!$outbox) {
-                    echo "<div class='buttoncollection rightfloat'>";
-                    echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
-                    echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a></span>";
-                    echo "<span class='rightalign clickablebutton'><a href='/request/message/delete.php?m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
+                    echo "<div class='flex justify-end gap-2'>";
+                    echo "<a class='btn btn-danger' href='/request/message/delete.php?m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a>";
+                    echo "<a class='btn' href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a>";
+                    echo "<a class='btn btn-primary' href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a>";
                     echo "</div>";
                 }
 
@@ -245,6 +192,4 @@ if ($outbox) {
         </div>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

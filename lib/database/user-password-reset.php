@@ -2,7 +2,7 @@
 
 function RemovePasswordResetToken($username): bool
 {
-    global $db;
+    $db = getMysqliConnection();
 
     sanitize_sql_inputs($username);
 

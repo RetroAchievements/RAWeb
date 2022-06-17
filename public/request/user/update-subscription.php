@@ -1,20 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+$input = Validator::validate(request()->post(), [
+    'subject_type' => 'required|string',
+    'subject_id' => 'required|integer',
+    'operation' => 'required|string|in:subscribe,unsubscribe',
+]);
 
-// what is being (un-)subscribed? and where should we go back to at the end?
-
-$returnUrl = requestInputPost('return_url', null, 'string');
-$subjectType = requestInputPost('subject_type', null, 'string');
-$subjectID = requestInputPost('subject_id', 0, 'integer');
-
-if ($subjectType === null || $subjectID === null || $returnUrl === null) {
-    exit;
-}
+$subjectType = $input['subject_type'];
+$subjectID = $input['subject_id'];
 
 $requiredPermissions = match ($subjectType) {
     SubscriptionSubjectType::GameTickets, SubscriptionSubjectType::GameAchievements => Permissions::JuniorDeveloper,
@@ -22,29 +19,11 @@ $requiredPermissions = match ($subjectType) {
 };
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissions)) {
-    header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
-    exit;
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$userID = $userDetails['ID'];
-if ($userID == 0) {
-    header("Location: " . getenv("APP_URL") . $returnUrl . "&e=badcredentials");
-    exit;
+if (!updateSubscription($subjectType, $subjectID, $userDetails['ID'], $input['operation'] === "subscribe")) {
+    return back()->withErrors(__('legacy.error.subscription_update'));
 }
 
-// subscribing or unsubscribing?
-$operation = requestInputPost("operation");
-if ($operation !== "subscribe" && $operation !== "unsubscribe") {
-    header("Location: " . getenv("APP_URL") . $returnUrl . "&e=invalidparams");
-    exit;
-}
-
-// update the database
-$subscriptionState = ($operation === "subscribe");
-if (!updateSubscription($subjectType, $subjectID, $userID, $subscriptionState)) {
-    header("Location " . getenv("APP_URL") . $returnUrl . "&e=subscription_update_fail");
-    exit;
-}
-
-// everything's ok, go back
-header("Location: " . getenv("APP_URL") . $returnUrl);
+return back()->with('success', __('legacy.success.' . $input['operation']));

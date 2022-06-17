@@ -2,21 +2,16 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+if (!authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
 
 $targetUser = requestInputPost('u');
 
-if (!authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permissions::Registered)) {
-    redirect(back());
-    exit;
-}
-
 if ($targetUser && $targetUser !== $actingUser && $permissions < Permissions::Admin) {
-    redirect(back());
-    exit;
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-removeAvatar($targetUser);
+removeAvatar($targetUser ?? $actingUser);
 
-redirect(back());
+return back()->with('success', __('legacy.success.ok'));

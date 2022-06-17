@@ -1,11 +1,9 @@
 <?php
 
+use Illuminate\Http\JsonResponse;
 use RA\AchievementType;
 use RA\FilenameIterator;
 use RA\Permissions;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
 
 /**
  * @usage
@@ -20,7 +18,7 @@ $response = ['Success' => true];
  */
 $requestType = requestInput('r');
 $user = requestInput('u');
-$token = requestInput('t', null);
+$token = requestInput('t');
 $achievementID = requestInput('a', 0, 'integer');  // Keep in mind, this will overwrite anything given outside these params!!
 $gameID = requestInput('g', 0, 'integer');
 $offset = requestInput('o', 0, 'integer');
@@ -28,19 +26,18 @@ $count = requestInput('c', 10, 'integer');
 
 // $bounceReferrer = requestInput( 'b' ); // TBD: Remove!
 
-$errorCode = "OK";
-
 $validLogin = false;
 $permissions = null;
 if (!empty($token)) {
     $validLogin = authenticateFromAppToken($user, $token, $permissions);
 }
 
-function DoRequestError($errorMsg): void
+function DoRequestError(string $error): JsonResponse
 {
-    global $response;
-    $response['Success'] = false;
-    $response['Error'] = $errorMsg;
+    return response()->json([
+        'Success' => false,
+        'Error' => $error,
+    ]);
 }
 
 /**
@@ -74,10 +71,7 @@ $credentialsOK = match ($requestType) {
 };
 
 if (!$credentialsOK) {
-    DoRequestError("Credentials invalid ($permissions)");
-    settype($response['Success'], 'boolean');
-    echo json_encode($response);
-    exit;
+    return DoRequestError("Credentials invalid ($permissions)");
 }
 
 switch ($requestType) {
@@ -107,7 +101,7 @@ switch ($requestType) {
     // TODO: Deprecate - not used anymore
     case "codenotes":
         if (!getCodeNotes($gameID, $codeNotesOut)) {
-            DoRequestError("FAILED!");
+            return DoRequestError("FAILED!");
         } else {
             echo "OK:$gameID:";
             foreach ($codeNotesOut as $codeNote) {
@@ -148,17 +142,15 @@ switch ($requestType) {
         $consoleId = requestInput('c', null, 'integer');
 
         if (empty($emulatorId) && !empty($consoleId)) {
-            DoRequestError("Lookup by Console ID has been deprecated");
-            break;
+            return DoRequestError("Lookup by Console ID has been deprecated");
         }
 
         $emulator = getEmulatorReleaseByIntegrationId($emulatorId);
 
         if ($emulator === null) {
-            DoRequestError("Unknown client");
-            break;
+            return DoRequestError("Unknown client");
         }
-        $baseDownloadUrl = str_replace('https', 'http', getenv('APP_URL')) . '/';
+        $baseDownloadUrl = str_replace('https', 'http', config('app.url')) . '/';
         $response['MinimumVersion'] = $emulator['minimum_version'] ?? null;
         $response['LatestVersion'] = $emulator['latest_version'] ?? null;
         $response['LatestVersionUrl'] = null;
@@ -171,10 +163,9 @@ switch ($requestType) {
     case "latestintegration":
         $integration = getIntegrationRelease();
         if (!$integration) {
-            DoRequestError("Unknown client");
-            break;
+            return DoRequestError("Unknown client");
         }
-        $baseDownloadUrl = str_replace('https', 'http', getenv('APP_URL')) . '/';
+        $baseDownloadUrl = str_replace('https', 'http', config('app.url')) . '/';
         $response['MinimumVersion'] = $integration['minimum_version'] ?? null;
         $response['LatestVersion'] = $integration['latest_version'] ?? null;
         $response['LatestVersionUrl'] = ($integration['latest_version_url'] ?? null)
@@ -343,9 +334,9 @@ switch ($requestType) {
         break;
 
     default:
-        DoRequestError("Unknown Request: '" . $requestType . "'");
-        break;
+        return DoRequestError("Unknown Request: '" . $requestType . "'");
 }
 
 settype($response['Success'], 'boolean');
-echo json_encode($response, JSON_THROW_ON_ERROR);
+
+return response()->json($response);

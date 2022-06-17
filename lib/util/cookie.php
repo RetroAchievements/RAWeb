@@ -2,7 +2,7 @@
 
 function clearCookie($cookieName): void
 {
-    applyCookie($cookieName, '', 1);
+    applyCookie($cookieName, '');
 }
 
 function readCookie($cookieName): ?string
@@ -14,15 +14,15 @@ function readCookie($cookieName): ?string
     return null;
 }
 
-function applyCookie($cookieName, $cookieValue, $expire = 0, $httponly = false): bool
+function applyCookie($cookieName, $cookieValue): bool
 {
     return setcookie($cookieName, $cookieValue, [
-        'expires' => $expire,
-        'path' => "/",
-        'domain' => getenv('SESSION_DOMAIN'),
-        'samesite' => 'lax',
-        'secure' => getenv('SESSION_SECURE_COOKIE'),
-        'httponly' => $httponly,
+        'expires' => time() + config('session.lifetime') * 60,
+        'path' => config('session.path'),
+        'domain' => config('session.domain'),
+        'samesite' => config('session.same_site'),
+        'secure' => config('session.secure'),
+        'httponly' => config('session.http_only'),
     ]);
 }
 

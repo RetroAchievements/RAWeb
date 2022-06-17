@@ -1,30 +1,12 @@
 <?php
 
-function RenderWelcomeComponent(): void
-{
-    echo "
-    <div class='component welcome'>
-        <h2>Welcome!</h2>
-        <div id='Welcome'>
-            <p>
-            Were you the greatest in your day at Mega Drive or SNES games? Wanna prove it? Use our modified emulators and you will be awarded achievements as you play! Your progress will be tracked so you can compete with your friends to complete all your favourite classics to 100%: we provide the emulators for your Windows-based PC, all you need are the roms!<br>
-            <a href='/game/1'>Click here for an example:</a> which of these do you think you can get?
-            </p>
-        <br>
-            <p style='clear:both; text-align:center'>
-            <a href='/download.php'><b>&gt;&gt;Download an emulator here!&lt;&lt;</b></a><br>
-            </p>
-        </div>
-    </div>";
-}
-
 function RenderDocsComponent(): void
 {
     echo "
       <div class='component' style='text-align: center'>
         <div id='docsbox' class='infobox'>
           <div>
-            <a href='https://docs.retroachievements.org/'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
+            <a href='https://docs.retroachievements.org/'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' rel='noopener'>FAQ</a>.
           </div>
         </div>
       </div>";
@@ -35,13 +17,11 @@ function RenderCurrentlyOnlineComponent(): void
     echo "<div class='component'>";
     echo "<h3>Currently Online</h3>";
     echo "<div id='playersonlinebox' class='infobox'>";
-
     $numPlayers = count(getCurrentlyOnlinePlayers());
     echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
-
     echo "</div>";
-
-    echo "<div class='rightfloat lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
+    echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
+    echo "<div class='text-right lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
     echo "</div>";
 }
 
@@ -65,7 +45,7 @@ function RenderActivePlayersComponent(): void
                 </div>
             </div>
             <div id='activeplayersbox' style='min-height: 54px'>
-                <table class='smalltable' data-bind='hidden: isLoading'>
+                <table data-bind='hidden: isLoading'>
                     <thead>
                         <th>User</th>
                         <th>Game</th>
@@ -94,10 +74,10 @@ function RenderActivePlayersComponent(): void
         </div>
     HTML;
 
-    if (getenv('APP_ENV') === 'local') {
+    if (app()->environment('local')) {
         echo '<script type="text/javascript" src="/js/activePlayersBootstrap.js?' . random_int(0, mt_getrandmax()) . '"></script>';
     } else {
-        echo '<script type="text/javascript" src="/js/activePlayersBootstrap-' . VERSION . '.js"></script>';
+        echo '<script type="text/javascript" src="/js/activePlayersBootstrap-' . config('app.version') . '.js"></script>';
     }
 }
 

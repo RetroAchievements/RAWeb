@@ -19,13 +19,6 @@
  *    string     HardcoreMode     "1" if the data is for hardcore, otherwise "0"
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
+$user = requestInputQuery('u');
 
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
-
-$data = getUsersCompletedGamesAndMax($user);
-
-echo json_encode($data, JSON_THROW_ON_ERROR);
+return response()->json(getUsersCompletedGamesAndMax($user));

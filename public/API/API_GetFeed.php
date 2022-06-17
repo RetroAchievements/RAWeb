@@ -2,16 +2,10 @@
 /**
  * exit early - no more feeds in v1
  */
-echo json_encode(['success' => false]);
-exit;
+return response()->json(['success' => false]);
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../lib/bootstrap.php';
-
-runPublicApiMiddleware();
-
-$user = requestInputQuery('u', null);
-$friends = requestInputQuery('f', null);
+$user = requestInputQuery('u');
+$friends = requestInputQuery('f');
 $count = requestInputQuery('c', 10);
 $offset = requestInputQuery('o', 0);
 
@@ -32,4 +26,4 @@ if (isset($user)) {
 
 getFeed($user, $count, $offset, $feedData, 0, $type);
 
-echo json_encode($feedData, JSON_THROW_ON_ERROR);
+return response()->json($feedData);

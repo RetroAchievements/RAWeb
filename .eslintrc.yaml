@@ -10,7 +10,7 @@ globals:
 # very basic javascript
 parserOptions:
   ecmaVersion: 6
-  sourceType: script
+  sourceType: module
 
 ignorePatterns:
   - node_modules/
@@ -53,3 +53,7 @@ rules:
   no-useless-escape: off # not so sure about regex there it seems
   no-use-before-define: off
   vars-on-top: off
+
+  import/prefer-default-export: off
+
+  import/no-extraneous-dependencies: off

@@ -1,30 +1,25 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
+use Illuminate\Support\Facades\Validator;
 
-if (!ValidatePOSTChars("dtm")) {
-    echo "FAILED";
-    exit;
+if (!authenticateFromCookie($username, $permissions, $userDetail)) {
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$recipient = requestInputPost('d');
-$title = requestInputPost('t');
-$payload = requestInputPost('m');
+$input = Validator::validate(request()->post(), [
+    'recipient' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'subject' => 'required|string|max:255',
+    'message' => 'required|string|max:60000',
+]);
 
-if (authenticateFromCookie($user, $permissions, $userDetail)) {
-    if (isUserBlocking($recipient, $user)) {
-        // recipient has blocked the user. just pretend the message was sent
-        header("Location: " . getenv('APP_URL') . "/inbox.php?e=sentok");
-        exit;
-    }
+$recipient = $input['recipient'];
 
-    if (CreateNewMessage($user, $recipient, $title, $payload)) {
-        header("Location: " . getenv('APP_URL') . "/inbox.php?e=sentok");
-        exit;
-    } else {
-        echo "FAILED:Could not send message!";
-    }
-} else {
-    echo "FAILED:Could not validate cookie - please login again!";
+if (isUserBlocking($recipient, $username)) {
+    return redirect(url('inbox.php?s=1'))->with('success', __('legacy.success.message_send'));
 }
+
+if (CreateNewMessage($username, $recipient, $input['subject'], $input['message'])) {
+    return redirect(url('inbox.php?s=1'))->with('success', __('legacy.success.message_send'));
+}
+
+return back()->withErrors(__('legacy.error.error'));

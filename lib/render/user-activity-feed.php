@@ -22,7 +22,7 @@ function RenderFeedComponent($user): void
     echo "<table id='feed'><tbody>";
     echo "<tr id='feedloadingfirstrow'>";
     echo "<td class='feedcell'>";
-    echo "<img src='" . asset('Images/loading.gif') . "' width='16' height='16' alt='loading icon' />";
+    echo "<img src='" . asset('assets/images/icon/loading.gif') . "' width='16' height='16' alt='loading icon' />";
     echo "</td>";
     echo "<td class='feedcell'>";
     echo "</td>";
@@ -38,7 +38,7 @@ function RenderFeedComponent($user): void
 
 function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null): string
 {
-    $site ??= getenv('APP_URL');
+    $site ??= config('app.url');
 
     $retHTML = '';
 
@@ -151,7 +151,7 @@ function getFeedItemHTML($feedData, $user): string
             $retHTML .= "<td></td>";
 
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;
@@ -208,7 +208,7 @@ function getFeedItemHTML($feedData, $user): string
             $retHTML .= "</td>";
 
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
 
@@ -221,7 +221,7 @@ function getFeedItemHTML($feedData, $user): string
 
             // Images:
             $retHTML .= "<td class='icons'>";
-            $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/Images/LoginIcon32.png' width='32' height='32' class='badgeimg' />";
+            $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/assets/images/activity/login.webp' width='32' height='32' class='badgeimg' />";
             $retHTML .= GetUserAndTooltipDiv($nextUser, true);
             $retHTML .= "</td>";
 
@@ -233,7 +233,7 @@ function getFeedItemHTML($feedData, $user): string
 
             $retHTML .= "</td>";
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;
@@ -269,7 +269,7 @@ function getFeedItemHTML($feedData, $user): string
 
                 $retHTML .= "</td>";
                 if ($user !== null) {
-                    $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                    $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
                 }
                 $retHTML .= "</tr>";
             }
@@ -315,7 +315,7 @@ function getFeedItemHTML($feedData, $user): string
             $retHTML .= "</td>";
 
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;
@@ -360,7 +360,7 @@ function getFeedItemHTML($feedData, $user): string
             $retHTML .= "</td>";
 
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;
@@ -404,7 +404,7 @@ function getFeedItemHTML($feedData, $user): string
             $retHTML .= "</td>";
 
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
 
@@ -457,7 +457,7 @@ function getFeedItemHTML($feedData, $user): string
 
             $retHTML .= "</td>";
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;
@@ -514,7 +514,7 @@ function getFeedItemHTML($feedData, $user): string
 
             $retHTML .= "</td>";
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;
@@ -559,7 +559,7 @@ function getFeedItemHTML($feedData, $user): string
             $retHTML .= "</td>";
 
             if ($user !== null) {
-                $retHTML .= "<td class='editbutton'><img src='" . asset('Images/Edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
+                $retHTML .= "<td class='editbutton'><img src='" . asset('assets/images/icon/edit.png') . "' width='16' height='16' style='cursor: pointer;' onclick=\"insertEditForm( '$rowID', '5' )\" /></td>";
             }
             $retHTML .= "</tr>";
             break;

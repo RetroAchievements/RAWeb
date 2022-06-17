@@ -1,27 +1,21 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../lib/bootstrap.php';
-
-$topicID = requestInputPost('t');
-$commentPayload = requestInputPost('p');
-
-if (!ValidatePOSTChars("tp")) {
-    header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=invalidparams");
-    exit;
-}
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=badcredentials");
-    exit;
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (submitTopicComment($user, $topicID, null, $commentPayload, $newCommentID)) {
-    // Good!
-    header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&c=$newCommentID");
-    exit;
+$input = Validator::validate(request()->post(), [
+    'topic' => 'required|integer|exists:mysql_legacy.ForumTopic,ID',
+    'body' => 'required|string|max:60000',
+]);
+
+$topicID = (int) $input['topic'];
+
+if (submitTopicComment($user, $topicID, null, $input['body'], $newCommentID)) {
+    return redirect(url("/viewtopic.php?t=$topicID&c=$newCommentID"))->with('success', __('legacy.success.send'));
 }
 
-header("Location: " . getenv('APP_URL') . "/viewtopic.php?t=$topicID&e=issuessubmitting");
+return back()->withErrors(__('legacy.error.error'));

@@ -105,7 +105,7 @@ function getIntegrationRelease(): ?array
 
 function getReleasesFromFile(): ?array
 {
-    return file_exists(__DIR__ . '/releases.php') ? require_once __DIR__ . '/releases.php' : null;
+    return file_exists(storage_path('app/releases.php')) ? require_once storage_path('app/releases.php') : null;
 }
 
 function getActiveEmulatorReleases(): array

@@ -1,5 +1,7 @@
 <?php
 
+use App\Legacy\Models\DeletedModels;
+use App\Legacy\Models\User;
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -63,7 +65,7 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore): bool
 
 function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
 {
-    global $db;
+    $db = getMysqliConnection();
 
     $user = validateUsername($userIn);
     if (!$user) {
@@ -264,7 +266,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
               SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
               WHERE ua.User = '$user' ";
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
     if (!$dbResult) {
         log_sql_fail();
@@ -300,14 +302,21 @@ function RemoveComment($articleID, $commentID, $userID, $permissions): bool
         $query .= " AND UserID = $userID";
     }
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     if (!$dbResult) {
         log_sql_fail();
         return false;
     } else {
-        s_mysql_query("INSERT INTO DeletedModels SET ModelType='Comment', ModelID=$commentID");
+        /** @var User $user */
+        $user = request()->user();
+        DeletedModels::create([
+            'ModelType' => 'Comment',
+            'ModelID' => $commentID,
+            'DeletedByUserID' => $user->ID,
+        ]);
+
         return mysqli_affected_rows($db) > 0;
     }
 }
@@ -344,7 +353,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
         $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
     }
 
-    global $db;
+    $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
 
     if (!$dbResult) {
@@ -382,21 +391,21 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     }
 
     $query = "
-        SELECT 
-            act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2, 
+        SELECT
+            act.ID, act.timestamp, act.activitytype, act.User, act.data, act.data2,
             ua.RAPoints, ua.Motto,
             gd.Title AS GameTitle, gd.ID AS GameID, gd.ImageIcon AS GameIcon,
             cons.Name AS ConsoleName,
             ach.Title AS AchTitle, ach.Description AS AchDesc, ach.Points AS AchPoints, ach.BadgeName AS AchBadge,
-            lb.Title AS LBTitle, lb.Description AS LBDesc, lb.Format AS LBFormat, 
-            ua.User AS CommentUser, ua.Motto AS CommentMotto, ua.RAPoints AS CommentPoints, 
+            lb.Title AS LBTitle, lb.Description AS LBDesc, lb.Format AS LBFormat,
+            ua.User AS CommentUser, ua.Motto AS CommentMotto, ua.RAPoints AS CommentPoints,
             c.Payload AS Comment, c.Submitted AS CommentPostedAt, c.ID AS CommentID
         FROM Activity AS act
         LEFT JOIN UserAccounts AS ua ON (ua.User = act.User AND (! ua.Untracked || ua.User = '$user'))
         LEFT JOIN LeaderboardDef AS lb ON (activitytype IN (7, 8) AND act.data = lb.ID)
         LEFT JOIN Achievements AS ach ON (activitytype IN (1, 4, 5, 9, 10) AND ach.ID = act.data)
-        LEFT JOIN GameData AS gd ON (activitytype IN (1, 4, 5, 9, 10) AND gd.ID = ach.GameID) 
-                                        OR (activitytype IN (3, 6) AND gd.ID = act.data) 
+        LEFT JOIN GameData AS gd ON (activitytype IN (1, 4, 5, 9, 10) AND gd.ID = ach.GameID)
+                                        OR (activitytype IN (3, 6) AND gd.ID = act.data)
                                         OR (activitytype IN (7, 8) AND gd.ID = lb.GameID)
         LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
         LEFT JOIN Comment AS c ON c.ArticleID = act.ID

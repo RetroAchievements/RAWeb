@@ -2,42 +2,34 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    // Immediate redirect if we cannot validate cookie!	//TBD: pass args?
-    header("Location: " . getenv('APP_URL') . "?e=notloggedin");
-    exit;
+    abort(401);
 }
 
-$requestedForumID = requestInputQuery('f', 0, 'integer');
+$requestedForumID = (int) request()->query('f');
 
-if ($requestedForumID == 0) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
-    exit;
+if (empty($requestedForumID)) {
+    abort(404);
 }
 
-if (getForumDetails($requestedForumID, $forumData) == false) {
-    header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
-    exit;
+if (!getForumDetails($requestedForumID, $forumData)) {
+    abort(404);
+}
+if (empty($forumData)) {
+    abort(404);
 }
 
 $thisForumID = $forumData['ID'];
-$thisForumTitle = $forumData['ForumTitle'];
-$thisForumDescription = $forumData['ForumDescription'];
+$thisForumTitle = htmlentities($forumData['ForumTitle']);
 $thisCategoryID = $forumData['CategoryID'];
-$thisCategoryName = $forumData['CategoryName'];
+$thisCategoryName = htmlentities($forumData['CategoryName']);
 
-$errorCode = requestInputSanitized('e');
+$existingComment = old('body');
 
-RenderHtmlStart();
-RenderHtmlHead("Create topic: $thisForumTitle");
+RenderContentStart("Create topic: $thisForumTitle");
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
-    <div id="leftcontainer">
+    <div id="fullcontainer">
         <div id="forums">
             <?php
             echo "<div class='navpath'>";
@@ -49,32 +41,39 @@ RenderHtmlHead("Create topic: $thisForumTitle");
 
             echo "<h2 class='longheader'>Create Topic: $thisForumTitle</h2>";
 
+            echo "<form action='/request/forum-topic/create.php' method='post'>";
+            echo csrf_field();
+            echo "<input type='hidden' value='$requestedForumID' name='forum'>";
             echo "<table>";
             echo "<tbody>";
-
-            echo "<form action='/request/forum-topic/create.php' method='post'>";
-            echo "<input type='hidden' value='$requestedForumID' name='f'>";
-            echo "<tr>" . "<td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
-            echo "<tr>" . "<td>Author:</td><td><input type='text' readonly value='$user'></td></tr>";
-            echo "<tr>" . "<td>Title:</td><td><input class='fullwidth' type='text' value='' name='t'></td></tr>";
-            echo "<tr>" . "<td>Message:</td><td>";
-
+            echo "<tr><td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
+            echo "<tr><td>Author:</td><td><input type='text' readonly value='$user'></td></tr>";
+            echo "<tr><td>Topic:</td><td><input class='fullwidth' type='text' value='' name='title' value='" . old('title') . "'></td></tr>";
+            echo "<tr><td>Message:</td><td>";
             RenderShortcodeButtons();
-
-            echo "<textarea id='commentTextarea' class='fullwidth forum' style='height:160px' rows=5 name='p' maxlength='60000' placeholder='Enter a comment here...'></textarea>";
-            echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
+            echo <<<EOF
+                <textarea
+                    id="commentTextarea"
+                    class="fullwidth"
+                    style="height:300px"
+                    rows="32" cols="32"
+                    maxlength="60000"
+                    name="body"
+                    placeholder="Don't share links to copyrighted ROMs."
+                >$existingComment</textarea>
+            EOF;
             echo "</td></tr>";
-            echo "<tr>" . "<td></td><td class='fullwidth'><input type='submit' value='Submit new topic' SIZE='37'/></td></tr>";
-            echo "</form>";
+            echo "<tr><td></td><td>";
+            echo "<div class='flex justify-between items-center'>";
+            echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
+            echo "<button class='btn btn-primary'>Submit new topic</button>";
+            echo "</div>";
+            echo "</td></tr>";
             echo "</tbody>";
             echo "</table>";
+            echo "</form>";
             ?>
         </div>
     </div>
-    <div id="rightcontainer">
-        <?php RenderRecentForumPostsComponent($permissions, 4); ?>
-    </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>

@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Illuminate\Console\Command;
+
+class {{ class }} extends Command
+{
+    protected $signature = '{{ command }}';
+
+    protected $description = 'Command description';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function handle(): int
+    {
+        return 0;
+    }
+}

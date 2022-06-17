@@ -1,8 +1,14 @@
 <?php
 
+function getMysqliConnection(): mysqli
+{
+    return app('mysqli');
+}
+
 function sanitize_sql_inputs(&...$inputs): void
 {
-    global $db;
+    $db = getMysqliConnection();
+
     foreach ($inputs as &$input) {
         if (!empty($input)) {
             $input = mysqli_real_escape_string($db, $input);
@@ -29,12 +35,29 @@ function sanitiseSQL($query): bool
 
 function s_mysql_query($query): mysqli_result|bool
 {
-    global $db;
+    $db = getMysqliConnection();
+
     if (sanitiseSQL($query)) {
         global $g_numQueries;
         $g_numQueries++;
+
         return mysqli_query($db, $query);
     } else {
         return false;
+    }
+}
+
+/**
+ * @throws Exception
+ */
+function log_sql_fail(): void
+{
+    $db = getMysqliConnection();
+    $error = mysqli_error($db);
+    if ($error) {
+        if (config('app.debug')) {
+            throw new Exception($error);
+        }
+        error_log($error);
     }
 }

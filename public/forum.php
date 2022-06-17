@@ -2,9 +2,6 @@
 
 use RA\Permissions;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../lib/bootstrap.php';
-
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -26,16 +23,10 @@ if ($requestedCategoryID !== 0 && !empty($forumList)) {
 
 sanitize_outputs($requestedCategory);
 
-$errorCode = requestInputSanitized('e');
-
-RenderHtmlStart();
-RenderHtmlHead($pageTitle);
+RenderContentStart($pageTitle);
 ?>
-<body>
-<?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="leftcontainer">
-        <?php RenderErrorCodeWarning($errorCode); ?>
         <div id="forums">
 
             <?php
@@ -51,7 +42,9 @@ RenderHtmlHead($pageTitle);
             // Output all forums fetched, by category
 
             if ($numUnofficialLinks > 0) {
-                echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
+                echo "<div class='my-3 bg-embedded p-2 rounded-sm'>";
+                echo "<b>Administrator Notice:</b> <a href='/viewforum.php?f=0'>$numUnofficialLinks unofficial posts need authorising: please verify them!</a>";
+                echo "</div>";
             }
 
             $lastCategory = "_init";
@@ -78,7 +71,7 @@ RenderHtmlHead($pageTitle);
                     sanitize_outputs($forumData['CategoryDescription']);
 
                     echo "<h2>Forum: $nextCategory</h2>";
-                    echo $forumData['CategoryDescription'] . "<br>";
+                    echo "<p class='mb-5'>" . $forumData['CategoryDescription'] . "</p>";
 
                     echo "<table>";
                     echo "<tbody>";
@@ -119,19 +112,19 @@ RenderHtmlHead($pageTitle);
 
                 echo "<tr>";
 
-                echo "<td class='unreadicon p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . asset('Images/ForumTopicUnread32.gif') . "' width='32' height='32'></img></td>";
+                echo "<td class='unreadicon p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='32' height='32'></img></td>";
                 echo "<td class='forumtitle'><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br>";
                 echo "$nextForumDesc</td>";
                 echo "<td class='topiccount'>$nextForumNumTopics</td>";
                 echo "<td class='postcount'>$nextForumNumPosts</td>";
                 echo "<td class='lastpost'>";
                 echo "<div class='lastpost'>";
-                echo "<span class='smalldate'>$nextForumCreatedNiceDate</span><br>";
                 if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
-                    echo GetUserAndTooltipDiv($nextForumLastPostAuthor, true);
+                    echo GetUserAndTooltipDiv($nextForumLastPostAuthor);
                     // echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
-                    echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>[View]</a>";
                 }
+                echo "<br><span class='smalldate'>$nextForumCreatedNiceDate</span>";
+                echo "<br><a class='btn btn-link' href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>View</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
@@ -150,6 +143,4 @@ RenderHtmlHead($pageTitle);
         ?>
     </div>
 </div>
-<?php RenderFooter(); ?>
-</body>
-<?php RenderHtmlEnd(); ?>
+<?php RenderContentEnd(); ?>
