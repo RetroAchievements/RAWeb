@@ -104,13 +104,15 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     }
 
     if ($alreadyAwarded) {
-        // XXX: do not change the messages here. the client detects them and does not report
-        // them as errors.
+        // =============================================================================
+        // ===== DO NOT CHANGE THESE MESSAGES ==========================================
+        // The client detects the "User already has" and does not report them as errors.
         if ($isHardcore) {
-            $retVal['Error'] = "Player already unlocked this achievement in hardcore mode";
+            $retVal['Error'] = "User already has this achievement unlocked in hardcore mode.";
         } else {
-            $retVal['Error'] = "Player already unlocked this achievement";
+            $retVal['Error'] = "User already has this achievement unlocked.";
         }
+        // =============================================================================
 
         return $retVal;
     }
