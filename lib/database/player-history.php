@@ -72,8 +72,7 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user): array
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE User = '$user' AND ach.Flags = " . AchievementType::OfficialCore . "
-              AND aw.HArdcoremode = " . AchievementAwardType::Softcore . " 
+              WHERE User = '$user' AND ach.Flags = " . AchievementType::OfficialCore . " 
               AND Date BETWEEN '$dateStrStart' AND '$dateStrEnd'
               ORDER BY aw.Date
               LIMIT 500";

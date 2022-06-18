@@ -69,7 +69,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             echo "($userPageHardcorePoints) ";
         }
         if ($userPageSoftcorePoints > 0) {
-            echo "<span class = 'Softcore'>($userPageSoftcorePoints softcore)</span>";
+            echo "<span class='softcore'>($userPageSoftcorePoints softcore)</span>";
         }
 
         echo "</b><br>";

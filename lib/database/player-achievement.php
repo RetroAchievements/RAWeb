@@ -121,7 +121,11 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     settype($trueRatio, 'integer');
 
     if ($isHardcore) {
-        $setPointsString = "SET RAPoints=RAPoints+$pointsToGive, TrueRAPoints=TrueRAPoints+$trueRatio, Updated=NOW()";
+        if ($hasRegular) {
+            $setPointsString = "SET RAPoints=RAPoints+$pointsToGive, TrueRAPoints=TrueRAPoints+$trueRatio, RASoftcorePoints=RASoftcorePoints-$pointsToGive, Updated=NOW()";
+        } else {
+            $setPointsString = "SET RAPoints=RAPoints+$pointsToGive, TrueRAPoints=TrueRAPoints+$trueRatio, Updated=NOW()";
+        }
     } else {
         $setPointsString = "SET RASoftcorePoints=RASoftcorePoints+$pointsToGive, Updated=NOW()";
     }
