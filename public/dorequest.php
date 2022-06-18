@@ -213,7 +213,10 @@ switch ($requestType) {
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
          */
         $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
-        $response['Score'] = getPlayerPoints($user);
+        $response['Score'] = 0;
+        if (getPlayerPoints($user, $userPoints)) {
+            $response['Score'] = $userPoints['RAPoints'] + $userPoints['RASoftcorePoints'];
+        }
         $response['AchievementID'] = $achIDToAward;
         break;
 

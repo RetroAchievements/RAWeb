@@ -31,12 +31,18 @@ if ($sortBy == 2 || $sortBy == 12) {
 
 $errorCode = requestInputSanitized('e');
 
-$userPagePoints = getPlayerPoints($userPage);
+$userPageHardcorePoints = 0;
+$userPageSoftcorePoints = 0;
+
+if (getPlayerPoints($userPage, $userPoints)) {
+    $userPageHardcorePoints = $userPoints['RAPoints'];
+    $userPageSoftcorePoints = $userPoints['RASoftcorePoints'];
+}
 
 getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
 //	the past week
-$userScoreData = getAwardedList($userPage, 0, 1000);
+$userScoreData = getAwardedList($userPage);
 
 RenderHtmlStart(true);
 RenderHtmlHead("$userPage's Legacy");
@@ -227,7 +233,14 @@ RenderHtmlHead("$userPage's Legacy");
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
+        if ($userPageHardcorePoints > 0) {
+            echo "($userPageHardcorePoints) ";
+        }
+        if ($userPageSoftcorePoints > 0) {
+            echo "<span class = 'Softcore'>($userPageSoftcorePoints softcore)</span>";
+        }
+        echo "</b><br>";
 
         echo "Member since: " . getNiceDate(strtotime($userSignedUp), true) . "<br>";
         echo "<br>";

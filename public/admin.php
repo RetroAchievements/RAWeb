@@ -87,7 +87,14 @@ switch ($action) {
                     $message .= "<br>";
                 }
                 recalculatePlayerPoints($validUser);
-                $message .= "- Recalculated Score: " . getPlayerPoints($validUser) . "<br>";
+
+                $hardcorePoints = 0;
+                $softcorePoints = 0;
+                if (getPlayerPoints($user, $userPoints)) {
+                    $hardcorePoints = $userPoints['RAPoints'];
+                    $softcorePoints = $userPoints['RASoftcorePoints'];
+                }
+                $message .= "- Recalculated Score: $hardcorePoints <span class='softcore'>($softcorePoints softcore)</span><br>";
             }
         }
         break;

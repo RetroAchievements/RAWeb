@@ -29,7 +29,7 @@ function getAccountDetails(&$user, &$dataOut): bool
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, TrueRAPoints,
+    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
                      cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
                      APIKey, ContribCount, ContribYield,
                      RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
@@ -265,7 +265,8 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     }
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
     $libraryOut['ContribYield'] = $userInfo['ContribYield'];
-    $libraryOut['TotalPoints'] = $userInfo['RAPoints'];
+    $libraryOut['TotalHardcorePoints'] = $userInfo['RAPoints'];
+    $libraryOut['TotalSoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $libraryOut['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $libraryOut['Permissions'] = $userInfo['Permissions'];
     $libraryOut['Untracked'] = $userInfo['Untracked'];
@@ -528,7 +529,8 @@ function getUserCardData($user, &$userCardInfo): void
 
     // getUserActivityRange($user, $firstLogin, $lastLogin);
     $userCardInfo = [];
-    $userCardInfo['TotalPoints'] = $userInfo['RAPoints'];
+    $userCardInfo['HardcorePoints'] = $userInfo['RAPoints'];
+    $userCardInfo['SoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $userCardInfo['Permissions'] = $userInfo['Permissions'];
     $userCardInfo['Motto'] = $userInfo['Motto'];

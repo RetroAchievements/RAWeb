@@ -1,5 +1,7 @@
 <?php
 
+use RA\AchievementAwardType;
+use RA\AchievementType;
 use RA\ArticleType;
 use RA\GameAction;
 use RA\Permissions;
@@ -176,7 +178,7 @@ function getGameMetadataByFlags(
             while ($data = mysqli_fetch_assoc($dbResult)) {
                 $nextID = $data['ID'];
                 settype($nextID, 'integer');
-                if (isset($data['HardcoreMode']) && $data['HardcoreMode'] == 1) {
+                if (isset($data['HardcoreMode']) && $data['HardcoreMode'] == AchievementAwardType::Hardcore) {
                     $achievementDataOut[$nextID]['DateEarnedHardcore'] = $data['Date'];
                 } else {
                     $achievementDataOut[$nextID]['DateEarned'] = $data['Date'];
@@ -196,7 +198,7 @@ function getGameMetadataByFlags(
             while ($data = mysqli_fetch_assoc($dbResult)) {
                 $nextID = $data['ID'];
                 settype($nextID, 'integer');
-                if ($data['HardcoreMode'] == 1) {
+                if ($data['HardcoreMode'] == AchievementAwardType::Hardcore) {
                     $achievementDataOut[$nextID]['DateEarnedFriendHardcore'] = $data['Date'];
                 } else {
                     $achievementDataOut[$nextID]['DateEarnedFriend'] = $data['Date'];
@@ -218,7 +220,7 @@ function getGameMetadataByFlags(
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            if ($data['HardcoreMode'] == 1) {
+            if ($data['HardcoreMode'] == AchievementAwardType::Hardcore) {
                 $numDistinctPlayersHardcore = $data['Users'];
             } else {
                 $numDistinctPlayersCasual = $data['Users'];
@@ -240,10 +242,10 @@ function getGameAlternatives($gameID): array
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
-                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = 3) > 0 THEN 1
+                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") > 0 THEN 1
                 ELSE 0
               END AS HasAchievements,
-              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = 3) AS Points, 
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") AS Points, 
               gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
@@ -324,7 +326,7 @@ function getGamesListByDev($dev, $consoleID, &$dataOut, $sortBy, $ticketsFlag = 
                 CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
                 FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-                LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = 3
+                LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementType::OfficialCore . "
                 LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
                 $joinTicketsTable
                 $whereCond
@@ -419,7 +421,7 @@ function getGamesListData($consoleID, $officialFlag = false): array
     $whereClause = "";
     if ($officialFlag) {
         $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
-        $whereClause = "WHERE ach.Flags=3 ";
+        $whereClause = "WHERE ach.Flags=" . AchievementType::OfficialCore;
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console

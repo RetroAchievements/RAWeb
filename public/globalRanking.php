@@ -10,7 +10,7 @@ $maxCount = 25;
 $errorCode = requestInputSanitized('e');
 $offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
-$sort = requestInputSanitized('s', 5, 'integer');
+$sort = requestInputSanitized('s', 3, 'integer');
 $type = requestInputSanitized('t', 0, 'integer');
 $friends = requestInputSanitized('f', 0, 'integer');
 $untracked = requestInputSanitized('u', 0, 'integer');
@@ -28,8 +28,8 @@ switch ($type) {
         $lbType = "All Time";
 
         // Set default sorting if the user switches to All Time with an invalid All Time sorting selected.
-        if (($sort % 10) != 5 && ($sort % 10) != 6 && ($sort % 10) != 7) {
-            $sort = 5;
+        if (($sort % 10) != 3 && ($sort % 10) != 4 && ($sort % 10) != 5) {
+            $sort = 3;
         }
         break;
     default:
@@ -123,14 +123,11 @@ RenderHeader($userDetails);
         echo "</div>";
 
         // Toggle ascending or descending sorting
-        $sort2 = ($sort == 2) ? 12 : 2; // Total Achievement
-        $sort3 = ($sort == 3) ? 13 : 3; // Softcore Achievements
-        $sort4 = ($sort == 4) ? 14 : 4; // Hardcore Achievements
-        $sort5 = ($sort == 5) ? 15 : 5; // Points
-        $sort6 = ($sort == 6) ? 16 : 6; // Retro Points
-        $sort7 = ($sort == 7) ? 17 : 7; // Retro Ratio
-        $sort8 = ($sort == 8) ? 18 : 8; // Completed Awards
-        $sort9 = ($sort == 9) ? 19 : 9; // Mastered Awards
+        $sort2 = ($sort == 2) ? 12 : 2; // Hardcore Achievements
+        $sort3 = ($sort == 3) ? 13 : 3; // Points
+        $sort4 = ($sort == 4) ? 14 : 4; // Retro Points
+        $sort5 = ($sort == 5) ? 15 : 5; // Retro Ratio
+        $sort6 = ($sort == 6) ? 16 : 6; // Mastered Awards
 
         echo "<table><tbody>";
 
@@ -142,111 +139,61 @@ RenderHeader($userDetails);
         // User header
         echo "<th>User</th>";
 
-        // Sortable Total Achievement header
-        if ($type == 2) {
-            echo "<th>Achievement Obtained</br>Total";
-        } else {
-            if (($sort % 10) == 2) {
-                if ($sort2 == 2) {
-                    echo "<th>Achievement Obtained</br><b><a href='/globalRanking.php?s=$sort2&t=$type&d=$date&f=$friends'>Total &#9650;</a></b>";
-                } else {
-                    echo "<th>Achievement Obtained</br><b><a href='/globalRanking.php?s=$sort2&t=$type&d=$date&f=$friends'>Total &#9660;</a></b>";
-                }
+        if (($sort % 10) == 2) {
+            if ($sort2 == 2) {
+                echo "<th><b><a href='/globalRanking.php?s=$sort2&t=$type&d=$date&f=$friends'>Hardcore Acheivements &#9650;</a></b></th>";
             } else {
-                echo "<th>Achievement Obtained</br><a href='/globalRanking.php?s=$sort2&t=$type&d=$date&f=$friends'>Total</a>";
+                echo "<th><b><a href='/globalRanking.php?s=$sort2&t=$type&d=$date&f=$friends'>Hardcore Acheivements &#9660;</a></b></th>";
             }
-        }
-
-        // Sortable Softcore Achievements header
-        if ($type == 2) {
-            echo " - SC ";
         } else {
-            if (($sort % 10) == 3) {
-                if ($sort3 == 3) {
-                    echo " - <b><a href='/globalRanking.php?s=$sort3&t=$type&d=$date&f=$friends'>SC &#9650;</a></b> ";
-                } else {
-                    echo " - <b><a href='/globalRanking.php?s=$sort3&t=$type&d=$date&f=$friends'>SC &#9660;</a></b> ";
-                }
-            } else {
-                echo " - <a href='/globalRanking.php?s=$sort3&t=$type&d=$date&f=$friends'>SC</a></b> ";
-            }
-        }
-
-        // Sortable Hardcore Achievements header
-        if ($type == 2) {
-            echo "(HC)</th>";
-        } else {
-            if (($sort % 10) == 4) {
-                if ($sort4 == 4) {
-                    echo "<b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>(HC) &#9650;</a></b></th>";
-                } else {
-                    echo "<b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>(HC) &#9660;</a></b></th>";
-                }
-            } else {
-                echo "<a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>(HC)</a></th>";
-            }
+            echo "<th><a href='/globalRanking.php?s=$sort2&t=$type&d=$date&f=$friends'>Hardcore Acheivements</a></th>";
         }
 
         // Sortable Points header
-        if (($sort % 10) == 5) {
-            if ($sort5 == 5) {
-                echo "<th><b><a href='/globalRanking.php?s=$sort5&t=$type&d=$date&f=$friends'>Points &#9650;</a></b> ";
+        if (($sort % 10) == 3) {
+            if ($sort3 == 3) {
+                echo "<th><b><a href='/globalRanking.php?s=$sort3&t=$type&d=$date&f=$friends'>Hardcore Points &#9650;</a></b> ";
             } else {
-                echo "<th><b><a href='/globalRanking.php?s=$sort5&t=$type&d=$date&f=$friends'>Points &#9660;</a></b> ";
+                echo "<th><b><a href='/globalRanking.php?s=$sort3&t=$type&d=$date&f=$friends'>Hardcore Points &#9660;</a></b> ";
             }
         } else {
-            echo "<th><a href='/globalRanking.php?s=$sort5&t=$type&d=$date&f=$friends'>Points</a> ";
+            echo "<th><a href='/globalRanking.php?s=$sort3&t=$type&d=$date&f=$friends'>Hardcore Points</a> ";
         }
 
         // Sortable Retro Points header
-        if (($sort % 10) == 6) {
-            if ($sort6 == 6) {
-                echo "<b><a href='/globalRanking.php?s=$sort6&t=$type&d=$date&f=$friends'>(Retro Points) &#9650;</a></b></th>";
+        if (($sort % 10) == 4) {
+            if ($sort4 == 4) {
+                echo "<b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>(Retro Points) &#9650;</a></b></th>";
             } else {
-                echo "<b><a href='/globalRanking.php?s=$sort6&t=$type&d=$date&f=$friends'>(Retro Points) &#9660;</a></b></th>";
+                echo "<b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>(Retro Points) &#9660;</a></b></th>";
             }
         } else {
-            echo "<a href='/globalRanking.php?s=$sort6&t=$type&d=$date&f=$friends'>(Retro Points)</a></th>";
+            echo "<a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>(Retro Points)</a></th>";
         }
 
         // Sortable Retro Ratio header
-        if (($sort % 10) == 7) {
-            if ($sort7 == 7) {
-                echo "<th><b><a href='/globalRanking.php?s=$sort7&t=$type&d=$date&f=$friends'>Retro Ratio &#9650;</a></b></th>";
+        if (($sort % 10) == 5) {
+            if ($sort5 == 5) {
+                echo "<th><b><a href='/globalRanking.php?s=$sort5&t=$type&d=$date&f=$friends'>Retro Ratio &#9650;</a></b></th>";
             } else {
-                echo "<th><b><a href='/globalRanking.php?s=$sort7&t=$type&d=$date&f=$friends'>Retro Ratio &#9660;</a></b></th>";
+                echo "<th><b><a href='/globalRanking.php?s=$sort5&t=$type&d=$date&f=$friends'>Retro Ratio &#9660;</a></b></th>";
             }
         } else {
-            echo "<th><a href='/globalRanking.php?s=$sort7&t=$type&d=$date&f=$friends'>Retro Ratio</a></th>";
-        }
-
-        // Sortable Completed Awards header
-        if ($type == 2) {
-            echo "<th>Site Awards</br> Total - Completed ";
-        } else {
-            if (($sort % 10) == 8) {
-                if ($sort8 == 8) {
-                    echo "<th>Site Awards</br> Total - <b><a href='/globalRanking.php?s=$sort8&t=$type&d=$date&f=$friends'>Completed &#9650;</a></b> ";
-                } else {
-                    echo "<th>Site Awards</br> Total - <b><a href='/globalRanking.php?s=$sort8&t=$type&d=$date&f=$friends'>Completed &#9660;</a></b> ";
-                }
-            } else {
-                echo "<th>Site Awards</br> Total - <a href='/globalRanking.php?s=$sort8&t=$type&d=$date&f=$friends'>Completed</a> ";
-            }
+            echo "<th><a href='/globalRanking.php?s=$sort5&t=$type&d=$date&f=$friends'>Retro Ratio</a></th>";
         }
 
         // Sortable Mastered Awards header
-        if ($type == 2) {
-            echo "(Mastered)</th>";
+        if ($type == 2) { // Disable sorting if All Time
+            echo "<th>Mastered</th>";
         } else {
-            if (($sort % 10) == 9) {
-                if ($sort9 == 9) {
-                    echo "<b><a href='/globalRanking.php?s=$sort9&t=$type&d=$date&f=$friends'>(Mastered) &#9650;</a></b></th>";
+            if (($sort % 10) == 6) {
+                if ($sort6 == 6) {
+                    echo "<th><b><a href='/globalRanking.php?s=$sort6&t=$type&d=$date&f=$friends'>Mastered &#9650;</a></b></th>";
                 } else {
-                    echo "<b><a href='/globalRanking.php?s=$sort9&t=$type&d=$date&f=$friends'>(Mastered) &#9660;</a></b></th>";
+                    echo "<th><b><a href='/globalRanking.php?s=$sort6&t=$type&d=$date&f=$friends'>Mastered &#9660;</a></b></th>";
                 }
             } else {
-                echo "<a href='/globalRanking.php?s=$sort9&t=$type&d=$date&f=$friends'>(Mastered)</a></th>";
+                echo "<th><a href='/globalRanking.php?s=$sort6&t=$type&d=$date&f=$friends'>Mastered</a></th>";
             }
         }
 
@@ -283,18 +230,18 @@ RenderHeader($userDetails);
 
                 // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
                 if ($type == 0) {
-                    echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . $dataPoint['AchievementsObtained'] . "</a> - " . $dataPoint['SoftcoreCount'] . " (" . $dataPoint['HardcoreCount'] . ")</td>";
+                    echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . $dataPoint['HardcoreCount'] . "</a></td>";
                 } else {
-                    echo "<td>" . $dataPoint['AchievementsObtained'] . "</a> - " . $dataPoint['SoftcoreCount'] . " (" . $dataPoint['HardcoreCount'] . ")</td>";
+                    echo "<td>" . $dataPoint['HardcoreCount'] . "</td>";
                 }
-                echo "<td>" . $dataPoint['Points'];
+                echo "<td>" . $dataPoint['HardcorePoints'];
                 echo " <span class='TrueRatio'>(" . $dataPoint['RetroPoints'] . ")</span></td>";
-                if ($dataPoint['Points'] == 0) {
+                if ($dataPoint['HardcorePoints'] == 0) {
                     echo "<td>0.00</td>";
                 } else {
                     echo "<td>" . $dataPoint['RetroRatio'] . "</td>";
                 }
-                echo "<td>" . $dataPoint['TotalAwards'] . " - " . $dataPoint['CompletedAwards'] . " (" . $dataPoint['MasteredAwards'] . ")</td></tr>";
+                echo "<td>" . $dataPoint['MasteredAwards'] . "</td></tr>";
                 $rank++;
                 $userCount++;
             } else {
@@ -325,9 +272,9 @@ RenderHeader($userDetails);
                         echo "<td></td>";
                     } else {
                         if ($sort < 10 && ($sort % 10) != 1) {
-                            if ($sort == 5) {
+                            if ($sort == 3) {
                                 echo "<td>" . getUserRank($user, 0) . "</td>";
-                            } elseif ($sort == 6) {
+                            } elseif ($sort == 4) {
                                 echo "<td>" . getUserRank($user, 1) . "</td>";
                             } else {
                                 echo "<td></td>";
@@ -341,18 +288,18 @@ RenderHeader($userDetails);
 
                     // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
                     if ($type == 0) {
-                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['AchievementsObtained'] . "</a> - " . $userData[0]['SoftcoreCount'] . " (" . $userData[0]['HardcoreCount'] . ")</td>";
+                        echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['HardcoreCount'] . "</a></td>";
                     } else {
-                        echo "<td>" . $userData[0]['AchievementsObtained'] . "</a> - " . $userData[0]['SoftcoreCount'] . " (" . $userData[0]['HardcoreCount'] . ")</td>";
+                        echo "<td>" . $userData[0]['HardcoreCount'] . "</a></td>";
                     }
-                    echo "<td>" . $userData[0]['Points'];
+                    echo "<td>" . $userData[0]['HardcorePoints'];
                     echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
-                    if ($userData[0]['Points'] == 0) {
+                    if ($userData[0]['HardcorePoints'] == 0) {
                         echo "<td>0.00</td>";
                     } else {
                         echo "<td>" . $userData[0]['RetroRatio'] . "</td>";
                     }
-                    echo "<td>" . $userData[0]['TotalAwards'] . " - " . $userData[0]['CompletedAwards'] . " (" . $userData[0]['MasteredAwards'] . ")</td></tr>";
+                    echo "<td>" . $userData[0]['MasteredAwards'] . "</td></tr>";
                 }
             }
         }

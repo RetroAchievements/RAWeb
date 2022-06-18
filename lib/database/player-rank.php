@@ -1,5 +1,7 @@
 <?php
 
+use RA\AchievementType;
+
 function SetUserUntrackedStatus($usernameIn, $isUntracked): void
 {
     sanitize_sql_inputs($usernameIn, $isUntracked);
@@ -8,40 +10,44 @@ function SetUserUntrackedStatus($usernameIn, $isUntracked): void
     s_mysql_query($query);
 }
 
-function getPlayerPoints($user): int
+function getPlayerPoints($user, &$dataOut): bool
 {
+    if (!isset($user) || mb_strlen($user) < 2) {
+        return false;
+    }
+
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ua.RAPoints
+    $query = "SELECT ua.RAPoints, ua.RASoftcorePoints
               FROM UserAccounts AS ua
               WHERE ua.User='$user'";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $result = mysqli_fetch_assoc($dbResult);
-        if ($result) {
-            return (int) $result['RAPoints'];
-        }
+        $dataOut = mysqli_fetch_assoc($dbResult);
     }
 
-    return 0;
+    return true;
 }
 
 function recalculatePlayerPoints($user): bool
 {
     sanitize_sql_inputs($user);
 
-    $query = "UPDATE UserAccounts SET RAPoints = (
-                SELECT SUM(ach.Points) FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                WHERE aw.User = '$user' AND ach.Flags = 3
-                ),
-                TrueRAPoints = (
-                SELECT SUM(ach.TrueRatio) FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                WHERE aw.User = '$user' AND ach.Flags = 3
-                )
-              WHERE User = '$user' ";
+    $query = "UPDATE UserAccounts ua
+                LEFT JOIN (
+                    SELECT aw.User AS UserAwarded, 
+                    SUM(IF(aw.HardcoreMode LIKE '1', ach.Points, 0)) AS HardcorePoints,
+                    SUM(IF(aw.HardcoreMode LIKE '1', ach.TrueRatio, 0)) AS TruePoints,
+                    SUM(IF(aw.HardcoreMode LIKE '0', ach.Points, 0)) AS TotalPoints
+                    FROM Awarded AS aw
+                    LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                    WHERE aw.User = '$user' AND ach.Flags = " . AchievementType::OfficialCore . "
+                ) hc ON ua.User = hc.UserAwarded
+                SET RAPoints = COALESCE(hc.HardcorePoints, 0),
+                    TrueRAPoints = COALESCE(hc.TruePoints, 0),
+                    RASoftcorePoints = COALESCE(hc.TotalPoints - hc.HardcorePoints, 0)
+                WHERE User = '$user'";
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {

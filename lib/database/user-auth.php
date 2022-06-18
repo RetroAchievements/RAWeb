@@ -221,7 +221,7 @@ function getAccountDetailsFromCookie(?string $cookie): ?array
     // RAPoints, TrueRAPoints, and UnreadMessageCount are used for the logged-in user area
     // websitePrefs allows pages to enable/disable functionality
     $query = "SELECT ID, User, Permissions, DeleteRequested,
-                     RAPoints, TrueRAPoints, UnreadMessageCount,
+                     RAPoints, TrueRAPoints, RASoftcorePoints, UnreadMessageCount,
                      websitePrefs
                 FROM UserAccounts
                 WHERE cookie='$cookie'

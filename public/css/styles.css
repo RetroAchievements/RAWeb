@@ -1233,8 +1233,12 @@ small {
 }
 
 span.hardcore {
-  color: rgb(222, 0, 0);
   font-size: 120%;
+}
+
+span.softcore {
+  color: rgb(140, 140, 140);
+  font-size: 90%;
 }
 
 .pointer {

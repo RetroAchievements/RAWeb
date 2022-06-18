@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementAwardType;
 use RA\AchievementType;
 use RA\ActivityType;
 
@@ -115,14 +116,19 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     }
 
     $pointsToGive = $achData['Points'];
+    $trueRatio = $achData['TrueRatio'];
     settype($pointsToGive, 'integer');
+    settype($trueRatio, 'integer');
 
-    if ($isHardcore && !$hasRegular) {
-        // Double points (award base as well!)
-        $pointsToGive *= 2;
+    if ($isHardcore) {
+        $setPointsString = "SET RAPoints=RAPoints+$pointsToGive, TrueRAPoints=TrueRAPoints+$trueRatio, Updated=NOW()";
+    } else {
+        $setPointsString = "SET RASoftcorePoints=RASoftcorePoints+$pointsToGive, Updated=NOW()";
     }
-
-    $query = "UPDATE UserAccounts SET RAPoints=RAPoints+$pointsToGive, Updated=NOW() WHERE User='$user'";
+    // NOTE: TrueRatio has not yet been updated at this point. This will eventually be corrected by recalculatePlayerPoints()
+    $query = "UPDATE UserAccounts
+        " . $setPointsString . "
+        WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         $retVal['Error'] = "Could not add points for this player";
@@ -137,14 +143,6 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     if ($user != $achData['Author']) {
         attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
     }
-
-    // NOTE: TrueRatio has not yet been updated at this point. This will eventually be corrected by recalculatePlayerPoints()
-    $trueRatio = $achData['TrueRatio'];
-    settype($trueRatio, 'integer');
-    $query = "UPDATE UserAccounts
-              SET TrueRAPoints=TrueRAPoints+$trueRatio
-              WHERE User='$user'";
-    s_mysql_query($query);
 
     return $retVal;
 }
@@ -231,7 +229,8 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
               FROM Achievements AS ach
               LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDs )
+              WHERE ach.Flags = " . AchievementType::OfficialCore . " 
+              AND ach.GameID IN ( $gameIDs )
               ORDER BY IsAwarded DESC, HardcoreAchieved, DateAwarded DESC, ach.DisplayOrder, ach.ID
               LIMIT $limit";
 
@@ -383,7 +382,7 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              WHERE AchievementID=$achID AND aw.HardcoreMode = 0";
+              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AchievementAwardType::Softcore;
 
     $dbResult = s_mysql_query($query);
     $data = mysqli_fetch_assoc($dbResult);
@@ -405,7 +404,7 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $query = "SELECT aw.User, ua.RAPoints, UNIX_TIMESTAMP(aw.Date) AS DateAwarded
               FROM Awarded AS aw
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE AchievementID=$achID AND aw.HardcoreMode = 0 $extraWhere
+              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AchievementAwardType::Softcore . " $extraWhere
               ORDER BY aw.Date DESC
               LIMIT $offset, $count";
 
@@ -430,7 +429,7 @@ function getUniquePlayersByUnlocks($gameID): int
                   FROM Awarded AS aw
                   LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                   LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                  WHERE gd.ID = $gameID AND aw.HardcoreMode = 0
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = " . AchievementAwardType::Softcore . "
                   GROUP BY ach.ID
               ) AS Inner1";
 
@@ -451,8 +450,8 @@ function getUnlocksSince(int $id, string $date): array
 
     $query = "
         SELECT
-            COALESCE(SUM(CASE WHEN HardcoreMode = 0 THEN 1 ELSE 0 END), 0) AS softcoreCount,
-            COALESCE(SUM(CASE WHEN HardcoreMode = 1 THEN 1 ELSE 0 END), 0) AS hardcoreCount
+            COALESCE(SUM(CASE WHEN HardcoreMode = " . AchievementAwardType::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
+            COALESCE(SUM(CASE WHEN HardcoreMode = " . AchievementAwardType::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
         FROM
             Awarded
         WHERE
@@ -567,7 +566,7 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = " . $flags . "
+            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = $flags 
               AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
             GROUP BY aw.User
             ORDER BY AwardedCount DESC

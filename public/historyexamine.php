@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\AchievementAwardType;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $userPage = requestInputSanitized('u', $user);
@@ -20,7 +22,13 @@ if (!$userMassData) {
 
 $dateInput = requestInputSanitized('d', 0);
 
-$userPagePoints = getPlayerPoints($userPage);
+$userPageHardcorePoints = 0;
+$userPageSoftcorePoints = 0;
+
+if (getPlayerPoints($userPage, $userPoints)) {
+    $userPageHardcorePoints = $userPoints['RAPoints'];
+    $userPageSoftcorePoints = $userPoints['RASoftcorePoints'];
+}
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 
@@ -55,7 +63,16 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
+
+        if ($userPageHardcorePoints > 0) {
+            echo "($userPageHardcorePoints) ";
+        }
+        if ($userPageSoftcorePoints > 0) {
+            echo "<span class = 'Softcore'>($userPageSoftcorePoints softcore)</span>";
+        }
+
+        echo "</b><br>";
         echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
         echo "<label for='d'><b>Jump to Date: </b></label>";
         echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateInput) . "' />";
@@ -94,23 +111,15 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         $achEarnedLib = [];
 
-        // Store all NORMAL into $achEarnedLib
-        for ($i = 0; $i < $achCount; $i++) {
-            $achID = $achEarnedOnDay[$i]['AchievementID'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == 0) {
-                $achEarnedLib[$achID] = $achEarnedOnDay[$i];
-            }
-        }
-
         // Potentially overwrite HARDCORE into $achEarnedLib
         for ($i = 0; $i < $achCount; $i++) {
             $achID = $achEarnedOnDay[$i]['AchievementID'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == 1) {
-                // if( isset( $achEarnedLib[$achID] ) && $achEarnedLib[$achID]['HardcoreMode'] == 1 )
-                // Ordinary ach also exists: notify in points col
-                $achEarnedLib[$achID] = $achEarnedOnDay[$i];
-                $achPoints = $achEarnedLib[$achID]['Points'];
-                $achEarnedLib[$achID]['PointsNote'] = "<span class='hardcore'>(+$achPoints)</span>";
+            $achEarnedLib[$achID] = $achEarnedOnDay[$i];
+            $achPoints = $achEarnedLib[$achID]['Points'];
+            if ($achEarnedOnDay[$i]['HardcoreMode'] == AchievementAwardType::Hardcore) {
+                $achEarnedLib[$achID]['PointsNote'] = "$achPoints";
+            } else { // else Softcore
+                $achEarnedLib[$achID]['PointsNote'] = "<span class='softcore'>$achPoints</span>";
             }
         }
 
@@ -152,7 +161,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td nowrap>";
-            echo "$achPoints $achPointsNote";
+            echo "$achPointsNote";
             echo "</td>";
 
             echo "<td>";

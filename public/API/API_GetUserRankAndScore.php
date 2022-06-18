@@ -18,7 +18,10 @@ $user = requestInputQuery('u', null);
 
 $retVal = [];
 
-$retVal['Score'] = getPlayerPoints($user);
+$retVal['Score'] = 0;
+if (getPlayerPoints($user, $userPoints)) {
+    $retVal['Score'] = $userPoints['RAPoints'] + $userPoints['RASoftcorePoints'];
+}
 $retVal['Rank'] = getUserRank($user);
 $retVal['TotalRanked'] = countRankedUsers();
 

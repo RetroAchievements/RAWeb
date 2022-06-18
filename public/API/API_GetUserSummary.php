@@ -103,7 +103,7 @@ if (!$retVal) {
 getAccountDetails($user, $userDetails);
 
 $retVal['ID'] = $userDetails['ID'];
-$retVal['Points'] = $userDetails['RAPoints'];
+$retVal['Points'] = $userDetails['RAPoints'] + $userDetails['RASoftcorePoints'];
 $retVal['Motto'] = $userDetails['Motto'];
 $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['Rank'] = getUserRank($user);
