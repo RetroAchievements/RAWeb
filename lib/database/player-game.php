@@ -345,7 +345,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
     $masters = [];
     $mastery_score = 0;
 
-    $query = "SELECT SUM(Points * 2) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
+    $query = "SELECT SUM(Points) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
