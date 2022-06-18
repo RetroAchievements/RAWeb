@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ArticleType;
 use RA\ImageType;
 use RA\Permissions;
@@ -25,8 +26,8 @@ $userID = $userDetails['ID'] ?? 0;
 
 $errorCode = requestInputSanitized('e');
 
-$officialFlag = 3; // flag = 3: Core (official) achievements
-$unofficialFlag = 5; // flag = 5: unofficial
+$officialFlag = AchievementType::OfficialCore;
+$unofficialFlag = AchievementType::Unofficial;
 $flags = requestInputSanitized('f', $officialFlag, 'integer');
 
 $defaultSort = 1;
@@ -793,7 +794,7 @@ RenderHtmlStart(true);
                         $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
                         $pctAwardedHardcoreProportion = 0;
                         if ($numEarnedHardcore > 0) {
-                            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore - $numEarnedCasual);
+                            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
                         }
 
                         $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
