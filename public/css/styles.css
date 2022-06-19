@@ -1232,10 +1232,6 @@ small {
   font-size: x-small;
 }
 
-span.hardcore {
-  font-size: 120%;
-}
-
 span.softcore {
   color: rgb(140, 140, 140);
   font-size: 90%;

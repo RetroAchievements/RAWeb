@@ -149,9 +149,9 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
             }
 
             if ($friendsOnly) {
-                $data = getGlobalRankingData($j, 3, $currentDate, null, $user, 0, 0, $friendCount, 1);
+                $data = getGlobalRankingData($j, 5, $currentDate, null, $user, 0, 0, $friendCount, 1);
             } else {
-                $data = getGlobalRankingData($j, 3, $currentDate, null, null, 0, 0, $numToFetch, 1);
+                $data = getGlobalRankingData($j, 5, $currentDate, null, null, 0, 0, $numToFetch, 1);
             }
 
             $rank = 1;
@@ -523,6 +523,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
               $friendCondAchievement
               $singleUserAchievementCond
               $untrackedCond
+              AND HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
               GROUP BY aw.User
               $orderCond
               LIMIT $offset, $count";
