@@ -108,11 +108,6 @@ $errorCode = requestInputSanitized('e');
 
 $pageTitle = "$userPage";
 
-$userPagePoints = 0;
-if (getPlayerPoints($userPage, $userPoints)) {
-    $userPagePoints = $userPoints['RAPoints'] + $userPoints['RASoftcorePoints'];
-}
-
 $daysRecentProgressToShow = 14; // fortnight
 
 $userScoreData = getAwardedList(
@@ -184,7 +179,7 @@ RenderHtmlStart(true);
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulScore'];
+            $value = $dayInfo['CumulHardcoreScore'];
 
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
@@ -246,7 +241,7 @@ RenderHtmlStart(true);
         echo "Account Type: <b>[" . Permissions::toString($userMassData['Permissions']) . "]</b><br>";
         echo "<br>";
 
-        $totalHardcorePoints = $userMassData['TotalHardcorePoints'];
+        $totalHardcorePoints = $userMassData['TotalPoints'];
         $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
         $totalTruePoints = $userMassData['TotalTruePoints'];
         $retRatio = 0.0;

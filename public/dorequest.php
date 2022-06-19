@@ -214,8 +214,10 @@ switch ($requestType) {
          */
         $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
         $response['Score'] = 0;
+        $response['SoftcoreScore'] = 0;
         if (getPlayerPoints($user, $userPoints)) {
-            $response['Score'] = $userPoints['RAPoints'] + $userPoints['RASoftcorePoints'];
+            $response['Score'] = $userPoints['RAPoints'];
+            $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'];
         }
         $response['AchievementID'] = $achIDToAward;
         break;

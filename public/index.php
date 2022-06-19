@@ -198,7 +198,7 @@ RenderHeader($userDetails);
     </div>
     <div id="rightcontainer" style="padding-top: 20px">
         <?php
-        echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'/globalRanking.php?s=3&t=2\'>🥇 Global Ranking</a></div>';
+        echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'/globalRanking.php?s=5&t=2\'>🥇 Global Ranking</a></div>';
         echo '<div class=\'btn-patron text-center\' style="margin-bottom: 10px"><a href=\'https://www.patreon.com/bePatron?u=5403777\'>️💙 Become a Patron!</a><!--script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script--></div>';
         echo '<div class=\'btn-discord text-center\' style="margin-bottom: 10px"><a href=\'https://discord.gg/' . getenv('DISCORD_INVITE_ID') . '\'>💬 Join us on Discord!</a></div>';
         echo '<div class=\'text-center\' style="margin-bottom: 10px"><a href=\'https://www.youtube.com/channel/UCIGdJGxrzmNYMaAGPsk2sIA\'>🎙️ RAPodcast</a></div>';

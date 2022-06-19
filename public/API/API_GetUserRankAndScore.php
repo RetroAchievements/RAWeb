@@ -4,7 +4,8 @@
  *  API_GetUserRankAndScore
  *    u : username
  *
- *  int        Score           number of points the user has
+ *  int        Score           number of hardcore points the user has
+ *  int        SoftcoreScore   number of softcore points the user has
  *  int?       Rank            user's site rank
  *  string     TotalRanked     total number of ranked users
  */
@@ -20,7 +21,8 @@ $retVal = [];
 
 $retVal['Score'] = 0;
 if (getPlayerPoints($user, $userPoints)) {
-    $retVal['Score'] = $userPoints['RAPoints'] + $userPoints['RASoftcorePoints'];
+    $retVal['Score'] = $userPoints['RAPoints'];
+    $retVal['SoftcoreScore'] = $userPoints['RASoftcorePoints'];
 }
 $retVal['Rank'] = getUserRank($user);
 $retVal['TotalRanked'] = countRankedUsers();

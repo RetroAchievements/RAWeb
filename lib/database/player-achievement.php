@@ -1,8 +1,8 @@
 <?php
 
-use RA\AchievementAwardType;
 use RA\AchievementType;
 use RA\ActivityType;
+use RA\AwardedHardcoreMode;
 
 function playerHasUnlock(?string $user, $achievementId): array
 {
@@ -104,13 +104,15 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     }
 
     if ($alreadyAwarded) {
-        // XXX: do not change the messages here. the client detects them and does not report
-        // them as errors.
+        // =============================================================================
+        // ===== DO NOT CHANGE THESE MESSAGES ==========================================
+        // The client detects the "User already has" and does not report them as errors.
         if ($isHardcore) {
-            $retVal['Error'] = "Player already unlocked this achievement in hardcore mode";
+            $retVal['Error'] = "User already has this achievement unlocked in hardcore mode.";
         } else {
-            $retVal['Error'] = "Player already unlocked this achievement";
+            $retVal['Error'] = "User already has this achievement unlocked.";
         }
+        // =============================================================================
 
         return $retVal;
     }
@@ -129,10 +131,8 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     } else {
         $setPointsString = "SET RASoftcorePoints=RASoftcorePoints+$pointsToGive, Updated=NOW()";
     }
-    // NOTE: TrueRatio has not yet been updated at this point. This will eventually be corrected by recalculatePlayerPoints()
-    $query = "UPDATE UserAccounts
-        " . $setPointsString . "
-        WHERE User='$user'";
+
+    $query = "UPDATE UserAccounts $setPointsString WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         $retVal['Error'] = "Could not add points for this player";
@@ -386,7 +386,7 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AchievementAwardType::Softcore;
+              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore;
 
     $dbResult = s_mysql_query($query);
     $data = mysqli_fetch_assoc($dbResult);
@@ -408,7 +408,7 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $query = "SELECT aw.User, ua.RAPoints, UNIX_TIMESTAMP(aw.Date) AS DateAwarded
               FROM Awarded AS aw
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AchievementAwardType::Softcore . " $extraWhere
+              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . " $extraWhere
               ORDER BY aw.Date DESC
               LIMIT $offset, $count";
 
@@ -433,7 +433,7 @@ function getUniquePlayersByUnlocks($gameID): int
                   FROM Awarded AS aw
                   LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                   LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                  WHERE gd.ID = $gameID AND aw.HardcoreMode = " . AchievementAwardType::Softcore . "
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . "
                   GROUP BY ach.ID
               ) AS Inner1";
 
@@ -454,8 +454,8 @@ function getUnlocksSince(int $id, string $date): array
 
     $query = "
         SELECT
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . AchievementAwardType::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . AchievementAwardType::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
+            COALESCE(SUM(CASE WHEN HardcoreMode = " . AwardedHardcoreMode::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
+            COALESCE(SUM(CASE WHEN HardcoreMode = " . AwardedHardcoreMode::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
         FROM
             Awarded
         WHERE

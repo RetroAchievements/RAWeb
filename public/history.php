@@ -60,7 +60,8 @@ RenderHtmlHead("$userPage's Legacy");
 
     // Declare columns
     dataTotalScore.addColumn('date', 'Date Earned');
-    dataTotalScore.addColumn('number', 'Total Score');
+    dataTotalScore.addColumn('number', 'Hardcore Score');
+    dataTotalScore.addColumn('number', 'Softcore Score');
 
     dataTotalScore.addRows([
         <?php
@@ -76,9 +77,10 @@ RenderHtmlHead("$userPage's Legacy");
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulScore'];
+            $hardcoreValue = $dayInfo['CumulHardcoreScore'];
+            $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
-            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
+            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
         }
         ?>
     ]);
@@ -92,7 +94,7 @@ RenderHtmlHead("$userPage's Legacy");
       legend: { position: 'none' },
       chartArea: { 'width': '86%', 'height': '70%' },
       height: 250,
-      colors: ['#cc9900'],
+      colors: ['#186DEE','#8c8c8c'],
     };
 
     var dataBestDays = new google.visualization.DataTable();
@@ -238,7 +240,7 @@ RenderHtmlHead("$userPage's Legacy");
             echo "($userPageHardcorePoints) ";
         }
         if ($userPageSoftcorePoints > 0) {
-            echo "<span class = 'Softcore'>($userPageSoftcorePoints softcore)</span>";
+            echo "<span class ='softcore'>($userPageSoftcorePoints softcore)</span>";
         }
         echo "</b><br>";
 

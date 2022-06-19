@@ -1,6 +1,6 @@
 <?php
 
-use RA\AchievementAwardType;
+use RA\AwardedHardcoreMode;
 
 function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable): string
 {
@@ -363,11 +363,14 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
  *            4 - All Time
  * @param int $sort Stats to sort by
  *            1 - User
- *            2 - Hardcore Achievements
- *            3 - Hardcore Points
- *            4 - Retro Points
- *            5 - Retro Ratio
- *            6 - Mastered Awards
+ *            2 - Total Achievements (no longer supported)
+ *            3 - Softcore Achievements (no longer supported)
+ *            4 - Hardcore Achievements
+ *            5 - Hardcore Points
+ *            6 - Retro Points
+ *            7 - Retro Ratio
+ *            8 - Completed Awards (no longer supported)
+ *            9 - Mastered Awards
  * @param string $date Date to grab information from
  * @param string|null $user User to get data for
  * @param string $friendsOf User to get friends data for
@@ -432,25 +435,25 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
 
     // Determine the ORDER BY condition
     switch ($sort) {
-        case 2: // Hardcore Achievements
+        case 4: // Hardcore Achievements
             $orderCond = "ORDER BY HardcoreCount " . $sortOrder . ", HardcorePoints DESC, User ASC";
             break;
-        case 3: // Hardcore Points
+        case 5: // Hardcore Points
             $orderCond = "ORDER BY HardcorePoints " . $sortOrder . ", User ASC";
 
             // Must have 500 points to show up on All Time Points Sorting
             $pointRequirement = "AND ua.RAPoints >= " . MIN_POINTS;
             break;
-        case 4: // Retro Points
+        case 6: // Retro Points
             $orderCond = "ORDER BY RetroPoints " . $sortOrder . ", User ASC";
 
             // Must have at least 2500 points to show up on All Time Retro Ratio Sorting
             $pointRequirement = "AND ua.TrueRAPoints >= " . MIN_TRUE_POINTS;
             break;
-        case 5: // Retro Ratio
+        case 7: // Retro Ratio
             $orderCond = "ORDER BY RetroRatio " . $sortOrder . ", User ASC";
             break;
-        case 6: // Mastered Awards
+        case 9: // Mastered Awards
             $orderCond = "ORDER BY MasteredAwards " . $sortOrder . ", User ASC";
             break;
         default: // Hardcore Points by default
@@ -470,7 +473,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     if ($lbType == 2) {
         if ($info == 0) {
             $selectQuery = "SELECT ua.User,
-                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . AchievementAwardType::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS HardcoreCount,
+                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . AwardedHardcoreMode::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS HardcoreCount,
                     COALESCE(ua.RAPoints, 0) AS HardcorePoints,
                     COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
                     COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
@@ -534,7 +537,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                   (
                       (
                           SELECT aw.User AS User,
-                          Count(ach.ID) AS HardcoreCount,
+                          COUNT(ach.ID) AS HardcoreCount,
                           SUM(ach.Points) AS HardcorePoints,
                           SUM(ach.TrueRatio) AS RetroPoints,
                           NULL AS MasteredAwards
@@ -542,7 +545,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                           LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                           LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                           WHERE TRUE $whereDateAchievement $typeCond
-                          AND HardcoreMode = " . AchievementAwardType::Hardcore . "
+                          AND HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
                           $friendCondAchievement
                           $singleUserAchievementCond
                           $untrackedCond

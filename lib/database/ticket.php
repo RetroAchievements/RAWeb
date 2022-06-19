@@ -1,9 +1,9 @@
 <?php
 
-use RA\AchievementAwardType;
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
+use RA\AwardedHardcoreMode;
 use RA\SubscriptionSubjectType;
 use RA\Ticket;
 use RA\TicketFilters;
@@ -744,14 +744,14 @@ function getModeCondition(int $ticketFilters): ?string
         if ($added) {
             $subquery .= " OR ";
         }
-        $subquery .= "Hardcore = " . AchievementAwardType::Hardcore;
+        $subquery .= "Hardcore = " . AwardedHardcoreMode::Hardcore;
         $added = true;
     }
     if ($modeSoftcore) {
         if ($added) {
             $subquery .= " OR ";
         }
-        $subquery .= "Hardcore = " . AchievementAwardType::Softcore;
+        $subquery .= "Hardcore = " . AwardedHardcoreMode::Softcore;
         $subquery .= "";
     }
     $subquery .= ")";

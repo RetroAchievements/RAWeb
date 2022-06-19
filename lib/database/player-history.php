@@ -1,7 +1,7 @@
 <?php
 
-use RA\AchievementAwardType;
 use RA\AchievementType;
+use RA\AwardedHardcoreMode;
 
 function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
 {
@@ -32,7 +32,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
                 FROM Awarded AS aw 
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE User='$user' 
-                AND aw.HArdcoremode = " . AchievementAwardType::Softcore . "
+                AND aw.Hardcoremode = " . AwardedHardcoreMode::Softcore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
                 LIMIT $listOffset, $maxDays";
@@ -115,7 +115,8 @@ function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom
         return $retVal;
     }
 
-    $cumulScore = 0;
+    $cumulHardcoreScore = 0;
+    $cumulSoftcoreScore = 0;
     // if (isset($dateFrom)) {
     //     // Calculate the points value up until this point
     //     $cumulScore = getPointsAtTime( $user, $dateFrom );    // TBD!
@@ -134,7 +135,8 @@ function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom
     }
 
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, 
-                SUM(IF(aw.HardcoreMode LIKE '" . AchievementAwardType::Softcore . "', ach.Points, 0)) AS Points 
+                SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
+                SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . ", ach.Points, 0)) AS SoftcorePoints 
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -151,10 +153,12 @@ function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom
     if ($dbResult !== false) {
         $daysCount = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $cumulScore += $db_entry['Points'];
+            $cumulHardcoreScore += $db_entry['HardcorePoints'];
+            $cumulSoftcoreScore += intval($db_entry['SoftcorePoints']) - intval($db_entry['HardcorePoints']);
 
             $retVal[$daysCount] = $db_entry;
-            $retVal[$daysCount]['CumulScore'] = $cumulScore;
+            $retVal[$daysCount]['CumulHardcoreScore'] = $cumulHardcoreScore;
+            $retVal[$daysCount]['CumulSoftcoreScore'] = $cumulSoftcoreScore;
 
             $daysCount++;
         }

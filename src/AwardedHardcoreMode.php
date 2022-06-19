@@ -2,7 +2,7 @@
 
 namespace RA;
 
-abstract class AchievementAwardType
+abstract class AwardedHardcoreMode
 {
     public const Softcore = 0;
 

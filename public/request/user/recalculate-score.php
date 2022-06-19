@@ -14,9 +14,9 @@ if (!authenticateFromCookie($actingUser, $permissions, $actingUserDetails, Permi
 
 if (recalculatePlayerPoints($targetUser)) {
     if ($targetUser !== $actingUser && $permissions >= Permissions::Admin) {
-        header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=recalc_ok");
+        header("Location: " . getenv('APP_URL') . "/user/$targetUser?e=ok");
     } elseif ($targetUser == $actingUser) {
-        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=recalc_ok");
+        header("Location: " . getenv('APP_URL') . "/controlpanel.php?e=ok");
     }
     exit;
 }

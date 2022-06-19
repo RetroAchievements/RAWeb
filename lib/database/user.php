@@ -265,7 +265,7 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     }
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
     $libraryOut['ContribYield'] = $userInfo['ContribYield'];
-    $libraryOut['TotalHardcorePoints'] = $userInfo['RAPoints'];
+    $libraryOut['TotalPoints'] = $userInfo['RAPoints'];
     $libraryOut['TotalSoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $libraryOut['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $libraryOut['Permissions'] = $userInfo['Permissions'];

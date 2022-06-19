@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-use RA\AchievementAwardType;
+use RA\AwardedHardcoreMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -99,15 +99,9 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         // Merge if poss and count
         $achCount = count($achEarnedOnDay);
+        $earnedCount = 0;
         $pointsCount = 0;
         // foreach( $achEarnedOnDay as $achEarned )
-
-        // Tally all
-        for ($i = 0; $i < $achCount; $i++) {
-            $achID = $achEarnedOnDay[$i]['AchievementID'];
-            $achPoints = $achEarnedOnDay[$i]['Points'];
-            $pointsCount += $achPoints;
-        }
 
         $achEarnedLib = [];
 
@@ -116,7 +110,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             $achID = $achEarnedOnDay[$i]['AchievementID'];
             $achEarnedLib[$achID] = $achEarnedOnDay[$i];
             $achPoints = $achEarnedLib[$achID]['Points'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == AchievementAwardType::Hardcore) {
+            if ($achEarnedOnDay[$i]['HardcoreMode'] == AwardedHardcoreMode::Hardcore) {
                 $achEarnedLib[$achID]['PointsNote'] = "$achPoints";
             } else { // else Softcore
                 $achEarnedLib[$achID]['PointsNote'] = "<span class='softcore'>$achPoints</span>";
@@ -142,7 +136,8 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
             sanitize_outputs($achTitle, $achDesc);
 
-            // $pointsCount += $achPoints;
+            $pointsCount += $achPoints;
+            $earnedCount++;
             // $dateUnix = strtotime( "$nextDay-$nextMonth-$nextYear" );
             // $dateStr = getNiceDate( $dateUnix, TRUE );
 
@@ -179,7 +174,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "<h3>Summary</h3>";
         echo "<div class='historyexaminesummary'>";
-        echo "Total earned on $dateStr: <strong>$pointsCount</strong> points, <strong>$achCount</strong> achievements.<br><br>";
+        echo "Total earned on $dateStr: <strong>$pointsCount</strong> points, <strong>$earnedCount</strong> achievements.<br><br>";
         echo "<a href='/history.php?u=$userPage'>&laquo; Back to $userPage's Legacy</a><br><br>";
         echo "</div>";
         ?>

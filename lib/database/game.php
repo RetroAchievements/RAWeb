@@ -1,8 +1,8 @@
 <?php
 
-use RA\AchievementAwardType;
 use RA\AchievementType;
 use RA\ArticleType;
+use RA\AwardedHardcoreMode;
 use RA\GameAction;
 use RA\Permissions;
 use RA\TicketState;
@@ -178,7 +178,7 @@ function getGameMetadataByFlags(
             while ($data = mysqli_fetch_assoc($dbResult)) {
                 $nextID = $data['ID'];
                 settype($nextID, 'integer');
-                if (isset($data['HardcoreMode']) && $data['HardcoreMode'] == AchievementAwardType::Hardcore) {
+                if (isset($data['HardcoreMode']) && $data['HardcoreMode'] == AwardedHardcoreMode::Hardcore) {
                     $achievementDataOut[$nextID]['DateEarnedHardcore'] = $data['Date'];
                 } else {
                     $achievementDataOut[$nextID]['DateEarned'] = $data['Date'];
@@ -198,7 +198,7 @@ function getGameMetadataByFlags(
             while ($data = mysqli_fetch_assoc($dbResult)) {
                 $nextID = $data['ID'];
                 settype($nextID, 'integer');
-                if ($data['HardcoreMode'] == AchievementAwardType::Hardcore) {
+                if ($data['HardcoreMode'] == AwardedHardcoreMode::Hardcore) {
                     $achievementDataOut[$nextID]['DateEarnedFriendHardcore'] = $data['Date'];
                 } else {
                     $achievementDataOut[$nextID]['DateEarnedFriend'] = $data['Date'];
@@ -220,7 +220,7 @@ function getGameMetadataByFlags(
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            if ($data['HardcoreMode'] == AchievementAwardType::Hardcore) {
+            if ($data['HardcoreMode'] == AwardedHardcoreMode::Hardcore) {
                 $numDistinctPlayersHardcore = $data['Users'];
             } else {
                 $numDistinctPlayersCasual = $data['Users'];

@@ -1,8 +1,8 @@
 <?php
 
-use RA\AchievementAwardType;
 use RA\AchievementType;
 use RA\ActivityType;
+use RA\AwardedHardcoreMode;
 use RA\Permissions;
 
 function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
@@ -155,7 +155,7 @@ function GetAllUserProgress($user, $consoleID): array
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = " . AchievementAwardType::Softcore . "
+                WHERE aw.User = '$user' AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . "
                 GROUP BY gd.ID ) MyAwards ON MyAwards.GameID = gd.ID
 
             LEFT JOIN (
@@ -163,7 +163,7 @@ function GetAllUserProgress($user, $consoleID): array
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = " . AchievementAwardType::Hardcore . "
+                WHERE aw.User = '$user' AND aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
                 GROUP BY gd.ID ) MyAwardsHC ON MyAwardsHC.GameID = gd.ID
 
             WHERE NumAch > 0 && gd.ConsoleID = $consoleID
@@ -198,8 +198,12 @@ function getUsersGameList($user, &$dataOut): int
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        LEFT JOIN ( SELECT ach1.GameID AS GameIDInner, ach1.ID, COUNT(ach1.ID) AS TotalAch FROM Achievements AS ach1 GROUP BY GameID ) AS gt ON gt.GameIDInner = gd.ID
-        WHERE aw.User = '$user' AND aw.HardcoreMode = " . AchievementAwardType::Softcore . "
+        LEFT JOIN ( SELECT ach1.GameID AS GameIDInner, ach1.ID, COUNT(ach1.ID) AS TotalAch 
+                    FROM Achievements AS ach1 
+                    GROUP BY GameID ) AS gt ON gt.GameIDInner = gd.ID
+        WHERE aw.User = '$user' 
+        AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . " 
+        AND ach.Flags = " . AchievementType::OfficialCore . "
         GROUP BY gd.ID";
 
     $dbResult = s_mysql_query($query);
@@ -282,7 +286,7 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
 
     $hardcoreCond = "";
     if ($hardcoreOnly) {
-        $hardcoreCond = " AND aw.HardcoreMode =" . AchievementAwardType::Hardcore;
+        $hardcoreCond = " AND aw.HardcoreMode =" . AwardedHardcoreMode::Hardcore;
     }
 
     $achievementStateCond = "";
@@ -345,7 +349,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
     $masters = [];
     $mastery_score = 0;
 
-    $query = "SELECT SUM(Points) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = 3";
+    $query = "SELECT SUM(Points) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = " . AchievementType::OfficialCore;
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
@@ -362,7 +366,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
                 WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
                   AND ach.Flags = " . AchievementType::OfficialCore . " 
                   AND gd.ID = $gameID
-                  AND aw.HardcoreMode = " . AchievementAwardType::Hardcore . "
+                  AND aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
                 GROUP BY aw.User
                 ORDER BY TotalScore DESC, LastAward";
 

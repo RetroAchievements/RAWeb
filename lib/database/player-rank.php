@@ -1,6 +1,7 @@
 <?php
 
 use RA\AchievementType;
+use RA\AwardedHardcoreMode;
 
 function SetUserUntrackedStatus($usernameIn, $isUntracked): void
 {
@@ -25,9 +26,10 @@ function getPlayerPoints($user, &$dataOut): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $dataOut = mysqli_fetch_assoc($dbResult);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function recalculatePlayerPoints($user): bool
@@ -37,9 +39,9 @@ function recalculatePlayerPoints($user): bool
     $query = "UPDATE UserAccounts ua
                 LEFT JOIN (
                     SELECT aw.User AS UserAwarded, 
-                    SUM(IF(aw.HardcoreMode LIKE '1', ach.Points, 0)) AS HardcorePoints,
-                    SUM(IF(aw.HardcoreMode LIKE '1', ach.TrueRatio, 0)) AS TruePoints,
-                    SUM(IF(aw.HardcoreMode LIKE '0', ach.Points, 0)) AS TotalPoints
+                    SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
+                    SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . ", ach.TrueRatio, 0)) AS TruePoints,
+                    SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . ", ach.Points, 0)) AS TotalPoints
                     FROM Awarded AS aw
                     LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                     WHERE aw.User = '$user' AND ach.Flags = " . AchievementType::OfficialCore . "

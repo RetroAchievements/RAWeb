@@ -1,1 +1,1 @@
-ALTER TABLE UserAccounts ADD COLUMN RASoftcorePoints INT DEFAULT 0 COMMENT 'Softcore Gameerscore :P' AFTER RAPoints;
+ALTER TABLE UserAccounts ADD COLUMN RASoftcorePoints INT DEFAULT 0 COMMENT 'Softcore Gamerscore' AFTER RAPoints;
