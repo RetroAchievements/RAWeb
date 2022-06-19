@@ -26,6 +26,8 @@ function getPlayerPoints($user, &$dataOut): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $dataOut = mysqli_fetch_assoc($dbResult);
+        settype($dataOut['RAPoints'], 'integer');
+        settype($dataOut['RASoftcorePoints'], 'integer');
         return true;
     }
 

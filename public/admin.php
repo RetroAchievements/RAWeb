@@ -90,7 +90,7 @@ switch ($action) {
 
                 $hardcorePoints = 0;
                 $softcorePoints = 0;
-                if (getPlayerPoints($awardAchievementUser, $userPoints)) {
+                if (getPlayerPoints($validUser, $userPoints)) {
                     $hardcorePoints = $userPoints['RAPoints'];
                     $softcorePoints = $userPoints['RASoftcorePoints'];
                 }
