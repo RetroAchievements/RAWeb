@@ -17,8 +17,10 @@
  *    string     ImageIcon                site-relative path to the game's icon image
  *    datetime   LastPlayed               when the user last played the game
  *    string     MyVote                   user's rating of the game (1-5)
- *    int        NumAchieved              number of achievements earned by the user
- *    int        ScoreAchieved            number of points earned by the user
+ *    int        NumAchieved              number of achievements earned by the user in softcore
+ *    int        ScoreAchieved            number of points earned by the user in softcore
+ *    int        NumAchievedHardcore      number of achievements earned by the user in hardcore
+ *    int        ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -41,13 +43,11 @@ if (!empty($recentlyPlayedData)) {
 
     getUserProgress($user, $gameIDsCSV, $awardedData);
 
-    $iter = 0;
     foreach ($awardedData as $nextAwardID => $nextAwardData) {
-        $recentlyPlayedData[$iter]['NumPossibleAchievements'] = $nextAwardData['NumPossibleAchievements'];
-        $recentlyPlayedData[$iter]['PossibleScore'] = $nextAwardData['PossibleScore'];
-        $recentlyPlayedData[$iter]['NumAchieved'] = $nextAwardData['NumAchieved'];
-        $recentlyPlayedData[$iter]['ScoreAchieved'] = $nextAwardData['ScoreAchieved'];
-        $iter++; // Assumes a LOT about the order of this array!
+        $entry = array_search($nextAwardID, array_column($recentlyPlayedData, 'GameID'));
+        if ($entry !== false) {
+            $recentlyPlayedData[$entry] = array_merge($recentlyPlayedData[$entry], $nextAwardData);
+        }
     }
 
     $libraryOut['Awarded'] = $awardedData;
