@@ -50,10 +50,23 @@ function UpdateHashDetails(user, hash) {
     $warning.html('Status: updating...');
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
-    var posting = $.post('/request/game/modify.php', { g: <?= $gameID ?>, f: <?= GameAction::UpdateHash ?>, v: hash, n: name, l: labels });
-    posting.done(function (data) {
-        if (data !== 'OK') {
-            $warning.html('Status: Errors...' + data);
+    $.ajax({
+        type: "POST",
+        url: '/request/game/modify.php',
+        dataType: "json",
+        data: {
+            'g': <?= $gameID ?>,
+            'f': <?= GameAction::UpdateHash ?>,
+            'v': hash,
+            'n': name,
+            'l': labels
+        },
+        error: function (xhr, status, error) {
+            alert('Error: ' + (error || 'unknown error'));
+        }
+    }).done(function (data) {
+        if (!data.success) {
+            $warning.html('Error: ' + (data.error || 'unknown error'));
             return;
         }
 
@@ -64,7 +77,7 @@ function UpdateHashDetails(user, hash) {
         $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
 
         $warning.html('Status: OK!');
-    })
+    });
 }
 
 function UnlinkHash(user, gameID, hash, elem) {
@@ -73,10 +86,21 @@ function UnlinkHash(user, gameID, hash, elem) {
     }
     var $warning = $('#warning');
     $warning.html('Status: updating...');
-    var posting = $.post('/request/game/modify.php', { g: gameID, f: <?= GameAction::UnlinkHash ?>, v: hash });
-    posting.done(function (data) {
-        if (data !== 'OK') {
-            $warning.html('Status: Errors...' + data);
+    $.ajax({
+        type: "POST",
+        url: '/request/game/modify.php',
+        dataType: "json",
+        data: {
+            'g': <?= $gameID ?>,
+            'f': <?= GameAction::UnlinkHash ?>,
+            'v': hash
+        },
+        error: function (xhr, status, error) {
+            alert('Error: ' + (error || 'unknown error'));
+        }
+    }).done(function (data) {
+        if (!data.success) {
+            $warning.html('Error: ' + (data.error || 'unknown error'));
             return;
         }
 
@@ -94,7 +118,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
 
         $warning.html('Status: OK!');
-    })
+    });
 }
 </script>
 <div id="mainpage">
