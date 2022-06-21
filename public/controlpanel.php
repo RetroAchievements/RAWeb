@@ -185,7 +185,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
     }
 
     // 7 is set if unchecked
-    var checkbox = document.getElementById('UserPref7');
+    var checkbox = document.getElementById('UserPreference7');
     if (checkbox != null && !checkbox.checked)
       newUserPrefs += (1 << 7);
 
