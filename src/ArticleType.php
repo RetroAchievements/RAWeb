@@ -24,6 +24,8 @@ abstract class ArticleType
 
     public const GameHash = 10;
 
+    public const GameModification = 12;
+
     private const VALID = [
         self::Game,
         self::Achievement,
@@ -35,6 +37,7 @@ abstract class ArticleType
         self::Forum,
         self::UserModeration,
         self::GameHash,
+        self::GameModification,
     ];
 
     public static function isValid($value): bool
