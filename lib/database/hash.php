@@ -1,5 +1,7 @@
 <?php
 
+use RA\ArticleType;
+
 function getMD5List($consoleID): array
 {
     sanitize_sql_inputs($consoleID);
@@ -134,7 +136,22 @@ function getTotalHashes(): int
     return (int) mysqli_fetch_assoc($dbResult)['TotalHashes'];
 }
 
-function updateHashDetails($gameID, $hash, $name, $labels): bool
+function removeHash(string $user, int $gameID, string $hash): bool
+{
+    sanitize_sql_inputs($gameID, $hash);
+
+    $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$hash'";
+    $dbResult = s_mysql_query($query);
+
+    $result = $dbResult !== false;
+
+    // Log hash unlink
+    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " unlinked by " . $user);
+
+    return $result;
+}
+
+function updateHashDetails(string $user, int $gameID, string $hash, ?string $name, ?string $labels): bool
 {
     sanitize_sql_inputs($gameID, $hash, $name, $labels);
 
@@ -162,6 +179,8 @@ function updateHashDetails($gameID, $hash, $name, $labels): bool
     if (!$dbResult) {
         log_sql_fail();
     }
+
+    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
 
     return $dbResult != null;
 }

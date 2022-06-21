@@ -5,12 +5,12 @@ use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
 function RenderCommentsComponent(
-    $user,
-    $numComments,
-    $commentData,
-    $articleID,
-    $articleTypeID,
-    $permissions
+    ?string $user,
+    int $numComments,
+    array $commentData,
+    int $articleID,
+    int $articleTypeID,
+    int $permissions
 ): void {
     $userID = getUserIDFromUser($user);
 
