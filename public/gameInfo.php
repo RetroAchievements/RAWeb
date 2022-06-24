@@ -678,7 +678,7 @@ RenderHtmlStart(true);
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameInGame . "'>";
-                        echo "<label>Ingame screenshot<br>";
+                        echo "<label>In-game screenshot<br>";
                         echo "<input type='file' name='file' id='" . ImageType::GameInGame . "'>";
                         echo "</label>";
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
@@ -751,7 +751,7 @@ RenderHtmlStart(true);
                     }
 
                     echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
-                    echo "<div>Add related game (game ID):</div>";
+                    echo "<div>Add related games (CSV of game IDs):</div>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='text' name='n' class='searchboxgame' size='20'>";
                     echo "<input type='submit' style='float: right' value='Add'>";
@@ -769,6 +769,9 @@ RenderHtmlStart(true);
                         echo "<textarea style='height:320px;' class='code fullwidth' readonly>$richPresenceData</textarea><br>";
                     }
                 }
+
+                $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
+                RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
 
                 echo "</div>"; // devboxcontent
                 echo "</div>"; // devbox
@@ -1139,7 +1142,7 @@ RenderHtmlStart(true);
                     RenderRecentGamePlayers($recentPlayerData);
                 }
 
-                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions >= Permissions::Admin);
+                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
             }
             ?>
         </div>

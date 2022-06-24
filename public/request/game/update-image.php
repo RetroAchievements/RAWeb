@@ -1,5 +1,6 @@
 <?php
 
+use RA\ArticleType;
 use RA\ImageType;
 use RA\Permissions;
 
@@ -50,5 +51,15 @@ if (!$dbResult) {
     redirect("game/$gameID?e=error");
     exit;
 }
+
+$label = match ($imageType) {
+    ImageType::GameIcon => 'game icon',
+    ImageType::GameTitle => 'title screenshot',
+    ImageType::GameInGame => 'in-game screenshot',
+    ImageType::GameBoxArt => 'game box art',
+    default => '?', // should never hit this because of the match above
+};
+
+addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the $label");
 
 redirect("game/$gameID?e=uploadok");
