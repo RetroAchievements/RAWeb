@@ -8,7 +8,7 @@
  *
  *  string     ID                      unique identifier of the user
  *  string     TotalPoints             number of hardcore points the user has
- *  string     TotalSoftcorePoints     number of hardcore points the user has
+ *  string     TotalSoftcorePoints     number of softcore points the user has
  *  string     TotalTruePoints         number of "white" points the user has
  *  string     Permissions             unique identifier of user's account type
  *  datetime   MemberSince             when the user joined the site
