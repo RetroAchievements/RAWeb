@@ -1,7 +1,6 @@
 <?php
 
 use RA\ArticleType;
-use RA\GameAction;
 use RA\Permissions;
 use RA\TicketState;
 
@@ -484,8 +483,32 @@ function getGameIDFromTitle($gameTitleIn, $consoleID): int
     }
 }
 
-function modifyGameData($gameID, $developer, $publisher, $genre, $released): bool
+function modifyGameData(string $user, int $gameID, ?string $developer,
+    ?string $publisher, ?string $genre, ?string $released): bool
 {
+    $gameData = getGameData($gameID);
+    if (empty($gameData)) {
+        return false;
+    }
+
+    $modifications = [];
+    if ($gameData['Developer'] != $developer) {
+        $modifications[] = 'developer';
+    }
+    if ($gameData['Publisher'] != $publisher) {
+        $modifications[] = 'publisher';
+    }
+    if ($gameData['Genre'] != $genre) {
+        $modifications[] = 'genre';
+    }
+    if ($gameData['Released'] != $released) {
+        $modifications[] = 'first released';
+    }
+
+    if (count($modifications) == 0) {
+        return true;
+    }
+
     sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released);
 
     $query = "UPDATE GameData AS gd
@@ -499,104 +522,118 @@ function modifyGameData($gameID, $developer, $publisher, $genre, $released): boo
         log_sql_fail();
     }
 
+    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the " .
+        implode(', ', $modifications) . ((count($modifications) == 1) ? " field" : " fields"));
+
     return $dbResult != null;
 }
 
-function modifyGame($author, $gameID, $field, $value): bool
+function modifyGameTitle(string $user, int $gameID, string $value): bool
 {
-    sanitize_sql_inputs($gameID, $field, $value);
-
-    $result = false;
-
-    settype($field, 'integer');
-    switch ($field) {
-        case GameAction::ModifyTitle:
-            if (!isset($value) || mb_strlen($value) < 2) {
-                return false;
-            }
-
-            $newTitle = $value;
-
-            $query = "UPDATE GameData SET Title='$newTitle' WHERE ID=$gameID";
-
-            global $db;
-            $dbResult = mysqli_query($db, $query);
-
-            $result = $dbResult !== false;
-            break;
-
-        // UPDATE: do not allow destructive actions until proper failovers are in place
-        // case GameAction::UnlinkAllHashes:
-        //     $dbResult = s_mysql_query("DELETE FROM GameHashLibrary WHERE GameID=$gameID");
-        //     $result = $dbResult !== false;
-        //     break;
-
-        case GameAction::UnlinkHash:
-            $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$value'";
-            $dbResult = s_mysql_query($query);
-
-            $result = $dbResult !== false;
-
-            // Log hash unlink
-            addArticleComment("Server", ArticleType::GameHash, $gameID, $value . " unlinked by " . $author);
-            break;
+    if (mb_strlen($value) < 2) {
+        return false;
     }
 
-    return $result;
+    sanitize_sql_inputs($gameID, $value);
+
+    $query = "UPDATE GameData SET Title='$value' WHERE ID=$gameID";
+
+    global $db;
+    if (!mysqli_query($db, $query)) {
+        return false;
+    }
+
+    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the game name");
+    return true;
 }
 
-function modifyGameAlternatives($gameID, $toAdd = null, $toRemove = null): void
+function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAdd = null, int|string|array|null $toRemove = null): void
 {
-    if (isset($toAdd)) {
-        // Replace all non-numberic characters with comma so the string has a common delimiter.
-        $toAdd = preg_replace("/[^0-9]+/", ",", $toAdd);
-        $tok = strtok($toAdd, ",");
-        $valuesArray = [];
-        while ($tok !== false && $tok > 0) {
-            settype($tok, 'integer');
-            $valuesArray[] = "({$gameID}, {$tok}), ({$tok}, {$gameID})";
-            $tok = strtok(",");
+    $arrayFromParameter = function ($parameter) {
+        $ids = [];
+        if (is_int($parameter)) {
+            $ids[] = $parameter;
+        } elseif (is_string($parameter)) {
+            // Replace all non-numeric characters with comma so the string has a common delimiter.
+            $toAdd = preg_replace("/[^0-9]+/", ",", $parameter);
+            $tok = strtok($toAdd, ",");
+            while ($tok !== false && $tok > 0) {
+                settype($tok, 'integer');
+                $ids[] = $tok;
+                $tok = strtok(",");
+            }
+        } elseif (is_array($parameter)) {
+            foreach ($parameter as $id) {
+                $ids[] = (int) $id;
+            }
         }
 
-        $values = implode(", ", $valuesArray);
-        if (!empty($values)) {
+        return $ids;
+    };
+
+    $createAuditLogEntries = function (string $action, array $ids) use ($user, $gameID) {
+        $message = (count($ids) == 1) ? "$user $action related game id " . $ids[0] :
+            "$user $action related game ids: " . implode(', ', $ids);
+
+        addArticleComment('Server', ArticleType::GameModification, $gameID, $message);
+
+        $message = "$user $action related game id $gameID";
+        foreach ($ids as $id) {
+            addArticleComment('Server', ArticleType::GameModification, $id, $message);
+        }
+    };
+
+    if (!empty($toAdd)) {
+        $ids = $arrayFromParameter($toAdd);
+        if (!empty($ids)) {
+            $valuesArray = [];
+            foreach ($ids as $id) {
+                $valuesArray[] = "({$gameID}, {$id}), ({$id}, {$gameID})";
+            }
+            $values = implode(", ", $valuesArray);
+
             $query = "INSERT INTO GameAlternatives (gameID, gameIDAlt) VALUES $values ON DUPLICATE KEY UPDATE Updated = CURRENT_TIMESTAMP";
             s_mysql_query($query);
+
+            $createAuditLogEntries('added', $ids);
         }
     }
 
-    if (isset($toRemove) && $toRemove > 0) {
-        settype($toRemove, 'integer');
-        $query = "DELETE FROM GameAlternatives
-                  WHERE ( gameID = $gameID AND gameIDAlt = $toRemove ) || ( gameID = $toRemove AND gameIDAlt = $gameID )";
-        s_mysql_query($query);
+    if (!empty($toRemove)) {
+        $ids = $arrayFromParameter($toRemove);
+        if (!empty($ids)) {
+            $values = implode(',', $ids);
+            $query = "DELETE FROM GameAlternatives
+                      WHERE ( gameID = $gameID AND gameIDAlt IN ($values) ) || ( gameIDAlt = $gameID AND gameID IN ($values) )";
+            s_mysql_query($query);
+
+            $createAuditLogEntries('removed', $ids);
+        }
     }
 }
 
-function modifyGameForumTopic($gameID, $newForumTopic): bool
+function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bool
 {
     sanitize_sql_inputs($gameID, $newForumTopic);
-    settype($gameID, 'integer');
-    settype($newForumTopic, 'integer');
 
     if ($gameID == 0 || $newForumTopic == 0) {
         return false;
     }
 
-    if (getTopicDetails($newForumTopic, $topicData)) {
-        global $db;
-        $query = "
-            UPDATE GameData AS gd
-            SET gd.ForumTopicID = '$newForumTopic'
-            WHERE gd.ID = $gameID";
-
-        if (mysqli_query($db, $query)) {
-            return true;
-        } else {
-            return false;
-        }
+    if (!getTopicDetails($newForumTopic, $topicData)) {
+        return false;
     }
-    return false;
+
+    global $db;
+    $query = "UPDATE GameData SET ForumTopicID = $newForumTopic WHERE ID = $gameID";
+    echo $query;
+
+    if (!mysqli_query($db, $query)) {
+        return false;
+    }
+
+    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the forum topic");
+    return true;
 }
 
 function getGameListSearch($offset, $count, $method, $consoleID = null): array
@@ -771,21 +808,24 @@ function sanitizeTitle(string $titleIn): string
     return str_replace("\\", "-", $title);
 }
 
-function requestModifyRichPresence($gameID, $dataIn): bool
+function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
 {
-    sanitize_sql_inputs($gameID, $dataIn);
-    settype($gameID, 'integer');
+    getRichPresencePatch($gameID, $existingData);
+    if ($existingData == $dataIn) {
+        return true;
+    }
 
+    sanitize_sql_inputs($gameID, $dataIn);
     $query = "UPDATE GameData SET RichPresencePatch='$dataIn' WHERE ID=$gameID";
 
     global $db;
     $dbResult = mysqli_query($db, $query);
-
-    if ($dbResult) {
-        return true;
-    } else {
+    if (!$dbResult) {
         return false;
     }
+
+    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the rich presence script");
+    return true;
 }
 
 function getRichPresencePatch($gameID, &$dataOut): bool

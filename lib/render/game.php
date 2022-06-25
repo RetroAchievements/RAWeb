@@ -165,18 +165,29 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
             foreach ($gameHubs as $hub) {
                 $title = $hub['Title'];
                 if (str_starts_with($title, $hubPrefix)) {
-                    $value = substr($title, strlen($hubPrefix), -1);
-                    $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+                    if (str_starts_with($hubCategory, "Hack")) {
+                        // for Hacks, we do want to display the hub category, but it
+                        // should be normalized to "Hack - XXX".
 
-                    $key = array_search($value, $gameDataValues);
-                    if ($key === false) {
-                        // attempt to match "Hack - XXX" to "Hacks - XXX" hub
-                        $value = substr(str_replace($hubCategory, rtrim($hubCategory, "s"), $title), 1, -1);
+                        // the hub name will always be "[Hacks - XXX]"
+                        // strip the brackets and attempt to match the hub name explicitly
+                        $value = substr($title, 1, -1);
                         $key = array_search($value, $gameDataValues);
-                        if ($key !== false) {
-                            $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
+
+                        // normalize to "Hack - XXX";
+                        $value = str_replace("Hacks - ", "Hack - ", $value);
+
+                        if ($key === false) {
+                            // non-normalized value did not match, try normalized value
+                            $key = array_search($value, $gameDataValues);
                         }
+                    } else {
+                        // strip the category and brackets and look for an exact match
+                        $value = substr($title, strlen($hubPrefix), -1);
+                        $key = array_search($value, $gameDataValues);
                     }
+
+                    $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
 
                     if ($key !== false) {
                         $gameDataValues[$key] = $link;
