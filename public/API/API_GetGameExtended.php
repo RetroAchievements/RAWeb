@@ -38,6 +38,13 @@
  *  string     Released                   release date information for the game
  *  bool       IsFinal
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
+ *  array      Claims
+ *   object    [value]
+ *    string    User                      user holding the claim
+ *    string    SetType                   set type claimed: 0 - new set, 1 - revision
+ *    string    ClaimType                 claim type: 0 - primary, 1 - collaboration
+ *    string    Created                   date the claim was made
+ *    string    Expiration                date the claim will expire
  */
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -51,6 +58,7 @@ getGameMetadata($gameID, null, $achData, $gameData);
 foreach ($achData as &$achievement) {
     $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
 }
+$gameData['Claims'] = getClaimData($gameID, false);
 $gameData['Achievements'] = $achData;
 $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 

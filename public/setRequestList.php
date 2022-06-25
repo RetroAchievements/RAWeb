@@ -103,6 +103,7 @@ RenderHeader($userDetails);
             // Create table headers
             echo "</br><div class='table-wrapper'><table><tbody>";
             echo "<th>Game</th>";
+            echo "<th>Claimed By</th>";
             echo "<th>Requests</th>";
 
             // Loop through each set request and display its information
@@ -111,6 +112,13 @@ RenderHeader($userDetails);
 
                 echo "<td>";
                 echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                echo "</td><td>";
+                $claims = explode(',', $request['Claims']);
+                foreach ($claims as $devClaim) {
+                    echo GetUserAndTooltipDiv($devClaim, true);
+                    echo GetUserAndTooltipDiv($devClaim, false);
+                    echo "</br>";
+                }
                 echo "</td>";
                 echo "<td><a href='/setRequestors.php?g=" . $request['GameID'] . "'>" . $request['Requests'] . "</a></td>";
             }
@@ -155,6 +163,7 @@ RenderHeader($userDetails);
             // Create table headers
             echo "<div class='table-wrapper'><table><tbody>";
             echo "<th>Game</th>";
+            echo "<th>Claimed By</th>";
 
             // Loop through each set request and display them if they do not have any achievements
             foreach ($setRequestList as $request) {
@@ -164,6 +173,15 @@ RenderHeader($userDetails);
 
                         echo "<td>";
                         echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                        echo "</td>";
+
+                        echo "<td>";
+                        $claims = explode(',', $request['Claims']);
+                        foreach ($claims as $devClaim) {
+                            echo GetUserAndTooltipDiv($devClaim, true);
+                            echo GetUserAndTooltipDiv($devClaim, false);
+                            echo "</br>";
+                        }
                         echo "</td>";
                     }
                 } else {
@@ -180,6 +198,15 @@ RenderHeader($userDetails);
                         echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']) . " - Set Exists";
                         echo "</td>";
                     }
+
+                    echo "<td>";
+                    $claims = explode(',', $request['Claims']);
+                    foreach ($claims as $devClaim) {
+                        echo GetUserAndTooltipDiv($devClaim, true);
+                        echo GetUserAndTooltipDiv($devClaim, false);
+                        echo "</br>";
+                    }
+                    echo "</td>";
                 }
             }
             echo "</tbody></table></div>";

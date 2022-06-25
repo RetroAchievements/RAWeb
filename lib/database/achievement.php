@@ -226,8 +226,14 @@ function UploadNewAchievement(
     settype($type, 'integer');
     settype($points, 'integer');
 
+    $gameData = getGameData($gameID);
+    $consoleID = $gameData['ConsoleID'];
+    $consoleName = $gameData['ConsoleName'];
+    $isEventGame = $consoleName == 'Events';
+    $userPermissions = getUserPermissions($author);
+
     // Prevent <= registered users from uploading or modifying achievements
-    if (getUserPermissions($author) < Permissions::JuniorDeveloper) {
+    if ($userPermissions < Permissions::JuniorDeveloper) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
         return false;
     }
@@ -237,8 +243,8 @@ function UploadNewAchievement(
         return false;
     }
 
-    if ($type === AchievementType::OfficialCore && !isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
-        $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
+    if ($type === AchievementType::OfficialCore && !isValidConsoleId($consoleID)) {
+        $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
         return false;
     }
 
@@ -248,7 +254,13 @@ function UploadNewAchievement(
     sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor);
 
     // Assume authorised!
-    if (!isset($idInOut) || $idInOut == 0) {
+    if (!isset($idInOut) || $idInOut == 0) { // New achievement added
+        // Prevent users from uploading achievements for games they do not have an active claim on unless it's an event game
+        if (!(hasSetClaimed($author, $gameID, false) || $isEventGame)) {
+            $errorOut = "You must have an active claim on this game to perform this action.";
+            return false;
+        }
+
         $query = "
             INSERT INTO Achievements (
                 ID, GameID, Title, Description,
@@ -289,7 +301,7 @@ function UploadNewAchievement(
             // failed
             return false;
         }
-    } else {
+    } else { // Achievement being updated
         $query = "SELECT Flags, MemAddr, Points, Title, Description, BadgeName, Author FROM Achievements WHERE ID='$idInOut'";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
@@ -301,7 +313,6 @@ function UploadNewAchievement(
             $changingWording = ($data['Title'] != $rawTitle || $data['Description'] != $rawDesc);
             $changingLogic = ($data['MemAddr'] != $mem);
 
-            $userPermissions = getUserPermissions($author);
             if ($type === AchievementType::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
                 // changing ach set detected; user is $author, permissions is $userPermissions, target set is $type
                 if ($userPermissions < Permissions::Developer) {

@@ -198,6 +198,21 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
             echo " $separator <a href='/ticketmanager.php?p=$user&t=$filter'>$prefix$requestTickets</a>";
         }
 
+        // Display claim expiring message if necessary
+        if ($permissions >= Permissions::JuniorDeveloper) {
+            $expiringClaims = getExpiringClaim($user);
+            if ($expiringClaims["Expired"] > 0) {
+                echo "<br clear='left'/>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
+                echo "<font color='red'>Claim Expired</font>";
+                echo "</a>";
+            } elseif ($expiringClaims["Expiring"] > 0) {
+                echo "<br clear='left'/>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
+                echo "<font color='red'>Claim Expiring Soon</font>";
+                echo "</a>";
+            }
+        }
         echo "</p>";
     }
 
@@ -306,6 +321,7 @@ function RenderToolbar($user, $permissions = 0): void
     // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
     echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
+    echo "<li><a href='/claimlist.php'>Claim List</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
@@ -322,6 +338,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/user/$user'>Profile</a></li>";
         echo "<li><a href='/gameList.php?d=$user'>My Sets</a></li>";
         echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
+        echo "<li><a href='/claimlist.php?u=$user'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
         echo "<li><a href='/friends.php'>Friends</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
@@ -351,6 +368,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
+        echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         // Admin
