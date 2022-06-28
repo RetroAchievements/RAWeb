@@ -185,7 +185,7 @@ RenderHeader($userDetails);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimStatusDescending), ClaimSorting::ClaimStatusDescending, ClaimSorting::ClaimStatusAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::SpecialDescending), ClaimSorting::SpecialDescending, ClaimSorting::SpecialAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimDateDescending), ClaimSorting::ClaimDateDescending, ClaimSorting::ClaimDateAscending);
-        echo $linkSorting(ClaimSorting::toString(ClaimSorting::FinishedDateDescending, $claimFilters), ClaimSorting::FinishedDateDescending, ClaimSorting::FinishedDateDescending);
+        echo $linkSorting(ClaimSorting::toString(ClaimSorting::FinishedDateDescending, $claimFilters), ClaimSorting::FinishedDateDescending, ClaimSorting::FinishedDateAscending);
 
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {

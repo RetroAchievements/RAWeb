@@ -143,7 +143,7 @@ RenderHeader($userDetails);
         echo "<b>" . ClaimType::toString(ClaimType::Collaboration) . "</b> - Developer is collaborating with another developer, this does not take up a reservation spot.</br>";
         echo "</br><u>Claim Type</u></br>";
         echo "<b>" . ClaimSetType::toString(ClaimSetType::NewSet) . "</b> - Claim is for a game with no core achievements.</br>";
-        echo "<b>" . ClaimSetType::toString(ClaimSetType::Revision) . "</b> - Claim is for a game with core acheivements.</br>";
+        echo "<b>" . ClaimSetType::toString(ClaimSetType::Revision) . "</b> - Claim is for a game with core achievements.</br>";
         echo "</br><u>Claim Status</u></br>";
         echo "<b>" . ClaimStatus::toString(ClaimStatus::Active) . "</b> - Claim is currently active.</br>";
         echo "<b>" . ClaimStatus::toString(ClaimStatus::Complete) . "</b> - Claim has been marked as complete by the developer.</br>";
