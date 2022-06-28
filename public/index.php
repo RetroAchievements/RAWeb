@@ -193,6 +193,7 @@ RenderHeader($userDetails);
         RenderActivePlayersComponent();
         RenderCurrentlyOnlineComponent();
         echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
+        renderNewClaimsComponent(5);
         RenderRecentForumPostsComponent($permissions, 4);
         ?>
     </div>

@@ -400,23 +400,14 @@ function hideStatusMessage() {
   $('#status').hide();
 }
 
-function ResetTheme() {
-  // Unload all themes...
-  var allLinks = document.getElementsByTagName('link');
-  var numLinks = allLinks.length;
-  for (var i = 0; i < numLinks; i += 1) {
-    var nextLink = allLinks[i];
-    if (nextLink.rel === 'stylesheet') {
-      if (nextLink.href.indexOf('css/rac') !== -1) {
-        nextLink.disabled = true;
-      }
-    }
-  }
-
-  // Then load the one you selected:
+function changeTheme() {
   var cssToLoad = $('#themeselect :selected').val();
-  var cssLink = $('<link rel="stylesheet" type="text/css" href="' + cssToLoad + '">');
-  $('head').append(cssLink);
+  if ($('#theme-style').length > 0) {
+    $('#theme-style').attr('href', cssToLoad);
+  } else {
+    var cssLink = $('<link id="theme-style" rel="stylesheet" type="text/css" href="' + cssToLoad + '">');
+    $('head').append(cssLink);
+  }
   setCookie('RAPrefs_CSS', cssToLoad);
 }
 
