@@ -24,6 +24,7 @@ function RenderErrorCodeWarning(?string $errorCode): void
         'nopermission' => "You don't have permission to view this page! If this is incorrect, please leave a message in the forums.",
         'resetfailed' => "Problems encountered while performing reset. Do you have any achievements to reset?",
         'subscription_update_fail' => "Failed to update topic subscription.",
+        'unknownforum' => "Unknown forum",
         default => null,
     },
     successMessage: match ($errorCode) {

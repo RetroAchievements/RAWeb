@@ -55,7 +55,7 @@ function getForumDetails($forumID, &$forumDataOut): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $forumDataOut = mysqli_fetch_assoc($dbResult);
-        return true;
+        return $forumDataOut != null;
     } else {
         log_sql_fail();
         $forumDataOut = null;

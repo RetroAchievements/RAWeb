@@ -38,7 +38,7 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Admin) {
     $requestedForum = "Unauthorised Links";
 } else {
     if (!getForumDetails($requestedForumID, $forumDataOut)) {
-        header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum2");
+        header("location: " . getenv('APP_URL') . "/forum.php?e=unknownforum");
         exit;
     }
 
