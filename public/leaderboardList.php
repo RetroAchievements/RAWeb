@@ -91,19 +91,15 @@ RenderHtmlHead($pageTitle);
         var lbLowerIsBetter = $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0';
 
         var posting = $.post('/request/leaderboard/update.php', { u: user, i: lbID, t: lbTitle, d: lbDesc, f: lbFormat, m: lbMem, l: lbLowerIsBetter, o: lbDisplayOrder });
-        posting.done(onUpdateComplete);
+        posting.done(function (data) {
+          if (data !== 'OK')
+            showStatusError('Error: ' + data);
+          else
+            showStatusSuccess('Succeeded');
+        });
 
-        $('#warning').html('Status: updating...');
+        showStatusMessage('Updating...');
       }
-
-      function onUpdateComplete(data) {
-        if (data !== 'OK') {
-          $('#warning').html('Status: Errors...' + data);
-        } else {
-          $('#warning').html('Status: OK!');
-        }
-      }
-
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -176,7 +172,7 @@ RenderHtmlHead($pageTitle);
     }
 
     if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        echo "<div id='warning'></div>";
+        RenderStatusWidget();
     }
 
     if (!isset($gameData)) {

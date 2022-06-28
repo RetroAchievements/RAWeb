@@ -108,30 +108,6 @@ function updateDisplayOrder(user, objID, gameID) {
   $('#warning').html('Status: updating...');
 }
 
-function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
-  var inputText = $('#' + objID).val();
-  var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
-  var posting = $.post(
-    '/request/user/update-site-award.php',
-    {
-      t: awardType,
-      d: awardData,
-      e: awardDataExtra,
-      v: inputNum,
-    }
-  );
-  posting.done(onUpdateDisplayOrderComplete);
-  $('#warning').html('Status: updating...');
-}
-
-function onUpdateDisplayOrderComplete(data) {
-  if (data !== 'OK') {
-    $('#warning').html('Status: Errors...' + data);
-  } else {
-    $('#warning').html('Status: OK!');
-  }
-}
-
 function injectShortcode(start, end) {
   var commentTextarea = document.getElementById('commentTextarea');
   if (commentTextarea !== undefined) {
@@ -397,6 +373,31 @@ function removeComment(artTypeID, artID, commentID) {
     }
   });
   return true;
+}
+
+function showStatusMessage(message) {
+  var status = $('#status');
+  status.removeClass('success');
+  status.removeClass('failure');
+  status.show();
+  status.html(message);
+}
+
+function showStatusSuccess(message) {
+  var status = $('#status');
+  status.addClass('success');
+  status.html(message);
+  status.delay(2000).fadeOut();
+}
+
+function showStatusFailure(message) {
+  var status = $('#status');
+  status.addClass('failure');
+  status.html(message);
+}
+
+function hideStatusMessage() {
+  $('#status').hide();
 }
 
 function changeTheme() {

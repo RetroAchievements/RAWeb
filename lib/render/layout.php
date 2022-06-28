@@ -550,3 +550,16 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
         echo "&nbsp;<a title='Last' href='$urlPrefix$lastOffset'>&#x226B;</a>";
     }
 }
+
+function RenderStatusWidget(?string $message = null, ?string $errorMessage = null, ?string $successMessage = null)
+{
+    if (!empty($errorMessage)) {
+        echo "<div id='status' class='failure'>$errorMessage</div>";
+    } elseif (!empty($successMessage)) {
+        echo "<div id='status' class='success'>$successMessage</div>";
+    } elseif (!empty($message)) {
+        echo "<div id='status'>$message</div>";
+    } else {
+        echo "<div id='status' style='display: none'></div>";
+    }
+}

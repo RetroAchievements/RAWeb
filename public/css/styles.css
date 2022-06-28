@@ -401,8 +401,6 @@ td, tr, img {
   margin-bottom: 4px;
   margin-top: 4px;
   color: #dd0000;
-  position: sticky;
-  top: 0;
   background: #292929;
   padding: 3px;
 }
@@ -410,7 +408,29 @@ td, tr, img {
 #warning a {
 }
 
-.footer-wrapper{
+#status {
+  line-height: 110%;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  color: #e0e0e0;
+  position: sticky;
+  top: 4px;
+  background: #666666;
+  padding: 3px;
+  border-radius: 4px;
+}
+
+#status.success {
+  background: #009900;
+}
+
+#status.failure {
+  background: #990000;
+}
+
+.footer-wrapper {
   background-color: #151515;
 }
 
