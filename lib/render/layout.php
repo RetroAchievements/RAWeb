@@ -66,7 +66,7 @@ function RenderSharedHeader(): void
     }
     $customCSS = readCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
+        echo "<link id='theme-style' rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
     }
 }
 
@@ -382,26 +382,23 @@ function RenderToolbar($user, $permissions = 0): void
         echo "</li>";
     }
 
+    echo "</ul>";
+
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         $searchQuery = attributeEscape(requestInputQuery('s', null));
     }
     echo "<form action='/searchresults.php' method='get'>";
-    echo "<div class='searchbox'>";
+    echo "<div class='searchbox-top'>";
     // echo "Search:&nbsp;";
     echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
-    echo "<input type='submit' value='Search'>";
+    echo "<input type='submit' value='🔎︎' title='Search the site'>";
     echo "</div>";
     echo "</form>";
 
-    echo "<div class='searchbox'>";
-    RenderThemeSelector();
-    echo "</div>";
-
     echo '<div style="clear:both;"></div>';
 
-    echo "</ul>";
     echo "</div>";
 }
 
@@ -425,7 +422,11 @@ function RenderFooter(): void
 {
     echo "<div style='clear:both;'></div>";
 
+    echo "<div class='footer-wrapper'>";
+
     echo "<footer id='footer'>";
+
+    echo "<div id='footer-flex'>";
 
     echo "<div>";
     echo "<h4>RetroAchievements</h4>";
@@ -472,7 +473,29 @@ function RenderFooter(): void
     echo "<div><a href='/rss.php'>RSS</a></div>";
     echo "</div>";
 
+    // echo "<div>Content by <a href='http://www.immensegames.com' target='_blank'>Immense Games</a></div>";
+
+    // global $g_numQueries;
+    // global $g_pageLoadAt;
+    // $loadDuration = microtime(true) - $g_pageLoadAt;
+    // echo "<p>";
+    // echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
+    // if ($loadDuration > 2.4) {
+    //     error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
+    // }
+    // echo "</p>";
+
+    echo "</div>";
+
+    echo "<label class='themeselect-wrapper'>";
+    RenderThemeSelector();
+    echo "</label>";
+
+    echo "<div style='clear:both;'></div>";
+
     echo "</footer>";
+
+    echo "</div>";
 }
 
 function RenderThemeSelector(): void
@@ -492,7 +515,7 @@ function RenderThemeSelector(): void
     $currentCustomCSS = readCookie('RAPrefs_CSS');
     $currentCustomCSS = $currentCustomCSS ?: '/css/rac_blank.css';
 
-    echo "<select id='themeselect' onchange='ResetTheme(); return false;'>";
+    echo "Select theme: <select id='themeselect' onchange='changeTheme(); return false;'>";
     foreach ($cssFileList as $nextCSS) {
         $cssFull = "/css/rac_" . $nextCSS . ".css";
         $selected = (strcmp($currentCustomCSS, $cssFull) == 0) ? 'selected' : '';
