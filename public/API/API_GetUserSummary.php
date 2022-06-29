@@ -120,7 +120,4 @@ if ($retVal['LastActivity']) {
 }
 $retVal['Status'] = $status;
 
-// Just from a security/polish point of view:
-unset($retVal['Friendship'], $retVal['FriendReciprocation']);
-
 echo json_encode($retVal, JSON_THROW_ON_ERROR);

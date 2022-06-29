@@ -293,30 +293,6 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
 
         $libraryOut['RecentAchievements'] = $achievementData;
     }
-
-    $libraryOut['Friendship'] = 0;
-    $libraryOut['FriendReciprocation'] = 0;
-
-    if (isset($localUser) && ($localUser != $user)) {
-        $query = "SELECT (f.User = '$localUser') AS Local, f.Friend, f.Friendship FROM Friends AS f
-                  WHERE (f.User = '$localUser' && f.Friend = '$user')
-                  UNION
-                  SELECT (f.User = '$localUser') AS Local, f.Friend, f.Friendship FROM Friends AS f
-                  WHERE (f.User = '$user' && f.Friend = '$localUser') ";
-
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-                if ($db_entry['Local'] == 1) {
-                    $libraryOut['Friendship'] = $db_entry['Friendship'];
-                } else { // if ( $db_entry['Local'] == 0 )
-                    $libraryOut['FriendReciprocation'] = $db_entry['Friendship'];
-                }
-            }
-        } else {
-            log_sql_fail();
-        }
-    }
 }
 
 function getControlPanelUserInfo($user, &$libraryOut): bool

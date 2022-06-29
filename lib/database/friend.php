@@ -105,7 +105,7 @@ function isUserBlocking($user, $possibly_blocked_user): bool
         return false;
     }
 
-    return $data['Friendship'] == '-1';
+    return (int) $data['Friendship'] == FriendshipType::Blocked;
 }
 
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
@@ -122,6 +122,8 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
         return 0;
     }
 
+    $friendSubquery = GetFriendsSubquery($user, false);
+
     // Less dependent subqueries :)
     $query = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, ua.RichPresenceMsg, act.LastUpdate 
             FROM 
@@ -135,17 +137,10 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
                     WHERE ach.GameID = '$gameID' AND ach.Flags = 3
                 ) AS Inner1 ON Inner1.ID = aw.AchievementID
             ) AS aw 
-            NATURAL JOIN 
-            ( 
-                SELECT f.Friend 
-                FROM Friends AS f 
-                WHERE f.User = '$user'
-                AND f.Friendship = 1
-            ) AS _FriendList 
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User 
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID 
             LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID 
-            WHERE aw.User = _FriendList.Friend 
+            WHERE aw.User IN ( $friendSubquery )
             GROUP BY aw.User 
             ORDER BY TotalPoints DESC, aw.User";
 
@@ -176,12 +171,10 @@ function GetFriendList(string $user): array
 
     $friendList = [];
 
-    $query = "SELECT f.Friend, ua.RAPoints, ua.RichPresenceMsg AS LastSeen, ua.LastGameID, ua.ID
-              FROM Friends AS f
-              LEFT JOIN UserAccounts AS ua ON ua.User = f.Friend
-              WHERE f.User='$user'
-              AND f.Friendship = 1
-              AND ua.ID IS NOT NULL
+    $friendSubquery = GetFriendsSubquery($user, false);
+    $query = "SELECT ua.User as Friend, ua.RAPoints, ua.RichPresenceMsg AS LastSeen, ua.ID
+              FROM UserAccounts ua
+              WHERE ua.User IN ( $friendSubquery )
               ORDER BY ua.LastActivityID DESC";
 
     $dbResult = s_mysql_query($query);
@@ -196,6 +189,34 @@ function GetFriendList(string $user): array
     }
 
     return $friendList;
+}
+
+function GetFriendsSubquery(string $user, bool $includeUser = true)
+{
+    $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
+         JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . FriendshipType::Friend . ") as Friends1 ON Friends1.User=ua.User
+         JOIN (SELECT User FROM Friends WHERE Friend='$user' AND Friendship=" . FriendshipType::Friend . ") as Friends2 ON Friends2.User=Friends1.User
+         WHERE ua.Deleted IS NULL AND ua.Permissions >= " . Permissions::Unregistered;
+
+    // TODO: why is it so much faster to run this query and build the IN list
+    //       than to use it as a subquery? i.e. "AND aw.User IN ($friendsSubquery)"
+    //       local testing took over 2 seconds with the subquery and < 0.01 seconds
+    //       total for two separate queries
+    $friends = [];
+    $dbResult = s_mysql_query($friendsSubquery);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $friends[] = "'" . $db_entry['User'] . "'";
+        }
+    }
+
+    if ($includeUser) {
+        $friends[] = "'$user'";
+    } elseif (count($friends) == 0) {
+        return "NULL";
+    }
+
+    return implode(',', $friends);
 }
 
 function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): array
@@ -238,13 +259,13 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
                     switch ($db_entry['Friendship']) {
                         case FriendshipType::Blocked:
                             // other user has blocked us, current user has no action
-                            array_pop($friendList);
+                            $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Impossible;
                             break;
                         case FriendshipType::NotFriend:
                             // other user has not friended us
                             // local Friend => Pending
-                            // local Blocked => still blocked
-                            // local NotFriend => discard
+                            // local Blocked => Blocked
+                            // local NotFriend => NotFriend (safe to discard)
                             if ($lastFriendship == FriendshipType::Friend) {
                                 $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Pending;
                             } elseif ($lastFriendship == FriendshipType::NotFriend) {
@@ -252,10 +273,10 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
                             }
                             break;
                         case FriendshipType::Friend:
-                            // other user has friended us, the local friendship determines the relationship
-                            // local Pending => mutual friend
-                            // local Blocked => still blocked
-                            // local NotFriend => return requested
+                            // other user has friended us
+                            // local Pending => Friend
+                            // local Blocked => Blocked
+                            // local NotFriend => Requested
                             if ($lastFriendship == FriendshipType::NotFriend) {
                                 $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Requested;
                             } elseif ($lastFriendship == FriendshipType::Pending) {
@@ -266,9 +287,9 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
                     continue;
                 } else {
                     // other user has friendship data, but we don't. translate to our perspective
-                    // local NotFriend, other Friend => return requested
-                    // local NotFriend, other Blocked => discard
-                    // local NotFriend, other NotFriend => discard
+                    // local NotFriend, other Friend => Requested
+                    // local NotFriend, other Blocked => NotFriend (safe to discard)
+                    // local NotFriend, other NotFriend => NotFriend (safe to discard)
                     if ($db_entry['Friendship'] == FriendshipType::Friend) {
                         $db_entry['Friendship'] = FriendshipType::Requested;
                     } else {

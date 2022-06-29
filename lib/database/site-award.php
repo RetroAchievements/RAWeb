@@ -146,7 +146,8 @@ function getRecentMasteryData(string $date, string $friendsOf = null, int $offse
     // Determine the friends condition
     $friendCondAward = "";
     if ($friendsOf !== null) {
-        $friendCondAward = "AND (saw.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR saw.User LIKE '$friendsOf')";
+        $friendSubquery = GetFriendsSubquery($friendsOf);
+        $friendCondAward = "AND saw.User IN ($friendSubquery)";
     }
 
     $retVal = [];

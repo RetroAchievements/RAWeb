@@ -58,21 +58,21 @@ function RenderFriendsList(string $header, string $user, array $friendsList, int
         switch ($friendshipType) {
             case FriendshipType::Friend:
                 echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::NotFriend . "'>End&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>End&nbsp;friendship</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case FriendshipType::Pending:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::NotFriend . "'>Cancel&nbsp;request</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>Cancel&nbsp;request</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case FriendshipType::Requested:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::Friend . "'>Confirm&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::NotFriend . "'>Decline&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Friend . "'>Confirm&nbsp;friendship</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>Decline&nbsp;friendship</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case FriendshipType::Blocked:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::Friend . "'>Request&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . Friendshiptype::NotFriend . "'>Unblock&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Friend . "'>Request&nbsp;friendship</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>Unblock&nbsp;user</a></span>";
                 break;
         }
         echo "</div>";

@@ -425,9 +425,11 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     $friendCondAward = "";
     $friendCondAllTime = "";
     if ($friendsOf !== null) {
-        $friendCondAchievement = "AND (aw.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR aw.User LIKE '$friendsOf')";
-        $friendCondAward = "AND (sa.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR sa.User LIKE '$friendsOf')";
-        $friendCondAllTime = "AND (ua.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR ua.User LIKE '$friendsOf')";
+        $friendsSubquery = GetFriendsSubquery($friendsOf);
+
+        $friendCondAchievement = "AND aw.User IN ($friendsSubquery)";
+        $friendCondAward = "AND sa.User IN ($friendsSubquery)";
+        $friendCondAllTime = "AND ua.User IN ($friendsSubquery)";
     }
 
     // Determine the ORDER BY condition
@@ -593,5 +595,6 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }

@@ -100,8 +100,7 @@ if ($numGamesFound > 0) {
     $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
 }
 
-settype($userMassData['Friendship'], 'integer');
-settype($userMassData['FriendReciprocation'], 'integer');
+$friendshipType = FriendshipType::NotFriend;
 
 sanitize_outputs(
     $userMotto,
@@ -341,7 +340,7 @@ RenderHtmlStart(true);
             $friendshipType = GetFriendship($user, $userPage);
             switch ($friendshipType) {
                 case FriendshipType::Friend:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . Friendshiptype::Blocked . "'>End friendship</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Blocked . "'>End friendship</a></span>";
                     break;
                 case FriendshipType::NotFriend:
                 case FriendshipType::Blocked:
@@ -357,9 +356,9 @@ RenderHtmlStart(true);
             }
 
             if ($friendshipType != FriendshipType::Blocked) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . Friendshiptype::Blocked . "'>Block user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Blocked . "'>Block user</a></span>";
             } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . Friendshiptype::NotFriend . "'>Unblock user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFriend . "'>Unblock user</a></span>";
             }
 
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send private message</a></span>";
@@ -582,9 +581,10 @@ RenderHtmlStart(true);
         if ($userWallActive) {
             echo "<h4>User Wall</h4>";
 
+            // Impossible friendship means the user has blocked the active user
             // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
+                ($friendshipType != FriendshipType::Impossible) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,
