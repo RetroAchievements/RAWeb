@@ -5,6 +5,7 @@ use RA\ClaimFilters;
 use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimType;
+use RA\FriendshipType;
 use RA\Permissions;
 use RA\UserAction;
 
@@ -337,31 +338,31 @@ RenderHtmlStart(true);
             echo "<div class='buttoncollection'>";
             // echo "<h4>Friend Actions:</h4>";
 
-            if ($userMassData['Friendship'] == 1) {
-                if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    // They haven't accepted yet
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Cancel friend request</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == -1) {
-                    // They blocked us
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
-                }
-            } elseif ($userMassData['Friendship'] == 0) {
-                if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Confirm friend request</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Add friend</a></span>";
-                }
+            $friendshipType = GetFriendship($user, $userPage);
+            switch ($friendshipType) {
+                case FriendshipType::Friend:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . Friendshiptype::Blocked . "'>End friendship</a></span>";
+                    break;
+                case FriendshipType::NotFriend:
+                case FriendshipType::Blocked:
+                case FriendshipType::Impossible:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Friend . "'>Request friendship</a></span>";
+                    break;
+                case FriendshipType::Requested:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Friend . "'>Confirm friendship</a></span>";
+                    break;
+                case FriendshipType::Pending:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFriend . "'>Cancel friendship request</a></span>";
+                    break;
             }
 
-            if ($userMassData['Friendship'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=-1'>Block user</a></span>";
+            if ($friendshipType != FriendshipType::Blocked) {
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . Friendshiptype::Blocked . "'>Block user</a></span>";
             } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Unblock user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . Friendshiptype::NotFriend . "'>Unblock user</a></span>";
             }
 
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
+            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send private message</a></span>";
 
             echo "</div>"; // buttoncollection
             echo "</div>"; // friendbox
