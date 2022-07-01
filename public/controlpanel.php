@@ -389,7 +389,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                     <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_ForumReply, true) ?></td>
                 </tr>
                 <tr>
-                    <td>If someone adds me as a friend:</td>
+                    <td>If someone follows me:</td>
                     <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_AddFriend, true) ?></td>
                     <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_AddFriend, true) ?></td>
                 </tr>

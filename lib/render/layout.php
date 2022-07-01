@@ -340,7 +340,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
         echo "<li><a href='/claimlist.php?u=$user'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
-        echo "<li><a href='/friends.php'>Friends</a></li>";
+        echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$user'>Requested Sets</a></li>";

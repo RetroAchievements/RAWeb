@@ -100,8 +100,6 @@ if ($numGamesFound > 0) {
     $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
 }
 
-$friendshipType = FriendshipType::NotFriend;
-
 sanitize_outputs(
     $userMotto,
     $userPage,
@@ -245,6 +243,34 @@ RenderHtmlStart(true);
             echo "<span class='usermotto'>$userMotto</span>";
             echo "</div>";
         }
+
+        if (isset($user) && ($user !== $userPage)) {
+            echo "<div class='friendbox'>";
+            echo "<div class='buttoncollection'>";
+            // echo "<h4>Friend Actions:</h4>";
+
+            $friendshipType = GetFriendship($user, $userPage);
+            switch ($friendshipType) {
+                case FriendshipType::Following:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFollowing . "'>Stop following</a></span>";
+                    break;
+                case FriendshipType::NotFollowing:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Following . "'>Start following</a></span>";
+                    break;
+            }
+
+            if ($friendshipType != FriendshipType::Blocked) {
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Blocked . "'>Block user</a></span>";
+            } else {
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFollowing . "'>Unblock user</a></span>";
+            }
+
+            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send private message</a></span>";
+
+            echo "</div>"; // buttoncollection
+            echo "</div>"; // friendbox
+        }
+
         echo "<br>";
 
         $niceDateJoined = $userMassData['MemberSince'] ? getNiceDate(strtotime($userMassData['MemberSince'])) : null;
@@ -331,41 +357,6 @@ RenderHtmlStart(true);
         }
 
         echo "</div>"; // usersummary
-
-        if (isset($user) && ($user !== $userPage)) {
-            echo "<div class='friendbox'>";
-            echo "<div class='buttoncollection'>";
-            // echo "<h4>Friend Actions:</h4>";
-
-            $friendshipType = GetFriendship($user, $userPage);
-            switch ($friendshipType) {
-                case FriendshipType::Friend:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Blocked . "'>End friendship</a></span>";
-                    break;
-                case FriendshipType::NotFriend:
-                case FriendshipType::Blocked:
-                case FriendshipType::Impossible:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Friend . "'>Request friendship</a></span>";
-                    break;
-                case FriendshipType::Requested:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Friend . "'>Confirm friendship</a></span>";
-                    break;
-                case FriendshipType::Pending:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFriend . "'>Cancel friendship request</a></span>";
-                    break;
-            }
-
-            if ($friendshipType != FriendshipType::Blocked) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Blocked . "'>Block user</a></span>";
-            } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFriend . "'>Unblock user</a></span>";
-            }
-
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send private message</a></span>";
-
-            echo "</div>"; // buttoncollection
-            echo "</div>"; // friendbox
-        }
 
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox'>";
@@ -584,7 +575,7 @@ RenderHtmlStart(true);
             // Impossible friendship means the user has blocked the active user
             // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                ($friendshipType != FriendshipType::Impossible) ? $user : null,
+                !isUserBlocking($userPage, $user) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,

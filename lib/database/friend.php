@@ -8,50 +8,39 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
 {
     sanitize_sql_inputs($user, $friend);
 
-    $oldStatus = GetFriendship($user, $friend);
+    $query = "SELECT Friendship FROM Friends WHERE User='$user' AND Friend='$friend'";
+    $dbresult = s_mysql_query($query);
+    if (!$dbresult) {
+        log_sql_fail();
+        return "error";
+    }
+
+    $data = mysqli_fetch_assoc($dbresult);
+    if ($data) {
+        $oldStatus = (int) $data['Friendship'];
+        $query = "UPDATE Friends SET Friendship=$newStatus WHERE User='$user' AND Friend='$friend'";
+    } else {
+        $oldStatus = FriendshipType::NotFollowing;
+        $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ('$user', '$friend', $newStatus)";
+    }
+
     if ($oldStatus == $newStatus) {
         return "nochange";
     }
 
-    // TODO: figure out how to do this without using an extra query...
-    //       INSERT.. ON DUPLICATE KEY doesn't work because the user/friend combination is not a unique key
-    $query = "SELECT Friendship FROM Friends WHERE User='$user' AND Friend='$friend'";
-    $dbresult = s_mysql_query($query);
-    if (!$dbresult) {
+    if ($newStatus == FriendshipType::Following && isUserBlocking($friend, $user)) {
+        // other user has blocked this user, can't follow them
         return "error";
     }
 
-    if (mysqli_num_rows($dbresult) == 0) {
-        $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ('$user', '$friend', $newStatus)";
-    } else {
-        $query = "UPDATE Friends SET Friendship=$newStatus WHERE User='$user' AND Friend='$friend'";
-    }
     $dbresult = s_mysql_query($query);
     if (!$dbresult) {
         return "error";
     }
 
     switch ($newStatus) {
-        case FriendshipType::Friend:
-            if ($oldStatus == FriendshipType::Impossible) {
-                // other user has blocked this user, can't friend them
-                return "error";
-            }
-
-            if ($oldStatus == FriendshipType::Requested) {
-                // confirming friendship
-                if (getAccountDetails($friend, $friendData)) {
-                    if (BitSet($friendData['websitePrefs'], UserPreference::EmailOn_AddFriend)) {
-                        // notify the friend of the mutual friendship
-                        sendFriendEmail($friend, $friendData['EmailAddress'], 1, $user);
-                    }
-                }
-
-                return "friendconfirmed";
-            }
-
-            // NotFriend, Blocked, Pending
-            // requesting friendship
+        case FriendshipType::Following:
+            // attempt to notify the target of the new follower
             if (getAccountDetails($friend, $friendData)) {
                 if (BitSet($friendData['websitePrefs'], UserPreference::EmailOn_AddFriend)) {
                     // notify the new friend of the request
@@ -61,25 +50,17 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
 
             return "friendrequested";
 
-        case FriendshipType::NotFriend:
-            if ($oldStatus != FriendshipType::Impossible) {
-                // if the other user hasn't blocked the user, clear out their friendship status too
-                $query = "UPDATE Friends SET Friendship=$newStatus WHERE User='$friend' AND Friend='$user'";
-                $dbResult = s_mysql_query($query);
-            }
-
+        case FriendshipType::NotFollowing:
             return match ($oldStatus) {
-                FriendshipType::Friend => "friendremoved",
+                FriendshipType::Following => "friendremoved",
                 FriendshipType::Blocked => "friendunblocked",
-                FriendshipType::Pending => "friendrequestcanceled",
-                FriendshipType::Requested => "friendrequestdeclined",
                 default => "error",
             };
 
         case FriendshipType::Blocked:
-            if ($oldStatus != FriendshipType::Impossible) {
+            if (!isUserBlocking($friend, $user)) {
                 // if the other user hasn't blocked the user, clear out their friendship status too
-                $query = "UPDATE Friends SET Friendship=" . FriendshipType::NotFriend . " WHERE User='$friend' AND Friend='$user'";
+                $query = "UPDATE Friends SET Friendship=" . FriendshipType::NotFollowing . " WHERE User='$friend' AND Friend='$user'";
                 $dbResult = s_mysql_query($query);
             }
 
@@ -92,20 +73,23 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
 
 function isUserBlocking($user, $possibly_blocked_user): bool
 {
-    sanitize_sql_inputs($user, $possibly_blocked_user);
+    return GetFriendship($user, $possibly_blocked_user) == FriendshipType::Blocked;
+}
 
-    $query = "SELECT * FROM Friends WHERE User='$user' AND Friend='$possibly_blocked_user'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
+function GetFriendship(string $user, string $friend): int
+{
+    sanitize_sql_inputs($user, $friend);
+
+    $query = "SELECT Friendship FROM Friends WHERE User='$user' AND Friend='$friend'";
+    $dbresult = s_mysql_query($query);
+    if ($dbresult) {
+        $data = mysqli_fetch_assoc($dbresult);
+        if ($data) {
+            return (int) $data['Friendship'];
+        }
     }
 
-    $data = mysqli_fetch_assoc($dbResult);
-    if (!$data) {
-        return false;
-    }
-
-    return (int) $data['Friendship'] == FriendshipType::Blocked;
+    return FriendshipType::NotFollowing;
 }
 
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
@@ -194,8 +178,8 @@ function GetFriendList(string $user): array
 function GetFriendsSubquery(string $user, bool $includeUser = true)
 {
     $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
-         JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . FriendshipType::Friend . ") as Friends1 ON Friends1.User=ua.User
-         JOIN (SELECT User FROM Friends WHERE Friend='$user' AND Friendship=" . FriendshipType::Friend . ") as Friends2 ON Friends2.User=Friends1.User
+         JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . FriendshipType::Following . ") as Friends1 ON Friends1.User=ua.User
+         JOIN (SELECT User FROM Friends WHERE Friend='$user' AND Friendship=" . FriendshipType::Following . ") as Friends2 ON Friends2.User=Friends1.User
          WHERE ua.Deleted IS NULL AND ua.Permissions >= " . Permissions::Unregistered;
 
     // TODO: why is it so much faster to run this query and build the IN list
@@ -223,88 +207,22 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
 {
     sanitize_sql_inputs($user);
 
-    $filter1 = "f.User='$user'";
-    $filter2 = "f.Friend='$user'";
-    if ($possibleFriend != null) {
-        $filter1 .= " AND f.Friend='$possibleFriend'";
-        $filter2 .= " AND f.User='$possibleFriend'";
-    }
-
     $friendList = [];
 
-    $query = "SELECT f.Friend AS User, 1 AS LocalFriend, f.Friendship, ua.LastGameID, ua.RichPresenceMsg AS LastSeen
+    $query = "SELECT f.Friend AS User, f.Friendship, ua.LastGameID, ua.RichPresenceMsg AS LastSeen
               FROM Friends AS f
               JOIN UserAccounts AS ua ON ua.User = f.Friend
-              WHERE $filter1
+              WHERE f.User='$user'
               AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL
-              UNION
-              SELECT f.User AS User, 0 AS LocalFriend, f.Friendship, ua.LastGameID, ua.RichPresenceMsg AS LastSeen
-              FROM Friends AS f
-              JOIN UserAccounts AS ua ON ua.User = f.User
-              WHERE $filter2
-              AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL
-              ORDER BY User, LocalFriend DESC";
+              ORDER BY ua.LastActivityID DESC";
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
     } else {
-        $lastFriend = "";
-        $lastFriendship = FriendshipType::NotFriend;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['Friendship'], 'int');
-
-            if ($db_entry['LocalFriend'] == 0) {
-                if ($db_entry['User'] == $lastFriend) {
-                    switch ($db_entry['Friendship']) {
-                        case FriendshipType::Blocked:
-                            // other user has blocked us, current user has no action
-                            $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Impossible;
-                            break;
-                        case FriendshipType::NotFriend:
-                            // other user has not friended us
-                            // local Friend => Pending
-                            // local Blocked => Blocked
-                            // local NotFriend => NotFriend (safe to discard)
-                            if ($lastFriendship == FriendshipType::Friend) {
-                                $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Pending;
-                            } elseif ($lastFriendship == FriendshipType::NotFriend) {
-                                array_pop($friendList);
-                            }
-                            break;
-                        case FriendshipType::Friend:
-                            // other user has friended us
-                            // local Pending => Friend
-                            // local Blocked => Blocked
-                            // local NotFriend => Requested
-                            if ($lastFriendship == FriendshipType::NotFriend) {
-                                $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Requested;
-                            } elseif ($lastFriendship == FriendshipType::Pending) {
-                                $friendList[array_key_last($friendList)]['Friendship'] = FriendshipType::Friend;
-                            }
-                            break;
-                    }
-                    continue;
-                } else {
-                    // other user has friendship data, but we don't. translate to our perspective
-                    // local NotFriend, other Friend => Requested
-                    // local NotFriend, other Blocked => NotFriend (safe to discard)
-                    // local NotFriend, other NotFriend => NotFriend (safe to discard)
-                    if ($db_entry['Friendship'] == FriendshipType::Friend) {
-                        $db_entry['Friendship'] = FriendshipType::Requested;
-                    } else {
-                        continue;
-                    }
-                }
-            }
-
-            $lastFriend = $db_entry['User'];
-            $lastFriendship = $db_entry['Friendship'];
-
-            if ($db_entry['Friendship'] == FriendshipType::Friend) {
-                // set to pending until we see the reciprocal relationship
-                $db_entry['Friendship'] = $lastFriendship = FriendshipType::Pending;
-            }
+            settype($db_entry['LastGameID'], 'int');
 
             $db_entry["LastSeen"] = empty($db_entry["LastSeen"]) ? "Unknown" : strip_tags($db_entry["LastSeen"]);
             $friendList[] = $db_entry;
@@ -312,17 +230,6 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
     }
 
     return $friendList;
-}
-
-function GetFriendship(string $user, string $possibleFriend): int
-{
-    foreach (GetExtendedFriendsList($user, $possibleFriend) as $friend) {
-        if ($friend['User'] == $possibleFriend) {
-            return $friend['Friendship'];
-        }
-    }
-
-    return FriendshipType::NotFriend;
 }
 
 /**
@@ -337,9 +244,11 @@ function getFriendCount(?string $user): int
     }
 
     $query = "SELECT COUNT(*) AS FriendCount
-              FROM Friends
-              WHERE User LIKE '$user'
-              AND Friendship = 1";
+              FROM Friends AS f
+              JOIN UserAccounts AS ua ON ua.User=f.Friend
+              WHERE f.User LIKE '$user'
+              AND f.Friendship = " . FriendshipType::Following . " AND ua.Deleted IS NULL
+              AND ua.Permissions >= " . Permissions::Unregistered;
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
@@ -347,4 +256,28 @@ function getFriendCount(?string $user): int
     }
 
     return (int) mysqli_fetch_assoc($dbResult)['FriendCount'];
+}
+
+function GetFollowers(string $user): array
+{
+    sanitize_sql_inputs($user);
+
+    $followers = [];
+
+    $query = "SELECT f.User
+              FROM Friends AS f
+              JOIN UserAccounts AS ua ON ua.User = f.User
+              WHERE f.Friend='$user' AND f.Friendship=" . FriendshipType::Following . "
+              AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL";
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
+        log_sql_fail();
+    } else {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $followers[] = $db_entry['User'];
+        }
+    }
+
+    return $followers;
 }

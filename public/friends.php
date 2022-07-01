@@ -12,67 +12,51 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unre
     exit;
 }
 
-$friendsList = GetExtendedFriendsList($user);
+$errorCode = requestInputSanitized('e');
 
-function RenderFriendsList(string $header, string $user, array $friendsList, int $friendshipType, ?string $emptyMessage = null)
+$followingList = [];
+$blockedUsersList = [];
+foreach (GetExtendedFriendsList($user) as $entry) {
+    switch ($entry['Friendship']) {
+        case FriendshipType::Following:
+            $followingList[] = $entry;
+            break;
+        case FriendshipType::Blocked:
+            $blockedUsersList[] = $entry['User'];
+            break;
+    }
+}
+
+$followersList = GetFollowers($user);
+
+function RenderUserList(string $header, string $user, array $friends, int $friendshipType, ?string $emptyMessage = null)
 {
-    $filteredList = array_filter($friendsList, function ($friend, $id) use ($friendshipType) {
-        return $friend['Friendship'] == $friendshipType;
-    }, ARRAY_FILTER_USE_BOTH);
-
-    if (count($filteredList) == 0) {
-        if ($emptyMessage != null) {
-            echo "<h2>$header</h2>\n$emptyMessage\n";
-        }
+    if (count($friends) == 0) {
         return;
     }
 
-    echo "<h2>$header</h2>";
+    echo "<br/><h2>$header</h2>";
     echo "<table><tbody>";
-    echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:128px'>Commands</th></tr>";
-    foreach ($filteredList as $friendEntry) {
+    echo "<tr><th style='width:36px'><th>User</th><th style='width:128px'>Commands</th></tr>";
+    foreach ($friends as $friend) {
         echo "<tr>";
 
-        $nextFriendName = $friendEntry['User'];
-        $nextFriendActivity = $friendEntry['LastSeen'];
-
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextFriendName, true, null, 64);
+        echo GetUserAndTooltipDiv($friend, true, null, 32);
         echo "</td>";
 
         echo "<td style='text-align:left'>";
-        echo GetUserAndTooltipDiv($nextFriendName, false);
-        echo "</td>";
-
-        echo "<td>";
-        if ($friendEntry['LastGameID']) {
-            $gameData = getGameData($friendEntry['LastGameID']);
-            echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName'], imgSizeOverride: 32);
-            echo "<br/>";
-        }
-        echo "$nextFriendActivity";
+        echo GetUserAndTooltipDiv($friend, false);
         echo "</td>";
 
         echo "<td style='vertical-align:middle;'>";
         echo "<div>";
         switch ($friendshipType) {
-            case FriendshipType::Friend:
-                echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>End&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
-                break;
-            case FriendshipType::Pending:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>Cancel&nbsp;request</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
-                break;
-            case FriendshipType::Requested:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Friend . "'>Confirm&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>Decline&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
+            case FriendshipType::Following:
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case FriendshipType::Blocked:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::Friend . "'>Request&nbsp;friendship</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=" . FriendshipType::NotFriend . "'>Unblock&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . FriendshipType::NotFollowing . "'>Unblock&nbsp;user</a></span>";
                 break;
         }
         echo "</div>";
@@ -83,10 +67,8 @@ function RenderFriendsList(string $header, string $user, array $friendsList, int
     echo "</tbody></table>";
 }
 
-$errorCode = requestInputSanitized('e');
-
 RenderHtmlStart();
-RenderHtmlHead("Friends");
+RenderHtmlHead("Following");
 ?>
 <body>
 <?php RenderHeader($userDetails); ?>
@@ -94,10 +76,53 @@ RenderHtmlHead("Friends");
     <div id="fullcontainer">
         <?php
         RenderErrorCodeWarning($errorCode);
-        RenderFriendsList('Friends', $user, $friendsList, FriendshipType::Friend, "You don't appear to have friends registered here yet. Why not leave a comment on the <a href='/forum.php'>forums</a> or <a href='/userList.php'>browse the user pages</a> to find someone to add to your friend list?");
-        RenderFriendsList('Seeking Friendship', $user, $friendsList, FriendshipType::Requested);
-        RenderFriendsList('Pending', $user, $friendsList, FriendshipType::Pending);
-        RenderFriendsList('Blocked', $user, $friendsList, FriendshipType::Blocked);
+
+        echo "<h2>Following</h2>";
+        if (empty($followingList)) {
+            echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
+        } else {
+            echo "<table><tbody>";
+            echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:128px'>Commands</th></tr>";
+            foreach ($followingList as $entry) {
+                echo "<tr>";
+
+                $followingUser = $entry['User'];
+
+                echo "<td>";
+                echo GetUserAndTooltipDiv($followingUser, true, null, 64);
+                echo "</td>";
+
+                echo "<td style='text-align:left'>";
+                echo GetUserAndTooltipDiv($followingUser, false);
+                echo "</td>";
+
+                echo "<td>";
+                if ($entry['LastGameID']) {
+                    $gameData = getGameData($entry['LastGameID']);
+                    echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']);
+                    echo "<br/>";
+                }
+
+                $activity = $entry['LastSeen'];
+                sanitize_outputs($activity);
+                echo $activity;
+                echo "</td>";
+
+                echo "<td style='vertical-align:middle;'>";
+                echo "<div>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . FriendshipType::NotFollowing . "'>Stop&nbsp;Following</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "</div>";
+                echo "</td>";
+
+                echo "</tr>";
+            }
+            echo "</tbody></table>";
+        }
+
+        RenderUserList('Followers', $user, $followersList, FriendshipType::Following);
+        RenderUserList('Blocked', $user, $blockedUsersList, FriendshipType::Blocked);
         ?>
     </div>
 </div>
