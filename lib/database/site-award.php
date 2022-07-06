@@ -1,5 +1,7 @@
 <?php
 
+use RA\AwardType;
+
 function AddSiteAward($user, $awardType, $data, $dataExtra = 0): void
 {
     sanitize_sql_inputs($user, $awardType, $data, $dataExtra);
@@ -44,16 +46,16 @@ function getUsersSiteAwards($user, $showHidden = false): array
     (
     SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
                   FROM SiteAwards AS saw
-                  LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = 1 )
+                  LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = " . AwardType::Mastery . " )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE saw.AwardType = 1 AND saw.User = '$user' $hiddenQuery
+                  WHERE saw.AwardType = " . AwardType::Mastery . " AND saw.User = '$user' $hiddenQuery
                   GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
     )
     UNION
     (
     SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
-                  WHERE saw.AwardType > 1 AND saw.User = '$user' $hiddenQuery
+                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = '$user' $hiddenQuery
                   GROUP BY saw.AwardType
 
     )
@@ -75,10 +77,10 @@ function getUsersSiteAwards($user, $showHidden = false): array
 
         // Get a separate list of completed and mastered games
         for ($i = 0; $i < count($retVal); $i++) {
-            if ($retVal[$i]['AwardType'] == 1 &&
+            if ($retVal[$i]['AwardType'] == AwardType::Mastery &&
                 $retVal[$i]['AwardDataExtra'] == 1) {
                 $masteredGames[] = $retVal[$i]['AwardData'];
-            } elseif ($retVal[$i]['AwardType'] == 1 &&
+            } elseif ($retVal[$i]['AwardType'] == AwardType::Mastery &&
                 $retVal[$i]['AwardDataExtra'] == 0) {
                 $completedGames[] = $retVal[$i]['AwardData'];
             }
@@ -94,7 +96,8 @@ function getUsersSiteAwards($user, $showHidden = false): array
                 foreach ($retVal as $award) {
                     if (isset($award['AwardData']) &&
                         $award['AwardData'] == $game &&
-                        $award['AwardDataExtra'] == 0) {
+                        $award['AwardDataExtra'] == 0 &&
+                        $award['AwardType'] == AwardType::Mastery) {
                         $retVal[$index] = "";
                         break;
                     }
@@ -115,7 +118,7 @@ function HasPatreonBadge($usernameIn): bool
     sanitize_sql_inputs($usernameIn);
 
     $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = 6 AND sa.User = '$usernameIn'";
+        . "WHERE sa.AwardType = " . AwardType::PatreonSupporter . " AND sa.User = '$usernameIn'";
 
     $dbResult = s_mysql_query($query);
 
@@ -127,9 +130,9 @@ function SetPatreonSupporter($usernameIn, $enable): void
     sanitize_sql_inputs($usernameIn);
 
     if ($enable) {
-        AddSiteAward($usernameIn, 6, 0, 0);
+        AddSiteAward($usernameIn, AwardType::PatreonSupporter, 0, 0);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = '6'";
+        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = " . AwardType::PatreonSupporter;
         s_mysql_query($query);
     }
 }
@@ -154,7 +157,7 @@ function getRecentMasteryData(string $date, string $friendsOf = null, int $offse
                 FROM SiteAwards AS saw
                 LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
                 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                WHERE saw.AwardType = 1 AND AwardData > 0 AND AwardDataExtra IS NOT NULL $friendCondAward
+                WHERE saw.AwardType = " . AwardType::Mastery . " AND AwardData > 0 AND AwardDataExtra IS NOT NULL $friendCondAward
                 AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)     
                 ORDER BY AwardedAt DESC
                 LIMIT $offset, $count";
