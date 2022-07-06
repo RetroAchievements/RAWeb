@@ -121,7 +121,6 @@ function RenderArticleComment(
         echo GetUserAndTooltipDiv($user, true);
     }
     echo "</td>";
-	echo "<a id=commentsanchor></a>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";
