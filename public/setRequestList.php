@@ -132,18 +132,18 @@ RenderHeader($userDetails);
                     echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
                     echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
                 } else {
-                    echo "<a href='/setRequestList.php'>First</a> - ";
-                    echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    echo "<a class=firstbutton href='/setRequestList.php'>First</a> ";
+                    echo "<a class='previousbutton' href='/setRequestList.php?o=$prevOffset'><img id='loadingicon' src='http://localhost:80/Images/backwardarrow.png' alt='loading icon' width='46' height='26'></a> ";
                 }
             }
             if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
                 $nextOffset = $offset + $maxCount;
                 if (!empty($selectedConsole)) {
-                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
+                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole' class='nextbutton'>Next $maxCount &gt;</a>";
                     echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
                 } else {
-                    echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
-                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
+                    echo "<a href='/setRequestList.php?o=$nextOffset' class='nextbutton'><img id='loadingicon' src='http://localhost:80/Images/forwardarrow.png' alt='loading icon' width='46' height='26'></a>";
+                    echo "<a class='lastbutton' href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
                 }
             }
             echo "</div>";

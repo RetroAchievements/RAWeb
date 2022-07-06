@@ -3,7 +3,7 @@
 function RenderStaticDataComponent($staticData): void
 {
     echo "<div class='component statistics'>";
-    echo "<h3>Statistics</h3>";
+    echo "<h3 class='longheader'>Statistics</h3>";
 
     $numGames = $staticData['NumGames'];
     $numAchievements = $staticData['NumAchievements'];

@@ -15,7 +15,7 @@ RenderHtmlHead("Create Account");
 <?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
-        <h3>Create Account</h3>
+        <h3 class='longheader'>Create Account</h3>
         <div class="infobox">
             <form method=post action="/request/auth/register.php">
                 <table class='paddedtable'>

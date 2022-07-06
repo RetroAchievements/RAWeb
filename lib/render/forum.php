@@ -3,7 +3,7 @@
 function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
 {
     echo "<div class='component'>";
-    echo "<h3>Forum Activity</h3>";
+    echo "<h3 class='longheader'>Forum Activity</h3>";
 
     if (getRecentForumPosts(0, $numToFetch, 100, $permissions, $recentPostData) != 0) {
         foreach ($recentPostData as $nextData) {
@@ -44,7 +44,7 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
             echo "<a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
             echo "</div>";
             echo "<div class=''>$shortMsg</div>";
-            echo "<div class='text-right'><a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>[view]</a></div>";
+            echo "<div class='text-right'><a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID' class='forumview'>View</a></div>";
             echo "</div>";
         }
     }

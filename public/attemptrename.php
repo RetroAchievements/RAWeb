@@ -51,7 +51,7 @@ RenderHtmlHead("Rename Game Entry ($consoleName)");
 <?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
-        <h2>Rename Game Entry</h2>
+        <h3 class='longheader'>Rename Game Entry</h3>
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
         echo "<br><br>";

@@ -22,7 +22,7 @@ RenderHtmlHead("Friends");
 <?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id="fullcontainer">
-        <h2>Friends</h2>
+        <h3 class='longheader'>Friends</h3>
         <?php
         if (empty($friendsList)) {
             echo "You don't appear to have friends registered here yet. Why not leave a comment on the <a href='/forum.php'>forums</a> or <a href='/userList.php'>browse the user pages</a> to find someone to add to your friend list?<br>";
@@ -53,7 +53,7 @@ RenderHtmlHead("Friends");
                 echo "</td>";
 
                 echo "<td style='vertical-align:middle;'>";
-                echo "<div class='buttoncollection'>";
+                echo "<div class='buttongroup'>";
                 echo "<span style='display:block;'><a href='/createmessage.php?t=$user'>Send&nbsp;Message</a></span>";
                 echo "<span style='display:block;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=0'>Remove&nbsp;Friend</a></span>";
                 echo "<span style='display:block;'><a href='/request/friend/update.php?f=$nextFriendName&amp;a=-1'>Block&nbsp;User</a></span>";

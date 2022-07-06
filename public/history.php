@@ -223,7 +223,7 @@ RenderHtmlHead("$userPage's Legacy");
         <?php endif ?>
         <?php
 
-        echo "<h3>History</h3>";
+        echo "<h3 class='longheader'>History</h3>";
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
@@ -238,7 +238,7 @@ RenderHtmlHead("$userPage's Legacy");
 
         echo "<div id='chart_scoreprogress'></div>";
 
-        echo "<h3>Best Days</h3>";
+        echo "<h3 class='longheader'>Best Days</h3>";
         echo "<div id='chart_bestdays'></div>";
 
         echo "<table><tbody>";

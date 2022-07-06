@@ -4,36 +4,39 @@ function RenderWelcomeComponent(): void
 {
     echo "
     <div class='component welcome'>
-        <h2>Welcome!</h2>
+        <h3 class='longheader'>Welcome!</h3>
         <div id='Welcome'>
             <p>
             Were you the greatest in your day at Mega Drive or SNES games? Wanna prove it? Use our modified emulators and you will be awarded achievements as you play! Your progress will be tracked so you can compete with your friends to complete all your favourite classics to 100%: we provide the emulators for your Windows-based PC, all you need are the roms!<br>
-            <a href='/game/1'>Click here for an example:</a> which of these do you think you can get?
+            <br><a href='/game/1'>Click here for an example:</a> which of these do you think you can get?
             </p>
         <br>
-            <p style='clear:both; text-align:center'>
-            <a href='/download.php'><b>&gt;&gt;Download an emulator here!&lt;&lt;</b></a><br>
-            </p>
+            <div id ='downloadprompt'>
+            <a href='/download.php' id='welcomedownload'><b>&gt;&gt;Download an emulator here!&lt;&lt;</b></a><br>
+            </div>
         </div>
     </div>";
 }
 
 function RenderDocsComponent(): void
 {
+    echo 
+
+            "<a href='https://docs.retroachievements.org/'>  <div class='infolinks' style='text-align: center'>📘 Documentation</div></a>";
+}
+
+function RenderFaqsComponent(): void
+{
     echo "
-      <div class='component' style='text-align: center'>
-        <div id='docsbox' class='infobox'>
-          <div>
-            <a href='https://docs.retroachievements.org/'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'>FAQ</a>.
-          </div>
-        </div>
-      </div>";
+
+			<a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'><div class='infolinks'>🙋 FAQ</div></a>";
+
 }
 
 function RenderCurrentlyOnlineComponent(): void
 {
     echo "<div class='component'>";
-    echo "<h3>Currently Online</h3>";
+    echo "<h3 class='longheader'>Currently Online</h3>";
     echo "<div id='playersonlinebox' class='infobox'>";
 
     $numPlayers = count(getCurrentlyOnlinePlayers());
@@ -49,7 +52,7 @@ function RenderActivePlayersComponent(): void
 {
     echo <<<HTML
         <div id='active-players-component' class='component activeplayerscomponent'>
-            <h3>Active Players</h3>
+            <h3 class='longheader'>Active Players</h3>
             <div id='playersNotice' style='margin-bottom: 7px'>
                 <span style='margin-bottom: 5px; display: inline-block;'>
                     There are <strong data-bind="text: numberOfFilteredPlayers"></strong> <span data-bind='visible: usersAreFiltered'>filtered</span> active players<span data-bind='visible: usersAreFiltered'> (out of <strong data-bind='text: numberOfPlayersActive'></strong> total)</span>.
@@ -109,7 +112,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
     }
 
     echo "<div class='component aotwcomponent' >";
-    echo "<h3>Achievement of the Week</h3>";
+    echo "<h3 class='longheader'>Achievement of the Week</h3>";
 
     /**
      * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementOfTheWeek instead
@@ -134,16 +137,16 @@ function RenderAOTWComponent($achID, $forumTopicID): void
         $achTitle,
         $achDesc,
     );
-
-    echo "Achievement: ";
+	echo "<div class='aotwtext'>";
+    echo "Achievement:";
     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
     echo "<br>";
 
-    echo "on Game: ";
+    echo "on Game:";
     echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
     echo "<br>";
-
-    echo "<span class='clickablebutton'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
+	echo "</div>";
+    echo "<span class='clickablebuttonaotw'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
 
     echo "</div>";
 

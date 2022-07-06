@@ -37,7 +37,7 @@ RenderHeader($userDetails);
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<h3>Expiring Claims</h3>";
+        echo "<h3 class='longheader'>Expiring Claims</h3>";
 
         // Add username filter section if the user is in the list
         $expiringClaims = getExpiringClaim($user);

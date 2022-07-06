@@ -110,14 +110,14 @@ if ($outbox) {
         <div id="globalfeed">
             <?php
             if ($outbox) {
-                echo "<h2>Outbox</h2>";
+                echo "<h3 class='longheader'>Outbox</h3>";
 
                 echo "<div id='messagecounttext'>";
                 echo "<big>You have $totalMessageCount sent messages.</big>";
                 echo "</div>";
-                echo "<a href='/inbox.php'>Inbox</a>";
+                echo "<span class='leftalignclickablebutton'><a href='/inbox.php'>Inbox</a></span>";
             } else {
-                echo "<h2>Inbox</h2>";
+                echo "<h3 class='longheader'>Inbox</h3>";
 
                 echo "<div id='messagecounttext'>";
                 echo "<span id='messagecountcontainer'>";
@@ -126,13 +126,12 @@ if ($outbox) {
                 echo " and $totalMessageCount total messages.";
                 echo "</div>";
 
-                echo "<a href='/inbox.php?s=1'>Outbox</a>";
-
-                echo "<span class='rightalign clickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
+				echo "<span class='leftalignclickablebutton'><a href='/inbox.php?s=1'>Outbox</a></span>";
+                echo "<span class='rightalignclickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
                 if ($unreadOnly) {
-                    echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";
+                    echo "<span class='rightalignclickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";
                 } else {
-                    echo "<span class='rightalign clickablebutton'><a href='/inbox.php?u=1'>View Unread Only</a></span>";
+                    echo "<span class='rightalignclickablebutton'><a href='/inbox.php?u=1'>View Unread Only</a></span>";
                 }
             }
 

@@ -81,15 +81,14 @@ RenderHtmlStart(true);
             echo " &raquo; <b>Leaderboard</b>";
             echo "</div>";
 
-            echo "<div style='float:left; padding: 4px;'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 96);
+            echo "<div style='float:left; padding: 4px; height:60px; width:60px;'>";
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 60);
 
             echo "</div>";
             echo "<div>";
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "</div>";
 
-            echo "<br>";
             echo "<br>";
             echo "<br>";
 
@@ -214,16 +213,12 @@ RenderHtmlStart(true);
                 $resultsDrawn++;
             }
 
-            echo "</tbody></table><br>";
-
-            if (!$localUserFound && isset($user)) {
-                echo "<div>You don't appear to be ranked for this leaderboard. Why not give it a go?</div><br>";
-            }
-
-            echo "<div class='rightalign row'>";
+            echo "</tbody></table>";
+			
+			echo "<div class='rightalign row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $count;
-                echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a></span> - ";
+                echo "<span class='previousbutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'><img id='loadingicon' src='http://localhost:80/Images/backwardarrow.png' alt='loading icon' width='46' height='26'></a></span>";
             }
 
             // echo "$numActualEntries";
@@ -231,9 +226,14 @@ RenderHtmlStart(true);
             if ($numActualEntries == $count) {
                 // Max number fetched, i.e. there are more. Can goto next 20.
                 $nextOffset = $offset + $count;
-                echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a></span>";
+                echo "<span class='nextbutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'><img id='loadingicon' src='http://localhost:80/Images/forwardarrow.png' alt='loading icon' width='46' height='26'></a></span>";
             }
             echo "</div>";
+			
+            if (!$localUserFound && isset($user)) {
+                echo "<div id='leaderboardnorank'>You don't appear to be ranked for this leaderboard. Why not give it a go?</div><br>";
+            }
+
 
             // Render article comments
             RenderCommentsComponent(

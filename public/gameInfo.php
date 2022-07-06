@@ -631,10 +631,10 @@ RenderHtmlStart(true);
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
-            echo "<td style='width:110px; padding: 7px; vertical-align: top' >";
+            echo "<td style='width:10px; padding: 7px; vertical-align: top; border:1px solid black; border-bottom:none;' >";
             echo "<img src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
             echo "</td>";
-            echo "<td>";
+            echo "<td style='border:none;'>";
             echo "<table class='gameinfo'><tbody>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
@@ -901,7 +901,7 @@ RenderHtmlStart(true);
                         echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<div>Remove related games:</div>";
-                        echo "<select name='m[]' style='resize:vertical;overflow:auto;width:100%;height:125px' multiple>";
+                        echo "<select name='m[]' style='resize:vertical;overflow:auto;width:100%;height:125px;background-image: linear-gradient(to bottom left, #111, 55%, #222);color:#e6e6e6; border: 1px solid black;' multiple>";
                         foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
                             $gameAltTitle = $gameAlt['Title'];
@@ -1357,7 +1357,7 @@ RenderHtmlStart(true);
             <?php
             RenderBoxArt($gameData['ImageBoxArt']);
 
-            echo "<h3>More Info</h3>";
+            echo "<h3 class='longheader'>More Info</h3>";
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
@@ -1403,7 +1403,7 @@ RenderHtmlStart(true);
             RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
 
             echo "<div id='achdistribution' class='component' >";
-            echo "<h3>Achievement Distribution</h3>";
+            echo "<h3 class='longheader'>Achievement Distribution</h3>";
             echo "<div id='chart_distribution'></div>";
             echo "</div>";
 

@@ -73,7 +73,7 @@ RenderHtmlHead("Download a client");
             </div>
         <?php endforeach ?>
 
-        <h3>Source Code</h3>
+        <h3 class='longheader'>Source Code</h3>
         <p class="mb-3">All RetroAchievements emulators are released as free software. Licensing terms for usage and distribution of derivative works may vary depending on the emulator. Please consult the license information of each one for more details.
             <br>
             Standalone Emulators repository: <a href='https://github.com/RetroAchievements/RAEmus'>https://github.com/RetroAchievements/RAEmus</a>
@@ -81,7 +81,7 @@ RenderHtmlHead("Download a client");
             RALibretro repository: <a href='https://github.com/RetroAchievements/RALibretro'>https://github.com/RetroAchievements/RALibretro</a>
         </p>
 
-        <h3>Legal</h3>
+        <h3 class='longheader'>Legal</h3>
         <p class="mb-3">
             RetroAchievements.org does not condone or supply any copyright-protected ROMs to be used in conjunction with the emulator supplied within.
             There are no copyright-protected ROMs available for download on RetroAchievements.org.

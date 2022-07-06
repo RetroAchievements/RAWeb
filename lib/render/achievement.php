@@ -70,7 +70,7 @@ function GetAchievementAndTooltipDiv(
 function RenderRecentlyUploadedComponent($numToFetch): void
 {
     echo "<div class='component'>";
-    echo "<h3>New Achievements</h3>";
+    echo "<h3 class='longheader'>New Achievements</h3>";
 
     $numFetched = getLatestNewAchievements($numToFetch, $dataOut);
     if ($numFetched > 0) {

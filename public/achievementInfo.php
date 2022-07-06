@@ -167,7 +167,7 @@ RenderHtmlStart(true);
 
         $descAttr = attributeEscape($desc);
         echo "<tr>";
-        echo "<td style='width:70px'>";
+        echo "<td style='width: 67px; padding: 4px 2px 5px 5px;'>";
         echo "<div id='achievemententryicon'>";
         echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; // achievemententryicon
@@ -315,7 +315,7 @@ RenderHtmlStart(true);
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div id='recentwinners'>";
-        echo "<h3>Recent Winners</h3>";
+        echo "<h3 class='longheader'>Recent Winners</h3>";
         if (empty($winnerInfo)) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {

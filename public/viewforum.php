@@ -79,11 +79,11 @@ RenderHtmlHead("View forum: $thisForumTitle");
             echo "</div>";
 
             if ($numUnofficialLinks > 0) {
-                echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
+                echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br><br>";
             }
 
             // echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
-            echo "<h2>$requestedForum</h2>";
+            echo "<h3 class='longheader'>$requestedForum</h3>";
             echo "$thisForumDescription<br><br>";
 
             if ($numTotalTopics > $count) {
@@ -91,9 +91,11 @@ RenderHtmlHead("View forum: $thisForumTitle");
             }
 
             if ($permissions >= Permissions::Registered) {
-                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</div></a>";
+                echo "<div class='createtopic'><a href='createtopic.php?f=$thisForumID'>Create New Topic</div></a>";
             }
-
+			else {
+                echo "<div class='rightfloat'><span class='unregisteredwarning'>Unregistered: please check your email registration link!</span></div>";
+            }
             echo "<table><tbody>";
             echo "<tr class='forumsheader'>";
             echo "<th></th>";
@@ -155,7 +157,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
                 echo "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span><br>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor, $mobileBrowser);
                 // echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";
-                echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post' alt='View latest post'>[View]</a>";
+                echo " <a href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' class='forumviewcompetitions' title='View latest post' alt='View latest post'>View</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";
@@ -173,10 +175,8 @@ RenderHtmlHead("View forum: $thisForumTitle");
             }
 
             if ($permissions >= Permissions::Registered) {
-                echo "<div class='rightfloat'><a href='createtopic.php?f=$thisForumID'>[Create New Topic]</a></div>";
-            } else {
-                echo "<div class='rightfloat'><span class='hoverable' title='Unregistered: please check your email registration link!'>[Create New Topic]</span></div>";
-            }
+                echo "<div class='createtopic'><a href='createtopic.php?f=$thisForumID'>Create New Topic</a></div>";
+            } 
 
             echo "<br>";
 

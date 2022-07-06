@@ -54,18 +54,20 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "<td class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td class='usercardusername'>$userSanitized</td>";
-    $tooltip .= "<td class='usercardaccounttype'>$userAccountType</td>";
+    $tooltip .= "<td class='usercardusername'>$userSanitized </td>";
     $tooltip .= "</tr>";
+	$tooltip .= "<tr>";
+	$tooltip .= "<td class='usercardaccounttype'>Account Type: $userAccountType</td>";
+	$tooltip .= "</tr>";
 
     // Add the user motto if it's set
     $tooltip .= "<tr>";
     if ($userMotto !== null && mb_strlen($userMotto) > 2) {
         sanitize_outputs($userMotto);
-        $tooltip .= "<td colspan='2' height='32px'><span class='usermotto tooltip'>$userMotto</span></td>";
+        $tooltip .= "<td  class='usercardbasictext' width: '100%' height='32px'><span class='usermottotooltip'>$userMotto</span></td>";
     } else {
         // Insert blank row to add whitespace where motto would be
-        $tooltip .= "<td height='24px'></td>";
+        $tooltip .= "<td></td>";
     }
     $tooltip .= "</tr>";
 
@@ -127,7 +129,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
 {
     echo "<div id='completedgames' class='component' >";
 
-    echo "<h3>Completion Progress</h3>";
+    echo "<h3 class='longheader'>Completion Progress</h3>";
     echo "<div id='usercompletedgamescomponent'>";
 
     echo "<table><tbody>";

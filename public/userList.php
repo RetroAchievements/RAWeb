@@ -144,12 +144,12 @@ RenderHtmlHead("Users");
         echo "<div class='rightalign row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>&lt; Previous $maxCount</a> - ";
+            echo "<a class='previousbutton' href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'><img id='loadingicon' src='http://localhost:80/Images/backwardarrow.png' alt='loading icon' width='46' height='26'></a>";
         }
         if ($userCount == $maxCount) {
             // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
-            echo "<a href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Next $maxCount &gt;</a>";
+            echo "<a class='nextbutton' href='/userList.php?s=$sortBy&amp;o=$nextOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'><img id='loadingicon' src='http://localhost:80/Images/forwardarrow.png' alt='loading icon' width='46' height='26'></a>";
         }
         echo "</div>";
 

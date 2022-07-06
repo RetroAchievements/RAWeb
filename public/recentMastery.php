@@ -126,25 +126,23 @@ RenderHeader($userDetails);
         echo "<div class='rightalign row'>";
         if ($date > $minDate) {
             $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
-            echo "<a href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>&lt; Prev Day </a>";
-            if ($date < date("Y-m-d")) {
-                echo " | ";
-            }
+            echo "<a class ='previousdaybutton' href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>Prev Day</a>";
+
         }
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a href='/recentMastery.php?d=$date&f=$friends&o=$prevOffset'>&lt; Prev $maxCount </a>";
+            echo "<a class='previousbutton' href='/recentMastery.php?d=$date&f=$friends&o=$prevOffset'><img id='loadingicon' src='http://localhost:80/Images/backwardarrow.png' alt='loading icon' width='46' height='26'></a>";
         }
         if ($userCount > $maxCount) {
             if ($offset > 0) {
-                echo " - ";
+                echo "";
             }
             $nextOffset = $offset + $maxCount;
-            echo "<a href='/recentMastery.php?d=$date&f=$friends&o=$nextOffset'>Next $maxCount &gt;</a>";
+            echo "<a class='nextbutton' href='/recentMastery.php?d=$date&f=$friends&o=$nextOffset'><img id='loadingicon' src='http://localhost:80/Images/forwardarrow.png' alt='loading icon' width='46' height='26'></a>";
         }
         if ($date < date("Y-m-d")) {
             $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
-            echo " | <a href='/recentMastery.php?d=$nextDate&f=$friends&o=0'>Next Day &gt;</a>";
+            echo " <a class='nextdaybutton' href='/recentMastery.php?d=$nextDate&f=$friends&o=0'>Next Day</a>";
         }
         echo "</div>";
         ?>

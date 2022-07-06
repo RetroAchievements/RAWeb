@@ -37,7 +37,7 @@ RenderHtmlHead("Set Requests");
 <?php RenderHeader($userDetails); ?>
 <div id="mainpage">
     <div id='fullcontainer'>
-        <h2>List of Set Requests</h2>
+        <h3 class='longheader'>List of Set Requests</h3>
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
         echo "<br><br>";

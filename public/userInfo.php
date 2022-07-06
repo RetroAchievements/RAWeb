@@ -242,7 +242,7 @@ RenderHtmlStart(true);
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
-            echo "<span class='usermotto'>$userMotto</span>";
+            echo "<span class='usermottoprofile'>$userMotto</span>";
             echo "</div>";
         }
         echo "<br>";
@@ -288,7 +288,7 @@ RenderHtmlStart(true);
         echo "<br><br>";
 
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
-            echo "<div class='mottocontainer'>Last seen ";
+            echo "<div class='mottocontainerprofile'>Last seen ";
             if (!empty($userMassData['LastGameID'])) {
                 $game = getGameData($userMassData['LastGameID']);
                 echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false, 22) . '<br>';
@@ -334,34 +334,34 @@ RenderHtmlStart(true);
 
         if (isset($user) && ($user !== $userPage)) {
             echo "<div class='friendbox'>";
-            echo "<div class='buttoncollection'>";
+            echo "<div class='buttoncollectionprofile'>";
             // echo "<h4>Friend Actions:</h4>";
 
             if ($userMassData['Friendship'] == 1) {
                 if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
+                    echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
                     // They haven't accepted yet
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Cancel friend request</a></span>";
+                    echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Cancel friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == -1) {
                     // They blocked us
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
+                    echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
                 }
             } elseif ($userMassData['Friendship'] == 0) {
                 if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Confirm friend request</a></span>";
+                    echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Confirm friend request</a></span>";
                 } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Add friend</a></span>";
+                    echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Add friend</a></span>";
                 }
             }
 
             if ($userMassData['Friendship'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=-1'>Block user</a></span>";
+                echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=-1'>Block user</a></span>";
             } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Unblock user</a></span>";
+                echo "<span class='clickablebuttonprofile'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Unblock user</a></span>";
             }
 
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
+            echo "<span class='clickablebuttonprofile'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
 
             echo "</div>"; // buttoncollection
             echo "</div>"; // friendbox
@@ -455,7 +455,7 @@ RenderHtmlStart(true);
             echo "</div>"; // devbox
         }
 
-        echo "<div class='userpage recentlyplayed' >";
+        echo "<div class='userpagerecentlyplayed' >";
 
         $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
 
@@ -601,9 +601,9 @@ RenderHtmlStart(true);
         RenderCompletedGamesList($userCompletedGamesList);
 
         echo "<div id='achdistribution' class='component' >";
-        echo "<h3>Recent Progress</h3>";
+        echo "<h3 class='longheader'>Recent Progress</h3>";
         echo "<div id='chart_recentprogress'></div>";
-        echo "<div class='rightalign'><a href='/history.php?u=$userPage'>more...</a></div>";
+        echo "<div class='morebutton'><a href='/history.php?u=$userPage'>more...</a></div>";
         echo "</div>";
 
         if ($user !== null && $user === $userPage) {

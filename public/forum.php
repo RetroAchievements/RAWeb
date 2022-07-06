@@ -52,6 +52,7 @@ RenderHtmlHead($pageTitle);
 
             if ($numUnofficialLinks > 0) {
                 echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
+				echo "<br>";
             }
 
             $lastCategory = "_init";
@@ -77,8 +78,8 @@ RenderHtmlHead($pageTitle);
 
                     sanitize_outputs($forumData['CategoryDescription']);
 
-                    echo "<h2>Forum: $nextCategory</h2>";
-                    echo $forumData['CategoryDescription'] . "<br>";
+                    echo "<h3 class='longheader'>Forum: $nextCategory</h3>";
+                    echo $forumData['CategoryDescription'] . "<br><br>";
 
                     echo "<table>";
                     echo "<tbody>";
@@ -130,7 +131,7 @@ RenderHtmlHead($pageTitle);
                 if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
                     echo GetUserAndTooltipDiv($nextForumLastPostAuthor, true);
                     // echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";
-                    echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>[View]</a>";
+                    echo " <a href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID' class='forumview'>View</a>";
                 }
                 echo "</div>";
                 echo "</td>";

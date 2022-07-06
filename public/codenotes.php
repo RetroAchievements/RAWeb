@@ -26,7 +26,12 @@ RenderHtmlHead('Code Notes');
 <?php RenderHeader($userDetails); ?>
 <div id='mainpage'>
     <div id="fullcontainer">
-        <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
+        <?php
+		 echo "<div class='codenoteheader'>";
+		echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
+		<?php
+		echo "</div>";
+		?>
         <?php
         if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
             RenderCodeNotes($codeNotes, true);

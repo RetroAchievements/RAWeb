@@ -271,13 +271,13 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             }
         ?>
         <div class='component'>
-            <h2>User Details</h2>
+            <h3 class='longheader'>User Details</h3>
             <div class="embedded d-flex justify-content-between">
                 <div>
                     <div><strong><a href="/user/<?= $user ?>"><?= $user ?></a></strong> (<?= $points ?> points)</div>
                     <div>Account: (<?= $permissions ?>) <?= Permissions::toString($permissions) ?></div>
                     <?php if (!empty($userMotto) && mb_strlen($userMotto) > 1) : ?>
-                        <span class="usermotto"><?= $userMotto ?></span>
+                        <div id="usermottosettings"><?= $userMotto ?></div>
                     <?php endif ?>
                 </div>
                 <img class="userpic" src="/UserPic/<?= $user ?>.png" alt="<?= $user ?> avatar" width='96' height='96' />
@@ -325,7 +325,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         <?php
         if ($permissions >= Permissions::Registered) {
             echo "<div class='component'>";
-            echo "<h3>Keys</h3>";
+            echo "<h3 class='longheader'>Keys</h3>";
             echo "<table><tbody>";
 
             echo "<tr>";
@@ -359,10 +359,10 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         }
         ?>
         <div class='component'>
-            <h3>Notifications</h3>
+            <h3 class='longheader'>Notifications</h3>
             When would you like to be notified?
             <table>
-                <tbody>
+                <tbody id='preferencestable'>
                 <tr>
                     <th>Event</th>
                     <th>Email Me</th>
@@ -413,7 +413,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             <img id='loadingicon' style='opacity: 0; float: right;' src='<?= asset('Images/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
         </div>
         <div class='component'>
-            <h3>Change Password</h3>
+            <h3 class='longheader'>Change Password</h3>
             <form method='post' action='/request/auth/update-password.php'>
                 <input type="hidden" name="u" value="<?= $user ?>">
                 <table>
@@ -439,7 +439,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             </form>
         </div>
         <div class='component'>
-            <h3>Change Email Address</h3>
+            <h3 class='longheader'>Change Email Address</h3>
             <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return validateEmail()'>
                 <table>
                     <tbody>
@@ -470,7 +470,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
             </form>
         </div>
         <div class='component'>
-            <h3>Reset Game Progress</h3>
+            <h3 class='longheader'>Reset Game Progress</h3>
             <?php
             echo "<table><tbody>";
             echo "<tr><td>Game:</td>";
@@ -501,7 +501,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
         </div>
         */ ?>
         <div class='component'>
-            <h3>Delete Account</h3>
+            <h3 class='longheader'>Delete Account</h3>
             <p>
                 After requesting account deletion you may cancel your request within 14 days.<br>
                 Your account's username will NOT be available after the deletion.<br>
@@ -527,7 +527,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
     <?php if ($permissions >= Permissions::Registered): ?>
         <div id="rightcontainer">
             <div class='component'>
-                <h3>Request Score Recalculation</h3>
+                <h3 class='longheader'>Request Score Recalculation</h3>
                 <form method=post action="/request/user/recalculate-score.php">
                     <input type="hidden" name="u" value="<?= $user ?>">
                     If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>

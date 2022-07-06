@@ -41,7 +41,7 @@ RenderHtmlHead("Linked Hashes");
 <div id="mainpage">
     <div id='fullcontainer'>
 
-        <h2>List of Linked Hashes</h2>
+        <h2 class='longheader'>List of Linked Hashes</h2>
 
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);

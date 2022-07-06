@@ -21,7 +21,7 @@ RenderHeader($userDetails);
 ?>
 <div id='mainpage'>
     <div id='fullcontainer'>
-        <h3>Developer Stats</h3>
+        <h3 class='longheader'>Developer Stats</h3>
         <?php
         RenderErrorCodeWarning($errorCode);
         $devStatsList = GetDeveloperStatsFull(100, $type, $devFilter);

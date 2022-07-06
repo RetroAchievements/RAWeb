@@ -235,7 +235,7 @@ RenderHtmlHead($pageTitle);
         echo "</div>";
 
         if ($gamesTableFlag == 1) {
-            echo "<h3>Top " . (is_countable($ticketData) ? count($ticketData) : 0) . " Games Sorted By Most Outstanding Tickets</h3>";
+            echo "<h3 class='longheader'>Top " . (is_countable($ticketData) ? count($ticketData) : 0) . " Games Sorted By Most Outstanding Tickets</h3>";
         } else {
             $assignedToUser = requestInputSanitized('u', null);
             if (!isValidUsername($assignedToUser)) {

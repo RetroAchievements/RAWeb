@@ -52,7 +52,7 @@ RenderHeader($userDetails);
     <div id='fullcontainer'>
         <?php
         RenderErrorCodeWarning($errorCode);
-        echo "<h3>Claim List - $activeClaimCount Active Claims</h3>";
+        echo "<h3 class='longheader'>Claim List - $activeClaimCount Active Claims</h3>";
         echo "<h4>Filters - $totalClaims Claims Filtered</h4>";
         echo "<div class='embedded mb-1'>";
 

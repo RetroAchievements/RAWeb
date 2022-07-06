@@ -98,7 +98,7 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): void
 function RenderBoxArt($imagePath): void
 {
     echo "<div class='component gamescreenshots'>";
-    echo "<h3>Box Art</h3>";
+    echo "<h3 class='longheader'>Box Art</h3>";
     echo "<table><tbody>";
     echo "<tr><td>";
     echo "<img src='$imagePath' style='max-width:100%;' alt='Boxart'/>";
@@ -111,7 +111,7 @@ function RenderGameAlts($gameAlts, $headerText = null): void
 {
     echo "<div class='component gamealts'>";
     if ($headerText) {
-        echo "<h3>$headerText</h3>";
+        echo "<h3 class='longheader'>$headerText</h3>";
     }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
@@ -207,8 +207,8 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
 
     if (!empty($gameDataValues)) {
         echo "<tr>";
-        echo "<td style='white-space: nowrap'>$label:</td>";
-        echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
+        echo "<td style='white-space: normal; border:1px solid black; padding-left:5px;'>$label:</td>";
+        echo "<td style='white-space: normal; border:1px solid black; padding-left:5px;'><b>" . implode(', ', $gameDataValues) . "</b></td>";
         echo "</tr>";
     }
 }
@@ -230,7 +230,8 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
 
 function RenderRecentGamePlayers($recentPlayerData): void
 {
-    echo "<div class='component'>Recent Players:";
+    echo "<div class='component'>";
+	echo "<div class='recenttext'>Recent Players:</div>";
     echo "<table class='smalltable'><tbody>";
     echo "<tr><th>User</th><th>When</th><th>Activity</th>";
 

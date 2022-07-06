@@ -8,7 +8,7 @@ function RenderNewsComponent(): void
     }
 
     echo "<div class='left'>";
-    echo "<h2>News</h2>";
+    echo "<h3 class='longheader'>News</h3>";
     echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";

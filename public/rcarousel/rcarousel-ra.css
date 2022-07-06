@@ -5,6 +5,9 @@
 	height: 270px;
 	border-radius: 8px;
 	background-color: rgb(22,22,22);
+	margin-bottom: 10px;
+	border: 1px solid black;
+	padding-top:40px;
 }
 
 #carousel {
@@ -13,8 +16,8 @@
 }
 
 #ui-carousel-next, #ui-carousel-prev {
-	width: 60px;
-	height: 240px;
+	width: 51px;
+	height: 298px;
 	background: url('/Images/arrow-left.png') center center no-repeat;
 	display: block;
 	position: absolute;
@@ -66,7 +69,8 @@
 	height: 18px;
 	margin: 0;
 	margin-right: 5px;
-	float: left;				
+	float: left;
+	margin-top: 10px;	
 }
 
 /* --- MOBILE STYLES --- */

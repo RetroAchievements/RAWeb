@@ -18,9 +18,9 @@ function RenderCommentsComponent(
 
     echo "<div class='leftfloat'>";
     if ($numComments == 0) {
-        echo "<i>No comments</i><br>";
+     echo "<div class='recenttext'><i>No comments:</i></div>";
     } else {
-        echo "Recent comment(s):<br>";
+		echo "<div class='recenttext'>Recent comment(s):</div>";
     }
     echo "</div>";
 
@@ -121,6 +121,7 @@ function RenderArticleComment(
         echo GetUserAndTooltipDiv($user, true);
     }
     echo "</td>";
+	echo "<a id=commentsanchor></a>";
     echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
 
     echo "</tr>";

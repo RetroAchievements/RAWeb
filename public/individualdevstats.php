@@ -663,7 +663,7 @@ RenderHtmlHead("$dev's Developer Stats");
         <?php endif ?>
 
         <?php
-        echo "<h2>$dev's Developer Stats</h2>";
+        echo "<h3 class='darkheader'>$dev's Developer Stats</h3>";
 
         // Only show stats if the user has a contribute count
         if ($userContribCount > 0) {
@@ -678,13 +678,13 @@ RenderHtmlHead("$dev's Developer Stats");
             /*
              * Games
              */
-            echo "<H1>Games</H1>";
+            echo "<h3 class='darkheader'>Games</h3>";
 
             /*
              * Any Development
              */
             echo "<table><tbody>";
-            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Any Development</td></tr>";
+            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px; background-image: linear-gradient(to top right, #111, 55%, #222); border: 1px solid black; border-radius: 3px;\">Any Development</td></tr>";
             echo "<tr></tr><tr><td colspan='2' align='center'>Stats below are for games that $dev has published at least one achievement for.</td></tr>";
 
             // Any Development - Games developed for
@@ -796,7 +796,7 @@ RenderHtmlHead("$dev's Developer Stats");
              * Majority Developer
              */
             echo "<table><tbody>";
-            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Majority Developer</td></tr>";
+            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px; background-image: linear-gradient(to top right, #111, 55%, #222); border: 1px solid black; border-radius: 3px;\">Majority Developer</td></tr>";
             echo "<tr></tr><tr><td colspan='2' align='center'>Stats below are for games that $dev has published at least half the achievements for.</td></tr>";
 
             // Majority Developer - Games developed for
@@ -908,7 +908,7 @@ RenderHtmlHead("$dev's Developer Stats");
              * Sole Developer
              */
             echo "<table><tbody>";
-            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Sole Developer</td></tr>";
+            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px; background-image: linear-gradient(to top right, #111, 55%, #222); border: 1px solid black; border-radius: 3px;\">Sole Developer</td></tr>";
             echo "<tr></tr><tr><td colspan='2' align='center'>Stats below are for games that $dev has published all the achievements for.</td></tr>";
 
             // Sole Developer - Games developed for
@@ -1019,7 +1019,7 @@ RenderHtmlHead("$dev's Developer Stats");
             /*
              * Achievements
              */
-            echo "<H1>Achievements</H1>";
+            echo "<h3 class='darkheader'>Achievements</h3>";
             echo "<table><tbody>";
 
             // Any Development - Achievements created
@@ -1138,7 +1138,7 @@ RenderHtmlHead("$dev's Developer Stats");
 
             // Recently Obtained achievements
             echo "<table><tbody>";
-            echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Recently Obtained Achievements</td></tr>";
+            echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px; background-image: linear-gradient(to top right, #111, 55%, #222); border: 1px solid black; border-radius: 3px;\">Recently Obtained Achievements</td></tr>";
             echo "<tr><td width='34%'>Achievement</td><td width='33%'>Game</td><td width='19%'>User</td><td width='11%'>Date Obtained</td></tr>";
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
@@ -1181,7 +1181,7 @@ RenderHtmlHead("$dev's Developer Stats");
             /*
              * Code Notes
              */
-            echo "<H1>Code Notes</H1>";
+            echo "<h3 class='darkheader'>Code Notes</h3>";
             echo "<table><tbody>";
 
             // Code notes created
@@ -1191,7 +1191,7 @@ RenderHtmlHead("$dev's Developer Stats");
 
             // Games with user created code notes
             echo "<table><tbody>";
-            echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Games with Code Notes</td></tr>";
+            echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px; background-image: linear-gradient(to top right, #111, 55%, #222);border: 1px solid black; border-radius: 3px;\">Games with Code Notes</td></tr>";
             echo "<tr colspan='3'><td width='50%'>Game</td><td width='35%'>Notes Created (% of Total)</td><td>Total Notes</td></tr>";
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
@@ -1212,7 +1212,7 @@ RenderHtmlHead("$dev's Developer Stats");
             /*
              * Tickets
              */
-            echo "<H1>Tickets</H1>";
+            echo "<h3 class='darkheader'>Tickets</h3>";
             echo "<table><tbody>";
 
             // Total tickets created
