@@ -1,4 +1,7 @@
 <?php
+
+use RA\ClaimStatus;
+
 /**
  * Gets a list of set requests made by a given user.
  */
@@ -13,15 +16,20 @@ function getUserRequestList(string $user): array
             sr.GameID as GameID,
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
-            c.name as ConsoleName
+            c.name as ConsoleName,
+            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
+        LEFT JOIN
+            SetClaim sc ON (sr.GameID = sc.GameID)
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
         WHERE
             sr.user = '$user'
+        GROUP BY
+            sr.GameID
         ORDER BY
             GameTitle ASC";
 
@@ -172,7 +180,7 @@ function getSetRequestCount(int $gameID): int
 /**
  * Gets a list of set requestors for a given game.
  */
-function getSetRequestorsList(int $gameID): array
+function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -183,13 +191,29 @@ function getSetRequestorsList(int $gameID): array
         return [];
     }
 
-    $query = "
+    if ($getEmailInfo) {
+        $query = "
         SELECT
+            sr.User AS Requestor,
+            ua.EmailAddress AS Email,
+            gd.Title AS Title
+        FROM
+            SetRequest AS sr
+        LEFT JOIN
+            UserAccounts ua on ua.User = sr.User
+        LEFT JOIN
+            GameData gd ON sr.GameID = gd.ID
+        WHERE
+        GameID = $gameID";
+    } else {
+        $query = "
+            SELECT
             User AS Requestor
         FROM
             SetRequest
         WHERE
             GameID = $gameID";
+    }
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -214,13 +238,16 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 
     $query = "
         SELECT
-            COUNT(*) AS Requests,
+            COUNT(DISTINCT(sr.User)) AS Requests,
             sr.GameID as GameID,
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
-            c.name as ConsoleName
+            c.name as ConsoleName,
+            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
+        LEFT JOIN
+            SetClaim sc ON (sr.GameID = sc.GameID)
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN

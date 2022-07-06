@@ -71,6 +71,7 @@ RenderHeader($userDetails);
         echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=4&f=$devFilter'>Ticket Ratio (%)</a>" . ($type == 4 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>" . ($type == 2 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>" . ($type == 1 ? "*" : "") . "</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>" . ($type == 7 ? "*" : "") . "</th>";
         // echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == AchievementType::UNOFFICIAL ? "*" : "") . "</th>";
 
         $userCount = 0;
@@ -101,6 +102,7 @@ RenderHeader($userDetails);
             echo "<td class='text-right'>" . number_format($devStats['TicketRatio'] * 100, 2) . "</td>";
             echo "<td class='text-right'>" . $devStats['ContribCount'] . "</td>";
             echo "<td class='text-right'>" . $devStats['ContribYield'] . "</td>";
+            echo "<td class='text-right'>" . $devStats['ActiveClaims'] . "</td>";
             // echo "<td class='text-right smalldate'>" . getNiceDate( strtotime( $devStats[ 'LastLogin' ] ) ) . "</td>";
         }
         echo "</tbody></table></div>";

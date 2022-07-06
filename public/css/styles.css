@@ -216,8 +216,14 @@ a:hover {
   width: 100px;
 }
 
-#themeselect {
-  float: right;
+.themeselect-wrapper {
+  display: block;
+  color: rgb(44, 151, 250);
+  margin-top: 25px;
+}
+
+.themeselect-wrapper #themeselect{
+  margin-left: 15px;
 }
 
 .component {
@@ -395,8 +401,6 @@ td, tr, img {
   margin-bottom: 4px;
   margin-top: 4px;
   color: #dd0000;
-  position: sticky;
-  top: 0;
   background: #292929;
   padding: 3px;
 }
@@ -404,14 +408,39 @@ td, tr, img {
 #warning a {
 }
 
-#footer {
-  padding: 15px;
-  max-width: 980px;
+#status {
+  line-height: 110%;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  color: #e0e0e0;
+  position: sticky;
+  top: 4px;
+  background: #666666;
+  padding: 3px;
+  border-radius: 4px;
+}
+
+#status.success {
+  background: #009900;
+}
+
+#status.failure {
+  background: #990000;
+}
+
+.footer-wrapper {
   background-color: #151515;
+}
+
+#footer {
+  padding: 25px 15px;
+  max-width: 980px;
   color: #3a3a3a;
   font-size: 12px;
   line-height: 1.6;
-  margin: 20px auto;
+  margin: 0 auto;
   border-top-style: solid;
   border-top-color: #0066cc;
   clear: both;
@@ -427,13 +456,13 @@ td, tr, img {
 }
 
 @media (min-width: 700px) {
-  #footer {
+  #footer-flex {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
   }
 
-  #footer > div {
+  #footer-flex > div {
     margin: 0;
   }
 }
@@ -892,6 +921,33 @@ td, tr, img {
   width: 80%;
 }
 
+.searchbox-top {
+  float: right;
+  border-left: 15px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  width: 340px;
+}
+
+.searchbox-top .searchboxinput{
+  border: none;
+  padding: 10px;
+  background-color: transparent;
+  color: #FFF;
+  height: 42px;
+  width: 100%;
+  vertical-align: top;
+}
+
+.searchbox-top input[type="submit"]{
+  border: none;
+  background-color: transparent;
+  color: #FFF;
+  padding: 5px 15px;
+  height: 42px;
+  font-size: 16px;
+}
+
 #feedcontainer {
   height: 220px;
   /*width: 300px;*/
@@ -933,6 +989,20 @@ td, tr, img {
 .achievemententryicon {
   float: left;
   padding: 0 4px;
+}
+
+@media only screen and (max-width: 980px) {
+  .searchbox-top {
+    border-left: none;
+    border-top: 15px solid #1a1a1a;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .searchbox-top .searchboxinput{
+    width: 100%;
+  }
 }
 
 /* Table properties */

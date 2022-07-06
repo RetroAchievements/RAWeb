@@ -66,7 +66,7 @@ function RenderSharedHeader(): void
     }
     $customCSS = readCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
+        echo "<link id='theme-style' rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
     }
 }
 
@@ -210,6 +210,21 @@ function RenderTitleBar($user, $points, $truePoints, $softcorePoints, $unreadMes
             echo " $separator <a href='/ticketmanager.php?p=$user&t=$filter'>$prefix$requestTickets</a>";
         }
 
+        // Display claim expiring message if necessary
+        if ($permissions >= Permissions::JuniorDeveloper) {
+            $expiringClaims = getExpiringClaim($user);
+            if ($expiringClaims["Expired"] > 0) {
+                echo "<br clear='left'/>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
+                echo "<font color='red'>Claim Expired</font>";
+                echo "</a>";
+            } elseif ($expiringClaims["Expiring"] > 0) {
+                echo "<br clear='left'/>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
+                echo "<font color='red'>Claim Expiring Soon</font>";
+                echo "</a>";
+            }
+        }
         echo "</p>";
     }
 
@@ -318,6 +333,7 @@ function RenderToolbar($user, $permissions = 0): void
     // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
     echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
+    echo "<li><a href='/claimlist.php'>Claim List</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
@@ -334,6 +350,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/user/$user'>Profile</a></li>";
         echo "<li><a href='/gameList.php?d=$user'>My Sets</a></li>";
         echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
+        echo "<li><a href='/claimlist.php?u=$user'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
         echo "<li><a href='/friends.php'>Friends</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
@@ -363,6 +380,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
+        echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         // Admin
@@ -376,26 +394,23 @@ function RenderToolbar($user, $permissions = 0): void
         echo "</li>";
     }
 
+    echo "</ul>";
+
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         $searchQuery = attributeEscape(requestInputQuery('s', null));
     }
     echo "<form action='/searchresults.php' method='get'>";
-    echo "<div class='searchbox'>";
+    echo "<div class='searchbox-top'>";
     // echo "Search:&nbsp;";
     echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
-    echo "<input type='submit' value='Search'>";
+    echo "<input type='submit' value='🔎︎' title='Search the site'>";
     echo "</div>";
     echo "</form>";
 
-    echo "<div class='searchbox'>";
-    RenderThemeSelector();
-    echo "</div>";
-
     echo '<div style="clear:both;"></div>';
 
-    echo "</ul>";
     echo "</div>";
 }
 
@@ -419,7 +434,11 @@ function RenderFooter(): void
 {
     echo "<div style='clear:both;'></div>";
 
+    echo "<div class='footer-wrapper'>";
+
     echo "<footer id='footer'>";
+
+    echo "<div id='footer-flex'>";
 
     echo "<div>";
     echo "<h4>RetroAchievements</h4>";
@@ -466,7 +485,29 @@ function RenderFooter(): void
     echo "<div><a href='/rss.php'>RSS</a></div>";
     echo "</div>";
 
+    // echo "<div>Content by <a href='http://www.immensegames.com' target='_blank'>Immense Games</a></div>";
+
+    // global $g_numQueries;
+    // global $g_pageLoadAt;
+    // $loadDuration = microtime(true) - $g_pageLoadAt;
+    // echo "<p>";
+    // echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
+    // if ($loadDuration > 2.4) {
+    //     error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
+    // }
+    // echo "</p>";
+
+    echo "</div>";
+
+    echo "<label class='themeselect-wrapper'>";
+    RenderThemeSelector();
+    echo "</label>";
+
+    echo "<div style='clear:both;'></div>";
+
     echo "</footer>";
+
+    echo "</div>";
 }
 
 function RenderThemeSelector(): void
@@ -486,7 +527,7 @@ function RenderThemeSelector(): void
     $currentCustomCSS = readCookie('RAPrefs_CSS');
     $currentCustomCSS = $currentCustomCSS ?: '/css/rac_blank.css';
 
-    echo "<select id='themeselect' onchange='ResetTheme(); return false;'>";
+    echo "Select theme: <select id='themeselect' onchange='changeTheme(); return false;'>";
     foreach ($cssFileList as $nextCSS) {
         $cssFull = "/css/rac_" . $nextCSS . ".css";
         $selected = (strcmp($currentCustomCSS, $cssFull) == 0) ? 'selected' : '';
@@ -519,5 +560,18 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
         $lastOffset = $numItems - 1; // 0-based
         $lastOffset = $lastOffset - ($lastOffset % $perPage);
         echo "&nbsp;<a title='Last' href='$urlPrefix$lastOffset'>&#x226B;</a>";
+    }
+}
+
+function RenderStatusWidget(?string $message = null, ?string $errorMessage = null, ?string $successMessage = null)
+{
+    if (!empty($errorMessage)) {
+        echo "<div id='status' class='failure'>$errorMessage</div>";
+    } elseif (!empty($successMessage)) {
+        echo "<div id='status' class='success'>$successMessage</div>";
+    } elseif (!empty($message)) {
+        echo "<div id='status'>$message</div>";
+    } else {
+        echo "<div id='status' style='display: none'></div>";
     }
 }
