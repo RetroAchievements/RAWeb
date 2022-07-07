@@ -503,7 +503,6 @@ margin-bottom: -20px;
 .gamescreenshots td {
   text-align: center;
   padding: 4px;
-border: 1px solid black;
 }
 
 .gameinfo {
@@ -1173,8 +1172,7 @@ tbody tr:nth-child(odd) {
 
 td {
   padding: 2px;
-  background-image: linear-gradient(to bottom left, #111, 55%, #222);
-  border: 1px solid black;
+background-image: linear-gradient(to bottom , #111, 75%, #222);
 }
 
 th {

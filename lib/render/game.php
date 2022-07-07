@@ -207,8 +207,8 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
 
     if (!empty($gameDataValues)) {
         echo "<tr>";
-        echo "<td style='white-space: normal; border:1px solid black; padding-left:5px;'>$label:</td>";
-        echo "<td style='white-space: normal; border:1px solid black; padding-left:5px;'><b>" . implode(', ', $gameDataValues) . "</b></td>";
+        echo "<td style='white-space: normal;  padding-left:5px;'>$label:</td>";
+        echo "<td style='white-space: normal;  padding-left:5px;'><b>" . implode(', ', $gameDataValues) . "</b></td>";
         echo "</tr>";
     }
 }
