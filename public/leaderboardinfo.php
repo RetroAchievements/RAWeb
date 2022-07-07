@@ -218,7 +218,7 @@ RenderHtmlStart(true);
             echo "<div class='rightalign row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $count;
-                echo "<span class='previousbutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'><img id='loadingicon' src='http://localhost:80/Images/backwardarrow.png' alt='loading icon' width='46' height='26'></a></span>";
+                echo "<span class='previousbutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a></span>";
             }
 
             // echo "$numActualEntries";
@@ -226,7 +226,7 @@ RenderHtmlStart(true);
             if ($numActualEntries == $count) {
                 // Max number fetched, i.e. there are more. Can goto next 20.
                 $nextOffset = $offset + $count;
-                echo "<span class='nextbutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'><img id='loadingicon' src='http://localhost:80/Images/forwardarrow.png' alt='loading icon' width='46' height='26'></a></span>";
+                echo "<span class='nextbutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a></span>";
             }
             echo "</div>";
 

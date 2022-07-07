@@ -106,12 +106,12 @@ RenderHtmlHead("Search");
                 echo "<div class='rightalign row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$prevOffset' class='previousbutton'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
                 }
                 if ($resultsCount == $maxCount) {
                     // Max number fetched, i.e. there are more. Can goto next 25.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
+                    echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$nextOffset' class='nextbutton'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
                 }
                 echo "</div>";
             }
