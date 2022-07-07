@@ -18,9 +18,9 @@ function RenderCommentsComponent(
 
     echo "<div class='leftfloat'>";
     if ($numComments == 0) {
-     echo "<div class='recenttext'><i>No comments:</i></div>";
+        echo "<div class='recenttext'><i>No comments:</i></div>";
     } else {
-		echo "<div class='recenttext'>Recent comment(s):</div>";
+        echo "<div class='recenttext'>Recent comment(s):</div>";
     }
     echo "</div>";
 

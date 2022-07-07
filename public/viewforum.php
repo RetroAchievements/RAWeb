@@ -92,8 +92,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
             if ($permissions >= Permissions::Registered) {
                 echo "<div class='createtopic'><a href='createtopic.php?f=$thisForumID'>Create New Topic</div></a>";
-            }
-			else {
+            } else {
                 echo "<div class='rightfloat'><span class='unregisteredwarning'>Unregistered: please check your email registration link!</span></div>";
             }
             echo "<table><tbody>";
@@ -176,7 +175,7 @@ RenderHtmlHead("View forum: $thisForumTitle");
 
             if ($permissions >= Permissions::Registered) {
                 echo "<div class='createtopic'><a href='createtopic.php?f=$thisForumID'>Create New Topic</a></div>";
-            } 
+            }
 
             echo "<br>";
 

@@ -2,8 +2,7 @@
 
 function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
 {
-    
-	echo "<h3 class='longheader'>Code Notes</h3>";
+    echo "<h3 class='longheader'>Code Notes</h3>";
 
     if ($showDisclaimer) {
         echo "The RetroAchievements addressing scheme for most systems is to access the system memory " .

@@ -126,7 +126,7 @@ if ($outbox) {
                 echo " and $totalMessageCount total messages.";
                 echo "</div>";
 
-				echo "<span class='leftalignclickablebutton'><a href='/inbox.php?s=1'>Outbox</a></span>";
+                echo "<span class='leftalignclickablebutton'><a href='/inbox.php?s=1'>Outbox</a></span>";
                 echo "<span class='rightalignclickablebutton'><a href='/createmessage.php'>Create New Message</a></span>";
                 if ($unreadOnly) {
                     echo "<span class='rightalignclickablebutton'><a href='/inbox.php?u=0'>View All Messages</a></span>";

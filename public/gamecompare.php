@@ -294,7 +294,6 @@ RenderHtmlHead("Game Compare");
 
             echo "<br>";
             echo "Compare with any user:<br>";
-			
 
             echo "<form method='get' action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";

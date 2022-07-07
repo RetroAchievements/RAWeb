@@ -52,7 +52,7 @@ RenderHtmlHead($pageTitle);
 
             if ($numUnofficialLinks > 0) {
                 echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
-				echo "<br>";
+                echo "<br>";
             }
 
             $lastCategory = "_init";

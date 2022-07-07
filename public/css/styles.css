@@ -500,11 +500,6 @@ margin-bottom: -20px;
   width: 104px;
 }
 
-.gamescreenshots td {
-  text-align: center;
-  padding: 4px;
-}
-
 .gameinfo {
 height: 110px;
 margin-top: -3px;
@@ -1171,8 +1166,8 @@ tbody tr:nth-child(odd) {
 
 
 td {
-  padding: 2px;
-background-image: linear-gradient(to bottom , #111, 75%, #222);
+ padding: 2px;
+  background-image: linear-gradient(to bottom left, #111, 75%, #222);
 }
 
 th {
@@ -1930,6 +1925,11 @@ text-align:center;
   .gamescreenshots td {
     display: inline-block;
   }
+
+.gamescreenshots td {
+  text-align: center;
+  padding: 4px;
+}
 
   #forums div.lastpost {
     width: auto;

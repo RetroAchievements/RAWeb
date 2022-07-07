@@ -205,7 +205,7 @@ RenderHeader($userDetails);
         echo '<a href=\'https://www.youtube.com/channel/UCIGdJGxrzmNYMaAGPsk2sIA\' class=\'infolinks\'>🎙️ RAPodcast</a>';
         echo '<a href=\'https://news.retroachievements.org/\' class=\'infolinks\'>📰 RANews</a>';
         RenderDocsComponent();
-		RenderFaqsComponent ();
+        RenderFaqsComponent();
         RenderAOTWComponent($staticData['Event_AOTW_AchievementID'], $staticData['Event_AOTW_ForumID']);
         RenderStaticDataComponent($staticData);
         ?>

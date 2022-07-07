@@ -127,7 +127,6 @@ RenderHeader($userDetails);
         if ($date > $minDate) {
             $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
             echo "<a class ='previousdaybutton' href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>Prev Day</a>";
-
         }
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;

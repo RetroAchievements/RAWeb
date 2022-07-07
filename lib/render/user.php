@@ -56,9 +56,9 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "<tr>";
     $tooltip .= "<td class='usercardusername'>$userSanitized </td>";
     $tooltip .= "</tr>";
-	$tooltip .= "<tr>";
-	$tooltip .= "<td class='usercardaccounttype'>Account Type: $userAccountType</td>";
-	$tooltip .= "</tr>";
+    $tooltip .= "<tr>";
+    $tooltip .= "<td class='usercardaccounttype'>Account Type: $userAccountType</td>";
+    $tooltip .= "</tr>";
 
     // Add the user motto if it's set
     $tooltip .= "<tr>";

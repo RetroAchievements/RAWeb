@@ -207,8 +207,8 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
 
     if (!empty($gameDataValues)) {
         echo "<tr>";
-        echo "<td style='white-space: normal;  padding-left:5px;'>$label:</td>";
-        echo "<td style='white-space: normal;  padding-left:5px;'><b>" . implode(', ', $gameDataValues) . "</b></td>";
+        echo "<td style='white-space: normal; padding-left:5px;'>$label:</td>";
+        echo "<td style='white-space: normal; padding-left:5px;'><b>" . implode(', ', $gameDataValues) . "</b></td>";
         echo "</tr>";
     }
 }
@@ -231,7 +231,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
 function RenderRecentGamePlayers($recentPlayerData): void
 {
     echo "<div class='component'>";
-	echo "<div class='recenttext'>Recent Players:</div>";
+    echo "<div class='recenttext'>Recent Players:</div>";
     echo "<table class='smalltable'><tbody>";
     echo "<tr><th>User</th><th>When</th><th>Activity</th>";
 

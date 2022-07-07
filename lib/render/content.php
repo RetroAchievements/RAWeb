@@ -20,9 +20,7 @@ function RenderWelcomeComponent(): void
 
 function RenderDocsComponent(): void
 {
-    echo 
-
-            "<a href='https://docs.retroachievements.org/'>  <div class='infolinks' style='text-align: center'>📘 Documentation</div></a>";
+    echo "<a href='https://docs.retroachievements.org/'>  <div class='infolinks' style='text-align: center'>📘 Documentation</div></a>";
 }
 
 function RenderFaqsComponent(): void
@@ -30,7 +28,6 @@ function RenderFaqsComponent(): void
     echo "
 
 			<a href='https://docs.retroachievements.org/FAQ/' target='_blank' rel='noopener'><div class='infolinks'>🙋 FAQ</div></a>";
-
 }
 
 function RenderCurrentlyOnlineComponent(): void
@@ -137,7 +134,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
         $achTitle,
         $achDesc,
     );
-	echo "<div class='aotwtext'>";
+    echo "<div class='aotwtext'>";
     echo "Achievement:";
     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
     echo "<br>";
@@ -145,7 +142,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
     echo "on Game:";
     echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
     echo "<br>";
-	echo "</div>";
+    echo "</div>";
     echo "<span class='clickablebuttonaotw'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
 
     echo "</div>";
