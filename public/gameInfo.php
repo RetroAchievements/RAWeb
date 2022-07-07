@@ -655,7 +655,7 @@ RenderHtmlStart(true);
                 echo "<table><tbody>";
                 echo "<tr>";
                 echo "<td>";
-                echo "<img src='$imageTitle' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px;' alt='Title Screenhot'>";
+                echo "<img src='$imageTitle' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px; margin-left: 54px;' alt='Title Screenhot'>";
                 echo "</td>";
                 echo "<td>";
                 echo "<img src='$imageIngame' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px;' alt='In-game Screenshot'>";

@@ -1951,14 +1951,6 @@ text-align:center;
     font-size: small;
   }
 
-  .gamescreenshots td {
-    display: inline-block;
-  }
-
-.gamescreenshots td {
-  text-align: center;
-  padding: 4px;
-}
 
   #forums div.lastpost {
     width: auto;
