@@ -1167,7 +1167,7 @@ tbody tr:nth-child(odd) {
 
 td {
  padding: 2px;
-  background-image: linear-gradient(to bottom left, #111, 75%, #222);
+  background-image: linear-gradient(to bottom, #111, 75%, #222);
 }
 
 th {
