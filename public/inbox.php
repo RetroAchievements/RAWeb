@@ -205,10 +205,10 @@ if ($outbox) {
                 echo "<div class='topiccommenttext'>$msgPayload</div>";
 
                 if (!$outbox) {
-                    echo "<div class='buttoncollection rightfloat'>";
-                    echo "<span class='rightalign clickablebutton'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
-                    echo "<span class='rightalign clickablebutton'><a href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a></span>";
-                    echo "<span class='rightalign clickablebutton'><a href='/request/message/delete.php?m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
+                    echo "<div>";
+                    echo "<span class='clickablebuttoninbox'><a href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a></span>";
+                    echo "<span class='clickablebuttoninbox'><a href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a></span>";
+                    echo "<span class='clickablebuttoninbox'><a href='/request/message/delete.php?m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a></span>";
                     echo "</div>";
                 }
 
@@ -221,17 +221,17 @@ if ($outbox) {
             echo "<div class='rightalign'>";
 
             if ($offset > 0) {
-                echo "<span class='clickablebutton'>";
+                echo "<span class='previousbutton'>";
                 echo "<a href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
-                echo "&lt; Previous $maxCount";
+                echo "<img id='backarrow' src='http://localhost:80/Images/backwardarrow.png' alt='back arrow' width='46' height='26'>";
                 echo "</a>";
                 echo "</span>";
             }
 
             if ($totalMsgs == $maxCount) {
-                echo "<span class='clickablebutton'>";
+                echo "<span class='nextbutton'>";
                 echo "<a href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
-                echo "Next $maxCount &gt;";
+                echo "<img id='forwardarrow' src='http://localhost:80/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'>";
                 echo "</a>";
                 echo "</span> ";
             }

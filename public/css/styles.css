@@ -1697,6 +1697,22 @@ margin-bottom: 5px;
   border-bottom: dashed 1px;
 }
 
+.clickablebuttoninbox {
+ width: 105px;
+background-image: linear-gradient(to bottom left, #111, 55%, #222);
+border: 1px solid black;
+text-align: center;
+padding: 5px;
+border-radius: 5px;
+margin-bottom: 11px;
+float:right;
+}
+
+.clickablebuttoninbox:hover {
+    background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+    cursor: pointer;
+}
+
 .recentforumposts td {
   overflow: hidden;
   word-wrap: break-word;
