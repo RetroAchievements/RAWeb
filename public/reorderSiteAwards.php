@@ -46,7 +46,7 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
     <div id="leftcontainer">
         <?php
         echo "<h2 class='longheader'>Reorder Site Awards</h2>";
-        echo "<span class='clickablebutton'><a href='/reorderSiteAwards.php'>Refresh Page</a></span><br>";
+        echo "<div id='refreshbutton'><a href='/reorderSiteAwards.php'>Refresh Page</a></div><br><br>";
 
         echo "<p><b>Instructions:</b> These are your site awards as displayed on your user page. " .
             "The awards will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .

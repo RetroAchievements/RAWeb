@@ -535,7 +535,7 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                 </form>
             </div>
             <div class='component'>
-                <h2>Avatar</h2>
+                <h3 class='longheader'>Avatar</h3>
                 <div style="margin-bottom: 10px">
                     New image should be less than 1MB, png/jpeg/gif supported.
                 </div>
