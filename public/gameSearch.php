@@ -136,12 +136,12 @@ RenderHtmlHead("Game Search");
         echo "<div class='rightalign row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a class='previousbutton' href='/gameSearch.php?o=$prevOffset&amp;p=$method&amp;i=$consoleID'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
+            echo "<a class='previous-button' href='/gameSearch.php?o=$prevOffset&amp;p=$method&amp;i=$consoleID'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
         }
         if ($count == $maxCount) {
             // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
-            echo "<a class='nextbutton' href='/gameSearch.php?o=$nextOffset&amp;p=$method&amp;i=$consoleID'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
+            echo "<a class='next-button' href='/gameSearch.php?o=$nextOffset&amp;p=$method&amp;i=$consoleID'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
         }
         echo "</div>";
 

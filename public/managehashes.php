@@ -122,7 +122,7 @@ function UnlinkHash(user, gameID, hash, elem) {
 </script>
 <div id="mainpage">
     <div id="fullcontainer">
-        <h2>Manage Hashes</h2>
+        <h3 class='longheader'>Manage Hashes</h3>
 
         <?php
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);

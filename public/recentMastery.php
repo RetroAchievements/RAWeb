@@ -126,22 +126,22 @@ RenderHeader($userDetails);
         echo "<div class='rightalign row'>";
         if ($date > $minDate) {
             $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
-            echo "<a class ='previousdaybutton' href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>Prev Day</a>";
+            echo "<a class ='previous-day-button' href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>Prev Day</a>";
         }
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a class='previousbutton' href='/recentMastery.php?d=$date&f=$friends&o=$prevOffset'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
+            echo "<a class='previous-button' href='/recentMastery.php?d=$date&f=$friends&o=$prevOffset'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
         }
         if ($userCount > $maxCount) {
             if ($offset > 0) {
                 echo "";
             }
             $nextOffset = $offset + $maxCount;
-            echo "<a class='nextbutton' href='/recentMastery.php?d=$date&f=$friends&o=$nextOffset'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
+            echo "<a class='next-button' href='/recentMastery.php?d=$date&f=$friends&o=$nextOffset'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
         }
         if ($date < date("Y-m-d")) {
             $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
-            echo " <a class='nextdaybutton' href='/recentMastery.php?d=$nextDate&f=$friends&o=0'>Next Day</a>";
+            echo " <a class='next-day-button' href='/recentMastery.php?d=$nextDate&f=$friends&o=0'>Next Day</a>";
         }
         echo "</div>";
         ?>

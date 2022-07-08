@@ -362,12 +362,12 @@ RenderHeader($userDetails);
         echo "<div class='rightalign row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a class='firstbutton' href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends'>First</a>";
-            echo "<a class='previousbutton' href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends&o=$prevOffset'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
+            echo "<a class='first-button' href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends'>First</a>";
+            echo "<a class='previous-button' href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends&o=$prevOffset'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
         }
         if ($userCount > $maxCount) {
             $nextOffset = $offset + $maxCount;
-            echo "<a class='nextbutton' href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends&o=$nextOffset'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
+            echo "<a class='next-button' href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends&o=$nextOffset'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
         }
         echo "</div>";
         ?>

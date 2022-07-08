@@ -108,13 +108,13 @@ function RenderAOTWComponent($achID, $forumTopicID): void
         return;
     }
 
-    echo "<div class='component aotwcomponent' >";
+    echo "<div class='component aotw-component' >";
     echo "<h3 class='longheader'>Achievement of the Week</h3>";
 
     /**
      * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementOfTheWeek instead
      */
-    echo "<div id='aotwbox' style='text-align:center;'>";
+    echo "<div id='aotw-box' style='text-align:center;'>";
 
     $gameID = $achData['GameID'];
     $gameTitle = $achData['GameTitle'];
@@ -134,7 +134,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
         $achTitle,
         $achDesc,
     );
-    echo "<div class='aotwtext'>";
+    echo "<div class='aotw-text'>";
     echo "Achievement:";
     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
     echo "<br>";
@@ -143,7 +143,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
     echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
     echo "<br>";
     echo "</div>";
-    echo "<span class='clickablebuttonaotw'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
+    echo "<span class='clickable-button-aotw'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
 
     echo "</div>";
 

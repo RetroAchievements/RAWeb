@@ -97,7 +97,7 @@ RenderHtmlStart();
         echo " &raquo; <b>$thisTopicTitle</b></a>";
         echo "</div>";
 
-        echo "<h2 class='longheader'>$thisTopicTitle</h2>";
+        echo "<h3 class='short-header'>$thisTopicTitle</h3>";
 
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox'>";

@@ -221,7 +221,7 @@ if ($outbox) {
             echo "<div class='rightalign'>";
 
             if ($offset > 0) {
-                echo "<span class='previousbutton'>";
+                echo "<span class='previous-button'>";
                 echo "<a href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "<img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'>";
                 echo "</a>";
@@ -229,7 +229,7 @@ if ($outbox) {
             }
 
             if ($totalMsgs == $maxCount) {
-                echo "<span class='nextbutton'>";
+                echo "<span class='next-button'>";
                 echo "<a href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "<img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'>";
                 echo "</a>";

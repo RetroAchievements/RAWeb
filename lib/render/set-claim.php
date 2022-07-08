@@ -9,7 +9,7 @@ use RA\ClaimSorting;
 function renderNewClaimsComponent(int $count): void
 {
     echo "<div class='component'>";
-    echo "<h3 class='shortheader'>New Set Claims</h3>";
+    echo "<h3 class='longheader'>New Set Claims</h3>";
 
     $claimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, false, 0, $count);
 

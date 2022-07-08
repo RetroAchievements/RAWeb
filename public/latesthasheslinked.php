@@ -37,7 +37,7 @@ RenderHeader($userDetails);
 
         echo "<h2 class='longheader'>Search</h2>";
 
-        echo "<div class='searchbox longer'>";
+        echo "<div id='searchbox-longer-hashes'>";
         echo "<form action='/latesthasheslinked.php' method='get'>";
         echo "<input size='50' name='h' value='$searchedHash' />";
         echo "&nbsp;&nbsp;";
@@ -87,13 +87,13 @@ RenderHeader($userDetails);
                 echo "<div class='rightalign row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
-                    echo "<a class='firstbutton' href='/latesthasheslinked.php'>First</a>";
-                    echo "<a class='previousbutton' href='/latesthasheslinked.php?o=$prevOffset'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a> ";
+                    echo "<a class='first-button' href='/latesthasheslinked.php'>First</a>";
+                    echo "<a class='previous-button' href='/latesthasheslinked.php?o=$prevOffset'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a> ";
                 }
                 if ($hashCount == $maxCount && $offset != ($totalHashes - $maxCount)) {
                     $nextOffset = $offset + $maxCount;
-                    echo "<a class='nextbutton' href='/latesthasheslinked.php?o=$nextOffset'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
-                    echo "<a class='lastbutton' href='/latesthasheslinked.php?o=" . ($totalHashes - $maxCount) . "'>Last</a>";
+                    echo "<a class='next-button' href='/latesthasheslinked.php?o=$nextOffset'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
+                    echo "<a class='last-button' href='/latesthasheslinked.php?o=" . ($totalHashes - $maxCount) . "'>Last</a>";
                 }
                 echo "</div>";
             }

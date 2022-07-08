@@ -32,6 +32,12 @@ table {
   border-spacing: 0
 }
 
+#messages td {
+border-bottom:1px solid black;
+border-left:1px solid transparent;
+border-right: 1px solid transparent;
+}
+
 /* CORE COMPONENTS */
 
 body {
@@ -49,7 +55,6 @@ p, .embedded {
   padding: 6px 10px;
   margin-bottom: 6px;
   border-radius: 8px;
-  background: rgb(22, 22, 22);
   line-height: 1.4em;
 }
 
@@ -60,9 +65,9 @@ textarea, input {
   padding: 1px;
   margin: 0;
   border: 1px solid #16d;
-  color: #bbb;
-  background-image: linear-gradient(to bottom left, #111, 55%, #222);
+  color: #7e7e7e;
   resize: none;
+  background-color: #111
 }
 
 input[readonly] {
@@ -79,8 +84,7 @@ input[type="submit"], button {
   font-size: 12px;
   padding: 4px 4px;
   cursor: pointer;
-background-image: linear-gradient(to bottom, #16d, 35%, #111);
-  color: #e6e6e6;
+  color: #cecece;
   border: 1px solid #16d;
   border-radius: 3px;
 }
@@ -116,8 +120,13 @@ h4 {
 
 .longheader {
 text-align: center;
-border: 1px solid black;
-background-image: linear-gradient(to bottom right, #111, 55%, #222);
+border:none;
+}
+
+.game-header {
+text-align: center;
+border:1px solid black;
+background-color:#111;
 }
 
 .darkheader {
@@ -126,20 +135,19 @@ border: 1px solid black;
 background-image: linear-gradient(to bottom right, #111, 95%, #222);
 }
 
-.shortheader {
+.short-header {
 text-align: center;
 border: 1px solid black;
-background-image: linear-gradient(to bottom, #111, 75%, #222);
+background-color: #111;
 margin-top:10px;
 }
 
-#aotwbox {
-border: 1px solid black;
-background-image: linear-gradient(to bottom, #111, 75%, #222);
-padding:20px;
+#aotw-box {
+padding: 20px;
+margin-top: -15px;
 }
 
-.aotwtext {
+.aotw-text {
   display: inline-block;
 }
 
@@ -153,9 +161,8 @@ a img {
   border: 0;
 }
 
-.clickablebuttonaotw {
+.clickable-button-aotw {
 margin-top: 20px;
-background-image: linear-gradient(to bottom left, #111, 55%, #222);
 border: 1px solid black;
 margin-bottom:3px;
 border-radius: 4px;
@@ -165,8 +172,8 @@ padding: 10px;
 cursor: pointer;
 }
 
-.clickablebuttonaotw:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.clickable-button-aotw:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -196,7 +203,7 @@ a:hover {
   border-radius: 8px;
   align-self: start;
   grid-column: span 2;
-  background-image: linear-gradient(to bottom left, #111, 55%, #222);
+    background-image: linear-gradient(to bottom right, #1e1e1e, 35%, #2d2d2d);
   border: 1px solid black;
 }
 
@@ -207,7 +214,7 @@ a:hover {
   border: 2px solid rgb(20, 20, 20);
   border-radius: 8px;
   align-self: start;
-  background-image: linear-gradient(to bottom left, #111, 55%, #222);
+  background-image: linear-gradient(to bottom right, #1e1e1e, 35%, #2d2d2d);
   border: 1px solid black;
 }
 
@@ -217,20 +224,20 @@ a:hover {
   border: 2px solid rgb(20, 20, 20);
   border-radius: 10px;
   align-self: start;
-  background-image: linear-gradient(to bottom left, #111, 55%, #222);
+    background-image: linear-gradient(to bottom right, #1e1e1e, 35%, #2d2d2d);
   border: 1px solid black;
 }
 
 .infolinks {
 margin-bottom:10px;
-background-image: linear-gradient(to bottom left, #111, 55%, #222);
  border: 1px solid black;
 text-align:center;
 padding:5px;
+border-radius: 3px;
 }
 
 .infolinks:hover {
-    background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+   background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
     cursor: pointer;
 }
 
@@ -241,10 +248,9 @@ width:100%;
 }
 
 .infobox {
-  background-image: linear-gradient(to bottom right, #111, 55%, #222);
-  border: 1px solid black;
   padding: 10px;
   text-align:center;
+  margin-top:-15px;
 }
 
 .d-flex {
@@ -276,7 +282,7 @@ width:100%;
   margin: 15px 0 13px 15px;
   border-radius: 8px;
   border: 2px solid rgb(20, 20, 20);
-  background-image: linear-gradient(to top right, #111, 75%, #222);
+  background-image: linear-gradient(to top right, #111, 55%, #222);
   height: 85px; /*105-4-4-4-4-2-2*/
   font-size: small;
 }
@@ -284,7 +290,6 @@ width:100%;
 .login p {
   margin: 10px;
   padding: 0;
-  background-image: linear-gradient(to top right, #111, 75%, #222);
 }
 
 .logintable table {
@@ -503,6 +508,19 @@ margin-bottom: -20px;
 .gameinfo {
 height: 110px;
 margin-top: -3px;
+background-color: #1c1c1c;
+}
+
+.gameinfo td {
+background-color:#222;
+}
+
+.gameinfo tr {
+text-align:center;
+}
+
+.game-screen-shots td {
+background-color: #222;
 }
 
 .recenttext {
@@ -646,7 +664,7 @@ margin-bottom:4px;
 }
 
 .feed_comment {
-  color: #1677ff;
+  color: green;
 }
 
 .feed_completegame {
@@ -686,7 +704,11 @@ margin-bottom:4px;
 }
 
 #feed tr.feed_comment:not(.system) {
-  background-color: #151515;
+  background-color: #111;
+}
+
+#feed tr.feed_comment:not(.system):nth-child(odd) {
+  background-color: #1a1a1a;
 }
 
 #feed tr.feed_comment.system {
@@ -832,9 +854,6 @@ margin-bottom:4px;
 font-size: 12px;
 padding: 4px 4px;
 cursor: pointer;
-background-image: linear-gradient(to bottom, #16d, 35%, #111);
-border: 1px solid black;
-color: #e6e6e6 !important;
 border-radius: 3px;
 }
 
@@ -842,10 +861,6 @@ border-radius: 3px;
 font-size: 12px;
 padding: 4px 4px;
 cursor: pointer;
-background-image: linear-gradient(to bottom, #16d, 35%, #111);
-border: 1px solid black;
-color: #e6e6e6 !important;
-border-radius: 3px;
 margin-top:5px;
 display:block;
 text-align:center;
@@ -894,7 +909,7 @@ text-align:center;
   margin: auto;
   /*overflow:hidden; this breaks the dropdown! :S*/
   clear: both;
-  background-image: linear-gradient(to top right, #111, 75%, #000);
+  background-color: #111;
   font-weight: bold;
 }
 
@@ -1064,6 +1079,11 @@ color:red;
   float: inherit;
 }
 
+#searchbox-longer-hashes {
+margin-left: 279px;
+margin-bottom:10px;
+}
+
 #searchboxinput .longer {
   width: 80%;
 }
@@ -1074,17 +1094,17 @@ color:red;
   display: flex;
   justify-content: space-between;
   width: 340px;
+  background-color: #111;
 }
 
 .searchbox-top .searchboxinput{
   border: none;
   padding: 10px;
-  background-color: transparent;
   color: #FFF;
   height: 42px;
   width: 100%;
   vertical-align: top;
-  background-image: linear-gradient(to top right, #111, 75%, #000);
+  background-color: #111;
 }
 
 .searchbox-top input[type="submit"]{
@@ -1093,8 +1113,12 @@ color:red;
   padding: 5px 15px;
   height: 42px;
   font-size: 16px;
-  background-image: linear-gradient(to top right, #111, 75%, #000);
+  background-color: #131313;
   border: none
+}
+
+.searchbox-top .searchboxinput textarea, input {
+  background-color: #111 !important;
 }
 
 #feedcontainer {
@@ -1161,22 +1185,31 @@ table {
 }
 
 tbody tr:nth-child(odd) {
-  background-color: #323232;
+  background-color: #1a1a1a;
 }
 
 
 td {
  padding: 2px;
-  background-image: linear-gradient(to bottom, #111, 75%, #222);
 }
 
 th {
   padding: 2px 4px;
-  background-image: linear-gradient(to bottom, #111, 75%, #222);
+  background-color: #111;
   border: 1px solid black;
   color: #D5D5D5;
   margin-bottom: 5px;
   font-weight:bold;
+}
+
+.official-button {
+background-image: linear-gradient(to bottom left, #111, 55%, #222);
+font-size: 12px;
+padding: 4px 4px;
+cursor: pointer;
+color: #e6e6e6;
+border: 1px solid #16d;
+border-radius: 3px;
 }
 
 .clickablebutton, .buttoncollection, .morebutton {
@@ -1191,17 +1224,17 @@ th {
 .morebutton {
  float: right;
  width: 62px;
- background-image: linear-gradient(to bottom left, #111, 55%, #222);
+ background-color: transparent;
  border: 1px solid black;
  text-align:center;
 }
 
 .morebutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
-.lastbutton {
+.last-button {
 float: right;
 width: 62px;
 background-image: linear-gradient(to bottom left, #111, 55%, #222);
@@ -1214,12 +1247,12 @@ font-weight: bold;
 margin-left:1px;
 }
 
-.lastbutton:hover {
-background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.last-button:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
-.firstbutton {
+.first-button {
 float: left;
 width: 62px;
 background-image: linear-gradient(to bottom left, #111, 55%, #222);
@@ -1232,14 +1265,14 @@ font-weight: bold;
 margin-right:1px;
 }
 
-.firstbutton:hover {
-background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.first-button:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
-.previousbutton {
+.previous-button {
  width: fit-content;
- background-image: linear-gradient(to bottom left, #111, 55%, #222);
+background-image: linear-gradient(to bottom left, #111, 55%, #222);
  border: 1px solid black;
  text-align:center;
  border-radius:3px;
@@ -1247,14 +1280,14 @@ background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
  padding-left: 5px;
 }
 
-.previousbutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.previous-button:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
-.nextbutton {
+.next-button {
  width: fit-content;
- background-image: linear-gradient(to bottom left, #111, 55%, #222);
+background-image: linear-gradient(to bottom left, #111, 55%, #222);
  border: 1px solid black;
  text-align:center;
 border-radius:3px;
@@ -1263,8 +1296,8 @@ padding-right: 6px;
 margin-left:1px;
 }
 
-.nextbutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.next-button:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -1273,7 +1306,7 @@ margin-top: 51px;
 text-align: center;
 }
 
-.previousdaybutton {
+.previous-day-button {
 float: left;
 width: 100px;
 background-image: linear-gradient(to bottom left, #111, 55%, #222);
@@ -1285,13 +1318,13 @@ padding-top: 4px;
 font-weight: bold;
 }
 
-.previousdaybutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.previous-day-button:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
 
-.nextdaybutton {
+.next-day-button {
 float: right;
 width: 100px;
 background-image: linear-gradient(to bottom left, #111, 55%, #222);
@@ -1303,8 +1336,8 @@ padding-top: 4px;
 font-weight: bold;
 }
 
-.nextdaybutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+.next-day-button:hover {
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -1313,13 +1346,11 @@ font-weight: bold;
 margin-bottom:5px;
 }
 
-#downloadprompt {
-background-image: linear-gradient(to top right, #111, 75%, #222);
-border: 1px solid black;
+#welcome {
+background-color:transparent;
 }
 
 #welcomedownload {
-background-image: linear-gradient(to top right, #111, 55%, #222);
 border: 1px solid black;
 border-radius: 3px;
 display: flex;
@@ -1334,7 +1365,7 @@ margin-bottom: -5px;
 }
 
 #welcomedownload:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -1363,7 +1394,7 @@ margin-bottom: 11px;
 }
 
 .clickablebuttonprofile:hover {
-    background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
     cursor: pointer;
 }
 
@@ -1420,7 +1451,7 @@ padding: 5px;
 }
 
 #refreshbutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -1460,7 +1491,7 @@ margin-bottom:5px;
 }
 
 .createtopic:hover {
-   background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
     cursor: pointer;
 }
 
@@ -1614,7 +1645,7 @@ margin-bottom: 5px;
 }
 
 .rightalignclickablebutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -1629,7 +1660,7 @@ margin-bottom: 5px;
 }
 
 .leftalignclickablebutton:hover {
-  background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
   cursor: pointer;
 }
 
@@ -1723,7 +1754,7 @@ float:right;
 }
 
 .clickablebuttoninbox:hover {
-    background-image: linear-gradient(to bottom left, #2987dd, 55%, #222);
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
     cursor: pointer;
 }
 
@@ -1739,8 +1770,7 @@ float:right;
 
 .commentavatar {
   vertical-align: top;
-  background-image: -webkit-linear-gradient(#1a1a1a, #323232, #1a1a1a);
-  border-right: solid 4px #1a1a1a;
+border-right: 3px solid #2c2c2c;
 }
 
 .topiccommentsheader {
@@ -1905,6 +1935,7 @@ text-align:center;
 
 .mb-1 {
   margin-bottom: .5rem !important;
+background-color: #111;
 }
 
 .mb-2 {
@@ -2059,13 +2090,12 @@ background-image: linear-gradient(to bottom left, #111, 75%, #222);
   border-radius: 5px;
   margin: 5px 0;
   padding: 7px 15px;
-  background-color: #222;
-  background-image: linear-gradient(to top right, #111, 75%, #222);
+  background-color: transparent;
   border: 1px solid black;
 }
 
 .info-button:hover{
-  background-color: #2987dd;
+  background-image: linear-gradient(to bottom left, #2987dd, 99%, #222);
 }
 
 .info-button span{

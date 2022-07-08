@@ -217,12 +217,12 @@ RenderHtmlHead("Achievement List" . $requestedConsole);
         echo "<div class='rightalign row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param' class='previousbutton'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
+            echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param' class='previous-button'><img id='backarrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
         }
         if ($achCount == $maxCount) {
             // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
-            echo "<a href='/achievementList.php?s=$sortBy&o=$nextOffset&p=$params$dev_param' class='nextbutton'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
+            echo "<a href='/achievementList.php?s=$sortBy&o=$nextOffset&p=$params$dev_param' class='next-button'><img id='forwardarrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
         }
         echo "</div>";
         ?>

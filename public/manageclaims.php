@@ -133,7 +133,7 @@ RenderHeader($userDetails);
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<h3>Manage Claims</h3>";
+        echo "<h3 class='longheader'>Manage Claims</h3>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
 
         echo "<div class='embedded mb-1'>";

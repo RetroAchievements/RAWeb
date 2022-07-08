@@ -231,7 +231,7 @@ RenderHtmlStart(true);
         echo "</div>";
 
         echo "<div class='usersummary'>";
-        echo "<h3 class='longheader' >$userPage's User Page</h3>";
+        echo "<h3 class='short-header' >$userPage's User Page</h3>";
 
         $totalPoints = $userMassData['TotalPoints'];
         $totalTruePoints = $userMassData['TotalTruePoints'];

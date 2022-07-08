@@ -89,12 +89,12 @@ RenderHtmlHead("Forum Recent Posts");
             }
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                echo "<a href='$baseUrl$prevOffset' class='previousbutton'><img id='back arrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
+                echo "<a href='$baseUrl$prevOffset' class='previous-button'><img id='back arrow' src='/Images/backwardarrow.png' alt='back arrow' width='46' height='26'></a>";
             }
             if ($numPostsFound == $maxCount) {
                 // Max number fetched, i.e. there are more. Can goto next 25.
                 $nextOffset = $offset + $maxCount;
-                echo "<a href='$baseUrl$nextOffset' class='nextbutton'><img id='forward arrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
+                echo "<a href='$baseUrl$nextOffset' class='next-button'><img id='forward arrow' src='/Images/forwardarrow.png' alt='forward arrow' width='46' height='26'></a>";
             }
             echo "</div>";
             ?>

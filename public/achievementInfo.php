@@ -158,7 +158,7 @@ RenderHtmlStart(true);
         echo " &raquo; <b>$achievementTitle</b>";
         echo "</div>"; // navpath
 
-        echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
+        echo "<h3 class='short-header'>$gameTitle ($consoleName)</h3>";
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = asset("Badge/$badgeName$fileSuffix.png");
@@ -276,10 +276,10 @@ RenderHtmlStart(true);
                 echo "<div style='clear:both;'></div>";
 
                 if ($achFlags === AchievementType::OfficialCore) {
-                    echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
+                    echo "<li>State: Official&nbsp;<button type='button' class='official-button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
                 }
                 if ($achFlags === AchievementType::Unofficial) {
-                    echo "<li>State: Unofficial&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
+                    echo "<li>State: Unofficial&nbsp;<button type='button' class='official-button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
                 }
             }
 

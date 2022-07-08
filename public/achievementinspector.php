@@ -105,10 +105,10 @@ RenderHtmlHead("Manage Achievements");
     }
 
     if ($flag === AchievementType::Unofficial) {
-        echo "<h2 class='longheader'>Unofficial Achievement Inspector</h2>";
+        echo "<h3 class='longheader'>Unofficial Achievement Inspector</h3>";
     }
     if ($flag === AchievementType::OfficialCore) {
-        echo "<h2 class='longheader'>Core Achievement Inspector</h2>";
+        echo "<h3 class='longheader'>Core Achievement Inspector</h3>";
     }
 
     if ($gameIDSpecified) {

@@ -189,7 +189,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
 
                     foreach ($devConsoles as $consoleName => $consoleGames) {
                         sanitize_outputs($consoleName);
-                        echo "<h2 class='longheader'>$consoleName</h2>";
+                        echo "<h3 class='short-header'>$consoleName</h3>";
 
                         ListGames($consoleGames, $dev, '', $sortBy, $showTickets, false, true);
 
@@ -202,7 +202,7 @@ RenderHtmlHead("Supported Games" . $requestedConsole);
                         $consoleName = $consoleList[$consoleIDInput];
                         sanitize_outputs($consoleName);
                     }
-                    echo "<h2 class='longheader'>$consoleName</h2>";
+                    echo "<h3 class='short-header'>$consoleName</h3>";
 
                     echo "<div style='float:left'>$gamesCount Games</div>";
 

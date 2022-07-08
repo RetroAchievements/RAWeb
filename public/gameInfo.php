@@ -628,13 +628,13 @@ RenderHtmlStart(true);
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            echo "<h3 class='longheader'>$pageTitle</h3>";
-            echo "<table><tbody>";
+            echo "<h3 class='game-header'>$pageTitle</h3>";
+            echo "<table id='game-info-table'><tbody>";
             echo "<tr>";
-            echo "<td style='width:10px; padding: 7px; vertical-align: top;' >";
+            echo "<td style='width:10px; padding: 7px; vertical-align: top; background-color:#222;' >";
             echo "<img src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
             echo "</td>";
-            echo "<td style='border:none;'>";
+            echo "<td style='border:none; background-color:#222;'>";
             echo "<table class='gameinfo'><tbody>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
@@ -651,11 +651,11 @@ RenderHtmlStart(true);
             echo "</tbody></table>";
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='gamescreenshots'>";
+                echo "<div class='game-screen-shots'>";
                 echo "<table><tbody>";
                 echo "<tr>";
                 echo "<td>";
-                echo "<img src='$imageTitle' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px; margin-left: 54px;' alt='Title Screenhot'>";
+                echo "<img src='$imageTitle' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px; margin-left: 54px; padding: 10px;' alt='Title Screenhot'>";
                 echo "</td>";
                 echo "<td>";
                 echo "<img src='$imageIngame' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px;' alt='In-game Screenshot'>";
