@@ -90,6 +90,8 @@ RenderHtmlStart(true);
             echo "</div>";
 
             echo "<br>";
+            echo "<br>";
+            echo "<br>";
 
             $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
             $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));
