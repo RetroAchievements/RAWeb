@@ -61,12 +61,12 @@ textarea, input {
   margin: 0;
   border: 1px solid #16d;
   color: #bbb;
-  background-image: linear-gradient(to bottom left, #111, 55%, #222);
+  background-color: #111;
   resize: none;
 }
 
 input[readonly] {
-  background-color: rgb(200, 200, 200);
+  background-color: #111;
   color: rgb(143, 143, 143);
 }
 
@@ -116,7 +116,7 @@ h4 {
 .longheader {
 text-align: center;
 border: 1px solid black;
-background-image: linear-gradient(to bottom right, #111, 95%, #484848);
+background-image: linear-gradient(to top left, #0d0d0d, 95%, #0f0f0f);
 }
 
 .darkheader {
@@ -826,7 +826,7 @@ margin-bottom:4px;
   border-radius: 4px;
   margin-bottom: 4px;
   clear: both;
- background-image: linear-gradient(to top right, #111, 75%, #000);
+ background-image: linear-gradient(to top right, #000, 35%, #0d0d0d);
   border: 1px solid black;
 text-align:center;
 }
