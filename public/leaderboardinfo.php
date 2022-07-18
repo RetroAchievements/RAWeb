@@ -82,15 +82,13 @@ RenderHtmlStart(true);
             echo "</div>";
 
             echo "<div style='float:left; padding: 4px;'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 96);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 28);
 
             echo "</div>";
             echo "<div>";
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "</div>";
 
-            echo "<br>";
-            echo "<br>";
             echo "<br>";
 
             $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));

@@ -629,7 +629,7 @@ RenderHtmlStart(true);
             $pageTitleAttr = attributeEscape($pageTitle);
 
             echo "<h3 class='longheader'>$pageTitle</h3>";
-            echo "<table><tbody>";
+            echo "<table class='game-page-details'><tbody>";
             echo "<tr>";
             echo "<td style='width:110px; padding: 7px; vertical-align: top' >";
             echo "<img src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
