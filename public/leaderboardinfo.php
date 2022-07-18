@@ -82,7 +82,7 @@ RenderHtmlStart(true);
             echo "</div>";
 
             echo "<div style='float:left; padding: 4px;'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 28);
+            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 96);
 
             echo "</div>";
             echo "<div>";
