@@ -407,8 +407,8 @@ td, tr, img {
 }
 
 #logocontainer {
-  float: left;
-  margin: 15px;
+width: 62%;
+text-align: center;
 }
 
 #logo > img {
