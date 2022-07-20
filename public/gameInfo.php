@@ -599,12 +599,6 @@ RenderHtmlStart(true);
         <?php RenderConsoleMessage((int) $consoleID) ?>
         <div id="achievement">
             <?php
-            sanitize_outputs(
-                $developer,
-                $publisher,
-                $genre,
-                $released,
-            );
 
             if ($isFullyFeaturedGame) {
                 echo "<div class='navpath'>";
@@ -627,6 +621,13 @@ RenderHtmlStart(true);
             $imageTitle = $gameData['ImageTitle'];
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
+
+            sanitize_outputs(
+                $developer,
+                $publisher,
+                $genre,
+                $released,
+            );
 
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
@@ -878,9 +879,9 @@ RenderHtmlStart(true);
                     echo "<div>Update game details:</div>";
                     echo "<table><tbody>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value=\"" . htmlspecialchars($developer) . "\" style='width:100%;'></td></tr>";
-                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value=\"" . htmlspecialchars($publisher) . "\" style='width:100%;'></td></tr>";
-                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value=\"" . htmlspecialchars($genre) . "\" style='width:100%;'></td></tr>";
+                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='$developer' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value='$publisher' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='$genre' style='width:100%;'></td></tr>";
                     echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value=\"" . htmlspecialchars($released) . "\" style='width:100%;'></td></tr>";
                     echo "</tbody></table>";
                     echo "<div class='text-right'><input type='submit' value='Submit'></div>";

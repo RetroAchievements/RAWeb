@@ -387,13 +387,15 @@ function UploadNewAchievement(
                     }
                     $editString = implode(', ', $fields);
 
-                    addArticleComment(
-                        "Server",
-                        ArticleType::Achievement,
-                        $idInOut,
-                        "$author edited this achievement's $editString.",
-                        $author
-                    );
+                    if ($editString !== "") {
+                        addArticleComment(
+                            "Server",
+                            ArticleType::Achievement,
+                            $idInOut,
+                            "$author edited this achievement's $editString.",
+                            $author
+                        );
+                    }
                 }
 
                 return true;

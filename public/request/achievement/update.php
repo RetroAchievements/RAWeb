@@ -18,6 +18,14 @@ $achievementId = requestInputPost('a'); // can be array or integer als string. c
 $field = requestInputPost('f', null, 'integer');
 $value = requestInputPost('v');
 
+$achievementTitle = requestInputPost('t');
+$desc = requestInputPost('d');
+$badgeName = requestInputPost('b');
+$achPoints = requestInputPost('p', null, 'integer');
+$achMem = requestInputPost('m');
+$gameID = requestInputPost('g', null, 'integer');
+$achFlags = requestInputPost('l');
+
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
@@ -40,6 +48,8 @@ if ($permissions == Permissions::JuniorDeveloper) {
                 exit;
             }
         }
+        $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
+    } elseif ($field == 4 && $achFlags == AchievementType::Unofficial) {
         $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
     }
 
@@ -93,6 +103,31 @@ switch ($field) {
             exit;
         }
         break;
+    case 4:
+        // Achievement Details
+        $errorOut = "";
+        if (UploadNewAchievement(
+                author: $user,
+                gameID: $gameID,
+                title: $achievementTitle,
+                desc: $desc,
+                progress: ' ',
+                progressMax: ' ',
+                progressFmt: ' ',
+                points: $achPoints,
+                mem: $achMem,
+                type: $achFlags,
+                idInOut: $achievementId,
+                badge: $badgeName,
+                errorOut: $errorOut
+        )) {
+            echo json_encode(['success' => true, 'message' => 'OK']);
+            exit;
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Bad request']);
+            break;
+        }
 }
 
 echo json_encode(['success' => false, 'error' => 'Something went wrong']);

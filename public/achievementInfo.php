@@ -33,13 +33,15 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
+$isSoleAuthor = false;
 
 sanitize_outputs(
     $achievementTitle,
     $desc,
     $gameTitle,
     $consoleName,
-    $author
+    $author,
+    $achMem
 );
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
@@ -49,6 +51,11 @@ $numPossibleWinners = 0;
 $numRecentWinners = 0;
 
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
+
+// Determine if the logged in user is the sole author of the set
+if (isset($user)) {
+    $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+}
 
 $dateWonLocal = "";
 foreach ($winnerInfo as $userObject) {
@@ -85,13 +92,71 @@ RenderHtmlStart(true);
 
 <body>
 <?php RenderHeader($userDetails); ?>
-<?php if ($permissions >= Permissions::Developer): ?>
+<?php if (($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial))): ?>
     <script>
+        function updateAchievementDetails() {
+        var title = $('#titleinput').val();
+        var description = $('#descriptioninput').val();
+        var points = $('#pointsinput').val();
+        var validPoints = <?php echo json_encode(VALID_POINTS); ?>;
+        var titleLength = new Blob([title]).size;
+        var descLength = new Blob([descLength]).size;
+        var maxTitle = <?php echo MAX_TITLE; ?>;
+        var maxDescription = <?php echo MAX_DESCRIPTION; ?>;
+        showStatusMessage('Updating...');
+        if ( titleLength > maxTitle) {
+                showStatusFailure('Error: Title too long');
+                return;
+        } else if ( descLength > maxDescription) {
+                showStatusFailure('Error: Description too long');
+                return;
+        } else if ( points == '' || !validPoints.includes(Number(points))) {
+                showStatusFailure('Error: Invalid Points');
+                return;
+        }
+
+        $.ajax({
+          type: "POST",
+          url: '/request/achievement/update.php',
+          dataType: "json",
+          data: {
+            'a': <?= $achievementID ?>,
+            'f': 4,
+            'u': '<?= $user ?>',
+            'v': '',
+            'g': <?= $gameID ?>,
+            'l': '<?= $achFlags ?>',
+            'b': '<?= $badgeName ?>',
+            't': title,
+            'd': description,
+            'p': Number(points),
+            'm': '<?= $achMem ?>'
+          },
+          error: function (xhr, status, error) {
+            showStatusFailure('Error: ' + (error || 'unknown error'));
+          }
+        })
+          .done(function (data) {
+            if (!data.success) {
+              showStatusFailure('Error: ' + (data.error || 'unknown error'));
+              return;
+            }
+            window.location = window.location.href.split("?")[0] + "?e=modify_achievement_ok";
+          });
+        }
+
+    <?php if ($permissions >= Permissions::Developer): ?>
       function PostEmbedUpdate() {
         var url = $('#embedurlinput').val();
         url = replaceAll('http', '_http_', url);
 
         showStatusMessage('Updating...');
+
+        if ( url == '') {
+                showStatusFailure('Error: Blank url');
+                return;
+        }
+
         $.ajax({
           type: "POST",
           url: '/request/achievement/update.php',
@@ -111,7 +176,7 @@ RenderHtmlStart(true);
               showStatusFailure('Error: ' + (data.error || 'unknown error'));
               return;
             }
-            document.location.reload();
+            window.location = window.location.href.split("?")[0] + "?e=changeok";
           });
       }
 
@@ -140,11 +205,13 @@ RenderHtmlStart(true);
               showStatusFailure('Error: ' + (data.error || 'unknown error'));
               return;
             }
-            document.location.reload();
+            window.location = window.location.href.split("?")[0] + "?e=changeok";
           });
-      }
+      }    
+      <?php endif ?>
     </script>
 <?php endif ?>
+
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
@@ -237,16 +304,30 @@ RenderHtmlStart(true);
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent' style='display: none'>";
+            RenderStatusWidget();
+
+            if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
+                echo "<div>Update achievement details:</div>";
+                echo "<table><tbody>";
+                echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='$achievementTitle' style='width:100%' maxlength='64';></td></tr>";
+                echo "<tr><td>Description:</td><td style='width:100%'><input id='descriptioninput' type='text' name='d' value='$desc' style='width:100%' maxlength='256';></td></tr>";
+                echo "<tr><td>Points:</td><td style='width:100%'><input id='pointsinput' type='number' name='p' value='$achPoints' style='width:100%' min='0' max='100';'></td></tr>";
+                echo "</tbody></table>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
+
+                echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
+                echo "<label>Badge<br>";
+                echo "<input type='hidden' name='i' value='$achievementID'>";
+                echo "<input id='file' type='file' accept='.png,.jpg,.gif' name='file' id='badge'>";
+                echo "</label>";
+                echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                echo "</form><br>";
+            }
 
             if ($permissions >= Permissions::Developer) {
-                RenderStatusWidget();
-                echo "<li>Set embedded video URL:</li>";
-                echo "<table><tbody>";
-                echo "<input type='hidden' name='a' value='$achievementID' />";
-                echo "<input type='hidden' name='f' value='2' />";
-                echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
-                echo "</tbody></table>";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
+                echo "<div class='devbox'>";
+                echo "<li><span onclick=\"$('#embedcontent').toggle(); return false;\">Set embedded video URL: (Click to show accepted formats):</span><br></li>";
+                echo "<div id='embedcontent' style='display: none'>";
                 echo "<div style='clear:both;'></div>"; ?>
                 Examples for accepted formats:<br>
                 <p style="margin-bottom: 20px; float: left; clear: both;">
@@ -274,6 +355,14 @@ RenderHtmlStart(true);
                 </p>
                 <?php
                 echo "<div style='clear:both;'></div>";
+                echo "</div>"; // embed devbox
+                echo "</div>"; // embed devbox
+                echo "<table><tbody>";
+                echo "<input type='hidden' name='a' value='$achievementID' />";
+                echo "<input type='hidden' name='f' value='2' />";
+                echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
+                echo "</tbody></table>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
 
                 if ($achFlags === AchievementType::OfficialCore) {
                     echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
