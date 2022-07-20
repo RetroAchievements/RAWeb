@@ -40,8 +40,7 @@ sanitize_outputs(
     $desc,
     $gameTitle,
     $consoleName,
-    $author,
-    $achMem
+    $author
 );
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
