@@ -52,7 +52,7 @@ $numRecentWinners = 0;
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
 
 // Determine if the logged in user is the sole author of the set
-if (isset($user)) {
+if ($permissions >= Permissions::JuniorDeveloper && isset($user)) {
     $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
 }
 
@@ -91,7 +91,7 @@ RenderHtmlStart(true);
 
 <body>
 <?php RenderHeader($userDetails); ?>
-<?php if (($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial))): ?>
+<?php if (($permissions >= Permissions::Developer || $isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)): ?>
     <script>
         function updateAchievementDetails() {
         var title = $('#titleinput').val();
@@ -104,14 +104,16 @@ RenderHtmlStart(true);
         var maxDescription = <?php echo MAX_DESCRIPTION; ?>;
         showStatusMessage('Updating...');
         if ( titleLength > maxTitle) {
-                showStatusFailure('Error: Title too long');
-                return;
-        } else if ( descLength > maxDescription) {
-                showStatusFailure('Error: Description too long');
-                return;
-        } else if ( points == '' || !validPoints.includes(Number(points))) {
-                showStatusFailure('Error: Invalid Points');
-                return;
+            showStatusFailure('Error: Title too long');
+            return;
+        }
+        if ( descLength > maxDescription) {
+            showStatusFailure('Error: Description too long');
+            return;
+        }
+        if ( points == '' || !validPoints.includes(Number(points))) {
+            showStatusFailure('Error: Invalid Points');
+            return;
         }
 
         $.ajax({
@@ -152,8 +154,8 @@ RenderHtmlStart(true);
         showStatusMessage('Updating...');
 
         if ( url == '') {
-                showStatusFailure('Error: Blank url');
-                return;
+            showStatusFailure('Error: Blank url');
+            return;
         }
 
         $.ajax({
@@ -308,9 +310,9 @@ RenderHtmlStart(true);
             if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
                 echo "<div>Update achievement details:</div>";
                 echo "<table><tbody>";
-                echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='$achievementTitle' style='width:100%' maxlength='64';></td></tr>";
-                echo "<tr><td>Description:</td><td style='width:100%'><input id='descriptioninput' type='text' name='d' value='$desc' style='width:100%' maxlength='256';></td></tr>";
-                echo "<tr><td>Points:</td><td style='width:100%'><input id='pointsinput' type='number' name='p' value='$achPoints' style='width:100%' min='0' max='100';'></td></tr>";
+                echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='" . MAX_TITLE . "';></td></tr>";
+                echo "<tr><td>Description:</td><td style='width:100%'><input id='descriptioninput' type='text' name='d' value='" . attributeEscape($desc) . "' style='width:100%' maxlength='" . MAX_DESCRIPTION . "';></td></tr>";
+                echo "<tr><td>Points:</td><td style='width:100%'><input id='pointsinput' type='number' name='p' value='$achPoints' style='width:100%' min='" . VALID_POINTS[array_key_first(VALID_POINTS)] . "' max='" . VALID_POINTS[array_key_last(VALID_POINTS)] . "';'></td></tr>";
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
 

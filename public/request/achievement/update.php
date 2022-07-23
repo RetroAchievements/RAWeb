@@ -18,21 +18,13 @@ $achievementId = requestInputPost('a'); // can be array or integer als string. c
 $field = requestInputPost('f', null, 'integer');
 $value = requestInputPost('v');
 
-$achievementTitle = requestInputPost('t');
-$desc = requestInputPost('d');
-$badgeName = requestInputPost('b');
-$achPoints = requestInputPost('p', null, 'integer');
-$achMem = requestInputPost('m');
-$gameID = requestInputPost('g', null, 'integer');
-$achFlags = requestInputPost('l');
-
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-// Only allow jr. devs to update the display order and they are the sole author of the set
+// Only allow jr. devs to update the display order or achievements if they are the sole author of the set
 if ($permissions == Permissions::JuniorDeveloper) {
     $jrDevAllowed = false;
     if ($field == 1) {
@@ -44,13 +36,23 @@ if ($permissions == Permissions::JuniorDeveloper) {
                 $gameID = requestInputQuery('g', null, 'integer');
             } else {
                 http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'Bad request']);
+                echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
                 exit;
             }
         }
         $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
-    } elseif ($field == 4 && $achFlags == AchievementType::Unofficial) {
-        $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
+    } elseif ($field == 4) {
+        if (ValidatePOSTChars("gl")) {
+            $gameID = requestInputPost('g', null, 'integer');
+            $achFlags = requestInputPost('l');
+            if ($achFlags == AchievementType::Unofficial) {
+                $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
+            exit;
+        }
     }
 
     if (!$jrDevAllowed) {
@@ -105,7 +107,15 @@ switch ($field) {
         break;
     case 4:
         // Achievement Details
+        $achievementTitle = requestInputPost('t');
+        $desc = requestInputPost('d');
+        $badgeName = requestInputPost('b');
+        $achPoints = requestInputPost('p', null, 'integer');
+        $achMem = requestInputPost('m');
+        $achFlags = requestInputPost('l');
+        $gameID = requestInputPost('g', null, 'integer');
         $errorOut = "";
+
         if (UploadNewAchievement(
                 author: $user,
                 gameID: $gameID,
