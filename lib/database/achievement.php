@@ -397,22 +397,18 @@ function UploadNewAchievement(
     }
 }
 
-function GetAchievementsPatch($gameID, $flags): array
+function GetAchievementsPatch(int $gameID, int $flags): array
 {
-    sanitize_sql_inputs($gameID, $flags);
-    settype($gameID, 'integer');
-    settype($flags, 'integer');
-
     $retVal = [];
 
-    $flagsCond = "TRUE";
+    $flagsCond = '';
     if ($flags != 0) {
-        $flagsCond = "Flags='$flags'";
+        $flagsCond = " AND Flags=$flags";
     }
 
     $query = "SELECT ID, MemAddr, Title, Description, Points, Author, UNIX_TIMESTAMP(DateModified) AS Modified, UNIX_TIMESTAMP(DateCreated) AS Created, BadgeName, Flags
               FROM Achievements
-              WHERE GameID='$gameID' AND $flagsCond
+              WHERE GameID=$gameID $flagsCond
               ORDER BY DisplayOrder";
 
     $dbResult = s_mysql_query($query);
@@ -434,22 +430,37 @@ function GetAchievementsPatch($gameID, $flags): array
     return $retVal;
 }
 
-function GetPatchData($gameID, $flags, $user): array
+function GetPatchData(int $gameID, int $flags, bool $withSubsets): array
 {
-    sanitize_sql_inputs($gameID, $flags, $user);
-    settype($gameID, 'integer');
-    settype($flags, 'integer');
-
     $retVal = [];
 
     if (empty($gameID)) {
-        // cannot look up game with gameID $gameID for user $user
+        // cannot look up game without game ID
         return $retVal;
     }
-    $retVal = array_merge(getGameData($gameID));
 
+    $retVal = getGameData($gameID);
     $retVal['Achievements'] = GetAchievementsPatch($gameID, $flags);
     $retVal['Leaderboards'] = GetLBPatch($gameID);
+
+    if ($withSubsets) {
+        $subsetPrefix = $retVal['Title'] . " [Subset - ";
+
+        $relatedGames = getGameAlternatives($gameID);
+        foreach ($relatedGames as $gameAlt) {
+            if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
+                $subsetPatch = [
+                    'ID' => $gameAlt['gameIDAlt'],
+                    'Title' => substr($gameAlt['Title'], strlen($subsetPrefix), -1),
+                ];
+
+                $subsetPatch['Achievements'] = GetAchievementsPatch($subsetPatch['ID'], $flags);
+                $subsetPatch['Leaderboards'] = GetLBPatch($subsetPatch['ID']);
+
+                $retVal['Subsets'][] = $subsetPatch;
+            }
+        }
+    }
 
     return $retVal;
 }

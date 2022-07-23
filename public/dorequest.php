@@ -230,8 +230,8 @@ switch ($requestType) {
 
     case "patch":
         $flags = requestInput('f', 0, 'integer');
-        // $hardcore = requestInput('h', 0, 'integer'); // not used
-        $response['PatchData'] = GetPatchData($gameID, $flags, $user);
+        $withSubsets = requestInput('s', false, 'bool');
+        $response['PatchData'] = GetPatchData($gameID, $flags, $withSubsets);
         break;
 
     case "postactivity":
