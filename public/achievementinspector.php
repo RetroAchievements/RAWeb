@@ -55,6 +55,34 @@ RenderHtmlHead("Manage Achievements");
     }
   }
 
+  function updateDisplayOrder(objID) {
+    var inputText = $('#' + objID).val();
+    var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
+    showStatusMessage('Updating...');
+    $.ajax({
+      type: 'POST',
+      url: '/request/achievement/update.php',
+      dataType: 'json',
+      data: {
+        u: '<?= $user ?>',
+        a: objID.substr(4),
+        g: <?= $gameID ?>,
+        f: 1,
+        v: inputNum,
+      },
+      error: function (xhr, status, serror) {
+        showStatusFailure('Error: ' + (error || 'unknown error'));
+      }
+   })
+     .done(function (data) {
+       if (!data.success) {
+         showStatusFailure('Error: ' + (data.error || 'unknown error'));
+         return;
+       }
+       showStatusSuccess('Succeeded');
+     });
+  }
+
   function updateAchievementsTypeFlag(typeFlag) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
     var checkboxes = document.querySelectorAll("[name^='achievement']");
@@ -73,6 +101,7 @@ RenderHtmlHead("Manage Achievements");
       return;
     }
 
+    showStatusMessage('Updating...');
     $.ajax({
       type: "POST",
       url: '/request/achievement/update.php',
@@ -84,12 +113,12 @@ RenderHtmlHead("Manage Achievements");
         'v': typeFlag
       },
       error: function (xhr, status, error) {
-        alert('Error: ' + (error || 'unknown error'));
+        showStatusFailure('Error: ' + (error || 'unknown error'));
       }
     })
       .done(function (data) {
         if (!data.success) {
-          alert('Error: ' + (data.error || 'unknown error'));
+          showStatusFailure('Error: ' + (data.error || 'unknown error'));
           return;
         }
         document.location.reload();
@@ -103,6 +132,8 @@ RenderHtmlHead("Manage Achievements");
     } else {
         echo "<div id='fullcontainer'>";
     }
+
+    RenderStatusWidget();
 
     if ($flag === AchievementType::Unofficial) {
         echo "<h2 class='longheader'>Unofficial Achievement Inspector</h2>";
@@ -190,7 +221,7 @@ RenderHtmlHead("Manage Achievements");
             echo "<td>$achPoints</td>";
             echo "<td><span class='smalldate'>$achCreated</span><br><span class='smalldate'>$achModified</span></td>";
             if ($partialModifyOK || $fullModifyOK) {
-                echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('$user', 'ach_$achID', '$gameID')\" size='3' /></td>";
+                echo "<td><input class='displayorderedit' id='ach_$achID' type='text' value='$achDisplayOrder' onchange=\"updateDisplayOrder('ach_$achID')\" size='3' /></td>";
             } else {
                 echo "<td>$achDisplayOrder</td>";
             }    // Just remove the input
