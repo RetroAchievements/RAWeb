@@ -578,9 +578,9 @@ RenderHtmlStart(true);
 
         echo "<div class='commentscomponent left'>";
 
-        if ($userWallActive) {
-            echo "<h4>User Wall</h4>";
+        echo "<h4>User Wall</h4>";
 
+        if ($userWallActive) {
             // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
                 ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
@@ -590,6 +590,10 @@ RenderHtmlStart(true);
                 ArticleType::User,
                 $permissions
             );
+        } else {
+            echo "<div class='leftfloat'>";
+            echo "<i>This user has disabled comments.</i>";
+            echo "</div>";
         }
 
         echo "</div>";
