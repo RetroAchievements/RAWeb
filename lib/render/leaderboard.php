@@ -441,13 +441,13 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
         case 5: // Hardcore Points
             $orderCond = "ORDER BY HardcorePoints " . $sortOrder . ", User ASC";
 
-            // Must have 500 points to show up on All Time Points Sorting
+            // Must have MIN_POINTS hardcore points to show up on All Time Points Sorting
             $pointRequirement = "AND ua.RAPoints >= " . MIN_POINTS;
             break;
         case 6: // Retro Points
             $orderCond = "ORDER BY RetroPoints " . $sortOrder . ", User ASC";
 
-            // Must have at least 2500 points to show up on All Time Retro Ratio Sorting
+            // Must have at least MIN_TRUE_POINTS hardcore retro ratio points to show up on All Time Retro Ratio Sorting
             $pointRequirement = "AND ua.TrueRAPoints >= " . MIN_TRUE_POINTS;
             break;
         case 7: // Retro Ratio
