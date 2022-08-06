@@ -277,8 +277,10 @@ function RenderToolbar($user, $permissions = 0): void
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=71'>Arduboy</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+    echo "<li><a href='/gameList.php?c=57'>Fairchild Channel F</a><li>";
     echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
     echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
+    echo "<li><a href='/gameList.php?c=69'>Mega Duck</a></li>";
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
