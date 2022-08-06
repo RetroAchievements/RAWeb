@@ -32,7 +32,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
                 FROM Awarded AS aw 
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE User='$user' 
-                AND aw.Hardcoremode = " . AwardedHardcoreMode::Softcore . "
+                AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
                 LIMIT $listOffset, $maxDays";
