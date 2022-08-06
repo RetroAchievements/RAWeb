@@ -375,7 +375,7 @@ CREATE TABLE IF NOT EXISTS `UserAccounts` (
   `RAPoints` int(11) NOT NULL COMMENT 'Gamerscore :P',
   `fbUser` bigint(20) NOT NULL COMMENT 'FBUser ID',
   `fbPrefs` smallint(6) DEFAULT NULL COMMENT 'Preferences for FB Cross-posting',
-  `cookie` varchar(20) COLLATE latin1_general_ci DEFAULT NULL COMMENT 'Random string to be matched against the user for validation.',
+  `cookie` varchar(255) COLLATE latin1_general_ci DEFAULT NULL COMMENT 'Random string to be matched against the user for validation.',
   `appToken` varchar(20) COLLATE latin1_general_ci DEFAULT NULL COMMENT 'Token used by the app',
   `appTokenExpiry` datetime DEFAULT NULL COMMENT 'Expiry of token used by the app',
   `websitePrefs` smallint(5) unsigned DEFAULT '0',
