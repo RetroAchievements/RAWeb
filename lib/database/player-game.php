@@ -2,8 +2,8 @@
 
 use RA\AchievementType;
 use RA\ActivityType;
-use RA\AwardedHardcoreMode;
 use RA\Permissions;
+use RA\UnlockMode;
 
 function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
 {
@@ -155,7 +155,7 @@ function GetAllUserProgress($user, $consoleID): array
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . "
+                WHERE aw.User = '$user' AND aw.HardcoreMode = " . UnlockMode::Softcore . "
                 GROUP BY gd.ID ) MyAwards ON MyAwards.GameID = gd.ID
 
             LEFT JOIN (
@@ -163,7 +163,7 @@ function GetAllUserProgress($user, $consoleID): array
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
+                WHERE aw.User = '$user' AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY gd.ID ) MyAwardsHC ON MyAwardsHC.GameID = gd.ID
 
             WHERE NumAch > 0 && gd.ConsoleID = $consoleID
@@ -202,7 +202,7 @@ function getUsersGameList($user, &$dataOut): int
                     FROM Achievements AS ach1 
                     GROUP BY GameID ) AS gt ON gt.GameIDInner = gd.ID
         WHERE aw.User = '$user' 
-        AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . " 
+        AND aw.HardcoreMode = " . UnlockMode::Softcore . " 
         AND ach.Flags = " . AchievementType::OfficialCore . "
         GROUP BY gd.ID";
 
@@ -286,7 +286,7 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
 
     $hardcoreCond = "";
     if ($hardcoreOnly) {
-        $hardcoreCond = " AND aw.HardcoreMode =" . AwardedHardcoreMode::Hardcore;
+        $hardcoreCond = " AND aw.HardcoreMode =" . UnlockMode::Hardcore;
     }
 
     $achievementStateCond = "";
@@ -366,7 +366,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
                 WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
                   AND ach.Flags = " . AchievementType::OfficialCore . " 
                   AND gd.ID = $gameID
-                  AND aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
+                  AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY aw.User
                 ORDER BY TotalScore DESC, LastAward";
 

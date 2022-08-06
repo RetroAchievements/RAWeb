@@ -2,7 +2,7 @@
 
 use RA\AchievementType;
 use RA\ActivityType;
-use RA\AwardedHardcoreMode;
+use RA\UnlockMode;
 
 function playerHasUnlock(?string $user, $achievementId): array
 {
@@ -386,7 +386,7 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore;
+              WHERE AchievementID=$achID AND aw.HardcoreMode = " . UnlockMode::Softcore;
 
     $dbResult = s_mysql_query($query);
     $data = mysqli_fetch_assoc($dbResult);
@@ -408,7 +408,7 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $query = "SELECT aw.User, ua.RAPoints, UNIX_TIMESTAMP(aw.Date) AS DateAwarded
               FROM Awarded AS aw
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE AchievementID=$achID AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . " $extraWhere
+              WHERE AchievementID=$achID AND aw.HardcoreMode = " . UnlockMode::Softcore . " $extraWhere
               ORDER BY aw.Date DESC
               LIMIT $offset, $count";
 
@@ -433,7 +433,7 @@ function getUniquePlayersByUnlocks($gameID): int
                   FROM Awarded AS aw
                   LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                   LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                  WHERE gd.ID = $gameID AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . "
+                  WHERE gd.ID = $gameID AND aw.HardcoreMode = " . UnlockMode::Softcore . "
                   GROUP BY ach.ID
               ) AS Inner1";
 
@@ -454,8 +454,8 @@ function getUnlocksSince(int $id, string $date): array
 
     $query = "
         SELECT
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . AwardedHardcoreMode::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . AwardedHardcoreMode::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
+            COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
+            COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
         FROM
             Awarded
         WHERE

@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
-use RA\AwardedHardcoreMode;
+use RA\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -110,7 +110,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             $achID = $achEarnedOnDay[$i]['AchievementID'];
             $achEarnedLib[$achID] = $achEarnedOnDay[$i];
             $achPoints = $achEarnedLib[$achID]['Points'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == AwardedHardcoreMode::Hardcore) {
+            if ($achEarnedOnDay[$i]['HardcoreMode'] == UnlockMode::Hardcore) {
                 $achEarnedLib[$achID]['PointsNote'] = "$achPoints";
             } else { // else Softcore
                 $achEarnedLib[$achID]['PointsNote'] = "<span class='softcore'>$achPoints</span>";

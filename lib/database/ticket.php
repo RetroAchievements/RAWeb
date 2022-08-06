@@ -3,11 +3,11 @@
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
-use RA\AwardedHardcoreMode;
 use RA\SubscriptionSubjectType;
 use RA\Ticket;
 use RA\TicketFilters;
 use RA\TicketState;
+use RA\UnlockMode;
 
 function isAllowedToSubmitTickets($user): bool
 {
@@ -744,14 +744,14 @@ function getModeCondition(int $ticketFilters): ?string
         if ($added) {
             $subquery .= " OR ";
         }
-        $subquery .= "Hardcore = " . AwardedHardcoreMode::Hardcore;
+        $subquery .= "Hardcore = " . UnlockMode::Hardcore;
         $added = true;
     }
     if ($modeSoftcore) {
         if ($added) {
             $subquery .= " OR ";
         }
-        $subquery .= "Hardcore = " . AwardedHardcoreMode::Softcore;
+        $subquery .= "Hardcore = " . UnlockMode::Softcore;
         $subquery .= "";
     }
     $subquery .= ")";

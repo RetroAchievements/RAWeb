@@ -1,7 +1,7 @@
 <?php
 
 use RA\AchievementType;
-use RA\AwardedHardcoreMode;
+use RA\UnlockMode;
 
 function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
 {
@@ -32,7 +32,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
                 FROM Awarded AS aw 
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE User='$user' 
-                AND aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . "
+                AND aw.HardcoreMode = " . UnlockMode::Softcore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
                 LIMIT $listOffset, $maxDays";
@@ -135,8 +135,8 @@ function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom
     }
 
     $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, 
-                SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
-                SUM(IF(aw.HardcoreMode = " . AwardedHardcoreMode::Softcore . ", ach.Points, 0)) AS SoftcorePoints 
+                SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
+                SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS SoftcorePoints 
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID

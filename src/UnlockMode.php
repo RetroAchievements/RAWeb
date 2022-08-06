@@ -2,7 +2,7 @@
 
 namespace RA;
 
-abstract class AwardedHardcoreMode
+abstract class UnlockMode
 {
     public const Softcore = 0;
 

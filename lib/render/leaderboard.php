@@ -1,6 +1,6 @@
 <?php
 
-use RA\AwardedHardcoreMode;
+use RA\UnlockMode;
 
 function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable): string
 {
@@ -473,7 +473,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     if ($lbType == 2) {
         if ($info == 0) {
             $selectQuery = "SELECT ua.User,
-                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . AwardedHardcoreMode::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS HardcoreCount,
+                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS HardcoreCount,
                     COALESCE(ua.RAPoints, 0) AS HardcorePoints,
                     COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
                     COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
@@ -523,7 +523,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
               $friendCondAchievement
               $singleUserAchievementCond
               $untrackedCond
-              AND HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
+              AND HardcoreMode = " . UnlockMode::Hardcore . "
               GROUP BY aw.User
               $orderCond
               LIMIT $offset, $count";
@@ -546,7 +546,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                           LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                           LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                           WHERE TRUE $whereDateAchievement $typeCond
-                          AND HardcoreMode = " . AwardedHardcoreMode::Hardcore . "
+                          AND HardcoreMode = " . UnlockMode::Hardcore . "
                           $friendCondAchievement
                           $singleUserAchievementCond
                           $untrackedCond
