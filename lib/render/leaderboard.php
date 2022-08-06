@@ -1,5 +1,7 @@
 <?php
 
+use RA\UnlockMode;
+
 function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable): string
 {
     $tooltipIconSize = 64; // 96;
@@ -189,9 +191,9 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
-                            $dataPoint['Points'] . "</a>";
+                            $dataPoint['HardcorePoints'] . "</a>";
                     } else {
-                        echo "<td>" . $dataPoint['Points'];
+                        echo "<td>" . $dataPoint['HardcorePoints'];
                     }
                     echo " <span class='TrueRatio'>(" . $dataPoint['RetroPoints'] . ")</span></td>";
                 } else {
@@ -346,7 +348,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
 
 /**
  * Gets all the global ranking information.
- * This includes User, achievements obtained (softcore and hardcore), points, retro points
+ * This includes User, achievements obtained in hardcore, points, retro points
  * retro ratio, completed awards and mastered awards.
  *
  * Results are configurable based on input parameters, allowing sorting on each of the
@@ -361,13 +363,13 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
  *            4 - All Time
  * @param int $sort Stats to sort by
  *            1 - User
- *            2 - Total Achievement
- *            3 - Softcore Achievements
+ *            2 - Total Achievements (no longer supported)
+ *            3 - Softcore Achievements (no longer supported)
  *            4 - Hardcore Achievements
- *            5 - Points
+ *            5 - Hardcore Points
  *            6 - Retro Points
  *            7 - Retro Ratio
- *            8 - Completed Awards
+ *            8 - Completed Awards (no longer supported)
  *            9 - Mastered Awards
  * @param string $date Date to grab information from
  * @param string|null $user User to get data for
@@ -380,7 +382,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
  * @param int $count number of rows to return
  * @param int $info amount of information to pull from the database
  *            0 - All ranking stats
- *            1 - Just Points and Retro Points. Used for the sidebar rankings.
+ *            1 - Just Hardcore Points and Retro Points. Used for the sidebar rankings.
  * @return array Leaderboard data to display
  */
 function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50, $info = 0): array
@@ -388,7 +390,8 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     $pointRequirement = "";
 
     settype($lbType, 'integer');
-    $whereCond = match ($lbType) {
+
+    $typeCond = match ($lbType) {
         // Daily
         0 => "BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)",
         // Weekly
@@ -434,35 +437,29 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
 
     // Determine the ORDER BY condition
     switch ($sort) {
-        case 2: // Total Achievements
-            $orderCond = "ORDER BY AchievementsObtained " . $sortOrder . ", Points DESC, User ASC";
-            break;
-        case 3: // Softcore Achievements
-            $orderCond = "ORDER BY SoftcoreCount " . $sortOrder . ", Points DESC, User ASC";
-            break;
         case 4: // Hardcore Achievements
-            $orderCond = "ORDER BY HardcoreCount " . $sortOrder . ", Points DESC, User ASC";
+            $orderCond = "ORDER BY HardcoreCount " . $sortOrder . ", HardcorePoints DESC, User ASC";
             break;
-        case 5: // Points
-            $orderCond = "ORDER BY Points " . $sortOrder . ", User ASC";
+        case 5: // Hardcore Points
+            $orderCond = "ORDER BY HardcorePoints " . $sortOrder . ", User ASC";
+
+            // Must have MIN_POINTS hardcore points to show up on All Time Points Sorting
+            $pointRequirement = "AND ua.RAPoints >= " . MIN_POINTS;
             break;
         case 6: // Retro Points
             $orderCond = "ORDER BY RetroPoints " . $sortOrder . ", User ASC";
+
+            // Must have at least MIN_TRUE_POINTS hardcore retro ratio points to show up on All Time Retro Ratio Sorting
+            $pointRequirement = "AND ua.TrueRAPoints >= " . MIN_TRUE_POINTS;
             break;
         case 7: // Retro Ratio
             $orderCond = "ORDER BY RetroRatio " . $sortOrder . ", User ASC";
-
-            // Must have higher than 2500 points to show up on All Time Retro Ratio Sorting
-            $pointRequirement = "AND ua.RAPoints > 2500";
-            break;
-        case 8: // Completed Awards
-            $orderCond = "ORDER BY CompletedAwards " . $sortOrder . ", User ASC";
             break;
         case 9: // Mastered Awards
             $orderCond = "ORDER BY MasteredAwards " . $sortOrder . ", User ASC";
             break;
-        default: // Points by default
-            $orderCond = "ORDER BY Points " . $sortOrder . ", User ASC";
+        default: // Hardcore Points by default
+            $orderCond = "ORDER BY HardcorePoints " . $sortOrder . ", User ASC";
             break;
     }
 
@@ -478,15 +475,13 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     if ($lbType == 2) {
         if ($info == 0) {
             $selectQuery = "SELECT ua.User,
-                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = 0 THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS SoftcoreCount,
-                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = 1 THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS HardcoreCount,
-                    (SELECT COUNT(*) FROM Awarded AS aw WHERE aw.User = ua.User) AS AchievementsObtained,
-                    COALESCE(ua.RAPoints, 0) AS Points,
+                    (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS HardcoreCount,
+                    COALESCE(ua.RAPoints, 0) AS HardcorePoints,
                     COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
                     COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
         } else {
             $selectQuery = "SELECT ua.User,
-                    COALESCE(ua.RAPoints, 0) AS Points,
+                    COALESCE(ua.RAPoints, 0) AS HardcorePoints,
                     COALESCE(ua.TrueRAPoints, 0) AS RetroPoints ";
         }
         $query = "$selectQuery
@@ -506,13 +501,12 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             // Get site award info for each user.
             // This is not ideal but it was the only way I could figure out to accurately get site award information.
             for ($i = 0; $i < count($users); $i++) {
-                $query2 = "Select COUNT(*) AS TotalAwards, COALESCE(SUM(CASE WHEN aw.test > 1 THEN 1 ELSE 0 END), 0) AS MasteredAwards, COALESCE(SUM(CASE WHEN aw.test <= 1 THEN 1 ELSE 0 END), 0) AS CompletedAwards
+                $query2 = "Select COUNT(*) AS TotalAwards, COALESCE(SUM(CASE WHEN aw.test > 1 THEN 1 ELSE 0 END), 0) AS MasteredAwards
                             FROM (SELECT *, COUNT(AwardData) + AwardDataExtra AS test FROM SiteAwards WHERE User = '" . $users[$i] . "' AND AwardType = 1 GROUP By AwardData order by AwardDataExtra DESC) as aw";
                 $dbResult2 = s_mysql_query($query2);
                 if ($dbResult2 !== false) {
                     $db_entry2 = mysqli_fetch_assoc($dbResult2);
                     $retVal[$i]['TotalAwards'] = $db_entry2['TotalAwards'];
-                    $retVal[$i]['CompletedAwards'] = $db_entry2['CompletedAwards'];
                     $retVal[$i]['MasteredAwards'] = $db_entry2['MasteredAwards'];
                 }
             }
@@ -522,44 +516,39 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
 
     if ($info == 1) {
         $query = "SELECT aw.User AS User,
-              SUM(ach.Points) AS Points,
+              SUM(ach.Points) AS HardcorePoints,
               SUM(ach.TrueRatio) AS RetroPoints
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE TRUE $whereDateAchievement $whereCond
+              WHERE TRUE $whereDateAchievement $typeCond
               $friendCondAchievement
               $singleUserAchievementCond
               $untrackedCond
+              AND HardcoreMode = " . UnlockMode::Hardcore . "
               GROUP BY aw.User
               $orderCond
               LIMIT $offset, $count";
     } else {
         $query = "SELECT User,
-              COALESCE(MAX(SoftcoreCount), 0) AS SoftcoreCount,
               COALESCE(MAX(HardcoreCount), 0) AS HardcoreCount,
-              COALESCE(MAX(AchievementsObtained), 0) AS AchievementsObtained,
-              COALESCE(MAX(Points), 0) AS Points,
+              COALESCE(MAX(HardcorePoints), 0) AS HardcorePoints,
               COALESCE(MAX(RetroPoints), 0) AS RetroPoints,
-              ROUND(RetroPoints/Points, 2) AS RetroRatio,
-              COALESCE(MAX(CompletedAwards), 0) AS CompletedAwards,
-              COALESCE(MAX(MasteredAwards), 0) AS MasteredAwards,
-              COALESCE(MAX(CompletedAwards), 0) + COALESCE(MAX(MasteredAwards), 0) AS TotalAwards
+              ROUND(RetroPoints/HardcorePoints, 2) AS RetroRatio,
+              COALESCE(MAX(MasteredAwards), 0) AS MasteredAwards
               FROM
                   (
                       (
                           SELECT aw.User AS User,
-                          COALESCE(SUM(CASE WHEN HardcoreMode = 0 THEN 1 ELSE 0 END), 0) AS SoftcoreCount,
-                          COALESCE(SUM(CASE WHEN HardcoreMode = 1 THEN 1 ELSE 0 END), 0) AS HardcoreCount,
-                          COUNT(*) AS AchievementsObtained,
-                          SUM(ach.Points) AS Points,
+                          COUNT(ach.ID) AS HardcoreCount,
+                          SUM(ach.Points) AS HardcorePoints,
                           SUM(ach.TrueRatio) AS RetroPoints,
-                          NULL AS CompletedAwards,
                           NULL AS MasteredAwards
                           FROM Awarded AS aw
                           LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                           LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                          WHERE TRUE $whereDateAchievement $whereCond
+                          WHERE TRUE $whereDateAchievement $typeCond
+                          AND HardcoreMode = " . UnlockMode::Hardcore . "
                           $friendCondAchievement
                           $singleUserAchievementCond
                           $untrackedCond
@@ -568,16 +557,13 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                       UNION
                       (
                           SELECT sa.User AS User,
-                          NULL AS SoftcoreCount,
                           NULL AS HardcoreCount,
-                          NULL AS AchievementsObtained,
-                          NULL AS Points,
+                          NULL AS HardcorePoints,
                           NULL AS RetroPoints,
-                          COALESCE(SUM(CASE WHEN AwardDataExtra = 0 AND AwardType = 1 THEN 1 ELSE 0 END), 0) AS CompletedAwards,
                           COALESCE(SUM(CASE WHEN AwardDataExtra = 1 AND AwardType = 1 THEN 1 ELSE 0 END), 0) AS MasteredAwards
                           FROM SiteAwards AS sa
                           LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-                          WHERE TRUE $whereDateAward $whereCond
+                          WHERE TRUE $whereDateAward $typeCond
                           $friendCondAward
                           $singleUserAwardCond
                           $untrackedCond

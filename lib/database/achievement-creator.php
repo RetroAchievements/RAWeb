@@ -1,6 +1,7 @@
 <?php
 
 use RA\AchievementType;
+use RA\UnlockMode;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
@@ -91,8 +92,8 @@ function getOwnAchievementsObtained(string $user): bool|array|null
     sanitize_sql_inputs($user);
 
     $query = "SELECT 
-              SUM(CASE WHEN aw.HardcoreMode = 0 THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN aw.HardcoreMode = 1 THEN 1 ELSE 0 END) AS HardcoreCount
+              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
               LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
@@ -119,8 +120,8 @@ function getObtainersOfSpecificUser(string $user): array
 
     $retVal = [];
     $query = "SELECT aw.User, COUNT(aw.User) AS ObtainCount,
-              SUM(CASE WHEN aw.HardcoreMode = 0 THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN aw.HardcoreMode = 1 THEN 1 ELSE 0 END) AS HardcoreCount
+              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
               LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID

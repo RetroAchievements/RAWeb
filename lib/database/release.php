@@ -66,7 +66,7 @@ function isValidConsoleId(int $consoleId): bool
         // 54, // Cassette Vision
         // 55, // Super Cassette Vision
         56, // Neo Geo CD
-        // 57, // Fairchild Channel-F
+        57, // Fairchild Channel-F
         // 58, // FM Towns
         // 59, // ZX Spectrum
         // 60, // Game & Watch
@@ -78,7 +78,7 @@ function isValidConsoleId(int $consoleId): bool
         // 66, // Thomson TO8
         // 67, // PC-6000
         // 68, // Sega Pico
-        // 69, // Mega Duck
+        69, // Mega Duck
         // 70, // Zeebo
         71, // Arduboy
         72, // WASM-4

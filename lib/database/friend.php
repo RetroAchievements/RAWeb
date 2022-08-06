@@ -2,6 +2,7 @@
 
 use RA\FriendshipType;
 use RA\Permissions;
+use RA\UnlockMode;
 use RA\UserPreference;
 
 function changeFriendStatus(string $user, string $friend, int $newStatus): string
@@ -120,6 +121,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
                     FROM Achievements AS ach
                     WHERE ach.GameID = '$gameID' AND ach.Flags = 3
                 ) AS Inner1 ON Inner1.ID = aw.AchievementID
+                WHERE aw.HardcoreMode = " . UnlockMode::Hardcore . "
             ) AS aw 
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User 
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID 
