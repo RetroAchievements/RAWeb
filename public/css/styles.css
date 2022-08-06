@@ -1234,6 +1234,11 @@ pre, code, .code {
   white-space: pre-wrap;
 }
 
+.awardcount {
+  float: right;
+  font-size: 0.75em;
+}
+
 .badgeimg {
   border: 2px solid transparent;
   padding: 0;

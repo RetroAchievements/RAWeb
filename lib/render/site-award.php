@@ -71,7 +71,11 @@ function RenderAwardGroup($awards, $title): void
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "' class='component' >";
-    echo "<h3>$title</h3>";
+    echo "
+        <h3>
+            $title
+            <div class='awardcount'>⬩ $numItems</div>
+        </h3>";
     echo "<div class='siteawards'>";
     echo "<table class='siteawards'><tbody>";
 
