@@ -1154,10 +1154,10 @@ RenderHtmlHead("$dev's Developer Stats");
                 if ($recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User'] &&
                     $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date'] &&
                     $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID']) {
-                    echo " <span class='hardcore'>(Hardcore!)</span>";
+                    echo " (Hardcore!)";
                     $skipNextEntry = true;
                 } elseif ($recentlyObtainedAchievements[$i]['HardcoreMode'] == 1) {
-                    echo " <span class='hardcore'>(Hardcore!)</span>";
+                    echo " (Hardcore!)";
                 }
                 echo "</td><td width='35%'>";
                 echo GetGameAndTooltipDiv($recentlyObtainedAchievements[$i]['GameID'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['GameIcon'], $recentlyObtainedAchievements[$i]['ConsoleName'], false, 32);

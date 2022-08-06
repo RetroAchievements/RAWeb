@@ -112,14 +112,12 @@ $errorCode = requestInputSanitized('e');
 
 $pageTitle = "$userPage";
 
-$userPagePoints = getPlayerPoints($userPage);
-
 $daysRecentProgressToShow = 14; // fortnight
 
 $userScoreData = getAwardedList(
     $userPage,
     0,
-    1000,
+    $daysRecentProgressToShow,
     date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),
     date("Y-m-d H:i:s", time())
 );
@@ -190,7 +188,7 @@ RenderHtmlStart(true);
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulScore'];
+            $value = $dayInfo['CumulHardcoreScore'];
 
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
@@ -233,13 +231,6 @@ RenderHtmlStart(true);
         echo "<div class='usersummary'>";
         echo "<h3 class='longheader' >$userPage's User Page</h3>";
 
-        $totalPoints = $userMassData['TotalPoints'];
-        $totalTruePoints = $userMassData['TotalTruePoints'];
-        echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
-        echo "<div class='username'>";
-        echo "<span class='username'><a href='/user/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
-        echo "</div>";
-
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
             echo "<span class='usermotto'>$userMotto</span>";
@@ -259,9 +250,18 @@ RenderHtmlStart(true);
         echo "Account Type: <b>[" . Permissions::toString($userMassData['Permissions']) . "]</b><br>";
         echo "<br>";
 
+        $totalHardcorePoints = $userMassData['TotalPoints'];
+        $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
+        $totalTruePoints = $userMassData['TotalTruePoints'];
         $retRatio = 0.0;
-        if ($totalPoints > 0) {
-            $retRatio = sprintf("%01.2f", $userTruePoints / $totalPoints);
+        if ($totalHardcorePoints > 0) {
+            $retRatio = sprintf("%01.2f", $userTruePoints / $totalHardcorePoints);
+        }
+        if ($totalHardcorePoints > 0 || $totalSoftcorePoints == 0) {
+            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($userTruePoints)</span></span><br>";
+        }
+        if ($totalSoftcorePoints > 0) {
+            echo "Softcore Points: $totalSoftcorePoints points<br>";
         }
         echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
         echo "Average Completion: <b>$avgPctWon%</b><br>";
@@ -269,7 +269,7 @@ RenderHtmlStart(true);
         echo "Site Rank: ";
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
-        } elseif ($totalPoints < MIN_POINTS) {
+        } elseif ($totalHardcorePoints < MIN_POINTS) {
             echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
@@ -424,6 +424,7 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
+            echo "<input type='hidden' name='u' value='$userPage' />";
             echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
             echo "</form>";
             echo "</td></tr>";
