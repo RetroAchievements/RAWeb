@@ -7,6 +7,10 @@ body {
   line-height: 1.3em;
 }
 
+.themeselect-wrapper{
+  color: rgb(212, 0, 12);
+}
+
 a {
   color: rgb(255, 12, 0);
 }

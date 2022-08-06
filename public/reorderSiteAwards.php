@@ -19,11 +19,32 @@ RenderHtmlHead("Reorder Site Awards");
 ?>
 <body>
 <?php RenderHeader($userDetails); ?>
+<script>
+function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
+  var inputText = $('#' + objID).val();
+  var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
+  showStatusMessage('Updating...');
+  var posting = $.post(
+    '/request/user/update-site-award.php',
+    {
+      t: awardType,
+      d: awardData,
+      e: awardDataExtra,
+      v: inputNum,
+    }
+  );
+  posting.done(function (data) {
+    if (data !== 'OK') {
+      showStatusFailure('Error: ' + data);
+    } else {
+      showStatusSuccess('Succeeded');
+    }
+  });
+}
+</script>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
-        echo "<div id='warning' class='rightfloat'></div>";
-
         echo "<h2 class='longheader'>Reorder Site Awards</h2>";
         echo "<span class='clickablebutton'><a href='/reorderSiteAwards.php'>Refresh Page</a></span><br>";
 
@@ -84,6 +105,8 @@ RenderHtmlHead("Reorder Site Awards");
             }
             echo "</tbody></table>\n";
         }
+
+        RenderStatusWidget();
 
         $counter = 0;
         if (!empty($gameAwards)) {

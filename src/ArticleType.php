@@ -24,6 +24,8 @@ abstract class ArticleType
 
     public const GameHash = 10;
 
+    public const SetClaim = 11;
+
     public const GameModification = 12;
 
     private const VALID = [
@@ -37,6 +39,7 @@ abstract class ArticleType
         self::Forum,
         self::UserModeration,
         self::GameHash,
+        self::SetClaim,
         self::GameModification,
     ];
 

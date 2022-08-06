@@ -1,5 +1,7 @@
 <?php
 
+use RA\UnlockMode;
+
 function changeFriendStatus($user, $friend, $action): string
 {
     sanitize_sql_inputs($user, $friend, $action);
@@ -158,6 +160,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
                     FROM Achievements AS ach
                     WHERE ach.GameID = '$gameID' AND ach.Flags = 3
                 ) AS Inner1 ON Inner1.ID = aw.AchievementID
+                WHERE aw.HardcoreMode = " . UnlockMode::Hardcore . "
             ) AS aw 
             NATURAL JOIN 
             ( 

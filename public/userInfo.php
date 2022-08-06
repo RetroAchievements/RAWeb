@@ -1,6 +1,10 @@
 <?php
 
 use RA\ArticleType;
+use RA\ClaimFilters;
+use RA\ClaimSorting;
+use RA\ClaimSpecial;
+use RA\ClaimType;
 use RA\Permissions;
 use RA\UserAction;
 
@@ -108,17 +112,20 @@ $errorCode = requestInputSanitized('e');
 
 $pageTitle = "$userPage";
 
-$userPagePoints = getPlayerPoints($userPage);
-
 $daysRecentProgressToShow = 14; // fortnight
 
 $userScoreData = getAwardedList(
     $userPage,
     0,
-    1000,
+    $daysRecentProgressToShow,
     date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),
     date("Y-m-d H:i:s", time())
 );
+
+// Get claim data if the user has jr dev or above permissions
+if (getActiveClaimCount($userPage, true, true) > 0) {
+    $userClaimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::GameAscending, false, $userPage); // Active claims sorted by game title
+}
 
 // Also add current.
 // $numScoreDataElements = count($userScoreData);
@@ -181,7 +188,7 @@ RenderHtmlStart(true);
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulScore'];
+            $value = $dayInfo['CumulHardcoreScore'];
 
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
@@ -224,13 +231,6 @@ RenderHtmlStart(true);
         echo "<div class='usersummary'>";
         echo "<h3 class='longheader' >$userPage's User Page</h3>";
 
-        $totalPoints = $userMassData['TotalPoints'];
-        $totalTruePoints = $userMassData['TotalTruePoints'];
-        echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
-        echo "<div class='username'>";
-        echo "<span class='username'><a href='/user/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
-        echo "</div>";
-
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
             echo "<span class='usermotto'>$userMotto</span>";
@@ -250,9 +250,18 @@ RenderHtmlStart(true);
         echo "Account Type: <b>[" . Permissions::toString($userMassData['Permissions']) . "]</b><br>";
         echo "<br>";
 
+        $totalHardcorePoints = $userMassData['TotalPoints'];
+        $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
+        $totalTruePoints = $userMassData['TotalTruePoints'];
         $retRatio = 0.0;
-        if ($totalPoints > 0) {
-            $retRatio = sprintf("%01.2f", $userTruePoints / $totalPoints);
+        if ($totalHardcorePoints > 0) {
+            $retRatio = sprintf("%01.2f", $userTruePoints / $totalHardcorePoints);
+        }
+        if ($totalHardcorePoints > 0 || $totalSoftcorePoints == 0) {
+            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($userTruePoints)</span></span><br>";
+        }
+        if ($totalSoftcorePoints > 0) {
+            echo "Softcore Points: $totalSoftcorePoints points<br>";
         }
         echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
         echo "Average Completion: <b>$avgPctWon%</b><br>";
@@ -260,7 +269,7 @@ RenderHtmlStart(true);
         echo "Site Rank: ";
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
-        } elseif ($totalPoints < MIN_POINTS) {
+        } elseif ($totalHardcorePoints < MIN_POINTS) {
             echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
@@ -290,15 +299,35 @@ RenderHtmlStart(true);
         $contribCount = $userMassData['ContribCount'];
         $contribYield = $userMassData['ContribYield'];
         if ($contribCount > 0) {
-            echo "<strong>$userPage Developer Stats:</strong><br>";
+            echo "<strong>$userPage Developer Information:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
             echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
+            echo "<a href='/claimlist.php?u=$userPage'>View claim information for <b>$userPage</b>.</a></br>";
             if (isset($user) && $permissions >= Permissions::Registered) {
                 $openTicketsData = countOpenTicketsByDev($userPage);
                 echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . array_sum($openTicketsData) . "</b></a><br>";
             }
             echo "Achievements won by others: <b>$contribCount</b><br>";
             echo "Points awarded to others: <b>$contribYield</b><br><br>";
+        }
+
+        // Display the users active claims
+        if (isset($userClaimData) && count($userClaimData) > 0) {
+            echo "<b>$userPage's</b> current claims:</br>";
+            foreach ($userClaimData as $claim) {
+                $details = "";
+                $isCollab = $claim['ClaimType'] == ClaimType::Collaboration;
+                $isSpecial = $claim['Special'] != ClaimSpecial::None;
+                if ($isCollab) {
+                    $details = " (" . ClaimType::toString(ClaimType::Collaboration) . ")";
+                } else {
+                    if (!$isSpecial) {
+                        $details = "*";
+                    }
+                }
+                echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName'], false, 22) . $details . '<br>';
+            }
+            echo "* Counts against reservation limit</br></br>";
         }
 
         echo "</div>"; // usersummary
@@ -395,6 +424,7 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
+            echo "<input type='hidden' name='u' value='$userPage' />";
             echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
             echo "</form>";
             echo "</td></tr>";

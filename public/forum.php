@@ -12,7 +12,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $forumList = getForumList($requestedCategoryID);
 
 $numUnofficialLinks = 0;
-if ($permissions >= Permissions::Developer) {
+if ($permissions >= Permissions::Admin) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
@@ -51,7 +51,7 @@ RenderHtmlHead($pageTitle);
             // Output all forums fetched, by category
 
             if ($numUnofficialLinks > 0) {
-                echo "<br><a href='/viewforum.php?f=0'><b>Developer Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
+                echo "<br><a href='/viewforum.php?f=0'><b>Administrator Notice:</b> $numUnofficialLinks unofficial posts need authorising: please verify them!</a><br>";
             }
 
             $lastCategory = "_init";

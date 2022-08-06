@@ -1,6 +1,7 @@
 <?php
 
 use RA\AwardThreshold;
+use RA\ClaimStatus;
 use RA\Permissions;
 use RA\TicketState;
 
@@ -29,7 +30,7 @@ function getAccountDetails(&$user, &$dataOut): bool
 
     sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, TrueRAPoints,
+    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
                      cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
                      APIKey, ContribCount, ContribYield,
                      RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
@@ -266,6 +267,7 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
     $libraryOut['ContribYield'] = $userInfo['ContribYield'];
     $libraryOut['TotalPoints'] = $userInfo['RAPoints'];
+    $libraryOut['TotalSoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $libraryOut['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $libraryOut['Permissions'] = $userInfo['Permissions'];
     $libraryOut['Untracked'] = $userInfo['Untracked'];
@@ -401,7 +403,7 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
     };
 
     $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
-                (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded                
+                (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded
                 FROM UserAccounts AS ua
                 $whereQuery
                 ORDER BY $orderBy
@@ -455,6 +457,7 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7): array
         4 => "TicketRatio DESC",
         5 => "LastLogin DESC",
         6 => "Author ASC",
+        7 => "ActiveClaims DESC",
         default => "Achievements DESC",
     };
 
@@ -465,15 +468,18 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7): array
         ContribCount,
         ContribYield,
         COUNT(DISTINCT(IF(ach.Flags = 3, ach.ID, NULL))) AS Achievements,
-        COUNT(tick.ID) AS OpenTickets,
+        COUNT(DISTINCT(tick.ID)) AS OpenTickets,
         COUNT(tick.ID)/COUNT(ach.ID) AS TicketRatio,
-        LastLogin
+        LastLogin,
+        COUNT(DISTINCT(sc.ID)) AS ActiveClaims
     FROM
         UserAccounts AS ua
     LEFT JOIN
         Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
     LEFT JOIN
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
+    LEFT JOIN
+        SetClaim AS sc ON (sc.User = ua.User AND sc.Status = " . ClaimStatus::Active . ")
     WHERE
         ContribCount > 0 AND ContribYield > 0
         $stateCond
@@ -528,7 +534,8 @@ function getUserCardData($user, &$userCardInfo): void
 
     // getUserActivityRange($user, $firstLogin, $lastLogin);
     $userCardInfo = [];
-    $userCardInfo['TotalPoints'] = $userInfo['RAPoints'];
+    $userCardInfo['HardcorePoints'] = $userInfo['RAPoints'];
+    $userCardInfo['SoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
     $userCardInfo['Permissions'] = $userInfo['Permissions'];
     $userCardInfo['Motto'] = $userInfo['Motto'];
