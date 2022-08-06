@@ -29,34 +29,34 @@ foreach (GetExtendedFriendsList($user) as $entry) {
 
 $followersList = GetFollowers($user);
 
-function RenderUserList(string $header, string $user, array $friends, int $friendshipType, ?string $emptyMessage = null)
+function RenderUserList(string $header, string $user, array $users, int $friendshipType, ?string $emptyMessage = null)
 {
-    if (count($friends) == 0) {
+    if (count($users) == 0) {
         return;
     }
 
     echo "<br/><h2>$header</h2>";
     echo "<table><tbody>";
-    echo "<tr><th style='width:36px'><th>User</th><th style='width:128px'>Commands</th></tr>";
-    foreach ($friends as $friend) {
+    echo "<tr><th style='width:36px'><th>User</th><th style='width:128px'></th></tr>";
+    foreach ($users as $user) {
         echo "<tr>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($friend, true, null, 32);
+        echo GetUserAndTooltipDiv($user, true);
         echo "</td>";
 
         echo "<td style='text-align:left'>";
-        echo GetUserAndTooltipDiv($friend, false);
+        echo GetUserAndTooltipDiv($user);
         echo "</td>";
 
         echo "<td style='vertical-align:middle;'>";
         echo "<div>";
         switch ($friendshipType) {
             case UserRelationship::Following:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$friend&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case UserRelationship::Blocked:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$friend&amp;a=" . UserRelationship::NotFollowing . "'>Unblock&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::NotFollowing . "'>Unblock&nbsp;user</a></span>";
                 break;
         }
         echo "</div>";
@@ -82,7 +82,7 @@ RenderHtmlHead("Following");
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
             echo "<table><tbody>";
-            echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:128px'>Commands</th></tr>";
+            echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:128px'></th></tr>";
             foreach ($followingList as $entry) {
                 echo "<tr>";
 

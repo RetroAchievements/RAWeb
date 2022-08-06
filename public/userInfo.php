@@ -243,20 +243,20 @@ RenderHtmlStart(true);
             $friendshipType = GetFriendship($user, $userPage);
             switch ($friendshipType) {
                 case UserRelationship::Following:
-                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Stop following</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unfollow</a></span>";
                     break;
                 case UserRelationship::NotFollowing:
-                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Following . "'>Start following</a></span>";
+                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Following . "'>Follow</a></span>";
                     break;
             }
 
             if ($friendshipType != UserRelationship::Blocked) {
-                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Blocked . "'>Block user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Blocked . "'>Block</a></span>";
             } else {
-                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unblock user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unblock</a></span>";
             }
 
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send private message</a></span>";
+            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
 
             echo "</div>"; // buttoncollection
             echo "</div>"; // friendbox
