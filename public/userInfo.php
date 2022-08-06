@@ -5,9 +5,9 @@ use RA\ClaimFilters;
 use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimType;
-use RA\FriendshipType;
 use RA\Permissions;
 use RA\UserAction;
+use RA\UserRelationship;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -242,18 +242,18 @@ RenderHtmlStart(true);
 
             $friendshipType = GetFriendship($user, $userPage);
             switch ($friendshipType) {
-                case FriendshipType::Following:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFollowing . "'>Stop following</a></span>";
+                case UserRelationship::Following:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Stop following</a></span>";
                     break;
-                case FriendshipType::NotFollowing:
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Following . "'>Start following</a></span>";
+                case UserRelationship::NotFollowing:
+                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . UserRelationship::Following . "'>Start following</a></span>";
                     break;
             }
 
-            if ($friendshipType != FriendshipType::Blocked) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::Blocked . "'>Block user</a></span>";
+            if ($friendshipType != UserRelationship::Blocked) {
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . UserRelationship::Blocked . "'>Block user</a></span>";
             } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . FriendshipType::NotFollowing . "'>Unblock user</a></span>";
+                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unblock user</a></span>";
             }
 
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send private message</a></span>";

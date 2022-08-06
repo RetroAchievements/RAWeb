@@ -1,9 +1,9 @@
 <?php
 
-use RA\FriendshipType;
 use RA\Permissions;
 use RA\UnlockMode;
 use RA\UserPreference;
+use RA\UserRelationship;
 
 function changeFriendStatus(string $user, string $friend, int $newStatus): string
 {
@@ -21,7 +21,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
         $oldStatus = (int) $data['Friendship'];
         $query = "UPDATE Friends SET Friendship=$newStatus WHERE User='$user' AND Friend='$friend'";
     } else {
-        $oldStatus = FriendshipType::NotFollowing;
+        $oldStatus = UserRelationship::NotFollowing;
         $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ('$user', '$friend', $newStatus)";
     }
 
@@ -29,7 +29,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
         return "nochange";
     }
 
-    if ($newStatus == FriendshipType::Following && isUserBlocking($friend, $user)) {
+    if ($newStatus == UserRelationship::Following && isUserBlocking($friend, $user)) {
         // other user has blocked this user, can't follow them
         return "error";
     }
@@ -40,7 +40,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
     }
 
     switch ($newStatus) {
-        case FriendshipType::Following:
+        case UserRelationship::Following:
             // attempt to notify the target of the new follower
             if (getAccountDetails($friend, $friendData)) {
                 if (BitSet($friendData['websitePrefs'], UserPreference::EmailOn_AddFriend)) {
@@ -51,17 +51,17 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
 
             return "friendrequested";
 
-        case FriendshipType::NotFollowing:
+        case UserRelationship::NotFollowing:
             return match ($oldStatus) {
-                FriendshipType::Following => "friendremoved",
-                FriendshipType::Blocked => "friendunblocked",
+                UserRelationship::Following => "friendremoved",
+                UserRelationship::Blocked => "friendunblocked",
                 default => "error",
             };
 
-        case FriendshipType::Blocked:
+        case UserRelationship::Blocked:
             if (!isUserBlocking($friend, $user)) {
                 // if the other user hasn't blocked the user, clear out their friendship status too
-                $query = "UPDATE Friends SET Friendship=" . FriendshipType::NotFollowing . " WHERE User='$friend' AND Friend='$user'";
+                $query = "UPDATE Friends SET Friendship=" . UserRelationship::NotFollowing . " WHERE User='$friend' AND Friend='$user'";
                 $dbResult = s_mysql_query($query);
             }
 
@@ -74,7 +74,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
 
 function isUserBlocking($user, $possibly_blocked_user): bool
 {
-    return GetFriendship($user, $possibly_blocked_user) == FriendshipType::Blocked;
+    return GetFriendship($user, $possibly_blocked_user) == UserRelationship::Blocked;
 }
 
 function GetFriendship(string $user, string $friend): int
@@ -90,7 +90,7 @@ function GetFriendship(string $user, string $friend): int
         }
     }
 
-    return FriendshipType::NotFollowing;
+    return UserRelationship::NotFollowing;
 }
 
 function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
@@ -180,8 +180,8 @@ function GetFriendList(string $user): array
 function GetFriendsSubquery(string $user, bool $includeUser = true)
 {
     $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
-         JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . FriendshipType::Following . ") as Friends1 ON Friends1.User=ua.User
-         JOIN (SELECT User FROM Friends WHERE Friend='$user' AND Friendship=" . FriendshipType::Following . ") as Friends2 ON Friends2.User=Friends1.User
+         JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . UserRelationship::Following . ") as Friends1 ON Friends1.User=ua.User
+         JOIN (SELECT User FROM Friends WHERE Friend='$user' AND Friendship=" . UserRelationship::Following . ") as Friends2 ON Friends2.User=Friends1.User
          WHERE ua.Deleted IS NULL AND ua.Permissions >= " . Permissions::Unregistered;
 
     // TODO: why is it so much faster to run this query and build the IN list
@@ -249,7 +249,7 @@ function getFriendCount(?string $user): int
               FROM Friends AS f
               JOIN UserAccounts AS ua ON ua.User=f.Friend
               WHERE f.User LIKE '$user'
-              AND f.Friendship = " . FriendshipType::Following . " AND ua.Deleted IS NULL
+              AND f.Friendship = " . UserRelationship::Following . " AND ua.Deleted IS NULL
               AND ua.Permissions >= " . Permissions::Unregistered;
 
     $dbResult = s_mysql_query($query);
@@ -269,7 +269,7 @@ function GetFollowers(string $user): array
     $query = "SELECT f.User
               FROM Friends AS f
               JOIN UserAccounts AS ua ON ua.User = f.User
-              WHERE f.Friend='$user' AND f.Friendship=" . FriendshipType::Following . "
+              WHERE f.Friend='$user' AND f.Friendship=" . UserRelationship::Following . "
               AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL";
 
     $dbResult = s_mysql_query($query);

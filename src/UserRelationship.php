@@ -2,7 +2,7 @@
 
 namespace RA;
 
-abstract class FriendshipType
+abstract class UserRelationship
 {
     public const Blocked = -1;
 
@@ -13,9 +13,9 @@ abstract class FriendshipType
     public static function toString(int $type): string
     {
         return match ($type) {
-            FriendshipType::Blocked => "Blocked",
-            FriendshipType::NotFollowing => "Not following",
-            FriendshipType::Following => "Following",
+            UserRelationship::Blocked => "Blocked",
+            UserRelationship::NotFollowing => "Not following",
+            UserRelationship::Following => "Following",
             default => "Invalid friendship type",
         };
     }

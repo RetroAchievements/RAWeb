@@ -1,7 +1,7 @@
 <?php
 
-use RA\FriendshipType;
 use RA\Permissions;
+use RA\UserRelationship;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -18,10 +18,10 @@ $followingList = [];
 $blockedUsersList = [];
 foreach (GetExtendedFriendsList($user) as $entry) {
     switch ($entry['Friendship']) {
-        case FriendshipType::Following:
+        case UserRelationship::Following:
             $followingList[] = $entry;
             break;
-        case FriendshipType::Blocked:
+        case UserRelationship::Blocked:
             $blockedUsersList[] = $entry['User'];
             break;
     }
@@ -52,11 +52,11 @@ function RenderUserList(string $header, string $user, array $friends, int $frien
         echo "<td style='vertical-align:middle;'>";
         echo "<div>";
         switch ($friendshipType) {
-            case FriendshipType::Following:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
+            case UserRelationship::Following:
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
-            case FriendshipType::Blocked:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . FriendshipType::NotFollowing . "'>Unblock&nbsp;user</a></span>";
+            case UserRelationship::Blocked:
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . UserRelationship::NotFollowing . "'>Unblock&nbsp;user</a></span>";
                 break;
         }
         echo "</div>";
@@ -111,8 +111,8 @@ RenderHtmlHead("Following");
                 echo "<td style='vertical-align:middle;'>";
                 echo "<div>";
                 echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . FriendshipType::NotFollowing . "'>Stop&nbsp;Following</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . FriendshipType::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . UserRelationship::NotFollowing . "'>Stop&nbsp;Following</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
                 echo "</div>";
                 echo "</td>";
 
@@ -121,8 +121,8 @@ RenderHtmlHead("Following");
             echo "</tbody></table>";
         }
 
-        RenderUserList('Followers', $user, $followersList, FriendshipType::Following);
-        RenderUserList('Blocked', $user, $blockedUsersList, FriendshipType::Blocked);
+        RenderUserList('Followers', $user, $followersList, UserRelationship::Following);
+        RenderUserList('Blocked', $user, $blockedUsersList, UserRelationship::Blocked);
         ?>
     </div>
 </div>
