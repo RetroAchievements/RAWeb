@@ -16,11 +16,13 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
         return "error";
     }
 
+    $newRelationship = false;
     $data = mysqli_fetch_assoc($dbresult);
     if ($data) {
         $oldStatus = (int) $data['Friendship'];
         $query = "UPDATE Friends SET Friendship=$newStatus WHERE User='$user' AND Friend='$friend'";
     } else {
+        $newRelationship = true;
         $oldStatus = UserRelationship::NotFollowing;
         $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ('$user', '$friend', $newStatus)";
     }
@@ -43,7 +45,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
         case UserRelationship::Following:
             // attempt to notify the target of the new follower
             if (getAccountDetails($friend, $friendData)) {
-                if (BitSet($friendData['websitePrefs'], UserPreference::EmailOn_AddFriend)) {
+                if ($newRelationship && BitSet($friendData['websitePrefs'], UserPreference::EmailOn_AddFriend)) {
                     // notify the new friend of the request
                     sendFriendEmail($friend, $friendData['EmailAddress'], 0, $user);
                 }
