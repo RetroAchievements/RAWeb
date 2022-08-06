@@ -6,7 +6,6 @@ require_once __DIR__ . '/database/achievement-points.php';
 require_once __DIR__ . '/database/code-note.php';
 require_once __DIR__ . '/database/console.php';
 require_once __DIR__ . '/database/forum.php';
-require_once __DIR__ . '/database/friend.php';
 require_once __DIR__ . '/database/game.php';
 require_once __DIR__ . '/database/hash.php';
 require_once __DIR__ . '/database/leaderboard.php';
@@ -33,6 +32,7 @@ require_once __DIR__ . '/database/user-auth.php';
 require_once __DIR__ . '/database/user-email-verify.php';
 require_once __DIR__ . '/database/user-password-reset.php';
 require_once __DIR__ . '/database/user-permission.php';
+require_once __DIR__ . '/database/user-relationship.php';
 
 require_once __DIR__ . '/render/achievement.php';
 require_once __DIR__ . '/render/code-note.php';
