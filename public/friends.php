@@ -53,10 +53,10 @@ function RenderUserList(string $header, string $user, array $friends, int $frien
         echo "<div>";
         switch ($friendshipType) {
             case UserRelationship::Following:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$friend&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case UserRelationship::Blocked:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$friend&amp;a=" . UserRelationship::NotFollowing . "'>Unblock&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$friend&amp;a=" . UserRelationship::NotFollowing . "'>Unblock&nbsp;user</a></span>";
                 break;
         }
         echo "</div>";
@@ -111,8 +111,8 @@ RenderHtmlHead("Following");
                 echo "<td style='vertical-align:middle;'>";
                 echo "<div>";
                 echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . UserRelationship::NotFollowing . "'>Stop&nbsp;Following</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/friend/update.php?f=$followingUser&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$followingUser&amp;a=" . UserRelationship::NotFollowing . "'>Stop&nbsp;Following</a></span>";
+                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$followingUser&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
                 echo "</div>";
                 echo "</td>";
 
