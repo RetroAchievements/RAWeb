@@ -1238,13 +1238,29 @@ pre, code, .code {
   float: right;
   margin-right: 10px;
   font-size: 0.75em;
-  font-style: italic;
+}
+
+.awardcount > * {
+  vertical-align: middle;
 }
 
 .awardcount > .icon {
   display: inline-block;
-  width: 15px;
+  text-align: center;
   color: rgb(210, 210, 210);
+}
+
+:not(#gameawards) .awardcount > .icon {
+  width: 20px;
+}
+
+#gameawards .awardcount > .icon {
+  width: 25px;
+  font-size: 0.65em;
+}
+
+.awardcount > .numitems {
+  font-style: italic;
 }
 
 .badgeimg {

@@ -69,13 +69,14 @@ function RenderAwardGroup($awards, $title): void
     if ($numItems == 0) {
         return;
     }
+    $icon = ($title == "Game Awards") ? "👑" : "⬩";
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "' class='component' >";
     echo "
         <h3>
             $title
             <div class='awardcount'>
-                <span class='icon'>⬩</span>$numItems
+                <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
             </div>
         </h3>";
     echo "<div class='siteawards'>";
