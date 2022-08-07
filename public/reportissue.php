@@ -162,6 +162,7 @@ RenderHtmlHead("Report Broken Achievement");
                         <textarea class="requiredinput fullwidth forum" name="note[description]" id="description"
                                   style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
                                   required data-bind="textInput: description"></textarea>
+                        <p data-bind="visible: descriptionIsNetworkProblem">Please do not use this tool for network issues. See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a> for instructions on how to request a manual unlock.</p>
                         <p data-bind="visible: descriptionIsUnhelpful">Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.</p>
                     </td>
                 </tr>
@@ -183,6 +184,11 @@ RenderHtmlHead("Report Broken Achievement");
         this.emulatorValue.subscribe(function() {
             displayCore();
         });
+
+        this.descriptionIsNetworkProblem = ko.pureComputed(function() {
+            let networkRegex = /(manual\s+unlock|internet)/ig;
+            return networkRegex.test(this.description());
+        }, this);
 
         this.descriptionIsUnhelpful = ko.pureComputed(function() {
             let unhelpfulRegex = /(n'?t|not?).*work/ig;
