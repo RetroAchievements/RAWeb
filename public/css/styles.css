@@ -1234,6 +1234,36 @@ pre, code, .code {
   white-space: pre-wrap;
 }
 
+.awardcount {
+  float: right;
+  margin-right: 10px;
+  font-size: 0.65em;
+  cursor: help;
+}
+
+.awardcount > * {
+  vertical-align: middle;
+}
+
+.awardcount > .icon {
+  display: inline-block;
+  text-align: center;
+  color: rgb(210, 210, 210);
+}
+
+.component#siteawards .awardcount > .icon {
+  width: 22px;
+}
+
+.component:not(#siteawards) .awardcount > .icon {
+  width: 25px;
+  font-size: 0.65em;
+}
+
+.awardcount > .numitems {
+  font-style: italic;
+}
+
 .badgeimg {
   border: 2px solid transparent;
   padding: 0;
