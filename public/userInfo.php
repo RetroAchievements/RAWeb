@@ -570,10 +570,9 @@ RenderHtmlStart(true);
 
         echo "<div class='commentscomponent left'>";
 
-        if ($userWallActive) {
-            echo "<h4>User Wall</h4>";
+        echo "<h4>User Wall</h4>";
 
-            // Impossible friendship means the user has blocked the active user
+        if ($userWallActive) {
             // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
                 !isUserBlocking($userPage, $user) ? $user : null,
@@ -583,6 +582,10 @@ RenderHtmlStart(true);
                 ArticleType::User,
                 $permissions
             );
+        } else {
+            echo "<div class='leftfloat'>";
+            echo "<i>This user has disabled comments.</i>";
+            echo "</div>";
         }
 
         echo "</div>";
