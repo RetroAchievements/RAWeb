@@ -45,7 +45,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
         case UserRelationship::Following:
             // attempt to notify the target of the new follower
             if (getAccountDetails($friend, $friendData)) {
-                if ($newRelationship && BitSet($friendData['websitePrefs'], UserPreference::EmailOn_AddFriend)) {
+                if ($newRelationship && BitSet($friendData['websitePrefs'], UserPreference::EmailOn_Followed)) {
                     // notify the new friend of the request
                     sendFriendEmail($friend, $friendData['EmailAddress'], 0, $user);
                 }

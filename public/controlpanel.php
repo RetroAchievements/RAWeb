@@ -390,8 +390,8 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
                 </tr>
                 <tr>
                     <td>If someone follows me:</td>
-                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_AddFriend, true) ?></td>
-                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_AddFriend, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_Followed, true) ?></td>
+                    <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_Followed, true) ?></td>
                 </tr>
                 <tr>
                     <td>If someone sends me a private message:</td>
