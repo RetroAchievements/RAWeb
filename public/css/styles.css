@@ -1238,6 +1238,7 @@ pre, code, .code {
   float: right;
   margin-right: 10px;
   font-size: 0.65em;
+  cursor: help;
 }
 
 .awardcount > * {

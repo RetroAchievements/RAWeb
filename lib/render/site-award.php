@@ -90,21 +90,22 @@ function RenderAwardGroup($awards, $title): void
         if ($numGamesMastered > 0) {
             $icon = mb_substr($icons[$title], 0, 1);
             $counters .= "
-                <div class='awardcount'>
+                <div class='awardcount' title='# of mastered games'>
                     <span class='icon'>$icon</span><span class='numitems'>$numGamesMastered</span>
                 </div>";
         }
         if ($numGamesCompleted > 0) {
             $icon = mb_substr($icons[$title], 1, 1);
             $counters .= "
-                <div class='awardcount'>
+                <div class='awardcount' title='# of completed games'>
                     <span class='icon'>$icon</span><span class='numitems'>$numGamesCompleted</span>
                 </div>";
         }
     } else {
         $icon = $icons[$title];
+        $tooltip = "# of " . strtolower($title);
         $counters = "
-            <div class='awardcount'>
+            <div class='awardcount' title='$tooltip'>
                 <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
             </div>";
     }
