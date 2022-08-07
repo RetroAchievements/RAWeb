@@ -98,7 +98,7 @@ RenderHtmlStart(true);
         showStatusMessage('Updating...');
 
         var $title = $('#titleinput');
-        var $description = $('#titleinput');
+        var $description = $('#descriptioninput');
         if (new Blob([$title.val()]).size > $title.attr('maxlength')) {
             showStatusFailure('Error: Title too long');
             return;
