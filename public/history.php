@@ -31,12 +31,18 @@ if ($sortBy == 2 || $sortBy == 12) {
 
 $errorCode = requestInputSanitized('e');
 
-$userPagePoints = getPlayerPoints($userPage);
+$userPageHardcorePoints = 0;
+$userPageSoftcorePoints = 0;
+
+if (getPlayerPoints($userPage, $userPoints)) {
+    $userPageHardcorePoints = $userPoints['RAPoints'];
+    $userPageSoftcorePoints = $userPoints['RASoftcorePoints'];
+}
 
 getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
 //	the past week
-$userScoreData = getAwardedList($userPage, 0, 1000);
+$userScoreData = getAwardedList($userPage);
 
 RenderHtmlStart(true);
 RenderHtmlHead("$userPage's Legacy");
@@ -54,7 +60,8 @@ RenderHtmlHead("$userPage's Legacy");
 
     // Declare columns
     dataTotalScore.addColumn('date', 'Date Earned');
-    dataTotalScore.addColumn('number', 'Total Score');
+    dataTotalScore.addColumn('number', 'Hardcore Score');
+    dataTotalScore.addColumn('number', 'Softcore Score');
 
     dataTotalScore.addRows([
         <?php
@@ -70,9 +77,10 @@ RenderHtmlHead("$userPage's Legacy");
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulScore'];
+            $hardcoreValue = $dayInfo['CumulHardcoreScore'];
+            $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
-            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
+            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
         }
         ?>
     ]);
@@ -86,7 +94,7 @@ RenderHtmlHead("$userPage's Legacy");
       legend: { position: 'none' },
       chartArea: { 'width': '86%', 'height': '70%' },
       height: 250,
-      colors: ['#cc9900'],
+      colors: ['#186DEE','#8c8c8c'],
     };
 
     var dataBestDays = new google.visualization.DataTable();
@@ -227,7 +235,14 @@ RenderHtmlHead("$userPage's Legacy");
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
+        if ($userPageHardcorePoints > 0) {
+            echo "($userPageHardcorePoints) ";
+        }
+        if ($userPageSoftcorePoints > 0) {
+            echo "<span class ='softcore'>($userPageSoftcorePoints softcore)</span>";
+        }
+        echo "</b><br>";
 
         echo "Member since: " . getNiceDate(strtotime($userSignedUp), true) . "<br>";
         echo "<br>";

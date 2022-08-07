@@ -51,7 +51,9 @@ return [
                 46, // Vectrex
                 51, // Atari 7800
                 53, // WonderSwan
+                57, // Fairchild Channel F
                 63, // Watara Supervision
+                69, // Mega Duck
                 71, // Arduboy
                 72, // WASM-4
             ],
@@ -103,7 +105,9 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
+                57, // Fairchild Channel F
                 63, // Watara Supervision
+                69, // Mega Duck
                 71, // Arduboy
                 72, // WASM-4
             ],
