@@ -1,11 +1,16 @@
 <?php
 
+use RA\AchievementType;
 use RA\ArticleType;
+use RA\ClaimFilters;
+use RA\ClaimSetType;
+use RA\ClaimType;
 use RA\ImageType;
 use RA\Permissions;
 use RA\RatingType;
 use RA\SubscriptionSubjectType;
 use RA\TicketFilters;
+use RA\TicketState;
 use RA\UserPreference;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -25,8 +30,8 @@ $userID = $userDetails['ID'] ?? 0;
 
 $errorCode = requestInputSanitized('e');
 
-$officialFlag = 3; // flag = 3: Core (official) achievements
-$unofficialFlag = 5; // flag = 5: unofficial
+$officialFlag = AchievementType::OfficialCore;
+$unofficialFlag = AchievementType::Unofficial;
 $flags = requestInputSanitized('f', $officialFlag, 'integer');
 
 $defaultSort = 1;
@@ -54,6 +59,7 @@ $richPresenceData = $gameData['RichPresencePatch'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
 $isFullyFeaturedGame = $consoleName !== 'Hubs';
+$isEventGame = $consoleName == 'Events';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
@@ -140,6 +146,15 @@ $totalEarnedTrueRatio = null;
 $totalPossible = null;
 $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
+$openTickets = 0;
+$claimData = null;
+$primaryClaimUser = null;
+$userClaimCount = 0;
+$claimListLength = 0;
+$userHasClaimSlot = 0;
+$primaryClaimMinutesActive = 0;
+$primaryClaimMinutesLeft = 0;
+$hasGameClaimed = false;
 
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
@@ -180,14 +195,13 @@ if ($isFullyFeaturedGame) {
             $totalPossible += $nextAch['Points'];
             $totalPossibleTrueRatio += $nextAch['TrueRatio'];
 
-            if (isset($nextAch['DateEarned'])) {
-                $numEarnedCasual++;
-                $totalEarnedCasual += $nextAch['Points'];
-                $totalEarnedTrueRatio += $nextAch['TrueRatio'];
-            }
             if (isset($nextAch['DateEarnedHardcore'])) {
                 $numEarnedHardcore++;
                 $totalEarnedHardcore += $nextAch['Points'];
+                $totalEarnedTrueRatio += $nextAch['TrueRatio'];
+            } elseif (isset($nextAch['DateEarned'])) {
+                $numEarnedCasual++;
+                $totalEarnedCasual += $nextAch['Points'];
             }
         }
         // Combine arrays and sort by achievement count.
@@ -201,6 +215,28 @@ if ($isFullyFeaturedGame) {
     // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
         $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+    }
+
+    // Get user claim data
+    if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+        $openTickets = countOpenTicketsByDev($user);
+        $userClaimCount = getActiveClaimCount($user, false, false);
+        $userHasClaimSlot = $userClaimCount < permissionsToClaim($permissions);
+    }
+
+    $claimData = getClaimData($gameID, true);
+    $claimListLength = count($claimData);
+
+    // Get the first entry returned for the primary claim data
+    if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
+        $primaryClaimUser = $claimData[0]['User'];
+        $primaryClaimMinutesActive = $claimData[0]['MinutesActive'];
+        $primaryClaimMinutesLeft = $claimData[0]['MinutesLeft'];
+        foreach ($claimData as $claim) {
+            if (isset($claim['User']) && $claim['User'] == $user) {
+                $hasGameClaimed = true;
+            }
+        }
     }
 }
 
@@ -505,6 +541,7 @@ RenderHtmlStart(true);
           });
       }
 
+      // When the set request text is clicked
       $(function () {
         $('.setRequestLabel').click(function () {
           submitSetRequest('<?= $user ?>', <?= $gameID ?>);
@@ -513,8 +550,47 @@ RenderHtmlStart(true);
         if ($('.setRequestLabel').length) {
           getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
         }
-
       });
+
+      // Popup for making a claim
+      function makeClaim(gameTitle, revisionFlag, ticketFlag) {
+        var revisionMessage = '';
+        if (revisionFlag) {
+          revisionMessage = 'Please ensure a revision plan has been posted and approved before making this claim.\n\n';
+        }
+
+        var ticketMessage = '';
+        if (ticketFlag) {
+            ticketMessage = 'Please ensure any open tickets have been addressed before making this claim.\n\n'
+        }
+
+        var message = revisionMessage + ticketMessage + 'Are you sure you want to claim ' + gameTitle + '?';
+        return confirm(message);
+      }
+
+      // Popup for dropping a claim
+      function dropClaim(gameTitle) {
+        var message = 'Are you sure you want to drop the claim for ' + gameTitle + '?';
+        return confirm(message);
+      }
+
+      // Popup for extending a claim
+      function extendClaim(gameTitle) {
+        var message = 'Are you sure you want to extend the claim for ' + gameTitle + '?';
+        return confirm(message);
+      }
+
+      // Popup for claim completion confirmation
+      function completeClaim(gameTitle, earlyReleaseWarning) {
+        var earlyReleaseMessage = '';
+        if (earlyReleaseWarning) {
+            earlyReleaseMessage = 'Please ensure you have approval to complete this claim with 24 hours of the claim being made.\n\n'
+        }
+
+        var message = earlyReleaseMessage + 'This will inform all set requestors that new achievements have been added.\n\n'
+        message += 'Are you sure you want to complete the claim for ' + gameTitle + '?';
+        return confirm(message);
+      }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -614,13 +690,13 @@ RenderHtmlStart(true);
                         }
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
-                }
 
-                // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards == 0) {
-                    echo "<div><a href='/request/leaderboard/create.php?g=$gameID'>Create First Leaderboard</a></div>";
-                } else {
-                    echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
+                    // Display leaderboard management options depending on the current number of leaderboards
+                    if ($numLeaderboards == 0) {
+                        echo "<div><a href='/request/leaderboard/create.php?g=$gameID'>Create First Leaderboard</a></div>";
+                    } else {
+                        echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
+                    }
                 }
 
                 // Only allow developers to rename a game
@@ -662,8 +738,99 @@ RenderHtmlStart(true);
                     echo($isSubscribedToAchievements ? "Unsubscribe from" : "Subscribe to") . " Achievement Comments";
                     echo "</a>";
                     echo "</div>";
-
                     echo "<br>";
+
+                    // Display the claims links if not an event game
+                    if (!$isEventGame) {
+                        echo "Claims:";
+
+                        // Show Manage Claims option for admins
+                        if ($permissions >= Permissions::Admin) {
+                            echo "<div><a href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
+                        }
+
+                        // Show the Claim History option for >= junior developer
+                        echo "<div><a href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>View Claim History</a></div>";
+
+                        $escapedGameTitle = attributeEscape($gameTitle);
+
+                        // Show the Make Claim option
+                        if ($claimListLength == 0) { // No claims on the game
+                            if ($userHasClaimSlot || $isSoleAuthor) { // User has an open claim or is claiming own set
+                                if ($openTickets[TicketState::Open] == 0) { // User has no unaddressed tickets
+                                    if ($numAchievements == 0) { // Set has no core achievements
+                                        if (!isset($forumTopicID) || $forumTopicID == 0) { // No forum topic exists
+                                            if ($permissions >= Permissions::Developer) { // Allow devs to claim and make topic
+                                                echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0&f=1'>Make Claim and Forum Topic</a></div>";
+                                            } else { // No forum topic blocking claims or jr. devs
+                                                echo "Forum Topic Needed for Claim";
+                                            }
+                                        } else { // Forum topic exists
+                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0'>Make Claim</a></div>";
+                                        }
+                                    } else { // Revision claim
+                                        if ($isSoleAuthor) { // Revision on own set
+                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=1'>Make Revision Claim</a></div>";
+                                        } else {
+                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=1'>Make Revision Claim</a></div>";
+                                        }
+                                    }
+                                } else { // Open tickets blocking claim
+                                    if ($numAchievements == 0) { // Set has no core achievements
+                                        if (!isset($forumTopicID) || $forumTopicID == 0) { // No forum topic exists
+                                            if ($permissions >= Permissions::Developer) { // Allow devs to claim and make topic
+                                                echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0&f=1'>Make Claim and Forum Topic</a></div>";
+                                            } else { // No forum topic blocking claims or jr. devs
+                                                echo "Forum Topic Needed for Claim";
+                                            }
+                                        } else { // Forum topic exists
+                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0'>Make Claim</a></div>";
+                                        }
+                                    } else { // Revision claim
+                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=1'>Make Revision Claim</a></div>";
+                                    }
+                                }
+                            } else { // No claim slots blocking claim
+                                // echo "No Available Claims";
+                            }
+                        } else { // Game is already claimed
+                            if (!$hasGameClaimed) { // User does not already have the set claimed
+                                if ($openTickets[TicketState::Open] == 0) { // User has no unaddressed tickets
+                                    if ($numAchievements == 0) { // Set has no core achievements
+                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=0'>Make Collaboration Claim</a></div>";
+                                    } else { // Revision claim
+                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=1'>Make Collaboration Revision Claim</a></div>";
+                                    }
+                                } else { // Open tickets blocking collaboration claim
+                                    if ($numAchievements == 0) { // Set has no core achievements
+                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=0'>Make Collaboration Claim</a></div>";
+                                    } else { // Revision claim
+                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=1'>Make Collaboration Revision Claim</a></div>";
+                                    }
+                                }
+                            } else { // User has the game claimed
+                                if ($primaryClaimUser == $user) { // User has the primary claim
+                                    if ($primaryClaimMinutesLeft <= 10080) { // Claim is expiring within 7 days, allow extension
+                                        echo "<div><a onclick='return extendClaim(\"$escapedGameTitle\");' href='/request/set-claim/extend-claim.php?i=$gameID'>Extend Claim</a></div>";
+                                    }
+                                    echo "<div><a onclick='return dropClaim(\"$escapedGameTitle\");' href='/request/set-claim/drop-claim.php?i=$gameID&c=0'>Drop Claim</a></div>";
+                                } else { // User has a collaboration claim
+                                    echo "<div><a onclick='return dropClaim(\"$escapedGameTitle\");' href='/request/set-claim/drop-claim.php?i=$gameID&c=1'>Drop Collaboration Claim</a></div>";
+                                }
+                            }
+                        }
+
+                        // if the set has achievements and the current user is the primary claim owner then allow completing the claim
+                        if ($user == $primaryClaimUser && $numAchievements > 0) {
+                            if ($primaryClaimMinutesActive <= 1440) { // If within 24 hours of claim date
+                                echo "<div><a onclick='return completeClaim(\"$escapedGameTitle\", 1);' href='/request/set-claim/complete-claim.php?i=$gameID'>Complete Claim</a> <font color='red'>(Within 24 Hours of Claim!)</font></div>";
+                            } else {
+                                echo "<div><a onclick='return completeClaim(\"$escapedGameTitle\", 0);' href='/request/set-claim/complete-claim.php?i=$gameID'>Complete Claim</a></div>";
+                            }
+                        }
+
+                        echo "<br>";
+                    }
 
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
@@ -678,7 +845,7 @@ RenderHtmlStart(true);
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameInGame . "'>";
-                        echo "<label>Ingame screenshot<br>";
+                        echo "<label>In-game screenshot<br>";
                         echo "<input type='file' name='file' id='" . ImageType::GameInGame . "'>";
                         echo "</label>";
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
@@ -751,7 +918,7 @@ RenderHtmlStart(true);
                     }
 
                     echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
-                    echo "<div>Add related game (game ID):</div>";
+                    echo "<div>Add related games (CSV of game IDs):</div>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='text' name='n' class='searchboxgame' size='20'>";
                     echo "<input type='submit' style='float: right' value='Add'>";
@@ -770,6 +937,9 @@ RenderHtmlStart(true);
                     }
                 }
 
+                $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
+                RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
+
                 echo "</div>"; // devboxcontent
                 echo "</div>"; // devbox
             }
@@ -782,6 +952,40 @@ RenderHtmlStart(true);
                 } else {
                     echo "<h4>Achievements</h4>";
                     echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                }
+
+                if (isset($user)) {
+                    $pctAwardedCasual = 0;
+                    $pctAwardedHardcore = 0;
+                    $pctComplete = 0;
+
+                    if ($numAchievements) {
+                        $pctAwardedCasual = ($numEarnedCasual + $numEarnedHardcore) / $numAchievements;
+                        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
+                        $pctAwardedHardcoreProportion = 0;
+                        if ($numEarnedHardcore > 0) {
+                            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
+                        }
+
+                        $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
+                        $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
+
+                        $pctComplete = sprintf(
+                            "%01.0f",
+                            (($numEarnedCasual + $numEarnedHardcore * 2) * 100.0 / $numAchievements)
+                        );
+                    }
+
+                    echo "<div class='progressbar'>";
+                    echo "<div class='completion' style='width:$pctAwardedCasual%'>";
+                    echo "<div class='completionhardcore' style='width:$pctAwardedHardcore%'>&nbsp;</div>";
+                    echo "</div>";
+                    if ($pctComplete > 100.0) {
+                        echo "<b>$pctComplete%</b> complete<br>";
+                    } else {
+                        echo "$pctComplete% complete<br>";
+                    }
+                    echo "</div>";
                 }
 
                 if ($numAchievements > 0) {
@@ -801,52 +1005,14 @@ RenderHtmlStart(true);
                     echo "<br>";
                 }
 
-                if (isset($user)) {
-                    $pctAwardedCasual = 0;
-                    $pctAwardedHardcore = 0;
-                    $pctComplete = 0;
-
-                    if ($numAchievements) {
-                        $pctAwardedCasual = $numEarnedCasual / $numAchievements;
-                        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
-                        $pctAwardedHardcoreProportion = 0;
-                        if ($numEarnedHardcore > 0) {
-                            $pctAwardedHardcoreProportion = $numEarnedHardcore / $numEarnedCasual;
-                        }
-
-                        $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
-                        $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
-
-                        $pctComplete = sprintf(
-                            "%01.0f",
-                            (($numEarnedCasual + $numEarnedHardcore) * 100.0 / $numAchievements)
-                        );
-                    }
-
-                    echo "<div class='progressbar'>";
-                    echo "<div class='completion' style='width:$pctAwardedCasual%'>";
-                    echo "<div class='completionhardcore' style='width:$pctAwardedHardcore%'>&nbsp;</div>";
-                    echo "</div>";
-                    if ($pctComplete > 100.0) {
-                        echo "<b>$pctComplete%</b> complete<br>";
-                    } else {
-                        echo "$pctComplete% complete<br>";
-                    }
-                    echo "</div>";
-                }
-
                 if ($user !== null && $numAchievements > 0) {
-                    echo "<a href='/user/$user'>$user</a> has won <b>$numEarnedCasual</b> achievements";
-                    if ($totalEarnedCasual > 0) {
-                        echo ", worth <b>$totalEarnedCasual</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points";
-                    }
-                    echo ".<br>";
                     if ($numEarnedHardcore > 0) {
-                        echo "<a href='/user/$user'>$user</a> has won <b>$numEarnedHardcore</b> HARDCORE achievements";
-                        if ($totalEarnedHardcore > 0) {
-                            echo ", worth a further <b>$totalEarnedHardcore</b> points";
+                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>$totalEarnedHardcore</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points.<br>";
+                        if ($numEarnedCasual > 0) { // Some Hardcore earns
+                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
                         }
-                        echo ".<br>";
+                    } else {
+                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
                     }
                 }
 
@@ -917,7 +1083,6 @@ RenderHtmlStart(true);
                     echo "</div>";
 
                     echo "</div>";
-                    echo "<br>";
                 };
 
                 if ($user !== null && $numAchievements > 0) {
@@ -932,13 +1097,48 @@ RenderHtmlStart(true);
                         echo "</div></div>";
                     }
 
+                    echo "</div>";
+                    echo "<br>";
+                    echo "<div>";
                     $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
+                } else {
+                    echo "</div>";
+                    echo "<br><br>";
+                    echo "<div>";
+                }
+
+                // Display claim information
+                if ($user !== null && $flags == $officialFlag && !$isEventGame) {
+                    echo "<div style='float:left;display:inline;width:50%'>";
+
+                    echo "<h4>Claim Information</h4>";
+
+                    $claimExpiration = null;
+                    $primaryClaim = 1;
+                    if ($claimListLength > 0) {
+                        echo "Claimed by: ";
+                        foreach ($claimData as $claim) {
+                            $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
+                            $claimExpiration = getNiceDate(strtotime($claim['Expiration']));
+                            echo GetUserAndTooltipDiv($claim['User'], false) . $revisionText;
+                            if ($claimListLength > 1) {
+                                echo ", ";
+                            }
+                            $claimListLength--;
+                            $primaryClaim = 0;
+                        }
+                        echo "<br>";
+                        echo "Expires on: $claimExpiration";
+                    } else {
+                        echo "No Active Claims";
+                    }
+
+                    echo "</div>";
                 }
 
                 // Only show set request option for logged in users, games without achievements, and core achievement page
-                if ($user !== null && $numAchievements == 0 && $flags != 5) {
-                    echo "<br>";
-                    echo "<div style='float: right; clear: both;'>";
+                if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
+                    echo "<div style='float: right; display: inline;'>";
                     echo "<div>";
                     echo "<a class='setRequestLabel'>Request Set</a>";
                     echo "</div>";
@@ -994,7 +1194,7 @@ RenderHtmlStart(true);
 
                 if (isset($achievementData)) {
                     for ($i = 0; $i < 2; $i++) {
-                        if ($i == 0 && $numEarnedCasual == 0) {
+                        if ($i == 0 && $numEarnedCasual == 0 && $numEarnedHardcore == 0) {
                             continue;
                         }
 
@@ -1143,7 +1343,7 @@ RenderHtmlStart(true);
                     RenderRecentGamePlayers($recentPlayerData);
                 }
 
-                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions >= Permissions::Admin);
+                RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
             }
             ?>
         </div>

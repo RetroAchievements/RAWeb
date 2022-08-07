@@ -39,7 +39,8 @@ function _GetUserAndTooltipDiv(
     sanitize_outputs($userSanitized);
 
     $userMotto = $userCardInfo['Motto'];
-    $userPoints = $userCardInfo['TotalPoints'];
+    $userHardcorePoints = $userCardInfo['HardcorePoints'];
+    $userSoftcorePoints = $userCardInfo['SoftcorePoints'];
     $userTruePoints = $userCardInfo['TotalTruePoints'];
     $userAccountType = Permissions::toString($userCardInfo['Permissions']);
     $userRank = $userCardInfo['Rank'];
@@ -71,8 +72,13 @@ function _GetUserAndTooltipDiv(
 
     // Add the user points if there are any
     $tooltip .= "<tr>";
-    if ($userPoints !== null) {
-        $tooltip .= "<td class='usercardbasictext'><b>Points:</b> $userPoints ($userTruePoints)</td>";
+    if ($userHardcorePoints > 0) {
+        $tooltip .= "<td class='usercardbasictext'><b>Hardcore Points:</b> $userHardcorePoints ($userTruePoints)</td>";
+        if ($userSoftcorePoints > 0) {
+            $tooltip .= "</tr><tr><td class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
+        }
+    } elseif ($userSoftcorePoints > 0) {
+        $tooltip .= "</tr><tr><td class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
     } else {
         $tooltip .= "<td class='usercardbasictext'><b>Points:</b> 0</td>";
     }
@@ -82,7 +88,7 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "<tr>";
     if ($userUntracked) {
         $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Untracked</td>";
-    } elseif ($userPoints < MIN_POINTS) {
+    } elseif ($userHardcorePoints < MIN_POINTS) {
         $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Needs at least " . MIN_POINTS . " points </td>";
     } else {
         $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> $userRank</td>";

@@ -172,12 +172,12 @@ function sendFriendEmail($user, $email, $type, $friend): bool
     }
 
     if ($type == 0) { // Requesting to be your friend
-        $emailTitle = "New Friend Request from $friend";
-        $emailReason = "sent you a friend request";
+        $emailTitle = "$friend is now following you";
+        $emailReason = "started following you";
         $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } elseif ($type == 1) { // Friend request confirmed
-        $emailTitle = "New Friend confirmed: $friend";
-        $emailReason = "confirmed your friend request";
+        $emailTitle = "$friend is now following you";
+        $emailReason = "followed you back";
         $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } else {
         return false; // must break early! No nonsense emails please!
@@ -388,6 +388,23 @@ function SendDeleteRequestEmail($user, $email, $deleteRequested): bool
         "Your account has been marked for deletion.<br>" .
         "If you do not cancel this request before " . getDeleteDate($deleteRequested) . ", " .
         "you will no longer be able to access your account.<br>" .
+        "Thanks!<br>" .
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($email, $emailTitle, $msg);
+}
+
+/**
+ * Sends an email to all set requestors indicating new achievement have been
+ * added when a set claim has been marked as complete.
+ */
+function sendSetRequestEmail(string $user, string $email, int $gameID, string $gameTitle): bool
+{
+    $emailTitle = "New Achievements Released for " . $gameTitle;
+    $link = "<a href='" . getenv('APP_URL') . "/game/$gameID'>$gameTitle</a>";
+
+    $msg = "Hello $user,<br>" .
+        "A set that you have requested has received new achievements. Check out the new achievements added to $link.<br><br>" .
         "Thanks!<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 

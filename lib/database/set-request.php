@@ -1,4 +1,7 @@
 <?php
+
+use RA\ClaimStatus;
+
 /**
  * Gets a list of set requests made by a given user.
  */
@@ -13,15 +16,20 @@ function getUserRequestList(string $user): array
             sr.GameID as GameID,
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
-            c.name as ConsoleName
+            c.name as ConsoleName,
+            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
+        LEFT JOIN
+            SetClaim sc ON (sr.GameID = sc.GameID)
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
         WHERE
             sr.user = '$user'
+        GROUP BY
+            sr.GameID
         ORDER BY
             GameTitle ASC";
 
@@ -47,14 +55,19 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
     $requests['total'] = 0;
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;
-    $points = getPlayerPoints($user);
+    $points = 0;
+    $maxSoftcoreThreshold = 10000; // Softcore points count towards requests up to 10000 points
+
+    if (getPlayerPoints($user, $userPoints)) {
+        $points += ($userPoints['RAPoints'] + min($userPoints['RASoftcorePoints'], $maxSoftcoreThreshold));
+    }
 
     // logic behind the amount of requests based on player's score:
     $boundariesAndChunks = [
-        180000 => 20000, // from 180k to infinite, +1 for each 20k chunk of points
-        20000 => 10000,  // from 20k to 180k, +1 for each 10k chunk
-        5000 => 5000,    // from 5k to 20k, +1 for each 5k chunk
-        0 => 2500,       // from 0 to 5k, +1 for each 2.5k chunk
+        100000 => 10000, // from 100k to infinite, +1 for each 10k chunk of points
+        10000 => 5000,  // from 10k to 100k, +1 for each 5k chunk
+        2500 => 2500,    // from 2.5k to 10k, +1 for each 2.5k chunk
+        0 => 1250,       // from 0 to 2.5k, +1 for each 1.25k chunk
     ];
 
     $pointsLeft = $points;
@@ -167,7 +180,7 @@ function getSetRequestCount(int $gameID): int
 /**
  * Gets a list of set requestors for a given game.
  */
-function getSetRequestorsList(int $gameID): array
+function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
@@ -178,13 +191,29 @@ function getSetRequestorsList(int $gameID): array
         return [];
     }
 
-    $query = "
+    if ($getEmailInfo) {
+        $query = "
         SELECT
+            sr.User AS Requestor,
+            ua.EmailAddress AS Email,
+            gd.Title AS Title
+        FROM
+            SetRequest AS sr
+        LEFT JOIN
+            UserAccounts ua on ua.User = sr.User
+        LEFT JOIN
+            GameData gd ON sr.GameID = gd.ID
+        WHERE
+        GameID = $gameID";
+    } else {
+        $query = "
+            SELECT
             User AS Requestor
         FROM
             SetRequest
         WHERE
             GameID = $gameID";
+    }
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -209,13 +238,16 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 
     $query = "
         SELECT
-            COUNT(*) AS Requests,
+            COUNT(DISTINCT(sr.User)) AS Requests,
             sr.GameID as GameID,
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
-            c.name as ConsoleName
+            c.name as ConsoleName,
+            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
+        LEFT JOIN
+            SetClaim sc ON (sr.GameID = sc.GameID)
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN

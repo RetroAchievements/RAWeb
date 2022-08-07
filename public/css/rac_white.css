@@ -16,7 +16,7 @@ a {
   color: rgb(255, 12, 0);
 }
 
-p, .login, .login p, .commentavatar, .navpath, #footer {
+p, .login, .login p, .commentavatar, .navpath, .footer-wrapper, .embedded {
   background: rgb(222, 222, 222);
 }
 
@@ -24,7 +24,7 @@ p, .login, .login p, .commentavatar, .navpath, #footer {
   background: rgb(248, 248, 248);
 }
 
-th {
+th, .themeselect-wrapper {
   color: rgb(40, 40, 40);
 }
 
@@ -32,7 +32,7 @@ th {
   background: rgb(222, 222, 222);
 }
 
-tr:nth-child(odd) {
+tbody tr:nth-child(odd) {
   background-color: rgb(222, 222, 222);
 }
 
@@ -72,4 +72,8 @@ tr:nth-child(odd) {
 
 .tabcontentscores  {
   border: 1px solid rgb(66, 66, 66);
+}
+
+.searchbox-top{
+  border-color: rgb(248, 248, 248);
 }

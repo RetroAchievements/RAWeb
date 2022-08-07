@@ -7,7 +7,8 @@
  *    a : number of recent achievements to return (default: 10)
  *
  *  string     ID                      unique identifier of the user
- *  string     TotalPoints             number of points the user has
+ *  string     TotalPoints             number of hardcore points the user has
+ *  string     TotalSoftcorePoints     number of softcore points the user has
  *  string     TotalTruePoints         number of "white" points the user has
  *  string     Permissions             unique identifier of user's account type
  *  datetime   MemberSince             when the user joined the site
@@ -104,6 +105,7 @@ getAccountDetails($user, $userDetails);
 
 $retVal['ID'] = $userDetails['ID'];
 $retVal['Points'] = $userDetails['RAPoints'];
+$retVal['SoftcorePoints'] = $userDetails['RASoftcorePoints'];
 $retVal['Motto'] = $userDetails['Motto'];
 $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['Rank'] = getUserRank($user);
@@ -119,8 +121,5 @@ if ($retVal['LastActivity']) {
     $status = ($lastUpdate + 600) > $now ? 'Online' : 'Offline';
 }
 $retVal['Status'] = $status;
-
-// Just from a security/polish point of view:
-unset($retVal['Friendship'], $retVal['FriendReciprocation']);
 
 echo json_encode($retVal, JSON_THROW_ON_ERROR);

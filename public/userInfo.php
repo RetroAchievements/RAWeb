@@ -1,8 +1,13 @@
 <?php
 
 use RA\ArticleType;
+use RA\ClaimFilters;
+use RA\ClaimSorting;
+use RA\ClaimSpecial;
+use RA\ClaimType;
 use RA\Permissions;
 use RA\UserAction;
+use RA\UserRelationship;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -95,9 +100,6 @@ if ($numGamesFound > 0) {
     $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
 }
 
-settype($userMassData['Friendship'], 'integer');
-settype($userMassData['FriendReciprocation'], 'integer');
-
 sanitize_outputs(
     $userMotto,
     $userPage,
@@ -108,17 +110,20 @@ $errorCode = requestInputSanitized('e');
 
 $pageTitle = "$userPage";
 
-$userPagePoints = getPlayerPoints($userPage);
-
 $daysRecentProgressToShow = 14; // fortnight
 
 $userScoreData = getAwardedList(
     $userPage,
     0,
-    1000,
+    $daysRecentProgressToShow,
     date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),
     date("Y-m-d H:i:s", time())
 );
+
+// Get claim data if the user has jr dev or above permissions
+if (getActiveClaimCount($userPage, true, true) > 0) {
+    $userClaimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::GameAscending, false, $userPage); // Active claims sorted by game title
+}
 
 // Also add current.
 // $numScoreDataElements = count($userScoreData);
@@ -181,7 +186,7 @@ RenderHtmlStart(true);
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulScore'];
+            $value = $dayInfo['CumulHardcoreScore'];
 
             echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
         }
@@ -224,18 +229,39 @@ RenderHtmlStart(true);
         echo "<div class='usersummary'>";
         echo "<h3 class='longheader' >$userPage's User Page</h3>";
 
-        $totalPoints = $userMassData['TotalPoints'];
-        $totalTruePoints = $userMassData['TotalTruePoints'];
-        echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
-        echo "<div class='username'>";
-        echo "<span class='username'><a href='/user/$userPage'><strong>$userPage</strong></a>&nbsp;($totalPoints points)<span class='TrueRatio'> ($userTruePoints)</span></span>";
-        echo "</div>";
-
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
             echo "<span class='usermotto'>$userMotto</span>";
             echo "</div>";
         }
+
+        if (isset($user) && ($user !== $userPage)) {
+            echo "<div class='friendbox'>";
+            echo "<div class='buttoncollection'>";
+            // echo "<h4>Friend Actions:</h4>";
+
+            $friendshipType = GetFriendship($user, $userPage);
+            switch ($friendshipType) {
+                case UserRelationship::Following:
+                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unfollow</a></span>";
+                    break;
+                case UserRelationship::NotFollowing:
+                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Following . "'>Follow</a></span>";
+                    break;
+            }
+
+            if ($friendshipType != UserRelationship::Blocked) {
+                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Blocked . "'>Block</a></span>";
+            } else {
+                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unblock</a></span>";
+            }
+
+            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
+
+            echo "</div>"; // buttoncollection
+            echo "</div>"; // friendbox
+        }
+
         echo "<br>";
 
         $niceDateJoined = $userMassData['MemberSince'] ? getNiceDate(strtotime($userMassData['MemberSince'])) : null;
@@ -250,9 +276,18 @@ RenderHtmlStart(true);
         echo "Account Type: <b>[" . Permissions::toString($userMassData['Permissions']) . "]</b><br>";
         echo "<br>";
 
+        $totalHardcorePoints = $userMassData['TotalPoints'];
+        $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
+        $totalTruePoints = $userMassData['TotalTruePoints'];
         $retRatio = 0.0;
-        if ($totalPoints > 0) {
-            $retRatio = sprintf("%01.2f", $userTruePoints / $totalPoints);
+        if ($totalHardcorePoints > 0) {
+            $retRatio = sprintf("%01.2f", $userTruePoints / $totalHardcorePoints);
+        }
+        if ($totalHardcorePoints > 0 || $totalSoftcorePoints == 0) {
+            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($userTruePoints)</span></span><br>";
+        }
+        if ($totalSoftcorePoints > 0) {
+            echo "Softcore Points: $totalSoftcorePoints points<br>";
         }
         echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
         echo "Average Completion: <b>$avgPctWon%</b><br>";
@@ -260,7 +295,7 @@ RenderHtmlStart(true);
         echo "Site Rank: ";
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
-        } elseif ($totalPoints < MIN_POINTS) {
+        } elseif ($totalHardcorePoints < MIN_POINTS) {
             echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
@@ -290,9 +325,10 @@ RenderHtmlStart(true);
         $contribCount = $userMassData['ContribCount'];
         $contribYield = $userMassData['ContribYield'];
         if ($contribCount > 0) {
-            echo "<strong>$userPage Developer Stats:</strong><br>";
+            echo "<strong>$userPage Developer Information:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
             echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
+            echo "<a href='/claimlist.php?u=$userPage'>View claim information for <b>$userPage</b>.</a></br>";
             if (isset($user) && $permissions >= Permissions::Registered) {
                 $openTicketsData = countOpenTicketsByDev($userPage);
                 echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . array_sum($openTicketsData) . "</b></a><br>";
@@ -301,42 +337,26 @@ RenderHtmlStart(true);
             echo "Points awarded to others: <b>$contribYield</b><br><br>";
         }
 
-        echo "</div>"; // usersummary
-
-        if (isset($user) && ($user !== $userPage)) {
-            echo "<div class='friendbox'>";
-            echo "<div class='buttoncollection'>";
-            // echo "<h4>Friend Actions:</h4>";
-
-            if ($userMassData['Friendship'] == 1) {
-                if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    // They haven't accepted yet
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Cancel friend request</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == -1) {
-                    // They blocked us
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
+        // Display the users active claims
+        if (isset($userClaimData) && count($userClaimData) > 0) {
+            echo "<b>$userPage's</b> current claims:</br>";
+            foreach ($userClaimData as $claim) {
+                $details = "";
+                $isCollab = $claim['ClaimType'] == ClaimType::Collaboration;
+                $isSpecial = $claim['Special'] != ClaimSpecial::None;
+                if ($isCollab) {
+                    $details = " (" . ClaimType::toString(ClaimType::Collaboration) . ")";
+                } else {
+                    if (!$isSpecial) {
+                        $details = "*";
+                    }
                 }
-            } elseif ($userMassData['Friendship'] == 0) {
-                if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Confirm friend request</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Add friend</a></span>";
-                }
+                echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName'], false, 22) . $details . '<br>';
             }
-
-            if ($userMassData['Friendship'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=-1'>Block user</a></span>";
-            } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Unblock user</a></span>";
-            }
-
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
-
-            echo "</div>"; // buttoncollection
-            echo "</div>"; // friendbox
+            echo "* Counts against reservation limit</br></br>";
         }
+
+        echo "</div>"; // usersummary
 
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox'>";
@@ -395,6 +415,7 @@ RenderHtmlStart(true);
 
             echo "<tr><td>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
+            echo "<input type='hidden' name='u' value='$userPage' />";
             echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
             echo "</form>";
             echo "</td></tr>";
@@ -549,18 +570,22 @@ RenderHtmlStart(true);
 
         echo "<div class='commentscomponent left'>";
 
-        if ($userWallActive) {
-            echo "<h4>User Wall</h4>";
+        echo "<h4>User Wall</h4>";
 
+        if ($userWallActive) {
             // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
+                !isUserBlocking($userPage, $user) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,
                 ArticleType::User,
                 $permissions
             );
+        } else {
+            echo "<div class='leftfloat'>";
+            echo "<i>This user has disabled comments.</i>";
+            echo "</div>";
         }
 
         echo "</div>";

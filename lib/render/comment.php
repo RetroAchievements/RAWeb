@@ -5,12 +5,12 @@ use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
 function RenderCommentsComponent(
-    $user,
-    $numComments,
-    $commentData,
-    $articleID,
-    $articleTypeID,
-    $permissions
+    ?string $user,
+    int $numComments,
+    array $commentData,
+    int $articleID,
+    int $articleTypeID,
+    int $permissions
 ): void {
     $userID = getUserIDFromUser($user);
 
@@ -114,6 +114,7 @@ function RenderArticleComment(
     $niceDate .= date("G:i", $submittedDate);
 
     sanitize_outputs($user, $comment);
+    $comment = nl2br($comment);
 
     echo "<td class='smalldate'>$niceDate</td>";
     echo "<td class='iconscommentsingle'>";

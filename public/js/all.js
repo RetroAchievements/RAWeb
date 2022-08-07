@@ -91,47 +91,6 @@ function focusOnArticleID(id) {
   $('#art_' + id).scrollIntoView();
 }
 
-function updateDisplayOrder(user, objID, gameID) {
-  var inputText = $('#' + objID).val();
-  var inputNum = Math.max(0, Math.min(Number(inputText), 10000));
-  var posting = $.post(
-    '/request/achievement/update.php',
-    {
-      u: user,
-      a: objID.substr(4),
-      g: gameID,
-      f: 1,
-      v: inputNum,
-    }
-  );
-  posting.done(onUpdateDisplayOrderComplete);
-  $('#warning').html('Status: updating...');
-}
-
-function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
-  var inputText = $('#' + objID).val();
-  var inputNum = Math.max(-1, Math.min(Number(inputText), 10000));
-  var posting = $.post(
-    '/request/user/update-site-award.php',
-    {
-      t: awardType,
-      d: awardData,
-      e: awardDataExtra,
-      v: inputNum,
-    }
-  );
-  posting.done(onUpdateDisplayOrderComplete);
-  $('#warning').html('Status: updating...');
-}
-
-function onUpdateDisplayOrderComplete(data) {
-  if (data !== 'OK') {
-    $('#warning').html('Status: Errors...' + data);
-  } else {
-    $('#warning').html('Status: OK!');
-  }
-}
-
 function injectShortcode(start, end) {
   var commentTextarea = document.getElementById('commentTextarea');
   if (commentTextarea !== undefined) {
@@ -399,23 +358,39 @@ function removeComment(artTypeID, artID, commentID) {
   return true;
 }
 
-function ResetTheme() {
-  // Unload all themes...
-  var allLinks = document.getElementsByTagName('link');
-  var numLinks = allLinks.length;
-  for (var i = 0; i < numLinks; i += 1) {
-    var nextLink = allLinks[i];
-    if (nextLink.rel === 'stylesheet') {
-      if (nextLink.href.indexOf('css/rac') !== -1) {
-        nextLink.disabled = true;
-      }
-    }
-  }
+function showStatusMessage(message) {
+  var status = $('#status');
+  status.removeClass('success');
+  status.removeClass('failure');
+  status.show();
+  status.html(message);
+}
 
-  // Then load the one you selected:
+function showStatusSuccess(message) {
+  var status = $('#status');
+  status.addClass('success');
+  status.html(message);
+  status.delay(2000).fadeOut();
+}
+
+function showStatusFailure(message) {
+  var status = $('#status');
+  status.addClass('failure');
+  status.html(message);
+}
+
+function hideStatusMessage() {
+  $('#status').hide();
+}
+
+function changeTheme() {
   var cssToLoad = $('#themeselect :selected').val();
-  var cssLink = $('<link rel="stylesheet" type="text/css" href="' + cssToLoad + '">');
-  $('head').append(cssLink);
+  if ($('#theme-style').length > 0) {
+    $('#theme-style').attr('href', cssToLoad);
+  } else {
+    var cssLink = $('<link id="theme-style" rel="stylesheet" type="text/css" href="' + cssToLoad + '">');
+    $('head').append(cssLink);
+  }
   setCookie('RAPrefs_CSS', cssToLoad);
 }
 

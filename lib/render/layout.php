@@ -66,7 +66,7 @@ function RenderSharedHeader(): void
     }
     $customCSS = readCookie('RAPrefs_CSS');
     if ($customCSS !== false && mb_strlen($customCSS) > 2) {
-        echo "<link rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
+        echo "<link id='theme-style' rel='stylesheet' href='$customCSS?v=" . VERSION . "' media='screen'>\n";
     }
 }
 
@@ -97,8 +97,10 @@ function RenderTitleTag($title = null): void
     // </script>";
 }
 
-function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null): void
+function RenderTitleBar($user, $points, $truePoints, $softcorePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null): void
 {
+    $mainPointString = "";
+    $secondaryPointString = "";
     settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
 
@@ -118,9 +120,8 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "</div>";
 
-    echo "<div class='login'>";
-
     if (!$user) {
+        echo "<div class='login'>";
         echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br>";
 
@@ -146,16 +147,27 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
             echo "<div class='rightalign'>...or <a href='/createaccount.php'>create a new account</a></div>";
         }
     } else {
+        echo "<div class='login'>";
         echo "<p>";
         echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right; margin-left:6px' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
         } else {
-            echo "<strong><a href='/user/$user'>$user</a></strong> ($points) <span class='TrueRatio'>($truePoints)</span><br>";
+            if ($points > 0) {
+                $mainPointString = "($points) <span class='TrueRatio'>($truePoints) </span><br>";
+                if ($softcorePoints > 0) {
+                    $secondaryPointString = "<span class='softcore'>($softcorePoints softcore)</span>";
+                }
+            } elseif ($softcorePoints > 0) {
+                $mainPointString = "<span class='softcore'>($softcorePoints softcore)</span><br>";
+            } else {
+                $mainPointString = "<br>";
+            }
+            echo "<strong><a href='/user/$user'>$user</a></strong> " . $mainPointString;
         }
 
-        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
+        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a> " . $secondaryPointString . "<br>";
 
         $mailboxIcon = $unreadMessageCount > 0 ? asset('Images/_MailUnread.png') : asset('Images/_Mail.png');
         echo "<a href='/inbox.php'>";
@@ -198,6 +210,21 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
             echo " $separator <a href='/ticketmanager.php?p=$user&t=$filter'>$prefix$requestTickets</a>";
         }
 
+        // Display claim expiring message if necessary
+        if ($permissions >= Permissions::JuniorDeveloper) {
+            $expiringClaims = getExpiringClaim($user);
+            if ($expiringClaims["Expired"] > 0) {
+                echo "<br clear='left'/>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
+                echo "<font color='red'>Claim Expired</font>";
+                echo "</a>";
+            } elseif ($expiringClaims["Expiring"] > 0) {
+                echo "<br clear='left'/>";
+                echo "<a href='/expiringclaims.php?u=$user'>";
+                echo "<font color='red'>Claim Expiring Soon</font>";
+                echo "</a>";
+            }
+        }
         echo "</p>";
     }
 
@@ -262,8 +289,10 @@ function RenderToolbar($user, $permissions = 0): void
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=71'>Arduboy</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+    echo "<li><a href='/gameList.php?c=57'>Fairchild Channel F</a><li>";
     echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
     echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
+    echo "<li><a href='/gameList.php?c=69'>Mega Duck</a></li>";
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
@@ -306,6 +335,7 @@ function RenderToolbar($user, $permissions = 0): void
     // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
     echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
+    echo "<li><a href='/claimlist.php'>Claim List</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
@@ -322,8 +352,9 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/user/$user'>Profile</a></li>";
         echo "<li><a href='/gameList.php?d=$user'>My Sets</a></li>";
         echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
+        echo "<li><a href='/claimlist.php?u=$user'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
-        echo "<li><a href='/friends.php'>Friends</a></li>";
+        echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$user'>Requested Sets</a></li>";
@@ -351,6 +382,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
+        echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         // Admin
@@ -364,26 +396,23 @@ function RenderToolbar($user, $permissions = 0): void
         echo "</li>";
     }
 
+    echo "</ul>";
+
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         $searchQuery = attributeEscape(requestInputQuery('s', null));
     }
     echo "<form action='/searchresults.php' method='get'>";
-    echo "<div class='searchbox'>";
+    echo "<div class='searchbox-top'>";
     // echo "Search:&nbsp;";
     echo "<input size='24' name='s' type='text' class='searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
     echo "&nbsp;";
-    echo "<input type='submit' value='Search'>";
+    echo "<input type='submit' value='🔎︎' title='Search the site'>";
     echo "</div>";
     echo "</form>";
 
-    echo "<div class='searchbox'>";
-    RenderThemeSelector();
-    echo "</div>";
-
     echo '<div style="clear:both;"></div>';
 
-    echo "</ul>";
     echo "</div>";
 }
 
@@ -393,12 +422,12 @@ function RenderHeader(?array $userDetails): void
 
     if ($userDetails) {
         RenderTitleBar($userDetails['User'], $userDetails['RAPoints'],
-            $userDetails['TrueRAPoints'], $userDetails['UnreadMessageCount'],
+            $userDetails['TrueRAPoints'], $userDetails['RASoftcorePoints'], $userDetails['UnreadMessageCount'],
             $errorCode, $userDetails['Permissions'],
             $userDetails['DeleteRequested']);
         RenderToolbar($userDetails['User'], $userDetails['Permissions']);
     } else {
-        RenderTitleBar(null, 0, 0, 0, $errorCode);
+        RenderTitleBar(null, 0, 0, 0, 0, $errorCode);
         RenderToolbar(null, 0);
     }
 }
@@ -407,7 +436,11 @@ function RenderFooter(): void
 {
     echo "<div style='clear:both;'></div>";
 
+    echo "<div class='footer-wrapper'>";
+
     echo "<footer id='footer'>";
+
+    echo "<div id='footer-flex'>";
 
     echo "<div>";
     echo "<h4>RetroAchievements</h4>";
@@ -454,7 +487,29 @@ function RenderFooter(): void
     echo "<div><a href='/rss.php'>RSS</a></div>";
     echo "</div>";
 
+    // echo "<div>Content by <a href='http://www.immensegames.com' target='_blank'>Immense Games</a></div>";
+
+    // global $g_numQueries;
+    // global $g_pageLoadAt;
+    // $loadDuration = microtime(true) - $g_pageLoadAt;
+    // echo "<p>";
+    // echo "Generated from $g_numQueries queries in " . sprintf('%1.3f', ($loadDuration)) . " seconds";
+    // if ($loadDuration > 2.4) {
+    //     error_log(CurrentPageURL() . " - took " . sprintf('%1.3f', $loadDuration) . " to fetch!");
+    // }
+    // echo "</p>";
+
+    echo "</div>";
+
+    echo "<label class='themeselect-wrapper'>";
+    RenderThemeSelector();
+    echo "</label>";
+
+    echo "<div style='clear:both;'></div>";
+
     echo "</footer>";
+
+    echo "</div>";
 }
 
 function RenderThemeSelector(): void
@@ -474,7 +529,7 @@ function RenderThemeSelector(): void
     $currentCustomCSS = readCookie('RAPrefs_CSS');
     $currentCustomCSS = $currentCustomCSS ?: '/css/rac_blank.css';
 
-    echo "<select id='themeselect' onchange='ResetTheme(); return false;'>";
+    echo "Select theme: <select id='themeselect' onchange='changeTheme(); return false;'>";
     foreach ($cssFileList as $nextCSS) {
         $cssFull = "/css/rac_" . $nextCSS . ".css";
         $selected = (strcmp($currentCustomCSS, $cssFull) == 0) ? 'selected' : '';
@@ -507,5 +562,18 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
         $lastOffset = $numItems - 1; // 0-based
         $lastOffset = $lastOffset - ($lastOffset % $perPage);
         echo "&nbsp;<a title='Last' href='$urlPrefix$lastOffset'>&#x226B;</a>";
+    }
+}
+
+function RenderStatusWidget(?string $message = null, ?string $errorMessage = null, ?string $successMessage = null)
+{
+    if (!empty($errorMessage)) {
+        echo "<div id='status' class='failure'>$errorMessage</div>";
+    } elseif (!empty($successMessage)) {
+        echo "<div id='status' class='success'>$successMessage</div>";
+    } elseif (!empty($message)) {
+        echo "<div id='status'>$message</div>";
+    } else {
+        echo "<div id='status' style='display: none'></div>";
     }
 }
