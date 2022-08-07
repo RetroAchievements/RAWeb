@@ -70,8 +70,50 @@ function RenderAwardGroup($awards, $title): void
         return;
     }
 
+    $icons = [
+        "Game Awards" => "👑🎖️",
+        "Event Awards" => "🌱",
+        "Site Awards" => "⬩",
+    ];
+    if ($title == "Game Awards") {
+        // Count and show # of completed/mastered games
+        $numGamesCompleted = 0;
+        foreach ($awards as $award) {
+            if ($award['AwardDataExtra'] != 1) {
+                $numGamesCompleted++;
+            }
+        }
+        $numGamesMastered = $numItems - $numGamesCompleted;
+        $counters = "";
+        if ($numGamesMastered > 0) {
+            $icon = mb_substr($icons[$title], 0, 1);
+            $counters .= "
+                <div class='awardcount' title='# of mastered games'>
+                    <span class='icon'>$icon</span><span class='numitems'>$numGamesMastered</span>
+                </div>";
+        }
+        if ($numGamesCompleted > 0) {
+            $icon = mb_substr($icons[$title], 1, 1);
+            $counters .= "
+                <div class='awardcount' title='# of completed games'>
+                    <span class='icon'>$icon</span><span class='numitems'>$numGamesCompleted</span>
+                </div>";
+        }
+    } else {
+        $icon = $icons[$title];
+        $tooltip = "# of " . strtolower($title);
+        $counters = "
+            <div class='awardcount' title='$tooltip'>
+                <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
+            </div>";
+    }
+
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "' class='component' >";
-    echo "<h3>$title</h3>";
+    echo "
+        <h3>
+            $title
+            $counters
+        </h3>";
     echo "<div class='siteawards'>";
     echo "<table class='siteawards'><tbody>";
 
