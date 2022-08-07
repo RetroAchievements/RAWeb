@@ -24,7 +24,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     exit;
 }
 
-// Only allow jr. devs to update the display order or achievements if they are the sole author of the set
+// Only allow jr. devs to update the display order if they are the sole author of the set
 if ($permissions == Permissions::JuniorDeveloper) {
     $jrDevAllowed = false;
     if ($field == 1) {
@@ -36,23 +36,11 @@ if ($permissions == Permissions::JuniorDeveloper) {
                 $gameID = requestInputQuery('g', null, 'integer');
             } else {
                 http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
+                echo json_encode(['success' => false, 'error' => 'Bad request']);
                 exit;
             }
         }
         $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
-    } elseif ($field == 4) {
-        if (ValidatePOSTChars("gl")) {
-            $gameID = requestInputPost('g', null, 'integer');
-            $achFlags = requestInputPost('l');
-            if ($achFlags == AchievementType::Unofficial) {
-                $jrDevAllowed = checkIfSoleDeveloper($user, $gameID);
-            }
-        } else {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Bad request: parameters missing']);
-            exit;
-        }
     }
 
     if (!$jrDevAllowed) {
@@ -105,39 +93,6 @@ switch ($field) {
             exit;
         }
         break;
-    case 4:
-        // Achievement Details
-        $achievementTitle = requestInputPost('t');
-        $desc = requestInputPost('d');
-        $badgeName = requestInputPost('b');
-        $achPoints = requestInputPost('p', null, 'integer');
-        $achMem = requestInputPost('m');
-        $achFlags = requestInputPost('l');
-        $gameID = requestInputPost('g', null, 'integer');
-        $errorOut = "";
-
-        if (UploadNewAchievement(
-                author: $user,
-                gameID: $gameID,
-                title: $achievementTitle,
-                desc: $desc,
-                progress: ' ',
-                progressMax: ' ',
-                progressFmt: ' ',
-                points: $achPoints,
-                mem: $achMem,
-                type: $achFlags,
-                idInOut: $achievementId,
-                badge: $badgeName,
-                errorOut: $errorOut
-        )) {
-            echo json_encode(['success' => true, 'message' => 'OK']);
-            exit;
-        } else {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Bad request']);
-            break;
-        }
 }
 
 echo json_encode(['success' => false, 'error' => 'Something went wrong']);

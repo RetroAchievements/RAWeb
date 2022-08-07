@@ -387,7 +387,7 @@ function UploadNewAchievement(
                     }
                     $editString = implode(', ', $fields);
 
-                    if ($editString !== "") {
+                    if (!empty($editString)) {
                         addArticleComment(
                             "Server",
                             ArticleType::Achievement,

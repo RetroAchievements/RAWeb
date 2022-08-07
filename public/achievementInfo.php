@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementPoints;
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -21,8 +22,8 @@ if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
 $achievementTitle = $dataOut['AchievementTitle'];
 $desc = $dataOut['Description'];
 $achFlags = (int) $dataOut['Flags'];
-$achPoints = $dataOut['Points'];
-$achTruePoints = $dataOut['TrueRatio'];
+$achPoints = (int) $dataOut['Points'];
+$achTruePoints = (int) $dataOut['TrueRatio'];
 $gameTitle = $dataOut['GameTitle'];
 $badgeName = $dataOut['BadgeName'];
 $consoleID = $dataOut['ConsoleID'];
@@ -93,58 +94,30 @@ RenderHtmlStart(true);
 <?php RenderHeader($userDetails); ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
     <script>
-        function updateAchievementDetails() {
-        var title = $('#titleinput').val();
-        var description = $('#descriptioninput').val();
-        var points = $('#pointsinput').val();
-        var validPoints = <?php echo json_encode(VALID_POINTS); ?>;
-        var titleLength = new Blob([title]).size;
-        var descLength = new Blob([descLength]).size;
-        var maxTitle = <?php echo MAX_TITLE; ?>;
-        var maxDescription = <?php echo MAX_DESCRIPTION; ?>;
+    function updateAchievementDetails() {
         showStatusMessage('Updating...');
-        if ( titleLength > maxTitle) {
-            showStatusFailure('Error: Title too long');
-            return;
-        }
-        if ( descLength > maxDescription) {
-            showStatusFailure('Error: Description too long');
-            return;
-        }
-        if ( points == '' || !validPoints.includes(Number(points))) {
-            showStatusFailure('Error: Invalid Points');
-            return;
-        }
-
         $.ajax({
-          type: "POST",
-          url: '/request/achievement/update.php',
-          dataType: "json",
-          data: {
-            'a': <?= $achievementID ?>,
-            'f': 4,
-            'u': '<?= $user ?>',
-            'v': '',
-            'g': <?= $gameID ?>,
-            'l': '<?= $achFlags ?>',
-            'b': '<?= $badgeName ?>',
-            't': title,
-            'd': description,
-            'p': Number(points),
-            'm': '<?= $achMem ?>'
-          },
-          error: function (xhr, status, error) {
-            showStatusFailure('Error: ' + (error || 'unknown error'));
-          }
-        })
-          .done(function (data) {
-            if (!data.success) {
-              showStatusFailure('Error: ' + (data.error || 'unknown error'));
-              return;
+            type: "POST",
+            url: '/request/achievement/update-base.php',
+            dataType: "json",
+            data: {
+                'a': <?= $achievementID ?>,
+                't': $('#titleinput').val(),
+                'd': $('#descriptioninput').val(),
+                'p': $('#pointsinput').val(),
+            },
+            error: function (xhr, status, error) {
+                showStatusFailure('Error: ' + (error || 'unknown error'));
             }
-            window.location = window.location.href.split("?")[0] + "?e=modify_achievement_ok";
-          });
-        }
+        })
+            .done(function (data) {
+                if (!data.success) {
+                    showStatusFailure('Error: ' + (data.error || 'unknown error'));
+                    return;
+                }
+                window.location = window.location.href.split("?")[0] + "?e=modify_achievement_ok";
+            });
+    }
 
     <?php if ($permissions >= Permissions::Developer): ?>
       function PostEmbedUpdate() {
@@ -208,7 +181,7 @@ RenderHtmlStart(true);
             }
             window.location = window.location.href.split("?")[0] + "?e=changeok";
           });
-      }    
+      }
       <?php endif ?>
     </script>
 <?php endif ?>
@@ -310,16 +283,22 @@ RenderHtmlStart(true);
             if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
                 echo "<div>Update achievement details:</div>";
                 echo "<table><tbody>";
-                echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='" . MAX_TITLE . "';></td></tr>";
-                echo "<tr><td>Description:</td><td style='width:100%'><input id='descriptioninput' type='text' name='d' value='" . attributeEscape($desc) . "' style='width:100%' maxlength='" . MAX_DESCRIPTION . "';></td></tr>";
-                echo "<tr><td>Points:</td><td style='width:100%'><input id='pointsinput' type='number' name='p' value='$achPoints' style='width:100%' min='" . VALID_POINTS[array_key_first(VALID_POINTS)] . "' max='" . VALID_POINTS[array_key_last(VALID_POINTS)] . "';'></td></tr>";
+                echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='64'></td></tr>";
+                echo "<tr><td>Description:</td><td><input id='descriptioninput' type='text' name='d' value='" . attributeEscape($desc) . "' style='width:100%' maxlength='255'></td></tr>";
+                echo "<tr><td>Points:</td><td>";
+                echo "<select id='pointsinput' name='p'>";
+                foreach (AchievementPoints::VALID as $pointsOption) {
+                    echo "<option value='$pointsOption' " . ($achPoints === $pointsOption ? 'selected' : '') . ">$pointsOption</option>";
+                }
+                echo "</select>";
+                echo "</td></tr>";
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
 
                 echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
                 echo "<label>Badge<br>";
                 echo "<input type='hidden' name='i' value='$achievementID'>";
-                echo "<input id='file' type='file' accept='.png,.jpg,.gif' name='file' id='badge'>";
+                echo "<input type='file' accept='.png,.jpg,.gif' name='file' id='badge'>";
                 echo "</label>";
                 echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                 echo "</form><br>";
