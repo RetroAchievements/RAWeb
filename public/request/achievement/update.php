@@ -24,7 +24,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     exit;
 }
 
-// Only allow jr. devs to update the display order and they are the sole author of the set
+// Only allow jr. devs to update the display order if they are the sole author of the set
 if ($permissions == Permissions::JuniorDeveloper) {
     $jrDevAllowed = false;
     if ($field == 1) {

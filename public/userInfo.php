@@ -6,6 +6,7 @@ use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimType;
 use RA\Permissions;
+use RA\Rank;
 use RA\UserAction;
 use RA\UserRelationship;
 
@@ -295,8 +296,8 @@ RenderHtmlStart(true);
         echo "Site Rank: ";
         if ($userIsUntracked) {
             echo "<b>Untracked</b>";
-        } elseif ($totalHardcorePoints < MIN_POINTS) {
-            echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
+        } elseif ($totalHardcorePoints < Rank::MIN_POINTS) {
+            echo "<i>Needs at least " . Rank::MIN_POINTS . " points.</i>";
         } else {
             $countRankedUsers = countRankedUsers();
             $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
