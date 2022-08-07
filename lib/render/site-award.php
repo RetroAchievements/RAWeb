@@ -69,16 +69,6 @@ function RenderAwardGroup($awards, $title): void
     if ($numItems == 0) {
         return;
     }
-    if ($title == "Game Awards") {
-        // Count # of completed/mastered games
-        $numGamesCompleted = 0;
-        foreach ($awards as $award) {
-            if ($award['AwardDataExtra'] != 1) {
-                $numGamesCompleted++;
-            }
-        }
-        $numGamesMastered = $numItems - $numGamesCompleted;
-    }
 
     $icons = [
         "Game Awards" => "👑🎖️",
@@ -86,6 +76,14 @@ function RenderAwardGroup($awards, $title): void
         "Site Awards" => "⬩",
     ];
     if ($title == "Game Awards") {
+        // Count and show # of completed/mastered games
+        $numGamesCompleted = 0;
+        foreach ($awards as $award) {
+            if ($award['AwardDataExtra'] != 1) {
+                $numGamesCompleted++;
+            }
+        }
+        $numGamesMastered = $numItems - $numGamesCompleted;
         $counters = "";
         if ($numGamesMastered > 0) {
             $icon = mb_substr($icons[$title], 0, 1);
