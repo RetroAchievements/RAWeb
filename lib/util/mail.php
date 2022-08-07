@@ -172,12 +172,12 @@ function sendFriendEmail($user, $email, $type, $friend): bool
     }
 
     if ($type == 0) { // Requesting to be your friend
-        $emailTitle = "New Friend Request from $friend";
-        $emailReason = "sent you a friend request";
+        $emailTitle = "$friend is now following you";
+        $emailReason = "started following you";
         $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } elseif ($type == 1) { // Friend request confirmed
-        $emailTitle = "New Friend confirmed: $friend";
-        $emailReason = "confirmed your friend request";
+        $emailTitle = "$friend is now following you";
+        $emailReason = "followed you back";
         $link = "<a href='" . getenv('APP_URL') . "/user/$friend'>here</a>";
     } else {
         return false; // must break early! No nonsense emails please!

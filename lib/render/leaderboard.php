@@ -116,10 +116,10 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
     echo "<div id='leaderboard' class='component' >";
 
     if ($friendsOnly) {
-        echo "<h3>Friends Ranking</h3>";
+        echo "<h3>Followed Users Ranking</h3>";
         $tabClass = "friendstab";
         if ($friendCount == 0) {
-            echo "You don't appear to have friends registered here yet. Why not leave a comment on the <a href='/forum.php'>forums</a> or <a href='/userList.php'>browse the user pages</a> to find someone to add to your friend list?<br>";
+            echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
             $displayTable = false;
         }
     } else {
@@ -428,9 +428,11 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     $friendCondAward = "";
     $friendCondAllTime = "";
     if ($friendsOf !== null) {
-        $friendCondAchievement = "AND (aw.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR aw.User LIKE '$friendsOf')";
-        $friendCondAward = "AND (sa.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR sa.User LIKE '$friendsOf')";
-        $friendCondAllTime = "AND (ua.User IN (SELECT Friend FROM Friends WHERE User LIKE '$friendsOf' AND Friendship = 1) OR ua.User LIKE '$friendsOf')";
+        $friendsSubquery = GetFriendsSubquery($friendsOf);
+
+        $friendCondAchievement = "AND aw.User IN ($friendsSubquery)";
+        $friendCondAward = "AND sa.User IN ($friendsSubquery)";
+        $friendCondAllTime = "AND ua.User IN ($friendsSubquery)";
     }
 
     // Determine the ORDER BY condition
@@ -579,5 +581,6 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }

@@ -39,7 +39,7 @@ switch ($type) {
 
 $lbUsers = match ($friends) {
     0 => "Global",
-    1 => "Friends",
+    1 => "Followed Users",
     default => "",
 };
 
@@ -97,9 +97,9 @@ RenderHeader($userDetails);
                 echo "<a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=0'>All Users</a> | ";
             }
             if ($friends == 1) {
-                echo "<b><a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=1'>*Friends Only</a></b>";
+                echo "<b><a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=1'>*Followed Users</a></b>";
             } else {
-                echo "<a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=1'>Friends Only</a>";
+                echo "<a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=1'>Followed Users</a>";
             }
             echo "</div>";
         }

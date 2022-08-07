@@ -401,7 +401,8 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
 
     $extraWhere = "";
     if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
-        $extraWhere = " AND aw.User IN ( SELECT Friend FROM Friends WHERE User = '$user' AND Friendship = 1 ) ";
+        $friendSubquery = GetFriendsSubquery($user, false);
+        $extraWhere = " AND aw.User IN ( $friendSubquery ) ";
     }
 
     // Get recent winners, and their most recent activity:

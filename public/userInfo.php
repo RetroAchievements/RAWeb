@@ -7,6 +7,7 @@ use RA\ClaimSpecial;
 use RA\ClaimType;
 use RA\Permissions;
 use RA\UserAction;
+use RA\UserRelationship;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
@@ -98,9 +99,6 @@ $avgPctWon = "0.0";
 if ($numGamesFound > 0) {
     $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
 }
-
-settype($userMassData['Friendship'], 'integer');
-settype($userMassData['FriendReciprocation'], 'integer');
 
 sanitize_outputs(
     $userMotto,
@@ -236,6 +234,34 @@ RenderHtmlStart(true);
             echo "<span class='usermotto'>$userMotto</span>";
             echo "</div>";
         }
+
+        if (isset($user) && ($user !== $userPage)) {
+            echo "<div class='friendbox'>";
+            echo "<div class='buttoncollection'>";
+            // echo "<h4>Friend Actions:</h4>";
+
+            $friendshipType = GetFriendship($user, $userPage);
+            switch ($friendshipType) {
+                case UserRelationship::Following:
+                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unfollow</a></span>";
+                    break;
+                case UserRelationship::NotFollowing:
+                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Following . "'>Follow</a></span>";
+                    break;
+            }
+
+            if ($friendshipType != UserRelationship::Blocked) {
+                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Blocked . "'>Block</a></span>";
+            } else {
+                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unblock</a></span>";
+            }
+
+            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
+
+            echo "</div>"; // buttoncollection
+            echo "</div>"; // friendbox
+        }
+
         echo "<br>";
 
         $niceDateJoined = $userMassData['MemberSince'] ? getNiceDate(strtotime($userMassData['MemberSince'])) : null;
@@ -331,41 +357,6 @@ RenderHtmlStart(true);
         }
 
         echo "</div>"; // usersummary
-
-        if (isset($user) && ($user !== $userPage)) {
-            echo "<div class='friendbox'>";
-            echo "<div class='buttoncollection'>";
-            // echo "<h4>Friend Actions:</h4>";
-
-            if ($userMassData['Friendship'] == 1) {
-                if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    // They haven't accepted yet
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Cancel friend request</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == -1) {
-                    // They blocked us
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Remove friend</a></span>";
-                }
-            } elseif ($userMassData['Friendship'] == 0) {
-                if ($userMassData['FriendReciprocation'] == 1) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Confirm friend request</a></span>";
-                } elseif ($userMassData['FriendReciprocation'] == 0) {
-                    echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=1'>Add friend</a></span>";
-                }
-            }
-
-            if ($userMassData['Friendship'] !== -1) {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=-1'>Block user</a></span>";
-            } else {
-                echo "<span class='clickablebutton'><a href='/request/friend/update.php?f=$userPage&amp;a=0'>Unblock user</a></span>";
-            }
-
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Send Private Message</a></span>";
-
-            echo "</div>"; // buttoncollection
-            echo "</div>"; // friendbox
-        }
 
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox'>";
@@ -582,9 +573,10 @@ RenderHtmlStart(true);
         if ($userWallActive) {
             echo "<h4>User Wall</h4>";
 
+            // Impossible friendship means the user has blocked the active user
             // passing 'null' for $user disables the ability to add comments
             RenderCommentsComponent(
-                ($userMassData['FriendReciprocation'] !== -1) ? $user : null,
+                !isUserBlocking($userPage, $user) ? $user : null,
                 $numArticleComments,
                 $commentData,
                 $userPageID,

@@ -89,10 +89,8 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
 
     $subquery = "WHERE !ua.Untracked";
     if (isset($ofFriend)) {
-        // $subquery = "WHERE ua.User IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$ofFriend' )
-        // OR ua.User = '$ofFriend' ";
-        // Only users whom I have added:
-        $subquery = "WHERE !ua.Untracked AND ua.User IN ( SELECT f.Friend FROM Friends AS f WHERE f.User = '$ofFriend' AND f.Friendship = 1 )";
+        $friendSubquery = GetFriendsSubquery($ofFriend);
+        $subquery = "WHERE !ua.Untracked AND ua.User IN ($friendSubquery)";
     }
 
     $query = "SELECT User, RAPoints, TrueRAPoints
