@@ -1237,7 +1237,7 @@ pre, code, .code {
 .awardcount {
   float: right;
   margin-right: 10px;
-  font-size: 0.75em;
+  font-size: 0.65em;
 }
 
 .awardcount > * {
@@ -1250,11 +1250,11 @@ pre, code, .code {
   color: rgb(210, 210, 210);
 }
 
-:not(#gameawards) .awardcount > .icon {
+.component#siteawards .awardcount > .icon {
   width: 20px;
 }
 
-#gameawards .awardcount > .icon {
+.component:not(#siteawards) .awardcount > .icon {
   width: 25px;
   font-size: 0.65em;
 }
