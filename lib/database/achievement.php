@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementPoints;
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
@@ -245,6 +246,11 @@ function UploadNewAchievement(
 
     if ($type === AchievementType::OfficialCore && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
+        return false;
+    }
+
+    if (!AchievementPoints::isValid((int) $points)) {
+        $errorOut = "Invalid points value (" . $points . ").";
         return false;
     }
 
