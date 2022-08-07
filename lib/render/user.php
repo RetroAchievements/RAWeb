@@ -1,6 +1,7 @@
 <?php
 
 use RA\Permissions;
+use RA\Rank;
 
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
@@ -88,8 +89,8 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "<tr>";
     if ($userUntracked) {
         $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Untracked</td>";
-    } elseif ($userHardcorePoints < MIN_POINTS) {
-        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Needs at least " . MIN_POINTS . " points </td>";
+    } elseif ($userHardcorePoints < Rank::MIN_POINTS) {
+        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Needs at least " . Rank::MIN_POINTS . " points </td>";
     } else {
         $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> $userRank</td>";
     }

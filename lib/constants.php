@@ -1,8 +1,5 @@
 <?php
 
 const VERSION = '1.89.0';
-const MIN_POINTS = 250;
-const MIN_TRUE_POINTS = 1250;
-const VALID_POINTS = [0, 1, 2, 3, 4, 5, 10, 25, 50, 100];
-const MAX_TITLE = 64;
-const MAX_DESCRIPTION = 256;
+// luchaos: this file will be removed. do not add anything here.
+// use/add enumeration classes in /src instead (which will in turn be refactored into actual Enums with PHP 8.1).

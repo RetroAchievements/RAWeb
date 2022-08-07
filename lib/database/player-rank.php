@@ -1,6 +1,7 @@
 <?php
 
 use RA\AchievementType;
+use RA\Rank;
 use RA\UnlockMode;
 
 function SetUserUntrackedStatus($usernameIn, $isUntracked): void
@@ -66,7 +67,7 @@ function countRankedUsers(): int
     $query = "
         SELECT COUNT(*) AS count
         FROM UserAccounts
-        WHERE RAPoints >= " . MIN_POINTS . "
+        WHERE RAPoints >= " . Rank::MIN_POINTS . "
           AND NOT Untracked
     ";
 
