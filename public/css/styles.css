@@ -1236,7 +1236,15 @@ pre, code, .code {
 
 .awardcount {
   float: right;
+  margin-right: 10px;
   font-size: 0.75em;
+  font-style: italic;
+}
+
+.awardcount > .icon {
+  display: inline-block;
+  width: 15px;
+  color: rgb(210, 210, 210);
 }
 
 .badgeimg {

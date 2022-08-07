@@ -74,7 +74,9 @@ function RenderAwardGroup($awards, $title): void
     echo "
         <h3>
             $title
-            <div class='awardcount'>⬩ $numItems</div>
+            <div class='awardcount'>
+                <span class='icon'>⬩</span>$numItems
+            </div>
         </h3>";
     echo "<div class='siteawards'>";
     echo "<table class='siteawards'><tbody>";
