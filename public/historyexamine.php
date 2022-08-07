@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\UnlockMode;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $userPage = requestInputSanitized('u', $user);
@@ -20,7 +22,13 @@ if (!$userMassData) {
 
 $dateInput = requestInputSanitized('d', 0);
 
-$userPagePoints = getPlayerPoints($userPage);
+$userPageHardcorePoints = 0;
+$userPageSoftcorePoints = 0;
+
+if (getPlayerPoints($userPage, $userPoints)) {
+    $userPageHardcorePoints = $userPoints['RAPoints'];
+    $userPageSoftcorePoints = $userPoints['RASoftcorePoints'];
+}
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 
@@ -55,7 +63,16 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "<div class='userlegacy'>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ($userPagePoints points)</b><br>";
+        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
+
+        if ($userPageHardcorePoints > 0) {
+            echo "($userPageHardcorePoints) ";
+        }
+        if ($userPageSoftcorePoints > 0) {
+            echo "<span class='softcore'>($userPageSoftcorePoints softcore)</span>";
+        }
+
+        echo "</b><br>";
         echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
         echo "<label for='d'><b>Jump to Date: </b></label>";
         echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateInput) . "' />";
@@ -82,35 +99,21 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         // Merge if poss and count
         $achCount = count($achEarnedOnDay);
+        $earnedCount = 0;
         $pointsCount = 0;
         // foreach( $achEarnedOnDay as $achEarned )
 
-        // Tally all
-        for ($i = 0; $i < $achCount; $i++) {
-            $achID = $achEarnedOnDay[$i]['AchievementID'];
-            $achPoints = $achEarnedOnDay[$i]['Points'];
-            $pointsCount += $achPoints;
-        }
-
         $achEarnedLib = [];
-
-        // Store all NORMAL into $achEarnedLib
-        for ($i = 0; $i < $achCount; $i++) {
-            $achID = $achEarnedOnDay[$i]['AchievementID'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == 0) {
-                $achEarnedLib[$achID] = $achEarnedOnDay[$i];
-            }
-        }
 
         // Potentially overwrite HARDCORE into $achEarnedLib
         for ($i = 0; $i < $achCount; $i++) {
             $achID = $achEarnedOnDay[$i]['AchievementID'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == 1) {
-                // if( isset( $achEarnedLib[$achID] ) && $achEarnedLib[$achID]['HardcoreMode'] == 1 )
-                // Ordinary ach also exists: notify in points col
-                $achEarnedLib[$achID] = $achEarnedOnDay[$i];
-                $achPoints = $achEarnedLib[$achID]['Points'];
-                $achEarnedLib[$achID]['PointsNote'] = "<span class='hardcore'>(+$achPoints)</span>";
+            $achEarnedLib[$achID] = $achEarnedOnDay[$i];
+            $achPoints = $achEarnedLib[$achID]['Points'];
+            if ($achEarnedOnDay[$i]['HardcoreMode'] == UnlockMode::Hardcore) {
+                $achEarnedLib[$achID]['PointsNote'] = "$achPoints";
+            } else { // else Softcore
+                $achEarnedLib[$achID]['PointsNote'] = "<span class='softcore'>$achPoints</span>";
             }
         }
 
@@ -133,7 +136,8 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
             sanitize_outputs($achTitle, $achDesc);
 
-            // $pointsCount += $achPoints;
+            $pointsCount += $achPoints;
+            $earnedCount++;
             // $dateUnix = strtotime( "$nextDay-$nextMonth-$nextYear" );
             // $dateStr = getNiceDate( $dateUnix, TRUE );
 
@@ -152,7 +156,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td nowrap>";
-            echo "$achPoints $achPointsNote";
+            echo "$achPointsNote";
             echo "</td>";
 
             echo "<td>";
@@ -170,7 +174,7 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
 
         echo "<h3>Summary</h3>";
         echo "<div class='historyexaminesummary'>";
-        echo "Total earned on $dateStr: <strong>$pointsCount</strong> points, <strong>$achCount</strong> achievements.<br><br>";
+        echo "Total earned on $dateStr: <strong>$pointsCount</strong> points, <strong>$earnedCount</strong> achievements.<br><br>";
         echo "<a href='/history.php?u=$userPage'>&laquo; Back to $userPage's Legacy</a><br><br>";
         echo "</div>";
         ?>

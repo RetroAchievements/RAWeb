@@ -21,7 +21,7 @@ function GetNextHighestGameID($givenID)
 function GetNextHighestUserID($givenID)
 {
     $query = "SELECT MIN(ID) AS NextID FROM UserAccounts
-				  WHERE ID > $givenID AND RAPoints > 0";
+				  WHERE ID > $givenID AND (RAPoints > 0 OR RASoftcorePoints > 0)";
 
     $dbResult = s_mysql_query($query);
 

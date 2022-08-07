@@ -14,7 +14,7 @@ $offset = max($offset, 0);
 $friends = requestInputSanitized('f', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
 
-$lbUsers = $friends === 1 ? 'Friends' : '';
+$lbUsers = $friends === 1 ? 'Followed Users' : '';
 
 if ($friends == 1) {
     $data = getRecentMasteryData($date, $user, $offset, $maxCount + 1);
@@ -48,9 +48,9 @@ RenderHeader($userDetails);
                 echo "<a href='/recentMastery.php?d=$date&f=0'>All Users</a> | ";
             }
             if ($friends == 1) {
-                echo "<b><a href='/recentMastery.php?d=$date&f=1'>*Friends Only</a></b>";
+                echo "<b><a href='/recentMastery.php?d=$date&f=1'>*Followed Users</a></b>";
             } else {
-                echo "<a href='/recentMastery.php?d=$date&f=1'>Friends Only</a>";
+                echo "<a href='/recentMastery.php?d=$date&f=1'>Followed Users</a>";
             }
             echo "</div>";
         }

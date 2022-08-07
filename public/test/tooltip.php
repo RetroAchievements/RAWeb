@@ -27,8 +27,9 @@ function tooltip_row(string $text): void
 
     echo "</td>\n        <td>";
     $userCardInfo = [
-        'TotalPoints' => 12345,
-        'TotalTruePoints' => 34567,
+        'HardcorePoints' => 12345,
+        'SoftcorePoints' => 45678,
+        'TotalTruePoints' => 98765,
         'Permissions' => 1,
         'Motto' => htmlspecialchars($text), // ASSERT: getUserCardData does this escaping
         'Rank' => 56,

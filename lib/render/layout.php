@@ -97,8 +97,10 @@ function RenderTitleTag($title = null): void
     // </script>";
 }
 
-function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null): void
+function RenderTitleBar($user, $points, $truePoints, $softcorePoints, $unreadMessageCount, $errorCode, $permissions = 0, $deleteRequested = null): void
 {
+    $mainPointString = "";
+    $secondaryPointString = "";
     settype($unreadMessageCount, "integer");
     settype($truePoints, 'integer');
 
@@ -118,9 +120,8 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
 
     echo "</div>";
 
-    echo "<div class='login'>";
-
     if (!$user) {
+        echo "<div class='login'>";
         echo "<div style='float:right; font-size:75%;'><a href='/resetPassword.php'>Forgot password?</a></div>";
         echo "<b>login</b> to " . getenv('APP_NAME') . ":<br>";
 
@@ -146,16 +147,27 @@ function RenderTitleBar($user, $points, $truePoints, $unreadMessageCount, $error
             echo "<div class='rightalign'>...or <a href='/createaccount.php'>create a new account</a></div>";
         }
     } else {
+        echo "<div class='login'>";
         echo "<p>";
         echo "<img src='/UserPic/$user.png' alt='Profile Picture' style='float:right; margin-left:6px' width='64' height='64' class='userpic'>";
 
         if ($errorCode == "validatedEmail") {
             echo "Welcome, <a href='/user/$user'>$user</a>!<br>";
         } else {
-            echo "<strong><a href='/user/$user'>$user</a></strong> ($points) <span class='TrueRatio'>($truePoints)</span><br>";
+            if ($points > 0) {
+                $mainPointString = "($points) <span class='TrueRatio'>($truePoints) </span><br>";
+                if ($softcorePoints > 0) {
+                    $secondaryPointString = "<span class='softcore'>($softcorePoints softcore)</span>";
+                }
+            } elseif ($softcorePoints > 0) {
+                $mainPointString = "<span class='softcore'>($softcorePoints softcore)</span><br>";
+            } else {
+                $mainPointString = "<br>";
+            }
+            echo "<strong><a href='/user/$user'>$user</a></strong> " . $mainPointString;
         }
 
-        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a><br>";
+        echo "<a href='/request/auth/logout.php?Redir=" . $_SERVER['REQUEST_URI'] . "'>logout</a> " . $secondaryPointString . "<br>";
 
         $mailboxIcon = $unreadMessageCount > 0 ? asset('Images/_MailUnread.png') : asset('Images/_Mail.png');
         echo "<a href='/inbox.php'>";
@@ -277,8 +289,10 @@ function RenderToolbar($user, $permissions = 0): void
     echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
     echo "<li><a href='/gameList.php?c=71'>Arduboy</a></li>";
     echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
+    echo "<li><a href='/gameList.php?c=57'>Fairchild Channel F</a><li>";
     echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
     echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
+    echo "<li><a href='/gameList.php?c=69'>Mega Duck</a></li>";
     echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
     echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
     echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
@@ -340,7 +354,7 @@ function RenderToolbar($user, $permissions = 0): void
         echo "<li><a href='/ticketmanager.php?u=$user'>My Tickets</a></li>";
         echo "<li><a href='/claimlist.php?u=$user'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
-        echo "<li><a href='/friends.php'>Friends</a></li>";
+        echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$user'>Requested Sets</a></li>";
@@ -408,12 +422,12 @@ function RenderHeader(?array $userDetails): void
 
     if ($userDetails) {
         RenderTitleBar($userDetails['User'], $userDetails['RAPoints'],
-            $userDetails['TrueRAPoints'], $userDetails['UnreadMessageCount'],
+            $userDetails['TrueRAPoints'], $userDetails['RASoftcorePoints'], $userDetails['UnreadMessageCount'],
             $errorCode, $userDetails['Permissions'],
             $userDetails['DeleteRequested']);
         RenderToolbar($userDetails['User'], $userDetails['Permissions']);
     } else {
-        RenderTitleBar(null, 0, 0, 0, $errorCode);
+        RenderTitleBar(null, 0, 0, 0, 0, $errorCode);
         RenderToolbar(null, 0);
     }
 }

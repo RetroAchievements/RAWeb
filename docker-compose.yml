@@ -19,6 +19,8 @@ services:
   php:
     build: ./docker/php
     image: raweb/app
+    extra_hosts:
+      - host.docker.internal:host-gateway
     volumes:
       - .:/srv/web
       - ./docker/php/configs/php-ini-overrides.ini:/usr/local/etc/php/conf.d/php-ini-overrides.ini:ro

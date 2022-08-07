@@ -114,6 +114,7 @@ function RenderArticleComment(
     $niceDate .= date("G:i", $submittedDate);
 
     sanitize_outputs($user, $comment);
+    $comment = nl2br($comment);
 
     echo "<td class='smalldate'>$niceDate</td>";
     echo "<td class='iconscommentsingle'>";
