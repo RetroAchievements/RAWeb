@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ArticleType;
 use RA\ClaimFilters;
 use RA\ClaimSetType;
@@ -29,8 +30,8 @@ $userID = $userDetails['ID'] ?? 0;
 
 $errorCode = requestInputSanitized('e');
 
-$officialFlag = 3; // flag = 3: Core (official) achievements
-$unofficialFlag = 5; // flag = 5: unofficial
+$officialFlag = AchievementType::OfficialCore;
+$unofficialFlag = AchievementType::Unofficial;
 $flags = requestInputSanitized('f', $officialFlag, 'integer');
 
 $defaultSort = 1;
@@ -194,14 +195,13 @@ if ($isFullyFeaturedGame) {
             $totalPossible += $nextAch['Points'];
             $totalPossibleTrueRatio += $nextAch['TrueRatio'];
 
-            if (isset($nextAch['DateEarned'])) {
-                $numEarnedCasual++;
-                $totalEarnedCasual += $nextAch['Points'];
-                $totalEarnedTrueRatio += $nextAch['TrueRatio'];
-            }
             if (isset($nextAch['DateEarnedHardcore'])) {
                 $numEarnedHardcore++;
                 $totalEarnedHardcore += $nextAch['Points'];
+                $totalEarnedTrueRatio += $nextAch['TrueRatio'];
+            } elseif (isset($nextAch['DateEarned'])) {
+                $numEarnedCasual++;
+                $totalEarnedCasual += $nextAch['Points'];
             }
         }
         // Combine arrays and sort by achievement count.
@@ -955,6 +955,40 @@ RenderHtmlStart(true);
                     echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
                 }
 
+                if (isset($user)) {
+                    $pctAwardedCasual = 0;
+                    $pctAwardedHardcore = 0;
+                    $pctComplete = 0;
+
+                    if ($numAchievements) {
+                        $pctAwardedCasual = ($numEarnedCasual + $numEarnedHardcore) / $numAchievements;
+                        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
+                        $pctAwardedHardcoreProportion = 0;
+                        if ($numEarnedHardcore > 0) {
+                            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
+                        }
+
+                        $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
+                        $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
+
+                        $pctComplete = sprintf(
+                            "%01.0f",
+                            (($numEarnedCasual + $numEarnedHardcore * 2) * 100.0 / $numAchievements)
+                        );
+                    }
+
+                    echo "<div class='progressbar'>";
+                    echo "<div class='completion' style='width:$pctAwardedCasual%'>";
+                    echo "<div class='completionhardcore' style='width:$pctAwardedHardcore%'>&nbsp;</div>";
+                    echo "</div>";
+                    if ($pctComplete > 100.0) {
+                        echo "<b>$pctComplete%</b> complete<br>";
+                    } else {
+                        echo "$pctComplete% complete<br>";
+                    }
+                    echo "</div>";
+                }
+
                 if ($numAchievements > 0) {
                     echo "<b>Authors:</b> ";
                     $numItems = count($authorInfo);
@@ -972,52 +1006,14 @@ RenderHtmlStart(true);
                     echo "<br>";
                 }
 
-                if (isset($user)) {
-                    $pctAwardedCasual = 0;
-                    $pctAwardedHardcore = 0;
-                    $pctComplete = 0;
-
-                    if ($numAchievements) {
-                        $pctAwardedCasual = $numEarnedCasual / $numAchievements;
-                        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
-                        $pctAwardedHardcoreProportion = 0;
-                        if ($numEarnedHardcore > 0) {
-                            $pctAwardedHardcoreProportion = $numEarnedHardcore / $numEarnedCasual;
-                        }
-
-                        $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
-                        $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
-
-                        $pctComplete = sprintf(
-                            "%01.0f",
-                            (($numEarnedCasual + $numEarnedHardcore) * 100.0 / $numAchievements)
-                        );
-                    }
-
-                    echo "<div class='progressbar'>";
-                    echo "<div class='completion' style='width:$pctAwardedCasual%'>";
-                    echo "<div class='completionhardcore' style='width:$pctAwardedHardcore%'>&nbsp;</div>";
-                    echo "</div>";
-                    if ($pctComplete > 100.0) {
-                        echo "<b>$pctComplete%</b> complete<br>";
-                    } else {
-                        echo "$pctComplete% complete<br>";
-                    }
-                    echo "</div>";
-                }
-
                 if ($user !== null && $numAchievements > 0) {
-                    echo "<a href='/user/$user'>$user</a> has won <b>$numEarnedCasual</b> achievements";
-                    if ($totalEarnedCasual > 0) {
-                        echo ", worth <b>$totalEarnedCasual</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points";
-                    }
-                    echo ".<br>";
                     if ($numEarnedHardcore > 0) {
-                        echo "<a href='/user/$user'>$user</a> has won <b>$numEarnedHardcore</b> HARDCORE achievements";
-                        if ($totalEarnedHardcore > 0) {
-                            echo ", worth a further <b>$totalEarnedHardcore</b> points";
+                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>$totalEarnedHardcore</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points.<br>";
+                        if ($numEarnedCasual > 0) { // Some Hardcore earns
+                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
                         }
-                        echo ".<br>";
+                    } else {
+                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
                     }
                 }
 
@@ -1199,7 +1195,7 @@ RenderHtmlStart(true);
 
                 if (isset($achievementData)) {
                     for ($i = 0; $i < 2; $i++) {
-                        if ($i == 0 && $numEarnedCasual == 0) {
+                        if ($i == 0 && $numEarnedCasual == 0 && $numEarnedHardcore == 0) {
                             continue;
                         }
 

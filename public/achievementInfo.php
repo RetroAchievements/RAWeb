@@ -430,9 +430,7 @@ RenderHtmlStart(true);
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {
-                    echo "<span class='hardcore'>Hardcore!</span>";
-                } else {
-                    echo "";
+                    echo "Hardcore!";
                 }
                 echo "</td>";
 
