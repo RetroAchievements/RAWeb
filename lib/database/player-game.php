@@ -373,6 +373,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
+        $mastersCounter = 0;
         while ($data = mysqli_fetch_assoc($dbResult)) {
             if (count($high_scores) < 10) {
                 $high_scores[] = $data;
@@ -382,6 +383,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
                 if (count($masters) == 10) {
                     array_shift($masters);
                 }
+                $data['Rank'] = ++$mastersCounter;
                 $masters[] = $data;
             } elseif (count($high_scores) == 10) {
                 break;

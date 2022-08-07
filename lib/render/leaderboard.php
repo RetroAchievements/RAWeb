@@ -273,6 +273,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
             continue;
         }
 
+        $nextRank = $gameLatestMasters[$i]['Rank'];
         $nextUser = $gameLatestMasters[$i]['User'];
         $nextLastAward = $gameLatestMasters[$i]['LastAward'];
 
@@ -284,7 +285,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         }
 
         echo "<td class='rank'>";
-        echo $i + 1;
+        echo $nextRank;
         echo "</td>";
 
         echo "<td>";
