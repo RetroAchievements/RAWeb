@@ -275,7 +275,8 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
 
         $nextRank = $gameLatestMasters[$i]['Rank'];
         $nextUser = $gameLatestMasters[$i]['User'];
-        $nextLastAward = $gameLatestMasters[$i]['LastAward'];
+        $date = date_create($gameLatestMasters[$i]['LastAward']);
+        $nextLastAward = date_format($date, "Y-m-d H:i");
 
         // Outline user if they are in the list
         if ($user !== null && $user == $nextUser) {
