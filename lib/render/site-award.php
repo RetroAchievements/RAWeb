@@ -71,30 +71,43 @@ function RenderAwardGroup($awards, $title): void
     }
     if ($title == "Game Awards") {
         // Count # of completed/mastered games
-        $numItemsCompleted = 0;
+        $numGamesCompleted = 0;
         foreach ($awards as $award) {
             if ($award['AwardDataExtra'] != 1) {
-                $numItemsCompleted++;
+                $numGamesCompleted++;
             }
         }
-        $numItems -= $numItemsCompleted;
+        $numGamesMastered = $numItems - $numGamesCompleted;
     }
+
     $icons = [
         "Game Awards" => "👑🎖️",
         "Event Awards" => "🌱",
         "Site Awards" => "⬩",
     ];
-    $icon = mb_substr($icons[$title], 0, 1);
-    $counters = "
-        <div class='awardcount'>
-            <span class='icon'>$icon</span><span class='numitems'>$numItems</span>";
-    if ($title == "Game Awards" and $numItemsCompleted > 0) {
-        $icon = mb_substr($icons[$title], 1, 1);
-        $counters .= "</div>
+    if ($title == "Game Awards") {
+        $counters = "";
+        if ($numGamesMastered > 0) {
+            $icon = mb_substr($icons[$title], 0, 1);
+            $counters .= "
+                <div class='awardcount'>
+                    <span class='icon'>$icon</span><span class='numitems'>$numGamesMastered</span>
+                </div>";
+        }
+        if ($numGamesCompleted > 0) {
+            $icon = mb_substr($icons[$title], 1, 1);
+            $counters .= "
+                <div class='awardcount'>
+                    <span class='icon'>$icon</span><span class='numitems'>$numGamesCompleted</span>
+                </div>";
+        }
+    } else {
+        $icon = $icons[$title];
+        $counters = "
             <div class='awardcount'>
-                <span class='icon'>$icon</span><span class='numitems'>$numItemsCompleted</span>";
+                <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
+            </div>";
     }
-    $counters .= "</div>";
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "' class='component' >";
     echo "

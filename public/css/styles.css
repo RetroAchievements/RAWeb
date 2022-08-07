@@ -1251,7 +1251,7 @@ pre, code, .code {
 }
 
 .component#siteawards .awardcount > .icon {
-  width: 20px;
+  width: 22px;
 }
 
 .component:not(#siteawards) .awardcount > .icon {
