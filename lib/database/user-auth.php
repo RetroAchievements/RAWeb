@@ -19,11 +19,11 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
         if ($passwordProvided) {
             // Password provided, validate it
             if (authenticateFromPassword($user, $pass)) {
-                $query = "SELECT RAPoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
+                $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
             }
         } elseif ($tokenProvided) {
             // Token provided, look for match
-            $query = "SELECT RAPoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
+            $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
         }
     }
 
@@ -77,7 +77,9 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
         $response['User'] = $user;
         $response['Token'] = $token;
         $response['Score'] = $data['RAPoints'];
+        $response['SoftcoreScore'] = $data['RASoftcorePoints'];
         settype($response['Score'], "integer");
+        settype($response['SoftcoreScore'], "integer");
         $response['Messages'] = GetMessageCount($user, $totalMessageCount);
         $response['Permissions'] = (int) $data['Permissions'];
         $response['AccountType'] = Permissions::toString($response['Permissions']);
@@ -221,7 +223,7 @@ function getAccountDetailsFromCookie(?string $cookie): ?array
     // RAPoints, TrueRAPoints, and UnreadMessageCount are used for the logged-in user area
     // websitePrefs allows pages to enable/disable functionality
     $query = "SELECT ID, User, Permissions, DeleteRequested,
-                     RAPoints, TrueRAPoints, UnreadMessageCount,
+                     RAPoints, TrueRAPoints, RASoftcorePoints, UnreadMessageCount,
                      websitePrefs
                 FROM UserAccounts
                 WHERE cookie='$cookie'

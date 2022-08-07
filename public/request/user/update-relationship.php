@@ -14,7 +14,14 @@ $action = requestInputQuery('a');
 
 if (authenticateFromCookie($user, $permissions, $userDetail)) {
     $returnVal = changeFriendStatus($user, $friend, $action);
-    header("Location: " . getenv('APP_URL') . "/user/$friend?e=$returnVal");
+
+    $referer = $_SERVER['HTTP_REFERER'] ?? getenv('APP_URL') . "/user/$friend";
+    $pos = strpos($referer, '?');
+    if ($pos !== false) {
+        $referer = substr($referer, 0, $pos);
+    }
+
+    header("Location: $referer?e=$returnVal");
 } else {
     header("Location: " . getenv('APP_URL') . "/user/$friend?e=pleaselogin");
 }
