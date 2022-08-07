@@ -91,7 +91,7 @@ RenderHtmlStart(true);
 
 <body>
 <?php RenderHeader($userDetails); ?>
-<?php if (($permissions >= Permissions::Developer || $isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)): ?>
+<?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
     <script>
         function updateAchievementDetails() {
         var title = $('#titleinput').val();
