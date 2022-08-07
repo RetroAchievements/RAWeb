@@ -96,14 +96,25 @@ RenderHtmlStart(true);
     <script>
     function updateAchievementDetails() {
         showStatusMessage('Updating...');
+
+        var $title = $('#titleinput');
+        var $description = $('#titleinput');
+        if (new Blob([$title.val()]).size > $title.attr('maxlength')) {
+            showStatusFailure('Error: Title too long');
+            return;
+        }
+        if (new Blob([$description.val()]).size > $description.attr('maxlength')) {
+            showStatusFailure('Error: Description too long');
+            return;
+        }
         $.ajax({
             type: "POST",
             url: '/request/achievement/update-base.php',
             dataType: "json",
             data: {
                 'a': <?= $achievementID ?>,
-                't': $('#titleinput').val(),
-                'd': $('#descriptioninput').val(),
+                't': $title.val(),
+                'd': $description.val(),
                 'p': $('#pointsinput').val(),
             },
             error: function (xhr, status, error) {
