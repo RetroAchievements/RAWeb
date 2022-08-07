@@ -309,8 +309,9 @@ function UploadNewAchievement(
 
             $changingAchSet = ($data['Flags'] != $type);
             $changingPoints = ($data['Points'] != $points);
+            $changingTitle = ($data['Title'] != $rawTitle);
+            $changingDescription = ($data['Description'] != $rawDesc);
             $changingBadge = ($data['BadgeName'] != $badge);
-            $changingWording = ($data['Title'] != $rawTitle || $data['Description'] != $rawDesc);
             $changingLogic = ($data['MemAddr'] != $mem);
 
             if ($type === AchievementType::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
@@ -379,11 +380,14 @@ function UploadNewAchievement(
                     if ($changingBadge) {
                         $fields[] = "badge";
                     }
-                    if ($changingWording) {
-                        $fields[] = "wording";
-                    }
                     if ($changingLogic) {
                         $fields[] = "logic";
+                    }
+                    if ($changingTitle) {
+                        $fields[] = "title";
+                    }
+                    if ($changingDescription) {
+                        $fields[] = "description";
                     }
                     $editString = implode(', ', $fields);
 
