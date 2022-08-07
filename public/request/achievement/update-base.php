@@ -48,7 +48,7 @@ if (UploadNewAchievement(
     points: $points,
     mem: $achievement['MemAddr'],
     type: $achievement['Flags'],
-    idInOut: $achievementId,
+    idInOut: $achievement['ID'],
     badge: $achievement['BadgeName'],
     errorOut: $errorOut
 )) {

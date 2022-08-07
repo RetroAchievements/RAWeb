@@ -12,9 +12,15 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $achievementID = (int) requestInputPost('i', 0);
-$gameID = (int) requestInputPost('g', 0);
 
-if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $gameID)) {
+$achievement = GetAchievementData($achievementID);
+if (!$achievement) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Bad Request']);
+    exit;
+}
+
+if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $achievement['GameID'])) {
     // Immediate redirect if the jr. dev attempting to upload the image is not the sole developer
     redirect("achievement/$achievementID?e=badcredentials");
     exit;
