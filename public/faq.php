@@ -51,7 +51,7 @@ RenderHtmlHead("FAQ");
 		<b>RetroAchievements.org</b> is a community who collaborate and compete to earn custom-made achievements in classic games through emulation.
 		Achievements are made by and for the community.
 		We provide various custom-built emulators for you to use which will detect when you have completed various challenges.
-		Once logged in, the emulators will post the achievements you've completed back to the site, so you can check and compare your progress to your friends.<br><br>
+		Once logged in, the emulators will post the achievements you've completed back to the site, so you can check and compare your progress to other players.<br><br>
 
 		Here's an example of RAGens, playing Streets of Rage 2. You will see two leaderboard attempt counters (bottom-right), one achievement popping and finally the overlay (press ESC):<br>
 

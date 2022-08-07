@@ -12,7 +12,7 @@ abstract class UserPreference
 
     public const EmailOn_ForumReply = 3;
 
-    public const EmailOn_AddFriend = 4;
+    public const EmailOn_Followed = 4;
 
     public const EmailOn_PrivateMessage = 5;
 
@@ -28,7 +28,7 @@ abstract class UserPreference
 
     public const SiteMsgOn_ForumReply = 11;
 
-    public const SiteMsgOn_AddFriend = 12;
+    public const SiteMsgOn_Followed = 12;
 
     public const SiteMsgOn_PrivateMessage = 13;
 

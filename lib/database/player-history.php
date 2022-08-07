@@ -1,5 +1,8 @@
 <?php
 
+use RA\AchievementType;
+use RA\UnlockMode;
+
 function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
 {
     sanitize_sql_inputs($user, $listOffset, $maxDays);
@@ -7,30 +10,32 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
 
     $retVal = [];
 
-    $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned FROM Awarded AS aw ";
-    $query .= "LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID ";
-    $query .= "WHERE User='$user' ";
-    $query .= "GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date) ";
-
     if ($sortBy < 1 || $sortBy > 13) {
         $sortBy = 1;
     }
-
+    $orderCond = "";
     if ($sortBy == 1) {        // Date, asc
-        $query .= "ORDER BY aw.Date DESC ";
+        $orderCond = "ORDER BY aw.Date DESC ";
     } elseif ($sortBy == 2) {    // Num Awarded, asc
-        $query .= "ORDER BY NumAwarded DESC ";
+        $orderCond = "ORDER BY NumAwarded DESC ";
     } elseif ($sortBy == 3) {    // Total Points earned, asc
-        $query .= "ORDER BY TotalPointsEarned DESC ";
+        $orderCond = "ORDER BY TotalPointsEarned DESC ";
     } elseif ($sortBy == 11) {// Date, desc
-        $query .= "ORDER BY aw.Date ASC ";
+        $orderCond = "ORDER BY aw.Date ASC ";
     } elseif ($sortBy == 12) {// Num Awarded, desc
-        $query .= "ORDER BY NumAwarded ASC ";
+        $orderCond = "ORDER BY NumAwarded ASC ";
     } elseif ($sortBy == 13) {// Total Points earned, desc
-        $query .= "ORDER BY TotalPointsEarned ASC ";
+        $orderCond = "ORDER BY TotalPointsEarned ASC ";
     }
 
-    $query .= "LIMIT $listOffset, $maxDays ";
+    $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned 
+                FROM Awarded AS aw 
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                WHERE User='$user' 
+                AND aw.HardcoreMode = " . UnlockMode::Softcore . "
+                GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
+                $orderCond
+                LIMIT $listOffset, $maxDays";
 
     $dbResult = s_mysql_query($query);
 
@@ -67,7 +72,8 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $user): array
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE User = '$user' AND ach.Flags = 3 AND Date BETWEEN '$dateStrStart' AND '$dateStrEnd'
+              WHERE User = '$user' AND ach.Flags = " . AchievementType::OfficialCore . " 
+              AND Date BETWEEN '$dateStrStart' AND '$dateStrEnd'
               ORDER BY aw.Date
               LIMIT 500";
 
@@ -99,7 +105,7 @@ function getAchievementsEarnedOnDay($dateInput, $user): array
     return getAchievementsEarnedBetween($dateStrStart, $dateStrEnd, $user);
 }
 
-function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $dateTo = null): array
+function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom = null, $dateTo = null): array
 {
     sanitize_sql_inputs($user, $listOffset, $maxToFetch, $dateFrom, $dateTo);
 
@@ -109,37 +115,50 @@ function getAwardedList($user, $listOffset, $maxToFetch, $dateFrom = null, $date
         return $retVal;
     }
 
-    $cumulScore = 0;
+    $cumulHardcoreScore = 0;
+    $cumulSoftcoreScore = 0;
     // if (isset($dateFrom)) {
     //     // Calculate the points value up until this point
     //     $cumulScore = getPointsAtTime( $user, $dateFrom );    // TBD!
     // }
 
-    $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, SUM(ach.Points) AS Points FROM Awarded AS aw ";
-    $query .= "LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID ";
-    $query .= "LEFT JOIN GameData AS gd ON gd.ID = ach.GameID ";
-    $query .= "WHERE aw.user = '$user' AND ach.Flags = 3 ";
+    $limitCondition = "";
+    if (isset($listOffset) && isset($maxToFetch)) {
+        $limitCondition = "LIMIT $listOffset, $maxToFetch";
+    }
 
+    $dateCondition = "";
     if (isset($dateFrom) && isset($dateTo)) {
         $dateFromFormatted = $dateFrom; // 2013-07-01
         $dateToFormatted = $dateTo;
-        $query .= "AND aw.Date BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
+        $dateCondition .= "AND aw.Date BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
     }
 
-    $query .= "GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date) ";
-    $query .= "ORDER BY aw.Date ASC ";
+    $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date, 
+                SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
+                SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS SoftcorePoints 
+                FROM Awarded AS aw
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                WHERE aw.user = '$user' 
+                AND ach.Flags = " . AchievementType::OfficialCore . "
 
-    $query .= "LIMIT $listOffset, $maxToFetch ";
+                $dateCondition
+                GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
+                ORDER BY aw.Date ASC
+                $limitCondition";
 
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
         $daysCount = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $cumulScore += $db_entry['Points'];
+            $cumulHardcoreScore += $db_entry['HardcorePoints'];
+            $cumulSoftcoreScore += intval($db_entry['SoftcorePoints']) - intval($db_entry['HardcorePoints']);
 
             $retVal[$daysCount] = $db_entry;
-            $retVal[$daysCount]['CumulScore'] = $cumulScore;
+            $retVal[$daysCount]['CumulHardcoreScore'] = $cumulHardcoreScore;
+            $retVal[$daysCount]['CumulSoftcoreScore'] = $cumulSoftcoreScore;
 
             $daysCount++;
         }
