@@ -5,7 +5,6 @@
 /.idea
 /.vscode
 /.vagrant
-LocalValetDriver.php
 npm-debug.log
 yarn-error.log
 /.env*
