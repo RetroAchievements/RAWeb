@@ -124,10 +124,14 @@ RenderHtmlHead("Game Compare");
 
             echo "</tr>";
 
-            $leftAwardedCount = 0;
-            $rightAwardedCount = 0;
-            $leftAwardedPoints = 0;
-            $rightAwardedPoints = 0;
+            $leftHardcoreAwardedCount = 0;
+            $rightHardcoreAwardedCount = 0;
+            $leftHardcoreAwardedPoints = 0;
+            $rightHardcoreAwardedPoints = 0;
+            $leftSoftcoreAwardedCount = 0;
+            $rightSoftcoreAwardedCount = 0;
+            $leftSoftcoreAwardedPoints = 0;
+            $rightSoftcoreAwardedPoints = 0;
             $maxPoints = 0;
 
             $achIter = 0;
@@ -165,15 +169,14 @@ RenderHtmlHead("Game Compare");
                 if (isset($awardedLeft)) {
                     if (isset($awardedHCLeft)) {
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardLocal");
-                        $leftAwardedCount++;
-                        $leftAwardedPoints += $achPoints;
-                        $leftAwardedPoints += $achPoints;
+                        $leftHardcoreAwardedCount++;
+                        $leftHardcoreAwardedPoints += $achPoints;
 
                         echo "<small class='smalldate rightfloat'>-=HARDCORE=-<br>unlocked on<br>$awardedHCLeft</small>";
                     } else {
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardLocal");
-                        $leftAwardedCount++;
-                        $leftAwardedPoints += $achPoints;
+                        $leftSoftcoreAwardedCount++;
+                        $leftSoftcoreAwardedPoints += $achPoints;
 
                         echo "<small class='smalldate rightfloat'>unlocked on<br>$awardedLeft</small>";
                     }
@@ -196,17 +199,16 @@ RenderHtmlHead("Game Compare");
                         echo "<div style='float:right;' >";
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardremote");
                         echo "</div>";
-                        $rightAwardedCount++;
-                        $rightAwardedPoints += $achPoints;
-                        $rightAwardedPoints += $achPoints;
+                        $rightHardcoreAwardedCount++;
+                        $rightHardcoreAwardedPoints += $achPoints;
 
                         echo "<small class='smalldate leftfloat'>-=HARDCORE=-<br>unlocked on<br>$awardedHCRight</small>";
                     } else {
                         echo "<div style='float:right;' >";
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
                         echo "</div>";
-                        $rightAwardedCount++;
-                        $rightAwardedPoints += $achPoints;
+                        $rightSoftcoreAwardedCount++;
+                        $rightSoftcoreAwardedPoints += $achPoints;
 
                         echo "<small class='smalldate leftfloat'>unlocked on<br>$awardedRight</small>";
                     }
@@ -242,13 +244,30 @@ RenderHtmlHead("Game Compare");
             // Draw totals:
             echo "<tr>";
             echo "<td class='rightfloat'>";
-            echo "<b>$leftAwardedCount</b>/$numAchievements unlocked<br><b>$leftAwardedPoints</b>/$maxPoints points";
+            echo "<b>$leftHardcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftHardcoreAwardedPoints</b>/$maxPoints points";
             echo "</td>";
             echo "<td></td>";
             echo "<td class='leftfloat'>";
-            echo "<b>$rightAwardedCount</b>/$numAchievements unlocked<br><b>$rightAwardedPoints</b>/$maxPoints points";
+            echo "<b>$rightHardcoreAwardedCount</b>/$numAchievements unlocked<br><b>$rightHardcoreAwardedPoints</b>/$maxPoints points";
             echo "</td>";
             echo "</tr>";
+            if ($leftSoftcoreAwardedCount > 0 || $rightSoftcoreAwardedCount > 0) {
+                echo "<tr>";
+                if ($leftSoftcoreAwardedCount > 0) {
+                    echo "<td class='rightfloat'>";
+                    echo "<span class='softcore'<b>$leftSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
+                } else {
+                    echo "<td class='rightfloat'></td>";
+                }
+                echo "<td></td>";
+                if ($rightSoftcoreAwardedCount > 0) {
+                    echo "<td class='leftfloat'>";
+                    echo "<span class='softcore'<b>$rightSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$rightSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
+                } else {
+                    echo "<td class='leftfloat'></td>";
+                }
+                echo "</tr>";
+            }
 
             echo "</tbody></table>";
 
@@ -257,76 +276,7 @@ RenderHtmlHead("Game Compare");
         </div>
     </div>
     <div id="rightcontainer">
-
-        <?php
-        echo "<div id='gamecompare' class='right'>";
-        $offset = 0;
-        echo "<h3>Friends</h3>";
-        if (isset($friendScores)) {
-            echo "<div class='nicebox'>";
-            echo "Compare to your friend:<br>";
-            $i = 0;
-            echo "<table><tbody>";
-            foreach ($friendScores as $friendScoreName => $friendData) {
-                $link = "/gamecompare.php?ID=$gameID&f=$friendScoreName";
-                if ($i++ % 2 == 1) {
-                    echo "<tr>";
-                } else {
-                    echo "<tr>";
-                }
-
-                echo "<td>";
-                echo GetUserAndTooltipDiv($friendScoreName, true, $link);
-                echo GetUserAndTooltipDiv($friendScoreName, false, $link);
-                echo "</td>";
-
-                echo "<td>";
-                echo "<a href='$link'>";
-                echo $friendData['TotalPoints'] . "/$totalPossible";
-                echo "</a>";
-                echo "</td>";
-
-                echo "</tr>";
-                $offset += 44;
-            }
-
-            echo "</tbody></table>";
-
-            echo "<br>";
-            echo "Compare with any user:<br>";
-
-            echo "<form method='get' action='/gamecompare.php'>";
-            echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
-            echo "&nbsp;<input type='submit' value='Select' />";
-            echo "</form>";
-
-            echo "</div>";
-        } else {
-            echo "<div class='nicebox'>";
-            if ($totalFriends > 0) {
-                echo "None of your friends appear to have won any achievements for $gameTitle!<br>";
-                echo "Brag about your achievements to them <a href='friends.php'>on their wall</a>!<br>";
-            } else {
-                echo "RetroAchievements is a lot more fun with friends!<br><br>";
-                echo "Find friends to add <a href='/userList.php'>here</a>!<br>";
-            }
-            echo "<br>";
-
-            echo "or compare against any user:<br>";
-
-            echo "<form method='get' action='/gamecompare.php'>";
-            echo "<input type='hidden' name='ID' value='$gameID'>";
-            echo "<input size='28' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
-            echo "&nbsp;<input type='submit' value='Select' />";
-            echo "</form>";
-
-            echo "</div>";
-        }
-
-        echo "<br><br>";
-        echo "</div>";
-        ?>
+        <?php RenderGameCompare($user, $gameID, $friendScores, $totalPossible); ?>
     </div>
 </div>
 <?php RenderFooter(); ?>
