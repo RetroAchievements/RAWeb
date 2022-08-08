@@ -74,8 +74,11 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
     }
 }
 
-function isUserBlocking($user, $possibly_blocked_user): bool
+function isUserBlocking(string $user, ?string $possibly_blocked_user): bool
 {
+    if (!isset($possibly_blocked_user))
+        return false;
+
     return GetFriendship($user, $possibly_blocked_user) == UserRelationship::Blocked;
 }
 
