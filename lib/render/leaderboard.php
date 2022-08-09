@@ -228,7 +228,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['HardcorePoints'] . "</a>";
                     } else {
-                        echo "<td>" . $userData[0]['HArdcorePoints'];
+                        echo "<td>" . $userData[0]['HardcorePoints'];
                     }
                     echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
                 }
