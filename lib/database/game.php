@@ -420,7 +420,7 @@ function getGamesListData($consoleID, $officialFlag = false): array
     $whereClause = "";
     if ($officialFlag) {
         $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
-        $whereClause = "WHERE ach.Flags=" . AchievementType::OfficialCore;
+        $whereClause = "WHERE ach.Flags=" . AchievementType::OfficialCore . ' ';
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
