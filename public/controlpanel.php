@@ -156,7 +156,6 @@ function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): vo
 
   function onResetComplete(data) {
     if (data.substr(0, 2) !== 'OK') {
-      alert(data);
       //showStatusFailure('Error: ' + data);
       $('#loadingiconreset').attr('src', '<?= asset('Images/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
       return;
