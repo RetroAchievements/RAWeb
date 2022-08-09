@@ -486,7 +486,22 @@ RenderHtmlStart(true);
 
                 echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br>";
                 echo "Last played $gameLastPlayed<br>";
-                echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br>";
+
+                if ($numPossibleAchievements) {
+                    echo "Earned $numAchieved of $numPossibleAchievements achievements, ";
+                    if ($scoreEarnedHardcore) {
+                        echo "$scoreEarnedHardcore/$maxPossibleScore points";
+                        if ($scoreEarned > $scoreEarnedHardcore) {
+                            $scoreEarnedSoftcore = $scoreEarned - $scoreEarnedHardcore;
+                            echo ", $scoreEarnedSoftcore softcore points";
+                        }
+                    } elseif ($scoreEarned) {
+                        echo "$scoreEarned/$maxPossibleScore softcore points";
+                    } else {
+                        echo "0/$maxPossibleScore points";
+                    }
+                    echo ".<br/>";
+                }
 
                 if (isset($userMassData['RecentAchievements'][$gameID])) {
                     foreach ($userMassData['RecentAchievements'][$gameID] as $achID => $achData) {
