@@ -187,7 +187,6 @@ function GetFriendsSubquery(string $user, bool $includeUser = true)
 {
     $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
          JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . UserRelationship::Following . ") as Friends1 ON Friends1.User=ua.User
-         JOIN (SELECT User FROM Friends WHERE Friend='$user' AND Friendship=" . UserRelationship::Following . ") as Friends2 ON Friends2.User=Friends1.User
          WHERE ua.Deleted IS NULL AND ua.Permissions >= " . Permissions::Unregistered;
 
     // TODO: why is it so much faster to run this query and build the IN list
