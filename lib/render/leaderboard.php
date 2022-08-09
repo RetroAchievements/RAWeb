@@ -226,7 +226,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                     echo GetUserAndTooltipDiv($userData[0]['User']);
                     echo "</td>";
                     if ($j == 0) {
-                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
+                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['HardcorePoints'] . "</a>";
                     } else {
                         echo "<td>" . $userData[0]['Points'];
                     }
