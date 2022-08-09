@@ -216,12 +216,12 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
 
     $friendList = [];
 
-    $query = "SELECT f.Friend AS User, f.Friendship, ua.LastGameID, ua.RichPresenceMsg AS LastSeen
+    $query = "SELECT f.Friend AS User, f.Friendship, ua.LastGameID, ua.RichPresenceMsg AS LastSeen, ua.RichPresenceMsgDate as LastActivityTimestamp
               FROM Friends AS f
               JOIN UserAccounts AS ua ON ua.User = f.Friend
               WHERE f.User='$user'
               AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL
-              ORDER BY ua.LastActivityID DESC";
+              ORDER BY LastActivityTimestamp DESC";
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
@@ -275,7 +275,8 @@ function GetFollowers(string $user): array
               FROM Friends AS f
               JOIN UserAccounts AS ua ON ua.User = f.User
               WHERE f.Friend='$user' AND f.Friendship=" . UserRelationship::Following . "
-              AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL";
+              AND ua.Permissions >= " . Permissions::Unregistered . " AND ua.Deleted IS NULL
+              ORDER BY f.User";
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {

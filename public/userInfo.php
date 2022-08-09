@@ -261,6 +261,9 @@ RenderHtmlStart(true);
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
 
             echo "</div>"; // buttoncollection
+            if (GetFriendship($userPage, $user) == UserRelationship::Following) {
+                echo "&nbsp;&nbsp;<span style='font-style:italic'>$userPage is following you</span>";
+            }
             echo "</div>"; // friendbox
         }
 
