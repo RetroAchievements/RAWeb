@@ -44,6 +44,6 @@ if (!$dbResult) {
     exit;
 }
 
-addArticleComment('Server', ArticleType::Achievement, $achievementID, "$user edited this achievement's badge.");
+addArticleComment('Server', ArticleType::Achievement, $achievementID, "$user edited this achievement's badge.", $user);
 
 redirect("achievement/$achievementID?e=uploadok");
