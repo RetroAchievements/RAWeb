@@ -7,7 +7,7 @@ use RA\ClaimSorting;
 /**
  * Creates the Set Claims component.
  */
-function renderClaimsComponent(int $count, int $claimFilter = ClaimFilters::Default): void
+function renderClaimsComponent(int $count, int $claimFilter = ClaimFilters::Default, int $claimSort = ClaimSorting::ClaimDateDescending): void
 {
     echo "<div class='component'>";
     if ($claimFilter == ClaimFilters::CompletedFilter) {
@@ -16,7 +16,7 @@ function renderClaimsComponent(int $count, int $claimFilter = ClaimFilters::Defa
         echo "<h3>New Set Claims</h3>";
     }
 
-    $claimData = getFilteredClaimData(0, $claimFilter, ClaimSorting::ClaimDateDescending, false, null, false, 0, $count);
+    $claimData = getFilteredClaimData(0, $claimFilter, $claimSort, false, null, false, 0, $count);
 
     echo "<tbody><table>";
     echo "<th>User</th>";
