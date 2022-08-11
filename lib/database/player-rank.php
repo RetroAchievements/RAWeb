@@ -152,3 +152,42 @@ function getUserRank(string $user, int $type = 0): ?int
 
     return (int) $data['UserRank'];
 }
+
+function countRankedUsersSoftcore(): int
+{
+    $query = "
+        SELECT COUNT(*) AS count
+        FROM UserAccounts
+        WHERE RASoftcorePoints >= " . Rank::MIN_POINTS . "
+          AND NOT Untracked
+    ";
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
+        return 0;
+    }
+
+    return (int) mysqli_fetch_assoc($dbResult)['count'];
+}
+
+function getUserRankSoftcore(string $user): ?int
+{
+    sanitize_sql_inputs($user);
+
+    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
+                FROM UserAccounts AS ua
+                RIGHT JOIN UserAccounts AS ua2 ON ua.RASoftcorePoints < ua2.RASoftcorePoints AND NOT ua2.Untracked
+                WHERE ua.User = '$user'";
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
+        log_sql_fail();
+    } else {
+        $data = mysqli_fetch_assoc($dbResult);
+        if (!$data['Untracked']) {
+            return (int) $data['UserRank'];
+        }
+    }
+
+    return null;
+}
