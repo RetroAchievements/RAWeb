@@ -113,6 +113,21 @@ RenderHeader($userDetails);
             echo "</div>";
         }
 
+        // Create the hardcore filter
+        echo "<div>";
+        echo "<b>Mode:</b> ";
+        if ($unlockMode == UnlockMode::Hardcore) {
+            echo "<b><a href='/globalRanking.php?s=5&t=$type&d=$date&f=$friends'>*Hardcore</a></b> | ";
+        } else {
+            echo "<a href='/globalRanking.php?s=5&t=$type&d=$date&f=$friends'>Hardcore</a> | ";
+        }
+        if ($unlockMode == UnlockMode::Softcore) {
+            echo "<b><a href='/globalRanking.php?s=2&t=$type&d=$date&f=$friends'>*Softcore</a></b>";
+        } else {
+            echo "<a href='/globalRanking.php?s=2&t=$type&d=$date&f=$friends'>Softcore</a>";
+        }
+        echo "</div>";
+
         // Create the custom date folter
         echo "<form action='/globalRanking.php' method='get'>";
         echo "<label for='d'><b>Custom Date: </b></label>";
@@ -124,9 +139,13 @@ RenderHeader($userDetails);
         echo "</form>";
 
         // Clear filter
-        if ($sort != 5 || $type != 0 || $date != date("Y-m-d") || $friends != 0) {
+        if (($sort != 5 && $sort != 2) || $type != 0 || $date != date("Y-m-d") || $friends != 0) {
             echo "<div>";
-            echo "<a href='/globalRanking.php'>Clear Filter</a>";
+            if ($sort == 2) {
+                echo "<a href='/globalRanking.php?s=2'>Clear Filter</a>";
+            } else {
+                echo "<a href='/globalRanking.php'>Clear Filter</a>";
+            }
             echo "</div>";
         }
         echo "</div>";
