@@ -1,6 +1,7 @@
 <?php
 
 use RA\ClaimFilters;
+use RA\ClaimSetType;
 use RA\ClaimSorting;
 
 /**
@@ -37,7 +38,12 @@ function renderClaimsComponent(int $count, int $claimFilter = ClaimFilters::Defa
         echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
         echo "</td>";
 
-        echo "<td class='smalldate'>" . ($claimFilter == ClaimFilters::CompletedFilter ? getNiceDate(strtotime($claim['DoneTime'])) : getNiceDate(strtotime($claim['Created']))) . " </td>";
+        if ($claimFilter == ClaimFilters::CompletedFilter) {
+            echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+            echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
+        } else {
+            echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
+        }
     }
     echo "</tbody></table>";
 
