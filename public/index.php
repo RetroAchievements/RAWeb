@@ -1,5 +1,7 @@
 <?php
 
+use RA\ClaimFilters;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
@@ -189,11 +191,11 @@ RenderHeader($userDetails);
             RenderWelcomeComponent();
         }
         RenderNewsComponent();
-        RenderRecentlyUploadedComponent(5);
+        renderClaimsComponent(5, ClaimFilters::CompletedFilter);
         RenderActivePlayersComponent();
         RenderCurrentlyOnlineComponent();
         echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
-        renderNewClaimsComponent(5);
+        renderClaimsComponent(5, ClaimFilters::Default);
         RenderRecentForumPostsComponent($permissions, 4);
         ?>
     </div>
