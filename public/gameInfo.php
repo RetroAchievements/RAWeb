@@ -1012,8 +1012,10 @@ RenderHtmlStart(true);
                         if ($numEarnedCasual > 0) { // Some Hardcore earns
                             echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
                         }
-                    } else {
+                    } elseif ($numEarnedCasual > 0) {
                         echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                    } else {
+                        echo "You have not earned any achievements for this game.<br/>";
                     }
                 }
 

@@ -7,18 +7,15 @@ $gameID = requestInputPost('g', null, 'integer');
 $achID = requestInputPost('a', null, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    redirect(back() . '?e=error');
     exit;
 }
 
 if (!empty($achID) && resetSingleAchievement($user, $achID)) {
-    redirect(back() . '?reset=ok');
+    echo "OK";
     exit;
 }
 
 if (!empty($gameID) && resetAchievements($user, $gameID) > 0) {
-    redirect(back() . '?reset=ok');
+    echo "OK";
     exit;
 }
-
-redirect(back() . '?e=error');

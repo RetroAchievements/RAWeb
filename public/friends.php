@@ -26,10 +26,12 @@ foreach (GetExtendedFriendsList($user) as $entry) {
             break;
     }
 }
+// GetExtendedFriendsList() returns most recent users first. sort by name for block list
+asort($blockedUsersList);
 
 $followersList = GetFollowers($user);
 
-function RenderUserList(string $header, string $user, array $users, int $friendshipType, ?string $emptyMessage = null)
+function RenderUserList(string $header, string $user, array $users, int $friendshipType, array $followingList)
 {
     if (count($users) == 0) {
         return;
@@ -53,6 +55,9 @@ function RenderUserList(string $header, string $user, array $users, int $friends
         echo "<div>";
         switch ($friendshipType) {
             case UserRelationship::Following:
+                if (!array_search($user, array_column($followingList, 'User'))) {
+                    echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Following . "'>Follow&nbsp;user</a></span>";
+                }
                 echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
                 break;
             case UserRelationship::Blocked:
@@ -82,7 +87,7 @@ RenderHtmlHead("Following");
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
             echo "<table><tbody>";
-            echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:128px'></th></tr>";
+            echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:80px'>When</th><th style='width:128px'></th></tr>";
             foreach ($followingList as $entry) {
                 echo "<tr>";
 
@@ -108,6 +113,10 @@ RenderHtmlHead("Following");
                 echo $activity;
                 echo "</td>";
 
+                echo "<td style='text-align:left'>";
+                echo getNiceDate(strtotime($entry['LastActivityTimestamp']));
+                echo "</td>";
+
                 echo "<td style='vertical-align:middle;'>";
                 echo "<div>";
                 echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
@@ -121,8 +130,8 @@ RenderHtmlHead("Following");
             echo "</tbody></table>";
         }
 
-        RenderUserList('Followers', $user, $followersList, UserRelationship::Following);
-        RenderUserList('Blocked', $user, $blockedUsersList, UserRelationship::Blocked);
+        RenderUserList('Followers', $user, $followersList, UserRelationship::Following, $followingList);
+        RenderUserList('Blocked', $user, $blockedUsersList, UserRelationship::Blocked, $followingList);
         ?>
     </div>
 </div>

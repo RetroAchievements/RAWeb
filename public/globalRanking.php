@@ -144,12 +144,12 @@ RenderHeader($userDetails);
 
         if (($sort % 10) == 4) {
             if ($sort4 == 4) {
-                echo "<th><b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>Hardcore Acheivements &#9650;</a></b></th>";
+                echo "<th><b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>Hardcore Achievements &#9650;</a></b></th>";
             } else {
-                echo "<th><b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>Hardcore Acheivements &#9660;</a></b></th>";
+                echo "<th><b><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>Hardcore Achievements &#9660;</a></b></th>";
             }
         } else {
-            echo "<th><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>Hardcore Acheivements</a></th>";
+            echo "<th><a href='/globalRanking.php?s=$sort4&t=$type&d=$date&f=$friends'>Hardcore Achievements</a></th>";
         }
 
         // Sortable Points header

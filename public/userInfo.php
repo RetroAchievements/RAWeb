@@ -229,6 +229,7 @@ RenderHtmlStart(true);
 
         echo "<div class='usersummary'>";
         echo "<h3 class='longheader' >$userPage's User Page</h3>";
+        echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
@@ -260,6 +261,9 @@ RenderHtmlStart(true);
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
 
             echo "</div>"; // buttoncollection
+            if (GetFriendship($userPage, $user) == UserRelationship::Following) {
+                echo "&nbsp;&nbsp;<span style='font-style:italic'>$userPage is following you</span>";
+            }
             echo "</div>"; // friendbox
         }
 

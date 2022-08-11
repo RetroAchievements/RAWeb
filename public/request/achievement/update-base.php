@@ -38,7 +38,7 @@ if ($permissions == Permissions::JuniorDeveloper && ((int) $achievement['Flags']
 }
 
 if (UploadNewAchievement(
-    author: $achievement['Author'],
+    author: $user,
     gameID: $achievement['GameID'],
     title: $title,
     desc: $description,
