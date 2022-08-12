@@ -566,8 +566,10 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     } else {
         if ($unlockMode == UnlockMode::Hardcore) {
             $achPoints = "CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN ach.Points ELSE 0 END";
+            $achCount = "CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END";
         } else {
             $achPoints = "CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN ach.Points ELSE -ach.Points END";
+            $achCount = "CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE -1 END";
         }
 
         $query = "SELECT User,
@@ -580,7 +582,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                   (
                       (
                           SELECT aw.User AS User,
-                          COUNT(ach.ID) AS AchievementCount,
+                          SUM($achCount) AS AchievementCount,
                           SUM($achPoints) as Points,
                           SUM(ach.TrueRatio) AS RetroPoints,
                           NULL AS TotalAwards
