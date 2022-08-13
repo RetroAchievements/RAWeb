@@ -5,28 +5,19 @@ use RA\ClaimSetType;
 use RA\ClaimSorting;
 
 /**
- * Creates the Set Claims component.
+ * Creates the New Set Claims component.
  */
-function renderClaimsComponent(int $count, int $claimFilter = ClaimFilters::Default, int $claimSort = ClaimSorting::ClaimDateDescending): void
+function renderNewClaimsComponent(int $count): void
 {
     echo "<div class='component'>";
-    if ($claimFilter == ClaimFilters::CompletedFilter) {
-        echo "<h3>Finished Set Claims</h3>";
-    } else {
-        echo "<h3>New Set Claims</h3>";
-    }
+    echo "<h3>New Set Claims</h3>";
 
-    $claimData = getFilteredClaimData(0, $claimFilter, $claimSort, false, null, false, 0, $count);
+    $claimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, false, 0, $count);
 
     echo "<tbody><table>";
     echo "<th>User</th>";
     echo "<th>Game</th>";
-    if ($claimFilter == ClaimFilters::CompletedFilter) {
-        echo "<th nowrap>Type</th>";
-        echo "<th nowrap>Finished On</th>";
-    } else {
-        echo "<th nowrap>Claimed On</th>";
-    }
+    echo "<th nowrap>Claimed On</th>";
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr><td class='text-nowrap'>";
@@ -38,17 +29,48 @@ function renderClaimsComponent(int $count, int $claimFilter = ClaimFilters::Defa
         echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
         echo "</td>";
 
-        if ($claimFilter == ClaimFilters::CompletedFilter) {
-            echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
-            echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
-        } else {
-            echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
-        }
+        echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
     }
     echo "</tbody></table>";
 
     echo "<br>";
-    echo "<div class='morebutton'><a href='/claimlist.php" . ($claimFilter == ClaimFilters::CompletedFilter ? "?f=" . ClaimFilters::CompletedFilter : "") . "''>more...</a></div>";
+    echo "<div class='morebutton'><a href='/claimlist.php'>more...</a></div>";
+    echo "</div>";
+}
 
+/**
+ * Creates the Completed Set Claims component.
+ */
+function renderFinishedClaimsComponent(int $count): void
+{
+    echo "<div class='component'>";
+    echo "<h3>Finished Set Claims</h3>";
+
+    $claimData = getFilteredClaimData(0, ClaimFilters::AllCompletedPrimaryClaims, ClaimSorting::FinishedDateDescending, false, null, false, 0, $count);
+
+    echo "<tbody><table>";
+    echo "<th>User</th>";
+    echo "<th>Game</th>";
+    echo "<th nowrap>Type</th>";
+    echo "<th nowrap>Finished On</th>";
+    foreach ($claimData as $claim) {
+        $claimUser = $claim['User'];
+        echo "<tr><td class='text-nowrap'>";
+        echo GetUserAndTooltipDiv($claimUser, true);
+        echo GetUserAndTooltipDiv($claimUser, false);
+        echo "</td>";
+
+        echo "<td>";
+        echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
+        echo "</td>";
+
+        echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+
+        echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
+    }
+    echo "</tbody></table>";
+
+    echo "<br>";
+    echo "<div class='morebutton'><a href='/claimlist.php?f=" . ClaimFilters::AllCompletedPrimaryClaims . "'>more...</a></div>";
     echo "</div>";
 }

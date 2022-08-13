@@ -34,7 +34,7 @@ abstract class ClaimFilters
     public const AllFilters = (1 << 13) - 1;
 
     // Filter to show all Complete Primary claims
-    public const CompletedFilter = self::AllFilters & ~self::ActiveClaim
+    public const AllCompletedPrimaryClaims = self::AllFilters & ~self::ActiveClaim
                                             & ~self::DroppedClaim
                                             & ~self::CollaborationClaim;
 
