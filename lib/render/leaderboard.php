@@ -612,7 +612,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                       )
                   ) AS Query
               GROUP BY User
-              HAVING Points > 0
+              HAVING Points > 0 AND AchievementCount > 0
               $orderCond
               LIMIT $offset, $count";
     }
