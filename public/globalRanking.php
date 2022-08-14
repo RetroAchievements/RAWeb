@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+use RA\RankType;
 use RA\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -299,11 +300,11 @@ RenderHeader($userDetails);
                     } else {
                         if ($sort < 10 && ($sort % 10) != 1) {
                             if ($sort == 5) {
-                                echo "<td>" . getUserRank($user, 0) . "</td>";
+                                echo "<td>" . getUserRank($user, RankType::Hardcore) . "</td>";
                             } elseif ($sort == 6) {
-                                echo "<td>" . getUserRank($user, 1) . "</td>";
+                                echo "<td>" . getUserRank($user, RankType::TruePoints) . "</td>";
                             } elseif ($sort == 2) {
-                                echo "<td>" . getUserRankSoftcore($user) . "</td>";
+                                echo "<td>" . getUserRank($user, RankType::Softcore) . "</td>";
                             } else {
                                 echo "<td></td>";
                             }

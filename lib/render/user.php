@@ -2,6 +2,7 @@
 
 use RA\Permissions;
 use RA\Rank;
+use RA\RankType;
 
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
@@ -74,11 +75,11 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "<tr>";
     if ($userHardcorePoints > $userSoftcorePoints) {
         $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</td>";
-        $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user);
+        $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Hardcore);
         $userRankLabel = 'Site Rank';
     } elseif ($userSoftcorePoints > 0) {
         $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
-        $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRankSoftcore($user);
+        $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Softcore);
         $userRankLabel = 'Softcore Rank';
     } else {
         $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Points:</b> 0</td>";
