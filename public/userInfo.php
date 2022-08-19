@@ -504,42 +504,26 @@ RenderHtmlStart(true);
 
                 echo "<div class='userpagegames'>";
 
-                $pctAwardedCasual = "0";
-                $pctAwardedHardcore = "0";
-                $pctComplete = "0";
-
-                if ($numPossibleAchievements > 0) {
-                    $pctAwardedCasualVal = $numAchieved / $numPossibleAchievements;
-
-                    $pctAwardedHardcoreProportion = 0;
-                    if ($numAchieved > 0) {
-                        $pctAwardedHardcoreProportion = $numAchievedHardcore / $numAchieved;
-                    }
-
-                    $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasualVal * 100.0);
-                    $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
-                    $pctComplete = sprintf(
-                        "%01.0f",
-                        (($numAchieved + $numAchievedHardcore) * 100.0 / $numPossibleAchievements)
-                    );
-                }
-
-                echo "<div class='progressbar'>";
-                echo "<div class='completion'             style='width:$pctAwardedCasual%'>";
-                echo "<div class='completionhardcore'     style='width:$pctAwardedHardcore%'>";
-                echo "&nbsp;";
-                echo "</div>";
-                echo "</div>";
-                if ($pctComplete > 100.0) {
-                    echo "<b>$pctComplete%</b> complete<br>";
-                } else {
-                    echo "$pctComplete% complete<br>";
-                }
-                echo "</div>";
+                RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore);
 
                 echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br>";
                 echo "Last played $gameLastPlayed<br>";
-                echo "Earned $numAchieved of $numPossibleAchievements achievements, $scoreEarned/$maxPossibleScore points.<br>";
+
+                if ($numPossibleAchievements) {
+                    echo "Earned $numAchieved of $numPossibleAchievements achievements, ";
+                    if ($scoreEarnedHardcore) {
+                        echo "$scoreEarnedHardcore/$maxPossibleScore points";
+                        if ($scoreEarned > $scoreEarnedHardcore) {
+                            $scoreEarnedSoftcore = $scoreEarned - $scoreEarnedHardcore;
+                            echo ", $scoreEarnedSoftcore softcore points";
+                        }
+                    } elseif ($scoreEarned) {
+                        echo "$scoreEarned/$maxPossibleScore softcore points";
+                    } else {
+                        echo "0/$maxPossibleScore points";
+                    }
+                    echo ".<br/>";
+                }
 
                 if (isset($userMassData['RecentAchievements'][$gameID])) {
                     foreach ($userMassData['RecentAchievements'][$gameID] as $achID => $achData) {
