@@ -268,15 +268,17 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
     // Latest Masters Tab
     echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
     echo "<table class='smalltable'><tbody>";
-    echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Mastery Date</th></tr>";
+    echo "<tr><th>#</th><th>User</th><th>Mastered</th></tr>";
 
     for ($i = 0; $i < $numLatestMasters; $i++) {
         if (!isset($gameLatestMasters[$i])) {
             continue;
         }
 
+        $nextRank = $gameLatestMasters[$i]['Rank'];
         $nextUser = $gameLatestMasters[$i]['User'];
-        $nextLastAward = $gameLatestMasters[$i]['LastAward'];
+        $date = date_create($gameLatestMasters[$i]['LastAward']);
+        $nextLastAward = date_format($date, "Y-m-d H:i");
 
         // Outline user if they are in the list
         if ($user !== null && $user == $nextUser) {
@@ -286,18 +288,17 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         }
 
         echo "<td class='rank'>";
-        echo $i + 1;
-        echo "</td>";
-
-        echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, true);
+        echo $nextRank;
         echo "</td>";
 
         echo "<td class='user'>";
+        echo GetUserAndTooltipDiv($nextUser, true);
         echo GetUserAndTooltipDiv($nextUser, false);
         echo "</td>";
 
-        echo "<td>$nextLastAward</td>";
+        echo "<td class='lastaward'>";
+        echo $nextLastAward;
+        echo "</td>";
 
         echo "</tr>";
     }
@@ -307,7 +308,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
     // High Scores Tab
     echo "<div id='highscores' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "none" : "block") . "\">";
     echo "<table><tbody>";
-    echo "<tr><th>Pos</th><th colspan='2' style='max-width:30%'>User</th><th>Points</th></tr>";
+    echo "<tr><th>#</th><th>User</th><th>Total points</th></tr>";
 
     for ($i = 0; $i < $numTopAchievers; $i++) {
         if (!isset($gameTopAchievers[$i])) {
@@ -329,11 +330,8 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo $i + 1;
         echo "</td>";
 
-        echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, true);
-        echo "</td>";
-
         echo "<td class='user'>";
+        echo GetUserAndTooltipDiv($nextUser, true);
         echo GetUserAndTooltipDiv($nextUser, false);
         echo "</td>";
 
