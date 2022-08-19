@@ -622,13 +622,6 @@ RenderHtmlStart(true);
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            sanitize_outputs(
-                $developer,
-                $publisher,
-                $genre,
-                $released,
-            );
-
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
@@ -956,37 +949,7 @@ RenderHtmlStart(true);
                 }
 
                 if (isset($user)) {
-                    $pctAwardedCasual = 0;
-                    $pctAwardedHardcore = 0;
-                    $pctComplete = 0;
-
-                    if ($numAchievements) {
-                        $pctAwardedCasual = ($numEarnedCasual + $numEarnedHardcore) / $numAchievements;
-                        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
-                        $pctAwardedHardcoreProportion = 0;
-                        if ($numEarnedHardcore > 0) {
-                            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
-                        }
-
-                        $pctAwardedCasual = sprintf("%01.0f", $pctAwardedCasual * 100.0);
-                        $pctAwardedHardcore = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
-
-                        $pctComplete = sprintf(
-                            "%01.0f",
-                            (($numEarnedCasual + $numEarnedHardcore * 2) * 100.0 / $numAchievements)
-                        );
-                    }
-
-                    echo "<div class='progressbar'>";
-                    echo "<div class='completion' style='width:$pctAwardedCasual%'>";
-                    echo "<div class='completionhardcore' style='width:$pctAwardedHardcore%'>&nbsp;</div>";
-                    echo "</div>";
-                    if ($pctComplete > 100.0) {
-                        echo "<b>$pctComplete%</b> complete<br>";
-                    } else {
-                        echo "$pctComplete% complete<br>";
-                    }
-                    echo "</div>";
+                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
                 }
 
                 if ($numAchievements > 0) {

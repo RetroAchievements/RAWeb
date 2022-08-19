@@ -158,9 +158,10 @@ function RenderGameAlts($gameAlts, $headerText = null): void
 function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLabels = []): void
 {
     $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
+    $unmergedKeys = array_keys($gameDataValues);
 
     if ($gameHubs) {
-        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues) {
+        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues, &$unmergedKeys) {
             $hubPrefix = "[$hubCategory - ";
             foreach ($gameHubs as $hub) {
                 $title = $hub['Title'];
@@ -191,6 +192,7 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
 
                     if ($key !== false) {
                         $gameDataValues[$key] = $link;
+                        unset($unmergedKeys[$key]);
                     } else {
                         $gameDataValues[] = $link;
                     }
@@ -206,6 +208,10 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
     }
 
     if (!empty($gameDataValues)) {
+        foreach ($unmergedKeys as $key) {
+            sanitize_outputs($gameDataValues[$key]);
+        }
+
         echo "<tr>";
         echo "<td style='white-space: nowrap'>$label:</td>";
         echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
@@ -258,4 +264,44 @@ function RenderRecentGamePlayers($recentPlayerData): void
 
     echo "</tbody></table>";
     echo "</div>";
+}
+
+function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore)
+{
+    $pctComplete = 0;
+    $pctHardcore = 0;
+    $pctHardcoreProportion = 0;
+    $title = '';
+
+    if ($numAchievements) {
+        $pctAwardedCasual = ($numEarnedCasual + $numEarnedHardcore) / $numAchievements;
+        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
+        $pctAwardedHardcoreProportion = 0;
+        if ($numEarnedHardcore > 0) {
+            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
+        }
+
+        $pctComplete = sprintf("%01.0f", $pctAwardedCasual * 100.0);
+        $pctHardcore = sprintf("%01.0f", $pctAwardedHardcore * 100.0);
+        $pctHardcoreProportion = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
+
+        if ($numEarnedCasual && $numEarnedHardcore) {
+            $title = " title='$pctHardcore% hardcore'";
+        }
+    }
+
+    echo "<div class='progressbar'>";
+    echo "<div class='completion' style='width:$pctComplete%'$title>";
+    echo "<div class='completionhardcore' style='width:$pctHardcoreProportion%'>";
+    echo "&nbsp;";
+    echo "</div>"; // completionhardcore
+    echo "</div>"; // completion
+
+    if ($pctHardcore >= 100.0) {
+        echo "Mastered<br>";
+    } else {
+        echo "$pctComplete% complete<br>";
+    }
+
+    echo "</div>"; // progressbar
 }
