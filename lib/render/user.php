@@ -2,6 +2,7 @@
 
 use RA\Permissions;
 use RA\Rank;
+use RA\RankType;
 
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
@@ -44,7 +45,6 @@ function _GetUserAndTooltipDiv(
     $userSoftcorePoints = $userCardInfo['SoftcorePoints'];
     $userTruePoints = $userCardInfo['TotalTruePoints'];
     $userAccountType = Permissions::toString($userCardInfo['Permissions']);
-    $userRank = $userCardInfo['Rank'];
     $userUntracked = $userCardInfo['Untracked'];
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
     $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
@@ -73,36 +73,40 @@ function _GetUserAndTooltipDiv(
 
     // Add the user points if there are any
     $tooltip .= "<tr>";
-    if ($userHardcorePoints > 0) {
-        $tooltip .= "<td class='usercardbasictext'><b>Hardcore Points:</b> $userHardcorePoints ($userTruePoints)</td>";
-        if ($userSoftcorePoints > 0) {
-            $tooltip .= "</tr><tr><td class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
-        }
+    if ($userHardcorePoints > $userSoftcorePoints) {
+        $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</td>";
+        $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Hardcore);
+        $userRankLabel = 'Site Rank';
     } elseif ($userSoftcorePoints > 0) {
-        $tooltip .= "</tr><tr><td class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
+        $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
+        $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Softcore);
+        $userRankLabel = 'Softcore Rank';
     } else {
-        $tooltip .= "<td class='usercardbasictext'><b>Points:</b> 0</td>";
+        $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Points:</b> 0</td>";
+        $userRank = 0;
+        $userRankLabel = 'Site Rank';
     }
     $tooltip .= "</tr>";
 
     // Add the other user information
     $tooltip .= "<tr>";
     if ($userUntracked) {
-        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Untracked</td>";
-    } elseif ($userHardcorePoints < Rank::MIN_POINTS) {
-        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> Needs at least " . Rank::MIN_POINTS . " points </td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>$userRankLabel:</b> Untracked</td>";
+    } elseif ($userRank == 0) {
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>$userRankLabel:</b> Needs at least " . Rank::MIN_POINTS . " points </td>";
     } else {
-        $tooltip .= "<td class='usercardbasictext'><b>Site Rank:</b> $userRank</td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>$userRankLabel:</b> $userRank</td>";
     }
     $tooltip .= "</tr>";
+
     if ($lastLogin) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class='usercardbasictext'><b>Last Activity:</b> $lastLogin</td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Last Activity:</b> $lastLogin</td>";
         $tooltip .= "</tr>";
     }
     if ($memberSince) {
         $tooltip .= "<tr>";
-        $tooltip .= "<td class='usercardbasictext'><b>Member Since:</b> $memberSince</td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Member Since:</b> $memberSince</td>";
         $tooltip .= "</tr>";
     }
     $tooltip .= "</tbody></table>";

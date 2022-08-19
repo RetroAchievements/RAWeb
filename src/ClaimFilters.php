@@ -33,6 +33,11 @@ abstract class ClaimFilters
     // This should be updated every time a new filter is added so it has all possible filter bits set
     public const AllFilters = (1 << 13) - 1;
 
+    // Filter to show all Complete Primary claims
+    public const AllCompletedPrimaryClaims = self::AllFilters & ~self::ActiveClaim
+                                            & ~self::DroppedClaim
+                                            & ~self::CollaborationClaim;
+
     // Default filter is everything except Complete and Dropped claims
     public const Default = self::AllFilters & ~self::CompleteClaim
                                             & ~self::DroppedClaim;
