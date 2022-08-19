@@ -10,14 +10,14 @@ use RA\ClaimSorting;
 function renderNewClaimsComponent(int $count): void
 {
     echo "<div class='component'>";
-    echo "<h3>New Set Claims</h3>";
+    echo "<h3>Sets in Progress</h3>";
 
     $claimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, false, 0, $count);
 
     echo "<tbody><table>";
     echo "<th>User</th>";
     echo "<th>Game</th>";
-    echo "<th nowrap>Claimed On</th>";
+    echo "<th nowrap>Started</th>";
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr><td class='text-nowrap'>";
@@ -44,7 +44,7 @@ function renderNewClaimsComponent(int $count): void
 function renderFinishedClaimsComponent(int $count): void
 {
     echo "<div class='component'>";
-    echo "<h3>Finished Set Claims</h3>";
+    echo "<h3>New Sets/Revisions</h3>";
 
     $claimData = getFilteredClaimData(0, ClaimFilters::AllCompletedPrimaryClaims, ClaimSorting::FinishedDateDescending, false, null, false, 0, $count);
 
