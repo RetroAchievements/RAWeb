@@ -158,9 +158,10 @@ function RenderGameAlts($gameAlts, $headerText = null): void
 function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLabels = []): void
 {
     $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
+    $unmergedKeys = array_keys($gameDataValues);
 
     if ($gameHubs) {
-        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues) {
+        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues, &$unmergedKeys) {
             $hubPrefix = "[$hubCategory - ";
             foreach ($gameHubs as $hub) {
                 $title = $hub['Title'];
@@ -191,6 +192,7 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
 
                     if ($key !== false) {
                         $gameDataValues[$key] = $link;
+                        unset($unmergedKeys[$key]);
                     } else {
                         $gameDataValues[] = $link;
                     }
@@ -206,6 +208,10 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
     }
 
     if (!empty($gameDataValues)) {
+        foreach ($unmergedKeys as $key) {
+            sanitize_outputs($gameDataValues[$key]);
+        }
+
         echo "<tr>";
         echo "<td style='white-space: nowrap'>$label:</td>";
         echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
