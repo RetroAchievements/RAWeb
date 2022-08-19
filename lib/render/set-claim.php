@@ -52,7 +52,7 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<th>User</th>";
     echo "<th>Game</th>";
     echo "<th nowrap>Type</th>";
-    echo "<th nowrap>Finished On</th>";
+    echo "<th nowrap>Finished</th>";
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr><td class='text-nowrap'>";
