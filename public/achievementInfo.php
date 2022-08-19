@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementPoints;
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -21,8 +22,8 @@ if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
 $achievementTitle = $dataOut['AchievementTitle'];
 $desc = $dataOut['Description'];
 $achFlags = (int) $dataOut['Flags'];
-$achPoints = $dataOut['Points'];
-$achTruePoints = $dataOut['TrueRatio'];
+$achPoints = (int) $dataOut['Points'];
+$achTruePoints = (int) $dataOut['TrueRatio'];
 $gameTitle = $dataOut['GameTitle'];
 $badgeName = $dataOut['BadgeName'];
 $consoleID = $dataOut['ConsoleID'];
@@ -33,6 +34,7 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
+$isSoleAuthor = false;
 
 sanitize_outputs(
     $achievementTitle,
@@ -49,6 +51,11 @@ $numPossibleWinners = 0;
 $numRecentWinners = 0;
 
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
+
+// Determine if the logged in user is the sole author of the set
+if ($permissions >= Permissions::JuniorDeveloper && isset($user)) {
+    $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+}
 
 $dateWonLocal = "";
 foreach ($winnerInfo as $userObject) {
@@ -85,13 +92,56 @@ RenderHtmlStart(true);
 
 <body>
 <?php RenderHeader($userDetails); ?>
-<?php if ($permissions >= Permissions::Developer): ?>
+<?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
     <script>
+    function updateAchievementDetails() {
+        showStatusMessage('Updating...');
+
+        var $title = $('#titleinput');
+        var $description = $('#descriptioninput');
+        if (new Blob([$title.val()]).size > $title.attr('maxlength')) {
+            showStatusFailure('Error: Title too long');
+            return;
+        }
+        if (new Blob([$description.val()]).size > $description.attr('maxlength')) {
+            showStatusFailure('Error: Description too long');
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            url: '/request/achievement/update-base.php',
+            dataType: "json",
+            data: {
+                'a': <?= $achievementID ?>,
+                't': $title.val(),
+                'd': $description.val(),
+                'p': $('#pointsinput').val(),
+            },
+            error: function (xhr, status, error) {
+                showStatusFailure('Error: ' + (error || 'unknown error'));
+            }
+        })
+            .done(function (data) {
+                if (!data.success) {
+                    showStatusFailure('Error: ' + (data.error || 'unknown error'));
+                    return;
+                }
+                window.location = window.location.href.split("?")[0] + "?e=modify_achievement_ok";
+            });
+    }
+
+    <?php if ($permissions >= Permissions::Developer): ?>
       function PostEmbedUpdate() {
         var url = $('#embedurlinput').val();
         url = replaceAll('http', '_http_', url);
 
         showStatusMessage('Updating...');
+
+        if ( url == '') {
+            showStatusFailure('Error: Blank url');
+            return;
+        }
+
         $.ajax({
           type: "POST",
           url: '/request/achievement/update.php',
@@ -111,7 +161,7 @@ RenderHtmlStart(true);
               showStatusFailure('Error: ' + (data.error || 'unknown error'));
               return;
             }
-            document.location.reload();
+            window.location = window.location.href.split("?")[0] + "?e=changeok";
           });
       }
 
@@ -140,11 +190,13 @@ RenderHtmlStart(true);
               showStatusFailure('Error: ' + (data.error || 'unknown error'));
               return;
             }
-            document.location.reload();
+            window.location = window.location.href.split("?")[0] + "?e=changeok";
           });
       }
+      <?php endif ?>
     </script>
 <?php endif ?>
+
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
@@ -237,16 +289,36 @@ RenderHtmlStart(true);
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
             echo "<div id='devboxcontent' style='display: none'>";
+            RenderStatusWidget();
+
+            if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
+                echo "<div>Update achievement details:</div>";
+                echo "<table><tbody>";
+                echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='64'></td></tr>";
+                echo "<tr><td>Description:</td><td><input id='descriptioninput' type='text' name='d' value='" . attributeEscape($desc) . "' style='width:100%' maxlength='255'></td></tr>";
+                echo "<tr><td>Points:</td><td>";
+                echo "<select id='pointsinput' name='p'>";
+                foreach (AchievementPoints::VALID as $pointsOption) {
+                    echo "<option value='$pointsOption' " . ($achPoints === $pointsOption ? 'selected' : '') . ">$pointsOption</option>";
+                }
+                echo "</select>";
+                echo "</td></tr>";
+                echo "</tbody></table>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
+
+                echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
+                echo "<label>Badge<br>";
+                echo "<input type='hidden' name='i' value='$achievementID'>";
+                echo "<input type='file' accept='.png,.jpg,.gif' name='file'>";
+                echo "</label>";
+                echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                echo "</form><br>";
+            }
 
             if ($permissions >= Permissions::Developer) {
-                RenderStatusWidget();
-                echo "<li>Set embedded video URL:</li>";
-                echo "<table><tbody>";
-                echo "<input type='hidden' name='a' value='$achievementID' />";
-                echo "<input type='hidden' name='f' value='2' />";
-                echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
-                echo "</tbody></table>";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
+                echo "<div class='devbox'>";
+                echo "<li><span onclick=\"$('#embedcontent').toggle(); return false;\">Set embedded video URL: (Click to show accepted formats):</span><br></li>";
+                echo "<div id='embedcontent' style='display: none'>";
                 echo "<div style='clear:both;'></div>"; ?>
                 Examples for accepted formats:<br>
                 <p style="margin-bottom: 20px; float: left; clear: both;">
@@ -274,6 +346,14 @@ RenderHtmlStart(true);
                 </p>
                 <?php
                 echo "<div style='clear:both;'></div>";
+                echo "</div>"; // embed devbox
+                echo "</div>"; // embed devbox
+                echo "<table><tbody>";
+                echo "<input type='hidden' name='a' value='$achievementID' />";
+                echo "<input type='hidden' name='f' value='2' />";
+                echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
+                echo "</tbody></table>";
+                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
 
                 if ($achFlags === AchievementType::OfficialCore) {
                     echo "<li>State: Official&nbsp;<button type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";

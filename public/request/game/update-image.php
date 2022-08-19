@@ -22,14 +22,14 @@ if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user,
 }
 
 if (!ImageType::isValidGameImageType($imageType)) {
-    redirect("game/$gameID?e=error");
+    redirect("game/$gameID?e=uploadfailed");
     exit;
 }
 
 try {
     $imagePath = UploadGameImage($_FILES['file'], $imageType);
 } catch (Exception $exception) {
-    redirect("game/$gameID?e=error");
+    redirect("game/$gameID?e=uploadfailed");
     exit;
 }
 
@@ -41,14 +41,14 @@ $field = match ($imageType) {
     default => null,
 };
 if (!$field) {
-    redirect("game/$gameID?e=error");
+    redirect("game/$gameID?e=uploadfailed");
     exit;
 }
 
 global $db;
 $dbResult = mysqli_query($db, "UPDATE GameData AS gd SET $field='$imagePath' WHERE gd.ID = $gameID");
 if (!$dbResult) {
-    redirect("game/$gameID?e=error");
+    redirect("game/$gameID?e=uploadfailed");
     exit;
 }
 

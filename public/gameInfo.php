@@ -599,12 +599,6 @@ RenderHtmlStart(true);
         <?php RenderConsoleMessage((int) $consoleID) ?>
         <div id="achievement">
             <?php
-            sanitize_outputs(
-                $developer,
-                $publisher,
-                $genre,
-                $released,
-            );
 
             if ($isFullyFeaturedGame) {
                 echo "<div class='navpath'>";
@@ -878,10 +872,10 @@ RenderHtmlStart(true);
                     echo "<div>Update game details:</div>";
                     echo "<table><tbody>";
                     echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value=\"" . htmlspecialchars($developer) . "\" style='width:100%;'></td></tr>";
-                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value=\"" . htmlspecialchars($publisher) . "\" style='width:100%;'></td></tr>";
-                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value=\"" . htmlspecialchars($genre) . "\" style='width:100%;'></td></tr>";
-                    echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value=\"" . htmlspecialchars($released) . "\" style='width:100%;'></td></tr>";
+                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='" . attributeEscape($developer) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value='" . attributeEscape($publisher) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='" . attributeEscape($genre) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value=\"" . attributeEscape($released) . "\" style='width:100%;'></td></tr>";
                     echo "</tbody></table>";
                     echo "<div class='text-right'><input type='submit' value='Submit'></div>";
                     echo "</form>";
@@ -1011,8 +1005,10 @@ RenderHtmlStart(true);
                         if ($numEarnedCasual > 0) { // Some Hardcore earns
                             echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
                         }
-                    } else {
+                    } elseif ($numEarnedCasual > 0) {
                         echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                    } else {
+                        echo "You have not earned any achievements for this game.<br/>";
                     }
                 }
 

@@ -1,6 +1,8 @@
 <?php
 
 use RA\AchievementType;
+use RA\Rank;
+use RA\RankType;
 use RA\UnlockMode;
 
 function SetUserUntrackedStatus($usernameIn, $isUntracked): void
@@ -61,14 +63,24 @@ function recalculatePlayerPoints($user): bool
     return true;
 }
 
-function countRankedUsers(): int
+function countRankedUsers(int $type = RankType::Hardcore): int
 {
-    $query = "
-        SELECT COUNT(*) AS count
-        FROM UserAccounts
-        WHERE RAPoints >= " . MIN_POINTS . "
-          AND NOT Untracked
-    ";
+    $query = "SELECT COUNT(*) AS count FROM UserAccounts ";
+    switch ($type) {
+        case RankType::Hardcore:
+            $query .= "WHERE RAPoints >= " . Rank::MIN_POINTS;
+            break;
+
+        case RankType::Softcore:
+            $query .= "WHERE RASoftcorePoints >= " . Rank::MIN_POINTS;
+            break;
+
+        case RankType::TruePoints:
+            $query .= "WHERE TrueRAPoints >= " . Rank::MIN_TRUE_POINTS;
+            break;
+    }
+
+    $query .= " AND NOT Untracked";
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
@@ -121,16 +133,15 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
 /**
  * Gets the points or retro points rank of the user.
  */
-function getUserRank(string $user, int $type = 0): ?int
+function getUserRank(string $user, int $type = RankType::Hardcore): ?int
 {
     sanitize_sql_inputs($user);
 
-    // 0 for points rank, anything else for retro points rank
-    if ($type == 0) {
-        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked";
-    } else {
-        $joinCond = "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked";
-    }
+    $joinCond = match ($type) {
+        default => "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked",
+        RankType::Softcore => "RIGHT JOIN UserAccounts AS ua2 ON ua.RASoftcorePoints < ua2.RASoftcorePoints AND NOT ua2.Untracked",
+        RankType::TruePoints => "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked",
+    };
 
     $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
                 FROM UserAccounts AS ua

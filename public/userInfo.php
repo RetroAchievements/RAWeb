@@ -6,6 +6,8 @@ use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimType;
 use RA\Permissions;
+use RA\Rank;
+use RA\RankType;
 use RA\UserAction;
 use RA\UserRelationship;
 
@@ -38,8 +40,6 @@ if (!$userMassData) {
 
 $userMotto = $userMassData['Motto'];
 $userPageID = $userMassData['ID'];
-$userTruePoints = $userMassData['TotalTruePoints'];
-$userRank = $userMassData['Rank'];
 $setRequestList = getUserRequestList($userPage);
 $userSetRequestInformation = getUserRequestsInformation($userPage, $setRequestList);
 $userWallActive = $userMassData['UserWallActive'];
@@ -168,7 +168,8 @@ RenderHtmlStart(true);
 
     // Declare columns
     dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
-    dataRecentProgress.addColumn('number', 'Score');
+    dataRecentProgress.addColumn('number', 'Hardcore Score');
+    dataRecentProgress.addColumn('number', 'Softcore Score');
 
     dataRecentProgress.addRows([
         <?php
@@ -186,9 +187,10 @@ RenderHtmlStart(true);
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulHardcoreScore'];
+            $hardcoreValue = $dayInfo['CumulHardcoreScore'];
+            $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
-            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
+            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
         }
         ?>
     ]);
@@ -203,7 +205,7 @@ RenderHtmlStart(true);
       chartArea: { left: 42, width: 458, 'height': '100%' },
       showRowNumber: false,
       view: { columns: [0, 1] },
-      colors: ['#cc9900'],
+      colors: ['#186DEE','#8c8c8c'],
     };
 
     function resize() {
@@ -228,6 +230,7 @@ RenderHtmlStart(true);
 
         echo "<div class='usersummary'>";
         echo "<h3 class='longheader' >$userPage's User Page</h3>";
+        echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";
@@ -259,6 +262,9 @@ RenderHtmlStart(true);
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
 
             echo "</div>"; // buttoncollection
+            if (GetFriendship($userPage, $user) == UserRelationship::Following) {
+                echo "&nbsp;&nbsp;<span style='font-style:italic'>$userPage is following you</span>";
+            }
             echo "</div>"; // friendbox
         }
 
@@ -277,33 +283,51 @@ RenderHtmlStart(true);
         echo "<br>";
 
         $totalHardcorePoints = $userMassData['TotalPoints'];
-        $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
-        $totalTruePoints = $userMassData['TotalTruePoints'];
-        $retRatio = 0.0;
         if ($totalHardcorePoints > 0) {
-            $retRatio = sprintf("%01.2f", $userTruePoints / $totalHardcorePoints);
+            $totalTruePoints = $userMassData['TotalTruePoints'];
+
+            $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
+            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
+
+            echo "Site Rank: ";
+            if ($userIsUntracked) {
+                echo "<b>Untracked</b>";
+            } elseif ($totalHardcorePoints < Rank::MIN_POINTS) {
+                echo "<i>Needs at least " . Rank::MIN_POINTS . " points.</i>";
+            } else {
+                $countRankedUsers = countRankedUsers();
+                $userRank = $userMassData['Rank'];
+                $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
+                $rankOffset = (int) (($userRank - 1) / 25) * 25;
+                echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
+            }
+            echo "<br>";
+
+            echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
+            echo "<br>";
         }
-        if ($totalHardcorePoints > 0 || $totalSoftcorePoints == 0) {
-            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($userTruePoints)</span></span><br>";
-        }
+
+        $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
         if ($totalSoftcorePoints > 0) {
             echo "Softcore Points: $totalSoftcorePoints points<br>";
-        }
-        echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
-        echo "Average Completion: <b>$avgPctWon%</b><br>";
 
-        echo "Site Rank: ";
-        if ($userIsUntracked) {
-            echo "<b>Untracked</b>";
-        } elseif ($totalHardcorePoints < MIN_POINTS) {
-            echo "<i>Needs at least " . MIN_POINTS . " points.</i>";
-        } else {
-            $countRankedUsers = countRankedUsers();
-            $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
-            $rankOffset = (int) (($userRank - 1) / 25) * 25;
-            echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
+            echo "Softcore Rank: ";
+            if ($userIsUntracked) {
+                echo "<b>Untracked</b>";
+            } elseif ($totalSoftcorePoints < Rank::MIN_POINTS) {
+                echo "<i>Needs at least " . Rank::MIN_POINTS . " points.</i>";
+            } else {
+                $countRankedUsers = countRankedUsers(RankType::Softcore);
+                $userRankSoftcore = getUserRank($userPage, RankType::Softcore);
+                $rankPct = sprintf("%1.2f", (($userRankSoftcore / $countRankedUsers) * 100.0));
+                $rankOffset = (int) (($userRankSoftcore - 1) / 25) * 25;
+                echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>$userRankSoftcore</a> / $countRankedUsers ranked users (Top $rankPct%)";
+            }
+            echo "<br>";
+            echo "<br>";
         }
-        echo "<br>";
+
+        echo "Average Completion: <b>$avgPctWon%</b><br><br>";
 
         echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
         echo "<br>";
