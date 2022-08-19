@@ -1260,10 +1260,6 @@ pre, code, .code {
   font-size: 0.65em;
 }
 
-.awardcount > .numitems {
-  font-style: italic;
-}
-
 .badgeimg {
   border: 2px solid transparent;
   padding: 0;
@@ -1608,13 +1604,7 @@ svg > g > g:last-child { pointer-events: none }
   border: 1px solid rgb(44, 151, 250);
 }
 
-.tabcontentscores th {
-  text-align: center;
-  font-weight: bold;
-}
-
 .tabcontentscores td {
-  text-align: center;  
   padding: 2px 5px;
 }
 
@@ -1624,7 +1614,6 @@ svg > g > g:last-child { pointer-events: none }
 
 .tabcontentscores td.user {
   width: 55%;
-  text-align: left;
 }
 
 .tabcontentscores td.lastaward, .tabcontentscores td.points {
@@ -1646,7 +1635,6 @@ svg > g > g:last-child { pointer-events: none }
 
 .tabcontentscores .lastaward {
   font-size: 0.85em;
-  font-style: italic;
 }
 
 /* More info buttons */

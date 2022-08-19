@@ -267,7 +267,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
     // Latest Masters Tab
     echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
     echo "<table class='smalltable'><tbody>";
-    echo "<tr><th>#</th><th>User</th><th>Mastered on</th></tr>";
+    echo "<tr><th>#</th><th>User</th><th>Mastered</th></tr>";
 
     for ($i = 0; $i < $numLatestMasters; $i++) {
         if (!isset($gameLatestMasters[$i])) {
