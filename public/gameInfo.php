@@ -622,13 +622,6 @@ RenderHtmlStart(true);
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            sanitize_outputs(
-                $developer,
-                $publisher,
-                $genre,
-                $released,
-            );
-
             echo "<h3 class='longheader'>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";

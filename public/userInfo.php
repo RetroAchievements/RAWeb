@@ -169,7 +169,8 @@ RenderHtmlStart(true);
 
     // Declare columns
     dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
-    dataRecentProgress.addColumn('number', 'Score');
+    dataRecentProgress.addColumn('number', 'Hardcore Score');
+    dataRecentProgress.addColumn('number', 'Softcore Score');
 
     dataRecentProgress.addRows([
         <?php
@@ -187,9 +188,10 @@ RenderHtmlStart(true);
             $nextDate = $dayInfo['Date'];
 
             $dateStr = getNiceDate(strtotime($nextDate), true);
-            $value = $dayInfo['CumulHardcoreScore'];
+            $hardcoreValue = $dayInfo['CumulHardcoreScore'];
+            $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
-            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $value ]";
+            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
         }
         ?>
     ]);
@@ -204,7 +206,7 @@ RenderHtmlStart(true);
       chartArea: { left: 42, width: 458, 'height': '100%' },
       showRowNumber: false,
       view: { columns: [0, 1] },
-      colors: ['#cc9900'],
+      colors: ['#186DEE','#8c8c8c'],
     };
 
     function resize() {
@@ -261,6 +263,9 @@ RenderHtmlStart(true);
             echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
 
             echo "</div>"; // buttoncollection
+            if (GetFriendship($userPage, $user) == UserRelationship::Following) {
+                echo "&nbsp;&nbsp;<span style='font-style:italic'>$userPage is following you</span>";
+            }
             echo "</div>"; // friendbox
         }
 
