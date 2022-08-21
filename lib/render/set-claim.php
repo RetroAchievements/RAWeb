@@ -71,6 +71,6 @@ function renderFinishedClaimsComponent(int $count): void
     echo "</tbody></table>";
 
     echo "<br>";
-    echo "<div class='morebutton'><a href='/claimlist.php?f=" . ClaimFilters::AllCompletedPrimaryClaims . "'>more...</a></div>";
+    echo "<div class='morebutton'><a href='/claimlist.php?s=" . ClaimSorting::FinishedDateDescending . "&f=" . ClaimFilters::AllCompletedPrimaryClaims . "'>more...</a></div>";
     echo "</div>";
 }
