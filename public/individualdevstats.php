@@ -66,7 +66,7 @@ foreach ($gamesList as $game) {
         if (empty($anyDevGameIDs)) {
             $anyDevHardestGame = $game;
             $anyDevEasiestGame = $game;
-        } else {
+        } elseif ($game['MaxPointsAvailable']) {
             if (($anyDevHardestGame['TotalTruePoints'] / $anyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
                 $anyDevHardestGame = $game;
             }
@@ -86,7 +86,7 @@ foreach ($gamesList as $game) {
             if (empty($majorityDevGameIDs)) {
                 $majorityDevHardestGame = $game;
                 $majorityDevEasiestGame = $game;
-            } else {
+            } elseif ($game['MaxPointsAvailable']) {
                 if (($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
                     $majorityDevHardestGame = $game;
                 }
@@ -108,7 +108,7 @@ foreach ($gamesList as $game) {
             if (empty($onlyDevGameIDs)) {
                 $onlyDevHardestGame = $game;
                 $onlyDevEasiestGame = $game;
-            } else {
+            } elseif ($game['MaxPointsAvailable']) {
                 if (($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
                     $onlyDevHardestGame = $game;
                 }
@@ -359,7 +359,7 @@ foreach ($userArchInfo as $achievement) {
         if ($hardestAchievement['Points'] == 0 || $hardestAchievement['Points'] && $achievement['Points'] && ($hardestAchievement['TrueRatio'] / $hardestAchievement['Points']) < ($achievement['TrueRatio'] / $achievement['Points'])) {
             $hardestAchievement = $achievement;
         }
-        if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && (($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
+        if ($easiestAchievement['TrueRatio'] == 0 || ($achievement['TrueRatio'] > 0 && ($easiestAchievement['Points'] && $achievement['Points'] && ($easiestAchievement['TrueRatio'] / $easiestAchievement['Points']) > ($achievement['TrueRatio'] / $achievement['Points'])))) {
             $easiestAchievement = $achievement;
         }
         if ($shortestMemAchievement['MemLength'] > $achievement['MemLength']) {
