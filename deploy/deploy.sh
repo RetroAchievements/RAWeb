@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # usage:
-GIT_REMOTE="https://github.com/luchaos/RAWeb"
-GIT_BRANCH=$1
+GIT_REMOTE="https://github.com/RetroAchievements/RAWeb"
+GIT_BRANCH="v2"
 
 # php binary to use - should match the composer platform config and crontab php version
 PHP_BIN='php'
