@@ -1,6 +1,7 @@
 <?php
 
 use App\Legacy\Models\User;
+use Illuminate\Support\Facades\Auth;
 use RA\ActivityType;
 use RA\Permissions;
 
@@ -128,7 +129,7 @@ function authenticateFromPassword(&$user, $pass): bool
         return false;
     }
 
-    auth()->loginUsingId($row['ID']);
+    Auth::loginUsingId($row['ID']);
 
     $user = $row['User'];
 

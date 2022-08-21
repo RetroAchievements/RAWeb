@@ -13,6 +13,8 @@ parameters:
     level: 5
     checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
+    # TODO figure out why github actions phpstan does not find the same
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         #- '#Unsafe usage of new static#'
         # accessors to polymorphic relationships
@@ -22,8 +24,6 @@ parameters:
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'
     excludePaths:
-        - src/RetroAchievementsWebApiClient.php
-        - public/index_laravel.php
         # unrelated directories
         - public/tmp
         # disabled features
