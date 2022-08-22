@@ -5,7 +5,7 @@ use RA\ClaimStatus;
 /**
  * Gets a list of set requests made by a given user.
  */
-function getUserRequestList(string $user): array
+function getUserRequestList(?string $user): array
 {
     sanitize_sql_inputs($user);
 
@@ -112,7 +112,7 @@ function toggleSetRequest(string $user, int $gameID, int $remaining): bool
 
     $query = "
         SELECT
-            COUNT(*) FROM SetRequest 
+            COUNT(*) FROM SetRequest
         WHERE
             User = '$user'
         AND
@@ -252,7 +252,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
-        WHERE 
+        WHERE
             sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
     if (is_array($console)) {
