@@ -6,7 +6,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     abort(401);
 }
 
-$requestedForumID = (int) request()->query('f');
+$requestedForumID = (int) request()->query('forum');
 
 if (empty($requestedForumID)) {
     abort(404);
