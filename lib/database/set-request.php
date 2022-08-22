@@ -5,7 +5,7 @@ use RA\ClaimStatus;
 /**
  * Gets a list of set requests made by a given user.
  */
-function getUserRequestList(?string $user = null): array
+function getUserRequestList(string $user = null): array
 {
     sanitize_sql_inputs($user);
 
@@ -49,7 +49,7 @@ function getUserRequestList(?string $user = null): array
 /**
  * Gets the total and remaining set requests left for the given user.
  */
-function getUserRequestsInformation(?string $user, array $list, int $gameID = -1): array
+function getUserRequestsInformation(string $user, array $list, int $gameID = -1): array
 {
     $requests = [];
     $requests['total'] = 0;

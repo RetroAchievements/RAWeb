@@ -494,8 +494,8 @@ sanitize_outputs(
 
     function getSetRequestInformation(user, gameID) {
         $.post('/request/set-request/list.php', {
-            i: gameID,
-            u: user,
+            game: gameID,
+            user: user,
         })
             .done(function (results) {
                 var remaining = parseInt(results.remaining);
