@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 function GetGameAndTooltipDiv(
@@ -230,7 +231,7 @@ function RenderRecentGamePlayers($recentPlayerData): void
 {
     echo "<div class='component'>Recent Players:";
     echo "<table><tbody>";
-    echo "<tr><th></th><th>User</th><th>When</th><th class='w-full'>Activity</th>";
+    echo "<tr><th>User</th><th>When</th><th class='w-full'>Activity</th>";
     foreach ($recentPlayerData as $recentPlayer) {
         echo "<tr>";
         $userName = $recentPlayer['User'];
@@ -241,10 +242,7 @@ function RenderRecentGamePlayers($recentPlayerData): void
             $activity
         );
         echo "<td>";
-        echo GetUserAndTooltipDiv($userName, true);
-        echo "</td>";
-        echo "<td>";
-        echo GetUserAndTooltipDiv($userName);
+        RenderUserLink($userName, LinkStyle::MediumImageWithText);
         echo "</td>";
         echo "<td class='whitespace-nowrap'>$date</td>";
         echo "<td>$activity</td>";

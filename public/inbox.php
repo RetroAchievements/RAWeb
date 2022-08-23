@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
+use RA\LinkStyle;
 
 $maxCount = 10;
 
@@ -91,15 +92,16 @@ function MarkAsUnread(msgID) {
             echo "<tr>";
             echo "<th>Date</th>";
             if ($outbox) {
-                echo "<th colspan='2' style='min-width:150px'>To</th>";
+                echo "<th style='min-width:150px'>To</th>";
             } else {
-                echo "<th colspan='2' style='min-width:150px'>From</th>";
+                echo "<th style='min-width:150px'>From</th>";
             }
             echo "<th style='width:100%'>Title</th>";
             echo "</tr>";
 
             $totalMsgs = count($allMessages);
 
+            $userCache = [];
             for ($i = 0; $i < $totalMsgs; $i++) {
                 $msgID = $allMessages[$i]['ID'];
                 $msgTime = $allMessages[$i]['TimeSent'];
@@ -134,10 +136,7 @@ function MarkAsUnread(msgID) {
                 echo "</td>";
 
                 echo "<td style='width:34px'>";
-                echo GetUserAndTooltipDiv($msgUser, true);
-                echo "</td>";
-                echo "<td>";
-                echo GetUserAndTooltipDiv($msgUser, false);
+                RenderUserLink($msgUser, LinkStyle::MediumImageWithText, $userCache);
                 echo "</td>";
 
                 // echo "<td>" . $msgTo . "</td>";

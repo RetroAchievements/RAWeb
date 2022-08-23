@@ -6,6 +6,7 @@ use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimStatus;
 use RA\ClaimType;
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
@@ -150,7 +151,7 @@ RenderContentStart("Manage Claims");
         echo "</div></br>";
 
         echo "<div class='table-wrapper'><table><tbody>";
-        echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
+        echo "<th>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::SetTypeDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimStatusDescending) . "</th>";
@@ -163,11 +164,8 @@ RenderContentStart("Manage Claims");
         foreach ($claimData as $claim) {
             $claimID = $claim['ID'];
             $claimUser = $claim['User'];
-            echo "<tr><td class='whitespace-nowrap'>";
-            echo GetUserAndTooltipDiv($claimUser, true);
-            echo "</td>";
-            echo "<td class='whitespace-nowrap'><div id='claimUser_$claimUser'>";
-            echo GetUserAndTooltipDiv($claimUser, false);
+            echo "<tr><td class='whitespace-nowrap'><div id='claimUser_$claimUser'>";
+            RenderUserLink($claimUser, LinkStyle::MediumImageWithText);
             echo "</div></td>";
 
             echo "<td>";

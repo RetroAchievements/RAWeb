@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 use RA\UserRelationship;
 
@@ -24,7 +25,7 @@ asort($blockedUsersList);
 
 $followersList = GetFollowers($user);
 
-function RenderUserList(string $header, array $users, int $friendshipType, array $followingList)
+function RenderUserList(string $header, array $users, int $friendshipType, array $followingList, array &$userCache)
 {
     if (count($users) == 0) {
         return;
@@ -35,12 +36,8 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
     foreach ($users as $user) {
         echo "<tr>";
 
-        echo "<td>";
-        echo GetUserAndTooltipDiv($user, true);
-        echo "</td>";
-
         echo "<td class='w-full'>";
-        echo GetUserAndTooltipDiv($user);
+        RenderUserLink($user, LinkStyle::MediumImageWithText, $userCache);
         echo "</td>";
 
         echo "<td style='vertical-align:middle;'>";
@@ -89,17 +86,14 @@ RenderContentStart("Following");
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
             echo "<table><tbody>";
+            $userCache = [];
             foreach ($followingList as $entry) {
                 echo "<tr>";
 
                 $followingUser = $entry['User'];
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($followingUser, true, null, 42);
-                echo "</td>";
-
-                echo "<td>";
-                echo GetUserAndTooltipDiv($followingUser);
+                RenderUserLink($followingUser, LinkStyle::LargeImageWithText, $userCache);
                 echo "</td>";
 
                 echo "<td class='w-full'>";
@@ -149,8 +143,8 @@ RenderContentStart("Following");
             echo "</tbody></table>";
         }
 
-        RenderUserList('Followers', $followersList, UserRelationship::Following, $followingList);
-        RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList);
+        RenderUserList('Followers', $followersList, UserRelationship::Following, $followingList, $userCache);
+        RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList, $userCache);
         ?>
     </div>
 </div>

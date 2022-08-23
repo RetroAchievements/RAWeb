@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Ticket;
 
 RenderContentStart();
@@ -33,7 +34,9 @@ function tooltip_row(string $text): void
         'LastActivity' => '1/2/2022',
         'MemberSince' => '7/8/2018',
     ];
-    echo _GetUserAndTooltipDiv($text, $userCardInfo);
+
+    $tooltip = _BuildUserTooltipDiv($text, $userCardInfo);
+    echo _BuildLink($text, '', "/user/$text", LinkStyle::Text, $tooltip);
 
     $ticketData = [
         'ID' => 1,

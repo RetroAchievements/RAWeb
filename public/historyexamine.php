@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -108,6 +109,7 @@ RenderContentStart("$userPage's Legacy - $dateStr");
 
         usort($achEarnedLib, fn ($a, $b) => $a['Date'] <=> $b['Date']);
 
+        $userCache = [];
         foreach ($achEarnedLib as $achEarned) {
             $achAwardedAt = $achEarned['Date'];
             $achID = $achEarned['AchievementID'];
@@ -149,7 +151,7 @@ RenderContentStart("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($achAuthor, true);
+            RenderUserLink($achAuthor, LinkStyle::MediumImage, $userCache);
             echo "</td>";
 
             echo "<td>";

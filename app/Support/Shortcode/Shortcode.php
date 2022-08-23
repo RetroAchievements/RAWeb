@@ -2,6 +2,7 @@
 
 namespace App\Support\Shortcode;
 
+use RA\LinkStyle;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
 use Thunder\Shortcode\EventContainer\EventContainer;
 use Thunder\Shortcode\Events;
@@ -186,7 +187,7 @@ final class Shortcode
             return '';
         }
 
-        return GetUserAndTooltipDiv($username, false);
+        return GetUserLink($username, LinkStyle::Text);
     }
 
     private function autolinkRetroachievementsUrls(string $text): string

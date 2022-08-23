@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
 {
     echo "<h3>Code Notes</h3>";
@@ -15,6 +17,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
 
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 
+    $userCache = [];
     foreach ($codeNotes as $nextCodeNote) {
         if (empty(trim($nextCodeNote['Note'])) || $nextCodeNote['Note'] == "''") {
             continue;
@@ -41,7 +44,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextCodeNote['User'], true);
+        RenderUserLink($nextCodeNote['User'], LinkStyle::MediumImage, $userCache);
         echo "</td>";
 
         echo "</tr>";

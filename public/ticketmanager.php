@@ -2,6 +2,7 @@
 
 use RA\AchievementType;
 use RA\ArticleType;
+use RA\LinkStyle;
 use RA\Permissions;
 use RA\TicketAction;
 use RA\TicketFilters;
@@ -395,6 +396,7 @@ RenderContentStart($pageTitle);
                 echo "<th class='whitespace-nowrap'>Reported At</th>";
 
                 $rowCount = 0;
+                $userCache = [];
 
                 foreach ($ticketData as $nextTicket) {
                     $ticketID = $nextTicket['ID'];
@@ -454,17 +456,14 @@ RenderContentStart($pageTitle);
                     echo "</td>";
 
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($achAuthor, true);
-                    echo GetUserAndTooltipDiv($achAuthor, false);
+                    RenderUserLink($achAuthor, LinkStyle::MediumImageWithText, $userCache);
                     echo "</td>";
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($reportedBy, true);
-                    echo GetUserAndTooltipDiv($reportedBy, false);
+                    RenderUserLink($reportedBy, LinkStyle::MediumImageWithText, $userCache);
                     echo "</td>";
                     if ($closedTickets || $resolvedTickets) {
                         echo "<td>";
-                        echo GetUserAndTooltipDiv($resolvedBy, true);
-                        echo GetUserAndTooltipDiv($resolvedBy, false);
+                        RenderUserLink($resolvedBy, LinkStyle::MediumImageWithText, $userCache);
                         echo "</td>";
                     }
 
@@ -554,18 +553,15 @@ RenderContentStart($pageTitle);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($achAuthor, true);
-                echo GetUserAndTooltipDiv($achAuthor, false);
+                RenderUserLink($achAuthor, LinkStyle::MediumImageWithText);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($reportedBy, true);
-                echo GetUserAndTooltipDiv($reportedBy, false);
+                RenderUserLink($reportedBy, LinkStyle::MediumImageWithText);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($resolvedBy, true);
-                echo GetUserAndTooltipDiv($resolvedBy, false);
+                RenderUserLink($resolvedBy, LinkStyle::MediumImageWithText);
                 echo "</td>";
 
                 echo "<td class='smalldate'>";

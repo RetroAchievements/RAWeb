@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
@@ -73,6 +75,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
         echo "<th>Date</th>";
         echo "</tr>";
 
+        $userCache = [];
         $userCount = 0;
         $skip = false;
         // Create the table rows
@@ -87,8 +90,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
                 echo "<tr>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                echo GetUserAndTooltipDiv($dataPoint['User'], false);
+                RenderUserLink($dataPoint['User'], LinkStyle::MediumImageWithText, $userCache);
                 echo "</td>";
 
                 echo "<td>";

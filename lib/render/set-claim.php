@@ -3,6 +3,7 @@
 use RA\ClaimFilters;
 use RA\ClaimSetType;
 use RA\ClaimSorting;
+use RA\LinkStyle;
 
 /**
  * Creates the New Set Claims component.
@@ -17,7 +18,6 @@ function renderNewClaimsComponent(int $count): void
     echo "<table class='mb-1'>";
     echo "<thead>";
     echo "<tr>";
-    echo "<th></th>";
     echo "<th>User</th>";
     echo "<th>Game</th>";
     echo "<th class='whitespace-nowrap'>Started</th>";
@@ -28,10 +28,7 @@ function renderNewClaimsComponent(int $count): void
         $claimUser = $claim['User'];
         echo "<tr>";
         echo "<td>";
-        echo GetUserAndTooltipDiv($claimUser, true);
-        echo "</td>";
-        echo "<td>";
-        echo GetUserAndTooltipDiv($claimUser);
+        RenderUserLink($claimUser, LinkStyle::MediumImageWithText);
         echo "</td>";
         echo "<td class='w-full'>";
         echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
@@ -58,7 +55,6 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<table class='mb-1'>";
     echo "<thead>";
     echo "<tr>";
-    echo "<th></th>";
     echo "<th>User</th>";
     echo "<th>Game</th>";
     echo "<th>Type</th>";
@@ -69,10 +65,7 @@ function renderFinishedClaimsComponent(int $count): void
         $claimUser = $claim['User'];
         echo "<tr>";
         echo "<td>";
-        echo GetUserAndTooltipDiv($claimUser, true);
-        echo "</td>";
-        echo "<td>";
-        echo GetUserAndTooltipDiv($claimUser);
+        RenderUserLink($claimUser, LinkStyle::MediumImageWithText);
         echo "</td>";
         echo "<td class='w-full'>";
         echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);

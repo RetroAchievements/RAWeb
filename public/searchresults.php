@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $searchQuery = requestInputSanitized('s', null);
@@ -45,6 +47,7 @@ RenderContentStart("Search");
                 echo "</tr>";
                 $lastType = '';
                 $iter = 0;
+                $userCache = [];
                 foreach ($searchResults as $nextResult) {
                     $nextType = $nextResult['Type'];
                     $nextID = $nextResult['ID'];
@@ -66,10 +69,10 @@ RenderContentStart("Search");
                     // echo "<td>$nextID</td>";
                     if ($nextType == 'User') {
                         echo "<td>";
-                        echo GetUserAndTooltipDiv($nextID, true);
+                        RenderUserLink($nextID, LinkStyle::MediumImage, $userCache);
                         echo "</td>";
                         echo "<td>";
-                        echo GetUserAndTooltipDiv($nextID, false);
+                        RenderUserLink($nextID, LinkStyle::Text, $userCache);
                         echo "</td>";
                     } else {
                         if ($nextType == 'Achievement') {
@@ -82,7 +85,7 @@ RenderContentStart("Search");
                         } else {
                             if ($nextType == 'Forum Comment' || $nextType == 'Comment') {
                                 echo "<td>";
-                                echo GetUserAndTooltipDiv($nextID, true);
+                                RenderUserLink($nextID, LinkStyle::MediumImage, $userCache);
                                 echo "</td>";
                                 echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
                             } else {

@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
@@ -91,6 +92,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         echo "<div class='table-wrapper'><table id='hashTable'><tbody>";
         echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>Description</th><th>Labels</th><th>Actions</th><th></th>\n";
 
+        $userCache = [];
         foreach ($hashes as $hashData) {
             $hash = $hashData['Hash'];
 
@@ -99,7 +101,7 @@ function UnlinkHash(user, gameID, hash, elem) {
 
             if (!empty($hashData['User'])) {
                 echo "<td style='width: 10%; white-space: nowrap'>";
-                echo GetUserAndTooltipDiv($hashData['User']);
+                RenderUserLink($hashData['User'], LinkStyle::Text, $userCache);
                 echo "</td>";
             } else {
                 echo "<td style='width: 10%'></td>";

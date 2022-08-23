@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -99,6 +100,7 @@ RenderContentStart("Forum: $thisForumTitle");
         $topicCount = is_countable($topicList) ? count($topicList) : 0;
 
         // Output all topics, and offer 'prev/next page'
+        $userCache = [];
         foreach ($topicList as $topicData) {
             // Output one forum, then loop
             $nextTopicID = $topicData['ForumTopicID'];
@@ -140,11 +142,15 @@ RenderContentStart("Forum: $thisForumTitle");
             echo "<div class='mb-1' style='word-break:break-word'>$nextTopicPreview...</div>";
             echo "</td>";
             echo "<td>";
-            echo "<div>" . GetUserAndTooltipDiv($nextTopicAuthor) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
+            echo "<div>";
+            RenderUserLink($nextTopicAuthor, LinkStyle::Text, $userCache);
+            echo "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
             echo "</td>";
             echo "<td>$nextTopicNumReplies</td>";
             echo "<td>";
-            echo "<div>" . GetUserAndTooltipDiv($nextTopicLastCommentAuthor) . "<br><span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
+            echo "<div>";
+            RenderUserLink($nextTopicLastCommentAuthor, LinkStyle::Text, $userCache);
+            echo "<br><span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
             echo "<br><a class='btn btn-link' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
             echo "</div>";
             echo "</td>";

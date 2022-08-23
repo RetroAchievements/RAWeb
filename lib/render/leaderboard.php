@@ -1,6 +1,7 @@
 <?php
 
 use RA\AwardType;
+use RA\LinkStyle;
 use RA\Rank;
 use RA\UnlockMode;
 
@@ -45,6 +46,7 @@ function RenderGameLeaderboardsComponent($lbData): void
         echo "<table><tbody>";
 
         $count = 0;
+        $userCache = [];
         foreach ($lbData as $lbItem) {
             if ($lbItem['DisplayOrder'] < 0) {
                 continue;
@@ -70,8 +72,7 @@ function RenderGameLeaderboardsComponent($lbData): void
             // Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($bestScoreUser, true, iconSizeDisplayable: 16);
-            echo GetUserAndTooltipDiv($bestScoreUser);
+            RenderUserLink($bestScoreUser, LinkStyle::TinyImageWithText, $userCache);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
@@ -187,8 +188,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                     }
                     echo "<td class='rank'>" . $rank . "</td>";
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                    echo GetUserAndTooltipDiv($dataPoint['User']);
+                    RenderUserLink($dataPoint['User'], LinkStyle::MediumImageWithText);
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
@@ -222,8 +222,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                         echo "<td></td>";
                     }
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($userData[0]['User'], true);
-                    echo GetUserAndTooltipDiv($userData[0]['User']);
+                    RenderUserLink($userData[0]['User'], LinkStyle::MediumImageWithText);
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
@@ -291,8 +290,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
-        echo GetUserAndTooltipDiv($nextUser);
+        RenderUserLink($nextUser, LinkStyle::TinyImageWithText);
         echo "</td>";
 
         echo "<td>";
@@ -330,8 +328,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
-        echo GetUserAndTooltipDiv($nextUser);
+        RenderUserLink($nextUser, LinkStyle::TinyImageWithText);
         echo "</td>";
 
         echo "<td>";

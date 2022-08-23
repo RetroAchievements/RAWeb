@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
+use RA\LinkStyle;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 use RA\UserAction;
@@ -153,6 +154,7 @@ RenderContentStart($pageTitle);
         echo "<div class='table-wrapper'>";
         echo "<table><tbody>";
         // Output all topics, and offer 'prev/next page'
+        $userCache = [];
         foreach ($commentList as $commentData) {
             // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
@@ -204,14 +206,14 @@ RenderContentStart($pageTitle);
             }
 
             echo "<td class='align-top'>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor, true, iconSizeDisplayable: 64);
+            RenderUserLink($nextCommentAuthor, LinkStyle::ExtraLargeImage, $userCache);
             echo "</td>";
 
             echo "<td class='w-full' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor);
+            RenderUserLink($nextCommentAuthor, LinkStyle::Text, $userCache);
             if ($showDisclaimer) {
                 echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
             }
@@ -270,9 +272,9 @@ RenderContentStart($pageTitle);
             echo "<tr>";
 
             echo "<td class='align-top'>";
-            echo GetUserAndTooltipDiv($user, false, null, 64);
+            RenderUserLink($user, LinkStyle::Text, $userCache);
             echo "<br>";
-            echo GetUserAndTooltipDiv($user, true, null, 64);
+            RenderUserLink($user, LinkStyle::ExtraLargeImage, $userCache);
             echo "</td>";
 
             echo "<td class='w-full'>";

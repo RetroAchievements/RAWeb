@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
@@ -67,7 +68,8 @@ RenderContentStart("Linked Hashes");
 
             echo '<br/><code> ' . $hash['Hash'] . '</code>';
             if (!empty($hash['User'])) {
-                echo ' linked by ' . GetUserAndTooltipDiv($hash['User']);
+                echo ' linked by ';
+                RenderUserLink($hash['User'], LinkStyle::Text);
             }
             echo '</p></li>';
         }
@@ -81,7 +83,8 @@ RenderContentStart("Linked Hashes");
 
                 echo '<code> ' . $hash['Hash'] . '</code>';
                 if (!empty($hash['User'])) {
-                    echo " linked by " . GetUserAndTooltipDiv($hash['User']);
+                    echo " linked by ";
+                    RenderUserLink($hash['User'], LinkStyle::Text);
                 }
                 echo '<br/>';
             }

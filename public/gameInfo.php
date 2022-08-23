@@ -6,6 +6,7 @@ use RA\ClaimFilters;
 use RA\ClaimSetType;
 use RA\ClaimType;
 use RA\ImageType;
+use RA\LinkStyle;
 use RA\Permissions;
 use RA\RatingType;
 use RA\SubscriptionSubjectType;
@@ -950,7 +951,7 @@ sanitize_outputs(
                     $numItems = count($authorInfo);
                     $i = 0;
                     foreach ($authorInfo as $author => $achievementCount) {
-                        echo GetUserAndTooltipDiv($author, false);
+                        RenderUserLink($author, LinkStyle::Text);
                         echo " (" . $achievementCount . ")";
                         if (++$i !== $numItems) {
                             echo ', ';
@@ -1063,7 +1064,8 @@ sanitize_outputs(
                         foreach ($claimData as $claim) {
                             $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
                             $claimExpiration = getNiceDate(strtotime($claim['Expiration']));
-                            echo GetUserAndTooltipDiv($claim['User'], false) . $revisionText;
+                            RenderUserLink($claim['User'], LinkStyle::Text);
+                            echo $revisionText;
                             if ($claimListLength > 1) {
                                 echo ", ";
                             }

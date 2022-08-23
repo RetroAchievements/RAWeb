@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\RankType;
 use RA\UnlockMode;
 
@@ -234,8 +235,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                     echo "<td>" . $rank . "</td>";
                 }
                 echo "<td>";
-                echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                echo GetUserAndTooltipDiv($dataPoint['User'], false);
+                RenderUserLink($dataPoint['User'], LinkStyle::MediumImageWithText);
                 echo "</td>";
 
                 // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
@@ -301,8 +301,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                         }
                     }
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($userData[0]['User'], true);
-                    echo GetUserAndTooltipDiv($userData[0]['User'], false);
+                    RenderUserLink($userData[0]['User'], LinkStyle::MediumImageWithText);
                     echo "</td>";
 
                     // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day

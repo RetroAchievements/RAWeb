@@ -158,7 +158,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "</td>";
 
             // echo "<td>";
-            // echo GetUserAndTooltipDiv( $achAuthor, FALSE );
+            // RenderUserLink($achAuthor, LinkStyle::Text);
             // echo "</td>";
 
             echo "<td>";

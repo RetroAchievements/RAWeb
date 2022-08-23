@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\LinkStyle;
 use RA\Permissions;
 use RA\SubscriptionSubjectType;
 
@@ -39,6 +40,7 @@ function RenderCommentsComponent(
 
     $lastID = 0;
     $lastKnownDate = 'Init';
+    $userCache = [];
 
     for ($i = 0; $i < $numComments; $i++) {
         $nextTime = $commentData[$i]['Submitted'];
@@ -64,7 +66,8 @@ function RenderCommentsComponent(
             $user,
             $articleTypeID,
             $commentData[$i]['ID'],
-            $canDeleteComments
+            $canDeleteComments,
+            $userCache
         );
     }
 
@@ -87,7 +90,8 @@ function RenderArticleComment(
     $localUser,
     $articleTypeID,
     $commentID,
-    $allowDelete
+    $allowDelete,
+    $userCache = null
 ): void {
     $class = '';
     $deleteIcon = '';
@@ -115,14 +119,14 @@ function RenderArticleComment(
 
     echo "<td class='iconscommentsingle'>";
     if ($user !== 'Server') {
-        echo GetUserAndTooltipDiv($user, true);
+        RenderUserLink($user, LinkStyle::MediumImage, $userCache);
     }
     echo "</td>";
     echo "<td class='commenttext w-full' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
-        echo GetUserAndTooltipDiv($user);
+        RenderUserLink($user, LinkStyle::Text, $userCache);
     }
     echo " <span class='smalldate'>$niceDate</span>";
     echo "</div>";

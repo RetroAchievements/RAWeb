@@ -1,42 +1,14 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 use RA\Rank;
 use RA\RankType;
 
 /**
- * Create the user and tooltip div that is shown when you hover over a username or user avatar.
+ * Create the tooltip div that is shown when you hover over a username or user avatar.
  */
-function GetUserAndTooltipDiv(
-    ?string $user,
-    $imageInstead = false,
-    $customLink = null,
-    $iconSizeDisplayable = 32,
-    $iconClassDisplayable = 'badgeimg'
-): string {
-    getUserCardData($user, $userCardInfo);
-
-    if (!$userCardInfo) {
-        if ($imageInstead) {
-            return '';
-        }
-
-        $userSanitized = $user;
-        sanitize_outputs($userSanitized);
-        return '<del>' . $userSanitized . '</del>';
-    }
-
-    return _GetUserAndTooltipDiv($user, $userCardInfo, $imageInstead, $customLink, $iconSizeDisplayable, $iconClassDisplayable);
-}
-
-function _GetUserAndTooltipDiv(
-    $user,
-    $userCardInfo,
-    $imageInstead = false,
-    $customLink = null,
-    $iconSizeDisplayable = 32,
-    $iconClassDisplayable = 'badgeimg'
-): string {
+function _BuildUserTooltipDiv(string $user, array $userCardInfo): string {
     $userSanitized = $user;
     sanitize_outputs($userSanitized);
 
@@ -115,23 +87,83 @@ function _GetUserAndTooltipDiv(
     $tooltip .= "</tbody></table>";
     $tooltip .= "</div>";
 
+    return $tooltip;
+}
+
+function RenderUserLink(?string $username, int $style, array &$cache = null): void
+{
+    if (!$username) {
+        return;
+    }
+
+    echo GetUserLink($username, $style, $cache);
+}
+
+function GetUserLink(string $username, int $style, array &$cache = null): string
+{
+    $userCardInfo = null;
+
+    if ($cache !== null && array_key_exists($username, $cache)) {
+        $userCardInfo = $cache[$username];
+    }
+    else {
+        getUserCardData($username, $userCardData);
+        if ($userCardData) {
+            $tooltip = _BuildUserTooltipDiv($username, $userCardData);
+
+            $userCardInfo = [
+                "DisplayName" => $username,
+                "AvatarUrl" => media_asset("/UserPic/$username.png"),
+                "ToolTip" => $tooltip,
+            ];
+        }
+
+        if ($cache !== null) {
+            $cache[$username] = $userCardInfo;
+        }
+    }
+
+    if (!$userCardInfo) {
+        // deleted or non-existant user
+        if (!LinkStyle::hasText($style)) {
+            // TODO: default image with <del> tooltip?
+            return "";
+        }
+
+        $usernameSanitized = $username;
+        sanitize_outputs($usernameSanitized);
+
+        return '<del>' . $usernameSanitized . '</del>';
+    }
+
+    return _BuildLink($userCardInfo['DisplayName'], $userCardInfo['AvatarUrl'], "/user/$username", $style, $userCardInfo['ToolTip']);
+}
+
+function _BuildLink(string $text, string $image, string $link, int $style, string $tooltip)
+{
     $tooltip = tipEscape($tooltip);
 
-    $linkURL = "/user/$userSanitized";
-    if (!empty($customLink)) {
-        $linkURL = $customLink;
+    $retval = "<span class='bb_inline' style='white-space:nowrap' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >";
+    $retval .= "<a href='$link'>";
+
+    $imageSize = LinkStyle::getImageSize($style);
+    if ($imageSize) {
+        $retval .= "<img loading='lazy' src='$image' width='$imageSize' height='$imageSize' alt='' title='$text' class='badgeimg' />";
     }
 
-    $displayable = $userSanitized;
-    if ($imageInstead) {
-        $displayable = "<img loading='lazy' src='" . media_asset('/UserPic/' . $user . '.png') . "' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
+    if (LinkStyle::hasText($style)) {
+        if ($imageSize) {
+            $retval .= ' ';
+        }
+
+        $textSanitized = $text;
+        sanitize_outputs($textSanitized);
+        $retval .= $textSanitized;
     }
 
-    return "<span class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='$linkURL'>" .
-        "$displayable" .
-        "</a>" .
-        "</span>";
+    $retval .= '</a>';
+    $retval .= '</span>';
+    return $retval;
 }
 
 function RenderCompletedGamesList($userCompletedGamesList): void
@@ -212,74 +244,5 @@ function RenderCompletedGamesList($userCompletedGamesList): void
     echo "</tbody></table>";
     echo "</div>";
 
-    echo "</div>";
-}
-
-function RenderRecentlyAwardedComponent(): void
-{
-    $componentHeight = 514;
-    $style = "height:$componentHeight" . "px";
-    echo "<div class='component' style='$style'>";
-    echo "<h3>recently awarded</h3>";
-
-    $count = getRecentlyEarnedAchievements(10, null, $dataArray);
-
-    $lastDate = '';
-
-    echo "<table><tbody>";
-    echo "<tr><th>Date</th><th>User</th><th>Achievement</th><th>Game</th></tr>";
-
-    $iter = 0;
-
-    for ($i = 0; $i < $count; $i++) {
-        $timestamp = strtotime($dataArray[$i]['DateAwarded']);
-        $dateAwarded = date("d M", $timestamp);
-
-        if (date("d", $timestamp) == date("d")) {
-            $dateAwarded = "Today";
-        } elseif (date("d", $timestamp) == (date("d") - 1)) {
-            $dateAwarded = "Y'day";
-        }
-
-        if ($lastDate !== $dateAwarded) {
-            $lastDate = $dateAwarded;
-        }
-
-        echo "<tr>";
-
-        $wonAt = date("H:i", $timestamp);
-        $nextUser = $dataArray[$i]['User'];
-        $achID = $dataArray[$i]['AchievementID'];
-        $achTitle = $dataArray[$i]['Title'];
-        $achDesc = $dataArray[$i]['Description'];
-        $achPoints = $dataArray[$i]['Points'];
-        $badgeName = $dataArray[$i]['BadgeName'];
-        // $badgeFullPath = media_asset("Badge/$badgeName.png");
-        $gameTitle = $dataArray[$i]['GameTitle'];
-        $gameID = $dataArray[$i]['GameID'];
-        $gameIcon = $dataArray[$i]['GameIcon'];
-        $consoleTitle = $dataArray[$i]['ConsoleTitle'];
-
-        echo "<td>";
-        echo "$dateAwarded $wonAt";
-        echo "</td>";
-
-        echo "<td>";
-        // echo "<a href='/user/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
-        echo GetUserAndTooltipDiv($nextUser, true);
-        echo "</td>";
-
-        echo "<td><div>";
-        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true);
-        echo "</div></td>";
-
-        echo "<td><div>";
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleTitle, true);
-        echo "</div></td>";
-
-        echo "</tr>";
-    }
-    echo "</tbody></table>";
-    echo "<br>";
     echo "</div>";
 }

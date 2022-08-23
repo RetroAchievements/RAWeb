@@ -6,6 +6,7 @@ use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimStatus;
 use RA\ClaimType;
+use RA\LinkStyle;
 use RA\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -161,7 +162,6 @@ RenderContentStart("Claim List");
         echo "<br style='clear:both'>";
 
         echo "<div class='table-wrapper'><table><tbody>";
-        echo "<th></th>";
         // Sortable table headers
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::GameDescending), ClaimSorting::GameDescending, ClaimSorting::GameAscending);
@@ -173,15 +173,13 @@ RenderContentStart("Claim List");
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::FinishedDateDescending, $claimFilters), ClaimSorting::FinishedDateDescending, ClaimSorting::FinishedDateAscending);
 
         // Loop through the claims and display them in the table
+        $userCache = [];
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
             echo "<tr>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($claimUser, true);
+            RenderUserLink($claimUser, LinkStyle::MediumImageWithText, $userCache);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'><div>";
-            echo GetUserAndTooltipDiv($claimUser);
-            echo "</div></td>";
             echo "<td>";
             echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
             echo "</td>";

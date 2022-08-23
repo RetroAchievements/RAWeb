@@ -246,40 +246,6 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
     }
 }
 
-function getRecentlyEarnedAchievements(int $count, ?string $user, &$dataOut): int
-{
-    sanitize_sql_inputs($count, $user);
-
-    $query = "SELECT aw.User, aw.Date AS DateAwarded, aw.AchievementID, ach.Title, ach.Description, ach.BadgeName, ach.Points, ach.GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleTitle
-               FROM Awarded AS aw
-               LEFT JOIN Achievements ach ON aw.AchievementID = ach.ID
-               LEFT JOIN GameData gd ON ach.GameID = gd.ID
-               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID ";
-
-    if (!empty($user)) {
-        $query .= "WHERE User='$user' AND HardcoreMode=0 ";
-    } else {
-        $query .= "WHERE HardcoreMode=0 ";
-    }
-
-    $query .= "ORDER BY Date DESC
-                LIMIT 0, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-        return 0;
-    }
-
-    $i = 0;
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $dataOut[$i] = $db_entry;
-        $i++;
-    }
-    return $i;
-}
-
 function getCommonlyUnlocked($consoleID, $offset, $count, &$dataOut): bool
 {
     sanitize_sql_inputs($consoleID, $offset, $count);

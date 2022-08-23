@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
@@ -51,6 +52,7 @@ RenderContentStart("Hash List");
 
             $hashCount = 0;
 
+            $userCache = [];
             foreach ($hashList as $hash) {
                 if ($hashCount++ % 2 == 0) {
                     echo "<tr>";
@@ -64,7 +66,7 @@ RenderContentStart("Hash List");
                 echo "</td>";
                 echo "<td>";
                 if (!empty($hash['User'])) {
-                    echo GetUserAndTooltipDiv($hash['User'], false);
+                    RenderUserLink($hash['User'], LinkStyle::Text, $userCache);
                 }
                 echo "</td>";
                 echo "<td>" . $hash['DateAdded'] . "</td>";

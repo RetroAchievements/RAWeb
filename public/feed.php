@@ -15,7 +15,7 @@ $numFeedItems = 0;
 
 $feedData = [];
 $numFeedItems = 0;
-if ($activityID !== null) {
+if ($activityID) {
     $numFeedItems = getFeed($user, $maxMessages, $offset, $feedData, $activityID, 'activity');
 } elseif (isset($global)) {
     $numFeedItems = getFeed($user, $maxMessages, $offset, $feedData, 0, 'global');
@@ -58,13 +58,14 @@ RenderContentStart($pageTitle);
             $lastID = 0;
             $lastKnownDate = 'Init';
 
+            $userCache = [];
             for ($i = 0; $i < $numFeedItems; $i++) {
                 $nextTime = $feedData[$i]['timestamp'];
 
                 $dow = date("d/m", $nextTime);
                 if ($lastKnownDate == 'Init') {
                     $lastKnownDate = $dow;
-                    echo "<tr><td class='date'>$dow:</td></tr>";
+                    echo "<tr><td class='date' style='white-space: nowrap'>$dow:</td></tr>";
                 } elseif ($lastKnownDate !== $dow) {
                     $lastKnownDate = $dow;
                     echo "<tr><td class='date'><br>$dow:</td></tr>";
@@ -72,7 +73,7 @@ RenderContentStart($pageTitle);
 
                 if ($lastID != $feedData[$i]['ID']) {
                     $lastID = $feedData[$i]['ID'];
-                    RenderFeedItem($feedData[$i], $user);
+                    RenderFeedItem($feedData[$i], $user, $userCache);
                 }
 
                 if ($feedData[$i]['Comment'] !== null) {

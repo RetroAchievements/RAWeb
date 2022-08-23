@@ -5,6 +5,7 @@ use RA\ClaimSetType;
 use RA\ClaimSorting;
 use RA\ClaimSpecial;
 use RA\ClaimType;
+use RA\LinkStyle;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -58,7 +59,7 @@ RenderContentStart("Expiring Claims");
         }
 
         echo "<div class='table-wrapper'><table><tbody>";
-        echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
+        echo "<th>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::GameDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::SetTypeDescending) . "</th>";
@@ -71,10 +72,7 @@ RenderContentStart("Expiring Claims");
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
             echo "<tr><td class='whitespace-nowrap'>";
-            echo GetUserAndTooltipDiv($claimUser, true);
-            echo "</td>";
-            echo "<td class='whitespace-nowrap'><div>";
-            echo GetUserAndTooltipDiv($claimUser, false);
+            RenderUserLink($claimUser, LinkStyle::MediumImageWithText);
             echo "</div></td>";
 
             echo "<td>";

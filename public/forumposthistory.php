@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 $maxCount = 25;
 
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -38,12 +40,12 @@ RenderContentStart("Forum Recent Posts");
         echo "<tbody>";
 
         echo "<tr>";
-        echo "<th></th>";
         echo "<th>Author</th>";
         echo "<th class='w-full'>Message</th>";
         echo "<th class='whitespace-nowrap'>Posted At</th>";
         echo "</tr>";
 
+        $userCache = [];
         foreach ($recentPostsData as $topicPostData) {
             $postMessage = $topicPostData['ShortMsg'];
             $postAuthor = $topicPostData['Author'];
@@ -58,10 +60,7 @@ RenderContentStart("Forum Recent Posts");
             echo "<tr>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($postAuthor, true);
-            echo "</td>";
-            echo "<td>";
-            echo GetUserAndTooltipDiv($postAuthor, false);
+            RenderUserLink($postAuthor, LinkStyle::MediumImageWithText, $userCache);
             echo "</td>";
 
             echo "<td><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";

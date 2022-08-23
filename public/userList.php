@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 $sortBy = (int) request()->query('s');
@@ -92,7 +93,7 @@ RenderContentStart("Users");
             echo "<th>Rank</th>";
         }
 
-        echo "<th colspan='2'><a href='/userList.php?s=$sort1&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>User</a></th>";
+        echo "<th><a href='/userList.php?s=$sort1&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>User</a></th>";
         echo "<th><a href='/userList.php?s=$sort2&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Points</a></th>";
         echo "<th><a href='/userList.php?s=$sort3&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Num Achievements Earned</a></th>";
         echo "<th><a href='/userList.php?s=$sort4&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Last Login</a></th>";
@@ -118,10 +119,7 @@ RenderContentStart("Users");
             }
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($nextUser, true);
-            echo "</td>";
-            echo "<td class='user'>";
-            echo GetUserAndTooltipDiv($nextUser, false);
+            RenderUserLink($nextUser, LinkStyle::MediumImageWithText);
             echo "</td>";
 
             echo "<td>$totalPoints</td>";

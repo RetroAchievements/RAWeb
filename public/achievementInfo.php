@@ -4,6 +4,7 @@ use App\Support\Shortcode\Shortcode;
 use RA\AchievementPoints;
 use RA\AchievementType;
 use RA\ArticleType;
+use RA\LinkStyle;
 use RA\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -225,7 +226,9 @@ RenderContentStart($achievementTitleRaw);
         if ($achFlags === AchievementType::Unofficial) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by ";
+        RenderUserLink($author, LinkStyle::Text);
+        echo " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -378,10 +381,7 @@ RenderContentStart($achievementTitleRaw);
                 $niceDateWon = date("d M, Y H:i", strtotime($userObject['DateAwarded']));
                 echo "<tr>";
                 echo "<td class='w-[32px]'>";
-                echo GetUserAndTooltipDiv($userWinner, true);
-                echo "</td>";
-                echo "<td>";
-                echo GetUserAndTooltipDiv($userWinner, false);
+                RenderUserLink($userWinner, LinkStyle::MediumImageWithText);
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {

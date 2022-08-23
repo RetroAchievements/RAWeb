@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame): void
 {
     echo "<div id='gamecompare' class='component' >";
@@ -14,8 +16,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
 
                 echo "<tr>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($friendScoreName, true, $link, iconSizeDisplayable: 16);
-                echo GetUserAndTooltipDiv($friendScoreName, false, $link);
+                RenderUserLink($friendScoreName, LinkStyle::TinyImageWithText);
                 echo "</td>";
 
                 echo "<td>";

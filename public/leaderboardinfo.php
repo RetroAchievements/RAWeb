@@ -1,6 +1,7 @@
 <?php
 
 use RA\ArticleType;
+use RA\LinkStyle;
 use RA\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -84,7 +85,9 @@ RenderContentStart('Leaderboard');
             if (is_null($lbAuthor)) {
                 echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
             } else {
-                echo "Created by " . GetUserAndTooltipDiv($lbAuthor, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+                echo "Created by ";
+                RenderUserLink($lbAuthor, LinkStyle::Text);
+                echo " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
             }
             echo "</small>";
             echo "</p>";
@@ -183,8 +186,7 @@ RenderContentStart('Leaderboard');
                 echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
                 echo "<td class='lb_user'>";
-                echo GetUserAndTooltipDiv($nextUser, true);
-                echo GetUserAndTooltipDiv($nextUser, false);
+                RenderUserLink($nextUser, LinkStyle::MediumImageWithText);
                 echo "</td>";
 
                 echo "<td class='lb_result'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";

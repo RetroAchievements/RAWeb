@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
@@ -97,20 +98,23 @@ RenderContentStart("Game Compare");
             echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> points.<br>";
 
             $iconSize = 48;
+            $userCache = [];
 
             echo "<table><tbody>";
             echo "<tr>";
 
             echo "<th>";
             echo "<a style='float: right' href='/user/$user'>$user</a><br>";
-            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg float-right");
+            echo "<div style='float: right'>";
+            RenderUserLink($user, LinkStyle::LargeImage, $userCache);
+            echo "</div>";
             echo "</th>";
 
             echo "<th><center>Achievement</center></th>";
 
             echo "<th>";
             echo "<a style='float: left' href='/user/$user2'>$user2</a><br>";
-            echo GetUserAndTooltipDiv($user2, true, null, $iconSize);
+            RenderUserLink($user2, LinkStyle::LargeImage, $userCache);
             echo "</th>";
 
             echo "</tr>";
@@ -195,7 +199,7 @@ RenderContentStart("Game Compare");
                         $rightSoftcoreAwardedPoints += $achPoints;
                         echo "<small class='smalldate'>$awardedRight</small>";
                     }
-                    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
+                    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, (isset($awardedHCRight) ? 'goldimage' : ''));
                     echo "</div>";
                 } else {
                     echo "<div style='float:right;' >";
@@ -212,7 +216,7 @@ RenderContentStart("Game Compare");
 
             echo "<td>";
             echo "<div style='float:right'>";
-            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg float-right");
+            RenderUserLink($user, LinkStyle::LargeImage, $userCache);
             echo "</div>";
             echo "</td>";
 
@@ -220,7 +224,7 @@ RenderContentStart("Game Compare");
 
             echo "<td>";
             echo "<div>";
-            echo GetUserAndTooltipDiv($user2, true, null, $iconSize);
+            RenderUserLink($user2, LinkStyle::LargeImage, $userCache);
             echo "</div>";
             echo "</td>";
 

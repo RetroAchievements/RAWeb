@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\TicketState;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -768,8 +769,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Completed Awards:</td><td>";
             if (!empty($anyDevUserMostCompleted)) {
                 echo $anyDevUserMostCompleted['Completed'] . " - ";
-                echo GetUserAndTooltipDiv($anyDevUserMostCompleted['User'], true);
-                echo GetUserAndTooltipDiv($anyDevUserMostCompleted['User'], false);
+                RenderUserLink($anyDevUserMostCompleted['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -779,8 +779,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Mastered Awards:</td><td>";
             if (!empty($anyDevUserMostMastered)) {
                 echo $anyDevUserMostMastered['Mastered'] . " - ";
-                echo GetUserAndTooltipDiv($anyDevUserMostMastered['User'], true);
-                echo GetUserAndTooltipDiv($anyDevUserMostMastered['User'], false);
+                RenderUserLink($anyDevUserMostMastered['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -880,8 +879,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Completed Awards:</td><td>";
             if (!empty($majorityDevUserMostCompleted)) {
                 echo $majorityDevUserMostCompleted['Completed'] . " - ";
-                echo GetUserAndTooltipDiv($majorityDevUserMostCompleted['User'], true);
-                echo GetUserAndTooltipDiv($majorityDevUserMostCompleted['User'], false);
+                RenderUserLink($majorityDevUserMostCompleted['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -891,8 +889,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Mastered Awards:</td><td>";
             if (!empty($majorityDevUserMostMastered)) {
                 echo $majorityDevUserMostMastered['Mastered'] . " - ";
-                echo GetUserAndTooltipDiv($majorityDevUserMostMastered['User'], true);
-                echo GetUserAndTooltipDiv($majorityDevUserMostMastered['User'], false);
+                RenderUserLink($majorityDevUserMostMastered['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -992,8 +989,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Completed Awards:</td><td>";
             if (!empty($onlyDevUserMostCompleted)) {
                 echo $onlyDevUserMostCompleted['Completed'] . " - ";
-                echo GetUserAndTooltipDiv($onlyDevUserMostCompleted['User'], true);
-                echo GetUserAndTooltipDiv($onlyDevUserMostCompleted['User'], false);
+                RenderUserLink($majorityDevUserMostCompleted['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -1003,8 +999,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Mastered Awards:</td><td>";
             if (!empty($onlyDevUserMostMastered)) {
                 echo $onlyDevUserMostMastered['Mastered'] . " - ";
-                echo GetUserAndTooltipDiv($onlyDevUserMostMastered['User'], true);
-                echo GetUserAndTooltipDiv($onlyDevUserMostMastered['User'], false);
+                RenderUserLink($onlyDevUserMostMastered['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -1104,8 +1099,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User Who Obtained the Most Achievements:</td><td>";
             if (!empty($mostAchievementObtainer)) {
                 echo $mostAchievementObtainer['SoftcoreCount'] . " <b>(" . $mostAchievementObtainer['HardcoreCount'] . ")</b> - ";
-                echo GetUserAndTooltipDiv($mostAchievementObtainer['User'], true);
-                echo GetUserAndTooltipDiv($mostAchievementObtainer['User'], false);
+                RenderUserLink($mostAchievementObtainer['User'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -1139,6 +1133,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
             echo "<table><tbody>";
+            $userCache = [];
             $rowCount = 0;
             for ($i = 0; $i < count($recentlyObtainedAchievements) && $rowCount < ($maxRecentAchievements / 2); $i++) {
                 $skipNextEntry = false;
@@ -1158,8 +1153,7 @@ RenderContentStart("$dev's Developer Stats");
                 echo "</td><td width='35%'>";
                 echo GetGameAndTooltipDiv($recentlyObtainedAchievements[$i]['GameID'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['GameIcon'], $recentlyObtainedAchievements[$i]['ConsoleName'], false, 32);
                 echo "</td><td width='20%'>";
-                echo GetUserAndTooltipDiv($recentlyObtainedAchievements[$i]['User'], true);
-                echo GetUserAndTooltipDiv($recentlyObtainedAchievements[$i]['User'], false);
+                RenderUserLink($recentlyObtainedAchievements[$i]['User'], LinkStyle::MediumImageWithText, $userCache);
                 echo "</td><td width='10%'>";
                 echo $recentlyObtainedAchievements[$i]['Date'];
                 echo "</td></tr>";
@@ -1250,8 +1244,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User Who Created the Most Tickets for $dev:</td><td>";
             if ($mostTicketCreator !== null) {
                 echo $mostTicketCreator['TicketCount'] . " - ";
-                echo GetUserAndTooltipDiv($mostTicketCreator['TicketCreator'], true);
-                echo GetUserAndTooltipDiv($mostTicketCreator['TicketCreator'], false);
+                RenderUserLink($mostTicketCreator['TicketCreator'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -1264,8 +1257,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User $dev Has Closed the Most Tickets For:</td><td>";
             if ($closedResolvedTicketInfo['ClosedCount'] > 0) {
                 echo $closedResolvedTicketInfo['ClosedAuthorCount'] . " - ";
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ClosedAuthor'], true);
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ClosedAuthor'], false);
+                RenderUserLink($closedResolvedTicketInfo['ClosedAuthor'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }
@@ -1275,8 +1267,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User $dev Has Resolved the Most Tickets For:</td><td>";
             if ($closedResolvedTicketInfo['ResolvedCount'] > 0) {
                 echo $closedResolvedTicketInfo['ResolvedAuthorCount'] . " - ";
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ResolvedAuthor'], true);
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ResolvedAuthor'], false);
+                RenderUserLink($closedResolvedTicketInfo['ResolvedAuthor'], LinkStyle::MediumImageWithText);
             } else {
                 echo "N/A";
             }

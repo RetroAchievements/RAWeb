@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
@@ -30,7 +31,9 @@ RenderContentStart("Set Requests");
         echo "<ul>";
         if (!empty($requestors)) {
             foreach ($requestors as $requestor) {
-                echo "<code><li>" . GetUserAndTooltipDiv($requestor['Requestor'], false) . "</code></li>";
+                echo "<code><li>";
+                RenderUserLink($requestor['Requestor'], LinkStyle::Text);
+                echo "</code></li>";
             }
         }
         echo "</ul>";

@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
@@ -103,8 +105,7 @@ RenderContentStart("Set Requests");
                 echo "</td><td>";
                 $claims = explode(',', $request['Claims']);
                 foreach ($claims as $devClaim) {
-                    echo GetUserAndTooltipDiv($devClaim, true);
-                    echo GetUserAndTooltipDiv($devClaim, false);
+                    RenderUserLink($devClaim, LinkStyle::MediumImageWithText);
                     echo "</br>";
                 }
                 echo "</td>";
@@ -166,8 +167,7 @@ RenderContentStart("Set Requests");
                         echo "<td>";
                         $claims = explode(',', $request['Claims']);
                         foreach ($claims as $devClaim) {
-                            echo GetUserAndTooltipDiv($devClaim, true);
-                            echo GetUserAndTooltipDiv($devClaim, false);
+                            RenderUserLink($devClaim, LinkStyle::MediumImageWithText);
                             echo "</br>";
                         }
                         echo "</td>";
@@ -190,8 +190,7 @@ RenderContentStart("Set Requests");
                     echo "<td>";
                     $claims = explode(',', $request['Claims']);
                     foreach ($claims as $devClaim) {
-                        echo GetUserAndTooltipDiv($devClaim, true);
-                        echo GetUserAndTooltipDiv($devClaim, false);
+                        RenderUserLink($devClaim, LinkStyle::MediumImageWithText);
                         echo "</br>";
                     }
                     echo "</td>";

@@ -1,5 +1,7 @@
 <?php
 
+use RA\LinkStyle;
+
 function RenderStaticDataComponent($staticData): void
 {
     echo "<div class='component statistics'>";
@@ -60,8 +62,7 @@ function RenderStaticDataComponent($staticData): void
     echo "<br>";
 
     echo "The last registered user was ";
-    echo GetUserAndTooltipDiv($lastRegisteredUser);
-    // echo "<a href='/user/$lastRegisteredUser'>$lastRegisteredUser</a>";
+    RenderUserLink($lastRegisteredUser, LinkStyle::Text);
     echo " on $niceRegisteredAt.<br>";
 
     // echo "<br>";
@@ -69,7 +70,7 @@ function RenderStaticDataComponent($staticData): void
     // echo GetGameAndTooltipDiv( $nextGameToScanID, $nextGameToScan, $nextGameToScanIcon, $nextGameConsoleToScan, FALSE, 32, TRUE );
     // echo "<br>";
     // echo "Next user to scan: ";
-    // echo GetUserAndTooltipDiv( $nextUserToScan, FALSE );
+    // RenderUserLink($nextUserToScan, LinkStyle::Text);
     // echo "The last achievement earned was ";
     // echo "<a href='/achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
     // echo " by ";

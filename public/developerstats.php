@@ -1,5 +1,6 @@
 <?php
 
+use RA\LinkStyle;
 use RA\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -74,10 +75,11 @@ RenderContentStart("Developer Stats");
 
             $dev = $devStats['Author'];
             echo "<td class='whitespace-nowrap'>";
-            echo GetUserAndTooltipDiv($dev, true);
+            $userCache = [];
+            RenderUserLink($dev, LinkStyle::MediumImage, $userCache);
             echo "</td>";
             echo "<td class='whitespace-nowrap'><div>";
-            echo GetUserAndTooltipDiv($dev, false);
+            RenderUserLink($dev, LinkStyle::Text, $userCache);
             echo "<br><small>";
             if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
                 echo Permissions::toString(Permissions::JuniorDeveloper);

@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
+use RA\LinkStyle;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
@@ -60,7 +61,7 @@ $(document).ready(onUserChange);
 
         if ($messageContextData !== null) {
             echo "In reply to ";
-            echo GetUserAndTooltipDiv($messageContextData['UserFrom']);
+            RenderUserLink($messageContextData['UserFrom'], LinkStyle::Text);
             echo " who wrote:<br><br>";
             echo "<div class='comment'>$messageContextPayload</div>";
         }

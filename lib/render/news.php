@@ -1,6 +1,7 @@
 <?php
 
 use App\Legacy\Models\News;
+use RA\LinkStyle;
 
 function RenderNewsComponent(): void
 {
@@ -14,9 +15,10 @@ function RenderNewsComponent(): void
     echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";
+    $userCache = [];
     foreach ($newsData as $news) {
         /** @var News $news */
-        RenderNewsHeader($news);
+        RenderNewsHeader($news, $userCache);
     }
     echo "</div>";
 
@@ -30,7 +32,7 @@ function RenderNewsComponent(): void
     echo "</div>";
 }
 
-function RenderNewsHeader(News $newsData): void
+function RenderNewsHeader(News $newsData, array &$userCache): void
 {
     $title = $newsData->Title;
     $payload = $newsData->Payload;
@@ -39,7 +41,6 @@ function RenderNewsHeader(News $newsData): void
     $link = htmlspecialchars($newsData['Link']);
 
     $author = $newsData['Author'];
-    $authorLink = GetUserAndTooltipDiv($author);
     $niceDate = $newsData->Timestamp->format('F j, Y, H:i');
 
     echo "<div class='newsbluroverlay'>";
@@ -58,7 +59,9 @@ function RenderNewsHeader(News $newsData): void
     echo "<div class='newstext shadowoutline absolute' style='width: 90%; top: 40px; left:10px;'>$payload</div>";
 
     // Author
-    echo "<div class='newsauthor shadowoutline absolute' style='width: 470px; top: 196px; left:0; text-align: right'>~~$authorLink, $niceDate</div>";
+    echo "<div class='newsauthor shadowoutline absolute' style='width: 470px; top: 196px; left:0; text-align: right'>~~";
+    RenderUserLink($author, LinkStyle::Text, $userCache);
+    echo ", $niceDate</div>";
 
     echo "</div>";
 
