@@ -8,11 +8,10 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 }
 
 $input = Validator::validate(request()->post(), [
-    'commentable_id' => 'required|integer',
-    'comment' => 'required|string|max:60000',
+    'comment' => 'required|integer|exists:mysql_legacy.Comment,ID',
 ]);
 
-if (RemoveComment((int) $input['commentable_id'], (int) $input['comment'], $userDetails['ID'], $permissions)) {
+if (RemoveComment((int) $input['comment'], $userDetails['ID'], $permissions)) {
     return response()->json(['message' => __('legacy.success.delete')]);
 }
 

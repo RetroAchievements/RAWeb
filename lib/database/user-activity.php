@@ -1,5 +1,6 @@
 <?php
 
+use App\Legacy\Models\Comment;
 use App\Legacy\Models\DeletedModels;
 use App\Legacy\Models\User;
 use RA\ActivityType;
@@ -287,17 +288,21 @@ function getActivityMetadata($activityID): ?array
     return mysqli_fetch_assoc($dbResult);
 }
 
-function RemoveComment($articleID, $commentID, $userID, $permissions): bool
+function RemoveComment(int $commentID, $userID, $permissions): bool
 {
-    settype($articleID, 'integer');
     settype($commentID, 'integer');
     settype($userID, 'integer');
     settype($permissions, 'integer');
 
-    $query = "DELETE FROM Comment
-              WHERE ArticleID = $articleID AND ID = $commentID";
+    /** @var Comment $comment */
+    $comment = Comment::findOrFail($commentID);
+
+    $articleID = $comment->ArticleID;
+
+    $query = "DELETE FROM Comment WHERE ID = $commentID";
 
     // if not UserWall's owner nor admin, check if it's the author
+    // TODO use policies to explicitly determine ability to delete a comment instead of piggy-backing query specificity
     if ($articleID != $userID && $permissions < Permissions::Admin) {
         $query .= " AND UserID = $userID";
     }
@@ -307,18 +312,19 @@ function RemoveComment($articleID, $commentID, $userID, $permissions): bool
 
     if (!$dbResult) {
         log_sql_fail();
-        return false;
-    } else {
-        /** @var User $user */
-        $user = request()->user();
-        DeletedModels::create([
-            'ModelType' => 'Comment',
-            'ModelID' => $commentID,
-            'DeletedByUserID' => $user->ID,
-        ]);
 
-        return mysqli_affected_rows($db) > 0;
+        return false;
     }
+
+    /** @var User $user */
+    $user = request()->user();
+    DeletedModels::create([
+        'ModelType' => 'Comment',
+        'ModelID' => $commentID,
+        'DeletedByUserID' => $user->ID,
+    ]);
+
+    return mysqli_affected_rows($db) > 0;
 }
 
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null): bool

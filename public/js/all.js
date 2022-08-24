@@ -368,7 +368,7 @@ function removeComment(artTypeID, artID, commentID) {
   }
 
   $.post('/request/comment/delete.php', {
-    commentable_id: artID,
+    commentable: artID,
     comment: commentID
   })
     .done(function () {
