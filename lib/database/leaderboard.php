@@ -884,6 +884,10 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
 
     $db_entry = mysqli_fetch_assoc($dbResult);
 
+    if (empty($db_entry)) {
+        return false;
+    }
+
     $lbMem = $db_entry['Mem'];
     $lbFormat = $db_entry['Format'];
     $lbTitle = $db_entry['Title'];

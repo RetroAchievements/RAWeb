@@ -1,24 +1,33 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$gameID = requestInput('g');
-$leaderboardID = requestInput('l');
-$duplicateNumber = requestInput('n');
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'leaderboard' => 'sometimes|integer|exists:mysql_legacy.LeaderboardDef,ID',
+    'amount' => 'required_with:leaderboard|integer|min:1|max:25',
+]);
 
-if (isset($leaderboardID) && isset($duplicateNumber)) {
-    if (duplicateLeaderboard($gameID, $leaderboardID, $duplicateNumber, $user)) {
+$gameID = (int) $input['game'];
+$leaderboardID = $input['leaderboard'] ?? null;
+
+// duplicate
+if (!empty($leaderboardID)) {
+    if (duplicateLeaderboard($gameID, (int) $leaderboardID, (int) $input['amount'], $user)) {
         return back()->with('success', __('legacy.success.ok'));
     }
-} else {
-    $lbID = null;
-    if (submitNewLeaderboard($gameID, $lbID, $user)) {
-        return back()->with('success', __('legacy.success.ok'));
-    }
+
+    return back()->withErrors(__('legacy.error.error'));
+}
+
+$lbID = null;
+if (submitNewLeaderboard($gameID, $lbID, $user)) {
+    return back()->with('success', __('legacy.success.ok'));
 }
 
 return back()->withErrors(__('legacy.error.error'));

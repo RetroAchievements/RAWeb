@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\ArticleType;
 use RA\Permissions;
 
@@ -7,16 +8,15 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-// TODO do not allow GET requests, POST only
-if (!ValidateGETChars("ui")) {
-    echo "FAILED! (POST)";
-}
+$input = Validator::validate(request()->post(), [
+    'leaderboard' => 'required|integer|exists:mysql_legacy.LeaderboardDef,ID',
+]);
 
-$lbid = requestInputQuery('i');
+$lbId = (int) $input['leaderboard'];
 
-requestResetLB($lbid);
+requestResetLB($lbId);
 
 $commentText = 'reset all entries for this leaderboard';
-addArticleComment("Server", ArticleType::Leaderboard, $lbid, "\"$user\" $commentText.", $user);
+addArticleComment("Server", ArticleType::Leaderboard, $lbId, "\"$user\" $commentText.", $user);
 
 return back()->with('success', __('legacy.success.ok'));

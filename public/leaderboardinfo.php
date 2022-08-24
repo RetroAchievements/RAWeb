@@ -102,14 +102,12 @@ RenderContentStart('Leaderboard');
                 echo "<div>";
                 if (!empty($lbData['Entries'])) {
                     echo "<tr><td>";
-                    echo "<form method='post' action='/request/leaderboard/remove-entry.php' enctype='multipart/form-data' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
+                    echo "<form method='post' action='/request/leaderboard/remove-entry.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                     echo csrf_field();
-                    echo "<input type='hidden' name='l' value='$lbID' />";
-                    echo "<input type='hidden' name='b' value='true' />";
-
+                    echo "<input type='hidden' name='leaderboard' value='$lbID' />";
                     echo "Remove Entry:";
-                    echo "<select name='t'>";
-                    echo "<option value='0' selected>-</option>";
+                    echo "<select name='user'>";
+                    echo "<option selected>-</option>";
                     foreach ($lbData['Entries'] as $nextLBEntry) {
                         // Display all entries for devs, display only own entry for jr. devs
                         if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
@@ -122,8 +120,8 @@ RenderContentStart('Leaderboard');
                     echo "</select>";
                     echo "</br>";
                     echo "Reason:";
-                    echo "<input type='text' name='r' style='width: 50%;' placeholder='Please enter reason for removal'>";
-                    echo "<button>Submit</button>";
+                    echo "<input type='text' name='reason' maxlength='200' style='width: 50%;' placeholder='Please enter reason for removal'>";
+                    echo "<button class='btn btn-danger'>Remove entry</button>";
                     echo "</form>";
                     echo "</td></tr>";
                 }

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\ArticleType;
 use RA\Permissions;
 
@@ -7,24 +8,30 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$leaderboardId = requestInput('l', 0, 'integer');
-$targetUser = requestInput('t');
-$reason = requestInputPost('r');
+$input = Validator::validate(request()->post(), [
+    'user' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'leaderboard' => 'required|integer|exists:mysql_legacy.LeaderboardDef,ID',
+    'reason' => 'nullable|string|max:200',
+]);
+
+$leaderboardId = (int) $input['leaderboard'];
+$targetUser = $input['user'];
+$reason = $input['reason'];
 
 // Only let jr. devs remove their own entries
-if ($permissions == Permissions::JuniorDeveloper && $user != $targetUser) {
+if ($permissions == Permissions::JuniorDeveloper && $user !== $targetUser) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 if (removeLeaderboardEntry($targetUser, $leaderboardId, $score)) {
-    if ($targetUser != $user) {
-        if (empty($reason)) {
-            $commentText = 'removed "' . $targetUser . '"s entry of "' . $score . '" from this leaderboard';
-        } else {
-            $commentText = 'removed "' . $targetUser . '"s entry of "' . $score . '" from this leaderboard. Reason: ' . $reason;
+    if ($targetUser !== $user) {
+        $commentText = 'removed "' . $targetUser . '"s entry of "' . $score . '" from this leaderboard';
+        if (!empty($reason)) {
+            $commentText .= '. Reason: ' . $reason;
         }
         addArticleComment("Server", ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
     }
+
     return back()->with('success', __('legacy.success.ok'));
 }
 

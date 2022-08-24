@@ -1,20 +1,19 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-// TODO do not allow GET requests, POST only
-if (!ValidateGETChars('uig')) {
-    echo "FAILED";
-}
+$input = Validator::validate(request()->post(), [
+    'leaderboard' => 'required|integer|exists:mysql_legacy.LeaderboardDef,ID',
+]);
 
-$lbID = requestInputQuery('i');
-$gameID = requestInputQuery('g');
+$lbId = (int) $input['leaderboard'];
 
-if (requestDeleteLB($lbID)) {
+if (requestDeleteLB($lbId)) {
     return back()->with('success', __('legacy.success.delete'));
 }
 

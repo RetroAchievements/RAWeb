@@ -117,23 +117,27 @@ function ReloadLBPageByGame() {
         echo "<ul>";
         if (isset($gameID)) {
             echo "<li>";
-            echo "<a href='/request/leaderboard/create.php?g=$gameID'>Add New Leaderboard to " . $gameData['Title'] . "</a></br>";
             echo "<form method='post' action='/request/leaderboard/create.php'>";
             echo csrf_field();
-            echo "<input type='hidden' name='g' value='$gameID' />";
+            echo "<input type='hidden' name='game' value='$gameID' />";
+            echo "<button class='btn btn-primary'>Create Leaderboard</button>";
+            echo "</form>";
+            echo "<form method='post' action='/request/leaderboard/create.php'>";
+            echo csrf_field();
+            echo "<input type='hidden' name='game' value='$gameID'>";
             echo "Duplicate leaderboard ID: ";
-            echo "<input style='width: 10%;' type='number' min=1 value=1 name='l' /> ";
-            echo "Number of times: ";
-            echo "<input style='width: 10%;' type='number' min=1 max=25 value=1 name='n' />";
+            echo "<input style='width: 10%;' min='1' name='leaderboard'> ";
+            echo "Amount: ";
+            echo "<input style='width: 10%;' type='number' min='1' max='25' value='1' name='amount'>";
             echo "&nbsp;&nbsp;";
-            echo "<input type='submit' value='Duplicate'/>";
+            echo "<button>Duplicate</button>";
             echo "</form>";
             echo "</li>";
         } else {
-            echo "<li>Add new leaderboard<br>";
+            echo "<li>New leaderboard<br>";
             echo "<form method='post' action='/request/leaderboard/create.php'>";
             echo csrf_field();
-            echo "<select name='g'>";
+            echo "<select name='game'>";
             foreach ($gamesList as $nextGame) {
                 $nextGameID = $nextGame['ID'];
                 $nextGameTitle = $nextGame['Title'];
@@ -141,7 +145,7 @@ function ReloadLBPageByGame() {
                 echo "<option value='$nextGameID'>$nextGameTitle ($nextGameConsole)</option>";
             }
             echo "</select>";
-            echo "&nbsp;<input type='submit' value='Create New Leaderboard' /><br><br>";
+            echo "<button>Create Leaderboard</button>";
             echo "</form>";
             echo "</li>";
         }
@@ -355,13 +359,21 @@ function ReloadLBPageByGame() {
             echo "<div class='flex justify-between items-center'>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>" . $lbNumEntries . " entries</a>";
             echo "<div class='flex gap-2'>";
-            if ($permissions == Permissions::JuniorDeveloper) {
-                echo " | ";
-            } else {
+            if ($permissions >= Permissions::Developer) {
                 if ($lbNumEntries > 0) {
-                    echo "<a class='btn btn-danger' href='/request/leaderboard/reset.php?i=$lbID' onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>Reset entries</a>";
+                    echo "<form action='/request/leaderboard/reset.php' method='post'";
+                    echo "onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='leaderboard' value='$lbID'>";
+                    echo "<button class='btn btn-danger'>Reset entries</button>";
+                    echo "</form>";
                 }
-                echo "<a class='btn btn-danger' href='/request/leaderboard/delete.php?u=$user&i=$lbID&g=$gameID' onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>Delete leaderboard</a>";
+                echo "<form action='/request/leaderboard/delete.php' method='post'";
+                echo "onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='leaderboard' value='$lbID'>";
+                echo "<button class='btn btn-danger'>Delete leaderboard</button>";
+                echo "</form>";
             }
             echo "</div>";
             if ($editAllowed) {
