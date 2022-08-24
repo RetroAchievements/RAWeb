@@ -6,7 +6,7 @@ use RA\TicketFilters;
 use RA\TicketState;
 
 // see resources/views/layouts/app.blade.php
-// see resources/views/partials/head.blade.php
+// see resources/views/layouts/partials/head.blade.php
 
 function RenderContentStart($pageTitle = null): void
 {

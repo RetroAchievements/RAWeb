@@ -135,6 +135,7 @@ RenderOpenGraphMetadata(
     "/user/$userPage",
     "$userPage Profile"
 );
+RenderContentStart($userPage);
 ?>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>

@@ -52,6 +52,7 @@ RenderOpenGraphMetadata(
     "/leaderboardinfo.php?i=$lbID",
     "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
 );
+RenderContentStart('Leaderboard');
 ?>
 <div id="mainpage">
     <div id="leftcontainer">
