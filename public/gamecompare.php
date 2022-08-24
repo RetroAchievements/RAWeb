@@ -81,8 +81,7 @@ RenderContentStart("Game Compare");
 
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
 
-            echo "<form method=get action='/gamecompare.php'>";
-            echo csrf_field();
+            echo "<form action='/gamecompare.php'>";
             echo "<input type='hidden' name='f' value='$user2'>";
             echo "<select name='ID'>";
             foreach ($gamesPlayedWithAchievements as $nextGameID => $nextGameTitle) {

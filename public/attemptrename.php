@@ -42,7 +42,7 @@ RenderContentStart("Rename Game Entry ($consoleName)");
         echo "Renaming game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName.<br>";
         echo "Please enter a new name below:<br><br>";
 
-        echo "<form method=post action='/request/game/update.php'>";
+        echo "<form method='post' action='/request/game/update.php'>";
         echo csrf_field();
         echo "<input type='hidden' name='i' value='$gameID' />";
         echo "New Name: <input type='text' name='t' value=\"$gameTitle\" size='60' />";

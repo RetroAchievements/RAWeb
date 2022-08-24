@@ -132,7 +132,7 @@ function validateEmail() {
                     echo "<tr>";
                     echo "<td><label for='motto'>User Motto</label></td>";
                     echo "<td>";
-                    echo "<form class='flex gap-2 mb-1' method='POST' action='/request/user/update-motto.php'>";
+                    echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
                     echo csrf_field();
                     echo "<input name='motto' value=\"$userMottoString\" maxlength='50' size='50' id='motto' placeholder='Your motto'>";
                     echo "<button class='btn btn-primary'>Set Motto</button>";
@@ -145,7 +145,7 @@ function validateEmail() {
                     echo "<tr>";
                     echo "<td>Allow Comments on my User Wall</td>";
                     echo "<td>";
-                    echo "<form method='POST' action='/request/user/update-wall.php'>";
+                    echo "<form method='post' action='/request/user/update-wall.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='t' value='wall'>";
                     $checkedStr = ($userWallActive == 1) ? "checked" : "";
@@ -158,7 +158,7 @@ function validateEmail() {
                     echo "<tr>";
                     echo "<td>Remove all comments from my User Wall</td>";
                     echo "<td>";
-                    echo "<form method='POST' action='/request/user/update-wall.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
+                    echo "<form method='post' action='/request/user/update-wall.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='t' value='cleanwall'>";
                     echo "<button class='btn btn-danger'>Delete All Comments</button>";
@@ -237,7 +237,7 @@ function validateEmail() {
                 echo "<td>";
                 echo "<input class='mb-1' size='60' readonly value='$apiKey'>";
                 echo "<div class='mb-2'>This is your <i>personal</i> Web API Key. Handle it with care.</div>";
-                echo "<form method='POST' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
+                echo "<form method='post' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
                 echo csrf_field();
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
                 echo "<button class='btn btn-danger'>Reset Web API key</button>";
@@ -250,7 +250,7 @@ function validateEmail() {
                 echo "<td>";
                 echo "The Connect Key is used in emulators to keep you logged in.<br>";
                 echo "Resetting the key will log you out of all emulators.<br>";
-                echo "<form method='POST' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
+                echo "<form method='post' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
                 echo csrf_field();
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
                 echo "<button class='btn btn-danger'>Reset Connect Key</button>";
@@ -474,7 +474,7 @@ function validateEmail() {
         <div id="rightcontainer">
             <div class='component'>
                 <h3>Request Score Recalculation</h3>
-                <form method=post action="/request/user/recalculate-score.php">
+                <form method="post" action="/request/user/recalculate-score.php">
                     <?= csrf_field() ?>
                     <input type="hidden" name="u" value="<?= $user ?>">
                     If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>

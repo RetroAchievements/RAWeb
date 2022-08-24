@@ -869,7 +869,7 @@ RenderContentStart($pageTitle);
                     echo "<span>";
 
                     echo "<b>Please, add some comments about the action you're going to take.</b><br>";
-                    echo "<form method=post action='ticketmanager.php>";
+                    echo "<form method='post' action='ticketmanager.php>";
                     echo csrf_field();
                     echo "<input type='hidden' name='i' value='$ticketID'>";
 
