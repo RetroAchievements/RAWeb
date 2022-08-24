@@ -55,7 +55,7 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_0900_ai_ci',
+            'collation' => 'utf8mb4_general_ci',
             // TODO removed prefix as soon as affected legacy tables have been removed:
             // Achievements, Messages, News, Votes
             // on production v2 tables are in a separate database
