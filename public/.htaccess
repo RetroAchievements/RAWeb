@@ -22,9 +22,11 @@ Options +FollowSymLinks
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # TODO remove as soon as all scripts in public/ have been refactored to controller actions/views
+    RewriteRule ^(.*).php$ index.php [L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    # TODO change back to index.php as soon as landing page has been migrated
     RewriteRule ^ index.php [L]
 </IfModule>
