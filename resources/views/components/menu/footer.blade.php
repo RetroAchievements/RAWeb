@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 $menu = collect([
     [
@@ -13,13 +13,13 @@ $menu = collect([
                 // 'url' => route('achievement.index'),
                 // 'visible' => Gate::allows('viewAny', App\Platform\Models\Achievement::class),
             ],
-            [
-                'active' => Route::is('leaderboard*'),
-                'label' => __res('leaderboard'),
-                'url' => url('leaderboardList.php'),
-                // 'url' => route('leaderboard.index'),
-                // 'visible' => Gate::allows('viewAny', App\Platform\Models\Leaderboard::class),
-            ],
+            // [
+            //     'active' => Route::is('leaderboard*'),
+            //     'label' => __res('leaderboard'),
+            //     'url' => url('leaderboardList.php'),
+            //     // 'url' => route('leaderboard.index'),
+            //     // 'visible' => Gate::allows('viewAny', App\Platform\Models\Leaderboard::class),
+            // ],
             // [
             //     'active' => Route::is('system*'),
             //     'label' => __res('system'),
@@ -29,7 +29,7 @@ $menu = collect([
             [
                 'active' => Route::is('game*'),
                 'label' => __res('game'),
-                'url' => url('leaderboardList.php'),
+                'url' => url('gameList.php'),
                 // 'url' => route('game.index'),
                 // 'visible' => Gate::allows('viewAny', App\Platform\Models\Game::class),
             ],
@@ -91,13 +91,12 @@ $menu = collect([
                 // 'url' => route('user.index'),
                 'visible' => true,
             ],
-            [
-                'active' => Route::is('news*'),
-                'label' => __res('news'),
-                'url' => url('developerstats.php'),
-                // 'url' => route('news.index'),
-                'visible' => true,
-            ],
+            // [
+            //     'active' => Route::is('news*'),
+            //     'label' => __res('news'),
+            //     'url' => route('news.index'),
+            //     'visible' => true,
+            // ],
         ],
     ],
     [
@@ -153,49 +152,49 @@ $menu = collect([
             @if(config('services.patreon.user_id'))
                 <a href="https://www.patreon.com/bePatron?u={{ config('services.patreon.user_id') }}"
                    data-toggle="tooltip" title="Become a patron" rel="noopener">
-                    <x-fab-patreon />
+                    <x-fab-patreon/>
                     <span class="sr-only">Patreon</span>
                 </a>
             @endif
             @if(config('services.discord.invite_id'))
                 <a href="https://discord.gg/{{ config('services.discord.invite_id') }}"
                    data-toggle="tooltip" title="Join us on Discord" rel="noopener">
-                    <x-fab-discord />
+                    <x-fab-discord/>
                     <span class="sr-only">Discord</span>
                 </a>
             @endif
             @if(config('services.github.organisation'))
                 <a href="https://github.com/{{ config('services.github.organisation') }}"
                    data-toggle="tooltip" title="Contribute on GitHub" rel="noopener">
-                    <x-fab-github />
+                    <x-fab-github/>
                     <span class="sr-only">GitHub</span>
                 </a>
             @endif
             @if(config('services.twitch.channel'))
                 <a href="https://twitch.tv/{{ config('services.twitch.channel') }}"
                    data-toggle="tooltip" title="Follow us on Twitch" rel="noopener">
-                    <x-fab-twitch />
+                    <x-fab-twitch/>
                     <span class="sr-only">Twitch</span>
                 </a>
             @endif
             @if(config('services.facebook.channel'))
                 <a href="https://facebook.com/{{ config('services.facebook.channel') }}/"
                    data-toggle="tooltip" title="Follow us on Facebook" rel="noopener">
-                    <x-fab-facebook />
+                    <x-fab-facebook/>
                     <span class="sr-only">Facebook</span>
                 </a>
             @endif
             @if(config('services.twitter.channel'))
                 <a href="https://twitter.com/{{ config('services.twitter.channel') }}"
                    data-toggle="tooltip" title="Follow us on Twitter" rel="noopener">
-                    <x-fab-twitter />
+                    <x-fab-twitter/>
                     <span class="sr-only">Twitter</span>
                 </a>
             @endif
             {{--<a href="{{ route('rss.index') }}"--}}
             <a href="{{ url('rss.php') }}"
                data-toggle="tooltip" title="RSS Feeds">
-                <x-fas-rss />
+                <x-fas-rss/>
                 <span class="sr-only">RSS</span>
             </a>
         </div>
