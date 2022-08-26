@@ -30,13 +30,13 @@ sanitize_outputs(
 RenderContentStart("Report Broken Achievement");
 ?>
 <script>
-  function displayCore() {
+function displayCore() {
     if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
-      document.getElementById('core-row').style.display = '';
+        document.getElementById('core-row').style.display = '';
     } else {
-      document.getElementById('core-row').style.display = 'none';
+        document.getElementById('core-row').style.display = 'none';
     }
-  }
+}
 </script>
 <div id="mainpage">
     <div id="fullcontainer">
@@ -58,30 +58,30 @@ RenderContentStart("Report Broken Achievement");
                 <tr>
                     <td>Game</td>
                     <td style="width:80%">
-                        <?php echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName) ?>
+                        <?= GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName) ?>
                     </td>
                 </tr>
                 <tr>
                     <td>Achievement</td>
                     <td>
-                        <?php echo GetAchievementAndTooltipDiv(
+                        <?= GetAchievementAndTooltipDiv(
                             $achievementID,
                             $achievementTitle,
                             $desc,
                             $achPoints,
                             $gameTitle,
                             $achBadgeName,
-                            true)
-                        ?>
+                            true
+                        ) ?>
                     </td>
                 </tr>
                 <tr class="alt">
                     <td><label for="issue">Issue</label></td>
                     <td>
                         <select name="issue" id="issue" required>
-                            <option value="" disabled selected hidden>Select your issue...</option>
-                            <option value="1">Triggered at wrong time</option>
-                            <option value="2">Doesn't Trigger</option>
+                            <option value="" <?= empty(old('issue')) ? 'selected' : '' ?> disabled hidden>Select your issue...</option>
+                            <option value="1" <?= old('issue') === '1' ? 'selected' : '' ?>>Triggered at wrong time</option>
+                            <option value="2" <?= old('issue') === '2' ? 'selected' : '' ?>>Doesn't Trigger</option>
                         </select>
                         <a class="btn btn-link" href="/views/issueDescriptionModal.html" rel="modal:open">?</a>
                     </td>
@@ -89,18 +89,21 @@ RenderContentStart("Report Broken Achievement");
                 <tr>
                     <td><label for="emulator">Emulator</label></td>
                     <td>
-                        <select name="note[emulator]" id="emulator" required data-bind="value: emulatorValue">
-                            <option value="" disabled selected hidden>Select your emulator...</option>
+                        <select name="emulator" id="emulator" required data-bind="value: emulator">
+                            <option <?= empty(old('emulator')) ? 'selected' : '' ?> disabled hidden>Select your emulator...</option>
                             <?php foreach ($emulators as $emulator): ?>
-                                <option><?= $emulator['handle'] ?></option>
+                                <option value="<?= $emulator['handle'] ?>" <?= old('emulator') === $emulator['handle'] ? 'selected' : '' ?>><?= $emulator['handle'] ?></option>
                             <?php endforeach ?>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="version">Emulator Version</label></td>
+                    <td><label for="emulator_version">Emulator Version</label></td>
                     <td>
-                        <input type="text" name="note[emulatorVersion]" id="version" required />
+                        <input type="text" name="emulator_version" id="emulator_version" required
+                               placeholder="Emulator version"
+                               value="<?= old('emulator_version') ?>"
+                        >
                         <a class="btn btn-link" href="/views/versionDescriptionModal.html" rel="modal:open">Why?</a>
                     </td>
                 </tr>
@@ -109,38 +112,38 @@ RenderContentStart("Report Broken Achievement");
                         <label for="core">Core</label>
                     </td>
                     <td>
-                        <input type="text" name="note[core]" id="core" placeholder="Which core did you use?"
-                               style="width:100%;margin-top: 3px">
+                        <input class="w-full" type="text" name="core" id="core"
+                               placeholder="Which core did you use?"
+                               value="<?= old('core') ?>"
+                        >
                     </td>
                 </tr>
                 <tr>
                     <td><label for="mode">Mode:</label></td>
                     <td>
                         <select name="mode" id="mode" required>
-                            <option value="" disabled selected hidden>Soft/Hardcore?</option>
-                            <option value="0">Softcore</option>
-                            <option value="1">Hardcore</option>
+                            <option value="0" <?= old('mode') === '0' ? 'selected' : '' ?>>Softcore</option>
+                            <option value="1" <?= old('mode') === '1' ? 'selected' : '' ?>>Hardcore</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="checksum">RetroAchievements Hash</label></td>
+                    <td><label for="hash">RetroAchievements Hash</label></td>
                     <td>
-                        <select name="note[checksum]" id="checksum" required>
+                        <?php
+                        $hashes = collect(getHashListByGameID($gameID))
+                            ->sortBy('Name')
+                            ->groupBy(fn (array $hashData) => (int) empty($hashData['Name']))
+                            ->reverse()
+                            ->flatten(1);
+                        ?>
+                        <select name="hash" id="hash" required>
                             <option value="Unknown">I don't know.</option>
                             <?php
-                            $hashes = getHashListByGameID($gameID);
                             foreach ($hashes as $hashData) {
-                                if (!empty($hashData['Name'])) {
-                                    $hash = $hashData['Hash'];
-                                    echo "<option value='$hash'>$hash - " . $hashData['Name'] . "</option>";
-                                }
-                            }
-                            foreach ($hashes as $hashData) {
-                                if (empty($hashData['Name'])) {
-                                    $hash = $hashData['Hash'];
-                                    echo "<option value='$hash'>$hash</option>";
-                                }
+                                $hash = $hashData['Hash'];
+                                $label = $hash . ' ' . (!empty($hashData['Name']) ? ' - ' . $hashData['Name'] : '');
+                                echo "<option value='$hash'" . (old('hash') === $hash ? 'selected' : '') . ">$label</option>";
                             }
                             ?>
                         </select>
@@ -150,9 +153,9 @@ RenderContentStart("Report Broken Achievement");
                 <tr>
                     <td><label for="description">Description</label></td>
                     <td colspan="2">
-                        <textarea class="requiredinput fullwidth forum" name="note[description]" id="description"
+                        <textarea class="fullwidth forum" name="description" id="description"
                                   style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
-                                  required data-bind="textInput: description"></textarea>
+                                  required data-bind="textInput: description"><?= old('description') ?></textarea>
                         <p data-bind="visible: descriptionIsNetworkProblem">Please do not use this tool for network issues. See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a> for instructions on how to request a manual unlock.</p>
                         <p data-bind="visible: descriptionIsUnhelpful">Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.</p>
                     </td>
@@ -169,23 +172,24 @@ RenderContentStart("Report Broken Achievement");
     </div>
 </div>
 <script type="text/javascript">
-    let ReportViewModel = function() {
-        this.description = ko.observable('');
-        this.emulatorValue = ko.observable();
-        this.emulatorValue.subscribe(function() {
+    // TODO replace with alpine
+    let ReportViewModel = function () {
+        this.description = ko.observable($('#description').val());
+        this.emulator = ko.observable($('#emulator').val());
+        this.emulator.subscribe(function () {
             displayCore();
         });
 
-        this.descriptionIsNetworkProblem = ko.pureComputed(function() {
+        this.descriptionIsNetworkProblem = ko.pureComputed(function () {
             let networkRegex = /(manual\s+unlock|internet)/ig;
             return networkRegex.test(this.description());
         }, this);
 
-        this.descriptionIsUnhelpful = ko.pureComputed(function() {
+        this.descriptionIsUnhelpful = ko.pureComputed(function () {
             let unhelpfulRegex = /(n'?t|not?).*work/ig;
             return this.description().length < 25 && unhelpfulRegex.test(this.description());
         }, this);
-    }
+    };
 
     ko.applyBindings(new ReportViewModel());
 </script>

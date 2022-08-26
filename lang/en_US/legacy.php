@@ -27,6 +27,7 @@ return [
         'ok' => __("OK."),
         'reset' => __("Reset."),
         'send' => __("Sent."),
+        'submit' => __("Submitted."),
         'update' => __("Updated."),
 
         'achievement_update' => __("Achievement updated."),

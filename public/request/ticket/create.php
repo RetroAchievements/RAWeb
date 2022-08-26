@@ -14,40 +14,31 @@ $input = Validator::validate(request()->post(), [
     'achievement' => 'required|integer|exists:mysql_legacy.Achievements,ID',
     'mode' => 'required|boolean',
     'issue' => 'required|integer|min:1|max:2',
-    'note' => 'sometimes|string|max:2',
+    'description' => 'required|string|max:2000',
+    'emulator' => 'required|string',
+    'emulator_version' => 'required|string',
+    'core' => 'sometimes|nullable|string',
+    'hash' => 'sometimes|nullable|string',
 ]);
 
-$achievementID = (int) $input['achievement'];
-$problemType = $input['issue'];
-$hardcore = (int) $input['mode'];
+$achievementId = (int) $input['achievement'];
 
-// TODO untangle $_POST['note']
-
-$note = null;
-if (isset($_POST['note'])) {
-    $appendNote = $_POST['note']['description'];
-
-    if (!empty(trim($_POST['note']['checksum']))) {
-        $appendNote .= "\nRetroAchievements Hash: " . $_POST['note']['checksum'];
+$note = $input['description'];
+if (!empty($input['hash'])) {
+    $note .= "\nRetroAchievements Hash: " . $input['hash'];
+}
+if (!empty($input['emulator'])) {
+    $note .= "\nEmulator: " . $input['emulator'];
+    if (!empty($input['core']) && ($input['emulator'] === 'RetroArch' || $input['emulator'] === 'RALibRetro')) {
+        $note .= " (" . $input['core'] . ")";
     }
-
-    if (!empty(trim($_POST['note']['emulator']))) {
-        $appendNote .= "\nEmulator: " . $_POST['note']['emulator'];
-
-        if ($_POST['note']['emulator'] == "RetroArch" || $_POST['note']['emulator'] == "RALibRetro") {
-            $appendNote .= " (" . $_POST['note']['core'] . ")";
-        }
-    }
-
-    if (!empty(trim($_POST['note']['emulatorVersion']))) {
-        $appendNote .= "\nEmulator Version: " . $_POST['note']['emulatorVersion'];
-    }
-
-    $note = $appendNote;
+}
+if (!empty($input['emulator_version'])) {
+    $note .= "\nEmulator Version: " . $input['emulator_version'];
 }
 
-if (submitNewTickets($user, $achievementID, $problemType, $hardcore, $note, $msgOut)) {
-    return back()->with('success', __('legacy.success.ok'));
+if (submitNewTickets($user, $achievementId, (int) $input['issue'], (int) $input['mode'], $note)) {
+    return redirect(route('achievement.show', $achievementId))->with('success', __('legacy.success.submit'));
 }
 
 return back()->withErrors(__('legacy.error.error'));
