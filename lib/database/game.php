@@ -39,26 +39,31 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
 
     $gameTitle = "UNRECOGNISED";
 
-    if ($gameID > 0) {
-        $query = "SELECT gd.Title, gd.ForumTopicID, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon, gd.ImageIcon AS GameIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released
-                  FROM GameData AS gd
-                  LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
-                  WHERE gd.ID=$gameID";
-        $dbResult = s_mysql_query($query);
-
-        if ($dbResult !== false) {
-            $data = mysqli_fetch_assoc($dbResult);
-            if ($data !== false) {
-                $gameTitle = $data['Title'];
-                $consoleName = $data['ConsoleName'];
-                $consoleID = $data['ConsoleID'];
-                $forumTopicID = $data['ForumTopicID'];
-                $allData = $data;
-            }
-        } else {
-            log_sql_fail();
-        }
+    if (empty($gameID)) {
+        return $gameTitle;
     }
+    $query = "SELECT gd.Title, gd.ForumTopicID, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon, gd.ImageIcon AS GameIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released
+              FROM GameData AS gd
+              LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
+              WHERE gd.ID=$gameID";
+    $dbResult = s_mysql_query($query);
+
+    if (!$dbResult) {
+        log_sql_fail();
+
+        return $gameTitle;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+    if (empty($data)) {
+        return $gameTitle;
+    }
+
+    $gameTitle = $data['Title'];
+    $consoleName = $data['ConsoleName'];
+    $consoleID = $data['ConsoleID'];
+    $forumTopicID = $data['ForumTopicID'];
+    $allData = $data;
 
     return (string) $gameTitle;
 }
@@ -121,7 +126,7 @@ function getGameMetadataByFlags(
 
     $query = "
     SELECT
-        ach.ID, 
+        ach.ID,
         IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
         IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,
         ach.Title,
@@ -138,7 +143,7 @@ function getGameMetadataByFlags(
     LEFT JOIN (
         SELECT
             ach.ID AS AchievementID,
-            (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded, 
+            (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
             (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
         FROM Achievements AS ach
         INNER JOIN Awarded AS aw ON aw.AchievementID = ach.ID
@@ -244,7 +249,7 @@ function getGameAlternatives($gameID): array
                 WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") > 0 THEN 1
                 ELSE 0
               END AS HasAchievements,
-              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") AS Points, 
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") AS Points,
               gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
@@ -683,7 +688,7 @@ function createNewGame($titleIn, $consoleID): ?array
     $title = sanitizeTitle($titleIn);
     // $title = str_replace( "--", "-", $title );    // subtle non-comment breaker
 
-    $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints) 
+    $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints)
                             VALUES ('$title', $consoleID, NULL, 0, '/Images/000001.png', '/Images/000002.png', '/Images/000002.png', '/Images/000002.png', NULL, NULL, NULL, NULL, 0, NULL, 0 )";
 
     $db = getMysqliConnection();
