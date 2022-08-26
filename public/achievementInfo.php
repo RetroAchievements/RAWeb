@@ -263,7 +263,7 @@ RenderContentStart($achievementTitleRaw);
                 echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
                 echo csrf_field();
                 echo "<label>Badge<br>";
-                echo "<input type='hidden' name='i' value='$achievementID'>";
+                echo "<input type='hidden' name='achievement' value='$achievementID'>";
                 echo "<input type='file' accept='.png,.jpg,.gif' name='file'>";
                 echo "</label>";
                 echo "<input type='submit' name='submit' style='float: right' value='Submit'>";

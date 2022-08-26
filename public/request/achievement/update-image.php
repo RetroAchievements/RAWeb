@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\ArticleType;
 use RA\Permissions;
 
@@ -7,7 +8,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$achievementID = (int) requestInputPost('i', 0);
+$input = Validator::validate(request()->post(), [
+    'achievement' => 'required|integer|exists:mysql_legacy.Achievements,ID',
+    'file' => 'image',
+]);
+
+$achievementID = (int) $input['achievement'];
 
 $achievement = GetAchievementData($achievementID);
 if (!$achievement) {

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use RA\ArticleType;
 use RA\ImageType;
 use RA\Permissions;
@@ -8,17 +10,17 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-// TODO check
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'type' => ['required', 'string', Rule::in(ImageType::cases)],
+    'file' => 'image',
+]);
 
-$gameID = (int) requestInputPost('i', 0);
-$imageType = (string) requestInputPost('t');
+$gameID = (int) $input['game'];
+$imageType = $input['type'];
 
 if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $gameID)) {
     return back()->withErrors(__('legacy.error.permissions'));
-}
-
-if (!ImageType::isValidGameImageType($imageType)) {
-    return back()->withErrors(__('legacy.error.image_upload'));
 }
 
 try {
@@ -32,7 +34,7 @@ $field = match ($imageType) {
     ImageType::GameTitle => 'ImageTitle',
     ImageType::GameInGame => 'ImageIngame',
     ImageType::GameBoxArt => 'ImageBoxArt',
-    default => null,
+    default => null, // should never hit this because of the match above
 };
 if (!$field) {
     return back()->withErrors(__('legacy.error.image_upload'));
