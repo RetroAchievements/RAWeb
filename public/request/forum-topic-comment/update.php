@@ -23,8 +23,9 @@ if ($user != $commentData['Author'] && $permissions < Permissions::Admin) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
+$topicId = $commentData['ForumTopicID'];
 if (editTopicComment($commentID, $commentPayload)) {
-    return back()->with('success', __('legacy.success.update'));
+    return redirect(url("/viewtopic.php?t=$topicId&c=$commentID#$commentID"))->with('success', __('legacy.success.update'));
 }
 
 return back()->withErrors(__('legacy.error.error'));
