@@ -858,15 +858,15 @@ sanitize_outputs(
                         echo "</form>";
                     }
 
-                    echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
                     echo csrf_field();
                     echo "<div>Update game details:</div>";
                     echo "<table><tbody>";
-                    echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<tr><td>Developer:</td><td style='width:100%'><input type='text' name='d' value='" . attributeEscape($developer) . "' style='width:100%;'></td></tr>";
-                    echo "<tr><td>Publisher:</td><td style='width:100%'><input type='text' name='p' value='" . attributeEscape($publisher) . "' style='width:100%;'></td></tr>";
-                    echo "<tr><td>Genre:</td><td style='width:100%'><input type='text' name='g' value='" . attributeEscape($genre) . "' style='width:100%;'></td></tr>";
-                    echo "<tr><td>First Released:</td><td style='width:100%'><input type='text' name='r' value=\"" . attributeEscape($released) . "\" style='width:100%;'></td></tr>";
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<tr><td>Developer:</td><td><input type='text' name='developer' value='" . attributeEscape($developer) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Publisher:</td><td><input type='text' name='publisher' value='" . attributeEscape($publisher) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td>Genre:</td><td><input type='text' name='genre' value='" . attributeEscape($genre) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td>First Released:</td><td><input type='text' name='release' value='" . attributeEscape($released) . "' style='width:100%;'></td></tr>";
                     echo "</tbody></table>";
                     echo "<div class='text-right'><input type='submit' value='Submit'></div>";
                     echo "</form>";
