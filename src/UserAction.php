@@ -13,7 +13,7 @@ abstract class UserAction
 
     public const TrackedStatus = 3;
 
-    public const VALID = [
+    public const cases = [
         self::UpdatePermissions,
         self::UpdateForumPostPermissions,
         self::PatreonBadge,

@@ -10,7 +10,7 @@ abstract class RatingType
 
     public const Achievement = 3;
 
-    public const VALID = [
+    public const cases = [
         self::Game,
         self::User,
         self::Achievement,

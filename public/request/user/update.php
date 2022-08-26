@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admi
 
 $input = Validator::validate(request()->post(), [
     'target' => 'required|string|exists:mysql_legacy.UserAccounts,User',
-    'property' => ['required', 'integer', Rule::in(UserAction::VALID)],
+    'property' => ['required', 'integer', Rule::in(UserAction::cases)],
     'value' => 'required|integer',
 ]);
 

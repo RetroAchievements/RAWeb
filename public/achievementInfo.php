@@ -252,7 +252,7 @@ RenderContentStart($achievementTitleRaw);
                 echo "<tr><td>Description:</td><td><input id='descriptioninput' type='text' name='d' value='" . attributeEscape($desc) . "' style='width:100%' maxlength='255'></td></tr>";
                 echo "<tr><td>Points:</td><td>";
                 echo "<select id='pointsinput' name='p'>";
-                foreach (AchievementPoints::VALID as $pointsOption) {
+                foreach (AchievementPoints::cases as $pointsOption) {
                     echo "<option value='$pointsOption' " . ($achPoints === $pointsOption ? 'selected' : '') . ">$pointsOption</option>";
                 }
                 echo "</select>";

@@ -18,7 +18,7 @@ abstract class Permissions
 
     public const Admin = 4;
 
-    public const AllPermissions = [
+    public const cases = [
         self::Spam,
         self::Banned,
         self::Unregistered,

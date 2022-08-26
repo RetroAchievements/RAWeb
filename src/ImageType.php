@@ -9,7 +9,7 @@ abstract class ImageType
     public const GameBoxArt = 'game_box_art';
     public const GameInGame = 'game_in_game';
 
-    private const Games = [
+    public const cases = [
         self::GameIcon,
         self::GameTitle,
         self::GameBoxArt,
@@ -18,6 +18,6 @@ abstract class ImageType
 
     public static function isValidGameImageType(string $type): bool
     {
-        return in_array($type, self::Games);
+        return in_array($type, self::cases);
     }
 }

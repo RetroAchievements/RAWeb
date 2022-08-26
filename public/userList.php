@@ -69,7 +69,7 @@ RenderContentStart("Users");
                 echo "<a href='/userList.php?s=$sortBy&u=1&p=-99'>All Untracked users</a>";
             }
 
-            foreach (Permissions::AllPermissions as $i) {
+            foreach (Permissions::cases as $i) {
                 echo " | ";
 
                 if ($showUntracked && $i == $perms && is_int($perms)) {
