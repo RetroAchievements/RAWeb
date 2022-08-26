@@ -42,11 +42,11 @@ RenderContentStart("Rename Game Entry ($consoleName)");
         echo "Renaming game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName.<br>";
         echo "Please enter a new name below:<br><br>";
 
-        echo "<form method='post' action='/request/game/update.php'>";
+        echo "<form method='post' action='/request/game/update-title.php'>";
         echo csrf_field();
-        echo "<input type='hidden' name='i' value='$gameID' />";
-        echo "New Name: <input type='text' name='t' value=\"$gameTitle\" size='60' />";
-        echo "&nbsp;<input type='submit' value='Submit' />";
+        echo "<input type='hidden' name='game' value='$gameID' />";
+        echo "New Name: <input type='text' name='title' value=\"$gameTitle\" maxlength='80' size='60' />";
+        echo "<button>Submit</button>";
         echo "</form>";
 
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt%20to%20Rename%20a%20title'>leave a message for admins</a> and they'll help sort it.</div>";
