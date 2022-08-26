@@ -35,6 +35,10 @@ A [local valet driver](LocalValetDriver.php) is provided.
 
 ## Installation
 
+```shell
+composer install
+```
+
 ### Run setup script
 
 ```shell
