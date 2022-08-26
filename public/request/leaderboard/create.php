@@ -9,7 +9,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 
 $input = Validator::validate(request()->post(), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
-    'leaderboard' => 'sometimes|integer|exists:mysql_legacy.LeaderboardDef,ID',
+    'leaderboard' => 'nullable|integer|exists:mysql_legacy.LeaderboardDef,ID',
     'amount' => 'required_with:leaderboard|integer|min:1|max:25',
 ]);
 

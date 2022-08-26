@@ -37,11 +37,11 @@ class ProfileSettingsRequest extends FormRequest
             'avatar' => $imageRules,
             'country' => 'nullable|string',
             'motto' => 'nullable|string|max:50',
-            'locale' => 'sometimes|nullable|string|max:50',
-            'locale_date' => 'sometimes|nullable|string|max:50',
-            // 'locale_time' => 'sometimes|nullable|string|max:50',
-            'locale_number' => 'sometimes|nullable|string|max:50',
-            'timezone' => 'sometimes|nullable|string|max:50',
+            'locale' => 'nullable|string|max:50',
+            'locale_date' => 'nullable|string|max:50',
+            // 'locale_time' => 'nullable|string|max:50',
+            'locale_number' => 'nullable|string|max:50',
+            'timezone' => 'nullable|string|max:50',
         ];
     }
 }

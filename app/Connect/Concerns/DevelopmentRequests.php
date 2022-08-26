@@ -46,11 +46,11 @@ trait DevelopmentRequests
 
         $request->validate(
             [
-                'g' => 'sometimes|integer',
+                'g' => 'nullable|integer',
                 'm' => 'required|string|size:32',
                 'i' => 'required|string|min:2|max:250',
                 'c' => 'required|integer|exists:systems,id',
-                'd' => 'sometimes|string',
+                'd' => 'nullable|string',
             ],
             $messages = [],
             $attributes = [

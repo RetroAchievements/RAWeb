@@ -13,7 +13,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 $user = request()->user();
 
 $input = Validator::validate(request()->post(), [
-    'news' => 'sometimes|integer',
+    'news' => 'nullable|integer',
     'body' => 'required|string',
     'title' => 'required|string',
     'link' => 'required|nullable|url',

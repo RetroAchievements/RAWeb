@@ -17,8 +17,8 @@ $input = Validator::validate(request()->post(), [
     'description' => 'required|string|max:2000',
     'emulator' => 'required|string',
     'emulator_version' => 'required|string',
-    'core' => 'sometimes|nullable|string',
-    'hash' => 'sometimes|nullable|string',
+    'core' => 'nullable|string',
+    'hash' => 'nullable|string',
 ]);
 
 $achievementId = (int) $input['achievement'];

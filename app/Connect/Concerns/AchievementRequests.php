@@ -96,7 +96,7 @@ trait AchievementRequests
         $request->validate(
             [
                 'a' => 'required|integer',
-                'v' => 'sometimes|string',
+                'v' => 'nullable|string',
                 'h' => 'required|integer',
             ],
             $messages = [],

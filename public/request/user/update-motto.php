@@ -8,7 +8,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 }
 
 $input = Validator::validate(request()->post(), [
-    'motto' => 'sometimes|nullable|string|max:50',
+    'motto' => 'nullable|string|max:50',
 ]);
 
 $newMotto = $input['motto'];
