@@ -1,7 +1,6 @@
 <?php
 
 use RA\ArticleType;
-use RA\GameAction;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
@@ -38,12 +37,11 @@ function UpdateHashDetails(user, hash) {
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
     showStatusMessage('Updating...');
-    $.post('/request/game/modify.php', {
-        g: <?= $gameID ?>,
-        f: <?= GameAction::UpdateHash ?>,
-        v: hash,
-        n: name,
-        l: labels
+    $.post('/request/game-hash/update.php', {
+        game: <?= $gameID ?>,
+        hash: hash,
+        name: name,
+        labels: labels
     })
         .done(function () {
             // Get comment date
@@ -59,10 +57,9 @@ function UnlinkHash(user, gameID, hash, elem) {
         return;
     }
     showStatusMessage('Updating...');
-    $.post('/request/game/modify.php', {
-        g: <?= $gameID ?>,
-        f: <?= GameAction::UnlinkHash ?>,
-        v: hash
+    $.post('/request/game-hash/delete.php', {
+        game: <?= $gameID ?>,
+        hash: hash
     })
         .done(function () {
             // Remove hash from table
