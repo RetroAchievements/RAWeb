@@ -109,7 +109,7 @@ function UploadImage() {
     var reader = new FileReader();
     reader.onload = function () {
         $('#loadingicon').fadeTo(100, 1.0);
-        $.post('/request/news/upload-image.php', { image: reader.result },
+        $.post('/request/news/update-image.php', { image: reader.result },
             function (data) {
                 $('#loadingicon').fadeTo(100, 0.0);
                 var image = asset(data.filename);

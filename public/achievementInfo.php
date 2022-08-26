@@ -260,7 +260,7 @@ RenderContentStart($achievementTitleRaw);
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
 
-                echo "<form class='mb-2' method='post' action='/request/achievement/upload-image.php' enctype='multipart/form-data'>";
+                echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
                 echo csrf_field();
                 echo "<label>Badge<br>";
                 echo "<input type='hidden' name='i' value='$achievementID'>";

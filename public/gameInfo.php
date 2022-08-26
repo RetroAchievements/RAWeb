@@ -813,7 +813,7 @@ sanitize_outputs(
                     }
 
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                        echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameTitle . "'>";
@@ -823,7 +823,7 @@ sanitize_outputs(
                         echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
                         echo "</form>";
 
-                        echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameInGame . "'>";
@@ -836,7 +836,7 @@ sanitize_outputs(
                 }
 
                 if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                    echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='i' value='$gameID'>";
                     echo "<input type='hidden' name='t' value='" . ImageType::GameIcon . "'>";
@@ -847,7 +847,7 @@ sanitize_outputs(
                     echo "</form>";
 
                     if ($isFullyFeaturedGame) {
-                        echo "<form class='mb-2' method='post' action='/request/game/upload-image.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='i' value='$gameID'>";
                         echo "<input type='hidden' name='t' value='" . ImageType::GameBoxArt . "'>";
