@@ -8,6 +8,8 @@ use App\Legacy\Database\Eloquent\BaseModel;
 
 /**
  * @property mixed $ID
+ * @property mixed $Image
+ * @property mixed $Payload
  * @property mixed $Timestamp
  * @property mixed $Title
  */

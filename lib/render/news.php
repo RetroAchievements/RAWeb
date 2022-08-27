@@ -15,6 +15,7 @@ function RenderNewsComponent(): void
 
     echo "<div id='carousel'>";
     foreach ($newsData as $news) {
+        /** @var News $news */
         RenderNewsHeader($news);
     }
     echo "</div>";
@@ -29,17 +30,17 @@ function RenderNewsComponent(): void
     echo "</div>";
 }
 
-function RenderNewsHeader($newsData): void
+function RenderNewsHeader(News $newsData): void
 {
-    $title = $newsData['Title'];
-    $payload = $newsData['Payload'];
-    $image = $newsData['Image'];
+    $title = $newsData->Title;
+    $payload = $newsData->Payload;
+    $image = $newsData->Image;
 
     $link = htmlspecialchars($newsData['Link']);
 
     $author = $newsData['Author'];
-    $authorLink = GetUserAndTooltipDiv($author, false);
-    $niceDate = getNiceDate($newsData['TimePosted']);
+    $authorLink = GetUserAndTooltipDiv($author);
+    $niceDate = $newsData->Timestamp->format('F j, Y, H:i');
 
     echo "<div class='newsbluroverlay'>";
     echo "<div>";
