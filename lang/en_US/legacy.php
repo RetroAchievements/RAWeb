@@ -32,7 +32,7 @@ return [
 
         'achievement_update' => __("Achievement updated."),
         'email_change' => __('Email address changed.'),
-        'email_validate' => __("Email validated."),
+        'email_verify' => __("Email verified."),
         'game_merge' => __("Game merged."),
         'game_modify' => __("Game modified."),
         'image_upload' => "Image uploaded.",

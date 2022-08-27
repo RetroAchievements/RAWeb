@@ -90,20 +90,9 @@ function UploadNewAvatar() {
     return false;
 }
 
-function validateEmail() {
-    var oldEmail = document.forms['updateEmail']['o'].value;
-    var newEmail = document.forms['updateEmail']['e'].value;
-    var verifyEmail = document.forms['updateEmail']['f'].value;
-    if (newEmail != verifyEmail) {
-        showStatusFailure('New email addresses are not identical');
-        return false;
-    }
-    if (newEmail == oldEmail) {
-        showStatusFailure('New email address is same as old email address');
-        return false;
-    }
+function confirmEmailChange(event) {
     <?php if ($permissions >= Permissions::Developer): ?>
-    return confirm('Are you sure that you want to do this?\n\nChanging your email address will revoke your privileges and you will need to have them restored by staff.');
+    return confirm('Changing your email address will revoke your privileges and you will need to have them restored by staff.');
     <?php else: ?>
     return true;
     <?php endif ?>
@@ -112,11 +101,6 @@ function validateEmail() {
 <div id="mainpage">
     <div id="leftcontainer">
         <div class='detaillist'>
-            <?php
-            if ($permissions == Permissions::Unregistered) {
-                echo "<div class='text-danger'>Warning: Email address not confirmed. Please check your inbox or spam folders, or click <a href='/request/auth/send-verification-email.php?u=$user'>here</a> to resend your verification email!</div>";
-            }
-            ?>
             <div class='component'>
                 <h2>Settings</h2>
                 <?php
@@ -265,7 +249,6 @@ function validateEmail() {
                 <h3>Change Password</h3>
                 <form method='post' action='/request/auth/update-password.php'>
                     <?= csrf_field() ?>
-                    <input type="hidden" name="u" value="<?= $user ?>">
                     <table>
                         <colgroup>
                             <col style='width: 200px'>
@@ -295,7 +278,7 @@ function validateEmail() {
             </div>
             <div class='component'>
                 <h3>Change Email Address</h3>
-                <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return validateEmail()'>
+                <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return confirmEmailChange()'>
                     <?= csrf_field() ?>
                     <table>
                         <colgroup>

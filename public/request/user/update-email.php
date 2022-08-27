@@ -1,41 +1,31 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\ArticleType;
 use RA\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetail)) {
+if (!authenticateFromCookie($username, $permissions, $userDetail)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (!ValidatePOSTChars("ef")) {
-    header("Location: " . config('app.url') . "/controlpanel.php?e=e_baddata");
-    exit;
-}
+$input = Validator::validate(request()->post(), [
+    'email' => 'required|email|confirmed|min:8|different:username',
+]);
 
-$email = requestInputPost('e');
-$email2 = requestInputPost('f');
-
-if ($email !== $email2) {
-    header("Location: " . config('app.url') . "/controlpanel.php?e=e_notmatch");
-    exit;
-}
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header("Location: " . config('app.url') . "/controlpanel.php?e=e_badnewemail");
-    exit;
-}
+$email = $input['email'];
 
 $dbResult = s_mysql_query(
-    "UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", Updated=NOW() WHERE User='$user'"
+    "UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", Updated=NOW() WHERE User='$username'"
 );
 
 if (!$dbResult) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-sendValidationEmail($user, $email);
+sendValidationEmail($username, $email);
 
 addArticleComment('Server', ArticleType::UserModeration, $userDetail['ID'],
-    $user . ' changed their email address'
+    $username . ' changed their email address'
 );
 
 return back()->with('success', __('legacy.success.change'));

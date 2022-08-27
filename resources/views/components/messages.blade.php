@@ -1,3 +1,12 @@
+<?php
+
+use App\Legacy\Models\User;
+use RA\Permissions;
+
+/** @var User $user */
+$user = request()->user();
+?>
+
 @if($settings->get('system.alert'))
     <div class="alert alert-danger mb-0 p-2">
         <div class="container">
@@ -19,6 +28,19 @@
         </div>
     @endif
 @endauth--}}
+@if ($user && $user->Permissions === Permissions::Unregistered)
+    <div class="container">
+        <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
+            <x-fas-exclamation-triangle/>
+            Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
+            <form class="inline" action="/request/auth/send-verification-email.php?u={{ $user->User }}" method="post">
+                @csrf
+                <button class="btn btn-link bg-transparent p-0 text-white underline">here</button> to resend your activation email.
+            </form>
+        </div>
+    </div>
+@endif
+
 
 {{-- TODO toasts --}}
 <div class="sticky top-14 z-50 container">
