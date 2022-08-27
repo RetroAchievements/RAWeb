@@ -1,20 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-// TODO do not allow GET requests, POST only
-if (!ValidateGETChars("g")) {
-    header("Location: " . config('app.url') . "/forum.php?e=invalidparams");
-    exit;
-}
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+]);
 
-$gameID = requestInputQuery('g');
-
-if (generateGameForumTopic($user, $gameID, $forumTopicID)) {
+if (generateGameForumTopic($user, (int) $input['game'], $forumTopicID)) {
     return redirect(url("/viewtopic.php?t=$forumTopicID"))->with('success', __('legacy.success.create'));
 }
 
