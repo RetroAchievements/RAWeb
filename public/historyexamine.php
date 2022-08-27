@@ -101,18 +101,18 @@ RenderHtmlHead("$userPage's Legacy - $dateStr");
         $achCount = count($achEarnedOnDay);
         $earnedCount = 0;
         $pointsCount = 0;
-        // foreach( $achEarnedOnDay as $achEarned )
 
         $achEarnedLib = [];
+        foreach ($achEarnedOnDay as $achEarned) {
+            $achID = $achEarned['AchievementID'];
+            $achPoints = $achEarned['Points'];
 
-        // Potentially overwrite HARDCORE into $achEarnedLib
-        for ($i = 0; $i < $achCount; $i++) {
-            $achID = $achEarnedOnDay[$i]['AchievementID'];
-            $achEarnedLib[$achID] = $achEarnedOnDay[$i];
-            $achPoints = $achEarnedLib[$achID]['Points'];
-            if ($achEarnedOnDay[$i]['HardcoreMode'] == UnlockMode::Hardcore) {
+            // capture the entry if it's a hardcore unlock, or a hardcore unlock has not yet been seen
+            if ($achEarned['HardcoreMode'] == UnlockMode::Hardcore) {
+                $achEarnedLib[$achID] = $achEarned;
                 $achEarnedLib[$achID]['PointsNote'] = "$achPoints";
-            } else { // else Softcore
+            } elseif (!isset($achEarnedLib[$achID])) {
+                $achEarnedLib[$achID] = $achEarned;
                 $achEarnedLib[$achID]['PointsNote'] = "<span class='softcore'>$achPoints</span>";
             }
         }
