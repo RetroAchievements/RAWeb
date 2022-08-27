@@ -582,7 +582,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                           SELECT aw.User AS User,
                           SUM($achCount) AS AchievementCount,
                           SUM($achPoints) as Points,
-                          SUM(ach.TrueRatio) AS RetroPoints,
+                          SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN ach.TrueRatio ELSE 0 END) AS RetroPoints,
                           NULL AS TotalAwards
                           FROM Awarded AS aw
                           LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
