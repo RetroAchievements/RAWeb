@@ -77,19 +77,3 @@ function ValidateGETChars($charsIn): bool
 
     return true;
 }
-
-// TODO replace with proper validation
-// TODO do not allow GET requests, POST only
-function ValidatePOSTorGETChars($charsIn): bool
-{
-    $numChars = mb_strlen($charsIn);
-    for ($i = 0; $i < $numChars; $i++) {
-        if (!array_key_exists($charsIn[$i], $_GET)) {
-            if (!array_key_exists($charsIn[$i], $_POST)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
