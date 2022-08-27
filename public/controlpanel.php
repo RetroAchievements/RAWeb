@@ -129,11 +129,10 @@ function confirmEmailChange(event) {
                     echo "<tr>";
                     echo "<td>Allow Comments on my User Wall</td>";
                     echo "<td>";
-                    echo "<form method='post' action='/request/user/update-wall.php'>";
+                    echo "<form method='post' action='/request/user-comment/toggle.php'>";
                     echo csrf_field();
-                    echo "<input type='hidden' name='t' value='wall'>";
                     $checkedStr = ($userWallActive == 1) ? "checked" : "";
-                    echo "<input class='mr-2' type='checkbox' name='v' value='1' id='userwallactive' $checkedStr>";
+                    echo "<input class='mr-2' type='checkbox' name='active' value='1' id='userwallactive' $checkedStr>";
                     echo "<button class='btn btn-primary'>Save</button>";
                     echo "</form>";
                     echo "</td>";
@@ -142,9 +141,8 @@ function confirmEmailChange(event) {
                     echo "<tr>";
                     echo "<td>Remove all comments from my User Wall</td>";
                     echo "<td>";
-                    echo "<form method='post' action='/request/user/update-wall.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
+                    echo "<form method='post' action='/request/user-comment/delete-all.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
                     echo csrf_field();
-                    echo "<input type='hidden' name='t' value='cleanwall'>";
                     echo "<button class='btn btn-danger'>Delete All Comments</button>";
                     echo "</form>";
                     echo "</td>";
