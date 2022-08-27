@@ -8,24 +8,21 @@ $user = request()->user();
 if (!$user) {
     return back()->withErrors(__('legacy.error.account'));
 }
-$username = $user->getAttribute('User');
 
 $input = Validator::validate(request()->post(), [
     'password_current' => 'required',
     'password' => 'required|confirmed|min:8|different:username',
 ]);
 
-// TODO check
-$pass = $input['password_current'];
-$newPass = $input['password'];
+$username = $user->User;
 
-if (!authenticateFromPassword($username, $pass)) {
+if (!authenticateFromPassword($username, $input['password_current'])) {
     return back()->withErrors(__('legacy.error.account'));
 }
 
 RemovePasswordResetToken($username);
 
-if (changePassword($username, $newPass)) {
+if (changePassword($username, $input['password'])) {
     generateAppToken($username, $tokenInOut);
 
     return back()->with('success', __('legacy.success.password_change'));

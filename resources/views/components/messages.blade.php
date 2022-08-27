@@ -1,7 +1,6 @@
 <?php
 
 use App\Legacy\Models\User;
-use RA\Permissions;
 
 /** @var User $user */
 $user = request()->user();
@@ -28,7 +27,7 @@ $user = request()->user();
         </div>
     @endif
 @endauth--}}
-@if ($user && $user->Permissions === Permissions::Unregistered)
+@if ($user && $user->Permissions === RA\Permissions::Unregistered)
     <div class="container">
         <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
             <x-fas-exclamation-triangle/>
