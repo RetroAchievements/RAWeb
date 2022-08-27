@@ -55,7 +55,7 @@ function RenderUserList(string $header, string $user, array $users, int $friends
         echo "<div>";
         switch ($friendshipType) {
             case UserRelationship::Following:
-                if (!array_search($user, array_column($followingList, 'User'))) {
+                if (array_search($user, array_column($followingList, 'User')) === false) {
                     echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Following . "'>Follow&nbsp;user</a></span>";
                 }
                 echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
