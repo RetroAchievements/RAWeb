@@ -167,6 +167,7 @@ a:hover {
   align-self: start;
   max-width: 340px;
   min-width: 340px;
+  margin-left: 1rem;
 
   background: var(--box-bg-color);
   background: linear-gradient(0deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
@@ -265,7 +266,6 @@ td, tr, img {
   position: relative;
   min-height: 450px;
   display: flex;
-  grid-column-gap: 1rem;
 }
 
 #mainpage > .both {
