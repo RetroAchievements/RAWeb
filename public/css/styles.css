@@ -1469,3 +1469,7 @@ svg > g > g:last-child {
 .text-danger {
   color: red;
 }
+
+.ui-autocomplete {
+  z-index: 30 !important;
+}
