@@ -884,11 +884,11 @@ sanitize_outputs(
 
                 if ($permissions >= Permissions::Developer) {
                     if (!empty($relatedGames)) {
-                        echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game-relation/delete.php'>";
                         echo csrf_field();
-                        echo "<input type='hidden' name='i' value='$gameID'>";
+                        echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<div>Remove related games:</div>";
-                        echo "<select name='m[]' style='resize:vertical;overflow:auto;width:100%;height:125px' multiple>";
+                        echo "<select name='relations[]' style='resize:vertical;overflow:auto;width:100%;height:125px' multiple>";
                         foreach ($relatedGames as $gameAlt) {
                             $gameAltID = $gameAlt['gameIDAlt'];
                             $gameAltTitle = $gameAlt['Title'];
@@ -904,11 +904,11 @@ sanitize_outputs(
                         echo "</form>";
                     }
 
-                    echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                    echo "<form class='mb-2' method='post' action='/request/game-relation/create.php'>";
                     echo csrf_field();
                     echo "<div>Add related games (CSV of game IDs):</div>";
-                    echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<input type='text' name='n' class='searchboxgame' size='20'>";
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<input type='text' name='relations' size='20'>";
                     echo "<input type='submit' style='float: right' value='Add'>";
                     echo "</form>";
                 }
