@@ -25,12 +25,17 @@ if ($outbox) {
 }
 ?>
 <script>
-function MarkAsRead(msgID) {
-    $('#msgInline' + msgID).toggle();
+function ReadMessage(msgID) {
+    var $message = $('#msgInline' + msgID);
+    $message.toggle();
 
-    // If was unread
-    var unread = $('#msgInlineTitle' + msgID + ' span.unreadmsgtitle');
-    if (unread.contents().length) {
+    if (!$message.is(':visible')) {
+        return;
+    }
+
+    var $title = $('#msgInlineTitle' + msgID);
+    if ($title.hasClass('message-unread')) {
+        $title.removeClass('message-unread');
         $.post('/request/message/read.php', {
             message: msgID,
             status: 0
@@ -39,13 +44,12 @@ function MarkAsRead(msgID) {
 }
 
 function MarkAsUnread(msgID) {
+    var $title = $('#msgInlineTitle' + msgID);
+    $title.toggleClass('message-unread');
     $.post('/request/message/read.php', {
         message: msgID,
         status: 1
-    })
-        .done(function () {
-            location.reload();
-        });
+    });
 }
 </script>
 <div id="mainpage">
@@ -138,12 +142,8 @@ function MarkAsUnread(msgID) {
 
                 // echo "<td>" . $msgTo . "</td>";
 
-                echo "<td class='pointer' id='msgInlineTitle$msgID' onclick=\"MarkAsRead( $msgID ); return false;\">";
-                if ($msgUnread) {
-                    echo "<span class='unreadmsgtitle'>$msgTitle</span>";
-                } else {
-                    echo "<span>$msgTitle</span>";
-                }
+                echo "<td class='pointer " . ($msgUnread ? 'message-unread' : '') . "' id='msgInlineTitle$msgID' onclick='ReadMessage($msgID)'>";
+                echo $msgTitle;
                 echo "</td>";
 
                 echo "</tr>";
@@ -154,9 +154,17 @@ function MarkAsUnread(msgID) {
 
                 if (!$outbox) {
                     echo "<div class='flex justify-end gap-2'>";
-                    echo "<a class='btn btn-danger' href='/request/message/delete.php?m=$msgID' onclick='return confirm(\"Are you sure you want to permanently delete this message?\")'>Delete</a>";
-                    echo "<a class='btn' href='#' onclick=\"MarkAsUnread( $msgID ); return false;\" >Mark as unread</a>";
-                    echo "<a class='btn btn-primary' href='/createmessage.php?t=$msgUser&amp;i=$msgID'>Reply</a>";
+
+                    echo "<form action='/request/message/delete.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this message?\")'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='message' value='$msgID'>";
+                    echo "<button class='btn btn-danger'>Delete</button>";
+                    echo "</form>";
+
+                    echo "<button type='button' class='btn' onclick='MarkAsUnread($msgID)'>Mark as unread</button>";
+
+                    echo "<a class='btn btn-primary' href='/createmessage.php?t=$msgUser&i=$msgID'>Reply</a>";
+
                     echo "</div>";
                 }
 

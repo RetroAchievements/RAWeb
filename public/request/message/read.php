@@ -7,14 +7,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(request()->post(), [
-    'message' => 'required|integer',
+    'message' => 'required|integer|exists:mysql_legacy.Messages,ID',
     'status' => 'required|integer|in:0,1',
 ]);
 
 if (markMessageAsRead($user, $input['message'], $input['status'])) {
-    if ((int) $input['status'] === 1) {
-        return response()->json(['message' => __('legacy.success.ok')]);
-    }
     return true;
 }
 

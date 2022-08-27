@@ -222,21 +222,23 @@ function DeleteMessage($user, $messageID): bool
 
     if (!$messageToDelete) {
         return false;
-    } elseif ($messageToDelete['UserTo'] !== $user) {
-        return false;
-    } else {
-        $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            /** @var User $user */
-            $user = request()->user();
-            DeletedModels::create([
-                'ModelType' => 'Messages',
-                'ModelID' => $messageID,
-                'DeletedByUserID' => $user->ID,
-            ]);
-        }
-
-        return $dbResult !== false;
     }
+
+    if (strtolower($messageToDelete['UserTo']) !== strtolower($user)) {
+        return false;
+    }
+
+    $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        /** @var User $user */
+        $user = request()->user();
+        DeletedModels::create([
+            'ModelType' => 'Messages',
+            'ModelID' => $messageID,
+            'DeletedByUserID' => $user->ID,
+        ]);
+    }
+
+    return $dbResult !== false;
 }

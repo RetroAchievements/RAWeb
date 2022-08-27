@@ -1136,10 +1136,9 @@ td .badgeimg {
   width: 240px;
 }
 
-.unreadmsgtitle {
-  /* Inbox */
+/* Inbox */
+.message-unread {
   font-weight: bold;
-  border-bottom: dashed 1px;
 }
 
 .recentforumposts td {

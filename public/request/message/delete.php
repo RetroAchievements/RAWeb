@@ -1,17 +1,16 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-// TODO do not allow GET requests, POST only
-if (!ValidateGETChars("m")) {
-    echo "FAILED";
-}
+$input = Validator::validate(request()->post(), [
+    'message' => 'required|integer|exists:mysql_legacy.Messages,ID',
+]);
 
-$messageID = requestInputQuery('m');
-
-if (DeleteMessage($user, $messageID)) {
+if (DeleteMessage($user, (int) $input['message'])) {
     return back()->with('success', __('legacy.success.delete'));
 }
 
