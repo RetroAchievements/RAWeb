@@ -47,7 +47,7 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
         echo "<div class='flex justify-end gap-2'>";
         switch ($friendshipType) {
             case UserRelationship::Following:
-                if (!array_search($user, array_column($followingList, 'User'))) {
+                if (array_search($user, array_column($followingList, 'User')) === false) {
                     echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$user'>";
