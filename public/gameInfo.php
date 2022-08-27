@@ -915,10 +915,10 @@ sanitize_outputs(
                 if ($isFullyFeaturedGame) {
                     echo "<div>Update <a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script:</div>";
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
-                        echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data'>";
+                        echo "<form class='mb-2' method='post' action='/request/game/update-rich-presence.php'>";
                         echo csrf_field();
-                        echo "<input type='hidden' value='$gameID' name='i'>";
-                        echo "<textarea style='height:320px;' class='code fullwidth' name='x'>$richPresenceData</textarea><br>";
+                        echo "<input type='hidden' value='$gameID' name='game'>";
+                        echo "<textarea style='height:320px;' class='code fullwidth' name='rich_presence' maxlength='60000'>$richPresenceData</textarea><br>";
                         echo "<div class='text-right'><input type='submit' value='Submit'></div>";
                         echo "</form>";
                     } else {
