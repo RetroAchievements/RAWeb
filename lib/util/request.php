@@ -52,28 +52,3 @@ function requestInputSanitized(string $key, mixed $default = null, mixed $type =
     }
     return requestInput($key, $default, $type);
 }
-
-// TODO replace with proper validation
-function ValidatePOSTChars($charsIn): bool
-{
-    $numChars = mb_strlen($charsIn);
-    for ($i = 0; $i < $numChars; $i++) {
-        if (!array_key_exists($charsIn[$i], $_POST)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// TODO replace with proper validation
-function ValidateGETChars($charsIn): bool
-{
-    $numChars = mb_strlen($charsIn);
-    for ($i = 0; $i < $numChars; $i++) {
-        if (!array_key_exists($charsIn[$i], $_GET)) {
-            return false;
-        }
-    }
-
-    return true;
-}
