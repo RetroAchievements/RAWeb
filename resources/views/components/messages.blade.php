@@ -42,7 +42,7 @@ $user = request()->user();
 
 
 {{-- TODO toasts --}}
-<div class="sticky top-14 z-50 container">
+<div class="sticky top-14 z-10 container">
     <div id="status" class="hidden absolute w-full text-gray-200 px-5 py-2 rounded-sm"></div>
 </div>
 {{--<div aria-live="polite" aria-atomic="true"

@@ -1,4 +1,4 @@
-<nav class="z-50 {{ $class }}">
+<nav class="z-20 {{ $class }}">
     <x-container :fluid="$fluid">
         <div class="flex items-center">
             {{ $brand ?? null }}
@@ -10,8 +10,8 @@
         </div>
     </x-container>
 </nav>
-{{--<nav class="z-50 {{ $class }} overflow-auto navbar-scrollable {{ $breakpoint }}:hidden">--}}
-<nav class="z-50 {{ $class }} {{ $breakpoint }}:hidden">
+{{--<nav class="z-20 {{ $class }} overflow-auto navbar-scrollable {{ $breakpoint }}:hidden">--}}
+<nav class="z-20 {{ $class }} {{ $breakpoint }}:hidden">
     <x-container :fluid="$fluid">
         {{ $mobile ?? $slot }}
     </x-container>
