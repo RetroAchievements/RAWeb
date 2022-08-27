@@ -86,7 +86,7 @@ RenderContentStart($pageTitle);
             echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<div>Change Topic Title:</div>";
-            echo "<form class='mb-3' action='/request/forum-topic/update-title.php' method='post' >";
+            echo "<form class='mb-3' action='/request/forum-topic/update-title.php' method='post'>";
             echo csrf_field();
             echo "<input type='hidden' name='topic' value='$thisTopicID'>";
             echo "<input type='text' name='title' value='$thisTopicTitle' size='51' >";

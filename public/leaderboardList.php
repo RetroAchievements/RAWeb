@@ -361,15 +361,13 @@ function ReloadLBPageByGame() {
             echo "<div class='flex gap-2'>";
             if ($permissions >= Permissions::Developer) {
                 if ($lbNumEntries > 0) {
-                    echo "<form action='/request/leaderboard/reset.php' method='post'";
-                    echo "onclick='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>";
+                    echo "<form action='/request/leaderboard/reset.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete all entries of this leaderboard?\")'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='leaderboard' value='$lbID'>";
                     echo "<button class='btn btn-danger'>Reset entries</button>";
                     echo "</form>";
                 }
-                echo "<form action='/request/leaderboard/delete.php' method='post'";
-                echo "onclick='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>";
+                echo "<form action='/request/leaderboard/delete.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard?\")'>";
                 echo csrf_field();
                 echo "<input type='hidden' name='leaderboard' value='$lbID'>";
                 echo "<button class='btn btn-danger'>Delete leaderboard</button>";
