@@ -27,7 +27,7 @@ if (!empty($leaderboardID)) {
 
 $lbID = null;
 if (submitNewLeaderboard($gameID, $lbID, $user)) {
-    return back()->with('success', __('legacy.success.ok'));
+    return redirect(url('leaderboardList.php?g=' . $gameID))->with('success', __('legacy.success.ok'));
 }
 
 return back()->withErrors(__('legacy.error.error'));

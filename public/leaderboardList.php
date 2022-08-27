@@ -37,6 +37,10 @@ if (empty($consoleIDInput) && empty($gameID)) {
     abort(404);
 }
 
+if (!$lbCount) {
+    return redirect(route('game.show', $gameID));
+}
+
 sanitize_outputs(
     $requestedConsole,
     $gameData['Title'],
