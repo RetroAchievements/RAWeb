@@ -143,10 +143,6 @@ function RenderTitleBar(): void
         echo "<img class='mr-1' id='mailboxicon' alt='Mailbox Icon' src='$mailboxIcon'/>";
         echo "<span id='mailboxcount'>$unreadMessageCount</span>";
         echo "</a>";
-        echo "<form class='inline-block' action='/request/auth/logout.php' method='post'>";
-        echo csrf_field();
-        echo "<button class='btn btn-link p-0'>Logout</button>";
-        echo "</form>";
         echo "</div>";
 
         echo "</div>";
@@ -286,6 +282,13 @@ function RenderToolbar(): void
         echo "<li><a href='/setRequestList.php?u=$username'>Requested Sets</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
+        echo "<li class='divider'></li>";
+        echo "<li>";
+        echo "<form action='/request/auth/logout.php' method='post'>";
+        echo csrf_field();
+        echo "<button class='p-0 bg-transparent text-gray-200 border-0 w-full'>Logout</button>";
+        echo "</form>";
+        echo "</li>";
         echo "</ul>";
         echo "</div>";
         echo "</li>";

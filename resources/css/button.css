@@ -9,8 +9,9 @@
   padding: 0.4em 0.6em;
   border-radius: 4px;
   display: inline-block;
-  letter-spacing: 0.25px;
   text-align: left;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: small;
 }
 .btn:hover, button:hover, [type="button"]:hover, [type="reset"]:hover, [type="submit"]:hover {
   color: var(--menu-link-hover-color);

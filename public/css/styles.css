@@ -35,7 +35,8 @@ table {
 /* CORE COMPONENTS */
 
 body {
-  font: small Verdana, arial, sans-serif;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: small;
   font-weight: normal;
   color: var(--text-color);
   width: auto;
@@ -463,12 +464,12 @@ footer a:hover, footer a:active {
   background-color: #111530;
 }
 
-#feed tr.feed_comment:not(.system) {
-  background-color: #151515;
+#feed tr.feed_comment {
+  background-color: var(--embed-color);
 }
 
 #feed tr.feed_comment.system {
-  color: grey;
+  color: var(--text-color-muted);
   font-size: 9px;
 }
 
@@ -704,7 +705,8 @@ footer a:hover, footer a:active {
   left: 2px
 }
 
-#innermenu > ul > li:hover > div > ul > li > a {
+#innermenu > ul > li:hover > div > ul > li > a,
+#innermenu > ul > li:hover > div > ul > li button {
   display: block;
   color: #000;
   line-height: 1.4em;
@@ -712,6 +714,9 @@ footer a:hover, footer a:active {
   text-align: left;
   margin: 0;
   padding: 4px 12px;
+  border: none;
+  border-radius: 0;
+  font-size: 10px;
 }
 
 #innermenu > ul > li:hover > div > ul {
@@ -729,7 +734,8 @@ footer a:hover, footer a:active {
   margin-right: 1px;
 }
 
-#innermenu > ul > li:hover > div > ul > li > a:hover {
+#innermenu > ul > li:hover > div > ul > li > a:hover,
+#innermenu > ul > li:hover > div > ul > li button:hover{
   color: #fff;
   background: #333;
 }
