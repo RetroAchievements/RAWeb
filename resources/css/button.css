@@ -10,6 +10,7 @@
   border-radius: 4px;
   display: inline-block;
   letter-spacing: 0.25px;
+  text-align: left;
 }
 .btn:hover, button:hover, [type="button"]:hover, [type="reset"]:hover, [type="submit"]:hover {
   color: var(--menu-link-hover-color);
@@ -80,8 +81,4 @@
 [data-theme="red"] .btn-danger:hover {
   color: var(--menu-link-hover-color);
   border: 1px solid var(--menu-link-color);
-}
-
-.btn .icon {
-  font-size: 0.75em;
 }

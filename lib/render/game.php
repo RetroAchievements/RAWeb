@@ -226,10 +226,14 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
     );
 
     if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
-        echo "<a class='info-button' href='/viewtopic.php?t=$forumTopicID'><span>💬</span>Official forum topic</a>";
+        echo "<a class='btn btn-link py-2 mb-1 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {
-            echo "<a class='info-button' href='/request/game/generate-forum-topic.php?g=$gameID' onclick='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'><span>💬</span>Create the official forum topic for $gameTitle</a>";
+            echo "<form action='/request/game/generate-forum-topic.php?g=$gameID' method='post'";
+            echo "onclick='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'>";
+            echo csrf_field();
+            echo "<button class='btn btn-link py-2 mb-1 w-full'><span class='icon icon-md ml-1 mr-3'>💬</span>Create Forum Topic</button>";
+            echo "</form>";
         }
     }
 }

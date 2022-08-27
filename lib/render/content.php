@@ -136,7 +136,7 @@ function RenderConsoleMessage(int $consoleId): void
     if ($consoleId === 21) {
         echo <<<HTML
             <div style="margin-bottom: 10px">
-                <a href="/viewtopic.php?t=11108" class="info-button">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. There is no <abbr title="Estimated time of arrival">ETA</abbr> at this time. Click for more details. ⚠️</a>
+                <a href="/viewtopic.php?t=11108" class="btn btn-link">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. There is no <abbr title="Estimated time of arrival">ETA</abbr> at this time. Click for more details. ⚠️</a>
             </div>
         HTML;
     }
