@@ -873,11 +873,11 @@ sanitize_outputs(
                 }
 
                 if ($permissions >= Permissions::Admin) {
-                    echo "<form class='mb-2' method='post' action='/request/game/update.php' enctype='multipart/form-data' style='margin-bottom:10px'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/update-forum-topic.php' style='margin-bottom:10px'>";
                     echo csrf_field();
                     echo "New Forum Topic ID:";
-                    echo "<input type='hidden' name='i' value='$gameID'>";
-                    echo "<input type='text' name='f' size='20'>";
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<input type='text' name='forum_topic' size='20'>";
                     echo "<input type='submit' style='float: right' value='Submit'>";
                     echo "</form>";
                 }
