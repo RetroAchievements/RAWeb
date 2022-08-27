@@ -1,18 +1,19 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use RA\UserRelationship;
+
 if (!authenticateFromCookie($user, $permissions, $userDetail)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-// TODO do not allow GET requests, POST only
-if (!ValidateGETChars("fa")) {
-    echo "FAILED";
-}
+$input = Validator::validate(request()->post(), [
+    'user' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'action' => ['required', 'integer', Rule::in(UserRelationship::cases())],
+]);
 
-$friend = requestInputQuery('f');
-$action = requestInputQuery('a');
-
-if (changeFriendStatus($user, $friend, $action) !== 'error') {
+if (changeFriendStatus($user, $input['user'], (int) $input['action']) !== 'error') {
     return back()->with('success', __('legacy.success.ok'));
 }
 

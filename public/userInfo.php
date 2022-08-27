@@ -216,33 +216,48 @@ RenderContentStart($userPage);
         }
 
         if (isset($user) && ($user !== $userPage)) {
-            echo "<div class='friendbox'>";
-            echo "<div class='buttoncollection'>";
-            // echo "<h4>Friend Actions:</h4>";
-
+            echo "<div class='flex items-center gap-1'>";
             $friendshipType = GetFriendship($user, $userPage);
             switch ($friendshipType) {
                 case UserRelationship::Following:
-                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unfollow</a></span>";
+                    echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='user' value='$userPage'>";
+                    echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
+                    echo "<button class='btn btn-link'>Unfollow</button>";
+                    echo "</form>";
                     break;
                 case UserRelationship::NotFollowing:
-                    echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Following . "'>Follow</a></span>";
+                    echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='user' value='$userPage'>";
+                    echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
+                    echo "<button class='btn btn-link'>Follow</button>";
+                    echo "</form>";
                     break;
             }
 
             if ($friendshipType != UserRelationship::Blocked) {
-                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::Blocked . "'>Block</a></span>";
+                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='user' value='$userPage'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
+                echo "<button class='btn btn-link'>Block</button>";
+                echo "</form>";
             } else {
-                echo "<span class='clickablebutton'><a href='/request/user/update-relationship.php?f=$userPage&amp;a=" . UserRelationship::NotFollowing . "'>Unblock</a></span>";
+                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='user' value='$userPage'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
+                echo "<button class='btn btn-link'>Unblock</button>";
+                echo "</form>";
             }
+            echo "<a class='btn btn-link' href='/createmessage.php?t=$userPage'>Message</a>";
 
-            echo "<span class='clickablebutton'><a href='/createmessage.php?t=$userPage'>Message</a></span>";
-
-            echo "</div>"; // buttoncollection
             if (GetFriendship($userPage, $user) == UserRelationship::Following) {
-                echo "&nbsp;&nbsp;<span style='font-style:italic'>$userPage is following you</span>";
+                echo "<span class='px-3'>Follows you</span>";
             }
-            echo "</div>"; // friendbox
+            echo "</div>";
         }
 
         echo "<br>";

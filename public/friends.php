@@ -24,7 +24,7 @@ asort($blockedUsersList);
 
 $followersList = GetFollowers($user);
 
-function RenderUserList(string $header, string $user, array $users, int $friendshipType, array $followingList)
+function RenderUserList(string $header, array $users, int $friendshipType, array $followingList)
 {
     if (count($users) == 0) {
         return;
@@ -32,7 +32,6 @@ function RenderUserList(string $header, string $user, array $users, int $friends
 
     echo "<br/><h2>$header</h2>";
     echo "<table><tbody>";
-    echo "<tr><th style='width:36px'><th>User</th><th style='width:128px'></th></tr>";
     foreach ($users as $user) {
         echo "<tr>";
 
@@ -40,21 +39,36 @@ function RenderUserList(string $header, string $user, array $users, int $friends
         echo GetUserAndTooltipDiv($user, true);
         echo "</td>";
 
-        echo "<td style='text-align:left'>";
+        echo "<td class='w-full'>";
         echo GetUserAndTooltipDiv($user);
         echo "</td>";
 
         echo "<td style='vertical-align:middle;'>";
-        echo "<div>";
+        echo "<div class='flex justify-end gap-2'>";
         switch ($friendshipType) {
             case UserRelationship::Following:
                 if (!array_search($user, array_column($followingList, 'User'))) {
-                    echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Following . "'>Follow&nbsp;user</a></span>";
+                    echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='user' value='$user'>";
+                    echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
+                    echo "<button class='btn btn-link'>Follow</button>";
+                    echo "</form>";
                 }
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='user' value='$user'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
+                echo "<button class='btn btn-link'>Block</button>";
+                echo "</form>";
                 break;
             case UserRelationship::Blocked:
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$user&amp;a=" . UserRelationship::NotFollowing . "'>Unblock&nbsp;user</a></span>";
+                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='user' value='$user'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
+                echo "<button class='btn btn-link'>Unblock</button>";
+                echo "</form>";
                 break;
         }
         echo "</div>";
@@ -75,41 +89,58 @@ RenderContentStart("Following");
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
             echo "<table><tbody>";
-            echo "<tr><th style='width:70px'><th>User</th><th style='width:60%'>Last Seen</th><th style='width:80px'>When</th><th style='width:128px'></th></tr>";
             foreach ($followingList as $entry) {
                 echo "<tr>";
 
                 $followingUser = $entry['User'];
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($followingUser, true, null, 64);
-                echo "</td>";
-
-                echo "<td style='text-align:left'>";
-                echo GetUserAndTooltipDiv($followingUser);
+                echo GetUserAndTooltipDiv($followingUser, true, null, 42);
                 echo "</td>";
 
                 echo "<td>";
-                if ($entry['LastGameID']) {
-                    $gameData = getGameData($entry['LastGameID']);
-                    echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']);
-                    echo "<br/>";
-                }
-
-                $activity = $entry['LastSeen'];
-                sanitize_outputs($activity);
-                echo $activity;
+                echo GetUserAndTooltipDiv($followingUser);
                 echo "</td>";
 
-                echo "<td style='text-align:left'>";
-                echo getNiceDate(strtotime($entry['LastActivityTimestamp']));
+                echo "<td class='w-full'>";
+                if ($entry['LastActivityTimestamp']) {
+                    echo '<div>Last seen ' . getNiceDate(strtotime($entry['LastActivityTimestamp'])) . '<div>';
+                }
+                if ($entry['LastGameID']) {
+                    $gameData = getGameData($entry['LastGameID']);
+                    echo '<div>';
+                    echo '<small>';
+                    echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName'], imgSizeOverride: 16);
+                    echo '</small>';
+                    echo '</div>';
+                }
+
+                echo '<div>';
+                $activity = $entry['LastSeen'];
+                sanitize_outputs($activity);
+                echo '<small>' . $activity . '</small>';
+                echo '</div>';
                 echo "</td>";
 
                 echo "<td style='vertical-align:middle;'>";
-                echo "<div>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/createmessage.php?t=$user'>Send&nbsp;message</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$followingUser&amp;a=" . UserRelationship::NotFollowing . "'>Stop&nbsp;Following</a></span>";
-                echo "<span style='display:block; line-height:1.6;'><a href='/request/user/update-relationship.php?f=$followingUser&amp;a=" . UserRelationship::Blocked . "'>Block&nbsp;user</a></span>";
+                echo "<div class='flex justify-end gap-2'>";
+
+                echo "<a class='btn btn-link' href='/createmessage.php?t=$user'>Message</a>";
+
+                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='user' value='$followingUser'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
+                echo "<button class='btn btn-link'>Unfollow</button>";
+                echo "</form>";
+
+                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
+                echo csrf_field();
+                echo "<input type='hidden' name='user' value='$followingUser'>";
+                echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
+                echo "<button class='btn btn-link'>Block</button>";
+                echo "</form>";
+
                 echo "</div>";
                 echo "</td>";
 
@@ -118,8 +149,8 @@ RenderContentStart("Following");
             echo "</tbody></table>";
         }
 
-        RenderUserList('Followers', $user, $followersList, UserRelationship::Following, $followingList);
-        RenderUserList('Blocked', $user, $blockedUsersList, UserRelationship::Blocked, $followingList);
+        RenderUserList('Followers', $followersList, UserRelationship::Following, $followingList);
+        RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList);
         ?>
     </div>
 </div>
