@@ -11,7 +11,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 
 $input = Validator::validate(request()->post(), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
-    'type' => ['required', Rule::in(RatingType::cases)],
+    'type' => ['required', Rule::in(RatingType::cases())],
     'rating' => 'required|integer|min:1|max:5',
 ]);
 

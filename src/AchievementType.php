@@ -8,13 +8,16 @@ abstract class AchievementType
 
     public const Unofficial = 5;
 
-    public const cases = [
-        self::OfficialCore,
-        self::Unofficial,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::OfficialCore,
+            self::Unofficial,
+        ];
+    }
 
     public static function isValid(int $type): bool
     {
-        return in_array($type, self::cases);
+        return in_array($type, self::cases());
     }
 }

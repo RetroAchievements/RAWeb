@@ -10,9 +10,12 @@ abstract class RatingType
 
     public const Achievement = 3;
 
-    public const cases = [
-        self::Game,
-        self::User,
-        self::Achievement,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::Game,
+            self::User,
+            self::Achievement,
+        ];
+    }
 }

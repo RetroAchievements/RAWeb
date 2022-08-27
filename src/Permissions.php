@@ -18,23 +18,29 @@ abstract class Permissions
 
     public const Admin = 4;
 
-    public const cases = [
-        self::Spam,
-        self::Banned,
-        self::Unregistered,
-        self::Registered,
-        self::JuniorDeveloper,
-        self::Developer,
-        self::Admin,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::Spam,
+            self::Banned,
+            self::Unregistered,
+            self::Registered,
+            self::JuniorDeveloper,
+            self::Developer,
+            self::Admin,
+        ];
+    }
 
-    public const ValidUserPermissions = [
-        self::Unregistered,
-        self::Registered,
-        self::JuniorDeveloper,
-        self::Developer,
-        self::Admin,
-    ];
+    public static function assignable(): array
+    {
+        return [
+            self::Unregistered,
+            self::Registered,
+            self::JuniorDeveloper,
+            self::Developer,
+            self::Admin,
+        ];
+    }
 
     public static function toString(int $permissions): string
     {

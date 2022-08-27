@@ -10,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admi
 
 $input = Validator::validate(request()->post(), [
     'topic' => 'required|integer|exists:mysql_legacy.ForumTopic,ID',
-    'permissions' => ['required', 'integer', Rule::in(Permissions::ValidUserPermissions)],
+    'permissions' => ['required', 'integer', Rule::in(Permissions::assignable())],
 ]);
 
 if (updateTopicPermissions((int) $input['topic'], (int) $input['permissions'])) {

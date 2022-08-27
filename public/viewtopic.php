@@ -99,7 +99,7 @@ RenderContentStart($pageTitle);
                 echo csrf_field();
                 echo "<input type='hidden' name='topic' value='$thisTopicID'>";
                 echo "<select name='permissions'>";
-                foreach (Permissions::ValidUserPermissions as $selectablePermission) {
+                foreach (Permissions::assignable() as $selectablePermission) {
                     $selected = ($thisTopicPermissions == $selectablePermission) ? ' selected' : '';
                     echo "<option value='$selectablePermission'$selected>" .
                         Permissions::toString($selectablePermission) . "</option>";

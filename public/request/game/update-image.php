@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 
 $input = Validator::validate(request()->post(), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
-    'type' => ['required', 'string', Rule::in(ImageType::cases)],
+    'type' => ['required', 'string', Rule::in(ImageType::cases())],
     'file' => 'image',
 ]);
 

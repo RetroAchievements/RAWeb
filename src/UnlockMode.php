@@ -8,13 +8,16 @@ abstract class UnlockMode
 
     public const Hardcore = 1;
 
-    private const VALID = [
-        self::Softcore,
-        self::Hardcore,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::Softcore,
+            self::Hardcore,
+        ];
+    }
 
     public static function isValid(int $type): bool
     {
-        return in_array($type, self::VALID);
+        return in_array($type, self::cases());
     }
 }

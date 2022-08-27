@@ -13,10 +13,13 @@ abstract class UserAction
 
     public const TrackedStatus = 3;
 
-    public const cases = [
-        self::UpdatePermissions,
-        self::UpdateForumPostPermissions,
-        self::PatreonBadge,
-        self::TrackedStatus,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::UpdatePermissions,
+            self::UpdateForumPostPermissions,
+            self::PatreonBadge,
+            self::TrackedStatus,
+        ];
+    }
 }

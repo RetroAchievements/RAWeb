@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 
 $input = Validator::validate(request()->post(), [
     'achievements' => 'required',
-    'flag' => ['required', 'integer', Rule::in(AchievementType::cases)],
+    'flag' => ['required', 'integer', Rule::in(AchievementType::cases())],
 ]);
 
 $achievementIds = $input['achievements'];

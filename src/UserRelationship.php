@@ -10,6 +10,15 @@ abstract class UserRelationship
 
     public const Following = 1;
 
+    public static function cases(): array
+    {
+        return [
+            self::Blocked,
+            self::NotFollowing,
+            self::Following,
+        ];
+    }
+
     public static function toString(int $type): string
     {
         return match ($type) {

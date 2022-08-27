@@ -28,23 +28,26 @@ abstract class ArticleType
 
     public const GameModification = 12;
 
-    private const VALID = [
-        self::Game,
-        self::Achievement,
-        self::User,
-        self::News,
-        self::Activity,
-        self::Leaderboard,
-        self::AchievementTicket,
-        self::Forum,
-        self::UserModeration,
-        self::GameHash,
-        self::SetClaim,
-        self::GameModification,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::Game,
+            self::Achievement,
+            self::User,
+            self::News,
+            self::Activity,
+            self::Leaderboard,
+            self::AchievementTicket,
+            self::Forum,
+            self::UserModeration,
+            self::GameHash,
+            self::SetClaim,
+            self::GameModification,
+        ];
+    }
 
     public static function isValid($value): bool
     {
-        return in_array($value, self::VALID);
+        return in_array($value, self::cases());
     }
 }

@@ -7,17 +7,20 @@ abstract class FilenameIterator
     public const BadgeIterator = 'BadgeIter';
     public const ImageIterator = 'ImageIter';
 
-    private const VALID = [
-        self::BadgeIterator,
-        self::ImageIterator,
-    ];
-
     private const BadgeIteratorPadding = 5;
     private const ImageIteratorPadding = 6;
 
+    public static function cases(): array
+    {
+        return [
+            self::BadgeIterator,
+            self::ImageIterator,
+        ];
+    }
+
     public static function isValidIterator(string $iterator): bool
     {
-        return in_array($iterator, self::VALID);
+        return in_array($iterator, self::cases());
     }
 
     public static function get(string $iterator): int
