@@ -89,7 +89,6 @@ function RenderTitleBar(): void
         }
         echo "</div>";
 
-        echo "<div class='flex gap-2'>";
         $openTickets = 0;
         $devRequestTickets = 0;
         if ($permissions >= Permissions::Developer) {
@@ -100,6 +99,9 @@ function RenderTitleBar(): void
         $requestTickets = countRequestTicketsByUser($username);
         $prefix = 'Tickets: ';
         $separator = '-';
+        if ($openTickets || $devRequestTickets || $requestTickets) {
+            echo "<div class='flex gap-2'>";
+        }
         if ($openTickets) {
             $filter = TicketFilters::Default & ~TicketFilters::StateRequest;
             echo " $separator <a href='/ticketmanager.php?u=$username&t=$filter'>";
@@ -108,7 +110,6 @@ function RenderTitleBar(): void
             $prefix = '';
             $separator = '/';
         }
-
         if ($devRequestTickets > 0) {
             $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
             echo " $separator <a href='/ticketmanager.php?u=$username&t=$filter'>$prefix$devRequestTickets</a>";
@@ -119,23 +120,27 @@ function RenderTitleBar(): void
             $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
             echo " $separator <a href='/ticketmanager.php?p=$username&t=$filter'>$prefix$requestTickets</a>";
         }
-        echo "</div>";
+        if ($openTickets || $devRequestTickets || $requestTickets) {
+            echo "</div>";
+        }
 
         // Display claim expiring message if necessary
-        echo "<div class='flex gap-2'>";
         if ($permissions >= Permissions::JuniorDeveloper) {
             $expiringClaims = getExpiringClaim($username);
             if ($expiringClaims["Expired"] > 0) {
+                echo "<div>";
                 echo "<a href='/expiringclaims.php?u=$username'>";
                 echo "<span class='text-danger'>Claim Expired</span>";
                 echo "</a>";
+                echo "</div>";
             } elseif ($expiringClaims["Expiring"] > 0) {
+                echo "<div>";
                 echo "<a href='/expiringclaims.php?u=$username'>";
                 echo "<span class='text-danger'>Claim Expiring Soon</span>";
                 echo "</a>";
+                echo "</div>";
             }
         }
-        echo "</div>";
 
         echo "<div class='flex gap-2 items-center'>";
         $mailboxIcon = $unreadMessageCount > 0 ? asset('assets/images/icon/mail-unread.png') : asset('assets/images/icon/mail.png');
