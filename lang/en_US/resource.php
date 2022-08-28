@@ -169,6 +169,9 @@ return [
     'game-hash-set' => [
         'title' => __('set') . '|' . __('sets'),
     ],
+    'ranking' => [
+        'title' => __('ranking') . '|' . __('rankings'),
+    ],
     'setting' => [
         'title' => __('setting') . '|' . __('settings'),
         'profile' => [

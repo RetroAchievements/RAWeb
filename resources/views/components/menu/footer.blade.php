@@ -73,6 +73,13 @@ $menu = collect([
         'title' => __('Community'),
         'items' => [
             [
+                'active' => Route::is('ranking*'),
+                'label' => __res('ranking'),
+                'url' => url('globalRanking.php?s=5&t=2'),
+                // 'url' => route('user.index'),
+                'visible' => true,
+            ],
+            [
                 'label' => 'RANews',
                 'url' => 'https://news.retroachievements.org',
                 'visible' => true,
