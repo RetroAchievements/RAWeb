@@ -46,11 +46,16 @@
   border: 2px solid var(--embed-color);
   border-radius: 4px;
   align-self: start;
-  max-width: 340px;
-  min-width: 340px;
-  margin-left: 1rem;
   background: var(--box-bg-color);
   background: linear-gradient(0deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
+}
+
+@media only screen and (min-width: 1024px) {
+  #rightcontainer, aside {
+    max-width: 340px;
+    min-width: 340px;
+    margin-left: 1rem;
+  }
 }
 
 /* TODO replace with sections */
@@ -96,17 +101,6 @@
 #devstatsscrollpane {
   max-height: 25.0em;
   overflow-y: auto;
-}
-
-.gamescreenshots td {
-  text-align: center;
-  padding: 4px;
-}
-
-@media only screen and (max-width: 1023px) {
-  .gamescreenshots td {
-    display: inline-block;
-  }
 }
 
 .sortbyselector {

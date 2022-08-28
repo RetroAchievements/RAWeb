@@ -1,7 +1,6 @@
 /* tailwind */
 @import "tailwindcss/base";
 @import "tailwindcss/components";
-@import "tailwindcss/utilities";
 
 @import "reset.css";
 
@@ -45,3 +44,6 @@
 @import "motto.css";
 @import "news.css";
 @import "ticket-manager.css";
+
+/* tailwind utilities come last to allow for overrides */
+@import "tailwindcss/utilities";
