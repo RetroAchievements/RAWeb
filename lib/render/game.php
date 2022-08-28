@@ -242,30 +242,26 @@ function RenderRecentGamePlayers($recentPlayerData): void
 {
     echo "<div class='component'>Recent Players:";
     echo "<table><tbody>";
-    echo "<tr><th>User</th><th>When</th><th>Activity</th>";
-
+    echo "<tr><th></th><th>User</th><th>When</th><th class='w-full'>Activity</th>";
     foreach ($recentPlayerData as $recentPlayer) {
         echo "<tr>";
-
         $userName = $recentPlayer['User'];
         $date = $recentPlayer['Date'];
         $activity = $recentPlayer['Activity'];
-
         sanitize_outputs(
             $userName,
             $activity
         );
-
-        echo "<td nowrap>";
+        echo "<td>";
         echo GetUserAndTooltipDiv($userName, true);
-        echo GetUserAndTooltipDiv($userName, false);
         echo "</td>";
-
-        echo "<td>$date</td>";
+        echo "<td>";
+        echo GetUserAndTooltipDiv($userName);
+        echo "</td>";
+        echo "<td class='whitespace-nowrap'>$date</td>";
         echo "<td>$activity</td>";
         echo "</tr>";
     }
-
     echo "</tbody></table>";
     echo "</div>";
 }

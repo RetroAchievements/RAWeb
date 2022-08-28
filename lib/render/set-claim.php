@@ -14,22 +14,30 @@ function renderNewClaimsComponent(int $count): void
 
     $claimData = getFilteredClaimData(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, false, 0, $count);
 
-    echo "<tbody><table>";
+    echo "<table class='mb-1'>";
+    echo "<thead>";
+    echo "<tr>";
+    echo "<th></th>";
     echo "<th>User</th>";
     echo "<th>Game</th>";
-    echo "<th nowrap>Started</th>";
+    echo "<th class='whitespace-nowrap'>Started</th>";
+    echo "</tr>";
+    echo "</thead>";
+    echo "<tbody>";
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
-        echo "<tr><td class='text-nowrap'>";
-        echo GetUserAndTooltipDiv($claimUser, true);
-        echo GetUserAndTooltipDiv($claimUser, false);
-        echo "</td>";
-
+        echo "<tr>";
         echo "<td>";
+        echo GetUserAndTooltipDiv($claimUser, true);
+        echo "</td>";
+        echo "<td>";
+        echo GetUserAndTooltipDiv($claimUser);
+        echo "</td>";
+        echo "<td class='w-full'>";
         echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
         echo "</td>";
-
         echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
+        echo "</tr>";
     }
     echo "</tbody></table>";
 
@@ -47,25 +55,31 @@ function renderFinishedClaimsComponent(int $count): void
 
     $claimData = getFilteredClaimData(0, ClaimFilters::AllCompletedPrimaryClaims, ClaimSorting::FinishedDateDescending, false, null, false, 0, $count);
 
-    echo "<tbody><table>";
+    echo "<table class='mb-1'>";
+    echo "<thead>";
+    echo "<tr>";
+    echo "<th></th>";
     echo "<th>User</th>";
     echo "<th>Game</th>";
-    echo "<th nowrap>Type</th>";
-    echo "<th nowrap>Finished</th>";
+    echo "<th>Type</th>";
+    echo "<th>Finished</th>";
+    echo "</tr>";
+    echo "<tbody>";
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
-        echo "<tr><td class='text-nowrap'>";
-        echo GetUserAndTooltipDiv($claimUser, true);
-        echo GetUserAndTooltipDiv($claimUser, false);
-        echo "</td>";
-
+        echo "<tr>";
         echo "<td>";
+        echo GetUserAndTooltipDiv($claimUser, true);
+        echo "</td>";
+        echo "<td>";
+        echo GetUserAndTooltipDiv($claimUser);
+        echo "</td>";
+        echo "<td class='w-full'>";
         echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
         echo "</td>";
-
         echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
-
         echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
+        echo "</tr>";
     }
     echo "</tbody></table>";
 

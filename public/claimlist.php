@@ -72,19 +72,14 @@ RenderContentStart("Claim List");
         };
 
         $linkSorting = function (string $label, int $sort1, int $sort2) use ($sortType, $createLink) {
-            $colspan = '';
-            if ($sort1 == ClaimSorting::UserDescending) {
-                $colspan = " colspan='2'";
-            }
-
             if (($sortType % 10) == $sort1) { // if on the current sort header
                 if ($sortType == $sort2) {
-                    return "<th $colspan><b><a href='" . $createLink('s', $sort1) . "'>$label &#9650;</a></b></th>"; // Ascending
+                    return "<th><b><a href='" . $createLink('s', $sort1) . "'>$label &#9650;</a></b></th>"; // Ascending
                 } else {
-                    return "<th $colspan><b><a href='" . $createLink('s', $sort2) . "'>$label &#9660;</a></b></th>"; // Descending
+                    return "<th><b><a href='" . $createLink('s', $sort2) . "'>$label &#9660;</a></b></th>"; // Descending
                 }
             } else {
-                return "<th $colspan><a href='" . $createLink('s', $sort1) . "'>$label</a></th>";
+                return "<th><a href='" . $createLink('s', $sort1) . "'>$label</a></th>";
             }
         };
 
@@ -166,7 +161,7 @@ RenderContentStart("Claim List");
         echo "<br style='clear:both'>";
 
         echo "<div class='table-wrapper'><table><tbody>";
-
+        echo "<th></th>";
         // Sortable table headers
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::GameDescending), ClaimSorting::GameDescending, ClaimSorting::GameAscending);
@@ -180,10 +175,11 @@ RenderContentStart("Claim List");
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
-            echo "<tr><td class='text-nowrap'>";
+            echo "<tr>";
+            echo "<td>";
             echo GetUserAndTooltipDiv($claimUser, true);
             echo "</td>";
-            echo "<td class='text-nowrap'><div class='fixheightcell'>";
+            echo "<td class='whitespace-nowrap'><div class='fixheightcell'>";
             echo GetUserAndTooltipDiv($claimUser, false);
             echo "</div></td>";
             echo "<td>";
