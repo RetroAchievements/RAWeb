@@ -613,13 +613,9 @@ sanitize_outputs(
             $pageTitleAttr = attributeEscape($pageTitle);
 
             echo "<h3>$pageTitle</h3>";
-            echo "<table><tbody>";
-            echo "<tr>";
-            echo "<td style='width:110px; padding: 7px; vertical-align: top' >";
+            echo "<div class='sm:flex justify-between items-top gap-3 mb-3'>";
             echo "<img src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
-            echo "</td>";
-            echo "<td>";
-            echo "<table class='gameinfo'><tbody>";
+            echo "<table><colgroup><col class='w-48'></colgroup><tbody>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
                 RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
@@ -631,25 +627,18 @@ sanitize_outputs(
             }
             RenderMetadataTableRow('Released', $released);
             echo "</tbody></table>";
-            echo "</tr>";
-            echo "</tbody></table>";
+            echo "</div>";
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='gamescreenshots'>";
-                echo "<table><tbody>";
-                echo "<tr>";
-                echo "<td>";
-                echo "<img src='$imageTitle' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px;' alt='Title Screenhot'>";
-                echo "</td>";
-                echo "<td>";
-                echo "<img src='$imageIngame' style='max-width:${screenshotWidth}px;max-height:${screenshotMaxHeight}px;' alt='In-game Screenshot'>";
-                echo "</td>";
-                echo "</tr>";
-                echo "</tbody></table>";
+                echo "<div class='sm:flex justify-between items-center mb-3 gap-5'>";
+                echo "<div>";
+                echo "<img class='w-full' src='$imageTitle' alt='Title Screenhot'>";
+                echo "</div>";
+                echo "<div>";
+                echo "<img class='w-full' src='$imageIngame' alt='In-game Screenshot'>";
+                echo "</div>";
                 echo "</div>";
             }
-
-            echo "<br>";
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
@@ -1319,7 +1308,6 @@ sanitize_outputs(
             <?php
             RenderBoxArt($gameData['ImageBoxArt']);
 
-            echo "<h3>More Info</h3>";
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);

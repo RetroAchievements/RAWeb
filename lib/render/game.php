@@ -97,13 +97,8 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): void
 
 function RenderBoxArt($imagePath): void
 {
-    echo "<div class='component gamescreenshots'>";
-    echo "<h3>Box Art</h3>";
-    echo "<table><tbody>";
-    echo "<tr><td>";
-    echo "<img src='$imagePath' style='max-width:100%;' alt='Boxart'/>";
-    echo "</td></tr>";
-    echo "</tbody></table>";
+    echo "<div class='component text-center'>";
+    echo "<img class='max-w-full' src='$imagePath' alt='Boxart'>";
     echo "</div>";
 }
 
@@ -213,7 +208,7 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
         }
 
         echo "<tr>";
-        echo "<td class='whitespace-nowrap'>$label:</td>";
+        echo "<td>$label</td>";
         echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
         echo "</tr>";
     }

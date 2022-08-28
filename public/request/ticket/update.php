@@ -1,6 +1,5 @@
 <?php
 
-use App\Legacy\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use RA\Permissions;
