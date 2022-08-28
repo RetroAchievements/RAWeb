@@ -4,7 +4,7 @@
     :page-title="$pageTitle"
     :page-description="$pageDescription"
     :page-image="$pageImage"
-    :page-type="$pageImage"
+    :page-type="$pageType"
     :permalink="$permalink"
     :canonical-url="$permalink"
 />

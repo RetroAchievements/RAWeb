@@ -29,7 +29,7 @@ function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $descript
     if ($OGType) {
         view()->share('pageType', 'retroachievements:' . $OGType);
     }
-    view()->share('pageImage', asset($imageURL));
+    view()->share('pageImage', media_asset($imageURL));
 }
 
 function RenderTitleBar(): void
