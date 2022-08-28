@@ -33,16 +33,16 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
                 $forumTopicTitle,
             );
 
-            echo "<div class='embedded mb-1'>";
-            echo "<div style='line-height: 1em;'>";
+            echo "<div class='embedded mb-1 flex justify-between items-center'>";
+            echo "<div>";
             echo GetUserAndTooltipDiv($author, true, iconSizeDisplayable: 16);
             echo " ";
             echo GetUserAndTooltipDiv($author);
             echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
-            echo "</div>";
             echo "<div class='truncate' style='max-width:600px'>$shortMsg</div>";
-            echo "<div class='text-right'><a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a></div>";
+            echo "</div>";
+            echo "<a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a>";
             echo "</div>";
         }
     }

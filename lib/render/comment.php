@@ -108,19 +108,26 @@ function RenderArticleComment(
     echo "<tr class='feed_comment $class' id='$artCommentID'>";
 
     $niceDate = date("j M Y ", $submittedDate);
-    $niceDate .= '<br>';
-    $niceDate .= date("G:i", $submittedDate);
+    $niceDate .= date("H:i", $submittedDate);
 
     sanitize_outputs($user, $comment);
     $comment = nl2br($comment);
 
-    echo "<td class='smalldate'>$niceDate</td>";
     echo "<td class='iconscommentsingle'>";
     if ($user !== 'Server') {
         echo GetUserAndTooltipDiv($user, true);
     }
     echo "</td>";
-    echo "<td class='commenttext' colspan='3'>$deleteIcon$comment</td>";
+    echo "<td class='commenttext' colspan='3'>";
+    echo $deleteIcon;
+    echo "<div>";
+    if ($user !== 'Server') {
+        echo GetUserAndTooltipDiv($user);
+    }
+    echo " <span class='smalldate'>$niceDate</span>";
+    echo "</div>";
+    echo $comment;
+    echo "</td>";
 
     echo "</tr>";
 }
@@ -135,7 +142,6 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 
     echo <<<EOL
         <tr id="comment_$commentId">
-            <td></td>
             <td class="iconscommentsingle">
                 <img alt="$user" title="$user" class="badgeimg" src="/UserPic/$user.png" width="32" height="32">
             </td>
@@ -144,7 +150,7 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
                     $csrfField
                     <input type="hidden" name="commentable_id" value="$articleId">
                     <input type="hidden" name="commentable_type" value="$articleTypeId">
-                    <div class="flex align-center">
+                    <div class="flex align-center mb-1">
                         <textarea
                             class="comment-textarea"
                             name="body"
