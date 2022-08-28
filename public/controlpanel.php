@@ -119,7 +119,7 @@ function confirmEmailChange(event) {
                     echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
                     echo csrf_field();
                     echo "<input name='motto' value=\"$userMottoString\" maxlength='50' size='50' id='motto' placeholder='Your motto'>";
-                    echo "<button class='btn btn-primary'>Set Motto</button>";
+                    echo "<button class='btn'>Set Motto</button>";
                     echo "</form>";
                     echo "<div>No profanity.</div>";
                     echo "</td>";
@@ -133,7 +133,7 @@ function confirmEmailChange(event) {
                     echo csrf_field();
                     $checkedStr = ($userWallActive == 1) ? "checked" : "";
                     echo "<input class='mr-2' type='checkbox' name='active' value='1' id='userwallactive' $checkedStr>";
-                    echo "<button class='btn btn-primary'>Save</button>";
+                    echo "<button class='btn'>Save</button>";
                     echo "</form>";
                     echo "</td>";
                     echo "</tr>";
@@ -267,7 +267,7 @@ function confirmEmailChange(event) {
                         <tr>
                             <td></td>
                             <td>
-                                <button class="btn btn-primary">Change Password</button>
+                                <button class="btn">Change Password</button>
                             </td>
                         </tr>
                         </tbody>
@@ -304,7 +304,7 @@ function confirmEmailChange(event) {
                         <tr>
                             <td></td>
                             <td>
-                                <button class="btn btn-primary">Change Email Address</button>
+                                <button class="btn">Change Email Address</button>
                             </td>
                         </tr>
                         </tbody>
@@ -440,7 +440,7 @@ function confirmEmailChange(event) {
                     </p>
                     <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure you want to cancel your account deletion request?');">
                         <?= csrf_field() ?>
-                        <button class='btn btn-primary'>Cancel account deletion request</button>
+                        <button class='btn'>Cancel account deletion request</button>
                     </form>
                 <?php else: ?>
                     <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure you want to request account deletion?');">

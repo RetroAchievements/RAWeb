@@ -93,7 +93,7 @@ RenderContentStart("Manage News");
                             <div>
                                 <input id="author" type="text" value="<?= $newsAuthor ?>" readonly>
                             </div>
-                            <button class="btn btn-primary">Submit</button>
+                            <button class="btn">Submit</button>
                         </div>
                     </td>
                 </tr>

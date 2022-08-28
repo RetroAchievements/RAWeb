@@ -124,7 +124,7 @@ function ReloadLBPageByGame() {
             echo "<form method='post' action='/request/leaderboard/create.php'>";
             echo csrf_field();
             echo "<input type='hidden' name='game' value='$gameID' />";
-            echo "<button class='btn btn-primary'>Create Leaderboard</button>";
+            echo "<button class='btn'>Create Leaderboard</button>";
             echo "</form>";
             echo "<form method='post' action='/request/leaderboard/create.php'>";
             echo csrf_field();
@@ -379,7 +379,7 @@ function ReloadLBPageByGame() {
             }
             echo "</div>";
             if ($editAllowed) {
-                echo "<button type='button' class='btn btn-primary' onclick=\"UpdateLeaderboard('$lbID')\">Update</button>";
+                echo "<button type='button' class='btn' onclick=\"UpdateLeaderboard('$lbID')\">Update</button>";
             }
             echo "</div>";
 

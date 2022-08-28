@@ -66,7 +66,7 @@ RenderContentStart("Create topic: $thisForumTitle");
             echo "<tr><td></td><td>";
             echo "<div class='flex justify-between items-center'>";
             echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
-            echo "<button class='btn btn-primary'>Submit new topic</button>";
+            echo "<button class='btn'>Submit new topic</button>";
             echo "</div>";
             echo "</td></tr>";
             echo "</tbody>";

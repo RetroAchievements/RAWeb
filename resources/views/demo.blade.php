@@ -20,7 +20,7 @@
                 {{--<p>Text in title -> actions will be below</p>--}}
             </x-slot>
             <x-slot name="actions">
-                @foreach([null, 'primary', 'warning', 'danger'] as $modifier)
+                @foreach([null, 'warning', 'danger'] as $modifier)
                     <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
                         <x-fas-fire/>
                         Action
@@ -65,7 +65,7 @@
                 <h2>Title</h2>
             </x-slot>
             <x-slot name="actions">
-                @foreach([null, 'primary', 'warning', 'danger'] as $modifier)
+                @foreach([null, 'warning', 'danger'] as $modifier)
                     <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
                         <x-pixelarticons-heart/>
                         Action
@@ -137,7 +137,7 @@
             </x-slot>
         </x-section-header>
         <div class="mb-3">
-            @foreach([null, 'primary', 'warning', 'danger'] as $modifier)
+            @foreach([null, 'warning', 'danger'] as $modifier)
                 <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }} mb-2">
                     <x-fas-exclamation-triangle/>
                     {{ $modifier }}

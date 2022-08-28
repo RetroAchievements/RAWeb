@@ -163,7 +163,7 @@ function MarkAsUnread(msgID) {
 
                     echo "<button type='button' class='btn' onclick='MarkAsUnread($msgID)'>Mark as unread</button>";
 
-                    echo "<a class='btn btn-primary' href='/createmessage.php?t=$msgUser&i=$msgID'>Reply</a>";
+                    echo "<a class='btn' href='/createmessage.php?t=$msgUser&i=$msgID'>Reply</a>";
 
                     echo "</div>";
                 }

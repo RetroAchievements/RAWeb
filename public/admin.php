@@ -310,7 +310,7 @@ RenderContentStart('Admin Tools');
                     </tbody>
                 </table>
                 <input type="hidden" name="action" value="updatestaticdata">
-                <button class="btn btn-primary">Submit</button>
+                <button class="btn">Submit</button>
             </form>
 
             <div id="aotw_entries"></div>

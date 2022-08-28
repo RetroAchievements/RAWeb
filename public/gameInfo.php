@@ -825,7 +825,7 @@ sanitize_outputs(
                         echo "<label>Title screenshot<br>";
                         echo "<input type='file' name='file'>";
                         echo "</label>";
-                        echo "<button class='btn btn-primary'>Submit</button>";
+                        echo "<button class='btn'>Submit</button>";
                         echo "</form>";
 
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
@@ -835,7 +835,7 @@ sanitize_outputs(
                         echo "<label>In-game screenshot<br>";
                         echo "<input type='file' name='file' id='" . ImageType::GameInGame . "'>";
                         echo "</label>";
-                        echo "<button class='btn btn-primary'>Submit</button>";
+                        echo "<button class='btn'>Submit</button>";
                         echo "</form>";
                     }
                 }
@@ -848,7 +848,7 @@ sanitize_outputs(
                     echo "<label>Game icon<br>";
                     echo "<input type='file' name='file'>";
                     echo "</label>";
-                    echo "<button class='btn btn-primary'>Submit</button>";
+                    echo "<button class='btn'>Submit</button>";
                     echo "</form>";
 
                     if ($isFullyFeaturedGame) {
@@ -859,7 +859,7 @@ sanitize_outputs(
                         echo "<label>Game box art<br>";
                         echo "<input type='file' name='file'>";
                         echo "</label>";
-                        echo "<button class='btn btn-primary'>Submit</button>";
+                        echo "<button class='btn'>Submit</button>";
                         echo "</form>";
                     }
 
@@ -871,7 +871,7 @@ sanitize_outputs(
                     echo "<tr><td>Publisher:</td><td><input type='text' name='publisher' value='" . attributeEscape($publisher) . "' style='width:100%;'></td></tr>";
                     echo "<tr><td>Genre:</td><td><input type='text' name='genre' value='" . attributeEscape($genre) . "' style='width:100%;'></td></tr>";
                     echo "<tr><td>First Released:</td><td><input type='text' name='release' value='" . attributeEscape($released) . "' style='width:100%;'></td></tr>";
-                    echo "<tr><td></td><td class='text-right'><button class='btn btn-primary'>Submit</button></td></tr>";
+                    echo "<tr><td></td><td class='text-right'><button class='btn'>Submit</button></td></tr>";
                     echo "</tbody></table>";
                     echo "</form>";
                 }
@@ -882,7 +882,7 @@ sanitize_outputs(
                     echo "New Forum Topic ID:";
                     echo "<input type='hidden' name='game' value='$gameID'>";
                     echo "<input type='text' name='forum_topic' size='20'>";
-                    echo "<button class='btn btn-primary'>Submit</button>";
+                    echo "<button class='btn'>Submit</button>";
                     echo "</form>";
                 }
 
@@ -913,7 +913,7 @@ sanitize_outputs(
                     echo "<div>Add related games (CSV of game IDs):</div>";
                     echo "<input type='hidden' name='game' value='$gameID'>";
                     echo "<input type='text' name='relations' size='20'>";
-                    echo "<button class='btn btn-primary'>Add</button>";
+                    echo "<button class='btn'>Add</button>";
                     echo "</form>";
                 }
                 if ($isFullyFeaturedGame) {
@@ -923,7 +923,7 @@ sanitize_outputs(
                         echo csrf_field();
                         echo "<input type='hidden' value='$gameID' name='game'>";
                         echo "<textarea style='height:320px;' class='code w-full' name='rich_presence' maxlength='60000'>$richPresenceData</textarea><br>";
-                        echo "<div class='text-right'><button class='btn btn-primary'>Submit</button></div>";
+                        echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</form>";
                     } else {
                         echo "<textarea style='height:320px;' class='code w-full' readonly>$richPresenceData</textarea><br>";

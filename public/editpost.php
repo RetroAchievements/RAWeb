@@ -84,7 +84,7 @@ RenderContentStart("Edit post");
         echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
         echo "<div class='flex gap-2'>";
         echo "<a class='btn btn-link' href='/viewtopic.php?t=$thisTopicID&c=$requestedComment'>Back</a>";
-        echo "<button class='btn btn-primary'>Submit</button>";
+        echo "<button class='btn'>Submit</button>";
         echo "</div>";
         echo "</div>";
         echo "</td></tr>";

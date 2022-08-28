@@ -43,21 +43,6 @@
   border-color: transparent;
 }
 
-.btn-primary {
-  color: theme('colors.blue.500');
-  border-color: theme('colors.blue.500');
-}
-[data-theme=""] .btn-primary,
-[data-theme="blue"] .btn-primary {
-  color: theme('colors.green.500');
-  border-color: theme('colors.green.500');
-}
-[data-theme=""] .btn-primary:hover,
-[data-theme="blue"] .btn-primary:hover {
-  color: var(--menu-link-hover-color);
-  border: 1px solid var(--menu-link-color);
-}
-
 .btn-warning {
   color: theme('colors.orange.500');
   border-color: theme('colors.orange.500');

@@ -313,7 +313,7 @@ RenderContentStart($achievementTitleRaw);
                     echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementTypeFlag(" . AchievementType::Unofficial . ")'>Demote To Unofficial</button></li>";
                 }
                 if ($achFlags === AchievementType::Unofficial) {
-                    echo "<li>State: Unofficial&nbsp;<button class='btn btn-primary' type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
+                    echo "<li>State: Unofficial&nbsp;<button class='btn' type='button' onclick='updateAchievementTypeFlag(" . AchievementType::OfficialCore . ")'>Promote To Official</button></li>";
                 }
             }
 

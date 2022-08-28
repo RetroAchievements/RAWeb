@@ -227,7 +227,7 @@ RenderContentStart($pageTitle);
                 echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
                 echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
                 echo "<input type='hidden' name='value' value='1' />";
-                echo "<button class='btn btn-primary py-1'>Authorise</button>";
+                echo "<button class='btn py-1'>Authorise</button>";
                 echo "</form>";
                 echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Permanently Block (spam)?\')'>";
                 echo csrf_field();
@@ -298,7 +298,7 @@ RenderContentStart($pageTitle);
             EOF;
             echo "<div class='flex justify-between mb-2'>";
             echo "<span class='textarea-counter' data-textarea-id='commentTextarea'></span>";
-            echo "<button class='btn btn-primary' $inputEnabled>Submit</button>";    // TBD: replace with image version
+            echo "<button class='btn' $inputEnabled>Submit</button>";    // TBD: replace with image version
             echo "</div>";
             echo "</form>";
 

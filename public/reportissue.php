@@ -163,7 +163,7 @@ function displayCore() {
                 <tr>
                     <td></td>
                     <td colspan="2" class="text-right">
-                        <button class="btn btn-primary" data-bind="disable: descriptionIsUnhelpful">Submit Issue Report</button>
+                        <button class="btn" data-bind="disable: descriptionIsUnhelpful">Submit Issue Report</button>
                     </td>
                 </tr>
                 </tbody>
