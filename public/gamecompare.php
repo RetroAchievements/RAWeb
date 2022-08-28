@@ -246,14 +246,14 @@ RenderContentStart("Game Compare");
                 echo "<tr>";
                 if ($leftSoftcoreAwardedCount > 0) {
                     echo "<td class='float-right'>";
-                    echo "<span class='softcore'<b>$leftSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
+                    echo "<span class='text-muted'<b>$leftSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
                 } else {
                     echo "<td class='float-right'></td>";
                 }
                 echo "<td></td>";
                 if ($rightSoftcoreAwardedCount > 0) {
                     echo "<td>";
-                    echo "<span class='softcore'<b>$rightSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$rightSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
+                    echo "<span class='text-muted'<b>$rightSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$rightSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
                 } else {
                     echo "<td></td>";
                 }

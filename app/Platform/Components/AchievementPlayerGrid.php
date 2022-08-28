@@ -32,11 +32,11 @@ class AchievementPlayerGrid extends Grid
             ],
             [
                 'key' => 'hardcore',
-                'label' => __('Hardcore?'),
+                'label' => __('Hardcore'),
             ],
             [
-                'key' => 'earned_on',
-                'label' => __('Earned On'),
+                'key' => 'unlocked',
+                'label' => __('Unlocked'),
             ],
         ];
     }

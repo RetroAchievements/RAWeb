@@ -348,13 +348,13 @@ RenderContentStart($achievementTitleRaw);
         /**
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
-        echo "<div id='recentwinners'>";
-        echo "<h3>Recent Winners</h3>";
+        echo "<div>";
+        echo "<h3>Recent Unlocks</h3>";
         if (empty($winnerInfo)) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {
             echo "<table><tbody>";
-            echo "<tr><th colspan='2'>User</th><th>Hardcore?</th><th>Earned On</th></tr>";
+            echo "<tr><th></th><th>User</th><th>Mode</th><th>Unlocked</th></tr>";
             $iter = 0;
             foreach ($winnerInfo as $userObject) {
                 $userWinner = $userObject['User'];
@@ -374,14 +374,12 @@ RenderContentStart($achievementTitleRaw);
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {
-                    echo "Hardcore!";
+                    echo "Hardcore";
                 }
                 echo "</td>";
-
                 echo "<td>";
                 echo "<small>$niceDateWon</small>";
                 echo "</td>";
-
                 echo "</tr>";
             }
 
