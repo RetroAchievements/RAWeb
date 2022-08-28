@@ -32,7 +32,7 @@ $user = request()->user();
         <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
             <x-fas-exclamation-triangle/>
             Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
-            <form class="inline" action="/request/auth/send-verification-email.php?u={{ $user->User }}" method="post">
+            <form class="inline" action="/request/auth/send-verification-email.php" method="post">
                 @csrf
                 <button class="btn btn-link bg-transparent p-0 text-white underline">here</button> to resend your activation email.
             </form>

@@ -14,8 +14,9 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
 
 /**
+ * @property string $EmailAddress
  * @property int $ID
- * @property mixed $Permissions
+ * @property int $Permissions
  * @property string $User
  * @property int $websitePrefs
  */

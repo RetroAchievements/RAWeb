@@ -1,11 +1,16 @@
 <?php
 
-$user = requestInputQuery('u');
+use App\Legacy\Models\User;
 
-getAccountDetails($user, $userDetails);
+/** @var ?User $user */
+$user = request()->user();
 
-if (!sendValidationEmail($user, $userDetails['EmailAddress'])) {
-    return back()->withErrors(__('legacy.error.account'));
+if (!$user) {
+    return back()->withErrors(__('legacy.error.permissions'));
 }
 
-return back()->with('message', __('legacy.email_validate'));
+if (sendValidationEmail($user->User, $user->EmailAddress)) {
+    return back()->with('message', __('legacy.email_validate'));
+}
+
+return back()->withErrors(__('legacy.error.account'));
