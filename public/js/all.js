@@ -305,7 +305,8 @@ jQuery(document).ready(function onReady($) {
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
   $seachBoxCompareUser.autocomplete({
     source: function (request, response) {
-      $.post('/request/search.php?p=gamecompare', request)
+      request.source = 'game-compare';
+      $.post('/request/search.php', request)
         .done(function (data) {
           response(data);
         });
@@ -329,7 +330,8 @@ jQuery(document).ready(function onReady($) {
   var $searchUser = $('.searchuser');
   $searchUser.autocomplete({
     source: function (request, response) {
-      $.post('/request/search.php?p=user', request)
+      request.source = 'user';
+      $.post('/request/search.php', request)
         .done(function (data) {
           response(data);
         });

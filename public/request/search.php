@@ -4,10 +4,10 @@ if (!request()->has('term')) {
     return response()->json([]);
 }
 
-$searchTerm = request()->input('term');
+$searchTerm = request()->post('term');
 sanitize_sql_inputs($searchTerm);
 
-$source = requestInputQuery('p');
+$source = request()->post('source');
 
 $query = "(
     SELECT '1' AS Type, gd.ID, CONCAT( gd.Title, \" (\", c.Name, \")\" ) AS Title, gd.ImageIcon AS Icon
@@ -37,7 +37,7 @@ $query = "(
     LIMIT 0, 7
 ) ";
 
-if ($source == 'gamecompare' || $source == 'user') {
+if ($source == 'game-compare' || $source == 'user') {
     $query = "SELECT '3' AS Type, ua.User AS ID, ua.User AS Title FROM UserAccounts AS ua
 				  WHERE ua.User LIKE '%$searchTerm%' AND ua.Permissions >= 0
 				  ORDER BY ua.User
