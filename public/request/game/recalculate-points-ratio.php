@@ -1,14 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$gameID = requestInputQuery('g');
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+]);
 
-if (recalculateTrueRatio($gameID)) {
+if (recalculateTrueRatio((int) $input['game'])) {
     return back()->with('success', __('legacy.success.points_recalculate'));
 }
 

@@ -693,41 +693,12 @@ sanitize_outputs(
                 }
 
                 if ($isFullyFeaturedGame) {
-                    if ($permissions >= Permissions::Developer) {
-                        echo "<div><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
-                        echo "<div><a href='/request/game/recalculate-points-ratio.php?g=$gameID'>Recalculate True Ratios</a></div>";
-                    }
                     echo "<div><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></div>";
 
                     echo "<div><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
 
-                    echo "<div>";
-                    $isSubscribedToTickets = isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID);
-                    RenderUpdateSubscriptionForm(
-                        "updateticketssub",
-                        SubscriptionSubjectType::GameTickets,
-                        $gameID,
-                        $isSubscribedToTickets,
-                        'tickets'
-                    );
-                    echo "</div>";
-
-                    echo "<div>";
-                    $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
-                    RenderUpdateSubscriptionForm(
-                        "updateachievementssub",
-                        SubscriptionSubjectType::GameAchievements,
-                        $gameID,
-                        $isSubscribedToAchievements,
-                        'achievement comments'
-                    );
-                    echo "</div>";
-                    echo "<br>";
-
                     // Display the claims links if not an event game
                     if (!$isEventGame) {
-                        echo "Claims:";
-
                         // Show Manage Claims option for admins
                         if ($permissions >= Permissions::Admin) {
                             echo "<div><a href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
@@ -812,9 +783,39 @@ sanitize_outputs(
                                 echo "<div><a onclick='return completeClaim(\"$escapedGameTitle\", 0);' href='/request/set-claim/complete-claim.php?i=$gameID'>Complete Claim</a></div>";
                             }
                         }
-
-                        echo "<br>";
                     }
+
+                    if ($permissions >= Permissions::Developer) {
+                        echo "<div class='mb-1'><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
+
+                        echo "<form class='mb-1' action='/request/game/recalculate-points-ratio.php' method='post'>";
+                        echo csrf_field();
+                        echo "<input type='hidden' name='game' value='$gameID'>";
+                        echo "<button>Recalculate True Ratios</button>";
+                        echo "</form>";
+                    }
+
+                    echo "<div class='mb-1'>";
+                    $isSubscribedToTickets = isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID);
+                    RenderUpdateSubscriptionForm(
+                        "updateticketssub",
+                        SubscriptionSubjectType::GameTickets,
+                        $gameID,
+                        $isSubscribedToTickets,
+                        'tickets'
+                    );
+                    echo "</div>";
+
+                    echo "<div class='mb-1'>";
+                    $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
+                    RenderUpdateSubscriptionForm(
+                        "updateachievementssub",
+                        SubscriptionSubjectType::GameAchievements,
+                        $gameID,
+                        $isSubscribedToAchievements,
+                        'achievement comments'
+                    );
+                    echo "</div>";
 
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
@@ -824,7 +825,7 @@ sanitize_outputs(
                         echo "<label>Title screenshot<br>";
                         echo "<input type='file' name='file'>";
                         echo "</label>";
-                        echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                        echo "<button class='btn btn-primary'>Submit</button>";
                         echo "</form>";
 
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
@@ -834,7 +835,7 @@ sanitize_outputs(
                         echo "<label>In-game screenshot<br>";
                         echo "<input type='file' name='file' id='" . ImageType::GameInGame . "'>";
                         echo "</label>";
-                        echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                        echo "<button class='btn btn-primary'>Submit</button>";
                         echo "</form>";
                     }
                 }
@@ -847,7 +848,7 @@ sanitize_outputs(
                     echo "<label>Game icon<br>";
                     echo "<input type='file' name='file'>";
                     echo "</label>";
-                    echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                    echo "<button class='btn btn-primary'>Submit</button>";
                     echo "</form>";
 
                     if ($isFullyFeaturedGame) {
@@ -858,21 +859,20 @@ sanitize_outputs(
                         echo "<label>Game box art<br>";
                         echo "<input type='file' name='file'>";
                         echo "</label>";
-                        echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                        echo "<button class='btn btn-primary'>Submit</button>";
                         echo "</form>";
                     }
 
                     echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
                     echo csrf_field();
-                    echo "<div>Update game details:</div>";
                     echo "<table><tbody>";
                     echo "<input type='hidden' name='game' value='$gameID'>";
                     echo "<tr><td>Developer:</td><td><input type='text' name='developer' value='" . attributeEscape($developer) . "' style='width:100%;'></td></tr>";
                     echo "<tr><td>Publisher:</td><td><input type='text' name='publisher' value='" . attributeEscape($publisher) . "' style='width:100%;'></td></tr>";
                     echo "<tr><td>Genre:</td><td><input type='text' name='genre' value='" . attributeEscape($genre) . "' style='width:100%;'></td></tr>";
                     echo "<tr><td>First Released:</td><td><input type='text' name='release' value='" . attributeEscape($released) . "' style='width:100%;'></td></tr>";
+                    echo "<tr><td></td><td class='text-right'><button class='btn btn-primary'>Submit</button></td></tr>";
                     echo "</tbody></table>";
-                    echo "<div class='text-right'><input type='submit' value='Submit'></div>";
                     echo "</form>";
                 }
 
@@ -882,7 +882,7 @@ sanitize_outputs(
                     echo "New Forum Topic ID:";
                     echo "<input type='hidden' name='game' value='$gameID'>";
                     echo "<input type='text' name='forum_topic' size='20'>";
-                    echo "<input type='submit' style='float: right' value='Submit'>";
+                    echo "<button class='btn btn-primary'>Submit</button>";
                     echo "</form>";
                 }
 
@@ -904,7 +904,7 @@ sanitize_outputs(
                             echo "<option value='$gameAltID'>$gameAltTitle ($gameAltConsole)</option>";
                         }
                         echo "</select>";
-                        echo "<div class='text-right'><input type='submit' value='Remove' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'></div>";
+                        echo "<div class='text-right'><button class='btn btn-danger' onclick='return confirm(\"Are you sure you want to remove the selected relations?\")'>Remove</button></div>";
                         echo "</form>";
                     }
 
@@ -913,7 +913,7 @@ sanitize_outputs(
                     echo "<div>Add related games (CSV of game IDs):</div>";
                     echo "<input type='hidden' name='game' value='$gameID'>";
                     echo "<input type='text' name='relations' size='20'>";
-                    echo "<input type='submit' style='float: right' value='Add'>";
+                    echo "<button class='btn btn-primary'>Add</button>";
                     echo "</form>";
                 }
                 if ($isFullyFeaturedGame) {
