@@ -540,7 +540,7 @@ RenderContentStart($userPage);
                         } else {
                             $unlockedStr = "<br clear=all>Unlocked: $achUnlockDate";
                             if ($achHardcore == 1) {
-                                $unlockedStr .= "<br>-=HARDCORE=-";
+                                $unlockedStr .= "<br>HARDCORE";
                                 $class = 'goldimage';
                             }
                         }

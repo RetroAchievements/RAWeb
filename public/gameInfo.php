@@ -1193,7 +1193,7 @@ sanitize_outputs(
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
 
                             $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
-                            $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>-=HARDCORE=-' : '';
+                            $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>HARDCORE' : '';
 
                             $wonBy = $nextAch['NumAwarded'];
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];

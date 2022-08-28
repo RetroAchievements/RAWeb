@@ -163,7 +163,7 @@ RenderContentStart("Game Compare");
                         $leftHardcoreAwardedCount++;
                         $leftHardcoreAwardedPoints += $achPoints;
 
-                        echo "<small class='smalldate rightfloat'>-=HARDCORE=-<br>unlocked on<br>$awardedHCLeft</small>";
+                        echo "<small class='smalldate rightfloat'>HARDCORE<br>unlocked on<br>$awardedHCLeft</small>";
                     } else {
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardLocal");
                         $leftSoftcoreAwardedCount++;
@@ -193,7 +193,7 @@ RenderContentStart("Game Compare");
                         $rightHardcoreAwardedCount++;
                         $rightHardcoreAwardedPoints += $achPoints;
 
-                        echo "<small class='smalldate leftfloat'>-=HARDCORE=-<br>unlocked on<br>$awardedHCRight</small>";
+                        echo "<small class='smalldate leftfloat'>HARDCORE<br>unlocked on<br>$awardedHCRight</small>";
                     } else {
                         echo "<div style='float:right;' >";
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
