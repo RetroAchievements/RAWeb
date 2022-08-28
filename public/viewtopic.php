@@ -275,7 +275,7 @@ RenderContentStart($pageTitle);
             echo GetUserAndTooltipDiv($user, true, null, 64);
             echo "</td>";
 
-            echo "<td class='fullwidth'>";
+            echo "<td class='w-full'>";
 
             RenderShortcodeButtons();
 
@@ -288,7 +288,7 @@ RenderContentStart($pageTitle);
             echo <<<EOF
                 <textarea
                     id="commentTextarea"
-                    class="fullwidth mb-2"
+                    class="w-full mb-2"
                     rows="10" cols="63"
                     $inputEnabled
                     maxlength="60000"

@@ -90,7 +90,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         // echo "<br>";
         // }
 
-        // echo "<div class='rightfloat'>* = ordered by</div>";
+        // echo "<div class='float-right'>* = ordered by</div>";
 
         echo "<table><tbody>";
 
@@ -175,7 +175,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "</tbody></table>";
         echo "</div>";
 
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
             echo "<a href='/awardedList.php?s=$sortBy&amp;o=$prevOffset&amp;p=$params&amp;i=$consoleIDInput'>&lt; Previous $maxCount</a> - ";

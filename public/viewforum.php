@@ -91,11 +91,11 @@ RenderContentStart("Forum: $thisForumTitle");
             echo "<table class='my-3'><tbody>";
             echo "<tr class='forumsheader'>";
             echo "<th></th>";
-            echo "<th class='fullwidth'>Topics</th>";
+            echo "<th class='w-full'>Topics</th>";
             echo "<th>Author</th>";
             echo "<th>Replies</th>";
             // echo "<th>Views</th>";
-            echo "<th class='text-nowrap'>Last post</th>";
+            echo "<th class='whitespace-nowrap'>Last post</th>";
             echo "</tr>";
 
             $topicCount = is_countable($topicList) ? count($topicList) : 0;

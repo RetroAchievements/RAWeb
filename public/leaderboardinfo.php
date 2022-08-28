@@ -203,7 +203,7 @@ RenderContentStart('Leaderboard');
                 echo "<div>You don't appear to be ranked for this leaderboard. Why not give it a go?</div><br>";
             }
 
-            echo "<div class='rightalign row'>";
+            echo "<div class='float-right row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $count;
                 echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a></span> - ";

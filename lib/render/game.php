@@ -145,7 +145,7 @@ function RenderGameAlts($gameAlts, $headerText = null): void
 
         if ($isFullyFeaturedGame) {
             echo "<td>";
-            echo "<span style='white-space: nowrap'>$points points</span><span class='TrueRatio'> ($totalTP)</span>";
+            echo "<span class='whitespace-nowrap'>$points points</span><span class='TrueRatio'> ($totalTP)</span>";
             echo "</td>";
         }
 
@@ -213,7 +213,7 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
         }
 
         echo "<tr>";
-        echo "<td style='white-space: nowrap'>$label:</td>";
+        echo "<td class='whitespace-nowrap'>$label:</td>";
         echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
         echo "</tr>";
     }

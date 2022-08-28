@@ -64,13 +64,13 @@ RenderContentStart("Edit post");
         echo "<tbody>";
         echo "<tr><td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
         echo "<tr><td>Author:</td><td><input type='text' readonly value='$thisAuthor'></td></tr>";
-        echo "<tr><td>Topic:</td><td><input type='text' readonly class='fullwidth' value='$thisTopicTitle'></td></tr>";
+        echo "<tr><td>Topic:</td><td><input type='text' readonly class='w-full' value='$thisTopicTitle'></td></tr>";
         echo "<tr><td>Message:</td><td>";
         RenderShortcodeButtons();
         echo <<<EOF
             <textarea
                 id="commentTextarea"
-                class="fullwidth"
+                class="w-full"
                 style="height:300px"
                 rows="32" cols="32"
                 maxlength="60000"

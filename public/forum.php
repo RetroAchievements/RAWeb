@@ -77,7 +77,7 @@ RenderContentStart($pageTitle);
                     echo "<tbody>";
                     echo "<tr>";
                     echo "<th></th>";
-                    echo "<th class='fullwidth'>Forum</th>";
+                    echo "<th class='w-full'>Forum</th>";
                     echo "<th>Topics</th>";
                     echo "<th>Posts</th>";
                     echo "<th>Last Post</th>";

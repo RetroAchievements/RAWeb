@@ -72,7 +72,7 @@ RenderContentStart("Hash List");
             echo "</tbody></table>";
 
             if ($searchedHash === null) {
-                echo "<div class='rightalign row'>";
+                echo "<div class='float-right row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
                     echo "<a href='/latesthasheslinked.php'>First</a> - ";

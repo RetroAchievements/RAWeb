@@ -153,7 +153,7 @@ function displayCore() {
                 <tr>
                     <td><label for="description">Description</label></td>
                     <td colspan="2">
-                        <textarea class="fullwidth forum" name="description" id="description"
+                        <textarea class="w-full forum" name="description" id="description"
                                   style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
                                   required data-bind="textInput: description"><?= old('description') ?></textarea>
                         <p data-bind="visible: descriptionIsNetworkProblem">Please do not use this tool for network issues. See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a> for instructions on how to request a manual unlock.</p>

@@ -134,7 +134,7 @@ RenderContentStart("Users");
         }
         echo "</tbody></table></div>";
 
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
             echo "<a href='/userList.php?s=$sortBy&amp;o=$prevOffset&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>&lt; Previous $maxCount</a> - ";

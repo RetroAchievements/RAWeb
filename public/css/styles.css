@@ -106,6 +106,10 @@ h4 {
   border-bottom-width: 0;
 }
 
+small {
+  font-size: x-small;
+}
+
 a {
   color: var(--link-color);
   text-decoration: none;
@@ -226,10 +230,6 @@ span.news {
   line-height: 1.35em;
   font-size: small;
   display: block;
-}
-
-.rightfloat {
-  float: right;
 }
 
 .newsimage {
@@ -1039,32 +1039,6 @@ span.smalldate {
   margin-top: 0;
 }
 
-.leftfloat {
-  float: left;
-}
-
-.rightfloat {
-  float: right;
-}
-
-.rightalign {
-  /* text-align: right; */
-  float: right;
-}
-
-.fullwidth {
-  width: 100%;
-}
-
-b, strong {
-  font-weight: bold;
-  /*font-size: 1.3em;*/
-}
-
-i {
-  font-style: italic;
-}
-
 pre, code, .code {
   font-family: monospace;
   font-size: medium;
@@ -1163,20 +1137,12 @@ td .badgeimg {
   border-bottom: solid 4px var(--bg-color);
 }
 
-small {
-  font-size: x-small;
-}
-
 span.hardcore {
   color: rgb(222, 0, 0);
 }
 
 span.softcore {
   color: rgb(140, 140, 140);
-}
-
-.pointer {
-  cursor: pointer;
 }
 
 div.rating {
@@ -1206,7 +1172,6 @@ div.rating a.starlit {
   background: url('/assets/images/icon/star-full.png') no-repeat 0 0;
 }
 
-
 a.setRequestLabel {
   cursor: pointer;
 }
@@ -1217,7 +1182,7 @@ a.setRequestLabel {
 /*    max-height: 37px;*/
 /*}*/
 
-/* bootstrap 4 polyfills */
+/* responsive embed */
 
 .embed-responsive .embed-responsive-item, .embed-responsive iframe, .embed-responsive embed, .embed-responsive object, .embed-responsive video {
   position: absolute;
@@ -1246,10 +1211,6 @@ a.setRequestLabel {
   content: "";
 }
 
-.text-nowrap {
-  white-space: nowrap !important;
-}
-
 .text-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1276,7 +1237,7 @@ a.setRequestLabel {
     width: auto;
   }
 
-  .topiccommentsheader th, .commentavatar, .commentpayload, .table-wrapper .fullwidth, .table-forum-history th, .table-forum-history td {
+  .topiccommentsheader th, .commentavatar, .commentpayload, .table-wrapper .w-full, .table-forum-history th, .table-forum-history td {
     display: block;
     max-width: 100%;
     box-sizing: border-box;

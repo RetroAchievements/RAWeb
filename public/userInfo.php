@@ -586,7 +586,7 @@ RenderContentStart($userPage);
                 $permissions
             );
         } else {
-            echo "<div class='leftfloat'>";
+            echo "<div>";
             echo "<i>This user has disabled comments.</i>";
             echo "</div>";
         }

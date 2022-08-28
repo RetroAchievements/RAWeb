@@ -198,7 +198,7 @@ RenderContentStart("Claim List");
         }
         echo "</tbody></table></div>";
 
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         $baseLink = $createLink(null, null);
         $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
         RenderPaginator($totalClaims, $maxCount, $offset, "${baseLink}o=");

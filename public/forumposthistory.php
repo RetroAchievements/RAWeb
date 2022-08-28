@@ -41,8 +41,8 @@ RenderContentStart("Forum Recent Posts");
             echo "<tr>";
             echo "<th></th>";
             echo "<th>Author</th>";
-            echo "<th class='fullwidth'>Message</th>";
-            echo "<th class='text-nowrap'>Posted At</th>";
+            echo "<th class='w-full'>Message</th>";
+            echo "<th class='whitespace-nowrap'>Posted At</th>";
             echo "</tr>";
 
             foreach ($recentPostsData as $topicPostData) {
@@ -72,7 +72,7 @@ RenderContentStart("Forum Recent Posts");
 
             echo "</tbody></table></div>";
 
-            echo "<div class='rightalign row'>";
+            echo "<div class='float-right row'>";
             $baseUrl = '/forumposthistory.php';
             if ($forUser != null) {
                 $baseUrl .= "?u=$forUser&o=";

@@ -50,7 +50,7 @@ RenderContentStart("Download a client");
                 </div>
                 <div>
                     <?php if ($emulator['latest_version_url_x64'] ?? false): ?>
-                        <p class="embedded mb-3 text-right text-nowrap">
+                        <p class="embedded mb-3 text-right whitespace-nowrap">
                             <a href="<?= config('app.url') . '/' . $emulator['latest_version_url_x64'] ?>">
                                 Download v<?= $emulator['latest_version'] ?> x64<br>
                                 <small>Windows</small>
@@ -58,7 +58,7 @@ RenderContentStart("Download a client");
                         </p>
                     <?php endif ?>
                     <?php if ($emulator['latest_version_url'] ?? false): ?>
-                        <p class="embedded mb-3 text-right text-nowrap">
+                        <p class="embedded mb-3 text-right whitespace-nowrap">
                             <a href="<?= config('app.url') . '/' . $emulator['latest_version_url'] ?>">
                                 Download v<?= $emulator['latest_version'] ?> x86<br>
                                 <small>Windows</small>

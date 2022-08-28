@@ -41,7 +41,7 @@ function RenderGameLeaderboardsComponent($lbData): void
 
     if ($numLBs == 0) {
         echo "No leaderboards found: why not suggest some for this game? ";
-        echo "<div class='rightalign'><a href='/leaderboardList.php'>Leaderboard List</a></div>";
+        echo "<div class='float-right'><a href='/leaderboardList.php'>Leaderboard List</a></div>";
     } else {
         echo "<table><tbody>";
 
@@ -91,7 +91,7 @@ function RenderGameLeaderboardsComponent($lbData): void
         echo "</tbody></table>";
     }
 
-    // echo "<div class='rightalign'><a href='/forumposthistory.php'>more...</a></div>";
+    // echo "<div class='float-right'><a href='/forumposthistory.php'>more...</a></div>";
 
     echo "</div>";
 }

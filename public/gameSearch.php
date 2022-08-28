@@ -126,7 +126,7 @@ RenderContentStart("Game Search");
         echo "</tbody></table>";
         echo "</div>";
 
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
             echo "<a href='/gameSearch.php?o=$prevOffset&amp;p=$method&amp;i=$consoleID'>&lt; Previous $maxCount</a> - ";

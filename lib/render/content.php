@@ -34,7 +34,7 @@ function RenderActivePlayersComponent(): void
                 <span style='margin-bottom: 5px; display: inline-block;'>
                     There are <strong data-bind="text: numberOfFilteredPlayers"></strong> <span data-bind='visible: usersAreFiltered'>filtered</span> active players<span data-bind='visible: usersAreFiltered'> (out of <strong data-bind='text: numberOfPlayersActive'></strong> total)</span>.
                 </span>
-                <a class='rightfloat' id='active-players-menu-button' href='#!' data-bind='click: OnActivePlayersMenuButtonClick, css: { menuOpen: shouldMenuBeVisible }'></a>
+                <a class='float-right' id='active-players-menu-button' href='#!' data-bind='click: OnActivePlayersMenuButtonClick, css: { menuOpen: shouldMenuBeVisible }'></a>
                 <div id='active-player-menu' data-bind='visible: shouldMenuBeVisible'>
                     <div>
                         <input type='text' style='width: 100%;' placeholder='Filter by player, game, console, or Rich Presence...' data-bind='value: playerFilterText, valueUpdate: "input"' />
@@ -68,7 +68,7 @@ function RenderActivePlayersComponent(): void
                 <span data-bind='visible: isLoading'>Loading players...</span>
                 <span data-bind='visible: hasError'>An error has occurred while loading players.</span>
             </div>
-            <div class='rightfloat lastupdatedtext'>
+            <div class='float-right lastupdatedtext'>
                 <small id='activeplayers-update' data-bind='text: lastUpdateRender'></small>
             </div>
         </div>

@@ -70,10 +70,10 @@ RenderContentStart("Expiring Claims");
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
-            echo "<tr><td class='text-nowrap'>";
+            echo "<tr><td class='whitespace-nowrap'>";
             echo GetUserAndTooltipDiv($claimUser, true);
             echo "</td>";
-            echo "<td class='text-nowrap'><div class='fixheightcell'>";
+            echo "<td class='whitespace-nowrap'><div class='fixheightcell'>";
             echo GetUserAndTooltipDiv($claimUser, false);
             echo "</div></td>";
 

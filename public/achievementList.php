@@ -95,7 +95,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
 
         echo "</div>";
 
-        echo "<div class='rightfloat'>* = ordered by</div>";
+        echo "<div class='float-right'>* = ordered by</div>";
         echo "<br style='clear:both;' />";
 
         echo "<div class='table-wrapper'><table><tbody>";
@@ -126,7 +126,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "</th>";
 
         if (!$mobileBrowser) {
-            echo "<th class='text-nowrap'>";
+            echo "<th class='whitespace-nowrap'>";
             echo "<a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
             echo "<br><span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span>";
             echo "</th>";
@@ -171,7 +171,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "<td>";
             echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, null, $gameTitle, $achBadgeName, true, true);
             echo "</td>";
-            echo "<td class='fullwidth'>";
+            echo "<td class='w-full'>";
             echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, null, $gameTitle, $achBadgeName, false);
             echo "<br>$achDesc";
             echo "</td>";
@@ -207,7 +207,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "</tbody></table></div>";
         echo "</div>";
 
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
             echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param'>&lt; Previous $maxCount</a> - ";

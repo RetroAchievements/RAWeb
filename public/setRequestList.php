@@ -113,7 +113,7 @@ RenderContentStart("Set Requests");
             echo "</tbody></table></div>";
 
             // Add page traversal links
-            echo "<div class='rightalign row'>";
+            echo "<div class='float-right row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
                 if (!empty($selectedConsole)) {

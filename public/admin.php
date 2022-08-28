@@ -131,11 +131,11 @@ RenderContentStart('Admin Tools');
                 <table class="mb-1">
                     <colgroup>
                         <col>
-                        <col class="fullwidth">
+                        <col class="w-full">
                     </colgroup>
                     <tbody>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="achievements_game_id">Game ID</label>
                         </td>
                         <td>
@@ -162,11 +162,11 @@ RenderContentStart('Admin Tools');
                         <col>
                         <col>
                         <col>
-                        <col class="fullwidth">
+                        <col class="w-full">
                     </colgroup>
                     <tbody>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="winnersAchievementIDs">Achievement IDs</label>
                         </td>
                         <td>
@@ -176,13 +176,13 @@ RenderContentStart('Admin Tools');
                         <td></td>
                     </tr>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="startTime">Start At (UTC time)</label>
                         </td>
                         <td>
                             <input id="startTime" name="s" value="<?= $winnersStartTime ?>">
                         </td>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="endTime">End At (UTC time)</label>
                         </td>
                         <td>
@@ -190,7 +190,7 @@ RenderContentStart('Admin Tools');
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="hardcoreWinners">Hardcore winners?</label>
                         </td>
                         <td>
@@ -225,11 +225,11 @@ RenderContentStart('Admin Tools');
                 <table class="mb-1">
                     <colgroup>
                         <col>
-                        <col class="fullwidth">
+                        <col class="w-full">
                     </colgroup>
                     <tbody>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="award_achievement_user">User to receive achievement</label>
                         </td>
                         <td>
@@ -237,7 +237,7 @@ RenderContentStart('Admin Tools');
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="award_achievement_id">Achievement IDs</label>
                         </td>
                         <td>
@@ -245,7 +245,7 @@ RenderContentStart('Admin Tools');
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="award_achievement_hardcore">Include hardcore?</label>
                         </td>
                         <td>
@@ -272,11 +272,11 @@ RenderContentStart('Admin Tools');
                     <colgroup>
                         <col>
                         <col>
-                        <col class="fullwidth">
+                        <col class="w-full">
                     </colgroup>
                     <tbody>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="event_aotw_achievement_id">Achievement ID</label>
                         </td>
                         <td>
@@ -287,7 +287,7 @@ RenderContentStart('Admin Tools');
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="event_aotw_start_at">Start At (UTC time)</label>
                         </td>
                         <td>
@@ -297,7 +297,7 @@ RenderContentStart('Admin Tools');
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-nowrap">
+                        <td class="whitespace-nowrap">
                             <label for="event_aotw_forum_topic_id">Forum Topic ID</label>
                         </td>
                         <td>

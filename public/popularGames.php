@@ -102,7 +102,7 @@ RenderContentStart("Most Popular Games");
         echo "</tbody></table>";
         echo "</div>";
 
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
             echo "<a href='/popularGames.php?o=$prevOffset&amp;p=$method'>&lt; Previous $maxCount</a> - ";

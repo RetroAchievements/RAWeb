@@ -94,7 +94,7 @@ RenderContentStart($pageTitle);
             }
             echo "</tbody></table>";
 
-            echo "<div class='rightalign row'>";
+            echo "<div class='float-right row'>";
 
             if ($offset > 0) {
                 echo "<a href='/feed.php?";

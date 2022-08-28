@@ -52,13 +52,13 @@ function RenderNewsHeader(News $newsData): void
     echo "<div class='news' >";
 
     // Title
-    echo "<h4 style='position: absolute; width: 460px; top:2px; left:10px; white-space: nowrap;' ><a class='newstitle shadowoutline' href='$link'>$title</a></h4>";
+    echo "<h4 class='whitespace-nowrap absolute' style='width: 460px; top:2px; left:10px' ><a class='newstitle shadowoutline' href='$link'>$title</a></h4>";
 
     // Text
-    echo "<div class='newstext shadowoutline' style='position: absolute; width: 90%; top: 40px; left:10px;'>$payload</div>";
+    echo "<div class='newstext shadowoutline absolute' style='width: 90%; top: 40px; left:10px;'>$payload</div>";
 
     // Author
-    echo "<div class='newsauthor shadowoutline' style='position: absolute; width: 470px; top: 196px; left:0px; text-align: right'>~~$authorLink, $niceDate</div>";
+    echo "<div class='newsauthor shadowoutline absolute' style='width: 470px; top: 196px; left:0; text-align: right'>~~$authorLink, $niceDate</div>";
 
     echo "</div>";
 

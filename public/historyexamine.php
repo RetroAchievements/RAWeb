@@ -144,7 +144,7 @@ RenderContentStart("$userPage's Legacy - $dateStr");
             echo "$achDesc";
             echo "</td>";
 
-            echo "<td nowrap>";
+            echo "<td class='whitespace-nowrap'>";
             echo "$achPointsNote";
             echo "</td>";
 

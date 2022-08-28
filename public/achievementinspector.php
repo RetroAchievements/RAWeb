@@ -121,13 +121,13 @@ function updateAchievementsTypeFlag(typeFlag) {
         echo "<div style='text-align:center'><p class='embedded'><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
         if ($flag === AchievementType::Unofficial) {
             if ($fullModifyOK) {
-                echo "<a class='pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::OfficialCore . ")'>Promote Selected</a> | ";
+                echo "<a class='cursor-pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::OfficialCore . ")'>Promote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
         }
         if ($flag === AchievementType::OfficialCore) {
             if ($fullModifyOK) {
-                echo "<a class='pointer'onclick='updateAchievementsTypeFlag(" . AchievementType::Unofficial . ")'>Demote Selected</a> | ";
+                echo "<a class='cursor-pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::Unofficial . ")'>Demote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
         }

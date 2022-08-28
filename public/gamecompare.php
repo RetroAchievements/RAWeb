@@ -103,7 +103,7 @@ RenderContentStart("Game Compare");
 
             echo "<th>";
             echo "<a style='float: right' href='/user/$user'>$user</a><br>";
-            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg rightfloat");
+            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg float-right");
             echo "</th>";
 
             echo "<th><center>Achievement</center></th>";
@@ -163,13 +163,13 @@ RenderContentStart("Game Compare");
                         $leftHardcoreAwardedCount++;
                         $leftHardcoreAwardedPoints += $achPoints;
 
-                        echo "<small class='smalldate rightfloat'>HARDCORE<br>unlocked on<br>$awardedHCLeft</small>";
+                        echo "<small class='smalldate float-right'>HARDCORE<br>unlocked on<br>$awardedHCLeft</small>";
                     } else {
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardLocal");
                         $leftSoftcoreAwardedCount++;
                         $leftSoftcoreAwardedPoints += $achPoints;
 
-                        echo "<small class='smalldate rightfloat'>unlocked on<br>$awardedLeft</small>";
+                        echo "<small class='smalldate float-right'>unlocked on<br>$awardedLeft</small>";
                     }
                 } else {
                     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName . "_lock", true, true, "", $iconSize, "awardLocal");
@@ -193,7 +193,7 @@ RenderContentStart("Game Compare");
                         $rightHardcoreAwardedCount++;
                         $rightHardcoreAwardedPoints += $achPoints;
 
-                        echo "<small class='smalldate leftfloat'>HARDCORE<br>unlocked on<br>$awardedHCRight</small>";
+                        echo "<small class='smalldate'>HARDCORE<br>unlocked on<br>$awardedHCRight</small>";
                     } else {
                         echo "<div style='float:right;' >";
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
@@ -201,7 +201,7 @@ RenderContentStart("Game Compare");
                         $rightSoftcoreAwardedCount++;
                         $rightSoftcoreAwardedPoints += $achPoints;
 
-                        echo "<small class='smalldate leftfloat'>unlocked on<br>$awardedRight</small>";
+                        echo "<small class='smalldate'>unlocked on<br>$awardedRight</small>";
                     }
                 } else {
                     echo "<div style='float:right;' >";
@@ -218,7 +218,7 @@ RenderContentStart("Game Compare");
 
             echo "<td>";
             echo "<div style='float:right'>";
-            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg rightfloat");
+            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg float-right");
             echo "</div>";
             echo "</td>";
 
@@ -234,28 +234,28 @@ RenderContentStart("Game Compare");
 
             // Draw totals:
             echo "<tr>";
-            echo "<td class='rightfloat'>";
+            echo "<td class='float-right'>";
             echo "<b>$leftHardcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftHardcoreAwardedPoints</b>/$maxPoints points";
             echo "</td>";
             echo "<td></td>";
-            echo "<td class='leftfloat'>";
+            echo "<td>";
             echo "<b>$rightHardcoreAwardedCount</b>/$numAchievements unlocked<br><b>$rightHardcoreAwardedPoints</b>/$maxPoints points";
             echo "</td>";
             echo "</tr>";
             if ($leftSoftcoreAwardedCount > 0 || $rightSoftcoreAwardedCount > 0) {
                 echo "<tr>";
                 if ($leftSoftcoreAwardedCount > 0) {
-                    echo "<td class='rightfloat'>";
+                    echo "<td class='float-right'>";
                     echo "<span class='softcore'<b>$leftSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
                 } else {
-                    echo "<td class='rightfloat'></td>";
+                    echo "<td class='float-right'></td>";
                 }
                 echo "<td></td>";
                 if ($rightSoftcoreAwardedCount > 0) {
-                    echo "<td class='leftfloat'>";
+                    echo "<td>";
                     echo "<span class='softcore'<b>$rightSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$rightSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";
                 } else {
-                    echo "<td class='leftfloat'></td>";
+                    echo "<td></td>";
                 }
                 echo "</tr>";
             }

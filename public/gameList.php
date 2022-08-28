@@ -45,7 +45,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         echo "<th><a href='/gameList.php?s=$sort4&$queryParams'>Leaderboards</a></th>";
 
         if ($showTickets) {
-            echo "<th class='text-nowrap'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
+            echo "<th class='whitespace-nowrap'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
         }
     } else {
         echo "<th>Title</th>";
@@ -55,7 +55,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         echo "<th>Leaderboards</th>";
 
         if ($showTickets) {
-            echo "<th class='text-nowrap'>Open Tickets</th>";
+            echo "<th class='whitespace-nowrap'>Open Tickets</th>";
         }
     }
 
@@ -93,7 +93,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         echo "<td>";
         echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, $consoleName, true);
         echo "</td>";
-        echo "<td class='fullwidth'>";
+        echo "<td class='w-full'>";
         echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, $consoleName, false, null, true);
         echo "</td>";
 
@@ -102,7 +102,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         } else {
             echo "<td>$numAchievements of $totalAchievements</td>";
         }
-        echo "<td class='text-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
+        echo "<td class='whitespace-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
 
         if ($gameEntry['DateModified'] != null) {
             $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
@@ -213,7 +213,7 @@ RenderContentStart($requestedConsole . "Games");
 
                     if ($maxCount != 0 && $gamesCount > $maxCount) {
                         // Add page traversal links
-                        echo "\n<br/><div class='rightalign row'>";
+                        echo "\n<br/><div class='float-right row'>";
                         RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=");
                         echo "</div>";
                     }

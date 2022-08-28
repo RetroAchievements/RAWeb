@@ -51,18 +51,18 @@ RenderContentStart("Developer Stats");
 
         echo "</div>";
 
-        echo "<div class='rightfloat'>* = ordered by</div>";
+        echo "<div class='float-right'>* = ordered by</div>";
         echo "<br style='clear:both;'>";
         echo "<div class='table-wrapper'><table><tbody>";
         echo "<th></th>";
         echo "<th><a href='/developerstats.php?t=6&f=$devFilter'>Name</a>" . ($type == 6 ? "*" : "") . "</th>";
-        echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>" . ($type == 3 ? "*" : "") . "</th>";
-        echo "<th class='text-right text-nowrap'><a href='/developerstats.php?f=$devFilter'>Achievements</a>" . ($type == 0 ? "*" : "") . "</th>";
-        echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=4&f=$devFilter'>Ticket Ratio (%)</a>" . ($type == 4 ? "*" : "") . "</th>";
+        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>" . ($type == 3 ? "*" : "") . "</th>";
+        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?f=$devFilter'>Achievements</a>" . ($type == 0 ? "*" : "") . "</th>";
+        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=4&f=$devFilter'>Ticket Ratio (%)</a>" . ($type == 4 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>" . ($type == 2 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>" . ($type == 1 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>" . ($type == 7 ? "*" : "") . "</th>";
-        // echo "<th class='text-right text-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == AchievementType::UNOFFICIAL ? "*" : "") . "</th>";
+        // echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == AchievementType::UNOFFICIAL ? "*" : "") . "</th>";
 
         $userCount = 0;
         foreach ($devStatsList as $devStats) {
@@ -73,10 +73,10 @@ RenderContentStart("Developer Stats");
             }
 
             $dev = $devStats['Author'];
-            echo "<td class='text-nowrap'>";
+            echo "<td class='whitespace-nowrap'>";
             echo GetUserAndTooltipDiv($dev, true);
             echo "</td>";
-            echo "<td class='text-nowrap'><div class='fixheightcell'>";
+            echo "<td class='whitespace-nowrap'><div class='fixheightcell'>";
             echo GetUserAndTooltipDiv($dev, false);
             echo "<br><small>";
             if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {

@@ -473,7 +473,7 @@ RenderContentStart($pageTitle);
                 if ($closedTickets || $resolvedTickets) {
                     echo "<th>Resolver</th>";
                 }
-                echo "<th class='text-nowrap'>Reported At</th>";
+                echo "<th class='whitespace-nowrap'>Reported At</th>";
 
                 $rowCount = 0;
 
@@ -563,7 +563,7 @@ RenderContentStart($pageTitle);
                 echo "</tbody></table>";
                 echo "</div>";
 
-                echo "<div class='rightalign row'>";
+                echo "<div class='float-right row'>";
                 $baseLink = $createLink(null, null);
                 $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
                 RenderPaginator($filteredTicketsCount, $maxCount, $offset, "${baseLink}o=");

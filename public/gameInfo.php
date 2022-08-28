@@ -922,11 +922,11 @@ sanitize_outputs(
                         echo "<form class='mb-2' method='post' action='/request/game/update-rich-presence.php'>";
                         echo csrf_field();
                         echo "<input type='hidden' value='$gameID' name='game'>";
-                        echo "<textarea style='height:320px;' class='code fullwidth' name='rich_presence' maxlength='60000'>$richPresenceData</textarea><br>";
-                        echo "<div class='text-right'><input type='submit' value='Submit'></div>";
+                        echo "<textarea style='height:320px;' class='code w-full' name='rich_presence' maxlength='60000'>$richPresenceData</textarea><br>";
+                        echo "<div class='text-right'><button class='btn btn-primary'>Submit</button></div>";
                         echo "</form>";
                     } else {
-                        echo "<textarea style='height:320px;' class='code fullwidth' readonly>$richPresenceData</textarea><br>";
+                        echo "<textarea style='height:320px;' class='code w-full' readonly>$richPresenceData</textarea><br>";
                     }
                 }
 
@@ -994,7 +994,7 @@ sanitize_outputs(
 
                         $star1 = $star2 = $star3 = $star4 = $star5 = "";
                         $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
-                        $tooltip .= "<table><tr><td nowrap>Your rating: $yourRating</td></tr></table>";
+                        $tooltip .= "<table><tr><td class='whitespace-nowrap'>Your rating: $yourRating</td></tr></table>";
                         $tooltip .= "</div>";
                     } else {
                         $rating = $ratingData['AverageRating'];
@@ -1009,19 +1009,19 @@ sanitize_outputs(
                         $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
                         $tooltip .= "<table>";
                         $tooltip .= "<tr><td colspan=3>Your rating: $yourRating</td></tr>";
-                        $tooltip .= "<tr><td nowrap>5 star</td><td>";
+                        $tooltip .= "<tr><td class='whitespace-nowrap'>5 star</td><td>";
                         $tooltip .= "<div class='progressbar'><div class='completion' style='width:$percent5%' /></div>";
                         $tooltip .= "</td><td>$percent5%</td/></tr>";
-                        $tooltip .= "<tr><td nowrap>4 star</td><td>";
+                        $tooltip .= "<tr><td class='whitespace-nowrap'>4 star</td><td>";
                         $tooltip .= "<div class='progressbar'><div class='completion' style='width:$percent4%' /></div>";
                         $tooltip .= "</td><td>$percent4%</td/></tr>";
-                        $tooltip .= "<tr><td nowrap>3 star</td><td>";
+                        $tooltip .= "<tr><td class='whitespace-nowrap'>3 star</td><td>";
                         $tooltip .= "<div class='progressbar'><div class='completion' style='width:$percent3%' /></div>";
                         $tooltip .= "</td><td>$percent3%</td/></tr>";
-                        $tooltip .= "<tr><td nowrap>2 star</td><td>";
+                        $tooltip .= "<tr><td class='whitespace-nowrap'>2 star</td><td>";
                         $tooltip .= "<div class='progressbar'><div class='completion' style='width:$percent2%' /></div>";
                         $tooltip .= "</td><td>$percent2%</td/></tr>";
-                        $tooltip .= "<tr><td nowrap>1 star</td><td>";
+                        $tooltip .= "<tr><td class='whitespace-nowrap'>1 star</td><td>";
                         $tooltip .= "<div class='progressbar'><div class='completion' style='width:$percent1%' /></div>";
                         $tooltip .= "</td><td>$percent1%</td/></tr>";
                         $tooltip .= "</table>";

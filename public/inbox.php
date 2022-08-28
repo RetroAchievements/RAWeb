@@ -142,7 +142,7 @@ function MarkAsUnread(msgID) {
 
                 // echo "<td>" . $msgTo . "</td>";
 
-                echo "<td class='pointer " . ($msgUnread ? 'message-unread' : '') . "' id='msgInlineTitle$msgID' onclick='ReadMessage($msgID)'>";
+                echo "<td class='cursor-pointer " . ($msgUnread ? 'message-unread' : '') . "' id='msgInlineTitle$msgID' onclick='ReadMessage($msgID)'>";
                 echo $msgTitle;
                 echo "</td>";
 
@@ -174,7 +174,7 @@ function MarkAsUnread(msgID) {
 
             echo "</tbody></table>";
 
-            echo "<div class='rightalign'>";
+            echo "<div class='float-right'>";
 
             if ($offset > 0) {
                 echo "<span class='clickablebutton'>";

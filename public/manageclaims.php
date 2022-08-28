@@ -164,10 +164,10 @@ RenderContentStart("Manage Claims");
         foreach ($claimData as $claim) {
             $claimID = $claim['ID'];
             $claimUser = $claim['User'];
-            echo "<tr><td class='text-nowrap'>";
+            echo "<tr><td class='whitespace-nowrap'>";
             echo GetUserAndTooltipDiv($claimUser, true);
             echo "</td>";
-            echo "<td class='text-nowrap'><div class='fixheightcell' id='claimUser_$claimUser'>";
+            echo "<td class='whitespace-nowrap'><div class='fixheightcell' id='claimUser_$claimUser'>";
             echo GetUserAndTooltipDiv($claimUser, false);
             echo "</div></td>";
 

@@ -114,7 +114,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
         echo "</tbody></table>";
 
         // Add page traversal
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($date > $minDate) {
             $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
             echo "<a href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>&lt; Prev Day </a>";

@@ -48,13 +48,13 @@ RenderContentStart("Create topic: $thisForumTitle");
             echo "<tbody>";
             echo "<tr><td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
             echo "<tr><td>Author:</td><td><input type='text' readonly value='$user'></td></tr>";
-            echo "<tr><td>Topic:</td><td><input class='fullwidth' type='text' value='' name='title' value='" . old('title') . "'></td></tr>";
+            echo "<tr><td>Topic:</td><td><input class='w-full' type='text' value='' name='title' value='" . old('title') . "'></td></tr>";
             echo "<tr><td>Message:</td><td>";
             RenderShortcodeButtons();
             echo <<<EOF
                 <textarea
                     id="commentTextarea"
-                    class="fullwidth"
+                    class="w-full"
                     style="height:300px"
                     rows="32" cols="32"
                     maxlength="60000"

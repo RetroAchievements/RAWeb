@@ -96,7 +96,7 @@ RenderContentStart("Search");
 
                 echo "</tbody></table>";
 
-                echo "<div class='rightalign row'>";
+                echo "<div class='float-right row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
                     echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";

@@ -331,7 +331,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         echo "</tbody></table>";
 
         // Add page traversal
-        echo "<div class='rightalign row'>";
+        echo "<div class='float-right row'>";
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
             echo "<a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends'>First</a> - ";

@@ -398,7 +398,7 @@ function ReloadLBPageByGame() {
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justText: true);
             echo "</td>";
 
-            // echo "<td class='text-nowrap'>";
+            // echo "<td class='whitespace-nowrap'>";
             // echo "$consoleName";
             // echo "</td>";
 
@@ -410,7 +410,7 @@ function ReloadLBPageByGame() {
             echo "$lbDesc";
             echo "</td>";
 
-            echo "<td class='text-nowrap'>";
+            echo "<td class='whitespace-nowrap'>";
             echo "$niceFormat";
             echo "</td>";
 
@@ -430,7 +430,7 @@ function ReloadLBPageByGame() {
     echo "</tbody></table>";
     echo "</div>";
 
-    echo "<div class='rightalign row'>";
+    echo "<div class='float-right row'>";
     if ($offset > 0) {
         $prevOffset = $offset - $maxCount;
         echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
