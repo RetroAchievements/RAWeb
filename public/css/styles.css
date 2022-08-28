@@ -649,6 +649,7 @@ footer a:hover, footer a:active {
   top: 42px;
   left: 0;
   margin: 0;
+  z-index: 1;
 }
 
 #innermenu > ul > li > div > ul > li:last-child {
@@ -962,7 +963,7 @@ th {
   font-size: x-small;
   color: rgb(140, 140, 140);
   line-height: 1.1em;
-  width: 75px;
+  min-width: 80px;
 }
 
 span.smalldate {
@@ -1015,7 +1016,7 @@ span.smalldate {
   box-sizing: border-box;
 }
 
-.devbox span {
+.devbox > span {
   border-bottom: 1px dashed;
   cursor: pointer;
 }
