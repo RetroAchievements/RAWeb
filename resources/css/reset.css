@@ -1,0 +1,31 @@
+/* reset tailwind image display block */
+img {
+  display: inline-block;
+  max-width: initial;
+}
+
+form {
+  margin: 0;
+}
+
+b {
+  font: inherit;
+}
+
+table {
+  width: 100%;
+}
+
+td, tr, img {
+  vertical-align: middle;
+}
+
+/*
+iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, code, del, dfn, em, img, dl, dt, dd, ol, ul, li
+div, span, applet, object, a, abbr, acronym, address, big, cite, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, , fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video
+{
+  border: 0;
+  margin: 0;
+  padding: 0
+}
+*/

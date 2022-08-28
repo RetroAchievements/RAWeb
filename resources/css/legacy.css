@@ -1,0 +1,127 @@
+/* TODO get rid of mainpage, fullcontainer, leftcontainer, rightcontainer */
+#mainpage {
+  padding: 0;
+  position: relative;
+  min-height: 450px;
+  display: flex;
+}
+
+@media only screen and (max-width: 1023px) {
+  #mainpage {
+    display: block;
+  }
+}
+
+#mainpage > .both {
+  grid-column: span 2;
+}
+
+#fullcontainer, article {
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border: 2px solid var(--embed-color);
+  border-radius: 4px;
+  align-self: start;
+  grid-column: span 2;
+  flex-grow: 1;
+  background: var(--box-bg-color);
+  background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
+}
+
+#leftcontainer {
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  display: block;
+  border: 2px solid var(--embed-color);
+  border-radius: 4px;
+  align-self: start;
+  flex-grow: 1;
+  background: var(--box-bg-color);
+  background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
+}
+
+#rightcontainer, aside {
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border: 2px solid var(--embed-color);
+  border-radius: 4px;
+  align-self: start;
+  max-width: 340px;
+  min-width: 340px;
+  margin-left: 1rem;
+  background: var(--box-bg-color);
+  background: linear-gradient(0deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
+}
+
+/* TODO replace with sections */
+.component {
+  overflow: hidden;
+  margin-bottom: 1em;
+}
+
+.highlight {
+  outline: 2px solid;
+}
+
+.TrueRatio {
+  color: rgb(210, 210, 210);
+}
+
+.softcore {
+  color: rgb(140,140,140);
+}
+
+.message-unread {
+  font-weight: bold;
+}
+
+.inline-image {
+  max-width: 100%;
+  max-height: 300px;
+}
+
+/* TODO split below into components or replace with utility classes */
+
+.embedded {
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: var(--embed-color);
+}
+
+#usercompletedgamescomponent {
+  max-height: 30.0em;
+  overflow-y: auto;
+}
+
+#devstatsscrollpane {
+  max-height: 25.0em;
+  overflow-y: auto;
+}
+
+.gamescreenshots td {
+  text-align: center;
+  padding: 4px;
+}
+
+@media only screen and (max-width: 1023px) {
+  .gamescreenshots td {
+    display: inline-block;
+  }
+}
+
+.sortbyselector {
+  padding: 1em 0;
+}
+
+.achievemententryicon {
+  float: left;
+  padding: 0 4px;
+}
+
+a.setRequestLabel {
+  cursor: pointer;
+}
+
+.ui-autocomplete {
+  z-index: 30 !important;
+}

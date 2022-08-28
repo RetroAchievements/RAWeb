@@ -26,7 +26,7 @@ function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIc
 
     $tooltip = tipEscape($tooltip);
 
-    return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
+    return "<div class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
         "<a href='/leaderboardinfo.php?i=$lbID'>" .
         "$displayable" .
         "</a>" .

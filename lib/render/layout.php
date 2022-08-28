@@ -53,7 +53,7 @@ function RenderTitleBar(): void
     }
     echo "</div>";
 
-    echo "<div class='login lg:my-4 px-5 py-3'>";
+    echo "<div class='bg-embedded rounded lg:w-[340px] lg:my-4 px-5 py-3'>";
 
     if (!$user) {
         echo "<form class='flex justify-center items-end gap-2' method='post' action='/request/auth/login.php'>";
@@ -64,7 +64,7 @@ function RenderTitleBar(): void
         echo "<a href='/resetPassword.php'>Forgot password?</a>";
         echo "</div>";
         echo "<div class='flex flex-col gap-1 flex-1'>";
-        echo "<input type='submit' value='Login' name='submit' class='loginbox'>";
+        echo "<input type='submit' value='Login' name='submit'>";
         echo "<a href='/createaccount.php'>Register</a>";
         echo "</div>";
         echo "</form>";

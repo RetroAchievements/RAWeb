@@ -12,7 +12,7 @@ RenderContentStart("Download a client");
 <div id="mainpage">
     <div id='fullcontainer'>
 
-        <h2 class='longheader'>Downloads</h2>
+        <h2>Downloads</h2>
 
         <p class="embedded mb-5">
             <b>Upgrade:</b> If you were brought to this page because the emulator told you

@@ -52,7 +52,7 @@ RenderContentStart("Set Requests");
         $gameCounter = 0;
 
         if ($username === null) {
-            echo "<h2 class='longheader'>";
+            echo "<h2>";
             if ($selectedConsole > 0) {
                 echo "Most Requested " . array_column($consoles, 'Name', 'ID')[$selectedConsole] . " Sets";
             } else {
@@ -137,7 +137,7 @@ RenderContentStart("Set Requests");
             echo "</div>";
         } else {
             // Looking at the sets a specific user has requested
-            echo "<h2 class='longheader'>$username's Requested Sets - "
+            echo "<h2>$username's Requested Sets - "
                 . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
             if ($flag == 0) {

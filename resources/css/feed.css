@@ -1,0 +1,211 @@
+.feed_login {
+  color: #666666;
+}
+
+.feed_won {
+  color: #993311;
+}
+
+.feed_won a {
+  color: #CC8800;
+}
+
+.feed_won a:hover {
+  color: #FFCC00;
+}
+
+.feed_won_hc {
+  color: #EE3322;
+}
+
+.feed_won_hc a {
+  color: #DDAA00;
+}
+
+.feed_won_hc a:hover {
+  color: #FFFF00;
+}
+
+.feed_dev1 {
+  color: #00FF00;
+}
+
+.feed_dev1 a {
+  color: #00CC66;
+}
+
+.feed_dev1 a:hover {
+  color: #66EEFF;
+}
+
+.feed_dev2 {
+  color: #009900;
+}
+
+.feed_dev2 a {
+  color: #00AA66;
+}
+
+.feed_dev2 a:hover {
+  color: #44CCDD;
+}
+
+.feed_startplay {
+  color: #8844DD;
+}
+
+.feed_startplay a {
+  color: #C077FF;
+}
+
+.feed_startplay a:hover {
+  color: #CC5588;
+}
+
+.feed_comment {
+  color: #009900;
+}
+
+.feed_completegame {
+  color: #EEEEEE;
+}
+
+.feed_completegame a {
+  color: #77AAEE;
+}
+
+.feed_completegame a:hover {
+  color: #00EEFF;
+}
+
+#feed tr.feed_login {
+  background-color: #202020;
+}
+
+#feed tr.feed_won {
+  background-color: #400000;
+}
+
+#feed tr.feed_won_hc {
+  background-color: #500000;
+}
+
+#feed tr.feed_startplay {
+  background-color: #331144;
+}
+
+#feed tr.feed_dev1 {
+  background-color: #112244;
+}
+
+#feed tr.feed_dev2 {
+  background-color: #111530;
+}
+
+#feed tr.feed_comment {
+  background-color: var(--embed-color);
+}
+
+#feed tr.feed_comment.system {
+  color: var(--text-color-muted);
+  font-size: 9px;
+}
+
+#feed tr.feed_completegame {
+  background-color: #003366;
+}
+
+#feed tr.feed_submitrecord {
+  background-color: #001F00;
+  color: #259900;
+}
+
+#feed tr.feed_submitrecord a {
+  color: #88CC00;
+}
+
+#feed tr.feed_submitrecord a:hover {
+  color: #DDDD00;
+}
+
+#feed tr.feed_updaterecord {
+  background-color: #001F00;
+  color: #259900;
+}
+
+#feed tr.feed_updaterecord a {
+  color: #88CC00;
+}
+
+#feed tr.feed_updaterecord a:hover {
+  color: #DDDD00;
+}
+
+.feeditem {
+  width: 99%;
+}
+
+#feed table {
+}
+
+#feed td {
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+#feed td.date {
+}
+
+#feed td.datepadded {
+}
+
+#feed td.icons {
+  width: 80px;
+  padding: 2px;
+}
+
+#feed td.icons img {
+  float: right;
+}
+
+#feed td.iconscomment {
+  padding: 2px;
+}
+
+#feed td.iconscommentsingle {
+  padding: 2px;
+  vertical-align: top;
+}
+
+#feed td.iconscomment img {
+  float: right;
+}
+
+#feed td.iconscommentsingle img {
+  float: right;
+}
+
+#feedcontainer {
+  height: 220px;
+  /*width: 300px;*/
+  overflow-x: hidden;
+  overflow-y: auto;
+  vertical-align: middle;
+}
+
+.feedcell {
+  vertical-align: middle;
+}
+
+.feedcelldate {
+  font-size: x-small;
+  color: rgb(140, 140, 140);
+}
+
+.feedcellmessage {
+  vertical-align: middle;
+  /*color: rgb( 76, 146, 235 );*/
+  /*color: rgb( 165, 242, 243 );*/
+  overflow: hidden;
+  max-width: 200px;
+}

@@ -26,7 +26,7 @@ RenderContentStart("Forum Recent Posts");
             }
             echo "</div>";
 
-            echo "<h3 class='longheader'>Forum Post History</h3>";
+            echo "<h3>Forum Post History</h3>";
 
             // Output all forums fetched, by category
 
@@ -35,7 +35,7 @@ RenderContentStart("Forum Recent Posts");
             $forumIter = 0;
 
             echo "<div class='table-wrapper'>";
-            echo "<table class='table-forum-history'>";
+            echo "<table>";
             echo "<tbody>";
 
             echo "<tr>";

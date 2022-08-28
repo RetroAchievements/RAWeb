@@ -158,7 +158,7 @@ RenderContentStart($achievementTitleRaw);
         echo " &raquo; <b>$achievementTitle</b>";
         echo "</div>"; // navpath
 
-        echo "<h3 class='longheader'>$gameTitle ($consoleName)</h3>";
+        echo "<h3>$gameTitle ($consoleName)</h3>";
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
@@ -361,12 +361,9 @@ RenderContentStart($achievementTitleRaw);
                 if ($userWinner == null || $userObject['DateAwarded'] == null) {
                     continue;
                 }
-
                 $niceDateWon = date("d M, Y H:i", strtotime($userObject['DateAwarded']));
-
                 echo "<tr>";
-
-                echo "<td style='width:34px'>";
+                echo "<td class='w-[32px]'>";
                 echo GetUserAndTooltipDiv($userWinner, true);
                 echo "</td>";
                 echo "<td>";

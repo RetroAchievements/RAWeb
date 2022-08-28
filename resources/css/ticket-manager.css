@@ -1,0 +1,41 @@
+.ticket-block {
+  display: inline-block;
+  border: 1px #1166dd;
+  border-radius: 5px;
+  border-style: solid;
+  min-height: 32px;
+  padding-right: 5px;
+}
+
+.ticket-block.open {
+  border-color: #28a745;
+}
+
+.ticket-block.closed {
+  border-color: #dc3545;
+}
+
+.ticket-block .badgeimg {
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-block;
+}
+
+.ticket-block .ticket-displayable-block {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.ticket-tooltip-state {
+  font-weight: bold;
+  padding: 5px;
+}
+
+.ticket-tooltip-info {
+  padding: 5px;
+}
+
+.ticket-tooltip-info.open .tooltip-closer,
+.ticket-tooltip-info.closed .tooltip-opened-date {
+  display: none;
+}

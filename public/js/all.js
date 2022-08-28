@@ -149,7 +149,7 @@ function GetAchievementAndTooltipDiv(
     }
   }
 
-  return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
+  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
     + '<a href=\'/achievement/' + achID + '\'>'
     + smallBadge
@@ -177,7 +177,7 @@ function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageIns
       + '" title="Started playing ' + gameTitle + '" src=\'' + gameIcon
       + '\' width=\'32\' height=\'32\' class=\'badgeimg\' loading=\'lazy\' />';
   }
-  return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
+  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
     + '<a href=\'/game/' + gameID.toString() + '\'>'
     + displayable
@@ -191,11 +191,11 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
   tooltip += '<table><tbody>';
   tooltip += '<tr>';
   // Image
-  tooltip += '<td class=\'fixedtooltipcolleft\'><img src=\'/UserPic/' + user
+  tooltip += '<td><img src=\'/UserPic/' + user
     + '.png\' width=\'' + tooltipImageSize + '\' height=\'' + tooltipImageSize
     + '\' /></td>';
   // Username (points)
-  tooltip += '<td class=\'fixedtooltipcolright\'>';
+  tooltip += '<td>';
   tooltip += '<b>' + user + '</b>';
   if (points !== null) {
     tooltip += '&nbsp;(' + points.toString() + ')';
@@ -222,7 +222,7 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
       + '.png\' width=\'32\' height=\'32\' alt=\'' + user + '\' title=\'' + user
       + '\' class=\'badgeimg\' loading=\'lazy\' />';
   }
-  return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
+  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
     + '<a href=\'/user/' + user + '\'>'
     + displayable
@@ -251,7 +251,7 @@ function GetLeaderboardAndTooltipDiv(
   tooltip = replaceAll('>', '&gt;', tooltip);
   tooltip = replaceAll('\'', '\\\'', tooltip);
   tooltip = replaceAll('"', '&quot;', tooltip);
-  return '<div class=\'bb_inline\' onmouseover="Tip(\'' + tooltip
+  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
     + '<a href=\'/leaderboardinfo.php?i=' + lbID + '\'>'
     + displayable

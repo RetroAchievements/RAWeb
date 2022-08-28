@@ -1,0 +1,19 @@
+#WzBoDy {
+  border-radius: 8px !important;
+  background: var(--bg-color) !important;
+  border-color: var(--menu-link-color) !important;
+}
+
+#WzBoDy tr {
+  background: none;
+}
+
+#WzBoDy td {
+  padding: 2px;
+  color: var(--menu-link-color);
+}
+
+#objtooltip {
+  background: var(--box-bg-color);
+  color: var(--menu-link-color);
+}

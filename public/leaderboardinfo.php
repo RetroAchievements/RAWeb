@@ -70,7 +70,7 @@ RenderContentStart('Leaderboard');
 
             echo "</div>";
             echo "<div>";
-            echo "<h3 class='longheader'>$pageTitle</h3>";
+            echo "<h3>$pageTitle</h3>";
             echo "</div>";
 
             echo "<br>";
@@ -206,7 +206,7 @@ RenderContentStart('Leaderboard');
             echo "<div class='float-right row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $count;
-                echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a></span> - ";
+                echo "<a class='btn btn-link' href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a> - ";
             }
 
             // echo "$numActualEntries";
@@ -214,7 +214,7 @@ RenderContentStart('Leaderboard');
             if ($numActualEntries == $count) {
                 // Max number fetched, i.e. there are more. Can goto next 20.
                 $nextOffset = $offset + $count;
-                echo "<span class='clickablebutton'><a href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a></span>";
+                echo "<a class='btn btn-link' href='/leaderboardinfo.php?i=$lbID&amp;o=$nextOffset&amp;c=$count&amp;f=$friendsOnly'>Next $count &gt;</a>";
             }
             echo "</div>";
 

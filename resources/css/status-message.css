@@ -1,0 +1,11 @@
+#status {
+  background: rgb(37, 99, 235);
+}
+
+#status.success {
+  background: rgb(22 163 74);
+}
+
+#status.failure {
+  background: rgb(220, 38, 38);
+}

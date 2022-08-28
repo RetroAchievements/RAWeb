@@ -95,10 +95,10 @@ function updateAchievementsTypeFlag(typeFlag) {
     }
 
     if ($flag === AchievementType::Unofficial) {
-        echo "<h2 class='longheader'>Unofficial Achievement Inspector</h2>";
+        echo "<h2>Unofficial Achievement Inspector</h2>";
     }
     if ($flag === AchievementType::OfficialCore) {
-        echo "<h2 class='longheader'>Core Achievement Inspector</h2>";
+        echo "<h2>Core Achievement Inspector</h2>";
     }
 
     if ($gameIDSpecified) {

@@ -248,7 +248,7 @@ RenderContentStart($pageTitle);
                 $gameIDGiven,
                 $achievementIDGiven
             );
-            echo "<h3 class='longheader'>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementType::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
+            echo "<h3>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementType::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
         }
 
         echo "<div class='detaillist'>";

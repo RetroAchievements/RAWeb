@@ -1,0 +1,18 @@
+footer {
+  background: var(--embed-color);
+  padding: 25px 15px;
+  color: var(--text-color-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 auto;
+  clear: both;
+  box-sizing: border-box;
+}
+
+footer a {
+  color: var(--menu-link-color);
+}
+
+footer a:hover, footer a:active {
+  color: var(--menu-link-hover-color);
+}

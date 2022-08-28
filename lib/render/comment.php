@@ -166,7 +166,7 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
                         </span>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>
-                    <div class="form-error"></div>
+                    <div class="text-danger hidden"></div>
                 </form>
             </td>
         </tr>

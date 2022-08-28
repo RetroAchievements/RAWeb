@@ -21,7 +21,7 @@ RenderContentStart("Search");
         echo "<b>Search</b></a>";
         echo "</div>";
 
-        echo "<h2 class='longheader'>Search</h2>";
+        echo "<h2>Search</h2>";
 
         echo "<div class='searchbox longer'>";
         echo "<form action='/searchresults.php'>";
@@ -34,7 +34,7 @@ RenderContentStart("Search");
         echo "</div>";
 
         if ($searchQuery !== null) {
-            echo "<h4 class='longheader'>Results:</h4>";
+            echo "<h4>Results:</h4>";
             if ($resultsCount == 0) {
                 echo "No results found!";
             } else {

@@ -1,0 +1,22 @@
+textarea, input, select {
+  padding: 0.4em 0.6em;
+  margin: 0;
+  border: 1px solid var(--text-color-muted);
+  border-radius: 4px;
+  background: var(--embed-color);
+  color: var(--menu-link-color);
+  font-size: 13px;
+}
+
+input[readonly] {
+  color: var(--text-color-muted);
+}
+
+input[disabled] {
+  color: var(--text-color-muted);
+}
+
+input, optgroup, select, textarea {
+  /*background: white;*/
+  /*color: black;*/
+}

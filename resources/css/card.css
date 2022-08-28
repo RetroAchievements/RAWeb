@@ -1,0 +1,17 @@
+.usercardavatar {
+  width: 128px;
+  height: 128px;
+}
+
+.usercardusername {
+  font-weight: bold;
+}
+
+.usercardaccounttype {
+  text-align: right;
+  text-decoration: underline;
+}
+
+.usercardbasictext {
+  font-size: smaller;
+}

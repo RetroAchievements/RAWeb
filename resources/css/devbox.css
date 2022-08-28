@@ -1,0 +1,31 @@
+.devbox {
+  padding: 4px 0;
+  /* for rendering spoilers within shortcode */
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.devbox > span {
+  border-bottom: 1px dashed;
+  cursor: pointer;
+}
+
+.devbox > div, .codetags {
+  border-style: solid;
+  border-width: 1px;
+  padding: 8px 12px;
+  /*
+  for rendering code tag within shortcode
+  and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
+  */
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.devbox > .spoiler {
+  display: none;
+  border-style: dashed;
+  margin-top: 0;
+}

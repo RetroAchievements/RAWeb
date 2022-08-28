@@ -1,14 +1,47 @@
-@import "breadcrumbs.css";
-@import "button.css";
-@import "icon.css";
+/* tailwind */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import "reset.css";
+
+/* base */
 @import "layout.css";
 @import "theme.css";
+@import "typography.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* TODO split */
+@import "legacy.css";
 
-/* preflight is disabled - apply some reset styles manually */
-* {
-  box-sizing: border-box;
-}
+/* components */
+@import "background.css";
+@import "badge.css";
+@import "brand-top.css";
+@import "breadcrumb.css";
+@import "button.css";
+@import "card.css";
+@import "carousel.css";
+@import "chart.css";
+@import "embed.css";
+@import "feed.css";
+@import "footer.css";
+@import "form.css";
+@import "icon.css";
+@import "modal.css";
+@import "nav.css";
+@import "progress.css";
+@import "rating.css";
+@import "search.css";
+@import "status-message.css";
+@import "tab.css";
+@import "table.css";
+@import "tooltip.css";
+
+/* TODO split into components or replace with utility classes */
+@import "active-players.css";
+@import "award-count.css";
+@import "comment.css";
+@import "devbox.css";
+@import "motto.css";
+@import "news.css";
+@import "ticket-manager.css";

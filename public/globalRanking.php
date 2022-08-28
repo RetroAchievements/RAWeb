@@ -62,7 +62,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<h2 class='longheader'>" . $lbUsers . " Ranking - " . $lbType . "</h2>";
+        echo "<h2>" . $lbUsers . " Ranking - " . $lbType . "</h2>";
 
         // Add the leaderboard filters
         echo "<div class='embedded mb-1'>";

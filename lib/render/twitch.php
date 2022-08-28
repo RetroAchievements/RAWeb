@@ -39,7 +39,7 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
     echo $videoHTML;
     echo "</div>";
 
-    echo "<span class='clickablebutton'><a href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a></span>";
+    echo "<a class='btn btn-link' href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a>";
 
     if ($componentPos == 'left') {
         echo "<br /><br />";

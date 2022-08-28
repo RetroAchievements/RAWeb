@@ -24,7 +24,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<h2 class='longheader'>Recent " . $lbUsers . " Masteries</h2>";
+        echo "<h2>Recent " . $lbUsers . " Masteries</h2>";
 
         // Add the leaderboard filters
         echo "<div class='embedded mb-1'>";

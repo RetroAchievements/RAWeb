@@ -39,7 +39,7 @@ RenderContentStart("Create topic: $thisForumTitle");
             echo " &raquo; <b>Create Topic</b></a>";
             echo "</div>";
 
-            echo "<h2 class='longheader'>Create Topic: $thisForumTitle</h2>";
+            echo "<h2>Create Topic: $thisForumTitle</h2>";
 
             echo "<form action='/request/forum-topic/create.php' method='post'>";
             echo csrf_field();

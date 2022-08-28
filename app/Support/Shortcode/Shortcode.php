@@ -21,7 +21,7 @@ final class Shortcode
             ->add('i', fn (ShortcodeInterface $s) => '<i>' . $s->getContent() . '</i>')
             ->add('u', fn (ShortcodeInterface $s) => '<u>' . $s->getContent() . '</u>')
             ->add('s', fn (ShortcodeInterface $s) => '<s>' . $s->getContent() . '</s>')
-            ->add('img', fn (ShortcodeInterface $s) => '<img class="injectinlineimage" src="' . ($s->getBbCode() ?: $s->getContent()) . '">')
+            ->add('img', fn (ShortcodeInterface $s) => '<img class="inline-image" src="' . ($s->getBbCode() ?: $s->getContent()) . '">')
             ->add('code', fn (ShortcodeInterface $s) => $this->renderCode($s))
             ->add('url', fn (ShortcodeInterface $s) => $this->renderUrlLink($s))
             ->add('link', fn (ShortcodeInterface $s) => $this->renderLink($s))
@@ -365,7 +365,7 @@ final class Shortcode
             if (in_array($extension, ['.gifv', '.mp4', '.webm'])) {
                 $replacements[$i] = '<a href="//imgur.com/' . $id . '"><div class="embed-responsive embed-responsive-16by9"><video controls class="embed-responsive-item"><source src="//i.imgur.com/' . $id . '.mp4" type="video/mp4"></video></div><div class="text-right mb-3"><small>view on imgur</small></div></a>';
             } elseif (in_array($extension, ['.jpg', '.png', '.jpeg'])) {
-                $replacements[$i] = '<a href="//imgur.com/' . $id . '"><img class="injectinlineimage" src="//i.imgur.com/' . $id . '.jpg" alt=""><div class="text-right mb-3"><small>view on imgur</small></div></a>';
+                $replacements[$i] = '<a href="//imgur.com/' . $id . '"><img class="inline-image" src="//i.imgur.com/' . $id . '.jpg" alt=""><div class="text-right mb-3"><small>view on imgur</small></div></a>';
             }
         }
 

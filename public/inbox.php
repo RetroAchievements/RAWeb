@@ -177,19 +177,15 @@ function MarkAsUnread(msgID) {
             echo "<div class='float-right'>";
 
             if ($offset > 0) {
-                echo "<span class='clickablebutton'>";
-                echo "<a href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
+                echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "&lt; Previous $maxCount";
                 echo "</a>";
-                echo "</span>";
             }
 
             if ($totalMsgs == $maxCount) {
-                echo "<span class='clickablebutton'>";
-                echo "<a href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
+                echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "Next $maxCount &gt;";
                 echo "</a>";
-                echo "</span> ";
             }
 
             echo "</div>";

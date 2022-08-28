@@ -1,0 +1,105 @@
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  margin-bottom: -1px;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom: 1px solid var(--embed-color);
+  float: left;
+  border-radius: 5px 5px 0px 0px;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 8px;
+  color: var(--menu-link-color);
+  font-size: 100%;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  border: 1px solid rgb(80, 80, 80);
+}
+
+.tab button:hover:not(.active) {
+  color: var(--menu-link-hover-color);
+  border-bottom: 1px solid var(--embed-color);
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  color: var(--text-color);
+  border: 1px solid var(--embed-color);
+  border-bottom: 1px solid #1F1F1F;
+  background-color: #1F1F1F;
+}
+
+/* Style the friends tab content */
+.tabcontentfriendstab {
+  display: none;
+  padding: 2px 2px 25px;
+  border: 1px solid var(--embed-color);
+}
+
+/* Style the global tab content */
+.tabcontentglobaltab {
+  display: none;
+  padding: 2px 2px 25px;
+  border: 1px solid var(--embed-color);
+}
+
+/* Style the high scores tab content */
+.tabcontenthighscores {
+  display: none;
+  padding: 2px 2px 25px;
+  border: 1px solid var(--embed-color);
+}
+
+/* Style the latest masters tab content */
+.tabcontentlatestmasters {
+  display: none;
+  padding: 2px 2px 2px;
+  border: 1px solid var(--embed-color);
+}
+
+/* Style the scores tab content */
+.tabcontentscores {
+  display: none;
+  padding: 2px 2px 2px;
+  border: 1px solid var(--embed-color);
+}
+
+.tabcontentscores td {
+  padding: 2px 5px;
+}
+
+.tabcontentscores td.rank {
+  width: 15%;
+}
+
+.tabcontentscores td.user {
+  width: 55%;
+}
+
+.tabcontentscores td.lastaward, .tabcontentscores td.points {
+  width: 30%;
+}
+
+.tabcontentscores td.user span:first-of-type {
+  margin-right: 6px;
+}
+
+.tabcontentscores td.user span:nth-of-type(2) {
+  display: inline-block;
+  width: 0;
+}
+
+.tabcontentscores .rank {
+  font-weight: bold;
+}
+
+.tabcontentscores .lastaward {
+  font-size: 0.85em;
+}

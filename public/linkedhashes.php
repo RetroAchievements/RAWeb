@@ -58,7 +58,7 @@ RenderContentStart("Linked Hashes");
 
                     $image = "/assets/images/labels/" . $label . '.png';
                     if (file_exists(__DIR__ . $image)) {
-                        echo ' <img class="injectinlineimage" src="' . asset($image) . '">';
+                        echo ' <img class="inline-image" src="' . asset($image) . '">';
                     } else {
                         echo ' [' . $label . ']';
                     }

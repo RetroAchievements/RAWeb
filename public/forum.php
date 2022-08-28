@@ -112,13 +112,13 @@ RenderContentStart($pageTitle);
 
                 echo "<tr>";
 
-                echo "<td class='unreadicon p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='32' height='32'></img></td>";
-                echo "<td class='forumtitle'><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br>";
+                echo "<td class='p-1'><img title='$nextForumTitle' alt='$nextForumTitle' src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='32' height='32'></img></td>";
+                echo "<td><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br>";
                 echo "$nextForumDesc</td>";
-                echo "<td class='topiccount'>$nextForumNumTopics</td>";
-                echo "<td class='postcount'>$nextForumNumPosts</td>";
-                echo "<td class='lastpost'>";
-                echo "<div class='lastpost'>";
+                echo "<td>$nextForumNumTopics</td>";
+                echo "<td>$nextForumNumPosts</td>";
+                echo "<td>";
+                echo "<div>";
                 if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
                     echo GetUserAndTooltipDiv($nextForumLastPostAuthor);
                     // echo "<a href='/user/$nextForumLastPostAuthor'>$nextForumLastPostAuthor</a>";

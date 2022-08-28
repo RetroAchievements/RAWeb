@@ -95,7 +95,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 &raquo; <a href='/gameList.php?c=?<?= $consoleID ?>'><?= $consoleName ?></a>
                 &raquo; <b><?= $gameTitle ?></b>
             </div>
-            <h3 class='longheader'><?= $pageTitle ?></h3>
+            <h3><?= $pageTitle ?></h3>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
@@ -612,7 +612,7 @@ sanitize_outputs(
             $imageIngame = $gameData['ImageIngame'];
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            echo "<h3 class='longheader'>$pageTitle</h3>";
+            echo "<h3>$pageTitle</h3>";
             echo "<table><tbody>";
             echo "<tr>";
             echo "<td style='width:110px; padding: 7px; vertical-align: top' >";
@@ -1125,7 +1125,7 @@ sanitize_outputs(
                 echo "</div>";
 
                 if ($numAchievements > 1) {
-                    echo "<div class='sortbyselector'><span>";
+                    echo "<div class='py-3'><span>";
                     echo "Sort: ";
 
                     $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
@@ -1211,9 +1211,9 @@ sanitize_outputs(
 
                             echo "<tr>";
                             echo "<td>";
-                            echo "<div class='achievemententry'>";
+                            echo "<div>";
 
-                            echo "<div class='achievemententryicon'>";
+                            echo "<div class='float-left mr-2'>";
                             echo GetAchievementAndTooltipDiv(
                                 $achID,
                                 $achTitle,
@@ -1251,8 +1251,8 @@ sanitize_outputs(
                             }
 
                             echo "<div class='progressbar allusers'>";
-                            echo "<div class='completion allusers'             style='width:$pctAwardedCasual%'>";
-                            echo "<div class='completionhardcore allusers'     style='width:$pctAwardedHardcore%'>";
+                            echo "<div class='completion allusers' style='width:$pctAwardedCasual%'>";
+                            echo "<div class='completionhardcore allusers' style='width:$pctAwardedHardcore%'>";
                             echo "&nbsp;";
                             echo "</div>";
                             echo "</div>";

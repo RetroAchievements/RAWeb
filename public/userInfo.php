@@ -206,7 +206,7 @@ RenderContentStart($userPage);
         echo "</div>";
 
         echo "<div class='usersummary'>";
-        echo "<h3 class='longheader' >$userPage</h3>";
+        echo "<h3>$userPage</h3>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {

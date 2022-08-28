@@ -1,3 +1,24 @@
+body {
+  color: var(--text-color);
+  background: var(--bg-color)
+}
+
+h1, h2, h3, h4 {
+  color: var(--heading-color);
+}
+
+#mainpage h1, #mainpage h2, #mainpage h3 {
+  border-bottom: 1px solid var(--heading-color);
+}
+
+a {
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
 .bg-body {
   background-color: var(--bg-color);
 }
@@ -14,6 +35,10 @@
   color: var(--text-color-muted);
 }
 
+.text-danger {
+  color: var(--text-color-danger);
+}
+
 /* Scheme */
 
 /* dark scheme */
@@ -28,6 +53,7 @@
   --menu-link-color: rgb(200, 200, 200);
   --menu-link-hover-color: rgb(238 238 238);
   --text-color: rgb(200, 200, 200);
+  --text-color-danger: rgb(255, 0, 0);
   --text-color-muted: rgb(75, 75, 75);
 }
 
@@ -69,6 +95,7 @@
   /*--link-hover-color: rgb(255, 100, 100);*/
   --heading-color: theme("colors.red.700");
   --text-color: theme("colors.red.700");
+  --text-color-danger: theme("colors.fuchsia.700");
   --link-color: rgb(240, 12, 0);
   --link-hover-color: theme("colors.red.400");
 }

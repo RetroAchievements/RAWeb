@@ -1,0 +1,39 @@
+.comment-textarea {
+  padding: 4px;
+  flex-grow: 1;
+}
+
+.comment-textarea::placeholder {
+  font-size: 1.1em;
+}
+
+.commentpayload {
+  padding: 8px 8px 16px;
+  vertical-align: top;
+  word-break: break-word;
+  width: 100%;
+}
+
+.comment-submit-button {
+  background: none;
+  border: 1px solid transparent;
+}
+
+.comment-loading-indicator {
+  display: none;
+  padding: 6px;
+}
+
+@media only screen and (max-width: 1023px) {
+  .topiccommenttext {
+    max-width: 21em;
+    word-wrap: break-word;
+    font-size: small;
+  }
+
+  .commentpayload {
+    display: block;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}

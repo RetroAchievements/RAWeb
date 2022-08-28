@@ -55,7 +55,7 @@ RenderContentStart("Edit post");
         echo " &raquo; <b>Edit Post</b></a>";
         echo "</div>";
 
-        echo "<h2 class='longheader'>Edit post</h2>";
+        echo "<h2>Edit post</h2>";
 
         echo "<form action='/request/forum-topic-comment/update.php' method='post'>";
         echo csrf_field();

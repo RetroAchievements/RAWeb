@@ -1,0 +1,13 @@
+.breadcrumbs li + li:before {
+  content: "»";
+}
+
+.navpath {
+  line-height: 100%;
+  font-size: 12px;
+  background-color: var(--embed-color);
+  padding: 6px 10px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  clear: both;
+}

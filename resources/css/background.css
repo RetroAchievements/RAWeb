@@ -1,0 +1,15 @@
+.background {
+  position: absolute;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.background-texture {
+  opacity: 0.2;
+}

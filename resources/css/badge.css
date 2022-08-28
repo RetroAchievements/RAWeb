@@ -1,0 +1,23 @@
+.badgeimg {
+  border: 2px solid transparent;
+  padding: 0;
+  box-sizing: content-box;
+}
+
+.badgeimglarge {
+  border: 2px solid transparent;
+  padding: 0;
+  box-sizing: content-box;
+}
+
+.goldimage {
+  border: 2px solid gold;
+  padding: 0;
+  box-sizing: content-box;
+}
+
+.goldimagebig {
+  border: 2px solid gold;
+  padding: 0;
+  box-sizing: content-box;
+}

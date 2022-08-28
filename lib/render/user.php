@@ -49,10 +49,10 @@ function _GetUserAndTooltipDiv(
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
     $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
-    $tooltip = "<div id='objtooltip' class='usercard'>";
+    $tooltip = "<div id='objtooltip'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td class='usercardavatar'><img src='/UserPic/" . $userSanitized . ".png'/>";
+    $tooltip .= "<td><img width='128' height='128' src='/UserPic/" . $userSanitized . ".png'/>";
     $tooltip .= "<td class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
@@ -127,7 +127,7 @@ function _GetUserAndTooltipDiv(
         $displayable = "<img loading='lazy' src='/UserPic/$user" . ".png' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
     }
 
-    return "<span class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
+    return "<span class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
         "<a href='$linkURL'>" .
         "$displayable" .
         "</a>" .

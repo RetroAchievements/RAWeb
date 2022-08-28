@@ -57,7 +57,7 @@ $(document).ready(onUserChange);
             echo " &raquo; <b>Send Message</b></a>";
             echo "</div>";
 
-            echo "<h2 class='longheader'>New Message</h2>";
+            echo "<h2>New Message</h2>";
 
             if ($messageContextData !== null) {
                 echo "In reply to ";
@@ -69,7 +69,7 @@ $(document).ready(onUserChange);
             echo "<table>";
             echo "<tbody>";
 
-            echo "<form class='messageform' action='/request/message/send.php' method='post'>";
+            echo "<form action='/request/message/send.php' method='post'>";
             echo csrf_field();
             $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
             echo "<tr>";

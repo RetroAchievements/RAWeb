@@ -48,9 +48,9 @@ RenderContentStart("$userPage's Legacy - $dateStr");
         echo " &raquo; <b>$dateStr</b>";
         echo "</div>";
 
-        echo "<h3 class='longheader'>History</h3>";
+        echo "<h3>History</h3>";
 
-        echo "<div class='userlegacy'>";
+        echo "<div>";
         echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='64' height='64'>";
         echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
 

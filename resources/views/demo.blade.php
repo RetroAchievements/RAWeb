@@ -81,7 +81,9 @@
         <p class="mb-3 bg-embedded px-5 py-10">
             Utility classes allow to set margins, paddings, etc. easily without having to recompile CSS all the time.
         </p>
+        <p class="text-danger">Danger Text</p>
         <p class="text-muted">Muted Text</p>
+        <p><small>Small Text</small></p>
     </x-section>
     <x-section>
         <x-section-header>

@@ -123,7 +123,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
     echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32);
     echo "<br>";
 
-    echo "<span class='clickablebutton'><a href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a></span>";
+    echo "<a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a>";
 
     echo "</div>";
 

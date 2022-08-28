@@ -1,0 +1,24 @@
+.awardcount {
+  float: right;
+  font-size: 0.65em;
+  cursor: help;
+}
+
+.awardcount > * {
+  vertical-align: middle;
+}
+
+.awardcount > .icon {
+  text-align: center;
+  color: rgb(210, 210, 210);
+  margin-right: 4px;
+}
+
+.component#siteawards .awardcount > .icon {
+  width: 22px;
+}
+
+.component:not(#siteawards) .awardcount > .icon {
+  width: 25px;
+  font-size: 0.65em;
+}

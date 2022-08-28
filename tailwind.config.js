@@ -11,9 +11,9 @@ module.exports = {
   ],
 
   corePlugins: {
-    // turn off preflight (reset/normalize) as it would interfere with existing styles too much
+    // turn off preflight (reset/normalize)
     // https://tailwindcss.com/docs/preflight#disabling-preflight
-    preflight: false,
+    // preflight: false,
   },
 
   theme: {

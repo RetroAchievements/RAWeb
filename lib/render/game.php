@@ -45,7 +45,7 @@ function GetGameAndTooltipDiv(
         $displayable .= " $gameName $consoleStr";
     }
 
-    return "<div class='bb_inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
+    return "<div class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
         "<a href='/game/$gameID'>" .
         "$displayable" .
         "</a>" .

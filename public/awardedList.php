@@ -43,7 +43,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             $subtitle = " - $requestedConsole";
         }
 
-        echo "<h3 class='longheader'>Most Awarded Achievements List$subtitle</h3>";
+        echo "<h3>Most Awarded Achievements List$subtitle</h3>";
 
         // echo "Showing:<br>";
 

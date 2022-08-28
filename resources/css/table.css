@@ -1,0 +1,29 @@
+tbody tr:nth-child(odd) {
+  background-color: rgba(50, 50, 50, .2);
+}
+
+[data-scheme="light"] tbody tr:nth-child(odd) {
+  background-color: rgba(80, 80, 80, .09);
+}
+
+td {
+  padding: 4px 8px;
+}
+
+th {
+  padding: 8px 8px;
+  /*background-color: #323232;*/
+  /*font-size: 120%;*/
+  /*background-image: -webkit-linear-gradient(left, var(--bg-color), #323232);*/
+  /*font-style: italic;*/
+  /*text-transform: uppercase;*/
+  color: var(--menu-link-color);
+  margin-bottom: 5px;
+  text-align: left;
+  /*border-right: 2px solid var(--bg-color);*/
+}
+
+.table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}

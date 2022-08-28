@@ -9,10 +9,10 @@ RenderContentStart("Password Reset");
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
-        echo "<h2 class='longheader'>Password Reset</h2>";
+        echo "<h2>Password Reset</h2>";
         if (!$allowNewPasswordEntry) {
             // Request username for password reset:
-            echo "<h4 class='longheader'>Enter username for password reset:</h2>";
+            echo "<h4>Enter username for password reset:</h2>";
 
             echo "<div class='longer'>";
             echo "<form action='/request/auth/send-password-reset-email.php' method='post'>";
@@ -24,7 +24,7 @@ RenderContentStart("Password Reset");
             echo "</div>";
         } else {
             // Enter new password for this user:
-            echo "<h4 class='longheader'>Enter new Password for $user:</h4>";
+            echo "<h4>Enter new Password for $user:</h4>";
 
             echo "<div class='longer'>";
             echo "<form action='/request/auth/reset-password.php' method='post'>";

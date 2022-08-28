@@ -45,7 +45,7 @@ RenderContentStart("Users");
         echo "</b></div>";
 
         echo "<div>";
-        echo "<h2 class='longheader'>User List:</h2>";
+        echo "<h2>User List:</h2>";
 
         echo "<p class='embedded'>Filter: ";
 

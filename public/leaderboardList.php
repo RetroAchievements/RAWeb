@@ -102,7 +102,7 @@ function ReloadLBPageByGame() {
     echo "</div>";
 
     echo "<div class='detaillist'>";
-    echo "<h3 class='longheader'>Leaderboard List</h3>";
+    echo "<h3>Leaderboard List</h3>";
 
     if (isset($gameData['ID'])) {
         echo "<div>";

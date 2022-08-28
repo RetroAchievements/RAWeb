@@ -23,7 +23,7 @@ RenderContentStart("Hash List");
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<h2 class='longheader'>Search</h2>";
+        echo "<h2>Search</h2>";
 
         echo "<div class='searchbox longer'>";
         echo "<form action='/latesthasheslinked.php'>";
@@ -39,9 +39,9 @@ RenderContentStart("Hash List");
 
         if (!empty($hashList)) {
             if ($searchedHash === null) {
-                echo "<h2 class='longheader'>Lastest Linked Hashes</h2>";
+                echo "<h2>Lastest Linked Hashes</h2>";
             } else {
-                echo "<h2 class='longheader'>Search Results</h2>";
+                echo "<h2>Search Results</h2>";
             }
             echo "<table><tbody>";
             echo "<th>Hash</th>";
@@ -86,7 +86,7 @@ RenderContentStart("Hash List");
                 echo "</div>";
             }
         } else {
-            echo "<h2 class='longheader'>Search Results</h2>";
+            echo "<h2>Search Results</h2>";
             echo "No results found!";
         }
         ?>

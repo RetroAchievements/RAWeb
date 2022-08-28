@@ -73,7 +73,7 @@ RenderContentStart("Forum: $thisForumTitle");
                 echo "</div>";
             }
 
-            // echo "<h2 class='longheader'><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
+            // echo "<h2><a href='/forum.php?c=$nextCategoryID'>$nextCategory</a></h2>";
             echo "<h2>$requestedForum</h2>";
             echo "<p class='mb-5'>$thisForumDescription</p>";
 
@@ -89,7 +89,7 @@ RenderContentStart("Forum: $thisForumTitle");
             echo "</div>";
 
             echo "<table class='my-3'><tbody>";
-            echo "<tr class='forumsheader'>";
+            echo "<tr>";
             echo "<th></th>";
             echo "<th class='w-full'>Topics</th>";
             echo "<th>Author</th>";
@@ -136,16 +136,16 @@ RenderContentStart("Forum: $thisForumTitle");
 
                 echo "<tr>";
 
-                echo "<td class='unreadicon p-1'><img src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
-                echo "<td class='topictitle'><a alt='Posted $nextTopicPostedNiceDate' title='Posted on $nextTopicPostedNiceDate' href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a><br><div id='topicpreview'>$nextTopicPreview...</div></td>";
-                echo "<td class='author'>";
+                echo "<td class='p-1'><img src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></img></td>";
+                echo "<td><a title='Posted on $nextTopicPostedNiceDate' href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a><br><div id='topicpreview'>$nextTopicPreview...</div></td>";
+                echo "<td>";
                 echo GetUserAndTooltipDiv($nextTopicAuthor);
                 echo "</td>";
-                // echo "<td class='author'><div class='author'><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
-                echo "<td class='replies'>$nextTopicNumReplies</td>";
-                // echo "<td class='views'>$nextForumNumViews</td>";
-                echo "<td class='lastpost'>";
-                echo "<div class='lastpost'>";
+                // echo "<td><div><a href='/user/$nextTopicAuthor'>$nextTopicAuthor</a></div></td>";
+                echo "<td>$nextTopicNumReplies</td>";
+                // echo "<td>$nextForumNumViews</td>";
+                echo "<td>";
+                echo "<div>";
                 echo GetUserAndTooltipDiv($nextTopicLastCommentAuthor);
                 echo "<br><span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
                 // echo "<a href='/user/$nextTopicLastCommentAuthor'>$nextTopicLastCommentAuthor</a>";

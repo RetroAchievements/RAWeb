@@ -26,7 +26,7 @@ RenderContentStart("Game Search");
 
         echo "<div class='detaillist'>";
 
-        echo "<h3 class='longheader'>Game Search</h3>";
+        echo "<h3>Game Search</h3>";
 
         echo "<p class='embedded'>Showing: games by largest RetroRatio:</p>";
 

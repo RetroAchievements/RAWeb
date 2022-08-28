@@ -78,7 +78,7 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>$thisTopicTitle</b></a>";
         echo "</div>";
 
-        echo "<h2 class='longheader'>$thisTopicTitle</h2>";
+        echo "<h2>$thisTopicTitle</h2>";
 
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox mb-3'>";
@@ -203,7 +203,7 @@ RenderContentStart($pageTitle);
                 echo "<tr>";
             }
 
-            echo "<td class='commentavatar'>";
+            echo "<td class='align-top'>";
             echo GetUserAndTooltipDiv($nextCommentAuthor, true, iconSizeDisplayable: 64);
             echo "</td>";
 
@@ -269,7 +269,7 @@ RenderContentStart($pageTitle);
             echo "<table><tbody>";
             echo "<tr>";
 
-            echo "<td class='commentavatar'>";
+            echo "<td class='align-top'>";
             echo GetUserAndTooltipDiv($user, false, null, 64);
             echo "<br>";
             echo GetUserAndTooltipDiv($user, true, null, 64);

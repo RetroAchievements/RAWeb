@@ -24,7 +24,7 @@ RenderContentStart("Most Popular Games");
 
         echo "<div class='detaillist'>";
 
-        echo "<h3 class='longheader'>Most Popular Games</h3>";
+        echo "<h3>Most Popular Games</h3>";
 
         // echo "Show: | ";
         //

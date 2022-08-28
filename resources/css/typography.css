@@ -1,0 +1,50 @@
+* {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: small;
+  font-weight: normal;
+  letter-spacing: 0;
+}
+
+h1, h2, h3, h4 {
+  font-weight: normal;
+  line-height: 1.25em;
+  margin-bottom: 10px;
+  padding: 0 0 3px;
+}
+
+h1, h2 {
+  font-size: 2.0em;
+}
+
+h3 {
+  font-size: 1.75em;
+}
+
+h4 {
+  font-size: 1.5em;
+  border-bottom-width: 0;
+}
+
+.smalltext {
+  font-size: x-small;
+  color: rgb(140, 140, 140);
+  line-height: 1.05em;
+}
+
+.smalldate {
+  font-size: x-small;
+  color: rgb(140, 140, 140);
+  line-height: 1.1em;
+  min-width: 87px;
+}
+
+span.smalldate {
+  display: inline-block;
+}
+
+pre, code, .code {
+  font-family: monospace;
+  font-size: medium;
+  word-break: break-word;
+  white-space: pre-wrap;
+}

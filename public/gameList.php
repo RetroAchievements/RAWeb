@@ -181,7 +181,7 @@ RenderContentStart($requestedConsole . "Games");
 
                     foreach ($devConsoles as $consoleName => $consoleGames) {
                         sanitize_outputs($consoleName);
-                        echo "<h2 class='longheader'>$consoleName</h2>";
+                        echo "<h2>$consoleName</h2>";
 
                         ListGames($consoleGames, $dev, '', $sortBy, $showTickets, false, true);
 
@@ -194,7 +194,7 @@ RenderContentStart($requestedConsole . "Games");
                         $consoleName = $consoleList[$consoleIDInput];
                         sanitize_outputs($consoleName);
                     }
-                    echo "<h2 class='longheader'>$consoleName</h2>";
+                    echo "<h2>$consoleName</h2>";
 
                     echo "<div style='float:left'>$gamesCount Games</div>";
 

@@ -49,7 +49,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
 
         echo "<div class='detaillist'>";
 
-        echo "<h3 class='longheader'>";
+        echo "<h3>";
         if ($dev != null) {
             echo "<a href='/user/$dev'>$dev</a>'s ";
         }

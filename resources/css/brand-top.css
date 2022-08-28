@@ -1,0 +1,28 @@
+.brand-top h1 {
+  color: inherit;
+  font-size: 45px;
+  border: none;
+}
+
+.brand-top .description {
+  font-size: 12.5px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+}
+
+.brand-top .logo-container a {
+  display: inline-block;
+}
+
+.brand-top .logo {
+  max-height: 83px;
+}
+
+.brand-top .logo .logo-legacy {
+  width: 100%;
+  max-width: 500px;
+}
+
+.brand-top .logo:not(.logo-legacy-lg) {
+  max-width: 500px;
+}
