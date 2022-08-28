@@ -159,17 +159,19 @@ RenderContentStart("Game Compare");
                 echo "<td class='awardlocal'>";
                 if (isset($awardedLeft)) {
                     if (isset($awardedHCLeft)) {
+                        echo "<div class='flex justify-between gap-2'>";
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardLocal");
                         $leftHardcoreAwardedCount++;
                         $leftHardcoreAwardedPoints += $achPoints;
-
-                        echo "<small class='smalldate float-right'>HARDCORE<br>unlocked on<br>$awardedHCLeft</small>";
+                        echo "<small class='smalldate'>$awardedHCLeft<br>HARDCORE</small>";
+                        echo "</div>";
                     } else {
+                        echo "<div class='flex justify-between gap-2'>";
                         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardLocal");
                         $leftSoftcoreAwardedCount++;
                         $leftSoftcoreAwardedPoints += $achPoints;
-
-                        echo "<small class='smalldate float-right'>unlocked on<br>$awardedLeft</small>";
+                        echo "<small class='smalldate'>$awardedLeft</small>";
+                        echo "</div>";
                     }
                 } else {
                     echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName . "_lock", true, true, "", $iconSize, "awardLocal");
@@ -187,21 +189,19 @@ RenderContentStart("Game Compare");
                 echo "<td class='awardremote'>";
                 if (isset($awardedRight)) {
                     if (isset($awardedHCRight)) {
-                        echo "<div style='float:right;' >";
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardremote");
-                        echo "</div>";
+                        echo "<div class='flex justify-between gap-2'>";
                         $rightHardcoreAwardedCount++;
                         $rightHardcoreAwardedPoints += $achPoints;
-
-                        echo "<small class='smalldate'>HARDCORE<br>unlocked on<br>$awardedHCRight</small>";
-                    } else {
-                        echo "<div style='float:right;' >";
-                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
+                        echo "<small class='smalldate'>$awardedHCRight<br>HARDCORE</small>";
+                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "goldimage awardremote");
                         echo "</div>";
+                    } else {
+                        echo "<div class='flex justify-between gap-2'>";
                         $rightSoftcoreAwardedCount++;
                         $rightSoftcoreAwardedPoints += $achPoints;
-
-                        echo "<small class='smalldate'>unlocked on<br>$awardedRight</small>";
+                        echo "<small class='smalldate'>$awardedRight</small>";
+                        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
+                        echo "</div>";
                     }
                 } else {
                     echo "<div style='float:right;' >";

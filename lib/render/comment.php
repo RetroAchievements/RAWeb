@@ -118,7 +118,7 @@ function RenderArticleComment(
         echo GetUserAndTooltipDiv($user, true);
     }
     echo "</td>";
-    echo "<td class='commenttext' colspan='3'>";
+    echo "<td class='commenttext w-full' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
