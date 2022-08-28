@@ -630,7 +630,7 @@ sanitize_outputs(
             echo "</div>";
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='sm:flex justify-between items-center mb-3 gap-5'>";
+                echo "<div class='sm:flex justify-around items-center mb-3 gap-5'>";
                 echo "<div>";
                 echo "<img class='w-full' src='$imageTitle' alt='Title Screenhot'>";
                 echo "</div>";
