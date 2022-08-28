@@ -14,7 +14,7 @@ return [
         'game_merge' => __("Problems encountered while performing merge."),
         'permissions' => __('Insufficient permissions.'),
         'subscription_update' => __("Failed to update topic subscription."),
-        'ticket_create' => __("Sorry. There was an issue submitting your ticket."),
+        'ticket_create' => __("There was an issue submitting your ticket."),
         'token' => __('Invalid token.'),
         'recaptcha' => __("Invalid ReCaptcha."),
     ],

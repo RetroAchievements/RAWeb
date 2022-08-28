@@ -2,6 +2,7 @@
 
 namespace RA;
 
+// TODO refactor into legacy model
 class Ticket
 {
     public int $ticketId;

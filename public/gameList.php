@@ -122,7 +122,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
             $openTickets = $gameEntry['OpenTickets'];
             echo "<td class=''>";
             if ($openTickets > 0) {
-                echo "<a href=\"ticketmanager.php?g=$gameID\">$openTickets</a>";
+                echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
                 $ticketsCount += $openTickets;
             }
             echo "</td>";

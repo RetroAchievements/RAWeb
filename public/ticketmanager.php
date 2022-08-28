@@ -3,6 +3,7 @@
 use RA\AchievementType;
 use RA\ArticleType;
 use RA\Permissions;
+use RA\TicketAction;
 use RA\TicketFilters;
 use RA\TicketState;
 use RA\TicketType;
@@ -30,89 +31,8 @@ $numOpenTickets = null;
 $ticketData = null;
 if ($ticketID != 0) {
     $ticketData = getTicket($ticketID);
-    if ($ticketData == false) {
+    if (!$ticketData) {
         $ticketID = 0;
-    }
-
-    $action = requestInputSanitized('action', null);
-    $reason = null;
-    $ticketState = 1;
-    switch ($action) {
-        case "closed-mistaken":
-            $ticketState = 0;
-            $reason = "Mistaken report";
-            break;
-
-        case "resolved":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Resolved;
-            }
-            break;
-
-        case "demoted":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Closed;
-                $reason = "Demoted";
-            }
-            break;
-
-        case "not-enough-info":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Closed;
-                $reason = "Not enough information";
-            }
-            break;
-
-        case "wrong-rom":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Closed;
-                $reason = "Wrong ROM";
-            }
-            break;
-
-        case "network":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Closed;
-                $reason = "Network problems";
-            }
-            break;
-
-        case "unable-to-reproduce":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Closed;
-                $reason = "Unable to reproduce";
-            }
-            break;
-
-        case "closed-other":
-            if ($permissions >= Permissions::Developer) {
-                $ticketState = TicketState::Closed;
-                $reason = "See the comments";
-            }
-            break;
-
-        case "request":
-            $ticketState = TicketState::Request;
-            break;
-
-        case "reopen":
-            $ticketState = TicketState::Open;
-            break;
-
-        default:
-            $action = null;
-            break;
-    }
-
-    if ($action != null &&
-        $ticketState != $ticketData['ReportState'] &&
-        (
-            $permissions >= Permissions::Developer ||
-            $user == $ticketData['ReportedBy']
-        )
-    ) {
-        updateTicket($user, $ticketID, $ticketState, $reason);
-        $ticketData = getTicket($ticketID);
     }
 
     $numArticleComments = getArticleComments(ArticleType::AchievementTicket, $ticketID, 0, 20, $commentData);
@@ -414,8 +334,7 @@ RenderContentStart($pageTitle);
 
                 $userFilter = function ($label, $param, $filteredUser) use ($createLink, $user) {
                     if (isset($user) || !empty($filteredUser)) {
-                        echo "<form class='form-inline' action='" . $createLink($param, null) . "' method='post'>";
-                        echo csrf_field();
+                        echo "<form class='form-inline' action='" . $createLink($param, null) . "'>";
 
                         echo "<p class='embedded'><b>$label:</b> ";
                         if (isset($user)) {
@@ -755,7 +674,7 @@ RenderContentStart($pageTitle);
 
                     echo "<td>Reporter:</td>";
                     echo "<td colspan='7'>";
-                    echo "<div class='smallicon'>";
+                    echo "<div>";
                     $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
                     $msgPayload = rawurlencode($msgPayload);
                     $msgTitle = rawurlencode("Bug Report ($gameTitle)");
@@ -773,15 +692,26 @@ RenderContentStart($pageTitle);
                         }
                         if ($lastComment != null && ($lastComment['User'] == $user || $lastComment['User'] == $achAuthor)) {
                             echo "<tr><td/><td colspan='6'>";
-                            echo "<div class='smallicon'>";
-                            echo "<a href='ticketmanager.php?i=$ticketID&action=request'>Transfer to reporter - $reportedBy</a>";
+                            echo "<div>";
+                            echo "<form method='post' action='/request/ticket/update.php'>";
+                            echo csrf_field();
+                            echo "<input type='hidden' name='ticket' value='$ticketID'>";
+                            echo "<input type='hidden' name='action' value='" . TicketAction::Request . "'>";
+                            echo "<button>Transfer to reporter - $reportedBy</button>";
                             echo "</div>";
+                            echo "</form>";
                             echo "</td></tr>";
                         }
                     } elseif ($reportState == TicketState::Request) {
                         echo "<tr><td/><td colspan='6'>";
-                        echo "<div class='smallicon'>";
-                        echo "<a href='ticketmanager.php?i=$ticketID&action=reopen'>Transfer to author - $achAuthor</a>";
+                        echo "<div>";
+                        echo "<form method='post' action='/request/ticket/update.php'>";
+                        echo csrf_field();
+                        echo "<input type='hidden' name='ticket' value='$ticketID'>";
+                        echo "<input type='hidden' name='action' value='" . TicketAction::Reopen . "'>";
+                        echo "<button>Transfer to author - $achAuthor</button>";
+                        echo "</div>";
+                        echo "</form>";
                         echo "</div>";
                         echo "</td></tr>";
                     }
@@ -865,13 +795,13 @@ RenderContentStart($pageTitle);
                     echo "<tr>";
 
                     echo "<td>Action: </td><td colspan='7'>";
-                    echo "<div class='smallicon'>";
+                    echo "<div>";
                     echo "<span>";
 
                     echo "<b>Please, add some comments about the action you're going to take.</b><br>";
-                    echo "<form method='post' action='ticketmanager.php>";
+                    echo "<form method='post' action='/request/ticket/update.php'>";
                     echo csrf_field();
-                    echo "<input type='hidden' name='i' value='$ticketID'>";
+                    echo "<input type='hidden' name='ticket' value='$ticketID'>";
 
                     echo "<select name='action' required>";
                     echo "<option value='' disabled selected hidden>Choose an action...</option>";
@@ -923,11 +853,12 @@ RenderContentStart($pageTitle);
                 echo "</tbody></table>";
                 echo "</div>";
 
+                $dataOut = null;
                 if ($permissions >= Permissions::Developer && getAchievementMetadata($achID, $dataOut)) {
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Click to show achievement logic</span><br>";
+                    echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Achievement Logic</span><br>";
                     echo "<div id='achievementlogic' style='display: none'>";
 
                     echo "<div style='clear:both;'></div>";
