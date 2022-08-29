@@ -104,7 +104,7 @@ function RenderRecentlyUploadedComponent($numToFetch): void
             echo "<td>";
             echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
             echo "</td>";
-            echo "<td><div class='fixheightcell'>";
+            echo "<td><div>";
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
             echo "<td class='smalldate'>$dateAwarded $uploadedAt</td>";
             echo "</div></td>";

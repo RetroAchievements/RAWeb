@@ -167,7 +167,7 @@ RenderContentStart("Manage Claims");
             echo "<tr><td class='whitespace-nowrap'>";
             echo GetUserAndTooltipDiv($claimUser, true);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'><div class='fixheightcell' id='claimUser_$claimUser'>";
+            echo "<td class='whitespace-nowrap'><div id='claimUser_$claimUser'>";
             echo GetUserAndTooltipDiv($claimUser, false);
             echo "</div></td>";
 

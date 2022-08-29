@@ -179,8 +179,8 @@ RenderContentStart("Claim List");
             echo "<td>";
             echo GetUserAndTooltipDiv($claimUser, true);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'><div class='fixheightcell'>";
-            echo GetUserAndTooltipDiv($claimUser, false);
+            echo "<td class='whitespace-nowrap'><div>";
+            echo GetUserAndTooltipDiv($claimUser);
             echo "</div></td>";
             echo "<td>";
             echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
@@ -197,7 +197,9 @@ RenderContentStart("Claim List");
         echo "<div class='float-right row'>";
         $baseLink = $createLink(null, null);
         $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
-        RenderPaginator($totalClaims, $maxCount, $offset, "${baseLink}o=");
+        if ($totalClaims) {
+            RenderPaginator($totalClaims, $maxCount, $offset, "${baseLink}o=");
+        }
         echo "</div>";
         ?>
     </div>

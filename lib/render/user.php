@@ -270,11 +270,11 @@ function RenderRecentlyAwardedComponent(): void
         echo GetUserAndTooltipDiv($nextUser, true);
         echo "</td>";
 
-        echo "<td><div class='fixheightcell'>";
+        echo "<td><div>";
         echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true);
         echo "</div></td>";
 
-        echo "<td><div class='fixheightcell'>";
+        echo "<td><div>";
         echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleTitle, true);
         echo "</div></td>";
 

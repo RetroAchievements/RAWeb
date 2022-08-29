@@ -73,7 +73,7 @@ RenderContentStart("Expiring Claims");
             echo "<tr><td class='whitespace-nowrap'>";
             echo GetUserAndTooltipDiv($claimUser, true);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'><div class='fixheightcell'>";
+            echo "<td class='whitespace-nowrap'><div>";
             echo GetUserAndTooltipDiv($claimUser, false);
             echo "</div></td>";
 

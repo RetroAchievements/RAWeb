@@ -76,7 +76,7 @@ RenderContentStart("Developer Stats");
             echo "<td class='whitespace-nowrap'>";
             echo GetUserAndTooltipDiv($dev, true);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'><div class='fixheightcell'>";
+            echo "<td class='whitespace-nowrap'><div>";
             echo GetUserAndTooltipDiv($dev, false);
             echo "<br><small>";
             if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
