@@ -1,15 +1,20 @@
 <?php
 
+use Carbon\Carbon;
 use RA\ArticleType;
 use RA\Permissions;
 
-function getDeleteDate($deleteRequested): string
+function getDeleteDate(string|Carbon $deleteRequested): string
 {
     if (empty($deleteRequested)) {
         return '';
     }
 
-    return date('Y-m-d', strtotime($deleteRequested) + 60 * 60 * 24 * 14);
+    if (!$deleteRequested instanceof Carbon) {
+        $deleteRequested = Carbon::parse($deleteRequested);
+    }
+
+    return $deleteRequested->addDays(14)->format('Y-m-d');
 }
 
 function cancelDeleteRequest($username): bool
@@ -121,24 +126,24 @@ function clearAccountData($user): void
     // Cap permissions to 0 - negative values may stay
     $permission = min($user['Permissions'], 0);
 
-    $dbResult = s_mysql_query("UPDATE UserAccounts u SET 
-        u.Password = null, 
-        u.SaltedPass = '', 
-        u.EmailAddress = '', 
-        u.Permissions = $permission, 
+    $dbResult = s_mysql_query("UPDATE UserAccounts u SET
+        u.Password = null,
+        u.SaltedPass = '',
+        u.EmailAddress = '',
+        u.Permissions = $permission,
         u.RAPoints = 0,
         u.TrueRAPoints = null,
-        u.fbUser = 0, 
-        u.fbPrefs = null, 
-        u.cookie = null, 
-        u.appToken = null, 
-        u.appTokenExpiry = null, 
-        u.websitePrefs = 0, 
-        u.LastLogin = null, 
-        u.LastActivityID = 0, 
-        u.Motto = '', 
-        u.Untracked = 1, 
-        u.ContribCount = 0, 
+        u.fbUser = 0,
+        u.fbPrefs = null,
+        u.cookie = null,
+        u.appToken = null,
+        u.appTokenExpiry = null,
+        u.websitePrefs = 0,
+        u.LastLogin = null,
+        u.LastActivityID = 0,
+        u.Motto = '',
+        u.Untracked = 1,
+        u.ContribCount = 0,
         u.ContribYield = 0,
         u.APIKey = null,
         u.UserWallActive = 0,

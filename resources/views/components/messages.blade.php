@@ -40,6 +40,14 @@ $user = request()->user();
     </div>
 @endif
 
+@if ($user && $user->DeleteRequested)
+    <x-container>
+        <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
+            <x-fas-exclamation-triangle/>
+            Your account is marked to be deleted on {{ getDeleteDate($user->DeleteRequested) }}.
+        </div>
+    </x-container>
+@endif
 
 {{-- TODO toasts --}}
 <div class="sticky top-14 z-10 container">
