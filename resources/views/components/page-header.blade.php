@@ -15,7 +15,7 @@ $titleActivity ??= null;
     />
     <div>
         <div style="{{$large ? 'display:flex; flex-direction:column; justify-content: flex-end ' : ''}}">
-            <div class="container">
+            <x-container>
                 {{-- align items end to make nav align with background --}}
                 <div class="flex block {{ $breakpoint }}:flex {{ $large ? 'items-end' : 'items-center' }}">
                     @if($avatar)
@@ -73,7 +73,7 @@ $titleActivity ??= null;
                         {{ $navigation }}
                     @endif
                 @endif
-            </div>
+            </x-container>
         </div>
     </div>
 </x-section>

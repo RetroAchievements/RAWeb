@@ -8,10 +8,10 @@ $user = request()->user();
 
 @if($settings->get('system.alert'))
     <div class="alert alert-danger mb-0 p-2">
-        <div class="container">
+        <x-container>
             <x-fas-exclamation-triangle/>
             <b>{{ $settings->get('system.alert') }}</b>
-        </div>
+        </x-container>
     </div>
 @endif
 
@@ -19,16 +19,16 @@ $user = request()->user();
 {{--@auth
     @if(!auth()->user()->email_verified_at && !request()->routeIs('verification.notice'))
         <div class="alert alert-warning mb-0 p-2">
-            <div class="container">
+            <x-container>
                 <x-fas-exclamation-triangle />
                 Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
                 <a href="{{ route('verification.notice') }}">here</a> to resend your activation email.
-            </div>
+            </x-container>
         </div>
     @endif
 @endauth--}}
 @if ($user && $user->Permissions === RA\Permissions::Unregistered)
-    <div class="container">
+    <x-container>
         <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
             <x-fas-exclamation-triangle/>
             Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
@@ -37,7 +37,7 @@ $user = request()->user();
                 <button class="btn btn-link bg-transparent p-0 text-white underline">here</button> to resend your activation email.
             </form>
         </div>
-    </div>
+    </x-container>
 @endif
 
 @if ($user && $user->DeleteRequested)
@@ -86,39 +86,39 @@ $user = request()->user();
 </div>--}}
 
 @if(session('message'))
-    <div class="container">
+    <x-container>
         <div class="bg-blue-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
             <x-fas-info-circle/>
             {{ session('message') }}
         </div>
-    </div>
+    </x-container>
 @endif
 
 @if(session('success'))
-    <div class="container">
+    <x-container>
         <div class="bg-green-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
             <x-fas-check/>
             {{ session('success') }}
         </div>
-    </div>
+    </x-container>
 @endif
 
 @if($error = session('error'))
-    <div class="container">
+    <x-container>
         <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
             <x-fas-exclamation-triangle/>
             {{ session('error') }}
         </div>
-    </div>
+    </x-container>
 @endif
 
 @if(($errors ?? null) && $errors->count())
-    <div class="container">
+    <x-container>
         @foreach($errors->all() as $error)
             <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
                 <x-fas-exclamation-triangle/>
                 {{ $error }}
             </div>
         @endforeach
-    </div>
+    </x-container>
 @endif

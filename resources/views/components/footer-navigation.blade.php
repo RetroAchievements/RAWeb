@@ -1,4 +1,4 @@
-<div class="container">
+<x-container>
     <x-menu.footer />
     <div class="mt-4">
         <div class="flex mb-3 items-center">
@@ -18,4 +18,4 @@
             </div>
         </div>
     </div>
-</div>
+</x-container>
