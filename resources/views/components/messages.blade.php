@@ -54,7 +54,7 @@ $user = request()->user();
     <div id="status" class="hidden absolute w-full text-gray-200 px-5 py-2 rounded-sm"></div>
 </div>
 {{--<div aria-live="polite" aria-atomic="true"
-     class="toast-container flex flex-column justify-end lg:justify-center items-end m-3">
+     class="toast-container flex flex-col justify-end lg:justify-center items-end m-3">
     @if(session('success'))
         <x-toast status="success">
             <x-slot name="icon">

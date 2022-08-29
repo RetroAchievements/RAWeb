@@ -2,6 +2,7 @@
     <x-container>
         {{--<div class="hidden lg:flex gap-4 justify-between items-center">--}}
         <div class="lg:flex gap-4 justify-between items-center">
+            {{-- TODO re-build settings page for logo --}}
             {{--@if(request()->cookie('logo') === 'retro')
                 <div class="logo-container lg:flex justify-start items-center pr-4 pt-4">
                     <div class="text-center">
@@ -19,7 +20,7 @@
                             <img class="logo {{ request()->routeIs('home') ? 'logo-retro-lg' : '' }}"
                                  src="{{ asset('assets/images/ra-icon.webp') }}"
                                  alt="{{ config('app.name') }}">
-                            <div class="hidden md:flex flex-column justify-end ml-2">
+                            <div class="hidden md:flex flex-col justify-end ml-2">
                                 <h1 class="mb-1 lh-1">{{ config('app.name') }}</h1>
                                 <div class="ml-1 lh-1 description">
                                     {{ __('app.description') }}

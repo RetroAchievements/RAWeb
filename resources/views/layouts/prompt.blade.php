@@ -4,7 +4,7 @@
 <body
     data-scheme="{{ request()->cookie('scheme', '') }}"
     data-theme="{{ request()->cookie('theme', '') }}"
-    class="{{ config('app.debug') ? 'debug' : '' }} flex flex-column justify-center"
+    class="{{ config('app.debug') ? 'debug' : '' }} flex flex-col justify-center"
 >
 <div>
     <x-messages/>
@@ -22,7 +22,7 @@
                         </div>
                     </div>
                 @else
-                    <div class="logo-container px-3 py-4 flex flex-column justify-center">
+                    <div class="logo-container px-3 py-4 flex flex-col justify-center">
                         <a href="{{ route('home') }}">
                             <div class="flex flex-row justify-center">
                                 <img class="logo {{ request()->routeIs('home') ? 'logo-retro-lg' : '' }}"
