@@ -44,10 +44,8 @@
 
     @if(app()->environment('local'))
         <script src="/js/all.js?v={{ random_int(0, mt_getrandmax()) }}"></script>
-        <link rel="stylesheet" href="/css/styles.css?{{ random_int(0, mt_getrandmax()) }}" media="screen">
     @else
         <script src="/js/all-{{ config('app.version') }}.js"></script>
-        <link rel="stylesheet" href="/css/styles-{{ config('app.version') }}.css" media="screen">
     @endif
     {{-- END v1 compat --}}
 
