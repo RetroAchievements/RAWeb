@@ -1,9 +1,6 @@
 <?php
 
 use App\Legacy\Models\User;
-use RA\Permissions;
-use RA\TicketFilters;
-use RA\TicketState;
 
 /** @var ?User $user */
 $user = request()->user();
@@ -48,22 +45,22 @@ $user = request()->user();
                     </a>
                     @php
                         $ticketLinks = collect();
-                        if ($user->Permissions >= Permissions::Developer) {
+                        if ($user->Permissions >= RA\Permissions::Developer) {
                             $openTicketsData = countOpenTicketsByDev($user->User);
                             $ticketLinks->push([
-                                'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
-                                'count' => $openTicketsData[TicketState::Open],
+                                'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateRequest),
+                                'count' => $openTicketsData[RA\TicketState::Open],
                                 'class' => 'text-danger',
                                 'title' => 'Tickets for you to resolve',
                             ]);
                             $ticketLinks->push([
-                                'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
-                                'count' => $openTicketsData[TicketState::Request],
+                                'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateOpen),
+                                'count' => $openTicketsData[RA\TicketState::Request],
                                 'title' => 'Tickets pending feedback',
                             ]);
                         }
                         $ticketLinks->push([
-                            'link' => '/ticketmanager.php?u=' . $user->User . '&p=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                            'link' => '/ticketmanager.php?u=' . $user->User . '&p=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateOpen),
                             'count' => countRequestTicketsByUser($user->User),
                             'title' => 'Tickets awaiting your feedback',
                         ]);
@@ -73,14 +70,14 @@ $user = request()->user();
                         <div class="flex gap-2">
                             Tickets
                             @foreach($ticketLinks as $ticketLink)
-                                <a class="{{ $ticketLink['class'] ?? '' }}" href="{{ $ticketLink['link'] }}">
+                                <a class="{{ $ticketLink['class'] ?? '' }}" href="{{ $ticketLink['link'] }}" title="{{ $ticketLink['title'] }}">
                                     {{ $ticketLink['count'] }}
                                 </a>
                             @endforeach
                         </div>
                     @endif
                 </div>
-                @if($user->Permissions >= Permissions::JuniorDeveloper)
+                @if($user->Permissions >= RA\Permissions::JuniorDeveloper)
                     @php
                         // Display claim expiring message if necessary
                         $expiringClaims = getExpiringClaim($user->User);
