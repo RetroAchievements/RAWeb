@@ -2,8 +2,6 @@
 
 use App\Legacy\Models\User;
 use RA\Permissions;
-use RA\TicketFilters;
-use RA\TicketState;
 
 // see resources/views/layouts/app.blade.php
 // see resources/views/layouts/partials/head.blade.php
@@ -30,130 +28,6 @@ function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $descript
         view()->share('pageType', 'retroachievements:' . $OGType);
     }
     view()->share('pageImage', media_asset($imageURL));
-}
-
-function RenderTitleBar(): void
-{
-    /** @var ?User $user */
-    $user = request()->user();
-
-    $username = $user?->getAttribute('User');
-    $points = $user?->getAttribute('RAPoints');
-    $softcorePoints = $user?->getAttribute('RASoftcorePoints');
-    $truePoints = $user?->getAttribute('TrueRAPoints');
-    $permissions = $user?->getAttribute('Permissions');
-    $unreadMessageCount = $user?->getAttribute('UnreadMessageCount');
-    $deleteRequested = $user?->getAttribute('DeleteRequested');
-
-    echo "<div class='p-4 flex-1'>";
-    echo "<a href='/'><img style='max-width:635px;width:100%' src='" . asset('assets/images/ra-logo-sm.webp') . "' alt='RetroAchievements logo'></a>";
-    if (!empty($deleteRequested)) {
-        echo "<div class='text-center text-red-600 text-base' >Your account is marked to be deleted on " .
-            getDeleteDate($deleteRequested) . "</div>";
-    }
-    echo "</div>";
-
-    echo "<div class='bg-embedded rounded lg:w-[340px] lg:my-4 px-5 py-3'>";
-
-    if (!$user) {
-        echo "<form class='flex justify-center items-end gap-2' method='post' action='/request/auth/login.php'>";
-        echo csrf_field();
-        echo "<div class='flex flex-col gap-1'>";
-        echo "<input class='w-full' type='text' placeholder='Username' name='u'>";
-        echo "<input class='w-full' type='password' placeholder='Password' name='p'>";
-        echo "<a href='/resetPassword.php'>Forgot password?</a>";
-        echo "</div>";
-        echo "<div class='flex flex-col gap-1 flex-1'>";
-        echo "<input type='submit' value='Login' name='submit'>";
-        echo "<a href='/createaccount.php'>Register</a>";
-        echo "</div>";
-        echo "</form>";
-    } else {
-        echo "<div class='flex justify-between gap-2'>";
-
-        echo "<img class='order-2' src='/UserPic/$username.png' alt='Profile Picture' width='64' height='64' class='userpic'>";
-
-        echo "<div class='grow flex flex-col justify-between'>";
-
-        echo "<div>";
-        echo "<strong><a href='/user/$username'>" . $username . "</a></strong>";
-        echo "</div>";
-
-        echo "<div class='flex gap-2'>";
-        if ($points > 0) {
-            echo "<span>($points)</span>";
-            echo "<span class='TrueRatio'>($truePoints)</span>";
-        }
-        if ($softcorePoints > 0) {
-            echo "<span class='softcore'>($softcorePoints softcore)</span>";
-        }
-        echo "</div>";
-
-        $openTickets = 0;
-        $devRequestTickets = 0;
-        if ($permissions >= Permissions::Developer) {
-            $openTicketsData = countOpenTicketsByDev($username);
-            $openTickets = $openTicketsData[TicketState::Open];
-            $devRequestTickets = $openTicketsData[TicketState::Request];
-        }
-        $requestTickets = countRequestTicketsByUser($username);
-        $prefix = 'Tickets: ';
-        $separator = '-';
-        if ($openTickets || $devRequestTickets || $requestTickets) {
-            echo "<div class='flex gap-2'>";
-        }
-        if ($openTickets) {
-            $filter = TicketFilters::Default & ~TicketFilters::StateRequest;
-            echo " $separator <a href='/ticketmanager.php?u=$username&t=$filter'>";
-            echo "<span class='text-danger'>$prefix<strong>$openTickets</strong></span>";
-            echo "</a>";
-            $prefix = '';
-            $separator = '/';
-        }
-        if ($devRequestTickets > 0) {
-            $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
-            echo " $separator <a href='/ticketmanager.php?u=$username&t=$filter'>$prefix$devRequestTickets</a>";
-            $prefix = '';
-            $separator = '/';
-        }
-        if ($requestTickets > 0) {
-            $filter = TicketFilters::Default & ~TicketFilters::StateOpen;
-            echo " $separator <a href='/ticketmanager.php?p=$username&t=$filter'>$prefix$requestTickets</a>";
-        }
-        if ($openTickets || $devRequestTickets || $requestTickets) {
-            echo "</div>";
-        }
-
-        // Display claim expiring message if necessary
-        if ($permissions >= Permissions::JuniorDeveloper) {
-            $expiringClaims = getExpiringClaim($username);
-            if ($expiringClaims["Expired"] > 0) {
-                echo "<div>";
-                echo "<a href='/expiringclaims.php?u=$username'>";
-                echo "<span class='text-danger'>Claim Expired</span>";
-                echo "</a>";
-                echo "</div>";
-            } elseif ($expiringClaims["Expiring"] > 0) {
-                echo "<div>";
-                echo "<a href='/expiringclaims.php?u=$username'>";
-                echo "<span class='text-danger'>Claim Expiring Soon</span>";
-                echo "</a>";
-                echo "</div>";
-            }
-        }
-
-        echo "<div class='flex gap-2 items-center'>";
-        $mailboxIcon = $unreadMessageCount > 0 ? asset('assets/images/icon/mail-unread.png') : asset('assets/images/icon/mail.png');
-        echo "<a href='/inbox.php'>";
-        echo "<img class='mr-1' id='mailboxicon' alt='Mailbox Icon' src='$mailboxIcon'/>";
-        echo "<span id='mailboxcount'>$unreadMessageCount</span>";
-        echo "</a>";
-        echo "</div>";
-
-        echo "</div>";
-        echo "</div>";
-    }
-    echo "</div>";
 }
 
 function RenderToolbar(): void

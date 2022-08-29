@@ -1,7 +1,7 @@
 <x-section class="brand-top">
     <x-container>
-        <div class="hidden lg:flex justify-lg:content-between">
-            @if(request()->cookie('logo') === 'retro')
+        <div class="hidden lg:flex gap-4 justify-between items-center">
+            {{--@if(request()->cookie('logo') === 'retro')
                 <div class="logo-container lg:flex justify-start items-center pr-4 pt-4">
                     <div class="text-center">
                         <a href="{{ route('home') }}">
@@ -27,7 +27,11 @@
                         </div>
                     </a>
                 </div>
-            @endif
+            @endif--}}
+            <div class="p-4 flex-1">
+                <a href="{{ route('home') }}"><img style="max-width:635px;width:100%" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo"></a>
+            </div>
+            <x-user.top-card/>
         </div>
     </x-container>
 </x-section>

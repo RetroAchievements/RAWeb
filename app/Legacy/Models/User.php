@@ -11,12 +11,18 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Support\Carbon;
 use Jenssegers\Optimus\Optimus;
 
 /**
+ * @property Carbon $DeleteRequested
  * @property string $EmailAddress
  * @property int $ID
  * @property int $Permissions
+ * @property int $RAPoints
+ * @property int $RASoftcorePoints
+ * @property int $TrueRAPoints
+ * @property int $UnreadMessageCount
  * @property string $User
  * @property int $websitePrefs
  */
@@ -32,6 +38,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public const DELETED_AT = 'Deleted';
 
     protected $dates = [
+        'DeleteRequested',
         'LastLogin',
         'RichPresenceMsgDate',
     ];

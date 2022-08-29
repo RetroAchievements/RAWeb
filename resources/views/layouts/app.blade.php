@@ -15,16 +15,9 @@
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
 <script src="{{ asset('/vendor/wz_tooltip.js') }}"></script>
-{{--@if(Route::is('home'))
-    @include('partials.brand-top')
-@endif--}}
-<section>
-    <div class="container">
-        <div class="lg:flex gap-4 justify-between items-center">
-            <?php RenderTitleBar() ?>
-        </div>
-    </div>
-</section>
+{{--@if(Route::is('home'))--}}
+<x-brand-top/>
+{{--@endif--}}
 <x-navbar class="lg:h-14 bg-body flex flex-col w-full justify-center lg:sticky lg:top-0">
     {{--<x-slot name="brand">
         <x-menu.brand />
