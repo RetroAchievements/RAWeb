@@ -1,6 +1,7 @@
 <x-section class="brand-top">
     <x-container>
-        <div class="hidden lg:flex gap-4 justify-between items-center">
+        {{--<div class="hidden lg:flex gap-4 justify-between items-center">--}}
+        <div class="lg:flex gap-4 justify-between items-center">
             {{--@if(request()->cookie('logo') === 'retro')
                 <div class="logo-container lg:flex justify-start items-center pr-4 pt-4">
                     <div class="text-center">
