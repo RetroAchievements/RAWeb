@@ -241,7 +241,7 @@ sanitize_outputs(
 );
 ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "/game/$gameID", "Game Info for $gameTitle ($consoleName)"); ?>
+    <?php RenderOpenGraphMetadata($pageTitle, "game", $gameData['ImageIcon'], "Game Info for $gameTitle ($consoleName)"); ?>
 <?php endif ?>
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>

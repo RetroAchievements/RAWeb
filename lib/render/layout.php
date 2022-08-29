@@ -19,7 +19,7 @@ function RenderContentEnd(): void
     // TBD add legacy content wrapper end
 }
 
-function RenderOpenGraphMetadata($title, $OGType, $imageURL, $thisURL, $description): void
+function RenderOpenGraphMetadata($title, $OGType, $imageURL, $description): void
 {
     // hijack view variables
     view()->share('pageTitle', $title);

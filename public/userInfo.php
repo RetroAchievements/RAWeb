@@ -132,7 +132,6 @@ RenderOpenGraphMetadata(
     $userPage,
     "user",
     "/UserPic/$userPage" . ".png",
-    "/user/$userPage",
     "$userPage Profile"
 );
 RenderContentStart($userPage);
