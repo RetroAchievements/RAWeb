@@ -77,7 +77,7 @@ function UploadNewAvatar() {
     var reader = new FileReader();
     reader.onload = function () {
         $('#loadingiconavatar').fadeTo(100, 1.0);
-        $.post('/request/user/update-avatar.php', { i: reader.result },
+        $.post('/request/user/update-avatar.php', { imageData: reader.result },
             function (data) {
                 $('#loadingiconavatar').fadeTo(100, 0.0);
 
