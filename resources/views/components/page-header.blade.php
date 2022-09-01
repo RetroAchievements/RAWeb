@@ -6,7 +6,7 @@ $avatar ??= null;
 $background ??= null;
 $titleActivity ??= null;
 ?>
-<x-section :class="($class ?? false) ? $class : 'pt-5'">
+<x-section :class="($class ?? false) ? $class : 'pt-5 px-5 lg:px-0'">
     <x-section-background
         :image="$background"
         :bottom="$large ? 57 : 0"
@@ -17,7 +17,7 @@ $titleActivity ??= null;
         <div style="{{$large ? 'display:flex; flex-direction:column; justify-content: flex-end ' : ''}}">
             <x-container>
                 {{-- align items end to make nav align with background --}}
-                <div class="flex block {{ $breakpoint }}:flex {{ $large ? 'items-end' : 'items-center' }}">
+                <div class="block {{ $breakpoint }}:flex {{ $large ? 'items-end' : 'items-center' }}">
                     @if($avatar)
                         <div class="mr-3">
                             {{-- only take away bottom margin at breakpoint if there's a navigation --}}
@@ -57,7 +57,7 @@ $titleActivity ??= null;
                             </x-slot>
                         </x-section-header>
                         @if($large)
-                            <div class="flex justify-between items-center" style="height:49px">
+                            <div class="flex justify-between items-center overflow-x-scroll" style="height:49px">
                                 {{ $stats ?? null }}
                                 @if($actions ?? null)
                                     <div class="ml-auto flex gap-1 justify-end">

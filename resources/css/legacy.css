@@ -4,6 +4,7 @@
   position: relative;
   min-height: 450px;
   display: flex;
+  grid-gap: 1rem;
 }
 
 @media only screen and (max-width: 1023px) {
@@ -28,6 +29,9 @@
   background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
 }
 
+/*
+ 1: fix long contents pushing width, including right container, over the maximum container width
+*/
 #leftcontainer {
   padding: 15px 20px;
   margin-bottom: 10px;
@@ -38,6 +42,7 @@
   flex-grow: 1;
   background: var(--box-bg-color);
   background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
+  overflow: auto; /* 1 */
 }
 
 #rightcontainer, aside {
@@ -48,13 +53,14 @@
   align-self: start;
   background: var(--box-bg-color);
   background: linear-gradient(0deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
+  width: 340px;
+  overflow: auto; /* 1 */
 }
 
 @media only screen and (min-width: 1024px) {
   #rightcontainer, aside {
     max-width: 340px;
     min-width: 340px;
-    margin-left: 1rem;
   }
 }
 
@@ -110,10 +116,6 @@
 .achievemententryicon {
   float: left;
   padding: 0 4px;
-}
-
-a.setRequestLabel {
-  cursor: pointer;
 }
 
 .ui-autocomplete {

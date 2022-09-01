@@ -40,7 +40,7 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
             echo GetUserAndTooltipDiv($author);
             echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
-            echo "<div>$shortMsg</div>";
+            echo "<div class='comment'>$shortMsg</div>";
             echo "</div>";
             echo "<a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a>";
             echo "</div>";

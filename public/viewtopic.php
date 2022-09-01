@@ -207,7 +207,7 @@ RenderContentStart($pageTitle);
             echo GetUserAndTooltipDiv($nextCommentAuthor, true, iconSizeDisplayable: 64);
             echo "</td>";
 
-            echo "<td class='commentpayload' id='$nextCommentID'>";
+            echo "<td class='w-full' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";
@@ -246,7 +246,7 @@ RenderContentStart($pageTitle);
             echo "</div>";
             echo "</div>";
 
-            echo "<div class='topiccommenttext'>";
+            echo "<div class='comment'>";
             echo Shortcode::render($nextCommentPayload);
             echo "</div>";
 

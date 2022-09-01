@@ -63,7 +63,7 @@ $(document).ready(onUserChange);
                 echo "In reply to ";
                 echo GetUserAndTooltipDiv($messageContextData['UserFrom']);
                 echo " who wrote:<br><br>";
-                echo "<div class='topiccommenttext'>$messageContextPayload</div>";
+                echo "<div class='comment'>$messageContextPayload</div>";
             }
 
             echo "<table>";

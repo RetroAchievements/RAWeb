@@ -37,8 +37,6 @@
 
 @media only screen and (max-width: 1023px) {
   .searchbox-top {
-    border-left: none;
-    border-top: 15px solid var(--bg-color);
     width: 100%;
     display: flex;
     justify-content: space-between;

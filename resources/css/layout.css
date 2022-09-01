@@ -6,7 +6,6 @@
 
 html {
   height: 100%;
-  overflow-x: hidden;
 }
 
 body {
@@ -40,6 +39,14 @@ body {
 
 body:not([wide]) .container {
   max-width: theme('screens.lg');
+}
+
+header {
+  overflow-x: hidden;
+}
+
+main {
+  overflow-x: hidden;
 }
 
 section {

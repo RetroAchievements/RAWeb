@@ -150,7 +150,7 @@ function MarkAsUnread(msgID) {
 
                 echo "<tr id='msgInline$msgID' class='$styleAlt msgPayload'>";
                 echo "<td colspan='4'>";
-                echo "<div class='topiccommenttext'>$msgPayload</div>";
+                echo "<div class='comment'>$msgPayload</div>";
 
                 if (!$outbox) {
                     echo "<div class='flex justify-end gap-2'>";
