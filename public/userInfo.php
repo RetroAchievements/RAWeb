@@ -342,8 +342,8 @@ RenderContentStart($userPage);
         if ($contribCount > 0) {
             echo "<strong>$userPage Developer Information:</strong><br>";
             echo "<a href='/gameList.php?d=$userPage'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
-            echo "<a href='/individualdevstats.php?u=$userPage'>View  detailed stats for <b>$userPage</b>.</a><br>";
-            echo "<a href='/claimlist.php?u=$userPage'>View claim information for <b>$userPage</b>.</a></br>";
+            echo "<a href='/individualdevstats.php?u=$userPage'>View detailed stats for <b>$userPage</b>.</a><br>";
+            echo "<a href='/claimlist.php?u=$userPage'>View claims for <b>$userPage</b>.</a></br>";
             if (isset($user) && $permissions >= Permissions::Registered) {
                 $openTicketsData = countOpenTicketsByDev($userPage);
                 echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . array_sum($openTicketsData) . "</b></a><br>";

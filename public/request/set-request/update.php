@@ -1,17 +1,23 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
 }
 
-$gameID = requestInputQuery('i', null, 'integer');
-$setRequestList = getUserRequestList($user);
-$totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+]);
+
+$gameID = (int) $input['game'];
+
+$setRequestList = getUserRequestList($username);
+$totalRequests = getUserRequestsInformation($username, $setRequestList, $gameID);
 $totalRequests['gameRequests'] = getSetRequestCount($gameID);
 
-if (toggleSetRequest($user, $gameID, $totalRequests['remaining'])) {
+if (toggleSetRequest($username, $gameID, $totalRequests['remaining'])) {
     return response()->json(['message' => __('legacy.success.ok')]);
 }
 

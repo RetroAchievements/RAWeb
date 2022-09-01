@@ -502,38 +502,40 @@ sanitize_outputs(
                 var gameTotal = parseInt(results.gameRequests);
                 var thisGame = results.requestedThisGame;
 
+                var $requestButton = $('.setRequestLabel');
+                $requestButton.show();
                 $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
                 $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
 
                 // If the user has not requested a set for this game
                 if (thisGame == 0) {
                     if (remaining <= 0) {
-                        $('.setRequestLabel').html('<h4>No Requests Remaining</h4>');
+                        $requestButton.text('No Requests Remaining');
 
                         //Remove clickable text
-                        $('.setRequestLabel').each(function () {
-                            $('<h4>' + $(this).html() + '</h4>').replaceAll(this);
+                        $requestButton.each(function () {
+                            $($(this).text()).replaceAll(this);
                         });
                     } else {
-                        $('.setRequestLabel').html('<h4>Request Set</h4>');
+                        $requestButton.text('Request Set');
                     }
                 } else {
-                    $('.setRequestLabel').html('<h4>Withdraw Request</h4>');
+                    $requestButton.text('Withdraw Request');
                 }
             });
     }
 
     function submitSetRequest(user, gameID) {
         $.post('/request/set-request/update.php', {
-            i: gameID,
+            game: gameID,
         })
             .done(function () {
                 getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
             });
     }
 
-    // When the set request text is clicked
     $(function () {
+        // When the set request text is clicked
         $('.setRequestLabel').click(function () {
             submitSetRequest('<?= $user ?>', <?= $gameID ?>);
         });
@@ -1062,12 +1064,11 @@ sanitize_outputs(
                     echo "<div>";
                 }
 
+                echo "<div class='lg:flex justify-between gap-5 mb-3'>";
                 // Display claim information
                 if ($user !== null && $flags == $officialFlag && !$isEventGame) {
-                    echo "<div style='float:left;display:inline;width:50%'>";
-
-                    echo "<h4>Claim Information</h4>";
-
+                    echo "<div>";
+                    echo "<h4>Set Claims</h4>";
                     $claimExpiration = null;
                     $primaryClaim = 1;
                     if ($claimListLength > 0) {
@@ -1082,36 +1083,30 @@ sanitize_outputs(
                             $claimListLength--;
                             $primaryClaim = 0;
                         }
-                        echo "<br>";
-                        echo "Expires on: $claimExpiration";
+                        echo "<div>Expires on: $claimExpiration</div>";
                     } else {
                         echo "No Active Claims";
                     }
-
                     echo "</div>";
                 }
 
                 // Only show set request option for logged in users, games without achievements, and core achievement page
                 if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
-                    echo "<div style='float: right; display: inline;'>";
                     echo "<div>";
-                    echo "<a class='setRequestLabel'>Request Set</a>";
+                    echo "<div>";
+                    echo "<button type='button' class='btn setRequestLabel hidden'>Request Set</button>";
                     echo "</div>";
-                    echo "<span class='gameRequestsLabel'>?</span>";
-                    echo "<br>";
-                    echo "<span class='userRequestsLabel'>?</span>";
+                    echo "<div class='gameRequestsLabel'></div>";
+                    echo "<div class='userRequestsLabel'></div>";
                     echo "</div>";
                 }
+                echo "</div>";
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
                     $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[RatingType::Achievement]);
                 }
                 */
-
-                echo "<div style='clear: both;'>";
-                echo "&nbsp;";
-                echo "</div>";
 
                 if ($numAchievements > 1) {
                     echo "<div class='py-3'><span>";
