@@ -1,14 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$targetUser = request()->post('u');
+$input = Validator::validate(request()->post(), [
+    'user' => 'sometimes|string|exists:mysql_legacy.UserAccounts,User',
+]);
 
-if ($targetUser !== $user && $permissions < Permissions::Admin) {
+if ($input['user'] !== $user && $permissions < Permissions::Admin) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
