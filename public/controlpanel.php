@@ -7,7 +7,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
-view()->share('wide', true);
+// view()->share('wide', true);
 
 // cookie only returns the most common account details. go get the rest
 getAccountDetails($user, $userDetails);
@@ -230,8 +230,8 @@ function confirmEmailChange(event) {
                 echo "<tr>";
                 echo "<td class='align-top'>Connect Key</td>";
                 echo "<td>";
-                echo "The Connect Key is used in emulators to keep you logged in.<br>";
-                echo "Resetting the key will log you out of all emulators.<br>";
+                echo "<p class='mb-1'>The Connect Key is used in emulators to keep you logged in.<br>";
+                echo "Resetting the key will log you out of all emulators.</p>";
                 echo "<form method='post' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
                 echo csrf_field();
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
