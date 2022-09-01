@@ -45,5 +45,7 @@
 @import "news.css";
 @import "ticket-manager.css";
 
-/* tailwind utilities come last to allow for overrides */
+/* utilities come last to allow for overrides */
 @import "tailwindcss/utilities";
+
+@import "utilities.css";

@@ -1,0 +1,36 @@
+.bg-body {
+  background-color: var(--bg-color);
+}
+
+.bg-embedded {
+  background-color: var(--embed-color);
+}
+
+.bg-box {
+  background-color: var(--box-bg-color);
+}
+
+.text-muted {
+  color: var(--text-color-muted);
+}
+
+.text-danger {
+  color: var(--text-color-danger);
+}
+
+.smalltext {
+  font-size: x-small;
+  color: rgb(140, 140, 140);
+  line-height: 1.05em;
+}
+
+.smalldate {
+  font-size: x-small;
+  color: rgb(140, 140, 140);
+  line-height: 1.1em;
+  min-width: 87px;
+}
+
+span.smalldate {
+  display: inline-block;
+}

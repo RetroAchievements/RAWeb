@@ -19,26 +19,6 @@ a:hover {
   color: var(--link-hover-color);
 }
 
-.bg-body {
-  background-color: var(--bg-color);
-}
-
-.bg-embedded {
-  background-color: var(--embed-color);
-}
-
-.bg-box {
-  background-color: var(--box-bg-color);
-}
-
-.text-muted {
-  color: var(--text-color-muted);
-}
-
-.text-danger {
-  color: var(--text-color-danger);
-}
-
 /* Scheme */
 
 /* dark scheme */

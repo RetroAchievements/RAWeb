@@ -378,7 +378,7 @@ RenderContentStart($userPage);
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br>";
             echo "<div id='devboxcontent' style='display: none'>";
 
-            echo "<table cellspacing=8 border=1>";
+            echo "<table>";
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<tr>";
@@ -386,8 +386,8 @@ RenderContentStart($userPage);
                 echo csrf_field();
                 echo "<input type='hidden' name='property' value='" . UserAction::UpdatePermissions . "' />";
                 echo "<input type='hidden' name='target' value='$userPage' />";
-                echo "<td>";
-                echo "<input type='submit' style='float: right;' value='Update Account Type' />";
+                echo "<td class='text-right'>";
+                echo "<button class='btn'>Update Account Type</button>";
                 echo "</td><td>";
                 echo "<select name='value' >";
                 $i = Permissions::Banned;
@@ -406,44 +406,44 @@ RenderContentStart($userPage);
                 echo "</td></form></tr>";
             }
 
-            $newValue = $userIsUntracked ? 0 : 1;
-            echo "<tr><td>";
-            echo "<form method='post' action='/request/user/update.php'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='property' value='" . UserAction::TrackedStatus . "' />";
-            echo "<input type='hidden' name='target' value='$userPage' />";
-            echo "<input type='hidden' name='value' value='$newValue' />";
-            echo "<input type='submit' style='float: right;' value='Toggle Tracked Status' />";
-            echo "</form>";
-            echo "</td><td style='width: 100%'>";
-            echo ($userIsUntracked == 1) ? "Untracked User" : "Tracked User";
-            echo "</td></tr>";
-
-            echo "<tr><td>";
+            echo "<tr><td class='text-right'>";
             echo "<form method='post' action='/request/user/update.php'>";
             echo csrf_field();
             echo "<input type='hidden' name='property' value='" . UserAction::PatreonBadge . "' />";
             echo "<input type='hidden' name='target' value='$userPage' />";
             echo "<input type='hidden' name='value' value='0' />";
-            echo "<input type='submit' style='float: right;' value='Toggle Patreon Supporter' />";
+            echo "<button class='btn'>Toggle Patreon Supporter</button>";
             echo "</form>";
             echo "</td><td>";
             echo HasPatreonBadge($userPage) ? "Patreon Supporter" : "Not a Patreon Supporter";
             echo "</td></tr>";
 
-            echo "<tr><td>";
+            echo "<tr><td class='text-right'>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
             echo csrf_field();
-            echo "<input type='hidden' name='u' value='$userPage' />";
-            echo "<input type='submit' style='float: right;' value='Recalc Score Now' />";
+            echo "<input type='hidden' name='user' value='$userPage' />";
+            echo "<button class='btn'>Recalculate Score</button>";
             echo "</form>";
             echo "</td></tr>";
 
-            echo "<tr><td>";
+            $newValue = $userIsUntracked ? 0 : 1;
+            echo "<tr><td class='text-right'>";
+            echo "<form method='post' action='/request/user/update.php'>";
+            echo csrf_field();
+            echo "<input type='hidden' name='property' value='" . UserAction::TrackedStatus . "' />";
+            echo "<input type='hidden' name='target' value='$userPage' />";
+            echo "<input type='hidden' name='value' value='$newValue' />";
+            echo "<button class='btn btn-danger'>Toggle Tracked Status</button>";
+            echo "</form>";
+            echo "</td><td style='width: 100%'>";
+            echo ($userIsUntracked == 1) ? "Untracked User" : "Tracked User";
+            echo "</td></tr>";
+
+            echo "<tr><td class='text-right'>";
             echo "<form method='post' action='/request/user/remove-avatar.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
             echo csrf_field();
-            echo "<input type='hidden' name='u' value='$userPage' />";
-            echo "<input type='submit' style='float: right;' value='Remove Avatar' />";
+            echo "<input type='hidden' name='user' value='$userPage' />";
+            echo "<button class='btn btn-danger'>Remove Avatar</button>";
             echo "</form>";
             echo "</td></tr>";
 

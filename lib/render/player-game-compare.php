@@ -3,7 +3,7 @@
 function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame): void
 {
     echo "<div id='gamecompare' class='component' >";
-    echo "<h3>Compare to Others</h3>";
+    echo "<h3>Compare</h3>";
     echo "<div class='nicebox'>";
     if (isset($friendScores)) {
         if (!empty($friendScores)) {

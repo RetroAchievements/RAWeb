@@ -684,7 +684,7 @@ sanitize_outputs(
                 }
 
                 if ($isFullyFeaturedGame) {
-                    echo "<div><a href='/ticketmanager.php?g=$gameID&ampt=1'>View open tickets for this game</a></div>";
+                    echo "<div><a href='/ticketmanager.php?g=$gameID'>View tickets for this game</a></div>";
 
                     echo "<div><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
 
@@ -1068,7 +1068,6 @@ sanitize_outputs(
                 // Display claim information
                 if ($user !== null && $flags == $officialFlag && !$isEventGame) {
                     echo "<div>";
-                    echo "<h4>Set Claims</h4>";
                     $claimExpiration = null;
                     $primaryClaim = 1;
                     if ($claimListLength > 0) {
@@ -1093,10 +1092,8 @@ sanitize_outputs(
                 // Only show set request option for logged in users, games without achievements, and core achievement page
                 if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
                     echo "<div>";
-                    echo "<div>";
-                    echo "<button type='button' class='btn setRequestLabel hidden'>Request Set</button>";
-                    echo "</div>";
                     echo "<div class='gameRequestsLabel'></div>";
+                    echo "<div><button type='button' class='btn setRequestLabel hidden'>Request Set</button></div>";
                     echo "<div class='userRequestsLabel'></div>";
                     echo "</div>";
                 }
@@ -1303,15 +1300,15 @@ sanitize_outputs(
             <?php
             RenderBoxArt($gameData['ImageBoxArt']);
 
+            echo "<div class='component'>";
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             echo "</li>";
-
             if (isset($user)) {
                 if ($permissions >= Permissions::Registered) {
-                    echo "<li><a class='btn btn-link py-2 mb-1 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🔗</span>Linked Hashes</a></li>";
-                    echo "<li><a class='btn btn-link py-2 mb-1 block' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
+                    echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🔗</span>Linked Hashes</a></li>";
+                    echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
                     $numOpenTickets = countOpenTickets(
                         requestInputSanitized('f') == $unofficialFlag,
                         requestInputSanitized('t', TicketFilters::Default),
@@ -1321,16 +1318,17 @@ sanitize_outputs(
                         $gameID
                     );
                     if ($flags == $unofficialFlag) {
-                        echo "<li><a class='btn btn-link py-2 mb-1 block' href='/ticketmanager.php?g=$gameID&f=$flags'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
+                        echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/ticketmanager.php?g=$gameID&f=$flags'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
                     } else {
-                        echo "<li><a class='btn btn-link py-2 mb-1 block' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
+                        echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
                     }
                 }
                 if ($numAchievements == 0) {
-                    echo "<li><a class='btn btn-link py-2 mb-1 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
+                    echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
                 }
-                echo "</ul><br>";
+                echo "</ul>";
             }
+            echo "</div>";
 
             if (count($gameSubsets) > 0) {
                 RenderGameAlts($gameSubsets, 'Subsets');
@@ -1341,7 +1339,7 @@ sanitize_outputs(
             }
 
             if (count($gameHubs) > 0) {
-                RenderGameAlts($gameHubs, 'In Collections');
+                RenderGameAlts($gameHubs, 'Collections');
             }
 
             RenderGameCompare($user, $gameID, $friendScores, $totalPossible);

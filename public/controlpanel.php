@@ -481,7 +481,7 @@ function confirmEmailChange(event) {
                 </div>
                 <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
                     <?= csrf_field() ?>
-                    <button class="btn-danger">Remove Avatar</button>
+                    <button class="btn btn-danger">Remove Avatar</button>
                 </form>
             </div>
             <div class='component'>

@@ -12,6 +12,7 @@
   text-align: left;
   font-family: Verdana, Arial, sans-serif;
   font-size: small;
+  white-space: nowrap;
 }
 .btn:hover, button:hover, [type="button"]:hover, [type="reset"]:hover, [type="submit"]:hover {
   color: var(--menu-link-hover-color);
@@ -36,11 +37,13 @@
 
 .btn-link {
   color: var(--link-color);
-  border-color: transparent;
+  border: none;
+  line-height: inherit;
+  background: none;
 }
 .btn-link:hover {
   color: var(--link-hover-color);
-  border-color: transparent;
+  border: none;
 }
 
 .btn-warning {

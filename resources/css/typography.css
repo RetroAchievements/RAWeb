@@ -25,23 +25,6 @@ h4 {
   border-bottom-width: 0;
 }
 
-.smalltext {
-  font-size: x-small;
-  color: rgb(140, 140, 140);
-  line-height: 1.05em;
-}
-
-.smalldate {
-  font-size: x-small;
-  color: rgb(140, 140, 140);
-  line-height: 1.1em;
-  min-width: 87px;
-}
-
-span.smalldate {
-  display: inline-block;
-}
-
 pre, code, .code {
   font-family: monospace;
   font-size: medium;
