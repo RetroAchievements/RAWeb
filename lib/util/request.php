@@ -1,6 +1,8 @@
 <?php
 
-// TODO replace with framework request input
+/**
+ * @deprecated use request()->query($key, $default)
+ */
 function requestInputQuery(string $key, $default = null, $type = null): mixed
 {
     $input = $_GET[$key] ?? $default;
@@ -12,7 +14,9 @@ function requestInputQuery(string $key, $default = null, $type = null): mixed
     return $input;
 }
 
-// TODO replace with framework request input
+/**
+ * @deprecated use request()->post($key, $default)
+ */
 function requestInputPost(string $key, $default = null, $type = null): mixed
 {
     $input = $_POST[$key] ?? $default;
@@ -24,7 +28,9 @@ function requestInputPost(string $key, $default = null, $type = null): mixed
     return $input;
 }
 
-// TODO replace with framework request input
+/**
+ * @deprecated use request()->input($key, $default)
+ */
 function requestInput(string $key, $default = null, $type = null): mixed
 {
     $input = requestInputPost($key);
@@ -42,8 +48,9 @@ function requestInput(string $key, $default = null, $type = null): mixed
 
 /**
  * Get request input sanitized for output
+ *
+ * @deprecated refactor to escaped blade view variables
  */
-// TODO replace with escaped view variables
 function requestInputSanitized(string $key, mixed $default = null, mixed $type = null): mixed
 {
     if (!$type || $type === 'string') {
