@@ -1278,7 +1278,9 @@ sanitize_outputs(
     <?php if ($isFullyFeaturedGame): ?>
         <div id="rightcontainer">
             <?php
-            RenderBoxArt($gameData['ImageBoxArt']);
+            echo "<div class='component text-center mb-6'>";
+            echo "<img class='max-w-full' src='" . $gameData['ImageBoxArt'] . "' alt='Boxart'>";
+            echo "</div>";
 
             echo "<div class='component'>";
             echo "<ul>";
@@ -1287,8 +1289,8 @@ sanitize_outputs(
             echo "</li>";
             if (isset($user)) {
                 if ($permissions >= Permissions::Registered) {
-                    echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🔗</span>Linked Hashes</a></li>";
-                    echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
+                    echo "<li><a class='btn btn-borderless py-2 mb-2 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🔗</span>Linked Hashes</a></li>";
+                    echo "<li><a class='btn btn-borderless py-2 mb-2 block' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
                     $numOpenTickets = countOpenTickets(
                         requestInputSanitized('f') == $unofficialFlag,
                         requestInputSanitized('t', TicketFilters::Default),
@@ -1298,13 +1300,13 @@ sanitize_outputs(
                         $gameID
                     );
                     if ($flags == $unofficialFlag) {
-                        echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/ticketmanager.php?g=$gameID&f=$flags'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
+                        echo "<li><a class='btn btn-borderless py-2 mb-2 block' href='/ticketmanager.php?g=$gameID&f=$flags'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
                     } else {
-                        echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
+                        echo "<li><a class='btn btn-borderless py-2 mb-2 block' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
                     }
                 }
                 if ($numAchievements == 0) {
-                    echo "<li><a class='btn btn-link py-2 mb-1 block bg-embedded' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
+                    echo "<li><a class='btn btn-borderless py-2 mb-2 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
                 }
                 echo "</ul>";
             }

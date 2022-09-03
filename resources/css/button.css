@@ -2,7 +2,7 @@
   background-color: var(--embed-color);
   /*color: var(--link-color);*/
   /*border: 1px solid var(--link-color);*/
-  color: var(--menu-link-color);
+  color: var(--link-color);
   border: 1px solid var(--menu-link-color);
   cursor: pointer;
   line-height: 1em;
@@ -15,7 +15,8 @@
   white-space: nowrap;
 }
 .btn:hover, button:hover, [type="button"]:hover, [type="reset"]:hover, [type="submit"]:hover {
-  color: var(--menu-link-hover-color);
+  background-color: var(--embed-highlight-color);
+  color: var(--link-hover-color);
   border: 1px solid var(--menu-link-color);
 }
 
@@ -36,13 +37,11 @@
 }
 
 .btn-link {
-  color: var(--link-color);
   border: none;
   line-height: inherit;
   background: none;
 }
 .btn-link:hover {
-  color: var(--link-hover-color);
   border: none;
 }
 

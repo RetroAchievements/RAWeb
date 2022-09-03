@@ -95,13 +95,6 @@ function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): void
     echo "</div>";
 }
 
-function RenderBoxArt($imagePath): void
-{
-    echo "<div class='component text-center'>";
-    echo "<img class='max-w-full' src='$imagePath' alt='Boxart'>";
-    echo "</div>";
-}
-
 function RenderGameAlts($gameAlts, $headerText = null): void
 {
     echo "<div class='component gamealts'>";
@@ -221,7 +214,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
     );
 
     if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
-        echo "<a class='btn btn-link py-2 mb-1 block bg-embedded' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
+        echo "<a class='btn btn-borderless py-2 mb-2 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {
             echo "<form action='/request/game/generate-forum-topic.php' method='post' onsubmit='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'>";
