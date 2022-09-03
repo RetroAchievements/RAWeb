@@ -10,21 +10,24 @@ abstract class AwardType
 
     public const AchievementPointsYield = 3;
 
-    public const Referrals = 4;
+    // public const Referrals = 4;
 
-    public const FacebookConnect = 5;
+    // public const FacebookConnect = 5;
 
     public const PatreonSupporter = 6;
 
-    private const ACTIVE = [
-        self::Mastery,
-        self::AchievementUnlocksYield,
-        self::AchievementPointsYield,
-        self::PatreonSupporter,
-    ];
+    public static function cases(): array
+    {
+        return [
+            self::Mastery,
+            self::AchievementUnlocksYield,
+            self::AchievementPointsYield,
+            self::PatreonSupporter,
+        ];
+    }
 
     public static function isActive(int $value): bool
     {
-        return in_array($value, self::ACTIVE);
+        return in_array($value, self::cases());
     }
 }

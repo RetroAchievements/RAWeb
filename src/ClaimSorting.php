@@ -38,6 +38,29 @@ abstract class ClaimSorting
 
     public const FinishedDateAscending = 19;
 
+    public static function cases(): array
+    {
+        return [
+            self::UserDescending,
+            self::GameDescending,
+            self::ClaimTypeDescending,
+            self::SetTypeDescending,
+            self::ClaimStatusDescending,
+            self::SpecialDescending,
+            self::ClaimDateDescending,
+            self::FinishedDateDescending,
+
+            self::UserAscending,
+            self::GameAscending,
+            self::ClaimTypeAscending,
+            self::SetTypeAscending,
+            self::ClaimStatusAscending,
+            self::SpecialAscending,
+            self::ClaimDateAscending,
+            self::FinishedDateAscending,
+        ];
+    }
+
     // need better way of doing this
     public static function toString(int $type, ?int $filter = null): string
     {

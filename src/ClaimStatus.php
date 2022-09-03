@@ -8,6 +8,15 @@ abstract class ClaimStatus
     public const Complete = 1;
     public const Dropped = 2;
 
+    public static function cases(): array
+    {
+        return [
+            self::Active,
+            self::Complete,
+            self::Dropped,
+        ];
+    }
+
     public static function toString(int $type): string
     {
         return match ($type) {

@@ -25,4 +25,21 @@ abstract class ActivityType
     public const OpenedTicket = 9;
 
     public const ClosedTicket = 10;
+
+    public static function cases(): array
+    {
+        return [
+            self::Unknown,
+            self::EarnedAchievement,
+            self::Login,
+            self::StartedPlaying,
+            self::UploadAchievement,
+            self::EditAchievement,
+            self::CompleteGame,
+            self::NewLeaderboardEntry,
+            self::ImprovedLeaderboardEntry,
+            self::OpenedTicket,
+            self::ClosedTicket,
+        ];
+    }
 }

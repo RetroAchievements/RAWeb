@@ -41,4 +41,26 @@ abstract class ClaimFilters
     // Default filter is everything except Complete and Dropped claims
     public const Default = self::AllFilters & ~self::CompleteClaim
                                             & ~self::DroppedClaim;
+
+    public static function cases(): array
+    {
+        return [
+            self::PrimaryClaim,
+            self::CollaborationClaim,
+            self::NewSetClaim,
+            self::RevisionClaim,
+            self::ActiveClaim,
+            self::CompleteClaim,
+            self::DroppedClaim,
+            self::SpecialNone,
+            self::SpecialOwnRevision,
+            self::SpecialFreeRollout,
+            self::SpecialScheduledRelease,
+            self::DeveloperClaim,
+            self::JuniorDeveloperClaim,
+            self::AllFilters,
+            self::AllCompletedPrimaryClaims,
+            self::Default,
+        ];
+    }
 }

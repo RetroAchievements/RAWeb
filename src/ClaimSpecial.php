@@ -9,6 +9,16 @@ abstract class ClaimSpecial
     public const FreeRollout = 2;
     public const ScheduledRelease = 3;
 
+    public static function cases(): array
+    {
+        return [
+            self::None,
+            self::OwnRevision,
+            self::FreeRollout,
+            self::ScheduledRelease,
+        ];
+    }
+
     public static function toString(int $type): string
     {
         return match ($type) {

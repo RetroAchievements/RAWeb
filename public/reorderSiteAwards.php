@@ -67,8 +67,8 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
                     $awardTitle = "Achievements Earned by Others";
                 } elseif ($awardType == AwardType::AchievementPointsYield) {
                     $awardTitle = "Achievement Points Earned by Others";
-                } elseif ($awardType == AwardType::Referrals) {
-                    $awardTitle = "Referral Award";
+                // } elseif ($awardType == AwardType::Referrals) {
+                //     $awardTitle = "Referral Award";
                 } elseif ($awardType == AwardType::PatreonSupporter) {
                     $awardTitle = "Patreon Supporter";
                 }

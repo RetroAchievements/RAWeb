@@ -3,7 +3,7 @@
 namespace RA;
 
 /**
- * Reference: https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
+ * Reference: https://github.com/RetroAchievements/RAInterface/blob/master/RA_Emulators.h
  */
 abstract class Emulators
 {
@@ -32,4 +32,23 @@ abstract class Emulators
     public const RAOricutron = 11;
 
     public const RAMelonDS = 12;
+
+    public static function cases(): array
+    {
+        return [
+            self::RAGens,
+            self::RAP64,
+            self::RASnes9x,
+            self::RAVBA,
+            self::RANester,
+            self::RANes,
+            self::RAPCE,
+            self::RALibretro,
+            self::RAMeka,
+            self::RAQUASI88,
+            self::RAppleWin,
+            self::RAOricutron,
+            self::RAMelonDS,
+        ];
+    }
 }
