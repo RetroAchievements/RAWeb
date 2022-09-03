@@ -467,7 +467,7 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
  * Updates a claim in the database. This function is only called when an admin updates a
  * claim from the Manage Claims page.
  */
-function updateClaim(int $claimID, int $claimType, int $setType, int $status, string $special, string $claimDate, string $finishedDate): bool
+function updateClaim(int $claimID, int $claimType, int $setType, int $status, int $special, string $claimDate, string $finishedDate): bool
 {
     sanitize_sql_inputs($claimID, $claimType, $setType, $status, $special, $claimDate, $finishedDate);
 

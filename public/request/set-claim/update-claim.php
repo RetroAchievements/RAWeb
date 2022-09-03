@@ -1,25 +1,33 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use RA\ArticleType;
+use RA\ClaimSetType;
+use RA\ClaimSpecial;
+use RA\ClaimStatus;
+use RA\ClaimType;
 use RA\Permissions;
 
-$claimOwner = requestInputPost('o', null);
-$claimID = requestInputPost('i', null, 'integer');
-$gameID = requestInputPost('g', null, 'integer');
-$claimType = requestInputPost('c', null, 'integer'); // 0 - Primary, 1 - Collaboration
-$setType = requestInputPost('s', null, 'integer'); // 0 - New set, 1 - Revision
-$status = requestInputPost('t', null, 'integer'); // 0 - Active, 1 - Complete, 2 - Dropped
-$special = requestInputPost('e', null, 'integer'); // Special flag
-$claimDate = requestInputPost('d', null); // Claim date
-$doneDate = requestInputPost('f', null); // Done date
-$comment = requestInputPost('m', null); // Auso comment
-
-if (authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     abort(401);
 }
 
-if (updateClaim($claimID, $claimType, $setType, $status, $special, $claimDate, $doneDate)) {
-    addArticleComment("Server", ArticleType::SetClaim, $gameID, $comment);
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'claim' => 'required|integer|exists:mysql_legacy.SetClaim,ID',
+    'claim_special' => ['required', 'integer', Rule::in(ClaimSpecial::cases())],
+    'claim_status' => ['required', 'integer', Rule::in(ClaimStatus::cases())],
+    'claim_type' => ['required', 'integer', Rule::in(ClaimType::cases())],
+    'claimed' => 'required|date',
+    'claim_finish' => 'required|date',
+    'comment' => 'required|string|max:2000',
+    'set_type' => ['required', 'integer', Rule::in(ClaimSetType::cases())],
+]);
+
+if (updateClaim((int) $input['claim'], (int) $input['claim_type'], (int) $input['set_type'], (int) $input['claim_status'], (int) $input['claim_special'], $input['claimed'], $input['claim_finish'])) {
+    addArticleComment("Server", ArticleType::SetClaim, (int) $input['game'], $input['comment']);
+
     return response()->json(['message' => __('legacy.success.ok')]);
 }
 

@@ -104,16 +104,15 @@ RenderContentStart("Manage Claims");
 
     if (somethingChanged) {
         $.post('/request/set-claim/update-claim.php', {
-            o: claimUser,
-            i: claimID,
-            g: <?= $gameID ?>,
-            c: newClaimType,
-            s: newSetType,
-            t: newClaimStatus,
-            e: newClaimSpecial,
-            d: newClaimDate,
-            f: newDoneDate,
-            m: comment
+            game: <?= $gameID ?>,
+            claim: claimID,
+            claim_special: newClaimSpecial,
+            claim_status: newClaimStatus,
+            claim_type: newClaimType,
+            set_type: newSetType,
+            claimed: newClaimDate,
+            claim_finish: newDoneDate,
+            comment: comment
         })
             .done(function () {
                 location.reload();

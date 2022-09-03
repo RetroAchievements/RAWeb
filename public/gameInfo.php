@@ -546,7 +546,7 @@ sanitize_outputs(
     });
 
     // Popup for making a claim
-    function makeClaim(gameTitle, revisionFlag, ticketFlag) {
+    function makeClaim(gameTitle, revisionFlag = false, ticketFlag = false) {
         var revisionMessage = '';
         if (revisionFlag) {
             revisionMessage = 'Please ensure a revision plan has been posted and approved before making this claim.\n\n';
@@ -648,8 +648,14 @@ sanitize_outputs(
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
                 echo "<div id='devboxcontent' style='display: none'>";
 
+                // Only allow developers to rename a game
+                if ($permissions >= Permissions::Developer) {
+                    echo "<div class='mb-3'><a href='/attemptrename.php?g=$gameID'>Rename Game</a></div>";
+                }
+
                 // Display the option to switch between viewing core/unofficial for non-hub page
                 if ($isFullyFeaturedGame) {
+                    echo "<div class='mb-1'>";
                     if ($flags == $unofficialFlag) {
                         if ($v == 1) {
                             echo "<div><a href='/game/$gameID?v=1'>View Core Achievements</a></div>";
@@ -665,128 +671,30 @@ sanitize_outputs(
                         }
                         echo "<div><a href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                     }
-
-                    // Display leaderboard management options depending on the current number of leaderboards
-                    if ($numLeaderboards == 0) {
-                        echo "<form action='/request/leaderboard/create.php' method='post'>";
-                        echo csrf_field();
-                        echo "<input type='hidden' name='game' value='$gameID'>";
-                        echo "<button class='btn btn-link bg-transparent p-0'>Create First Leaderboard</button>";
-                        echo "</form>";
-                    } else {
-                        echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
-                    }
-                }
-
-                // Only allow developers to rename a game
-                if ($permissions >= Permissions::Developer) {
-                    echo "<div><a href='/attemptrename.php?g=$gameID'>Rename Game</a></div>";
-                }
-
-                if ($isFullyFeaturedGame) {
-                    echo "<div><a href='/ticketmanager.php?g=$gameID'>View tickets for this game</a></div>";
-
-                    echo "<div><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
-
-                    // Display the claims links if not an event game
-                    if (!$isEventGame) {
-                        // Show Manage Claims option for admins
-                        if ($permissions >= Permissions::Admin) {
-                            echo "<div><a href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
-                        }
-
-                        // Show the Claim History option for >= junior developer
-                        echo "<div><a href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>View Claim History</a></div>";
-
-                        $escapedGameTitle = attributeEscape($gameTitle);
-
-                        // Show the Make Claim option
-                        if ($claimListLength == 0) { // No claims on the game
-                            if ($userHasClaimSlot || $isSoleAuthor) { // User has an open claim or is claiming own set
-                                if ($openTickets[TicketState::Open] == 0) { // User has no unaddressed tickets
-                                    if ($numAchievements == 0) { // Set has no core achievements
-                                        if (!isset($forumTopicID) || $forumTopicID == 0) { // No forum topic exists
-                                            if ($permissions >= Permissions::Developer) { // Allow devs to claim and make topic
-                                                echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0&f=1'>Make Claim and Forum Topic</a></div>";
-                                            } else { // No forum topic blocking claims or jr. devs
-                                                echo "Forum Topic Needed for Claim";
-                                            }
-                                        } else { // Forum topic exists
-                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0'>Make Claim</a></div>";
-                                        }
-                                    } else { // Revision claim
-                                        if ($isSoleAuthor) { // Revision on own set
-                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=1'>Make Revision Claim</a></div>";
-                                        } else {
-                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=1'>Make Revision Claim</a></div>";
-                                        }
-                                    }
-                                } else { // Open tickets blocking claim
-                                    if ($numAchievements == 0) { // Set has no core achievements
-                                        if (!isset($forumTopicID) || $forumTopicID == 0) { // No forum topic exists
-                                            if ($permissions >= Permissions::Developer) { // Allow devs to claim and make topic
-                                                echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0&f=1'>Make Claim and Forum Topic</a></div>";
-                                            } else { // No forum topic blocking claims or jr. devs
-                                                echo "Forum Topic Needed for Claim";
-                                            }
-                                        } else { // Forum topic exists
-                                            echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=0'>Make Claim</a></div>";
-                                        }
-                                    } else { // Revision claim
-                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=0&s=1'>Make Revision Claim</a></div>";
-                                    }
-                                }
-                            } else { // No claim slots blocking claim
-                                // echo "No Available Claims";
-                            }
-                        } else { // Game is already claimed
-                            if (!$hasGameClaimed) { // User does not already have the set claimed
-                                if ($openTickets[TicketState::Open] == 0) { // User has no unaddressed tickets
-                                    if ($numAchievements == 0) { // Set has no core achievements
-                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=0'>Make Collaboration Claim</a></div>";
-                                    } else { // Revision claim
-                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 0);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=1'>Make Collaboration Revision Claim</a></div>";
-                                    }
-                                } else { // Open tickets blocking collaboration claim
-                                    if ($numAchievements == 0) { // Set has no core achievements
-                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 0, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=0'>Make Collaboration Claim</a></div>";
-                                    } else { // Revision claim
-                                        echo "<div><a onclick='return makeClaim(\"$escapedGameTitle\", 1, 1);' href='/request/set-claim/make-claim.php?i=$gameID&c=1&s=1'>Make Collaboration Revision Claim</a></div>";
-                                    }
-                                }
-                            } else { // User has the game claimed
-                                if ($primaryClaimUser == $user) { // User has the primary claim
-                                    if ($primaryClaimMinutesLeft <= 10080) { // Claim is expiring within 7 days, allow extension
-                                        echo "<div><a onclick='return extendClaim(\"$escapedGameTitle\");' href='/request/set-claim/extend-claim.php?i=$gameID'>Extend Claim</a></div>";
-                                    }
-                                    echo "<div><a onclick='return dropClaim(\"$escapedGameTitle\");' href='/request/set-claim/drop-claim.php?i=$gameID&c=0'>Drop Claim</a></div>";
-                                } else { // User has a collaboration claim
-                                    echo "<div><a onclick='return dropClaim(\"$escapedGameTitle\");' href='/request/set-claim/drop-claim.php?i=$gameID&c=1'>Drop Collaboration Claim</a></div>";
-                                }
-                            }
-                        }
-
-                        // if the set has achievements and the current user is the primary claim owner then allow completing the claim
-                        if ($user == $primaryClaimUser && $numAchievements > 0) {
-                            if ($primaryClaimMinutesActive <= 1440) { // If within 24 hours of claim date
-                                echo "<div><a onclick='return completeClaim(\"$escapedGameTitle\", 1);' href='/request/set-claim/complete-claim.php?i=$gameID'>Complete Claim</a> <font color='red'>(Within 24 Hours of Claim!)</font></div>";
-                            } else {
-                                echo "<div><a onclick='return completeClaim(\"$escapedGameTitle\", 0);' href='/request/set-claim/complete-claim.php?i=$gameID'>Complete Claim</a></div>";
-                            }
-                        }
-                    }
-
+                    echo "</div>";
                     if ($permissions >= Permissions::Developer) {
-                        echo "<div class='mb-1'><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
-
-                        echo "<form class='mb-1' action='/request/game/recalculate-points-ratio.php' method='post'>";
+                        echo "<form class='mb-3' action='/request/game/recalculate-points-ratio.php' method='post'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<button>Recalculate True Ratios</button>";
                         echo "</form>";
                     }
 
-                    echo "<div class='mb-1'>";
+                    // Display leaderboard management options depending on the current number of leaderboards
+                    echo "<div class='mb-3'>";
+                    if ($numLeaderboards == 0) {
+                        echo "<form action='/request/leaderboard/create.php' method='post'>";
+                        echo csrf_field();
+                        echo "<input type='hidden' name='game' value='$gameID'>";
+                        echo "<button class='btn'>Create First Leaderboard</button>";
+                        echo "</form>";
+                    } else {
+                        echo "<div><a href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
+                    }
+                    echo "</div>";
+
+                    echo "<div class='mb-1'><a href='/ticketmanager.php?g=$gameID'>View tickets for this game</a></div>";
+                    echo "<div class='mb-3'>";
                     $isSubscribedToTickets = isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID);
                     RenderUpdateSubscriptionForm(
                         "updateticketssub",
@@ -797,16 +705,78 @@ sanitize_outputs(
                     );
                     echo "</div>";
 
-                    echo "<div class='mb-1'>";
-                    $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
-                    RenderUpdateSubscriptionForm(
-                        "updateachievementssub",
-                        SubscriptionSubjectType::GameAchievements,
-                        $gameID,
-                        $isSubscribedToAchievements,
-                        'achievement comments'
-                    );
-                    echo "</div>";
+                    echo "<div class='mb-3'><a href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
+
+                    if ($permissions >= Permissions::Developer) {
+                        echo "<div class='mb-3'><a href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
+                    }
+
+                    // Display the claims links if not an event game
+                    if (!$isEventGame) {
+                        echo "<div class='mb-3'>";
+                        if ($permissions >= Permissions::Admin) {
+                            echo "<div><a href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
+                        }
+                        echo "<div><a href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>View Claim History</a></div>";
+
+                        $escapedGameTitle = attributeEscape($gameTitle);
+                        $claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user) ? ClaimType::Collaboration : ClaimType::Primary;
+                        $claimSetType = $numAchievements > 0 ? ClaimSetType::Revision : ClaimSetType::NewSet;
+                        $isRevision = $claimSetType === ClaimSetType::Revision;
+                        $hasOpenTickets = $openTickets[TicketState::Open] > 0;
+                        $createTopic = !$isRevision && $permissions >= Permissions::Developer && empty($forumTopicID);
+                        $claimBlockedByMissingForumTopic = !$isRevision && $permissions == Permissions::JuniorDeveloper && empty($forumTopicID);
+
+                        // User has an open claim or is claiming own set and missing forum topic is not blocking
+                        $canClaim = ($userHasClaimSlot || $isSoleAuthor) && !$hasGameClaimed && !$claimBlockedByMissingForumTopic;
+
+                        if ($canClaim) {
+                            $revisionDialogFlag = $isRevision && !$isSoleAuthor ? 'true' : 'false';
+                            $ticketDialogFlag = $hasOpenTickets ? 'true' : 'false';
+                            echo "<form action='/request/set-claim/make-claim.php' method='post' onsubmit='return makeClaim(\"$escapedGameTitle\", " . $revisionDialogFlag . ", " . $ticketDialogFlag . ")'>";
+                            echo csrf_field();
+                            echo "<input type='hidden' name='game' value='$gameID'>";
+                            echo "<input type='hidden' name='claim_type' value='" . $claimType . "'>";
+                            echo "<input type='hidden' name='set_type' value='" . $claimSetType . "'>";
+                            if ($createTopic) {
+                                echo "<input type='hidden' name='create_topic' value='1'>";
+                            }
+                            echo "<button>Make " . (ClaimSetType::toString($claimSetType)) . " " . ClaimType::toString($claimType) . " Claim" . ($createTopic ? ' and Forum Topic' : '') . "</button>";
+                            echo "</form>";
+                        } elseif ($claimBlockedByMissingForumTopic) {
+                            echo "<div>Forum Topic Needed for Claim</div>";
+                        } elseif ($hasGameClaimed) {
+                            if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080) {
+                                echo "<form action='/request/set-claim/drop-claim.php' method='post' onsubmit='return extendClaim(\"$escapedGameTitle\")'>";
+                                echo csrf_field();
+                                echo "<input type='hidden' name='game' value='$gameID'>";
+                                echo "<button>Extend Claim</button>";
+                                echo "</form>";
+                            }
+                            echo "<form class='mb-1' action='/request/set-claim/drop-claim.php' method='post' onsubmit='return dropClaim(\"$escapedGameTitle\")'>";
+                            echo csrf_field();
+                            echo "<input type='hidden' name='game' value='$gameID'>";
+                            echo "<input type='hidden' name='claim_type' value='" . $claimType . "'>";
+                            echo "<input type='hidden' name='set_type' value='" . $claimSetType . "'>";
+                            echo "<button>Drop " . ClaimType::toString($claimType) . " Claim</button>";
+                            echo "</form>";
+                        }
+
+                        // if the set has achievements and the current user is the primary claim owner then allow completing the claim
+                        if ($user === $primaryClaimUser && $numAchievements > 0) {
+                            $isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440; // within 24 hours of claim date
+                            echo "<form action='/request/set-claim/complete-claim.php' method='post' onsubmit='return completeClaim(\"$escapedGameTitle\", " . ($isRecentPrimaryClaim ? 'true' : 'false') . ")'>";
+                            echo csrf_field();
+                            echo "<input type='hidden' name='game' value='$gameID'>";
+                            echo "<button>Complete Claim</button>";
+                            if ($isRecentPrimaryClaim) {
+                                echo "<span class='ml-3 text-danger'>Within 24 Hours of Claim!</span>";
+                            }
+                            echo "</form>";
+                        }
+
+                        echo "</div>";
+                    }
 
                     if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
@@ -921,6 +891,16 @@ sanitize_outputs(
                     }
                 }
 
+                echo "<div class='mb-1'>";
+                $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
+                RenderUpdateSubscriptionForm(
+                    "updateachievementssub",
+                    SubscriptionSubjectType::GameAchievements,
+                    $gameID,
+                    $isSubscribedToAchievements,
+                    'achievement comments'
+                );
+                echo "</div>";
                 $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
                 RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
 

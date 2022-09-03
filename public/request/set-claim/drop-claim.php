@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use RA\ArticleType;
 use RA\ClaimType;
 use RA\Permissions;
@@ -8,8 +10,13 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$gameID = requestInputQuery('i', null, 'integer');
-$claimType = requestInputQuery('c', null, 'integer'); // 0 - Primary, 1 - Collaboration
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'claim_type' => ['required', 'integer', Rule::in(ClaimType::cases())],
+]);
+
+$gameID = (int) $input['game'];
+$claimType = (int) $input['claim_type'];
 
 if (dropClaim($user, $gameID)) { // Check that the claim was successfully dropped
     if ($claimType == ClaimType::Primary) {
@@ -17,6 +24,7 @@ if (dropClaim($user, $gameID)) { // Check that the claim was successfully droppe
     } else {
         addArticleComment("Server", ArticleType::SetClaim, $gameID, "Collaboration claim dropped by " . $user);
     }
+
     return back()->with('success', __('legacy.success.ok'));
 }
 

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
 use RA\ArticleType;
 use RA\Permissions;
 
@@ -7,7 +8,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$gameID = requestInputSanitized('i', null, 'integer');
+$input = Validator::validate(request()->post(), [
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+]);
+
+$gameID = (int) $input['game'];
 
 if (completeClaim($user, $gameID)) { // Check that the claim was successfully completed
     addArticleComment("Server", ArticleType::SetClaim, $gameID, "Claim completed by " . $user);
