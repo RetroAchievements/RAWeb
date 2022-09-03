@@ -15,8 +15,8 @@
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */
 
-$user = requestInputQuery('u');
-$gameCSV = requestInputQuery('i', "");
+$user = request()->query('u');
+$gameCSV = request()->query('i', "");
 
 getUserProgress($user, $gameCSV, $data);
 

@@ -25,9 +25,9 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-$user = requestInputQuery('u');
-$unixTimeInputStart = requestInputQuery('f', "");
-$unixTimeInputEnd = requestInputQuery('t', "");
+$user = request()->query('u');
+$unixTimeInputStart = (int) request()->query('f');
+$unixTimeInputEnd = (int) request()->query('t');
 
 $dateStrStartF = date("Y-m-d H:i:s", $unixTimeInputStart);
 $dateStrEndF = date("Y-m-d H:i:s", $unixTimeInputEnd);

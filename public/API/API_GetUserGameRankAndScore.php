@@ -13,7 +13,7 @@
  *    string     UserRank         position of user on the game's High Scores list
  */
 
-$gameId = requestInputQuery('g');
-$username = requestInputQuery('u');
+$gameId = (int) request()->query('g');
+$username = request()->query('u');
 
 return response()->json(getGameRankAndScore($gameId, $username));

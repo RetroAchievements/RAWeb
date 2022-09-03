@@ -24,13 +24,13 @@
  *     string     [value]          RetroAchievements hash associated to the game
  */
 
-$consoleID = requestInputQuery('i', null, 'integer');
+$consoleID = (int) request()->query('i');
 if ($consoleID < 0) {
     return response()->json(['success' => false]);
 }
 
-$withAchievements = requestInputQuery('f', false, 'boolean');
-$withHashes = requestInputQuery('h', false, 'boolean');
+$withAchievements = (bool) request()->query('f');
+$withHashes = (bool) request()->query('h');
 
 getGamesListByDev(null, $consoleID, $dataOut, 1, false, $withAchievements ? 0 : 2);
 

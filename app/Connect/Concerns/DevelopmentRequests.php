@@ -307,8 +307,6 @@ trait DevelopmentRequests
         // $user = request('u');
         // $token = request('t');
         //
-        // $bounceReferrer = request('b'); //	TBD: Remove!
-        //
         // $validLogin = false;
         //
         // if (isset($token)) {

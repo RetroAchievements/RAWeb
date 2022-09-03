@@ -47,8 +47,8 @@
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  */
 
-$gameID = requestInputQuery('g');
-$targetUser = requestInputQuery('u');
+$gameID = (int) request()->query('g');
+$targetUser = request()->query('u');
 getGameMetadata($gameID, $targetUser, $achData, $gameData);
 
 foreach ($achData as &$achievement) {

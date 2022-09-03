@@ -31,9 +31,9 @@
  */
 
 $user = null;
-$achievementID = (int) (requestInputQuery('a') ?? null);
-$count = min(requestInputQuery('c', 50), 500);
-$offset = requestInputQuery('o', 0);
+$achievementID = (int) request()->query('a');
+$count = min((int) request()->query('c', '50'), 500);
+$offset = (int) request()->query('o');
 
 if (empty($achievementID)) {
     return response()->json([

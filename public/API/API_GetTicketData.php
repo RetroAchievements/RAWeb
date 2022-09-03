@@ -139,11 +139,11 @@ use RA\TicketType;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;
-$count = min(requestInputQuery('c', 10), 100);
-$offset = requestInputQuery('o', 0);
+$count = min((int) request()->query('c', '10'), 100);
+$offset = (int) request()->query('o');
 
 // if ticket ID given...
-$ticketID = requestInput('i', 0, 'integer');
+$ticketID = (int) request()->input('i');
 if ($ticketID > 0) {
     $ticketData = getTicket($ticketID);
     if (!$ticketData) {
@@ -160,7 +160,7 @@ if ($ticketID > 0) {
 // same logic used in ticketmanager.php
 // f=1 - get info for the most reported games
 // f=5 - get info for unofficial
-$gamesTableFlag = requestInputQuery('f', 0, 'integer');
+$gamesTableFlag = (int) request()->query('f');
 
 // get the most reported games...
 if ($gamesTableFlag == 1) {
@@ -170,7 +170,7 @@ if ($gamesTableFlag == 1) {
 }
 
 // getting ticket info for a specific user
-$assignedToUser = requestInputQuery('u');
+$assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
     if (!isValidUsername($assignedToUser)) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
@@ -208,7 +208,7 @@ if (!empty($assignedToUser)) {
 }
 
 // getting data for a specific game
-$gameIDGiven = requestInputQuery('g', null, 'integer');
+$gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
     if (getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopicID, $allData)) {
         $ticketData['GameID'] = $gameIDGiven;
@@ -224,7 +224,7 @@ if ($gameIDGiven > 0) {
         );
         $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
 
-        $details = requestInputQuery('d', 0, 'integer');
+        $details = (int) request()->query('d');
         if ($details == 1) {
             $ticketData['Tickets'] = getAllTickets($offset, $count, givenGameID: $gameIDGiven, ticketFilters: $defaultTicketFilter);
 
@@ -240,7 +240,7 @@ if ($gameIDGiven > 0) {
 }
 
 // getting data for a specific achievement
-$achievementIDGiven = requestInputQuery('a', null, 'integer');
+$achievementIDGiven = (int) request()->query('a');
 if ($achievementIDGiven > 0) {
     $achievementData = GetAchievementData($achievementIDGiven);
     if (!$achievementData) {

@@ -9,16 +9,16 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
-$count = requestInputQuery('c', $maxCount);
-$offset = requestInputQuery('o', 0);
+$count = (int) request()->query('c', $maxCount);
+$offset = (int) request()->query('o', 0);
 
-$params = requestInputQuery('p', 0, 'integer');
+$params = (int) request()->query('p', 0);
 
 if ($user == null) {
     $params = 0;
 }
 
-$sortBy = requestInputQuery('s', 1);
+$sortBy = (int) request()->query('s', 1);
 
 getCommonlyUnlocked($consoleIDInput, $offset, $count, $awardedData);
 

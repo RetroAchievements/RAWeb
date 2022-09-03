@@ -12,13 +12,13 @@
  *    datetime   LastAward           when the user's latest achievement for the game was unlocked
  */
 
-$gameId = requestInputQuery('g', null, 'integer');
+$gameId = (int) request()->query('g');
 if ($gameId <= 0) {
     return response()->json(['success' => false]);
 }
 
-$username = requestInputQuery('z');
-$type = requestInputQuery('t', 0, 'integer');
+$username = request()->query('z');
+$type = (int) request()->query('t');
 
 $gameTopAchievers = getGameTopAchievers($gameId, $username);
 

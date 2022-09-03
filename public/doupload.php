@@ -2,11 +2,9 @@
 
 use Symfony\Component\HttpFoundation\Response;
 
-$requestType = requestInput('r');
-$user = requestInput('u');
-$token = requestInput('t');
-
-$bounceReferrer = requestInput('b'); // TBD: Remove!
+$requestType = request()->input('r');
+$user = request()->input('u');
+$token = request()->input('t');
 
 if (!authenticateFromAppToken($user, $token, $permissions)) {
     return response()

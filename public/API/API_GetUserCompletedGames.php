@@ -19,6 +19,6 @@
  *    string     HardcoreMode     "1" if the data is for hardcore, otherwise "0"
  */
 
-$user = requestInputQuery('u');
+$user = request()->query('u');
 
 return response()->json(getUsersCompletedGamesAndMax($user));

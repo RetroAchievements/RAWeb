@@ -29,7 +29,7 @@ use RA\ClaimSorting;
  *    string     MinutesLeft        time in minutes left until the claim expires
  */
 
-$user = requestInputQuery('u');
+$user = request()->query('u');
 
 return response()->json(
     getFilteredClaimData(

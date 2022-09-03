@@ -2,11 +2,11 @@
 
 use RA\Permissions;
 
-$sortBy = requestInputQuery('s', null, 'integer');
-$offset = requestInputQuery('o', null, 'integer');
+$sortBy = (int) request()->query('s');
+$offset = (int) request()->query('o');
 $maxCount = 25;
 
-$perms = requestInputQuery('p', 1, 'integer');
+$perms = (int) request()->query('p', '1');
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

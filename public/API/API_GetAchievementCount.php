@@ -9,6 +9,6 @@
  *   int        [value]                   unique identifier of an achievement associated to the game
  */
 
-$gameID = requestInputQuery('i');
+$gameID = (int) request()->query('i');
 
 return response()->json(getAchievementIDsByGame($gameID));

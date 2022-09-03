@@ -210,7 +210,7 @@ function RenderToolbar(): void
 
     $searchQuery = null;
     if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
-        $searchQuery = attributeEscape(requestInputQuery('s', ''));
+        $searchQuery = attributeEscape(request()->query('s'));
     }
     echo "<form class='flex searchbox-top' action='/searchresults.php'>";
     // echo "Search:&nbsp;";

@@ -1,9 +1,9 @@
 <?php
 
 // Auto login from app uses token. Standard login from app uses password.
-$user = requestInputPost('u');
-$pass = requestInputPost('p');
-$token = requestInputPost('t');
+$user = request()->post('u');
+$pass = request()->post('p');
+$token = request()->post('t');
 
 $response = authenticateFromPasswordOrAppToken($user, $pass, $token);
 

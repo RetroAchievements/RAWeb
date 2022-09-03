@@ -10,7 +10,7 @@
  *  string     TotalRanked     total number of ranked users
  */
 
-$user = requestInputQuery('u');
+$user = request()->query('u');
 
 $points = 0;
 $softcorePoints = 0;

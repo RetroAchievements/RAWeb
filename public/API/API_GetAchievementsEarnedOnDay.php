@@ -24,8 +24,8 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-$user = requestInputQuery('u');
-$dateInput = requestInputQuery('d', "");
+$user = request()->query('u');
+$dateInput = request()->query('d');
 
 $data = getAchievementsEarnedOnDay(strtotime($dateInput), $user);
 

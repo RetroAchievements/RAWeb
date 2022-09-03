@@ -14,7 +14,7 @@
 
 use RA\RatingType;
 
-$gameID = requestInputQuery('i');
+$gameID = (int) request()->query('i');
 
 $gameRating = getGameRating($gameID);
 

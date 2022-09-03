@@ -11,9 +11,9 @@
  *    int        [value]   number of players who have earned that many achievements
  */
 
-$gameID = requestInputQuery('i');
-$hardcore = requestInputQuery('h', 0, 'integer');
-$requestedBy = requestInputQuery('z');
-$flags = requestInputQuery('f', 3, 'integer');
+$gameID = (int) request()->query('i');
+$hardcore = (int) request()->query('h');
+$requestedBy = request()->query('z');
+$flags = (int) request()->query('f', '3');
 
 return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $flags));

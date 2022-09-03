@@ -4,10 +4,10 @@
  */
 return response()->json(['success' => false]);
 
-$user = requestInputQuery('u');
-$friends = requestInputQuery('f');
-$count = requestInputQuery('c', 10);
-$offset = requestInputQuery('o', 0);
+$user = request()->query('u');
+$friends = request()->query('f');
+$count = (int) request()->query('c', 10);
+$offset = (int) request()->query('o', 0);
 
 // Sensible caps
 if ($count > 100) {

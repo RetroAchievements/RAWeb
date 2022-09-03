@@ -47,7 +47,7 @@
  *    string    Expiration                date the claim will expire
  */
 
-$gameID = requestInputQuery('i');
+$gameID = (int) request()->query('i');
 getGameMetadata($gameID, null, $achData, $gameData);
 
 foreach ($achData as &$achievement) {

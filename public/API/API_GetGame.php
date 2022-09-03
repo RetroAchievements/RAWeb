@@ -22,7 +22,7 @@
  *  string     Released                   release date information for the game
  */
 
-$gameID = requestInputQuery('i');
+$gameID = (int) request()->query('i');
 $gameData = [];
 
 getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopicID, $gameData);

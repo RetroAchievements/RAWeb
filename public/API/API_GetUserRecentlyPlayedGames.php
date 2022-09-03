@@ -23,9 +23,9 @@
  *    int        ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
-$user = requestInputQuery('u');
-$count = min(requestInputQuery('c', 10), 50);
-$offset = requestInputQuery('o', 0);
+$user = request()->query('u');
+$count = min((int) request()->query('c', '10'), 50);
+$offset = (int) request()->query('o');
 
 $recentlyPlayedData = [];
 $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);

@@ -16,15 +16,13 @@ $response = ['Success' => true];
  * AVOID A G O C - these are now strongly typed as INT!
  * Global RESERVED vars:
  */
-$requestType = requestInput('r');
-$user = requestInput('u');
-$token = requestInput('t');
-$achievementID = requestInput('a', 0, 'integer');  // Keep in mind, this will overwrite anything given outside these params!!
-$gameID = requestInput('g', 0, 'integer');
-$offset = requestInput('o', 0, 'integer');
-$count = requestInput('c', 10, 'integer');
-
-// $bounceReferrer = requestInput( 'b' ); // TBD: Remove!
+$requestType = request()->input('r');
+$user = request()->input('u');
+$token = request()->input('t');
+$achievementID = (int) request()->input('a', 0);  // Keep in mind, this will overwrite anything given outside these params!!
+$gameID = (int) request()->input('g', 0);
+$offset = (int) request()->input('o', 0);
+$count = (int) request()->input('c', 10);
 
 $validLogin = false;
 $permissions = null;
@@ -79,8 +77,8 @@ switch ($requestType) {
      * Login
      */
     case "login": // From App!
-        $user = requestInput('u');
-        $rawPass = requestInput('p');
+        $user = request()->input('u');
+        $rawPass = request()->input('p');
         $response = authenticateFromPasswordOrAppToken($user, $rawPass, $token);
         break;
 
@@ -88,7 +86,7 @@ switch ($requestType) {
      * Global, no permissions required
      */
     case "allprogress":
-        $consoleID = requestInput('c', null, 'integer');
+        $consoleID = (int) request()->input('c');
         $response['Response'] = GetAllUserProgress($user, $consoleID);
         break;
 
@@ -118,28 +116,28 @@ switch ($requestType) {
         $response['GameID'] = $gameID;
         break;
     case "gameid":
-        $md5 = requestInput('m');
+        $md5 = request()->input('m');
         $response['GameID'] = getGameIDFromMD5($md5);
         break;
 
     case "gameslist":
-        $consoleID = requestInput('c', 0, 'integer');
+        $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID);
         break;
 
     case "officialgameslist":
-        $consoleID = requestInput('c', 0, 'integer');
+        $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
         break;
 
     case "hashlibrary":
-        $consoleID = requestInput('c', 0, 'integer');
+        $consoleID = (int) request()->input('c', 0);
         $response['MD5List'] = getMD5List($consoleID);
         break;
 
     case "latestclient":
-        $emulatorId = requestInput('e', null, 'integer');
-        $consoleId = requestInput('c', null, 'integer');
+        $emulatorId = (int) request()->input('e');
+        $consoleId = (int) request()->input('c');
 
         if (empty($emulatorId) && !empty($consoleId)) {
             return DoRequestError("Lookup by Console ID has been deprecated");
@@ -176,7 +174,7 @@ switch ($requestType) {
             : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
     case "ping":
-        $activityMessage = requestInputPost('m', null);
+        $activityMessage = request()->post('m');
         $response['Success'] = userActivityPing($user);
 
         if (isset($activityMessage)) {
@@ -189,7 +187,7 @@ switch ($requestType) {
      */
 
     case "achievementwondata":
-        $friendsOnly = (int) requestInput('f', 0);
+        $friendsOnly = (int) request()->input('f', 0);
         $response['Offset'] = $offset;
         $response['Count'] = $count;
         $response['FriendsOnly'] = $friendsOnly;
@@ -198,8 +196,8 @@ switch ($requestType) {
         break;
 
     case "awardachievement":
-        $achIDToAward = requestInput('a', 0, 'integer');
-        $hardcore = requestInput('h', 0, 'integer');
+        $achIDToAward = (int) request()->input('a', 0);
+        $hardcore = (int) request()->input('h', 0);
         /**
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
          */
@@ -218,21 +216,21 @@ switch ($requestType) {
         break;
 
     case "lbinfo":
-        $lbID = requestInput('i', 0, 'integer');
+        $lbID = (int) request()->input('i', 0);
         // Note: Nearby entry behavior has no effect if $user is null
         // TBD: friendsOnly
         $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, friendsOnly: 0, nearby: true);
         break;
 
     case "patch":
-        $flags = requestInput('f', 0, 'integer');
-        // $hardcore = requestInput('h', 0, 'integer'); // not used
+        $flags = (int) request()->input('f', 0);
+        // $hardcore = (int) request()->input('h', 0); // not used
         $response['PatchData'] = GetPatchData($gameID, $flags, $user);
         break;
 
     case "postactivity":
-        $activityType = requestInput('a');
-        $activityMessage = requestInput('m');
+        $activityType = request()->input('a');
+        $activityMessage = request()->input('m');
         $response['Success'] = postActivity($user, $activityType, $activityMessage);
         break;
 
@@ -242,8 +240,8 @@ switch ($requestType) {
         break;
 
     case "submitcodenote":
-        $note = requestInput('n');
-        $address = requestInput('m', 0, 'integer');
+        $note = request()->input('n');
+        $address = (int) request()->input('m', 0);
         $response['Success'] = submitCodeNote2($user, $gameID, $address, $note);
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['Address'] = $address;    // Repeat this back to the caller?
@@ -251,11 +249,11 @@ switch ($requestType) {
         break;
 
     case "submitgametitle":
-        $md5 = requestInput('m');
-        $gameID = requestInput('g');
-        $gameTitle = requestInput('i');
-        $description = requestInput('d');
-        $consoleID = requestInput('c');
+        $md5 = request()->input('m');
+        $gameID = request()->input('g');
+        $gameTitle = request()->input('i');
+        $description = request()->input('d');
+        $consoleID = request()->input('c');
         $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameID, $gameTitle, $consoleID, $description);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (isset($response['Response']['Error'])) {
@@ -264,9 +262,9 @@ switch ($requestType) {
         break;
 
     case "submitlbentry":
-        $lbID = requestInput('i', 0, 'integer');
-        $score = requestInput('s', 0, 'integer');
-        $validation = requestInput('v'); // Ignore for now?
+        $lbID = (int) request()->input('i', 0);
+        $score = (int) request()->input('s', 0);
+        $validation = request()->input('v'); // Ignore for now?
         $response['Response'] = SubmitLeaderboardEntryJSON($user, $lbID, $score, $validation);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
@@ -275,10 +273,10 @@ switch ($requestType) {
         break;
 
     case "submitticket":
-        $idCSV = requestInput('i');
-        $problemType = requestInput('p');
-        $comment = requestInput('n');
-        $md5 = requestInput('m');
+        $idCSV = request()->input('i');
+        $problemType = request()->input('p');
+        $comment = request()->input('n');
+        $md5 = request()->input('m');
         $response['Response'] = submitNewTicketsJSON($user, $idCSV, $problemType, $comment, $md5);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (isset($response['Response']['Error'])) {
@@ -287,7 +285,7 @@ switch ($requestType) {
         break;
 
     case "unlocks":
-        $hardcoreMode = requestInput('h', 0, 'integer');
+        $hardcoreMode = (int) request()->input('h', 0);
         $response['UserUnlocks'] = GetUserUnlocksData($user, $gameID, $hardcoreMode);
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['HardcoreMode'] = $hardcoreMode;  // Repeat this back to the caller?
@@ -299,16 +297,16 @@ switch ($requestType) {
         $response['Success'] = UploadNewAchievement(
             author: $user,
             gameID: $gameID,
-            title: requestInput('n'),
-            desc: requestInput('d'),
+            title: request()->input('n'),
+            desc: request()->input('d'),
             progress: ' ',
             progressMax: ' ',
             progressFmt: ' ',
-            points: requestInput('z', 0, 'integer'),
-            mem: requestInput('m'),
-            type: requestInput('f', AchievementType::Unofficial, 'integer'),
+            points: (int) request()->input('z', 0),
+            mem: request()->input('m'),
+            type: (int) request()->input('f', AchievementType::Unofficial),
             idInOut: $achievementID,
-            badge: requestInput('b'),
+            badge: request()->input('b'),
             errorOut: $errorOut
         );
         $response['AchievementID'] = $achievementID;
@@ -316,15 +314,15 @@ switch ($requestType) {
         break;
 
     case "uploadleaderboard":
-        $leaderboardID = requestInput('i', 0, 'integer');
-        $newTitle = requestInput('n');
-        $newDesc = requestInput('d');
-        $newStartMemString = requestInput('s');
-        $newSubmitMemString = requestInput('b');
-        $newCancelMemString = requestInput('c');
-        $newValueMemString = requestInput('l');
-        $newLowerIsBetter = requestInput('w', 0, 'integer');
-        $newFormat = requestInput('f');
+        $leaderboardID = (int) request()->input('i', 0);
+        $newTitle = request()->input('n');
+        $newDesc = request()->input('d');
+        $newStartMemString = request()->input('s');
+        $newSubmitMemString = request()->input('b');
+        $newCancelMemString = request()->input('c');
+        $newValueMemString = request()->input('l');
+        $newLowerIsBetter = (int) request()->input('w', 0);
+        $newFormat = request()->input('f');
         $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
         $errorOut = "";
