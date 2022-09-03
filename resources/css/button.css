@@ -3,7 +3,7 @@
   /*color: var(--link-color);*/
   /*border: 1px solid var(--link-color);*/
   color: var(--link-color);
-  border: 1px solid var(--menu-link-color);
+  border: 1px solid var(--embed-highlight-color);
   cursor: pointer;
   line-height: 1em;
   padding: 0.4em 0.6em;

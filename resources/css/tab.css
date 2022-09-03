@@ -7,10 +7,10 @@
 /* Style the buttons that are used to open the tab content */
 .tab button {
   background-color: transparent;
-  border: 1px solid transparent;
+  border: 1px solid var(--embed-color);
   border-bottom: 1px solid var(--embed-color);
   float: left;
-  border-radius: 5px 5px 0px 0px;
+  border-radius: 5px 5px 0 0;
   outline: none;
   cursor: pointer;
   padding: 10px 8px;
@@ -20,7 +20,8 @@
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-  border: 1px solid rgb(80, 80, 80);
+  color: var(--menu-link-hover-color);
+  border: 1px solid var(--embed-color);
 }
 
 .tab button:hover:not(.active) {
@@ -30,10 +31,10 @@
 
 /* Create an active/current tablink class */
 .tab button.active {
-  color: var(--text-color);
+  color: var(--menu-link-hover-color);
   border: 1px solid var(--embed-color);
-  border-bottom: 1px solid #1F1F1F;
-  background-color: #1F1F1F;
+  border-bottom: 1px solid var(--embed-color);
+  background-color: var(--embed-highlight-color);
 }
 
 /* Style the friends tab content */
