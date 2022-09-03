@@ -30,8 +30,8 @@
                     </a>
                 </div>
             @endif--}}
-            <div class="p-4 flex-1">
-                <a href="{{ route('home') }}"><img style="max-width:635px;width:100%" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo"></a>
+            <div class="p-4 flex-1 text-center">
+                <a href="{{ route('home') }}"><img style="max-width:550px;width:100%" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo"></a>
             </div>
             <x-user.top-card/>
         </div>
