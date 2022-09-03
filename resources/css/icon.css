@@ -6,6 +6,16 @@
   vertical-align: middle;
 }
 
+.text-lg .icon {
+  height: theme('fontSize.lg');
+}
+.text-xl .icon {
+  height: theme('fontSize.xl');
+}
+.text-2xl .icon {
+  height: theme('fontSize.2xl');
+}
+
 .icon-xs {
   width: 16px;
   height: 16px;
