@@ -615,8 +615,8 @@ sanitize_outputs(
             $pageTitleAttr = attributeEscape($pageTitle);
 
             echo "<h3>$pageTitle</h3>";
-            echo "<div class='sm:flex justify-between items-top gap-3 mb-3'>";
-            echo "<img src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
+            echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
+            echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
             echo "<table><colgroup><col class='w-48'></colgroup><tbody>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
