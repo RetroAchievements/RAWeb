@@ -1,12 +1,8 @@
 footer {
   background: var(--embed-color);
-  padding: 25px 15px;
   color: var(--text-color-muted);
-  font-size: 12px;
+  padding: 25px 15px;
   line-height: 1.6;
-  margin: 0 auto;
-  clear: both;
-  box-sizing: border-box;
 }
 
 footer a {
