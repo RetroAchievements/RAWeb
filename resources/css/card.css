@@ -5,13 +5,10 @@
 
 .usercardusername {
   font-weight: bold;
+  font-size: theme('fontSize.lg');
 }
 
 .usercardaccounttype {
   text-align: right;
   text-decoration: underline;
-}
-
-.usercardbasictext {
-  font-size: smaller;
 }

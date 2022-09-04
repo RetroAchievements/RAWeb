@@ -1,7 +1,7 @@
 #WzBoDy {
   border-radius: 8px !important;
   background: var(--bg-color) !important;
-  border-color: var(--menu-link-color) !important;
+  border-color: var(--embed-highlight-color) !important;
 }
 
 #WzBoDy tr {
