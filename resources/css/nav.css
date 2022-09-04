@@ -1,6 +1,5 @@
 #innermenu {
   position: relative;
-  font-size: x-small;
   margin: auto;
   /*overflow:hidden; this breaks the dropdown! :S*/
   border-radius: 4px;

@@ -155,7 +155,7 @@ $menu = collect([
     @endforeach
     <div class="mb-3 lg:mb-0">
         <div class="mb-2"><span class="text-lg">Connect</span></div>
-        <div class="flex gap-3 text-2xl">
+        <div class="flex gap-3 text-lg">
             @if(config('services.patreon.user_id'))
                 <a href="https://www.patreon.com/bePatron?u={{ config('services.patreon.user_id') }}"
                    data-toggle="tooltip" title="Become a patron" rel="noopener">

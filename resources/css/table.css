@@ -1,3 +1,7 @@
+table {
+  font-size: inherit;
+}
+
 tbody tr:nth-child(odd) {
   background-color: rgba(50, 50, 50, .2);
 }
@@ -11,6 +15,7 @@ td {
 }
 
 th {
+  font-weight: inherit;
   padding: 8px 8px;
   /*background-color: #323232;*/
   /*font-size: 120%;*/
