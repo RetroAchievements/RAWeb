@@ -60,7 +60,7 @@ $user = request()->user();
                             ]);
                         }
                         $ticketLinks->push([
-                            'link' => '/ticketmanager.php?u=' . $user->User . '&p=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateOpen),
+                            'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateOpen),
                             'count' => countRequestTicketsByUser($user->User),
                             'title' => 'Tickets awaiting your feedback',
                         ]);
