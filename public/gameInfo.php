@@ -645,7 +645,7 @@ sanitize_outputs(
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
                 echo "<div class='devbox mb-3'>";
-                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
+                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
                 echo "<div id='devboxcontent' style='display: none'>";
 
                 // Only allow developers to rename a game
@@ -1024,7 +1024,7 @@ sanitize_outputs(
                 if ($user !== null && $numAchievements > 0) {
                     if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
                         echo "<div class='devbox'>";
-                        echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
+                        echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
                         echo "<div id='resetboxcontent' style='display: none'>";
                         echo "<form action='/request/user/reset-achievements.php' method='post' onsubmit='return confirm(\"Are you sure you want to reset this progress?\")'>";
                         echo csrf_field();

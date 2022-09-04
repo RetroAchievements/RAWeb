@@ -125,7 +125,7 @@ final class Shortcode
 
         return <<<EOF
             <div class="devbox">
-                <span onclick="$('#spoiler_{$id}').toggle(); return false;">Spoiler (Click to show):</span><br>
+                <span onclick="$('#spoiler_{$id}').toggle(); return false;">Spoiler (Click to show)</span>
                 <div class="spoiler" id="spoiler_{$id}">{$content}</div>
             </div>
         EOF;

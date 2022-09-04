@@ -375,7 +375,7 @@ RenderContentStart($userPage);
 
         if (isset($user) && $permissions >= Permissions::Admin) {
             echo "<div class='devbox mb-3'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin (Click to show):</span><br>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<table>";

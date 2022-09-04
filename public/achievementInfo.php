@@ -229,7 +229,7 @@ RenderContentStart($achievementTitleRaw);
 
         if ($achievedLocal) {
             echo "<div class='devbox mb-3'>";
-            echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress</span><br>";
+            echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
             echo "<div id='resetboxcontent' style='display: none'>";
             echo "<form action='/request/user/reset-achievements.php' method='post' onsubmit='return confirm(\"Are you sure you want to reset this progress?\")'>";
             echo csrf_field();
@@ -242,7 +242,7 @@ RenderContentStart($achievementTitleRaw);
 
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             echo "<div class='devbox mb-3'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev (Click to show):</span><br>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
 
             if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
@@ -272,7 +272,7 @@ RenderContentStart($achievementTitleRaw);
 
             if ($permissions >= Permissions::Developer) {
                 echo "<div class='devbox'>";
-                echo "<div><span onclick=\"$('#embedcontent').toggle(); return false;\">Set embedded video URL: (Click to show accepted formats):</span></div>";
+                echo "<div><span onclick=\"$('#embedcontent').toggle(); return false;\">Embedded video URL - show accepted formats ▼</span></div>";
                 echo "<div id='embedcontent' style='display: none'>";
                 echo "<div style='clear:both;'></div>"; ?>
                 Examples for accepted formats:<br>

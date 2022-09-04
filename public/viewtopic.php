@@ -82,7 +82,7 @@ RenderContentStart($pageTitle);
 
         if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
             echo "<div class='devbox mb-3'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options (Click to show):</span><br>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
 
             echo "<div>Change Topic Title:</div>";

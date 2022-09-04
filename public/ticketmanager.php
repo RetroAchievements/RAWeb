@@ -755,7 +755,7 @@ RenderContentStart($pageTitle);
                     echo "<tr><td></td><td colspan='7'>";
 
                     echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Click to show player unlock history for this game</span><br>";
+                    echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Player unlock history for this game ▼</span>";
                     echo "<div id='unlockhistory' style='display: none'>";
                     echo "<table>";
 
@@ -858,7 +858,7 @@ RenderContentStart($pageTitle);
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";
-                    echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Achievement Logic</span><br>";
+                    echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Achievement Logic ▼</span>";
                     echo "<div id='achievementlogic' style='display: none'>";
 
                     echo "<div style='clear:both;'></div>";
