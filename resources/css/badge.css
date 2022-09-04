@@ -2,22 +2,30 @@
   border: 2px solid transparent;
   padding: 0;
   box-sizing: content-box;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
 .badgeimglarge {
   border: 2px solid transparent;
   padding: 0;
   box-sizing: content-box;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
 .goldimage {
   border: 2px solid gold;
   padding: 0;
   box-sizing: content-box;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
 .goldimagebig {
   border: 2px solid gold;
   padding: 0;
   box-sizing: content-box;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
