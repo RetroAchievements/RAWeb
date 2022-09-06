@@ -129,6 +129,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
 }
 
 $achDist = null;
+$achDistHardcore = null;
 $authorInfo = [];
 $commentData = null;
 $gameTopAchievers = null;
@@ -160,7 +161,8 @@ if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
 
-    $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements); // for now, only retrieve casual!
+    $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements);
+    $achDistHardcore = getAchievementDistribution($gameID, 1, $user, $flags, $numAchievements);
 
     $numArticleComments = getArticleComments(ArticleType::Game, $gameID, 0, 20, $commentData);
 
@@ -273,14 +275,17 @@ RenderHtmlStart(true);
 
         // Declare columns
         dataTotalScore.addColumn('number', 'Total Achievements Won');
-        dataTotalScore.addColumn('number', 'Num Users');
+        dataTotalScore.addColumn('number', 'Hardcore Users');
+        dataTotalScore.addColumn('number', 'Softcore Users');
 
         dataTotalScore.addRows([
             <?php
             $largestWonByCount = 0;
             $count = 0;
+            $plural = '';
             for ($i = 1; $i <= $numAchievements; $i++) {
                 if ($count++ > 0) {
+                    $plural = 's';
                     echo ", ";
                 }
                 $wonByUserCount = $achDist[$i];
@@ -289,29 +294,33 @@ RenderHtmlStart(true);
                     $largestWonByCount = $wonByUserCount;
                 }
 
-                echo "[ {v:$i, f:\"Earned $i achievement(s)\"}, $wonByUserCount ] ";
+                echo "[ {v:$i, f:\"Earned $i achievement$plural\"}, $achDistHardcore[$i], $wonByUserCount - $achDistHardcore[$i] ] ";
             }
 
-            if ($largestWonByCount > 30) {
+            if ($largestWonByCount > 20) {
                 $largestWonByCount = -2;
             }
+
+            // if there's less than 20 achievements, just show a line for every value
+            // otherwise show 10 lines (chart will actually use less lines if it doesn't divide evenly)
+            $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
             ?>
         ]);
-          <?php $numGridlines = $numAchievements; ?>
         var optionsTotalScore = {
+          isStacked: true,
           backgroundColor: 'transparent',
-          titleTextStyle: {color: '#186DEE'}, // cc9900
-          hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $numGridlines ?>, color: '#334433'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
-          vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $largestWonByCount + 1 ?>}, viewWindow: {min: 0}, format: '#'},
+          titleTextStyle: {color: '#186DEE'},
+          hAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $numGridlines ?>, color: '#333333'}, minorGridlines: {count: 0}, format: '#', slantedTextAngle: 90, maxAlternation: 0},
+          vAxis: {textStyle: {color: '#186DEE'}, gridlines: {count:<?= $largestWonByCount + 1 ?>, color: '#333333'}, minorGridlines: {color: '#333333'}, viewWindow: {min: 0}, format: '#'},
           legend: {position: 'none'},
-          chartArea: {'width': '85%', 'height': '78%'},
+          chartArea: {'width': '80%', 'height': '78%'},
           height: 260,
-          colors: ['#cc9900'],
+          colors: ['#cc9900','#186DEE'],
           pointSize: 4,
         };
 
         function resize() {
-          chartScoreProgress = new google.visualization.AreaChart(document.getElementById('chart_distribution'));
+          chartScoreProgress = new google.visualization.ColumnChart(document.getElementById('chart_distribution'));
           chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
           // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
         }
