@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up()
     {
+        if (Schema::hasTable('sessions')) {
+            return;
+        }
+
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
