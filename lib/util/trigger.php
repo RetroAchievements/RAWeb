@@ -310,11 +310,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             }
             $res .= "\n</tr>\n";
         }
-        $res .= "<tr><td colspan=10><ul><small>";
+        $res .= "<tr><td colspan=10>";
         foreach ($codeNotes as $nextCodeNote) {
-            $res .= "<li>" . $nextCodeNote . "</li>\n";
+            $res .= "<pre class='text-xs'>" . $nextCodeNote . "</pre>\n";
         }
-        $res .= "</small></ul></td></tr>";
+        $res .= "</td></tr>";
     }
     $res .= "\n</table>\n";
 

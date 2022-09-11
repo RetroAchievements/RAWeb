@@ -8,6 +8,7 @@ module.exports = {
     './resources/js/**/*.vue',
     './public/*.php',
     './lib/render/*.php',
+    './lib/util/*.php',
   ],
 
   corePlugins: {
