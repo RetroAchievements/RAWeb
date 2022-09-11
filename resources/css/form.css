@@ -20,3 +20,7 @@ input, optgroup, select, textarea {
   /*background: white;*/
   /*color: black;*/
 }
+
+[data-scheme=""] ::-webkit-calendar-picker-indicator, [data-scheme="black"] ::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
