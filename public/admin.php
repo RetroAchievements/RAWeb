@@ -203,7 +203,6 @@ RenderContentStart('Admin Tools');
                 </table>
                 <input type="hidden" name="action" value="getWinnersOfAchievements">
                 <input type="submit" value="Submit">
-                <button class="btn">Submit</button>
             </form>
 
             <script>
@@ -255,7 +254,7 @@ RenderContentStart('Admin Tools');
                     </tbody>
                 </table>
                 <input type="hidden" name="action" value="giveaward">
-                <button class="btn btn-danger">Submit</button>
+                <button class="btn">Submit</button>
             </form>
         </div>
 
