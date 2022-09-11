@@ -7,18 +7,15 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(request()->post(), [
-    'game' => 'required_unless:achievement|integer|exists:mysql_legacy.GameData,ID',
-    'achievement' => 'required_unless:game|integer|exists:mysql_legacy.GameData,ID',
+    'game' => 'required_without:achievement|integer|exists:mysql_legacy.GameData,ID',
+    'achievement' => 'required_without:game|integer|exists:mysql_legacy.Achievements,ID',
 ]);
 
-$gameId = (int) $input['game'];
-$achievementId = (int) $input['achievement'];
-
-if (!empty($achievementId) && resetSingleAchievement($user, $achievementId)) {
+if (!empty($input['achievement']) && resetSingleAchievement($user, (int) $input['achievement'])) {
     return response()->json(['message' => __('legacy.success.reset')]);
 }
 
-if (!empty($gameId) && resetAchievements($user, $gameId) > 0) {
+if (!empty($input['game']) && resetAchievements($user, (int) $input['game']) > 0) {
     return response()->json(['message' => __('legacy.success.reset')]);
 }
 

@@ -396,7 +396,7 @@ function confirmEmailChange(event) {
 
                         if (gameId > 0 && confirm('Reset all achievements for "' + gameName + '"?')) {
                             $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
-                            $.post('/request/user/reset-achievements.php', { g: gameId })
+                            $.post('/request/user/reset-achievements.php', { game: gameId })
                                 .done(function () {
                                     $loadingIcon.attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
                                     achievementSelect.replaceChildren();
@@ -406,8 +406,7 @@ function confirmEmailChange(event) {
                     } else if (achID > 0 && confirm('Reset achievement "' + achName + '"?')) {
                         $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
                         $.post('/request/user/reset-achievements.php', {
-                            a: achID,
-                            h: isHardcore
+                            achievement: achID,
                         })
                             .done(function () {
                                 $loadingIcon.attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);

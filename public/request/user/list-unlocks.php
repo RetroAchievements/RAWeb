@@ -20,6 +20,7 @@ $hardcoreUnlocks = collect($dataOut)
 $dataOut = collect($dataOut)
     // results in unique IDs
     ->keyBy('ID')
+    ->filter(fn ($achievement) => !(bool) $achievement['HardcoreMode'])
     // merge on top to make sure hardcore unlocks take precedence
     ->merge($hardcoreUnlocks)
     ->map(function ($achievement) {
