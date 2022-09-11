@@ -11,7 +11,7 @@ class ForceHttps extends Middleware
 {
     public function handle($request, Closure $next)
     {
-        if (!$request->secure() && app()->environment('dev', 'production')) {
+        if (!$request->secure() && app()->environment('dev', 'stage', 'production')) {
             return redirect()->secure($request->getRequestUri());
         }
 
