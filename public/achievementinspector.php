@@ -133,16 +133,13 @@ function updateAchievementsTypeFlag(typeFlag) {
         }
         echo "<a href='/achievementinspector.php'>Back to List</a></p></div><br>";
 
+        echo "Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a><br/>";
+
         echo "<table><tbody>";
         echo "<tr>";
-        if ($fullModifyOK) {
-            echo "<th>Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a></th>";
-        }
         echo "<th>ID</th>";
         echo "<th>Badge</th>";
-        echo "<th>Title</th>";
-        echo "<th>Description</th>";
-        // echo "<th>Mem</th>";
+        echo "<th width='99%'>Title/Description</th>";
         echo "<th>Points</th>";
         echo "<th>Created/Modified</th>";
         echo "<th>Display Order</th>";
@@ -170,13 +167,12 @@ function updateAchievementsTypeFlag(typeFlag) {
 
             echo "<tr>";
             if ($fullModifyOK) {
-                echo "<td align='center'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'></td>";
+                echo "<td><span style='white-space: nowrap'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'> <label for='achievement'>$achID</label></span></td>";
+            } else {
+                echo "<td>$achID</td>";
             }
-            echo "<td>$achID</td>";
-            echo "<td><code>$achBadgeName</code><br><img alt='$achBadgeName' style='float:left;max-height: 64px' src='$achBadgeFile' /></td>";
-            echo "<td>$achTitle</td>";
-            echo "<td>$achDesc</td>";
-            // echo "<td>$achMemAddr</td>";
+            echo "<td><img alt='$achBadgeName' style='float:left;max-height: 64px' src='$achBadgeFile' /><br><span class='smalltext'>$achBadgeName</span></td>";
+            echo "<td>$achTitle<br/><span class='smalltext'>$achDesc</span></td>";
             echo "<td>$achPoints</td>";
             echo "<td><span class='smalldate'>$achCreated</span><br><span class='smalldate'>$achModified</span></td>";
             if ($partialModifyOK || $fullModifyOK) {
