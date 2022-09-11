@@ -6,108 +6,100 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admi
     abort(401);
 }
 
-$action = requestInputSanitized('action');
+$action = request()->input('action');
 $message = null;
-switch ($action) {
-    case 'getachids':
-        $gameIDs = separateList(requestInputSanitized('g'));
-        foreach ($gameIDs as $nextGameID) {
-            $ids = getAchievementIDsByGame($nextGameID);
-            $message = implode(', ', $ids["AchievementIDs"] ?? []);
-        }
-        break;
-    case 'getWinnersOfAchievements':
-        $achievementIDs = requestInputSanitized('a', 0, 'string');
-        $startTime = requestInputSanitized('s', null, 'string');
-        $endTime = requestInputSanitized('e', null, 'string');
-        $hardcoreMode = requestInputSanitized('h', 0, 'integer');
-        $dateString = "";
-        if (isset($achievementIDs)) {
-            if (strtotime($startTime)) {
-                if (strtotime($endTime)) {
-                    // valid start and end
-                    $dateString = " between $startTime and $endTime";
-                } else {
-                    // valid start, invalid end
-                    $dateString = " since $startTime";
-                }
+if ($action === 'achievement-ids') {
+    $gameIDs = separateList(request()->query('g'));
+    $achievementIds = collect();
+    foreach ($gameIDs as $gameId) {
+        $achievementIds = $achievementIds->merge(getAchievementIDsByGame($gameId)['AchievementIDs'] ?? []);
+    }
+    $message = $achievementIds->implode(', ');
+}
+
+if ($action === 'unlocks') {
+    $achievementIDs = request()->query('a');
+    $startTime = request()->query('s');
+    $endTime = request()->query('e');
+    $hardcoreMode = (int) request()->query('h');
+    $dateString = "";
+    if (isset($achievementIDs)) {
+        if (strtotime($startTime)) {
+            if (strtotime($endTime)) {
+                // valid start and end
+                $dateString = " between $startTime and $endTime";
             } else {
-                if (strtotime($endTime)) {
-                    // invalid start, valid end
-                    $dateString = " before $endTime";
-                }
+                // valid start, invalid end
+                $dateString = " since $startTime";
             }
-
-            $winners = getUnlocksInDateRange(separateList($achievementIDs), $startTime, $endTime, (int) $hardcoreMode);
-
-            $keys = array_keys($winners);
-            for ($i = 0; $i < count($winners); $i++) {
-                $winnersCount = is_countable($winners[$keys[$i]]) ? count($winners[$keys[$i]]) : 0;
-                $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
-                $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
-            }
-        }
-
-        break;
-    case 'giveaward':
-        $awardAchievementID = requestInputSanitized('a');
-        $awardAchievementUser = requestInputSanitized('u');
-        $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
-
-        if (isset($awardAchievementID) && isset($awardAchievementUser)) {
-            $usersToAward = preg_split('/\W+/', $awardAchievementUser);
-            foreach ($usersToAward as $nextUser) {
-                $validUser = validateUsername($nextUser);
-                if (!$validUser) {
-                    $message .= "<strong>$nextUser</strong>: user not found!<br>";
-                    continue;
-                }
-                $message .= "<strong>$validUser</strong>:<br>";
-                $ids = separateList($awardAchievementID);
-                foreach ($ids as $nextID) {
-                    $message .= "- $nextID: ";
-                    $awardResponse = unlockAchievement($validUser, $nextID, $awardAchHardcore);
-                    if (empty($awardResponse) || !$awardResponse['Success']) {
-                        $message .= array_key_exists('Error', $awardResponse)
-                            ? $awardResponse['Error']
-                            : "Failed to award achievement!";
-                    } else {
-                        $message .= "Awarded achievement";
-                    }
-                    $message .= "<br>";
-                }
-                recalculatePlayerPoints($validUser);
-
-                $hardcorePoints = 0;
-                $softcorePoints = 0;
-                if (getPlayerPoints($validUser, $userPoints)) {
-                    $hardcorePoints = $userPoints['RAPoints'];
-                    $softcorePoints = $userPoints['RASoftcorePoints'];
-                }
-                $message .= "- Recalculated Score: $hardcorePoints <span class='softcore'>($softcorePoints softcore)</span><br>";
-            }
-        }
-        break;
-    case 'updatestaticdata':
-        $aotwAchID = requestInputSanitized('a', 0, 'integer');
-        $aotwForumID = requestInputSanitized('f', 0, 'integer');
-        $aotwStartAt = requestInputSanitized('s', null, 'string');
-
-        $query = "UPDATE StaticData SET
-            Event_AOTW_AchievementID='$aotwAchID',
-            Event_AOTW_ForumID='$aotwForumID',
-            Event_AOTW_StartAt='$aotwStartAt'";
-
-        $db = getMysqliConnection();
-        $result = s_mysql_query($query);
-
-        if ($result) {
-            $message = "Successfully updated static data!";
         } else {
-            $message = mysqli_error($db);
+            if (strtotime($endTime)) {
+                // invalid start, valid end
+                $dateString = " before $endTime";
+            }
         }
 
-        break;
+        $winners = getUnlocksInDateRange(separateList($achievementIDs), $startTime, $endTime, $hardcoreMode);
+
+        $keys = array_keys($winners);
+        for ($i = 0; $i < count($winners); $i++) {
+            $winnersCount = is_countable($winners[$keys[$i]]) ? count($winners[$keys[$i]]) : 0;
+            $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+            $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
+        }
+    }
+}
+
+if ($action === 'manual-unlock') {
+    $awardAchievementID = requestInputSanitized('a');
+    $awardAchievementUser = requestInputSanitized('u');
+    $awardAchHardcore = requestInputSanitized('h', 0, 'integer');
+
+    if (isset($awardAchievementID) && isset($awardAchievementUser)) {
+        $usersToAward = preg_split('/\W+/', $awardAchievementUser);
+        foreach ($usersToAward as $nextUser) {
+            $validUser = validateUsername($nextUser);
+            if (!$validUser) {
+                continue;
+            }
+            $ids = separateList($awardAchievementID);
+            foreach ($ids as $nextID) {
+                $awardResponse = unlockAchievement($validUser, $nextID, $awardAchHardcore);
+            }
+            recalculatePlayerPoints($validUser);
+
+            $hardcorePoints = 0;
+            $softcorePoints = 0;
+            if (getPlayerPoints($validUser, $userPoints)) {
+                $hardcorePoints = $userPoints['RAPoints'];
+                $softcorePoints = $userPoints['RASoftcorePoints'];
+            }
+        }
+
+        return back()->with('success', __('legacy.success.ok'));
+    }
+
+    return back()->withErrors(__('legacy.error.error'));
+}
+
+if ($action === 'aotw') {
+    $aotwAchID = requestInputSanitized('a', 0, 'integer');
+    $aotwForumID = requestInputSanitized('f', 0, 'integer');
+    $aotwStartAt = requestInputSanitized('s', null, 'string');
+
+    $query = "UPDATE StaticData SET
+        Event_AOTW_AchievementID='$aotwAchID',
+        Event_AOTW_ForumID='$aotwForumID',
+        Event_AOTW_StartAt='$aotwStartAt'";
+
+    $db = getMysqliConnection();
+    $result = s_mysql_query($query);
+
+    if ($result) {
+        return back()->with('success', __('legacy.success.ok'));
+    }
+
+    return back()->withErrors(__('legacy.error.error'));
 }
 
 $staticData = getStaticData();
@@ -126,8 +118,8 @@ RenderContentStart('Admin Tools');
     <?php if ($permissions >= Permissions::Admin) : ?>
         <div id="fullcontainer" class="w-full">
             <h4>Get Game Achievement IDs</h4>
-            <form method="post" action="admin.php">
-                <?= csrf_field() ?>
+            <form action="admin.php">
+                <input type="hidden" name="action" value="achievement-ids">
                 <table class="mb-1">
                     <colgroup>
                         <col>
@@ -144,8 +136,7 @@ RenderContentStart('Admin Tools');
                     </tr>
                     </tbody>
                 </table>
-                <input type="hidden" name="action" value="getachids">
-                <input type="submit" value="Submit">
+                <button>Submit</button>
             </form>
         </div>
 
@@ -154,9 +145,9 @@ RenderContentStart('Admin Tools');
             $winnersStartTime = $staticData['winnersStartTime'] ?? null;
             $winnersEndTime = $staticData['winnersEndTime'] ?? null;
             ?>
-            <h4>Get Winners of Achievements</h4>
-            <form method="post" action="admin.php">
-                <?= csrf_field() ?>
+            <h4>Get Achievement Unlocks</h4>
+            <form action="admin.php">
+                <input type="hidden" name="action" value="unlocks">
                 <table class="mb-1">
                     <colgroup>
                         <col>
@@ -201,8 +192,7 @@ RenderContentStart('Admin Tools');
                     </tr>
                     </tbody>
                 </table>
-                <input type="hidden" name="action" value="getWinnersOfAchievements">
-                <input type="submit" value="Submit">
+                <button>Submit</button>
             </form>
 
             <script>
@@ -218,9 +208,10 @@ RenderContentStart('Admin Tools');
         </div>
 
         <div id="fullcontainer" class="w-full">
-            <h4>Award Achievement</h4>
+            <h4>Unlock Achievement</h4>
             <form method="post" action="admin.php">
                 <?= csrf_field() ?>
+                <input type="hidden" name="action" value="manual-unlock">
                 <table class="mb-1">
                     <colgroup>
                         <col>
@@ -229,7 +220,7 @@ RenderContentStart('Admin Tools');
                     <tbody>
                     <tr>
                         <td class="whitespace-nowrap">
-                            <label for="award_achievement_user">User to receive achievement</label>
+                            <label for="award_achievement_user">User to unlock achievement</label>
                         </td>
                         <td>
                             <input id="award_achievement_user" name="u">
@@ -253,7 +244,6 @@ RenderContentStart('Admin Tools');
                     </tr>
                     </tbody>
                 </table>
-                <input type="hidden" name="action" value="giveaward">
                 <button class="btn">Submit</button>
             </form>
         </div>
@@ -267,6 +257,7 @@ RenderContentStart('Admin Tools');
             <h4>Achievement of the Week</h4>
             <form method="post" action="admin.php">
                 <?= csrf_field() ?>
+                <input type="hidden" name="action" value="aotw">
                 <table class="mb-1">
                     <colgroup>
                         <col>
@@ -308,7 +299,6 @@ RenderContentStart('Admin Tools');
                     </tr>
                     </tbody>
                 </table>
-                <input type="hidden" name="action" value="updatestaticdata">
                 <button class="btn">Submit</button>
             </form>
 
