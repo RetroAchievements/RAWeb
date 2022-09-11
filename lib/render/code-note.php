@@ -37,7 +37,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
         echo "</td>";
 
         echo "<td>";
-        echo "<div style='word-break:break-word;'>$memNote</div>";
+        echo "<div style='word-break:break-word'>$memNote</div>";
         echo "</td>";
 
         echo "<td>";

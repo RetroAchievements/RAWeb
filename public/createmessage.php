@@ -50,43 +50,41 @@ $(document).ready(onUserChange);
 </script>
 <div id="mainpage">
     <div id='fullcontainer'>
-        <div id="forums">
-            <?php
-            echo "<div class='navpath'>";
-            echo "<a href='inbox.php'>Inbox</a>";
-            echo " &raquo; <b>Send Message</b></a>";
-            echo "</div>";
+        <?php
+        echo "<div class='navpath'>";
+        echo "<a href='inbox.php'>Inbox</a>";
+        echo " &raquo; <b>Send Message</b></a>";
+        echo "</div>";
 
-            echo "<h2>New Message</h2>";
+        echo "<h2>New Message</h2>";
 
-            if ($messageContextData !== null) {
-                echo "In reply to ";
-                echo GetUserAndTooltipDiv($messageContextData['UserFrom']);
-                echo " who wrote:<br><br>";
-                echo "<div class='comment'>$messageContextPayload</div>";
-            }
+        if ($messageContextData !== null) {
+            echo "In reply to ";
+            echo GetUserAndTooltipDiv($messageContextData['UserFrom']);
+            echo " who wrote:<br><br>";
+            echo "<div class='comment'>$messageContextPayload</div>";
+        }
 
-            echo "<table>";
-            echo "<tbody>";
+        echo "<table>";
+        echo "<tbody>";
 
-            echo "<form action='/request/message/send.php' method='post'>";
-            echo csrf_field();
-            $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
-            echo "<tr>";
-            echo "<td>User:</td>";
-            echo "<td><input type='text' value='$messageTo' name='recipient' id='recipient' onblur='onUserChange(); return false;' class='searchuser' required></td>";
-            echo "<td style='width:10%'><img style='float:right' class='searchusericon' src='/UserPic/$destUser.png' width='64' height='64'/></td>";
-            echo "</tr>";
-            echo "<tr><td>Subject: </td><td colspan='2'><input class='w-full' type='text' value='$messageContextTitle' name='subject' required></td></tr>";
-            echo "<tr><td>Message:</td><td colspan='2'>";
-            RenderShortcodeButtons();
-            echo "<textarea id='commentTextarea' class='w-full forum messageTextarea' style='height:160px' rows='5' cols='61' name='message' placeholder='Enter your message here...' required>$messageOutgoingPayload</textarea></td></tr>";
-            echo "<tr><td></td><td colspan='2' class='w-full'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
-            echo "</form>";
-            echo "</tbody>";
-            echo "</table>";
-            ?>
-        </div>
+        echo "<form action='/request/message/send.php' method='post'>";
+        echo csrf_field();
+        $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
+        echo "<tr>";
+        echo "<td>User:</td>";
+        echo "<td><input type='text' value='$messageTo' name='recipient' id='recipient' onblur='onUserChange(); return false;' class='searchuser' required></td>";
+        echo "<td style='width:10%'><img style='float:right' class='searchusericon' src='/UserPic/$destUser.png' width='64' height='64'/></td>";
+        echo "</tr>";
+        echo "<tr><td>Subject: </td><td colspan='2'><input class='w-full' type='text' value='$messageContextTitle' name='subject' required></td></tr>";
+        echo "<tr><td>Message:</td><td colspan='2'>";
+        RenderShortcodeButtons();
+        echo "<textarea id='commentTextarea' class='w-full forum messageTextarea' style='height:160px' rows='5' cols='61' name='message' placeholder='Enter your message here...' required>$messageOutgoingPayload</textarea></td></tr>";
+        echo "<tr><td></td><td colspan='2' class='w-full'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
+        echo "</form>";
+        echo "</tbody>";
+        echo "</table>";
+        ?>
     </div>
 </div>
 <?php RenderContentEnd(); ?>
