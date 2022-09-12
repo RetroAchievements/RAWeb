@@ -3,9 +3,9 @@
 }
 
 .usermotto {
-  border-radius: 6px;
-  background: rgb(245, 245, 245);
-  color: rgb(20, 20, 20);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
   font-style: italic;
   padding: 4px 8px;
   display: inline-block;

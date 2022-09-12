@@ -12,8 +12,9 @@
 }
 
 .devbox > div, .codetags {
-  border: 1px solid var(--embed-highlight-color);
+  border: 1px solid var(--text-color-muted);
   padding: 8px 12px;
+  border-radius: 4px;
   /*
   for rendering code tag within shortcode
   and making sure that trailing submit buttons in devboxes do not overflow when floating on the right
