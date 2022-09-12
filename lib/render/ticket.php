@@ -32,7 +32,7 @@ function GetTicketAndTooltipDiv(Ticket $ticket): string
     $achNameAttr = attributeEscape($ticket->achievementTitle);
     $smallBadgePath = "/Badge/" . $ticket->badgeName . ".png";
 
-    return "<a class='ticket-block inline $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->ticketId
+    return "<a class='ticket-block inline-block $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->ticketId
             . "' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\">" .
             "<img loading='lazy' width='32' height='32' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='badgeimg' />" .
             "<div class='ticket-displayable-block'>Ticket #$ticket->ticketId</div>" .
