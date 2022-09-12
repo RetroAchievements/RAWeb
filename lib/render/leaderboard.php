@@ -41,7 +41,6 @@ function RenderGameLeaderboardsComponent($lbData): void
 
     if ($numLBs == 0) {
         echo "No leaderboards found: why not suggest some for this game? ";
-        echo "<div class='float-right'><a href='/leaderboardList.php'>Leaderboard List</a></div>";
     } else {
         echo "<table><tbody>";
 
