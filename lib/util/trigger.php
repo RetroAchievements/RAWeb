@@ -280,7 +280,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             if ($lSize) {
                 $lNote = getNoteForAddress($memNotes, $lMemory);
                 if ($lNote) {
-                    $lTooltip = " title=\"" . htmlspecialchars($lNote) . "\"";
+                    $lTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($lNote) . "\"";
                     $codeNotes[$lMemory] = '<strong><u>' . $lMemory . '</u></strong>: ' . htmlspecialchars($lNote);
                 }
             }
@@ -297,7 +297,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                 if ($rSize) {
                     $rNote = getNoteForAddress($memNotes, $rMemVal);
                     if ($rNote) {
-                        $rTooltip = " title=\"" . htmlspecialchars($rNote) . "\"";
+                        $rTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($rNote) . "\"";
                         $codeNotes[$rMemVal] = '<strong><u>' . $rMemVal . '</u></strong>: ' . htmlspecialchars($rNote);
                     }
                 }
