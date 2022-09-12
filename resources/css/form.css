@@ -6,6 +6,7 @@ textarea, input, select {
   background: var(--embed-color);
   color: var(--menu-link-color);
   font-size: 13px;
+  max-width: 100%;
 }
 
 input[readonly] {
