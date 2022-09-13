@@ -36,6 +36,8 @@ services:
             - ./docker/nginx/logs:/var/log/nginx
         networks:
             - raweb
+        depends_on:
+            - laravel.test
     mysql:
         image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
         environment:
