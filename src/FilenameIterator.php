@@ -25,9 +25,15 @@ abstract class FilenameIterator
 
     public static function get(string $iterator): int
     {
-        return self::isValidIterator($iterator)
-            ? (int) file_get_contents(storage_path('app/' . $iterator . '.txt'))
-            : 0;
+        if (!self::isValidIterator($iterator)) {
+            return 0;
+        }
+
+        if (!file_exists(storage_path('app/' . $iterator . '.txt'))) {
+            file_put_contents(storage_path('app/' . $iterator . '.txt'), 2);
+        }
+
+        return (int) file_get_contents(storage_path('app/' . $iterator . '.txt'));
     }
 
     public static function getBadgeIterator(): string
