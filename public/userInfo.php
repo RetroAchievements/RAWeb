@@ -498,7 +498,7 @@ RenderContentStart($userPage);
                 settype($numAchievedHardcore, "integer");
                 settype($scoreEarnedHardcore, "integer");
 
-                echo "<div class='userpagegames mb-3'>";
+                echo "<div class='mb-5'>";
 
                 RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore);
 
