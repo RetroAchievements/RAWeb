@@ -2,7 +2,7 @@ on: [pull_request]
 
 jobs:
   php-cs-fixer:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
@@ -24,7 +24,7 @@ jobs:
         run: composer lint
 
   phpstan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
@@ -46,7 +46,7 @@ jobs:
         run: composer analyse
 
   phpunit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
@@ -68,7 +68,7 @@ jobs:
         run: composer paratest
 
   eslint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
     name: eslint
