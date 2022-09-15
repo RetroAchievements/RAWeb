@@ -57,6 +57,7 @@ function RenderToolbar(): void
     // Sony
     echo "<li class='dropdown-header'>Sony</li>";
     echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
+    echo "<li><a href='/gameList.php?c=21'>PlayStation 2</a></li>";
     echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
     // Atari
     echo "<li class='dropdown-header'>Atari</li>";

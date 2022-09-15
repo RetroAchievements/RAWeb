@@ -134,7 +134,7 @@ function RenderConsoleMessage(int $consoleId): void
     if ($consoleId === 21) {
         echo <<<HTML
             <div class="mb-4">
-                <a href="/viewtopic.php?t=11108">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. There is no <abbr title="Estimated time of arrival">ETA</abbr> at this time. Click for more details. ⚠️</a>
+                <a href="/viewtopic.php?t=11108">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. The planned launch date is October 1st, 2022 at 00:00 GMT! Click for more details. ⚠️</a>
             </div>
         HTML;
     }
