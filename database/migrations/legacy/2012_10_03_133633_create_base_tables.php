@@ -33,7 +33,7 @@ return new class() extends Migration {
 
                 Schema::table('UserAccounts', function (Blueprint $table) {
                     $table->boolean('UserWallActive')->default(true)->change();
-                    $table->boolean('Untracked')->default(true)->change();
+                    $table->boolean('Untracked')->default(false)->change();
                 });
             }
         }
