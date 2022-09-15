@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
@@ -10,6 +11,27 @@ return new class() extends Migration {
     public function up()
     {
         // NOTE: includes all migrations for the base tables until 2022_06_15
+
+        // Migrate UserAccount bit types to boolean / tinyint(1)
+        if (Schema::hasTable('UserAccounts')) {
+            try {
+                DB::connection($this->getConnection())
+                    ->getDoctrineColumn('UserAccounts', 'UserWallActive')->getType()->getName();
+            } catch (Doctrine\DBAL\Exception) {
+                // "Unknown database type bit requested, Doctrine\DBAL\Platforms\MySQL80Platform may not support it."
+
+                // make sure the bit type is understood
+                DB::connection($this->getConnection())
+                    ->getDoctrineConnection()
+                    ->getDatabasePlatform()
+                    ->registerDoctrineTypeMapping('bit', 'boolean');
+
+                Schema::table('UserAccounts', function (Blueprint $table) {
+                    $table->boolean('UserWallActive')->default(true)->change();
+                    $table->boolean('Untracked')->default(true)->change();
+                });
+            }
+        }
 
         if (!Schema::hasTable('Achievements')) {
             Schema::create('Achievements', function (Blueprint $table) {
