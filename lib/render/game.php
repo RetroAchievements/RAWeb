@@ -26,7 +26,7 @@ function GetGameAndTooltipDiv(
 
     $gameIcon = $gameIcon != null ? $gameIcon : "assets/images/activity/playing.webp";
 
-    $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
     $tooltip .= "<img style='margin-right:5px' src='" . media_asset($gameIcon) . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";

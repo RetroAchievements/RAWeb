@@ -26,7 +26,7 @@ function GetAchievementAndTooltipDiv(
     $achDescStr = $achDesc;
     $gameNameStr = $gameName;
 
-    $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
     $tooltip .= "<img style='margin-right:5px' src='" . media_asset("Badge/$badgeName.png") . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$achNameStr</b><br>";

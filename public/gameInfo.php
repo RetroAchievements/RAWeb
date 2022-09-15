@@ -972,7 +972,7 @@ sanitize_outputs(
                         $labelcontent = "More ratings needed ($voters votes)";
 
                         $star1 = $star2 = $star3 = $star4 = $star5 = "";
-                        $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+                        $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
                         $tooltip .= "<table><tr><td class='whitespace-nowrap'>Your rating: $yourRating</td></tr></table>";
                         $tooltip .= "</div>";
                     } else {
@@ -985,7 +985,7 @@ sanitize_outputs(
                         $percent4 = round($ratingData['Rating4'] * 100 / $voters);
                         $percent5 = round($ratingData['Rating5'] * 100 / $voters);
 
-                        $tooltip = "<div id='objtooltip' style='display:flex;max-width:400px'>";
+                        $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
                         $tooltip .= "<table>";
                         $tooltip .= "<tr><td colspan=3>Your rating: $yourRating</td></tr>";
                         $tooltip .= "<tr><td class='whitespace-nowrap'>5 star</td><td>";

@@ -15,7 +15,7 @@ function GetTicketAndTooltipDiv(Ticket $ticket): string
     };
 
     $tooltip =
-    "<div id='objtooltip' style='display:flex;max-width:400px'>" .
+    "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>" .
         "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "/Badge/" . $ticket->badgeName . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />" .
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
             "<div><b>" . $ticket->achievementTitle . "</b> <i>(" . $ticket->gameTitle . ")</i></div>" .
