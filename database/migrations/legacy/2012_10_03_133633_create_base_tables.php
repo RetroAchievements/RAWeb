@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Connection;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -7,21 +8,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
     protected $connection = 'mysql_legacy';
+    protected Connection $dbConnection;
 
     public function up()
     {
         // NOTE: includes all migrations for the base tables until 2022_06_15
 
+        /** @var Connection $dbConnection */
+        $dbConnection = DB::connection($this->getConnection());
+        $this->dbConnection = $dbConnection;
+
         // Migrate UserAccount bit types to boolean / tinyint(1)
         if (Schema::hasTable('UserAccounts')) {
             try {
-                DB::connection($this->getConnection())
-                    ->getDoctrineColumn('UserAccounts', 'UserWallActive')->getType()->getName();
+                $this->dbConnection->getDoctrineColumn('UserAccounts', 'UserWallActive')->getType()->getName();
             } catch (Doctrine\DBAL\Exception) {
                 // "Unknown database type bit requested, Doctrine\DBAL\Platforms\MySQL80Platform may not support it."
 
                 // make sure the bit type is understood
-                DB::connection($this->getConnection())
+                $this->dbConnection
                     ->getDoctrineConnection()
                     ->getDatabasePlatform()
                     ->registerDoctrineTypeMapping('bit', 'boolean');
@@ -66,7 +71,12 @@ return new class() extends Migration {
         // add a dedicated Updated timestamp for changes that are relevant for synchronisation accuracy
         if (!Schema::hasColumn('Achievements', 'Updated')) {
             Schema::table('Achievements', function (Blueprint $table) {
-                $table->timestampTz('Updated')->nullable()->useCurrent();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Updated')->nullable();
+                } else {
+                    $table->timestampTz('Updated')->nullable()->useCurrent();
+                }
             });
             // UPDATE `Achievements` SET `Updated` = `DateModified` WHERE DateModified IS NOT NULL;
         }
@@ -127,8 +137,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('CodeNotes', ['Created', 'Updated'])) {
             Schema::table('CodeNotes', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `CodeNotes` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -157,8 +173,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('Console', ['Created', 'Updated'])) {
             Schema::table('Console', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `Console` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -196,8 +218,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('Forum', ['Created', 'Updated'])) {
             Schema::table('Forum', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `Forum` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -214,8 +242,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('ForumCategory', ['Created', 'Updated'])) {
             Schema::table('ForumCategory', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `ForumCategory` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -236,7 +270,12 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumn('ForumTopic', 'Updated')) {
             Schema::table('ForumTopic', function (Blueprint $table) {
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
         }
 
@@ -264,8 +303,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('Friends', ['Created', 'Updated'])) {
             Schema::table('Friends', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `Friends` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -280,8 +325,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('GameAlternatives', ['Created', 'Updated'])) {
             Schema::table('GameAlternatives', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `GameAlternatives` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -312,8 +363,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('GameData', ['Created', 'Updated'])) {
             Schema::table('GameData', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `GameData` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -328,7 +385,12 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumn('GameHashLibrary', 'Created')) {
             Schema::table('GameHashLibrary', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                }
             });
             // UPDATE `GameHashLibrary` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -366,8 +428,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('LeaderboardDef', ['Created', 'Updated'])) {
             Schema::table('LeaderboardDef', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `LeaderboardDef` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -393,7 +461,12 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumn('LeaderboardEntry', 'Created')) {
             Schema::table('LeaderboardEntry', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                }
             });
             // UPDATE `LeaderboardEntry` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -426,7 +499,12 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumn('News', 'Updated')) {
             Schema::table('News', function (Blueprint $table) {
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
         }
 
@@ -446,8 +524,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('Rating', ['Created', 'Updated'])) {
             Schema::table('Rating', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `Rating` SET `Created` = NULL  WHERE `Created` IS NOT NULL;
         }
@@ -550,8 +634,14 @@ return new class() extends Migration {
         // NOTE: original migration missing
         if (!Schema::hasColumns('Subscription', ['Created', 'Updated'])) {
             Schema::table('Subscription', function (Blueprint $table) {
-                $table->timestampTz('Created')->useCurrent();
-                $table->timestampTz('Updated')->useCurrent();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent();
+                }
             });
         }
 
@@ -574,7 +664,12 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumn('Ticket', 'Updated')) {
             Schema::table('Ticket', function (Blueprint $table) {
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
         }
 
@@ -630,8 +725,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('UserAccounts', ['Created', 'Updated'])) {
             Schema::table('UserAccounts', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent();
+                }
             });
             // UPDATE `UserAccounts` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
@@ -680,8 +781,14 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
         if (!Schema::hasColumns('Votes', ['Created', 'Updated'])) {
             Schema::table('Votes', function (Blueprint $table) {
-                $table->timestampTz('Created')->nullable()->useCurrent();
-                $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                if ($this->dbConnection->getDriverName() === 'sqlite') {
+                    // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+                    $table->timestampTz('Created')->nullable();
+                    $table->timestampTz('Updated')->nullable()->useCurrentOnUpdate();
+                } else {
+                    $table->timestampTz('Created')->nullable()->useCurrent();
+                    $table->timestampTz('Updated')->nullable()->useCurrent()->useCurrentOnUpdate();
+                }
             });
             // UPDATE `Votes` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
