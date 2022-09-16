@@ -2,7 +2,7 @@
 
 # usage:
 GIT_REMOTE="https://github.com/RetroAchievements/RAWeb"
-GIT_BRANCH="v2"
+GIT_BRANCH="master"
 
 # php binary to use - should match the composer platform config and crontab php version
 PHP_BIN='php'
