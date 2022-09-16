@@ -134,14 +134,14 @@ function UploadBadgeImage(array $file): string
     $badgeIterator = FilenameIterator::getBadgeIterator();
     $imagePath = 'Badge/' . $badgeIterator . '.png';
     $imagePathLocked = 'Badge/' . $badgeIterator . '_lock.png';
-    if (!imagepng($image, public_path($imagePath))
-        || !imagepng($imageLocked, public_path($imagePathLocked))) {
+    if (!imagepng($image, storage_path('app/media/' . $imagePath))
+        || !imagepng($imageLocked, storage_path('app/media/' . $imagePathLocked))) {
         throw new Exception('Cannot copy image to destination');
     }
     FilenameIterator::incrementBadgeIterator();
 
-    UploadToS3(public_path($imagePath), $imagePath);
-    UploadToS3(public_path($imagePathLocked), $imagePathLocked);
+    UploadToS3(storage_path('app/media/' . $imagePath), $imagePath);
+    UploadToS3(storage_path('app/media/' . $imagePathLocked), $imagePathLocked);
 
     return $badgeIterator;
 }
@@ -193,12 +193,12 @@ function UploadGameImage(array $file, string $imageType): string
     $image = imagecreatetruecolor($targetWidth, $targetHeight);
     imagecopyresampled($image, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
 
-    if (!imagepng($image, public_path($imagePath))) {
+    if (!imagepng($image, storage_path('app/media/' . $imagePath))) {
         throw new Exception('Cannot copy image to destination');
     }
     FilenameIterator::incrementImageIterator();
 
-    UploadToS3(public_path($imagePath), $imagePath);
+    UploadToS3(storage_path('app/media/' . $imagePath), $imagePath);
 
     return $imagePath;
 }
@@ -289,12 +289,12 @@ function UploadNewsImage(string $base64ImageData): string
     imagecopyresampled($image, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
 
     $imagePath = '/Images/' . FilenameIterator::getImageIterator() . '.jpg';
-    if (!imagejpeg($image, public_path($imagePath))) {
+    if (!imagejpeg($image, storage_path('app/media/' . $imagePath))) {
         throw new Exception('Cannot copy image to destination');
     }
     FilenameIterator::incrementImageIterator();
 
-    UploadToS3(public_path($imagePath), $imagePath);
+    UploadToS3(storage_path('app/media/' . $imagePath), $imagePath);
 
     return $imagePath;
 }
