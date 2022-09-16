@@ -185,7 +185,11 @@ RenderContentStart("Manage Claims");
             echo "</td>";
 
             echo "<td>";
-            echo "<select id='status_$claimID'>";
+            if ($claimUser == $user) {
+                echo "<select id='status_$claimID' disabled title='Use the claim controls on the game page to manage the status of your own claim'>";
+            } else {
+                echo "<select id='status_$claimID'>";
+            }
             switch ($claim['Status']) {
                 case ClaimStatus::Active:
                     echo "<option selected value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
