@@ -240,7 +240,7 @@ function UploadAvatar(string $user, string $base64ImageData): void
 
     imagecopyresampled($image, $sourceImage, 0, 0, 0, 0, $size, $size, $width, $height);
 
-    if (!imagepng($image, public_path("UserPic/$user.png"))) {
+    if (!imagepng($image, storage_path('app/media/UserPic/' . $user . '.png'))) {
         throw new Exception('Cannot copy image to destination');
     }
 
@@ -251,7 +251,7 @@ function UploadAvatar(string $user, string $base64ImageData): void
 
 function removeAvatar(string $user): void
 {
-    $avatarFile = public_path('UserPic/' . $user . '.png');
+    $avatarFile = storage_path('app/media/UserPic/' . $user . '.png');
     if (file_exists($avatarFile)) {
         unlink($avatarFile);
     }
