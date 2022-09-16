@@ -363,7 +363,7 @@ function confirmEmailChange(event) {
                     }
                     gameSelect.setAttribute('disabled', 'disabled');
                     achievementSelect.innerHTML += '<option value=\'\'>--</option>';
-                    $loadingIcon.attr('src', '<?php echo getenv('ASSET_URL') ?>/assets/images/icon/loading.gif').fadeTo(100, 1.0);
+                    $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
                     $.post('/request/user/list-unlocks.php', { game: gameID })
                         .done(function (data) {
                             achievementSelect.replaceChildren();

@@ -16,7 +16,7 @@ function GetTicketAndTooltipDiv(Ticket $ticket): string
 
     $tooltip =
     "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>" .
-        "<img style='margin-right:5px' src='" . getenv('ASSET_URL') . "/Badge/" . $ticket->badgeName . ".png' width='$tooltipIconSize' height='$tooltipIconSize' />" .
+        "<img style='margin-right:5px' src='" . media_asset('/Badge/' . $ticket->badgeName . '.png') . "' width='$tooltipIconSize' height='$tooltipIconSize' />" .
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
             "<div><b>" . $ticket->achievementTitle . "</b> <i>(" . $ticket->gameTitle . ")</i></div>" .
             "<div>Reported by $ticket->createdBy</div>" .
@@ -34,7 +34,7 @@ function GetTicketAndTooltipDiv(Ticket $ticket): string
 
     return "<a class='ticket-block inline-block $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->ticketId
             . "' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\">" .
-            "<img loading='lazy' width='32' height='32' src=\"" . getenv('ASSET_URL') . "$smallBadgePath\" alt='$achNameAttr' title='$achNameAttr' class='badgeimg' />" .
+            "<img loading='lazy' width='32' height='32' src=\"" . media_asset($smallBadgePath) . "\" alt='$achNameAttr' title='$achNameAttr' class='badgeimg' />" .
             "<div class='ticket-displayable-block'>Ticket #$ticket->ticketId</div>" .
         "</a>";
 }

@@ -6,31 +6,31 @@ use RA\ImageType;
 
 function UploadToS3(string $filenameSrc, string $filenameDest): void
 {
-    if (!getenv('AWS_ACCESS_KEY_ID')) {
+    if (!env('AWS_ACCESS_KEY_ID')) {
         // nothing to do here
         return;
     }
 
     // allow using minio locally
-    $usingMinio = !empty(env('FORWARD_MINIO_PORT')) && str_contains(env('ASSET_URL'), env('FORWARD_MINIO_PORT'));
+    $usingMinio = !empty(env('FORWARD_MINIO_PORT')) && str_contains(env('MEDIA_URL'), env('FORWARD_MINIO_PORT'));
     if (app()->environment('local') && !$usingMinio) {
         return;
     }
 
     $options = [
         'version' => 'latest',
-        'region' => getenv('AWS_DEFAULT_REGION'),
+        'region' => env('AWS_DEFAULT_REGION'),
     ];
 
     if ($usingMinio) {
-        $options['endpoint'] = getenv('AWS_ENDPOINT');
+        $options['endpoint'] = env('AWS_ENDPOINT');
         $options['use_path_style_endpoint'] = true;
     }
 
     $client = new S3Client($options);
 
     $client->putObject([
-        'Bucket' => getenv('AWS_BUCKET'),
+        'Bucket' => env('AWS_BUCKET'),
         // no leading slashes as it would be treated as a different folder
         'Key' => ltrim($filenameDest, '/'),
         'Body' => fopen($filenameSrc, 'r+'),

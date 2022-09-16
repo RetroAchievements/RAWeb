@@ -32,14 +32,14 @@ function RenderTwitchTVStream($vidWidth = 300, $vidHeight = 260, $componentPos =
             allowfullscreen="true">
         </iframe>';
     } else {
-        $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . getenv('TWITCH_CHANNEL') . '&muted=false" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+        $videoHTML = '<iframe src="//player.twitch.tv/?channel=' . config('services.twitch.channel') . '&muted=false" height="168" width="300" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
     }
 
     echo "<div class='streamvid'>";
     echo $videoHTML;
     echo "</div>";
 
-    echo "<a class='btn btn-link' href='//www.twitch.tv/" . getenv('TWITCH_CHANNEL') . "' class='trk'>see us on twitch.tv</a>";
+    echo "<a class='btn btn-link' href='//www.twitch.tv/" . config('services.twitch.channel') . "' class='trk'>see us on twitch.tv</a>";
 
     if ($componentPos == 'left') {
         echo "<br /><br />";
