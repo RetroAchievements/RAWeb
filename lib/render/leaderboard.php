@@ -70,7 +70,7 @@ function RenderGameLeaderboardsComponent($lbData): void
             // Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($bestScoreUser, true);
+            echo GetUserAndTooltipDiv($bestScoreUser, true, iconSizeDisplayable: 16);
             echo GetUserAndTooltipDiv($bestScoreUser);
             echo "</td>";
             echo "<td>";
@@ -286,16 +286,16 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
             echo "<tr>";
         }
 
-        echo "<td class='rank'>";
+        echo "<td>";
         echo $nextRank;
         echo "</td>";
 
-        echo "<td class='user'>";
-        echo GetUserAndTooltipDiv($nextUser, true);
-        echo GetUserAndTooltipDiv($nextUser, false);
+        echo "<td style='word-break: break-word'>";
+        echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
+        echo GetUserAndTooltipDiv($nextUser);
         echo "</td>";
 
-        echo "<td class='lastaward'>";
+        echo "<td>";
         echo $nextLastAward;
         echo "</td>";
 
@@ -325,16 +325,16 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
             echo "<tr>";
         }
 
-        echo "<td class='rank'>";
+        echo "<td>";
         echo $i + 1;
         echo "</td>";
 
-        echo "<td class='user'>";
-        echo GetUserAndTooltipDiv($nextUser, true);
-        echo GetUserAndTooltipDiv($nextUser, false);
+        echo "<td>";
+        echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
+        echo GetUserAndTooltipDiv($nextUser);
         echo "</td>";
 
-        echo "<td class='points'>";
+        echo "<td>";
         echo "<span class='cursor-help' title='Latest awarded at $nextLastAward'>$nextPoints</span>";
         echo "</td>";
 
