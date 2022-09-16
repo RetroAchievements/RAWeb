@@ -1232,7 +1232,10 @@ sanitize_outputs(
                             );
                             echo " <span class='TrueRatio'>($achTrueRatio)</span>";
                             echo "</div>";
-                            echo "<div>$achDesc</div>";
+                            echo "<div class='mb-2'>$achDesc</div>";
+                            if ($achieved) {
+                                echo "<div class='date smalltext'>Unlocked $dateAch</div>";
+                            }
                             echo "</div>";
 
                             echo "<div class='flex flex-col items-start md:items-center my-2'>";
@@ -1249,10 +1252,6 @@ sanitize_outputs(
                             }
                             echo "</div>";
                             echo "</div>";
-
-                            if ($achieved) {
-                                echo "<div class='date smalltext'>unlocked on<br>$dateAch<br></div>";
-                            }
 
                             echo "</div>";
 
