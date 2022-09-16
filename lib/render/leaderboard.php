@@ -290,7 +290,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo $nextRank;
         echo "</td>";
 
-        echo "<td style='word-break: break-word'>";
+        echo "<td>";
         echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
         echo GetUserAndTooltipDiv($nextUser);
         echo "</td>";
