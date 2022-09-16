@@ -108,6 +108,8 @@ class RouteServiceProvider extends ServiceProvider
             throw new NotFoundHttpException();
         }
 
+        $this->runInterceptor($path);
+
         $response = include_once $scriptPath;
 
         if ($response instanceof Response) {
@@ -127,5 +129,15 @@ class RouteServiceProvider extends ServiceProvider
         }
 
         return response($response, headers: ['Content-Type' => 'application/json']);
+    }
+
+    private function runInterceptor(string $path)
+    {
+        if (env('INTERCEPTOR_CONNECT') && $path === 'dorequest') {
+            require_once env('INTERCEPTOR_CONNECT');
+        }
+        elseif (env('INTERCEPTOR_WEB')) {
+            require_once env('INTERCEPTOR_WEB');
+        }
     }
 }
