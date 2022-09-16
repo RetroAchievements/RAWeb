@@ -927,7 +927,9 @@ sanitize_outputs(
                 }
 
                 if (isset($user)) {
+                    echo "<div class='float-right'>";
                     RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
+                    echo "</div>";
                 }
 
                 if ($numAchievements > 0) {
@@ -937,9 +939,7 @@ sanitize_outputs(
                     foreach ($authorInfo as $author => $achievementCount) {
                         echo GetUserAndTooltipDiv($author, false);
                         echo " (" . $achievementCount . ")";
-                        if (++$i === $numItems) {
-                            echo '.';
-                        } else {
+                        if (++$i !== $numItems) {
                             echo ', ';
                         }
                     }
@@ -961,7 +961,7 @@ sanitize_outputs(
                 }
 
                 $renderRatingControl = function ($label, $containername, $labelname, $ratingData) use ($minimumNumberOfRatingsToDisplay) {
-                    echo "<div style='float: right; margin-left: 20px'>";
+                    echo "<div>";
 
                     echo "<h4>$label</h4>";
 
@@ -1041,15 +1041,6 @@ sanitize_outputs(
                         echo "</form>";
                         echo "</div></div>";
                     }
-
-                    echo "</div>";
-                    echo "<br>";
-                    echo "<div>";
-                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
-                } else {
-                    echo "</div>";
-                    echo "<br><br>";
-                    echo "<div>";
                 }
 
                 echo "<div class='lg:flex justify-between gap-5 mb-3'>";
@@ -1085,6 +1076,11 @@ sanitize_outputs(
                     echo "<div class='userRequestsLabel'></div>";
                     echo "</div>";
                 }
+
+                if ($user !== null && $numAchievements > 0) {
+                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
+                }
+
                 echo "</div>";
 
                 /*
@@ -1180,9 +1176,10 @@ sanitize_outputs(
 
                             echo "<tr>";
                             echo "<td>";
-                            echo "<div>";
 
-                            echo "<div class='float-left mr-2'>";
+                            echo "<div class='flex justify-between gap-3 items-start'>";
+
+                            echo "<div>";
                             echo GetAchievementAndTooltipDiv(
                                 $achID,
                                 $achTitle,
@@ -1198,10 +1195,10 @@ sanitize_outputs(
                             );
                             echo "</div>";
 
+                            echo "<div class='md:flex justify-between items-start gap-3 grow'>";
                             $pctAwardedCasual = 0;
                             $pctAwardedHardcore = 0;
                             $pctComplete = 0;
-
                             if ($numDistinctPlayersCasual) {
                                 $pctAwardedCasual = $wonBy / $numDistinctPlayersCasual;
                                 $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayersCasual;
@@ -1218,21 +1215,8 @@ sanitize_outputs(
                                     (($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual)
                                 );
                             }
-
-                            echo "<div class='progressbar allusers'>";
-                            echo "<div class='completion allusers' style='width:$pctAwardedCasual%'>";
-                            echo "<div class='completionhardcore allusers' style='width:$pctAwardedHardcore%'>";
-                            echo "&nbsp;";
-                            echo "</div>";
-                            echo "</div>";
-                            if ($wonByHardcore > 0) {
-                                echo "won by $wonBy <strong alt='HARDCORE'>($wonByHardcore)</strong> of $numDistinctPlayersCasual ($pctAwardedCasual%)<br>";
-                            } else {
-                                echo "won by $wonBy of $numDistinctPlayersCasual ($pctAwardedCasual%)<br>";
-                            }
-                            echo "</div>"; // progressbar
-
                             echo "<div class='achievementdata'>";
+                            echo "<div class='mb-1 lg:mt-1'>";
                             echo GetAchievementAndTooltipDiv(
                                 $achID,
                                 $achTitle,
@@ -1247,14 +1231,32 @@ sanitize_outputs(
                                 $imgClass
                             );
                             echo " <span class='TrueRatio'>($achTrueRatio)</span>";
-                            echo "<br>";
-                            echo "$achDesc<br>";
+                            echo "</div>";
+                            echo "<div>$achDesc</div>";
+                            echo "</div>";
+
+                            echo "<div class='flex flex-col items-start md:items-center my-2'>";
+                            echo "<div class='progressbar global'>";
+                            echo "<div class='completion' style='width:$pctAwardedCasual%'>";
+                            echo "<div class='completion-hardcore' style='width:$pctAwardedHardcore%'></div>";
+                            echo "</div>";
+                            echo "</div>";
+                            echo "<div class='progressbar-label md:text-center'>";
+                            if ($wonByHardcore > 0) {
+                                echo "$wonBy <strong>($wonByHardcore)</strong> of $numDistinctPlayersCasual<br/>($pctAwardedCasual%) players";
+                            } else {
+                                echo "$wonBy of $numDistinctPlayersCasual<br>($pctAwardedCasual%) players";
+                            }
+                            echo "</div>";
                             echo "</div>";
 
                             if ($achieved) {
                                 echo "<div class='date smalltext'>unlocked on<br>$dateAch<br></div>";
                             }
-                            echo "</div>"; // achievemententry
+
+                            echo "</div>";
+
+                            echo "</div>";
                             echo "</td>";
                             echo "</tr>";
                         }
@@ -1265,12 +1267,13 @@ sanitize_outputs(
 
             if (!$isFullyFeaturedGame) {
                 if (!empty($relatedGames)) {
-                    RenderGameAlts($relatedGames, null);
+                    RenderGameAlts($relatedGames);
                 }
             }
 
+            echo "<div class='my-5'>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            echo "<br>";
+            echo "</div>";
 
             if ($isFullyFeaturedGame) {
                 $recentPlayerData = getGameRecentPlayers($gameID, 10);

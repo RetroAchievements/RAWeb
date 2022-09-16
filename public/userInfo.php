@@ -498,15 +498,13 @@ RenderContentStart($userPage);
                 settype($numAchievedHardcore, "integer");
                 settype($scoreEarnedHardcore, "integer");
 
-                echo "<div class='mb-5'>";
+                echo "<div class='md:flex justify-between mb-3'>";
 
-                RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore);
-
+                echo "<div>";
                 echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br>";
                 echo "Last played $gameLastPlayed<br>";
-
                 if ($numPossibleAchievements) {
-                    echo "Earned $numAchieved of $numPossibleAchievements achievements, ";
+                    echo "$numAchieved of $numPossibleAchievements achievements, ";
                     if ($scoreEarnedHardcore) {
                         echo "$scoreEarnedHardcore/$maxPossibleScore points";
                         if ($scoreEarned > $scoreEarnedHardcore) {
@@ -518,9 +516,13 @@ RenderContentStart($userPage);
                     } else {
                         echo "0/$maxPossibleScore points";
                     }
-                    echo ".<br/>";
                 }
+                echo "</div>";
 
+                RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore);
+                echo "</div>";
+
+                echo "<div class='mb-5'>";
                 if (isset($userMassData['RecentAchievements'][$gameID])) {
                     foreach ($userMassData['RecentAchievements'][$gameID] as $achID => $achData) {
                         $badgeName = $achData['BadgeName'];

@@ -1,11 +1,15 @@
 .progressbar {
+  position: relative;
   height: 6px;
   width: 124px;
+  background-color: var(--embed-color);
+  border: 1px solid var(--embed-highlight-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressbar-label {
   font-size: 0.9em;
-  background-color: rgb(32, 32, 32);
-  border: 0 solid rgb(12, 12, 12);
-  float: right;
-  text-align: center;
 }
 
 .completion {
@@ -14,34 +18,29 @@
   background-color: rgb(11, 113, 193);
 }
 
-.completionhardcore {
+.completion-hardcore {
   height: 6px;
   width: inherit;
   background-color: rgb(204, 153, 0);
   border-top: 0 solid;
 }
 
-.progressbar.allusers {
-  height: 4px;
+.progressbar.player {
+  width: 104px;
+}
+
+.progressbar.global {
   width: 160px;
   font-size: smaller;
   line-height: 1.2em;
-  float: right;
-  margin-right: 6px;
-  margin-top: 3em;
 }
 
-.completion.allusers {
-  height: 4px;
+.progressbar.global .completion {
   width: inherit;
   background-color: rgb(11, 113, 193);
 }
 
-.completionhardcore.allusers {
+.progressbar.global .completion-hardcore {
   height: 4px;
   width: inherit;
-}
-
-.progressbar.completedgames {
-  width: 104px;
 }

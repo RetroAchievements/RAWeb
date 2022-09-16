@@ -142,7 +142,6 @@ function RenderCompletedGamesList($userCompletedGamesList): void
     echo "<div id='usercompletedgamescomponent'>";
 
     echo "<table><tbody>";
-    echo "<tr><th colspan='2'>Game</th><th>Completion</th></tr>";
 
     $numItems = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
     for ($i = 0; $i < $numItems; $i++) {
@@ -197,13 +196,13 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "<td class=''>$textWithTooltip</td>";
         echo "<td class='progress'>";
 
-        echo "<div class='progressbar completedgames'>";
+        echo "<div class='progressbar player'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
-        echo "<div class='completionhardcore' style='width:$pctAwardedHCProportional%' title='Hardcore earned: $nextNumAwardedHC/$nextMaxPossible'>";
-        echo "&nbsp;";
+        echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
         echo "</div>";
         echo "</div>";
-        echo "$nextTotalAwarded/$nextMaxPossible won<br>";
+        echo "<div class='progressbar-label lg:text-center'>";
+        echo "$nextTotalAwarded of $nextMaxPossible";
         echo "</div>";
 
         echo "</td>";

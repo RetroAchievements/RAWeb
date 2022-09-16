@@ -274,22 +274,22 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
         $pctHardcoreProportion = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
 
         if ($numEarnedCasual && $numEarnedHardcore) {
-            $title = " title='$pctHardcore% hardcore'";
+            $title = "$pctHardcore% hardcore";
         }
     }
 
+    echo "<div class='flex flex-col items-start md:items-center my-2'>";
     echo "<div class='progressbar'>";
-    echo "<div class='completion' style='width:$pctComplete%'$title>";
-    echo "<div class='completionhardcore' style='width:$pctHardcoreProportion%'>";
-    echo "&nbsp;";
-    echo "</div>"; // completionhardcore
-    echo "</div>"; // completion
-
+    echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
+    echo "<div class='completion-hardcore' style='width:$pctHardcoreProportion%'></div>";
+    echo "</div>";
+    echo "</div>";
+    echo "<div class='progressbar-label md:text-center'>";
     if ($pctHardcore >= 100.0) {
-        echo "Mastered<br>";
+        echo "Mastered";
     } else {
-        echo "$pctComplete% complete<br>";
+        echo "$pctComplete% complete";
     }
-
-    echo "</div>"; // progressbar
+    echo "</div>";
+    echo "</div>";
 }
