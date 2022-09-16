@@ -11,7 +11,7 @@ $input = Validator::validate(request()->post(), [
     'user' => 'sometimes|string|exists:mysql_legacy.UserAccounts,User',
 ]);
 
-$targetUser = $input['user'];
+$targetUser = $input['user'] ?? null;
 
 if ($targetUser && $targetUser !== $actingUser && $permissions < Permissions::Admin) {
     return back()->withErrors(__('legacy.error.permissions'));
