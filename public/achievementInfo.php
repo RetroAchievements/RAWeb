@@ -146,6 +146,24 @@ RenderContentStart($achievementTitleRaw);
     }
     </script>
 <?php endif ?>
+
+<?php if ($achievedLocal): ?>
+    <script>
+    function ResetProgress() {
+        if (confirm('Are you sure you want to reset this progress?')) {
+            showStatusMessage('Updating...');
+
+            $.post('/request/user/reset-achievements.php', {
+                achievement: <?= $achievementID ?>
+            })
+                .done(function () {
+                    location.reload();
+                });
+        }
+    }
+    </script>
+<?php endif ?>
+
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
@@ -231,11 +249,7 @@ RenderContentStart($achievementTitleRaw);
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
             echo "<div id='resetboxcontent' style='display: none'>";
-            echo "<form action='/request/user/reset-achievements.php' method='post' onsubmit='return confirm(\"Are you sure you want to reset this progress?\")'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='a' value='$achievementID'>";
-            echo "<input type='submit' value='Reset this achievement'>";
-            echo "</form>";
+            echo "<button class='btn btn-danger' type='button' onclick='ResetProgress()'>Reset this achievement</button>";
             echo "</div></div>";
         }
         echo "<br>";
