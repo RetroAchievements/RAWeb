@@ -49,7 +49,7 @@ function _GetUserAndTooltipDiv(
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
     $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
-    $tooltip = "<div id='objtooltip'>";
+    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px;'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
     $tooltip .= "<td><img width='128' height='128' src='/UserPic/" . $userSanitized . ".png'/>";
@@ -74,15 +74,15 @@ function _GetUserAndTooltipDiv(
     // Add the user points if there are any
     $tooltip .= "<tr>";
     if ($userHardcorePoints > $userSoftcorePoints) {
-        $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</td>";
         $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Hardcore);
         $userRankLabel = 'Site Rank';
     } elseif ($userSoftcorePoints > 0) {
-        $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
         $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Softcore);
         $userRankLabel = 'Softcore Rank';
     } else {
-        $tooltip .= "<td  colspan='2' class='usercardbasictext'><b>Points:</b> 0</td>";
+        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Points:</b> 0</td>";
         $userRank = 0;
         $userRankLabel = 'Site Rank';
     }

@@ -12,3 +12,7 @@
   text-align: right;
   text-decoration: underline;
 }
+
+.usercardbasictext {
+  white-space: nowrap;
+}
