@@ -592,6 +592,19 @@ sanitize_outputs(
         message += 'Are you sure you want to complete the claim for ' + gameTitle + '?';
         return confirm(message);
     }
+
+    function ResetProgress() {
+        if (confirm('Are you sure you want to reset this progress?')) {
+            showStatusMessage('Updating...');
+
+            $.post('/request/user/reset-achievements.php', {
+                game: <?= $gameID ?>
+            })
+                .done(function () {
+                    location.reload();
+                });
+        }
+    }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -1034,11 +1047,7 @@ sanitize_outputs(
                         echo "<div class='devbox'>";
                         echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
                         echo "<div id='resetboxcontent' style='display: none'>";
-                        echo "<form action='/request/user/reset-achievements.php' method='post' onsubmit='return confirm(\"Are you sure you want to reset this progress?\")'>";
-                        echo csrf_field();
-                        echo "<input type='hidden' name='g' value='$gameID'>";
-                        echo "<input type='submit' value='Reset your progress for this game'>";
-                        echo "</form>";
+                        echo "<button class='btn btn-danger' type='button' onclick='ResetProgress()'>Reset your progress for this game</button>";
                         echo "</div></div>";
                     }
                 }
