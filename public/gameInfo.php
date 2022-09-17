@@ -755,7 +755,7 @@ sanitize_outputs(
                             echo "<div>Forum Topic Needed for Claim</div>";
                         } elseif ($hasGameClaimed) {
                             if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080) {
-                                echo "<form action='/request/set-claim/drop-claim.php' method='post' onsubmit='return extendClaim(\"$escapedGameTitle\")'>";
+                                echo "<form action='/request/set-claim/extend-claim.php' method='post' onsubmit='return extendClaim(\"$escapedGameTitle\")'>";
                                 echo csrf_field();
                                 echo "<input type='hidden' name='game' value='$gameID'>";
                                 echo "<button>Extend Claim</button>";
