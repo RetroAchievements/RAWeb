@@ -45,12 +45,12 @@ class Kernel extends HttpKernel
         'api' => [
             \App\Api\Middleware\AccessControlAllowOriginWildcard::class,
             'json',
-            'throttle:api',
+            // 'throttle:api',
         ],
 
         'connect' => [
             'json',
-            'throttle:connect',
+            // 'throttle:connect',
         ],
     ];
 
