@@ -296,5 +296,5 @@ function UploadNewsImage(string $base64ImageData): string
 
     UploadToS3(storage_path('app/media/' . $imagePath), $imagePath);
 
-    return $imagePath;
+    return media_asset($imagePath);
 }
