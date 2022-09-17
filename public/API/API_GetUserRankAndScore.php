@@ -15,7 +15,7 @@ $user = request()->query('u');
 $points = 0;
 $softcorePoints = 0;
 if (getPlayerPoints($user, $playerPoints)) {
-    $score = $playerPoints['RAPoints'];
+    $points = $playerPoints['RAPoints'];
     $softcorePoints = $playerPoints['RASoftcorePoints'];
 }
 
