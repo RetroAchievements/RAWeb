@@ -112,7 +112,7 @@ function UploadImage() {
         $.post('/request/news/update-image.php', { image: reader.result },
             function (data) {
                 $('#loadingicon').fadeTo(100, 0.0);
-                var image = asset(data.filename);
+                var image = data.filename;
                 $('#image').val(image);
                 $('#imagePreview img').attr('src', image);
                 $('#imagePreview').show();
