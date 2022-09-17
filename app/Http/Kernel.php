@@ -38,7 +38,8 @@ class Kernel extends HttpKernel
             \App\Site\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Site\Middleware\UserPreferences::class,
-            'throttle:web',
+            // TODO find out why throttling hits after first request on production
+            // 'throttle:web',
         ],
 
         'api' => [
