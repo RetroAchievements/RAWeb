@@ -269,8 +269,8 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
             $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
         }
 
-        $pctComplete = sprintf("%01.0f", $pctAwardedCasual * 100.0);
-        $pctHardcore = sprintf("%01.0f", $pctAwardedHardcore * 100.0);
+        $pctComplete = sprintf("%01.0f", floor($pctAwardedCasual * 100.0));
+        $pctHardcore = sprintf("%01.0f", floor($pctAwardedHardcore * 100.0));
         $pctHardcoreProportion = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
 
         if ($numEarnedCasual && $numEarnedHardcore) {
