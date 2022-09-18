@@ -114,63 +114,21 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
-function GetAchievementAndTooltipDiv(
-  achID,
-  achName,
-  achDesc,
-  achPoints,
-  gameName,
-  badgeName,
-  inclSmallBadge,
-  smallBadgeOnly
-) {
+function GetTooltipDiv(icon, header, body) {
   var tooltipImageSize = 64;
-  var tooltip = '<div id=\'objtooltip\'>'
-    + '<img src=\'' + mediaAsset(`Badge/${badgeName}.png`) + '\' width=' + tooltipImageSize + ' height='
-    + tooltipImageSize + ' />'
-    + '<b>' + achName + ' (' + achPoints.toString() + ')</b><br>'
-    + '<i>(' + gameName + ')</i><br>'
-    + '<br>'
-    + achDesc + '<br>'
-    + '</div>';
+  var tooltip = '<div id=\'objtooltip\' class=\'flex items-start\' style=\'max-width: 400px;\'>'
+    + '<img style=\'margin-right:5px\' src=\'' + icon + '\' width=\'' + tooltipImageSize + '\' height=\'' + tooltipImageSize + '\' />'
+    + '<div><b>' + header + '</b><br><span style=\'white-space: nowrap\'>' + body + '</span></div></div>';
   tooltip = replaceAll('<', '&lt;', tooltip);
   tooltip = replaceAll('>', '&gt;', tooltip);
   tooltip = replaceAll('\'', '\\\'', tooltip);
   tooltip = replaceAll('"', '&quot;', tooltip);
-  var smallBadge = '';
-  var displayable = achName + ' (' + achPoints.toString() + ')';
-  if (inclSmallBadge) {
-    var smallBadgePath = mediaAsset(`Badge/${badgeName}.png`);
-    smallBadge = '<img width=\'32\' height=\'32\' style=\'floatimg\' src=\''
-      + smallBadgePath + '\' alt="' + achName + '" title="' + achName
-      + '" class=\'badgeimg\' />';
-    if (smallBadgeOnly) {
-      displayable = '';
-    }
-  }
-
-  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
-    + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/achievement/' + achID + '\'>'
-    + smallBadge
-    + displayable
-    + '</a>'
-    + '</div>';
+  return tooltip;
 }
 
 function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageInstead) {
-  var tooltipImageSize = 64;
   var consoleStr = '(' + consoleName + ')';
-  var tooltip = '<div id=\'objtooltip\'>'
-    + '<img src=\'' + gameIcon + '\' width=\'' + tooltipImageSize
-    + '\' height=\'' + tooltipImageSize + '\' />'
-    + '<b>' + gameTitle + '</b><br>'
-    + consoleStr
-    + '</div>';
-  tooltip = replaceAll('<', '&lt;', tooltip);
-  tooltip = replaceAll('>', '&gt;', tooltip);
-  tooltip = replaceAll('\'', '\\\'', tooltip);
-  tooltip = replaceAll('"', '&quot;', tooltip);
+  var tooltip = GetTooltipDiv(gameIcon, gameTitle, consoleStr);
   var displayable = gameTitle + ' ' + consoleStr;
   if (imageInstead) {
     displayable = '<img alt="started playing ' + gameTitle
@@ -185,37 +143,16 @@ function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageIns
     + '</div>';
 }
 
-function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
-  var tooltipImageSize = 128;
-  var tooltip = '<div id=\'objtooltip\'>';
-  tooltip += '<table><tbody>';
-  tooltip += '<tr>';
-  // Image
-  tooltip += '<td><img src=\'/UserPic/' + user
-    + '.png\' width=\'' + tooltipImageSize + '\' height=\'' + tooltipImageSize
-    + '\' /></td>';
-  // Username (points)
-  tooltip += '<td>';
-  tooltip += '<b>' + user + '</b>';
-  if (points !== null) {
-    tooltip += '&nbsp;(' + points.toString() + ')';
+function GetUserAndTooltipDiv(user, hardcorePoints, softcorePoints, imageInstead, extraText) {
+  if (hardcorePoints > softcorePoints) {
+    points = 'Points: ' + hardcorePoints;
+  } else if (softcorePoints > 0) {
+    points = 'Softcore Points: ' + softcorePoints;
+  } else {
+    points = 'Points: 0';
   }
-  // Motto
-  if (motto && motto.length > 2) {
-    tooltip += '<br><span class=\'usermotto\'>' + motto + '</span>';
-  }
-  if (extraText.length > 0) {
-    tooltip += extraText;
-  }
-  tooltip += '</td>';
-  tooltip += '</tr>';
-  tooltip += '</tbody></table>';
-  tooltip += '</div>';
-  // tooltip = escapeHtml( tooltip );
-  tooltip = replaceAll('<', '&lt;', tooltip);
-  tooltip = replaceAll('>', '&gt;', tooltip);
-  tooltip = replaceAll('\'', '\\\'', tooltip); // &#039;
-  tooltip = replaceAll('"', '&quot;', tooltip);
+
+  var tooltip = GetTooltipDiv('/UserPic/' + user + '.png', user, points);
   var displayable = user;
   if (imageInstead) {
     displayable = '<img src=\'/UserPic/' + user
@@ -225,35 +162,6 @@ function GetUserAndTooltipDiv(user, points, motto, imageInstead, extraText) {
   return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
     + '\')" onmouseout="UnTip()" >'
     + '<a href=\'/user/' + user + '\'>'
-    + displayable
-    + '</a>'
-    + '</div>';
-}
-
-function GetLeaderboardAndTooltipDiv(
-  lbID,
-  lbName,
-  lbDesc,
-  gameName,
-  gameIcon,
-  displayable
-) {
-  var tooltipImageSize = 64;
-  var tooltip = '<div id=\'objtooltip\'>'
-    + '<img src=\'' + gameIcon + '\' width=\'' + tooltipImageSize
-    + '\' height=\'' + tooltipImageSize + '\' />'
-    + '<b>' + lbName + '</b><br>'
-    + '<i>(' + gameName + ')</i><br>'
-    + '<br>'
-    + lbDesc + '<br>'
-    + '</div>';
-  tooltip = replaceAll('<', '&lt;', tooltip);
-  tooltip = replaceAll('>', '&gt;', tooltip);
-  tooltip = replaceAll('\'', '\\\'', tooltip);
-  tooltip = replaceAll('"', '&quot;', tooltip);
-  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
-    + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/leaderboardinfo.php?i=' + lbID + '\'>'
     + displayable
     + '</a>'
     + '</div>';
@@ -404,42 +312,6 @@ function showStatusFailure(message) {
 
 function hideStatusMessage() {
   $('#status').hide();
-}
-
-function refreshOnlinePlayers() {
-  $.post('/request/user/list-currently-online.php')
-    .done(function (data) {
-      var playerList = data;
-      var numPlayersOnline = playerList.length;
-
-      var htmlOut = '<div>There are currently <strong>' + numPlayersOnline
-        + '</strong> players online:</div>';
-
-      for (var i = 0; i < numPlayersOnline; i += 1) {
-        var player = playerList[i];
-
-        if (i > 0 && i === numPlayersOnline - 1) {
-          // last but one:
-          htmlOut += ' and ';
-        } else if (i > 0) {
-          htmlOut += ', ';
-        }
-
-        var extraText = '<br>' + player.LastActivityAt + ': ' + player.User + ' '
-          + player.LastActivity;
-        htmlOut += GetUserAndTooltipDiv(player.User, player.RAPoints, player.Motto, false, extraText);
-      }
-
-      var d = new Date();
-
-      $('#playersonlinebox').html(htmlOut);
-      $('#playersonlinebox').fadeTo('fast', 1.0);
-      $('#playersonline-update').html('Last updated at ' + d.toLocaleTimeString());
-      $('#playersonline-update').fadeTo('fast', 0.5);
-    });
-
-  $('#playersonlinebox').fadeTo('fast', 0.0);
-  $('#playersonline-update').fadeTo('fast', 0.0);
 }
 
 function tabClick(evt, tabName, type) {

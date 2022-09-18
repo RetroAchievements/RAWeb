@@ -78,7 +78,7 @@ var ActivePlayersViewModel = function () {
       gameTitle: ko.observable(player.GameTitle),
       consoleName: ko.observable(player.ConsoleName),
       richPresence: ko.observable(player.RichPresenceMsg),
-      playerHtml: ko.observable(GetUserAndTooltipDiv(player.User, player.RAPoints, player.Motto, true, '')),
+      playerHtml: ko.observable(GetUserAndTooltipDiv(player.User, player.RAPoints, player.RASoftcorePoints, true, '')),
       gameHtml: ko.observable(GetGameAndTooltipDiv(player.GameID, player.GameTitle, player.GameIcon, player.ConsoleName, true))
     };
   };

@@ -542,7 +542,7 @@ function getCurrentlyOnlinePlayers(): array
     $playersFound = [];
 
     // Select all users active in the last 10 minutes:
-    $query = "SELECT ua.User, ua.RAPoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity, act.data as GameID
+    $query = "SELECT ua.User, ua.RAPoints, ua.RASoftcorePoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity, act.data as GameID
               FROM UserAccounts AS ua
               LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
               WHERE ua.LastLogin > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
@@ -569,7 +569,8 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $query = "SELECT ua.User, ua.RAPoints, ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
+    $query = "SELECT ua.User, ua.RAPoints, ua.RASoftcorePoints, ua.RichPresenceMsg,
+                     gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
@@ -583,6 +584,7 @@ function getLatestRichPresenceUpdates(): array
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             settype($db_entry['GameID'], 'integer');
             settype($db_entry['RAPoints'], 'integer');
+            settype($db_entry['RASoftcorePoints'], 'integer');
             $playersFound[] = $db_entry;
         }
     } else {
