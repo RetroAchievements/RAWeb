@@ -139,11 +139,12 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
     $submitImageUrl = asset('assets/images/icon/submit.png');
     $loadingImageUrl = asset('assets/images/icon/loading.gif');
     $csrfField = csrf_field();
+    $avatar = media_asset("/UserPic/$user.png");
 
     echo <<<EOL
         <tr id="comment_$commentId">
             <td class="iconscommentsingle">
-                <img alt="$user" title="$user" class="badgeimg" src="/UserPic/$user.png" width="32" height="32">
+                <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
             </td>
             <td colspan="3">
                 <form action="/request/comment/create.php" method="post">

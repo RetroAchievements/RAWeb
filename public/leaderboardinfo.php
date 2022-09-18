@@ -48,7 +48,7 @@ $numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20,
 RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
-    "$gameIcon",
+    media_asset($gameIcon),
     "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
 );
 RenderContentStart('Leaderboard');

@@ -27,7 +27,7 @@ function RenderOpenGraphMetadata($title, $OGType, $imageURL, $description): void
     if ($OGType) {
         view()->share('pageType', 'retroachievements:' . $OGType);
     }
-    view()->share('pageImage', media_asset($imageURL));
+    view()->share('pageImage', $imageURL);
 }
 
 function RenderToolbar(): void

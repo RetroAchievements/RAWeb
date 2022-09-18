@@ -2,8 +2,6 @@
 
 use RA\Permissions;
 
-$site = config('app.url');
-
 $dom = new DOMDocument('1.0', 'UTF-8');
 
 $xmlRoot = $dom->createElement("rss");
@@ -35,7 +33,7 @@ for ($i = 0; $i < $numPostsFound; $i++) {
     $article = $xmlRoot->appendChild($article);
 
     $user = $nextData['Author'];
-    $userPicURL = "$site/UserPic/$user" . ".png";
+    $userPicURL = media_asset('UserPic/' . $user . '.png');
     $date = date("D, d M Y H:i:s O", strtotime($nextData['PostedAt']));
     $link = config('app.url') . '/viewtopic.php?t=' . $nextData['ForumTopicID']; // . '&amp;c=' . $nextData['CommentID'];
 

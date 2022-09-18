@@ -152,11 +152,10 @@ function GetUserAndTooltipDiv(user, hardcorePoints, softcorePoints, imageInstead
     points = 'Points: 0';
   }
 
-  var tooltip = GetTooltipDiv('/UserPic/' + user + '.png', user, points);
+  var tooltip = GetTooltipDiv(mediaAsset('/UserPic/' + user + '.png'), user, points);
   var displayable = user;
   if (imageInstead) {
-    displayable = '<img src=\'/UserPic/' + user
-      + '.png\' width=\'32\' height=\'32\' alt=\'' + user + '\' title=\'' + user
+    displayable = '<img src=\'' + mediaAsset('/UserPic/' + user + '.png') + '\' width=\'32\' height=\'32\' alt=\'' + user + '\' title=\'' + user
       + '\' class=\'badgeimg\' loading=\'lazy\' />';
   }
   return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
@@ -250,14 +249,14 @@ jQuery(document).ready(function onReady($) {
     select: function (event, ui) {
       var TABKEY = 9;
       if (event.keyCode === TABKEY) {
-        $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
+        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.id + '.png'));
       }
       return false;
     },
   });
   $searchUser.on('autocompleteselect', function (event, ui) {
     $searchUser.val(ui.item.id);
-    $('.searchusericon').attr('src', '/UserPic/' + ui.item.id + '.png');
+    $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.id + '.png'));
     return false;
   });
 });

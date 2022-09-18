@@ -131,7 +131,7 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
 RenderOpenGraphMetadata(
     $userPage,
     "user",
-    "/UserPic/$userPage" . ".png",
+    media_asset('/UserPic/' . $userPage . '.png'),
     "$userPage Profile"
 );
 RenderContentStart($userPage);
@@ -206,7 +206,7 @@ RenderContentStart($userPage);
 
         echo "<div class='usersummary'>";
         echo "<h3>$userPage</h3>";
-        echo "<img src='/UserPic/$userPage.png' alt='$userPage' align='right' width='128' height='128'>";
+        echo "<img src='" . media_asset("/UserPic/$userPage.png") . "' alt='$userPage' align='right' width='128' height='128'>";
 
         if (isset($userMotto) && mb_strlen($userMotto) > 1) {
             echo "<div class='mottocontainer'>";

@@ -83,7 +83,7 @@ function UploadNewAvatar() {
 
                 var result = $.parseJSON(data);
                 var d = new Date();
-                $('.userpic').attr('src', '/UserPic/<?= $user ?>' + '.png?' + d.getTime());
+                $('.userpic').attr('src', '<?= media_asset('/UserPic/' . $user . '.png')  ?>' + '?' + d.getTime());
             });
     };
     reader.readAsDataURL(file);

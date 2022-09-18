@@ -49,7 +49,7 @@ test
 
 [b]Embeds in spoiler[/b]
 
-[img=https://retroachievements.org/Images/043749.png]
+[img=https://media.retroachievements.org/Images/043749.png]
 
 https://www.youtube.com/watch?v=r1BVvs_sxrw
 https://youtu.be/dMH0bHeiRNg
@@ -116,8 +116,8 @@ https://retroachievements.org/user/{$username}
 [b][i]Images[/i][/b]
 
 [img=]
-https://retroachievements.org/Images/043749.png
-[img=https://retroachievements.org/Images/043749.png]
+https://media.retroachievements.org/Images/043749.png
+[img=https://media.retroachievements.org/Images/043749.png]
 
 [b][i]YouTube[/i][/b]
 

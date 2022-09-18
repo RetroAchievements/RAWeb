@@ -52,7 +52,7 @@ function _GetUserAndTooltipDiv(
     $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px;'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
-    $tooltip .= "<td><img width='128' height='128' src='/UserPic/" . $userSanitized . ".png'/>";
+    $tooltip .= "<td><img width='128' height='128' src='" . media_asset('/UserPic/' . $userSanitized . '.png') . "'/>";
     $tooltip .= "<td class='usercard'>";
     $tooltip .= "<table><tbody>";
     $tooltip .= "<tr>";
@@ -124,7 +124,7 @@ function _GetUserAndTooltipDiv(
 
     $displayable = $userSanitized;
     if ($imageInstead) {
-        $displayable = "<img loading='lazy' src='/UserPic/$user" . ".png' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
+        $displayable = "<img loading='lazy' src='" . media_asset('/UserPic/' . $user . '.png') . "' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
     }
 
     return "<span class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
