@@ -14,7 +14,7 @@ class RobotsMiddleware extends SpatieRobotsMiddleware
         /*
          * do not index anything when not in production
          */
-        if (app()->environment('stage', 'dev')) {
+        if (!app()->environment('production')) {
             return false;
         }
 
