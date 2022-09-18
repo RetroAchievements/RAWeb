@@ -148,7 +148,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         $nextGameID = $userCompletedGamesList[$i]['GameID'];
         $nextConsoleName = $userCompletedGamesList[$i]['ConsoleName'];
         $nextTitle = $userCompletedGamesList[$i]['Title'];
-        $nextImageIcon = $userCompletedGamesList[$i]['ImageIcon'];
+        $nextImageIcon = media_asset($userCompletedGamesList[$i]['ImageIcon']);
 
         sanitize_outputs(
             $nextConsoleName,
