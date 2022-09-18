@@ -22,10 +22,9 @@ $mostPopularCount = requestInputSanitized('p', 10, 'integer');
 
 RenderContentStart();
 ?>
-<link type='text/css' rel='stylesheet' href='/rcarousel/widget/css/rcarousel.css'/>
-<link type='text/css' rel='stylesheet' href='/rcarousel/rcarousel-ra.css'/>
-<script src="/rcarousel/widget/lib/jquery.ui.widget.min.js"></script>
-<script src="/rcarousel/widget/lib/jquery.ui.rcarousel.js"></script>
+<link type="text/css" rel="stylesheet" href="<?= asset('/vendor/rcarousel/rcarousel.css') ?>"/>
+<script src="<?= asset('/vendor/rcarousel/jquery.ui.widget.min.js') ?>"></script>
+<script src="<?= asset('/vendor/rcarousel/jquery.ui.rcarousel.min.js') ?>"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
     google.load('visualization', '1.0', { 'packages': ['corechart'] });
@@ -110,11 +109,11 @@ RenderContentStart();
                         $('#carousel').rcarousel('goToPage', event.data.page);
                         event.preventDefault();
                     },
-                ).addClass('bullet off').appendTo('#carouselpages');
+                ).addClass('bullet').appendTo('#carouselpages');
             }
 
             // mark first page as active
-            $('a:eq(0)', '#carouselpages').removeClass('off').addClass('on').css('background-image', "url(<?= asset('assets/images/icon/page-on.png') ?>)");
+            $('a:eq(0)', '#carouselpages').addClass('on');
 
             $('.newstitle').css('opacity', 0.0).delay(500).fadeTo('slow', 1.0);
             $('.newstext').css('opacity', 0.0).delay(900).fadeTo('slow', 1.0);
@@ -122,9 +121,9 @@ RenderContentStart();
         }
 
         function pageLoaded(event, data) {
-            $('a.on', '#carouselpages').removeClass('on').css('background-image', "url(<?= asset('assets/images/icon/page-off.png') ?>)");
+            $('a.on', '#carouselpages').removeClass('on');
 
-            $('a', '#carouselpages').eq(data.page).addClass('on').css('background-image', "url(<?= asset('assets/images/icon/page-on.png') ?>)");
+            $('a', '#carouselpages').eq(data.page).addClass('on');
         }
 
         function onNext() {
