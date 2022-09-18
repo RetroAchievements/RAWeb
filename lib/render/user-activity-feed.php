@@ -582,7 +582,13 @@ function RenderFeedComment($user, $comment, $submittedDate): void
 
     sanitize_outputs($comment);
 
-    echo "<td class='smalldate'>$niceDate</td><td class='iconscomment'><a href='/user/$user'><img alt='$user' title='$user' class='badgeimg' src='/UserPic/$user" . ".png' width='32' height='32' /></a></td><td colspan='3'>$comment</td>";
+    echo "<td class='smalldate'>$niceDate</td>";
+    echo "<td class='iconscomment'>";
+    echo "<a href='/user/$user'>";
+    echo "<img alt='$user' title='$user' class='badgeimg' src='" . media_asset('/UserPic/' . $user . '.png') . "' width='32' height='32'>";
+    echo "</a>";
+    echo "</td>";
+    echo "<td colspan='3'>$comment</td>";
 
     echo "</tr>";
 }

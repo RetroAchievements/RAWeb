@@ -1,7 +1,5 @@
 <?php
 
-$site = config('app.url');
-
 $dom = new DOMDocument('1.0', 'UTF-8');
 
 $xmlRoot = $dom->createElement("rss");
@@ -43,7 +41,7 @@ for ($i = 0; $i < $numArticles; $i++) {
 
     // $newsID = $nextData['ID'];
     $user = $nextData['User'];
-    $userPicURL = "$site/UserPic/$user" . ".png";
+    $userPicURL = media_asset('UserPic/' . $user . '.png');
     $date = date("D, d M Y H:i:s O", $nextData['timestamp']);
     $link = config('app.url') . '/feed.php?a=' . $nextData['ID'];
 

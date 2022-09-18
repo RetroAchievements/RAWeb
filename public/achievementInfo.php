@@ -84,7 +84,7 @@ $numArticleComments = getArticleComments(ArticleType::Achievement, $achievementI
 
 getCodeNotes($gameID, $codeNotes);
 
-RenderOpenGraphMetadata("$achievementTitleRaw in $gameTitleRaw ($consoleName)", "achievement", "/Badge/$badgeName" . ".png", "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
+RenderOpenGraphMetadata("$achievementTitleRaw in $gameTitleRaw ($consoleName)", "achievement", media_asset("/Badge/$badgeName" . ".png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
 RenderContentStart($achievementTitleRaw);
 ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>

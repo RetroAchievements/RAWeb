@@ -199,6 +199,7 @@ final class Shortcode
             '~
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:www.)?           # Optional subdomain.
+                (?:media.)?         # Optional subdomain.
                 retroachievements\.        # Host.
                 ([\w!#$%&\'()*+,./:;=?@\[\]-]+
                 (?<![!,.?;:"\'()]))

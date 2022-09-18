@@ -42,7 +42,7 @@ $(function () {
 function onUserChange() {
     var recipient = $('#recipient').val();
     if (recipient.length > 2) {
-        $('.searchusericon').attr('src', '/UserPic/' + recipient + '.png');
+        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + recipient + '.png'));
     }
 }
 
@@ -74,7 +74,7 @@ $(document).ready(onUserChange);
         echo "<tr>";
         echo "<td>User:</td>";
         echo "<td><input type='text' value='$messageTo' name='recipient' id='recipient' onblur='onUserChange(); return false;' class='searchuser' required></td>";
-        echo "<td style='width:10%'><img style='float:right' class='searchusericon' src='/UserPic/$destUser.png' width='64' height='64'/></td>";
+        echo "<td style='width:10%'><img style='float:right' class='searchusericon' src='" . media_asset('/UserPic/' . $destUser . '.png') . "' width='64' height='64'/></td>";
         echo "</tr>";
         echo "<tr><td>Subject: </td><td colspan='2'><input class='w-full' type='text' value='$messageContextTitle' name='subject' required></td></tr>";
         echo "<tr><td>Message:</td><td colspan='2'>";
