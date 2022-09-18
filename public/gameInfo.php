@@ -631,8 +631,8 @@ sanitize_outputs(
             $genre = $gameData['Genre'] ?? null;
             $released = $gameData['Released'] ?? null;
             $imageIcon = media_asset($gameData['ImageIcon']);
-            $imageTitle = $gameData['ImageTitle'];
-            $imageIngame = $gameData['ImageIngame'];
+            $imageTitle = media_asset($gameData['ImageTitle']);
+            $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
             echo "<h3>$pageTitle</h3>";
@@ -1298,7 +1298,7 @@ sanitize_outputs(
         <div id="rightcontainer">
             <?php
             echo "<div class='component text-center mb-6'>";
-            echo "<img class='max-w-full' src='" . $gameData['ImageBoxArt'] . "' alt='Boxart'>";
+            echo "<img class='max-w-full' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
             echo "</div>";
 
             echo "<div class='component'>";
