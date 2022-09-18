@@ -170,7 +170,6 @@ RenderContentStart();
         );
     });
 </script>
-<script src="vendor/jquery.githubRepoWidget.js"></script>
 <div id='mainpage'>
     <div id="leftcontainer">
         <?php
