@@ -151,12 +151,12 @@ function RenderAward($award, $imageSize, $clickable = true): void
         if ($awardButGameIsIncomplete) {
             $tooltip .= "...<br>but more achievements have been added!<br>Click here to find out what you're missing!";
         }
-        $imagepath = $awardGameImage;
+        $imagepath = media_asset($awardGameImage);
         $linkdest = "/game/$awardData";
     } elseif ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
         $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
-        $imagepath = "/assets/images/badge/trophy-" . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png";
+        $imagepath = asset("/assets/images/badge/trophy-" . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png");
         $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
@@ -181,7 +181,7 @@ function RenderAward($award, $imageSize, $clickable = true): void
     //     $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::PatreonSupporter) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
-        $imagepath = '/assets/images/badge/patreon.png';
+        $imagepath = asset('/assets/images/badge/patreon.png');
         $linkdest = 'https://www.patreon.com/retroachievements';
     } else {
         // Unknown or inactive award type

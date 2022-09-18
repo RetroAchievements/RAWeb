@@ -128,11 +128,11 @@ function GetTooltipDiv(icon, header, body) {
 
 function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageInstead) {
   var consoleStr = '(' + consoleName + ')';
-  var tooltip = GetTooltipDiv(gameIcon, gameTitle, consoleStr);
+  var tooltip = GetTooltipDiv(mediaAsset(gameIcon), gameTitle, consoleStr);
   var displayable = gameTitle + ' ' + consoleStr;
   if (imageInstead) {
     displayable = '<img alt="started playing ' + gameTitle
-      + '" title="Started playing ' + gameTitle + '" src=\'' + gameIcon
+      + '" title="Started playing ' + gameTitle + '" src=\'' + mediaAsset(gameIcon)
       + '\' width=\'32\' height=\'32\' class=\'badgeimg\' loading=\'lazy\' />';
   }
   return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
@@ -167,7 +167,7 @@ function GetUserAndTooltipDiv(user, hardcorePoints, softcorePoints, imageInstead
 }
 
 function UpdateMailboxCount(messageCount) {
-  $('#mailboxicon').attr('src', messageCount > 0 ? '/assets/images/icon/mail-unread.png' : '/assets/images/icon/mail.png');
+  $('#mailboxicon').attr('src', messageCount > 0 ? asset('/assets/images/icon/mail-unread.png') : asset('/assets/images/icon/mail.png'));
   $('#mailboxcount').html(messageCount);
 }
 
