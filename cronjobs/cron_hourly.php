@@ -1,6 +1,7 @@
 <?php
 
-$numPlayers = count(getCurrentlyOnlinePlayers());
-$date = date('Y/m/d H:i:s');
+use Illuminate\Support\Facades\Log;
 
-echo "[$date] cron_hourly run, $numPlayers online" . PHP_EOL;
+$playersOnline = count(getCurrentlyOnlinePlayers());
+
+Log::info('cron_hourly', ['playersOnline' => $playersOnline]);
