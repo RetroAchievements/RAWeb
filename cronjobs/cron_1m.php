@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
+
 function GetNextHighestGameID($givenID)
 {
     $query = "SELECT MIN(ID) AS NextID FROM GameData
@@ -50,5 +52,4 @@ for ($i = 0; $i < 3; $i++) {
 }
 static_setnextusertoscan($userID);
 
-$date = date('Y/m/d H:i:s');
-echo "[$date] cron_1m run, game ID now $gameID, user now at $userID ($user)\r\n";
+Log::info('cron_1m', ['game' => $gameID, 'user' => $user]);

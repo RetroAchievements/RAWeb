@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
          * sync
          */
         $syncEnabled = $settings->get('sync', true);
-        if (in_array($this->app->environment(), ['dev', 'production']) && $syncEnabled) {
+        if ($syncEnabled && $this->app->environment('production')) {
             /*
              * sync incrementally every minute
              */
