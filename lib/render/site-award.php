@@ -174,6 +174,7 @@ function RenderAward($award, $imageSize, $clickable = true): void
         } else {
             $imagepath = "/assets/images/badge/trophy-gold.png";
         }
+        $imagepath = media_asset($imagepath);
         $linkdest = ''; // TBD: referrals page?
     // } elseif ($awardType == AwardType::Referrals) {
     //     $tooltip = "Referred $awardData members";
