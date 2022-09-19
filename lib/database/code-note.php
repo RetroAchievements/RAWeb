@@ -1,5 +1,6 @@
 <?php
 
+use App\Legacy\Models\User;
 use RA\Permissions;
 
 function getCodeNotesData($gameID): array
@@ -104,18 +105,20 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
 /**
  * Gets the number of code notes created for each game the user has created any notes for.
  */
-function getCodeNoteCounts(string $user): array
+function getCodeNoteCounts(string $username): array
 {
-    sanitize_sql_inputs($user);
+    /** @var ?User $user */
+    $user = User::firstWhere('User', $username);
+    $userId = $user->ID;
 
     $retVal = [];
     $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as TotalNotes,
-              SUM(CASE WHEN ua.User = '$user' THEN 1 ELSE 0 END) AS NoteCount
+              SUM(CASE WHEN cn.AuthorID = $userId THEN 1 ELSE 0 END) AS NoteCount
               FROM CodeNotes AS cn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
               LEFT JOIN GameData AS gd ON gd.ID = cn.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE LENGTH(Note) > 0
+              AND gd.ID IN (SELECT GameID from CodeNotes WHERE AuthorID = $userId GROUP BY GameID)
               AND gd.Title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING NoteCount > 0
