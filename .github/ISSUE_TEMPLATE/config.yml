@@ -1,25 +1,21 @@
 blank_issues_enabled: false
 contact_links:
-    - name: Request a manual unlock
-      url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Manual%20Unlock%20Request
-      about: Contact RAdmin to request a manual unlock
-      
-    - name: Quality Assurance
-      url: https://retroachievements.org/createmessage.php?t=QATeam
-      about: Contact the QA team for anything related to Achievements/Sets/Leaderboards/Rich Presence creations and creator relations
-      
+    - name: Feature Request
+      url: https://github.com/RetroAchievements/RAWeb/discussions/new?category=ideas
+      about: Share ideas for new site features or enhancements
+
     - name: Report a security vulnerability
       url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Security%20Vulnerability
       about: Contact RAdmin for security matters
 
+    - name: Request a manual unlock
+      url: https://retroachievements.org/createmessage.php?t=RAdmin&s=Manual%20Unlock%20Request
+      about: Contact RAdmin to request a manual unlock
+
+    - name: Quality Assurance
+      url: https://retroachievements.org/createmessage.php?t=QATeam
+      about: Contact the QA team for anything related to Achievements/Sets/Leaderboards/Rich Presence creations and creator relations
+
     - name: Ask for help
       url: https://discord.gg/UEECgxrqyH
       about: Join the RetroAchievements.org Discord if you need help with anything related to your account or setup
-
-    - name: Request a site feature
-      url: https://github.com/RetroAchievements/RAWeb/discussions/new?category=ideas
-      about: Share ideas for new site features or enhancements
-      
-    - name: Report a site bug
-      url: https://github.com/RetroAchievements/RAWeb/issues/new
-      about: Report a reproducable site bug, issues with source code or its assets
