@@ -54,14 +54,17 @@ for ($i = 0; $i < $userCompletedGamesListCount; $i++) {
 
     if ($userCompletedGamesList[$i]['HardcoreMode'] == 0) {
         $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
+        $userCompletedGames[$gameID]['NumAwardedHC'] = 0; // Update this later, but fill in for now
     }
-
-    $userCompletedGames[$gameID]['NumAwardedHC'] = 0; // Update this later, but fill in for now
 }
 
 for ($i = 0; $i < $userCompletedGamesListCount; $i++) {
     $gameID = $userCompletedGamesList[$i]['GameID'];
     if ($userCompletedGamesList[$i]['HardcoreMode'] == 1) {
+        if (!array_key_exists($gameID, $userCompletedGames)) {
+            $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
+            $userCompletedGames[$gameID]['NumAwarded'] = 0;
+        }
         $userCompletedGames[$gameID]['NumAwardedHC'] = $userCompletedGamesList[$i]['NumAwarded'];
     }
 }
