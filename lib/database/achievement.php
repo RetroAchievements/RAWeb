@@ -447,6 +447,12 @@ function GetAchievementsPatch($gameID, $flags): array
             settype($db_entry['Created'], 'integer');
             settype($db_entry['Flags'], 'integer');
 
+            $badgeName = $db_entry['BadgeName'];
+            if ($badgeName) {
+                $db_entry['BadgeURL'] = media_asset("Badge/$badgeName.png");
+                $db_entry['BadgeLockedURL'] = media_asset("Badge/${badgeName}_lock.png");
+            }
+
             $retVal[] = $db_entry;
         }
     } else {
@@ -468,7 +474,23 @@ function GetPatchData($gameID, $flags, $user): array
         // cannot look up game with gameID $gameID for user $user
         return $retVal;
     }
-    $retVal = array_merge(getGameData($gameID));
+
+    $gameData = getGameData($gameID);
+
+    if ($gameData['ImageIcon']) {
+        $gameData['ImageIconURL'] = media_asset($gameData['ImageIcon']);
+    }
+    if ($gameData['ImageTitle']) {
+        $gameData['ImageTitleURL'] = media_asset($gameData['ImageTitle']);
+    }
+    if ($gameData['ImageIngame']) {
+        $gameData['ImageIngameURL'] = media_asset($gameData['ImageIngame']);
+    }
+    if ($gameData['ImageBoxArt']) {
+        $gameData['ImageBoxArtURL'] = media_asset($gameData['ImageBoxArt']);
+    }
+
+    $retVal = array_merge($gameData);
 
     $retVal['Achievements'] = GetAchievementsPatch($gameID, $flags);
     $retVal['Leaderboards'] = GetLBPatch($gameID);
