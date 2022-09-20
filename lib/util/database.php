@@ -41,7 +41,16 @@ function s_mysql_query($query): mysqli_result|bool
         global $g_numQueries;
         $g_numQueries++;
 
-        return mysqli_query($db, $query);
+        $start = microtime(true);
+
+        $result = mysqli_query($db, $query);
+
+        // DB::connection()->getElapsedTime is protected
+        $elapsed = round((microtime(true) - $start) * 1000, 2);
+
+        DB::connection()->logQuery($query, [], $elapsed);
+
+        return $result;
     } else {
         return false;
     }
