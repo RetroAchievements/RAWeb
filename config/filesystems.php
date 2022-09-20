@@ -60,7 +60,7 @@ return [
         'media' => [
             'driver' => 'local',
             'root' => storage_path('app/media'),
-            'url' => env('MEDIA_URL', '/media'),
+            'url' => env('MEDIA_URL', env('APP_URL') . '/media'),
             'visibility' => 'public',
             'throw' => false,
         ],
@@ -70,21 +70,6 @@ return [
             'root' => storage_path('app/static'),
             'url' => env('ASSET_URL'),
             'visibility' => 'public',
-            'throw' => false,
-        ],
-
-        'backup' => [
-            'driver' => 'local',
-            'root' => storage_path('backup'),
-            'throw' => false,
-        ],
-
-        'backup-s3' => [
-            'driver' => 's3',
-            'key' => env('BACKUP_AWS_ACCESS_KEY_ID'),
-            'secret' => env('BACKUP_AWS_SECRET_ACCESS_KEY'),
-            'region' => env('BACKUP_AWS_DEFAULT_REGION'),
-            'bucket' => env('BACKUP_AWS_BUCKET'),
             'throw' => false,
         ],
 
