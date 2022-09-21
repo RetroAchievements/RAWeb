@@ -82,9 +82,9 @@ function isValidConsoleId(int $consoleId): bool
         // 70, // Zeebo
         71, // Arduboy
         72, // WASM-4
-        // 74, // Arcadia 2001
-        // 75, // Interton VC 4000
-        // 76, // Elektor TV Games Computer
+        // 73, // Arcadia 2001
+        // 74, // Interton VC 4000
+        // 75, // Elektor TV Games Computer
         // 100, // Hubs (not an actual console)
         101 => true, // Events (not an actual console)
         default => false,
