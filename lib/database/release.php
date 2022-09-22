@@ -85,6 +85,7 @@ function isValidConsoleId(int $consoleId): bool
         // 73, // Arcadia 2001
         // 74, // Interton VC 4000
         // 75, // Elektor TV Games Computer
+        76, // PC Engine CD
         // 100, // Hubs (not an actual console)
         101 => true, // Events (not an actual console)
         default => false,

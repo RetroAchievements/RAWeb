@@ -57,6 +57,7 @@ return [
                 69, // Mega Duck
                 71, // Arduboy
                 72, // WASM-4
+                76, // PC Engine CD
             ],
             'description' => 'Maintained by <a href="https://github.com/libretro/">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
 Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility">Cores Compatibility List</a>.',
@@ -111,6 +112,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 69, // Mega Duck
                 71, // Arduboy
                 72, // WASM-4
+                76, // PC Engine CD
             ],
         ],
         Emulators::RAppleWin => [
