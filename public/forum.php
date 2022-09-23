@@ -49,7 +49,7 @@ RenderContentStart($pageTitle);
         $lastCategory = "_init";
 
         $forumIter = 0;
-        $userCache = [];
+        $userToolTipCache = [];
 
         echo "<div class='table-wrapper'>";
         foreach ((array) $forumList as $forumData) {
@@ -120,7 +120,7 @@ RenderContentStart($pageTitle);
             echo "<td>";
             echo "<div>";
             if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
-                RenderUserLink($nextForumLastPostAuthor, LinkStyle::Text, $userCache);
+                RenderUserLink($nextForumLastPostAuthor, LinkStyle::Text, $userToolTipCache);
             }
             echo "<br><span class='smalldate'>$nextForumCreatedNiceDate</span>";
             echo "<br><a class='btn btn-link' href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>View</a>";

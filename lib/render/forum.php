@@ -8,7 +8,7 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
     echo "<h3>Forum Activity</h3>";
 
     if (getRecentForumPosts(0, $numToFetch, 100, $permissions, $recentPostData) != 0) {
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($recentPostData as $nextData) {
             $timestamp = strtotime($nextData['PostedAt']);
             $datePosted = date("d M", $timestamp);
@@ -38,7 +38,7 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
 
             echo "<div class='embedded mb-1 flex justify-between items-center'>";
             echo "<div>";
-            RenderUserLink($author, LinkStyle::SmallImageWithText, $userCache);
+            RenderUserLink($author, LinkStyle::SmallImageWithText, $userToolTipCache);
             echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
             echo "<div class='comment'>$shortMsg</div>";

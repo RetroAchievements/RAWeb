@@ -117,7 +117,7 @@ function getFeedItemTitle($feedData, $withHyperlinks = true, $site = null): stri
     return $retHTML;
 }
 
-function getFeedItemHTML($feedData, $user, $userCache): string
+function getFeedItemHTML($feedData, $user, $userToolTipCache): string
 {
     $retHTML = '';
 
@@ -175,12 +175,12 @@ function getFeedItemHTML($feedData, $user, $userCache): string
                 true,
                 true
             );
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_won'>";
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= " earned ";
             $retHTML .= GetAchievementAndTooltipDiv(
                 $nextData,
@@ -224,13 +224,13 @@ function getFeedItemHTML($feedData, $user, $userCache): string
             // Images:
             $retHTML .= "<td class='icons'>";
             $retHTML .= "<img alt='$nextUser logged in' title='Logged in' src='/assets/images/activity/login.webp' width='32' height='32' class='badgeimg' />";
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_login'>";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= " logged in";
 
             $retHTML .= "</td>";
@@ -250,14 +250,14 @@ function getFeedItemHTML($feedData, $user, $userCache): string
                 $retHTML .= "<td class='icons'>";
 
                 $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-                $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+                $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
                 $retHTML .= "</td>";
 
                 // Content:
                 $retHTML .= "<td class='feed_startplay'>";
 
-                $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+                $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
                 $retHTML .= " started playing ";
                 $retHTML .= GetGameAndTooltipDiv(
                     $nextGameID,
@@ -295,14 +295,14 @@ function getFeedItemHTML($feedData, $user, $userCache): string
                 true,
                 true
             );
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_dev1'>";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= " uploaded a new achievement: ";
             $retHTML .= GetAchievementAndTooltipDiv(
                 $nextData,
@@ -340,14 +340,14 @@ function getFeedItemHTML($feedData, $user, $userCache): string
                 true,
                 true
             );
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= " edited ";
             $retHTML .= GetAchievementAndTooltipDiv(
                 $nextData,
@@ -375,14 +375,14 @@ function getFeedItemHTML($feedData, $user, $userCache): string
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_completegame'>";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             if ($nextData2 == 1) {
                 $retHTML .= " MASTERED ";
             } else {
@@ -420,14 +420,14 @@ function getFeedItemHTML($feedData, $user, $userCache): string
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_submitrecord'>";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= " submitted ";
             $retHTML .= GetLeaderboardAndTooltipDiv(
                 $nextData,
@@ -472,7 +472,7 @@ function getFeedItemHTML($feedData, $user, $userCache): string
             $retHTML .= "<td class='icons'>";
 
             $retHTML .= GetGameAndTooltipDiv($nextGameID, $nextGameTitle, $nextGameIcon, $nextConsoleName, true);
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
             $retHTML .= "</td>";
 
@@ -484,7 +484,7 @@ function getFeedItemHTML($feedData, $user, $userCache): string
                 'TIMESECS'
             ) == 0) ? "time" : "score";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= " improved their $entryType: ";
             $retHTML .= GetLeaderboardAndTooltipDiv(
                 $nextData,
@@ -539,14 +539,14 @@ function getFeedItemHTML($feedData, $user, $userCache): string
                 true,
                 true
             );
-            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::MediumImage, $userToolTipCache);
 
             $retHTML .= "</td>";
 
             // Content:
             $retHTML .= "<td class='feed_dev2'>";
 
-            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userCache);
+            $retHTML .= GetUserLink($nextUser, LinkStyle::Text, $userToolTipCache);
             $retHTML .= ($nextActivityType == 9 ? " opened " : " closed ") . " a ticket for ";
             $retHTML .= GetAchievementAndTooltipDiv(
                 $nextData,
@@ -570,9 +570,9 @@ function getFeedItemHTML($feedData, $user, $userCache): string
     return $retHTML;
 }
 
-function RenderFeedItem($feedData, $user, $userCache): void
+function RenderFeedItem($feedData, $user, $userToolTipCache): void
 {
-    echo getFeedItemHTML($feedData, $user, $userCache);
+    echo getFeedItemHTML($feedData, $user, $userToolTipCache);
 }
 
 function RenderFeedComment($user, $comment, $submittedDate): void

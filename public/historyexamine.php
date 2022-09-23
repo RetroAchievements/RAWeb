@@ -109,7 +109,7 @@ RenderContentStart("$userPage's Legacy - $dateStr");
 
         usort($achEarnedLib, fn ($a, $b) => $a['Date'] <=> $b['Date']);
 
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($achEarnedLib as $achEarned) {
             $achAwardedAt = $achEarned['Date'];
             $achID = $achEarned['AchievementID'];
@@ -151,7 +151,7 @@ RenderContentStart("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td>";
-            RenderUserLink($achAuthor, LinkStyle::MediumImage, $userCache);
+            RenderUserLink($achAuthor, LinkStyle::MediumImage, $userToolTipCache);
             echo "</td>";
 
             echo "<td>";

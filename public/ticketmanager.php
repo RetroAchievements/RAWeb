@@ -396,7 +396,7 @@ RenderContentStart($pageTitle);
                 echo "<th class='whitespace-nowrap'>Reported At</th>";
 
                 $rowCount = 0;
-                $userCache = [];
+                $userToolTipCache = [];
 
                 foreach ($ticketData as $nextTicket) {
                     $ticketID = $nextTicket['ID'];
@@ -456,14 +456,14 @@ RenderContentStart($pageTitle);
                     echo "</td>";
 
                     echo "<td>";
-                    RenderUserLink($achAuthor, LinkStyle::MediumImageWithText, $userCache);
+                    RenderUserLink($achAuthor, LinkStyle::MediumImageWithText, $userToolTipCache);
                     echo "</td>";
                     echo "<td>";
-                    RenderUserLink($reportedBy, LinkStyle::MediumImageWithText, $userCache);
+                    RenderUserLink($reportedBy, LinkStyle::MediumImageWithText, $userToolTipCache);
                     echo "</td>";
                     if ($closedTickets || $resolvedTickets) {
                         echo "<td>";
-                        RenderUserLink($resolvedBy, LinkStyle::MediumImageWithText, $userCache);
+                        RenderUserLink($resolvedBy, LinkStyle::MediumImageWithText, $userToolTipCache);
                         echo "</td>";
                     }
 

@@ -173,12 +173,12 @@ RenderContentStart("Claim List");
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::FinishedDateDescending, $claimFilters), ClaimSorting::FinishedDateDescending, ClaimSorting::FinishedDateAscending);
 
         // Loop through the claims and display them in the table
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
             echo "<tr>";
             echo "<td>";
-            RenderUserLink($claimUser, LinkStyle::MediumImageWithText, $userCache);
+            RenderUserLink($claimUser, LinkStyle::MediumImageWithText, $userToolTipCache);
             echo "</td>";
             echo "<td>";
             echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);

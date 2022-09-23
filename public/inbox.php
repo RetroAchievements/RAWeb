@@ -101,7 +101,7 @@ function MarkAsUnread(msgID) {
 
             $totalMsgs = count($allMessages);
 
-            $userCache = [];
+            $userToolTipCache = [];
             for ($i = 0; $i < $totalMsgs; $i++) {
                 $msgID = $allMessages[$i]['ID'];
                 $msgTime = $allMessages[$i]['TimeSent'];
@@ -136,7 +136,7 @@ function MarkAsUnread(msgID) {
                 echo "</td>";
 
                 echo "<td style='width:34px'>";
-                RenderUserLink($msgUser, LinkStyle::MediumImageWithText, $userCache);
+                RenderUserLink($msgUser, LinkStyle::MediumImageWithText, $userToolTipCache);
                 echo "</td>";
 
                 // echo "<td>" . $msgTo . "</td>";

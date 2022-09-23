@@ -141,7 +141,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
         }
 
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($achData as $achEntry) {
             // $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
 
@@ -185,7 +185,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
                 echo "</td>";
 
                 echo "<td>";
-                RenderUserLink($achAuthor, LinkStyle::MediumImage, $userCache);
+                RenderUserLink($achAuthor, LinkStyle::MediumImage, $userToolTipCache);
                 echo "</td>";
             }
 

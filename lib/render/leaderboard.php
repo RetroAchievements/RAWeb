@@ -46,7 +46,7 @@ function RenderGameLeaderboardsComponent($lbData): void
         echo "<table><tbody>";
 
         $count = 0;
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($lbData as $lbItem) {
             if ($lbItem['DisplayOrder'] < 0) {
                 continue;
@@ -72,7 +72,7 @@ function RenderGameLeaderboardsComponent($lbData): void
             // Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            RenderUserLink($bestScoreUser, LinkStyle::TinyImageWithText, $userCache);
+            RenderUserLink($bestScoreUser, LinkStyle::TinyImageWithText, $userToolTipCache);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";

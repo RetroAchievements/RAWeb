@@ -15,10 +15,10 @@ function RenderNewsComponent(): void
     echo "<div id='carouselcontainer' >";
 
     echo "<div id='carousel'>";
-    $userCache = [];
+    $userToolTipCache = [];
     foreach ($newsData as $news) {
         /** @var News $news */
-        RenderNewsHeader($news, $userCache);
+        RenderNewsHeader($news, $userToolTipCache);
     }
     echo "</div>";
 
@@ -32,7 +32,7 @@ function RenderNewsComponent(): void
     echo "</div>";
 }
 
-function RenderNewsHeader(News $newsData, array &$userCache): void
+function RenderNewsHeader(News $newsData, array &$userToolTipCache): void
 {
     $title = $newsData->Title;
     $payload = $newsData->Payload;
@@ -60,7 +60,7 @@ function RenderNewsHeader(News $newsData, array &$userCache): void
 
     // Author
     echo "<div class='newsauthor shadowoutline absolute' style='width: 470px; top: 196px; left:0; text-align: right'>~~";
-    RenderUserLink($author, LinkStyle::Text, $userCache);
+    RenderUserLink($author, LinkStyle::Text, $userToolTipCache);
     echo ", $niceDate</div>";
 
     echo "</div>";

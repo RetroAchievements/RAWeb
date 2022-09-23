@@ -58,7 +58,7 @@ RenderContentStart($pageTitle);
             $lastID = 0;
             $lastKnownDate = 'Init';
 
-            $userCache = [];
+            $userToolTipCache = [];
             for ($i = 0; $i < $numFeedItems; $i++) {
                 $nextTime = $feedData[$i]['timestamp'];
 
@@ -73,7 +73,7 @@ RenderContentStart($pageTitle);
 
                 if ($lastID != $feedData[$i]['ID']) {
                     $lastID = $feedData[$i]['ID'];
-                    RenderFeedItem($feedData[$i], $user, $userCache);
+                    RenderFeedItem($feedData[$i], $user, $userToolTipCache);
                 }
 
                 if ($feedData[$i]['Comment'] !== null) {

@@ -45,7 +45,7 @@ RenderContentStart("Forum Recent Posts");
         echo "<th class='whitespace-nowrap'>Posted At</th>";
         echo "</tr>";
 
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($recentPostsData as $topicPostData) {
             $postMessage = $topicPostData['ShortMsg'];
             $postAuthor = $topicPostData['Author'];
@@ -60,7 +60,7 @@ RenderContentStart("Forum Recent Posts");
             echo "<tr>";
 
             echo "<td>";
-            RenderUserLink($postAuthor, LinkStyle::MediumImageWithText, $userCache);
+            RenderUserLink($postAuthor, LinkStyle::MediumImageWithText, $userToolTipCache);
             echo "</td>";
 
             echo "<td><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";

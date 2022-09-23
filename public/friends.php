@@ -25,7 +25,7 @@ asort($blockedUsersList);
 
 $followersList = GetFollowers($user);
 
-function RenderUserList(string $header, array $users, int $friendshipType, array $followingList, array &$userCache)
+function RenderUserList(string $header, array $users, int $friendshipType, array $followingList, array &$userToolTipCache)
 {
     if (count($users) == 0) {
         return;
@@ -37,7 +37,7 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
         echo "<tr>";
 
         echo "<td class='w-full'>";
-        RenderUserLink($user, LinkStyle::MediumImageWithText, $userCache);
+        RenderUserLink($user, LinkStyle::MediumImageWithText, $userToolTipCache);
         echo "</td>";
 
         echo "<td style='vertical-align:middle;'>";
@@ -86,14 +86,14 @@ RenderContentStart("Following");
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
             echo "<table><tbody>";
-            $userCache = [];
+            $userToolTipCache = [];
             foreach ($followingList as $entry) {
                 echo "<tr>";
 
                 $followingUser = $entry['User'];
 
                 echo "<td>";
-                RenderUserLink($followingUser, LinkStyle::LargeImageWithText, $userCache);
+                RenderUserLink($followingUser, LinkStyle::LargeImageWithText, $userToolTipCache);
                 echo "</td>";
 
                 echo "<td class='w-full'>";
@@ -143,8 +143,8 @@ RenderContentStart("Following");
             echo "</tbody></table>";
         }
 
-        RenderUserList('Followers', $followersList, UserRelationship::Following, $followingList, $userCache);
-        RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList, $userCache);
+        RenderUserList('Followers', $followersList, UserRelationship::Following, $followingList, $userToolTipCache);
+        RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList, $userToolTipCache);
         ?>
     </div>
 </div>

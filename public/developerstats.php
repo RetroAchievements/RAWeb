@@ -75,11 +75,11 @@ RenderContentStart("Developer Stats");
 
             $dev = $devStats['Author'];
             echo "<td class='whitespace-nowrap'>";
-            $userCache = [];
-            RenderUserLink($dev, LinkStyle::MediumImage, $userCache);
+            $userToolTipCache = [];
+            RenderUserLink($dev, LinkStyle::MediumImage, $userToolTipCache);
             echo "</td>";
             echo "<td class='whitespace-nowrap'><div>";
-            RenderUserLink($dev, LinkStyle::Text, $userCache);
+            RenderUserLink($dev, LinkStyle::Text, $userToolTipCache);
             echo "<br><small>";
             if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
                 echo Permissions::toString(Permissions::JuniorDeveloper);

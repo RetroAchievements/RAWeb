@@ -75,7 +75,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
         echo "<th>Date</th>";
         echo "</tr>";
 
-        $userCache = [];
+        $userToolTipCache = [];
         $userCount = 0;
         $skip = false;
         // Create the table rows
@@ -90,7 +90,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
                 echo "<tr>";
 
                 echo "<td>";
-                RenderUserLink($dataPoint['User'], LinkStyle::MediumImageWithText, $userCache);
+                RenderUserLink($dataPoint['User'], LinkStyle::MediumImageWithText, $userToolTipCache);
                 echo "</td>";
 
                 echo "<td>";

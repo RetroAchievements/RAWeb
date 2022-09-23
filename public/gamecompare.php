@@ -98,7 +98,7 @@ RenderContentStart("Game Compare");
             echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> points.<br>";
 
             $iconSize = 48;
-            $userCache = [];
+            $userToolTipCache = [];
 
             echo "<table><tbody>";
             echo "<tr>";
@@ -106,7 +106,7 @@ RenderContentStart("Game Compare");
             echo "<th>";
             echo "<a style='float: right' href='/user/$user'>$user</a><br>";
             echo "<div style='float: right'>";
-            RenderUserLink($user, LinkStyle::LargeImage, $userCache);
+            RenderUserLink($user, LinkStyle::LargeImage, $userToolTipCache);
             echo "</div>";
             echo "</th>";
 
@@ -114,7 +114,7 @@ RenderContentStart("Game Compare");
 
             echo "<th>";
             echo "<a style='float: left' href='/user/$user2'>$user2</a><br>";
-            RenderUserLink($user2, LinkStyle::LargeImage, $userCache);
+            RenderUserLink($user2, LinkStyle::LargeImage, $userToolTipCache);
             echo "</th>";
 
             echo "</tr>";
@@ -216,7 +216,7 @@ RenderContentStart("Game Compare");
 
             echo "<td>";
             echo "<div style='float:right'>";
-            RenderUserLink($user, LinkStyle::LargeImage, $userCache);
+            RenderUserLink($user, LinkStyle::LargeImage, $userToolTipCache);
             echo "</div>";
             echo "</td>";
 
@@ -224,7 +224,7 @@ RenderContentStart("Game Compare");
 
             echo "<td>";
             echo "<div>";
-            RenderUserLink($user2, LinkStyle::LargeImage, $userCache);
+            RenderUserLink($user2, LinkStyle::LargeImage, $userToolTipCache);
             echo "</div>";
             echo "</td>";
 

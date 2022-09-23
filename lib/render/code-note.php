@@ -17,7 +17,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
 
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 
-    $userCache = [];
+    $userToolTipCache = [];
     foreach ($codeNotes as $nextCodeNote) {
         if (empty(trim($nextCodeNote['Note'])) || $nextCodeNote['Note'] == "''") {
             continue;
@@ -44,7 +44,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
         echo "</td>";
 
         echo "<td>";
-        RenderUserLink($nextCodeNote['User'], LinkStyle::MediumImage, $userCache);
+        RenderUserLink($nextCodeNote['User'], LinkStyle::MediumImage, $userToolTipCache);
         echo "</td>";
 
         echo "</tr>";

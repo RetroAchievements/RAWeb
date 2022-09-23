@@ -154,7 +154,7 @@ RenderContentStart($pageTitle);
         echo "<div class='table-wrapper'>";
         echo "<table><tbody>";
         // Output all topics, and offer 'prev/next page'
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($commentList as $commentData) {
             // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
@@ -206,14 +206,14 @@ RenderContentStart($pageTitle);
             }
 
             echo "<td class='align-top'>";
-            RenderUserLink($nextCommentAuthor, LinkStyle::ExtraLargeImage, $userCache);
+            RenderUserLink($nextCommentAuthor, LinkStyle::ExtraLargeImage, $userToolTipCache);
             echo "</td>";
 
             echo "<td class='w-full' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";
-            RenderUserLink($nextCommentAuthor, LinkStyle::Text, $userCache);
+            RenderUserLink($nextCommentAuthor, LinkStyle::Text, $userToolTipCache);
             if ($showDisclaimer) {
                 echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
             }
@@ -272,9 +272,9 @@ RenderContentStart($pageTitle);
             echo "<tr>";
 
             echo "<td class='align-top'>";
-            RenderUserLink($user, LinkStyle::Text, $userCache);
+            RenderUserLink($user, LinkStyle::Text, $userToolTipCache);
             echo "<br>";
-            RenderUserLink($user, LinkStyle::ExtraLargeImage, $userCache);
+            RenderUserLink($user, LinkStyle::ExtraLargeImage, $userToolTipCache);
             echo "</td>";
 
             echo "<td class='w-full'>";

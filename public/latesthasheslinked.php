@@ -52,7 +52,7 @@ RenderContentStart("Hash List");
 
             $hashCount = 0;
 
-            $userCache = [];
+            $userToolTipCache = [];
             foreach ($hashList as $hash) {
                 if ($hashCount++ % 2 == 0) {
                     echo "<tr>";
@@ -66,7 +66,7 @@ RenderContentStart("Hash List");
                 echo "</td>";
                 echo "<td>";
                 if (!empty($hash['User'])) {
-                    RenderUserLink($hash['User'], LinkStyle::Text, $userCache);
+                    RenderUserLink($hash['User'], LinkStyle::Text, $userToolTipCache);
                 }
                 echo "</td>";
                 echo "<td>" . $hash['DateAdded'] . "</td>";

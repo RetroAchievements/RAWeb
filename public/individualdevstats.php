@@ -1133,7 +1133,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
             echo "<table><tbody>";
-            $userCache = [];
+            $userToolTipCache = [];
             $rowCount = 0;
             for ($i = 0; $i < count($recentlyObtainedAchievements) && $rowCount < ($maxRecentAchievements / 2); $i++) {
                 $skipNextEntry = false;
@@ -1153,7 +1153,7 @@ RenderContentStart("$dev's Developer Stats");
                 echo "</td><td width='35%'>";
                 echo GetGameAndTooltipDiv($recentlyObtainedAchievements[$i]['GameID'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['GameIcon'], $recentlyObtainedAchievements[$i]['ConsoleName'], false, 32);
                 echo "</td><td width='20%'>";
-                RenderUserLink($recentlyObtainedAchievements[$i]['User'], LinkStyle::MediumImageWithText, $userCache);
+                RenderUserLink($recentlyObtainedAchievements[$i]['User'], LinkStyle::MediumImageWithText, $userToolTipCache);
                 echo "</td><td width='10%'>";
                 echo $recentlyObtainedAchievements[$i]['Date'];
                 echo "</td></tr>";

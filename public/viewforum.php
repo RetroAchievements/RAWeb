@@ -100,7 +100,7 @@ RenderContentStart("Forum: $thisForumTitle");
         $topicCount = is_countable($topicList) ? count($topicList) : 0;
 
         // Output all topics, and offer 'prev/next page'
-        $userCache = [];
+        $userToolTipCache = [];
         foreach ($topicList as $topicData) {
             // Output one forum, then loop
             $nextTopicID = $topicData['ForumTopicID'];
@@ -143,13 +143,13 @@ RenderContentStart("Forum: $thisForumTitle");
             echo "</td>";
             echo "<td>";
             echo "<div>";
-            RenderUserLink($nextTopicAuthor, LinkStyle::Text, $userCache);
+            RenderUserLink($nextTopicAuthor, LinkStyle::Text, $userToolTipCache);
             echo "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
             echo "</td>";
             echo "<td>$nextTopicNumReplies</td>";
             echo "<td>";
             echo "<div>";
-            RenderUserLink($nextTopicLastCommentAuthor, LinkStyle::Text, $userCache);
+            RenderUserLink($nextTopicLastCommentAuthor, LinkStyle::Text, $userToolTipCache);
             echo "<br><span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
             echo "<br><a class='btn btn-link' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
             echo "</div>";

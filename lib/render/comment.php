@@ -40,7 +40,7 @@ function RenderCommentsComponent(
 
     $lastID = 0;
     $lastKnownDate = 'Init';
-    $userCache = [];
+    $userToolTipCache = [];
 
     for ($i = 0; $i < $numComments; $i++) {
         $nextTime = $commentData[$i]['Submitted'];
@@ -67,7 +67,7 @@ function RenderCommentsComponent(
             $articleTypeID,
             $commentData[$i]['ID'],
             $canDeleteComments,
-            $userCache
+            $userToolTipCache
         );
     }
 
@@ -91,7 +91,7 @@ function RenderArticleComment(
     $articleTypeID,
     $commentID,
     $allowDelete,
-    $userCache = null
+    $userToolTipCache = null
 ): void {
     $class = '';
     $deleteIcon = '';
@@ -119,14 +119,14 @@ function RenderArticleComment(
 
     echo "<td class='iconscommentsingle'>";
     if ($user !== 'Server') {
-        RenderUserLink($user, LinkStyle::MediumImage, $userCache);
+        RenderUserLink($user, LinkStyle::MediumImage, $userToolTipCache);
     }
     echo "</td>";
     echo "<td class='commenttext w-full' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
-        RenderUserLink($user, LinkStyle::Text, $userCache);
+        RenderUserLink($user, LinkStyle::Text, $userToolTipCache);
     }
     echo " <span class='smalldate'>$niceDate</span>";
     echo "</div>";

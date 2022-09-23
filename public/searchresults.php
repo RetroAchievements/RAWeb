@@ -47,7 +47,7 @@ RenderContentStart("Search");
                 echo "</tr>";
                 $lastType = '';
                 $iter = 0;
-                $userCache = [];
+                $userToolTipCache = [];
                 foreach ($searchResults as $nextResult) {
                     $nextType = $nextResult['Type'];
                     $nextID = $nextResult['ID'];
@@ -69,10 +69,10 @@ RenderContentStart("Search");
                     // echo "<td>$nextID</td>";
                     if ($nextType == 'User') {
                         echo "<td>";
-                        RenderUserLink($nextID, LinkStyle::MediumImage, $userCache);
+                        RenderUserLink($nextID, LinkStyle::MediumImage, $userToolTipCache);
                         echo "</td>";
                         echo "<td>";
-                        RenderUserLink($nextID, LinkStyle::Text, $userCache);
+                        RenderUserLink($nextID, LinkStyle::Text, $userToolTipCache);
                         echo "</td>";
                     } else {
                         if ($nextType == 'Achievement') {
@@ -85,7 +85,7 @@ RenderContentStart("Search");
                         } else {
                             if ($nextType == 'Forum Comment' || $nextType == 'Comment') {
                                 echo "<td>";
-                                RenderUserLink($nextID, LinkStyle::MediumImage, $userCache);
+                                RenderUserLink($nextID, LinkStyle::MediumImage, $userToolTipCache);
                                 echo "</td>";
                                 echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
                             } else {
