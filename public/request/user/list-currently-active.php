@@ -1,13 +1,20 @@
 <?php
 
-$ingameList = getLatestRichPresenceUpdates();
+use Illuminate\Support\Facades\Cache;
 
-$mergedList = [];
+$ttlSeconds = 60 * 15;
 
-foreach ($ingameList as $playerIngame) {
-    // Array merge/overwrite
-    $mergedList[$playerIngame['User']] = $playerIngame;
-    $mergedList[$playerIngame['User']]['InGame'] = true;
-}
+$currentlyActive = Cache::remember('currently-active', $ttlSeconds, function () {
+    $ingameList = getLatestRichPresenceUpdates();
+    $mergedList = [];
 
-return response()->json(array_values($mergedList));
+    foreach ($ingameList as $playerIngame) {
+        // Array merge/overwrite
+        $mergedList[$playerIngame['User']] = $playerIngame;
+        $mergedList[$playerIngame['User']]['InGame'] = true;
+    }
+
+    return array_values($mergedList);
+});
+
+return response()->json($currentlyActive);
