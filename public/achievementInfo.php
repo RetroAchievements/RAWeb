@@ -334,7 +334,14 @@ RenderContentStart($achievementTitleRaw);
             echo "<li> Achievement ID: " . $achievementID . "</li>";
 
             echo "<div>";
-            echo "<li>Mem:</li>";
+
+            $len = strlen($achMem);
+            if ($len == 65535) {
+                echo "<li>Mem:<span class='text-danger'> ⚠️ Max length definition is likely truncated and may not function as expected ⚠️ </span></li>";
+            } else {
+                echo "<li>Mem:</li>";
+            }
+
             echo "<code>" . htmlspecialchars($achMem) . "</code>";
             echo "<li>Mem explained:</li>";
             echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
