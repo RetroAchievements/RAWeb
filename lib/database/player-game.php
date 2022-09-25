@@ -191,6 +191,8 @@ function GetAllUserProgress($user, $consoleID): array
 
 function getUsersGameList($user, &$dataOut): int
 {
+    $dataOut = [];
+
     sanitize_sql_inputs($user);
 
     $query = "SELECT gd.Title, c.Name AS ConsoleName, gd.ID, COUNT(AchievementID) AS NumAchieved
