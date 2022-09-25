@@ -1,5 +1,6 @@
 <?php
 
+use App\Legacy\Models\User;
 use RA\TicketState;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -9,6 +10,13 @@ $dev = requestInputSanitized('u');
 if (empty($dev)) {
     return redirect(route('home'));
 }
+
+/** @var ?User $devUser */
+$devUser = User::firstWhere('User', $dev);
+if (!$devUser) {
+    abort(404);
+}
+$dev = $devUser->User; // get case-corrected username
 
 $userArchInfo = getUserAchievementInformation($dev);
 
