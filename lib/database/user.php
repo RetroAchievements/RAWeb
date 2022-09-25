@@ -527,6 +527,11 @@ function attributeDevelopmentAuthor($author, $points): void
     $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
     $dbResult = s_mysql_query($query);
     $oldResults = mysqli_fetch_assoc($dbResult);
+    if (!$oldResults) {
+        // could not find a record for the author, nothing to update
+        return;
+    }
+
     $oldContribCount = (int) $oldResults['ContribCount'];
     $oldContribYield = (int) $oldResults['ContribYield'];
 
