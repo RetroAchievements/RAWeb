@@ -278,6 +278,10 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         // iterating through the requirements
         $reqs = explode('_', $groups[$i]);
         for ($j = 0; $j < count($reqs); $j++) {
+            if (empty($reqs[$j])) {
+                continue;
+            }
+
             [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits] = parseCondition($reqs[$j]);
 
             $lTooltip = '';
