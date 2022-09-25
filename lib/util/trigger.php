@@ -291,6 +291,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                     $lTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($lNote) . "\"";
                     $codeNotes[$lMemory] = '<strong><u>' . $lMemory . '</u></strong>: ' . htmlspecialchars($lNote);
                 }
+            } elseif ($lType == 'Value') {
+                $lTooltip = " class=\"cursor-help\" title=\"" . hexdec($lMemory) . "\"";
             }
 
             $res .= "\n<tr>\n  <td>" . ($j + 1) . "</td>";
@@ -308,6 +310,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                         $rTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($rNote) . "\"";
                         $codeNotes[$rMemVal] = '<strong><u>' . $rMemVal . '</u></strong>: ' . htmlspecialchars($rNote);
                     }
+                } elseif ($rType == 'Value') {
+                    $rTooltip = " class=\"cursor-help\" title=\"" . hexdec($rMemVal) . "\"";
                 }
 
                 $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";
