@@ -476,7 +476,7 @@ FROM (
  GROUP BY act.data
  ORDER BY MAX( act.lastupdate ) DESC
  ) AS Inner1
-LEFT JOIN GameData AS gd ON gd.ID = Inner1.data
+INNER JOIN GameData AS gd ON gd.ID = Inner1.data
 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
 LEFT JOIN Rating AS r ON r.RatingObjectType = " . RatingType::Game . " AND r.RatingID=Inner1.data AND r.User='$user'
 LIMIT $offset, $count";
