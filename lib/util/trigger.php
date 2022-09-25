@@ -2,16 +2,20 @@
 
 function parseOperand($mem)
 {
+    $max = strlen($mem);
+    if ($max == 0) {
+        return ['Invalid', '', '', ''];
+    }
+
     $type = '';
     switch ($mem[0]) {
-        case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); break;
-        case 'p': case 'P': $type = 'Prior'; $mem = substr($mem, 1); break;
-        case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); break;
-        case '~':           $type = 'Inverted'; $mem = substr($mem, 1); break;
+        case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); $max--; break;
+        case 'p': case 'P': $type = 'Prior'; $mem = substr($mem, 1); $max--; break;
+        case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); $max--; break;
+        case '~':           $type = 'Inverted'; $mem = substr($mem, 1); $max--; break;
     }
 
     $size = '';
-    $max = strlen($mem);
     if ($max > 3 && $mem[0] == '0' && $mem[1] == 'x') {
         switch ($mem[2]) {
             case 'h': case 'H': $size = '8-bit'; break;
@@ -160,7 +164,7 @@ function parseCondition($mem)
     $hits = '';
     $scalable = false;
 
-    if ($mem[1] == ':') {
+    if (strlen($mem) > 2 && $mem[1] == ':') {
         switch ($mem[0]) {
             case 'p': case 'P': $flag = 'Pause If'; break;
             case 'r': case 'R': $flag = 'Reset If'; break;
