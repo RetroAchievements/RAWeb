@@ -118,7 +118,7 @@ function authenticateFromPassword(&$user, $pass): bool
     $hashedPassword = $row['Password'];
 
     if (mb_strlen($row['SaltedPass']) === 32) {
-        $pepperedPassword = md5($pass . env('RA_PASSWORD_SALT'));
+        $pepperedPassword = md5($pass . config('app.legacy_password_salt'));
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }

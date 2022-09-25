@@ -19,11 +19,11 @@ function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
         return false;
     }
 
-    if (env('MAIL_MAILER') === 'smtp') {
+    if (config('mail.default') === 'smtp') {
         return mail_smtp($to, $subject, $message);
     }
 
-    if (env('MAIL_MAILER') === 'ses') {
+    if (config('mail.default') === 'ses') {
         return mail_ses($to, $subject, $message);
     }
 
@@ -46,12 +46,13 @@ function mail_smtp($to, $subject = '(No subject)', $message = ''): bool
         config('mail.mailers.smtp.password'),
         config('mail.mailers.smtp.host'),
         config('mail.mailers.smtp.port'),
-    ));
+    )
+    );
 
     $mailer = new Mailer($transport);
 
     $email = (new Email())
-        ->from(env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>')
+        ->from(config('mail.from.name') . ' <' . config('mail.from.address') . '>')
         ->to($to)
         ->subject($subject)
         ->html($message);
@@ -65,7 +66,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
 {
     $client = new SesClient([
         'version' => 'latest',
-        'region' => env('AWS_DEFAULT_REGION'),
+        'region' => config('services.ses.region'),
         // Note: credentials are automatically pulled from .env when named properly
     ]);
 
@@ -80,7 +81,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
         $commands[] = $client->getCommand('SendEmail', [
             // Pass the message id so it can be updated after it is processed (it's ignored by SES)
             'x-message-id' => $i,
-            'Source' => env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>',
+            'Source' => config('mail.from.name') . ' <' . config('mail.from.address') . '>',
             'Destination' => [
                 'ToAddresses' => [$recipient],
             ],
@@ -131,6 +132,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
         $promise = $pool->promise();
         // Force the pool to complete synchronously
         $promise->wait();
+
         return true;
     } catch (Exception $e) {
         error_log('Amazon SES Exception : ' . $e->getMessage());
