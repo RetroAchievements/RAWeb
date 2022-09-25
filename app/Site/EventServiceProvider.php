@@ -7,7 +7,9 @@ namespace App\Site;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Database\Events\DatabaseBusy;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -51,5 +53,10 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // User::observe(UserObserver::class);
+
+        Event::listen(function (DatabaseBusy $e) {
+            // $e->connectionName
+            // $e->connections
+        });
     }
 }
