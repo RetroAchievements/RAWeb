@@ -104,6 +104,12 @@ Use mailhog as SMTP server for local mails testing:
 MAIL_MAILER=smtp
 ```
 
+Use minio as an AWS S3 drop-in replacement:
+
+```shell
+AWS_MINIO=true
+```
+
 Use the meilisearch full-text search engine:
 
 ```shell

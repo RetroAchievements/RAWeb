@@ -71,8 +71,7 @@ ${PHP_BIN} artisan ra:storage:link
 ln -snf "${BASEDIR}/${RELEASE_DIR}" "${BASEDIR}/${CURRENT_DIR}"
 # update version in .env file
 sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" .env
-# TODO re-enable config:cache as soon env() calls have all been replaced
-#${PHP_BIN} artisan config:cache
+${PHP_BIN} artisan config:cache
 #${PHP_BIN} artisan octane:reload
 #${PHP_BIN} artisan horizon:terminate
 
