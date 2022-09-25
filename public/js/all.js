@@ -114,9 +114,33 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
+var cardsCache = {};
+function loadCard(type, id) {
+  var cardId = `tooltip_card_${type}_${id}`;
+
+  if (cardsCache[cardId]) {
+    return cardsCache[cardId];
+  }
+
+  $.post('/request/card.php', {
+    type: type,
+    id: id,
+  })
+    .done(function (data) {
+      cardsCache[cardId] = data.html;
+      $(`#${cardId}`).html(data.html);
+    });
+
+  return `<div id="${cardId}">
+    <div class="flex justify-center items-center" style="width: 30px; height: 30px">
+        <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
+    </div>
+  </div>`;
+}
+
 function GetTooltipDiv(icon, header, body) {
   var tooltipImageSize = 64;
-  var tooltip = '<div id=\'objtooltip\' class=\'flex items-start\' style=\'max-width: 400px;\'>'
+  var tooltip = '<div class=\'tooltip-body flex items-start\' style=\'max-width: 400px;\'>'
     + '<img style=\'margin-right:5px\' src=\'' + icon + '\' width=\'' + tooltipImageSize + '\' height=\'' + tooltipImageSize + '\' />'
     + '<div><b>' + header + '</b><br><span style=\'white-space: nowrap\'>' + body + '</span></div></div>';
   tooltip = replaceAll('<', '&lt;', tooltip);

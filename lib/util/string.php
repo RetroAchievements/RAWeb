@@ -23,17 +23,6 @@ function attributeEscape(?string $input): string
     return str_replace('"', "&quot;", $input);
 }
 
-function tipEscape(string $input): string
-{
-    // the Tip() function expects single quotes to be escaped, and other html reserved
-    // characters to be converted to entities.
-    $input = htmlentities($input, ENT_COMPAT | ENT_HTML401);
-    // ENT_COMPAT will not convert single quotes. do so ourself.
-    $input = str_replace("'", "\'", $input);
-
-    return str_replace("\n", "<br/>", $input);
-}
-
 function isValidUsername($userTest): bool
 {
     if (

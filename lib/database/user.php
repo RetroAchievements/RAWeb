@@ -510,6 +510,7 @@ function getUserCardData($user, &$userCardInfo): void
 
     // getUserActivityRange($user, $firstLogin, $lastLogin);
     $userCardInfo = [];
+    $userCardInfo['User'] = $userInfo['User'];
     $userCardInfo['HardcorePoints'] = $userInfo['RAPoints'];
     $userCardInfo['SoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];

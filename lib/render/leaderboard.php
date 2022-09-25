@@ -4,35 +4,6 @@ use RA\AwardType;
 use RA\Rank;
 use RA\UnlockMode;
 
-function GetLeaderboardAndTooltipDiv($lbID, $lbName, $lbDesc, $gameName, $gameIcon, $displayable): string
-{
-    $tooltipIconSize = 64; // 96;
-
-    sanitize_outputs(
-        $lbName,
-        $lbDesc,
-        $gameName,
-        $displayable
-    );
-
-    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='$gameIcon' width='$tooltipIconSize' height='$tooltipIconSize' alt='Game Icons'>";
-    $tooltip .= "<div>";
-    $tooltip .= "<b>$lbName</b>";
-    $tooltip .= "<br>$lbDesc";
-    $tooltip .= "<br><br><i>$gameName</i>";
-    $tooltip .= "</div>";
-    $tooltip .= "</div>";
-
-    $tooltip = tipEscape($tooltip);
-
-    return "<div class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='/leaderboardinfo.php?i=$lbID'>" .
-        "$displayable" .
-        "</a>" .
-        "</div>";
-}
-
 function RenderGameLeaderboardsComponent($lbData): void
 {
     $numLBs = is_countable($lbData) ? count($lbData) : 0;

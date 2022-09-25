@@ -5,7 +5,7 @@ namespace RA;
 // TODO refactor into legacy model
 class Ticket
 {
-    public int $ticketId;
+    public int $id;
     public int $achievementId;
     public string $achievementTitle;
     public string $achievementDesc;
@@ -25,7 +25,7 @@ class Ticket
 
     public function __construct(array $ticketDbResult)
     {
-        $this->ticketId = $ticketDbResult['ID'];
+        $this->id = $ticketDbResult['ID'];
         $this->achievementId = $ticketDbResult['AchievementID'];
         $this->achievementTitle = $this->sanitize($ticketDbResult['AchievementTitle']);
         $this->achievementDesc = $this->sanitize($ticketDbResult['AchievementDesc']);
