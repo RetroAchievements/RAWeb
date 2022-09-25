@@ -31,14 +31,6 @@ class LinkStorage extends Command
         if (app()->environment('local')) {
             $filesystem->delete(public_path('media'));
             $filesystem->link(config('filesystems.disks.media.root'), public_path('media'));
-            $filesystem->delete(public_path('Badge'));
-            $filesystem->link(config('filesystems.disks.media.root') . '/Badge', public_path('Badge'));
-            $filesystem->delete(public_path('Images'));
-            $filesystem->link(config('filesystems.disks.media.root') . '/Images', public_path('Images'));
-            $filesystem->delete(public_path('bin'));
-            $filesystem->link(config('filesystems.disks.media.root') . '/bin', public_path('bin'));
-            $filesystem->delete(public_path('UserPic'));
-            $filesystem->link(config('filesystems.disks.media.root') . '/UserPic', public_path('UserPic'));
             $filesystem->delete(public_path('docs'));
             $filesystem->link(config('filesystems.disks.static.root') . '/docs', public_path('docs'));
 
@@ -60,6 +52,14 @@ class LinkStorage extends Command
         }
 
         // legacy
+        $filesystem->delete(public_path('Badge'));
+        $filesystem->link(config('filesystems.disks.media.root') . '/Badge', public_path('Badge'));
+        $filesystem->delete(public_path('Images'));
+        $filesystem->link(config('filesystems.disks.media.root') . '/Images', public_path('Images'));
+        $filesystem->delete(public_path('bin'));
+        $filesystem->link(config('filesystems.disks.media.root') . '/bin', public_path('bin'));
+        $filesystem->delete(public_path('UserPic'));
+        $filesystem->link(config('filesystems.disks.media.root') . '/UserPic', public_path('UserPic'));
         $filesystem->delete(public_path('LatestIntegration.html'));
         $filesystem->link(storage_path('app/LatestIntegration.html'), public_path('LatestIntegration.html'));
 

@@ -58,22 +58,22 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    'asset_url' => env('ASSET_URL'),
+    'asset_url' => env('ASSET_URL', env('APP_URL')),
 
     /*
      * Media is served independently of other static assets (asset_url)
      */
-    'media_url' => env('MEDIA_URL', '/media'),
+    'media_url' => env('MEDIA_URL', env('APP_URL') . '/media'),
 
     /*
      * The "Web" API for public data
      */
-    'api_url' => env('API_URL', '/api'),
+    'api_url' => env('API_URL', env('APP_URL') . '/api'),
 
     /*
      * Integrations use the Connect API
      */
-    'connect_url' => env('CONNECT_URL', '/api/connect'),
+    'connect_url' => env('CONNECT_URL', env('APP_URL') . '/api/connect'),
 
     /*
     |--------------------------------------------------------------------------
