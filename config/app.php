@@ -176,6 +176,9 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    // TODO remove as soon as all passwords have been migrated
+    'legacy_password_salt' => env('RA_PASSWORD_SALT', 'SaltySaltySaltFace'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

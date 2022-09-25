@@ -82,6 +82,8 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'throw' => false,
+            // enable minio as aws s3 drop-in replacement
+            'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
         ],
     ],
 
