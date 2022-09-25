@@ -99,12 +99,12 @@ RenderContentStart("Search");
                 echo "<div class='float-right row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
                 }
                 if ($resultsCount == $maxCount) {
                     // Max number fetched, i.e. there are more. Can goto next 25.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQuery&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
+                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
                 }
                 echo "</div>";
             }
