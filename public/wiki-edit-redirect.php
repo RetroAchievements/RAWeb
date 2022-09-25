@@ -18,7 +18,7 @@ $repoDomainMap = [
     'docs.retroachievements.org' => 'docs',
     'guides.retroachievements.org' => 'guides',
 ];
-$repo = $repoDomainMap[parse_url($_SERVER['HTTP_REFERER'])['host']] ?? null;
+$repo = $repoDomainMap[parse_url($_SERVER['HTTP_REFERER'] ?? null)['host'] ?? null] ?? null;
 
 if (empty($repo)) {
     return redirect('https://github.com/RetroAchievements');
