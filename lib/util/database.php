@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
+
 function getMysqliConnection(): mysqli
 {
     return app('mysqli');
@@ -38,14 +40,10 @@ function s_mysql_query($query): mysqli_result|bool
     $db = getMysqliConnection();
 
     if (sanitiseSQL($query)) {
-        global $g_numQueries;
-        $g_numQueries++;
-
         $start = microtime(true);
 
         $result = mysqli_query($db, $query);
 
-        // DB::connection()->getElapsedTime is protected
         $elapsed = round((microtime(true) - $start) * 1000, 2);
 
         DB::connection()->logQuery($query, [], $elapsed);
