@@ -20,7 +20,6 @@ $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 
 $gamesPlayedWithAchievements = [];
-$numGamesPlayedWithAchievements = 0;
 
 $numGamesPlayed = getUsersGameList($user, $userGamesList);
 
@@ -81,18 +80,20 @@ RenderContentStart("Game Compare");
 
             echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
 
-            echo "<form action='/gamecompare.php'>";
-            echo "<input type='hidden' name='f' value='$user2'>";
-            echo "<select name='ID'>";
-            foreach ($gamesPlayedWithAchievements as $nextGameID => $nextGameTitle) {
-                $selected = ($nextGameID == $gameID) ? "SELECTED" : "";
-                sanitize_outputs($nextGameTitle);
-                echo "<option value='$nextGameID' $selected>$nextGameTitle</option>";
+            if ($numGamesPlayed > 0) {
+                echo "<form action='/gamecompare.php'>";
+                echo "<input type='hidden' name='f' value='$user2'>";
+                echo "<select name='ID'>";
+                foreach ($gamesPlayedWithAchievements as $nextGameID => $nextGameTitle) {
+                    $selected = ($nextGameID == $gameID) ? "SELECTED" : "";
+                    sanitize_outputs($nextGameTitle);
+                    echo "<option value='$nextGameID' $selected>$nextGameTitle</option>";
+                }
+                echo "</select>";
+                echo "&nbsp;<input value='Change Game' type='submit' size='67'>";
+                echo "</form>";
+                echo "<br>";
             }
-            echo "</select>";
-            echo "&nbsp;<input value='Change Game' type='submit' size='67'>";
-            echo "</form>";
-            echo "<br>";
 
             echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> points.<br>";
 
