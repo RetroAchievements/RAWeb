@@ -587,7 +587,6 @@ function getLatestRichPresenceUpdates(): array
             settype($db_entry['GameID'], 'integer');
             settype($db_entry['RAPoints'], 'integer');
             settype($db_entry['RASoftcorePoints'], 'integer');
-            $db_entry['RichPresenceMsg'] = utf8_sanitize($db_entry['RichPresenceMsg']);
             $playersFound[] = $db_entry;
         }
     } else {
