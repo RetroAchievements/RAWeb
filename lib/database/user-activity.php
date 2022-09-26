@@ -263,6 +263,8 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
     sanitize_sql_inputs($user, $gameID, $presenceMsg);
     settype($gameID, 'integer');
 
+    $presenceMsg = utf8_sanitize($presenceMsg);
+
     $query = "UPDATE UserAccounts AS ua
               SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
               WHERE ua.User = '$user' ";
@@ -585,6 +587,7 @@ function getLatestRichPresenceUpdates(): array
             settype($db_entry['GameID'], 'integer');
             settype($db_entry['RAPoints'], 'integer');
             settype($db_entry['RASoftcorePoints'], 'integer');
+            $db_entry['RichPresenceMsg'] = utf8_sanitize($db_entry['RichPresenceMsg']);
             $playersFound[] = $db_entry;
         }
     } else {
