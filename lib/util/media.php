@@ -4,19 +4,19 @@ use Illuminate\Support\Facades\Storage;
 use RA\FilenameIterator;
 use RA\ImageType;
 
-function UploadToS3(string $filenameSrc, string $filenameDest): void
+function UploadToS3(string $filenameSrc, string $filenameDest): bool
 {
     if (!config('filesystems.disks.s3.key')) {
         // nothing to do here
-        return;
+        return false;
     }
 
     // allow using minio locally
     if (app()->environment('local') && !config('filesystems.disks.s3.minio')) {
-        return;
+        return false;
     }
 
-    Storage::disk('s3')->put(ltrim($filenameDest, '/'), file_get_contents($filenameSrc));
+    return Storage::disk('s3')->put(ltrim($filenameDest, '/'), file_get_contents($filenameSrc));
 }
 
 /**
