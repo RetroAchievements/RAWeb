@@ -1,6 +1,6 @@
 <?php
 
-use Aws\S3\S3Client;
+use Illuminate\Support\Facades\Storage;
 use RA\FilenameIterator;
 use RA\ImageType;
 
@@ -16,25 +16,7 @@ function UploadToS3(string $filenameSrc, string $filenameDest): void
         return;
     }
 
-    $options = [
-        'version' => 'latest',
-        'region' => config('filesystems.disks.s3.region'),
-    ];
-
-    if (config('filesystems.disks.s3.minio')) {
-        $options['endpoint'] = config('filesystems.disks.s3.endpoint');
-        $options['use_path_style_endpoint'] = true;
-    }
-
-    $client = new S3Client($options);
-
-    $client->putObject([
-        'Bucket' => config('filesystems.disks.s3.bucket'),
-        // no leading slashes as it would be treated as a different folder
-        'Key' => ltrim($filenameDest, '/'),
-        'Body' => fopen($filenameSrc, 'r+'),
-        'CacheControl' => 'max-age=2628000',
-    ]);
+    Storage::disk('s3')->put(ltrim($filenameDest, '/'), file_get_contents($filenameSrc));
 }
 
 /**

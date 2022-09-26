@@ -80,9 +80,13 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
+            'endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'http://minio:9000' : env('AWS_ENDPOINT'),
             'throw' => false,
+            'options' => [
+                'CacheControl' => 'max-age=2628000, no-transform, public',
+            ],
             // enable minio as aws s3 drop-in replacement
+            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
             'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
         ],
     ],
