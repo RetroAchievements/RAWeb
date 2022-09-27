@@ -204,14 +204,14 @@ RenderContentStart($pageTitle);
             }
 
             echo "<td class='align-top'>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor, true, iconSizeDisplayable: 64);
+            echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
             echo "</td>";
 
             echo "<td class='w-full' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor);
+            echo userAvatar($nextCommentAuthor, icon: false);
             if ($showDisclaimer) {
                 echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
             }
@@ -270,9 +270,9 @@ RenderContentStart($pageTitle);
             echo "<tr>";
 
             echo "<td class='align-top'>";
-            echo GetUserAndTooltipDiv($user, false, null, 64);
+            echo userAvatar($user, label: false, iconSize: 64);
             echo "<br>";
-            echo GetUserAndTooltipDiv($user, true, null, 64);
+            echo userAvatar($user, icon: false);
             echo "</td>";
 
             echo "<td class='w-full'>";

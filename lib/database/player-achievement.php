@@ -233,7 +233,7 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
               FROM Achievements AS ach
               LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              WHERE ach.Flags = " . AchievementType::OfficialCore . " 
+              WHERE ach.Flags = " . AchievementType::OfficialCore . "
               AND ach.GameID IN ( $gameIDs )
               ORDER BY IsAwarded DESC, HardcoreAchieved, DateAwarded DESC, ach.DisplayOrder, ach.ID
               LIMIT $limit";
@@ -289,7 +289,7 @@ function getCommonlyUnlocked($consoleID, $offset, $count, &$dataOut): bool
         $subquery = "WHERE cons.ID = $consoleID ";
     }
 
-    $query = "SELECT COALESCE(aw.cnt,0) AS NumTimesAwarded, ach.Title AS AchievementTitle, ach.ID, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ID AS GameID, cons.Name AS ConsoleName
+    $query = "SELECT COALESCE(aw.cnt,0) AS NumTimesAwarded, ach.Title, ach.ID, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ID AS GameID, cons.Name AS ConsoleName
             FROM Achievements AS ach
             LEFT OUTER JOIN (SELECT AchievementID, count(*) cnt FROM Awarded GROUP BY AchievementID) aw ON ach.ID = aw.AchievementID
             LEFT JOIN GameData gd ON gd.ID = ach.GameID
@@ -571,7 +571,7 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = $flags 
+            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = $flags
               AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
             GROUP BY aw.User
             ORDER BY AwardedCount DESC

@@ -60,16 +60,16 @@ function RenderStaticDataComponent($staticData): void
     echo "<br>";
 
     echo "The last registered user was ";
-    echo GetUserAndTooltipDiv($lastRegisteredUser);
+    echo userAvatar($lastRegisteredUser);
     // echo "<a href='/user/$lastRegisteredUser'>$lastRegisteredUser</a>";
     echo " on $niceRegisteredAt.<br>";
 
     // echo "<br>";
     // echo "Next game to scan: ";
-    // echo GetGameAndTooltipDiv( $nextGameToScanID, $nextGameToScan, $nextGameToScanIcon, $nextGameConsoleToScan, FALSE, 32, TRUE );
+    // echo gameAvatar($nextGameToScanID);
     // echo "<br>";
     // echo "Next user to scan: ";
-    // echo GetUserAndTooltipDiv( $nextUserToScan, FALSE );
+    // echo userAvatar($nextUserToScan, false);
     // echo "The last achievement earned was ";
     // echo "<a href='/achievement/$lastAchievementEarnedID'>$lastAchievementEarnedTitle</a>";
     // echo " by ";

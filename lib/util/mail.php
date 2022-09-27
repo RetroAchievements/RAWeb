@@ -211,7 +211,7 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
             $achievementData = getAchievementMetadataJSON($articleID);
             $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
             $subjectAuthor = $achievementData['Author'];
-            $articleTitle = $achievementData['AchievementTitle'] . ' (' . $achievementData['GameTitle'] . ')';
+            $articleTitle = $achievementData['Title'] . ' (' . $achievementData['GameTitle'] . ')';
             break;
 
         case ArticleType::User:  // User wall

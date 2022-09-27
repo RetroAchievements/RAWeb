@@ -84,7 +84,9 @@ function RenderActivePlayersComponent(): void
 function RenderAOTWComponent($achID, $forumTopicID): void
 {
     $achData = [];
-    if (!getAchievementMetadata($achID, $achData)) {
+    getAchievementMetadata($achID, $achData);
+
+    if (empty($achData)) {
         return;
     }
 
@@ -96,31 +98,12 @@ function RenderAOTWComponent($achID, $forumTopicID): void
      */
     echo "<div class='text-center'>";
 
-    $gameID = $achData['GameID'];
-    $gameTitle = $achData['GameTitle'];
-    $gameIcon = $achData['GameIcon'];
-    $consoleName = $achData['ConsoleName'];
-
-    $achID = $achData['AchievementID'];
-    $achTitle = $achData['AchievementTitle'];
-    $achDesc = $achData['Description'];
-    $achBadgeName = $achData['BadgeName'];
-    $achPoints = $achData['Points'];
-    $achTruePoints = $achData['TrueRatio'];
-
-    sanitize_outputs(
-        $gameTitle,
-        $consoleName,
-        $achTitle,
-        $achDesc,
-    );
-
     echo "<div>";
-    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
+    echo achievementAvatar($achData);
     echo "</div>";
     echo "in";
     echo "<div>";
-    echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 24);
+    echo gameAvatar($achData, iconSize: 24);
     echo "</div>";
     echo "<a class='btn' href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a>";
 

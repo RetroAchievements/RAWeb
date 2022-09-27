@@ -41,7 +41,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextCodeNote['User'], true);
+        echo userAvatar($nextCodeNote['User'], true);
         echo "</td>";
 
         echo "</tr>";

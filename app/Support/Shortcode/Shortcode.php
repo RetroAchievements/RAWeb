@@ -2,6 +2,7 @@
 
 namespace App\Support\Shortcode;
 
+use Illuminate\Support\Facades\Cache;
 use Thunder\Shortcode\Event\FilterShortcodesEvent;
 use Thunder\Shortcode\EventContainer\EventContainer;
 use Thunder\Shortcode\Events;
@@ -133,40 +134,41 @@ final class Shortcode
 
     private function embedAchievement($id): string
     {
-        $achData = [];
-        getAchievementMetadata($id, $achData);
+        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', function () use ($id) {
+            $data = [];
+            getAchievementMetadata($id, $data);
 
-        if (empty($achData)) {
+            return $data;
+        });
+
+        if (empty($data)) {
             return '';
         }
 
-        return GetAchievementAndTooltipDiv(
-            $achData['AchievementID'],
-            $achData['AchievementTitle'],
-            $achData['Description'],
-            $achData['Points'],
-            $achData['GameTitle'],
-            $achData['BadgeName'],
-            $achData['ConsoleName'],
-        );
+        return achievementAvatar($data, iconSize: 24);
     }
 
     private function embedGame($id): string
     {
-        $gameData = [];
-        getGameTitleFromID(
-            $id,
-            $gameName,
-            $consoleIDOut,
-            $consoleName,
-            $forumTopicID,
-            $gameData
-        );
-        if (empty($gameData)) {
+        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', function () use ($id) {
+            $data = [];
+            getGameTitleFromID(
+                $id,
+                $gameName,
+                $consoleIDOut,
+                $consoleName,
+                $forumTopicID,
+                $data
+            );
+
+            return $data;
+        });
+
+        if (empty($data)) {
             return '';
         }
 
-        return GetGameAndTooltipDiv($id, $gameName, $gameData['GameIcon'], $consoleName);
+        return gameAvatar($data, iconSize: 24);
     }
 
     private function embedTicket($id): string
@@ -177,7 +179,7 @@ final class Shortcode
             return '';
         }
 
-        return GetTicketAndTooltipDiv($ticketModel);
+        return ticketAvatar($ticketModel, iconSize: 24);
     }
 
     private function embedUser(?string $username): string
@@ -186,7 +188,7 @@ final class Shortcode
             return '';
         }
 
-        return GetUserAndTooltipDiv($username);
+        return userAvatar($username, icon: false);
     }
 
     private function autolinkRetroachievementsUrls(string $text): string

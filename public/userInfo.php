@@ -145,57 +145,64 @@ RenderContentStart($userPage);
   google.setOnLoadCallback(drawCharts);
 
   function drawCharts() {
-    var dataRecentProgress = new google.visualization.DataTable();
+      var dataRecentProgress = new google.visualization.DataTable();
 
-    // Declare columns
-    dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
-    dataRecentProgress.addColumn('number', 'Hardcore Score');
-    dataRecentProgress.addColumn('number', 'Softcore Score');
+      // Declare columns
+      dataRecentProgress.addColumn('date', 'Date');    // NOT date! this is non-continuous data
+      dataRecentProgress.addColumn('number', 'Hardcore Score');
+      dataRecentProgress.addColumn('number', 'Softcore Score');
 
-    dataRecentProgress.addRows([
-        <?php
-        $arrayToUse = $userScoreData;
+      dataRecentProgress.addRows([
+          <?php
+          $arrayToUse = $userScoreData;
 
-        $count = 0;
-        foreach ($arrayToUse as $dayInfo) {
-            if ($count++ > 0) {
-                echo ", ";
-            }
+          $count = 0;
+          foreach ($arrayToUse as $dayInfo) {
+              if ($count++ > 0) {
+                  echo ", ";
+              }
 
-            $nextDay = (int) $dayInfo['Day'];
-            $nextMonth = (int) $dayInfo['Month'] - 1;
-            $nextYear = (int) $dayInfo['Year'];
-            $nextDate = $dayInfo['Date'];
+              $nextDay = (int) $dayInfo['Day'];
+              $nextMonth = (int) $dayInfo['Month'] - 1;
+              $nextYear = (int) $dayInfo['Year'];
+              $nextDate = $dayInfo['Date'];
 
-            $dateStr = getNiceDate(strtotime($nextDate), true);
-            $hardcoreValue = $dayInfo['CumulHardcoreScore'];
-            $softcoreValue = $dayInfo['CumulSoftcoreScore'];
+              $dateStr = getNiceDate(strtotime($nextDate), true);
+              $hardcoreValue = $dayInfo['CumulHardcoreScore'];
+              $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
-            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
-        }
-        ?>
-    ]);
+              echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
+          }
+          ?>
+      ]);
 
-    var optionsRecentProcess = {
-      backgroundColor: 'transparent',
-      title: 'Recent Progress',
-      titleTextStyle: { color: '#186DEE' },
-      hAxis: { textStyle: { color: '#186DEE' }, slantedTextAngle: 90 },
-      vAxis: { textStyle: { color: '#186DEE' } },
-      legend: { position: 'none' },
-      chartArea: { left: 42, width: 458, 'height': '100%' },
-      showRowNumber: false,
-      view: { columns: [0, 1] },
-      colors: ['#186DEE','#8c8c8c'],
-    };
+      var optionsRecentProcess = {
+          backgroundColor: 'transparent',
+          title: 'Recent Progress',
+          titleTextStyle: { color: '#186DEE' },
+          hAxis: {
+              textStyle: { color: '#186DEE' },
+              slantedTextAngle: 90
+          },
+          vAxis: { textStyle: { color: '#186DEE' } },
+          legend: { position: 'none' },
+          chartArea: {
+              left: 42,
+              width: 458,
+              'height': '100%'
+          },
+          showRowNumber: false,
+          view: { columns: [0, 1] },
+          colors: ['#186DEE', '#8c8c8c'],
+      };
 
-    function resize() {
-      chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'));
-      chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess);
-    }
+      function resize() {
+          chartRecentProgress = new google.visualization.AreaChart(document.getElementById('chart_recentprogress'));
+          chartRecentProgress.draw(dataRecentProgress, optionsRecentProcess);
+      }
 
-    window.onload = resize();
-    window.onresize = resize;
+      window.onload = resize();
+      window.onresize = resize;
   }
 </script>
 
@@ -334,8 +341,7 @@ RenderContentStart($userPage);
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
             echo "<div class='mottocontainer'>Last seen ";
             if (!empty($userMassData['LastGameID'])) {
-                $game = getGameData($userMassData['LastGameID']);
-                echo ' in ' . GetGameAndTooltipDiv($game['ID'], $game['Title'], $game['ImageIcon'], null, false, 22) . '<br>';
+                echo ' in ' . gameAvatar($userMassData['LastGameID'], iconSize: 22) . '<br>';
             }
             echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
         }
@@ -369,7 +375,14 @@ RenderContentStart($userPage);
                         $details = "*";
                     }
                 }
-                echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName'], false, 22) . $details . '<br>';
+                $claimGameData = [
+                    'ID' => $claim['GameID'],
+                    'Title' => $claim['GameTitle'],
+                    'ImageIcon' => $claim['GameIcon'],
+                    'ConsoleName' => $claim['ConsoleName'],
+                ];
+                echo gameAvatar($claim, iconSize: 22);
+                echo $details . '<br>';
             }
             echo "* Counts against reservation limit</br></br>";
         }
@@ -480,6 +493,7 @@ RenderContentStart($userPage);
             $consoleID = $userMassData['RecentlyPlayed'][$i]['ConsoleID'];
             $consoleName = $userMassData['RecentlyPlayed'][$i]['ConsoleName'];
             $gameTitle = $userMassData['RecentlyPlayed'][$i]['Title'];
+            $gameIcon = $userMassData['RecentlyPlayed'][$i]['ImageIcon'];
             $gameLastPlayed = $userMassData['RecentlyPlayed'][$i]['LastPlayed'];
 
             sanitize_outputs($consoleName, $gameTitle);
@@ -504,7 +518,7 @@ RenderContentStart($userPage);
                 echo "<div class='md:flex justify-between mb-3'>";
 
                 echo "<div>";
-                echo "<a href='/game/$gameID'>$gameTitle ($consoleName)</a><br>";
+                echo gameAvatar($userMassData['RecentlyPlayed'][$i]);
                 echo "Last played $gameLastPlayed<br>";
                 if ($numPossibleAchievements) {
                     echo "$numAchieved of $numPossibleAchievements achievements, ";
@@ -547,20 +561,15 @@ RenderContentStart($userPage);
                                 $unlockedStr .= "<br>HARDCORE";
                                 $class = 'goldimage';
                             }
+                            $achData['Unlock'] = $unlockedStr;
                         }
 
-                        echo GetAchievementAndTooltipDiv(
-                            $achID,
-                            $achTitle,
-                            $achDesc,
-                            $achPoints,
-                            $gameTitle,
-                            $badgeName,
-                            true,
-                            true,
-                            $unlockedStr,
-                            48,
-                            $class
+                        echo achievementAvatar(
+                            $achData,
+                            label: false,
+                            icon: $badgeName,
+                            iconSize: 48,
+                            iconClass: $class,
                         );
                     }
                 }

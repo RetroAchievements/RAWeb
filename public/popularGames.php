@@ -75,7 +75,7 @@ RenderContentStart("Most Popular Games");
             echo "</td>";
 
             echo "<td style='min-width:30%'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
+            echo gameAvatar($gameEntry);
             echo "</td>";
 
             if (!$mobileBrowser) {

@@ -122,7 +122,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
 
         foreach ($awardedData as $achEntry) {
             $achID = $achEntry['ID'];
-            $achTitle = $achEntry['AchievementTitle'];
+            $achTitle = $achEntry['Title'];
             $achDesc = $achEntry['Description'];
             $achPoints = $achEntry['Points'];
             $achAuthor = $achEntry['Author'];
@@ -146,7 +146,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "<tr>";
 
             echo "<td style='min-width:25%'>";
-            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
+            echo achievementAvatar($achEntry);
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
@@ -158,11 +158,11 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "</td>";
 
             // echo "<td>";
-            // echo GetUserAndTooltipDiv( $achAuthor, FALSE );
+            // echo userAvatar($achAuthor, false);
             // echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
+            echo gameAvatar($achEntry);
             echo "</td>";
 
             echo "<td>";

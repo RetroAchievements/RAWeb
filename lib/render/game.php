@@ -1,60 +1,83 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use RA\Permissions;
 
-function GetGameAndTooltipDiv(
-    $gameID,
-    $gameName,
-    $gameIcon,
-    $consoleName,
-    $justImage = false,
-    $imgSizeOverride = 32,
-    $justText = false
+function gameAvatar(
+    int|string|array $game,
+    ?bool $label = null,
+    bool|string|null $icon = null,
+    int $iconSize = 32,
+    string $iconClass = 'badgeimg',
+    bool|string|array $tooltip = true,
+    ?string $context = null,
 ): string {
-    $gameNameEscaped = attributeEscape($gameName);
-    sanitize_outputs(
-        $gameName,
-        $consoleName
+    $id = $game;
+
+    if (is_array($game)) {
+        $id = $game['GameID'] ?? $game['ID'];
+
+        if ($label !== false) {
+            $title = $game['GameTitle'] ?? $game['Title'] ?? null;
+            $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
+            $label = $title . ($consoleName ? ' (' . $consoleName . ')' : '');
+        }
+
+        if ($icon === null) {
+            $icon = media_asset($game['GameIcon'] ?? $game['ImageIcon']);
+        }
+
+        // pre-render tooltip
+        $tooltip = $tooltip !== false ? $game : false;
+    }
+
+    return avatar(
+        resource: 'game',
+        id: $id,
+        label: $label !== false && ($label || !$icon) ? $label : null,
+        link: route('game.show', $id),
+        tooltip: is_array($tooltip) ? renderGameCard($tooltip) : $tooltip,
+        iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
+        iconSize: $iconSize,
+        iconClass: $iconClass,
+        context: $context,
     );
-
-    $consoleStr = '';
-    if ($consoleName !== null && mb_strlen($consoleName) > 2) {
-        $consoleStr = "($consoleName)";
-    }
-
-    $gameIcon = $gameIcon != null ? $gameIcon : "assets/images/activity/playing.webp";
-
-    $displayable = "";
-
-    if (!$justText) {
-        $displayable = "<img loading='lazy' alt=\"$gameNameEscaped\" src='" . media_asset($gameIcon) . "' width='$imgSizeOverride' height='$imgSizeOverride' class='badgeimg'>";
-    }
-
-    if (!$justImage) {
-        $displayable .= " $gameName $consoleStr";
-    }
-
-    return "<div class='inline' onmouseover=\"Tip(loadCard('game', $gameID))\" onmouseout=\"UnTip()\" >" .
-        "<a href='/game/$gameID'>" .
-        "$displayable" .
-        "</a>" .
-        "</div>";
 }
 
-function renderGameCard(int $gameId): string
+function renderGameCard(int|string|array $game): string
 {
-    $gameData = [];
-    getGameTitleFromID(
-        $gameId,
-        $gameName,
-        $consoleIDOut,
-        $consoleName,
-        $forumTopicID,
-        $gameData
-    );
+    $id = is_string($game) || is_int($game) ? (int) $game : ($game['GameID'] ?? $game['ID'] ?? null);
+
+    if (empty($id)) {
+        return __('legacy.error.error');
+    }
+
+    $data = [];
+    if (is_array($game)) {
+        $data = $game;
+    }
+
+    if (empty($data)) {
+        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', function () use ($id) {
+            getGameTitleFromID(
+                $id,
+                $gameName,
+                $consoleIDOut,
+                $consoleName,
+                $forumTopicID,
+                $data
+            );
+
+            return $data;
+        });
+    }
+
+    $gameName = $data['GameTitle'] ?? $data['Title'] ?? '';
+    $consoleName = $data['Console'] ?? $data['ConsoleName'] ?? '';
+    $icon = $data['GameIcon'] ?? $data['ImageIcon'] ?? null;
 
     $tooltip = "<div class='tooltip-body flex items-start' style='max-width: 400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . media_asset($gameData['GameIcon']) . "' width='64' height='64' />";
+    $tooltip .= "<img style='margin-right:5px' src='" . media_asset($icon) . "' width='64' height='64' />";
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleName;
@@ -62,49 +85,6 @@ function renderGameCard(int $gameId): string
     $tooltip .= "</div>";
 
     return $tooltip;
-}
-
-function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): void
-{
-    $historyData = GetMostPopularTitles($daysRange, $offset, $count);
-
-    echo "<div id='populargames' class='component' >";
-
-    echo "<h3>Most Popular This Week</h3>";
-    echo "<div id='populargamescomponent'>";
-
-    echo "<table><tbody>";
-    echo "<tr><th colspan='2'>Game</th><th>Times Played</th></tr>";
-
-    $numItems = count($historyData);
-    for ($i = 0; $i < $numItems; $i++) {
-        $nextData = $historyData[$i];
-        $nextID = $nextData['ID'];
-        $nextTitle = $nextData['Title'];
-        $nextIcon = $nextData['ImageIcon'];
-        $nextConsole = $nextData['ConsoleName'];
-
-        echo "<tr>";
-
-        echo "<td class='gameimage'>";
-        echo GetGameAndTooltipDiv($nextID, $nextTitle, $nextIcon, $nextConsole, true, 32, false);
-        echo "</td>";
-
-        echo "<td class='gametext'>";
-        echo GetGameAndTooltipDiv($nextID, $nextTitle, $nextIcon, $nextConsole, false, 32, true);
-        echo "</td>";
-
-        echo "<td class='sumtotal'>";
-        echo $nextData['PlayedCount'];
-        echo "</td>";
-
-        echo "</tr>";
-    }
-
-    echo "</tbody></table>";
-    echo "</div>";
-
-    echo "</div>";
 }
 
 function RenderGameAlts($gameAlts, $headerText = null): void
@@ -116,31 +96,30 @@ function RenderGameAlts($gameAlts, $headerText = null): void
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
         echo "<tr>";
-        $gameID = $nextGame['gameIDAlt'];
-        $gameTitle = $nextGame['Title'];
-        $gameIcon = $nextGame['ImageIcon'];
         $consoleName = $nextGame['ConsoleName'];
         $points = $nextGame['Points'];
         $totalTP = $nextGame['TotalTruePoints'];
         settype($points, 'integer');
         settype($totalTP, 'integer');
 
-        sanitize_outputs(
-            $gameTitle,
-            $consoleName,
-        );
-
         $isFullyFeaturedGame = $consoleName != 'Hubs';
         if (!$isFullyFeaturedGame) {
             $consoleName = null;
         }
 
+        $gameData = [
+            'ID' => $nextGame['gameIDAlt'],
+            'Title' => $nextGame['Title'],
+            'ImageIcon' => $nextGame['ImageIcon'],
+            'ConsoleName' => $consoleName,
+        ];
+
         echo "<td>";
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true);
+        echo gameAvatar($gameData, label: false);
         echo "</td>";
 
         echo "<td style='width: 100%' " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 32, true);
+        echo gameAvatar($gameData, icon: false);
         echo "</td>";
 
         if ($isFullyFeaturedGame) {
@@ -253,10 +232,10 @@ function RenderRecentGamePlayers($recentPlayerData): void
             $activity
         );
         echo "<td>";
-        echo GetUserAndTooltipDiv($userName, true);
+        echo userAvatar($userName, true);
         echo "</td>";
         echo "<td>";
-        echo GetUserAndTooltipDiv($userName);
+        echo userAvatar($userName);
         echo "</td>";
         echo "<td class='whitespace-nowrap'>$date</td>";
         echo "<td>$activity</td>";

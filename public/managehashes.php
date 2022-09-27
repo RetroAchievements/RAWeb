@@ -82,7 +82,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         <h2>Manage Hashes</h2>
 
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
+        echo gameAvatar($gameData, iconSize: 64);
 
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
 
@@ -99,7 +99,7 @@ function UnlinkHash(user, gameID, hash, elem) {
 
             if (!empty($hashData['User'])) {
                 echo "<td style='width: 10%; white-space: nowrap'>";
-                echo GetUserAndTooltipDiv($hashData['User']);
+                echo userAvatar($hashData['User']);
                 echo "</td>";
             } else {
                 echo "<td style='width: 10%'></td>";

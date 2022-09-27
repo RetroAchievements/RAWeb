@@ -39,7 +39,7 @@ function RenderNewsHeader(News $newsData): void
     $link = htmlspecialchars($newsData['Link']);
 
     $author = $newsData['Author'];
-    $authorLink = GetUserAndTooltipDiv($author);
+    $authorLink = userAvatar($author, iconSize: 16);
     $niceDate = $newsData->Timestamp->format('F j, Y, H:i');
 
     echo "<div class='newsbluroverlay'>";
@@ -58,7 +58,7 @@ function RenderNewsHeader(News $newsData): void
     echo "<div class='newstext shadowoutline absolute' style='width: 90%; top: 40px; left:10px;'>$payload</div>";
 
     // Author
-    echo "<div class='newsauthor shadowoutline absolute' style='width: 470px; top: 196px; left:0; text-align: right'>~~$authorLink, $niceDate</div>";
+    echo "<div class='newsauthor shadowoutline absolute' style='width: 470px; top: 196px; left:0; text-align: right'>$authorLink, $niceDate</div>";
 
     echo "</div>";
 

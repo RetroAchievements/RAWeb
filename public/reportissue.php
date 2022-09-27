@@ -11,7 +11,7 @@ if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
 
 $emulators = getActiveEmulatorReleases();
 
-$achievementTitle = $dataOut['AchievementTitle'];
+$achievementTitle = $dataOut['Title'];
 $desc = $dataOut['Description'];
 $gameTitle = $dataOut['GameTitle'];
 $achPoints = $dataOut['Points'];
@@ -58,21 +58,13 @@ function displayCore() {
                 <tr>
                     <td>Game</td>
                     <td style="width:80%">
-                        <?= GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName) ?>
+                        <?= gameAvatar($dataOut) ?>
                     </td>
                 </tr>
                 <tr>
                     <td>Achievement</td>
                     <td>
-                        <?= GetAchievementAndTooltipDiv(
-                            $achievementID,
-                            $achievementTitle,
-                            $desc,
-                            $achPoints,
-                            $gameTitle,
-                            $achBadgeName,
-                            true
-                        ) ?>
+                        <?= achievementAvatar($dataOut) ?>
                     </td>
                 </tr>
                 <tr class="alt">

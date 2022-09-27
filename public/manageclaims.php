@@ -124,7 +124,7 @@ RenderContentStart("Manage Claims");
     <div id='fullcontainer'>
         <?php
         echo "<h3>Manage Claims</h3>";
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
+        echo gameAvatar($gameData, iconSize: 64);
 
         echo "<div class='embedded mb-1'>";
         echo "<div><b>Field Values:</b></div>";
@@ -164,10 +164,10 @@ RenderContentStart("Manage Claims");
             $claimID = $claim['ID'];
             $claimUser = $claim['User'];
             echo "<tr><td class='whitespace-nowrap'>";
-            echo GetUserAndTooltipDiv($claimUser, true);
+            echo userAvatar($claimUser, label: false);
             echo "</td>";
             echo "<td class='whitespace-nowrap'><div id='claimUser_$claimUser'>";
-            echo GetUserAndTooltipDiv($claimUser, false);
+            echo userAvatar($claimUser, icon: false);
             echo "</div></td>";
 
             echo "<td>";

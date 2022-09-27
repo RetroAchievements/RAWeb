@@ -36,11 +36,11 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
         echo "<tr>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($user, true);
+        echo userAvatar($user, label: false);
         echo "</td>";
 
         echo "<td class='w-full'>";
-        echo GetUserAndTooltipDiv($user);
+        echo userAvatar($user, icon: false);
         echo "</td>";
 
         echo "<td style='vertical-align:middle;'>";
@@ -95,11 +95,11 @@ RenderContentStart("Following");
                 $followingUser = $entry['User'];
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($followingUser, true, null, 42);
+                echo userAvatar($followingUser, label: false, iconSize: 42);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($followingUser);
+                echo userAvatar($followingUser, icon: false);
                 echo "</td>";
 
                 echo "<td class='w-full'>";
@@ -110,7 +110,7 @@ RenderContentStart("Following");
                     $gameData = getGameData($entry['LastGameID']);
                     echo '<div>';
                     echo '<small>';
-                    echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName'], imgSizeOverride: 16);
+                    echo gameAvatar($gameData, iconSize: 16);
                     echo '</small>';
                     echo '</div>';
                 }

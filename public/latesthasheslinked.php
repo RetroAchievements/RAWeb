@@ -60,11 +60,11 @@ RenderContentStart("Hash List");
 
                 echo "<td>" . $hash['Hash'] . "</td>";
                 echo "<td>";
-                echo GetGameAndTooltipDiv($hash['GameID'], $hash['GameTitle'], $hash['GameIcon'], $hash['ConsoleName']);
+                echo gameAvatar($hash);
                 echo "</td>";
                 echo "<td>";
                 if (!empty($hash['User'])) {
-                    echo GetUserAndTooltipDiv($hash['User'], false);
+                    echo userAvatar($hash['User'], icon: false);
                 }
                 echo "</td>";
                 echo "<td>" . $hash['DateAdded'] . "</td>";

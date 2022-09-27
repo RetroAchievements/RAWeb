@@ -7,10 +7,6 @@
   font-size: 1.1em;
 }
 
-.comment {
-  word-break: break-word;
-}
-
 .comment-submit-button {
   background: none;
   border: 1px solid transparent;

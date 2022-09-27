@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use RA\Permissions;
 use RA\Rank;
 use RA\RankType;
@@ -7,56 +8,75 @@ use RA\RankType;
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  */
-function GetUserAndTooltipDiv(
-    ?string $user,
-    $imageInstead = false,
-    $customLink = null,
-    $iconSizeDisplayable = 32,
-    $iconClassDisplayable = 'badgeimg'
+function userAvatar(
+    ?string $username,
+    ?bool $label = null,
+    ?bool $icon = null,
+    int $iconSize = 32,
+    string $iconClass = 'badgeimg',
+    ?string $link = null,
+    bool|string|array $tooltip = true,
 ): string {
-    getUserCardData($user, $userCardInfo);
+    $user = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
+        getAccountDetails($username, $data);
 
-    if (!$userCardInfo) {
-        if ($imageInstead) {
+        return $data;
+    });
+
+    $username = $user['User'] ?? null;
+
+    if (!$user) {
+        if ($icon) {
             return '';
         }
 
-        $userSanitized = $user;
+        $userSanitized = $username;
         sanitize_outputs($userSanitized);
 
         return '<del>' . $userSanitized . '</del>';
     }
 
-    $linkURL = '/user/' . $userCardInfo['User'];
-    if (!empty($customLink)) {
-        $linkURL = $customLink;
-    }
-
-    $displayable = $userCardInfo['User'];
-    if ($imageInstead) {
-        $displayable = "<img loading='lazy' src='" . media_asset('/UserPic/' . $user . '.png') . "' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='$displayable' class='$iconClassDisplayable' />";
-    }
-
-    return "<span class='inline' onmouseover=\"Tip(loadCard('user', '$user'))\" onmouseout=\"UnTip()\">" .
-        "<a href='$linkURL'>" .
-        "$displayable" .
-        "</a>" .
-        "</span>";
+    return avatar(
+        resource: 'user',
+        id: $username,
+        label: $label !== false && ($label || !$icon) ? $username : null,
+        link: $link ?: route('user.show', $username),
+        tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
+        iconUrl: $icon !== false && ($icon || !$label) ? media_asset('/UserPic/' . $username . '.png') : null,
+        iconSize: $iconSize,
+        iconClass: $iconClass,
+    );
 }
 
-function renderUserCard(string $user): string
+function renderUserCard(string|array $user): string
 {
-    getUserCardData($user, $userCardInfo);
+    $username = is_string($user) ? $user : ($user['User'] ?? null);
 
-    $username = $userCardInfo['User'];
-    $userMotto = $userCardInfo['Motto'];
-    $userHardcorePoints = $userCardInfo['HardcorePoints'];
-    $userSoftcorePoints = $userCardInfo['SoftcorePoints'];
-    $userTruePoints = $userCardInfo['TotalTruePoints'];
-    $userAccountType = Permissions::toString($userCardInfo['Permissions']);
-    $userUntracked = $userCardInfo['Untracked'];
-    $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
-    $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
+    if (empty($username)) {
+        return __('legacy.error.error');
+    }
+
+    $data = [];
+    if (is_array($user)) {
+        $data = $user;
+    }
+
+    if (empty($data)) {
+        $data = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
+            getAccountDetails($username, $data);
+
+            return $data;
+        });
+    }
+
+    $userMotto = $data['Motto'];
+    $userHardcorePoints = $data['RAPoints'];
+    $userSoftcorePoints = $data['RASoftcorePoints'];
+    $userTruePoints = $data['TrueRAPoints'];
+    $userAccountType = Permissions::toString($data['Permissions']);
+    $userUntracked = $data['Untracked'];
+    $lastLogin = $data['LastLogin'] ? getNiceDate(strtotime($data['LastLogin'])) : null;
+    $memberSince = $data['Created'] ? getNiceDate(strtotime($data['Created']), true) : null;
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='width: 400px'>";
 
@@ -122,16 +142,6 @@ function RenderCompletedGamesList($userCompletedGamesList): void
 
     $numItems = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
     for ($i = 0; $i < $numItems; $i++) {
-        $nextGameID = $userCompletedGamesList[$i]['GameID'];
-        $nextConsoleName = $userCompletedGamesList[$i]['ConsoleName'];
-        $nextTitle = $userCompletedGamesList[$i]['Title'];
-        $nextImageIcon = media_asset($userCompletedGamesList[$i]['ImageIcon']);
-
-        sanitize_outputs(
-            $nextConsoleName,
-            $nextTitle,
-        );
-
         $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
 
         $nextNumAwarded = $userCompletedGamesList[$i]['NumAwarded'];
@@ -142,35 +152,21 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         $pctAwardedNormal = ($nextNumAwarded / $nextMaxPossible) * 100.0;
 
         $nextNumAwardedHC = $userCompletedGamesList[$i]['NumAwardedHC'] ?? 0;
-        $pctAwardedHC = ($nextNumAwardedHC / $nextMaxPossible) * 100.0;
         $pctAwardedHCProportional = ($nextNumAwardedHC / $nextNumAwarded) * 100.0; // This is given as a proportion of normal completion!
-        // $nextTotalAwarded = $nextNumAwarded + $nextNumAwardedHC;
         $nextTotalAwarded = max($nextNumAwardedHC, $nextNumAwarded); // Just take largest
 
         if (!isset($nextMaxPossible)) {
             continue;
         }
 
-        $nextPctAwarded = $userCompletedGamesList[$i]['PctWon'] * 100.0;
-        // $nextCompletionPct = sprintf( "%2.2f", $nextNumAwarded / $nextMaxPossible );
-
         echo "<tr>";
 
-        $tooltipImagePath = "$nextImageIcon";
-        $tooltipImageSize = 96;
-        $tooltipTitle = attributeEscape($nextTitle);
-        $tooltip = "Progress: $nextNumAwarded achievements won out of a possible $nextMaxPossible";
-        $tooltip = sprintf("%s (%01.1f%%)", $tooltip, ($nextTotalAwarded / $nextMaxPossible) * 100);
-
-        $displayable = "<a href=\"/game/$nextGameID\"><img alt=\"$tooltipTitle ($nextConsoleName)\" title=\"$tooltipTitle\" src=\"$nextImageIcon\" width=\"32\" height=\"32\" loading=\"lazy\" />";
-        // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
-        $textWithTooltip = $displayable;
-
-        echo "<td class='gameimage'>$textWithTooltip</td>";
-        $displayable = "<a href=\"/game/$nextGameID\">$nextTitle</a>";
-        // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
-        $textWithTooltip = $displayable;
-        echo "<td class=''>$textWithTooltip</td>";
+        echo "<td>";
+        echo gameAvatar($userCompletedGamesList[$i], label: false);
+        echo "</td>";
+        echo "<td>";
+        echo gameAvatar($userCompletedGamesList[$i], icon: false);
+        echo "</td>";
         echo "<td class='progress'>";
 
         echo "<div class='progressbar player'>";
@@ -189,74 +185,5 @@ function RenderCompletedGamesList($userCompletedGamesList): void
     echo "</tbody></table>";
     echo "</div>";
 
-    echo "</div>";
-}
-
-function RenderRecentlyAwardedComponent(): void
-{
-    $componentHeight = 514;
-    $style = "height:$componentHeight" . "px";
-    echo "<div class='component' style='$style'>";
-    echo "<h3>recently awarded</h3>";
-
-    $count = getRecentlyEarnedAchievements(10, null, $dataArray);
-
-    $lastDate = '';
-
-    echo "<table><tbody>";
-    echo "<tr><th>Date</th><th>User</th><th>Achievement</th><th>Game</th></tr>";
-
-    $iter = 0;
-
-    for ($i = 0; $i < $count; $i++) {
-        $timestamp = strtotime($dataArray[$i]['DateAwarded']);
-        $dateAwarded = date("d M", $timestamp);
-
-        if (date("d", $timestamp) == date("d")) {
-            $dateAwarded = "Today";
-        } elseif (date("d", $timestamp) == (date("d") - 1)) {
-            $dateAwarded = "Y'day";
-        }
-
-        if ($lastDate !== $dateAwarded) {
-            $lastDate = $dateAwarded;
-        }
-
-        echo "<tr>";
-
-        $wonAt = date("H:i", $timestamp);
-        $nextUser = $dataArray[$i]['User'];
-        $achID = $dataArray[$i]['AchievementID'];
-        $achTitle = $dataArray[$i]['Title'];
-        $achDesc = $dataArray[$i]['Description'];
-        $achPoints = $dataArray[$i]['Points'];
-        $badgeName = $dataArray[$i]['BadgeName'];
-        // $badgeFullPath = media_asset("Badge/$badgeName.png");
-        $gameTitle = $dataArray[$i]['GameTitle'];
-        $gameID = $dataArray[$i]['GameID'];
-        $gameIcon = $dataArray[$i]['GameIcon'];
-        $consoleTitle = $dataArray[$i]['ConsoleTitle'];
-
-        echo "<td>";
-        echo "$dateAwarded $wonAt";
-        echo "</td>";
-
-        echo "<td>";
-        // echo "<a href='/user/" . $nextUser . "'><img alt='$nextUser' title='$nextUser' src='/UserPic/$nextUser.png' width='32' height='32' /></a>";
-        echo GetUserAndTooltipDiv($nextUser, true);
-        echo "</td>";
-
-        echo "<td><div>";
-        echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true);
-        echo "</div></td>";
-
-        echo "<td><div>";
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleTitle, true);
-        echo "</div></td>";
-
-        echo "</tr>";
-    }
-    echo "</tbody></table>";
-    echo "<br>";
     echo "</div>";
 }

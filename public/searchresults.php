@@ -65,11 +65,8 @@ RenderContentStart("Search");
                     echo "<td>$nextType</td>";
                     // echo "<td>$nextID</td>";
                     if ($nextType == 'User') {
-                        echo "<td>";
-                        echo GetUserAndTooltipDiv($nextID, true);
-                        echo "</td>";
-                        echo "<td>";
-                        echo GetUserAndTooltipDiv($nextID, false);
+                        echo "<td colspan='2'>";
+                        echo userAvatar($nextID);
                         echo "</td>";
                     } else {
                         if ($nextType == 'Achievement') {
@@ -82,7 +79,7 @@ RenderContentStart("Search");
                         } else {
                             if ($nextType == 'Forum Comment' || $nextType == 'Comment') {
                                 echo "<td>";
-                                echo GetUserAndTooltipDiv($nextID, true);
+                                echo userAvatar($nextID);
                                 echo "</td>";
                                 echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
                             } else {

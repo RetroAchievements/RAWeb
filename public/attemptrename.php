@@ -36,7 +36,7 @@ RenderContentStart("Rename Game Entry ($consoleName)");
     <div id="fullcontainer">
         <h2>Rename Game Entry</h2>
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
+        echo gameAvatar($gameData);
         echo "<br><br>";
 
         echo "Renaming game entry <a href='/game/$gameID'>$gameTitle</a> for $consoleName.<br>";

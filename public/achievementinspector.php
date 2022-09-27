@@ -102,8 +102,10 @@ function updateAchievementsTypeFlag(typeFlag) {
     }
 
     if ($gameIDSpecified) {
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
-        echo "<br><br>";
+        if (!empty($gameData)) {
+            echo gameAvatar($gameData);
+            echo "<br><br>";
+        }
 
         if ($partialModifyOK || $fullModifyOK) {
             echo "<p align='justify'><b>Instructions:</b> This is the game's achievement list as displayed on the website or in the emulator. " .
