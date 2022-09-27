@@ -48,7 +48,7 @@ function UpdateHashDetails(user, hash) {
             var date = new Date();
             var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-            $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
+            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td class="smalldate">' + dateStr + '</td><td></td><td>' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
         });
 }
 
@@ -73,7 +73,7 @@ function UnlinkHash(user, gameID, hash, elem) {
             var date = new Date();
             var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-            $('.comment-textarea').parents('tr').before('<tr class="feed_comment localuser system"><td class="smalldate">' + dateStr + '</td><td class="iconscommentsingle"></td><td class="commenttext">' + hash + ' unlinked by ' + user + '</td></tr>');
+            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td class="smalldate">' + dateStr + '</td><td></td><td>' + hash + ' unlinked by ' + user + '</td></tr>');
         });
 }
 </script>
