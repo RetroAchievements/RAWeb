@@ -209,7 +209,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             break;
         case ActivityType::Unknown:
         default:
-            error_log(__FUNCTION__ . " received unknown activity: $activity");
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
             break;
     }
@@ -262,6 +261,8 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
     }
     sanitize_sql_inputs($user, $gameID, $presenceMsg);
     settype($gameID, 'integer');
+
+    $presenceMsg = utf8_sanitize($presenceMsg);
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
