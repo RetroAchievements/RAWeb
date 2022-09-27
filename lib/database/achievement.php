@@ -12,8 +12,8 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut): string
     settype($id, "integer");
 
     // Updated: embed game title
-    $query = "SELECT a.Title, g.Title AS GameTitle, g.ID as GameID FROM Achievements AS a 
-                LEFT JOIN GameData AS g ON g.ID = a.GameID 
+    $query = "SELECT a.Title, g.Title AS GameTitle, g.ID as GameID FROM Achievements AS a
+                LEFT JOIN GameData AS g ON g.ID = a.GameID
                 WHERE a.ID = '$id'";
 
     $dbResult = s_mysql_query($query);
@@ -42,8 +42,6 @@ function GetAchievementData($id): ?array
     $dbResult = s_mysql_query($query);
 
     if (!$dbResult || mysqli_num_rows($dbResult) != 1) {
-        error_log(__FUNCTION__ . " failed: Achievement $id doesn't exist!");
-
         return null;
     } else {
         return mysqli_fetch_assoc($dbResult);
@@ -80,8 +78,8 @@ function getAchievementsList(
         $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'";
     }
 
-    $query = "SELECT 
-                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, 
+    $query = "SELECT
+                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName
                 FROM Achievements AS ach
                 $innerJoin
