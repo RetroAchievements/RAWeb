@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 function getMysqliConnection(): mysqli
 {
@@ -65,6 +66,6 @@ function log_sql_fail(): void
         if (config('app.debug')) {
             throw new Exception($error);
         }
-        error_log($error);
+        Log::error($error);
     }
 }
