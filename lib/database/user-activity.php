@@ -262,6 +262,8 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
     sanitize_sql_inputs($user, $gameID, $presenceMsg);
     settype($gameID, 'integer');
 
+    $presenceMsg = utf8_sanitize($presenceMsg);
+
     $query = "UPDATE UserAccounts AS ua
               SET ua.RichPresenceMsg = '$presenceMsg', ua.LastGameID = '$gameID', ua.RichPresenceMsgDate = NOW()
               WHERE ua.User = '$user' ";
