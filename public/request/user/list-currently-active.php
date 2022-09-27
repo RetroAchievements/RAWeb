@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Cache;
 
-$ttlSeconds = 60 * 15;
+$ttlSeconds = 60 * 2;
 
 $currentlyActive = Cache::remember('currently-active', $ttlSeconds, function () {
     $ingameList = getLatestRichPresenceUpdates();
