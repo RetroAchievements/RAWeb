@@ -16,6 +16,11 @@
   border: 1px solid transparent;
 }
 
+.comment.system {
+  color: var(--text-color-muted);
+  font-size: smaller;
+}
+
 .comment-loading-indicator {
   display: none;
   padding: 6px;
