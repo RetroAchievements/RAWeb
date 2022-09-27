@@ -111,12 +111,12 @@ function RenderArticleComment(
     sanitize_outputs($user, $comment);
     $comment = nl2br($comment);
 
-    echo "<td class='iconscommentsingle'>";
+    echo "<td>";
     if ($user !== 'Server') {
         echo GetUserAndTooltipDiv($user, true);
     }
     echo "</td>";
-    echo "<td class='commenttext w-full' colspan='3'>";
+    echo "<td class='w-full' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
@@ -141,7 +141,7 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 
     echo <<<EOL
         <tr id="comment_$commentId">
-            <td class="iconscommentsingle">
+            <td>
                 <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
             </td>
             <td colspan="3">
