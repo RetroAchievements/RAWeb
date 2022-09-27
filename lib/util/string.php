@@ -76,3 +76,8 @@ function separateList(string $items): array
 
     return array_values($items);
 }
+
+function utf8_sanitize(string $input): string
+{
+    return mb_convert_encoding($input, "UTF-8", "UTF-8");
+}
