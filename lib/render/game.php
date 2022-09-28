@@ -11,8 +11,6 @@ function GetGameAndTooltipDiv(
     $imgSizeOverride = 32,
     $justText = false
 ): string {
-    $tooltipIconSize = 64;
-
     $gameNameEscaped = attributeEscape($gameName);
     sanitize_outputs(
         $gameName,
@@ -26,15 +24,6 @@ function GetGameAndTooltipDiv(
 
     $gameIcon = $gameIcon != null ? $gameIcon : "assets/images/activity/playing.webp";
 
-    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . media_asset($gameIcon) . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
-    $tooltip .= "<div>";
-    $tooltip .= "<b>$gameName</b><br>";
-    $tooltip .= $consoleStr;
-    $tooltip .= "</div>";
-    $tooltip .= "</div>";
-    $tooltip = tipEscape($tooltip);
-
     $displayable = "";
 
     if (!$justText) {
@@ -45,11 +34,34 @@ function GetGameAndTooltipDiv(
         $displayable .= " $gameName $consoleStr";
     }
 
-    return "<div class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
+    return "<div class='inline' onmouseover=\"Tip(loadCard('game', $gameID))\" onmouseout=\"UnTip()\" >" .
         "<a href='/game/$gameID'>" .
         "$displayable" .
         "</a>" .
         "</div>";
+}
+
+function renderGameCard(int $gameId): string
+{
+    $gameData = [];
+    getGameTitleFromID(
+        $gameId,
+        $gameName,
+        $consoleIDOut,
+        $consoleName,
+        $forumTopicID,
+        $gameData
+    );
+
+    $tooltip = "<div class='tooltip-body flex items-start' style='max-width: 400px'>";
+    $tooltip .= "<img style='margin-right:5px' src='" . media_asset($gameData['GameIcon']) . "' width='64' height='64' />";
+    $tooltip .= "<div>";
+    $tooltip .= "<b>$gameName</b><br>";
+    $tooltip .= $consoleName;
+    $tooltip .= "</div>";
+    $tooltip .= "</div>";
+
+    return $tooltip;
 }
 
 function RenderMostPopularTitles($daysRange = 7, $offset = 0, $count = 10): void

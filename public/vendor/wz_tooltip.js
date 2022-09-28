@@ -76,10 +76,10 @@ config. FadeOut			= 100
 config. FadeInterval	= 30		// Duration of each fade step in ms (recommended: 30) - shorter is smoother but causes more CPU-load
 config. Fix				= null		// Fixated position, two modes. Mode 1: x- an y-coordinates in brackets, e.g. [210, 480]. Mode 2: Show tooltip at a position related to an HTML element: [ID of HTML element, x-offset, y-offset from HTML element], e.g. ['SomeID', 10, 30]. Value null (default) for no fixated positioning.
 config. FollowMouse		= true		// false or true - tooltip follows the mouse
-config. FontColor		= '#000044'
-config. FontFace		= 'Verdana,Geneva,sans-serif'
-config. FontSize		= '8pt'		// E.g. '9pt' or '12px' - unit is mandatory
-config. FontWeight		= 'normal'	// 'normal' or 'bold';
+config. FontColor		= 'inherit'
+config. FontFace		= 'inherit'
+config. FontSize		= 'inherit'		// E.g. '9pt' or '12px' - unit is mandatory
+config. FontWeight		= 'inherit'	// 'normal' or 'bold';
 config. Height			= 0			// Tooltip height; 0 for automatic adaption to tooltip content, < 0 (e.g. -100) for a maximum for automatic adaption
 config. JumpHorz		= false		// false or true - jump horizontally to other side of mouse if tooltip would extend past clientarea boundary
 config. JumpVert		= true		// false or true - jump vertically		"
@@ -1200,7 +1200,7 @@ function tt_GetWndCliSiz(s)
 		return(
 			// Gecko or Opera with scrollbar
 			// ... quirks mode
-			((db = document.body) && typeof(y2 = db[sC]) == sN && y2 &&  y2 <= y) ? y2 
+			((db = document.body) && typeof(y2 = db[sC]) == sN && y2 &&  y2 <= y) ? y2
 			// ... strict mode
 			: ((db = document.documentElement) && typeof(y2 = db[sC]) == sN && y2 && y2 <= y) ? y2
 			// No scrollbar, or clientarea size == 0, or other browser (KHTML etc.)
@@ -1211,7 +1211,7 @@ function tt_GetWndCliSiz(s)
 	return(
 		// document.documentElement.client+s functional, returns > 0
 		((db = document.documentElement) && (y = db[sC])) ? y
-		// ... not functional, in which case document.body.client+s 
+		// ... not functional, in which case document.body.client+s
 		// is the clientarea size, fortunately
 		: document.body[sC]
 	);

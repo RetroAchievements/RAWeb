@@ -135,6 +135,7 @@ final class Shortcode
     {
         $achData = [];
         getAchievementMetadata($id, $achData);
+
         if (empty($achData)) {
             return '';
         }
@@ -147,7 +148,6 @@ final class Shortcode
             $achData['GameTitle'],
             $achData['BadgeName'],
             $achData['ConsoleName'],
-            false
         );
     }
 
@@ -186,7 +186,7 @@ final class Shortcode
             return '';
         }
 
-        return GetUserAndTooltipDiv($username, false);
+        return GetUserAndTooltipDiv($username);
     }
 
     private function autolinkRetroachievementsUrls(string $text): string

@@ -8,11 +8,6 @@
   font-size: theme('fontSize.lg');
 }
 
-.usercardaccounttype {
-  text-align: right;
-  text-decoration: underline;
-}
-
 .usercardbasictext {
   white-space: nowrap;
 }

@@ -13,33 +13,12 @@ function GetAchievementAndTooltipDiv(
     $smallBadgeSize = 32,
     $imgclass = 'badgeimg'
 ): string {
-    $tooltipIconSize = 64; // 96;
-
     sanitize_outputs(
         $achName,
         $consoleName,
         $gameName,
         $achPoints
     );
-
-    $achNameStr = $achName;
-    $achDescStr = $achDesc;
-    $gameNameStr = $gameName;
-
-    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . media_asset("Badge/$badgeName.png") . "' width='$tooltipIconSize' height='$tooltipIconSize' />";
-    $tooltip .= "<div>";
-    $tooltip .= "<b>$achNameStr</b><br>";
-    $tooltip .= "$achDescStr<br>";
-    if ($achPoints) {
-        $tooltip .= "<br>$achPoints Points<br>";
-    }
-    $tooltip .= "<i>$gameNameStr</i><br>";
-    $tooltip .= $extraText;
-    $tooltip .= "</div>";
-    $tooltip .= "</div>";
-
-    $tooltip = tipEscape($tooltip);
 
     $smallBadge = '';
     $displayable = "$achName";
@@ -59,12 +38,42 @@ function GetAchievementAndTooltipDiv(
         }
     }
 
-    return "<div class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
+    return "<div class='inline' onmouseover=\"Tip(loadCard('achievement', $achID))\" onmouseout=\"UnTip()\" >" .
         "<a href='/achievement/$achID'>" .
         "$smallBadge" .
         "$displayable" .
         "</a>" .
         "</div>";
+}
+
+function renderAchievementCard(int $achievementId): string
+{
+    $achData = [];
+    getAchievementMetadata($achievementId, $achData);
+
+    $badgeName = $achData['BadgeName'];
+    $achNameStr = $achData['AchievementTitle'];
+    $achDescStr = $achData['Description'];
+    $gameNameStr = $achData['GameTitle'];
+    $achPoints = $achData['Points'];
+
+    $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
+    $tooltip .= "<img src='" . media_asset("Badge/$badgeName.png") . "' width='64' height='64' />";
+    $tooltip .= "<div>";
+    $tooltip .= "<div><b>$achNameStr</b></div>";
+    $tooltip .= "<div class='mb-1'>$achDescStr</div>";
+    if ($achPoints) {
+        $tooltip .= "<div>$achPoints Points</div>";
+    }
+    $tooltip .= "<div><i>$gameNameStr</i></div>";
+
+    // TODO: extra text should tell if user has unlocked the achievement; use request()->user() for that
+    // $tooltip .= $extraText;
+
+    $tooltip .= "</div>";
+    $tooltip .= "</div>";
+
+    return $tooltip;
 }
 
 function RenderRecentlyUploadedComponent($numToFetch): void
