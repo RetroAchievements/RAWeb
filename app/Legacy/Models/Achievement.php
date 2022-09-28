@@ -6,6 +6,11 @@ namespace App\Legacy\Models;
 
 use App\Legacy\Database\Eloquent\BaseModel;
 
+/**
+ * @property string $BadgeName
+ * @property string $Description
+ * @property string $Title
+ */
 class Achievement extends BaseModel
 {
     protected $table = 'Achievements';

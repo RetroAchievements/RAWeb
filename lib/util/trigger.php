@@ -2,16 +2,20 @@
 
 function parseOperand($mem)
 {
+    $max = strlen($mem);
+    if ($max == 0) {
+        return ['Invalid', '', '', ''];
+    }
+
     $type = '';
     switch ($mem[0]) {
-        case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); break;
-        case 'p': case 'P': $type = 'Prior'; $mem = substr($mem, 1); break;
-        case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); break;
-        case '~':           $type = 'Inverted'; $mem = substr($mem, 1); break;
+        case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); $max--; break;
+        case 'p': case 'P': $type = 'Prior'; $mem = substr($mem, 1); $max--; break;
+        case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); $max--; break;
+        case '~':           $type = 'Inverted'; $mem = substr($mem, 1); $max--; break;
     }
 
     $size = '';
-    $max = strlen($mem);
     if ($max > 3 && $mem[0] == '0' && $mem[1] == 'x') {
         switch ($mem[2]) {
             case 'h': case 'H': $size = '8-bit'; break;
@@ -160,7 +164,7 @@ function parseCondition($mem)
     $hits = '';
     $scalable = false;
 
-    if ($mem[1] == ':') {
+    if (strlen($mem) > 2 && $mem[1] == ':') {
         switch ($mem[0]) {
             case 'p': case 'P': $flag = 'Pause If'; break;
             case 'r': case 'R': $flag = 'Reset If'; break;
@@ -274,6 +278,10 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         // iterating through the requirements
         $reqs = explode('_', $groups[$i]);
         for ($j = 0; $j < count($reqs); $j++) {
+            if (empty($reqs[$j])) {
+                continue;
+            }
+
             [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits] = parseCondition($reqs[$j]);
 
             $lTooltip = '';
@@ -283,6 +291,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                     $lTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($lNote) . "\"";
                     $codeNotes[$lMemory] = '<strong><u>' . $lMemory . '</u></strong>: ' . htmlspecialchars($lNote);
                 }
+            } elseif ($lType == 'Value') {
+                $lTooltip = " class=\"cursor-help\" title=\"" . hexdec($lMemory) . "\"";
             }
 
             $res .= "\n<tr>\n  <td>" . ($j + 1) . "</td>";
@@ -300,6 +310,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                         $rTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($rNote) . "\"";
                         $codeNotes[$rMemVal] = '<strong><u>' . $rMemVal . '</u></strong>: ' . htmlspecialchars($rNote);
                     }
+                } elseif ($rType == 'Value') {
+                    $rTooltip = " class=\"cursor-help\" title=\"" . hexdec($rMemVal) . "\"";
                 }
 
                 $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";

@@ -1,11 +1,12 @@
 <?php
 
 use Aws\CommandPool;
-use Aws\Ses\SesClient;
+use Illuminate\Contracts\Mail\Mailer as MailerContract;
+use Illuminate\Mail\Mailer;
+use Illuminate\Mail\Transport\SesTransport;
+use Illuminate\Support\Facades\Log;
 use RA\ArticleType;
 use RA\Permissions;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 
 function sendRAEmail($to, $header, $body): bool
@@ -19,11 +20,11 @@ function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
         return false;
     }
 
-    if (env('MAIL_MAILER') === 'smtp') {
+    if (config('mail.default') === 'smtp') {
         return mail_smtp($to, $subject, $message);
     }
 
-    if (env('MAIL_MAILER') === 'ses') {
+    if (config('mail.default') === 'ses') {
         return mail_ses($to, $subject, $message);
     }
 
@@ -32,42 +33,39 @@ function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
 
 function mail_log($to, $subject = '(No subject)', $message = ''): bool
 {
-    error_log("MAIL to $to: $subject");
-    error_log($message);
+    Log::debug('Mail', ['to' => $to, 'subject' => $subject, 'message' => $message]);
 
     return true;
 }
 
 function mail_smtp($to, $subject = '(No subject)', $message = ''): bool
 {
-    $transport = Transport::fromDsn(sprintf(
-        'smtp://%s:%s@%s:%s',
-        config('mail.mailers.smtp.username'),
-        config('mail.mailers.smtp.password'),
-        config('mail.mailers.smtp.host'),
-        config('mail.mailers.smtp.port'),
-    ));
+    /** @var Mailer $mailer */
+    $mailer = app()->make(MailerContract::class);
 
-    $mailer = new Mailer($transport);
+    /** @var SesTransport $transport */
+    $transport = $mailer->getSymfonyTransport();
 
     $email = (new Email())
-        ->from(env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>')
+        ->from(config('mail.from.name') . ' <' . config('mail.from.address') . '>')
         ->to($to)
         ->subject($subject)
         ->html($message);
 
-    $mailer->send($email);
+    $transport->send($email);
 
     return true;
 }
 
 function mail_ses($to, $subject = '(No subject)', $message = ''): bool
 {
-    $client = new SesClient([
-        'version' => 'latest',
-        'region' => env('AWS_DEFAULT_REGION'),
-        // Note: credentials are automatically pulled from .env when named properly
-    ]);
+    /** @var Mailer $mailer */
+    $mailer = app()->make(MailerContract::class);
+
+    /** @var SesTransport $transport */
+    $transport = $mailer->getSymfonyTransport();
+
+    $client = $transport->ses();
 
     $recipients = [
         $to,
@@ -80,7 +78,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
         $commands[] = $client->getCommand('SendEmail', [
             // Pass the message id so it can be updated after it is processed (it's ignored by SES)
             'x-message-id' => $i,
-            'Source' => env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>',
+            'Source' => config('mail.from.name') . ' <' . config('mail.from.address') . '>',
             'Destination' => [
                 'ToAddresses' => [$recipient],
             ],
@@ -131,9 +129,10 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
         $promise = $pool->promise();
         // Force the pool to complete synchronously
         $promise->wait();
+
         return true;
     } catch (Exception $e) {
-        error_log('Amazon SES Exception : ' . $e->getMessage());
+        Log::error($e->getMessage());
 
         return false;
     }

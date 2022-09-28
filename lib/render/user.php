@@ -23,23 +23,32 @@ function GetUserAndTooltipDiv(
 
         $userSanitized = $user;
         sanitize_outputs($userSanitized);
+
         return '<del>' . $userSanitized . '</del>';
     }
 
-    return _GetUserAndTooltipDiv($user, $userCardInfo, $imageInstead, $customLink, $iconSizeDisplayable, $iconClassDisplayable);
+    $linkURL = '/user/' . $userCardInfo['User'];
+    if (!empty($customLink)) {
+        $linkURL = $customLink;
+    }
+
+    $displayable = $userCardInfo['User'];
+    if ($imageInstead) {
+        $displayable = "<img loading='lazy' src='" . media_asset('/UserPic/' . $user . '.png') . "' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='$displayable' class='$iconClassDisplayable' />";
+    }
+
+    return "<span class='inline' onmouseover=\"Tip(loadCard('user', '$user'))\" onmouseout=\"UnTip()\">" .
+        "<a href='$linkURL'>" .
+        "$displayable" .
+        "</a>" .
+        "</span>";
 }
 
-function _GetUserAndTooltipDiv(
-    $user,
-    $userCardInfo,
-    $imageInstead = false,
-    $customLink = null,
-    $iconSizeDisplayable = 32,
-    $iconClassDisplayable = 'badgeimg'
-): string {
-    $userSanitized = $user;
-    sanitize_outputs($userSanitized);
+function renderUserCard(string $user): string
+{
+    getUserCardData($user, $userCardInfo);
 
+    $username = $userCardInfo['User'];
     $userMotto = $userCardInfo['Motto'];
     $userHardcorePoints = $userCardInfo['HardcorePoints'];
     $userSoftcorePoints = $userCardInfo['SoftcorePoints'];
@@ -49,89 +58,57 @@ function _GetUserAndTooltipDiv(
     $lastLogin = $userCardInfo['LastActivity'] ? getNiceDate(strtotime($userCardInfo['LastActivity'])) : null;
     $memberSince = $userCardInfo['MemberSince'] ? getNiceDate(strtotime($userCardInfo['MemberSince']), true) : null;
 
-    $tooltip = "<div id='objtooltip' class='flex items-start' style='max-width: 400px;'>";
-    $tooltip .= "<table><tbody>";
-    $tooltip .= "<tr>";
-    $tooltip .= "<td><img width='128' height='128' src='" . media_asset('/UserPic/' . $userSanitized . '.png') . "'/>";
-    $tooltip .= "<td class='usercard'>";
-    $tooltip .= "<table><tbody>";
-    $tooltip .= "<tr>";
-    $tooltip .= "<td class='usercardusername'>$userSanitized</td>";
-    $tooltip .= "<td class='usercardaccounttype'>$userAccountType</td>";
-    $tooltip .= "</tr>";
+    $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='width: 400px'>";
+
+    $tooltip .= "<img width='128' height='128' src='" . media_asset('/UserPic/' . $username . '.png') . "'>";
+
+    $tooltip .= "<div class='grow' style='font-size: 8pt'>";
+
+    $tooltip .= "<div class='flex justify-between mb-2'>";
+    $tooltip .= "<div class='usercardusername'>$username</div>";
+    $tooltip .= "<div class='usercardaccounttype'>$userAccountType</div>";
+    $tooltip .= "</div>";
 
     // Add the user motto if it's set
-    $tooltip .= "<tr>";
     if ($userMotto !== null && mb_strlen($userMotto) > 2) {
         sanitize_outputs($userMotto);
-        $tooltip .= "<td colspan='2' height='32px'><span class='usermotto tooltip'>$userMotto</span></td>";
-    } else {
-        // Insert blank row to add whitespace where motto would be
-        $tooltip .= "<td height='24px'></td>";
+        $tooltip .= "<div class='usermotto mb-1'>$userMotto</div>";
     }
-    $tooltip .= "</tr>";
 
     // Add the user points if there are any
-    $tooltip .= "<tr>";
     if ($userHardcorePoints > $userSoftcorePoints) {
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</td>";
-        $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Hardcore);
+        $tooltip .= "<div class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</div>";
+        $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, RankType::Hardcore);
         $userRankLabel = 'Site Rank';
     } elseif ($userSoftcorePoints > 0) {
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</td>";
-        $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($user, RankType::Softcore);
+        $tooltip .= "<div class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</div>";
+        $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, RankType::Softcore);
         $userRankLabel = 'Softcore Rank';
     } else {
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Points:</b> 0</td>";
+        $tooltip .= "<div class='usercardbasictext'><b>Points:</b> 0</div>";
         $userRank = 0;
         $userRankLabel = 'Site Rank';
     }
-    $tooltip .= "</tr>";
 
     // Add the other user information
-    $tooltip .= "<tr>";
     if ($userUntracked) {
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>$userRankLabel:</b> Untracked</td>";
+        $tooltip .= "<div class='usercardbasictext'><b>$userRankLabel:</b> Untracked</div>";
     } elseif ($userRank == 0) {
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>$userRankLabel:</b> Needs at least " . Rank::MIN_POINTS . " points </td>";
+        $tooltip .= "<div class='usercardbasictext'><b>$userRankLabel:</b> Needs at least " . Rank::MIN_POINTS . " points </div>";
     } else {
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>$userRankLabel:</b> $userRank</td>";
+        $tooltip .= "<div class='usercardbasictext'><b>$userRankLabel:</b> $userRank</div>";
     }
-    $tooltip .= "</tr>";
 
     if ($lastLogin) {
-        $tooltip .= "<tr>";
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Last Activity:</b> $lastLogin</td>";
-        $tooltip .= "</tr>";
+        $tooltip .= "<div class='usercardbasictext'><b>Last Activity:</b> $lastLogin</div>";
     }
     if ($memberSince) {
-        $tooltip .= "<tr>";
-        $tooltip .= "<td colspan='2' class='usercardbasictext'><b>Member Since:</b> $memberSince</td>";
-        $tooltip .= "</tr>";
+        $tooltip .= "<div class='usercardbasictext'><b>Member Since:</b> $memberSince</div>";
     }
-    $tooltip .= "</tbody></table>";
-    $tooltip .= "</td>";
-    $tooltip .= "</tr>";
-    $tooltip .= "</tbody></table>";
+    $tooltip .= "</div>";
     $tooltip .= "</div>";
 
-    $tooltip = tipEscape($tooltip);
-
-    $linkURL = "/user/$userSanitized";
-    if (!empty($customLink)) {
-        $linkURL = $customLink;
-    }
-
-    $displayable = $userSanitized;
-    if ($imageInstead) {
-        $displayable = "<img loading='lazy' src='" . media_asset('/UserPic/' . $user . '.png') . "' width='$iconSizeDisplayable' height='$iconSizeDisplayable' alt='' title='$user' class='$iconClassDisplayable' />";
-    }
-
-    return "<span class='inline' onmouseover=\"Tip('$tooltip')\" onmouseout=\"UnTip()\" >" .
-        "<a href='$linkURL'>" .
-        "$displayable" .
-        "</a>" .
-        "</span>";
+    return $tooltip;
 }
 
 function RenderCompletedGamesList($userCompletedGamesList): void

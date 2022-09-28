@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\Rank;
 use RA\RankType;
@@ -30,6 +31,7 @@ function getPlayerPoints($user, &$dataOut): bool
         $dataOut = mysqli_fetch_assoc($dbResult);
         settype($dataOut['RAPoints'], 'integer');
         settype($dataOut['RASoftcorePoints'], 'integer');
+
         return true;
     }
 
@@ -135,30 +137,34 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
  */
 function getUserRank(string $user, int $type = RankType::Hardcore): ?int
 {
-    sanitize_sql_inputs($user);
+    $ttlSeconds = 60 * 15;
 
-    $joinCond = match ($type) {
-        default => "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked",
-        RankType::Softcore => "RIGHT JOIN UserAccounts AS ua2 ON ua.RASoftcorePoints < ua2.RASoftcorePoints AND NOT ua2.Untracked",
-        RankType::TruePoints => "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked",
-    };
+    return Cache::remember($user . ':rank:' . ($type === RankType::Hardcore ? 'hardcore' : 'softcore'), $ttlSeconds, function () use ($user, $type) {
+        sanitize_sql_inputs($user);
 
-    $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
-                FROM UserAccounts AS ua
-                $joinCond
-                WHERE ua.User = '$user'";
+        $joinCond = match ($type) {
+            default => "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked",
+            RankType::Softcore => "RIGHT JOIN UserAccounts AS ua2 ON ua.RASoftcorePoints < ua2.RASoftcorePoints AND NOT ua2.Untracked",
+            RankType::TruePoints => "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked",
+        };
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
+        $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
+                    FROM UserAccounts AS ua
+                    $joinCond
+                    WHERE ua.User = '$user'";
 
-        return null;
-    }
+        $dbResult = s_mysql_query($query);
+        if (!$dbResult) {
+            log_sql_fail();
 
-    $data = mysqli_fetch_assoc($dbResult);
-    if ($data['Untracked']) {
-        return null;
-    }
+            return null;
+        }
 
-    return (int) $data['UserRank'];
+        $data = mysqli_fetch_assoc($dbResult);
+        if ($data['Untracked']) {
+            return null;
+        }
+
+        return (int) $data['UserRank'];
+    });
 }

@@ -1,41 +1,22 @@
 <?php
 
-use Aws\S3\S3Client;
+use Illuminate\Support\Facades\Storage;
 use RA\FilenameIterator;
 use RA\ImageType;
 
-function UploadToS3(string $filenameSrc, string $filenameDest): void
+function UploadToS3(string $filenameSrc, string $filenameDest): bool
 {
-    if (!env('AWS_ACCESS_KEY_ID')) {
+    if (!config('filesystems.disks.s3.key')) {
         // nothing to do here
-        return;
+        return false;
     }
 
     // allow using minio locally
-    $usingMinio = !empty(env('FORWARD_MINIO_PORT')) && str_contains(env('MEDIA_URL'), env('FORWARD_MINIO_PORT'));
-    if (app()->environment('local') && !$usingMinio) {
-        return;
+    if (app()->environment('local') && !config('filesystems.disks.s3.minio')) {
+        return false;
     }
 
-    $options = [
-        'version' => 'latest',
-        'region' => env('AWS_DEFAULT_REGION'),
-    ];
-
-    if ($usingMinio) {
-        $options['endpoint'] = env('AWS_ENDPOINT');
-        $options['use_path_style_endpoint'] = true;
-    }
-
-    $client = new S3Client($options);
-
-    $client->putObject([
-        'Bucket' => env('AWS_BUCKET'),
-        // no leading slashes as it would be treated as a different folder
-        'Key' => ltrim($filenameDest, '/'),
-        'Body' => fopen($filenameSrc, 'r+'),
-        'CacheControl' => 'max-age=2628000',
-    ]);
+    return Storage::disk('s3')->put(ltrim($filenameDest, '/'), file_get_contents($filenameSrc));
 }
 
 /**

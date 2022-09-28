@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use RA\AwardThreshold;
 use RA\ClaimStatus;
 use RA\Permissions;
@@ -28,24 +29,27 @@ function getAccountDetails(&$user, &$dataOut): bool
         return false;
     }
 
-    sanitize_sql_inputs($user);
+    $dataOut = Cache::store('array')->rememberForever($user . ':account-details', function () use ($user) {
+        sanitize_sql_inputs($user);
 
-    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
-                     cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
-                     APIKey, ContribCount, ContribYield,
-                     RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
-                     Created, DeleteRequested, Untracked
-                FROM UserAccounts
-                WHERE User='$user'
-                AND Deleted IS NULL";
+        $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
+                         cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
+                         APIKey, ContribCount, ContribYield,
+                         RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
+                         Created, DeleteRequested, Untracked
+                    FROM UserAccounts
+                    WHERE User='$user'
+                    AND Deleted IS NULL";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
-        return false;
-    }
+        $dbResult = s_mysql_query($query);
+        if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
+            return false;
+        }
 
-    $dataOut = mysqli_fetch_array($dbResult);
-    $user = $dataOut['User'];    // Fix case!
+        return mysqli_fetch_array($dbResult);
+    });
+
+    $user = $dataOut['User'];
 
     return true;
 }
@@ -510,6 +514,7 @@ function getUserCardData($user, &$userCardInfo): void
 
     // getUserActivityRange($user, $firstLogin, $lastLogin);
     $userCardInfo = [];
+    $userCardInfo['User'] = $userInfo['User'];
     $userCardInfo['HardcorePoints'] = $userInfo['RAPoints'];
     $userCardInfo['SoftcorePoints'] = $userInfo['RASoftcorePoints'];
     $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
@@ -527,6 +532,11 @@ function attributeDevelopmentAuthor($author, $points): void
     $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
     $dbResult = s_mysql_query($query);
     $oldResults = mysqli_fetch_assoc($dbResult);
+    if (!$oldResults) {
+        // could not find a record for the author, nothing to update
+        return;
+    }
+
     $oldContribCount = (int) $oldResults['ContribCount'];
     $oldContribYield = (int) $oldResults['ContribYield'];
 

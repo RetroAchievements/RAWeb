@@ -93,8 +93,6 @@ function RenderArticleComment(
     $deleteIcon = '';
 
     if ($user && $user == $localUser || $allowDelete) {
-        $class .= ' localuser';
-
         $img = "<img src='" . asset('assets/images/icon/cross.png') . "' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
@@ -105,7 +103,7 @@ function RenderArticleComment(
     }
 
     $artCommentID = "artcomment_{$articleTypeID}_{$articleID}_{$commentID}";
-    echo "<tr class='feed_comment $class' id='$artCommentID'>";
+    echo "<tr class='comment$class' id='$artCommentID'>";
 
     $niceDate = date("j M Y ", $submittedDate);
     $niceDate .= date("H:i", $submittedDate);
@@ -113,12 +111,12 @@ function RenderArticleComment(
     sanitize_outputs($user, $comment);
     $comment = nl2br($comment);
 
-    echo "<td class='iconscommentsingle'>";
+    echo "<td>";
     if ($user !== 'Server') {
         echo GetUserAndTooltipDiv($user, true);
     }
     echo "</td>";
-    echo "<td class='commenttext w-full' colspan='3'>";
+    echo "<td class='w-full' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
@@ -143,7 +141,7 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 
     echo <<<EOL
         <tr id="comment_$commentId">
-            <td class="iconscommentsingle">
+            <td>
                 <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
             </td>
             <td colspan="3">

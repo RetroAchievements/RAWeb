@@ -133,11 +133,11 @@ class RouteServiceProvider extends ServiceProvider
 
     private function runInterceptor(string $path)
     {
-        if (env('INTERCEPTOR_CONNECT') && $path === 'dorequest') {
-            require_once env('INTERCEPTOR_CONNECT');
+        if (config('interceptor.connect') && $path === 'dorequest') {
+            require_once config('interceptor.connect');
         }
-        elseif (env('INTERCEPTOR_WEB')) {
-            require_once env('INTERCEPTOR_WEB');
+        elseif (config('interceptor.web')) {
+            require_once config('interceptor.web');
         }
     }
 }

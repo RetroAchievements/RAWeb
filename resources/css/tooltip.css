@@ -1,19 +1,31 @@
+#WzTtDiV {
+  width: auto !important;
+}
+
 #WzBoDy {
-  border-radius: 4px !important;
-  background: var(--bg-color) !important;
-  border-color: var(--embed-highlight-color) !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  width: auto !important;
 }
 
-#WzBoDy tr {
-  background: none;
+#WzBoDyI {
+  font-size: inherit;
 }
 
-#WzBoDy td {
+.tooltip-body tr {
+  background: none !important;
+}
+
+.tooltip-body td {
   padding: 2px;
   color: var(--menu-link-color);
 }
 
-#objtooltip {
+.tooltip-body {
   background: var(--box-bg-color);
   color: var(--menu-link-color);
+  border-radius: 4px !important;
+  border: 1px solid var(--embed-highlight-color);
+  line-height: theme('fontSize.base') !important;
 }

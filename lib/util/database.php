@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 function getMysqliConnection(): mysqli
 {
     return app('mysqli');
@@ -38,10 +41,15 @@ function s_mysql_query($query): mysqli_result|bool
     $db = getMysqliConnection();
 
     if (sanitiseSQL($query)) {
-        global $g_numQueries;
-        $g_numQueries++;
+        $start = microtime(true);
 
-        return mysqli_query($db, $query);
+        $result = mysqli_query($db, $query);
+
+        $elapsed = round((microtime(true) - $start) * 1000, 2);
+
+        DB::connection()->logQuery($query, [], $elapsed);
+
+        return $result;
     } else {
         return false;
     }
@@ -58,6 +66,6 @@ function log_sql_fail(): void
         if (config('app.debug')) {
             throw new Exception($error);
         }
-        error_log($error);
+        Log::error($error);
     }
 }
