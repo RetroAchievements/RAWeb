@@ -113,7 +113,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 72, // WASM-4
             ],
         ],
-        Emulators::PCSX2 => [
+        101 => [
             'name' => 'PCSX2',
             'handle' => 'PCSX2
             'active' => true,
