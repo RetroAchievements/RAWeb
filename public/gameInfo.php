@@ -1193,6 +1193,7 @@ sanitize_outputs(
                             echo achievementAvatar(
                                 $nextAch,
                                 label: false,
+                                icon: $achBadgeName,
                                 iconSize: 64,
                                 iconClass: $imgClass,
                                 tooltip: false,
