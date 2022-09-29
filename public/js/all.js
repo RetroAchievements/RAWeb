@@ -123,8 +123,6 @@ function useCard(type, id, context = null, html = '') {
     cardId += `_${context}`;
   }
 
-  console.log(cardId);
-
   if (cardsCache[cardId]) {
     return cardsCache[cardId];
   }
@@ -140,8 +138,6 @@ function loadCard(type, id, context = null) {
   if (context) {
     cardId += `_${context}`;
   }
-
-  console.log(cardId);
 
   if (cardsCache[cardId]) {
     return cardsCache[cardId];
@@ -223,7 +219,6 @@ function UpdateMailboxCount(messageCount) {
 
 function reloadTwitchContainer(videoID) {
   var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-  console.log(videoID);
   if (videoID && archiveURLs[videoID]) {
     var vidTitle = archiveTitles[videoID];
     var vidURL = archiveURLs[videoID];
