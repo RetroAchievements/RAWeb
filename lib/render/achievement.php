@@ -70,14 +70,6 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         });
     }
 
-    // /** @var ?User $user */
-    // $user = request()->user();
-    // if ($context && $user) {
-    //     getAchievementUnlocksData($id, $numWinners, $numPossibleWinners, $numRecentWinners, winnerInfo: $data, user: $user->User);
-    //
-    //     $data['Unlock'] = 'UNLOCKED';
-    // }
-
     $title = $data['AchievementTitle'] ?? $data['Title'] ?? null;
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
