@@ -39,7 +39,7 @@ function RenderNewsHeader(News $newsData): void
     $link = htmlspecialchars($newsData['Link']);
 
     $author = $newsData['Author'];
-    $authorLink = userAvatar($author, iconSize: 16);
+    $authorLink = userAvatar($author, icon: false);
     $niceDate = $newsData->Timestamp->format('F j, Y, H:i');
 
     echo "<div class='newsbluroverlay'>";
