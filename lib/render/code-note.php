@@ -41,7 +41,7 @@ function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
         echo "</td>";
 
         echo "<td>";
-        echo userAvatar($nextCodeNote['User'], true);
+        echo userAvatar($nextCodeNote['User'], label: false, iconSize: 24);
         echo "</td>";
 
         echo "</tr>";

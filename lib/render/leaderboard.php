@@ -192,7 +192,6 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                         echo "<td></td>";
                     }
                     echo "<td>";
-                    echo userAvatar($userData[0]['User'], true);
                     echo userAvatar($userData[0]['User']);
                     echo "</td>";
                     if ($j == 0) {

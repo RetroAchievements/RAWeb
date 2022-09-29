@@ -232,10 +232,10 @@ function RenderRecentGamePlayers($recentPlayerData): void
             $activity
         );
         echo "<td>";
-        echo userAvatar($userName, true);
+        echo userAvatar($userName, label: false);
         echo "</td>";
         echo "<td>";
-        echo userAvatar($userName);
+        echo userAvatar($userName, icon: false);
         echo "</td>";
         echo "<td class='whitespace-nowrap'>$date</td>";
         echo "<td>$activity</td>";
