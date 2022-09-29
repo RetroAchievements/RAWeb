@@ -169,10 +169,10 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "<tr>";
 
             echo "<td>";
-            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, null, $gameTitle, $achBadgeName, true, true);
+            echo achievementAvatar($achEntry, label: false);
             echo "</td>";
             echo "<td class='w-full'>";
-            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, null, $gameTitle, $achBadgeName, false);
+            echo achievementAvatar($achEntry, icon: false);
             echo "<br>$achDesc";
             echo "</td>";
 
@@ -183,12 +183,12 @@ RenderContentStart("Achievement List" . $requestedConsole);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($achAuthor, true);
+                echo userAvatar($achAuthor, label: false);
                 echo "</td>";
             }
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 32);
+            echo gameAvatar($achEntry, label: false);
             echo "</td>";
 
             echo "<td>";

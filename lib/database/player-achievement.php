@@ -233,7 +233,7 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
               FROM Achievements AS ach
               LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              WHERE ach.Flags = " . AchievementType::OfficialCore . " 
+              WHERE ach.Flags = " . AchievementType::OfficialCore . "
               AND ach.GameID IN ( $gameIDs )
               ORDER BY IsAwarded DESC, HardcoreAchieved, DateAwarded DESC, ach.DisplayOrder, ach.ID
               LIMIT $limit";
@@ -244,73 +244,6 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
             $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
         }
     }
-}
-
-function getRecentlyEarnedAchievements(int $count, ?string $user, &$dataOut): int
-{
-    sanitize_sql_inputs($count, $user);
-
-    $query = "SELECT aw.User, aw.Date AS DateAwarded, aw.AchievementID, ach.Title, ach.Description, ach.BadgeName, ach.Points, ach.GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleTitle
-               FROM Awarded AS aw
-               LEFT JOIN Achievements ach ON aw.AchievementID = ach.ID
-               LEFT JOIN GameData gd ON ach.GameID = gd.ID
-               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID ";
-
-    if (!empty($user)) {
-        $query .= "WHERE User='$user' AND HardcoreMode=0 ";
-    } else {
-        $query .= "WHERE HardcoreMode=0 ";
-    }
-
-    $query .= "ORDER BY Date DESC
-                LIMIT 0, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-        return 0;
-    }
-
-    $i = 0;
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $dataOut[$i] = $db_entry;
-        $i++;
-    }
-    return $i;
-}
-
-function getCommonlyUnlocked($consoleID, $offset, $count, &$dataOut): bool
-{
-    sanitize_sql_inputs($consoleID, $offset, $count);
-
-    $subquery = "";
-    if (isset($consoleID) && $consoleID > 0) {
-        $subquery = "WHERE cons.ID = $consoleID ";
-    }
-
-    $query = "SELECT COALESCE(aw.cnt,0) AS NumTimesAwarded, ach.Title AS AchievementTitle, ach.ID, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ID AS GameID, cons.Name AS ConsoleName
-            FROM Achievements AS ach
-            LEFT OUTER JOIN (SELECT AchievementID, count(*) cnt FROM Awarded GROUP BY AchievementID) aw ON ach.ID = aw.AchievementID
-            LEFT JOIN GameData gd ON gd.ID = ach.GameID
-            LEFT JOIN Console AS cons ON cons.ID = gd.ConsoleID
-            $subquery
-            GROUP BY ach.ID
-            ORDER BY NumTimesAwarded DESC
-            LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = [];
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[] = $db_entry;
-        }
-    } else {
-        log_sql_fail();
-        // failed: consoleID:$consoleID offset:$offset, count:$count
-    }
-
-    return true;
 }
 
 function getAchievementUnlocksData(
@@ -571,7 +504,7 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = $flags 
+            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = $flags
               AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
             GROUP BY aw.User
             ORDER BY AwardedCount DESC

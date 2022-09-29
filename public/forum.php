@@ -118,7 +118,7 @@ RenderContentStart($pageTitle);
             echo "<td>";
             echo "<div>";
             if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
-                echo GetUserAndTooltipDiv($nextForumLastPostAuthor);
+                echo userAvatar($nextForumLastPostAuthor);
             }
             echo "<br><span class='smalldate'>$nextForumCreatedNiceDate</span>";
             echo "<br><a class='btn btn-link' href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>View</a>";

@@ -99,12 +99,11 @@ RenderContentStart("Set Requests");
                 echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                 echo "<td>";
-                echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                echo gameAvatar($request);
                 echo "</td><td>";
                 $claims = explode(',', $request['Claims']);
                 foreach ($claims as $devClaim) {
-                    echo GetUserAndTooltipDiv($devClaim, true);
-                    echo GetUserAndTooltipDiv($devClaim, false);
+                    echo userAvatar($devClaim);
                     echo "</br>";
                 }
                 echo "</td>";
@@ -160,14 +159,13 @@ RenderContentStart("Set Requests");
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";
-                        echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                        echo gameAvatar($request);
                         echo "</td>";
 
                         echo "<td>";
                         $claims = explode(',', $request['Claims']);
                         foreach ($claims as $devClaim) {
-                            echo GetUserAndTooltipDiv($devClaim, true);
-                            echo GetUserAndTooltipDiv($devClaim, false);
+                            echo userAvatar($devClaim);
                             echo "</br>";
                         }
                         echo "</td>";
@@ -177,21 +175,20 @@ RenderContentStart("Set Requests");
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";
-                        echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']);
+                        echo gameAvatar($request);
                         echo "</td>";
                     } else {
                         echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
                         echo "<td>";
-                        echo GetGameAndTooltipDiv($request['GameID'], $request['GameTitle'], $request['GameIcon'], $request['ConsoleName']) . " - Set Exists";
+                        echo gameAvatar($request);
                         echo "</td>";
                     }
 
                     echo "<td>";
                     $claims = explode(',', $request['Claims']);
                     foreach ($claims as $devClaim) {
-                        echo GetUserAndTooltipDiv($devClaim, true);
-                        echo GetUserAndTooltipDiv($devClaim, false);
+                        echo userAvatar($devClaim);
                         echo "</br>";
                     }
                     echo "</td>";

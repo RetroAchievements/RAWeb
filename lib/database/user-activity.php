@@ -88,7 +88,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
 
             $gameName = $achData['GameTitle'];
             $gameID = $achData['GameID'];
-            $achName = $achData['AchievementTitle'];
+            $achName = $achData['Title'];
 
             $gameLink = "<a href='/game/$gameID'>$gameName</a>";
             $achLink = "<a href='/achievement/$achID'>$achName</a>";

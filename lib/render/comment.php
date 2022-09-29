@@ -113,18 +113,21 @@ function RenderArticleComment(
 
     echo "<td>";
     if ($user !== 'Server') {
-        echo GetUserAndTooltipDiv($user, true);
+        echo userAvatar($user, label: false);
     }
     echo "</td>";
     echo "<td class='w-full' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
-        echo GetUserAndTooltipDiv($user);
+        echo userAvatar($user, label: true);
     }
     echo " <span class='smalldate'>$niceDate</span>";
     echo "</div>";
+
+    echo "<div style='word-break: break-word'>";
     echo $comment;
+    echo "</div>";
     echo "</td>";
 
     echo "</tr>";

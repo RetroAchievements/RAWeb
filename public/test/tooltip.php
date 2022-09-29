@@ -13,13 +13,13 @@ function tooltip_row(string $text): void
     echo "        <td><a href=\"/game/1234\"><img class=\"goldimage\" alt=\"$alt\" title=\"$alt\" src=\"/Badge/$badge.png\" width=\"48\" height=\"48\" /></a></td>\n";
 
     echo "        <td>";
-    echo GetGameAndTooltipDiv(1, $text, "/Badge/$badge.png", $text);
+    echo gameAvatar(1, icon: "/Badge/$badge.png");
 
     echo "</td>\n        <td>";
-    echo GetAchievementAndTooltipDiv(1, $text, $text, 5, $text, $badge, true);
+    echo achievementAvatar(1);
 
     echo "</td>\n        <td>";
-    echo GetUserAndTooltipDiv('luchaos');
+    echo userAvatar('luchaos');
 
     $ticketData = [
         'ID' => 1,
@@ -42,7 +42,7 @@ function tooltip_row(string $text): void
     ];
     $ticket = new Ticket($ticketData);
     echo "</td>\n        <td>";
-    echo GetTicketAndTooltipDiv($ticket);
+    echo ticketAvatar($ticket);
 
     echo "</td>\n";
     echo "    </tr>\n";

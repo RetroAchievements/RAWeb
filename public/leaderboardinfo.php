@@ -65,7 +65,7 @@ RenderContentStart('Leaderboard');
             echo "</div>";
 
             echo "<div style='float:left; padding: 4px;'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 96);
+            echo gameAvatar($lbData, label: false, iconSize: 96);
 
             echo "</div>";
             echo "<div>";
@@ -84,7 +84,7 @@ RenderContentStart('Leaderboard');
             if (is_null($lbAuthor)) {
                 echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
             } else {
-                echo "Created by " . GetUserAndTooltipDiv($lbAuthor, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+                echo "Created by " . userAvatar($lbAuthor, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
             }
             echo "</small>";
             echo "</p>";
@@ -183,8 +183,7 @@ RenderContentStart('Leaderboard');
                 echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
                 echo "<td class='lb_user'>";
-                echo GetUserAndTooltipDiv($nextUser, true);
-                echo GetUserAndTooltipDiv($nextUser, false);
+                echo userAvatar($nextUser);
                 echo "</td>";
 
                 echo "<td class='lb_result'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";

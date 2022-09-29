@@ -892,7 +892,7 @@ function getUserAchievementWithMostTickets(string $user): ?array
 {
     sanitize_sql_inputs($user);
 
-    $query = "SELECT a.ID as AchievementID, a.Title as AchievementTitle, a.Description as AchievementDescription, a.Points as AchievementPoints, a.BadgeName as AchievementBadge, gd.Title AS GameTitle, COUNT(*) as TicketCount
+    $query = "SELECT a.ID, a.Title, a.Description, a.Points, a.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID

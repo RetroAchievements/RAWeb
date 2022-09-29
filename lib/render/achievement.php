@@ -1,127 +1,100 @@
 <?php
 
-function GetAchievementAndTooltipDiv(
-    $achID,
-    $achName,
-    $achDesc,
-    $achPoints,
-    $gameName,
-    $badgeName,
-    $inclSmallBadge = false,
-    $smallBadgeOnly = false,
-    $extraText = '',
-    $smallBadgeSize = 32,
-    $imgclass = 'badgeimg'
+use Illuminate\Support\Facades\Cache;
+
+function achievementAvatar(
+    int|string|array $achievement,
+    ?bool $label = null,
+    bool|int|string|null $icon = null,
+    int $iconSize = 32,
+    string $iconClass = 'badgeimg',
+    bool|string|array $tooltip = true,
+    ?string $context = null,
 ): string {
-    sanitize_outputs(
-        $achName,
-        $consoleName,
-        $gameName,
-        $achPoints
-    );
+    $id = $achievement;
 
-    $smallBadge = '';
-    $displayable = "$achName";
-    if ($achPoints) {
-        $displayable .= " ($achPoints)";
-    }
+    if (is_array($achievement)) {
+        $id = $achievement['AchievementID'] ?? $achievement['ID'];
 
-    if ($inclSmallBadge) {
-        $achNameAttr = attributeEscape($achName);
-        $smallBadgePath = "/Badge/$badgeName" . ".png";
-        $smallBadge = "<img loading='lazy' width='$smallBadgeSize' height='$smallBadgeSize' src='" . media_asset($smallBadgePath) . "' alt='$achNameAttr' title='$achNameAttr' class='$imgclass'>";
-
-        if ($smallBadgeOnly) {
-            $displayable = "";
-        } else {
-            $smallBadge .= ' ';
+        if ($label !== false) {
+            $title = $achievement['AchievementTitle'] ?? $achievement['Title'];
+            $points = $achievement['Points'] ?? null;
+            $label = $title . ($points ? ' (' . $points . ')' : '');
         }
+
+        if ($icon !== false) {
+            $badgeName = is_string($icon) ? $icon : $achievement['BadgeName'] ?? null;
+            $icon = media_asset("/Badge/$badgeName.png");
+        }
+
+        if ($achievement['HardcoreMode'] ?? false) {
+            $iconClass = 'goldimage';
+        }
+
+        // pre-render tooltip
+        $tooltip = $tooltip !== false ? $achievement : false;
     }
 
-    return "<div class='inline' onmouseover=\"Tip(loadCard('achievement', $achID))\" onmouseout=\"UnTip()\" >" .
-        "<a href='/achievement/$achID'>" .
-        "$smallBadge" .
-        "$displayable" .
-        "</a>" .
-        "</div>";
+    return avatar(
+        resource: 'achievement',
+        id: $id,
+        label: $label !== false && ($label || !$icon) ? $label : null,
+        link: route('achievement.show', $id),
+        tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
+        iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
+        iconSize: $iconSize,
+        iconClass: $iconClass,
+        context: $context,
+    );
 }
 
-function renderAchievementCard(int $achievementId): string
+function renderAchievementCard(int|string|array $achievement, ?string $context = null): string
 {
-    $achData = [];
-    getAchievementMetadata($achievementId, $achData);
+    $id = is_int($achievement) || is_string($achievement) ? (int) $achievement : ($achievement['AchievementID'] ?? $achievement['ID'] ?? null);
 
-    $badgeName = $achData['BadgeName'];
-    $achNameStr = $achData['AchievementTitle'];
-    $achDescStr = $achData['Description'];
-    $gameNameStr = $achData['GameTitle'];
-    $achPoints = $achData['Points'];
+    if (empty($id)) {
+        return __('legacy.error.error');
+    }
+
+    $data = [];
+    if (is_array($achievement)) {
+        $data = $achievement;
+    }
+
+    if (empty($data)) {
+        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', function () use ($id) {
+            $data = [];
+            getAchievementMetadata($id, $data);
+
+            return $data;
+        });
+    }
+
+    $title = $data['AchievementTitle'] ?? $data['Title'] ?? null;
+    $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
+    $achPoints = $data['Points'] ?? null;
+    $badgeName = $data['BadgeName'] ?? null;
+    $unlock = $data['Unlock'] ?? null;
+    $gameTitle = $data['GameTitle'] ?? null;
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
     $tooltip .= "<img src='" . media_asset("Badge/$badgeName.png") . "' width='64' height='64' />";
     $tooltip .= "<div>";
-    $tooltip .= "<div><b>$achNameStr</b></div>";
-    $tooltip .= "<div class='mb-1'>$achDescStr</div>";
+    $tooltip .= "<div><b>$title</b></div>";
+    $tooltip .= "<div class='mb-1'>$description</div>";
     if ($achPoints) {
         $tooltip .= "<div>$achPoints Points</div>";
     }
-    $tooltip .= "<div><i>$gameNameStr</i></div>";
+    if ($gameTitle) {
+        $tooltip .= "<div><i>$gameTitle</i></div>";
+    }
 
-    // TODO: extra text should tell if user has unlocked the achievement; use request()->user() for that
-    // $tooltip .= $extraText;
+    if ($unlock) {
+        $tooltip .= "<div>$unlock</div>";
+    }
 
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
     return $tooltip;
-}
-
-function RenderRecentlyUploadedComponent($numToFetch): void
-{
-    echo "<div class='component'>";
-    echo "<h3>New Achievements</h3>";
-
-    $numFetched = getLatestNewAchievements($numToFetch, $dataOut);
-    if ($numFetched > 0) {
-        echo "<table class='sidebar'><tbody>";
-        echo "<tr><th>Achievement</th><th>Game</th><th>Added</th></tr>";
-
-        foreach ($dataOut as $nextData) {
-            $timestamp = strtotime($nextData['DateCreated']);
-            $dateAwarded = date("d M", $timestamp);
-
-            if (date("d", $timestamp) == date("d")) {
-                $dateAwarded = "Today";
-            } elseif (date("d", $timestamp) == (date("d") - 1)) {
-                $dateAwarded = "Y'day";
-            }
-
-            $uploadedAt = date("H:i", $timestamp);
-            $achID = $nextData['ID'];
-            $achTitle = $nextData['Title'];
-            $achDesc = $nextData['Description'];
-            $achPoints = $nextData['Points'];
-            $gameID = $nextData['GameID'];
-            $gameTitle = $nextData['GameTitle'];
-            $gameIcon = $nextData['GameIcon'];
-            $achBadgeName = $nextData['BadgeName'];
-            $consoleName = $nextData['ConsoleName'];
-
-            sanitize_outputs($achTitle, $achDesc, $gameTitle, $consoleName);
-
-            echo "<tr>";
-            echo "<td>";
-            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
-            echo "</td>";
-            echo "<td><div>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName);
-            echo "<td class='smalldate'>$dateAwarded $uploadedAt</td>";
-            echo "</div></td>";
-            echo "</tr>";
-        }
-        echo "</tbody></table>";
-        echo "<br>";
-        echo "<div class='text-right'><a class='btn btn-link' href='/achievementList.php?s=17'>more...</a></div>";
-    }
-    echo "</div>";
 }
