@@ -24,7 +24,7 @@ function userAvatar(
     });
 
     if (!$user) {
-        if ($icon) {
+        if ($icon !== false && ($icon || !$label)) {
             return '';
         }
 
