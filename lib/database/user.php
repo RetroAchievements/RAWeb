@@ -49,6 +49,10 @@ function getAccountDetails(&$user, &$dataOut): bool
         return mysqli_fetch_array($dbResult);
     });
 
+    if (!$dataOut) {
+        return false;
+    }
+
     $user = $dataOut['User'];
 
     return true;
