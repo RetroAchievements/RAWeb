@@ -144,7 +144,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             // $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
 
             $achID = $achEntry['ID'];
-            $achTitle = $achEntry['Title'];
+            $achTitle = $achEntry['AchievementTitle'];
             $achDesc = $achEntry['Description'];
             $achPoints = $achEntry['Points'];
             $achTruePoints = $achEntry['TrueRatio'];
