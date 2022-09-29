@@ -41,8 +41,7 @@ function RenderGameLeaderboardsComponent($lbData): void
             // Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            echo userAvatar($bestScoreUser, true, iconSize: 16);
-            echo userAvatar($bestScoreUser);
+            echo userAvatar($bestScoreUser, iconSize: 16);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
