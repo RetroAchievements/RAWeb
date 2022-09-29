@@ -23,7 +23,7 @@ function achievementAvatar(
         }
 
         if ($icon !== false) {
-            $badgeName = $achievement['BadgeName'] ?? null;
+            $badgeName = is_string($icon) ? $icon : $achievement['BadgeName'] ?? null;
             $icon = media_asset("/Badge/$badgeName.png");
         }
 
