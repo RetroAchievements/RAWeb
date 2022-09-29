@@ -14,11 +14,11 @@ $rules = [
     '@Symfony' => true,
 
     // TODO remove and run
-    'braces' => false,
     'no_unneeded_control_parentheses' => false,
     'simple_to_complex_string_variable' => false,
 
     // @Symfony overrides
+    'braces' => false,
     'blank_line_before_statement' => false,
     'concat_space' => ['spacing' => 'one'],
     'echo_tag_syntax' => false,
