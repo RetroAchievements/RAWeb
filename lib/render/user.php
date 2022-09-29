@@ -69,6 +69,11 @@ function renderUserCard(string|array $user): string
         });
     }
 
+    // deleted users
+    if (empty($data)) {
+        return '';
+    }
+
     $userMotto = $data['Motto'];
     $userHardcorePoints = $data['RAPoints'];
     $userSoftcorePoints = $data['RASoftcorePoints'];
