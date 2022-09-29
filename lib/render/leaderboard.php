@@ -297,8 +297,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo "</td>";
 
         echo "<td>";
-        echo userAvatar($nextUser, true, iconSize: 16);
-        echo userAvatar($nextUser);
+        echo userAvatar($nextUser, iconSize: 16);
         echo "</td>";
 
         echo "<td>";
