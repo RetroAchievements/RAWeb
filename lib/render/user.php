@@ -23,8 +23,6 @@ function userAvatar(
         return $data;
     });
 
-    $username = $user['User'] ?? null;
-
     if (!$user) {
         if ($icon) {
             return '';
@@ -35,6 +33,8 @@ function userAvatar(
 
         return '<del>' . $userSanitized . '</del>';
     }
+
+    $username = $user['User'] ?? null;
 
     return avatar(
         resource: 'user',
