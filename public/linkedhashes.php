@@ -67,7 +67,7 @@ RenderContentStart("Linked Hashes");
 
             echo '<br/><code> ' . $hash['Hash'] . '</code>';
             if (!empty($hash['User'])) {
-                echo ' linked by ' . userAvatar($hash['User']);
+                echo ' linked by ' . userAvatar($hash['User'], icon: false);
             }
             echo '</p></li>';
         }
@@ -81,7 +81,7 @@ RenderContentStart("Linked Hashes");
 
                 echo '<code> ' . $hash['Hash'] . '</code>';
                 if (!empty($hash['User'])) {
-                    echo " linked by " . userAvatar($hash['User']);
+                    echo " linked by " . userAvatar($hash['User'], icon: false);
                 }
                 echo '<br/>';
             }
