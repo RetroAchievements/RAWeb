@@ -143,6 +143,12 @@ function loadCard(type, id, context = null) {
     return cardsCache[cardId];
   }
 
+  cardsCache[cardId] = `<div id="${cardId}_yield">
+    <div class="flex justify-center items-center" style="width: 30px; height: 30px">
+        <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
+    </div>
+  </div>`;
+
   $.post('/request/card.php', {
     type: type,
     id: id,
@@ -153,11 +159,7 @@ function loadCard(type, id, context = null) {
       $(`#${cardId}_yield`).html(data.html);
     });
 
-  return `<div id="${cardId}_yield">
-    <div class="flex justify-center items-center" style="width: 30px; height: 30px">
-        <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
-    </div>
-  </div>`;
+  return cardsCache[cardId];
 }
 
 function GetTooltipDiv(icon, header, body) {
