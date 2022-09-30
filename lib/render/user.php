@@ -24,14 +24,20 @@ function userAvatar(
     });
 
     if (!$user) {
-        if ($icon !== false && ($icon || !$label)) {
-            return '';
-        }
-
         $userSanitized = $username;
         sanitize_outputs($userSanitized);
 
-        return '<del>' . $userSanitized . '</del>';
+        $iconLabel = '';
+        if ($icon !== false && ($icon || !$label)) {
+            $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
+        }
+
+        $usernameLabel = '';
+        if ($label !== false && ($label || !$icon)) {
+            $usernameLabel = "<del>$userSanitized</del>";
+        }
+
+        return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
     }
 
     $username = $user['User'] ?? null;
