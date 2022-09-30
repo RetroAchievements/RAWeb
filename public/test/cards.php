@@ -23,7 +23,15 @@ RenderContentStart();
         </div>
         <div class="mb-3">
             <div>Label & Icon</div>
-            <?= userAvatar('Scott') ?>
+            <div>
+                <?= userAvatar('Scott') ?>
+            </div>
+            <div>
+                <?= userAvatar('Jamiras') ?>
+            </div>
+            <div>
+                <?= userAvatar('luchaos') ?>
+            </div>
         </div>
         <div class="mb-3">
             <div>Label & Icon</div>

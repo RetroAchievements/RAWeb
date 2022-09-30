@@ -29,7 +29,7 @@ function userAvatar(
 
         $iconLabel = '';
         if ($icon !== false && ($icon || !$label)) {
-            $iconLabel = "<img src='" . media_asset('/UserPic/_User.png') . "' alt='$userSanitized' width='$iconSize' height='$iconSize'>";
+            $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
         }
 
         $usernameLabel = '';
@@ -37,7 +37,7 @@ function userAvatar(
             $usernameLabel = "<del>$userSanitized</del>";
         }
 
-        return "<span class='inline whitespace-nowrap'>" . $iconLabel . $usernameLabel . "</span>";
+        return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
     }
 
     $username = $user['User'] ?? null;
