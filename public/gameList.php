@@ -82,9 +82,6 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
         }
         $numLBs = $gameEntry['NumLBs'];
-        $gameIcon = $gameEntry['GameIcon'];
-
-        $consoleName = $showConsoleName ? $gameEntry['ConsoleName'] : null;
 
         sanitize_outputs($title);
 
@@ -94,7 +91,9 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         echo gameAvatar($gameEntry, label: false);
         echo "</td>";
         echo "<td class='w-full'>";
-        echo gameAvatar($gameEntry, icon: false);
+        $gameLabelData = $gameEntry;
+        unset($gameLabelData['ConsoleName']);
+        echo gameAvatar($gameLabelData, icon: false);
         echo "</td>";
 
         if ($dev == null) {
