@@ -340,8 +340,8 @@ RenderContentStart($userPage);
 
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
             echo "<div class='mottocontainer'>Last seen ";
-            if (!empty($userMassData['LastGameID'])) {
-                echo ' in ' . gameAvatar($userMassData['LastGameID'], iconSize: 22) . '<br>';
+            if (!empty($userMassData['LastGame'])) {
+                echo ' in ' . gameAvatar($userMassData['LastGame'], iconSize: 22) . '<br>';
             }
             echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
         }
