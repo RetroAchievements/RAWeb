@@ -113,6 +113,16 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 72, // WASM-4
             ],
         ],
+        101 => [
+            'name' => 'PCSX2',
+            'handle' => 'PCSX2',
+            'active' => true,
+            'link' => 'https://pcsx2.net/guides/basic-setup/',
+            'description' => '<strong>NOTE:</strong> The PCSX2 standalone is the only emulator officially supporting achievements for PlayStation 2. Download from <a href="https://pcsx2.net/downloads">pcsx2.net</a>',
+            'systems' => [
+                21, // PlayStation 2
+            ],
+        ],
         Emulators::RAppleWin => [
             'minimum_version' => '1.1.1',
             'latest_version' => '1.1.1',

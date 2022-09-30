@@ -609,7 +609,6 @@ sanitize_outputs(
 <?php endif ?>
 <div id="mainpage">
     <div id="<?= $isFullyFeaturedGame ? 'leftcontainer' : 'fullcontainer' ?>">
-        <?php RenderConsoleMessage((int) $consoleID) ?>
         <div id="achievement">
             <?php
 

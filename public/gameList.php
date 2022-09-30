@@ -164,7 +164,6 @@ RenderContentStart($requestedConsole . "Games");
 ?>
 <div id="mainpage">
     <div id="fullcontainer">
-        <?php RenderConsoleMessage((int) $consoleIDInput) ?>
         <div>
             <?php
                 if ($dev !== null) {
