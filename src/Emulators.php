@@ -7,6 +7,8 @@ namespace RA;
  */
 abstract class Emulators
 {
+    // RA Standalone
+
     public const RAGens = 0;
 
     public const RAP64 = 1;
@@ -32,6 +34,12 @@ abstract class Emulators
     public const RAOricutron = 11;
 
     public const RAMelonDS = 12;
+
+    // Third Party Standalone
+
+    public const RetroArch = 'retro_arch';
+
+    public const PCSX2 = 'pcsx2';
 
     public static function cases(): array
     {
