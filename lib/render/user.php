@@ -32,7 +32,12 @@ function userAvatar(
             $iconLabel = "<img src='" . media_asset('/UserPic/_User.png') . "' alt='$userSanitized' width='$iconSize' height='$iconSize'>";
         }
 
-        return "<span class='inline whitespace-nowrap'>$iconLabel <del>$userSanitized</del></span>";
+        $usernameLabel = '';
+        if ($label !== false && ($label || !$icon)) {
+            $usernameLabel = "<del>$userSanitized</del>";
+        }
+
+        return "<span class='inline whitespace-nowrap'>" . $iconLabel . $usernameLabel . "</span>";
     }
 
     $username = $user['User'] ?? null;
