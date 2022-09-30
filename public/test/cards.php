@@ -21,38 +21,44 @@ RenderContentStart();
                 <?= Shortcode::render("[user=luchaos]") ?>
             </div>
         </div>
-        <div>
-            <div class="mb-3">
-                Label & Icon
+        <div class="mb-3">
+            <div>Label & Icon</div>
+            <div>
                 <?= userAvatar('Scott') ?>
+            </div>
+            <div>
+                <?= userAvatar('Jamiras') ?>
+            </div>
+            <div>
+                <?= userAvatar('luchaos') ?>
             </div>
         </div>
         <div class="mb-3">
-            Label & Icon
+            <div>Label & Icon</div>
             <?= userAvatar('Scott', label: true, icon: true) ?>
         </div>
         <div class="mb-3">
-            Label
+            <div>Label</div>
             <?= userAvatar('Scott', label: true, icon: false) ?>
         </div>
         <div class="mb-3">
-            Icon
+            <div>Icon</div>
             <?= userAvatar('Scott', label: false, icon: true) ?>
         </div>
         <div class="mb-3">
-            Label
+            <div>Label</div>
             <?= userAvatar('Scott', label: true) ?>
         </div>
         <div class="mb-3">
-            Icon
+            <div>Icon</div>
             <?= userAvatar('Scott', label: false) ?>
         </div>
         <div class="mb-3">
-            Icon
+            <div>Icon</div>
             <?= userAvatar('Scott', icon: true) ?>
         </div>
         <div class="mb-3">
-            Label
+            <div>Label</div>
             <?= userAvatar('Scott', icon: false) ?>
         </div>
         <div>
