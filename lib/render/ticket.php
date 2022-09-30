@@ -4,38 +4,53 @@ use RA\Ticket;
 use RA\TicketState;
 use RA\TicketType;
 
-function GetTicketAndTooltipDiv(Ticket $ticket): string
+function ticketAvatar(
+    int|string|Ticket $ticket,
+    ?bool $label = null,
+    bool|int|string|null $icon = null,
+    int $iconSize = 32,
+    string $iconClass = 'badgeimg',
+    bool|string|array $tooltip = true,
+    ?string $context = null,
+): string
 {
+    if (is_int($ticket)) {
+        $ticket = GetTicketModel($ticket);
+    }
+
     $ticketStateClass = match ($ticket->ticketState) {
         TicketState::Open => 'open',
-        TicketState::Closed => 'closed',
-        TicketState::Resolved => 'closed',
+        TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };
 
-    $achNameAttr = attributeEscape($ticket->achievementTitle);
-    $smallBadgePath = "/Badge/" . $ticket->badgeName . ".png";
-
-    return "<a class='ticket-block inline-block $ticketStateClass' href='/ticketmanager.php?i=" . $ticket->id
-            . "' onmouseover=\"Tip(loadCard('ticket', {$ticket->id}))\" onmouseout=\"UnTip()\">" .
-            "<img loading='lazy' width='32' height='32' src=\"" . media_asset($smallBadgePath) . "\" alt='$achNameAttr' title='$achNameAttr' class='badgeimg' />" .
-            "<div class='ticket-displayable-block'>Ticket #$ticket->id</div>" .
-        "</a>";
+    return avatar(
+        resource: 'ticket',
+        id: $ticket->id,
+        label: "Ticket #{$ticket->id}",
+        link: 'ticketmanager.php?i=' . $ticket->id,
+        tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
+        class: "ticket-avatar $ticketStateClass",
+        iconUrl: media_asset("/Badge/" . $ticket->badgeName . ".png"),
+        iconSize: $iconSize,
+        iconClass: $iconClass,
+        context: $context,
+    );
 }
 
-function renderTicketCard(int $ticketId): string
+function renderTicketCard(int|Ticket $ticket): string
 {
-    $ticket = GetTicketModel($ticketId);
+    if (is_int($ticket)) {
+        $ticket = GetTicketModel($ticket);
+    }
 
     $ticketStateClass = match ($ticket->ticketState) {
         TicketState::Open => 'open',
-        TicketState::Closed => 'closed',
-        TicketState::Resolved => 'closed',
+        TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };
 
-    $tooltip =
-        "<div class='tooltip-body flex items-start' style='max-width: 400px'>" .
+    return "<div class='tooltip-body flex items-start' style='max-width: 400px'>" .
         "<img style='margin-right:5px' src='" . media_asset('/Badge/' . $ticket->badgeName . '.png') . "' width='64' height='64' />" .
         "<div class='ticket-tooltip-info $ticketStateClass'>" .
         "<div><b>" . $ticket->achievementTitle . "</b> <i>(" . $ticket->gameTitle . ")</i></div>" .
@@ -46,6 +61,4 @@ function renderTicketCard(int $ticketId): string
         "</div>" .
         "<div class='ticket-tooltip-state'>" . TicketState::toString($ticket->ticketState) . "</div>" .
         "</div>";
-
-    return $tooltip;
 }

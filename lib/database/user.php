@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Cache;
 use RA\AwardThreshold;
 use RA\ClaimStatus;
 use RA\Permissions;
@@ -29,25 +28,23 @@ function getAccountDetails(&$user, &$dataOut): bool
         return false;
     }
 
-    $dataOut = Cache::store('array')->rememberForever($user . ':account-details', function () use ($user) {
-        sanitize_sql_inputs($user);
+    sanitize_sql_inputs($user);
 
-        $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
-                         cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
-                         APIKey, ContribCount, ContribYield,
-                         RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
-                         Created, DeleteRequested, Untracked
-                    FROM UserAccounts
-                    WHERE User='$user'
-                    AND Deleted IS NULL";
+    $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
+                     cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
+                     APIKey, ContribCount, ContribYield,
+                     RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
+                     Created, DeleteRequested, Untracked
+                FROM UserAccounts
+                WHERE User='$user'
+                AND Deleted IS NULL";
 
-        $dbResult = s_mysql_query($query);
-        if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
-            return false;
-        }
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
+        return false;
+    }
 
-        return mysqli_fetch_array($dbResult);
-    });
+    $dataOut = mysqli_fetch_array($dbResult);
 
     $user = $dataOut['User'];
 
@@ -497,32 +494,6 @@ function GetUserFields($username, $fields): ?array
     }
 
     return mysqli_fetch_assoc($dbResult);
-}
-
-/**
- * Returns the information displayed in the usercard.
- */
-function getUserCardData($user, &$userCardInfo): void
-{
-    getAccountDetails($user, $userInfo);
-
-    if (!$userInfo) {
-        $userCardInfo = null;
-
-        return;
-    }
-
-    // getUserActivityRange($user, $firstLogin, $lastLogin);
-    $userCardInfo = [];
-    $userCardInfo['User'] = $userInfo['User'];
-    $userCardInfo['HardcorePoints'] = $userInfo['RAPoints'];
-    $userCardInfo['SoftcorePoints'] = $userInfo['RASoftcorePoints'];
-    $userCardInfo['TotalTruePoints'] = $userInfo['TrueRAPoints'];
-    $userCardInfo['Permissions'] = $userInfo['Permissions'];
-    $userCardInfo['Motto'] = $userInfo['Motto'];
-    $userCardInfo['Untracked'] = $userInfo['Untracked'];
-    $userCardInfo['LastActivity'] = $userInfo['LastLogin'];
-    $userCardInfo['MemberSince'] = $userInfo['Created'];
 }
 
 function attributeDevelopmentAuthor($author, $points): void

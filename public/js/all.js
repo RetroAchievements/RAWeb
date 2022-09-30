@@ -115,27 +115,51 @@ function replaceAll(find, replace, str) {
 }
 
 var cardsCache = {};
-function loadCard(type, id) {
+
+function useCard(type, id, context = null, html = '') {
   var cardId = `tooltip_card_${type}_${id}`;
+
+  if (context) {
+    cardId += `_${context}`;
+  }
 
   if (cardsCache[cardId]) {
     return cardsCache[cardId];
   }
 
-  $.post('/request/card.php', {
-    type: type,
-    id: id,
-  })
-    .done(function (data) {
-      cardsCache[cardId] = data.html;
-      $(`#${cardId}`).html(data.html);
-    });
+  cardsCache[cardId] = html;
 
-  return `<div id="${cardId}">
+  return html;
+}
+
+function loadCard(type, id, context = null) {
+  var cardId = `tooltip_card_${type}_${id}`;
+
+  if (context) {
+    cardId += `_${context}`;
+  }
+
+  if (cardsCache[cardId]) {
+    return cardsCache[cardId];
+  }
+
+  cardsCache[cardId] = `<div id="${cardId}_yield">
     <div class="flex justify-center items-center" style="width: 30px; height: 30px">
         <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
     </div>
   </div>`;
+
+  $.post('/request/card.php', {
+    type: type,
+    id: id,
+    context: context,
+  })
+    .done(function (data) {
+      cardsCache[cardId] = data.html;
+      $(`#${cardId}_yield`).html(data.html);
+    });
+
+  return cardsCache[cardId];
 }
 
 function GetTooltipDiv(icon, header, body) {
@@ -197,7 +221,6 @@ function UpdateMailboxCount(messageCount) {
 
 function reloadTwitchContainer(videoID) {
   var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-  console.log(videoID);
   if (videoID && archiveURLs[videoID]) {
     var vidTitle = archiveTitles[videoID];
     var vidURL = archiveURLs[videoID];

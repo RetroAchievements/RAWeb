@@ -949,7 +949,7 @@ sanitize_outputs(
                     $numItems = count($authorInfo);
                     $i = 0;
                     foreach ($authorInfo as $author => $achievementCount) {
-                        echo GetUserAndTooltipDiv($author, false);
+                        echo userAvatar($author, icon: false);
                         echo " (" . $achievementCount . ")";
                         if (++$i !== $numItems) {
                             echo ', ';
@@ -1062,7 +1062,7 @@ sanitize_outputs(
                         foreach ($claimData as $claim) {
                             $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
                             $claimExpiration = getNiceDate(strtotime($claim['Expiration']));
-                            echo GetUserAndTooltipDiv($claim['User'], false) . $revisionText;
+                            echo userAvatar($claim['User'], icon: false) . $revisionText;
                             if ($claimListLength > 1) {
                                 echo ", ";
                             }
@@ -1166,7 +1166,6 @@ sanitize_outputs(
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
 
                             $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
-                            $tooltipText = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>HARDCORE' : '';
 
                             $wonBy = $nextAch['NumAwarded'];
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
@@ -1188,18 +1187,15 @@ sanitize_outputs(
                             echo "<div class='flex justify-between gap-3 items-start'>";
 
                             echo "<div>";
-                            echo GetAchievementAndTooltipDiv(
-                                $achID,
-                                $achTitle,
-                                $achDesc,
-                                $achPoints,
-                                $gameTitle,
-                                $achBadgeName,
-                                true,
-                                true,
-                                $tooltipText,
-                                64,
-                                $imgClass
+
+                            $nextAch['Unlock'] = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>HARDCORE' : null;
+                            echo achievementAvatar(
+                                $nextAch,
+                                label: false,
+                                icon: $achBadgeName,
+                                iconSize: 64,
+                                iconClass: $imgClass,
+                                tooltip: false,
                             );
                             echo "</div>";
 
@@ -1225,18 +1221,11 @@ sanitize_outputs(
                             }
                             echo "<div class='achievementdata'>";
                             echo "<div class='mb-1 lg:mt-1'>";
-                            echo GetAchievementAndTooltipDiv(
-                                $achID,
-                                $achTitle,
-                                $achDesc,
-                                $achPoints,
-                                $gameTitle,
-                                $achBadgeName,
-                                false,
-                                false,
-                                "",
-                                64,
-                                $imgClass
+                            echo achievementAvatar(
+                                $nextAch,
+                                label: true,
+                                icon: false,
+                                tooltip: false,
                             );
                             echo " <span class='TrueRatio'>($achTrueRatio)</span>";
                             echo "</div>";

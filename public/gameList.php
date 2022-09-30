@@ -91,10 +91,10 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
         echo "<tr>";
 
         echo "<td>";
-        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, $consoleName, true);
+        echo gameAvatar($gameEntry, label: false);
         echo "</td>";
         echo "<td class='w-full'>";
-        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, $consoleName, false, null, true);
+        echo gameAvatar($gameEntry, icon: false);
         echo "</td>";
 
         if ($dev == null) {

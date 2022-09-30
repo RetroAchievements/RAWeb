@@ -74,10 +74,10 @@ RenderContentStart("Developer Stats");
 
             $dev = $devStats['Author'];
             echo "<td class='whitespace-nowrap'>";
-            echo GetUserAndTooltipDiv($dev, true);
+            echo userAvatar($dev, label: false);
             echo "</td>";
             echo "<td class='whitespace-nowrap'><div>";
-            echo GetUserAndTooltipDiv($dev, false);
+            echo userAvatar($dev, icon: false);
             echo "<br><small>";
             if ($devStats['Permissions'] == Permissions::JuniorDeveloper) {
                 echo Permissions::toString(Permissions::JuniorDeveloper);

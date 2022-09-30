@@ -110,25 +110,17 @@ RenderContentStart("$userPage's Legacy - $dateStr");
 
         foreach ($achEarnedLib as $achEarned) {
             $achAwardedAt = $achEarned['Date'];
-            $achID = $achEarned['AchievementID'];
-            $achTitle = $achEarned['Title'];
             $achDesc = $achEarned['Description'];
             $achPoints = $achEarned['Points'];
             $achPointsNote = $achEarned['PointsNote'] ?? '';
             $achAuthor = $achEarned['Author'];
-            $achGameID = $achEarned['GameID'];
-            $achGameTitle = $achEarned['GameTitle'];
-            $achGameIcon = $achEarned['GameIcon'];
-            $achConsoleName = $achEarned['ConsoleName'];
-            $achBadgeName = $achEarned['BadgeName'];
-            $hardcoreMode = $achEarned['HardcoreMode'];
 
-            sanitize_outputs($achTitle, $achDesc);
+            sanitize_outputs($achDesc);
 
             $pointsCount += $achPoints;
             $earnedCount++;
             // $dateUnix = strtotime( "$nextDay-$nextMonth-$nextYear" );
-            // $dateStr = getNiceDate( $dateUnix, TRUE );
+            // $dateStr = getNiceDate( $dateUnix, true );
 
             echo "<tr>";
 
@@ -137,7 +129,7 @@ RenderContentStart("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
-            echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $achGameTitle, $achBadgeName, true, false, '', 32, $hardcoreMode ? 'goldimage' : '');
+            echo achievementAvatar($achEarned);
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
@@ -149,11 +141,11 @@ RenderContentStart("$userPage's Legacy - $dateStr");
             echo "</td>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($achAuthor, true);
+            echo userAvatar($achAuthor, label: false);
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($achGameID, $achGameTitle, $achGameIcon, $achConsoleName, true, 32);
+            echo gameAvatar($achEarned, label: false);
             echo "</td>";
 
             echo "</tr>";

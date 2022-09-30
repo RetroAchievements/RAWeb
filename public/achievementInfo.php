@@ -19,7 +19,7 @@ if (empty($dataOut)) {
     abort(404);
 }
 
-$achievementTitle = $dataOut['AchievementTitle'];
+$achievementTitle = $dataOut['Title'];
 $desc = $dataOut['Description'];
 $achFlags = (int) $dataOut['Flags'];
 $achPoints = (int) $dataOut['Points'];
@@ -225,7 +225,7 @@ RenderContentStart($achievementTitleRaw);
         if ($achFlags === AchievementType::Unofficial) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -385,10 +385,10 @@ RenderContentStart($achievementTitleRaw);
                 $niceDateWon = date("d M, Y H:i", strtotime($userObject['DateAwarded']));
                 echo "<tr>";
                 echo "<td class='w-[32px]'>";
-                echo GetUserAndTooltipDiv($userWinner, true);
+                echo userAvatar($userWinner, label: false);
                 echo "</td>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($userWinner, false);
+                echo userAvatar($userWinner, icon: false);
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {

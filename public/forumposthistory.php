@@ -58,10 +58,10 @@ RenderContentStart("Forum Recent Posts");
             echo "<tr>";
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($postAuthor, true);
+            echo userAvatar($postAuthor, label: false);
             echo "</td>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($postAuthor, false);
+            echo userAvatar($postAuthor, icon: false);
             echo "</td>";
 
             echo "<td><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";

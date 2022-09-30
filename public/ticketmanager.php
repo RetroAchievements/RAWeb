@@ -201,7 +201,7 @@ RenderContentStart($pageTitle);
                 }
 
                 echo "<td>";
-                echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName);
+                echo gameAvatar($nextTicket);
                 echo "</td>";
                 echo "<td><a href='/ticketmanager.php?g=$gameID'>$openTickets</a></td>";
 
@@ -446,25 +446,22 @@ RenderContentStart($pageTitle);
                     echo "</td>";
 
                     echo "<td style='min-width:25%'>";
-                    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
+                    echo achievementAvatar($nextTicket);
                     echo "</td>";
 
                     echo "<td>";
-                    echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName);
+                    echo gameAvatar($nextTicket);
                     echo "</td>";
 
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($achAuthor, true);
-                    echo GetUserAndTooltipDiv($achAuthor, false);
+                    echo userAvatar($achAuthor);
                     echo "</td>";
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($reportedBy, true);
-                    echo GetUserAndTooltipDiv($reportedBy, false);
+                    echo userAvatar($reportedBy);
                     echo "</td>";
                     if ($closedTickets || $resolvedTickets) {
                         echo "<td>";
-                        echo GetUserAndTooltipDiv($resolvedBy, true);
-                        echo GetUserAndTooltipDiv($resolvedBy, false);
+                        echo userAvatar($resolvedBy);
                         echo "</td>";
                     }
 
@@ -546,26 +543,23 @@ RenderContentStart($pageTitle);
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
-                echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
+                echo achievementAvatar($nextTicket);
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
-                echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName);
+                echo gameAvatar($nextTicket);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($achAuthor, true);
-                echo GetUserAndTooltipDiv($achAuthor, false);
+                echo userAvatar($achAuthor);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($reportedBy, true);
-                echo GetUserAndTooltipDiv($reportedBy, false);
+                echo userAvatar($reportedBy);
                 echo "</td>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($resolvedBy, true);
-                echo GetUserAndTooltipDiv($resolvedBy, false);
+                echo userAvatar($resolvedBy);
                 echo "</td>";
 
                 echo "<td class='smalldate'>";
@@ -765,9 +759,7 @@ RenderContentStart($pageTitle);
                             echo "Ticket Created - ";
                             echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
                         } else {
-                            echo GetAchievementAndTooltipDiv($unlockEntry['ID'], $unlockEntry['Title'], $unlockEntry['Description'],
-                                $unlockEntry['Points'], $gameTitle, $unlockEntry['BadgeName'], true
-                            );
+                            echo achievementAvatar($unlockEntry);
                         }
                         echo "</td><td>";
                         $unlockDate = getNiceDate(strtotime($unlockEntry['Date']));

@@ -42,7 +42,7 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     if (empty($gameID)) {
         return $gameTitle;
     }
-    $query = "SELECT gd.Title, gd.ForumTopicID, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon, gd.ImageIcon AS GameIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released
+    $query = "SELECT gd.ID, gd.Title, gd.ForumTopicID, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon, gd.ImageIcon AS GameIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released
               FROM GameData AS gd
               LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
               WHERE gd.ID=$gameID";

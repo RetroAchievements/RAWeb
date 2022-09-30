@@ -87,8 +87,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
                 echo "<tr>";
 
                 echo "<td>";
-                echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                echo GetUserAndTooltipDiv($dataPoint['User'], false);
+                echo userAvatar($dataPoint['User']);
                 echo "</td>";
 
                 echo "<td>";
@@ -100,7 +99,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
                 echo "</td>";
 
                 echo "<td>";
-                echo GetGameAndTooltipDiv($dataPoint['GameID'], $dataPoint['GameTitle'], $dataPoint['GameIcon'], $dataPoint['ConsoleName']);
+                echo gameAvatar($dataPoint);
                 echo "</td>";
 
                 echo "<td>";
