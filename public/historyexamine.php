@@ -14,7 +14,7 @@ if (!$userMassData) {
     abort(404);
 }
 
-$dateInput = requestInputSanitized('d', 0);
+$dateInput = requestInputSanitized('d', 0, 'integer');
 
 $userPageHardcorePoints = 0;
 $userPageSoftcorePoints = 0;
