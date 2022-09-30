@@ -37,7 +37,7 @@ abstract class Emulators
 
     // Third Party Standalone
 
-    public const RetroArch = 'retro_arch';
+    public const RetroArch = 'retroarch';
 
     public const PCSX2 = 'pcsx2';
 
