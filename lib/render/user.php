@@ -42,6 +42,7 @@ function userAvatar(
         label: $label !== false && ($label || !$icon) ? $username : null,
         link: $link ?: route('user.show', $username),
         tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
+        class: 'inline whitespace-nowrap',
         iconUrl: $icon !== false && ($icon || !$label) ? media_asset('/UserPic/' . $username . '.png') : null,
         iconSize: $iconSize,
         iconClass: $iconClass,
