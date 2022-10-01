@@ -20,7 +20,8 @@ export default defineConfig(({ mode }) => {
     // https://vitejs.dev/config/#build-options
     build: {
       outDir: `public/${env.VITE_BUILD_PATH}`,
-      assetsDir: ''
+      assetsDir: '',
+      assetsInlineLimit: 4096
     },
     // https://vitejs.dev/config/#plugins
     plugins: [
