@@ -741,14 +741,15 @@ sanitize_outputs(
 
                         $escapedGameTitle = attributeEscape($gameTitle);
                         $claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user) ? ClaimType::Collaboration : ClaimType::Primary;
+                        $isCollaboration = $claimType === ClaimType::Collaboration;
                         $claimSetType = $numAchievements > 0 ? ClaimSetType::Revision : ClaimSetType::NewSet;
                         $isRevision = $claimSetType === ClaimSetType::Revision;
                         $hasOpenTickets = $openTickets[TicketState::Open] > 0;
                         $createTopic = !$isRevision && $permissions >= Permissions::Developer && empty($forumTopicID);
                         $claimBlockedByMissingForumTopic = !$isRevision && $permissions == Permissions::JuniorDeveloper && empty($forumTopicID);
 
-                        // User has an open claim or is claiming own set and missing forum topic is not blocking
-                        $canClaim = ($userHasClaimSlot || $isSoleAuthor) && !$hasGameClaimed && !$claimBlockedByMissingForumTopic;
+                        // User has an open claim or is claiming own set or is making a collaboration claim and missing forum topic is not blocking
+                        $canClaim = ($userHasClaimSlot || $isSoleAuthor || $isCollaboration) && !$hasGameClaimed && !$claimBlockedByMissingForumTopic;
 
                         if ($canClaim) {
                             $revisionDialogFlag = $isRevision && !$isSoleAuthor ? 'true' : 'false';
