@@ -16,7 +16,7 @@ $input = Validator::validate(request()->post(), [
     'news' => 'nullable|integer',
     'body' => 'required|string',
     'title' => 'required|string',
-    'link' => 'required|nullable|url',
+    'link' => 'nullable|url',
     'image' => 'required|url',
 ]);
 
