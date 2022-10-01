@@ -1,5 +1,7 @@
 <?php
 
+use App\Legacy\Models\User;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
@@ -7,6 +9,13 @@ $achievementID = requestInputSanitized('i', 0, 'integer');
 $dataOut = null;
 if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
     abort(404);
+}
+
+/** @var User $userModel */
+$userModel = request()->user();
+$ticketID = getExistingTicketID($userModel, $achievementID);
+if ($ticketID !== 0) {
+    return redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists'));
 }
 
 $emulators = getActiveEmulatorReleases();

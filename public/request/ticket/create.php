@@ -37,8 +37,14 @@ if (!empty($input['emulator_version'])) {
     $note .= "\nEmulator Version: " . $input['emulator_version'];
 }
 
-if (submitNewTickets($user, $achievementId, (int) $input['issue'], (int) $input['mode'], $note)) {
-    return redirect(route('achievement.show', $achievementId))->with('success', __('legacy.success.submit'));
+$ticketID = getExistingTicketID($user, $achievementId);
+if ($ticketID !== 0) {
+    return redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists'));
 }
 
-return back()->withErrors(__('legacy.error.error'));
+$ticketID = submitNewTicket($user, $achievementId, (int) $input['issue'], (int) $input['mode'], $note);
+if ($ticketID != 0) {
+    return redirect(url("/ticketmanager.php?i=$ticketID"))->with('success', __('legacy.success.submit'));
+}
+
+return back()->withErrors(__('legacy.error.ticket_create'));
