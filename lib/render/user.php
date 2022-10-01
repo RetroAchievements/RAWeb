@@ -17,6 +17,10 @@ function userAvatar(
     ?string $link = null,
     bool|string|array $tooltip = true,
 ): string {
+    if (empty($username)) {
+        return '';
+    }
+
     $user = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
         getAccountDetails($username, $data);
 
