@@ -282,6 +282,15 @@ RenderContentStart($pageTitle);
             $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
+            echo <<<EOF
+               <script>
+                   function disableRepost() {
+                      var btn = $('#postBtn');
+                      btn.attr('disabled', true);
+                      btn.html('Sending...');
+                   }
+               </script>
+            EOF;
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
             echo csrf_field();
             echo "<input type='hidden' name='topic' value='$thisTopicID'>";
@@ -298,7 +307,7 @@ RenderContentStart($pageTitle);
             EOF;
             echo "<div class='flex justify-between mb-2'>";
             echo "<span class='textarea-counter' data-textarea-id='commentTextarea'></span>";
-            echo "<button class='btn' $inputEnabled>Submit</button>";    // TBD: replace with image version
+            echo "<button id='postBtn' class='btn' onclick='this.form.submit(); disableRepost()' $inputEnabled>Submit</button>";    // TBD: replace with image version
             echo "</div>";
             echo "</form>";
 
