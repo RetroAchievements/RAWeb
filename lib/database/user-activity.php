@@ -134,7 +134,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
              */
             $lastPlayedTimestamp = null;
             $activityID = null;
-            $recentlyPlayedGames = Cache::get($user . ':recentGames');
+            $recentlyPlayedGames = Cache::get("user:$user:recentGames");
             if (!empty($recentlyPlayedGames)) {
                 foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
                     if ($recentlyPlayedGame['GameID'] == $gameID) {
@@ -166,7 +166,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
                      * Updating db, but not posting!
                      */
                     updateActivity($activityID);
-                    _expireRecentlyPlayedGames($user);
+                    expireRecentlyPlayedGames($user);
                     return true;
                 } else {
                     /**
@@ -242,7 +242,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
     if ($activity == ActivityType::StartedPlaying) {
         // have to do this after the query is executed to prevent a race condition where
         // it may get re-cached before the query finishes
-        _expireRecentlyPlayedGames($user);
+        expireRecentlyPlayedGames($user);
     }
 
     /**
@@ -475,9 +475,9 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     return 0;
 }
 
-function _expireRecentlyPlayedGames(string $user): void
+function expireRecentlyPlayedGames(string $user): void
 {
-    Cache::forget($user . ':recentGames');
+    Cache::forget("user:$user:recentGames");
 }
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
@@ -485,7 +485,7 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
     $recentlyPlayedGames = '';
     if ($offset == 0 && $count <= 5)
     {
-        $recentlyPlayedGames = Cache::rememberForever($user . ':recentGames', function () use ($user) {
+        $recentlyPlayedGames = Cache::rememberForever("user:$user:recentGames", function () use ($user) {
             return _getRecentlyPlayedGameIds($user, 0, 5);
         });
     } else {
