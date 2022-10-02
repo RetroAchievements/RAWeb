@@ -630,6 +630,7 @@ sanitize_outputs(
                 echo "</div>";
             }
 
+            $escapedGameTitle = attributeEscape($gameTitle);
             $developer = $gameData['Developer'] ?? null;
             $publisher = $gameData['Publisher'] ?? null;
             $genre = $gameData['Genre'] ?? null;
@@ -669,11 +670,10 @@ sanitize_outputs(
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
+                $hasMinimumDeveloperPermissions = $permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper);
                 echo "<div class='devbox mb-3'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-                // echo "<div id='devboxcontent' style='display: none'>";
-                echo "<div id='devboxcontent'>";
-
+                echo "<div id='devboxcontent' style='display: none'>";
                 // Display the option to switch between viewing core/unofficial for non-hub page
                 if ($isFullyFeaturedGame) {
                     echo "<div class='lg:flex justify-between gap-5 mb-5'>";
@@ -698,19 +698,37 @@ sanitize_outputs(
                         echo "<button class='btn'>Create First Leaderboard</button>";
                         echo "</form>";
                     } else {
-                        echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Leaderboards</a></div>";
+                        echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                     }
                     echo "</div>";
 
-                    echo "<div><a class='btn btn-link' href='/codenotes.php?g=$gameID'>Code Notes</a></div>";
-
                     if ($permissions >= Permissions::Developer) {
-                        echo "<div class='mb-3'><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Hashes</a></div>";
+                        echo "<div class='mb-3'><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                     }
 
                     echo "</div>";
                     // right column
                     echo "<div class='grow'>";
+
+                    echo "<div>";
+                    RenderUpdateSubscriptionForm(
+                        "updateachievementssub",
+                        SubscriptionSubjectType::GameAchievements,
+                        $gameID,
+                        isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID),
+                        'Achievement Comments'
+                    );
+                    echo "</div>";
+
+                    echo "<div>";
+                    RenderUpdateSubscriptionForm(
+                        "updateticketssub",
+                        SubscriptionSubjectType::GameTickets,
+                        $gameID,
+                        isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
+                        'Tickets'
+                    );
+                    echo "</div>";
 
                     if ($permissions >= Permissions::Developer) {
                         echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
@@ -720,27 +738,14 @@ sanitize_outputs(
                         echo "</form>";
                     }
 
-                    echo "<div><a class='btn btn-link' href='/ticketmanager.php?g=$gameID'>Tickets</a></div>";
-                    echo "<div>";
-                    $isSubscribedToTickets = isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID);
-                    RenderUpdateSubscriptionForm(
-                        "updateticketssub",
-                        SubscriptionSubjectType::GameTickets,
-                        $gameID,
-                        $isSubscribedToTickets,
-                        'Tickets'
-                    );
-                    echo "</div>";
-
                     // Display the claims links if not an event game
                     if (!$isEventGame) {
                         echo "<div>";
                         if ($permissions >= Permissions::Admin) {
                             echo "<div><a class='btn btn-link' href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
                         }
-                        echo "<div><a class='btn btn-link' href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>View Claim History</a></div>";
+                        echo "<div><a class='btn btn-link' href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>Claim History</a></div>";
 
-                        $escapedGameTitle = attributeEscape($gameTitle);
                         $claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user) ? ClaimType::Collaboration : ClaimType::Primary;
                         $isCollaboration = $claimType === ClaimType::Collaboration;
                         $claimSetType = $numAchievements > 0 ? ClaimSetType::Revision : ClaimSetType::NewSet;
@@ -802,8 +807,38 @@ sanitize_outputs(
 
                     echo "</div>"; // end right column
                     echo "</div>";
+                }
 
-                    if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
+                if ($hasMinimumDeveloperPermissions) {
+                    // Only allow developers to rename a game
+                    if ($permissions >= Permissions::Developer) {
+                        echo "<form class='mb-2' method='post' action='/request/game/update-title.php'>";
+                        echo csrf_field();
+                        echo "<input type='hidden' name='game' value='$gameID' />";
+                        echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                        echo "<label>Name</label>";
+                        echo "<input type='text' name='title' value='$escapedGameTitle' maxlength='80' class='w-full'>";
+                        echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                        echo "</div>";
+                        echo "</form>";
+                    }
+
+                    echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<label>Developer</label><input type='text' name='developer' value='" . attributeEscape($developer) . "' class='w-full'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "<label>Publisher</label><input type='text' name='publisher' value='" . attributeEscape($publisher) . "' class='w-full'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "<label>Genre</label><input type='text' name='genre' value='" . attributeEscape($genre) . "' class='w-full'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "<label>First Released</label><input type='text' name='release' value='" . attributeEscape($released) . "' class='w-full'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "</div>";
+                    echo "</form>";
+
+                    if ($isFullyFeaturedGame) {
                         echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
@@ -826,9 +861,7 @@ sanitize_outputs(
                         echo "</div>";
                         echo "</form>";
                     }
-                }
 
-                if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
                     echo "<form class='mb-2' method='post' action='/request/game/update-image.php' enctype='multipart/form-data'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
@@ -852,31 +885,6 @@ sanitize_outputs(
                         echo "</div>";
                         echo "</form>";
                     }
-
-                    // Only allow developers to rename a game
-                    if ($permissions >= Permissions::Developer) {
-                        echo "<form class='mb-2' method='post' action='/request/game/update-title.php'>";
-                        echo csrf_field();
-                        echo "<input type='hidden' name='game' value='$gameID' />";
-                        echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                        echo "<label>Name</label>";
-                        echo "<input type='text' name='title' value='$gameTitle' maxlength='80' class='w-full'>";
-                        echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                        echo "</div>";
-                        echo "</form>";
-                    }
-
-                    echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                    echo "<label>Developer</label><input type='text' name='developer' value='" . attributeEscape($developer) . "' class='w-full'><div></div>";
-                    echo "<label>Publisher</label><input type='text' name='publisher' value='" . attributeEscape($publisher) . "' class='w-full'><div></div>";
-                    echo "<label>Genre</label><input type='text' name='genre' value='" . attributeEscape($genre) . "' class='w-full'><div></div>";
-                    echo "<label>First Released</label><input type='text' name='release' value='" . attributeEscape($released) . "' class='w-full'><div></div>";
-                    echo "</div>";
-                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                    echo "</form>";
                 }
 
                 if ($permissions >= Permissions::Admin) {
@@ -925,7 +933,7 @@ sanitize_outputs(
                 }
                 if ($isFullyFeaturedGame) {
                     echo "<div>Update <a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> script</div>";
-                    if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper)) {
+                    if ($hasMinimumDeveloperPermissions) {
                         echo "<form class='mb-2' method='post' action='/request/game/update-rich-presence.php'>";
                         echo csrf_field();
                         echo "<input type='hidden' value='$gameID' name='game'>";
@@ -937,16 +945,6 @@ sanitize_outputs(
                     }
                 }
 
-                echo "<div class='mb-1'>";
-                $isSubscribedToAchievements = isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID);
-                RenderUpdateSubscriptionForm(
-                    "updateachievementssub",
-                    SubscriptionSubjectType::GameAchievements,
-                    $gameID,
-                    $isSubscribedToAchievements,
-                    'achievement comments'
-                );
-                echo "</div>";
                 $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
                 RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
 
