@@ -20,7 +20,7 @@ if ($gameId <= 0) {
 $username = request()->query('z');
 $type = (int) request()->query('t');
 
-$gameTopAchievers = getGameTopAchievers($gameId, $username);
+$gameTopAchievers = getGameTopAchievers($gameId);
 
 if ($type == 1) {
     return response()->json($gameTopAchievers['Masters']);

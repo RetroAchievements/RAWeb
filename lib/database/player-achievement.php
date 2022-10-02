@@ -182,6 +182,8 @@ function resetAchievements(string $user, $gameID): int
         $numRowsDeleted = (int) mysqli_affected_rows($db);
     }
 
+    expireGameTopAchievers($gameID);
+
     recalculatePlayerPoints($user);
     return $numRowsDeleted;
 }
@@ -201,6 +203,9 @@ function resetSingleAchievement(string $user, $achID): bool
     if (!$dbResult) {
         log_sql_fail();
     }
+
+    getAchievementTitle($achID, $gameTitle, $gameID);
+    expireGameTopAchievers($gameID);
 
     recalculatePlayerPoints($user);
     return true;
