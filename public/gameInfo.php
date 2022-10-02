@@ -702,6 +702,10 @@ sanitize_outputs(
                         echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                     }
 
+                    if ($permissions >= Permissions::Admin && !$isEventGame) {
+                        echo "<div><a class='btn btn-link' href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
+                    }
+
                     echo "</div>";
                     // right column
                     echo "<div class='grow'>";
@@ -732,11 +736,6 @@ sanitize_outputs(
 
                     // Display the claims links if not an event game
                     if (!$isEventGame) {
-                        if ($permissions >= Permissions::Admin) {
-                            echo "<div><a class='btn btn-link' href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
-                        }
-                        echo "<div><a class='btn btn-link' href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>Claim History</a></div>";
-
                         $claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user) ? ClaimType::Collaboration : ClaimType::Primary;
                         $isCollaboration = $claimType === ClaimType::Collaboration;
                         $claimSetType = $numAchievements > 0 ? ClaimSetType::Revision : ClaimSetType::NewSet;
@@ -792,6 +791,8 @@ sanitize_outputs(
                             }
                             echo "</form>";
                         }
+
+                        echo "<div><a class='btn btn-link' href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>Claim History</a></div>";
                     }
 
                     echo "</div>"; // end right column
