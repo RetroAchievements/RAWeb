@@ -18,9 +18,9 @@ function isAllowedToSubmitTickets($user): bool
         return false;
     }
 
-    $key = $user . ':canTicket';
+    $cacheKey = "user:$user:canTicket";
 
-    $value = Cache::get($key);
+    $value = Cache::get($cacheKey);
     if ($value !== null) {
         return $value;
     }
@@ -33,13 +33,11 @@ function isAllowedToSubmitTickets($user): bool
     if ($value) {
         // if the user can create tickets, they should be able to create tickets forever
         // more. expire once every 30 days so we can purge inactive users
-        $expiresAt = Carbon::now()->addDays(30);
-        Cache::put($key, $value, $expiresAt);
+        Cache::put($cacheKey, $value, Carbon::now()->addDays(30));
     } else {
         // user can't create tickets, which means the account is less than a day old
         // or has no games played. only cache the value for an hour
-        $ttlSeconds = 60 * 60; // 1 hour
-        Cache::put($key, $value, $ttlSeconds);
+        Cache::put($cacheKey, $value, Carbon::now()->addHour());
     }
 
     return $value;
