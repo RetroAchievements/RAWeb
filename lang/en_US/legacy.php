@@ -15,6 +15,7 @@ return [
         'permissions' => __('Insufficient permissions.'),
         'subscription_update' => __("Failed to update topic subscription."),
         'ticket_create' => __("There was an issue submitting your ticket."),
+        'ticket_exists' => __("You already have a ticket for that achievement."),
         'token' => __('Invalid token.'),
         'recaptcha' => __("Invalid ReCaptcha."),
     ],
