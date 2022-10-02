@@ -46,17 +46,12 @@ function RenderActivePlayersComponent(): void
             </div>
             <div id='activeplayersbox' style='min-height: 54px'>
                 <table data-bind='hidden: isLoading'>
-                    <thead>
-                        <th>User</th>
-                        <th>Game</th>
-                        <th>Currently...</th>
-                    </thead>
                     <tbody>
                         <!-- ko foreach: filteredPlayers -->
                         <tr>
                             <td data-bind='html: playerHtml'></td>
                             <td data-bind='html: gameHtml'></td>
-                            <td data-bind='text: richPresence'></td>
+                            <td data-bind='text: richPresence' class="w-full"></td>
                         </tr>
                         <!-- /ko -->
 
