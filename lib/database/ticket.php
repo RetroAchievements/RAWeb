@@ -158,7 +158,8 @@ $bugReportDetails";
 function getExistingTicketID(User $user, int $achievementID): int
 {
     $userID = $user->ID;
-    $query = "SELECT ID FROM Ticket WHERE ReportedByUserID=$userID AND AchievementID=$achievementID";
+    $query = "SELECT ID FROM Ticket WHERE ReportedByUserID=$userID AND AchievementID=$achievementID"
+           . " AND ReportState NOT IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     $dbResult = s_mysql_query($query);
     if ($dbResult) {
         $existingTicket = mysqli_fetch_assoc($dbResult);
