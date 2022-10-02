@@ -29,16 +29,8 @@
   border-color: var(--link-hover-color);
 }
 
-.btn-borderless {
-  border-color: transparent;
-}
-.btn-borderless:hover {
-  border-color: transparent;
-}
-
 .btn-link {
   border: none;
-  line-height: inherit;
   background: none;
 }
 .btn-link:hover {

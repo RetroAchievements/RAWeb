@@ -94,7 +94,7 @@
         @if($user)
             <x-user.avatar :user="$user" display="icon" icon-size="xs"/>
             <x-user.avatar :user="$user"/>
-            <x-button.permalink :model="$user" class="btn-borderless">
+            <x-button.permalink :model="$user" class="btn">
                 permalink: {{ $user->permalink }}
             </x-button.permalink>
             {{--<x-user.edit>test</x-user.edit>--}}
