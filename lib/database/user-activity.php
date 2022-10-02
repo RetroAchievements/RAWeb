@@ -3,10 +3,10 @@
 use App\Legacy\Models\Comment;
 use App\Legacy\Models\DeletedModels;
 use App\Legacy\Models\User;
+use Illuminate\Support\Facades\Cache;
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
-use RA\RatingType;
 
 function getMostRecentActivity($user, $type, $data): ?array
 {
@@ -130,13 +130,32 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             UpdateUserRichPresence($user, $gameID, "Playing $gameTitle");
 
             /**
-             * Check for recent duplicate:
+             * Check for recent duplicate (check cache first, then query DB)
              */
-            $lastPlayedActivityData = getMostRecentActivity($user, $activity, $gameID);
-            if (isset($lastPlayedActivityData)) {
-                $nowTimestamp = time();
-                $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
-                $diff = $nowTimestamp - $lastPlayedTimestamp;
+            $lastPlayedTimestamp = null;
+            $activityID = null;
+            $recentlyPlayedGames = Cache::get("user:$user:recentGames");
+            if (!empty($recentlyPlayedGames)) {
+                foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
+                    if ($recentlyPlayedGame['GameID'] == $gameID) {
+                        $activityID = $recentlyPlayedGame['ActivityID'];
+                        $lastPlayedTimestamp = strtotime($recentlyPlayedGame['LastPlayed']);
+                        break;
+                    }
+                }
+            }
+
+            if ($activityID === null) {
+                // not in recent activity, look back farther
+                $lastPlayedActivityData = getMostRecentActivity($user, $activity, $gameID);
+                if (isset($lastPlayedActivityData)) {
+                    $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
+                    $activityID = $lastPlayedActivityData['ID'];
+                }
+            }
+
+            if ($activityID !== null) {
+                $diff = time() - $lastPlayedTimestamp;
 
                 /**
                  * record game session activity only every 12 hours
@@ -146,7 +165,8 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
                      * new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago
                      * Updating db, but not posting!
                      */
-                    updateActivity($lastPlayedActivityData['ID']);
+                    updateActivity($activityID);
+                    expireRecentlyPlayedGames($user);
                     return true;
                 } else {
                     /**
@@ -217,6 +237,12 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
     if (!$dbResult) {
         log_sql_fail();
         return false;
+    }
+
+    if ($activity == ActivityType::StartedPlaying) {
+        // have to do this after the query is executed to prevent a race condition where
+        // it may get re-cached before the query finishes
+        expireRecentlyPlayedGames($user);
     }
 
     /**
@@ -449,7 +475,61 @@ function getFeed($user, $maxMessages, $offset, &$dataOut, $latestFeedID = 0, $ty
     return 0;
 }
 
-function getRecentlyPlayedGames($user, $offset, $count, &$dataOut): int
+function expireRecentlyPlayedGames(string $user): void
+{
+    Cache::forget("user:$user:recentGames");
+}
+
+function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
+{
+    $recentlyPlayedGames = '';
+    if ($offset == 0 && $count <= 5)
+    {
+        $recentlyPlayedGames = Cache::rememberForever("user:$user:recentGames", function () use ($user) {
+            return _getRecentlyPlayedGameIds($user, 0, 5);
+        });
+    } else {
+        $recentlyPlayedGames = _getRecentlyPlayedGameIds($user, $offset, $count);
+    }
+
+    $numFound = 0;
+    $dataOut = [];
+
+    if (!empty($recentlyPlayedGames)) {
+        $recentlyPlayedGameIDs = [];
+        foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
+            $recentlyPlayedGameIDs[] = $recentlyPlayedGame['GameID'];
+        }
+
+        $recentlyPlayedGameIDs = implode(',', $recentlyPlayedGameIDs);
+        $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon
+                  FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+                  WHERE gd.ID IN ($recentlyPlayedGameIDs)";
+
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            $gameData = [];
+            while ($data = mysqli_fetch_assoc($dbResult)) {
+                $gameData[$data['GameID']] = $data;
+            }
+
+            foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
+                $gameID = $recentlyPlayedGame['GameID'];
+                if (array_key_exists($gameID, $gameData)) {
+                    $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
+                    $dataOut[] = $gameData[$gameID];
+                    $numFound++;
+                }
+            }
+        } else {
+            log_sql_fail();
+        }
+    }
+
+    return $numFound;
+}
+
+function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -469,35 +549,25 @@ function getRecentlyPlayedGames($user, $offset, $count, &$dataOut): int
     // {$RatingType::Game}
 
     $query = "
-SELECT Inner1.data AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon, Inner1.lastupdate AS LastPlayed, r.RatingValue AS MyVote
-FROM (
- SELECT act.ID, MAX( act.lastupdate ) AS lastupdate, act.data, act.activitytype
+ SELECT MAX(act.ID) as ActivityID, MAX(act.lastupdate) AS LastPlayed, act.data as GameID
  FROM Activity AS act
- WHERE act.user='$user' AND act.activitytype = 3
+ WHERE act.user='$user' AND act.activitytype = " . ActivityType::StartedPlaying . "
  GROUP BY act.data
  ORDER BY MAX( act.lastupdate ) DESC
- ) AS Inner1
-INNER JOIN GameData AS gd ON gd.ID = Inner1.data
-LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-LEFT JOIN Rating AS r ON r.RatingObjectType = " . RatingType::Game . " AND r.RatingID=Inner1.data AND r.User='$user'
-LIMIT $offset, $count";
+ LIMIT $offset, $count";
+
+    $recentlyPlayedGames = [];
 
     $dbResult = s_mysql_query($query);
-
-    $numFound = 0;
-
-    $dataOut = [];
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numFound] = $data;
-            // $dataOut[$data['GameID']] = $data;
-            $numFound++;
+            $recentlyPlayedGames[] = $data;
         }
     } else {
         log_sql_fail();
     }
 
-    return $numFound;
+    return $recentlyPlayedGames;
 }
 
 function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut): int
