@@ -28,6 +28,21 @@ th {
   /*border-right: 2px solid var(--bg-color);*/
 }
 
+table.condensed td {
+  padding: 2px 1px;
+}
+
+table.condensed th {
+  padding: 2px 1px;
+}
+
+table.condensed select {
+  padding: 2px 1px;
+}
+table.condensed input {
+  padding: 2px 1px;
+}
+
 .table-wrapper {
   max-width: 100%;
   overflow-x: auto;
