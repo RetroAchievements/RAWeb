@@ -374,6 +374,7 @@ function UploadNewAchievement(
                             $author
                         );
                     }
+                    expireGameTopAchievers($gameID);
                 } else {
                     $fields = [];
                     if ($changingPoints) {

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\Permissions;
@@ -340,12 +341,24 @@ function getGameRecentPlayers($gameID, $maximum_results = 0): array
     return $retval;
 }
 
+function expireGameTopAchievers(int $gameID): void
+{
+    $cacheKey = "game:$gameID:topachievers";
+    Cache::forget($cacheKey);
+}
+
 /**
  * Gets a game's high scorers or latest masters.
  */
-function getGameTopAchievers(int $gameID, ?string $requestedBy): array
+function getGameTopAchievers(int $gameID): array
 {
-    sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
+    $cacheKey = "game:$gameID:topachievers";
+    $retval = Cache::get($cacheKey);
+    if ($retval !== null) {
+        return $retval;
+    }
+
+    sanitize_sql_inputs($gameID);
 
     $high_scores = [];
     $masters = [];
@@ -365,7 +378,7 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
+                WHERE !ua.Untracked
                   AND ach.Flags = " . AchievementType::OfficialCore . " 
                   AND gd.ID = $gameID
                   AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
@@ -396,6 +409,14 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
     $retval = [];
     $retval['Masters'] = array_reverse($masters);
     $retval['HighScores'] = $high_scores;
+
+    if (count($masters) == 10) {
+        // only cache the result if the masters list is full.
+        // that way we only have to expire it when there's a new mastery
+        // or an achievement gets promoted or demoted
+        Cache::forever($cacheKey, $retval);
+    }
+
     return $retval;
 }
 

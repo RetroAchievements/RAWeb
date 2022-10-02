@@ -201,7 +201,7 @@ if ($isFullyFeaturedGame) {
     }
 
     // Get the top ten players at this game:
-    $gameTopAchievers = getGameTopAchievers($gameID, $user);
+    $gameTopAchievers = getGameTopAchievers($gameID);
 
     // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
