@@ -111,12 +111,12 @@ function RenderArticleComment(
     sanitize_outputs($user, $comment);
     $comment = nl2br($comment);
 
-    echo "<td>";
+    echo "<td class='align-top py-2'>";
     if ($user !== 'Server') {
         echo userAvatar($user, label: false);
     }
     echo "</td>";
-    echo "<td class='w-full' colspan='3'>";
+    echo "<td class='w-full py-2' colspan='3'>";
     echo $deleteIcon;
     echo "<div>";
     if ($user !== 'Server') {
@@ -144,10 +144,10 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
 
     echo <<<EOL
         <tr id="comment_$commentId">
-            <td>
+            <td class='align-top pb-3'>
                 <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
             </td>
-            <td colspan="3">
+            <td class='w-full pb-3' colspan="3">
                 <form action="/request/comment/create.php" method="post">
                     $csrfField
                     <input type="hidden" name="commentable_id" value="$articleId">
