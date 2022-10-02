@@ -149,25 +149,23 @@ RenderContentStart("Manage Claims");
         echo "Date the claim will expire, has been completed or was dropped depending on the claim status.</br>";
         echo "</div></br>";
 
-        echo "<div class='table-wrapper'><table><tbody>";
-        echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
+        echo "<div class='table-wrapper mb-5'><table class='condensed'><tbody>";
+        echo "<th>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::SetTypeDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimStatusDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::SpecialDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimDateDescending) . " &#9660;</th>";
         echo "<th>End Date</th>";
-        echo "<th>Update</th>";
+        echo "<th></th>";
 
         $userCount = 0;
         foreach ($claimData as $claim) {
             $claimID = $claim['ID'];
             $claimUser = $claim['User'];
-            echo "<tr><td class='whitespace-nowrap'>";
-            echo userAvatar($claimUser, label: false);
-            echo "</td>";
-            echo "<td class='whitespace-nowrap'><div id='claimUser_$claimUser'>";
-            echo userAvatar($claimUser, icon: false);
+            echo "<tr>";
+            echo "<td class='whitespace-nowrap'><div>";
+            echo userAvatar($claimUser, iconSize: 24);
             echo "</div></td>";
 
             echo "<td>";
@@ -232,9 +230,10 @@ RenderContentStart("Manage Claims");
             echo "<input id='doneDate_$claimID' size='18' value='" . $claim['DoneTime'] . "'>";
             echo "</td>";
 
-            echo "<td><input type='submit' value='Update' onclick=\"UpdateClaimDetails($claimID, '$claimUser', " . $claim['ClaimType'] . ", " . $claim['SetType'] . ", " . $claim['Status'] . ", " . $claim['Special'] . ", '" . $claim['Created'] . "', '" . $claim['DoneTime'] . "');\"></td>";
+            echo "<td><button onclick=\"UpdateClaimDetails($claimID, '$claimUser', " . $claim['ClaimType'] . ", " . $claim['SetType'] . ", " . $claim['Status'] . ", " . $claim['Special'] . ", '" . $claim['Created'] . "', '" . $claim['DoneTime'] . "');\">Update</button></td>";
         }
-        echo "</tbody></table></div><br><br>";
+        echo "</tbody></table></div>";
+
         $numLogs = getArticleComments(ArticleType::SetClaim, $gameID, 0, 1000, $logs);
         RenderCommentsComponent($user,
             $numLogs,
