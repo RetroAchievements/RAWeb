@@ -1,6 +1,8 @@
 <?php
 
 use App\Legacy\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
@@ -12,11 +14,35 @@ use RA\UnlockMode;
 
 function isAllowedToSubmitTickets($user): bool
 {
-    return isValidUsername($user)
-        && getUserActivityRange($user, $firstLogin, $lastLogin)
+    if (!isValidUsername($user)) {
+        return false;
+    }
+
+    $key = $user . ':canTicket';
+
+    $value = Cache::get($key);
+    if ($value !== null) {
+        return $value;
+    }
+
+    $value = getUserActivityRange($user, $firstLogin, $lastLogin)
         && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
         && getRecentlyPlayedGames($user, 0, 1, $userInfo)
         && $userInfo[0]['GameID'];
+
+    if ($value) {
+        // if the user can create tickets, they should be able to create tickets forever
+        // more. expire once every 30 days so we can purge inactive users
+        $expiresAt = Carbon::now()->addDays(30);
+        Cache::put($key, $value, $expiresAt);
+    } else {
+        // user can't create tickets, which means the account is less than a day old
+        // or has no games played. only cache the value for an hour
+        $ttlSeconds = 60 * 60; // 1 hour
+        Cache::put($key, $value, $ttlSeconds);
+    }
+
+    return $value;
 }
 
 function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RAHash): array
