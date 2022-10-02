@@ -185,6 +185,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             $gameLink = str_replace("'", "''", $gameLink);
 
             AddSiteAward($user, 1, $gameID, $isalt);
+            expireGameTopAchievers((int) $gameID);
 
             $query .= "(NOW(), $activity, '$user', '$gameID', $isalt)";
             break;
