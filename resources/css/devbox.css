@@ -8,7 +8,7 @@
 .devbox > span {
   cursor: pointer;
   display: block;
-  @apply btn btn-borderless;
+  @apply btn;
 }
 
 .devbox > div, .codetags {

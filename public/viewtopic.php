@@ -203,11 +203,11 @@ RenderContentStart($pageTitle);
                 echo "<tr>";
             }
 
-            echo "<td class='align-top'>";
+            echo "<td class='align-top py-3'>";
             echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
             echo "</td>";
 
-            echo "<td class='w-full' id='$nextCommentID'>";
+            echo "<td class='w-full py-3' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";
@@ -240,7 +240,7 @@ RenderContentStart($pageTitle);
             if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
                 echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
             }
-            echo "<span class='btn btn-borderless py-1' onclick='copy(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\"" . ");showStatusSuccess(\"Copied\")'>";
+            echo "<span class='btn py-1' onclick='copy(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\"" . ");showStatusSuccess(\"Copied\")'>";
             echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
             echo "</span>";
             echo "</div>";
