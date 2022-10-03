@@ -178,7 +178,7 @@ RenderContentStart("Game Compare");
 
                 echo "<td class='w-[250px]'>";
                 echo "<p class='embedded'>";
-                echo "<a href=\"Achievement/$achID\"><strong>$achTitle</strong></a><br>";
+                echo "<a href=\"achievement/$achID\"><strong>$achTitle</strong></a><br>";
                 echo "$achDesc<br>";
                 echo "($achPoints Points)";
                 echo "</p>";
