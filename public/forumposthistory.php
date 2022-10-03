@@ -64,7 +64,7 @@ RenderContentStart("Forum Recent Posts");
             echo userAvatar($postAuthor, icon: false);
             echo "</td>";
 
-            echo "<td><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";
+            echo "<td><a href='/viewtopic.php?t=$forumTopicID&c=$forumCommentID#$forumCommentID'>$forumTopicTitle</a><br>$postMessage...</td>";
             echo "<td class='smalldate'>$nicePostTime</td>";
             echo "</tr>";
         }
