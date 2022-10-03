@@ -8,9 +8,15 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Only allow updates to the lockfile and
+    # ignore any version updates that affect the manifest
+    versioning-strategy: lockfile-only
 
   - package-ecosystem: "npm"
     # Look for `package.json` and `lock` files in the `root` directory
     directory: "/"
     schedule:
       interval: "weekly"
+    # Only allow updates to the lockfile and
+    # ignore any version updates that affect the manifest
+    versioning-strategy: lockfile-only
