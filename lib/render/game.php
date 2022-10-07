@@ -252,6 +252,10 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     $pctHardcoreProportion = 0;
     $title = '';
 
+    if ($numEarnedCasual < 0) {
+        $numEarnedCasual = 0;
+    }
+
     if ($numAchievements) {
         $pctAwardedCasual = ($numEarnedCasual + $numEarnedHardcore) / $numAchievements;
         $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
