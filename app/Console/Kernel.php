@@ -28,10 +28,6 @@ class Kernel extends ConsoleKernel
         })->everyThirtyMinutes();
 
         $schedule->call(function () {
-            require_once base_path('cronjobs/cron_hourly.php');
-        })->hourly();
-
-        $schedule->call(function () {
             require_once base_path('cronjobs/cron_daily.php');
         })->daily();
 
