@@ -238,7 +238,6 @@ sanitize_outputs(
     $gameTitle,
     $consoleName,
     $richPresenceData,
-    $pageTitle,
     $user,
 );
 ?>
