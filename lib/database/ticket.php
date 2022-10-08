@@ -1,6 +1,8 @@
 <?php
 
 use App\Legacy\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
@@ -12,11 +14,33 @@ use RA\UnlockMode;
 
 function isAllowedToSubmitTickets($user): bool
 {
-    return isValidUsername($user)
-        && getUserActivityRange($user, $firstLogin, $lastLogin)
+    if (!isValidUsername($user)) {
+        return false;
+    }
+
+    $cacheKey = "user:$user:canTicket";
+
+    $value = Cache::get($cacheKey);
+    if ($value !== null) {
+        return $value;
+    }
+
+    $value = getUserActivityRange($user, $firstLogin, $lastLogin)
         && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
         && getRecentlyPlayedGames($user, 0, 1, $userInfo)
         && $userInfo[0]['GameID'];
+
+    if ($value) {
+        // if the user can create tickets, they should be able to create tickets forever
+        // more. expire once every 30 days so we can purge inactive users
+        Cache::put($cacheKey, $value, Carbon::now()->addDays(30));
+    } else {
+        // user can't create tickets, which means the account is less than a day old
+        // or has no games played. only cache the value for an hour
+        Cache::put($cacheKey, $value, Carbon::now()->addHour());
+    }
+
+    return $value;
 }
 
 function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RAHash): array
@@ -25,19 +49,16 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
 
     $returnMsg = [];
 
-    if (!isAllowedToSubmitTickets($userSubmitter)) {
-        $returnMsg['Success'] = false;
+    /** @var User $user */
+    $user = User::firstWhere('User', $userSubmitter);
 
+    if (!$user->exists() || !isAllowedToSubmitTickets($userSubmitter)) {
+        $returnMsg['Success'] = false;
         return $returnMsg;
     }
 
-    $db = getMysqliConnection();
-
     $note = $noteIn;
     $note .= "\nRetroAchievements Hash: $RAHash";
-
-    $submitterUserID = getUserIDFromUser($userSubmitter);
-    settype($reportType, 'integer');
 
     $achievementIDs = explode(',', $idsCSV);
 
@@ -47,60 +68,24 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
     $idsAdded = 0;
 
     foreach ($achievementIDs as $achID) {
-        settype($achID, 'integer');
-        if ($achID == 0) {
+        $achievementID = (int) $achID;
+        if ($achievementID == 0) {
             continue;
         }
 
         $idsFound++;
 
-        $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID )
-                                VALUES ($achID, $submitterUserID, $reportType, '$note', NOW(), NULL, NULL )";
-
-        $dbResult = mysqli_query($db, $query); // Unescaped?
-        $ticketID = mysqli_insert_id($db);
-
-        if (!$dbResult) {
+        $ticketID = getExistingTicketID($user, $achievementID);
+        if ($ticketID !== 0) {
+            $returnMsg['Error'] = "You already have a ticket for achievement $achID";
             $errorsEncountered = true;
-            log_sql_fail();
+            continue;
+        }
+
+        $ticketID = _createTicket($user, $achievementID, $reportType, null, $note);
+        if ($ticketID === 0) {
+            $errorsEncountered = true;
         } else {
-            // Success
-            if (GetAchievementMetadata($achID, $achData)) {
-                $achAuthor = $achData['Author'];
-                $achTitle = $achData['AchievementTitle'];
-                $gameID = $achData['GameID'];
-                $gameTitle = $achData['GameTitle'];
-
-                $problemTypeStr = ($reportType == 1) ? "Triggers at wrong time" : "Doesn't trigger";
-
-                $bugReportDetails = "Achievement: [ach=$achID] ($achTitle)
-Game: [game=$gameID] ($gameTitle)
-Problem: $problemTypeStr
-Comment: $note
-
-This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . config('app.url') . "/ticketmanager.php?i=$ticketID"
-                    . " Thanks!";
-                $bugReportMessage = "Hi, $achAuthor!
-[user=$userSubmitter] would like to report a bug with an achievement you've created:
-$bugReportDetails";
-
-                CreateNewMessage($userSubmitter, $achData['Author'], "Bug Report ($gameTitle)", $bugReportMessage);
-                postActivity($userSubmitter, ActivityType::OpenedTicket, $achID);
-
-                // notify subscribers other than the achievement's author
-                $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 1));
-                $emailHeader = "Bug Report ($gameTitle)";
-                foreach ($subscribers as $sub) {
-                    if ($sub['User'] != $achAuthor && $sub['User'] != $userSubmitter) {
-                        $emailBody = "Hi, " . $sub['User'] . "!
-[user=$userSubmitter] would like to report a bug with an achievement you're subscribed to:
-$bugReportDetails";
-                        sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
-                    }
-                }
-            }
-
             $idsAdded++;
         }
     }
@@ -112,29 +97,47 @@ $bugReportDetails";
     return $returnMsg;
 }
 
-function submitNewTickets(User $user, int $achID, int $reportType, int $hardcore, string $note): bool
+function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore, string $note): int
 {
     if (!isAllowedToSubmitTickets($user->User)) {
-        return false;
+        return 0;
     }
 
+    $ticketID = getExistingTicketID($user, $achID);
+    if ($ticketID !== 0) {
+        return $ticketID;
+    }
+
+    return _createTicket($user, $achID, $reportType, $hardcore, $note);
+}
+
+function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, string $note): int
+{
     if (!GetAchievementMetadata($achID, $achData)) {
-        return false;
+        return 0;
+    }
+
+    $noteSanitized = $note;
+    sanitize_sql_inputs($noteSanitized);
+
+    if ($hardcore === null) {
+        $hardcoreValue = 'NULL';
+    } else {
+        $hardcoreValue = strval($hardcore);
     }
 
     $userId = $user->ID;
     $username = $user->User;
-    $noteSanitized = $note;
-    sanitize_sql_inputs($noteSanitized);
+
     $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID )
-                            VALUES($achID, $userId, $reportType, $hardcore, \"$noteSanitized\", NOW(), NULL, NULL )";
+              VALUES($achID, $userId, $reportType, $hardcoreValue, \"$noteSanitized\", NOW(), NULL, NULL )";
 
     $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
     if (!$dbResult) {
         log_sql_fail();
 
-        return false;
+        return 0;
     }
 
     $ticketID = mysqli_insert_id($db);
@@ -173,7 +176,23 @@ $bugReportDetails";
         }
     }
 
-    return true;
+    return $ticketID;
+}
+
+function getExistingTicketID(User $user, int $achievementID): int
+{
+    $userID = $user->ID;
+    $query = "SELECT ID FROM Ticket WHERE ReportedByUserID=$userID AND AchievementID=$achievementID"
+           . " AND ReportState NOT IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult) {
+        $existingTicket = mysqli_fetch_assoc($dbResult);
+        if ($existingTicket) {
+            return (int) $existingTicket['ID'];
+        }
+    }
+
+    return 0;
 }
 
 function getAllTickets(

@@ -1,3 +1,20 @@
+function CreateCardIconDiv(type, id, title, icon, url) {
+  return '<div class=\'inline\' '
+    + 'onmouseover="Tip(loadCard(\'' + type + '\', \'' + id + '\'))" onmouseout="UnTip()" >'
+    + '<a href=\'' + url + '\'>'
+    + '<img src=\'' + mediaAsset(icon) + '\' width=\'32\' height=\'32\' '
+    + ' alt="' + title + '" title="' + title + '" class=\'badgeimg\' loading=\'lazy\' />'
+    + '</a>'
+    + '</div>';
+}
+
+function CacheCardDiv(type, id, title, subtitle, icon) {
+  $html = '<div class=\'tooltip-body flex items-start\' style=\'max-width: 400px\'>'
+    + '<img style=\'margin-right:5px\' src=\'' + mediaAsset(icon) + '\' width=64 height=64 \/>'
+    + '<div><b>' + title + '</b><br>' + subtitle + '</div></div>';
+  useCard(type, id, null, $html);
+}
+
 var ActivePlayersViewModel = function () {
   var self = this;
   this.players = ko.observableArray([]);
@@ -72,14 +89,15 @@ var ActivePlayersViewModel = function () {
   };
 
   this.ConvertToObservablePlayer = function (player) {
+    CacheCardDiv('game', player.GameID, player.GameTitle, player.ConsoleName, player.GameIcon);
     return {
       username: ko.observable(player.User),
       points: ko.observable(player.RAPoints),
       gameTitle: ko.observable(player.GameTitle),
       consoleName: ko.observable(player.ConsoleName),
       richPresence: ko.observable(player.RichPresenceMsg),
-      playerHtml: ko.observable(GetUserAndTooltipDiv(player.User, player.RAPoints, player.RASoftcorePoints, true, '')),
-      gameHtml: ko.observable(GetGameAndTooltipDiv(player.GameID, player.GameTitle, player.GameIcon, player.ConsoleName, true))
+      playerHtml: ko.observable(CreateCardIconDiv('user', player.User, player.User, '/UserPic/' + player.User + '.png', '/user/' + player.User)),
+      gameHtml: ko.observable(CreateCardIconDiv('game', player.GameID, player.GameTitle, player.GameIcon, '/game/' + player.GameID))
     };
   };
 

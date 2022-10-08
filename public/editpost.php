@@ -83,7 +83,7 @@ RenderContentStart("Edit post");
         echo "<div class='flex justify-between items-center'>";
         echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
         echo "<div class='flex gap-2'>";
-        echo "<a class='btn btn-link' href='/viewtopic.php?t=$thisTopicID&c=$requestedComment'>Back</a>";
+        echo "<a class='btn btn-link' href='/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment'>Back</a>";
         echo "<button class='btn'>Submit</button>";
         echo "</div>";
         echo "</div>";

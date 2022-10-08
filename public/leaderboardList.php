@@ -281,7 +281,7 @@ function ReloadLBPageByGame() {
             $selected = $lbFormat == "TIME" ? "selected" : "";
             echo "<option value='TIME' $selected >Time (Frames)</option>";
             $selected = $lbFormat == "MILLISECS" ? "selected" : "";
-            echo "<option value='MILLISECS' $selected >Time (Milliseconds)</option>";
+            echo "<option value='MILLISECS' $selected >Time (Centiseconds)</option>";
             $selected = $lbFormat == "TIMESECS" ? "selected" : "";
             echo "<option value='TIMESECS' $selected >Time (Seconds)</option>";
             $selected = $lbFormat == "MINUTES" ? "selected" : "";
