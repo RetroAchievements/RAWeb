@@ -199,10 +199,10 @@ $menu = collect([
                 </a>
             @endif
             @if(config('services.reddit.channel'))
-                <a href="https://reddit.com/{{ config('services.reddit.channel') }}"
+                <a href="https://reddit.com/r/{{ config('services.reddit.channel') }}"
                    data-toggle="tooltip" title="Follow us on Reddit" rel="noopener">
                     <x-fab-reddit/>
-                    <span class="sr-only">Twitter</span>
+                    <span class="sr-only">Reddit</span>
                 </a>
             @endif
             {{--<a href="{{ route('rss.index') }}"--}}
