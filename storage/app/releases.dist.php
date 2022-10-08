@@ -5,8 +5,8 @@ use RA\Emulators;
 // TODO: replace with systems, integration release, and emulator release management
 return [
     'integration' => [
-        'minimum_version' => '1.0.2',
-        'latest_version' => '1.0.2',
+        'minimum_version' => '1.0.3',
+        'latest_version' => '1.0.3',
         'latest_version_url' => 'bin/RA_Integration.dll',
         'latest_version_url_x64' => 'bin/RA_Integration-x64.dll',
     ],

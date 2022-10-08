@@ -136,14 +136,10 @@ sail npm run build
 
 ### Create filesystem symlinks
 
-> **Note**
-> The storage symlinks have to be created on the system where your web server runs (be it local/virtual machine/Docker container).
-> Otherwise assets may not be served. It cannot work for multiple setups at the same time. Rerun the storage link command if you plan to switch to a different setup.
-
 ```shell
-php artisan ra:storage:link
+php artisan ra:storage:link --relative
 # Using Sail:
-sail artisan ra:storage:link
+sail artisan ra:storage:link --relative
 ```
 
 ### Setup database
