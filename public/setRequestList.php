@@ -154,45 +154,28 @@ RenderContentStart("Set Requests");
 
             // Loop through each set request and display them if they do not have any achievements
             foreach ($setRequestList as $request) {
-                if ($flag == 0) {
-                    if (empty(getAchievementIDsByGame($request['GameID'])['AchievementIDs'])) {
-                        echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+                $setExists = $request['AchievementCount'] > 0;
+                if ($flag == 0 && $setExists) {
+                    continue;
+                }
 
-                        echo "<td>";
-                        echo gameAvatar($request);
-                        echo "</td>";
+                echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
-                        echo "<td>";
-                        $claims = explode(',', $request['Claims']);
-                        foreach ($claims as $devClaim) {
-                            echo userAvatar($devClaim);
-                            echo "</br>";
-                        }
-                        echo "</td>";
-                    }
-                } else {
-                    if (empty(getAchievementIDsByGame($request['GameID'])['AchievementIDs'])) {
-                        echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
+                echo "<td>";
+                echo gameAvatar($request);
+                echo "</td>";
 
-                        echo "<td>";
-                        echo gameAvatar($request);
-                        echo "</td>";
-                    } else {
-                        echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
-
-                        echo "<td>";
-                        echo gameAvatar($request);
-                        echo "</td>";
-                    }
-
-                    echo "<td>";
+                echo "<td>";
+                if (!$setExists) {
                     $claims = explode(',', $request['Claims']);
                     foreach ($claims as $devClaim) {
                         echo userAvatar($devClaim);
                         echo "</br>";
                     }
-                    echo "</td>";
+                } else {
+                    echo "Set Exists";
                 }
+                echo "</td>";
             }
             echo "</tbody></table></div>";
         }
