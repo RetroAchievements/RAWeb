@@ -1,15 +1,22 @@
 <?php
 
+use RA\SearchType;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $searchQuery = requestInputSanitized('s', null);
+$searchType = requestInputSanitized('t', SearchType::All, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 $maxCount = requestInputSanitized('c', 50, 'integer');
 
-$searchResults = null;
+if (!SearchType::isValid($searchType)) {
+    $searchType = SearchType::All;
+}
+
+$searchResults = [];
 $resultsCount = 0;
 if ($searchQuery !== null) {
-    $resultsCount = performSearch($searchQuery, $offset, $maxCount, $permissions, $searchResults);
+    $resultsCount = performSearch($searchType, $searchQuery, $offset, $maxCount, $permissions, $searchResults);
 }
 
 RenderContentStart("Search");
@@ -28,6 +35,18 @@ RenderContentStart("Search");
         // echo "Search:&nbsp;";
         $searchQueryEscaped = attributeEscape($searchQuery);
         echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQueryEscaped' placeholder='Search the site...' />";
+        echo " in ";
+        echo "<select name='t'>";
+        foreach (SearchType::cases() as $t) {
+            if ($t == $searchType) {
+                echo "<option value='$t' selected>";
+            } else {
+                echo "<option value='$t'>";
+            }
+            echo SearchType::toString($t);
+            echo "</option>";
+        }
+        echo "</select>";
         echo "&nbsp;&nbsp;";
         echo "<input type='submit' value='Search' />";
         echo "</form>";
@@ -53,7 +72,6 @@ RenderContentStart("Search");
 
                     if ($nextType !== $lastType) {
                         $lastType = $nextType;
-                        // echo "<tr><td colspan=2><b>$nextType</b></td></tr>";
                     }
 
                     if ($iter++ % 2 == 0) {
@@ -63,29 +81,27 @@ RenderContentStart("Search");
                     }
 
                     echo "<td>$nextType</td>";
-                    // echo "<td>$nextID</td>";
                     if ($nextType == 'User') {
                         echo "<td colspan='2'>";
                         echo userAvatar($nextID);
                         echo "</td>";
+                    } elseif ($nextType == 'Achievement') {
+                        $achData = GetAchievementData($nextID);
+                        echo "<td colspan='2'>";
+                        echo achievementAvatar($achData);
+                        echo "</td>";
+                    } elseif ($nextType == 'Game') {
+                        $gameData = GetGameData($nextID);
+                        echo "<td colspan='2'>";
+                        echo gameAvatar($gameData);
+                        echo "</td>";
+                    } elseif ($nextType == 'Forum Comment' || $nextType == 'Comment') {
+                        echo "<td>";
+                        echo userAvatar($nextID);
+                        echo "</td>";
+                        echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
                     } else {
-                        if ($nextType == 'Achievement') {
-                            $achData = GetAchievementData($nextID);
-                            $badgeID = $achData['BadgeName'];
-                            echo "<td>";
-                            echo "<img src='" . media_asset('Badge/' . str_pad($badgeID, 5, '0', STR_PAD_LEFT) . '.png') . "' title='$nextTitle' alt='$nextTitle' width='32' height='32' />";
-                            echo "</td>";
-                            echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
-                        } else {
-                            if ($nextType == 'Forum Comment' || $nextType == 'Comment') {
-                                echo "<td>";
-                                echo userAvatar($nextID);
-                                echo "</td>";
-                                echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
-                            } else {
-                                echo "<td colspan=2><a href='$nextTarget'>$nextTitle</a></td>";
-                            }
-                        }
+                        echo "<td colspan=2><a href='$nextTarget'>$nextTitle</a></td>";
                     }
 
                     echo "</tr>";
@@ -96,12 +112,15 @@ RenderContentStart("Search");
                 echo "<div class='float-right row'>";
                 if ($offset > 0) {
                     $prevOffset = $offset - $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&t=$searchType&o=$prevOffset'>&lt; Previous $maxCount</a>";
                 }
                 if ($resultsCount == $maxCount) {
+                    if ($offset > 0) {
+                        echo " - ";
+                    }
                     // Max number fetched, i.e. there are more. Can goto next 25.
                     $nextOffset = $offset + $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
+                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&t=$searchType&o=$nextOffset'>Next $maxCount &gt;</a>";
                 }
                 echo "</div>";
             }

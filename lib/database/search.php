@@ -1,38 +1,45 @@
 <?php
 
-function performSearch($searchQuery, $offset, $count, $permissions, &$searchResultsOut): int
-{
-    $db = getMysqliConnection();
+use RA\SearchType;
 
+function performSearch(int $searchType, string $searchQuery, int $offset, int $count,
+    int $permissions, array &$searchResultsOut): int
+{
     sanitize_sql_inputs($searchQuery, $offset, $count);
 
-    $query = "
-    (
+    $parts = [];
+    if ($searchType == SearchType::Game || $searchType == SearchType::All) {
+        $parts[] = "(
         SELECT 'Game' AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target, CONCAT(gd.Title, ' (', c.Name, ')') as Title FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.Title LIKE '%$searchQuery%'
         GROUP BY gd.ID, gd.Title
-    )
-    UNION
-    (
+        ORDER BY gd.Title)";
+    }
+
+    if ($searchType == SearchType::Achievement || $searchType == SearchType::All) {
+        $parts[] = "(
         SELECT 'Achievement' AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target, ach.Title FROM Achievements AS ach
-        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%'
-    )
-    UNION
-    (
+        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%' ORDER BY ach.Title)";
+    }
+
+    if ($searchType == SearchType::User || $searchType == SearchType::All) {
+        $parts[] = "(
         SELECT 'User' AS Type,
         ua.User AS ID,
         CONCAT( '/user/', ua.User ) AS Target,
         ua.User AS Title
         FROM UserAccounts AS ua
         WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0
-    )
-    UNION
-    (
+        ORDER BY ua.User)";
+    }
+
+    if ($searchType == SearchType::Forum || $searchType == SearchType::All) {
+        $parts[] = "(
         SELECT 'Forum Comment' AS Type,
         ua.User AS ID,
-        CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID ) AS Target,
+        CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
         CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) AS Title
         FROM ForumTopicComment AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
@@ -40,9 +47,11 @@ function performSearch($searchQuery, $offset, $count, $permissions, &$searchResu
         WHERE ftc.Payload LIKE '%$searchQuery%'
         AND ft.RequiredPermissions <= '$permissions'
         GROUP BY ID, ftc.ID
-    )
-    UNION
-    (
+        ORDER BY DateModified DESC)";
+    }
+
+    if ($searchType == SearchType::Comment || $searchType == SearchType::All) {
+        $parts[] = "(
         SELECT 'Comment' AS Type, cua.User AS ID,
 
         CASE
@@ -62,15 +71,14 @@ function performSearch($searchQuery, $offset, $count, $permissions, &$searchResu
         LEFT JOIN UserAccounts AS cua ON cua.ID = c.UserID
         WHERE c.Payload LIKE '%$searchQuery%'
         AND c.articletype IN (1,2,3,5,7)
-    )
-    LIMIT $offset, $count
-    ";
+        ORDER BY c.Submitted DESC)";
+    }
 
-    $dbResult = mysqli_query($db, $query);
+    $query = implode(' UNION ALL ', $parts) . " LIMIT $offset, $count";
 
+    $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
-
         return 0;
     }
 
