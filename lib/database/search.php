@@ -31,7 +31,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         CONCAT( '/user/', ua.User ) AS Target,
         ua.User AS Title
         FROM UserAccounts AS ua
-        WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0
+        WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
         ORDER BY ua.User)";
     }
 
@@ -40,7 +40,8 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         SELECT 'Forum Comment' AS Type,
         ua.User AS ID,
         CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
-        CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) AS Title
+        CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
+        CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) END AS Title
         FROM ForumTopicComment AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
         LEFT JOIN ForumTopic AS ft ON ft.ID = ftc.ForumTopicID
@@ -64,13 +65,15 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         END
         AS Target,
 
-        CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-40, 1), 60 ), '...' ) AS Title
+        CASE WHEN CHAR_LENGTH(c.Payload) <= 64 THEN c.Payload ELSE
+        CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-25, 1), 60 ), '...' ) END AS Title
 
         FROM Comment AS c
         LEFT JOIN UserAccounts AS ua ON ( ua.ID = c.ArticleID )
         LEFT JOIN UserAccounts AS cua ON cua.ID = c.UserID
         WHERE c.Payload LIKE '%$searchQuery%'
         AND cua.User != 'Server'
+        AND ua.UserWallActive AND ua.Deleted IS NULL
         AND c.articletype IN (1,2,3,5,7)
         ORDER BY c.Submitted DESC)";
     }
