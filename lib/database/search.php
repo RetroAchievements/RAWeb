@@ -88,5 +88,13 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         $resultCount++;
     }
 
+    if ($offset != 0 || $resultCount == $count) {
+        $query = "SELECT FOUND_ROWS() AS NumResults";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            $resultCount = mysqli_fetch_assoc($dbResult)['NumResults'];
+        }
+    }
+
     return $resultCount;
 }

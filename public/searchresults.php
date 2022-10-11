@@ -7,7 +7,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $searchQuery = requestInputSanitized('s', null);
 $searchType = requestInputSanitized('t', SearchType::All, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$maxCount = requestInputSanitized('c', 50, 'integer');
+$maxCount = 50;
 
 if (!SearchType::isValid($searchType)) {
     $searchType = SearchType::All;
@@ -110,18 +110,7 @@ RenderContentStart("Search");
                 echo "</tbody></table>";
 
                 echo "<div class='float-right row'>";
-                if ($offset > 0) {
-                    $prevOffset = $offset - $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&t=$searchType&o=$prevOffset'>&lt; Previous $maxCount</a>";
-                }
-                if ($resultsCount == $maxCount) {
-                    if ($offset > 0) {
-                        echo " - ";
-                    }
-                    // Max number fetched, i.e. there are more. Can goto next 25.
-                    $nextOffset = $offset + $maxCount;
-                    echo "<a href='/searchresults.php?s=$searchQueryEscaped&t=$searchType&o=$nextOffset'>Next $maxCount &gt;</a>";
-                }
+                RenderPaginator($resultsCount, $maxCount, $offset, "/searchresults.php?s=$searchQueryEscaped&t=$searchType&o=");
                 echo "</div>";
             }
         }
