@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
+use RA\AwardType;
 use RA\Permissions;
 use RA\UnlockMode;
 
@@ -31,9 +32,13 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
                     postActivity($user, ActivityType::CompleteGame, $gameID, 1);
                 }
             } elseif ($data['NumAwardedSC'] == $data['NumAch']) {
-                // all non-hardcore achievements unlocked, award completion
-                if (!RecentlyPostedCompletionActivity($user, $gameID, 0)) {
-                    postActivity($user, ActivityType::CompleteGame, $gameID, 0);
+                // if unlocking a hardcore achievement, don't update the completion date
+                // if the user already has a completion badge
+                if (!$isHardcore || !HasSiteAward($user, AwardType::Mastery, $gameID, 0)) {
+                    // all non-hardcore achievements unlocked, award completion
+                    if (!RecentlyPostedCompletionActivity($user, $gameID, 0)) {
+                        postActivity($user, ActivityType::CompleteGame, $gameID, 0);
+                    }
                 }
             }
         }
