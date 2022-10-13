@@ -324,6 +324,7 @@ function getGameRecentPlayers($gameID, $maximum_results = 0): array
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
               FROM UserAccounts AS ua
               WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Unregistered . "
+              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW())
               ORDER BY ua.RichPresenceMsgDate DESC";
 
     if ($maximum_results > 0) {
