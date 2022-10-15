@@ -226,6 +226,10 @@ switch ($requestType) {
         $flags = (int) request()->input('f', 0);
         // $hardcore = (int) request()->input('h', 0); // not used
         $response['PatchData'] = GetPatchData($gameID, $flags, $user);
+        if (array_key_exists('Success', $response['PatchData'])) {
+            $response['Success'] = $response['PatchData']['Success']; // Passthru
+            unset($response['PatchData']['Success']);
+        }
         break;
 
     case "postactivity":

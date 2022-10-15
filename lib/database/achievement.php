@@ -474,6 +474,10 @@ function GetPatchData($gameID, $flags, $user): array
     }
 
     $gameData = getGameData($gameID);
+    if ($gameData === null) {
+        $retVal['Success'] = false;
+        return $retVal;
+    }
 
     if ($gameData['ImageIcon']) {
         $gameData['ImageIconURL'] = media_asset($gameData['ImageIcon']);
