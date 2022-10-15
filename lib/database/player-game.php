@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
+use RA\AwardType;
 use RA\Permissions;
 use RA\UnlockMode;
 
@@ -11,8 +12,11 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
     sanitize_sql_inputs($gameID, $user, $isHardcore);
     settype($isHardcore, 'integer');
 
-    $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
+    $query = "SELECT COUNT(DISTINCT ach.ID) AS NumAch,
+                     COUNT(IF(aw.HardcoreMode=1,1,NULL)) AS NumAwardedHC,
+                     COUNT(IF(aw.HardcoreMode=0,1,NULL)) AS NumAwardedSC
+              FROM Achievements AS ach
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'
               WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore;
 
     $dbResult = s_mysql_query($query);
@@ -20,15 +24,29 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
         $minToCompleteGame = 5;
 
         $data = mysqli_fetch_assoc($dbResult);
-        if ($postMastery && ($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
-            // Every achievement earned!
-            // Test that this wasn't very recently posted!
-            if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
-                postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
+
+        if ($postMastery) {
+            if ($isHardcore && $data['NumAwardedHC'] == $data['NumAch']) {
+                // all hardcore achievements unlocked, award mastery
+                if (!RecentlyPostedCompletionActivity($user, $gameID, 1)) {
+                    postActivity($user, ActivityType::CompleteGame, $gameID, 1);
+                }
+            } elseif ($data['NumAwardedSC'] == $data['NumAch']) {
+                // if unlocking a hardcore achievement, don't update the completion date
+                // if the user already has a completion badge
+                if (!$isHardcore || !HasSiteAward($user, AwardType::Mastery, $gameID, 0)) {
+                    // all non-hardcore achievements unlocked, award completion
+                    if (!RecentlyPostedCompletionActivity($user, $gameID, 0)) {
+                        postActivity($user, ActivityType::CompleteGame, $gameID, 0);
+                    }
+                }
             }
         }
 
-        return $data;
+        return [
+            'NumAch' => $data['NumAch'],
+            'NumAwarded' => $isHardcore ? $data['NumAwardedHC'] : $data['NumAwardedSC'],
+        ];
     }
 
     return [];

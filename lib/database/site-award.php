@@ -27,6 +27,24 @@ function AddSiteAward($user, $awardType, $data, $dataExtra = 0): void
     mysqli_query($db, $query);
 }
 
+function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra = null): bool
+{
+    sanitize_sql_inputs($user);
+    $query = "SELECT AwardDate FROM SiteAwards WHERE User='$user' AND AwardType=$awardType AND AwardData=$data";
+    if ($dataExtra !== null) {
+        $query .= " AND AwardDataExtra=$dataExtra";
+    }
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
+        log_sql_fail();
+        return false;
+    }
+
+    $dbData = mysqli_fetch_assoc($dbResult);
+    return (isset($dbData['AwardDate']));
+}
+
 function getUsersSiteAwards($user, $showHidden = false): array
 {
     sanitize_sql_inputs($user);
