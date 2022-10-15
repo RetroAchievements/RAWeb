@@ -82,20 +82,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
     switch ($activity) {
         case ActivityType::EarnedAchievement:
             $achID = $customMsg;
-
-            $achData = [];
-            getAchievementMetadata($achID, $achData);
-
-            $gameName = $achData['GameTitle'];
-            $gameID = $achData['GameID'];
-            $achName = $achData['Title'];
-
-            $gameLink = "<a href='/game/$gameID'>$gameName</a>";
-            $achLink = "<a href='/achievement/$achID'>$achName</a>";
-
-            $gameLink = str_replace("'", "''", $gameLink);
-            $achLink = str_replace("'", "''", $achLink);
-
             $query .= "(NOW(), $activity, '$user', '$achID', $isalt )";
             break;
 
@@ -199,11 +185,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
         case ActivityType::CompleteGame:
             // Completed a game!
             $gameID = $customMsg;
-            getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
-
-            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
-            $gameLink = str_replace("'", "''", $gameLink);
-
             AddSiteAward($user, 1, $gameID, $isalt);
             expireGameTopAchievers((int) $gameID);
 
@@ -213,21 +194,10 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
         case ActivityType::NewLeaderboardEntry:
         case ActivityType::ImprovedLeaderboardEntry:
             $lbID = $customMsg['LBID'];
-            $lbTitle = $customMsg['LBTitle'];
             $score = $customMsg['Score'];
-            $gameID = $customMsg['GameID'];
-            $scoreFormatted = $customMsg['ScoreFormatted'];
-            getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
-
-            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
-            $gameLink = str_replace("'", "''", $gameLink);
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
-            $lbLinkScore = str_replace("'", "''", $lbLinkScore);
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a>";
-            $lbLinkTitle = str_replace("'", "''", $lbLinkTitle);
-
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
+
         case ActivityType::Unknown:
         default:
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
