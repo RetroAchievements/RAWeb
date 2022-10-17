@@ -19,12 +19,14 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut): string
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return "";
     }
 
     $data = mysqli_fetch_assoc($dbResult);
     if (!$data) {
         log_sql_fail();
+
         return "";
     }
 
@@ -233,21 +235,25 @@ function UploadNewAchievement(
     // Prevent <= registered users from uploading or modifying achievements
     if ($userPermissions < Permissions::JuniorDeveloper) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
         return false;
     }
 
     if (!AchievementType::isValid($type)) {
         $errorOut = "Invalid type flag";
+
         return false;
     }
 
     if ($type === AchievementType::OfficialCore && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
+
         return false;
     }
 
     if (!AchievementPoints::isValid((int) $points)) {
         $errorOut = "Invalid points value (" . $points . ").";
+
         return false;
     }
 
@@ -261,6 +267,7 @@ function UploadNewAchievement(
         // Prevent users from uploading achievements for games they do not have an active claim on unless it's an event game
         if (!(hasSetClaimed($author, $gameID, false) || $isEventGame)) {
             $errorOut = "You must have an active claim on this game to perform this action.";
+
             return false;
         }
 
@@ -322,6 +329,7 @@ function UploadNewAchievement(
                 if ($userPermissions < Permissions::Developer) {
                     // Must be developer to modify core!
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
                     return false;
                 }
             }
@@ -330,6 +338,7 @@ function UploadNewAchievement(
                 // Only allow jr. devs to modify unofficial if they are the author
                 if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] != $author) {
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
                     return false;
                 }
             }
@@ -476,6 +485,7 @@ function GetPatchData($gameID, $flags, $user): array
     $gameData = getGameData($gameID);
     if ($gameData === null) {
         $retVal['Success'] = false;
+
         return $retVal;
     }
 

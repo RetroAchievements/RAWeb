@@ -60,6 +60,7 @@ RenderContentStart("Claim List");
             $appendParam($link, 'f', $claimFilters, ClaimFilters::Default);
             $appendParam($link, 'u', $username, null);
             $appendParam($link, 'g', $gameID, null);
+
             return $link;
         };
 

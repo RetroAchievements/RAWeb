@@ -367,7 +367,7 @@ RenderContentStart($pageTitle);
 
         echo "</div>"; // achievement
 
-        /**
+        /*
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div>";

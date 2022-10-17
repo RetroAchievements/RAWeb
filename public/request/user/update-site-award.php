@@ -19,7 +19,7 @@ $awardData = $input['data'];
 $awardDataExtra = $input['extra'];
 $value = $input['number'];
 
-/**
+/*
  * change display order for all entries if it's a "stacking" award type
  */
 if (in_array($awardType, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {

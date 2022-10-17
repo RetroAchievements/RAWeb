@@ -40,7 +40,7 @@ $totalPossible = 0;
 $numEarned = 0;
 if (isset($achievementData)) {
     foreach ($achievementData as &$achievement) {
-        /**
+        /*
          * Some orphaned unlocks might be still around
          */
         $totalPossible += ($achievement['Points'] ?? 0);
@@ -128,7 +128,7 @@ RenderContentStart("Game Compare");
 
             $achIter = 0;
             foreach ($achievementData as $nextAch) {
-                /**
+                /*
                  * Some orphaned unlocks might be still around
                  */
                 if (!isset($nextAch['ID'])) {

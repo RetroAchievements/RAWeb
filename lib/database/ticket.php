@@ -54,6 +54,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
 
     if (!$user->exists() || !isAllowedToSubmitTickets($userSubmitter)) {
         $returnMsg['Success'] = false;
+
         return $returnMsg;
     }
 

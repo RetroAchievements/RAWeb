@@ -14,8 +14,7 @@ $rules = [
     '@Symfony' => true,
 
     // @Symfony overrides
-    'braces' => false,
-    'blank_line_before_statement' => false,
+    'braces' => false, // TODO remove as soon as inline php tags with echos are gone?
     'concat_space' => ['spacing' => 'one'],
     'echo_tag_syntax' => false,
     'increment_style' => ['style' => 'post'],
@@ -29,13 +28,13 @@ $rules = [
     ],
     'not_operator_with_space' => false,
     'phpdoc_align' => false,
+    'phpdoc_separation' => false,
     'phpdoc_summary' => false,
+    'phpdoc_to_comment' => false,
     'single_line_throw' => false,
     'single_line_comment_style' => [
         'comment_types' => ['hash'],
     ],
-    'phpdoc_separation' => false,
-    'phpdoc_to_comment' => false,
     'semicolon_after_instruction' => false,
     'single_quote' => false,
     'yoda_style' => false,

@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
 
 return [
     /*
@@ -9,25 +9,29 @@ return [
      * However, you're free to include more as your project requires.
      */
     'environment_files' => [base_path('.env.example')],
-    /**
+
+    /*
      * Here you should list any config files/directories that you want to be
      * included when looking for calls to `env`. Directories are searched
      * recursively. Feel free to include unpublished vendor configs too.
      */
     'config_files' => [config_path()],
-    /**
+
+    /*
      * Comments like the one you're reading can be quite useful when trying
      * to remember what an environment variable is used for. When set to
      * true, we'll copy any comments we find in config over to .env.
      */
     'display_comments' => false,
-    /**
+
+    /*
      * Some developers find it useful to have reference to where an environment
      * variable is used. Enabling this option will display a comment above a
      * linked .env variable with reference to the correct config file.
      */
     'display_location_hints' => false,
-    /**
+
+    /*
      * Enabling this option will also insert any provided defaults in your .env file
      * when updating. Note that only scalar (primitive) types will be copied over.
      * Defaults that include spaces will be wrapped in quotes for you.
@@ -36,13 +40,15 @@ return [
      * to take effect.
      */
     'display_default_values' => true,
-    /**
+
+    /*
      * When calling the `env` function, you can optionally provide a default as the
      * second parameter. Envy will ignore any calls with a set default if this
      * option is set to true. Otherwise, it will include them whilst syncing.
      */
     'exclude_calls_with_defaults' => true,
-    /**
+
+    /*
      * Any environment variables that are added to exclusions will never be inserted
      * into .env files. Our defaults are based on the base Laravel config files.
      * Feel free to add or remove variables as required by your project needs.
@@ -126,7 +132,8 @@ return [
         'LARAVEL_SAIL',
         'MAIL_EHLO_DOMAIN',
     ],
-    /**
+
+    /*
      * Any environment variables that are added to inclusions will never be pruned from
      * your .env files. By default, we include Laravel Mix variables. Feel free to
      * add or remove environment variables to suit your project's requirements.

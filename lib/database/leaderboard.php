@@ -97,6 +97,7 @@ function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation): array
         $retVal['Success'] = false;
         $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
     }
+
     return $retVal;
 }
 
@@ -133,6 +134,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     } else {
         if (mysqli_num_rows($dbResult) == 0) {
@@ -143,6 +145,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
             $dbResult = s_mysql_query($query);
             if (!$dbResult) {
                 log_sql_fail();
+
                 return false;
             } else {
                 postActivity($user, ActivityType::NewLeaderboardEntry, $scoreData);
@@ -176,6 +179,7 @@ function submitLeaderboardEntry($user, $lbID, $newEntry, $validation, &$dataOut)
                 $dbResult = s_mysql_query($query);
                 if (!$dbResult) {
                     log_sql_fail();
+
                     return false;
                 } else {
                     postActivity($user, ActivityType::ImprovedLeaderboardEntry, $scoreData);
@@ -300,6 +304,7 @@ function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries): bool
         return true;
     } else {
         log_sql_fail();
+
         return false;
     }
 }
@@ -379,6 +384,7 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
         $retVal[] = $nextData;
         $numFound++;
     }
+
     return $retVal;
 }
 
@@ -556,12 +562,14 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn): string
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
+
         return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
     } elseif ($formatType == 'TIMESECS') { // Number of seconds
         $hours = $scoreIn / 3600;
         settype($hours, 'integer');
         $mins = ($scoreIn / 60) - ($hours * 60);
         $secs = $scoreIn % 60;
+
         return formatLeaderboardValueSeconds($hours, $mins, $secs);
     } elseif ($formatType == 'MILLISECS') { // Hundredths of seconds
         $hours = $scoreIn / 360000;
@@ -572,11 +580,13 @@ function GetFormattedLeaderboardEntry($formatType, $scoreIn): string
         settype($mins, 'integer');
         settype($secs, 'integer');
         settype($milli, 'integer');
+
         return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
     } elseif ($formatType == 'MINUTES') { // Number of minutes
         $hours = $scoreIn / 60;
         settype($hours, 'integer');
         $mins = $scoreIn % 60;
+
         return sprintf("%01dh%02d", $hours, $mins);
     } elseif ($formatType == 'SCORE') { // Number padded to six digits
         return sprintf("%06d", $scoreIn);
@@ -616,6 +626,7 @@ function getLeaderboardUserPosition($lbID, $user, &$lbPosition): bool
 
         if (is_null($db_entry)) {
             $lbPosition = 0;
+
             return true;
         }
 
@@ -624,6 +635,7 @@ function getLeaderboardUserPosition($lbID, $user, &$lbPosition): bool
         return true;
     } else {
         log_sql_fail();
+
         return false;
     }
 }
@@ -769,6 +781,7 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut, $user): bool
     if ($dbResult !== false) {
         $db = getMysqliConnection();
         $lbIDOut = mysqli_insert_id($db);
+
         return true;
     } else {
         return false;
@@ -799,6 +812,7 @@ function UploadNewLeaderboard(
             settype($displayOrder, 'integer');
         } else {
             $errorOut = "Unknown leaderboard";
+
             return false;
         }
     }
@@ -809,23 +823,27 @@ function UploadNewLeaderboard(
         if ($userPermissions < Permissions::JuniorDeveloper ||
             (!empty($originalAuthor) && $author != $originalAuthor)) {
             $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
             return false;
         }
     }
 
     if (!isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
         $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
+
         return false;
     }
 
     if (!isValidLeaderboardFormat($format)) {
         $errorOut = "Unknown format: $format";
+
         return false;
     }
 
     if (!isset($idInOut) || $idInOut == 0) {
         if (!SubmitNewLeaderboard($gameID, $idInOut, $author)) {
             $errorOut = "Internal error creating new leaderboard.";
+
             return false;
         }
 
@@ -840,6 +858,7 @@ function UploadNewLeaderboard(
 
     if (!submitLBData($author, $idInOut, $mem, $title, $desc, $format, $lowerIsBetter, $displayOrder)) {
         $errorOut = "Internal error updating leaderboard.";
+
         return false;
     }
 
@@ -907,6 +926,7 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
             return false;
         }
     }
+
     return true;
 }
 
@@ -942,6 +962,7 @@ function requestDeleteLB($lbID): bool
             'DeletedByUserID' => $user->ID,
         ]);
     }
+
     return $dbResult !== false;
 }
 

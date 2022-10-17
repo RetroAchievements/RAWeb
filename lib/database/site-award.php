@@ -38,10 +38,12 @@ function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra =
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     }
 
     $dbData = mysqli_fetch_assoc($dbResult);
+
     return isset($dbData['AwardDate']);
 }
 
@@ -187,5 +189,6 @@ function getRecentMasteryData(string $date, string $friendsOf = null, int $offse
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }

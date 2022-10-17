@@ -49,28 +49,33 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
 
     if ($achIDToAward <= 0) {
         $retVal['Error'] = "Achievement ID <= 0! Cannot unlock";
+
         return $retVal;
     }
 
     if (!isValidUsername($user)) {
         $retVal['Error'] = "User is '$user', cannot unlock achievement";
+
         return $retVal;
     }
 
     $userData = GetUserData($user);
     if (!$userData) {
         $retVal['Error'] = "User data cannot be found for $user";
+
         return $retVal;
     }
 
     $achData = GetAchievementMetadataJSON($achIDToAward);
     if (!$achData) {
         $retVal['Error'] = "Achievement data cannot be found for $achIDToAward";
+
         return $retVal;
     }
 
     if ((int) $achData['Flags'] === AchievementType::Unofficial) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
+
         return $retVal;
     }
 
@@ -89,6 +94,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
 
     if (!$awardedOK) {
         $retVal['Error'] = "Could not unlock achievement for player";
+
         return $retVal;
     }
 
@@ -136,6 +142,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         $retVal['Error'] = "Could not add points for this player";
+
         return $retVal;
     }
 
@@ -162,6 +169,7 @@ function insertAchievementUnlockIntoAwardedTable(string $user, $achIDToAward, $i
               UPDATE User=User, AchievementID=AchievementID, Date=Date, HardcoreMode=HardcoreMode";
 
     $dbResult = s_mysql_query($query);
+
     return $dbResult !== false;
 }
 
@@ -185,6 +193,7 @@ function resetAchievements(string $user, $gameID): int
     expireGameTopAchievers($gameID);
 
     recalculatePlayerPoints($user);
+
     return $numRowsDeleted;
 }
 
@@ -208,6 +217,7 @@ function resetSingleAchievement(string $user, $achID): bool
     expireGameTopAchievers($gameID);
 
     recalculatePlayerPoints($user);
+
     return true;
 }
 
@@ -439,6 +449,7 @@ function getRecentUnlocks(array $achievementIDs, int $offset = 0, int $count = 2
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 
@@ -486,6 +497,7 @@ function getUnlocksInDateRange($achievementIDs, $startTime, $endTime, $hardcoreM
             }
         }
     }
+
     return $userArray;
 }
 

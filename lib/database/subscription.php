@@ -92,6 +92,7 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
 
     $isSubscribed = mysqli_num_rows($dbResult) > 0;
     mysqli_free_result($dbResult);
+
     return $isSubscribed;
 }
 
@@ -250,6 +251,7 @@ function getSubscribersOfArticle(
         $dbResult = s_mysql_query($qry);
         if (!$dbResult) {
             log_sql_fail();
+
             return [];
         }
 

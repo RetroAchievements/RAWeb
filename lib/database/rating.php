@@ -73,5 +73,6 @@ function submitGameRating($user, $ratingType, $ratingID, $ratingValue): bool
               ON DUPLICATE KEY UPDATE RatingValue=VALUES(RatingValue)";
 
     $dbResult = s_mysql_query($query);
+
     return $dbResult !== false;
 }
