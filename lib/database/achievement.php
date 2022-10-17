@@ -448,7 +448,7 @@ function GetAchievementsPatch($gameID, $flags): array
             $badgeName = $db_entry['BadgeName'];
             if ($badgeName) {
                 $db_entry['BadgeURL'] = media_asset("Badge/$badgeName.png");
-                $db_entry['BadgeLockedURL'] = media_asset("Badge/${badgeName}_lock.png");
+                $db_entry['BadgeLockedURL'] = media_asset("Badge/{$badgeName}_lock.png");
             }
 
             $retVal[] = $db_entry;

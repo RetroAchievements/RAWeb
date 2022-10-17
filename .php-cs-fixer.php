@@ -13,9 +13,6 @@ $rules = [
      */
     '@Symfony' => true,
 
-    // TODO remove and run
-    'simple_to_complex_string_variable' => false,
-
     // @Symfony overrides
     'braces' => false,
     'blank_line_before_statement' => false,
