@@ -3,6 +3,7 @@
 use App\Legacy\Models\Comment;
 use App\Legacy\Models\DeletedModels;
 use App\Legacy\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use RA\ActivityType;
 use RA\ArticleType;
@@ -453,12 +454,9 @@ function expireRecentlyPlayedGames(string $user): void
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
-    $recentlyPlayedGames = '';
     if ($offset == 0 && $count <= 5)
     {
-        $recentlyPlayedGames = Cache::rememberForever("user:$user:recentGames", function () use ($user) {
-            return _getRecentlyPlayedGameIds($user, 0, 5);
-        });
+        $recentlyPlayedGames = Cache::remember("user:$user:recentGames", Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
     } else {
         $recentlyPlayedGames = _getRecentlyPlayedGameIds($user, $offset, $count);
     }

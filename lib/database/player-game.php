@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
@@ -433,7 +434,7 @@ function getGameTopAchievers(int $gameID): array
         // only cache the result if the masters list is full.
         // that way we only have to expire it when there's a new mastery
         // or an achievement gets promoted or demoted
-        Cache::forever($cacheKey, $retval);
+        Cache::put($cacheKey, $retval, Carbon::now()->addDays(30));
     }
 
     return $retval;
