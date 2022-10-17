@@ -42,7 +42,7 @@ function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra =
     }
 
     $dbData = mysqli_fetch_assoc($dbResult);
-    return (isset($dbData['AwardDate']));
+    return isset($dbData['AwardDate']);
 }
 
 function getUsersSiteAwards($user, $showHidden = false): array

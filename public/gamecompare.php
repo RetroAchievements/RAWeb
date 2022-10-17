@@ -75,7 +75,7 @@ RenderContentStart("Game Compare");
 
             $pctAwarded = 0;
             if ($numAchievements > 0) {
-                $pctAwarded = sprintf("%01.0f", ($numEarned * 100.0 / $numAchievements));
+                $pctAwarded = sprintf("%01.0f", $numEarned * 100.0 / $numAchievements);
             }
 
             echo gameAvatar($gameData, iconSize: 96);

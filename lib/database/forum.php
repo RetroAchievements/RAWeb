@@ -353,7 +353,7 @@ function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentI
     $subscribers = getSubscribersOf(
         SubscriptionSubjectType::ForumTopic,
         $topicID,
-        (1 << 3),
+        1 << 3,
         "
             SELECT DISTINCT ua.*
             FROM

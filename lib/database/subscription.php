@@ -183,37 +183,37 @@ function mergeSubscribers(array $subscribersA, array $subscribersB): array
 
 function getSubscribersOfGameWall($gameID): array
 {
-    return getSubscribersOfArticle(1, $gameID, (1 << 1));
+    return getSubscribersOfArticle(1, $gameID, 1 << 1);
 }
 
 function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor): array
 {
     // users directly subscribed to the achievement
-    $achievementSubs = getSubscribersOfArticle(2, $achievementID, (1 << 1), $achievementAuthor);
+    $achievementSubs = getSubscribersOfArticle(2, $achievementID, 1 << 1, $achievementAuthor);
 
     // devs subscribed to the achievement through the game
-    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, (1 << 0) /* (1 << 1) */);
+    $gameAchievementsSubs = getSubscribersOf(SubscriptionSubjectType::GameAchievements, $gameID, 1 << 0 /* (1 << 1) */);
 
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
 
 function getSubscribersOfUserWall($userID, $userName): array
 {
-    return getSubscribersOfArticle(3, $userID, (1 << 2), $userName);
+    return getSubscribersOfArticle(3, $userID, 1 << 2, $userName);
 }
 
 function getSubscribersOfFeedActivity($activityID, $author): array
 {
-    return getSubscribersOfArticle(5, $activityID, (1 << 0), $author, true);
+    return getSubscribersOfArticle(5, $activityID, 1 << 0, $author, true);
 }
 
 function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
 {
     // users directly subscribed to the ticket
-    $ticketSubs = getSubscribersOfArticle(7, $ticketID, (1 << 1), $ticketAuthor, true);
+    $ticketSubs = getSubscribersOfArticle(7, $ticketID, 1 << 1, $ticketAuthor, true);
 
     // devs subscribed to the ticket through the game
-    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0) /* (1 << 1) */);
+    $gameTicketsSubs = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << 0 /* (1 << 1) */);
 
     return mergeSubscribers($ticketSubs, $gameTicketsSubs);
 }
@@ -264,7 +264,7 @@ function getSubscribersOfArticle(
     return getSubscribersOf(
         $subjectType,
         $articleID,
-        (1 << 0),  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
+        1 << 0,  // code suggests the value of $reqWebsitePrefs should be used, but the feature is disabled for now
         $qry
     );
 }

@@ -14,7 +14,6 @@ $rules = [
     '@Symfony' => true,
 
     // TODO remove and run
-    'no_unneeded_control_parentheses' => false,
     'simple_to_complex_string_variable' => false,
 
     // @Symfony overrides
