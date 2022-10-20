@@ -9,129 +9,39 @@ function parseOperand($mem)
 
     $type = '';
     switch ($mem[0]) {
-        case 'd':
-        case 'D':
-            $type = 'Delta';
-            $mem = substr($mem, 1);
-            $max--;
-            break;
-        case 'p':
-        case 'P':
-            $type = 'Prior';
-            $mem = substr($mem, 1);
-            $max--;
-            break;
-        case 'b':
-        case 'B':
-            $type = 'BCD';
-            $mem = substr($mem, 1);
-            $max--;
-            break;
-        case '~':
-            $type = 'Inverted';
-            $mem = substr($mem, 1);
-            $max--;
-            break;
+        case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); $max--; break;
+        case 'p': case 'P': $type = 'Prior'; $mem = substr($mem, 1); $max--; break;
+        case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); $max--; break;
+        case '~':           $type = 'Inverted'; $mem = substr($mem, 1); $max--; break;
     }
 
     $size = '';
     if ($max > 3 && $mem[0] == '0' && $mem[1] == 'x') {
         switch ($mem[2]) {
-            case 'h':
-            case 'H':
-                $size = '8-bit';
-                break;
-            case ' ':
-                $size = '16-bit';
-                break;
-            case 'x':
-            case 'X':
-                $size = '32-bit';
-                break;
+            case 'h': case 'H': $size = '8-bit'; break;
+            case ' ':           $size = '16-bit'; break;
+            case 'x': case 'X': $size = '32-bit'; break;
 
-            case 'm':
-            case 'M':
-                $size = 'Bit0';
-                break;
-            case 'n':
-            case 'N':
-                $size = 'Bit1';
-                break;
-            case 'o':
-            case 'O':
-                $size = 'Bit2';
-                break;
-            case 'p':
-            case 'P':
-                $size = 'Bit3';
-                break;
-            case 'q':
-            case 'Q':
-                $size = 'Bit4';
-                break;
-            case 'r':
-            case 'R':
-                $size = 'Bit5';
-                break;
-            case 's':
-            case 'S':
-                $size = 'Bit6';
-                break;
-            case 't':
-            case 'T':
-                $size = 'Bit7';
-                break;
-            case 'l':
-            case 'L':
-                $size = 'Lower4';
-                break;
-            case 'u':
-            case 'U':
-                $size = 'Upper4';
-                break;
-            case 'k':
-            case 'K':
-                $size = 'BitCount';
-                break;
-            case 'w':
-            case 'W':
-                $size = '24-bit';
-                break;
-            case 'g':
-            case 'G':
-                $size = '32-bit BE';
-                break;
-            case 'i':
-            case 'I':
-                $size = '16-bit BE';
-                break;
-            case 'j':
-            case 'J':
-                $size = '24-bit BE';
-                break;
+            case 'm': case 'M': $size = 'Bit0'; break;
+            case 'n': case 'N': $size = 'Bit1'; break;
+            case 'o': case 'O': $size = 'Bit2'; break;
+            case 'p': case 'P': $size = 'Bit3'; break;
+            case 'q': case 'Q': $size = 'Bit4'; break;
+            case 'r': case 'R': $size = 'Bit5'; break;
+            case 's': case 'S': $size = 'Bit6'; break;
+            case 't': case 'T': $size = 'Bit7'; break;
+            case 'l': case 'L': $size = 'Lower4'; break;
+            case 'u': case 'U': $size = 'Upper4'; break;
+            case 'k': case 'K': $size = 'BitCount'; break;
+            case 'w': case 'W': $size = '24-bit'; break;
+            case 'g': case 'G': $size = '32-bit BE'; break;
+            case 'i': case 'I': $size = '16-bit BE'; break;
+            case 'j': case 'J': $size = '24-bit BE'; break;
 
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-            case 'A':
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'E':
-            case 'F':
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
                 // no size specified, implied 16-bit. convert to explicit
                 $size = '16-bit';
                 $mem = substr($mem, 0, 2) . ' ' . substr($mem, 2);
@@ -145,28 +55,12 @@ function parseOperand($mem)
         $mem = substr($mem, 3);
     } elseif ($max > 2 && $mem[0] == 'f' || $mem[0] == 'F') {
         switch ($mem[1]) {
-            case 'f':
-            case 'F':
-                $size = 'Float';
-                break;
-            case 'm':
-            case 'M':
-                $size = 'MBF32';
-                break;
+            case 'f': case 'F': $size = 'Float'; break;
+            case 'm': case 'M': $size = 'MBF32'; break;
 
-            case '+':
-            case '-':
-            case '.':
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
+            case '+': case '-': case '.':
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
                 $type = 'Float';
                 $count = 1;
                 if ($mem[1] == '+' || $mem[1] == '-') {
@@ -278,68 +172,21 @@ function parseCondition($mem)
 
     if (strlen($mem) > 2 && $mem[1] == ':') {
         switch ($mem[0]) {
-            case 'p':
-            case 'P':
-                $flag = 'Pause If';
-                break;
-            case 'r':
-            case 'R':
-                $flag = 'Reset If';
-                break;
-            case 'a':
-            case 'A':
-                $flag = 'Add Source';
-                $scalable = true;
-                break;
-            case 'b':
-            case 'B':
-                $flag = 'Sub Source';
-                $scalable = true;
-                break;
-            case 'c':
-            case 'C':
-                $flag = 'Add Hits';
-                break;
-            case 'd':
-            case 'D':
-                $flag = 'Sub Hits';
-                break;
-            case 'n':
-            case 'N':
-                $flag = 'And Next';
-                break;
-            case 'o':
-            case 'O':
-                $flag = 'Or Next';
-                break;
-            case 'm':
-            case 'M':
-                $flag = 'Measured';
-                break;
-            case 'q':
-            case 'Q':
-                $flag = 'Measured If';
-                break;
-            case 'i':
-            case 'I':
-                $flag = 'Add Address';
-                $scalable = true;
-                break;
-            case 't':
-            case 'T':
-                $flag = 'Trigger';
-                break;
-            case 'z':
-            case 'Z':
-                $flag = 'Reset Next If';
-                break;
-            case 'g':
-            case 'G':
-                $flag = 'Measured %';
-                break;
-            default:
-                $flag = $mem[0];
-                break;
+            case 'p': case 'P': $flag = 'Pause If'; break;
+            case 'r': case 'R': $flag = 'Reset If'; break;
+            case 'a': case 'A': $flag = 'Add Source'; $scalable = true; break;
+            case 'b': case 'B': $flag = 'Sub Source'; $scalable = true; break;
+            case 'c': case 'C': $flag = 'Add Hits'; break;
+            case 'd': case 'D': $flag = 'Sub Hits'; break;
+            case 'n': case 'N': $flag = 'And Next'; break;
+            case 'o': case 'O': $flag = 'Or Next'; break;
+            case 'm': case 'M': $flag = 'Measured'; break;
+            case 'q': case 'Q': $flag = 'Measured If'; break;
+            case 'i': case 'I': $flag = 'Add Address'; $scalable = true; break;
+            case 't': case 'T': $flag = 'Trigger'; break;
+            case 'z': case 'Z': $flag = 'Reset Next If'; break;
+            case 'g': case 'G': $flag = 'Measured %'; break;
+            default: $flag = $mem[0]; break;
         }
 
         $mem = substr($mem, 2);
