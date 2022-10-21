@@ -892,6 +892,7 @@ function getUserGameWithMostTickets(string $user): ?array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
               AND a.Flags = '3'
+              AND t.ReportState != " . TicketState::Closed . "
               GROUP BY gd.Title
               ORDER BY TicketCount DESC
               LIMIT 1";
@@ -918,6 +919,7 @@ function getUserAchievementWithMostTickets(string $user): ?array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
               AND a.Flags = '3'
+              AND t.ReportState != " . TicketState::Closed . "
               GROUP BY a.ID
               ORDER BY TicketCount DESC
               LIMIT 1";
@@ -942,6 +944,7 @@ function getUserWhoCreatedMostTickets(string $user): ?array
               LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE a.Author = '$user'
+              AND t.ReportState != " . TicketState::Closed . "
               GROUP BY t.ReportedByUserID
               ORDER BY TicketCount DESC
               LIMIT 1";
