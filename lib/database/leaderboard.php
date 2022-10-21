@@ -241,11 +241,15 @@ function GetLeaderboardRankingJSON($user, $lbID, $lowerIsBetter): array
     $retVal = [];
 
     $query = "SELECT COUNT(*) AS UserRank,
-                (SELECT COUNT(*) AS NumEntries FROM LeaderboardEntry AS le WHERE le.LeaderboardID=$lbID) AS NumEntries
+                (SELECT COUNT(*) AS NumEntries FROM LeaderboardEntry AS le
+                 LEFT JOIN UserAccounts AS ua ON ua.ID=le.UserID
+                 WHERE le.LeaderboardID=$lbID AND NOT ua.Untracked) AS NumEntries
               FROM LeaderboardEntry AS lbe
               INNER JOIN LeaderboardEntry AS lbe2 ON lbe.LeaderboardID = lbe2.LeaderboardID AND lbe.Score " . ($lowerIsBetter ? '<=' : '<') . " lbe2.Score
               LEFT JOIN UserAccounts AS ua ON ua.ID = lbe.UserID
-              WHERE ua.User = '$user' AND lbe.LeaderboardID = $lbID ";
+              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = lbe2.UserID
+              WHERE ua.User = '$user' AND lbe.LeaderboardID = $lbID
+              AND NOT ua.Untracked AND NOT ua2.Untracked";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
