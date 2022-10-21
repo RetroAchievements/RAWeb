@@ -1,105 +1,49 @@
 <?php
 
+use RA\SearchType;
+
 if (!request()->has('term')) {
     return response()->json([]);
 }
 
 $searchTerm = request()->post('term');
+if (strlen($searchTerm) < 2) {
+    return response()->json([]);
+}
 sanitize_sql_inputs($searchTerm);
 
 $source = request()->post('source');
 
-$query = "(
-    SELECT '1' AS Type, gd.ID, CONCAT( gd.Title, \" (\", c.Name, \")\" ) AS Title, gd.ImageIcon AS Icon
-    FROM GameData AS gd
-    LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID
-    LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-    WHERE gd.Title LIKE '%$searchTerm%'
-    GROUP BY ach.GameID
-    ORDER BY gd.Title
-    LIMIT 0, 7
-    )
-    UNION
-    (
-    SELECT '2' AS Type, ach.ID, ach.Title, gd.ImageIcon AS Icon
-    FROM Achievements AS ach
-    LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-    WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchTerm%'
-    ORDER BY ach.Title
-    LIMIT 0, 7
-    )
-    UNION
-    (
-    SELECT '3' AS Type, ua.User AS ID, ua.User AS Title, CONCAT( CHAR(47), \"UserPic\", CHAR(47), ua.User, \".png\" ) AS Icon
-    FROM UserAccounts AS ua
-    WHERE ua.User LIKE '%$searchTerm%' AND ua.Permissions >= 0
-    ORDER BY ua.User
-    LIMIT 0, 7
-) ";
+$maxResults = 10;
+$permissions = 0; /* permissions only needed for searching forums */
 
-if ($source == 'game-compare' || $source == 'user') {
-    $query = "SELECT '3' AS Type, ua.User AS ID, ua.User AS Title FROM UserAccounts AS ua
-				  WHERE ua.User LIKE '%$searchTerm%' AND ua.Permissions >= 0
-				  ORDER BY ua.User
-				  LIMIT 0, 10 ";
-}
+$results = [];
 if ($source == 'game') {
-    $query = "SELECT '1' AS Type, gd.ID, CONCAT( gd.Title, \" (\", c.Name, \")\" ) AS Title, gd.ImageIcon AS Icon
-                FROM GameData AS gd
-                LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                WHERE gd.Title LIKE '%$searchTerm%'
-                GROUP BY ach.GameID, gd.Title
-                ORDER BY gd.Title
-                LIMIT 0, 10";
-}
-if ($source == 'achievement') {
-    $query = "SELECT '2' AS Type, ach.ID, ach.Title, gd.ImageIcon AS Icon
-          FROM Achievements AS ach
-          LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-          WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchTerm%'
-          ORDER BY ach.Title
-          LIMIT 0, 10";
+    $order = [SearchType::Game, SearchType::Achievement, SearchType::User];
+} elseif ($source == 'achievement') {
+    $order = [SearchType::Achievement, SearchType::Game, SearchType::User];
+} elseif ($source == 'user' || $source == 'game-compare') {
+    $order = [SearchType::User, SearchType::Game, SearchType::Achievement];
+} else {
+    $order = [SearchType::Game, SearchType::Achievement, SearchType::User];
 }
 
-$dbResult = s_mysql_query($query);
+$numFound = 0;
+foreach ($order as $searchType) {
+    $numFound += performSearch($searchType, $searchTerm, 0, $maxResults, $permissions, $results);
+    if ($numFound >= $maxResults) {
+        break;
+    }
+}
 
 $dataOut = [];
-
-if ($dbResult !== false && mysqli_num_rows($dbResult) > 0) {
-    while ($nextRow = mysqli_fetch_array($dbResult)) {
-        $nextTitle = $nextRow['Title'] ?? null;
-        $nextID = $nextRow['ID'] ?? null;
-        $nextIcon = $nextRow['Icon'] ?? null;
-
-        if ($nextRow['Type'] == 1) {
-            $dataOut[] = [
-                'label' => $nextTitle,
-                'id' => $nextID,
-                'icon' => $nextIcon,
-                'mylink' => "/game/$nextID",
-                'category' => "Games",
-            ];
-        } else {
-            if ($nextRow['Type'] == 2) {
-                $dataOut[] = [
-                    'label' => $nextTitle,
-                    'id' => $nextID,
-                    'icon' => $nextIcon,
-                    'mylink' => "/achievement/$nextID",
-                    'category' => "Achievements",
-                ];
-            } else { // $nextRow['Type'] == 3
-                $dataOut[] = [
-                    'label' => $nextTitle,
-                    'id' => $nextID,
-                    'icon' => $nextIcon,
-                    'mylink' => "/user/$nextID",
-                    'category' => "Users",
-                ];
-            }
-        }
-    }
+foreach ($results as $nextRow) {
+    $dataOut[] = [
+        'label' => $nextRow['Title'] ?? null,
+        'id' => $nextRow['ID'] ?? null,
+        'mylink' => $nextRow['Target'] ?? null,
+        'category' => $nextRow['Type'],
+    ];
 }
 
 return response()->json($dataOut);

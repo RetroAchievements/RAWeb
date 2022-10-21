@@ -85,7 +85,7 @@ $numArticleComments = getArticleComments(ArticleType::Achievement, $achievementI
 getCodeNotes($gameID, $codeNotes);
 
 $pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
-RenderOpenGraphMetadata($pageTitle, "achievement", media_asset("/Badge/$badgeName" . ".png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
+RenderOpenGraphMetadata($pageTitle, "achievement", media_asset("/Badge/$badgeName.png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
 RenderContentStart($pageTitle);
 ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
@@ -367,7 +367,7 @@ RenderContentStart($pageTitle);
 
         echo "</div>"; // achievement
 
-        /**
+        /*
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div>";

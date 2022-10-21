@@ -60,7 +60,6 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware(['web', 'csp'])->group(function () {
-
             /*
              * content
              */

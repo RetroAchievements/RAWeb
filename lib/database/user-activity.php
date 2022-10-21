@@ -3,6 +3,7 @@
 use App\Legacy\Models\Comment;
 use App\Legacy\Models\DeletedModels;
 use App\Legacy\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use RA\ActivityType;
 use RA\ArticleType;
@@ -27,6 +28,7 @@ function getMostRecentActivity($user, $type, $data): ?array
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return null;
     }
 
@@ -82,20 +84,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
     switch ($activity) {
         case ActivityType::EarnedAchievement:
             $achID = $customMsg;
-
-            $achData = [];
-            getAchievementMetadata($achID, $achData);
-
-            $gameName = $achData['GameTitle'];
-            $gameID = $achData['GameID'];
-            $achName = $achData['Title'];
-
-            $gameLink = "<a href='/game/$gameID'>$gameName</a>";
-            $achLink = "<a href='/achievement/$achID'>$achName</a>";
-
-            $gameLink = str_replace("'", "''", $gameLink);
-            $achLink = str_replace("'", "''", $achLink);
-
             $query .= "(NOW(), $activity, '$user', '$achID', $isalt )";
             break;
 
@@ -106,11 +94,11 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
                 $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
                 $diff = $nowTimestamp - $lastLoginTimestamp;
 
-                /**
+                /*
                  * record login activity only every 6 hours
                  */
                 if ($diff < 60 * 60 * 6) {
-                    /**
+                    /*
                      * new login activity from $user, duplicate of recent login " . ($diff/60) . " mins ago,
                      * ignoring!
                      */
@@ -123,7 +111,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
         case ActivityType::StartedPlaying:
             $gameID = $customMsg;
 
-            /**
+            /*
              * Switch the rich presence to the new game immediately
              */
             getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
@@ -157,19 +145,20 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             if ($activityID !== null) {
                 $diff = time() - $lastPlayedTimestamp;
 
-                /**
+                /*
                  * record game session activity only every 12 hours
                  */
                 if ($diff < 60 * 60 * 12) {
-                    /**
+                    /*
                      * new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago
                      * Updating db, but not posting!
                      */
                     updateActivity($activityID);
                     expireRecentlyPlayedGames($user);
+
                     return true;
                 } else {
-                    /**
+                    /*
                      * recognises that $user has played $gameTitle recently, but longer than 12 hours ago (" . ($diff/60) . " mins) so still posting activity!
                      * $nowTimestamp - $lastPlayedTimestamp = $diff
                      */
@@ -199,11 +188,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
         case ActivityType::CompleteGame:
             // Completed a game!
             $gameID = $customMsg;
-            getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
-
-            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
-            $gameLink = str_replace("'", "''", $gameLink);
-
             AddSiteAward($user, 1, $gameID, $isalt);
             expireGameTopAchievers((int) $gameID);
 
@@ -213,21 +197,10 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
         case ActivityType::NewLeaderboardEntry:
         case ActivityType::ImprovedLeaderboardEntry:
             $lbID = $customMsg['LBID'];
-            $lbTitle = $customMsg['LBTitle'];
             $score = $customMsg['Score'];
-            $gameID = $customMsg['GameID'];
-            $scoreFormatted = $customMsg['ScoreFormatted'];
-            getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
-
-            $gameLink = "<a href='/game/$gameID'>$gameTitle</a>";
-            $gameLink = str_replace("'", "''", $gameLink);
-            $lbLinkScore = "<a href='/leaderboardinfo.php?i=$lbID'>$scoreFormatted</a>";
-            $lbLinkScore = str_replace("'", "''", $lbLinkScore);
-            $lbLinkTitle = "<a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a>";
-            $lbLinkTitle = str_replace("'", "''", $lbLinkTitle);
-
             $query .= "(NOW(), $activity, '$user', '$lbID', '$score')";
             break;
+
         case ActivityType::Unknown:
         default:
             $query .= "(NOW(), $activity, '$user', '$customMsg', '$customMsg')";
@@ -237,6 +210,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
     $dbResult = mysqli_query($db, $query);
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     }
 
@@ -255,6 +229,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
 
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     }
 
@@ -275,6 +250,7 @@ function userActivityPing($user): bool
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     }
 
@@ -299,6 +275,7 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
     $dbResult = mysqli_query($db, $query);
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     }
 
@@ -313,6 +290,7 @@ function getActivityMetadata($activityID): ?array
               WHERE ID='$activityID'";
 
     $dbResult = s_mysql_query($query);
+
     return mysqli_fetch_assoc($dbResult);
 }
 
@@ -392,6 +370,7 @@ function addArticleComment($user, $articleType, $articleID, $commentPayload, $on
 
     if (!$dbResult) {
         log_sql_fail();
+
         return false;
     }
 
@@ -483,12 +462,8 @@ function expireRecentlyPlayedGames(string $user): void
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
-    $recentlyPlayedGames = '';
-    if ($offset == 0 && $count <= 5)
-    {
-        $recentlyPlayedGames = Cache::rememberForever("user:$user:recentGames", function () use ($user) {
-            return _getRecentlyPlayedGameIds($user, 0, 5);
-        });
+    if ($offset == 0 && $count <= 5) {
+        $recentlyPlayedGames = Cache::remember("user:$user:recentGames", Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
     } else {
         $recentlyPlayedGames = _getRecentlyPlayedGameIds($user, $offset, $count);
     }

@@ -88,7 +88,7 @@ function RenderAOTWComponent($achID, $forumTopicID): void
     echo "<div class='component'>";
     echo "<h3>Achievement of the Week</h3>";
 
-    /**
+    /*
      * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementOfTheWeek instead
      */
     echo "<div class='text-center'>";

@@ -2,9 +2,11 @@
 
 use App\Legacy\Models\User;
 
-authenticateFromCookie($user, $permissions, $userDetails);
-
 $achievementID = requestInputSanitized('i', 0, 'integer');
+
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+    return redirect(route('achievement.show', $achievementID));
+}
 
 $dataOut = null;
 if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {

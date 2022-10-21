@@ -74,7 +74,7 @@
  *  string     URL                     URL to the list of games with the most tickets
  */
 
- /*
+/*
  *  API_GetTicketData - returns ticket statistics for the specified user
  *    u : username
  *
@@ -154,6 +154,7 @@ if ($ticketID > 0) {
     $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
 
     $ticketData['URL'] = $baseUrl . "?i=$ticketID";
+
     return response()->json($ticketData);
 }
 
@@ -166,6 +167,7 @@ $gamesTableFlag = (int) request()->query('f');
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
     $ticketData['URL'] = $baseUrl . "?f=$gamesTableFlag";
+
     return response()->json($ticketData);
 }
 
@@ -204,6 +206,7 @@ if (!empty($assignedToUser)) {
         }
     }
     $ticketData['URL'] = $baseUrl . "?u=$assignedToUser";
+
     return response()->json($ticketData);
 }
 
@@ -236,6 +239,7 @@ if ($gameIDGiven > 0) {
 
         return response()->json($ticketData);
     }
+
     return response()->json(['error' => "Game ID $gameIDGiven not found"], 404);
 }
 
@@ -251,6 +255,7 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
+
     return response()->json($ticketData);
 }
 
