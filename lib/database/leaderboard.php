@@ -88,7 +88,7 @@ function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation): array
             // If you fall through to here, populate $dataOut with some juicy info :)
             $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, false);
             $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, true);
-            $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID);
+            $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID, $lowerIsBetter);
         } else {
             $retVal['Success'] = false;
             $retVal['Error'] = "Cannot insert the value $newEntry into leaderboard with ID: $lbID (unknown issue)";
@@ -238,31 +238,37 @@ function removeLeaderboardEntry($user, $lbID, &$score): bool
     return true;
 }
 
-function GetLeaderboardRankingJSON($user, $lbID): array
+function GetLeaderboardRankingJSON($user, $lbID, $lowerIsBetter): array
 {
     sanitize_sql_inputs($user, $lbID);
 
     $retVal = [];
 
     $query = "SELECT COUNT(*) AS UserRank,
-                (SELECT ld.LowerIsBetter FROM LeaderboardDef AS ld WHERE ld.ID=$lbID) AS LowerIsBetter,
-                (SELECT COUNT(*) AS NumEntries FROM LeaderboardEntry AS le WHERE le.LeaderboardID=$lbID) AS NumEntries
+                (SELECT COUNT(*) AS NumEntries FROM LeaderboardEntry AS le
+                 LEFT JOIN UserAccounts AS ua ON ua.ID=le.UserID
+                 WHERE le.LeaderboardID=$lbID AND NOT ua.Untracked) AS NumEntries
               FROM LeaderboardEntry AS lbe
-              INNER JOIN LeaderboardEntry AS lbe2 ON lbe.LeaderboardID = lbe2.LeaderboardID AND lbe.Score < lbe2.Score
+              INNER JOIN LeaderboardEntry AS lbe2 ON lbe.LeaderboardID = lbe2.LeaderboardID AND lbe.Score " . ($lowerIsBetter ? '<=' : '<') . " lbe2.Score
               LEFT JOIN UserAccounts AS ua ON ua.ID = lbe.UserID
-              WHERE ua.User = '$user' AND lbe.LeaderboardID = $lbID ";
+              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = lbe2.UserID
+              WHERE ua.User = '$user' AND lbe.LeaderboardID = $lbID
+              AND NOT ua.Untracked AND NOT ua2.Untracked";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $retVal = mysqli_fetch_assoc($dbResult);
 
-        // Query actually gives 'how many players are below me in the list.'
-        // Top position yields '0', which we should change to '1' for '1st'
-        // Reversing the list means we wouldn't need to do this however: Rank 0 becomes 5-0: 5th of 5.
-        // 0=1st place.
-        if ($retVal['LowerIsBetter'] == 1) {
-            $retVal['Rank'] = (int) $retVal['NumEntries'] - (int) $retVal['UserRank'];
+        if ($lowerIsBetter) {
+            // Query fetches number of users with scores higher or equal to the player
+            // Subtract that number from the total number of players to get the actual rank
+            // Top position yields '0', which we should change to '1' for '1st'
+            // NOTE: have to use <= for reverse sort so number of users being subtracted
+            //       includes all users with the same score (see issue #1201)
+            $retVal['Rank'] = (int) $retVal['NumEntries'] - (int) $retVal['UserRank'] + 1;
         } else {
+            // Query fetches number of users with scores higher than the player
+            // Top position yields '0', which we need to add one.
             $retVal['Rank'] = (int) $retVal['UserRank'] + 1;
         }
     }
