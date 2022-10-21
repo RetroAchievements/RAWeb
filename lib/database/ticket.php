@@ -893,6 +893,7 @@ function getUserGameWithMostTickets(string $user): ?array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
               AND a.Flags = '3'
+              AND t.ReportState != " . TicketState::Closed . "
               GROUP BY gd.Title
               ORDER BY TicketCount DESC
               LIMIT 1";
@@ -919,6 +920,7 @@ function getUserAchievementWithMostTickets(string $user): ?array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = '$user'
               AND a.Flags = '3'
+              AND t.ReportState != " . TicketState::Closed . "
               GROUP BY a.ID
               ORDER BY TicketCount DESC
               LIMIT 1";
@@ -943,6 +945,7 @@ function getUserWhoCreatedMostTickets(string $user): ?array
               LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE a.Author = '$user'
+              AND t.ReportState != " . TicketState::Closed . "
               GROUP BY t.ReportedByUserID
               ORDER BY TicketCount DESC
               LIMIT 1";
@@ -968,7 +971,7 @@ function getNumberOfTicketsClosedForOthers(string $user): array
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
-              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolvedByUserID
+              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND ua.User NOT LIKE '$user'
@@ -977,6 +980,38 @@ function getNumberOfTicketsClosedForOthers(string $user): array
               AND a.Flags = '3'
               GROUP BY a.Author
               ORDER BY TicketCount DESC, Author";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+
+    return $retVal;
+}
+
+/**
+ * Gets the number of tickets closed/resolved for achievements written by the user.
+ */
+function getNumberOfTicketsClosed(string $user): array
+{
+    sanitize_sql_inputs($user);
+
+    $retVal = [];
+    $query = "SELECT ua2.User AS ResolvedByUser, COUNT(ua2.User) AS TicketCount,
+              SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
+              SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
+              FROM Ticket AS t
+              LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
+              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
+              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
+              AND ua.User NOT LIKE '$user'
+              AND a.Author LIKE '$user'
+              AND a.Flags = '3'
+              GROUP BY ResolvedByUser
+              ORDER BY TicketCount DESC, ResolvedByUser";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
