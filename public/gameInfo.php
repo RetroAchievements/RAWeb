@@ -757,7 +757,7 @@ sanitize_outputs(
                             if ($createTopic) {
                                 echo "<input type='hidden' name='create_topic' value='1'>";
                             }
-                            echo "<button>Make " . (ClaimSetType::toString($claimSetType)) . " " . ClaimType::toString($claimType) . " Claim" . ($createTopic ? ' and Forum Topic' : '') . "</button>";
+                            echo "<button>Make " . ClaimSetType::toString($claimSetType) . " " . ClaimType::toString($claimType) . " Claim" . ($createTopic ? ' and Forum Topic' : '') . "</button>";
                             echo "</form>";
                         } elseif ($claimBlockedByMissingForumTopic) {
                             echo "<div>Forum Topic Needed for Claim</div>";
@@ -1229,7 +1229,7 @@ sanitize_outputs(
 
                                 $pctComplete = sprintf(
                                     "%01.2f",
-                                    (($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual)
+                                    ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual
                                 );
                             }
                             echo "<div class='achievementdata'>";

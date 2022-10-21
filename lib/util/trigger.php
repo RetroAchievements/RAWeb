@@ -78,9 +78,12 @@ function parseOperand($mem)
 
                 $value = substr($mem, 1, $count - 1); // ignore 'f'
                 $mem = substr($mem, $count);
+
                 return [$type, $size, $value, $mem];
 
-            default: $size = $mem[1]; break;
+            default:
+                $size = $mem[1];
+                break;
         }
 
         $mem = substr($mem, 2);
@@ -96,6 +99,7 @@ function parseOperand($mem)
 
         $value = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
         $mem = substr($mem, $count);
+
         return [$type, $size, $value, $mem];
     } else {
         $type = 'Value';
@@ -125,6 +129,7 @@ function parseOperand($mem)
 
         $value = '0x' . str_pad(dechex((int) substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
         $mem = substr($mem, $count);
+
         return [$type, $size, $value, $mem];
     }
 
@@ -140,6 +145,7 @@ function parseOperand($mem)
 
     $address = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
     $mem = substr($mem, $count);
+
     return [$type, $size, $address, $mem];
 }
 

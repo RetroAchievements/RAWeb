@@ -54,6 +54,7 @@ function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RA
 
     if (!$user->exists() || !isAllowedToSubmitTickets($userSubmitter)) {
         $returnMsg['Success'] = false;
+
         return $returnMsg;
     }
 
@@ -165,7 +166,7 @@ $bugReportDetails";
 
     // notify subscribers other than the achievement's author
     // TODO dry it. why is this not (1 << 1) like in submitNewTicketsJSON?
-    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, (1 << 0));
+    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << 0);
     $emailHeader = "Bug Report ($gameTitle)";
     foreach ($subscribers as $sub) {
         if ($sub['User'] != $achAuthor && $sub['User'] != $username) {

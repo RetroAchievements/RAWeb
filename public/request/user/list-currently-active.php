@@ -6,17 +6,15 @@ use Illuminate\Support\Facades\Cache;
 $currentlyActive = Cache::remember(
     'currently-active',
     Carbon::now()->addMinutes(2),
-    function () {
-        return collect(getLatestRichPresenceUpdates())
-            ->keyBy('User')
-            ->map(function ($user) {
-                $user['InGame'] = true;
+    fn () => collect(getLatestRichPresenceUpdates())
+        ->keyBy('User')
+        ->map(function ($user) {
+            $user['InGame'] = true;
 
-                return $user;
-            })
-            ->values()
-            ->toArray();
-    }
+            return $user;
+        })
+        ->values()
+        ->toArray()
 );
 
 return response()->json($currentlyActive);
