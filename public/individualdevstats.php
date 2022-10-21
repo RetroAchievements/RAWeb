@@ -1252,13 +1252,13 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td width='50%'>Unique Achievements with Open/Resolved Tickets:</td><td>" . $userTickets['uniqueValid'] . ' (';
             $uniqueAchievementTicketRatio = $userTickets['uniqueValid'] / $achievementCount * 100;
             $colored = false;
-            if ($uniqueAchievementTicketRatio > 75) {
+            if ($uniqueAchievementTicketRatio > 40) {
                 echo "<font color='red'>";
                 $colored = true;
-            } elseif ($uniqueAchievementTicketRatio > 50) {
+            } elseif ($uniqueAchievementTicketRatio > 30) {
                 echo "<font color='orange'>";
                 $colored = true;
-            } elseif ($uniqueAchievementTicketRatio < 10) {
+            } elseif ($uniqueAchievementTicketRatio < 5) {
                 echo "<font color='green'>";
                 $colored = true;
             }
