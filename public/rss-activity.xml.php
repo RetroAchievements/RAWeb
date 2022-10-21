@@ -20,7 +20,7 @@ $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Global
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
 $xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
-/**
+/*
  * exit early - no more feeds in v1
  */
 return response(html_entity_decode($dom->saveXML()), 501, ['Content-type' => 'text/xml']);

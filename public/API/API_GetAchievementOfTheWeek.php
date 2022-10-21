@@ -78,7 +78,7 @@ $forumTopic = [
 
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 500);
 
-/**
+/*
  * reset unlocks if there is no start date to prevent listing invalid entries
  */
 if (empty($startAt)) {

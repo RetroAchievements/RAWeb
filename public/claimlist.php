@@ -60,6 +60,7 @@ RenderContentStart("Claim List");
             $appendParam($link, 'f', $claimFilters, ClaimFilters::Default);
             $appendParam($link, 'u', $username, null);
             $appendParam($link, 'g', $gameID, null);
+
             return $link;
         };
 
@@ -198,7 +199,7 @@ RenderContentStart("Claim List");
         $baseLink = $createLink(null, null);
         $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
         if ($totalClaims) {
-            RenderPaginator($totalClaims, $maxCount, $offset, "${baseLink}o=");
+            RenderPaginator($totalClaims, $maxCount, $offset, "{$baseLink}o=");
         }
         echo "</div>";
         ?>

@@ -24,8 +24,9 @@ if (!function_exists('media_asset')) {
     {
         $url = app('filesystem')->disk('media')->url($path);
         if (!request()->isSecure()) {
-          $url = str_replace('https://', 'http://', $url);
+            $url = str_replace('https://', 'http://', $url);
         }
+
         return $url;
     }
 }
