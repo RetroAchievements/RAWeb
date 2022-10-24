@@ -82,5 +82,6 @@ function implodeInts(string $separator, array $array): string
             $result .= $item;
         }
     }
+
     return $result;
 }
