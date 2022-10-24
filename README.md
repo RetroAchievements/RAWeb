@@ -27,6 +27,9 @@ extension=curl
 extension=gmp
 extension=mysqli
 extension=pdo_mysql
+extension=gd
+extension=intl
+extension=sockets
 ```
 
 ### **[Laravel Valet](https://laravel.com/docs/valet)** (macOS only)
