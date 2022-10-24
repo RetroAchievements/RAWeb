@@ -32,7 +32,7 @@ function getGameData($gameID): ?array
     }
 }
 
-function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData): string
+function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData): bool
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, "integer");
@@ -40,7 +40,7 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     $gameTitle = "UNRECOGNISED";
 
     if (empty($gameID)) {
-        return $gameTitle;
+        return false;
     }
     $query = "SELECT gd.ID, gd.Title, gd.ForumTopicID, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon, gd.ImageIcon AS GameIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released
               FROM GameData AS gd
@@ -51,12 +51,12 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     if (!$dbResult) {
         log_sql_fail();
 
-        return $gameTitle;
+        return false;
     }
 
     $data = mysqli_fetch_assoc($dbResult);
     if (empty($data)) {
-        return $gameTitle;
+        return false;
     }
 
     $gameTitle = $data['Title'];
@@ -65,7 +65,7 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     $forumTopicID = $data['ForumTopicID'];
     $allData = $data;
 
-    return (string) $gameTitle;
+    return true;
 }
 
 function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = null, $flag = null): int

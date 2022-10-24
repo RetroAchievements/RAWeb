@@ -107,12 +107,17 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             break;
 
         case ActivityType::StartedPlaying:
-            $gameID = $customMsg;
+            if (!is_numeric($customMsg)) {
+                return false;
+            }
+            $gameID = (int) $customMsg;
 
             /**
              * Switch the rich presence to the new game immediately
              */
-            getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
+            if (!getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData)) {
+                return false;
+            }
             UpdateUserRichPresence($user, $gameID, "Playing $gameTitle");
 
             /**
