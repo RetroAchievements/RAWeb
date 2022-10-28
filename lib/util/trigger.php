@@ -238,8 +238,21 @@ function parseCondition($mem)
 
 function getNoteForAddress($memNotes, $address)
 {
+    // $memNotes[x]['Address'] is formatted to 6 hex digits: "0x%06x"
+    // only look for an exact match if the input is also 6 hex digits
+    if (strlen($address) == 8) {
+        foreach ($memNotes as $nextMemNote) {
+            if ($nextMemNote['Address'] === $address) {
+                return $nextMemNote['Note'];
+            }
+        }
+    }
+
+    // input is not 6 hex digits (or maybe contains uppercase letters)
+    // look for an equivalent match (0x123a == 0x00123a == 0x00123A)
+    $decAddress = hexdec($address);
     foreach ($memNotes as $nextMemNote) {
-        if ($nextMemNote['Address'] === $address) {
+        if (hexdec($nextMemNote['Address']) === $decAddress) {
             return $nextMemNote['Note'];
         }
     }
