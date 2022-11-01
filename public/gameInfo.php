@@ -669,7 +669,7 @@ sanitize_outputs(
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
             if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
-                $hasMinimumDeveloperPermissions = $permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper);
+                $hasMinimumDeveloperPermissions = $permissions >= Permissions::Developer || (($isSoleAuthor || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet)) && $permissions >= Permissions::JuniorDeveloper);
                 echo "<div class='devbox mb-3'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
                 echo "<div id='devboxcontent' style='display: none'>";

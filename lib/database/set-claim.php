@@ -50,15 +50,20 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
 }
 
 /**
- * Checks if the user already has the game claimed. Allows for checking primary and collaboration claims.
+ * Checks if the user already has the game claimed. Allows for checking primary/collaboration claims as well as set type.
  */
-function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false): bool
+function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
 {
     sanitize_sql_inputs($user, $gameID);
 
     $claimTypeCondition = '';
     if ($isPrimaryClaim) {
         $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
+    }
+
+    $setTypeCondition = '';
+    if (isset($setType)) {
+        $setTypeCondition = 'AND SetType = ' . $setType;
     }
 
     $query = "
@@ -69,6 +74,7 @@ function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false):
         WHERE
             Status = " . ClaimStatus::Active . "
             $claimTypeCondition
+            $setTypeCondition
             AND User = '$user'
             AND GameID = '$gameID'";
 
