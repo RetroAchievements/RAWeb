@@ -391,7 +391,9 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
 
     addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
-    getAccountDetails($userReporter, $reporterData);
+    if (!getAccountDetails($userReporter, $reporterData))
+        return true;
+
     $email = $reporterData['EmailAddress'];
 
     $emailTitle = "Ticket status changed";
