@@ -330,7 +330,7 @@ function UploadNewAchievement(
                 // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
                 if ($userPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $data['Author'] != $author)) {
                     // Must be developer to modify core logic!
-                    $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to applyer.";
+                    $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
                     return false;
                 }

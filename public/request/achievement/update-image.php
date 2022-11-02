@@ -20,8 +20,6 @@ if (!$achievement) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-$gameId = (int) $achievement['GameID'];
-
 // Only allow jr. devs to update achievement image if they are the author
 if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {
     return back()->withErrors(__('legacy.error.permissions'));
