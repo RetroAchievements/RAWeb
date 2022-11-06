@@ -363,7 +363,7 @@ trait SyncTrait
                 }
 
                 return [
-                    ($this->keyMap[$key]['key']) => $value,
+                    $this->keyMap[$key]['key'] => $value,
                 ];
             });
 

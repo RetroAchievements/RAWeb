@@ -65,7 +65,6 @@ function getUserRequestList(string $user = null): array
                 log_sql_fail();
             }
         }
-
     } else {
         log_sql_fail();
     }
@@ -177,6 +176,7 @@ function toggleSetRequest(string $user, int $gameID, int $remaining): bool
             }
         }
     }
+
     return false;
 }
 

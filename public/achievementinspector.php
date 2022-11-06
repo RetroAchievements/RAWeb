@@ -1,6 +1,7 @@
 <?php
 
 use RA\AchievementType;
+use RA\ClaimSetType;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -12,7 +13,7 @@ $fullModifyOK = $permissions >= Permissions::Developer;
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = $permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID);
+$partialModifyOK = $permissions == Permissions::JuniorDeveloper && (checkIfSoleDeveloper($user, $gameID) || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet));
 
 $achievementList = [];
 $gamesList = [];

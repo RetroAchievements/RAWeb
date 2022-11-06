@@ -68,7 +68,7 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
 
             // Update app token expiry now anyway
             $expDays = 14;
-            $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
+            $expiryStr = date("Y-m-d H:i:s", time() + 60 * 60 * 24 * $expDays);
             $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
             s_mysql_query($query);
         }
@@ -259,7 +259,7 @@ function generateAppToken($user, &$tokenOut): bool
     $newToken = rand_string(16);
 
     $expDays = 14;
-    $expiryStr = date("Y-m-d H:i:s", (time() + 60 * 60 * 24 * $expDays));
+    $expiryStr = date("Y-m-d H:i:s", time() + 60 * 60 * 24 * $expDays);
     $query = "UPDATE UserAccounts SET appToken='$newToken', appTokenExpiry='$expiryStr', Updated=NOW() WHERE User='$user'";
     $result = s_mysql_query($query);
     if ($result !== false) {

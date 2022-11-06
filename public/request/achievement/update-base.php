@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use RA\AchievementType;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -17,8 +16,8 @@ $input = Validator::validate(request()->post(), [
 
 $achievement = GetAchievementData((int) $input['achievement']);
 
-// Only allow jr. devs to update base data if they are the sole author of the set
-if ($permissions == Permissions::JuniorDeveloper && ((int) $achievement['Flags'] !== AchievementType::Unofficial || !checkIfSoleDeveloper($user, (int) $achievement['GameId']))) {
+// Only allow jr. devs to update base data if they are the author
+if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {
     abort(403);
 }
 

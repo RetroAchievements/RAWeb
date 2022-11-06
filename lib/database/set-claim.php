@@ -45,19 +45,25 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
             return true;
         }
     }
+
     return false;
 }
 
 /**
- * Checks if the user already has the game claimed. Allows for cheicng primary and collaboration claims.
+ * Checks if the user already has the game claimed. Allows for checking primary/collaboration claims as well as set type.
  */
-function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false): bool
+function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
 {
     sanitize_sql_inputs($user, $gameID);
 
     $claimTypeCondition = '';
     if ($isPrimaryClaim) {
         $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
+    }
+
+    $setTypeCondition = '';
+    if (isset($setType)) {
+        $setTypeCondition = 'AND SetType = ' . $setType;
     }
 
     $query = "
@@ -68,6 +74,7 @@ function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false):
         WHERE
             Status = " . ClaimStatus::Active . "
             $claimTypeCondition
+            $setTypeCondition
             AND User = '$user'
             AND GameID = '$gameID'";
 
@@ -108,6 +115,7 @@ function completeClaim(string $user, int $gameID): bool
             return true;
         }
     }
+
     return false;
 }
 
@@ -133,6 +141,7 @@ function dropClaim(string $user, int $gameID): bool
     if (s_mysql_query($query)) {
         return true;
     }
+
     return false;
 }
 
@@ -161,6 +170,7 @@ function extendClaim(string $user, int $gameID): bool
             return true;
         }
     }
+
     return false;
 }
 
@@ -208,6 +218,7 @@ function getClaimData(int $gameID, bool $getFullData = true): array
             $retVal[] = $nextData;
         }
     }
+
     return $retVal;
 }
 
@@ -227,8 +238,7 @@ function getFilteredClaimData(
     bool $getCount = false,
     int $offset = 0,
     int $limit = 50
-): array|int
-{
+): array|int {
     $retVal = [];
     sanitize_sql_inputs($gameID, $username);
 
@@ -256,6 +266,7 @@ function getFilteredClaimData(
         if ($getCount) {
             return 0;
         }
+
         return $retVal;
     }
 
@@ -269,6 +280,7 @@ function getFilteredClaimData(
         if ($getCount) {
             return 0;
         }
+
         return $retVal;
     }
 
@@ -290,12 +302,12 @@ function getFilteredClaimData(
         if ($getCount) {
             return 0;
         }
+
         return $retVal;
     }
 
     // Create the special condition
-    $str = '';
-    $str .= ($specialNoneClaim ? ClaimSpecial::None . ',' : '');
+    $str = ($specialNoneClaim ? ClaimSpecial::None . ',' : '');
     $str .= ($specialRevisionClaim ? ClaimSpecial::OwnRevision . ',' : '');
     $str .= ($specialRolloutClaim ? ClaimSpecial::FreeRollout . ',' : '');
     $str .= ($specialScheduledClaim ? ClaimSpecial::ScheduledRelease : '');
@@ -338,8 +350,9 @@ function getFilteredClaimData(
         8 => 'sc.Created ',
         9 => 'sc.Finished ',
         default => 'sc.Created ',
-    }
-    . $sortOrder;
+    };
+
+    $sortCondition .= $sortOrder;
 
     // Creare the user data condition
     $userCondition = '';
@@ -364,21 +377,21 @@ function getFilteredClaimData(
         $selectCondition = "COUNT(*) AS Total";
     } else {
         $selectCondition =
-        "sc.ID AS ID,
-        sc.User AS User,
-        sc.GameID AS GameID,
-        gd.Title AS GameTitle,
-        gd.ImageIcon AS GameIcon,
-        c.Name AS ConsoleName,
-        sc.ClaimType AS ClaimType,
-        sc.SetType AS SetType,
-        sc.Status AS Status,
-        sc.Extension AS Extension,
-        sc.Special AS Special,
-        sc.Created AS Created,
-        sc.Finished AS DoneTime,
-        sc.Updated AS Updated,
-        TIMESTAMPDIFF(MINUTE, NOW(), sc.Finished) AS MinutesLeft";
+            "sc.ID AS ID,
+            sc.User AS User,
+            sc.GameID AS GameID,
+            gd.Title AS GameTitle,
+            gd.ImageIcon AS GameIcon,
+            c.Name AS ConsoleName,
+            sc.ClaimType AS ClaimType,
+            sc.SetType AS SetType,
+            sc.Status AS Status,
+            sc.Extension AS Extension,
+            sc.Special AS Special,
+            sc.Created AS Created,
+            sc.Finished AS DoneTime,
+            sc.Updated AS Updated,
+            TIMESTAMPDIFF(MINUTE, NOW(), sc.Finished) AS MinutesLeft";
     }
 
     $query = "
@@ -460,6 +473,7 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
     if ($dbResult !== false) {
         return (int) (mysqli_fetch_assoc($dbResult)['ActiveClaims'] ?? 0);
     }
+
     return 0;
 }
 
@@ -488,6 +502,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
     if (s_mysql_query($query)) {
         return true;
     }
+
     return false;
 }
 
@@ -515,6 +530,7 @@ function getExpiringClaim(string $user): array
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
     }
+
     return $retVal;
 }
 
