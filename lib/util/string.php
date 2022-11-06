@@ -70,18 +70,3 @@ function utf8_sanitize(string $input): string
 {
     return mb_convert_encoding($input, "UTF-8", "UTF-8");
 }
-
-function implodeInts(string $separator, array $array): string
-{
-    $result = '';
-    foreach ($array as $item) {
-        if (is_int($item) || is_numeric($item)) {
-            if ($result != '') {
-                $result .= ',';
-            }
-            $result .= $item;
-        }
-    }
-
-    return $result;
-}
