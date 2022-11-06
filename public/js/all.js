@@ -267,7 +267,7 @@ $(function () {
 });
 
 function removeComment(artTypeID, artID, commentID) {
-  if (!window.confirm('Ary you sure you want to permanently delete this comment?')) {
+  if (!window.confirm('Are you sure you want to permanently delete this comment?')) {
     return false;
   }
 

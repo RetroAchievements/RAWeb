@@ -244,6 +244,10 @@ function parseCondition($mem)
 
 function getNoteForAddress($memNotes, $address)
 {
+    // $memNotes[x]['Address'] is formatted to 6 hex digits: "0x%06x"
+    // regenerate whatever we pulled out of the logic to match this expectation
+    $address = sprintf("0x%06x", hexdec($address));
+
     foreach ($memNotes as $nextMemNote) {
         if ($nextMemNote['Address'] === $address) {
             return $nextMemNote['Note'];
