@@ -263,19 +263,19 @@ function getNoteForAddress($memNotes, $address)
 
 function getAchievementPatchReadableHTML($mem, $memNotes)
 {
-    $tableHeader = '
+    $tableHeader = "
     <tr>
-      <th nowrap>ID</th>
-      <th nowrap>Flag</th>
-      <th nowrap>Type</th>
-      <th nowrap>Size</th>
-      <th nowrap>Memory</th>
-      <th nowrap>Cmp</th>
-      <th nowrap>Type</th>
-      <th nowrap>Size</th>
-      <th nowrap>Mem/Val</th>
-      <th nowrap>Hits</th>
-    </tr>';
+      <th class='whitespace-nowrap'>ID</th>
+      <th class='whitespace-nowrap'>Flag</th>
+      <th class='whitespace-nowrap'>Type</th>
+      <th class='whitespace-nowrap'>Size</th>
+      <th class='whitespace-nowrap'>Memory</th>
+      <th class='whitespace-nowrap'>Cmp</th>
+      <th class='whitespace-nowrap'>Type</th>
+      <th class='whitespace-nowrap'>Size</th>
+      <th class='whitespace-nowrap'>Mem/Val</th>
+      <th class='whitespace-nowrap'>Hits</th>
+    </tr>";
 
     $res = "\n<table>";
 
@@ -309,11 +309,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                 $lTooltip = " class=\"cursor-help\" title=\"" . hexdec($lMemory) . "\"";
             }
 
-            $res .= "\n<tr>\n  <td nowrap>" . ($j + 1) . "</td>";
-            $res .= "\n  <td nowrap> " . $flag . " </td>";
-            $res .= "\n  <td nowrap> " . $lType . " </td>";
-            $res .= "\n  <td nowrap> " . $lSize . " </td>";
-            $res .= "\n  <td" . $lTooltip . " nowrap> " . $lMemory . " </td>";
+            $res .= "\n<tr>\n  <td class='whitespace-nowrap'>" . ($j + 1) . "</td>";
+            $res .= "\n  <td class='whitespace-nowrap'> " . $flag . " </td>";
+            $res .= "\n  <td class='whitespace-nowrap'> " . $lType . " </td>";
+            $res .= "\n  <td class='whitespace-nowrap'> " . $lSize . " </td>";
+            $res .= "\n  <td" . $lTooltip . " class='whitespace-nowrap'> " . $lMemory . " </td>";
             if (!$cmp) {
                 $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
             } else {
@@ -328,11 +328,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                     $rTooltip = " class=\"cursor-help\" title=\"" . hexdec($rMemVal) . "\"";
                 }
 
-                $res .= "\n  <td nowrap> " . htmlspecialchars($cmp) . " </td>";
-                $res .= "\n  <td nowrap> " . $rType . " </td>";
-                $res .= "\n  <td nowrap> " . $rSize . " </td>";
-                $res .= "\n  <td" . $rTooltip . " nowrap> " . $rMemVal . " </td>";
-                $res .= "\n  <td nowrap> (" . $hits . ") </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> " . htmlspecialchars($cmp) . " </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> " . $rType . " </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> " . $rSize . " </td>";
+                $res .= "\n  <td" . $rTooltip . " class='whitespace-nowrap'> " . $rMemVal . " </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> (" . $hits . ") </td>";
             }
             $res .= "\n</tr>\n";
         }
