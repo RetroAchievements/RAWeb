@@ -277,7 +277,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
       <th nowrap>Hits</th>
     </tr>';
 
-    $res = "\n<table whitespace-nowrap>";
+    $res = "\n<table>";
 
     // separating CoreGroup and AltGroups
     $groups = preg_split("/(?<!0x)S/", $mem);
