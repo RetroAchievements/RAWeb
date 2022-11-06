@@ -223,7 +223,7 @@ function RenderToolbar(): void
 function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
 {
     if ($offset > 0) {
-        echo "<a title='First' href='${urlPrefix}0'>&#x226A;</a>&nbsp;";
+        echo "<a title='First' href='{$urlPrefix}0'>&#x226A;</a>&nbsp;";
 
         $prevOffset = $offset - $perPage;
         echo "<a title='Previous' href='$urlPrefix$prevOffset'>&lt;</a>&nbsp;";
