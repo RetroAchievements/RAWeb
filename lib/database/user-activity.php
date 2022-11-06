@@ -109,12 +109,17 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             break;
 
         case ActivityType::StartedPlaying:
-            $gameID = $customMsg;
+            if (!is_numeric($customMsg)) {
+                return false;
+            }
+            $gameID = (int) $customMsg;
 
             /*
              * Switch the rich presence to the new game immediately
              */
-            getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData);
+            if (!getGameTitleFromID($gameID, $gameTitle, $consoleIDOut, $consoleName, $forumTopicID, $gameData)) {
+                return false;
+            }
             UpdateUserRichPresence($user, $gameID, "Playing $gameTitle");
 
             /**
@@ -477,7 +482,10 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
             $recentlyPlayedGameIDs[] = $recentlyPlayedGame['GameID'];
         }
 
-        $recentlyPlayedGameIDs = implode(',', $recentlyPlayedGameIDs);
+        // discard anything that's not numeric or the query will fail
+        $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
+            ->filter(fn ($id) => is_int($id) || is_numeric($id))
+            ->implode(',');
         $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon
                   FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE gd.ID IN ($recentlyPlayedGameIDs)";
