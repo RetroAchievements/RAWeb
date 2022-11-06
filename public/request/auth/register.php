@@ -12,6 +12,10 @@ $username = $input['username'];
 $pass = $input['password'];
 $email = $input['email'];
 
+if (!isValidUsername($username)) {
+    return back()->withErrors(__('validation.alpha_num', ['attribute' => 'Username']));
+}
+
 if (config('services.google.recaptcha_secret')) {
     if (empty($_POST['g-recaptcha-response'])) {
         return back()->withErrors(__('legacy.error.recaptcha'));

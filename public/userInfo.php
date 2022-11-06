@@ -12,7 +12,7 @@ use RA\UserAction;
 use RA\UserRelationship;
 
 $userPage = request('user');
-if (empty($userPage) || !ctype_alnum($userPage)) {
+if (empty($userPage) || !isValidUsername($userPage)) {
     abort(404);
 }
 
