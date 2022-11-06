@@ -13,6 +13,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
     $dbresult = s_mysql_query($query);
     if (!$dbresult) {
         log_sql_fail();
+
         return "error";
     }
 

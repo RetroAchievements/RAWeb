@@ -28,7 +28,10 @@ $count = min((int) request()->query('c', '10'), 50);
 $offset = (int) request()->query('o');
 
 $recentlyPlayedData = [];
-$numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
+$numRecentlyPlayed = 0;
+if (!empty($user)) {
+    $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
+}
 
 if (!empty($recentlyPlayedData)) {
     $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
