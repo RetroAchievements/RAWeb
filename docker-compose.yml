@@ -25,7 +25,6 @@ services:
         depends_on:
             - mysql
             - redis
-#            - meilisearch
             - minio
     nginx:
         image: nginx:1.18

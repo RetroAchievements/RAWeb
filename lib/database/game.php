@@ -25,9 +25,11 @@ function getGameData($gameID): ?array
         settype($retVal['Flags'], 'integer');
         settype($retVal['ForumTopicID'], 'integer');
         settype($retVal['IsFinal'], 'boolean');
+
         return $retVal;
     } else {
         log_sql_fail();
+
         return null;
     }
 }
@@ -167,6 +169,7 @@ function getGameMetadataByFlags(
         }
     } else {
         log_sql_fail();
+
         return 0;
     }
 
@@ -448,12 +451,14 @@ function getGamesListData($consoleID, $officialFlag = false): array
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 
 function getGamesList($consoleID, &$dataOut, $officialFlag = false): int
 {
     $dataOut = getGamesListData($consoleID, $officialFlag);
+
     return count($dataOut);
 }
 
@@ -483,9 +488,11 @@ function getGameIDFromTitle($gameTitleIn, $consoleID): int
     $dbResult = s_mysql_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
         settype($retVal['ID'], 'integer');
+
         return (int) $retVal['ID'];
     } else {
         log_sql_fail();
+
         return 0;
     }
 }
@@ -551,6 +558,7 @@ function modifyGameTitle(string $user, int $gameID, string $value): bool
     }
 
     addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the game name");
+
     return true;
 }
 
@@ -640,6 +648,7 @@ function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bo
     }
 
     addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the forum topic");
+
     return true;
 }
 
@@ -696,6 +705,7 @@ function createNewGame($titleIn, $consoleID): ?array
     if ($dbResult !== false) {
         $newID = mysqli_insert_id($db);
         static_addnewgame($newID);
+
         return [
             'ID' => $newID,
             'Title' => $title,
@@ -703,6 +713,7 @@ function createNewGame($titleIn, $consoleID): ?array
     }
 
     log_sql_fail();
+
     return null;
 }
 
@@ -752,7 +763,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
             $game = createNewGame($titleIn, $consoleID);
             $gameID = $game['ID'] ?? 0;
             if ($gameID == 0) {
-                /**
+                /*
                  * cannot create game $title
                  */
                 $retVal['Error'] = "Failed to create game title '$titleIn'";
@@ -780,7 +791,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
             $db = getMysqliConnection();
             $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
-                /**
+                /*
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
 
@@ -791,7 +802,7 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
                     addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $user);
                 }
             } else {
-                /**
+                /*
                  * cannot insert duplicate md5 (already present?
                  */
                 $retVal['Error'] = "Failed to add md5 for '$gameTitle' (already present?)";
@@ -832,6 +843,7 @@ function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
     }
 
     addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the rich presence script");
+
     return true;
 }
 
@@ -846,6 +858,7 @@ function getRichPresencePatch($gameID, &$dataOut): bool
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
         $dataOut = $data['RichPresencePatch'];
+
         return true;
     } else {
         return false;

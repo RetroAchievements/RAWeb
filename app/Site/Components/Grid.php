@@ -158,7 +158,7 @@ abstract class Grid extends Component
             $query->whereIn('id', $searched->get()->pluck('id')->toArray());
         }
 
-        $this->results = (QueryBuilder::for($query, $this->request()))
+        $this->results = QueryBuilder::for($query, $this->request())
             ->defaultSort($this->defaultSort())
             ->allowedSorts($this->allowedSorts())
             ->allowedFilters($this->allowedFilters())

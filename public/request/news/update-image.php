@@ -13,7 +13,7 @@ $input = Validator::validate(request()->post(), [
 
 try {
     $imagePath = UploadNewsImage($input['image']);
-} catch (Exception $exception) {
+} catch (Exception) {
     abort(400);
 }
 

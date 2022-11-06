@@ -83,6 +83,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return 0;
     }
 

@@ -48,7 +48,6 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix($this->apiPrefix())
             ->middleware(['api'])
             ->group(function () {
-
                 /*
                  * list the available connect servers for clients
                  */

@@ -27,6 +27,7 @@ function getUserAchievementsPerConsole(string $user): array
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 
@@ -54,6 +55,7 @@ function getUserSetsPerConsole(string $user): array
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 
@@ -81,6 +83,7 @@ function getUserAchievementInformation(string $user): array
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 
@@ -141,6 +144,7 @@ function getObtainersOfSpecificUser(string $user): array
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }
 

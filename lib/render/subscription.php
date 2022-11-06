@@ -7,6 +7,6 @@ function RenderUpdateSubscriptionForm($formID, $subjectType, $subjectID, $isSubs
     echo "<input type='hidden' name='subject_type' value='$subjectType'/>";
     echo "<input type='hidden' name='subject_id' value='$subjectID'/>";
     echo "<input type='hidden' name='operation' value='" . ($isSubscribed ? "unsubscribe" : "subscribe") . "'/>";
-    echo "<button class='btn'>" . ($isSubscribed ? "Unsubscribe" . (($resource ? ' from ' : '')) : "Subscribe" . ($resource ? ' to ' : '')) . ($resource ?: '') . "</button>";
+    echo "<button class='btn'>" . ($isSubscribed ? "Unsubscribe" . ($resource ? ' from ' : '') : "Subscribe" . ($resource ? ' to ' : '')) . ($resource ?: '') . "</button>";
     echo "</form>";
 }

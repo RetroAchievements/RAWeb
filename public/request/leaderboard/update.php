@@ -45,6 +45,7 @@ if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbL
             addArticleComment("Server", ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
         }
     }
+
     return response()->json(['message' => __('legacy.success.ok')]);
 }
 

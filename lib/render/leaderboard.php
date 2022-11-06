@@ -508,6 +508,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                 }
             }
         }
+
         return $retVal;
     }
 
