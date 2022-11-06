@@ -26,7 +26,7 @@ if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user,
 
 try {
     $imagePath = UploadBadgeImage($_FILES['file']);
-} catch (Exception $exception) {
+} catch (Exception) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 

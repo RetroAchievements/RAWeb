@@ -430,14 +430,18 @@ $userTickets['total'] = 0;
 $userTickets['closed'] = 0;
 $userTickets['open'] = 0;
 $userTickets['resolved'] = 0;
+$userTickets['request'] = 0;
 $userTickets['uniqueTotal'] = 0;
 $userTickets['uniqueClosed'] = 0;
 $userTickets['uniqueOpen'] = 0;
 $userTickets['uniqueResolved'] = 0;
+$userTickets['uniqueRequest'] = 0;
+$userTickets['uniqueValid'] = 0;
 $prevID = 0;
 
 // Get ticket information for user
 $userTicketInfo = getTicketsForUser($dev);
+$counted = false;
 foreach ($userTicketInfo as $ticketData) {
     switch ($ticketData['ReportState']) {
         case TicketState::Closed:
@@ -449,16 +453,30 @@ foreach ($userTicketInfo as $ticketData) {
             $userTickets['open'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueOpen']++;
+            if (!$counted) {
+                $counted = true;
+                $userTickets['uniqueValid']++;
+            }
             break;
         case TicketState::Resolved:
             $userTickets['resolved'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueResolved']++;
+            if (!$counted) {
+                $counted = true;
+                $userTickets['uniqueValid']++;
+            }
+            break;
+        case TicketState::Request:
+            $userTickets['request'] += $ticketData['TicketCount'];
+            $userTickets['total'] += $ticketData['TicketCount'];
+            $userTickets['uniqueRequest']++;
             break;
     }
-    if ($prevID != $ticketData['AchievementID']) {
+    if ($prevID != $ticketData['AchievementID']) { // relies on getTicketsForUser sorting by ID
         $prevID = $ticketData['AchievementID'];
         $userTickets['uniqueTotal']++;
+        $counted = false;
     }
 }
 
@@ -481,51 +499,48 @@ $closedResolvedTicketInfo = [];
 $closedResolvedTicketInfo['Count'] = 0;
 $closedResolvedTicketInfo['ClosedCount'] = 0;
 $closedResolvedTicketInfo['ResolvedCount'] = 0;
+$closedResolvedTicketInfo['ClosedAuthor'] = '';
+$closedResolvedTicketInfo['ClosedAuthorCount'] = 0;
+$closedResolvedTicketInfo['ResolvedAuthor'] = '';
+$closedResolvedTicketInfo['ResolvedAuthorCount'] = 0;
 
 // Get closed/resolved ticket information
 $ticketsClosedResolved = getNumberOfTicketsClosedForOthers($dev);
 foreach ($ticketsClosedResolved as $ticketData) {
-    if ($userCount == 0) {
+    // capture the maximum amount of tickets resolved for another user
+    if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
         $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
         $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
+    }
+    if ($closedResolvedTicketInfo['ResolvedAuthorCount'] < $ticketData['ResolvedCount']) {
         $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
         $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
-    } else {
-        if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
-            $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
-            $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
-        }
-        if ($closedResolvedTicketInfo['ResolvedAuthorCount'] < $ticketData['ResolvedCount']) {
-            $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
-            $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
-        }
     }
+
+    // tally the data
     $userCount++;
     $closedResolvedTicketInfo['Count'] += $ticketData['TicketCount'];
     $closedResolvedTicketInfo['ClosedCount'] += $ticketData['ClosedCount'];
     $closedResolvedTicketInfo['ResolvedCount'] += $ticketData['ResolvedCount'];
 }
-$closedTicketPlusMinus = $closedResolvedTicketInfo['ClosedCount'] - $userTickets['closed'];
-$closedTicketPlusMinus = ($closedTicketPlusMinus > 0) ? '+' . $closedTicketPlusMinus : $closedTicketPlusMinus;
-$resolvedTicketPlusMinus = $closedResolvedTicketInfo['ResolvedCount'] - $userTickets['resolved'];
-$resolvedTicketPlusMinus = ($resolvedTicketPlusMinus > 0) ? '+' . $resolvedTicketPlusMinus : $resolvedTicketPlusMinus;
-$totalTicketPlusMinus = $closedResolvedTicketInfo['Count'] - $userTickets['total'];
+
+$closedResolvedTicketInfo['SelfClosed'] = 0;
+$closedResolvedTicketInfo['SelfResolved'] = 0;
+$closedResolvedTicketInfo['ClosedByOthers'] = 0;
+$closedResolvedTicketInfo['ResolvedByOthers'] = 0;
+$ticketsClosedResolved = getNumberOfTicketsClosed($dev);
+foreach ($ticketsClosedResolved as $ticketData) {
+    if ($ticketData['ResolvedByUser'] === $dev) {
+        $closedResolvedTicketInfo['SelfClosed'] = $ticketData['ClosedCount'];
+        $closedResolvedTicketInfo['SelfResolved'] = $ticketData['ResolvedCount'];
+    } else {
+        $closedResolvedTicketInfo['ClosedByOthers'] += $ticketData['ClosedCount'];
+        $closedResolvedTicketInfo['ResolvedByOthers'] += $ticketData['ResolvedCount'];
+    }
+}
+
+$totalTicketPlusMinus = $closedResolvedTicketInfo['SelfResolved'] + $closedResolvedTicketInfo['ResolvedCount'] * 2 - $closedResolvedTicketInfo['ResolvedByOthers'];
 $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinus : $totalTicketPlusMinus;
-if ($userTickets['closed'] == 0) {
-    $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'];
-} else {
-    $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'] / $userTickets['closed'];
-}
-if ($userTickets['resolved'] == 0) {
-    $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'];
-} else {
-    $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'] / $userTickets['resolved'];
-}
-if ($userTickets['total'] == 0) {
-    $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'];
-} else {
-    $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'] / $userTickets['total'];
-}
 
 RenderContentStart("$dev's Developer Stats");
 ?>
@@ -1214,19 +1229,44 @@ RenderContentStart("$dev's Developer Stats");
             echo "<table><tbody>";
 
             // Total tickets created
-            echo "<tr><td width='50%'>Total Tickets:</td><td>" . $userTickets['total'] . " (" . $userTickets['open'] . " Open - " . $userTickets['closed'] . " Closed - " . $userTickets['resolved'] . " Resolved)</td></tr>";
-
-            // Current ticket ratio
-            echo "<tr><td width='50%'>Current Ticket Ratio:</td><td>" . number_format($userTickets['open'] / $achievementCount * 100, 2, '.', '') . "%</td></tr>";
-
-            // Total ticket ratio
-            echo "<tr><td width='50%'>Total Ticket Ratio:</td><td>" . number_format($userTickets['total'] / $achievementCount * 100, 2, '.', '') . "%</td></tr>";
-
-            // Tickers per unique achievement
-            echo "<tr><td width='50%'>Tickets per Unique Achievements:</td><td>" . $userTickets['uniqueTotal'] . " (" . $userTickets['uniqueOpen'] . " Open - " . $userTickets['uniqueClosed'] . " Closed - " . $userTickets['uniqueResolved'] . " Resolved)</td></tr>";
+            echo "<tr><td width='50%'>Total Tickets:</td><td>" . $userTickets['total'];
+            $parts = [];
+            if ($userTickets['open'] > 0) {
+                $parts[] = $userTickets['open'] . " Open";
+            }
+            if ($userTickets['request'] > 0) {
+                $parts[] = $userTickets['request'] . " Request";
+            }
+            if ($userTickets['closed'] > 0) {
+                $parts[] = $userTickets['closed'] . " Closed";
+            }
+            if ($userTickets['resolved'] > 0) {
+                $parts[] = $userTickets['resolved'] . " Resolved";
+            }
+            if (count($parts) > 0) {
+                echo ' (' . implode(' - ', $parts) . ')';
+            }
+            echo '</td>';
 
             // Percent of unique achievements with tickets
-            echo "<tr><td width='50%'>Percent of Unique Achievements with Tickets:</td><td>" . number_format($userTickets['uniqueTotal'] / $achievementCount * 100, 2, '.', '') . "%</td></tr>";
+            echo "<tr><td width='50%'>Unique Achievements with Open/Resolved Tickets:</td><td>" . $userTickets['uniqueValid'] . ' (';
+            $uniqueAchievementTicketRatio = $userTickets['uniqueValid'] / $achievementCount * 100;
+            $colored = false;
+            if ($uniqueAchievementTicketRatio > 40) {
+                echo "<font color='red'>";
+                $colored = true;
+            } elseif ($uniqueAchievementTicketRatio > 30) {
+                echo "<font color='orange'>";
+                $colored = true;
+            } elseif ($uniqueAchievementTicketRatio < 5) {
+                echo "<font color='green'>";
+                $colored = true;
+            }
+            echo number_format($uniqueAchievementTicketRatio, 2, '.', '') . "%";
+            if ($colored) {
+                echo "</font>";
+            }
+            echo ")</td></tr>";
 
             // Game with most tickets
             echo "<tr><td>Game with Most Tickets:</td><td>";
@@ -1258,18 +1298,8 @@ RenderContentStart("$dev's Developer Stats");
             }
             echo "</td></tr>";
 
-            // Tickets closed/resolved for other users
-            echo "<tr><td>Tickets Closed/Resolved for Others:</td><td>" . $closedResolvedTicketInfo['Count'] . " (" . $closedResolvedTicketInfo['ClosedCount'] . " Closed - " . $closedResolvedTicketInfo['ResolvedCount'] . " Resolved)</td></tr>";
-
-            // Users you have closed the most tickets for
-            echo "<tr><td>User $dev Has Closed the Most Tickets For:</td><td>";
-            if ($closedResolvedTicketInfo['ClosedCount'] > 0) {
-                echo $closedResolvedTicketInfo['ClosedAuthorCount'] . " - ";
-                echo userAvatar($closedResolvedTicketInfo['ClosedAuthor']);
-            } else {
-                echo "N/A";
-            }
-            echo "</td></tr>";
+            // Tickets resolved for other users
+            echo "<tr><td>Tickets Resolved for Others:</td><td>" . $closedResolvedTicketInfo['ResolvedCount'] . "</td></tr>";
 
             // Users you have resolved the most tickets for
             echo "<tr><td>User $dev Has Resolved the Most Tickets For:</td><td>";
@@ -1281,35 +1311,6 @@ RenderContentStart("$dev's Developer Stats");
             }
             echo "</td></tr>";
 
-            // Total Ticket Karma and +/-
-            echo "<tr><td>Ticket Karma (+/-):</td><td>" . number_format($totalTicketPlusMinusRatio, 2, '.', '');
-            if ($totalTicketPlusMinus > 0) {
-                echo " (<font color='green'>" . $totalTicketPlusMinus . "</font>)</td></tr>";
-            } elseif ($totalTicketPlusMinus < 0) {
-                echo " (<font color='red'>" . $totalTicketPlusMinus . "</font>)</td></tr>";
-            } else {
-                echo " (" . $totalTicketPlusMinus . "</font>)</td></tr>";
-            }
-
-            // Closed Ticket Karma and +/-
-            echo "<tr><td>Closed Ticket Karma (+/-):</td><td>" . number_format($closedTicketPlusMinusRatio, 2, '.', '');
-            if ($closedTicketPlusMinus > 0) {
-                echo " (<font color='green'>" . $closedTicketPlusMinus . "</font>)</td></tr>";
-            } elseif ($closedTicketPlusMinus < 0) {
-                echo " (<font color='red'>" . $closedTicketPlusMinus . "</font>)</td></tr>";
-            } else {
-                echo " (" . $closedTicketPlusMinus . "</font>)</td></tr>";
-            }
-
-            // Resolved Ticket Karma and +/-
-            echo "<tr><td>Resolved Ticket Karma (+/-):</td><td>" . number_format($resolvedTicketPlusMinusRatio, 2, '.', '');
-            if ($resolvedTicketPlusMinus > 0) {
-                echo " (<font color='green'>" . $resolvedTicketPlusMinus . "</font>)</td></tr>";
-            } elseif ($resolvedTicketPlusMinus < 0) {
-                echo " (<font color='red'>" . $resolvedTicketPlusMinus . "</font>)</td></tr>";
-            } else {
-                echo " (" . $resolvedTicketPlusMinus . "</font>)</td></tr>";
-            }
             echo "</table></tbody>";
         }
         ?>

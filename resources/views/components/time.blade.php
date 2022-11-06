@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Carbon;
 
-/** @var Carbon $dateTime */
+/* @var Carbon $dateTime */
 $dateTime ??= $value ?? null;
 
 $locale ??= session('date_locale');

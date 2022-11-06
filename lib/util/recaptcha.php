@@ -32,7 +32,7 @@
  * THE SOFTWARE.
  */
 
-/**
+/*
  * The reCAPTCHA server URL's
  */
 define("RECAPTCHA_API_SERVER", "https://www.google.com/recaptcha/api");
@@ -53,6 +53,7 @@ function _recaptcha_qsencode($data)
 
     // Cut the last '&'
     $req = mb_substr($req, 0, mb_strlen($req) - 1);
+
     return $req;
 }
 
@@ -119,6 +120,7 @@ function recaptcha_get_html($pubkey, $error = null, $use_ssl = false)
     if ($error) {
         $errorpart = "&amp;error=" . $error;
     }
+
     return '<script src="' . $server . '/challenge?k=' . $pubkey . $errorpart . '"></script>
 
 	<noscript>
@@ -162,6 +164,7 @@ function recaptcha_check_answer($privkey, $remoteip, $challenge, $response, $ext
         $recaptcha_response = new ReCaptchaResponse();
         $recaptcha_response->is_valid = false;
         $recaptcha_response->error = 'incorrect-captcha-sol';
+
         return $recaptcha_response;
     }
 
@@ -185,6 +188,7 @@ function recaptcha_check_answer($privkey, $remoteip, $challenge, $response, $ext
         $recaptcha_response->is_valid = false;
         $recaptcha_response->error = $answers[1];
     }
+
     return $recaptcha_response;
 }
 
@@ -204,6 +208,7 @@ function _recaptcha_aes_pad($val)
 {
     $block_size = 16;
     $numpad = $block_size - (mb_strlen($val) % $block_size);
+
     return str_pad($val, mb_strlen($val) + $numpad, chr($numpad));
 }
 
@@ -217,6 +222,7 @@ function _recaptcha_aes_encrypt($val, $ky)
     $mode = MCRYPT_MODE_CBC;
     $enc = MCRYPT_RIJNDAEL_128;
     $val = _recaptcha_aes_pad($val);
+
     return mcrypt_encrypt($enc, $ky, $val, $mode, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
 }
 
@@ -256,6 +262,7 @@ function _recaptcha_mailhide_email_parts($email)
     } else {
         $arr[0] = mb_substr($arr[0], 0, 4);
     }
+
     return $arr;
 }
 

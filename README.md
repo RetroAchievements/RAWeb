@@ -27,6 +27,9 @@ extension=curl
 extension=gmp
 extension=mysqli
 extension=pdo_mysql
+extension=gd
+extension=intl
+extension=sockets
 ```
 
 ### **[Laravel Valet](https://laravel.com/docs/valet)** (macOS only)
@@ -82,7 +85,7 @@ Adjust the local environment configuration (`.env`):
 > `APP_URL` varies depending on your setup. By default it's configured to use the forwarded application Docker container port.
 > E.g. using an Apache vhost or linking a domain via Laravel Valet this should be adjusted accordingly:
 
-```shell
+```dotenv
 APP_URL=https://raweb.test
 ASSET_URL=https://raweb.test
 ```
@@ -93,28 +96,33 @@ When running the application locally (i.e. web server and PHP via XAMPP/Valet) i
 
 Use database and redis services:
 
-```shell
+```dotenv
 DB_PORT=${FORWARD_DB_PORT}
 REDIS_PORT=${FORWARD_REDIS_PORT}
 ```
 
+> **Note**
+> Connect with a database client of you choice using the forwarded ports
+> or use phpMyAdmin which runs at http://localhost:64080 by default. 
+
 Use mailhog as SMTP server for local mails testing:
 
-```shell
+```dotenv
 MAIL_MAILER=smtp
 ```
 
+> **Note**
+> Runs at http://localhost:64050 by default.
+
 Use minio as an AWS S3 drop-in replacement:
 
-```shell
+```dotenv
 AWS_MINIO=true
 ```
 
-Use the meilisearch full-text search engine:
-
-```shell
-SCOUT_DRIVER=meilisearch
-```
+> **Note**
+> In order to use S3 features you'll have to create a `local` bucket manually first.
+> Runs at http://localhost:64041/buckets/add-bucket by default.
 
 ### Build frontend assets
 

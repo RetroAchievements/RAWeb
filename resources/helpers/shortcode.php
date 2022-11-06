@@ -79,7 +79,7 @@ function parseShortcodes(?string $input = null, bool $extractModels = false): ?s
         return null;
     }
 
-    /**
+    /*
      * parse model tags
      */
     // $value = preg_replace_callback("~\[ach=(.*?)\]~si", function (array $matches) {

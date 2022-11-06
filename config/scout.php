@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'meilisearch' : env('SCOUT_DRIVER', 'algolia'),
+    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'database' : env('SCOUT_DRIVER', 'algolia'),
 
     /*
     |--------------------------------------------------------------------------

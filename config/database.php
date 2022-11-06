@@ -125,6 +125,7 @@ return [
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
+        // sessions
         'default' => [
             'url' => env('REDIS_URL'),
             'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'redis' : env('REDIS_HOST', '127.0.0.1'),
@@ -141,6 +142,15 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? '6379' : env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
+        ],
+
+        'queue' => [
+            'url' => env('REDIS_URL'),
+            'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'redis' : env('REDIS_HOST', '127.0.0.1'),
+            'username' => env('REDIS_USERNAME'),
+            'password' => env('REDIS_PASSWORD'),
+            'port' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? '6379' : env('REDIS_PORT', '6379'),
+            'database' => env('REDIS_QUEUE_DB', '2'),
         ],
 
     ],

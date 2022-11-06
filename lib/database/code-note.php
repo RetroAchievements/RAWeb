@@ -51,9 +51,11 @@ function getCodeNotes($gameID, &$codeNotesOut): bool
             $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
             $codeNotesOut[$numResults++] = $db_entry;
         }
+
         return true;
     } else {
         log_sql_fail();
+
         return false;
     }
 }
@@ -99,6 +101,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
               ON DUPLICATE KEY UPDATE AuthorID=VALUES(AuthorID), Note=VALUES(Note)";
 
     $dbResult = mysqli_query($db, $query);
+
     return $dbResult !== false;
 }
 
@@ -130,5 +133,6 @@ function getCodeNoteCounts(string $username): array
             $retVal[] = $db_entry;
         }
     }
+
     return $retVal;
 }

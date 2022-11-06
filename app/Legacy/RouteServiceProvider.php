@@ -135,8 +135,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         if (config('interceptor.connect') && $path === 'dorequest') {
             require_once config('interceptor.connect');
-        }
-        elseif (config('interceptor.web')) {
+        } elseif (config('interceptor.web')) {
             require_once config('interceptor.web');
         }
     }
