@@ -16,13 +16,15 @@ parameters:
     # TODO figure out why github actions phpstan does not find the same
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        #- '#Unsafe usage of new static#'
+        - '#Unsafe usage of new static#'
         # accessors to polymorphic relationships
-        #- '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
+        - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
         #- '#Access to an undefined property App\\Legacy\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'
+        # TODO views have been removed
+        - '#Parameter (.*) $view of function view expects view-string|null, string given.#'
     excludePaths:
         # unrelated directories
         - public/tmp

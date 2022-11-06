@@ -12,7 +12,7 @@ use RA\UserAction;
 use RA\UserRelationship;
 
 $userPage = request('user');
-if (empty($userPage) || !ctype_alnum($userPage)) {
+if (empty($userPage) || !isValidUsername($userPage)) {
     abort(404);
 }
 
@@ -298,7 +298,7 @@ RenderContentStart($userPage);
             } else {
                 $countRankedUsers = countRankedUsers();
                 $userRank = $userMassData['Rank'];
-                $rankPct = sprintf("%1.2f", (($userRank / $countRankedUsers) * 100.0));
+                $rankPct = sprintf("%1.2f", ($userRank / $countRankedUsers) * 100.0);
                 $rankOffset = (int) (($userRank - 1) / 25) * 25;
                 echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
             }
@@ -320,7 +320,7 @@ RenderContentStart($userPage);
             } else {
                 $countRankedUsers = countRankedUsers(RankType::Softcore);
                 $userRankSoftcore = getUserRank($userPage, RankType::Softcore);
-                $rankPct = sprintf("%1.2f", (($userRankSoftcore / $countRankedUsers) * 100.0));
+                $rankPct = sprintf("%1.2f", ($userRankSoftcore / $countRankedUsers) * 100.0);
                 $rankOffset = (int) (($userRankSoftcore - 1) / 25) * 25;
                 echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>$userRankSoftcore</a> / $countRankedUsers ranked users (Top $rankPct%)";
             }

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use RA\ArticleType;
+use RA\ClaimSetType;
 use RA\ImageType;
 use RA\Permissions;
 
@@ -19,7 +20,8 @@ $input = Validator::validate(request()->post(), [
 $gameID = (int) $input['game'];
 $imageType = $input['type'];
 
-if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $gameID)) {
+// Only allow jr. devs if they are the sole author of the set or have the primary claim
+if ($permissions == Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($user, $gameID) && !hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet))) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

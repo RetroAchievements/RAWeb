@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
+use RA\ClaimSetType;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -17,8 +18,8 @@ $achievementId = $input['achievement'];
 $gameId = $input['game'];
 $number = $input['number'];
 
-// Only allow jr. devs to update the display order if they are the sole author of the set
-if ($permissions == Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $gameId)) {
+// Only allow jr. devs to update the display order if they are the sole author of the set or have the primary claim
+if ($permissions == Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($user, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))) {
     abort(403);
 }
 

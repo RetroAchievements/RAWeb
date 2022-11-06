@@ -88,7 +88,7 @@ RenderContentStart("Users");
         $sort3 = ($sortBy == 3) ? 13 : 3;
         $sort4 = ($sortBy == 4) ? 14 : 4;
 
-        if (($sortBy == 2)) {
+        if ($sortBy == 2) {
             echo "<th>Rank</th>";
         }
 
@@ -110,7 +110,7 @@ RenderContentStart("Users");
             $totalEarned = $userEntry['NumAwarded'];
             $lastLogin = getNiceDate(strtotime($userEntry['LastLogin']));
 
-            if (($sortBy == 2)) {
+            if ($sortBy == 2) {
                 echo "<td>";
                 // echo $userCount + $offset;
                 echo getUserRank($nextUser);

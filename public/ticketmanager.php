@@ -482,7 +482,7 @@ RenderContentStart($pageTitle);
                 echo "<div class='float-right row'>";
                 $baseLink = $createLink(null, null);
                 $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
-                RenderPaginator($filteredTicketsCount, $maxCount, $offset, "${baseLink}o=");
+                RenderPaginator($filteredTicketsCount, $maxCount, $offset, "{$baseLink}o=");
                 echo "</div>";
             } else {
                 $nextTicket = $ticketData;

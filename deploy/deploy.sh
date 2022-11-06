@@ -62,7 +62,6 @@ ${NPM_BIN} run build
 
 ${PHP_BIN} artisan ra:storage:link
 #${PHP_BIN} artisan migrate
-#${PHP_BIN} artisan route:cache
 
 
 ### Release ###
@@ -72,6 +71,7 @@ ln -snf "${BASEDIR}/${RELEASE_DIR}" "${BASEDIR}/${CURRENT_DIR}"
 # update version in .env file
 sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" .env
 ${PHP_BIN} artisan config:cache
+#${PHP_BIN} artisan route:cache
 #${PHP_BIN} artisan octane:reload
 #${PHP_BIN} artisan horizon:terminate
 

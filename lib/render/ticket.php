@@ -12,8 +12,7 @@ function ticketAvatar(
     string $iconClass = 'badgeimg',
     bool|string|array $tooltip = true,
     ?string $context = null,
-): string
-{
+): string {
     if (is_int($ticket)) {
         $ticket = GetTicketModel($ticket);
     }

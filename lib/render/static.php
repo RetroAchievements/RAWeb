@@ -12,7 +12,7 @@ function RenderStaticDataComponent($staticData): void
 
     $avAwardedPerPlayer = 0;
     if ($numRegisteredPlayers > 0) {
-        $avAwardedPerPlayer = sprintf("%1.2f", ($numAwarded / $numRegisteredPlayers));
+        $avAwardedPerPlayer = sprintf("%1.2f", $numAwarded / $numRegisteredPlayers);
     }
 
     $lastRegisteredUser = $staticData['LastRegisteredUser'];
