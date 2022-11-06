@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
+use RA\ClaimSetType;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -14,8 +15,8 @@ $input = Validator::validate(request()->post(), [
 
 $gameId = (int) $input['game'];
 
-// Only allow jr. devs if they are the sole author of the set
-if ($permissions === Permissions::JuniorDeveloper && !checkIfSoleDeveloper($user, $gameId)) {
+// Only allow jr. devs if they are the sole author of the set or have the primary claim
+if ($permissions === Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($user, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

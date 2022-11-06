@@ -34,7 +34,7 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
-$isSoleAuthor = false;
+$isAuthor = $user == $author;
 
 $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
@@ -55,11 +55,6 @@ $numPossibleWinners = 0;
 $numRecentWinners = 0;
 
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
-
-// Determine if the logged in user is the sole author of the set
-if ($permissions >= Permissions::JuniorDeveloper && isset($user)) {
-    $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
-}
 
 $dateWonLocal = "";
 foreach ($winnerInfo as $userObject) {
@@ -88,7 +83,7 @@ $pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
 RenderOpenGraphMetadata($pageTitle, "achievement", media_asset("/Badge/$badgeName.png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
 RenderContentStart($pageTitle);
 ?>
-<?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
+<?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
     <script>
     function updateAchievementDetails() {
         showStatusMessage('Updating...');
@@ -260,7 +255,7 @@ RenderContentStart($pageTitle);
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
 
-            if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
+            if ($permissions >= Permissions::Developer || $isAuthor) {
                 echo "<div>Update achievement details:</div>";
                 echo "<table><tbody>";
                 echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='64'></td></tr>";
