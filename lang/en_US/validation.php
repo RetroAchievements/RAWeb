@@ -131,6 +131,12 @@ return [
     'uuid' => 'The :attribute must be a valid UUID.',
 
     /*
+     * Strict validation rules
+     */
+
+    'ctype_alnum' => 'The :attribute must only contain letters and numbers.',
+
+    /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
     |--------------------------------------------------------------------------

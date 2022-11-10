@@ -110,7 +110,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
 
     // Manual sanitisation, as we need to call multiple functions (and include semicolons)
     settype($gameID, 'integer');
-    if (!ctype_alnum($user)) {
+    if (!isValidUsername($user)) {
         return 0;
     }
 
