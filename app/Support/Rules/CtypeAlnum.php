@@ -8,6 +8,7 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 /**
  * Stricter version of the alpha_num validation rule
+ * Restricts the input to ASCII characters
  */
 class CtypeAlnum implements InvokableRule
 {
@@ -17,7 +18,7 @@ class CtypeAlnum implements InvokableRule
     public function __invoke($attribute, mixed $value, $fail): void
     {
         if (!ctype_alnum($value)) {
-            $fail('validation.alpha_num')->translate();
+            $fail('validation.ctype_alnum')->translate();
         }
     }
 }
