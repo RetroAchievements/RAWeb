@@ -45,6 +45,29 @@ $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20, $commentData);
 
+function ExplainLeaderboardTrigger(string $name, string $triggerDef, array $codeNotes): void
+{
+    echo "<div class='devbox'>";
+    echo "<span onclick=\"$('#devbox{$name}content').toggle(); return false;\">$name ▼</span>";
+    echo "<div id='devbox{$name}content' style='display: none'>";
+
+    echo "<div>";
+
+    echo "<li>Mem:</li>";
+    echo "<code>" . htmlspecialchars($triggerDef) . "</code>";
+
+    if ($name === 'Value') {
+        $triggerDef = ValueToTrigger($triggerDef);
+    }
+
+    echo "<li>Mem explained:</li>";
+    echo "<code>" . getAchievementPatchReadableHTML($triggerDef, $codeNotes) . "</code>";
+    echo "</div>";
+
+    echo "</div>"; // devboxcontent
+    echo "</div>"; // devbox
+}
+
 RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
@@ -125,6 +148,32 @@ RenderContentStart('Leaderboard');
                     echo "</td></tr>";
                 }
                 echo "</div>";
+
+                echo "<br/>";
+
+                $memStart = "";
+                $memCancel = "";
+                $memSubmit = "";
+                $memValue = "";
+                $memChunks = explode("::", $lbMemory);
+                foreach ($memChunks as &$memChunk) {
+                    $part = substr($memChunk, 0, 4);
+                    if ($part == 'STA:') {
+                        $memStart = substr($memChunk, 4);
+                    } elseif ($part == 'CAN:') {
+                        $memCancel = substr($memChunk, 4);
+                    } elseif ($part == 'SUB:') {
+                        $memSubmit = substr($memChunk, 4);
+                    } elseif ($part == 'VAL:') {
+                        $memValue = substr($memChunk, 4);
+                    }
+                }
+
+                getCodeNotes($gameID, $codeNotes);
+                ExplainLeaderboardTrigger('Start', $memStart, $codeNotes);
+                ExplainLeaderboardTrigger('Cancel', $memCancel, $codeNotes);
+                ExplainLeaderboardTrigger('Submit', $memSubmit, $codeNotes);
+                ExplainLeaderboardTrigger('Value', $memValue, $codeNotes);
 
                 echo "</div>";
                 echo "</div>";
