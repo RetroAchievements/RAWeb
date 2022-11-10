@@ -48,7 +48,7 @@ for ($i = 0; $i < $numPostsFound; $i++) {
     $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
 
-    $guid = $dom->createElement('guid', 'retroachievements:forum-post:'.$nextData['CommentID']);
+    $guid = $dom->createElement('guid', 'retroachievements:forum-post:' . $nextData['CommentID']);
     $guid->setAttribute('isPermaLink', 'false');
     $article->appendChild($guid);
 }

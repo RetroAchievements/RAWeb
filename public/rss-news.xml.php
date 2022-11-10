@@ -58,7 +58,7 @@ foreach ($newsData as $news) {
     $article->appendChild($dom->createElement('description', htmlentities($newsPayload)));
     $article->appendChild($dom->createElement('pubDate', $newsDate));
 
-    $guid = $dom->createElement('guid', 'retroachievements:news:'.$newsID);
+    $guid = $dom->createElement('guid', 'retroachievements:news:' . $newsID);
     $guid->setAttribute('isPermaLink', 'false');
     $article->appendChild($guid);
 }

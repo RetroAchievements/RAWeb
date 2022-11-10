@@ -68,7 +68,7 @@ for ($i = 0; $i < $numArticles; $i++) {
     $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
 
-    $guid = $dom->createElement('guid', 'retroachievements:new-achievements:'.$achID);
+    $guid = $dom->createElement('guid', 'retroachievements:new-achievements:' . $achID);
     $guid->setAttribute('isPermaLink', 'false');
     $article->appendChild($guid);
 }
