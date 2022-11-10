@@ -196,7 +196,7 @@ RenderContentStart("Game Compare");
                         $rightSoftcoreAwardedPoints += $achPoints;
                         echo "<small class='smalldate'>$awardedRight</small>";
                     }
-                    echo achievementAvatar($nextAch, label: false, icon: $badgeName . "_lock", iconSize: $iconSize, iconClass: 'awardremote', tooltip: false);
+                    echo achievementAvatar($nextAch, label: false, icon: $badgeName, iconSize: $iconSize, iconClass: isset($awardedHCRight) ? 'goldimage' : '', tooltip: false);
                     echo "</div>";
                 } else {
                     echo "<div class='text-right'>";
