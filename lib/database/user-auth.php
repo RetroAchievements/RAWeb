@@ -115,6 +115,10 @@ function authenticateFromPassword(&$user, $pass): bool
         return false;
     }
 
+    if ($row['Permissions'] < Permissions::Unregistered) {
+        return false;
+    }
+
     $hashedPassword = $row['Password'];
 
     if (mb_strlen($row['SaltedPass']) === 32) {
@@ -133,7 +137,7 @@ function authenticateFromPassword(&$user, $pass): bool
 
     $user = $row['User'];
 
-    return $row['Permissions'] >= Permissions::Unregistered;
+    return true;
 }
 
 function changePassword($user, $pass): bool
