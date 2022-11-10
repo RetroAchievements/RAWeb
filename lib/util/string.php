@@ -37,18 +37,6 @@ function isValidUsername($userTest): bool
     return true;
 }
 
-function rand_string($length): string
-{
-    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    $size = mb_strlen($chars);
-    $str = '';
-    for ($i = 0; $i < $length; $i++) {
-        $str .= $chars[random_int(0, $size - 1)];
-    }
-
-    return $str;
-}
-
 function separateList(string $items): array
 {
     // replace allowed delimiters with spaces

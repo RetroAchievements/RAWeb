@@ -2,6 +2,7 @@
 
 use App\Legacy\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use RA\ActivityType;
 use RA\Permissions;
 
@@ -260,7 +261,7 @@ function generateAppToken($user, &$tokenOut): bool
         return false;
     }
     sanitize_sql_inputs($user);
-    $newToken = rand_string(16);
+    $newToken = Str::random(16);
 
     $expDays = 14;
     $expiryStr = date("Y-m-d H:i:s", time() + 60 * 60 * 24 * $expDays);
@@ -292,7 +293,7 @@ function generateAPIKey($user): string
         return "";
     }
 
-    $newKey = rand_string(32);
+    $newKey = Str::random(32);
 
     $query = "UPDATE UserAccounts AS ua
               SET ua.APIKey='$newKey', Updated=NOW()

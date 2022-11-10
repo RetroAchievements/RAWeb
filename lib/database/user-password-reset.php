@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Str;
+
 function RemovePasswordResetToken($username): bool
 {
     $db = getMysqliConnection();
@@ -42,13 +44,11 @@ function RequestPasswordReset($usernameIn): bool
     $username = $userFields["User"];
     $emailAddress = $userFields["EmailAddress"];
 
-    $newToken = rand_string(20);
+    $newToken = Str::random(20);
 
-    $query = "UPDATE UserAccounts AS ua
+    s_mysql_query("UPDATE UserAccounts AS ua
               SET ua.PasswordResetToken = '$newToken', Updated=NOW()
-              WHERE ua.User='$username'";
-
-    $dbResult = s_mysql_query($query);
+              WHERE ua.User='$username'");
 
     SendPasswordResetEmail($username, $emailAddress, $newToken);
 

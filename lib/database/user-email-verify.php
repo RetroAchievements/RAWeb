@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Support\Str;
 use RA\Permissions;
 
 function generateEmailVerificationToken($user): ?string
 {
-    $emailCookie = rand_string(16);
+    $emailCookie = Str::random(16);
     $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
 
     sanitize_sql_inputs($user);
