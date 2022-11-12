@@ -67,6 +67,10 @@ for ($i = 0; $i < $numArticles; $i++) {
     $article->appendChild($dom->createElement('link', $link));
     $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
+
+    $guid = $dom->createElement('guid', 'retroachievements:new-achievements:' . $achID);
+    $guid->setAttribute('isPermaLink', 'false');
+    $article->appendChild($guid);
 }
 
 return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);
