@@ -152,7 +152,11 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     static_setlastearnedachievement($achIDToAward, $user, $achData['Points']);
 
     if ($user != $achData['Author']) {
-        attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
+        if ($isHardcore && $hasRegular) {
+            // developer received contribution points when the regular version was unlocked
+        } else {
+            attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
+        }
     }
 
     return $retVal;
