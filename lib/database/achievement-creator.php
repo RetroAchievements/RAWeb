@@ -228,7 +228,9 @@ function recalculateDeveloperContribution(string $author): void
     $query = "SELECT COUNT(*) AS ContribCount, SUM(Points) AS ContribYield
               FROM (SELECT aw.User, ach.ID, MAX(aw.HardcoreMode) as HardcoreMode, ach.Points
                     FROM Achievements ach LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
-                    WHERE ach.Author='$author' AND aw.User != '$author' GROUP BY 1,2) AS UniqueUnlocks";
+                    WHERE ach.Author='$author' AND aw.User != '$author'
+                    AND ach.Flags=" . AchievementType::OfficialCore . "
+                    GROUP BY 1,2) AS UniqueUnlocks";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
