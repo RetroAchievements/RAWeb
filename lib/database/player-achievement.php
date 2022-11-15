@@ -211,7 +211,7 @@ function resetAchievements(string $user, $gameID): int
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             if ($data['Count'] > 0) {
-                attributeDevelopmentAuthor($data['Author'], -$data['Count'], -$data['Points']);
+                attributeDevelopmentAuthor($data['Author'], -(int) $data['Count'], -(int) $data['Points']);
             }
         }
     }

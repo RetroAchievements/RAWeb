@@ -571,17 +571,17 @@ function updateAchievementFlags(int|string|array $achID, int $newFlags): bool
     $authorCount = [];
     $authorPoints = [];
     while ($data = mysqli_fetch_assoc($dbResult)) {
-        settype($data['ID'], 'integer');
-        $updatedAchIDs[] = $data['ID'];
+        $updatedAchID = (int) $data['ID'];
+        $updatedAchIDs[] = $updatedAchID;
 
-        $numUnlocks = getAchievementUnlockCount($data['ID']);
+        $numUnlocks = getAchievementUnlockCount($updatedAchID);
         if ($numUnlocks > 0) {
             if (array_key_exists($data['Author'], $authorCount)) {
                 $authorCount[$data['Author']] += $numUnlocks;
-                $authorPoints[$data['Author']] += $numUnlocks * $data['Points'];
+                $authorPoints[$data['Author']] += $numUnlocks * (int) $data['Points'];
             } else {
                 $authorCount[$data['Author']] = $numUnlocks;
-                $authorPoints[$data['Author']] = $numUnlocks * $data['Points'];
+                $authorPoints[$data['Author']] = $numUnlocks * (int) $data['Points'];
             }
         }
     }
