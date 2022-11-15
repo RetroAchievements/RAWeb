@@ -197,6 +197,7 @@ function resetAchievements(string $user, $gameID): int
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ($achievementIDs)";
     if (!s_mysql_query($query)) {
         log_sql_fail();
+
         return 0;
     }
 
@@ -289,6 +290,21 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
             $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
         }
     }
+}
+
+function getAchievementUnlockCount(int $achID): int
+{
+    $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
+              WHERE AchievementID=$achID AND HardcoreMode=0";
+
+    $dbResult = s_mysql_query($query);
+    if (!$dbResult) {
+        return 0;
+    }
+
+    $data = mysqli_fetch_assoc($dbResult);
+
+    return $data['NumEarned'] ?? 0;
 }
 
 function getAchievementUnlocksData(
