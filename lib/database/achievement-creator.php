@@ -179,9 +179,9 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
     return $userFound;
 }
 
-function attributeDevelopmentAuthor(string $author, int $points): void
+function attributeDevelopmentAuthor(string $author, int $count, int $points): void
 {
-    sanitize_sql_inputs($author, $points);
+    sanitize_sql_inputs($author);
 
     $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
     $dbResult = s_mysql_query($query);
@@ -196,7 +196,7 @@ function attributeDevelopmentAuthor(string $author, int $points): void
 
     // Update the fact that this author made an achievement that just got earned.
     $query = "UPDATE UserAccounts AS ua
-              SET ua.ContribCount = ua.ContribCount+1, ua.ContribYield = ua.ContribYield + $points
+              SET ua.ContribCount = ua.ContribCount+$count, ua.ContribYield = ua.ContribYield+$points
               WHERE ua.User = '$author'";
 
     $dbResult = s_mysql_query($query);
@@ -208,7 +208,7 @@ function attributeDevelopmentAuthor(string $author, int $points): void
     }
 
     for ($i = 0; $i < count(AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
-        if ($oldContribCount < AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
+        if ($oldContribCount < AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + $count >= AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
             // This developer has arrived at this point boundary!
             AddSiteAward($author, 2, $i);
         }

@@ -155,7 +155,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
         if ($isHardcore && $hasRegular) {
             // developer received contribution points when the regular version was unlocked
         } else {
-            attributeDevelopmentAuthor($achData['Author'], $pointsToGive);
+            attributeDevelopmentAuthor($achData['Author'], 1, $pointsToGive);
         }
     }
 
@@ -186,19 +186,36 @@ function resetAchievements(string $user, $gameID): int
         return 0;
     }
 
-    $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ( SELECT ID FROM Achievements WHERE Achievements.GameID='$gameID')";
+    getUserUnlocksDetailed($user, $gameID, $dataOut);
+    $resetCount = collect($dataOut)->unique('ID')->count();
+    if ($resetCount == 0) {
+        return 0;
+    }
 
-    $numRowsDeleted = 0;
-    if (s_mysql_query($query) !== false) {
-        $db = getMysqliConnection();
-        $numRowsDeleted = (int) mysqli_affected_rows($db);
+    $achievementIDs = collect($dataOut)->unique('ID')->implode('ID', ',');
+
+    $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ($achievementIDs)";
+    if (!s_mysql_query($query)) {
+        log_sql_fail();
+        return 0;
     }
 
     expireGameTopAchievers($gameID);
-
     recalculatePlayerPoints($user);
 
-    return $numRowsDeleted;
+    $query = "SELECT Author, COUNT(*) AS Count, SUM(Points) AS Points
+              FROM Achievements WHERE ID IN ($achievementIDs)
+              AND Flags=" . AchievementType::OfficialCore . " GROUP BY 1";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            if ($data['Count'] > 0) {
+                attributeDevelopmentAuthor($data['Author'], -$data['Count'], -$data['Points']);
+            }
+        }
+    }
+
+    return $resetCount;
 }
 
 function resetSingleAchievement(string $user, $achID): bool
@@ -213,14 +230,23 @@ function resetSingleAchievement(string $user, $achID): bool
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID='$achID'";
     $dbResult = s_mysql_query($query);
 
+    $numRowsDeleted = 0;
     if (!$dbResult) {
         log_sql_fail();
+    } else {
+        $db = getMysqliConnection();
+        $numRowsDeleted = (int) mysqli_affected_rows($db);
     }
 
-    getAchievementTitle($achID, $gameTitle, $gameID);
-    expireGameTopAchievers($gameID);
+    if ($numRowsDeleted > 0) {
+        $achData = GetAchievementData($achID);
+        if ($achData['Flags'] == AchievementType::OfficialCore) {
+            expireGameTopAchievers($achData['GameID']);
+            attributeDevelopmentAuthor($achData['Author'], -1, -$achData['Points']);
 
-    recalculatePlayerPoints($user);
+            recalculatePlayerPoints($user);
+        }
+    }
 
     return true;
 }
