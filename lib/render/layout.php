@@ -68,6 +68,7 @@ function RenderToolbar(): void
     // NEC
     echo "<li class='dropdown-header'>NEC</li>";
     echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
+    echo "<li><a href='/gameList.php?c=76'>PC Engine CD/TurboGrafx-CD</a></li>";
     echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
     echo "<li><a href='/gameList.php?c=49'>PC-FX</a></li>";
     echo "</ul>";
