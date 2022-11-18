@@ -198,6 +198,13 @@ $menu = collect([
                     <span class="sr-only">Twitter</span>
                 </a>
             @endif
+            @if(config('services.reddit.channel'))
+                <a href="https://reddit.com/r/{{ config('services.reddit.channel') }}"
+                   data-toggle="tooltip" title="Follow us on Reddit" rel="noopener">
+                    <x-fab-reddit/>
+                    <span class="sr-only">Reddit</span>
+                </a>
+            @endif
             {{--<a href="{{ route('rss.index') }}"--}}
             <a href="{{ url('rss.php') }}"
                data-toggle="tooltip" title="RSS Feeds">

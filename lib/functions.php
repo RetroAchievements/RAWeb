@@ -35,6 +35,7 @@ require_once __DIR__ . '/database/user-permission.php';
 require_once __DIR__ . '/database/user-relationship.php';
 
 require_once __DIR__ . '/render/achievement.php';
+require_once __DIR__ . '/render/avatar.php';
 require_once __DIR__ . '/render/code-note.php';
 require_once __DIR__ . '/render/comment.php';
 require_once __DIR__ . '/render/content.php';

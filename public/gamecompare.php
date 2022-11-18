@@ -40,7 +40,7 @@ $totalPossible = 0;
 $numEarned = 0;
 if (isset($achievementData)) {
     foreach ($achievementData as &$achievement) {
-        /**
+        /*
          * Some orphaned unlocks might be still around
          */
         $totalPossible += ($achievement['Points'] ?? 0);
@@ -75,10 +75,10 @@ RenderContentStart("Game Compare");
 
             $pctAwarded = 0;
             if ($numAchievements > 0) {
-                $pctAwarded = sprintf("%01.0f", ($numEarned * 100.0 / $numAchievements));
+                $pctAwarded = sprintf("%01.0f", $numEarned * 100.0 / $numAchievements);
             }
 
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
+            echo gameAvatar($gameData, iconSize: 96);
 
             if ($numGamesPlayed > 0) {
                 echo "<form action='/gamecompare.php'>";
@@ -102,16 +102,16 @@ RenderContentStart("Game Compare");
             echo "<table><tbody>";
             echo "<tr>";
 
-            echo "<th>";
-            echo "<a style='float: right' href='/user/$user'>$user</a><br>";
-            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg float-right");
+            echo "<th class='text-right'>";
+            echo "<a href='/user/$user'>$user</a><br>";
+            echo userAvatar($user, label: false, iconSize: $iconSize);
             echo "</th>";
 
             echo "<th><center>Achievement</center></th>";
 
             echo "<th>";
-            echo "<a style='float: left' href='/user/$user2'>$user2</a><br>";
-            echo GetUserAndTooltipDiv($user2, true, null, $iconSize);
+            echo "<a href='/user/$user2'>$user2</a><br>";
+            echo userAvatar($user2, label: false, iconSize: $iconSize);
             echo "</th>";
 
             echo "</tr>";
@@ -128,7 +128,7 @@ RenderContentStart("Game Compare");
 
             $achIter = 0;
             foreach ($achievementData as $nextAch) {
-                /**
+                /*
                  * Some orphaned unlocks might be still around
                  */
                 if (!isset($nextAch['ID'])) {
@@ -160,7 +160,7 @@ RenderContentStart("Game Compare");
                 echo "<td>";
                 if (isset($awardedLeft)) {
                     echo "<div class='flex justify-between gap-2'>";
-                    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, (isset($awardedHCLeft) ? 'goldimage' : ''));
+                    echo achievementAvatar($nextAch, label: false, iconSize: $iconSize, iconClass: isset($awardedHCLeft) ? 'goldimage' : '', tooltip: false);
                     if (isset($awardedHCLeft)) {
                         $leftHardcoreAwardedCount++;
                         $leftHardcoreAwardedPoints += $achPoints;
@@ -172,13 +172,13 @@ RenderContentStart("Game Compare");
                     }
                     echo "</div>";
                 } else {
-                    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName . "_lock", true, true, "", $iconSize);
+                    echo achievementAvatar($nextAch, label: false, icon: $badgeName . "_lock", iconSize: $iconSize, tooltip: false);
                 }
                 echo "</td>";
 
                 echo "<td class='w-[250px]'>";
                 echo "<p class='embedded'>";
-                echo "<a href=\"Achievement/$achID\"><strong>$achTitle</strong></a><br>";
+                echo "<a href=\"achievement/$achID\"><strong>$achTitle</strong></a><br>";
                 echo "$achDesc<br>";
                 echo "($achPoints Points)";
                 echo "</p>";
@@ -196,11 +196,11 @@ RenderContentStart("Game Compare");
                         $rightSoftcoreAwardedPoints += $achPoints;
                         echo "<small class='smalldate'>$awardedRight</small>";
                     }
-                    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $badgeName, true, true, "", $iconSize, "awardremote");
+                    echo achievementAvatar($nextAch, label: false, icon: $badgeName, iconSize: $iconSize, iconClass: isset($awardedHCRight) ? 'goldimage' : '', tooltip: false);
                     echo "</div>";
                 } else {
-                    echo "<div style='float:right;' >";
-                    echo "<img class='awardremote' src='" . media_asset("Badge/$badgeName" . '_lock.png') . "' alt='$achTitle' align='left' width='$iconSize' height='$iconSize'>";
+                    echo "<div class='text-right'>";
+                    echo achievementAvatar($nextAch, label: false, icon: $badgeName . "_lock", iconSize: $iconSize, tooltip: false);
                     echo "</div>";
                 }
                 echo "</td>";
@@ -212,8 +212,8 @@ RenderContentStart("Game Compare");
             echo "<tr>";
 
             echo "<td>";
-            echo "<div style='float:right'>";
-            echo GetUserAndTooltipDiv($user, true, null, $iconSize, "badgeimg float-right");
+            echo "<div class='text-right'>";
+            echo userAvatar($user, label: false, iconSize: $iconSize);
             echo "</div>";
             echo "</td>";
 
@@ -221,7 +221,7 @@ RenderContentStart("Game Compare");
 
             echo "<td>";
             echo "<div>";
-            echo GetUserAndTooltipDiv($user2, true, null, $iconSize);
+            echo userAvatar($user2, label: false, iconSize: $iconSize);
             echo "</div>";
             echo "</td>";
 

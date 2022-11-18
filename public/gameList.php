@@ -82,19 +82,18 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
         }
         $numLBs = $gameEntry['NumLBs'];
-        $gameIcon = $gameEntry['GameIcon'];
-
-        $consoleName = $showConsoleName ? $gameEntry['ConsoleName'] : null;
 
         sanitize_outputs($title);
 
         echo "<tr>";
 
         echo "<td>";
-        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, $consoleName, true);
+        echo gameAvatar($gameEntry, label: false);
         echo "</td>";
         echo "<td class='w-full'>";
-        echo GetGameAndTooltipDiv($gameID, $title, $gameIcon, $consoleName, false, null, true);
+        $gameLabelData = $gameEntry;
+        unset($gameLabelData['ConsoleName']);
+        echo gameAvatar($gameLabelData, icon: false);
         echo "</td>";
 
         if ($dev == null) {
@@ -164,7 +163,6 @@ RenderContentStart($requestedConsole . "Games");
 ?>
 <div id="mainpage">
     <div id="fullcontainer">
-        <?php RenderConsoleMessage((int) $consoleIDInput) ?>
         <div>
             <?php
                 if ($dev !== null) {

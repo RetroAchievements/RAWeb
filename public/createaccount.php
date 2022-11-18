@@ -20,19 +20,19 @@ RenderContentStart("Create Account");
                     <tr>
                         <td class="text-right"><label for="username">Username</label></td>
                         <td>
-                            <div><input type="text" id="username" name='username' value="<?= old('u') ?>"></div>
+                            <div><input type="text" id="username" name='username' value="<?= old('username') ?>"></div>
                         </td>
                     </tr>
                     <tr>
                         <td class="text-right"><label for="email">Email</label></td>
                         <td>
-                            <div><input type="text" id="email" name='email' value="<?= old('e') ?>"></div>
+                            <div><input type="text" id="email" name='email' value="<?= old('email') ?>"></div>
                         </td>
                     </tr>
                     <tr>
                         <td class="text-right"><label for="email_confirmation">Confirm Email</label></td>
                         <td>
-                            <div><input type="text" id="email_confirmation" name='email_confirmation' value="<?= old('e_confirmation') ?>"></div>
+                            <div><input type="text" id="email_confirmation" name='email_confirmation' value="<?= old('email_confirmation') ?>"></div>
                         </td>
                     </tr>
                     <tr>

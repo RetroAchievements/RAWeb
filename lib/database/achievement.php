@@ -19,12 +19,14 @@ function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut): string
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
+
         return "";
     }
 
     $data = mysqli_fetch_assoc($dbResult);
     if (!$data) {
         log_sql_fail();
+
         return "";
     }
 
@@ -179,10 +181,9 @@ function getAchievementsList(
 function GetAchievementMetadataJSON($achID): ?array
 {
     sanitize_sql_inputs($achID);
-    $retVal = [];
     settype($achID, 'integer');
 
-    $query = "SELECT ach.ID AS AchievementID, ach.GameID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
+    $query = "SELECT ach.ID AS ID, ach.ID AS AchievementID, ach.GameID, ach.Title AS Title, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
                 ach.Flags, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
                 c.ID AS ConsoleID, c.Name AS ConsoleName, g.Title AS GameTitle, g.ImageIcon AS GameIcon
               FROM Achievements AS ach
@@ -234,21 +235,25 @@ function UploadNewAchievement(
     // Prevent <= registered users from uploading or modifying achievements
     if ($userPermissions < Permissions::JuniorDeveloper) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
         return false;
     }
 
     if (!AchievementType::isValid($type)) {
         $errorOut = "Invalid type flag";
+
         return false;
     }
 
     if ($type === AchievementType::OfficialCore && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
+
         return false;
     }
 
     if (!AchievementPoints::isValid((int) $points)) {
         $errorOut = "Invalid points value (" . $points . ").";
+
         return false;
     }
 
@@ -262,6 +267,7 @@ function UploadNewAchievement(
         // Prevent users from uploading achievements for games they do not have an active claim on unless it's an event game
         if (!(hasSetClaimed($author, $gameID, false) || $isEventGame)) {
             $errorOut = "You must have an active claim on this game to perform this action.";
+
             return false;
         }
 
@@ -320,9 +326,12 @@ function UploadNewAchievement(
 
             if ($type === AchievementType::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
                 // changing ach set detected; user is $author, permissions is $userPermissions, target set is $type
-                if ($userPermissions < Permissions::Developer) {
-                    // Must be developer to modify core!
+
+                // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
+                if ($userPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $data['Author'] != $author)) {
+                    // Must be developer to modify core logic!
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
                     return false;
                 }
             }
@@ -331,6 +340,7 @@ function UploadNewAchievement(
                 // Only allow jr. devs to modify unofficial if they are the author
                 if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] != $author) {
                     $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
+
                     return false;
                 }
             }
@@ -375,6 +385,7 @@ function UploadNewAchievement(
                             $author
                         );
                     }
+                    expireGameTopAchievers($gameID);
                 } else {
                     $fields = [];
                     if ($changingPoints) {
@@ -448,7 +459,7 @@ function GetAchievementsPatch($gameID, $flags): array
             $badgeName = $db_entry['BadgeName'];
             if ($badgeName) {
                 $db_entry['BadgeURL'] = media_asset("Badge/$badgeName.png");
-                $db_entry['BadgeLockedURL'] = media_asset("Badge/${badgeName}_lock.png");
+                $db_entry['BadgeLockedURL'] = media_asset("Badge/{$badgeName}_lock.png");
             }
 
             $retVal[] = $db_entry;
@@ -474,6 +485,11 @@ function GetPatchData($gameID, $flags, $user): array
     }
 
     $gameData = getGameData($gameID);
+    if ($gameData === null) {
+        $retVal['Success'] = false;
+
+        return $retVal;
+    }
 
     if ($gameData['ImageIcon']) {
         $gameData['ImageIconURL'] = media_asset($gameData['ImageIcon']);

@@ -1,7 +1,10 @@
 <?php
 
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\ActivityType;
+use RA\AwardType;
 use RA\Permissions;
 use RA\UnlockMode;
 
@@ -10,8 +13,11 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
     sanitize_sql_inputs($gameID, $user, $isHardcore);
     settype($isHardcore, 'integer');
 
-    $query = "SELECT COUNT(ach.ID) AS NumAch, COUNT(aw.AchievementID) AS NumAwarded FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user' AND aw.HardcoreMode = $isHardcore 
+    $query = "SELECT COUNT(DISTINCT ach.ID) AS NumAch,
+                     COUNT(IF(aw.HardcoreMode=1,1,NULL)) AS NumAwardedHC,
+                     COUNT(IF(aw.HardcoreMode=0,1,NULL)) AS NumAwardedSC
+              FROM Achievements AS ach
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'
               WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore;
 
     $dbResult = s_mysql_query($query);
@@ -19,15 +25,29 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
         $minToCompleteGame = 5;
 
         $data = mysqli_fetch_assoc($dbResult);
-        if ($postMastery && ($data['NumAwarded'] == $data['NumAch']) && ($data['NumAwarded'] > $minToCompleteGame)) {
-            // Every achievement earned!
-            // Test that this wasn't very recently posted!
-            if (!RecentlyPostedCompletionActivity($user, $gameID, $isHardcore)) {
-                postActivity($user, ActivityType::CompleteGame, $gameID, $isHardcore);
+
+        if ($postMastery) {
+            if ($isHardcore && $data['NumAwardedHC'] == $data['NumAch']) {
+                // all hardcore achievements unlocked, award mastery
+                if (!RecentlyPostedCompletionActivity($user, $gameID, 1)) {
+                    postActivity($user, ActivityType::CompleteGame, $gameID, 1);
+                }
+            } elseif ($data['NumAwardedSC'] == $data['NumAch']) {
+                // if unlocking a hardcore achievement, don't update the completion date
+                // if the user already has a completion badge
+                if (!$isHardcore || !HasSiteAward($user, AwardType::Mastery, $gameID, 0)) {
+                    // all non-hardcore achievements unlocked, award completion
+                    if (!RecentlyPostedCompletionActivity($user, $gameID, 0)) {
+                        postActivity($user, ActivityType::CompleteGame, $gameID, 0);
+                    }
+                }
             }
         }
 
-        return $data;
+        return [
+            'NumAch' => $data['NumAch'],
+            'NumAwarded' => $isHardcore ? $data['NumAwardedHC'] : $data['NumAwardedSC'],
+        ];
     }
 
     return [];
@@ -49,8 +69,8 @@ function getGameRankAndScore($gameID, $requestedBy): ?array
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ( !ua.Untracked OR ua.User = '$requestedBy') 
-          AND ach.Flags = " . AchievementType::OfficialCore . " 
+        WHERE ( !ua.Untracked OR ua.User = '$requestedBy')
+          AND ach.Flags = " . AchievementType::OfficialCore . "
           AND gd.ID = $gameID
         GROUP BY aw.User
         ORDER BY TotalScore DESC, LastAward ASC
@@ -114,7 +134,7 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut): ?int
     $query = "SELECT GameID, COUNT(*) AS AchCount, SUM( ach.Points ) AS PointCount, aw.HardcoreMode
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON aw.AchievementID = ach.ID
-              WHERE ach.GameID IN ( $gameIDsCSV ) AND ach.Flags = " . AchievementType::OfficialCore . " 
+              WHERE ach.GameID IN ( $gameIDsCSV ) AND ach.Flags = " . AchievementType::OfficialCore . "
               AND aw.User = '$user'
               GROUP BY aw.HardcoreMode, ach.GameID";
 
@@ -200,11 +220,11 @@ function getUsersGameList($user, &$dataOut): int
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        LEFT JOIN ( SELECT ach1.GameID AS GameIDInner, ach1.ID, COUNT(ach1.ID) AS TotalAch 
-                    FROM Achievements AS ach1 
+        LEFT JOIN ( SELECT ach1.GameID AS GameIDInner, ach1.ID, COUNT(ach1.ID) AS TotalAch
+                    FROM Achievements AS ach1
                     GROUP BY GameID ) AS gt ON gt.GameIDInner = gd.ID
-        WHERE aw.User = '$user' 
-        AND aw.HardcoreMode = " . UnlockMode::Softcore . " 
+        WHERE aw.User = '$user'
+        AND aw.HardcoreMode = " . UnlockMode::Softcore . "
         AND ach.Flags = " . AchievementType::OfficialCore . "
         GROUP BY gd.ID";
 
@@ -310,6 +330,7 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
     $dbResult = s_mysql_query($query);
 
     $data = mysqli_fetch_assoc($dbResult);
+
     return $data['UniquePlayers'];
 }
 
@@ -323,6 +344,7 @@ function getGameRecentPlayers($gameID, $maximum_results = 0): array
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
               FROM UserAccounts AS ua
               WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Unregistered . "
+              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW())
               ORDER BY ua.RichPresenceMsgDate DESC";
 
     if ($maximum_results > 0) {
@@ -340,12 +362,24 @@ function getGameRecentPlayers($gameID, $maximum_results = 0): array
     return $retval;
 }
 
+function expireGameTopAchievers(int $gameID): void
+{
+    $cacheKey = "game:$gameID:topachievers";
+    Cache::forget($cacheKey);
+}
+
 /**
  * Gets a game's high scorers or latest masters.
  */
-function getGameTopAchievers(int $gameID, ?string $requestedBy): array
+function getGameTopAchievers(int $gameID): array
 {
-    sanitize_sql_inputs($gameID, $offset, $count, $requestedBy);
+    $cacheKey = "game:$gameID:topachievers";
+    $retval = Cache::get($cacheKey);
+    if ($retval !== null) {
+        return $retval;
+    }
+
+    sanitize_sql_inputs($gameID);
 
     $high_scores = [];
     $masters = [];
@@ -365,8 +399,8 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE ( !ua.Untracked OR ua.User = '$requestedBy' ) 
-                  AND ach.Flags = " . AchievementType::OfficialCore . " 
+                WHERE !ua.Untracked
+                  AND ach.Flags = " . AchievementType::OfficialCore . "
                   AND gd.ID = $gameID
                   AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY aw.User
@@ -396,6 +430,14 @@ function getGameTopAchievers(int $gameID, ?string $requestedBy): array
     $retval = [];
     $retval['Masters'] = array_reverse($masters);
     $retval['HighScores'] = $high_scores;
+
+    if (count($masters) == 10) {
+        // only cache the result if the masters list is full.
+        // that way we only have to expire it when there's a new mastery
+        // or an achievement gets promoted or demoted
+        Cache::put($cacheKey, $retval, Carbon::now()->addDays(30));
+    }
+
     return $retval;
 }
 

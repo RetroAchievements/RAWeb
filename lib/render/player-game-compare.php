@@ -14,8 +14,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
 
                 echo "<tr>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($friendScoreName, true, $link, iconSizeDisplayable: 16);
-                echo GetUserAndTooltipDiv($friendScoreName, false, $link);
+                echo userAvatar($friendScoreName, link: $link, iconSize: 16);
                 echo "</td>";
 
                 echo "<td>";

@@ -319,7 +319,7 @@ trait DevelopmentRequests
         //         $permissions
         //     );
         // }
-        // // if( $validLogin == FALSE )
+        // // if( $validLogin == false )
         // // {
         // //     $validLogin = RA_ReadCookieCredentials( $user, $points, $truePoints, $unreadMessageCount, $permissions );
         // // }

@@ -35,9 +35,7 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
 
             echo "<div class='embedded mb-1 flex justify-between items-center'>";
             echo "<div>";
-            echo GetUserAndTooltipDiv($author, true, iconSizeDisplayable: 16);
-            echo " ";
-            echo GetUserAndTooltipDiv($author);
+            echo userAvatar($author, iconSize: 16);
             echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
             echo "<div class='comment'>$shortMsg</div>";

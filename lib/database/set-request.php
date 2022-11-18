@@ -1,5 +1,6 @@
 <?php
 
+use RA\AchievementType;
 use RA\ClaimStatus;
 
 /**
@@ -36,8 +37,33 @@ function getUserRequestList(string $user = null): array
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
+        $gameIDs = [];
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
+            $gameIDs[] = $nextData['GameID'];
+            $nextData['AchievementCount'] = 0;
             $retVal[] = $nextData;
+        }
+
+        if (!empty($gameIDs)) {
+            $query = "SELECT GameID, COUNT(ID) AS AchievementCount FROM Achievements"
+                   . " WHERE GameID IN (" . implode(',', $gameIDs) . ")"
+                   . " AND Flags = " . AchievementType::OfficialCore
+                   . " GROUP BY GameID";
+
+            $dbResult = s_mysql_query($query);
+
+            if ($dbResult !== false) {
+                while ($nextData = mysqli_fetch_assoc($dbResult)) {
+                    foreach ($retVal as &$game) {
+                        if ($game['GameID'] == $nextData['GameID']) {
+                            $game['AchievementCount'] = $nextData['AchievementCount'];
+                            break;
+                        }
+                    }
+                }
+            } else {
+                log_sql_fail();
+            }
         }
     } else {
         log_sql_fail();
@@ -86,7 +112,7 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
     // Requests made for games that since received achievements do not count towards a used request
     foreach ($list as $request) {
         // If the game does not have achievements then it counts as a legit request
-        if (empty(getAchievementIDsByGame($request['GameID'])['AchievementIDs'])) {
+        if ($request['AchievementCount'] == 0) {
             $requests['used']++;
         }
 
@@ -150,6 +176,7 @@ function toggleSetRequest(string $user, int $gameID, int $remaining): bool
             }
         }
     }
+
     return false;
 }
 

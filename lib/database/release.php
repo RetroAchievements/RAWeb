@@ -30,7 +30,7 @@ function isValidConsoleId(int $consoleId): bool
         18, // Nintendo DS
         // 19, // Wii
         // 20, // Wii U
-        // 21, // PlayStation 2
+        21, // PlayStation 2
         // 22, // Xbox
         23, // Magnavox Odyssey 2
         24, // Pokemon Mini

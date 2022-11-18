@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use RA\AchievementType;
 use RA\Rank;
@@ -137,9 +138,7 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
  */
 function getUserRank(string $user, int $type = RankType::Hardcore): ?int
 {
-    $ttlSeconds = 60 * 15;
-
-    return Cache::remember($user . ':rank:' . ($type === RankType::Hardcore ? 'hardcore' : 'softcore'), $ttlSeconds, function () use ($user, $type) {
+    return Cache::remember('user:' . $user . ':rank:' . ($type === RankType::Hardcore ? 'hardcore' : 'softcore'), Carbon::now()->addMinutes(15), function () use ($user, $type) {
         sanitize_sql_inputs($user);
 
         $joinCond = match ($type) {

@@ -60,6 +60,7 @@ RenderContentStart("Claim List");
             $appendParam($link, 'f', $claimFilters, ClaimFilters::Default);
             $appendParam($link, 'u', $username, null);
             $appendParam($link, 'g', $gameID, null);
+
             return $link;
         };
 
@@ -177,13 +178,13 @@ RenderContentStart("Claim List");
             $claimUser = $claim['User'];
             echo "<tr>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($claimUser, true);
+            echo userAvatar($claimUser, label: false);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'><div>";
-            echo GetUserAndTooltipDiv($claimUser);
-            echo "</div></td>";
+            echo "<td class='whitespace-nowrap'>";
+            echo userAvatar($claimUser, icon: false);
+            echo "</td>";
             echo "<td>";
-            echo GetGameAndTooltipDiv($claim['GameID'], $claim['GameTitle'], $claim['GameIcon'], $claim['ConsoleName']);
+            echo gameAvatar($claim);
             echo "</td>";
             echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
             echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
@@ -198,7 +199,7 @@ RenderContentStart("Claim List");
         $baseLink = $createLink(null, null);
         $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
         if ($totalClaims) {
-            RenderPaginator($totalClaims, $maxCount, $offset, "${baseLink}o=");
+            RenderPaginator($totalClaims, $maxCount, $offset, "{$baseLink}o=");
         }
         echo "</div>";
         ?>

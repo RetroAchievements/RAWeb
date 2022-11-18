@@ -1,17 +1,28 @@
 <?php
 
-authenticateFromCookie($user, $permissions, $userDetails);
+use App\Legacy\Models\User;
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
+
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+    return redirect(route('achievement.show', $achievementID));
+}
 
 $dataOut = null;
 if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
     abort(404);
 }
 
+/** @var User $userModel */
+$userModel = request()->user();
+$ticketID = getExistingTicketID($userModel, $achievementID);
+if ($ticketID !== 0) {
+    return redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists'));
+}
+
 $emulators = getActiveEmulatorReleases();
 
-$achievementTitle = $dataOut['AchievementTitle'];
+$achievementTitle = $dataOut['Title'];
 $desc = $dataOut['Description'];
 $gameTitle = $dataOut['GameTitle'];
 $achPoints = $dataOut['Points'];
@@ -58,21 +69,13 @@ function displayCore() {
                 <tr>
                     <td>Game</td>
                     <td style="width:80%">
-                        <?= GetGameAndTooltipDiv($gameID, $gameTitle, $gameBadge, $consoleName) ?>
+                        <?= gameAvatar($dataOut) ?>
                     </td>
                 </tr>
                 <tr>
                     <td>Achievement</td>
                     <td>
-                        <?= GetAchievementAndTooltipDiv(
-                            $achievementID,
-                            $achievementTitle,
-                            $desc,
-                            $achPoints,
-                            $gameTitle,
-                            $achBadgeName,
-                            true
-                        ) ?>
+                        <?= achievementAvatar($dataOut) ?>
                     </td>
                 </tr>
                 <tr class="alt">

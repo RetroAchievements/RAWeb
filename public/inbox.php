@@ -134,10 +134,10 @@ function MarkAsUnread(msgID) {
                 echo "</td>";
 
                 echo "<td style='width:34px'>";
-                echo GetUserAndTooltipDiv($msgUser, true);
+                echo userAvatar($msgUser, label: false);
                 echo "</td>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($msgUser, false);
+                echo userAvatar($msgUser, icon: false);
                 echo "</td>";
 
                 // echo "<td>" . $msgTo . "</td>";

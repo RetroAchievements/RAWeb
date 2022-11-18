@@ -203,15 +203,15 @@ RenderContentStart($pageTitle);
                 echo "<tr>";
             }
 
-            echo "<td class='align-top'>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor, true, iconSizeDisplayable: 64);
+            echo "<td class='align-top py-3'>";
+            echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
             echo "</td>";
 
-            echo "<td class='w-full' id='$nextCommentID'>";
+            echo "<td class='w-full py-3' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";
-            echo GetUserAndTooltipDiv($nextCommentAuthor);
+            echo userAvatar($nextCommentAuthor, icon: false);
             if ($showDisclaimer) {
                 echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
             }
@@ -240,7 +240,7 @@ RenderContentStart($pageTitle);
             if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
                 echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
             }
-            echo "<span class='btn btn-borderless py-1' onclick='copy(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\"" . ");showStatusSuccess(\"Copied\")'>";
+            echo "<span class='btn py-1' onclick='copy(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
             echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
             echo "</span>";
             echo "</div>";
@@ -270,9 +270,9 @@ RenderContentStart($pageTitle);
             echo "<tr>";
 
             echo "<td class='align-top'>";
-            echo GetUserAndTooltipDiv($user, false, null, 64);
+            echo userAvatar($user, label: false, iconSize: 64);
             echo "<br>";
-            echo GetUserAndTooltipDiv($user, true, null, 64);
+            echo userAvatar($user, icon: false);
             echo "</td>";
 
             echo "<td class='w-full'>";
@@ -282,6 +282,15 @@ RenderContentStart($pageTitle);
             $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
 
+            echo <<<EOF
+               <script>
+                   function disableRepost() {
+                      var btn = $('#postBtn');
+                      btn.attr('disabled', true);
+                      btn.html('Sending...');
+                   }
+               </script>
+            EOF;
             echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
             echo csrf_field();
             echo "<input type='hidden' name='topic' value='$thisTopicID'>";
@@ -298,7 +307,7 @@ RenderContentStart($pageTitle);
             EOF;
             echo "<div class='flex justify-between mb-2'>";
             echo "<span class='textarea-counter' data-textarea-id='commentTextarea'></span>";
-            echo "<button class='btn' $inputEnabled>Submit</button>";    // TBD: replace with image version
+            echo "<button id='postBtn' class='btn' onclick='this.form.submit(); disableRepost()' $inputEnabled>Submit</button>";    // TBD: replace with image version
             echo "</div>";
             echo "</form>";
 

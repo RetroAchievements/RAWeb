@@ -1,9 +1,16 @@
 <?php
 
+use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(request()->post(), [
-    'username' => 'required|unique:mysql_legacy.UserAccounts,User|alpha_num|min:4|max:20',
+    'username' => [
+        'required',
+        'unique:mysql_legacy.UserAccounts,User',
+        'min:4',
+        'max:20',
+        new CtypeAlnum(),
+    ],
     'password' => 'required|min:8|different:username',
     'email' => 'required|email:filter|confirmed',
 ]);

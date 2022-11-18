@@ -2,7 +2,7 @@
 
 use App\Site\Models\User;
 
-/** @var User $user */
+/* @var User $user */
 $user ??= $model ?? null;
 
 $class ??= '';

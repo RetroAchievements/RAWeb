@@ -88,11 +88,11 @@ RenderContentStart("Users");
         $sort3 = ($sortBy == 3) ? 13 : 3;
         $sort4 = ($sortBy == 4) ? 14 : 4;
 
-        if (($sortBy == 2)) {
+        if ($sortBy == 2) {
             echo "<th>Rank</th>";
         }
 
-        echo "<th colspan='2'><a href='/userList.php?s=$sort1&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>User</a></th>";
+        echo "<th><a href='/userList.php?s=$sort1&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>User</a></th>";
         echo "<th><a href='/userList.php?s=$sort2&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Points</a></th>";
         echo "<th><a href='/userList.php?s=$sort3&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Num Achievements Earned</a></th>";
         echo "<th><a href='/userList.php?s=$sort4&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Last Login</a></th>";
@@ -110,7 +110,7 @@ RenderContentStart("Users");
             $totalEarned = $userEntry['NumAwarded'];
             $lastLogin = getNiceDate(strtotime($userEntry['LastLogin']));
 
-            if (($sortBy == 2)) {
+            if ($sortBy == 2) {
                 echo "<td>";
                 // echo $userCount + $offset;
                 echo getUserRank($nextUser);
@@ -118,10 +118,7 @@ RenderContentStart("Users");
             }
 
             echo "<td>";
-            echo GetUserAndTooltipDiv($nextUser, true);
-            echo "</td>";
-            echo "<td class='user'>";
-            echo GetUserAndTooltipDiv($nextUser, false);
+            echo userAvatar($nextUser);
             echo "</td>";
 
             echo "<td>$totalPoints</td>";

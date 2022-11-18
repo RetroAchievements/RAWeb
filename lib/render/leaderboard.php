@@ -41,8 +41,7 @@ function RenderGameLeaderboardsComponent($lbData): void
             // Score/Best entry
             echo "<tr class='altdark'>";
             echo "<td>";
-            echo GetUserAndTooltipDiv($bestScoreUser, true, iconSizeDisplayable: 16);
-            echo GetUserAndTooltipDiv($bestScoreUser);
+            echo userAvatar($bestScoreUser, iconSize: 16);
             echo "</td>";
             echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
@@ -158,8 +157,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                     }
                     echo "<td class='rank'>" . $rank . "</td>";
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                    echo GetUserAndTooltipDiv($dataPoint['User']);
+                    echo userAvatar($dataPoint['User']);
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" .
@@ -193,8 +191,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
                         echo "<td></td>";
                     }
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($userData[0]['User'], true);
-                    echo GetUserAndTooltipDiv($userData[0]['User']);
+                    echo userAvatar($userData[0]['User']);
                     echo "</td>";
                     if ($j == 0) {
                         echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
@@ -262,8 +259,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
-        echo GetUserAndTooltipDiv($nextUser);
+        echo userAvatar($nextUser, iconSize: 16);
         echo "</td>";
 
         echo "<td>";
@@ -301,8 +297,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
         echo "</td>";
 
         echo "<td>";
-        echo GetUserAndTooltipDiv($nextUser, true, iconSizeDisplayable: 16);
-        echo GetUserAndTooltipDiv($nextUser);
+        echo userAvatar($nextUser, iconSize: 16);
         echo "</td>";
 
         echo "<td>";
@@ -513,6 +508,7 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
                 }
             }
         }
+
         return $retVal;
     }
 

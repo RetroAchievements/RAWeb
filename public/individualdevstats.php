@@ -430,14 +430,18 @@ $userTickets['total'] = 0;
 $userTickets['closed'] = 0;
 $userTickets['open'] = 0;
 $userTickets['resolved'] = 0;
+$userTickets['request'] = 0;
 $userTickets['uniqueTotal'] = 0;
 $userTickets['uniqueClosed'] = 0;
 $userTickets['uniqueOpen'] = 0;
 $userTickets['uniqueResolved'] = 0;
+$userTickets['uniqueRequest'] = 0;
+$userTickets['uniqueValid'] = 0;
 $prevID = 0;
 
 // Get ticket information for user
 $userTicketInfo = getTicketsForUser($dev);
+$counted = false;
 foreach ($userTicketInfo as $ticketData) {
     switch ($ticketData['ReportState']) {
         case TicketState::Closed:
@@ -449,16 +453,30 @@ foreach ($userTicketInfo as $ticketData) {
             $userTickets['open'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueOpen']++;
+            if (!$counted) {
+                $counted = true;
+                $userTickets['uniqueValid']++;
+            }
             break;
         case TicketState::Resolved:
             $userTickets['resolved'] += $ticketData['TicketCount'];
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueResolved']++;
+            if (!$counted) {
+                $counted = true;
+                $userTickets['uniqueValid']++;
+            }
+            break;
+        case TicketState::Request:
+            $userTickets['request'] += $ticketData['TicketCount'];
+            $userTickets['total'] += $ticketData['TicketCount'];
+            $userTickets['uniqueRequest']++;
             break;
     }
-    if ($prevID != $ticketData['AchievementID']) {
+    if ($prevID != $ticketData['AchievementID']) { // relies on getTicketsForUser sorting by ID
         $prevID = $ticketData['AchievementID'];
         $userTickets['uniqueTotal']++;
+        $counted = false;
     }
 }
 
@@ -481,51 +499,48 @@ $closedResolvedTicketInfo = [];
 $closedResolvedTicketInfo['Count'] = 0;
 $closedResolvedTicketInfo['ClosedCount'] = 0;
 $closedResolvedTicketInfo['ResolvedCount'] = 0;
+$closedResolvedTicketInfo['ClosedAuthor'] = '';
+$closedResolvedTicketInfo['ClosedAuthorCount'] = 0;
+$closedResolvedTicketInfo['ResolvedAuthor'] = '';
+$closedResolvedTicketInfo['ResolvedAuthorCount'] = 0;
 
 // Get closed/resolved ticket information
 $ticketsClosedResolved = getNumberOfTicketsClosedForOthers($dev);
 foreach ($ticketsClosedResolved as $ticketData) {
-    if ($userCount == 0) {
+    // capture the maximum amount of tickets resolved for another user
+    if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
         $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
         $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
+    }
+    if ($closedResolvedTicketInfo['ResolvedAuthorCount'] < $ticketData['ResolvedCount']) {
         $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
         $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
-    } else {
-        if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
-            $closedResolvedTicketInfo['ClosedAuthor'] = $ticketData['Author'];
-            $closedResolvedTicketInfo['ClosedAuthorCount'] = $ticketData['ClosedCount'];
-        }
-        if ($closedResolvedTicketInfo['ResolvedAuthorCount'] < $ticketData['ResolvedCount']) {
-            $closedResolvedTicketInfo['ResolvedAuthor'] = $ticketData['Author'];
-            $closedResolvedTicketInfo['ResolvedAuthorCount'] = $ticketData['ResolvedCount'];
-        }
     }
+
+    // tally the data
     $userCount++;
     $closedResolvedTicketInfo['Count'] += $ticketData['TicketCount'];
     $closedResolvedTicketInfo['ClosedCount'] += $ticketData['ClosedCount'];
     $closedResolvedTicketInfo['ResolvedCount'] += $ticketData['ResolvedCount'];
 }
-$closedTicketPlusMinus = $closedResolvedTicketInfo['ClosedCount'] - $userTickets['closed'];
-$closedTicketPlusMinus = ($closedTicketPlusMinus > 0) ? '+' . $closedTicketPlusMinus : $closedTicketPlusMinus;
-$resolvedTicketPlusMinus = $closedResolvedTicketInfo['ResolvedCount'] - $userTickets['resolved'];
-$resolvedTicketPlusMinus = ($resolvedTicketPlusMinus > 0) ? '+' . $resolvedTicketPlusMinus : $resolvedTicketPlusMinus;
-$totalTicketPlusMinus = $closedResolvedTicketInfo['Count'] - $userTickets['total'];
+
+$closedResolvedTicketInfo['SelfClosed'] = 0;
+$closedResolvedTicketInfo['SelfResolved'] = 0;
+$closedResolvedTicketInfo['ClosedByOthers'] = 0;
+$closedResolvedTicketInfo['ResolvedByOthers'] = 0;
+$ticketsClosedResolved = getNumberOfTicketsClosed($dev);
+foreach ($ticketsClosedResolved as $ticketData) {
+    if ($ticketData['ResolvedByUser'] === $dev) {
+        $closedResolvedTicketInfo['SelfClosed'] = $ticketData['ClosedCount'];
+        $closedResolvedTicketInfo['SelfResolved'] = $ticketData['ResolvedCount'];
+    } else {
+        $closedResolvedTicketInfo['ClosedByOthers'] += $ticketData['ClosedCount'];
+        $closedResolvedTicketInfo['ResolvedByOthers'] += $ticketData['ResolvedCount'];
+    }
+}
+
+$totalTicketPlusMinus = $closedResolvedTicketInfo['SelfResolved'] + $closedResolvedTicketInfo['ResolvedCount'] * 2 - $closedResolvedTicketInfo['ResolvedByOthers'];
 $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinus : $totalTicketPlusMinus;
-if ($userTickets['closed'] == 0) {
-    $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'];
-} else {
-    $closedTicketPlusMinusRatio = $closedResolvedTicketInfo['ClosedCount'] / $userTickets['closed'];
-}
-if ($userTickets['resolved'] == 0) {
-    $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'];
-} else {
-    $resolvedTicketPlusMinusRatio = $closedResolvedTicketInfo['ResolvedCount'] / $userTickets['resolved'];
-}
-if ($userTickets['total'] == 0) {
-    $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'];
-} else {
-    $totalTicketPlusMinusRatio = $closedResolvedTicketInfo['Count'] / $userTickets['total'];
-}
 
 RenderContentStart("$dev's Developer Stats");
 ?>
@@ -716,7 +731,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Easiest Game by Retro Ratio:</td><td>";
             if (!empty($anyDevEasiestGame)) {
                 echo number_format($anyDevEasiestGame['TotalTruePoints'] / $anyDevEasiestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-                echo GetGameAndTooltipDiv($anyDevEasiestGame['ID'], $anyDevEasiestGame['Title'], $anyDevEasiestGame['GameIcon'], $anyDevEasiestGame['ConsoleName'], false, 32);
+                echo gameAvatar($anyDevEasiestGame);
                 echo "</br>" . $anyDevEasiestGame['MyAchievements'] . " of " . $anyDevEasiestGame['NumAchievements'] . " Achievements Created";
             } else {
                 echo "N/A";
@@ -727,7 +742,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Hardest Game by Retro Ratio</td><td>";
             if (!empty($anyDevHardestGame)) {
                 echo number_format($anyDevHardestGame['TotalTruePoints'] / $anyDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-                echo GetGameAndTooltipDiv($anyDevHardestGame['ID'], $anyDevHardestGame['Title'], $anyDevHardestGame['GameIcon'], $anyDevHardestGame['ConsoleName'], false, 32);
+                echo gameAvatar($anyDevHardestGame);
                 echo "</br>" . $anyDevHardestGame['MyAchievements'] . " of " . $anyDevHardestGame['NumAchievements'] . " Achievements Created</br>";
             } else {
                 echo "N/A";
@@ -756,7 +771,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Most Completed Game:</td><td>";
             if (!empty($anyDevMostCompletedGame)) {
                 echo $anyDevMostCompletedGame['Completed'] . " - ";
-                echo GetGameAndTooltipDiv($anyDevMostCompletedGame['ID'], $anyDevMostCompletedGame['Title'], $anyDevMostCompletedGame['GameIcon'], $anyDevMostCompletedGame['ConsoleName'], false, 32);
+                echo gameAvatar($anyDevMostCompletedGame);
             } else {
                 echo "N/A";
             }
@@ -766,7 +781,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Most Mastered Game:</td><td>";
             if (!empty($anyDevMostMasteredGame)) {
                 echo $anyDevMostMasteredGame['Mastered'] . " - ";
-                echo GetGameAndTooltipDiv($anyDevMostMasteredGame['ID'], $anyDevMostMasteredGame['Title'], $anyDevMostMasteredGame['GameIcon'], $anyDevMostMasteredGame['ConsoleName'], false, 32);
+                echo gameAvatar($anyDevMostMasteredGame);
             } else {
                 echo "N/A";
             }
@@ -776,8 +791,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Completed Awards:</td><td>";
             if (!empty($anyDevUserMostCompleted)) {
                 echo $anyDevUserMostCompleted['Completed'] . " - ";
-                echo GetUserAndTooltipDiv($anyDevUserMostCompleted['User'], true);
-                echo GetUserAndTooltipDiv($anyDevUserMostCompleted['User'], false);
+                echo userAvatar($anyDevUserMostCompleted['User']);
             } else {
                 echo "N/A";
             }
@@ -787,8 +801,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Mastered Awards:</td><td>";
             if (!empty($anyDevUserMostMastered)) {
                 echo $anyDevUserMostMastered['Mastered'] . " - ";
-                echo GetUserAndTooltipDiv($anyDevUserMostMastered['User'], true);
-                echo GetUserAndTooltipDiv($anyDevUserMostMastered['User'], false);
+                echo userAvatar($anyDevUserMostMastered['User']);
             } else {
                 echo "N/A";
             }
@@ -828,7 +841,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Easiest Game by Retro Ratio:</td><td>";
             if (!empty($majorityDevEasiestGame)) {
                 echo number_format($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-                echo GetGameAndTooltipDiv($majorityDevEasiestGame['ID'], $majorityDevEasiestGame['Title'], $majorityDevEasiestGame['GameIcon'], $majorityDevEasiestGame['ConsoleName'], false, 32);
+                echo gameAvatar($majorityDevEasiestGame);
                 echo "</br>" . $majorityDevEasiestGame['MyAchievements'] . " of " . $majorityDevEasiestGame['NumAchievements'] . " Achievements Created";
             } else {
                 echo "N/A";
@@ -839,7 +852,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Hardest Game by Retro Ratio:</td><td>";
             if (!empty($majorityDevHardestGame)) {
                 echo number_format($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-                echo GetGameAndTooltipDiv($majorityDevHardestGame['ID'], $majorityDevHardestGame['Title'], $majorityDevHardestGame['GameIcon'], $majorityDevHardestGame['ConsoleName'], false, 32);
+                echo gameAvatar($majorityDevHardestGame);
                 echo "</br>" . $majorityDevHardestGame['MyAchievements'] . " of " . $majorityDevHardestGame['NumAchievements'] . " Achievements Created";
             } else {
                 echo "N/A";
@@ -868,7 +881,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Most Completed Game:</td><td>";
             if (!empty($majorityDevMostCompletedGame)) {
                 echo $majorityDevMostCompletedGame['Completed'] . " - ";
-                echo GetGameAndTooltipDiv($majorityDevMostCompletedGame['ID'], $majorityDevMostCompletedGame['Title'], $majorityDevMostCompletedGame['GameIcon'], $majorityDevMostCompletedGame['ConsoleName'], false, 32);
+                echo gameAvatar($majorityDevMostCompletedGame);
             } else {
                 echo "N/A";
             }
@@ -878,7 +891,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Most Mastered Game:</td><td>";
             if (!empty($majorityDevMostMasteredGame)) {
                 echo $majorityDevMostMasteredGame['Mastered'] . " - ";
-                echo GetGameAndTooltipDiv($majorityDevMostMasteredGame['ID'], $majorityDevMostMasteredGame['Title'], $majorityDevMostMasteredGame['GameIcon'], $majorityDevMostMasteredGame['ConsoleName'], false, 32);
+                echo gameAvatar($majorityDevMostMasteredGame);
             } else {
                 echo "N/A";
             }
@@ -888,8 +901,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Completed Awards:</td><td>";
             if (!empty($majorityDevUserMostCompleted)) {
                 echo $majorityDevUserMostCompleted['Completed'] . " - ";
-                echo GetUserAndTooltipDiv($majorityDevUserMostCompleted['User'], true);
-                echo GetUserAndTooltipDiv($majorityDevUserMostCompleted['User'], false);
+                echo userAvatar($majorityDevUserMostCompleted['User']);
             } else {
                 echo "N/A";
             }
@@ -899,8 +911,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Mastered Awards:</td><td>";
             if (!empty($majorityDevUserMostMastered)) {
                 echo $majorityDevUserMostMastered['Mastered'] . " - ";
-                echo GetUserAndTooltipDiv($majorityDevUserMostMastered['User'], true);
-                echo GetUserAndTooltipDiv($majorityDevUserMostMastered['User'], false);
+                echo userAvatar($majorityDevUserMostMastered['User']);
             } else {
                 echo "N/A";
             }
@@ -940,7 +951,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Easiest Game by Retro Ratio:</td><td>";
             if (!empty($onlyDevEasiestGame)) {
                 echo number_format($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-                echo GetGameAndTooltipDiv($onlyDevEasiestGame['ID'], $onlyDevEasiestGame['Title'], $onlyDevEasiestGame['GameIcon'], $onlyDevEasiestGame['ConsoleName'], false, 32);
+                echo gameAvatar($onlyDevEasiestGame);
                 echo "</br>" . $onlyDevEasiestGame['MyAchievements'] . " of " . $onlyDevEasiestGame['NumAchievements'] . " Achievements Created";
             } else {
                 echo "N/A";
@@ -951,7 +962,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Hardest Game by Retro Ratio:</td><td>";
             if (!empty($onlyDevHardestGame)) {
                 echo number_format($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-                echo GetGameAndTooltipDiv($onlyDevHardestGame['ID'], $onlyDevHardestGame['Title'], $onlyDevHardestGame['GameIcon'], $onlyDevHardestGame['ConsoleName'], false, 32);
+                echo gameAvatar($onlyDevHardestGame);
                 echo "</br>" . $onlyDevHardestGame['MyAchievements'] . " of " . $onlyDevHardestGame['NumAchievements'] . " Achievements Created";
             } else {
                 echo "N/A";
@@ -980,7 +991,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Most Completed Game:</td><td>";
             if (!empty($onlyDevMostCompletedGame)) {
                 echo $onlyDevMostCompletedGame['Completed'] . " - ";
-                echo GetGameAndTooltipDiv($onlyDevMostCompletedGame['ID'], $onlyDevMostCompletedGame['Title'], $onlyDevMostCompletedGame['GameIcon'], $onlyDevMostCompletedGame['ConsoleName'], false, 32);
+                echo gameAvatar($onlyDevMostCompletedGame);
             } else {
                 echo "N/A";
             }
@@ -990,7 +1001,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Most Mastered Game:</td><td>";
             if (!empty($onlyDevMostMasteredGame)) {
                 echo $onlyDevMostMasteredGame['Mastered'] . " - ";
-                echo GetGameAndTooltipDiv($onlyDevMostMasteredGame['ID'], $onlyDevMostMasteredGame['Title'], $onlyDevMostMasteredGame['GameIcon'], $onlyDevMostMasteredGame['ConsoleName'], false, 32);
+                echo gameAvatar($onlyDevMostMasteredGame);
             } else {
                 echo "N/A";
             }
@@ -1000,8 +1011,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Completed Awards:</td><td>";
             if (!empty($onlyDevUserMostCompleted)) {
                 echo $onlyDevUserMostCompleted['Completed'] . " - ";
-                echo GetUserAndTooltipDiv($onlyDevUserMostCompleted['User'], true);
-                echo GetUserAndTooltipDiv($onlyDevUserMostCompleted['User'], false);
+                echo userAvatar($onlyDevUserMostCompleted['User']);
             } else {
                 echo "N/A";
             }
@@ -1011,8 +1021,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User with Most Mastered Awards:</td><td>";
             if (!empty($onlyDevUserMostMastered)) {
                 echo $onlyDevUserMostMastered['Mastered'] . " - ";
-                echo GetUserAndTooltipDiv($onlyDevUserMostMastered['User'], true);
-                echo GetUserAndTooltipDiv($onlyDevUserMostMastered['User'], false);
+                echo userAvatar($onlyDevUserMostMastered['User']);
             } else {
                 echo "N/A";
             }
@@ -1061,12 +1070,12 @@ RenderContentStart("$dev's Developer Stats");
 
             // Shortest achievement by memory length
             echo "<tr><td>Shortest Achievement by Memory Length:</td><td>" . $shortestMemAchievement['MemLength'] . " - ";
-            echo GetAchievementAndTooltipDiv($shortestMemAchievement['ID'], $shortestMemAchievement['Title'], $shortestMemAchievement['Description'], $shortestMemAchievement['Points'], $shortestMemAchievement['GameTitle'], $shortestMemAchievement['BadgeName'], true, false, '', 32);
+            echo achievementAvatar($shortestMemAchievement);
             echo "</td></tr>";
 
             // Longest achievement by memory length
             echo "<tr><td>Longest Achievement by Memory Length:</td><td>" . $longestMemAchievement['MemLength'] . " - ";
-            echo GetAchievementAndTooltipDiv($longestMemAchievement['ID'], $longestMemAchievement['Title'], $longestMemAchievement['Description'], $longestMemAchievement['Points'], $longestMemAchievement['GameTitle'], $longestMemAchievement['BadgeName'], true, false, '', 32);
+            echo achievementAvatar($longestMemAchievement);
             echo "</td></tr>";
 
             // Any Development - Average achievement count per game
@@ -1112,8 +1121,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User Who Obtained the Most Achievements:</td><td>";
             if (!empty($mostAchievementObtainer)) {
                 echo $mostAchievementObtainer['SoftcoreCount'] . " <b>(" . $mostAchievementObtainer['HardcoreCount'] . ")</b> - ";
-                echo GetUserAndTooltipDiv($mostAchievementObtainer['User'], true);
-                echo GetUserAndTooltipDiv($mostAchievementObtainer['User'], false);
+                echo userAvatar($mostAchievementObtainer['User']);
             } else {
                 echo "N/A";
             }
@@ -1121,22 +1129,22 @@ RenderContentStart("$dev's Developer Stats");
 
             // Easiest achievement by retro ratio
             echo "<tr><td>Easiest Achievement by Retro Ratio:</td><td>" . number_format($easiestAchievement['TrueRatio'] / $easiestAchievement['Points'], 2, '.', '') . " - ";
-            echo GetAchievementAndTooltipDiv($easiestAchievement['ID'], $easiestAchievement['Title'], $easiestAchievement['Description'], $easiestAchievement['Points'], $easiestAchievement['GameTitle'], $easiestAchievement['BadgeName'], true, false, '', 32);
+            echo achievementAvatar($easiestAchievement);
             echo "</td></tr>";
 
             // Hardest achievement by retro ratio
             echo "<tr><td>Hardest Achievement by Retro Ratio:</td><td>" . number_format($hardestAchievement['TrueRatio'] / $hardestAchievement['Points'], 2, '.', '') . " - ";
-            echo GetAchievementAndTooltipDiv($hardestAchievement['ID'], $hardestAchievement['Title'], $hardestAchievement['Description'], $hardestAchievement['Points'], $hardestAchievement['GameTitle'], $hardestAchievement['BadgeName'], true, false, '', 32);
+            echo achievementAvatar($hardestAchievement);
             echo "</td></tr>";
 
             // First achievement created
             echo "<tr><td>First Achievement Created:</td><td>" . date("d M, Y H:i", strtotime($firstAchievement['DateCreated'])) . " - ";
-            echo GetAchievementAndTooltipDiv($firstAchievement['ID'], $firstAchievement['Title'], $firstAchievement['Description'], $firstAchievement['Points'], $firstAchievement['GameTitle'], $firstAchievement['BadgeName'], true, false, '', 32);
+            echo achievementAvatar($firstAchievement);
             echo "</td></tr>";
 
             // Latest achievement created
             echo "<tr><td>Latest Achievement Created:</td><td>" . date("d M, Y H:i", strtotime($lastAchievement['DateCreated'])) . " - ";
-            echo GetAchievementAndTooltipDiv($lastAchievement['ID'], $lastAchievement['Title'], $lastAchievement['Description'], $lastAchievement['Points'], $lastAchievement['GameTitle'], $lastAchievement['BadgeName'], true, false, '', 32);
+            echo achievementAvatar($lastAchievement);
             echo "</td></tr><tr height='10px'></td></tr>";
             echo "</tbody></table>";
 
@@ -1151,11 +1159,12 @@ RenderContentStart("$dev's Developer Stats");
             for ($i = 0; $i < count($recentlyObtainedAchievements) && $rowCount < ($maxRecentAchievements / 2); $i++) {
                 $skipNextEntry = false;
                 echo "<tr><td width='35%'>";
-                echo GetAchievementAndTooltipDiv($recentlyObtainedAchievements[$i]['AchievementID'], $recentlyObtainedAchievements[$i]['Title'], $recentlyObtainedAchievements[$i]['Description'], $recentlyObtainedAchievements[$i]['Points'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['BadgeName'], true, false, '', 32);
+                echo achievementAvatar($recentlyObtainedAchievements[$i]);
 
                 // Check the next entry for the same achievement ID and time to see if SC and HC were earned at the same time
                 // Only display row for Hardcore if so.
-                if ($recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User'] &&
+                if ($i + 1 < count($recentlyObtainedAchievements) &&
+                    $recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User'] &&
                     $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date'] &&
                     $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID']) {
                     echo " (Hardcore!)";
@@ -1163,11 +1172,11 @@ RenderContentStart("$dev's Developer Stats");
                 } elseif ($recentlyObtainedAchievements[$i]['HardcoreMode'] == 1) {
                     echo " (Hardcore!)";
                 }
+
                 echo "</td><td width='35%'>";
-                echo GetGameAndTooltipDiv($recentlyObtainedAchievements[$i]['GameID'], $recentlyObtainedAchievements[$i]['GameTitle'], $recentlyObtainedAchievements[$i]['GameIcon'], $recentlyObtainedAchievements[$i]['ConsoleName'], false, 32);
+                echo gameAvatar($recentlyObtainedAchievements[$i]);
                 echo "</td><td width='20%'>";
-                echo GetUserAndTooltipDiv($recentlyObtainedAchievements[$i]['User'], true);
-                echo GetUserAndTooltipDiv($recentlyObtainedAchievements[$i]['User'], false);
+                echo userAvatar($recentlyObtainedAchievements[$i]['User']);
                 echo "</td><td width='10%'>";
                 echo $recentlyObtainedAchievements[$i]['Date'];
                 echo "</td></tr>";
@@ -1202,7 +1211,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<table><tbody>";
             foreach ($codeNotes as $game) {
                 echo "<tr><td width='51%'>";
-                echo GetGameAndTooltipDiv($game['GameID'], $game['GameTitle'], $game['GameIcon'], $game['ConsoleName'], false, 32);
+                echo gameAvatar($game);
                 echo "</td><td width='36%'>";
                 echo $game['NoteCount'] . " (" . number_format($game['NoteCount'] / $game['TotalNotes'] * 100, 2, '.', '') . "%)";
                 echo "</td><td>";
@@ -1220,25 +1229,50 @@ RenderContentStart("$dev's Developer Stats");
             echo "<table><tbody>";
 
             // Total tickets created
-            echo "<tr><td width='50%'>Total Tickets:</td><td>" . $userTickets['total'] . " (" . $userTickets['open'] . " Open - " . $userTickets['closed'] . " Closed - " . $userTickets['resolved'] . " Resolved)</td></tr>";
-
-            // Current ticket ratio
-            echo "<tr><td width='50%'>Current Ticket Ratio:</td><td>" . number_format($userTickets['open'] / $achievementCount * 100, 2, '.', '') . "%</td></tr>";
-
-            // Total ticket ratio
-            echo "<tr><td width='50%'>Total Ticket Ratio:</td><td>" . number_format($userTickets['total'] / $achievementCount * 100, 2, '.', '') . "%</td></tr>";
-
-            // Tickers per unique achievement
-            echo "<tr><td width='50%'>Tickets per Unique Achievements:</td><td>" . $userTickets['uniqueTotal'] . " (" . $userTickets['uniqueOpen'] . " Open - " . $userTickets['uniqueClosed'] . " Closed - " . $userTickets['uniqueResolved'] . " Resolved)</td></tr>";
+            echo "<tr><td width='50%'>Total Tickets:</td><td>" . $userTickets['total'];
+            $parts = [];
+            if ($userTickets['open'] > 0) {
+                $parts[] = $userTickets['open'] . " Open";
+            }
+            if ($userTickets['request'] > 0) {
+                $parts[] = $userTickets['request'] . " Request";
+            }
+            if ($userTickets['closed'] > 0) {
+                $parts[] = $userTickets['closed'] . " Closed";
+            }
+            if ($userTickets['resolved'] > 0) {
+                $parts[] = $userTickets['resolved'] . " Resolved";
+            }
+            if (count($parts) > 0) {
+                echo ' (' . implode(' - ', $parts) . ')';
+            }
+            echo '</td>';
 
             // Percent of unique achievements with tickets
-            echo "<tr><td width='50%'>Percent of Unique Achievements with Tickets:</td><td>" . number_format($userTickets['uniqueTotal'] / $achievementCount * 100, 2, '.', '') . "%</td></tr>";
+            echo "<tr><td width='50%'>Unique Achievements with Open/Resolved Tickets:</td><td>" . $userTickets['uniqueValid'] . ' (';
+            $uniqueAchievementTicketRatio = $userTickets['uniqueValid'] / $achievementCount * 100;
+            $colored = false;
+            if ($uniqueAchievementTicketRatio > 40) {
+                echo "<font color='red'>";
+                $colored = true;
+            } elseif ($uniqueAchievementTicketRatio > 30) {
+                echo "<font color='orange'>";
+                $colored = true;
+            } elseif ($uniqueAchievementTicketRatio < 5) {
+                echo "<font color='green'>";
+                $colored = true;
+            }
+            echo number_format($uniqueAchievementTicketRatio, 2, '.', '') . "%";
+            if ($colored) {
+                echo "</font>";
+            }
+            echo ")</td></tr>";
 
             // Game with most tickets
             echo "<tr><td>Game with Most Tickets:</td><td>";
             if ($mostTicketedGame !== null) {
                 echo $mostTicketedGame['TicketCount'] . " - ";
-                echo GetGameAndTooltipDiv($mostTicketedGame['GameID'], $mostTicketedGame['GameTitle'], $mostTicketedGame['GameIcon'], $mostTicketedGame['ConsoleName'], false, 32);
+                echo gameAvatar($mostTicketedGame);
             } else {
                 echo "N/A";
             }
@@ -1248,7 +1282,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>Achievement with Most Tickets:</td><td>";
             if ($mostTicketedAchievement !== null) {
                 echo $mostTicketedAchievement['TicketCount'] . " - ";
-                echo GetAchievementAndTooltipDiv($mostTicketedAchievement['AchievementID'], $mostTicketedAchievement['AchievementTitle'], $mostTicketedAchievement['AchievementDescription'], $mostTicketedAchievement['AchievementPoints'], $mostTicketedAchievement['GameTitle'], $mostTicketedAchievement['AchievementBadge'], true);
+                echo achievementAvatar($mostTicketedAchievement);
             } else {
                 echo "N/A";
             }
@@ -1258,67 +1292,25 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td>User Who Created the Most Tickets for $dev:</td><td>";
             if ($mostTicketCreator !== null) {
                 echo $mostTicketCreator['TicketCount'] . " - ";
-                echo GetUserAndTooltipDiv($mostTicketCreator['TicketCreator'], true);
-                echo GetUserAndTooltipDiv($mostTicketCreator['TicketCreator'], false);
+                echo userAvatar($mostTicketCreator['TicketCreator']);
             } else {
                 echo "N/A";
             }
             echo "</td></tr>";
 
-            // Tickets closed/resolved for other users
-            echo "<tr><td>Tickets Closed/Resolved for Others:</td><td>" . $closedResolvedTicketInfo['Count'] . " (" . $closedResolvedTicketInfo['ClosedCount'] . " Closed - " . $closedResolvedTicketInfo['ResolvedCount'] . " Resolved)</td></tr>";
-
-            // Users you have closed the most tickets for
-            echo "<tr><td>User $dev Has Closed the Most Tickets For:</td><td>";
-            if ($closedResolvedTicketInfo['ClosedCount'] > 0) {
-                echo $closedResolvedTicketInfo['ClosedAuthorCount'] . " - ";
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ClosedAuthor'], true);
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ClosedAuthor'], false);
-            } else {
-                echo "N/A";
-            }
-            echo "</td></tr>";
+            // Tickets resolved for other users
+            echo "<tr><td>Tickets Resolved for Others:</td><td>" . $closedResolvedTicketInfo['ResolvedCount'] . "</td></tr>";
 
             // Users you have resolved the most tickets for
             echo "<tr><td>User $dev Has Resolved the Most Tickets For:</td><td>";
             if ($closedResolvedTicketInfo['ResolvedCount'] > 0) {
                 echo $closedResolvedTicketInfo['ResolvedAuthorCount'] . " - ";
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ResolvedAuthor'], true);
-                echo GetUserAndTooltipDiv($closedResolvedTicketInfo['ResolvedAuthor'], false);
+                echo userAvatar($closedResolvedTicketInfo['ResolvedAuthor']);
             } else {
                 echo "N/A";
             }
             echo "</td></tr>";
 
-            // Total Ticket Karma and +/-
-            echo "<tr><td>Ticket Karma (+/-):</td><td>" . number_format($totalTicketPlusMinusRatio, 2, '.', '');
-            if ($totalTicketPlusMinus > 0) {
-                echo " (<font color='green'>" . $totalTicketPlusMinus . "</font>)</td></tr>";
-            } elseif ($totalTicketPlusMinus < 0) {
-                echo " (<font color='red'>" . $totalTicketPlusMinus . "</font>)</td></tr>";
-            } else {
-                echo " (" . $totalTicketPlusMinus . "</font>)</td></tr>";
-            }
-
-            // Closed Ticket Karma and +/-
-            echo "<tr><td>Closed Ticket Karma (+/-):</td><td>" . number_format($closedTicketPlusMinusRatio, 2, '.', '');
-            if ($closedTicketPlusMinus > 0) {
-                echo " (<font color='green'>" . $closedTicketPlusMinus . "</font>)</td></tr>";
-            } elseif ($closedTicketPlusMinus < 0) {
-                echo " (<font color='red'>" . $closedTicketPlusMinus . "</font>)</td></tr>";
-            } else {
-                echo " (" . $closedTicketPlusMinus . "</font>)</td></tr>";
-            }
-
-            // Resolved Ticket Karma and +/-
-            echo "<tr><td>Resolved Ticket Karma (+/-):</td><td>" . number_format($resolvedTicketPlusMinusRatio, 2, '.', '');
-            if ($resolvedTicketPlusMinus > 0) {
-                echo " (<font color='green'>" . $resolvedTicketPlusMinus . "</font>)</td></tr>";
-            } elseif ($resolvedTicketPlusMinus < 0) {
-                echo " (<font color='red'>" . $resolvedTicketPlusMinus . "</font>)</td></tr>";
-            } else {
-                echo " (" . $resolvedTicketPlusMinus . "</font>)</td></tr>";
-            }
             echo "</table></tbody>";
         }
         ?>

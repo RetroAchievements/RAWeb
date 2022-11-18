@@ -19,7 +19,7 @@ if (empty($dataOut)) {
     abort(404);
 }
 
-$achievementTitle = $dataOut['AchievementTitle'];
+$achievementTitle = $dataOut['Title'];
 $desc = $dataOut['Description'];
 $achFlags = (int) $dataOut['Flags'];
 $achPoints = (int) $dataOut['Points'];
@@ -34,7 +34,7 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
-$isSoleAuthor = false;
+$isAuthor = $user == $author;
 
 $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
@@ -55,11 +55,6 @@ $numPossibleWinners = 0;
 $numRecentWinners = 0;
 
 getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
-
-// Determine if the logged in user is the sole author of the set
-if ($permissions >= Permissions::JuniorDeveloper && isset($user)) {
-    $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
-}
 
 $dateWonLocal = "";
 foreach ($winnerInfo as $userObject) {
@@ -84,10 +79,11 @@ $numArticleComments = getArticleComments(ArticleType::Achievement, $achievementI
 
 getCodeNotes($gameID, $codeNotes);
 
-RenderOpenGraphMetadata("$achievementTitleRaw in $gameTitleRaw ($consoleName)", "achievement", media_asset("/Badge/$badgeName" . ".png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
-RenderContentStart($achievementTitleRaw);
+$pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
+RenderOpenGraphMetadata($pageTitle, "achievement", media_asset("/Badge/$badgeName.png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
+RenderContentStart($pageTitle);
 ?>
-<?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isSoleAuthor && $achFlags === AchievementType::Unofficial)): ?>
+<?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
     <script>
     function updateAchievementDetails() {
         showStatusMessage('Updating...');
@@ -225,7 +221,7 @@ RenderContentStart($achievementTitleRaw);
         if ($achFlags === AchievementType::Unofficial) {
             echo "<b>Unofficial Achievement</b><br>";
         }
-        echo "Created by " . GetUserAndTooltipDiv($author, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+        echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         echo "</small>";
         echo "</p>";
 
@@ -259,7 +255,7 @@ RenderContentStart($achievementTitleRaw);
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
 
-            if ($permissions >= Permissions::Developer || ($isSoleAuthor && $permissions >= Permissions::JuniorDeveloper && $achFlags === AchievementType::Unofficial)) {
+            if ($permissions >= Permissions::Developer || $isAuthor) {
                 echo "<div>Update achievement details:</div>";
                 echo "<table><tbody>";
                 echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='64'></td></tr>";
@@ -366,7 +362,7 @@ RenderContentStart($achievementTitleRaw);
 
         echo "</div>"; // achievement
 
-        /**
+        /*
          * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementUnlocks instead
          */
         echo "<div>";
@@ -385,10 +381,10 @@ RenderContentStart($achievementTitleRaw);
                 $niceDateWon = date("d M, Y H:i", strtotime($userObject['DateAwarded']));
                 echo "<tr>";
                 echo "<td class='w-[32px]'>";
-                echo GetUserAndTooltipDiv($userWinner, true);
+                echo userAvatar($userWinner, label: false);
                 echo "</td>";
                 echo "<td>";
-                echo GetUserAndTooltipDiv($userWinner, false);
+                echo userAvatar($userWinner, icon: false);
                 echo "</td>";
                 echo "<td>";
                 if ($userObject['HardcoreMode']) {

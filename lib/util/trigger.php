@@ -78,9 +78,12 @@ function parseOperand($mem)
 
                 $value = substr($mem, 1, $count - 1); // ignore 'f'
                 $mem = substr($mem, $count);
+
                 return [$type, $size, $value, $mem];
 
-            default: $size = $mem[1]; break;
+            default:
+                $size = $mem[1];
+                break;
         }
 
         $mem = substr($mem, 2);
@@ -96,6 +99,7 @@ function parseOperand($mem)
 
         $value = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
         $mem = substr($mem, $count);
+
         return [$type, $size, $value, $mem];
     } else {
         $type = 'Value';
@@ -123,8 +127,13 @@ function parseOperand($mem)
             }
         }
 
-        $value = '0x' . str_pad(dechex((int) substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
+        $padded = str_pad(dechex((int) substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
+        if (strlen($padded) > 8) {
+            $padded = substr($padded, -8);
+        }
+        $value = '0x' . $padded;
         $mem = substr($mem, $count);
+
         return [$type, $size, $value, $mem];
     }
 
@@ -140,6 +149,7 @@ function parseOperand($mem)
 
     $address = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
     $mem = substr($mem, $count);
+
     return [$type, $size, $address, $mem];
 }
 
@@ -238,6 +248,10 @@ function parseCondition($mem)
 
 function getNoteForAddress($memNotes, $address)
 {
+    // $memNotes[x]['Address'] is formatted to 6 hex digits: "0x%06x"
+    // regenerate whatever we pulled out of the logic to match this expectation
+    $address = sprintf("0x%06x", hexdec($address));
+
     foreach ($memNotes as $nextMemNote) {
         if ($nextMemNote['Address'] === $address) {
             return $nextMemNote['Note'];
@@ -249,19 +263,19 @@ function getNoteForAddress($memNotes, $address)
 
 function getAchievementPatchReadableHTML($mem, $memNotes)
 {
-    $tableHeader = '
+    $tableHeader = "
     <tr>
-      <th>ID</th>
-      <th>Flag</th>
-      <th>Type</th>
-      <th>Size</th>
-      <th>Memory</th>
-      <th>Cmp</th>
-      <th>Type</th>
-      <th>Size</th>
-      <th>Mem/Val</th>
-      <th>Hits</th>
-    </tr>';
+      <th class='whitespace-nowrap'>ID</th>
+      <th class='whitespace-nowrap'>Flag</th>
+      <th class='whitespace-nowrap'>Type</th>
+      <th class='whitespace-nowrap'>Size</th>
+      <th class='whitespace-nowrap'>Memory</th>
+      <th class='whitespace-nowrap'>Cmp</th>
+      <th class='whitespace-nowrap'>Type</th>
+      <th class='whitespace-nowrap'>Size</th>
+      <th class='whitespace-nowrap'>Mem/Val</th>
+      <th class='whitespace-nowrap'>Hits</th>
+    </tr>";
 
     $res = "\n<table>";
 
@@ -295,11 +309,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                 $lTooltip = " class=\"cursor-help\" title=\"" . hexdec($lMemory) . "\"";
             }
 
-            $res .= "\n<tr>\n  <td>" . ($j + 1) . "</td>";
-            $res .= "\n  <td> " . $flag . " </td>";
-            $res .= "\n  <td> " . $lType . " </td>";
-            $res .= "\n  <td> " . $lSize . " </td>";
-            $res .= "\n  <td" . $lTooltip . "> " . $lMemory . " </td>";
+            $res .= "\n<tr>\n  <td class='whitespace-nowrap'>" . ($j + 1) . "</td>";
+            $res .= "\n  <td class='whitespace-nowrap'> " . $flag . " </td>";
+            $res .= "\n  <td class='whitespace-nowrap'> " . $lType . " </td>";
+            $res .= "\n  <td class='whitespace-nowrap'> " . $lSize . " </td>";
+            $res .= "\n  <td" . $lTooltip . " class='whitespace-nowrap'> " . $lMemory . " </td>";
             if (!$cmp) {
                 $res .= "\n  <td colspan=5 style='text-align: center'> </td>";
             } else {
@@ -314,11 +328,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                     $rTooltip = " class=\"cursor-help\" title=\"" . hexdec($rMemVal) . "\"";
                 }
 
-                $res .= "\n  <td> " . htmlspecialchars($cmp) . " </td>";
-                $res .= "\n  <td> " . $rType . " </td>";
-                $res .= "\n  <td> " . $rSize . " </td>";
-                $res .= "\n  <td" . $rTooltip . "> " . $rMemVal . " </td>";
-                $res .= "\n  <td> (" . $hits . ") </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> " . htmlspecialchars($cmp) . " </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> " . $rType . " </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> " . $rSize . " </td>";
+                $res .= "\n  <td" . $rTooltip . " class='whitespace-nowrap'> " . $rMemVal . " </td>";
+                $res .= "\n  <td class='whitespace-nowrap'> (" . $hits . ") </td>";
             }
             $res .= "\n</tr>\n";
         }
@@ -331,4 +345,50 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
     $res .= "\n</table>\n";
 
     return $res;
+}
+
+function ValueToTrigger(string $valueDef): string
+{
+    // if it contains a colon, it's already in a trigger format (i.e. M:0xH001234)
+    if (str_contains($valueDef, ':')) {
+        return $valueDef;
+    }
+
+    $result = '';
+
+    // regex to change "0xH001234*0.75" to "0xH001234*f0.75"
+    $float_replace_pattern = '/(.*)[\*](\d+)\.(.*)/';
+    $float_replace_replacement = '${1}*f${2}.${3}';
+
+    // convert max_of elements to alt groups
+    $parts = explode('$', $valueDef);
+    foreach ($parts as $part) {
+        if (count($parts) > 1) {
+            $result .= 'S';
+        }
+
+        // convert addition chain to AddSource chain with Measured
+        $clauses = explode('_', $part);
+        for ($i = 0; $i < count($clauses) - 1; $i++) {
+            $clause = preg_replace($float_replace_pattern, $float_replace_replacement, $clauses[$i]);
+            if (str_contains($clause, '*-')) {
+                $result .= 'B:' . str_replace('*-', '*', $clause) . '_';
+            } elseif (str_contains($clause, '*v-')) {
+                $result .= 'B:' . str_replace('*v-', '*', $clause) . '_';
+            } else {
+                $result .= 'A:' . $clause . '_';
+            }
+        }
+
+        $clause = preg_replace($float_replace_pattern, $float_replace_replacement, $clauses[count($clauses) - 1]);
+        if (str_contains($clause, '*-')) {
+            $result .= 'B:' . str_replace('*-', '*', $clause) . '_M:0';
+        } elseif (str_contains($clause, '*v-')) {
+            $result .= 'B:' . str_replace('*v-', '*', $clause) . '_M:0';
+        } else {
+            $result .= 'M:' . $clause;
+        }
+    }
+
+    return $result;
 }

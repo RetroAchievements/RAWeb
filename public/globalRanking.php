@@ -234,8 +234,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                     echo "<td>" . $rank . "</td>";
                 }
                 echo "<td>";
-                echo GetUserAndTooltipDiv($dataPoint['User'], true);
-                echo GetUserAndTooltipDiv($dataPoint['User'], false);
+                echo userAvatar($dataPoint['User']);
                 echo "</td>";
 
                 // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
@@ -301,8 +300,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                         }
                     }
                     echo "<td>";
-                    echo GetUserAndTooltipDiv($userData[0]['User'], true);
-                    echo GetUserAndTooltipDiv($userData[0]['User'], false);
+                    echo userAvatar($userData[0]['User']);
                     echo "</td>";
 
                     // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day

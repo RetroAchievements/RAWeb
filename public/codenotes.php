@@ -18,7 +18,7 @@ RenderContentStart('Code Notes');
 ?>
 <div id='mainpage'>
     <div id="fullcontainer">
-        <?php echo "Game: " . GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']); ?>
+        <?php echo "Game: " . gameAvatar($gameData); ?>
         <?php
         if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
             RenderCodeNotes($codeNotes, true);

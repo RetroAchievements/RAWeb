@@ -1,6 +1,7 @@
 <?php
 
 use RA\AchievementType;
+use RA\ClaimSetType;
 use RA\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -12,7 +13,7 @@ $fullModifyOK = $permissions >= Permissions::Developer;
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = $permissions == Permissions::JuniorDeveloper && checkIfSoleDeveloper($user, $gameID);
+$partialModifyOK = $permissions == Permissions::JuniorDeveloper && (checkIfSoleDeveloper($user, $gameID) || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet));
 
 $achievementList = [];
 $gamesList = [];
@@ -102,8 +103,10 @@ function updateAchievementsTypeFlag(typeFlag) {
     }
 
     if ($gameIDSpecified) {
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 96);
-        echo "<br><br>";
+        if (!empty($gameData)) {
+            echo gameAvatar($gameData);
+            echo "<br><br>";
+        }
 
         if ($partialModifyOK || $fullModifyOK) {
             echo "<p align='justify'><b>Instructions:</b> This is the game's achievement list as displayed on the website or in the emulator. " .

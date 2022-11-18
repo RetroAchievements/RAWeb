@@ -46,9 +46,9 @@ function UpdateHashDetails(user, hash) {
         .done(function () {
             // Get comment date
             var date = new Date();
-            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
+            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + ' ' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td class="smalldate">' + dateStr + '</td><td></td><td>' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</td></tr>');
+            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td></td><td class="w-full" colspan="3"><div><span class="smalldate">' + dateStr + '</span></div><div style="word-break: break-word">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</div></td></tr>');
         });
 }
 
@@ -71,9 +71,9 @@ function UnlinkHash(user, gameID, hash, elem) {
 
             // Get comment date
             var date = new Date();
-            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + '<br>' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
+            var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + ' ' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td class="smalldate">' + dateStr + '</td><td></td><td>' + hash + ' unlinked by ' + user + '</td></tr>');
+            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td></td><td class="w-full" colspan="3"><div><span class="smalldate">' + dateStr + '</span></div><div style="word-break: break-word">' + hash + ' unlinked by ' + user + '</div></td></tr>');
         });
 }
 </script>
@@ -82,7 +82,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         <h2>Manage Hashes</h2>
 
         <?php
-        echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 64);
+        echo gameAvatar($gameData, iconSize: 64);
 
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
 
@@ -99,14 +99,14 @@ function UnlinkHash(user, gameID, hash, elem) {
 
             if (!empty($hashData['User'])) {
                 echo "<td style='width: 10%; white-space: nowrap'>";
-                echo GetUserAndTooltipDiv($hashData['User']);
+                echo userAvatar($hashData['User']);
                 echo "</td>";
             } else {
                 echo "<td style='width: 10%'></td>";
             }
 
-            echo "<td style='width: 60%'><input type='text' id='HASH_${hash}_Name' value='" . attributeEscape($hashData['Name'] ?? '') . "' style='width: 100%'></td>";
-            echo "<td style='width: 20%'><input type='text' id='HASH_${hash}_Labels' value='" . attributeEscape($hashData['Labels'] ?? '') . "' style='width: 100%'></td>";
+            echo "<td style='width: 60%'><input type='text' id='HASH_{$hash}_Name' value='" . attributeEscape($hashData['Name'] ?? '') . "' style='width: 100%'></td>";
+            echo "<td style='width: 20%'><input type='text' id='HASH_{$hash}_Labels' value='" . attributeEscape($hashData['Labels'] ?? '') . "' style='width: 100%'></td>";
             echo "<td style='width: 5%'><input type='submit' value='Update' onclick=\"UpdateHashDetails('$user', '$hash');\"></td>";
             echo "<td style='width: 5%'><input class='btnDelete' type='submit' value='Unlink' onclick=\"UnlinkHash('$user', '$gameID', '$hash', this);\"></td>";
         }

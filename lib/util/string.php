@@ -1,5 +1,8 @@
 <?php
 
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Facades\Validator;
+
 function sanitize_outputs(&...$outputs): void
 {
     foreach ($outputs as &$output) {
@@ -23,30 +26,14 @@ function attributeEscape(?string $input): string
     return str_replace('"', "&quot;", $input);
 }
 
-function isValidUsername($userTest): bool
+function isValidUsername($username): bool
 {
-    if (
-        empty($userTest)
-        || !ctype_alnum($userTest)
-        || mb_strlen($userTest) > 20
-        || mb_strlen($userTest) < 2
-    ) {
-        return false;
-    }
+    // Note: use request validation where applicable instead of checking the username manually
 
-    return true;
-}
-
-function rand_string($length): string
-{
-    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    $size = mb_strlen($chars);
-    $str = '';
-    for ($i = 0; $i < $length; $i++) {
-        $str .= $chars[random_int(0, $size - 1)];
-    }
-
-    return $str;
+    return Validator::make(
+        ['username' => $username],
+        ['username' => ['min:4', 'max:20', new CtypeAlnum()]]
+    )->passes();
 }
 
 function separateList(string $items): array

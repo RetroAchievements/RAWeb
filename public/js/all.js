@@ -115,79 +115,51 @@ function replaceAll(find, replace, str) {
 }
 
 var cardsCache = {};
-function loadCard(type, id) {
+
+function useCard(type, id, context = null, html = '') {
   var cardId = `tooltip_card_${type}_${id}`;
+
+  if (context) {
+    cardId += `_${context}`;
+  }
 
   if (cardsCache[cardId]) {
     return cardsCache[cardId];
   }
 
-  $.post('/request/card.php', {
-    type: type,
-    id: id,
-  })
-    .done(function (data) {
-      cardsCache[cardId] = data.html;
-      $(`#${cardId}`).html(data.html);
-    });
+  cardsCache[cardId] = html;
 
-  return `<div id="${cardId}">
+  return html;
+}
+
+function loadCard(type, id, context = null) {
+  var cardId = `tooltip_card_${type}_${id}`;
+
+  if (context) {
+    cardId += `_${context}`;
+  }
+
+  if (cardsCache[cardId]) {
+    return cardsCache[cardId];
+  }
+
+  cardsCache[cardId] = `<div id="${cardId}_yield">
     <div class="flex justify-center items-center" style="width: 30px; height: 30px">
         <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
     </div>
   </div>`;
-}
 
-function GetTooltipDiv(icon, header, body) {
-  var tooltipImageSize = 64;
-  var tooltip = '<div class=\'tooltip-body flex items-start\' style=\'max-width: 400px;\'>'
-    + '<img style=\'margin-right:5px\' src=\'' + icon + '\' width=\'' + tooltipImageSize + '\' height=\'' + tooltipImageSize + '\' />'
-    + '<div><b>' + header + '</b><br><span style=\'white-space: nowrap\'>' + body + '</span></div></div>';
-  tooltip = replaceAll('<', '&lt;', tooltip);
-  tooltip = replaceAll('>', '&gt;', tooltip);
-  tooltip = replaceAll('\'', '\\\'', tooltip);
-  tooltip = replaceAll('"', '&quot;', tooltip);
-  return tooltip;
-}
+  $.post('/request/card.php', {
+    type: type,
+    id: id,
+    context: context,
+  })
+    .done(function (data) {
+      cardsCache[cardId] = data.html;
+      $(`#${cardId}_yield`).html(data.html);
+    });
 
-function GetGameAndTooltipDiv(gameID, gameTitle, gameIcon, consoleName, imageInstead) {
-  var consoleStr = '(' + consoleName + ')';
-  var tooltip = GetTooltipDiv(mediaAsset(gameIcon), gameTitle, consoleStr);
-  var displayable = gameTitle + ' ' + consoleStr;
-  if (imageInstead) {
-    displayable = '<img alt="started playing ' + gameTitle
-      + '" title="Started playing ' + gameTitle + '" src=\'' + mediaAsset(gameIcon)
-      + '\' width=\'32\' height=\'32\' class=\'badgeimg\' loading=\'lazy\' />';
-  }
-  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
-    + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/game/' + gameID.toString() + '\'>'
-    + displayable
-    + '</a>'
-    + '</div>';
-}
-
-function GetUserAndTooltipDiv(user, hardcorePoints, softcorePoints, imageInstead, extraText) {
-  if (hardcorePoints > softcorePoints) {
-    points = 'Points: ' + hardcorePoints;
-  } else if (softcorePoints > 0) {
-    points = 'Softcore Points: ' + softcorePoints;
-  } else {
-    points = 'Points: 0';
-  }
-
-  var tooltip = GetTooltipDiv(mediaAsset('/UserPic/' + user + '.png'), user, points);
-  var displayable = user;
-  if (imageInstead) {
-    displayable = '<img src=\'' + mediaAsset('/UserPic/' + user + '.png') + '\' width=\'32\' height=\'32\' alt=\'' + user + '\' title=\'' + user
-      + '\' class=\'badgeimg\' loading=\'lazy\' />';
-  }
-  return '<div class=\'inline\' onmouseover="Tip(\'' + tooltip
-    + '\')" onmouseout="UnTip()" >'
-    + '<a href=\'/user/' + user + '\'>'
-    + displayable
-    + '</a>'
-    + '</div>';
+  return cardsCache[cardId];
 }
 
 function UpdateMailboxCount(messageCount) {
@@ -197,7 +169,6 @@ function UpdateMailboxCount(messageCount) {
 
 function reloadTwitchContainer(videoID) {
   var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
-  console.log(videoID);
   if (videoID && archiveURLs[videoID]) {
     var vidTitle = archiveTitles[videoID];
     var vidURL = archiveURLs[videoID];
@@ -296,7 +267,7 @@ $(function () {
 });
 
 function removeComment(artTypeID, artID, commentID) {
-  if (!window.confirm('Ary you sure you want to permanently delete this comment?')) {
+  if (!window.confirm('Are you sure you want to permanently delete this comment?')) {
     return false;
   }
 

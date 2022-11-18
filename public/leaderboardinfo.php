@@ -45,6 +45,29 @@ $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20, $commentData);
 
+function ExplainLeaderboardTrigger(string $name, string $triggerDef, array $codeNotes): void
+{
+    echo "<div class='devbox'>";
+    echo "<span onclick=\"$('#devbox{$name}content').toggle(); return false;\">$name ▼</span>";
+    echo "<div id='devbox{$name}content' style='display: none'>";
+
+    echo "<div>";
+
+    echo "<li>Mem:</li>";
+    echo "<code>" . htmlspecialchars($triggerDef) . "</code>";
+
+    if ($name === 'Value') {
+        $triggerDef = ValueToTrigger($triggerDef);
+    }
+
+    echo "<li>Mem explained:</li>";
+    echo "<code>" . getAchievementPatchReadableHTML($triggerDef, $codeNotes) . "</code>";
+    echo "</div>";
+
+    echo "</div>"; // devboxcontent
+    echo "</div>"; // devbox
+}
+
 RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
@@ -65,7 +88,7 @@ RenderContentStart('Leaderboard');
             echo "</div>";
 
             echo "<div style='float:left; padding: 4px;'>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, true, 96);
+            echo gameAvatar($lbData, label: false, iconSize: 96);
 
             echo "</div>";
             echo "<div>";
@@ -84,7 +107,7 @@ RenderContentStart('Leaderboard');
             if (is_null($lbAuthor)) {
                 echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
             } else {
-                echo "Created by " . GetUserAndTooltipDiv($lbAuthor, false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+                echo "Created by " . userAvatar($lbAuthor, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
             }
             echo "</small>";
             echo "</p>";
@@ -125,6 +148,32 @@ RenderContentStart('Leaderboard');
                     echo "</td></tr>";
                 }
                 echo "</div>";
+
+                echo "<br/>";
+
+                $memStart = "";
+                $memCancel = "";
+                $memSubmit = "";
+                $memValue = "";
+                $memChunks = explode("::", $lbMemory);
+                foreach ($memChunks as &$memChunk) {
+                    $part = substr($memChunk, 0, 4);
+                    if ($part == 'STA:') {
+                        $memStart = substr($memChunk, 4);
+                    } elseif ($part == 'CAN:') {
+                        $memCancel = substr($memChunk, 4);
+                    } elseif ($part == 'SUB:') {
+                        $memSubmit = substr($memChunk, 4);
+                    } elseif ($part == 'VAL:') {
+                        $memValue = substr($memChunk, 4);
+                    }
+                }
+
+                getCodeNotes($gameID, $codeNotes);
+                ExplainLeaderboardTrigger('Start', $memStart, $codeNotes);
+                ExplainLeaderboardTrigger('Cancel', $memCancel, $codeNotes);
+                ExplainLeaderboardTrigger('Submit', $memSubmit, $codeNotes);
+                ExplainLeaderboardTrigger('Value', $memValue, $codeNotes);
 
                 echo "</div>";
                 echo "</div>";
@@ -183,8 +232,7 @@ RenderContentStart('Leaderboard');
                 echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
                 echo "<td class='lb_user'>";
-                echo GetUserAndTooltipDiv($nextUser, true);
-                echo GetUserAndTooltipDiv($nextUser, false);
+                echo userAvatar($nextUser);
                 echo "</td>";
 
                 echo "<td class='lb_result'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";

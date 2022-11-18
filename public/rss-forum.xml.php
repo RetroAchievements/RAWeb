@@ -47,7 +47,10 @@ for ($i = 0; $i < $numPostsFound; $i++) {
     $article->appendChild($dom->createElement('link', $link));
     $article->appendChild($dom->createElement('description', htmlentities($payload)));
     $article->appendChild($dom->createElement('pubDate', $date));
-    // $article->appendChild( $dom->createElement( 'guid',  $nextData['CommentID'] ) );
+
+    $guid = $dom->createElement('guid', 'retroachievements:forum-post:' . $nextData['CommentID']);
+    $guid->setAttribute('isPermaLink', 'false');
+    $article->appendChild($guid);
 }
 
 return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);

@@ -19,7 +19,7 @@
         "aws/aws-sdk-php": "^3.235",
         "beyondcode/laravel-websockets": "^1.13",
         "codeat3/blade-pixelarticons": "^1.2",
-        "doctrine/dbal": "^2.13",
+        "doctrine/dbal": "^3.4",
         "graham-campbell/markdown": "^14.0",
         "guzzlehttp/guzzle": "^7.5",
         "jenssegers/optimus": "^1.1",

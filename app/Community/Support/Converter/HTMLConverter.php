@@ -68,7 +68,6 @@ class HTMLConverter extends Converter
         $this->text = preg_replace_callback(
             '%<a[^>]+>(.+?)</a>%iu',
             function ($matches) {
-
                 // Extracts the url.
                 if (preg_match('/\s*href\s*=\s*("([^"]*")|\'[^\']*\'|([^\'">\s]+))/iu', $matches[0], $others) === 1) {
                     $href = trim($others[1], '"');
@@ -97,7 +96,6 @@ class HTMLConverter extends Converter
         $this->text = preg_replace_callback(
             '/<img[^>]+>/iu',
             function ($matches) {
-
                 // Extracts the src.
                 if (preg_match('/\s*src\s*=\s*("([^"]*")|\'[^\']*\'|([^\'">\s]+))/iu', $matches[0], $others) === 1) {
                     $src = trim($others[1], '"');

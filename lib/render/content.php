@@ -46,17 +46,12 @@ function RenderActivePlayersComponent(): void
             </div>
             <div id='activeplayersbox' style='min-height: 54px'>
                 <table data-bind='hidden: isLoading'>
-                    <thead>
-                        <th>User</th>
-                        <th>Game</th>
-                        <th>Currently...</th>
-                    </thead>
                     <tbody>
                         <!-- ko foreach: filteredPlayers -->
                         <tr>
                             <td data-bind='html: playerHtml'></td>
                             <td data-bind='html: gameHtml'></td>
-                            <td data-bind='text: richPresence'></td>
+                            <td data-bind='text: richPresence' class="w-full"></td>
                         </tr>
                         <!-- /ko -->
 
@@ -84,58 +79,29 @@ function RenderActivePlayersComponent(): void
 function RenderAOTWComponent($achID, $forumTopicID): void
 {
     $achData = [];
-    if (!getAchievementMetadata($achID, $achData)) {
+    getAchievementMetadata($achID, $achData);
+
+    if (empty($achData)) {
         return;
     }
 
     echo "<div class='component'>";
     echo "<h3>Achievement of the Week</h3>";
 
-    /**
+    /*
      * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementOfTheWeek instead
      */
     echo "<div class='text-center'>";
 
-    $gameID = $achData['GameID'];
-    $gameTitle = $achData['GameTitle'];
-    $gameIcon = $achData['GameIcon'];
-    $consoleName = $achData['ConsoleName'];
-
-    $achID = $achData['AchievementID'];
-    $achTitle = $achData['AchievementTitle'];
-    $achDesc = $achData['Description'];
-    $achBadgeName = $achData['BadgeName'];
-    $achPoints = $achData['Points'];
-    $achTruePoints = $achData['TrueRatio'];
-
-    sanitize_outputs(
-        $gameTitle,
-        $consoleName,
-        $achTitle,
-        $achDesc,
-    );
-
     echo "<div>";
-    echo GetAchievementAndTooltipDiv($achID, $achTitle, $achDesc, $achPoints, $gameTitle, $achBadgeName, true);
+    echo achievementAvatar($achData);
     echo "</div>";
     echo "in";
     echo "<div>";
-    echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, false, 24);
+    echo gameAvatar($achData, iconSize: 24);
     echo "</div>";
     echo "<a class='btn' href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a>";
 
     echo "</div>";
     echo "</div>";
-}
-
-function RenderConsoleMessage(int $consoleId): void
-{
-    // PS2
-    if ($consoleId === 21) {
-        echo <<<HTML
-            <div class="mb-4">
-                <a href="/viewtopic.php?t=11108">⚠️️ Achievement developers are currently involved in a PlayStation 2 rollout. The planned launch date is October 1st, 2022 at 00:00 GMT! Click for more details. ⚠️</a>
-            </div>
-        HTML;
-    }
 }

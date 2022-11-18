@@ -13,6 +13,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
     $dbresult = s_mysql_query($query);
     if (!$dbresult) {
         log_sql_fail();
+
         return "error";
     }
 
@@ -109,7 +110,7 @@ function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
 
     // Manual sanitisation, as we need to call multiple functions (and include semicolons)
     settype($gameID, 'integer');
-    if (!ctype_alnum($user)) {
+    if (!isValidUsername($user)) {
         return 0;
     }
 

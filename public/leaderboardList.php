@@ -107,7 +107,7 @@ function ReloadLBPageByGame() {
     if (isset($gameData['ID'])) {
         echo "<div>";
         echo "Displaying leaderboards for: ";
-        echo GetGameAndTooltipDiv($gameData['ID'], $gameData['Title'], $gameData['ImageIcon'], $gameData['ConsoleName']);
+        echo gameAvatar($gameData);
         echo "</div>";
     }
 
@@ -262,7 +262,7 @@ function ReloadLBPageByGame() {
             echo "</td>";
 
             // echo "<td>";
-            // echo GetGameAndTooltipDiv( $gameID, $gameTitle, $gameIcon, $consoleName );
+            // echo gameAvatar($gameData);
             // echo "</td>";
 
             // echo "<td>";
@@ -281,7 +281,7 @@ function ReloadLBPageByGame() {
             $selected = $lbFormat == "TIME" ? "selected" : "";
             echo "<option value='TIME' $selected >Time (Frames)</option>";
             $selected = $lbFormat == "MILLISECS" ? "selected" : "";
-            echo "<option value='MILLISECS' $selected >Time (Milliseconds)</option>";
+            echo "<option value='MILLISECS' $selected >Time (Centiseconds)</option>";
             $selected = $lbFormat == "TIMESECS" ? "selected" : "";
             echo "<option value='TIMESECS' $selected >Time (Seconds)</option>";
             $selected = $lbFormat == "MINUTES" ? "selected" : "";
@@ -391,11 +391,11 @@ function ReloadLBPageByGame() {
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justImage: true);
+            echo gameAvatar($nextLB, label: false);
             echo "</td>";
 
             echo "<td>";
-            echo GetGameAndTooltipDiv($gameID, $gameTitle, $gameIcon, $consoleName, justText: true);
+            echo gameAvatar($nextLB, icon: false);
             echo "</td>";
 
             // echo "<td class='whitespace-nowrap'>";

@@ -47,7 +47,7 @@ function DoRequestError(string $error): JsonResponse
  * Early exit if we need a valid login
  */
 $credentialsOK = match ($requestType) {
-    /**
+    /*
      * Registration required and user=local
      */
     "achievementwondata",
@@ -62,7 +62,7 @@ $credentialsOK = match ($requestType) {
     "unlocks",
     "uploadachievement",
     "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
-    /**
+    /*
      * Anything else is public. Includes login
      */
     default => true,
@@ -73,7 +73,7 @@ if (!$credentialsOK) {
 }
 
 switch ($requestType) {
-    /**
+    /*
      * Login
      */
     case "login": // From App!
@@ -82,7 +82,7 @@ switch ($requestType) {
         $response = authenticateFromPasswordOrAppToken($user, $rawPass, $token);
         break;
 
-    /**
+    /*
      * Global, no permissions required
      */
     case "allprogress":
@@ -226,6 +226,10 @@ switch ($requestType) {
         $flags = (int) request()->input('f', 0);
         // $hardcore = (int) request()->input('h', 0); // not used
         $response['PatchData'] = GetPatchData($gameID, $flags, $user);
+        if (array_key_exists('Success', $response['PatchData'])) {
+            $response['Success'] = $response['PatchData']['Success']; // Passthru
+            unset($response['PatchData']['Success']);
+        }
         break;
 
     case "postactivity":

@@ -31,18 +31,18 @@ foreach ($newsData as $news) {
     $article = $xmlRoot->appendChild($article);
 
     $newsID = $news['ID'];
-    $newsDate = date("D, d M Y H:i:s O", $news['TimePosted']);
+    $newsDate = date("D, d M Y H:i:s O", strtotime($news['Timestamp']));
     $newsImage = $news['Image'];
     $newsAuthor = $news['Author'];
     $newsLink = config('app.url');
-    $newsTitle = "<![CDATA[" . htmlspecialchars($news['Title']) . "]]>";
+    $newsTitle = "<![CDATA[" . htmlspecialchars(strip_tags($news['Title'])) . "]]>";
 
     // Image first?
     $payload = "<a href='$newsLink'><img style='padding: 5px;' src='$newsImage' /></a>";
     $payload .= "<br>\r\n";
     $payload .= $news['Payload'];
 
-    $newsPayload = "<![CDATA[" . htmlspecialchars($payload) . "]]>";
+    $newsPayload = "<![CDATA[" . htmlspecialchars(strip_tags($payload)) . "]]>";
 
     // $newsPayload contains relative URLs, which need converting to absolute URLs
     $newsPayload = str_replace("href='/", "href='" . config('app.url') . "/", $newsPayload);
@@ -57,7 +57,10 @@ foreach ($newsData as $news) {
     $article->appendChild($dom->createElement('link', $newsLink));
     $article->appendChild($dom->createElement('description', htmlentities($newsPayload)));
     $article->appendChild($dom->createElement('pubDate', $newsDate));
-    // $article->appendChild( $dom->createElement( 'id', $newsID ) );
+
+    $guid = $dom->createElement('guid', 'retroachievements:news:' . $newsID);
+    $guid->setAttribute('isPermaLink', 'false');
+    $article->appendChild($guid);
 }
 
 return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);
