@@ -60,7 +60,8 @@ if ($propertyType === UserAction::LegendBadge) {
             $user . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
         );
     }
-        return back()->with('success', __('legacy.success.ok'));
+
+    return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($propertyType === UserAction::TrackedStatus) {

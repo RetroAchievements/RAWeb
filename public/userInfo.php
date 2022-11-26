@@ -445,7 +445,7 @@ RenderContentStart($userPage);
             echo "</td><td>";
             echo HasCertifiedLegendBadge($userPage) ? "Certified Legend" : "Not Yet Legendary";
             echo "</td></tr>";
-            
+
             echo "<tr><td class='text-right'>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
             echo csrf_field();
