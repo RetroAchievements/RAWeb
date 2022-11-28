@@ -568,6 +568,15 @@ RenderContentStart($pageTitle);
 
                 echo "</tr>";
 
+                $hashes = getHashListByGameID($gameID);
+                foreach ($hashes as $hash) {
+                    if (stripos($reportNotes, $hash['Hash']) !== false) {
+                        $replacement = "<a class='cursor-help' title='" .
+                            attributeEscape($hash['Name']) . "'>" . $hash['Hash'] . "</a>";
+                        $reportNotes = str_ireplace($hash['Hash'], $replacement, $reportNotes);
+                    }
+                }
+
                 echo "<tr>";
                 echo "<td>";
                 echo "Notes: ";
