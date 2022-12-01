@@ -41,18 +41,25 @@ function s_mysql_query($query): mysqli_result|bool
     $db = getMysqliConnection();
 
     if (sanitiseSQL($query)) {
-        $start = microtime(true);
-
-        $result = mysqli_query($db, $query);
-
-        $elapsed = round((microtime(true) - $start) * 1000, 2);
-
-        DB::connection()->logQuery($query, [], $elapsed);
-
-        return $result;
+        return s_mysql_sanitized_query($query);
     } else {
         return false;
     }
+}
+
+function s_mysql_sanitized_query($query): mysqli_result|bool
+{
+    $db = getMysqliConnection();
+
+    $start = microtime(true);
+
+    $result = mysqli_query($db, $query);
+
+    $elapsed = round((microtime(true) - $start) * 1000, 2);
+
+    DB::connection()->logQuery($query, [], $elapsed);
+
+    return $result;
 }
 
 /**

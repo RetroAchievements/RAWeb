@@ -91,7 +91,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
 
     $query = implode(' UNION ALL ', $parts) . " LIMIT $offset, $count";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = s_mysql_sanitized_query($query);
     if (!$dbResult) {
         log_sql_fail();
 
