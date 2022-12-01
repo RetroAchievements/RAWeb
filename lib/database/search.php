@@ -7,37 +7,44 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
 {
     sanitize_sql_inputs($searchQuery, $offset, $count);
 
+    $found_rows = 'SQL_CALC_FOUND_ROWS';
     $parts = [];
     if ($searchType == SearchType::Game || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT 'Game' AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target, CONCAT(gd.Title, ' (', c.Name, ')') as Title FROM GameData AS gd
+        SELECT $found_rows 'Game' AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target, CONCAT(gd.Title, ' (', c.Name, ')') as Title FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.Title LIKE '%$searchQuery%'
         GROUP BY gd.ID, gd.Title
         ORDER BY gd.Title)";
+
+        $found_rows = '';
     }
 
     if ($searchType == SearchType::Achievement || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT 'Achievement' AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target, ach.Title FROM Achievements AS ach
+        SELECT $found_rows 'Achievement' AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target, ach.Title FROM Achievements AS ach
         WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%' ORDER BY ach.Title)";
+
+        $found_rows = '';
     }
 
     if ($searchType == SearchType::User || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT 'User' AS Type,
+        SELECT $found_rows 'User' AS Type,
         ua.User AS ID,
         CONCAT( '/user/', ua.User ) AS Target,
         ua.User AS Title
         FROM UserAccounts AS ua
         WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
         ORDER BY ua.User)";
+
+        $found_rows = '';
     }
 
     if ($searchType == SearchType::Forum || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT 'Forum Comment' AS Type,
+        SELECT $found_rows 'Forum Comment' AS Type,
         ua.User AS ID,
         CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
         CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
@@ -49,11 +56,13 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         AND ft.RequiredPermissions <= '$permissions'
         GROUP BY ID, ftc.ID
         ORDER BY DateModified DESC)";
+
+        $found_rows = '';
     }
 
     if ($searchType == SearchType::Comment || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT 'Comment' AS Type, cua.User AS ID,
+        SELECT $found_rows 'Comment' AS Type, cua.User AS ID,
 
         CASE
             WHEN c.articletype=1 THEN CONCAT( '/game/', c.ArticleID )
@@ -76,11 +85,13 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         AND ua.UserWallActive AND ua.Deleted IS NULL
         AND c.articletype IN (1,2,3,5,7)
         ORDER BY c.Submitted DESC)";
+
+        $found_rows = '';
     }
 
     $query = implode(' UNION ALL ', $parts) . " LIMIT $offset, $count";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = s_mysql_sanitized_query($query);
     if (!$dbResult) {
         log_sql_fail();
 
