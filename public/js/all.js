@@ -19,7 +19,14 @@ $(document).ajaxError(function (event, xhr, settings, thrownError) {
   try {
     message = JSON.parse(xhr.responseText).message;
   } catch (exception) {
-    //
+    if (message.length === 0) {
+      try {
+        var html = $($.parseHTML(xhr.responseText));
+        message = html.filter('title').text();
+      } catch (exception2) {
+        message = 'Unknown error';
+      }
+    }
   }
   showStatusFailure(message);
 });

@@ -4,7 +4,7 @@ use RA\SearchType;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$searchQuery = requestInputSanitized('s', '');
+$searchQuery = request()->input('s') ?? '';
 $searchType = requestInputSanitized('t', SearchType::All, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 $maxCount = 50;
