@@ -52,6 +52,18 @@ if ($propertyType === UserAction::PatreonBadge) {
     return back()->with('success', __('legacy.success.ok'));
 }
 
+if ($propertyType === UserAction::LegendBadge) {
+    $hasBadge = HasCertifiedLegendBadge($targetUser);
+    SetCertifiedLegend($targetUser, !$hasBadge);
+        if (getAccountDetails($targetUser, $targetUserData)) {
+        addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
+            $user . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
+        );
+    }
+
+    return back()->with('success', __('legacy.success.ok'));
+}
+
 if ($propertyType === UserAction::TrackedStatus) {
     SetUserUntrackedStatus($targetUser, $value);
 
