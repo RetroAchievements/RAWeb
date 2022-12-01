@@ -81,11 +81,14 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
     $requests['total'] = 0;
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;
+    $requests['pointsForNext'] = 0;
+    $requests['maxSoftcoreReached'] = false;
     $points = 0;
     $maxSoftcoreThreshold = 10000; // Softcore points count towards requests up to 10000 points
 
     if (getPlayerPoints($user, $userPoints)) {
         $points += ($userPoints['RAPoints'] + min($userPoints['RASoftcorePoints'], $maxSoftcoreThreshold));
+        $requests['maxSoftcoreReached'] = ($userPoints['RASoftcorePoints'] >= $maxSoftcoreThreshold);
     }
 
     // logic behind the amount of requests based on player's score:
@@ -101,6 +104,12 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
         if ($pointsLeft >= $boundary) {
             $aboveBoundary = $pointsLeft - $boundary;
             $requests['total'] += floor($aboveBoundary / $chunk);
+
+            if ($requests['pointsForNext'] === 0) {
+                $nextThreshold = $boundary + (floor($aboveBoundary / $chunk) + 1) * $chunk;
+                $requests['pointsForNext'] = $nextThreshold - $pointsLeft;
+            }
+
             $pointsLeft = $boundary;
         }
     }

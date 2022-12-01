@@ -19,11 +19,11 @@ $permissions = 0; /* permissions only needed for searching forums */
 
 $results = [];
 if ($source == 'game') {
-    $order = [SearchType::Game, SearchType::Achievement, SearchType::User];
+    $order = [SearchType::Game];
 } elseif ($source == 'achievement') {
-    $order = [SearchType::Achievement, SearchType::Game, SearchType::User];
+    $order = [SearchType::Achievement];
 } elseif ($source == 'user' || $source == 'game-compare') {
-    $order = [SearchType::User, SearchType::Game, SearchType::Achievement];
+    $order = [SearchType::User];
 } else {
     $order = [SearchType::Game, SearchType::Achievement, SearchType::User];
 }

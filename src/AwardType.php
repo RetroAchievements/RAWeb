@@ -16,6 +16,8 @@ abstract class AwardType
 
     public const PatreonSupporter = 6;
 
+    public const CertifiedLegend = 7;
+
     public static function cases(): array
     {
         return [
@@ -23,6 +25,7 @@ abstract class AwardType
             self::AchievementUnlocksYield,
             self::AchievementPointsYield,
             self::PatreonSupporter,
+            self::CertifiedLegend,
         ];
     }
 

@@ -95,7 +95,9 @@ function displayCore() {
                         <select name="emulator" id="emulator" required data-bind="value: emulator">
                             <option <?= empty(old('emulator')) ? 'selected' : '' ?> disabled hidden>Select your emulator...</option>
                             <?php foreach ($emulators as $emulator): ?>
-                                <option value="<?= $emulator['handle'] ?>" <?= old('emulator') === $emulator['handle'] ? 'selected' : '' ?>><?= $emulator['handle'] ?></option>
+                                <?php if (array_key_exists($consoleID, $emulator['systems'])): ?>
+                                    <option value="<?= $emulator['handle'] ?>" <?= old('emulator') === $emulator['handle'] ? 'selected' : '' ?>><?= $emulator['handle'] ?></option>
+                                <?php endif ?>
                             <?php endforeach ?>
                         </select>
                     </td>
