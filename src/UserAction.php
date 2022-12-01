@@ -13,6 +13,8 @@ abstract class UserAction
 
     public const TrackedStatus = 3;
 
+    public const LegendBadge = 4;
+
     public static function cases(): array
     {
         return [
@@ -20,6 +22,7 @@ abstract class UserAction
             self::UpdateForumPostPermissions,
             self::PatreonBadge,
             self::TrackedStatus,
+            self::LegendBadge,
         ];
     }
 }
