@@ -184,6 +184,10 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
         $imagepath = asset('/assets/images/badge/patreon.png');
         $linkdest = 'https://www.patreon.com/retroachievements';
+    } elseif ($awardType == AwardType::CertifiedLegend) {
+        $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
+        $imagepath = asset('/assets/images/badge/legend.png');
+        $linkdest = '';
     } else {
         // Unknown or inactive award type
         return;
