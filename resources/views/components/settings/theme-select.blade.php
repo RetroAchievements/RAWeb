@@ -2,12 +2,25 @@
 $colorThemes = [
     // original themes
     '' => __('Default'),
+    'slate' => __('Slate'),
+    'stone' => __('Stone'),
     'red' => __('Red'),
-    'green' => __('Green'),
-    'blue' => __('Blue'),
     'orange' => __('Orange'),
+    'amber' => __('Amber'),
+    'yellow' => __('Yellow'),
+    'lime' => __('Lime'),
+    'green' => __('Green'),
+    'emerald' => __('Emerald'),
+    'teal' => __('Teal'),
+    'cyan' => __('Cyan'),
+    'sky' => __('Sky'),
+    'blue' => __('Blue'),
+    'indigo' => __('Indigo'),
+    'violet' => __('Violet'),
+    'purple' => __('Purple'),
+    'fuchsia' => __('Fuchsia'),
     'pink' => __('Pink'),
-    // 'black' => __('Black'),
+    'rose' => __('Rose'),
 ];
 $sm = !isset($sm) || $sm;
 $id = uniqid();
