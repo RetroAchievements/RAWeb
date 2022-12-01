@@ -100,7 +100,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
 
     $resultCount = 0;
     while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $searchResultsOut[$resultCount] = $nextData;
+        $searchResultsOut[] = $nextData;
         $resultCount++;
     }
 
