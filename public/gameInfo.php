@@ -783,7 +783,7 @@ sanitize_outputs(
                             // for valid consoles, only allow completing if core achievements exist
                             // for rollout consoles, achievements can't be pushed to core, so don't restrict completing
                             if (isValidConsoleId($consoleID) && $flags == $unofficialFlag) {
-                                echo "<div><span class='ml-2'>Cannot Complete Claim until Promoted</span></div>";
+                                echo "<div><span class='ml-2'>Cannot Complete Claim from Unofficial</span></div>";
                             } else {
                                 $isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440; // within 24 hours of claim date
                                 echo "<form action='/request/set-claim/complete-claim.php' method='post' onsubmit='return completeClaim(\"$escapedGameTitle\", " . ($isRecentPrimaryClaim ? 'true' : 'false') . ")'>";
