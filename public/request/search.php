@@ -34,6 +34,7 @@ foreach ($order as $searchType) {
     if ($numFound >= $maxResults) {
         break;
     }
+    $maxResults -= $numFound;
 }
 
 $dataOut = [];
