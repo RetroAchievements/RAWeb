@@ -157,6 +157,30 @@ function SetPatreonSupporter($usernameIn, $enable): void
     }
 }
 
+function HasCertifiedLegendBadge($usernameIn): bool
+{
+    sanitize_sql_inputs($usernameIn);
+
+    $query = "SELECT * FROM SiteAwards AS sa "
+        . "WHERE sa.AwardType = " . AwardType::CertifiedLegend . " AND sa.User = '$usernameIn'";
+
+    $dbResult = s_mysql_query($query);
+
+    return mysqli_num_rows($dbResult) > 0;
+}
+
+function SetCertifiedLegend($usernameIn, $enable): void
+{
+    sanitize_sql_inputs($usernameIn);
+
+    if ($enable) {
+        AddSiteAward($usernameIn, AwardType::CertifiedLegend, 0, 0);
+    } else {
+        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = " . AwardType::CertifiedLegend;
+        s_mysql_query($query);
+    }
+}
+
 /**
  * Gets completed and mastery award information.
  * This includes User, Game and Completed or Mastered Date.
