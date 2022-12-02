@@ -38,7 +38,7 @@ if ($ticketID != 0) {
     $numArticleComments = getArticleComments(ArticleType::AchievementTicket, $ticketID, 0, 20, $commentData);
 
     // sets all filters enabled so we get closed/resolved tickets as well
-    $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All);
+    $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketID, TicketFilters::All);
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
@@ -571,7 +571,7 @@ RenderContentStart($pageTitle);
                 $hashes = getHashListByGameID($gameID);
                 foreach ($hashes as $hash) {
                     if (stripos($reportNotes, $hash['Hash']) !== false) {
-                        $replacement = "<a class='cursor-help' title='" .
+                        $replacement = "<a href='/linkedhashes.php?g=$gameID' title='" .
                             attributeEscape($hash['Name']) . "'>" . $hash['Hash'] . "</a>";
                         $reportNotes = str_ireplace($hash['Hash'], $replacement, $reportNotes);
                     }
