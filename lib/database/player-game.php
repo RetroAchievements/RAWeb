@@ -22,11 +22,11 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
-        $minToCompleteGame = 5;
+        $minToCompleteGame = 6;
 
         $data = mysqli_fetch_assoc($dbResult);
 
-        if ($postMastery) {
+        if ($postMastery && $data['NumAch'] >= $minToCompleteGame) {
             if ($isHardcore && $data['NumAwardedHC'] == $data['NumAch']) {
                 // all hardcore achievements unlocked, award mastery
                 if (!RecentlyPostedCompletionActivity($user, $gameID, 1)) {
