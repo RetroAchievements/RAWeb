@@ -29,10 +29,10 @@ function attributeEscape(?string $input): string
 function isValidUsername($username): bool
 {
     // Note: use request validation where applicable instead of checking the username manually
-
+    // Note: allow 2 character user names for existing accounts. New accounts are limited to 4.
     return Validator::make(
         ['username' => $username],
-        ['username' => ['min:4', 'max:20', new CtypeAlnum()]]
+        ['username' => ['min:2', 'max:20', new CtypeAlnum()]]
     )->passes();
 }
 

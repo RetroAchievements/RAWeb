@@ -78,9 +78,10 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
         ORDER BY c.Submitted DESC)";
     }
 
-    $query = implode(' UNION ALL ', $parts) . " LIMIT $offset, $count";
+    $query = "SELECT SQL_CALC_FOUND_ROWS * FROM (" .
+        implode(' UNION ALL ', $parts) . ") AS results LIMIT $offset, $count";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = s_mysql_sanitized_query($query);
     if (!$dbResult) {
         log_sql_fail();
 
@@ -89,7 +90,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
 
     $resultCount = 0;
     while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $searchResultsOut[$resultCount] = $nextData;
+        $searchResultsOut[] = $nextData;
         $resultCount++;
     }
 
