@@ -1,24 +1,25 @@
-.awardcount {
+.awardcounter {
   float: right;
+  margin: 0 0.4em;
   font-size: 0.65em;
   cursor: help;
 }
 
-.awardcount > * {
+.awardcounter > * {
   vertical-align: middle;
 }
 
-.awardcount > .icon {
+.awardcounter > .icon {
   text-align: center;
   color: rgb(210, 210, 210);
   margin-right: 4px;
 }
 
-.component#siteawards .awardcount > .icon {
+.component#siteawards .awardcounter > .icon {
   width: 22px;
 }
 
-.component:not(#siteawards) .awardcount > .icon {
+.component:not(#siteawards) .awardcounter > .icon {
   width: 25px;
   font-size: 0.65em;
 }
