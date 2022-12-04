@@ -37,6 +37,24 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::Achievement:
+        $pageTitle = getAchievementTitle($articleID, $gameTitle, $gameID);
+        if (empty($pageTitle)) {
+            abort(404);
+        }
+        $gameData = getGameData($gameID);
+        if ($gameData === null) {
+            abort(404);
+        }
+        $navPath =
+        [
+            'All Games' => '/gameList.php',
+            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
+            $gameData['Title'] => '/game/' . $gameData['ID'],
+            $pageTitle => '/achievement/' . $articleID
+        ];
+        break;
+
     default:
         abort(404);
         break;
