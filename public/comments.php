@@ -21,6 +21,7 @@ $count = 25;
 $commentData = [];
 $numArticleComments = getArticleComments($articleTypeID, $articleID, $offset, $count, $commentData);
 
+$commentsLabel = "Comments";
 switch ($articleTypeID)
 {
     case ArticleType::Game:
@@ -85,6 +86,22 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::UserModeration:
+        $commentsLabel = "Moderation Comments";
+        if ($permissions < Permissions::Admin) {
+            abort(403);
+        }
+        $pageTitle = getUserFromID($articleID);
+        if (empty($pageTitle) || !getAccountDetails($pageTitle, $userData)) {
+            abort(404);
+        }
+        $navPath =
+        [
+            'All Users' => '/userList.php',
+            $pageTitle => '/user/' . $pageTitle
+        ];
+        break;
+
     case ArticleType::AchievementTicket:
         $ticket = getTicket($articleID);
         if ($ticket == null) {
@@ -103,11 +120,7 @@ switch ($articleTypeID)
         break;
 }
 
-//if ($permissions < $topicData['RequiredPermissions']) {
-//    abort(403);
-//}
-
-RenderContentStart("Comments: $pageTitle");
+RenderContentStart("$commentsLabel: $pageTitle");
 ?>
 <div id="mainpage">
     <div id="fullcontainer">
@@ -116,7 +129,7 @@ RenderContentStart("Comments: $pageTitle");
             foreach ($navPath as $text => $link) {
                 echo "<a href='$link'>$text</a> &raquo; ";
             }
-            echo "<b>Comments</b></div>";
+            echo "<b>$commentsLabel</b></div>";
 
             echo "<h2>$pageTitle</h2>";
 

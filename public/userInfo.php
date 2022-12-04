@@ -477,7 +477,7 @@ RenderContentStart($userPage);
 
             echo "<tr><td colspan=2>";
             echo "<div class='commentscomponent left'>";
-            $numLogs = getArticleComments(ArticleType::UserModeration, $userPageID, 0, 1000, $logs);
+            $numLogs = getRecentArticleComments(ArticleType::UserModeration, $userPageID, $logs);
             RenderCommentsComponent($user,
                 $numLogs,
                 $logs,

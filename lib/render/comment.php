@@ -27,12 +27,10 @@ function RenderCommentsComponent(
         if ($numComments > $count) {
             RenderPaginator($numComments, $count, $offset, "/comments.php?t=$articleTypeID&i=$articleID&o=");
         }
+    } else if ($numComments > count($commentData)) {
+        echo "Recent comments: <span class='smalltext'>(<a href='/comments.php?t=$articleTypeID&i=$articleID'>All $numComments</a>)</span>";
     } else {
-        echo "Recent comments:";
-
-        if ($numComments > count($commentData)) {
-            echo " <span class='smalltext'>(<a href='/comments.php?t=$articleTypeID&i=$articleID'>All $numComments</a>)</span>";
-        }
+        echo "Comments:";
     }
     echo "</div>";
     if (isset($user)) {
