@@ -38,6 +38,25 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::GameHash:
+        if ($permissions < Permissions::Developer) {
+            abort(403);
+        }
+        $gameData = getGameData($articleID);
+        if ($gameData === null) {
+            abort(404);
+        }
+        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $commentsLabel = "Hash Comments";
+        $navPath =
+        [
+            'All Games' => '/gameList.php',
+            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
+            $gameData['Title'] => '/game/' . $gameData['ID'],
+            'Manage Hashes' => '/managehashes.php?g=' . $gameData['ID']
+        ];
+        break;
+
     case ArticleType::Achievement:
         $pageTitle = getAchievementTitle($articleID, $gameTitle, $gameID);
         if (empty($pageTitle)) {
@@ -87,7 +106,6 @@ switch ($articleTypeID)
         break;
 
     case ArticleType::UserModeration:
-        $commentsLabel = "Moderation Comments";
         if ($permissions < Permissions::Admin) {
             abort(403);
         }
@@ -95,6 +113,7 @@ switch ($articleTypeID)
         if (empty($pageTitle) || !getAccountDetails($pageTitle, $userData)) {
             abort(404);
         }
+        $commentsLabel = "Moderation Comments";
         $navPath =
         [
             'All Users' => '/userList.php',
