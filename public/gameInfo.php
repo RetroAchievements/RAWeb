@@ -940,7 +940,7 @@ sanitize_outputs(
                     }
                 }
 
-                $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
+                $numModificationComments = getRecentArticleComments(ArticleType::GameModification, $gameID, $modificationCommentData);
                 RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
 
                 echo "</div>"; // devboxcontent

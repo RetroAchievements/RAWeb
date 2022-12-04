@@ -57,6 +57,24 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::GameModification:
+        if ($permissions < Permissions::JuniorDeveloper) {
+            abort(403);
+        }
+        $gameData = getGameData($articleID);
+        if ($gameData === null) {
+            abort(404);
+        }
+        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $commentsLabel = "Modifications";
+        $navPath =
+        [
+            'All Games' => '/gameList.php',
+            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
+            $gameData['Title'] => '/game/' . $gameData['ID']
+        ];
+        break;
+
     case ArticleType::SetClaim:
         if ($permissions < Permissions::Admin) {
             abort(403);
@@ -169,7 +187,7 @@ RenderContentStart("$commentsLabel: $pageTitle");
             }
             echo "<b>$commentsLabel</b></div>";
 
-            echo "<h2>$pageTitle</h2>";
+            echo "<h3>$pageTitle</h3>";
 
             RenderCommentsComponent($user, $numArticleComments, $commentData, $articleID, $articleTypeID, $permissions, $count, $offset, embedded: false);
         ?>
