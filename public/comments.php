@@ -85,6 +85,19 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::AchievementTicket:
+        $ticket = getTicket($articleID);
+        if ($ticket == null) {
+            abort(404);
+        }
+        $pageTitle = "Ticket $articleID: " . $ticket['AchievementTitle'];
+        $navPath =
+        [
+            'Ticket Manager' => '/ticketmanager.php',
+            $articleID => '/ticketmanager.php?i=' . $articleID
+        ];
+        break;
+
     default:
         abort(404);
         break;
