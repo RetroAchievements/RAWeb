@@ -10,7 +10,10 @@ function RenderCommentsComponent(
     array $commentData,
     int $articleID,
     int $articleTypeID,
-    int $permissions
+    int $permissions,
+    int $count = 20,
+    int $offset = 0,
+    bool $embedded = true
 ): void {
     $userID = getUserIDFromUser($user);
 
@@ -19,9 +22,17 @@ function RenderCommentsComponent(
     echo "<div class='flex justify-between items-center mb-3'>";
     echo "<div>";
     if ($numComments == 0) {
-        echo "<i>No comments</i><br>";
+        echo "<i>No comments</i>";
+    } else if (!$embedded) {
+        if ($numComments > $count) {
+            RenderPaginator($numComments, $count, $offset, "/comments.php?t=$articleTypeID&i=$articleID&o=");
+        }
     } else {
-        echo "Recent comment(s):<br>";
+        echo "Recent comments:";
+
+        if ($numComments > count($commentData)) {
+            echo " <span class='smalltext'>(<a href='/comments.php?t=$articleTypeID&i=$articleID'>All $numComments</a>)</span>";
+        }
     }
     echo "</div>";
     if (isset($user)) {
@@ -29,7 +40,7 @@ function RenderCommentsComponent(
         if ($subjectType !== null) {
             $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
             echo "<div>";
-            RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed, 'comments');
+            RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed, $embedded ? 'comments' : null);
             echo "</div>";
         }
     }
@@ -40,8 +51,8 @@ function RenderCommentsComponent(
     $lastID = 0;
     $lastKnownDate = 'Init';
 
-    for ($i = 0; $i < $numComments; $i++) {
-        $nextTime = $commentData[$i]['Submitted'];
+    foreach ($commentData as $comment) {
+        $nextTime = $comment['Submitted'];
 
         $dow = date("d/m", $nextTime);
         if ($lastKnownDate == 'Init') {
@@ -50,21 +61,21 @@ function RenderCommentsComponent(
             $lastKnownDate = $dow;
         }
 
-        if ($lastID != $commentData[$i]['ID']) {
-            $lastID = $commentData[$i]['ID'];
+        if ($lastID != $comment['ID']) {
+            $lastID = $comment['ID'];
         }
 
-        $canDeleteComments = $articleTypeID == ArticleType::User && $userID == $articleID || $permissions >= Permissions::Admin;
+        $canDeleteComment = $articleTypeID == ArticleType::User && $userID == $articleID || $permissions >= Permissions::Admin;
 
         RenderArticleComment(
             $articleID,
-            $commentData[$i]['User'],
-            $commentData[$i]['CommentPayload'],
-            $commentData[$i]['Submitted'],
+            $comment['User'],
+            $comment['CommentPayload'],
+            $comment['Submitted'],
             $user,
             $articleTypeID,
-            $commentData[$i]['ID'],
-            $canDeleteComments
+            $comment['ID'],
+            $canDeleteComment
         );
     }
 
@@ -74,7 +85,6 @@ function RenderCommentsComponent(
     }
 
     echo "</tbody></table>";
-    echo "<br>";
 
     echo "</div>";
 }
