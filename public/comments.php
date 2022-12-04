@@ -57,6 +57,25 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::SetClaim:
+        if ($permissions < Permissions::Admin) {
+            abort(403);
+        }
+        $gameData = getGameData($articleID);
+        if ($gameData === null) {
+            abort(404);
+        }
+        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $commentsLabel = "Claim Comments";
+        $navPath =
+        [
+            'All Games' => '/gameList.php',
+            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
+            $gameData['Title'] => '/game/' . $gameData['ID'],
+            'Manage Claims' => '/manageclaims.php?g=' . $gameData['ID']
+        ];
+        break;
+
     case ArticleType::Achievement:
         $pageTitle = getAchievementTitle($articleID, $gameTitle, $gameID);
         if (empty($pageTitle)) {
