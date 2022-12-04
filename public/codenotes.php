@@ -34,7 +34,7 @@ RenderContentStart('Code Notes');
         <br/>
         <?php
         if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
-            RenderCodeNotes($codeNotes, true);
+            RenderCodeNotes($codeNotes);
         }
         ?>
     </div>

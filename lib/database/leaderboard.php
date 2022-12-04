@@ -411,6 +411,7 @@ function getLeaderboardTitle($id, &$gameIDOut): string
     }
 
     log_sql_fail();
+
     return "";
 }
 

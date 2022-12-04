@@ -23,11 +23,11 @@ function RenderCommentsComponent(
     echo "<div>";
     if ($numComments == 0) {
         echo "<i>No comments</i>";
-    } else if (!$embedded) {
+    } elseif (!$embedded) {
         if ($numComments > $count) {
             RenderPaginator($numComments, $count, $offset, "/comments.php?t=$articleTypeID&i=$articleID&o=");
         }
-    } else if ($numComments > count($commentData)) {
+    } elseif ($numComments > count($commentData)) {
         echo "Recent comments: <span class='smalltext'>(<a href='/comments.php?t=$articleTypeID&i=$articleID'>All $numComments</a>)</span>";
     } else {
         echo "Comments:";

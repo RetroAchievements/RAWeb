@@ -1,10 +1,7 @@
 <?php
 
-use App\Support\Shortcode\Shortcode;
 use RA\ArticleType;
 use RA\Permissions;
-use RA\SubscriptionSubjectType;
-use RA\UserAction;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -34,7 +31,7 @@ switch ($articleTypeID)
         [
             'All Games' => '/gameList.php',
             $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID']
+            $gameData['Title'] => '/game/' . $gameData['ID'],
         ];
         break;
 
@@ -53,7 +50,7 @@ switch ($articleTypeID)
             'All Games' => '/gameList.php',
             $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
             $gameData['Title'] => '/game/' . $gameData['ID'],
-            'Manage Hashes' => '/managehashes.php?g=' . $gameData['ID']
+            'Manage Hashes' => '/managehashes.php?g=' . $gameData['ID'],
         ];
         break;
 
@@ -71,7 +68,7 @@ switch ($articleTypeID)
         [
             'All Games' => '/gameList.php',
             $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID']
+            $gameData['Title'] => '/game/' . $gameData['ID'],
         ];
         break;
 
@@ -90,7 +87,7 @@ switch ($articleTypeID)
             'All Games' => '/gameList.php',
             $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
             $gameData['Title'] => '/game/' . $gameData['ID'],
-            'Manage Claims' => '/manageclaims.php?g=' . $gameData['ID']
+            'Manage Claims' => '/manageclaims.php?g=' . $gameData['ID'],
         ];
         break;
 
@@ -108,7 +105,7 @@ switch ($articleTypeID)
             'All Games' => '/gameList.php',
             $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
             $gameData['Title'] => '/game/' . $gameData['ID'],
-            $pageTitle => '/achievement/' . $articleID
+            $pageTitle => '/achievement/' . $articleID,
         ];
         break;
 
@@ -126,7 +123,7 @@ switch ($articleTypeID)
             'All Games' => '/gameList.php',
             $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
             $gameData['Title'] => '/game/' . $gameData['ID'],
-            $pageTitle => '/leaderboard/' . $articleID
+            $pageTitle => '/leaderboard/' . $articleID,
         ];
         break;
 
@@ -138,7 +135,7 @@ switch ($articleTypeID)
         $navPath =
         [
             'All Users' => '/userList.php',
-            $pageTitle => '/user/' . $pageTitle
+            $pageTitle => '/user/' . $pageTitle,
         ];
         break;
 
@@ -154,7 +151,7 @@ switch ($articleTypeID)
         $navPath =
         [
             'All Users' => '/userList.php',
-            $pageTitle => '/user/' . $pageTitle
+            $pageTitle => '/user/' . $pageTitle,
         ];
         break;
 
@@ -167,13 +164,12 @@ switch ($articleTypeID)
         $navPath =
         [
             'Ticket Manager' => '/ticketmanager.php',
-            $articleID => '/ticketmanager.php?i=' . $articleID
+            $articleID => '/ticketmanager.php?i=' . $articleID,
         ];
         break;
 
     default:
         abort(404);
-        break;
 }
 
 RenderContentStart("$commentsLabel: $pageTitle");
