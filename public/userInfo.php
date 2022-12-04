@@ -33,7 +33,7 @@ $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
 // Get wall
-$numArticleComments = getArticleComments(ArticleType::User, $userPageID, 0, 100, $commentData);
+$numArticleComments = getRecentArticleComments(ArticleType::User, $userPageID, $commentData);
 
 // Get user's feed
 // $numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );

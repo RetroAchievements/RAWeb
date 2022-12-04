@@ -55,6 +55,18 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::User:
+        $pageTitle = getUserFromID($articleID);
+        if (empty($pageTitle) || !getAccountDetails($pageTitle, $userData)) {
+            abort(404);
+        }
+        $navPath =
+        [
+            'All Users' => '/userList.php',
+            $pageTitle => '/user/' . $pageTitle
+        ];
+        break;
+
     default:
         abort(404);
         break;
