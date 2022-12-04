@@ -55,6 +55,24 @@ switch ($articleTypeID)
         ];
         break;
 
+    case ArticleType::Leaderboard:
+        $pageTitle = getleaderboardTitle($articleID, $gameID);
+        if (empty($pageTitle)) {
+            abort(404);
+        }
+        $gameData = getGameData($gameID);
+        if ($gameData === null) {
+            abort(404);
+        }
+        $navPath =
+        [
+            'All Games' => '/gameList.php',
+            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
+            $gameData['Title'] => '/game/' . $gameData['ID'],
+            $pageTitle => '/leaderboard/' . $articleID
+        ];
+        break;
+
     case ArticleType::User:
         $pageTitle = getUserFromID($articleID);
         if (empty($pageTitle) || !getAccountDetails($pageTitle, $userData)) {
