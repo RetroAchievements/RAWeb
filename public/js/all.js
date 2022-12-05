@@ -139,7 +139,7 @@ function useCard(type, id, context = null, html = '') {
   return html;
 }
 
-function loadCard(type, id, context = null) {
+function loadCard(owner, type, id, context = null) {
   var cardId = `tooltip_card_${type}_${id}`;
 
   if (context) {
@@ -150,23 +150,29 @@ function loadCard(type, id, context = null) {
     return cardsCache[cardId];
   }
 
-  cardsCache[cardId] = `<div id="${cardId}_yield">
+  // delay requesting the tooltip for 200ms in case the mouse is just passing over the avatar
+  timeoutObject = setTimeout(function () {
+    $(owner).off('mouseleave');
+    $.post('/request/card.php', {
+      type: type,
+      id: id,
+      context: context,
+    })
+      .done(function (data) {
+        cardsCache[cardId] = data.html;
+        $(`#${cardId}_yield`).html(data.html);
+      });
+  }, 200);
+  $(owner).mouseleave(function () {
+    $(owner).off('mouseleave');
+    clearTimeout(timeoutObject);
+  });
+
+  return `<div id="${cardId}_yield">
     <div class="flex justify-center items-center" style="width: 30px; height: 30px">
         <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
     </div>
   </div>`;
-
-  $.post('/request/card.php', {
-    type: type,
-    id: id,
-    context: context,
-  })
-    .done(function (data) {
-      cardsCache[cardId] = data.html;
-      $(`#${cardId}_yield`).html(data.html);
-    });
-
-  return cardsCache[cardId];
 }
 
 function UpdateMailboxCount(messageCount) {
