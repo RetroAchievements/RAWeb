@@ -1,7 +1,8 @@
 <?php
 
+use App\Platform\Models\Badge;
 use RA\AchievementType;
-use RA\AwardThreshold;
+use RA\AwardType;
 use RA\UnlockMode;
 
 /**
@@ -207,17 +208,14 @@ function attributeDevelopmentAuthor(string $author, int $count, int $points): vo
         return;
     }
 
-    for ($i = 0; $i < count(AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
-        if ($oldContribCount < AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + $count >= AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
-            // This developer has arrived at this point boundary!
-            AddSiteAward($author, 2, $i);
-        }
+    $newContribTier = Badge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
+    if ($newContribTier !== null) {
+        AddSiteAward($author, AwardType::AchievementUnlocksYield, $newContribTier);
     }
-    for ($i = 0; $i < count(AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
-        if ($oldContribYield < AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
-            // This developer is newly above this point boundary!
-            AddSiteAward($author, 3, $i);
-        }
+
+    $newPointsTier = Badge::getNewBadgeTier(AwardType::AchievementPointsYield, $oldContribYield, $oldContribYield + $points);
+    if ($newPointsTier !== null) {
+        AddSiteAward($author, AwardType::AchievementPointsYield, $newPointsTier);
     }
 }
 
