@@ -340,6 +340,8 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
     $resolvedFields = "";
     if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
         $resolvedFields = ", ResolvedAt=NOW(), ResolvedByUserID=$userID ";
+    } elseif ($ticketData['ReportState'] == TicketState::Resolved || $ticketData['ReportState'] == TicketState::Closed) {
+        $resolvedFields = ", ResolvedAt=NULL, ResolvedByUserID=NULL ";
     }
 
     $query = "UPDATE Ticket
