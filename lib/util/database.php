@@ -73,6 +73,10 @@ function log_sql_fail(): void
         if (config('app.debug')) {
             throw new Exception($error);
         }
+
+        $calling_function = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+        $error .= ' at ' . $calling_function['file'] . ':' . $calling_function['line'];
+
         Log::error($error);
     }
 }
