@@ -81,7 +81,7 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
 
     if (
         $i !== false
-        && getUserPermissions($user) == Permissions::JuniorDeveloper
+        && getUserPermissions($user) <= Permissions::JuniorDeveloper
         && $currentNotes[$i]['User'] !== $user
         && !empty($currentNotes[$i]['Note'])
     ) {
@@ -93,8 +93,6 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
     // Nope! $address will be an integer
     // turn '0x00000f' into '15'
     // $addressAsInt = hexdec( substr( $address, 2 ) );
-
-    $note = str_replace("#", "_", $note);   // Remove hashes. Sorry. hash is now a delim.
 
     $query = "INSERT INTO CodeNotes ( GameID, Address, AuthorID, Note )
               VALUES( '$gameID', '$address', '$userID', '$note' )

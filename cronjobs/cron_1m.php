@@ -47,6 +47,7 @@ for ($i = 0; $i < 3; $i++) {
     $user = getUserFromID($userID);
     if (!empty($user)) {
         recalculatePlayerPoints($user);
+        recalculateDeveloperContribution($user);
     }
     $userID = GetNextHighestUserID($userID);
 }
