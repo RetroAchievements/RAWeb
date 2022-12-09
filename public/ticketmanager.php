@@ -35,7 +35,7 @@ if ($ticketID != 0) {
         $ticketID = 0;
     }
 
-    $numArticleComments = getArticleComments(ArticleType::AchievementTicket, $ticketID, 0, 20, $commentData);
+    $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticketID, $commentData);
 
     // sets all filters enabled so we get closed/resolved tickets as well
     $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketID, TicketFilters::All);

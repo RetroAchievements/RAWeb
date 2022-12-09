@@ -153,7 +153,7 @@ if ($isFullyFeaturedGame) {
     $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements);
     $achDistHardcore = getAchievementDistribution($gameID, 1, $user, $flags, $numAchievements);
 
-    $numArticleComments = getArticleComments(ArticleType::Game, $gameID, 0, 20, $commentData);
+    $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
@@ -940,7 +940,7 @@ sanitize_outputs(
                     }
                 }
 
-                $numModificationComments = getArticleComments(ArticleType::GameModification, $gameID, 0, 1000, $modificationCommentData);
+                $numModificationComments = getRecentArticleComments(ArticleType::GameModification, $gameID, $modificationCommentData);
                 RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
 
                 echo "</div>"; // devboxcontent

@@ -394,6 +394,27 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     return $retVal;
 }
 
+function getLeaderboardTitle($id, &$gameIDOut): string
+{
+    sanitize_sql_inputs($id);
+    settype($id, "integer");
+
+    $query = "SELECT lb.Title, lb.GameID FROM LeaderboardDef AS lb WHERE lb.ID = $id";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult) {
+        $data = mysqli_fetch_assoc($dbResult);
+        if ($data) {
+            $gameIDOut = $data['GameID'];
+
+            return $data['Title'];
+        }
+    }
+
+    log_sql_fail();
+
+    return "";
+}
+
 function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $nearby = false): array
 {
     sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);

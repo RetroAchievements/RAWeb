@@ -1,16 +1,7 @@
 <?php
 
-function RenderCodeNotes($codeNotes, $showDisclaimer = false): void
+function RenderCodeNotes($codeNotes): void
 {
-    echo "<h3>Code Notes</h3>";
-
-    if ($showDisclaimer) {
-        echo "The RetroAchievements addressing scheme for most systems is to access the system memory " .
-             "at address $00000000, immediately followed by the cartridge memory. As such, the addresses " .
-             "displayed below may not directly correspond to the addresses on the real hardware.";
-        echo "<br/><br/>";
-    }
-
     echo "<table><tbody>";
 
     echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";

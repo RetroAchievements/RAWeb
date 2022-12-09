@@ -41,9 +41,7 @@ $dataOut = [];
 foreach ($results as $nextRow) {
     $dataOut[] = [
         'label' => $nextRow['Title'] ?? null,
-        'id' => $nextRow['ID'] ?? null,
         'mylink' => $nextRow['Target'] ?? null,
-        'category' => $nextRow['Type'],
     ];
 }
 

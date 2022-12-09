@@ -449,6 +449,7 @@ function ReloadLBPageByGame() {
 <?php
 if (!empty($codeNotes) && $permissions >= Permissions::JuniorDeveloper) {
     echo "<div id='rightcontainer'>";
+    echo "<h3>Code Notes</h3>";
     RenderCodeNotes($codeNotes);
     echo "</div>";
 }

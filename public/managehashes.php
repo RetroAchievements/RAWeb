@@ -79,14 +79,21 @@ function UnlinkHash(user, gameID, hash, elem) {
 </script>
 <div id="mainpage">
     <div id="fullcontainer">
-        <h2>Manage Hashes</h2>
+        <div class='navpath'>
+            <a href='/gameList.php'>All Games</a>
+            &raquo; <a href='/gameList.php?c=<?= $consoleID ?>'><?= $consoleName ?></a>
+            &raquo; <a href='/game/<?= $gameID ?>'><?= $gameTitle ?></a>
+            &raquo; <b>Manage Hashes</b>
+        </div>
+
+        <h3>Manage Hashes</h3>
 
         <?php
         echo gameAvatar($gameData, iconSize: 64);
 
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
 
-        echo "<div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div><br>";
+        echo "<br/><div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div>";
 
         echo "<div class='table-wrapper'><table id='hashTable'><tbody>";
         echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>Description</th><th>Labels</th><th>Actions</th><th></th>\n";
@@ -112,7 +119,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         }
 
         echo "</tbody></table><br><br>";
-        $numLogs = getArticleComments(ArticleType::GameHash, $gameID, 0, 1000, $logs);
+        $numLogs = getRecentArticleComments(ArticleType::GameHash, $gameID, $logs);
         RenderCommentsComponent($user,
             $numLogs,
             $logs,
