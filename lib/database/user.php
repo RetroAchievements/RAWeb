@@ -1,6 +1,5 @@
 <?php
 
-use RA\AwardThreshold;
 use RA\ClaimStatus;
 use RA\Permissions;
 use RA\TicketState;
@@ -494,48 +493,6 @@ function GetUserFields($username, $fields): ?array
     }
 
     return mysqli_fetch_assoc($dbResult);
-}
-
-function attributeDevelopmentAuthor($author, $points): void
-{
-    sanitize_sql_inputs($author, $points);
-
-    $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
-    $dbResult = s_mysql_query($query);
-    $oldResults = mysqli_fetch_assoc($dbResult);
-    if (!$oldResults) {
-        // could not find a record for the author, nothing to update
-        return;
-    }
-
-    $oldContribCount = (int) $oldResults['ContribCount'];
-    $oldContribYield = (int) $oldResults['ContribYield'];
-
-    // Update the fact that this author made an achievement that just got earned.
-    $query = "UPDATE UserAccounts AS ua
-              SET ua.ContribCount = ua.ContribCount+1, ua.ContribYield = ua.ContribYield + $points
-              WHERE ua.User = '$author'";
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return;
-    }
-
-    for ($i = 0; $i < count(AwardThreshold::DEVELOPER_COUNT_BOUNDARIES); $i++) {
-        if ($oldContribCount < AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i] && $oldContribCount + 1 >= AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$i]) {
-            // This developer has arrived at this point boundary!
-            AddSiteAward($author, 2, $i);
-        }
-    }
-    for ($i = 0; $i < count(AwardThreshold::DEVELOPER_POINT_BOUNDARIES); $i++) {
-        if ($oldContribYield < AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i] && $oldContribYield + $points >= AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$i]) {
-            // This developer is newly above this point boundary!
-            AddSiteAward($author, 3, $i);
-        }
-    }
 }
 
 /**
