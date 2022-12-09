@@ -139,7 +139,7 @@ function useCard(type, id, context = null, html = '') {
   return html;
 }
 
-function loadCard(owner, type, id, context = null) {
+function loadCard(target, type, id, context = null) {
   var cardId = `tooltip_card_${type}_${id}`;
 
   if (context) {
@@ -152,7 +152,7 @@ function loadCard(owner, type, id, context = null) {
 
   // delay requesting the tooltip for 200ms in case the mouse is just passing over the avatar
   timeoutObject = setTimeout(function () {
-    $(owner).off('mouseleave');
+    $(target).off('mouseleave');
     $.post('/request/card.php', {
       type: type,
       id: id,
@@ -163,8 +163,8 @@ function loadCard(owner, type, id, context = null) {
         $(`#${cardId}_yield`).html(data.html);
       });
   }, 200);
-  $(owner).mouseleave(function () {
-    $(owner).off('mouseleave');
+  $(target).mouseleave(function () {
+    $(target).off('mouseleave');
     clearTimeout(timeoutObject);
   });
 
