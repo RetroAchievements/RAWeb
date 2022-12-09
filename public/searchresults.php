@@ -13,6 +13,10 @@ if (!SearchType::isValid($searchType)) {
     $searchType = SearchType::All;
 }
 
+if (!canSearch($searchType, $permissions)) {
+    abort(403);
+}
+
 $searchResults = [];
 $resultsCount = 0;
 if (strlen($searchQuery) >= 2) {
@@ -34,10 +38,14 @@ RenderContentStart("Search");
         echo "<form action='/searchresults.php'>";
         // echo "Search:&nbsp;";
         $searchQueryEscaped = attributeEscape($searchQuery);
-        echo "<input size='42' name='s' type='text' class='searchboxinput' value='$searchQueryEscaped' placeholder='Search the site...' />";
+        echo "<input size='42' name='s' type='text' value='$searchQueryEscaped' placeholder='Search the site...' />";
         echo " in ";
         echo "<select name='t'>";
         foreach (SearchType::cases() as $t) {
+            if (!canSearch($t, $permissions)) {
+                continue;
+            }
+
             if ($t == $searchType) {
                 echo "<option value='$t' selected>";
             } else {
@@ -80,28 +88,45 @@ RenderContentStart("Search");
                         echo "<tr>";
                     }
 
-                    echo "<td>$nextType</td>";
-                    if ($nextType == 'User') {
-                        echo "<td colspan='2'>";
-                        echo userAvatar($nextID);
-                        echo "</td>";
-                    } elseif ($nextType == 'Achievement') {
-                        $achData = GetAchievementData($nextID);
-                        echo "<td colspan='2'>";
-                        echo achievementAvatar($achData);
-                        echo "</td>";
-                    } elseif ($nextType == 'Game') {
-                        $gameData = GetGameData($nextID);
-                        echo "<td colspan='2'>";
-                        echo gameAvatar($gameData);
-                        echo "</td>";
-                    } elseif ($nextType == 'Forum Comment' || $nextType == 'Comment') {
-                        echo "<td>";
-                        echo userAvatar($nextID);
-                        echo "</td>";
-                        echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
-                    } else {
-                        echo "<td colspan=2><a href='$nextTarget'>$nextTitle</a></td>";
+                    switch ($nextType) {
+                        case SearchType::User:
+                            echo "<td>User</td>";
+                            echo "<td colspan='2'>";
+                            echo userAvatar($nextID);
+                            echo "</td>";
+                            break;
+
+                        case SearchType::Achievement:
+                            echo "<td>Achievement</td>";
+                            $achData = GetAchievementData($nextID);
+                            echo "<td colspan='2'>";
+                            echo achievementAvatar($achData);
+                            echo "</td>";
+                            break;
+
+                        case SearchType::Game:
+                            echo "<td>Game</td>";
+                            $gameData = GetGameData($nextID);
+                            echo "<td colspan='2'>";
+                            echo gameAvatar($gameData);
+                            echo "</td>";
+                            break;
+
+                        case SearchType::Forum:
+                            echo "<td>Forum Comment</td>";
+                            echo "<td>";
+                            echo userAvatar($nextID);
+                            echo "</td>";
+                            echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
+                            break;
+
+                        default:
+                            echo "<td>" . substr(SearchType::toString($nextType), 0, -1) . "</td>";
+                            echo "<td>";
+                            echo userAvatar($nextID);
+                            echo "</td>";
+                            echo "<td><a href='$nextTarget'>$nextTitle</a></td>";
+                            break;
                     }
 
                     echo "</tr>";
