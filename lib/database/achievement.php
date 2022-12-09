@@ -416,6 +416,24 @@ function UploadNewAchievement(
                     }
                 }
 
+                if ($changingPoints || $changingAchSet) {
+                    $numUnlocks = getAchievementUnlockCount($idInOut);
+                    if ($numUnlocks > 0) {
+                        if ($changingAchSet) {
+                            if ($type === AchievementType::OfficialCore) {
+                                // promoted to core, restore point attribution
+                                attributeDevelopmentAuthor($data['Author'], $numUnlocks, $numUnlocks * $points);
+                            } else {
+                                // demoted from core, remove point attribution
+                                attributeDevelopmentAuthor($data['Author'], -$numUnlocks, -$numUnlocks * $points);
+                            }
+                        } else {
+                            // points changed, adjust point attribution
+                            attributeDevelopmentAuthor($data['Author'], 0, $numUnlocks * ($points - $data['Points']));
+                        }
+                    }
+                }
+
                 return true;
             } else {
                 log_sql_fail();
@@ -541,12 +559,55 @@ function updateAchievementFlags(int|string|array $achID, int $newFlags): bool
 
     sanitize_sql_inputs($achievementIDs, $newFlags);
 
-    $query = "UPDATE Achievements SET Flags = '$newFlags', Updated=NOW() WHERE ID IN (" . $achievementIDs . ")";
+    $query = "SELECT ID, Author, Points FROM Achievements WHERE ID IN ($achievementIDs) AND Flags != $newFlags";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false) {
+        log_sql_fail();
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
+        return false;
+    }
 
-    return $dbResult !== false;
+    $updatedAchIDs = [];
+    $authorCount = [];
+    $authorPoints = [];
+    while ($data = mysqli_fetch_assoc($dbResult)) {
+        $updatedAchID = (int) $data['ID'];
+        $updatedAchIDs[] = $updatedAchID;
+
+        $numUnlocks = getAchievementUnlockCount($updatedAchID);
+        if ($numUnlocks > 0) {
+            if (array_key_exists($data['Author'], $authorCount)) {
+                $authorCount[$data['Author']] += $numUnlocks;
+                $authorPoints[$data['Author']] += $numUnlocks * (int) $data['Points'];
+            } else {
+                $authorCount[$data['Author']] = $numUnlocks;
+                $authorPoints[$data['Author']] = $numUnlocks * (int) $data['Points'];
+            }
+        }
+    }
+
+    $updatedAchievementIDs = implode(',', $updatedAchIDs);
+    if (empty($updatedAchievementIDs)) {
+        return true;
+    }
+
+    $query = "UPDATE Achievements SET Flags=$newFlags, Updated=NOW() WHERE ID IN ($updatedAchievementIDs)";
+    if (!s_mysql_query($query)) {
+        log_sql_fail();
+
+        return false;
+    }
+
+    foreach ($authorCount as $author => $count) {
+        $points = $authorPoints[$author];
+        if ($newFlags != AchievementType::OfficialCore) {
+            $count = -$count;
+            $points = -$points;
+        }
+        attributeDevelopmentAuthor($author, $count, $points);
+    }
+
+    return true;
 }
 
 function getAchievementIDsByGame($gameID): array
@@ -560,7 +621,7 @@ function getAchievementIDsByGame($gameID): array
     // Get all achievement IDs
     $query = "SELECT ach.ID AS ID
               FROM Achievements AS ach
-              WHERE ach.GameID = $gameID AND ach.Flags = 3
+              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore . "
               ORDER BY ach.ID";
 
     $dbResult = s_mysql_query($query);
