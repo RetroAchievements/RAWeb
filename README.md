@@ -25,7 +25,6 @@ You might have to enable some extensions in `php.ini` (see the `ext-*` requireme
 ```
 extension=curl
 extension=gmp
-extension=mysqli
 extension=pdo_mysql
 extension=gd
 extension=intl

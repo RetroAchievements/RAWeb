@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Factories\Legacy;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use LegacyApp\Platform\Models\Game;
+
+class GameFactory extends Factory
+{
+    protected $model = Game::class;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'Title' => ucwords($this->faker->words(2, true)),
+            'ConsoleID' => 0,
+        ];
+    }
+}

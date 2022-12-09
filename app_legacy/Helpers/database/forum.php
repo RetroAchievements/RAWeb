@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;
@@ -471,12 +472,13 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
     }
 }
 
-function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$dataOut, $fromUser = null): ?int
+function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, $fromUser = null): Collection
 {
-    sanitize_sql_inputs($offset, $count, $numMessageChars, $fromUser);
+    $bindings = [];
 
     if (!empty($fromUser)) {
-        $userClause = "ftc.Author='$fromUser'";
+        $bindings[] = $fromUser;
+        $userClause = "ftc.Author=?";
         if ($permissions < Permissions::Admin) {
             $userClause .= " AND ftc.Authorised=1";
         }
@@ -484,12 +486,15 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$
         $userClause = "ftc.Authorised=1";
     }
 
+    $bindings[] = $offset;
+    $bindings[] = $count + 20;
+    $bindings[] = $permissions;
+    $bindings[] = $count;
+
     // 02:08 21/02/2014 - cater for 20 spam messages
-    $countPlusSpam = $count + 20;
     $query = "
         SELECT LatestComments.DateCreated AS PostedAt,
-            LEFT( LatestComments.Payload, $numMessageChars ) AS ShortMsg,
-            LENGTH(LatestComments.Payload) > $numMessageChars AS IsTruncated,
+            LatestComments.Payload,
             LatestComments.Author,
             ua.RAPoints,
             ua.Motto,
@@ -502,31 +507,22 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$
             FROM ForumTopicComment AS ftc
             WHERE $userClause
             ORDER BY ftc.DateCreated DESC
-            LIMIT $offset, $countPlusSpam
+            LIMIT ?, ?
         ) AS LatestComments
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
         LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
-        WHERE ft.RequiredPermissions <= '$permissions'
+        WHERE ft.RequiredPermissions <= ?
         ORDER BY LatestComments.DateCreated DESC
-        LIMIT 0, $count";
+        LIMIT 0, ?";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = [];
+    return legacyDbFetchAll($query, $bindings)
+        ->map(function ($post) use ($numMessageChars) {
+            $post['ShortMsg'] = mb_substr($post['Payload'], 0, $numMessageChars);
+            $post['IsTruncated'] = mb_strlen($post['Payload']) > $numMessageChars;
 
-        $numResults = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
-        }
-
-        return $numResults;
-    } else {
-        log_sql_fail();
-
-        return null;
-    }
+            return $post;
+        });
 }
 
 function updateTopicPermissions(int $topicId, int $permissions): bool

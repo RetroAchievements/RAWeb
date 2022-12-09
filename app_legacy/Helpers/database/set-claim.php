@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSetType;
 use LegacyApp\Community\Enums\ClaimSorting;
@@ -54,8 +55,6 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
  */
 function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
 {
-    sanitize_sql_inputs($user, $gameID);
-
     $claimTypeCondition = '';
     if ($isPrimaryClaim) {
         $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
@@ -75,18 +74,12 @@ function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false, 
             Status = " . ClaimStatus::Active . "
             $claimTypeCondition
             $setTypeCondition
-            AND User = '$user'
-            AND GameID = '$gameID'";
+            AND User = ?
+            AND GameID = ?";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = legacyDbFetch($query, [$user, $gameID]);
 
-    if ($dbResult !== false) {
-        if (mysqli_fetch_assoc($dbResult)['claimCount'] > 0) {
-            return true;
-        }
-    }
-
-    return false;
+    return $dbResult['claimCount'] > 0;
 }
 
 /**
@@ -191,8 +184,9 @@ function getClaimData(int $gameID, bool $getFullData = true): array
             sc.Created as Created,
             sc.Finished as Expiration,
             sc.Status as Status,
-            TIMESTAMPDIFF(MINUTE, NOW(), sc.Finished) AS MinutesLeft,
-            TIMESTAMPDIFF(MINUTE, sc.Created, NOW()) AS MinutesActive";
+        ";
+        $query .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft') . ",";
+        $query .= diffMinutesPassedStatement('sc.Created', 'MinutesActive');
     } else {
         $query = "
         SELECT
@@ -229,18 +223,16 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  * Results are configurable based on input parameters, allowing sorting on each of the
  * above stats and returning data for a specific user or game.
  */
-function getFilteredClaimData(
+function getFilteredClaims(
     int $gameID = 0,
     int $claimFilter = ClaimFilters::AllFilters,
     int $sortType = ClaimSorting::ClaimDateDescending,
     bool $getExpiringOnly = false,
     ?string $username = null,
-    bool $getCount = false,
     int $offset = 0,
     int $limit = 50
-): array|int {
-    $retVal = [];
-    sanitize_sql_inputs($gameID, $username);
+): Collection {
+    $bindings = [];
 
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
@@ -263,11 +255,7 @@ function getFilteredClaimData(
     } elseif (!$primaryClaim && $collaborationClaim) {
         $claimTypeCondition = 'AND sc.ClaimType = ' . ClaimType::Collaboration;
     } elseif (!$primaryClaim && !$collaborationClaim) {
-        if ($getCount) {
-            return 0;
-        }
-
-        return $retVal;
+        return collect();
     }
 
     // Create set type condition
@@ -277,11 +265,7 @@ function getFilteredClaimData(
     } elseif (!$newSetClaim && $revisionClaim) {
         $setTypeCondition = 'AND sc.SetType = ' . ClaimSetType::Revision;
     } elseif (!$newSetClaim && !$revisionClaim) {
-        if ($getCount) {
-            return 0;
-        }
-
-        return $retVal;
+        return collect();
     }
 
     // Create the claim status condition
@@ -299,11 +283,7 @@ function getFilteredClaimData(
     } elseif (!$activeClaim && !$completeClaim && $droppedClaim) {
         $statusCondition = 'AND sc.Status = ' . ClaimStatus::Dropped;
     } elseif (!$activeClaim && !$completeClaim && !$droppedClaim) {
-        if ($getCount) {
-            return 0;
-        }
-
-        return $retVal;
+        return collect();
     }
 
     // Create the special condition
@@ -357,13 +337,15 @@ function getFilteredClaimData(
     // Creare the user data condition
     $userCondition = '';
     if (isset($username)) {
-        $userCondition = "AND sc.User = '$username'";
+        $bindings[] = $username;
+        $userCondition = "AND sc.User=?";
     }
 
     // Create the game condition
     $gameCondition = '';
     if ($gameID > 0) {
-        $gameCondition = "AND sc.GameID = '$gameID'";
+        $bindings[] = $gameID;
+        $gameCondition = "AND sc.GameID=?";
     }
 
     // Get expiring claims only
@@ -373,26 +355,23 @@ function getFilteredClaimData(
     }
 
     // Get either the filtered count or the filtered data
-    if ($getCount) {
-        $selectCondition = "COUNT(*) AS Total";
-    } else {
-        $selectCondition =
-            "sc.ID AS ID,
-            sc.User AS User,
-            sc.GameID AS GameID,
-            gd.Title AS GameTitle,
-            gd.ImageIcon AS GameIcon,
-            c.Name AS ConsoleName,
-            sc.ClaimType AS ClaimType,
-            sc.SetType AS SetType,
-            sc.Status AS Status,
-            sc.Extension AS Extension,
-            sc.Special AS Special,
-            sc.Created AS Created,
-            sc.Finished AS DoneTime,
-            sc.Updated AS Updated,
-            TIMESTAMPDIFF(MINUTE, NOW(), sc.Finished) AS MinutesLeft";
-    }
+    $selectCondition = "
+        sc.ID AS ID,
+        sc.User AS User,
+        sc.GameID AS GameID,
+        gd.Title AS GameTitle,
+        gd.ImageIcon AS GameIcon,
+        c.Name AS ConsoleName,
+        sc.ClaimType AS ClaimType,
+        sc.SetType AS SetType,
+        sc.Status AS Status,
+        sc.Extension AS Extension,
+        sc.Special AS Special,
+        sc.Created AS Created,
+        sc.Finished AS DoneTime,
+        sc.Updated AS Updated,
+    ";
+    $selectCondition .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft');
 
     $query = "
         SELECT
@@ -420,18 +399,7 @@ function getFilteredClaimData(
         LIMIT
             $offset, $limit";
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        if ($getCount) {
-            return (int) (mysqli_fetch_assoc($dbResult)['Total'] ?? 0);
-        }
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query, $bindings);
 }
 
 /**

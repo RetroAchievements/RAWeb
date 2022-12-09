@@ -17,21 +17,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /*
-         * TODO move to legacy app domains
-         */
-        $schedule->call(function () {
-            require_once base_path('cronjobs/cron_1m.php');
-        })->everyMinute();
-
-        $schedule->call(function () {
-            require_once base_path('cronjobs/cron_30m.php');
-        })->everyThirtyMinutes();
-
-        $schedule->call(function () {
-            require_once base_path('cronjobs/cron_daily.php');
-        })->daily();
-
-        /*
          * websockets
          */
         // $schedule->command('websockets:clean')->daily();

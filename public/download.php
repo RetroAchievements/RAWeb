@@ -1,11 +1,8 @@
 <?php
 
 $emulators = getActiveEmulatorReleases();
-$consoles = getConsoleList();
 
 authenticateFromCookie($user, $permissions, $userDetails);
-
-$staticData = getStaticData();
 
 RenderContentStart("Download a client");
 ?>

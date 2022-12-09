@@ -9,14 +9,12 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Gate;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
+use LegacyApp\Site\Policies\UserPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        /*
-         * Account Policies
-         */
-        // User::class => UserPolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     public function register()

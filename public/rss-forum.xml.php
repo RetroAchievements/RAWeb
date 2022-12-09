@@ -22,13 +22,11 @@ $xmlRoot->appendChild($dom->createElement('title', 'RetroAchievements.org Forum 
 $xmlRoot->appendChild($dom->createElement('description', 'RetroAchievements.org, your home for achievements in classic games'));
 $xmlRoot->appendChild($dom->createElement('link', config('app.url')));
 
-$numPostsFound = getRecentForumPosts(0, 30, 120, Permissions::Registered, $recentPostsData);
+$recentPosts = getRecentForumPosts(0, 30, 120, Permissions::Registered);
 
 $lastID = 0;
 
-for ($i = 0; $i < $numPostsFound; $i++) {
-    $nextData = $recentPostsData[$i];
-
+foreach ($recentPosts as $nextData) {
     $article = $dom->createElement("item");
     $article = $xmlRoot->appendChild($article);
 

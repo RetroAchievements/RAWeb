@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Support\Shortcode\Shortcode;
+use Tests\TestCase;
 
 final class ShortcodeTest extends TestCase
 {

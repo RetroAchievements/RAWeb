@@ -1016,8 +1016,3 @@ function GetLBPatch($gameID): array
 
     return $lbData;
 }
-
-function deleteOrphanedLeaderboardEntries(): void
-{
-    s_mysql_query("DELETE le FROM LeaderboardEntry le LEFT JOIN UserAccounts ua ON le.UserID = ua.ID WHERE ua.User IS NULL");
-}

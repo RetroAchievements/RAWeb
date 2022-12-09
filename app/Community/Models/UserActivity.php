@@ -47,14 +47,6 @@ class UserActivity extends BaseModel
         'user',
     ];
 
-    /**
-     * @see \App\Support\Database\Eloquent\Concerns\PreventLazyLoading
-     */
-    protected array $allowedLazyRelations = [
-        'achievement',
-        'game',
-    ];
-
     // == accessors
 
     /**

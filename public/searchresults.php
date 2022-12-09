@@ -1,5 +1,6 @@
 <?php
 
+use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Site\Enums\SearchType;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -98,9 +99,8 @@ RenderContentStart("Search");
 
                         case SearchType::Achievement:
                             echo "<td>Achievement</td>";
-                            $achData = GetAchievementData($nextID);
                             echo "<td colspan='2'>";
-                            echo achievementAvatar($achData);
+                            echo achievementAvatar(Achievement::find($nextID));
                             echo "</td>";
                             break;
 

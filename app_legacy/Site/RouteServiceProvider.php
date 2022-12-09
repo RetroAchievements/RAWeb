@@ -6,6 +6,7 @@ namespace LegacyApp\Site;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use LegacyApp\Site\Controllers\HomeController;
 use LegacyApp\Site\Controllers\UserController;
 use LegacyApp\Support\Http\HandlesPublicFileRequests;
 
@@ -34,7 +35,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('gameList.php', fn () => $this->handlePageRequest('gameList'))->name('game.index');
             Route::post('{path}.php', fn (string $path) => $this->handleRequest($path))->where('path', '(.*)');
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
-            Route::get('/', fn () => $this->handlePageRequest('home'))->name('home');
+            Route::get('/', HomeController::class)->name('home');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
             Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
             Route::get('achievement/{achievement}{slug?}', fn ($achievement) => $this->handlePageRequest('achievementInfo', $achievement))->name('achievement.show');

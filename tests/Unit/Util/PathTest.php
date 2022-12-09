@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Util;
 
-use Tests\Unit\TestCase;
+use Tests\TestCase;
 
 final class PathTest extends TestCase
 {

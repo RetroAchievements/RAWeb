@@ -1,6 +1,8 @@
 <?php
 
+use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\StaticData;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     abort(401);
@@ -12,7 +14,9 @@ if ($action === 'achievement-ids') {
     $gameIDs = separateList(request()->query('g'));
     $achievementIds = collect();
     foreach ($gameIDs as $gameId) {
-        $achievementIds = $achievementIds->merge(getAchievementIDsByGame($gameId)['AchievementIDs'] ?? []);
+        $achievementIds = $achievementIds->merge(
+            Achievement::where('GameID', $gameId)->published()->pluck('ID')
+        );
     }
     $message = $achievementIds->implode(', ');
 }
@@ -102,7 +106,7 @@ if ($action === 'aotw') {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-$staticData = getStaticData();
+$staticData = StaticData::first();
 
 RenderContentStart('Admin Tools');
 ?>

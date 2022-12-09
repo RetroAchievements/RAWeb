@@ -1,30 +1,5 @@
 <?php
 
-function RenderDocsComponent(): void
-{
-    echo "
-      <div class='component' style='text-align: center'>
-        <div id='docsbox' class='infobox'>
-          <div>
-            <a href='https://docs.retroachievements.org/'>📘 Documentation</a> & <a href='https://docs.retroachievements.org/FAQ/' rel='noopener'>FAQ</a>.
-          </div>
-        </div>
-      </div>";
-}
-
-function RenderCurrentlyOnlineComponent(): void
-{
-    echo "<div class='component'>";
-    echo "<h3>Currently Online</h3>";
-    echo "<div id='playersonlinebox' class='infobox'>";
-    $numPlayers = count(getCurrentlyOnlinePlayers());
-    echo "<div>There are currently <strong>$numPlayers</strong> players online.</div>";
-    echo "</div>";
-    echo "<div style='min-height: 160px;' id='chart_usersonline'></div>";
-    echo "<div class='text-right lastupdatedtext'><small><span id='playersonline-update'></span></small></div>";
-    echo "</div>";
-}
-
 function RenderActivePlayersComponent(): void
 {
     echo <<<HTML
@@ -74,34 +49,4 @@ function RenderActivePlayersComponent(): void
     } else {
         echo '<script type="text/javascript" src="/js/activePlayersBootstrap-' . config('app.version') . '.js"></script>';
     }
-}
-
-function RenderAOTWComponent($achID, $forumTopicID): void
-{
-    $achData = [];
-    getAchievementMetadata($achID, $achData);
-
-    if (empty($achData)) {
-        return;
-    }
-
-    echo "<div class='component'>";
-    echo "<h3>Achievement of the Week</h3>";
-
-    /*
-     * id attribute used for scraping. NOTE: this will be deprecated. Use API_GetAchievementOfTheWeek instead
-     */
-    echo "<div class='text-center'>";
-
-    echo "<div>";
-    echo achievementAvatar($achData);
-    echo "</div>";
-    echo "in";
-    echo "<div>";
-    echo gameAvatar($achData, iconSize: 24);
-    echo "</div>";
-    echo "<a class='btn' href='/viewtopic.php?t=$forumTopicID'>Join this tournament!</a>";
-
-    echo "</div>";
-    echo "</div>";
 }

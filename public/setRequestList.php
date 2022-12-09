@@ -1,5 +1,7 @@
 <?php
 
+use LegacyApp\Platform\Models\System;
+
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
@@ -8,22 +10,23 @@ $maxCount = 50;
 $offset = 0;
 
 $username = requestInputSanitized('u');
-$selectedConsole = requestInputSanitized('s', null, 'integer');
-$count = requestInputSanitized('c', $maxCount, 'integer');
-$offset = requestInputSanitized('o', $offset, 'integer');
-$flag = requestInputSanitized('f', 0, 'integer'); // 0 - display only active user set requests, else display all user set requests
+$selectedConsoleId = (int) request()->input('s');
+$count = (int) request()->input('c', $maxCount);
+$offset = (int) request()->input('o', $offset);
+$flag = (int) request()->input('f', 0); // 0 - display only active user set requests, else display all user set requests
 if ($offset < 0) {
     $offset = 0;
 }
 
-// Get and sort the console list
-$consoles = getConsoleIDs();
-usort($consoles, fn ($a, $b) => $a['Name'] <=> $b['Name']);
+$consoles = System::orderBy('Name')->get(['ID', 'Name']);
+
+/** @var ?System $selectedConsole */
+$selectedConsole = $consoles->firstWhere('ID', $selectedConsoleId);
 
 $totalRequestedGames = null;
 $userSetRequestInformation = null;
 if (empty($username)) {
-    if ($selectedConsole == null) {
+    if ($selectedConsoleId == null) {
         $validConsoles = [];
         foreach ($consoles as $console) {
             if (isValidConsoleID($console['ID'])) {
@@ -32,12 +35,12 @@ if (empty($username)) {
         }
         $setRequestList = getMostRequestedSetsList($validConsoles, $offset, $count);
         $totalRequestedGames = getGamesWithRequests($validConsoles);
-    } elseif ($selectedConsole == -1) {
+    } elseif ($selectedConsoleId == -1) {
         $setRequestList = getMostRequestedSetsList(null, $offset, $count);
         $totalRequestedGames = getGamesWithRequests(null);
     } else {
-        $setRequestList = getMostRequestedSetsList($selectedConsole, $offset, $count);
-        $totalRequestedGames = getGamesWithRequests($selectedConsole);
+        $setRequestList = getMostRequestedSetsList($selectedConsoleId, $offset, $count);
+        $totalRequestedGames = getGamesWithRequests($selectedConsoleId);
     }
 } else {
     $setRequestList = getUserRequestList($username);
@@ -53,8 +56,8 @@ RenderContentStart("Set Requests");
 
         if ($username === null) {
             echo "<h2>";
-            if ($selectedConsole > 0) {
-                echo "Most Requested " . array_column($consoles, 'Name', 'ID')[$selectedConsole] . " Sets";
+            if ($selectedConsoleId > 0) {
+                echo "Most Requested " . $selectedConsole->Name . " Sets";
             } else {
                 echo "Most Requested Sets";
             }
@@ -63,24 +66,26 @@ RenderContentStart("Set Requests");
             echo "<div align='right'>";
             echo "Filter by console: ";
             echo "<td><select class='gameselector' onchange='window.location = \"/setRequestList.php\" + this.options[this.selectedIndex].value'>";
-            if ($selectedConsole == null) {
+            if ($selectedConsoleId == null) {
                 echo "<option selected>-- Supported Systems --</option>";
             } else {
                 echo "<option value=''>-- Supported Systems --</option>";
             }
-            if ($selectedConsole == -1) {
+            if ($selectedConsoleId == -1) {
                 echo "<option selected>-- All Systems --</option>";
             } else {
                 echo "<option value='?s=-1'>-- All Systems --</option>";
             }
 
+            /** @var System $console */
             foreach ($consoles as $console) {
-                sanitize_outputs($console['Name']);
-                if ($selectedConsole == $console['ID']) {
-                    echo "<option selected>" . $console['Name'] . "</option>";
+                $consoleName = $console->Name;
+                sanitize_outputs($consoleName);
+                if ($selectedConsoleId == $console['ID']) {
+                    echo "<option selected>" . $consoleName . "</option>";
                 } else {
-                    echo "<option value='?s=" . $console['ID'] . "'>" . $console['Name'] . "</option>";
-                    echo "<a href=\"/setRequestList.php\">" . $console['Name'] . "</a><br>";
+                    echo "<option value='?s=" . $console['ID'] . "'>" . $consoleName . "</option>";
+                    echo "<a href=\"/setRequestList.php\">" . $consoleName . "</a><br>";
                 }
             }
 
@@ -115,9 +120,9 @@ RenderContentStart("Set Requests");
             echo "<div class='float-right row'>";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
-                if (!empty($selectedConsole)) {
-                    echo "<a href='/setRequestList.php?s=$selectedConsole'>First</a> - ";
-                    echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsole'>&lt; Previous $maxCount</a> - ";
+                if (!empty($selectedConsoleId)) {
+                    echo "<a href='/setRequestList.php?s=$selectedConsoleId'>First</a> - ";
+                    echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsoleId'>&lt; Previous $maxCount</a> - ";
                 } else {
                     echo "<a href='/setRequestList.php'>First</a> - ";
                     echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
@@ -125,9 +130,9 @@ RenderContentStart("Set Requests");
             }
             if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
                 $nextOffset = $offset + $maxCount;
-                if (!empty($selectedConsole)) {
-                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsole'>Next $maxCount &gt;</a>";
-                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsole'>Last</a>";
+                if (!empty($selectedConsoleId)) {
+                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsoleId'>Next $maxCount &gt;</a>";
+                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsoleId'>Last</a>";
                 } else {
                     echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
                     echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";

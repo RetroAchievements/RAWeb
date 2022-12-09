@@ -1,5 +1,7 @@
 <?php
 
+use LegacyApp\Site\Models\StaticData;
+
 /*
  *  API_GetAchievementOfTheWeek
  *   (no inputs)
@@ -37,9 +39,9 @@
  *       filters the Unlocks to just those entries after StartAt.
  */
 
-$staticData = getStaticData();
+$staticData = StaticData::first();
 $user = null;
-$achievementID = (int) ($staticData['Event_AOTW_AchievementID'] ?? null);
+$achievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
 $startAt = $staticData['Event_AOTW_StartAt'] ?? null;
 
 if (empty($achievementID)) {

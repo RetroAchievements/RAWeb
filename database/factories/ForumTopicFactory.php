@@ -9,7 +9,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ForumTopicFactory extends Factory
 {
-    public function definition()
+    /**
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
         $user = User::inRandomOrder()->first();
 

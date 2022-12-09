@@ -24,12 +24,12 @@
             <a class="dropdown-item" href="{{ route('news.index') }}">News</a>
             <div class="dropdown-divider"></div>
         @endcan
-        {{--@if(request()->user()->role_id >= \RA\Site\Models\Role::Admin)
+        {{--@if(request()->user()->role_id >= \App\Site\Models\Role::Admin)
             <h6 class="dropdown-header">Administration</h6>
             <a class="dropdown-item" href="{{ route('admin.dashboard') }}">Admin</a>
             <div class="dropdown-divider"></div>
         @endif
-        @can('manage', RA\Site\Models\Event::class)
+        @can('manage', App\Site\Models\Event::class)
             <h6 class="dropdown-header">Events</h6>
             <div class="dropdown-divider"></div>
         @endcan--}}

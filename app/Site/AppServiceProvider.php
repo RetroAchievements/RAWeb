@@ -10,6 +10,7 @@ use App\Site\Commands\SyncUsers;
 use App\Site\Commands\SystemAlert;
 use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -33,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
                 SystemAlert::class,
             ]);
         }
+
+        Model::shouldBeStrict(!$this->app->isProduction());
 
         /*
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map

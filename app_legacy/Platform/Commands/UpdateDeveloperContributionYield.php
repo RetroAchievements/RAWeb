@@ -2,33 +2,31 @@
 
 declare(strict_types=1);
 
-namespace LegacyApp\Platform\Commands\Developer;
+namespace LegacyApp\Platform\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\PlayerBadge;
 use LegacyApp\Site\Models\User;
 
-class RecalculateContributionYield extends Command
+class UpdateDeveloperContributionYield extends Command
 {
-    protected $signature = 'ra-legacy:platform:developer:recalculate-contribution-yield {username?}';
-
-    protected $description = 'Recalculates developer contributions and badge tiers';
+    protected $signature = 'ra-legacy:platform:update-developer-contribution-yield {username?}';
+    protected $description = 'Calculate developer contributions and badge tiers';
 
     public function handle(): void
     {
         $username = $this->argument('username');
         if (!empty($username)) {
-            $this->recalculate($username);
+            $this->calculate($username);
 
             return;
         }
 
-        $users = DB::connection('mysql_legacy')
-            ->table('UserAccounts')
-            ->select('User')
+        $users = User::select('User')
             ->where('ContribCount', '>', 0)
             ->get();
 
@@ -37,14 +35,14 @@ class RecalculateContributionYield extends Command
 
         /** @var User $user */
         foreach ($users as $user) {
-            $this->recalculate($user->User);
+            $this->calculate($user->User);
             $progressBar->advance();
         }
 
         $progressBar->finish();
     }
 
-    private function recalculate(string $username): void
+    private function calculate(string $username): void
     {
         $points = 0;
         $pointLevel = 0;
@@ -55,10 +53,8 @@ class RecalculateContributionYield extends Command
         $nextCountThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $countLevel);
 
         // get all unlocks for achievements created by the user ordered by date
-        $unlocks = DB::connection('mysql_legacy')
-            ->table('Awarded')
+        $unlocks = PlayerAchievement::select('Awarded.Date', DB::raw('MAX(Awarded.HardcoreMode)'), 'Achievements.Points')
             ->leftJoin('Achievements', 'Achievements.ID', '=', 'Awarded.AchievementID')
-            ->select('Awarded.Date', DB::raw('MAX(Awarded.HardcoreMode)'), 'Achievements.Points')
             ->where('Achievements.Author', '=', $username)
             ->where('Awarded.User', '!=', $username)
             ->where('Achievements.Flags', '=', AchievementType::OfficialCore)
@@ -66,32 +62,42 @@ class RecalculateContributionYield extends Command
             ->orderBy('Awarded.Date')
             ->get();
 
-        foreach ($unlocks as $unlock)
-        {
+        /** @var PlayerAchievement $unlock */
+        foreach ($unlocks as $unlock) {
             // when a threshold is crossed, award a badge
             $count++;
             if ($count === $nextCountThreshold) {
-                DB::connection('mysql_legacy')
-                    ->table('SiteAwards')
-                    ->upsert([['User' => $username,
+                PlayerBadge::upsert(
+                    [
+                        [
+                            'User' => $username,
                             'AwardType' => AwardType::AchievementUnlocksYield,
-                            'AwardData' => $countLevel, 'AwardDate' => $unlock->Date, ]],
-                            ['User', 'AwardType', 'AwardData'],
-                            ['AwardDate']);
+                            'AwardData' => $countLevel,
+                            'AwardDate' => $unlock->Date,
+                        ],
+                    ],
+                    ['User', 'AwardType', 'AwardData'],
+                    ['AwardDate']
+                );
                 $countLevel++;
 
                 $nextCountThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $countLevel);
             }
 
-            $points += $unlock->Points;
+            $points += $unlock['Points'];
             if ($points >= $nextPointThreshold) {
-                DB::connection('mysql_legacy')
-                    ->table('SiteAwards')
-                    ->upsert([['User' => $username,
+                PlayerBadge::upsert(
+                    [
+                        [
+                            'User' => $username,
                             'AwardType' => AwardType::AchievementPointsYield,
-                            'AwardData' => $pointLevel, 'AwardDate' => $unlock->Date, ]],
-                            ['User', 'AwardType', 'AwardData'],
-                            ['AwardDate']);
+                            'AwardData' => $pointLevel,
+                            'AwardDate' => $unlock->Date,
+                        ],
+                    ],
+                    ['User', 'AwardType', 'AwardData'],
+                    ['AwardDate']
+                );
                 $pointLevel++;
 
                 $nextPointThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementPointsYield, $pointLevel);
@@ -103,24 +109,18 @@ class RecalculateContributionYield extends Command
         }
 
         // remove any extra badge tiers
-        DB::connection('mysql_legacy')
-            ->table('SiteAwards')
-            ->where('User', '=', $username)
+        PlayerBadge::where('User', '=', $username)
             ->where('AwardType', '=', AwardType::AchievementUnlocksYield)
             ->where('AwardData', '>=', $countLevel)
             ->delete();
 
-        DB::connection('mysql_legacy')
-            ->table('SiteAwards')
-            ->where('User', '=', $username)
+        PlayerBadge::where('User', '=', $username)
             ->where('AwardType', '=', AwardType::AchievementPointsYield)
             ->where('AwardData', '>=', $pointLevel)
             ->delete();
 
         // update the denormalized data
-        DB::connection('mysql_legacy')
-            ->table('UserAccounts')
-            ->where('User', '=', $username)
+        User::where('User', '=', $username)
             ->update(['ContribCount' => $count, 'ContribYield' => $points]);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
+use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -14,7 +15,7 @@ $input = Validator::validate(request()->post(), [
     'points' => 'required|integer',
 ]);
 
-$achievement = GetAchievementData((int) $input['achievement']);
+$achievement = Achievement::find($input['achievement']);
 
 // Only allow jr. devs to update base data if they are the author
 if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {

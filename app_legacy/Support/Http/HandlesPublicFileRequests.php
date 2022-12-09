@@ -25,7 +25,7 @@ trait HandlesPublicFileRequests
 
         ob_start();
         try {
-            $response = require_once $scriptPath;
+            $response = require $scriptPath;
 
             if ($response instanceof Response) {
                 ob_end_clean();
@@ -63,7 +63,7 @@ trait HandlesPublicFileRequests
 
         $this->runInterceptor($path);
 
-        $response = include_once $scriptPath;
+        $response = require $scriptPath;
 
         if ($response instanceof Response) {
             return $response;

@@ -1,5 +1,7 @@
 <?php
 
+use LegacyApp\Platform\Models\System;
+
 /**
  * References:
  * https://github.com/RetroAchievements/RAInterface/blob/master/RA_Interface.h
@@ -124,10 +126,10 @@ function getReleasesFromFile(): ?array
 
 function getActiveEmulatorReleases(): array
 {
-    $consoles = getConsoleList();
+    $consoles = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
     $releases = getReleasesFromFile();
     $emulators = array_filter($releases['emulators'] ?? [], fn ($emulator) => $emulator['active'] ?? false);
-    if (!empty($consoles)) {
+    if ($consoles->isNotEmpty()) {
         $emulators = array_map(function ($emulator) use ($consoles) {
             $systems = [];
             foreach ($emulator['systems'] as $system) {

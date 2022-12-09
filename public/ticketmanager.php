@@ -6,6 +6,7 @@ use LegacyApp\Community\Enums\TicketFilters;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Community\Enums\TicketType;
 use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
@@ -79,7 +80,7 @@ if ($ticketID == 0) {
 
         $achievementIDGiven = requestInputSanitized('a', null, 'integer');
         if ($achievementIDGiven > 0) {
-            $achievementData = GetAchievementData($achievementIDGiven);
+            $achievementData = Achievement::find($achievementIDGiven);
             $achievementTitle = $achievementData['Title'];
             $gameIDGiven = $achievementData['GameID']; // overwrite the given game ID
         }

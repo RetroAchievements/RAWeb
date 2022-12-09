@@ -1,0 +1,20 @@
+<x-app-layout>
+    @guest
+        @include('content.welcome')
+    @endguest
+    <x-news.carousel/>
+    <?php
+    renderFinishedClaimsComponent(5);
+    RenderActivePlayersComponent();
+    ?>
+    <x-user.online-count-chart/>
+    <?php
+    renderNewClaimsComponent(5);
+    RenderRecentForumPostsComponent();
+    ?>
+    @slot('sidebar')
+        @include('content.top-links')
+        <x-event.aotw/>
+        @include('content.static-data')
+    @endslot
+</x-app-layout>

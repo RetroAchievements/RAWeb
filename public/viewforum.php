@@ -165,7 +165,7 @@ RenderContentStart("Forum: $thisForumTitle");
         ?>
     </div>
     <div id="rightcontainer">
-        <?php RenderRecentForumPostsComponent($permissions, 8); ?>
+        <?php RenderRecentForumPostsComponent(8); ?>
     </div>
 </div>
 <?php RenderContentEnd(); ?>

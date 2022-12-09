@@ -133,7 +133,7 @@ RenderContentStart($pageTitle);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderRecentForumPostsComponent($permissions, 8);
+        RenderRecentForumPostsComponent(8);
         ?>
     </div>
 </div>

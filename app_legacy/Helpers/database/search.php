@@ -151,7 +151,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
     $query = "SELECT SQL_CALC_FOUND_ROWS * FROM (" .
         implode(' UNION ALL ', $parts) . ") AS results ORDER BY Type LIMIT $offset, $count";
 
-    $dbResult = s_mysql_sanitized_query($query);
+    $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         log_sql_fail();
 

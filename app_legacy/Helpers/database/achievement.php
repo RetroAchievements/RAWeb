@@ -1,83 +1,27 @@
 <?php
 
+use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Platform\Enums\AchievementPoints;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Site\Enums\Permissions;
 
-function getAchievementTitle($id, &$gameTitleOut, &$gameIDOut): string
-{
-    sanitize_sql_inputs($id);
-    settype($id, "integer");
-
-    // Updated: embed game title
-    $query = "SELECT a.Title, g.Title AS GameTitle, g.ID as GameID FROM Achievements AS a
-                LEFT JOIN GameData AS g ON g.ID = a.GameID
-                WHERE a.ID = '$id'";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return "";
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-    if (!$data) {
-        log_sql_fail();
-
-        return "";
-    }
-
-    $gameTitleOut = $data['GameTitle'];
-    $gameIDOut = $data['GameID'];
-
-    return $data['Title'];
-}
-
-function GetAchievementData($id): ?array
-{
-    sanitize_sql_inputs($id);
-    settype($id, "integer");
-    $query = "SELECT * FROM Achievements WHERE ID=$id";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult || mysqli_num_rows($dbResult) != 1) {
-        return null;
-    } else {
-        return mysqli_fetch_assoc($dbResult);
-    }
-}
-
 function getAchievementsList(
-    $consoleIDInput,
     $user,
     $sortBy,
     $params,
     $count,
     $offset,
-    &$dataOut,
     $achFlags = 3,
     $dev = null
-): int {
-    sanitize_sql_inputs(
-        $consoleIDInput,
-        $user,
-        $sortBy,
-        $params,
-        $count,
-        $offset,
-        $achFlags,
-        $dev
-    );
-    settype($sortBy, 'integer');
-
-    $achCount = 0;
+): Collection {
+    $bindings = [];
 
     $innerJoin = "";
     if ($params > 0 && $user !== null) {
-        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'";
+        $bindings[] = $user;
+        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = ?";
     }
 
     $query = "SELECT
@@ -89,7 +33,8 @@ function getAchievementsList(
                 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID ";
 
     if (isset($achFlags)) {
-        $query .= "WHERE ach.Flags=$achFlags ";
+        $bindings[] = $achFlags;
+        $query .= "WHERE ach.Flags = ? ";
         if ($params == 1) {
             $query .= "AND ( !ISNULL( aw.User ) ) AND aw.HardcoreMode = 0 ";
         }
@@ -97,20 +42,22 @@ function getAchievementsList(
             $query .= "AND ( ISNULL( aw.User ) )  ";
         }
         if (isset($dev)) {
-            $query .= "AND ach.Author = '$dev' ";
+            $bindings[] = $dev;
+            $query .= "AND ach.Author = ? ";
         }
-        if ($sortBy == 4) {
+        if ((int) $sortBy == 4) {
             $query .= "AND ach.TrueRatio > 0 ";
         }
     } elseif (isset($dev)) {
-        $query .= "WHERE ach.Author = '$dev' ";
+        $bindings[] = $dev;
+        $query .= "WHERE ach.Author = ? ";
     }
 
     if ($params > 0 && $user !== null) {
         $query .= "GROUP BY ach.ID ";
     }
 
-    switch ($sortBy) {
+    switch ((int) $sortBy) {
         case 0:
         case 1:
             $query .= "ORDER BY ach.Title ";
@@ -162,42 +109,24 @@ function getAchievementsList(
             break;
     }
 
-    $query .= "LIMIT $offset, $count ";
+    $bindings[] = $offset;
+    $bindings[] = $count;
+    $query .= "LIMIT ?, ?";
 
-    $dataOut = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$achCount] = $db_entry;
-            $achCount++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $achCount;
+    return legacyDbFetchAll($query, $bindings);
 }
 
 function GetAchievementMetadataJSON($achID): ?array
 {
-    sanitize_sql_inputs($achID);
-    settype($achID, 'integer');
-
     $query = "SELECT ach.ID AS ID, ach.ID AS AchievementID, ach.GameID, ach.Title AS Title, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
                 ach.Flags, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
                 c.ID AS ConsoleID, c.Name AS ConsoleName, g.Title AS GameTitle, g.ImageIcon AS GameIcon
               FROM Achievements AS ach
               LEFT JOIN GameData AS g ON g.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = g.ConsoleID
-              WHERE ach.ID = $achID ";
+              WHERE ach.ID = ?";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-        return mysqli_fetch_assoc($dbResult);
-    }
-    log_sql_fail();
-
-    return null;
+    return legacyDbFetch($query, [$achID]);
 }
 
 function GetAchievementMetadata($achievementID, &$dataOut): bool
@@ -608,31 +537,4 @@ function updateAchievementFlags(int|string|array $achID, int $newFlags): bool
     }
 
     return true;
-}
-
-function getAchievementIDsByGame($gameID): array
-{
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
-
-    $retVal = [];
-    $retVal['GameID'] = $gameID;
-
-    // Get all achievement IDs
-    $query = "SELECT ach.ID AS ID
-              FROM Achievements AS ach
-              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore . "
-              ORDER BY ach.ID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $achIDs = [];
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            settype($data['ID'], 'integer');
-            $achIDs[] = $data['ID'];
-        }
-        $retVal['AchievementIDs'] = $achIDs;
-    }
-
-    return $retVal;
 }

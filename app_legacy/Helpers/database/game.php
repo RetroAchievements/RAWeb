@@ -484,7 +484,7 @@ function getGameIDFromTitle($gameTitle, $consoleID): int
               FROM GameData AS gd
               WHERE gd.Title='$gameTitle' AND gd.ConsoleID='$consoleID'";
 
-    $dbResult = s_mysql_sanitized_query($query);
+    $dbResult = s_mysql_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
         settype($retVal['ID'], 'integer');
 

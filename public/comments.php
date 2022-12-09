@@ -1,7 +1,13 @@
 <?php
 
 use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Models\Ticket;
+use LegacyApp\Platform\Models\Achievement;
+use LegacyApp\Platform\Models\Game;
+use LegacyApp\Platform\Models\Leaderboard;
+use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -22,14 +28,14 @@ $commentsLabel = "Comments";
 switch ($articleTypeID)
 {
     case ArticleType::Game:
-        $gameData = getGameData($articleID);
-        if ($gameData === null) {
-            abort(404);
-        }
-        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
-        $navPath =
-        [
-            '_GamePrefix' => renderGameBreadcrumb($gameData),
+        /** @var Game $game */
+        $game = Game::findOrFail($articleID);
+        /** @var System $console */
+        $console = $game->console;
+
+        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
+        $navPath = [
+            '_GamePrefix' => renderGameBreadcrumb($game->ID),
         ];
         break;
 
@@ -37,16 +43,15 @@ switch ($articleTypeID)
         if ($permissions < Permissions::Developer) {
             abort(403);
         }
-        $gameData = getGameData($articleID);
-        if ($gameData === null) {
-            abort(404);
-        }
-        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
+        /** @var Game $game */
+        $game = Game::findOrFail($articleID);
+        /** @var System $console */
+        $console = $game->console;
+        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
         $commentsLabel = "Hash Comments";
-        $navPath =
-        [
-            '_GamePrefix' => renderGameBreadcrumb($gameData),
-            'Manage Hashes' => '/managehashes.php?g=' . $gameData['ID'],
+        $navPath = [
+            '_GamePrefix' => renderGameBreadcrumb($game->ID),
+            'Manage Hashes' => '/managehashes.php?g=' . $game->ID,
         ];
         break;
 
@@ -54,15 +59,15 @@ switch ($articleTypeID)
         if ($permissions < Permissions::JuniorDeveloper) {
             abort(403);
         }
-        $gameData = getGameData($articleID);
-        if ($gameData === null) {
-            abort(404);
-        }
-        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
+        /** @var Game $game */
+        $game = Game::findOrFail($articleID);
+        /** @var System $console */
+        $console = $game->console;
+        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
         $commentsLabel = "Modifications";
         $navPath =
         [
-            '_GamePrefix' => renderGameBreadcrumb($gameData),
+            '_GamePrefix' => renderGameBreadcrumb($game->ID),
         ];
         break;
 
@@ -70,60 +75,52 @@ switch ($articleTypeID)
         if ($permissions < Permissions::Admin) {
             abort(403);
         }
-        $gameData = getGameData($articleID);
-        if ($gameData === null) {
-            abort(404);
-        }
-        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
+        /** @var Game $game */
+        $game = Game::findOrFail($articleID);
+        /** @var System $console */
+        $console = $game->console;
+        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
         $commentsLabel = "Claim Comments";
-        $navPath =
-        [
-            '_GamePrefix' => renderGameBreadcrumb($gameData),
-            'Manage Claims' => '/manageclaims.php?g=' . $gameData['ID'],
+        $navPath = [
+            '_GamePrefix' => renderGameBreadcrumb($game->ID),
+            'Manage Claims' => '/manageclaims.php?g=' . $game->ID,
         ];
         break;
 
     case ArticleType::Achievement:
-        $pageTitle = getAchievementTitle($articleID, $gameTitle, $gameID);
-        if (empty($pageTitle)) {
-            abort(404);
-        }
-        $gameData = getGameData($gameID);
-        if ($gameData === null) {
-            abort(404);
-        }
-        $navPath =
-        [
-            '_GamePrefix' => renderGameBreadcrumb($gameData),
-            $pageTitle => '/achievement/' . $articleID,
+        /** @var Achievement $achievement */
+        $achievement = Achievement::findOrFail($articleID);
+        /** @var Game $game */
+        $game = Game::findOrFail($achievement->GameID);
+        /** @var System $console */
+        $console = $game->console;
+        $pageTitle = $achievement->Title;
+        $navPath = [
+            '_GamePrefix' => renderGameBreadcrumb($game->ID),
+            $pageTitle => '/achievement/' . $achievement->ID,
         ];
         break;
 
     case ArticleType::Leaderboard:
-        $pageTitle = getleaderboardTitle($articleID, $gameID);
-        if (empty($pageTitle)) {
-            abort(404);
-        }
-        $gameData = getGameData($gameID);
-        if ($gameData === null) {
-            abort(404);
-        }
-        $navPath =
-        [
-            '_GamePrefix' => renderGameBreadcrumb($gameData),
-            $pageTitle => '/leaderboard/' . $articleID,
+        /** @var Leaderboard $leaderboard */
+        $leaderboard = Leaderboard::findOrFail($articleID);
+        /** @var Game $game */
+        $game = Game::findOrFail($leaderboard->GameID);
+        $console = $game->console;
+        $pageTitle = $leaderboard->Title;
+        $navPath = [
+            '_GamePrefix' => renderGameBreadcrumb($game->ID),
+            $pageTitle => '/leaderboard/' . $leaderboard->ID,
         ];
         break;
 
     case ArticleType::User:
-        $pageTitle = getUserFromID($articleID);
-        if (empty($pageTitle) || !getAccountDetails($pageTitle, $userData)) {
-            abort(404);
-        }
-        $navPath =
-        [
+        /** @var User $user */
+        $user = User::findOrFail($articleID);
+        $pageTitle = $user->User;
+        $navPath = [
             'All Users' => '/userList.php',
-            $pageTitle => '/user/' . $pageTitle,
+            $user->User => '/user/' . $user->User,
         ];
         break;
 
@@ -131,26 +128,21 @@ switch ($articleTypeID)
         if ($permissions < Permissions::Admin) {
             abort(403);
         }
-        $pageTitle = getUserFromID($articleID);
-        if (empty($pageTitle) || !getAccountDetails($pageTitle, $userData)) {
-            abort(404);
-        }
+        /** @var User $user */
+        $user = User::findOrFail($articleID);
+        $pageTitle = $user->User;
         $commentsLabel = "Moderation Comments";
-        $navPath =
-        [
+        $navPath = [
             'All Users' => '/userList.php',
-            $pageTitle => '/user/' . $pageTitle,
+            $user->User => '/user/' . $user->User,
         ];
         break;
 
     case ArticleType::AchievementTicket:
-        $ticket = getTicket($articleID);
-        if ($ticket == null) {
-            abort(404);
-        }
-        $pageTitle = "Ticket $articleID: " . $ticket['AchievementTitle'];
-        $navPath =
-        [
+        /** @var Ticket $ticket */
+        $ticket = Ticket::findOrFail($articleID);
+        $pageTitle = "Ticket $articleID: " . $ticket->achievement->Title;
+        $navPath = [
             'Ticket Manager' => '/ticketmanager.php',
             $articleID => '/ticketmanager.php?i=' . $articleID,
         ];

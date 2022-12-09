@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Cache;
+use LegacyApp\Platform\Models\Game;
 use LegacyApp\Site\Enums\Permissions;
 
 function gameAvatar(
@@ -91,8 +92,13 @@ function renderGameTitle(?string $title, bool $tags = true): string
  * Format: `All Games » (console) » (game title)`.
  * If given data is for a subset, then `» Subset - (name)` is also added.
  */
-function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true): string
+function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true): string
 {
+    if (is_int($data)) {
+        $data = getGameData($data);
+    }
+
+    // TODO refactor to Game
     [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
 
     // Return next crumb (i.e `» text`), either as a link or not

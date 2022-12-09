@@ -23,8 +23,8 @@ $gameID = requestInputSanitized('g', null, 'integer');
 $limit = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', $offset, 'integer');
 
-$claimData = getFilteredClaimData($gameID, $claimFilters, $sortType, false, $username, false, $offset, $limit);
-$totalClaims = getFilteredClaimData($gameID, $claimFilters, $sortType, false, $username, true);
+$claimData = getFilteredClaims($gameID, $claimFilters, $sortType, false, $username, $offset, $limit);
+$totalClaims = getFilteredClaims($gameID, $claimFilters, $sortType, false, $username)->count();
 
 $activeClaimCount = getActiveClaimCount();
 

@@ -136,6 +136,7 @@ use LegacyApp\Community\Enums\TicketFilters;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Community\Enums\TicketType;
 use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Models\Achievement;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;
@@ -246,7 +247,7 @@ if ($gameIDGiven > 0) {
 // getting data for a specific achievement
 $achievementIDGiven = (int) request()->query('a');
 if ($achievementIDGiven > 0) {
-    $achievementData = GetAchievementData($achievementIDGiven);
+    $achievementData = Achievement::find($achievementIDGiven);
     if (!$achievementData) {
         return response()->json(['error' => "Achievement ID $achievementIDGiven not found"], 404);
     }

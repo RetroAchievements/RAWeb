@@ -181,15 +181,6 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
         case ActivityType::OpenedTicket:
         case ActivityType::ClosedTicket:
             $achID = $customMsg;
-            $achievementName = getAchievementTitle($achID, $gameTitle, $gameID);
-
-            if ($activity == ActivityType::OpenedTicket || $activity == ActivityType::ClosedTicket) {
-                $achievementLink = "<a href='/ticketmanager.php?a=$achID&t=1'>$achievementName</a>";
-            } else {
-                $achievementLink = "<a href='/achievement/$achID'>$achievementName</a>";
-            }
-            $achievementLink = str_replace("'", "''", $achievementLink);
-
             $query .= "(NOW(), $activity, '$user', '$achID', NULL)";
             break;
 
@@ -599,33 +590,6 @@ function getRecentArticleComments(int $articleTypeID, int $articleID, ?array &$d
     $dataOut = array_reverse($dataOut);
 
     return $numArticleComments;
-}
-
-function getCurrentlyOnlinePlayers(): array
-{
-    $recentMinutes = 10;
-
-    $playersFound = [];
-
-    // Select all users active in the last 10 minutes:
-    $query = "SELECT ua.User, ua.RAPoints, ua.RASoftcorePoints, act.timestamp AS LastActivityAt, ua.RichPresenceMsg AS LastActivity, act.data as GameID
-              FROM UserAccounts AS ua
-              LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
-              WHERE ua.LastLogin > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
-              ORDER BY ua.ID ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            settype($db_entry['RAPoints'], 'integer');
-            settype($db_entry['GameID'], 'integer');
-            $playersFound[] = $db_entry;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $playersFound;
 }
 
 function getLatestRichPresenceUpdates(): array

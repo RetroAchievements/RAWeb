@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -15,7 +16,7 @@ $input = Validator::validate(request()->post(), [
 
 $achievementID = (int) $input['achievement'];
 
-$achievement = GetAchievementData($achievementID);
+$achievement = Achievement::find($achievementID);
 if (!$achievement) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }

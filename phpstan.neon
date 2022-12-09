@@ -5,7 +5,7 @@ parameters:
         # - app
         - app_legacy
         - public
-        # - tests
+        - tests
     # TODO v2 was at level 6
     level: 5
     checkMissingIterableValueType: false
@@ -24,6 +24,8 @@ parameters:
         - '#Parameter (.*) $view of function view expects view-string|null, string given.#'
         # lib/database/user-activity.php
         - '#Offset (.*) does not exist on#'
+        # TODO check if still an issue with Laravel 10
+        - '#Call to an undefined method Database\\Factories#'
     excludePaths:
         # unrelated directories
         - public/storage

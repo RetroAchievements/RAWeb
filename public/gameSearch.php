@@ -1,12 +1,13 @@
 <?php
 
+use LegacyApp\Platform\Models\System;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 50;
 
-$consoleList = getConsoleList();
-$consoleList[0] = 'All Consoles';
-ksort($consoleList);                // Bump 'All Consoles' to the top
+$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+$consoleList->prepend('All Consoles', 0);
 
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');

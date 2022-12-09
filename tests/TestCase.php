@@ -27,6 +27,11 @@ abstract class TestCase extends BaseTestCase
         $this->withoutVite();
     }
 
+    protected function assertPathEquals(string $expected, string $actual, string $message = ''): void
+    {
+        $this->assertEquals(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $expected), $actual, $message);
+    }
+
     protected function seedUsers(): void
     {
         $this->seed(RolesTableSeeder::class);

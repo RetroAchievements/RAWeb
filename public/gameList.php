@@ -1,8 +1,9 @@
 <?php
 
+use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Enums\Permissions;
 
-$consoleList = getConsoleList();
+$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $showCompleteGames = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 
@@ -153,15 +154,14 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
     echo "</tbody></table></div>";
 }
 
-if (array_key_exists($consoleIDInput, $consoleList)) {
+if ($consoleList->has($consoleIDInput)) {
     $consoleName = $consoleList[$consoleIDInput];
     $requestedConsole = $consoleName;
 } elseif ($consoleIDInput === 0) {
     $consoleName = "All Games";
     $requestedConsole = "All";
 } else {
-    $consoleName = "Unknown Console";
-    $requestedConsole = "Unknown Console";
+    abort(404);
 }
 sanitize_outputs($consoleName, $requestedConsole);
 

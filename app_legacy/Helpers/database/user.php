@@ -27,23 +27,20 @@ function getAccountDetails(&$user, &$dataOut): bool
         return false;
     }
 
-    sanitize_sql_inputs($user);
-
     $query = "SELECT ID, User, EmailAddress, Permissions, RAPoints, RASoftcorePoints, TrueRAPoints,
                      cookie, websitePrefs, UnreadMessageCount, Motto, UserWallActive,
                      APIKey, ContribCount, ContribYield,
                      RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
                      Created, DeleteRequested, Untracked
                 FROM UserAccounts
-                WHERE User='$user'
+                WHERE User=?
                 AND Deleted IS NULL";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult || mysqli_num_rows($dbResult) !== 1) {
+    $dataOut = legacyDbFetch($query, [$user]);
+
+    if (!$dataOut) {
         return false;
     }
-
-    $dataOut = mysqli_fetch_array($dbResult);
 
     $user = $dataOut['User'];
 
@@ -65,22 +62,6 @@ function getUserIDFromUser($user): int
 
     // cannot find user $user
     return 0;
-}
-
-function getUserFromID($userID): string
-{
-    sanitize_sql_inputs($userID);
-
-    $query = "SELECT User FROM UserAccounts WHERE ID ='$userID'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return $data ? (string) $data['User'] : '';
-    }
-
-    return '';
 }
 
 function getUserMetadataFromID($userID): ?array

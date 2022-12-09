@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Cache;
+use LegacyApp\Platform\Models\Achievement;
 
 function achievementAvatar(
-    int|string|array $achievement,
+    int|string|array|Achievement $achievement,
     ?bool $label = null,
     bool|int|string|null $icon = null,
     int $iconSize = 32,
@@ -13,6 +14,10 @@ function achievementAvatar(
 ): string {
     $id = $achievement;
     $title = null;
+
+    if ($achievement instanceof Achievement) {
+        $achievement = $achievement->toArray();
+    }
 
     if (is_array($achievement)) {
         $id = $achievement['AchievementID'] ?? $achievement['ID'];

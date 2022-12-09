@@ -1,14 +1,12 @@
 <?php
 
-$maxCount = 25;
-
 $offset = requestInputSanitized('o', 0, 'integer');
-$count = $maxCount;
+$count = $maxCount = 25;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $forUser = requestInputSanitized('u');
-$numPostsFound = getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData, $forUser);
+$recentPosts = getRecentForumPosts($offset, $count, 90, $permissions, $forUser);
 
 RenderContentStart("Forum Recent Posts");
 ?>
@@ -44,7 +42,7 @@ RenderContentStart("Forum Recent Posts");
         echo "<th class='whitespace-nowrap'>Posted At</th>";
         echo "</tr>";
 
-        foreach ($recentPostsData as $topicPostData) {
+        foreach ($recentPosts as $topicPostData) {
             $postMessage = $topicPostData['ShortMsg'];
             $postAuthor = $topicPostData['Author'];
             $forumTopicID = $topicPostData['ForumTopicID'];
@@ -82,7 +80,7 @@ RenderContentStart("Forum Recent Posts");
             $prevOffset = $offset - $maxCount;
             echo "<a href='$baseUrl$prevOffset'>&lt; Previous $maxCount</a> - ";
         }
-        if ($numPostsFound == $maxCount) {
+        if ($recentPosts->count() === $maxCount) {
             // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='$baseUrl$nextOffset'>Next $maxCount &gt;</a>";

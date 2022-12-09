@@ -4,6 +4,7 @@ use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
+use LegacyApp\Platform\Models\Achievement;
 
 function playerHasUnlock(?string $user, $achievementId): array
 {
@@ -245,7 +246,7 @@ function resetSingleAchievement(string $user, $achID): bool
     }
 
     if ($numRowsDeleted > 0) {
-        $achData = GetAchievementData($achID);
+        $achData = Achievement::find($achID);
         if ($achData['Flags'] == AchievementType::OfficialCore) {
             // user no longer has all core achievements, delete their site award
             // (does nothing if they don't have a site award)
