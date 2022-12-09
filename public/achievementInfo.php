@@ -75,7 +75,7 @@ if ($dateWonLocal === "") {
 
 $achievedLocal = ($dateWonLocal !== "");
 
-$numArticleComments = getArticleComments(ArticleType::Achievement, $achievementID, 0, 20, $commentData);
+$numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achievementID, $commentData);
 
 getCodeNotes($gameID, $codeNotes);
 

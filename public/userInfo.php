@@ -33,7 +33,7 @@ $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
 // Get wall
-$numArticleComments = getArticleComments(ArticleType::User, $userPageID, 0, 100, $commentData);
+$numArticleComments = getRecentArticleComments(ArticleType::User, $userPageID, $commentData);
 
 // Get user's feed
 // $numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
@@ -477,7 +477,7 @@ RenderContentStart($userPage);
 
             echo "<tr><td colspan=2>";
             echo "<div class='commentscomponent left'>";
-            $numLogs = getArticleComments(ArticleType::UserModeration, $userPageID, 0, 1000, $logs);
+            $numLogs = getRecentArticleComments(ArticleType::UserModeration, $userPageID, $logs);
             RenderCommentsComponent($user,
                 $numLogs,
                 $logs,

@@ -43,7 +43,7 @@ $forumTopicID = $lbData['ForumTopicID'];
 $pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
-$numArticleComments = getArticleComments(ArticleType::Leaderboard, $lbID, 0, 20, $commentData);
+$numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
 
 function ExplainLeaderboardTrigger(string $name, string $triggerDef, array $codeNotes): void
 {
@@ -84,20 +84,29 @@ RenderContentStart('Leaderboard');
             echo "<a href='/gameList.php'>All Games</a>";
             echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
             echo " &raquo; <a href='/game/$gameID'>$gameTitle</a></b>";
-            echo " &raquo; <b>Leaderboard</b>";
+            echo " &raquo; <b>$lbTitle</b>";
             echo "</div>";
 
-            echo "<div style='float:left; padding: 4px;'>";
-            echo gameAvatar($lbData, label: false, iconSize: 96);
+            echo "<h3>$gameTitle ($consoleName)</h3>";
 
-            echo "</div>";
+            echo "<table class='nicebox'><tbody>";
+
+            echo "<tr>";
+            echo "<td style='width:70px'>";
+            echo gameAvatar($lbData, label: false, iconSize: 64);
+            echo "</td>";
+
+            echo "<td>";
+            echo "<div class='flex justify-between'>";
             echo "<div>";
-            echo "<h3>$pageTitle</h3>";
+            echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br>";
+            echo "$lbDescription";
             echo "</div>";
+            echo "</div>";
+            echo "</td>";
 
-            echo "<br>";
-            echo "<br>";
-            echo "<br>";
+            echo "</tr>";
+            echo "</tbody></table>";
 
             $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
             $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));

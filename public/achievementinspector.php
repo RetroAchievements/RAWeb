@@ -229,6 +229,7 @@ function updateAchievementsTypeFlag(typeFlag) {
 
     if (!empty($codeNotes)) {
         echo "<div id='rightcontainer'>";
+        echo "<h3>Code Notes</h3>";
         RenderCodeNotes($codeNotes);
         echo "</div>";
     }
