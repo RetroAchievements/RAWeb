@@ -99,14 +99,14 @@ class NoIntroImport extends Command
             $this->warn($escapedHashes->pluck('system_id')->unique()->implode(', '));
             $this->warn($escapedHashes->pluck('hash')->unique()->implode(', '));
             if (!$ignoreSystemMismatch) {
-                throw new \Exception('System mismatch detected. Move those first or pass --ignore-system-mismatch.');
+                throw new Exception('System mismatch detected. Move those first or pass --ignore-system-mismatch.');
             }
         }
 
         if (!$existingNoIntroHashesCount) {
             $this->warn('Whoops! No existing ROMs found.');
             if (!$seed) {
-                throw new \Exception('Aborting. Pass --seed to seed this system - check if ROMs are suitable first!');
+                throw new Exception('Aborting. Pass --seed to seed this system - check if ROMs are suitable first!');
             }
         }
 

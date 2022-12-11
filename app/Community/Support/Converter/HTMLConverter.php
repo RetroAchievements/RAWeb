@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace App\Community\Support\Converter;
 
+use RuntimeException;
+
 /**
  * @brief A rudimentary converter that takes as input HTML and replaces tags with related BBCodes.
  * @details This converter doesn't touch the HTML inside pre or code tags.
@@ -79,7 +81,7 @@ class HTMLConverter extends Converter
                         $target = '_self';
                     }
                 } else {
-                    throw new \RuntimeException(sprintf("Text identified by '%d' has malformed links", $this->id));
+                    throw new RuntimeException(sprintf("Text identified by '%d' has malformed links", $this->id));
                 }
 
                 return '[url=' . $href . ']' . $matches[1] . '[/url]';
@@ -100,7 +102,7 @@ class HTMLConverter extends Converter
                 if (preg_match('/\s*src\s*=\s*("([^"]*")|\'[^\']*\'|([^\'">\s]+))/iu', $matches[0], $others) === 1) {
                     $src = trim($others[1], '"');
                 } else {
-                    throw new \RuntimeException(sprintf("Text identified by '%d' has malformed images", $this->id));
+                    throw new RuntimeException(sprintf("Text identified by '%d' has malformed images", $this->id));
                 }
 
                 return '[img]' . $src . '[/img]';

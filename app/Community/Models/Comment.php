@@ -6,6 +6,7 @@ namespace App\Community\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Shortcode\HasShortcodeFields;
+use Exception;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -70,11 +71,11 @@ class Comment extends BaseModel
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function notImplementedException(): void
     {
-        throw new \Exception('Use derived comment model class in the comments() morphTo() relationship instead of ' . Comment::class . '. Add link attribute getters to the derived class. Use A dedicated controller for it and use the prepared actions.');
+        throw new Exception('Use derived comment model class in the comments() morphTo() relationship instead of ' . Comment::class . '. Add link attribute getters to the derived class. Use A dedicated controller for it and use the prepared actions.');
     }
 
     // == mutators
