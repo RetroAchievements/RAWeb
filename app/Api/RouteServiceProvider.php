@@ -65,7 +65,7 @@ class RouteServiceProvider extends ServiceProvider
                 /*
                  * Make sure to register a catch-all, too, to prevent the web app from ever responding
                  */
-                Route::any('/{any?}', [WebApiController::class, 'noop']);
+                Route::any('/{path?}', [WebApiController::class, 'noop'])->where('path', '(.*)');
             });
     }
 

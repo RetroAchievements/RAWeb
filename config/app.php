@@ -240,7 +240,7 @@ return [
         App\Legacy\RouteServiceProvider::class,
 
         /*
-         * Server Service Providers
+         * Platform Service Providers
          */
         App\Platform\AppServiceProvider::class,
         App\Platform\AuthServiceProvider::class,
