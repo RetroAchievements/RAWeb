@@ -134,9 +134,13 @@ class RouteServiceProvider extends ServiceProvider
     private function runInterceptor(string $path)
     {
         if (config('interceptor.connect') && $path === 'dorequest') {
-            require config('interceptor.root') . '/' . config('interceptor.connect');
+            if (file_exists(config('interceptor.connect'))) {
+                require config('interceptor.connect');
+            }
         } elseif (config('interceptor.web')) {
-            require config('interceptor.root') . '/' . config('interceptor.web');
+            if (file_exists(config('interceptor.web'))) {
+                require config('interceptor.web');
+            }
         }
     }
 }

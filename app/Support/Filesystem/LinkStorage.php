@@ -21,12 +21,6 @@ class LinkStorage extends StorageLinkCommand
             $this->localLinks();
         }
 
-        if (config('interceptor.root')) {
-            $this->laravel['config']['filesystems.links'] = array_merge($this->laravel['config']['filesystems.links'], [
-                config('filesystems.disks.public.root') . '/interceptor' => config('interceptor.root') . '/public',
-            ]);
-        }
-
         parent::handle();
     }
 
