@@ -25,6 +25,8 @@ parameters:
         - '#Parameter (.*) of function htmlentities expects#'
         # TODO views have been removed
         - '#Parameter (.*) $view of function view expects view-string|null, string given.#'
+        # lib/database/user-activity.php
+        - '#Offset (.*) does not exist on#'
     excludePaths:
         # unrelated directories
         - public/tmp
