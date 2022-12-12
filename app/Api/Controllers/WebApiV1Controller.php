@@ -8,7 +8,10 @@ use App\Http\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class WebApiController extends Controller
+/**
+ * TODO: Replaced by [retroachievements/retroachievements-api-php](https://github.com/retroachievements/retroachievements-api-php)
+ */
+class WebApiV1Controller extends Controller
 {
     public function noop(Request $request, ?string $method = null): void
     {
