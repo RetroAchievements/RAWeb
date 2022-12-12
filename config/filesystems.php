@@ -86,8 +86,8 @@ return [
                 'CacheControl' => 'max-age=2628000, no-transform, public',
             ],
             // enable minio as aws s3 drop-in replacement
-            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
-            'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
+            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
+            'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
         ],
     ],
 
