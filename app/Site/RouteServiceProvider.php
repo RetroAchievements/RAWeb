@@ -9,7 +9,10 @@ use App\Site\Controllers\HomeController;
 use App\Site\Controllers\RedirectController;
 use App\Site\Controllers\UserController;
 use App\Support\Http\HandlesPublicFileRequests;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Laravel\Octane\Facades\Octane;
 
@@ -51,8 +54,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
-        // TODO setup rate limiting
-        // RateLimiter::for('web', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
+        RateLimiter::for('web', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void

@@ -8,7 +8,10 @@ use App\Api\Controllers\WebApiController;
 use App\Api\Controllers\WebApiV1Controller;
 use App\Api\Middleware\LogApiUsage;
 use App\Support\Http\HandlesPublicFileRequests;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
@@ -22,8 +25,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
-        // TODO setup rate limiting
-        // RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->ID ?: $request->ip()));
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void

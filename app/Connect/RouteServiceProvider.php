@@ -6,7 +6,10 @@ namespace App\Connect;
 
 use App\Connect\Controllers\ConnectApiController;
 use App\Support\Http\HandlesPublicFileRequests;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
@@ -20,8 +23,7 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
-        // TODO setup rate limiting
-        // RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
+        RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void
