@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api;
 
 use App\Api\Controllers\WebApiController;
+use App\Api\Controllers\WebApiV1Controller;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -48,24 +49,33 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix($this->apiPrefix())
             ->middleware(['api'])
             ->group(function () {
-                /*
-                 * list the available connect servers for clients
-                 */
-                Route::get('connect', [WebApiController::class, 'connect.servers']);
 
-                /*
-                 * Passport guarded
-                 * Note: To have connected clients have access to the web api, too, the client has to send
-                 * auth to both. This is not granted inherently here.
-                 */
-                Route::middleware(['auth:passport'])->group(function () {
-                    Route::get('users', [WebApiController::class, 'users']);
+                Route::prefix('v1')->group(function () {
+                    Route::middleware(['auth:api-token'])->group(function () {
+                        Route::any('{method}', [WebApiV1Controller::class, 'request']);
+                    });
+                });
+
+                Route::prefix('v2')->group(function () {
+                    /*
+                     * list the available connect servers for clients
+                     */
+                    Route::get('connect', [WebApiController::class, 'connectServers']);
+
+                    /*
+                     * Passport guarded
+                     * Note: To have connected clients have access to the web api, too, the client has to send
+                     * auth to both. This is not granted inherently here.
+                     */
+                    Route::middleware(['auth:passport'])->group(function () {
+                        Route::get('users', [WebApiController::class, 'users']);
+                    });
                 });
 
                 /*
                  * Make sure to register a catch-all, too, to prevent the web app from ever responding
                  */
-                Route::any('/{any?}', [WebApiController::class, 'noop']);
+                Route::any('/{path?}', [WebApiController::class, 'noop'])->where('path', '(.*)');
             });
     }
 
@@ -82,8 +92,8 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * Usually called via GET, should allow POST, too though
              */
-            Route::any('{method}.php', [WebApiController::class, 'request']);
-            Route::any('{method}', [WebApiController::class, 'request']);
+            Route::any('{method}.php', [WebApiV1Controller::class, 'request']);
+            Route::any('{method}', [WebApiV1Controller::class, 'request']);
             /*
              * Nothing to do on root level
              */
