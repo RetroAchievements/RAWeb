@@ -86,8 +86,8 @@ return [
                 'CacheControl' => 'max-age=2628000, no-transform, public',
             ],
             // enable minio as aws s3 drop-in replacement
-            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
-            'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', false),
+            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
+            'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
         ],
     ],
 
@@ -103,7 +103,29 @@ return [
     */
 
     'links' => [
-        // public_path('storage') => storage_path('app/public'),
+        public_path('storage') => storage_path('app/public'),
+
+        /*
+         * re-link public assets and vendor folders in reverse - will be served through static host on production server
+         * these do not carry over between deployments
+         */
+        storage_path('app/static/assets') => public_path('assets'),
+        storage_path('app/static/vendor') => public_path('vendor'),
+        storage_path('app/static/docs') => base_path('docs/dist'),
+
+        // legacy
+        public_path('Badge') => storage_path('app/media/Badge'),
+        public_path('Images') => storage_path('app/media/Images'),
+        public_path('bin') => storage_path('app/media/bin'),
+        public_path('UserPic') => storage_path('app/media/UserPic'),
+        public_path('LatestIntegration.html') => storage_path('app/LatestIntegration.html'),
+
+        /*
+         * replace linked default user avatar
+         * Note: should be safe images that can be displayed well in emulator
+         */
+        storage_path('app/media/UserPic/_User.png') => public_path('assets/images/user/avatar-safe.png'),
+        storage_path('app/media/Images/000001.png') => public_path('assets/images/game/icon-safe.png'),
     ],
 
 ];

@@ -17,6 +17,7 @@ $rules = [
     'braces' => false, // TODO remove as soon as inline php tags with echos are gone?
     'concat_space' => ['spacing' => 'one'],
     'echo_tag_syntax' => false,
+    'global_namespace_import' => true,
     'increment_style' => ['style' => 'post'],
     'no_alternative_syntax' => false,
     'no_extra_blank_lines' => [
