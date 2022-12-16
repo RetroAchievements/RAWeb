@@ -13,6 +13,11 @@ function canSearch(int $searchType, int $permissions): bool {
         case SearchType::GameHashComment:
             return $permissions >= Permissions::Developer;
 
+        case SearchType::TicketComment:
+            // technically, just need to be logged in
+            // but a not-logged-in user has Unregistered permissions.
+            return $permissions >= Permissions::Registered;
+
         default:
             return true;
     }
@@ -86,7 +91,9 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
     }
 
     if ($searchType == SearchType::TicketComment || $searchType == SearchType::All) {
-        $articleTypes[] = ArticleType::AchievementTicket;
+        if (canSearch(SearchType::GameHashComment, $permissions)) {
+            $articleTypes[] = ArticleType::AchievementTicket;
+        }
     }
 
     if ($searchType == SearchType::UserComment || $searchType == SearchType::All) {
