@@ -60,7 +60,7 @@ ${NPM_BIN} install
 ${NPM_BIN} run build
 #${NPM_BIN} run apidoc
 
-${PHP_BIN} artisan ra:storage:link --relative
+${PHP_BIN} artisan ra:storage:link --force
 #${PHP_BIN} artisan migrate
 
 
