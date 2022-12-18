@@ -285,6 +285,7 @@ RenderContentStart($pageTitle);
                 echo $linkFilter('RA Emulator', TicketFilters::EmulatorRA) . ' | ';
                 echo $linkFilter('RetroArch - Core Specified', TicketFilters::EmulatorRetroArchCoreSpecified) . ' | ';
                 echo $linkFilter('RetroArch - Core Not Specified', TicketFilters::EmulatorRetroArchCoreNotSpecified) . ' | ';
+                echo $linkFilter('Other', TicketFilters::EmulatorOther) . ' | ';
                 echo $linkFilter('Unknown', TicketFilters::EmulatorUnknown);
                 echo "</div>";
 
