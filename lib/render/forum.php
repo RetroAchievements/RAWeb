@@ -38,7 +38,7 @@ function RenderRecentForumPostsComponent($permissions, $numToFetch = 4): void
             echo userAvatar($author, iconSize: 16);
             echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
-            echo "<div class='comment break-all'>$shortMsg</div>";
+            echo "<div class='comment text-overflow-wrap'>$shortMsg</div>";
             echo "</div>";
             echo "<a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a>";
             echo "</div>";
