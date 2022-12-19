@@ -87,25 +87,21 @@ function RenderAwardGroup($awards, $title): void
         $counters = "";
         if ($numGamesMastered > 0) {
             $icon = mb_substr($icons[$title], 0, 1);
-            $counters .= "
-                <div class='awardcounter' title='# of mastered games'>
-                    <span class='icon'>$icon</span><span class='numitems'>$numGamesMastered</span>
-                </div>";
+            $text = ($numGamesMastered > 1 ? "games" : "game") . " MASTERED";
+            $counters .= RenderCounter($icon, $text, $numGamesMastered);
         }
         if ($numGamesCompleted > 0) {
             $icon = mb_substr($icons[$title], 1, 1);
-            $counters .= "
-                <div class='awardcounter' title='# of completed games'>
-                    <span class='icon'>$icon</span><span class='numitems'>$numGamesCompleted</span>
-                </div>";
+            $text = ($numGamesCompleted > 1 ? "games" : "game") . " completed";
+            $counters .= RenderCounter($icon, $text, $numGamesCompleted);
         }
     } else {
         $icon = $icons[$title];
-        $tooltip = "# of " . strtolower($title);
-        $counters = "
-            <div class='awardcounter' title='$tooltip'>
-                <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
-            </div>";
+        $text = strtolower($title);
+        if ($numItems == 1) {
+            $text = mb_substr($text, 0, -1);
+        }
+        $counters = RenderCounter($icon, $text, $numItems);
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
@@ -126,6 +122,15 @@ function RenderAwardGroup($awards, $title): void
     }
     echo "</div>";
     echo "</div>";
+}
+
+function RenderCounter($icon, $text, $numItems): string {
+    $tooltip = $numItems . " " . $text;
+    $counter = 
+        "<div class='awardcounter' title='($tooltip)'>
+            <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
+        </div>";
+    return $counter;
 }
 
 function RenderAward($award, $imageSize, $clickable = true): void
