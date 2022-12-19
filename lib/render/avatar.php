@@ -25,7 +25,7 @@ function avatar(
 
     $tooltipTrigger = '';
     if ($tooltip) {
-        $tooltipTrigger = "onmouseover=\"Tip(loadCard('$resource', '$id', '$context'))\" onmouseout=\"UnTip()\"";
+        $tooltipTrigger = "onmouseover=\"Tip(loadCard(this, '$resource', '$id', '$context'))\" onmouseout=\"UnTip()\"";
         if (is_string($tooltip)) {
             $escapedTooltip = tooltipEscape($tooltip);
             $tooltipTrigger = "onmouseover=\"Tip(useCard('$resource', '$id', '$context', '$escapedTooltip'))\" onmouseout=\"UnTip()\"";

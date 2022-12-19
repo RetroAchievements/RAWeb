@@ -280,7 +280,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
     $res = "\n<table>";
 
     // separating CoreGroup and AltGroups
-    $groups = preg_split("/(?<!0x)S/", $mem);
+    $groups = preg_split("/(?<!0x)[S$]/", $mem);
     $groupsCount = is_countable($groups) ? count($groups) : 0;
     for ($i = 0; $i < $groupsCount; $i++) {
         $res .= "<tr><td colspan=10><p style='text-align: center'><strong>";

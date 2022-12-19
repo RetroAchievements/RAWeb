@@ -9,6 +9,7 @@ use App\Site\Actions\UpdateAvatarAction;
 use App\Site\Models\User;
 use App\Site\Notifications\UserRegistrationNotification;
 use App\Support\Sync\SyncTrait;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class SyncUsers extends Command
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function handle(): void
     {

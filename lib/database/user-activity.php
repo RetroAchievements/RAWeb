@@ -554,25 +554,22 @@ function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
     return $recentlyPlayedGames;
 }
 
-function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataOut): int
+function getArticleComments(int $articleTypeID, int $articleID, int $offset, int $count, ?array &$dataOut, bool $recent = false): int
 {
     sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
 
     $dataOut = [];
-
     $numArticleComments = 0;
+    $order = $recent ? ' DESC' : '';
 
-    $query = "
-        SELECT ua.User, ua.RAPoints, LatestComments.ID, LatestComments.UserID, LatestComments.Payload AS CommentPayload, UNIX_TIMESTAMP(LatestComments.Submitted) AS Submitted, LatestComments.Edited
-        FROM
-        (
-            SELECT c.ID, c.UserID, c.Payload, c.Submitted, c.Edited
-            FROM Comment AS c
-            WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID
-            ORDER BY c.Submitted DESC, c.ID DESC
-            LIMIT $offset, $count
-        ) AS LatestComments
-        LEFT JOIN UserAccounts AS ua ON ua.ID = LatestComments.UserID";
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, c.ID, c.UserID,
+                     c.Payload AS CommentPayload,
+                     UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
+              FROM Comment AS c
+              LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
+              WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID
+              ORDER BY c.Submitted$order, c.ID$order
+              LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -580,9 +577,24 @@ function getArticleComments($articleTypeID, $articleID, $offset, $count, &$dataO
             $dataOut[$numArticleComments] = $db_entry;
             $numArticleComments++;
         }
+
+        if ($offset != 0 || $numArticleComments >= $count) {
+            $query = "SELECT FOUND_ROWS() AS NumResults";
+            $dbResult = s_mysql_query($query);
+            if ($dbResult !== false) {
+                $numArticleComments = mysqli_fetch_assoc($dbResult)['NumResults'];
+            }
+        }
     } else {
         log_sql_fail();
     }
+
+    return $numArticleComments;
+}
+
+function getRecentArticleComments(int $articleTypeID, int $articleID, ?array &$dataOut, int $count = 20): int
+{
+    $numArticleComments = getArticleComments($articleTypeID, $articleID, 0, $count, $dataOut, true);
 
     // Fetch the last elements by submitted, but return them here in top-down order.
     $dataOut = array_reverse($dataOut);

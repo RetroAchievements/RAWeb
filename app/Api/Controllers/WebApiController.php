@@ -8,9 +8,6 @@ use App\Http\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * TODO: Replaced by [retroachievements/web-api-client-php](https://github.com/retroachievements/web-api-client-php)
- */
 class WebApiController extends Controller
 {
     public function noop(Request $request, ?string $method = null): void
@@ -18,28 +15,23 @@ class WebApiController extends Controller
         abort(405, 'Method not allowed');
     }
 
-    /**
-     * RPC-style endpoint(s) that users' client implementations rely on
-     * An official single-file client is available as download.
-     */
-    public function request(Request $request, string $method): JsonResponse
+    public function connectServers(Request $request): JsonResponse
     {
+        // TODO JSON:API response
+
         return response()->json([
-            'success' => false,
-            'method' => $method,
-            'request' => $request->input(),
+            // 'method' => $method,
+            'data' => $request->input(),
         ], 501);
     }
 
     public function users(Request $request): JsonResponse
     {
-        /*
-         * TODO
-         */
+        // TODO JSON:API response
+
         return response()->json([
-            'success' => false,
             // 'method' => $method,
-            'request' => $request->input(),
+            'data' => $request->input(),
         ], 501);
     }
 }

@@ -68,7 +68,7 @@ function getUsersSiteAwards($user, $showHidden = false): array
     )
     UNION
     (
-    SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
+    SELECT UNIX_TIMESTAMP(MAX( saw.AwardDate )) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
                   WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = '$user'
                   GROUP BY saw.AwardType

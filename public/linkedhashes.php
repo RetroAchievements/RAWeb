@@ -23,8 +23,14 @@ RenderContentStart("Linked Hashes");
 ?>
 <div id="mainpage">
     <div id='fullcontainer'>
+        <div class='navpath'>
+            <a href='/gameList.php'>All Games</a>
+            &raquo; <a href='/gameList.php?c=<?= $consoleID ?>'><?= $consoleName ?></a>
+            &raquo; <a href='/game/<?= $gameID ?>'><?= $gameTitle ?></a>
+            &raquo; <b>Linked Hashes</b>
+        </div>
 
-        <h2>List of Linked Hashes</h2>
+        <h3>List of Linked Hashes</h3>
 
         <?php
         echo gameAvatar($gameData, iconSize: 64);

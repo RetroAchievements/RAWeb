@@ -1,8 +1,8 @@
 {
     "name": "retroachievements/retroachievements-web",
     "description": "RetroAchievements.org platform",
-    "type": "project",
     "license": "GPL-3.0-only",
+    "type": "project",
     "require": {
         "php": "^8.0",
         "ext-curl": "*",
@@ -79,26 +79,6 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "config": {
-        "optimize-autoloader": true,
-        "platform": {
-            "php": "8.0.12",
-            "ext-pcntl": "8.0",
-            "ext-posix": "8.0"
-        },
-        "sort-packages": true,
-        "process-timeout": 0
-    },
-    "extra": {
-        "laravel": {
-            "dont-discover": [
-                "beyondcode/laravel-websockets",
-                "laravel/fortify",
-                "laravel/horizon",
-                "laravel/passport"
-            ]
-        }
-    },
     "autoload": {
         "psr-4": {
             "App\\": "app/",
@@ -116,32 +96,27 @@
             "Tests\\": "tests/"
         }
     },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "ext-pcntl": "8.0",
+            "ext-posix": "8.0",
+            "php": "8.0.12"
+        },
+        "process-timeout": 0,
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+                "beyondcode/laravel-websockets",
+                "laravel/fortify",
+                "laravel/horizon",
+                "laravel/passport"
+            ]
+        }
+    },
     "scripts": {
-        "start": "php artisan serve --port=64000",
-        "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
-        "octane": "php artisan octane:start --watch --port=64888",
-        "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
-        "analyse": "@stan",
-        "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
-        "stan-clear": "vendor/bin/phpstan clear-result-cache",
-        "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
-        "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
-        "rector": "vendor/bin/rector process && composer fix",
-        "test": "php artisan test",
-        "paratest": "php artisan test --parallel",
-        "coverage": "php -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
-        "mfs": "php artisan migrate:refresh --seed",
-        "ide-helpers": [
-            "php artisan ide-helper:generate",
-            "php artisan ide-helper:meta",
-            "php artisan ide-helper:models --nowrite"
-        ],
-        "setup": [
-            "composer install",
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate --ansi",
-            "@php -r \"file_exists('storage/app/releases.php') || copy('storage/app/releases.dist.php', 'storage/app/releases.php');\""
-        ],
         "post-install-cmd": [
             "[ $COMPOSER_DEV_MODE -eq 0 ] || git config core.hooksPath ./.hooks"
         ],
@@ -155,16 +130,41 @@
         ],
         "post-create-project-cmd": [
             "@setup"
-        ]
+        ],
+        "analyse": "@stan",
+        "coverage": "php -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
+        "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
+        "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
+        "ide-helpers": [
+            "php artisan ide-helper:generate",
+            "php artisan ide-helper:meta",
+            "php artisan ide-helper:models --nowrite"
+        ],
+        "lint": "vendor/bin/php-cs-fixer fix --verbose --ansi --dry-run",
+        "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
+        "mfs": "php artisan migrate:refresh --seed",
+        "octane": "php artisan octane:start --watch --port=64888",
+        "paratest": "php artisan test --parallel",
+        "rector": "vendor/bin/rector process && composer fix",
+        "setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('storage/app/releases.php') || copy('storage/app/releases.dist.php', 'storage/app/releases.php');\""
+        ],
+        "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
+        "stan-clear": "vendor/bin/phpstan clear-result-cache",
+        "start": "php artisan serve --port=64000",
+        "test": "php artisan test"
     },
     "scripts-descriptions": {
-        "octane": "Note: not yet supported for legacy routes due to dynamic legacy script imports",
-        "log": "Tail and follow Laravel logs",
         "analyse": "Run static analysis",
-        "stan": "Run PHPStan static analysis",
-        "paratest": "Run tests in parallel",
         "coverage": "Run tests and create coverage report",
+        "log": "Tail and follow Laravel logs",
         "mfs": "Migrate (re)fresh and seed data",
-        "setup": "First time setup"
+        "octane": "Note: not yet supported for legacy routes due to dynamic legacy script imports",
+        "paratest": "Run tests in parallel",
+        "setup": "First time setup",
+        "stan": "Run PHPStan static analysis"
     }
 }

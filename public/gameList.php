@@ -153,13 +153,19 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
     echo "</tbody></table></div>";
 }
 
-$requestedConsole = "";
-if ($consoleIDInput !== 0) {
-    $requestedConsole = $consoleList[$consoleIDInput] . " ";
+if (array_key_exists($consoleIDInput, $consoleList)) {
+    $consoleName = $consoleList[$consoleIDInput];
+    $requestedConsole = $consoleName;
+} elseif ($consoleIDInput === 0) {
+    $consoleName = "All Games";
+    $requestedConsole = "All";
+} else {
+    $consoleName = "Unknown Console";
+    $requestedConsole = "Unknown Console";
 }
-sanitize_outputs($requestedConsole);
+sanitize_outputs($consoleName, $requestedConsole);
 
-RenderContentStart($requestedConsole . "Games");
+RenderContentStart($requestedConsole . " Games");
 ?>
 <div id="mainpage">
     <div id="fullcontainer">
@@ -186,12 +192,6 @@ RenderContentStart($requestedConsole . "Games");
                         echo "<br/>";
                     }
                 } else {
-                    if ($consoleIDInput == 0) {
-                        $consoleName = "All Games";
-                    } else {
-                        $consoleName = $consoleList[$consoleIDInput];
-                        sanitize_outputs($consoleName);
-                    }
                     echo "<h2>$consoleName</h2>";
 
                     echo "<div style='float:left'>$gamesCount Games</div>";

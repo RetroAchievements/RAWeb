@@ -122,6 +122,13 @@ RenderContentStart("Manage Claims");
 </script>
 <div id='mainpage'>
     <div id='fullcontainer'>
+        <div class='navpath'>
+            <a href='/gameList.php'>All Games</a>
+            &raquo; <a href='/gameList.php?c=<?= $gameData['ConsoleID'] ?>'><?= $gameData['ConsoleName'] ?></a>
+            &raquo; <a href='/game/<?= $gameID ?>'><?= $gameTitle ?></a>
+            &raquo; <b>Manage Claims</b>
+        </div>
+
         <?php
         echo "<h3>Manage Claims</h3>";
         echo gameAvatar($gameData, iconSize: 64);
@@ -234,7 +241,7 @@ RenderContentStart("Manage Claims");
         }
         echo "</tbody></table></div>";
 
-        $numLogs = getArticleComments(ArticleType::SetClaim, $gameID, 0, 1000, $logs);
+        $numLogs = getRecentArticleComments(ArticleType::SetClaim, $gameID, $logs);
         RenderCommentsComponent($user,
             $numLogs,
             $logs,

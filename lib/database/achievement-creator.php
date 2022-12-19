@@ -1,6 +1,8 @@
 <?php
 
+use App\Platform\Models\Badge;
 use RA\AchievementType;
+use RA\AwardType;
 use RA\UnlockMode;
 
 /**
@@ -176,4 +178,75 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
     }
 
     return $userFound;
+}
+
+function attributeDevelopmentAuthor(string $author, int $count, int $points): void
+{
+    sanitize_sql_inputs($author);
+
+    $query = "SELECT ContribCount, ContribYield FROM UserAccounts WHERE User = '$author'";
+    $dbResult = s_mysql_query($query);
+    $oldResults = mysqli_fetch_assoc($dbResult);
+    if (!$oldResults) {
+        // could not find a record for the author, nothing to update
+        return;
+    }
+
+    $oldContribCount = (int) $oldResults['ContribCount'];
+    $oldContribYield = (int) $oldResults['ContribYield'];
+
+    // Update the fact that this author made an achievement that just got earned.
+    $query = "UPDATE UserAccounts AS ua
+              SET ua.ContribCount = ua.ContribCount+$count, ua.ContribYield = ua.ContribYield+$points
+              WHERE ua.User = '$author'";
+
+    $dbResult = s_mysql_query($query);
+
+    if (!$dbResult) {
+        log_sql_fail();
+
+        return;
+    }
+
+    $newContribTier = Badge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
+    if ($newContribTier !== null) {
+        AddSiteAward($author, AwardType::AchievementUnlocksYield, $newContribTier);
+    }
+
+    $newPointsTier = Badge::getNewBadgeTier(AwardType::AchievementPointsYield, $oldContribYield, $oldContribYield + $points);
+    if ($newPointsTier !== null) {
+        AddSiteAward($author, AwardType::AchievementPointsYield, $newPointsTier);
+    }
+}
+
+function recalculateDeveloperContribution(string $author): void
+{
+    sanitize_sql_inputs($author);
+
+    $query = "SELECT COUNT(*) AS ContribCount, SUM(Points) AS ContribYield
+              FROM (SELECT aw.User, ach.ID, MAX(aw.HardcoreMode) as HardcoreMode, ach.Points
+                    FROM Achievements ach LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
+                    WHERE ach.Author='$author' AND aw.User != '$author'
+                    AND ach.Flags=" . AchievementType::OfficialCore . "
+                    GROUP BY 1,2) AS UniqueUnlocks";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        $contribCount = 0;
+        $contribYield = 0;
+
+        if ($data = mysqli_fetch_assoc($dbResult)) {
+            $contribCount = $data['ContribCount'] ?? 0;
+            $contribYield = $data['ContribYield'] ?? 0;
+        }
+
+        $query = "UPDATE UserAccounts
+                  SET ContribCount = $contribCount, ContribYield = $contribYield
+                  WHERE User = '$author'";
+
+        $dbResult = s_mysql_query($query);
+        if (!$dbResult) {
+            log_sql_fail();
+        }
+    }
 }

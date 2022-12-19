@@ -1,6 +1,6 @@
 <?php
 
-use RA\AwardThreshold;
+use App\Platform\Models\Badge;
 use RA\AwardType;
 
 function SeparateAwards($userAwards): array
@@ -176,27 +176,16 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $linkdest = "/game/$awardData";
     } elseif ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
-        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . " times!";
-        $imagepath = asset("/assets/images/badge/trophy-" . AwardThreshold::DEVELOPER_COUNT_BOUNDARIES[$awardData] . ".png");
-        $linkdest = ''; // TBD: referrals page?
+        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . Badge::getBadgeThreshold($awardType, $awardData) . " times!";
+        $imagepath = asset("/assets/images/badge/contribYield-$awardData.png");
+        $imgclass = 'goldimage';
+        $linkdest = ''; // TBD: developer sets page?
     } elseif ($awardType == AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
-        $tooltip = "Awarded for producing many valuable achievements, providing over " . AwardThreshold::DEVELOPER_POINT_BOUNDARIES[$awardData] . " points to the community!";
-        if ($awardData == 0) {
-            $imagepath = "/assets/images/badge/trophy-green.png";
-        } elseif ($awardData == 1) {
-            $imagepath = "/assets/images/badge/trophy-bronze.png";
-        } elseif ($awardData == 2) {
-            $imagepath = "/assets/images/badge/trophy-platinum.png";
-        } elseif ($awardData == 3) {
-            $imagepath = "/assets/images/badge/trophy-silver.png";
-        } elseif ($awardData == 4) {
-            $imagepath = "/assets/images/badge/trophy-gold.png";
-        } else {
-            $imagepath = "/assets/images/badge/trophy-gold.png";
-        }
-        $imagepath = asset($imagepath);
-        $linkdest = ''; // TBD: referrals page?
+        $tooltip = "Awarded for producing many valuable achievements, providing over " . Badge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
+        $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
+        $imgclass = 'goldimage';
+        $linkdest = ''; // TBD: developer sets page?
     // } elseif ($awardType == AwardType::Referrals) {
     //     $tooltip = "Referred $awardData members";
     //     $imagepath = "/Badge/00083.png";
@@ -204,10 +193,12 @@ function RenderAward($award, $imageSize, $clickable = true): void
     } elseif ($awardType == AwardType::PatreonSupporter) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
         $imagepath = asset('/assets/images/badge/patreon.png');
+        $imgclass = 'goldimage';
         $linkdest = 'https://www.patreon.com/retroachievements';
     } elseif ($awardType == AwardType::CertifiedLegend) {
         $tooltip = 'Specially Awarded to a Certified RetroAchievements Legend';
         $imagepath = asset('/assets/images/badge/legend.png');
+        $imgclass = 'goldimage';
         $linkdest = '';
     } else {
         // Unknown or inactive award type

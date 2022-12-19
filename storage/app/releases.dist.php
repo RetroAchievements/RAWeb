@@ -5,8 +5,8 @@ use RA\Emulators;
 // TODO: replace with systems, integration release, and emulator release management
 return [
     'integration' => [
-        'minimum_version' => '1.0.2',
-        'latest_version' => '1.0.2',
+        'minimum_version' => '1.0.4',
+        'latest_version' => '1.1.0',
         'latest_version_url' => 'bin/RA_Integration.dll',
         'latest_version_url_x64' => 'bin/RA_Integration-x64.dll',
     ],
@@ -19,6 +19,8 @@ return [
             'handle' => 'RetroArch',
             'active' => true,
             'link' => 'https://docs.retroachievements.org/FAQ/#retroarch-emulators',
+            'description' => '<strong>Preferred for players!</strong><br>Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
+Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
             'systems' => [
                 1, // Genesis/Mega Drive
                 2, // Nintendo 64 (Cores: Mupen64Plus, ParaLLEl N64)
@@ -37,6 +39,7 @@ return [
                 15, // Game Gear
                 17, // Atari Jaguar
                 18, // Nintendo DS
+                23, // Magnavox Odyssey 2
                 24, // Pokemon Mini
                 25, // Atari 2600 (Cores: Stella)
                 27, // Arcade (Cores: FB Alpha)
@@ -49,22 +52,22 @@ return [
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
+                45, // Intellivision
                 46, // Vectrex
+                49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
-                57, // Fairchild Channel F
+                57, // Fairchild Channel-F
                 63, // Watara Supervision
                 69, // Mega Duck
                 71, // Arduboy
                 72, // WASM-4
                 76, // PC Engine CD
             ],
-            'description' => 'Maintained by <a href="https://github.com/libretro/">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
-Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility">Cores Compatibility List</a>.',
         ],
         Emulators::RALibretro => [
-            'minimum_version' => '1.2',
-            'latest_version' => '1.3',
+            'minimum_version' => '1.3.8',
+            'latest_version' => '1.4.0',
             'latest_version_url' => 'bin/RALibretro.zip',
             'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'LibRetro',
@@ -72,7 +75,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RALibretro,
             'link' => 'https://docs.retroachievements.org/RALibretro/',
-            'description' => 'RALibRetro is a multi-emulator that can be used for achievements development.',
+            'description' => '<strong>Preferred for achievement creation!</strong><br>RALibRetro is a multi-emulator that can be used for achievements development.',
             'systems' => [
                 1, // Genesis/Mega Drive
                 2, // Nintendo 64
@@ -91,23 +94,25 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 15, // Game Gear
                 17, // Atari Jaguar
                 18, // Nintendo DS
+                23, // Magnavox Odyssey 2
                 24, // Pokemon Mini
                 25, // Atari 2600 (Cores: Stella)
                 27, // Arcade (Cores: FB Alpha)
                 28, // Virtual Boy (Cores: Beetle VB)
                 29, // MSX
                 33, // SG-1000
-                37, // Amstrad CPC (Core: Cap32)
+                37, // Amstrad CPC
                 39, // Saturn
                 40, // Dreamcast
                 41, // PlayStation Portable
                 43, // 3DO
                 44, // ColecoVision
+                45, // Intellivision
                 46, // Vectrex
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
-                57, // Fairchild Channel F
+                57, // Fairchild Channel-F
                 63, // Watara Supervision
                 69, // Mega Duck
                 71, // Arduboy
@@ -120,14 +125,14 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'handle' => 'PCSX2',
             'active' => true,
             'link' => 'https://pcsx2.net/guides/basic-setup/',
-            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PlayStation 2. Download from <a href="https://pcsx2.net/downloads">pcsx2.net</a>',
+            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PlayStation 2.<br>Download the QT nightly from <a href="https://pcsx2.net/downloads">pcsx2.net</a>',
             'systems' => [
                 21, // PlayStation 2
             ],
         ],
         Emulators::RAppleWin => [
             'minimum_version' => '1.1.1',
-            'latest_version' => '1.1.1',
+            'latest_version' => '1.2.0',
             'latest_version_url' => 'bin/RAppleWin.zip',
             // 'latest_version_url_x64' => 'bin/RAppleWin-x64.zip',
             'name' => 'AppleWin',
@@ -170,8 +175,8 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             ],
         ],
         Emulators::RAMeka => [
-            'minimum_version' => '0.023',
-            'latest_version' => '0.023',
+            'minimum_version' => '1.0',
+            'latest_version' => '1.0',
             'latest_version_url' => 'bin/RAMeka.zip',
             // 'latest_version_url_x64' => 'bin/RAMeka-x64.zip',
             'name' => 'Meka',
@@ -187,10 +192,10 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             ],
         ],
         Emulators::RANes => [
-            'minimum_version' => '0.17',
-            'latest_version' => '0.17',
+            'minimum_version' => '1.1',
+            'latest_version' => '1.1',
             'latest_version_url' => 'bin/RANes.zip',
-            // 'latest_version_url_x64' => 'bin/RANes-x64.zip',
+            'latest_version_url_x64' => 'bin/RANes-x64.zip',
             'name' => 'FCEUX',
             'handle' => 'RANes',
             'active' => true,
@@ -243,10 +248,10 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             ],
         ],
         Emulators::RASnes9x => [
-            'minimum_version' => '1.0',
-            'latest_version' => '1.0',
+            'minimum_version' => '1.1',
+            'latest_version' => '1.1',
             'latest_version_url' => 'bin/RASnes9x.zip',
-            // 'latest_version_url_x64' => 'bin/RASnes9x-x64.zip',
+            'latest_version_url_x64' => 'bin/RASnes9x-x64.zip',
             'name' => 'Snes9x',
             'handle' => 'RASnes9x',
             'active' => true,
@@ -257,10 +262,10 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             ],
         ],
         Emulators::RAVBA => [
-            'minimum_version' => '1.0',
-            'latest_version' => '1.0',
+            'minimum_version' => '1.0.1',
+            'latest_version' => '1.0.2',
             'latest_version_url' => 'bin/RAVBA.zip',
-            // 'latest_version_url_x64' => 'bin/RAVBA-x64.zip',
+            'latest_version_url_x64' => 'bin/RAVBA-x64.zip',
             'name' => 'VisualBoyAdvance',
             'handle' => 'RAVBA',
             'active' => true,
