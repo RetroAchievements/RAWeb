@@ -57,25 +57,20 @@ function getUsersSiteAwards($user, $showHidden = false): array
         return $retVal;
     }
 
-    $hiddenQuery = "";
-    if (!$showHidden) {
-        $hiddenQuery = "AND saw.DisplayOrder > -1";
-    }
-
     $query = "
     (
     SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
                   FROM SiteAwards AS saw
                   LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = " . AwardType::Mastery . " )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE saw.AwardType = " . AwardType::Mastery . " AND saw.User = '$user' $hiddenQuery
+                  WHERE saw.AwardType = " . AwardType::Mastery . " AND saw.User = '$user'
                   GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
     )
     UNION
     (
     SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
-                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = '$user' $hiddenQuery
+                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = '$user'
                   GROUP BY saw.AwardType
 
     )
