@@ -73,7 +73,7 @@ function RenderAwardGroup($awards, $title): void
     $icons = [
         "Game Awards" => "👑🎖️",
         "Event Awards" => "🌱",
-        "Site Awards" => "⬩",
+        "Site Awards" => "🌐",
     ];
     if ($title == "Game Awards") {
         // Count and show # of completed/mastered games
