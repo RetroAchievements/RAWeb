@@ -172,7 +172,7 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>$achievementTitle</b>";
         echo "</div>"; // navpath
 
-        echo "<h3>$gameTitle ($consoleName)</h3>";
+        echo "<h3>" . renderGameTitle($gameTitle) . " ($consoleName)</h3>";
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");

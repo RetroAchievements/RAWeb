@@ -98,7 +98,7 @@ function renderGameCard(int|string|array $game): string
         });
     }
 
-    $gameName = $data['GameTitle'] ?? $data['Title'] ?? '';
+    $gameName = renderGameTitle($data['GameTitle'] ?? $data['Title'] ?? '');
     $consoleName = $data['Console'] ?? $data['ConsoleName'] ?? '';
     $icon = $data['GameIcon'] ?? $data['ImageIcon'] ?? null;
 
