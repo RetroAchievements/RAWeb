@@ -1,0 +1,9 @@
+.game-category {
+    opacity: 0.9;
+    margin: 0 0.1em;
+    padding: 0 0.4em;
+    border-radius: 0.4em;
+    background-color: darkcyan;
+    color: white;
+    font-size: 0.9em;    
+}
