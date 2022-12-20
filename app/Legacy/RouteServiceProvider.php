@@ -56,6 +56,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
             Route::get('achievement/{achievement}{slug?}', fn ($achievement) => $this->handlePageRequest('achievementInfo', $achievement))->name('achievement.show');
             Route::get('game/{game}{slug?}', fn ($game) => $this->handlePageRequest('gameInfo', $game))->name('game.show');
+            Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
         });
     }
 
