@@ -31,6 +31,10 @@
     background-color: dimgray;
 }
 
+.game-category#test-kit {
+    background-color: steelblue;
+}
+
 .game-category#unlicensed {
     background-color: black;
 }
