@@ -44,6 +44,25 @@ function gameAvatar(
     );
 }
 
+/**
+ * Render game title, wrapping categories for styling
+ * @param   string  $title  Raw game title
+ * @return  string  The resulting HTML code
+ */
+function renderGameTitle(string $title): string
+{
+    $html = (string) $title;
+    $matches = [];
+    preg_match('/~.+~/', $title, $matches);
+    foreach ($matches as $match) {
+        $category = substr($match, 1, -1);
+        $span = "<span class='game-category'>$category</span>";
+        $html = str_replace($match, $span, $html);
+    }
+
+    return $html;
+}
+
 function renderGameCard(int|string|array $game): string
 {
     $id = is_string($game) || is_int($game) ? (int) $game : ($game['GameID'] ?? $game['ID'] ?? null);
