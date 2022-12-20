@@ -3,7 +3,30 @@
     margin: 0 0.1em;
     padding: 0 0.4em;
     border-radius: 0.4em;
-    background-color: darkcyan;
     color: white;
-    font-size: 0.9em;    
+    font-size: 0.9em;   
+}
+
+.game-category#bonus {
+    background-color: firebrick;
+}
+
+.game-category#demo {
+    background-color: teal;
+}
+
+.game-category#hack {
+    background-color: purple;
+}
+
+.game-category#homebrew {
+    background-color: darkcyan;
+}
+
+.game-category#multi {
+    background-color: orangered;
+}
+
+.game-category#prototype {
+    background-color: gray;
 }
