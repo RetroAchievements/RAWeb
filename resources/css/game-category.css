@@ -20,13 +20,17 @@
 }
 
 .game-category#homebrew {
-    background-color: darkcyan;
+    background-color: darkslateblue;
 }
 
 .game-category#multi {
-    background-color: orangered;
+    background-color: chocolate;
 }
 
 .game-category#prototype {
-    background-color: gray;
+    background-color: dimgray;
+}
+
+.game-category#unlicensed {
+    background-color: black;
 }
