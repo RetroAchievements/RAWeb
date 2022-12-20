@@ -66,14 +66,14 @@ function RenderSiteAwards($userAwards): void
 function RenderAwardGroup($awards, $title): void
 {
     $numItems = is_countable($awards) ? count($awards) : 0;
-    if ($numItems == 0) {
-        return;
-    }
     $numHidden = 0;
     foreach ($awards as $award) {
-        if ($award['DisplayOrder'] == -1) {
-            $numHidden++;
-        }
+        if ($award['DisplayOrder'] != -1) break;
+        $numHidden++;
+    }
+    if ($numItems == $numHidden) {
+        // No items to show
+        return;
     }
 
     $icons = [
@@ -87,7 +87,9 @@ function RenderAwardGroup($awards, $title): void
         foreach ($awards as $award) {
             if ($award['AwardDataExtra'] != 1) {
                 $numCompleted++;
-                $numCompletedHidden++;
+                if ($award['DisplayOrder'] == -1) {
+                    $numCompletedHidden++;
+                }
             }
         }
         $numMastered = $numItems - $numCompleted;
@@ -107,6 +109,7 @@ function RenderAwardGroup($awards, $title): void
         $icon = $icons[$title];
         $text = strtolower($title);
         if ($numItems == 1) {
+            // Remove 's'
             $text = mb_substr($text, 0, -1);
         }
         $counters = RenderCounter($icon, $text, $numItems, $numHidden);
@@ -117,6 +120,7 @@ function RenderAwardGroup($awards, $title): void
     echo "<div class='component flex flex-wrap justify-between gap-2'>";
     $imageSize = 48;
     $numCols = 5;
+    $numItems -= $numHidden;
     for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
         for ($j = 0; $j < $numCols; $j++) {
             $nOffs = ($i * $numCols) + $j;
@@ -125,10 +129,7 @@ function RenderAwardGroup($awards, $title): void
                 continue;
             }
 
-            $award = $awards[$nOffs];
-            if ($award['DisplayOrder'] != -1) {
-                RenderAward($award, $imageSize);
-            }
+            RenderAward($awards[$nOffs], $imageSize);
         }
     }
     echo "</div>";
