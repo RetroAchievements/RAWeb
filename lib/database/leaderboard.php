@@ -319,23 +319,19 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser): int
 {
     sanitize_sql_inputs($gameID, $localUser);
 
-    $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format, InnerTable.DisplayOrder FROM (
-                SELECT
-                CASE
-                    WHEN !lbd.LowerIsBetter THEN MAX(le2.Score)
-                                            ELSE MIN(le2.Score)
-                END
-                AS BestScore, le2.UserID, lbd.ID as LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder
-                FROM LeaderboardDef AS lbd
-                LEFT JOIN LeaderboardEntry AS le2 ON lbd.ID = le2.LeaderboardID
-                LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null ) && lbd.GameID = $gameID
-                GROUP BY lbd.ID
-            ) InnerTable
-            LEFT JOIN LeaderboardEntry AS le ON le.LeaderboardID = InnerTable.LeaderboardID AND le.Score = InnerTable.BestScore
-            LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-            WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null )
-            ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC ";
+    $query = "SELECT lbd.ID AS LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder,
+                     TrackedEntries.UserID, TrackedEntries.User, TrackedEntries.DateSubmitted,
+                     CASE WHEN lbd.LowerIsBetter THEN MIN(TrackedEntries.Score) ELSE MAX(TrackedEntries.Score) END AS Score
+              FROM LeaderboardDef AS lbd
+              LEFT JOIN (
+                  SELECT le.LeaderboardID, le.UserID, ua.User, le.DateSubmitted, le.Score
+                  FROM LeaderboardEntry le
+                  LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
+                  WHERE !ua.Untracked
+              ) AS TrackedEntries ON TrackedEntries.LeaderboardID = lbd.ID
+              WHERE lbd.GameID = $gameID
+              GROUP BY lbd.ID
+              ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC";
 
     $dataOut = [];
     $dbResult = s_mysql_query($query);
