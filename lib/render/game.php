@@ -20,7 +20,10 @@ function gameAvatar(
         if ($label !== false) {
             $title = $game['GameTitle'] ?? $game['Title'] ?? null;
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
-            $label = $title . ($consoleName ? ' (' . $consoleName . ')' : '');
+            if ($consoleName) {
+                $title .= " ($consoleName)";
+            }
+            $label = renderGameTitle($title);
         }
 
         if ($icon === null) {
@@ -30,6 +33,7 @@ function gameAvatar(
         // pre-render tooltip
         $tooltip = $tooltip !== false ? $game : false;
     }
+    $labelIsHtml = $label !== strip_tags($label);
 
     return avatar(
         resource: 'game',
@@ -41,6 +45,8 @@ function gameAvatar(
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
+        sanitize: $labelIsHtml === false,
+        altText: $labelIsHtml === false ? $label : ($title ?? null),
     );
 }
 

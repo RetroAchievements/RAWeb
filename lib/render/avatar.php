@@ -11,11 +11,13 @@ function avatar(
     $iconSize = 32,
     $iconClass = 'badgeimg',
     ?string $context = null,
+    bool $sanitize = true,
+    ?string $altText = null,
 ): string {
-    $escapedName = attributeEscape($label);
-    sanitize_outputs(
-        $label,
-    );
+    $escapedName = attributeEscape($altText);
+    if ($sanitize) {
+        sanitize_outputs($label);
+    }
 
     if ($iconUrl) {
         $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='$iconUrl' alt='$escapedName' class='$iconClass'>";
