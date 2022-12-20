@@ -53,8 +53,8 @@ function renderGameTitle(string $title): string
 {
     $html = (string) $title;
     $matches = [];
-    preg_match('/~.+~/', $title, $matches);
-    foreach ($matches as $match) {
+    preg_match_all('/~[^~]+~/', $title, $matches);
+    foreach ($matches[0] as $match) {
         $category = substr($match, 1, -1);
         $span = "<span class='game-category'>$category</span>";
         $html = str_replace($match, $span, $html);
