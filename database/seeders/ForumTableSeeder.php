@@ -51,8 +51,8 @@ class ForumTableSeeder extends Seeder
                     ],
                     [
                         'id' => 21,
-                        'title' => 'Jogadores Portugueses!',
-                        'description' => 'A seção para todos os nossos amigos portugueses para conversar e se divertir!',
+                        'title' => 'RA em Português!',
+                        'description' => 'Onde todos os nossos amigos lusófonos podem conversar e se divertir!',
                     ],
                     [
                         'id' => 25,
