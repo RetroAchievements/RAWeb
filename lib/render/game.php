@@ -57,13 +57,20 @@ function gameAvatar(
  */
 function renderGameTitle(string $title): string
 {
-    $html = (string) $title;
+    $html = $title;
     $matches = [];
-    preg_match_all('/~[^~]+~/', $title, $matches);
-    foreach ($matches[0] as $match) {
-        $category = substr($match, 1, -1);
-        $id = strtolower(str_replace(' ', '-', $category));
-        $span = "<span id='$id' class='game-category'>$category</span>";
+    preg_match_all('/~([^~]+)~/', $title, $matches);
+    foreach ($matches[0] as $i => $match) {
+        $category = $matches[1][$i];
+        $class = strtolower(str_replace(' ', '-', $category));
+        $span = "<span class='game-category $class'>$category</span>";
+        $html = str_replace($match, $span, $html);
+    }
+    preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
+    foreach ($matches[0] as $i => $match) {
+        [$text, $subset] = [$matches[1][$i], $matches[2][$i]];
+        $class = strtolower(str_replace(' ', '-', $subset));
+        $span = "<span class='game-category subset $class'>$text</span>";
         $html = str_replace($match, $span, $html);
     }
 
