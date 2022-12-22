@@ -7,7 +7,10 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
-   abort(404);
+    $lbID = (int) request('leaderboard');
+    if (empty($lbID)) {
+        abort(404);
+    }
 }
 
 $offset = requestInputSanitized('o', 0, 'integer');
