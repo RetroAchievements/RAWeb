@@ -68,8 +68,9 @@ function RenderAwardGroup($awards, $title): void
     $numItems = is_countable($awards) ? count($awards) : 0;
     $numHidden = 0;
     foreach ($awards as $award) {
-        if ($award['DisplayOrder'] != -1) break;
-        $numHidden++;
+        if ($award['DisplayOrder'] < 0) {
+            $numHidden++;
+        }
     }
     if ($numItems == $numHidden) {
         // No items to show
@@ -87,7 +88,7 @@ function RenderAwardGroup($awards, $title): void
         foreach ($awards as $award) {
             if ($award['AwardDataExtra'] != 1) {
                 $numCompleted++;
-                if ($award['DisplayOrder'] == -1) {
+                if ($award['DisplayOrder'] < 0) {
                     $numCompletedHidden++;
                 }
             }
@@ -97,7 +98,7 @@ function RenderAwardGroup($awards, $title): void
         $counters = "";
         if ($numMastered > 0) {
             $icon = mb_substr($icons[$title], 0, 1);
-            $text = ($numMastered > 1 ? "games" : "game") . " MASTERED";
+            $text = ($numMastered > 1 ? "games" : "game") . " mastered";
             $counters .= RenderCounter($icon, $text, $numMastered, $numMasteredHidden);
         }
         if ($numCompleted > 0) {
@@ -120,7 +121,6 @@ function RenderAwardGroup($awards, $title): void
     echo "<div class='component flex flex-wrap justify-between gap-2'>";
     $imageSize = 48;
     $numCols = 5;
-    $numItems -= $numHidden;
     for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
         for ($j = 0; $j < $numCols; $j++) {
             $nOffs = ($i * $numCols) + $j;
@@ -129,7 +129,10 @@ function RenderAwardGroup($awards, $title): void
                 continue;
             }
 
-            RenderAward($awards[$nOffs], $imageSize);
+            $award = $awards[$nOffs];
+            if ($award['DisplayOrder'] >= 0) {
+                RenderAward($award, $imageSize);
+            }
         }
     }
     echo "</div>";
@@ -138,9 +141,9 @@ function RenderAwardGroup($awards, $title): void
 
 function RenderCounter($icon, $text, $numItems, $numHidden): string
 {
-    $tooltip = $icon . "  " . $numItems . " " . $text;
+    $tooltip = "$numItems $text";
     if ($numHidden > 0) {
-        $tooltip .= "【" . $numHidden . " hidden】";
+        $tooltip .= " ($numHidden hidden)";
     }
     $counter =
         "<div class='awardcounter' title='$tooltip'>
