@@ -238,7 +238,7 @@ jQuery(document).ready(function onReady($) {
     if (window.location.pathname.substring(0, 6) === '/game/') {
       gameID = window.location.pathname.substring(6);
     }
-    window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.id;
+    window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.label;
     return false;
   });
 
@@ -257,14 +257,14 @@ jQuery(document).ready(function onReady($) {
     select: function (event, ui) {
       var TABKEY = 9;
       if (event.keyCode === TABKEY) {
-        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.id + '.png'));
+        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
       }
       return false;
     },
   });
   $searchUser.on('autocompleteselect', function (event, ui) {
-    $searchUser.val(ui.item.id);
-    $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.id + '.png'));
+    $searchUser.val(ui.item.label);
+    $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
     return false;
   });
 });
