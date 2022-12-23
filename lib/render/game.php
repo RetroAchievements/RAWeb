@@ -13,6 +13,7 @@ function gameAvatar(
     ?string $context = null,
 ): string {
     $id = $game;
+    $title = null;
 
     if (is_array($game)) {
         $id = $game['GameID'] ?? $game['ID'];
@@ -23,6 +24,7 @@ function gameAvatar(
             if ($consoleName) {
                 $title .= " ($consoleName)";
             }
+            sanitize_outputs($title);   // sanitize before rendering HTML
             $label = renderGameTitle($title);
         }
 
@@ -33,7 +35,6 @@ function gameAvatar(
         // pre-render tooltip
         $tooltip = $tooltip !== false ? $game : false;
     }
-    $labelIsHtml = $label !== strip_tags($label);
 
     return avatar(
         resource: 'game',
@@ -45,8 +46,8 @@ function gameAvatar(
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
-        sanitize: $labelIsHtml === false,
-        altText: $labelIsHtml === false ? $label : ($title ?? null),
+        sanitize: $title === null,
+        altText: $title ?? $label,
     );
 }
 
@@ -57,7 +58,7 @@ function gameAvatar(
  */
 function renderGameTitle(string $title): string
 {
-    $html = $title;
+    $html = (string) $title;
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {

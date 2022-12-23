@@ -14,7 +14,7 @@ function avatar(
     bool $sanitize = true,
     ?string $altText = null,
 ): string {
-    $escapedName = attributeEscape($altText);
+    $escapedName = attributeEscape($altText ?? $label);
     if ($sanitize) {
         sanitize_outputs($label);
     }
