@@ -32,15 +32,16 @@
 @import "search.css";
 @import "status-message.css";
 @import "tab.css";
+@import "tag.css";
 @import "table.css";
 @import "tooltip.css";
 
 /* TODO split into components or replace with utility classes */
+@import "achievement-set.css";
 @import "active-players.css";
 @import "award-count.css";
 @import "comment.css";
 @import "devbox.css";
-@import "game-category.css";
 @import "motto.css";
 @import "news.css";
 @import "ticket-manager.css";

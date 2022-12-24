@@ -1,20 +1,12 @@
-.game-title {
+.achievement-set.title {
     display: inline-block;
     margin-left: .1em;
 }
 
-.game-title > .game-category {
-    display: inline-block;
-    opacity: .9;
-    margin: 0 .15em;
-    padding: .1em .4em;
+.tag.achievement-set.category {
     outline: solid .1em #555;
-    border-radius: .4em;
-    vertical-align: text-bottom;
-    line-height: 1.1em;
     background-color: rgba(32, 32, 32, .8);
     color: white;
-    font-size: .8em;
 }
 
 /* .game-category.demo {
@@ -41,13 +33,13 @@
     background-color: black;
 } */
 
-.game-category.subset {
+.tag.achievement-set.subset {
     outline: solid .1em darkblue;
     border-radius: .2em;
     line-height: 1.3em;
     font-weight: bold;
     font-size: 0.7em;
-    background-color: rgba(12, 12, 64, 0.8);
+    background-color: rgb(12, 12, 56);
     color: #ddd;
 }
 
