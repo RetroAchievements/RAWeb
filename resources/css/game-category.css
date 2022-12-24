@@ -6,16 +6,18 @@
 .game-title > .game-category {
     display: inline-block;
     opacity: .9;
-    margin: 0 .1em;
+    margin: 0 .15em;
     padding: .1em .4em;
+    outline: solid .1em #555;
     border-radius: .4em;
     vertical-align: text-bottom;
     line-height: 1.1em;
+    background-color: rgba(32, 32, 32, .8);
     color: white;
     font-size: .8em;
 }
 
-.game-category.demo {
+/* .game-category.demo {
     background-color: teal;
 }
 
@@ -37,19 +39,22 @@
 
 .game-category.unlicensed {
     background-color: black;
-}
+} */
 
 .game-category.subset {
-    padding: .1em .3em;
+    outline: solid .1em darkblue;
+    border-radius: .2em;
+    line-height: 1.3em;
     font-weight: bold;
-    background-color: rgba(255, 255, 255, .05);
-    color: darkorange;
+    font-size: 0.7em;
+    background-color: rgba(12, 12, 64, 0.8);
+    color: #ddd;
 }
 
-.game-category.subset.bonus {
+/* .game-category.subset.bonus {
     color: crimson;
 }
 
 .game-category.subset.multi {
     color: deepskyblue;
-}
+} */

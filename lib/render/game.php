@@ -63,15 +63,15 @@ function renderGameTitle(?string $title): string
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         $category = $matches[1][$i];
-        $class = strtolower(str_replace(' ', '-', $category));
-        $span = "<span class='game-category $class'>$category</span>";
+        // $class = strtolower(str_replace(' ', '-', $category));
+        $span = "<span class='game-category'>$category</span>";
         $html = str_replace($match, $span, $html);
     }
     preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         [$text, $subset] = [$matches[1][$i], $matches[2][$i]];
-        $class = strtolower(str_replace(' ', '-', $subset));
-        $span = "<span class='game-category subset $class'>$text</span>";
+        // $class = strtolower(str_replace(' ', '-', $subset));
+        $span = "<span class='game-category subset'>$text</span>";
         $html = str_replace($match, $span, $html);
     }
     $html = "<div class='game-title'>$html</div>";
