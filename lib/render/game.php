@@ -56,7 +56,7 @@ function gameAvatar(
  * @param   string  $title  Raw game title
  * @return  string  The resulting HTML code
  */
-function renderGameTitle(string $title): string
+function renderGameTitle(?string $title): string
 {
     $html = (string) $title;
     $matches = [];
@@ -74,6 +74,7 @@ function renderGameTitle(string $title): string
         $span = "<span class='game-category subset $class'>$text</span>";
         $html = str_replace($match, $span, $html);
     }
+    $html = "<div class='game-title'>$html</div>";
 
     return $html;
 }

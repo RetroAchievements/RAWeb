@@ -1,11 +1,18 @@
-.game-category {
-    opacity: 0.9;
-    margin: 0 0.1em;
-    padding: 0.1em 0.4em;
-    border-radius: 0.4em;
-    vertical-align: middle;
+.game-title {
+    display: inline-block;
+    margin-left: .1em;
+}
+
+.game-title > .game-category {
+    display: inline-block;
+    opacity: .9;
+    margin: 0 .1em;
+    padding: .1em .4em;
+    border-radius: .4em;
+    vertical-align: text-bottom;
+    line-height: 1.1em;
     color: white;
-    font-size: 0.8em;
+    font-size: .8em;
 }
 
 .game-category.demo {
@@ -33,9 +40,9 @@
 }
 
 .game-category.subset {
-    padding: 0.1em 0.3em;
+    padding: .1em .3em;
     font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, .05);
     color: darkorange;
 }
 
