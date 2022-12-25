@@ -6,6 +6,10 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-UploadAvatar($user, request()->post('imageData'));
+try {
+    UploadAvatar($user, request()->post('imageData'));
+} catch (Exception $ex) {
+    return response()->json(['message' => $ex->getMessage()], 400);
+}
 
 return response()->json(['message' => __('legacy.success.ok')]);
