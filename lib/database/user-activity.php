@@ -5,6 +5,7 @@ use App\Legacy\Models\DeletedModels;
 use App\Legacy\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use RA\AchievementType;
 use RA\ActivityType;
 use RA\ArticleType;
 use RA\Permissions;
@@ -710,4 +711,203 @@ LIMIT $offset, $count";
     }
 
     return $data;
+}
+
+function getUserGameActivity(string $user, int $gameID): array
+{
+    sanitize_sql_inputs($user);
+
+    $query = "SELECT a.timestamp, a.lastupdate, a.data
+              FROM Activity a
+              WHERE a.User='$user' AND a.data=$gameID
+              AND a.activitytype=" . ActivityType::StartedPlaying;
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false) {
+        log_sql_fail();
+
+        return [];
+    }
+
+    $sessions = [];
+    while ($row = mysqli_fetch_assoc($dbResult)) {
+        $sessions[] = [
+            'StartTime' => strtotime($row['timestamp']),
+        ];
+
+        if ($row['lastupdate'] != $row['timestamp']) {
+            $sessions[] = [
+                'StartTime' => strtotime($row['lastupdate']),
+            ];
+        }
+    }
+
+    // create a dummy placeholder session for any achievements unlocked before the first session
+    $sessions[] = [
+        'StartTime' => 0,
+        'IsGenerated' => true,
+    ];
+
+    // reverse sort by date so we can update the appropriate session when we find it
+    usort($sessions, function ($a, $b) { return $b['StartTime'] - $a['StartTime']; });
+
+    $query = "SELECT a.timestamp, a.data, a.data2, ach.Title, ach.Points, ach.BadgeName, ach.Flags
+              FROM Activity a
+              LEFT JOIN Achievements ach ON ach.ID = a.data
+              WHERE ach.GameID=$gameID AND a.User='$user'
+              AND a.activitytype=" . ActivityType::EarnedAchievement;
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false) {
+        log_sql_fail();
+
+        return [];
+    }
+
+    $achievements = [];
+    $unofficialAchievements = [];
+    while ($row = mysqli_fetch_assoc($dbResult)) {
+        $when = strtotime($row['timestamp']);
+        $achievements[$row['data']] = $when;
+
+        if ($row['Flags'] != AchievementType::OfficialCore) {
+            $unofficialAchievements[$row['data']] = 1;
+        }
+
+        foreach ($sessions as &$session) {
+            if ($session['StartTime'] < $when) {
+                $session['Achievements'][] = [
+                    'When' => $when,
+                    'AchievementID' => $row['data'],
+                    'Title' => $row['Title'],
+                    'Points' => $row['Points'],
+                    'BadgeName' => $row['BadgeName'],
+                    'Flags' => $row['Flags'],
+                    'HardcoreMode' => $row['data2'],
+                ];
+                break;
+            }
+        }
+    }
+
+    // calculate the duration of each session
+    $totalTime = 0;
+    $newSessions = [];
+    foreach ($sessions as &$session) {
+        if (!key_exists('Achievements', $session)) {
+            if ($session['StartTime'] > 0) {
+                $session['Achievements'] = [];
+                $session['EndTime'] = $session['StartTime'];
+                $newSessions[] = $session;
+            }
+        } else {
+            usort($session['Achievements'], function ($a, $b) { return $a['When'] - $b['When']; });
+
+            if ($session['StartTime'] === 0) {
+                $session['StartTime'] = $session['Achievements'][0]['When'];
+            }
+
+            foreach ($session['Achievements'] as &$achievement) {
+                if ($achievement['When'] != $achievements[$achievement['AchievementID']]) {
+                    $achievement['UnlockedLater'] = true;
+                }
+            }
+
+            // if there are any gaps in the achievements earned within a session that
+            // are more than four hours apart, split into separate sessions
+            $split = [];
+            $prevTime = $session['StartTime'];
+            for ($i = 0; $i < count($session['Achievements']); $i++) {
+                $distance = $session['Achievements'][$i]['When'] - $prevTime;
+                if ($distance > 4 * 60 * 60) {
+                    $split[] = $i;
+                }
+                $prevTime = $session['Achievements'][$i]['When'];
+            }
+
+            if (empty($split)) {
+                $session['EndTime'] = end($session['Achievements'])['When'];
+                $totalTime += ($session['EndTime'] - $session['StartTime']);
+                $newSessions[] = $session;
+            } else {
+                $split[] = count($session['Achievements']);
+                $firstIndex = 0;
+                $isGenerated = false;
+                foreach ($split as $i) {
+                    if ($i === 0) {
+                        $newSession = [
+                            'StartTime' => $session['StartTime'],
+                            'EndTime' => $session['StartTime'],
+                            'Achievements' => [],
+                        ];
+                    } else {
+                        $newSession = [
+                            'StartTime' => !$isGenerated ? $session['StartTime'] :
+                                $session['Achievements'][$firstIndex]['When'],
+                            'EndTime' => $session['Achievements'][$i - 1]['When'],
+                            'Achievements' => array_slice($session['Achievements'], $firstIndex, $i - $firstIndex),
+                        ];
+                    }
+
+                    $newSession['IsGenerated'] = $isGenerated;
+                    $isGenerated = true;
+
+                    $totalTime += ($newSession['EndTime'] - $newSession['StartTime']);
+                    $newSessions[] = $newSession;
+
+                    $firstIndex = $i;
+                }
+            }
+        }
+    }
+
+    // make sure any generated sessions are in the correct order
+    $sessions = $newSessions;
+    usort($sessions, function ($a, $b) { return $a['StartTime'] - $b['StartTime']; });
+
+    $unlockSessionCount = 0;
+    $firstAchievementTime = null;
+    $lastAchievementTime = null;
+    foreach ($sessions as &$session) {
+        if (!empty($session['Achievements'])) {
+            $unlockSessionCount++;
+            foreach ($session['Achievements'] as &$achievement) {
+                if ($firstAchievementTime === null) {
+                    $firstAchievementTime = $achievement['When'];
+                }
+                $lastAchievementTime = $achievement['When'];
+            }
+        }
+    }
+
+    // assume every achievement took roughly the same amount of time to earn. divide the
+    // user's total known playtime by the number of achievements they've earned to get the
+    // approximate time per achievement earned. add this value to each session to account
+    // for time played after getting the last achievement of the session.
+    $achievementsUnlocked = count($achievements);
+    if ($achievementsUnlocked > 0 && $unlockSessionCount > 1) {
+        $sessionAdjustment = $totalTime / $achievementsUnlocked;
+        $totalTime += $sessionAdjustment * $unlockSessionCount;
+    } else {
+        $sessionAdjustment = 0;
+    }
+
+    $activity = [
+        'Sessions' => $sessions,
+        'TotalTime' => $totalTime,
+        'PerSessionAdjustment' => $sessionAdjustment,
+        'AchievementsUnlocked' => count($achievements) - count($unofficialAchievements),
+        'UnlockSessionCount' => $unlockSessionCount,
+        'FirstUnlockTime' => $firstAchievementTime,
+        'LastUnlockTime' => $lastAchievementTime,
+        'TotalUnlockTime' => ($lastAchievementTime !== null) ? $lastAchievementTime - $firstAchievementTime : 0,
+    ];
+
+    // Count num possible achievements
+    $query = "SELECT COUNT(*) as Count FROM Achievements ach
+              WHERE ach.Flags=" . AchievementType::OfficialCore . " AND ach.GameID=$gameID";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult) {
+        $activity['CoreAchievementCount'] = mysqli_fetch_assoc($dbResult)['Count'];
+    }
+
+    return $activity;
 }
