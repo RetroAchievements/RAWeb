@@ -175,6 +175,13 @@ function RenderCompletedGamesList($userCompletedGamesList): void
             continue;
         }
 
+        [$completionIcon, $completionTooltip] =
+            $nextTotalAwarded === $nextMaxPossible
+                ? $pctAwardedHCProportional === 100.0
+                    ? ['👑', 'Mastered (hardcore)']
+                    : ['🎖', 'Completed']
+                : ['', ''];
+
         echo "<tr>";
 
         echo "<td>";
@@ -185,6 +192,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "</td>";
         echo "<td class='progress'>";
 
+        echo "<div class='completion-icon' title='$completionTooltip'>$completionIcon</div>";
         echo "<div class='progressbar player'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";

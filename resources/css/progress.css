@@ -25,6 +25,17 @@
   border-top: 0 solid;
 }
 
+.completion-icon {
+  float: right;
+  margin: .3em;
+  height: 1.4em;
+  width: 1.5em;
+  text-align: center;
+  font-size: .6em;
+  color: white;
+  cursor: help;
+}
+
 .progressbar.player {
   width: 104px;
 }
