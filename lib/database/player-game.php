@@ -275,7 +275,11 @@ function getUsersCompletedGamesAndMax($user): array
     $requiredFlags = AchievementType::OfficialCore;
     $minAchievementsForCompletion = 5;
 
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, COUNT(ach.GameID) AS NumAwarded, inner1.MaxPossible, (COUNT(ach.GameID)/inner1.MaxPossible) AS PctWon, aw.HardcoreMode
+    $query = "SELECT
+            gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
+            SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, 
+            (SUM(aw.HardcoreMode = 0)/inner1.MaxPossible) AS PctWon,
+            (SUM(aw.HardcoreMode = 1)/inner1.MaxPossible) AS PctWonHC, aw.HardcoreMode
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -284,8 +288,8 @@ function getUsersCompletedGamesAndMax($user): array
             AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > $minAchievementsForCompletion
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
         WHERE aw.User='$user' AND ach.Flags = $requiredFlags
-        GROUP BY ach.GameID, aw.HardcoreMode, gd.Title
-        ORDER BY PctWon DESC, inner1.MaxPossible DESC, gd.Title ";
+        GROUP BY ach.GameID, gd.Title
+        ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title ";
 
     $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);

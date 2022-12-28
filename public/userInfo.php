@@ -42,37 +42,8 @@ $numArticleComments = getRecentArticleComments(ArticleType::User, $userPageID, $
 $totalPctWon = 0.0;
 $numGamesFound = 0;
 
-$userCompletedGames = [];
-
 // Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-$userCompletedGamesListCount = count($userCompletedGamesList);
-
-// Merge all elements of $userCompletedGamesList into one unique list
-for ($i = 0; $i < $userCompletedGamesListCount; $i++) {
-    $gameID = $userCompletedGamesList[$i]['GameID'];
-
-    if ($userCompletedGamesList[$i]['HardcoreMode'] == 0) {
-        $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
-        $userCompletedGames[$gameID]['NumAwardedHC'] = 0; // Update this later, but fill in for now
-    }
-}
-
-for ($i = 0; $i < $userCompletedGamesListCount; $i++) {
-    $gameID = $userCompletedGamesList[$i]['GameID'];
-    if ($userCompletedGamesList[$i]['HardcoreMode'] == 1) {
-        if (!array_key_exists($gameID, $userCompletedGames)) {
-            $userCompletedGames[$gameID] = $userCompletedGamesList[$i];
-            $userCompletedGames[$gameID]['NumAwarded'] = 0;
-        }
-        $userCompletedGames[$gameID]['NumAwardedHC'] = $userCompletedGamesList[$i]['NumAwarded'];
-    }
-}
-
-// Custom sort, then overwrite $userCompletedGamesList
-usort($userCompletedGames, fn ($a, $b) => ($b['PctWon'] ?? 0) <=> ($a['PctWon'] ?? 0));
-
-$userCompletedGamesList = $userCompletedGames;
 
 $excludedConsoles = ["Hubs", "Events"];
 
