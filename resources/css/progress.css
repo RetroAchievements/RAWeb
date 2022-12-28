@@ -37,17 +37,22 @@
   align-items: center;
   float: right;
   margin: .2em;
+  margin-left: auto;
   height: 2.1em;
   width: 2.1em;
   border-radius: 50%;
   font-size: .6em;
   font-family: emoji;
   color: deepskyblue;
-  cursor: help;
+  cursor: default;
 }
 
 .completion-icon.active {
   background-color: rgba(128, 128, 128, 0.2);
+}
+
+.completion-icon.tooltip {
+  cursor: help;
 }
 
 .progressbar.player {
