@@ -32,14 +32,22 @@
 }
 
 .completion-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   float: right;
-  margin: .3em;
-  height: 1.4em;
-  width: 1.5em;
-  text-align: center;
+  margin: .2em;
+  height: 2.1em;
+  width: 2.1em;
+  border-radius: 50%;
   font-size: .6em;
-  color: white;
+  font-family: emoji;
+  color: deepskyblue;
   cursor: help;
+}
+
+.completion-icon.active {
+  background-color: rgba(128, 128, 128, 0.2);
 }
 
 .progressbar.player {
