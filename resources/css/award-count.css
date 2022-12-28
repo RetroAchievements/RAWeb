@@ -1,18 +1,21 @@
 .awardcounter {
   float: right;
-  margin: 0 0.45em;
-  font-size: 0.65em;
+  margin: 0 .3em;
+  font-size: .65em;
   cursor: help;
 }
 
 .awardcounter > * {
+  display: inline-block;
   vertical-align: middle;
+  height: 100%;
 }
 
 .awardcounter > .icon {
-  width: 25px;
-  margin-right: 5px;
+  margin-right: .2em;
+  width: 1.9em;
   text-align: center;
-  font-size: 0.8em;
+  font-size: .7em;
+  font-family: emoji;
   color: rgb(210, 210, 210);
 }

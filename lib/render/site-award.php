@@ -147,7 +147,7 @@ function RenderCounter($icon, $text, $numItems, $numHidden): string
     }
     $counter =
         "<div class='awardcounter' title='$tooltip'>
-            <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
+            <div class='icon'>$icon</div><div class='numitems'>$numItems</div>
         </div>";
 
     return $counter;
