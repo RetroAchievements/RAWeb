@@ -1,3 +1,7 @@
+.progress {
+  width: 104px;
+}
+
 .progressbar {
   position: relative;
   height: 6px;
@@ -9,6 +13,8 @@
 }
 
 .progressbar-label {
+  margin-top: .3em;
+  text-align: center;
   font-size: 0.9em;
 }
 
@@ -37,7 +43,7 @@
 }
 
 .progressbar.player {
-  width: 104px;
+  width: inherit;
 }
 
 .progressbar.global {
