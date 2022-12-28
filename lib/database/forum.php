@@ -71,9 +71,10 @@ function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut):
     sanitize_sql_inputs($forumID, $offset, $count);
     settype($forumID, "integer");
 
-    $query = "    SELECT COUNT(*) FROM ForumTopic AS ft
+    $query = "  SELECT COUNT(*) FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
-                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1";
+                WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
+                AND ft.RequiredPermissions <= $permissions";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -89,6 +90,7 @@ function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut):
                 WHERE ft.ForumID = $forumID
                 AND ft.RequiredPermissions <= $permissions
                 GROUP BY ft.ID, LatestCommentPostedDate
+                HAVING NumTopicReplies >= 0
                 ORDER BY LatestCommentPostedDate DESC
                 LIMIT $offset, $count";
 
@@ -98,10 +100,8 @@ function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut):
 
         $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            if ($db_entry['NumTopicReplies'] != -1) {
-                $dataOut[$numResults] = $db_entry;
-                $numResults++;
-            }
+            $dataOut[$numResults] = $db_entry;
+            $numResults++;
         }
 
         return $dataOut;
