@@ -789,10 +789,66 @@ function getUserGameActivity(string $user, int $gameID): array
     }
 
     // calculate the duration of each session
+    $totalTime = _updateUserGameSessionDurations($sessions, $achievements);
+
+    // sort everything and find the first and last achievement timestamps
+    usort($sessions, function ($a, $b) { return $a['StartTime'] - $b['StartTime']; });
+
+    $unlockSessionCount = 0;
+    $firstAchievementTime = null;
+    $lastAchievementTime = null;
+    foreach ($sessions as &$session) {
+        if (!empty($session['Achievements'])) {
+            $unlockSessionCount++;
+            foreach ($session['Achievements'] as &$achievement) {
+                if ($firstAchievementTime === null) {
+                    $firstAchievementTime = $achievement['When'];
+                }
+                $lastAchievementTime = $achievement['When'];
+            }
+        }
+    }
+
+    // assume every achievement took roughly the same amount of time to earn. divide the
+    // user's total known playtime by the number of achievements they've earned to get the
+    // approximate time per achievement earned. add this value to each session to account
+    // for time played after getting the last achievement of the session.
+    $achievementsUnlocked = count($achievements);
+    if ($achievementsUnlocked > 0 && $unlockSessionCount > 1) {
+        $sessionAdjustment = $totalTime / $achievementsUnlocked;
+        $totalTime += $sessionAdjustment * $unlockSessionCount;
+    } else {
+        $sessionAdjustment = 0;
+    }
+
+    $activity = [
+        'Sessions' => $sessions,
+        'TotalTime' => $totalTime,
+        'PerSessionAdjustment' => $sessionAdjustment,
+        'AchievementsUnlocked' => count($achievements) - count($unofficialAchievements),
+        'UnlockSessionCount' => $unlockSessionCount,
+        'FirstUnlockTime' => $firstAchievementTime,
+        'LastUnlockTime' => $lastAchievementTime,
+        'TotalUnlockTime' => ($lastAchievementTime != null) ? $lastAchievementTime - $firstAchievementTime : 0,
+    ];
+
+    // Count num possible achievements
+    $query = "SELECT COUNT(*) as Count FROM Achievements ach
+              WHERE ach.Flags=" . AchievementType::OfficialCore . " AND ach.GameID=$gameID";
+    $dbResult = s_mysql_query($query);
+    if ($dbResult) {
+        $activity['CoreAchievementCount'] = mysqli_fetch_assoc($dbResult)['Count'];
+    }
+
+    return $activity;
+}
+
+function _updateUserGameSessionDurations(array &$sessions, array &$achievements): int
+{
     $totalTime = 0;
     $newSessions = [];
     foreach ($sessions as &$session) {
-        if (!key_exists('Achievements', $session)) {
+        if (!array_key_exists('Achievements', $session)) {
             if ($session['StartTime'] > 0) {
                 $session['Achievements'] = [];
                 $session['EndTime'] = $session['StartTime'];
@@ -859,55 +915,7 @@ function getUserGameActivity(string $user, int $gameID): array
         }
     }
 
-    // make sure any generated sessions are in the correct order
     $sessions = $newSessions;
-    usort($sessions, function ($a, $b) { return $a['StartTime'] - $b['StartTime']; });
 
-    $unlockSessionCount = 0;
-    $firstAchievementTime = null;
-    $lastAchievementTime = null;
-    foreach ($sessions as &$session) {
-        if (!empty($session['Achievements'])) {
-            $unlockSessionCount++;
-            foreach ($session['Achievements'] as &$achievement) {
-                if ($firstAchievementTime === null) {
-                    $firstAchievementTime = $achievement['When'];
-                }
-                $lastAchievementTime = $achievement['When'];
-            }
-        }
-    }
-
-    // assume every achievement took roughly the same amount of time to earn. divide the
-    // user's total known playtime by the number of achievements they've earned to get the
-    // approximate time per achievement earned. add this value to each session to account
-    // for time played after getting the last achievement of the session.
-    $achievementsUnlocked = count($achievements);
-    if ($achievementsUnlocked > 0 && $unlockSessionCount > 1) {
-        $sessionAdjustment = $totalTime / $achievementsUnlocked;
-        $totalTime += $sessionAdjustment * $unlockSessionCount;
-    } else {
-        $sessionAdjustment = 0;
-    }
-
-    $activity = [
-        'Sessions' => $sessions,
-        'TotalTime' => $totalTime,
-        'PerSessionAdjustment' => $sessionAdjustment,
-        'AchievementsUnlocked' => count($achievements) - count($unofficialAchievements),
-        'UnlockSessionCount' => $unlockSessionCount,
-        'FirstUnlockTime' => $firstAchievementTime,
-        'LastUnlockTime' => $lastAchievementTime,
-        'TotalUnlockTime' => ($lastAchievementTime !== null) ? $lastAchievementTime - $firstAchievementTime : 0,
-    ];
-
-    // Count num possible achievements
-    $query = "SELECT COUNT(*) as Count FROM Achievements ach
-              WHERE ach.Flags=" . AchievementType::OfficialCore . " AND ach.GameID=$gameID";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult) {
-        $activity['CoreAchievementCount'] = mysqli_fetch_assoc($dbResult)['Count'];
-    }
-
-    return $activity;
+    return $totalTime;
 }
