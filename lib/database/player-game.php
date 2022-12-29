@@ -292,7 +292,6 @@ function getUsersCompletedGamesAndMax($user): array
             PctWonHC DESC, PctWon DESC, inner1.MaxPossible DESC, gd.Title";
 
     $db = getMysqliConnection();
-    mysqli_query($db, "SET SESSION innodb_strict_mode=ON");
     $dbResult = mysqli_query($db, $query);
 
     $gamesFound = 0;
