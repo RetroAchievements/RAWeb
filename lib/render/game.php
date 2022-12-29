@@ -292,10 +292,10 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
 }
 
 /**
- * Render completion icon, given that player got 100% set progress.
+ * Render completion icon, given that player achieved 100% set progress
  * @param   $awardedCount   How many cheevos player has gotten in set
  * @param   $totalCount     How many cheevos set has in total
- * @param   $hardcoreRatio  Percentage of cheevos earned on hardcore
+ * @param   $hardcoreRatio  Percentage of total cheevos earned on hardcore
  * @param   $tooltip        Whether to show hover tooltip or not
  * @return  string  The resulting HTML code
  */
@@ -303,18 +303,18 @@ function renderCompletionIcon(
     int $awardedCount,
     int $totalCount,
     float|string $hardcoreRatio,
-    bool $tooltip = false
+    bool $tooltip = false,
 ): string {
-    if ($awardedCount < $totalCount) {
+    if ($awardedCount === 0 or $awardedCount < $totalCount) {
         return "<div class='completion-icon'></div>";
     }
     $icon = $hardcoreRatio == 100.0 ? '👑' : '🎖️';
-    $class = 'completion-icon active';
+    [$tooltipText, $class] = ['', 'completion-icon active'];
     if ($tooltip) {
-        $tooltip = $hardcoreRatio == 100.0 ? 'Mastered (hardcore)' : 'Completed';
+        $tooltipText = $hardcoreRatio == 100.0 ? 'Mastered (hardcore)' : 'Completed';
         $class .= ' tooltip';
     }
-    $html = "<div class='$class' title='$tooltip'>$icon</div>";
+    $html = "<div class='$class' title='$tooltipText'>$icon</div>";
 
     return $html;
 }
