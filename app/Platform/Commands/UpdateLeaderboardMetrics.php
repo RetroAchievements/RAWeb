@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class UpdateLeaderboardMetrics extends Command
 {
-    protected $signature = 'ra:server:leaderboard:update-metrics';
+    protected $signature = 'ra:platform:leaderboard:update-metrics';
     protected $description = '';
 
     public function __construct()
