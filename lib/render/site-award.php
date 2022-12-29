@@ -66,46 +66,54 @@ function RenderSiteAwards($userAwards): void
 function RenderAwardGroup($awards, $title): void
 {
     $numItems = is_countable($awards) ? count($awards) : 0;
-    if ($numItems == 0) {
+    $numHidden = 0;
+    foreach ($awards as $award) {
+        if ($award['DisplayOrder'] < 0) {
+            $numHidden++;
+        }
+    }
+    if ($numItems == $numHidden) {
+        // No items to show
         return;
     }
 
     $icons = [
         "Game Awards" => "👑🎖️",
         "Event Awards" => "🌱",
-        "Site Awards" => "⬩",
+        "Site Awards" => "🌐",
     ];
     if ($title == "Game Awards") {
         // Count and show # of completed/mastered games
-        $numGamesCompleted = 0;
+        [$numCompleted, $numCompletedHidden] = [0, 0];
         foreach ($awards as $award) {
             if ($award['AwardDataExtra'] != 1) {
-                $numGamesCompleted++;
+                $numCompleted++;
+                if ($award['DisplayOrder'] < 0) {
+                    $numCompletedHidden++;
+                }
             }
         }
-        $numGamesMastered = $numItems - $numGamesCompleted;
+        $numMastered = $numItems - $numCompleted;
+        $numMasteredHidden = $numHidden - $numCompletedHidden;
         $counters = "";
-        if ($numGamesMastered > 0) {
+        if ($numMastered > 0) {
             $icon = mb_substr($icons[$title], 0, 1);
-            $counters .= "
-                <div class='awardcount' title='# of mastered games'>
-                    <span class='icon'>$icon</span><span class='numitems'>$numGamesMastered</span>
-                </div>";
+            $text = ($numMastered > 1 ? "games" : "game") . " mastered";
+            $counters .= RenderCounter($icon, $text, $numMastered, $numMasteredHidden);
         }
-        if ($numGamesCompleted > 0) {
+        if ($numCompleted > 0) {
             $icon = mb_substr($icons[$title], 1, 1);
-            $counters .= "
-                <div class='awardcount' title='# of completed games'>
-                    <span class='icon'>$icon</span><span class='numitems'>$numGamesCompleted</span>
-                </div>";
+            $text = ($numCompleted > 1 ? "games" : "game") . " completed";
+            $counters .= RenderCounter($icon, $text, $numCompleted, $numCompletedHidden);
         }
     } else {
         $icon = $icons[$title];
-        $tooltip = "# of " . strtolower($title);
-        $counters = "
-            <div class='awardcount' title='$tooltip'>
-                <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
-            </div>";
+        $text = strtolower($title);
+        if ($numItems == 1) {
+            // Remove 's'
+            $text = mb_substr($text, 0, -1);
+        }
+        $counters = RenderCounter($icon, $text, $numItems, $numHidden);
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
@@ -121,11 +129,28 @@ function RenderAwardGroup($awards, $title): void
                 continue;
             }
 
-            RenderAward($awards[$nOffs], $imageSize);
+            $award = $awards[$nOffs];
+            if ($award['DisplayOrder'] >= 0) {
+                RenderAward($award, $imageSize);
+            }
         }
     }
     echo "</div>";
     echo "</div>";
+}
+
+function RenderCounter($icon, $text, $numItems, $numHidden): string
+{
+    $tooltip = "$numItems $text";
+    if ($numHidden > 0) {
+        $tooltip .= " ($numHidden hidden)";
+    }
+    $counter =
+        "<div class='awardcounter' title='$tooltip'>
+            <div class='icon'>$icon</div><div class='numitems'>$numItems</div>
+        </div>";
+
+    return $counter;
 }
 
 function RenderAward($award, $imageSize, $clickable = true): void

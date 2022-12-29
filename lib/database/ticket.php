@@ -257,9 +257,6 @@ function getAllTickets(
 
     // Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
-    if ($emulatorCond === null) {
-        return $retVal;
-    }
 
     // Developer Active condition
     $devJoin = "";
@@ -528,9 +525,6 @@ function countOpenTickets(
 
     // Emulator condition
     $emulatorCond = getEmulatorCondition($ticketFilters);
-    if ($emulatorCond === null) {
-        return 0;
-    }
 
     $modeCond = getModeCondition($ticketFilters);
     if ($modeCond === null) {
@@ -816,47 +810,36 @@ function getNotAuthorCondition(int $ticketFilters): string
 /**
  * Gets the ticket emulator condition to put into the main ticket query.
  */
-function getEmulatorCondition(int $ticketFilters): ?string
+function getEmulatorCondition(int $ticketFilters): string
 {
-    $raEmulatorTickets = ($ticketFilters & TicketFilters::EmulatorRA);
-    $rarchKnownTickets = ($ticketFilters & TicketFilters::EmulatorRetroArchCoreSpecified);
-    $rarchUnknownTickets = ($ticketFilters & TicketFilters::EmulatorRetroArchCoreNotSpecified);
-    $emulatorUnknownTickets = ($ticketFilters & TicketFilters::EmulatorUnknown);
+    $parts = [];
 
-    if ($raEmulatorTickets && $rarchKnownTickets && $rarchUnknownTickets && $emulatorUnknownTickets) {
-        return "";
-    } elseif ($raEmulatorTickets || $rarchKnownTickets || $rarchUnknownTickets || $emulatorUnknownTickets) {
-        $emulatorCond = " AND (";
-        if ($raEmulatorTickets) {
-            $emulatorCond .= "tick.ReportNotes Like '%Emulator: RA%' ";
-        }
-
-        if ($rarchKnownTickets) {
-            if ($raEmulatorTickets) {
-                $emulatorCond .= " OR ";
-            }
-            $emulatorCond .= "tick.ReportNotes LIKE '%Emulator: RetroArch (_%)%' ";
-        }
-
-        if ($rarchUnknownTickets) {
-            if ($raEmulatorTickets || $rarchKnownTickets) {
-                $emulatorCond .= " OR ";
-            }
-            $emulatorCond .= "tick.ReportNotes LIKE '%Emulator: RetroArch ()%'";
-        }
-
-        if ($emulatorUnknownTickets) {
-            if ($raEmulatorTickets || $rarchKnownTickets || $rarchUnknownTickets) {
-                $emulatorCond .= " OR ";
-            }
-            $emulatorCond .= "(tick.ReportNotes NOT LIKE '%Emulator: RA%' AND tick.ReportNotes NOT LIKE '%Emulator: RetroArch%')";
-        }
-        $emulatorCond .= ")";
-
-        return $emulatorCond;
+    if ($ticketFilters & TicketFilters::EmulatorRA) {
+        $parts[] = "tick.ReportNotes Like '%Emulator: RA%' ";
     }
 
-    return null;
+    if ($ticketFilters & TicketFilters::EmulatorRetroArchCoreSpecified) {
+        $parts[] = "tick.ReportNotes LIKE '%Emulator: RetroArch (_%)%' ";
+    }
+
+    if ($ticketFilters & TicketFilters::EmulatorRetroArchCoreNotSpecified) {
+        $parts[] = "tick.ReportNotes LIKE '%Emulator: RetroArch ()%'";
+    }
+
+    if ($ticketFilters & TicketFilters::EmulatorOther) {
+        $parts[] = "(tick.ReportNotes LIKE '%Emulator: %' AND tick.ReportNotes NOT LIKE '%Emulator: RA%' AND tick.ReportNotes NOT LIKE '%Emulator: RetroArch%')";
+    }
+
+    if ($ticketFilters & TicketFilters::EmulatorUnknown) {
+        $parts[] = "tick.ReportNotes NOT LIKE '%Emulator: %'";
+    }
+
+    if (count($parts) == 0 || count($parts) == 5) {
+        /* no filters selected, or all filters selected. don't filter */
+        return '';
+    }
+
+    return ' AND (' . implode(' OR ', $parts) . ')';
 }
 
 /**
