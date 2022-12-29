@@ -42,8 +42,10 @@ abstract class TicketFilters
 
     public const StateRequest = 1 << 18;
 
+    public const EmulatorOther = 1 << 19;
+
     // This should updated every time a new filter is added so it has all possible filter bits set
-    public const AllFilters = (1 << 19) - 1;
+    public const AllFilters = (1 << 20) - 1;
 
     // All filter is everything except Not Author (Not Author filter excludes items)
     public const All = self::AllFilters & ~self::ResolvedByNonAuthor;
