@@ -319,31 +319,30 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser): int
 {
     sanitize_sql_inputs($gameID, $localUser);
 
-    $query = "SELECT InnerTable.LeaderboardID, InnerTable.Title, InnerTable.Description, le.DateSubmitted, ua.User, le.Score, InnerTable.Format, InnerTable.DisplayOrder FROM (
-                SELECT
-                CASE
-                    WHEN !lbd.LowerIsBetter THEN MAX(le2.Score)
-                                            ELSE MIN(le2.Score)
-                END
-                AS BestScore, le2.UserID, lbd.ID as LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder
-                FROM LeaderboardDef AS lbd
-                LEFT JOIN LeaderboardEntry AS le2 ON lbd.ID = le2.LeaderboardID
-                LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null ) && lbd.GameID = $gameID
-                GROUP BY lbd.ID
-            ) InnerTable
-            LEFT JOIN LeaderboardEntry AS le ON le.LeaderboardID = InnerTable.LeaderboardID AND le.Score = InnerTable.BestScore
-            LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-            WHERE ( !ua.Untracked || ua.User = '$localUser' || ua.User is null )
-            ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC ";
+    $query = "SELECT lbd.ID AS LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder,
+                     le2.UserID, ua.User, le2.DateSubmitted, BestEntries.Score
+              FROM LeaderboardDef AS lbd
+              LEFT JOIN (
+                  SELECT lbd.ID as LeaderboardID,
+                  CASE WHEN !lbd.LowerIsBetter THEN MAX(le2.Score) ELSE MIN(le2.Score) END AS Score
+                  FROM LeaderboardDef AS lbd
+                  LEFT JOIN LeaderboardEntry AS le2 ON lbd.ID = le2.LeaderboardID
+                  LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
+                  WHERE !ua.Untracked AND lbd.GameID = $gameID
+                  GROUP BY lbd.ID
+              ) AS BestEntries ON BestEntries.LeaderboardID = lbd.ID
+              LEFT JOIN LeaderboardEntry AS le2 ON le2.LeaderboardID = lbd.ID AND le2.Score = BestEntries.Score
+              LEFT JOIN UserAccounts ua ON le2.UserID = ua.ID
+              WHERE lbd.GameID = $gameID AND (ua.User IS NULL OR !ua.Untracked)
+              ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC";
 
     $dataOut = [];
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($data = mysqli_fetch_assoc($dbResult)) {
             $lbID = $data['LeaderboardID'];
-            if (!isset($dataOut[$lbID])) {
-                $dataOut[$lbID] = $data; // Potentially overwrites existing one
+            if (!isset($dataOut[$lbID])) { // keep earliest entry if players tied
+                $dataOut[$lbID] = $data;
             }
         }
     } else {
