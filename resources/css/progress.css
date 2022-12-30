@@ -1,15 +1,36 @@
 .progress {
   position: relative;
-  min-width: 100px;
+  width: 130px;
+}
+
+.progress.player {
+  width: 100px;
 }
 
 .progressbar {
-  height: 6px;
-  width: 120px;
-  background-color: var(--embed-color);
-  border: 1px solid var(--embed-highlight-color);
-  border-radius: 2px;
   overflow: hidden;
+  margin-right: auto;
+  height: 6px;
+  width: calc(100% - 18px);
+  border: 1px solid var(--embed-highlight-color);
+  border-radius: .5em 0 0 .5em;
+  background-color: var(--embed-color);
+}
+
+.progressbar.global {
+  width: 160px;
+  font-size: smaller;
+  line-height: 1.2em;
+}
+
+.progressbar.global .completion {
+  width: inherit;
+  background-color: rgb(11, 113, 193);
+}
+
+.progressbar.global .completion-hardcore {
+  height: 4px;
+  width: inherit;
 }
 
 .progressbar-label {
@@ -33,17 +54,18 @@
 
 .completion-icon {
   position: absolute;
-  top: -.78em;
-  right: -.4em;
+  top: -5.5px;
+  right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 2.2em;
-  width: 2.2em;
+  height: 17px;
+  width: 17px;
   border: solid 2px;
   border-radius: 50%;
+  outline: solid 2px;
   font-family: emoji;
-  font-size: .7em;
+  font-size: .6em;
   cursor: default;
 }
 
@@ -53,40 +75,18 @@
 
 .completion-icon.mastered {
   border-color: #c90;
+  outline-color: #606;
   background-color: #606;
 }
 
 .completion-icon.completed {
   border-color: #0b71c1;
+  outline-color: #083171;
   background-color: #083171;
 }
 
 .completion-icon:not(.mastered):not(.completed) {
-  top: -6px;
-  height: 2em;
-  width: 2em;
-  border-width: 2px;
   border-color: var(--embed-highlight-color);
-  outline: solid 2px var(--embed-color);
+  outline-color: var(--embed-color);
   background-color: var(--embed-color);
-}
-
-.progressbar.player {
-  width: 85px;
-}
-
-.progressbar.global {
-  width: 160px;
-  font-size: smaller;
-  line-height: 1.2em;
-}
-
-.progressbar.global .completion {
-  width: inherit;
-  background-color: rgb(11, 113, 193);
-}
-
-.progressbar.global .completion-hardcore {
-  height: 4px;
-  width: inherit;
 }

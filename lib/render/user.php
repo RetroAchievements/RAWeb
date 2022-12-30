@@ -185,8 +185,8 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "</td>";
         echo "<td>";
 
-        echo "<div class='progress'>";
-        echo "<div class='progressbar player'>";
+        echo "<div class='progress player'>";
+        echo "<div class='progressbar'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
         echo "</div>";
