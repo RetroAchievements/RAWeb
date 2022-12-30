@@ -274,13 +274,13 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     }
     $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
 
-    echo "<div class='flex flex-col items-start md:items-center my-2'>";
-    echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
+    echo "<div class='progress flex flex-col items-start md:items-center my-2'>";
     echo "<div class='progressbar'>";
     echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
     echo "<div class='completion-hardcore' style='width:$pctHardcoreProportion%'></div>";
     echo "</div>";
     echo "</div>";
+    echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
     echo "<div class='progressbar-label md:text-center'>";
     if ($pctHardcore >= 100.0) {
         echo "Mastered";
@@ -306,10 +306,11 @@ function renderCompletionIcon(
     bool $tooltip = false,
 ): string {
     if ($awardedCount === 0 or $awardedCount < $totalCount) {
-        return "<div class='completion-icon'></div>";
+        return '';
     }
-    $icon = $hardcoreRatio == 100.0 ? '👑' : '🎖️';
-    [$tooltipText, $class] = ['', 'completion-icon active'];
+    [$icon, $class] = $hardcoreRatio == 100.0 ? ['👑', 'mastered'] : ['🎖️', 'completed'];
+    $class = "completion-icon $class";
+    $tooltipText = '';
     if ($tooltip) {
         $tooltipText = $hardcoreRatio == 100.0 ? 'Mastered (hardcore)' : 'Completed';
         $class .= ' tooltip';

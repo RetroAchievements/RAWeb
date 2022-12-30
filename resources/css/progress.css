@@ -1,11 +1,10 @@
 .progress {
-  width: 104px;
+  position: relative;
 }
 
 .progressbar {
-  position: relative;
   height: 6px;
-  width: 124px;
+  width: 120px;
   background-color: var(--embed-color);
   border: 1px solid var(--embed-highlight-color);
   border-radius: 2px;
@@ -32,31 +31,37 @@
 }
 
 .completion-icon {
+  position: absolute;
+  top: -.78em;
+  right: -.4em;
   display: flex;
   justify-content: center;
   align-items: center;
-  float: right;
-  margin: .2em;
-  margin-left: auto;
-  height: 2.1em;
-  width: 2.1em;
+  height: 2.2em;
+  width: 2.2em;
+  border: solid 2px;
   border-radius: 50%;
-  font-size: .6em;
   font-family: emoji;
-  color: deepskyblue;
+  font-size: .7em;
   cursor: default;
-}
-
-.completion-icon.active {
-  background-color: rgba(128, 128, 128, 0.2);
 }
 
 .completion-icon.tooltip {
   cursor: help;
 }
 
+.completion-icon.mastered {
+  border-color: #c90;
+  background-color: #606;
+}
+
+.completion-icon.completed {
+  border-color: #0b71c1;
+  background-color: #083171;
+}
+
 .progressbar.player {
-  width: inherit;
+  width: 90px;
 }
 
 .progressbar.global {

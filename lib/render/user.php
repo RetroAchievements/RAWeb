@@ -183,16 +183,18 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "<td>";
         echo gameAvatar($userCompletedGamesList[$i], icon: false);
         echo "</td>";
-        echo "<td class='progress'>";
+        echo "<td>";
 
-        echo renderCompletionIcon($nextTotalAwarded, $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
+        echo "<div class='progress'>";
         echo "<div class='progressbar player'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
         echo "</div>";
         echo "</div>";
+        echo renderCompletionIcon($nextTotalAwarded, $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
         echo "<div class='progressbar-label lg:text-center'>";
         echo "$nextTotalAwarded of $nextMaxPossible";
+        echo "</div>";
         echo "</div>";
 
         echo "</td>";
