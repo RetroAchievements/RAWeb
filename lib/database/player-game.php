@@ -288,8 +288,7 @@ function getUsersCompletedGamesAndMax($user): array
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
         WHERE aw.User = '$user' AND ach.Flags = $requiredFlags
         GROUP BY ach.GameID, gd.Title
-        ORDER BY (SUM(aw.HardcoreMode = 0) / inner1.MaxPossible) = 1.0 DESC,
-            PctWonHC DESC, PctWon DESC, inner1.MaxPossible DESC, gd.Title";
+        ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
 
     $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);
