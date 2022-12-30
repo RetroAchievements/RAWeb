@@ -180,7 +180,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "<td>";
         echo gameAvatar($userCompletedGamesList[$i], label: false);
         echo "</td>";
-        echo "<td>";
+        echo "<td class='smaller'>";
         echo gameAvatar($userCompletedGamesList[$i], icon: false);
         echo "</td>";
         echo "<td>";

@@ -1,5 +1,6 @@
 .progress {
   position: relative;
+  min-width: 100px;
 }
 
 .progressbar {
@@ -39,8 +40,9 @@
   align-items: center;
   height: 2.2em;
   width: 2.2em;
-  border: solid 2px;
+  border: solid 2px var(--embed-color);
   border-radius: 50%;
+  background-color: var(--embed-highlight-color);
   font-family: emoji;
   font-size: .7em;
   cursor: default;
@@ -60,8 +62,12 @@
   background-color: #083171;
 }
 
+.completion-icon:not(.mastered):not(.completed) {
+  border-width: 3px;
+}
+
 .progressbar.player {
-  width: 90px;
+  width: 85px;
 }
 
 .progressbar.global {

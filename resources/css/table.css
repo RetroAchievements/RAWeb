@@ -14,6 +14,10 @@ td {
   padding: 4px 8px;
 }
 
+td.smaller {
+  font-size: .9em;
+}
+
 th {
   font-weight: inherit;
   padding: 8px 8px;

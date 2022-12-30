@@ -306,7 +306,7 @@ function renderCompletionIcon(
     bool $tooltip = false,
 ): string {
     if ($awardedCount === 0 or $awardedCount < $totalCount) {
-        return '';
+        return "<div class='completion-icon'></div>";
     }
     [$icon, $class] = $hardcoreRatio == 100.0 ? ['👑', 'mastered'] : ['🎖️', 'completed'];
     $class = "completion-icon $class";
