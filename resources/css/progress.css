@@ -40,9 +40,8 @@
   align-items: center;
   height: 2.2em;
   width: 2.2em;
-  border: solid 2px var(--embed-color);
+  border: solid 2px;
   border-radius: 50%;
-  background-color: var(--embed-highlight-color);
   font-family: emoji;
   font-size: .7em;
   cursor: default;
@@ -63,7 +62,13 @@
 }
 
 .completion-icon:not(.mastered):not(.completed) {
-  border-width: 3px;
+  top: -6px;
+  height: 2em;
+  width: 2em;
+  border-width: 2px;
+  border-color: var(--embed-highlight-color);
+  outline: solid 2px var(--embed-color);
+  background-color: var(--embed-color);
 }
 
 .progressbar.player {
