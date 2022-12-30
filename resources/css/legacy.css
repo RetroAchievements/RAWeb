@@ -84,6 +84,10 @@
   color: rgb(140,140,140);
 }
 
+.missable {
+  filter: brightness(1);
+}
+
 .message-unread {
   font-weight: bold;
 }

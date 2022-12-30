@@ -12,6 +12,7 @@ function achievementAvatar(
     ?string $context = null,
 ): string {
     $id = $achievement;
+    $title = null;
 
     if (is_array($achievement)) {
         $id = $achievement['AchievementID'] ?? $achievement['ID'];
@@ -20,6 +21,8 @@ function achievementAvatar(
             $title = $achievement['AchievementTitle'] ?? $achievement['Title'];
             $points = $achievement['Points'] ?? null;
             $label = $title . ($points ? ' (' . $points . ')' : '');
+            sanitize_outputs($label);   // sanitize before rendering HTML
+            $label = renderAchievementTitle($label);
         }
 
         if ($icon !== false) {
@@ -45,7 +48,20 @@ function achievementAvatar(
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
+        sanitize: $title === null,
+        altText: $title ?? $label,
     );
+}
+
+function renderAchievementTitle(string $title): string
+{   
+    if (! str_contains($title, '[m]')) {
+        return $title;
+    }
+    $span = "<span class='missable'>[m]</span>";
+    $html = str_replace('[m]', $span, $title);
+
+    return $html;
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null): string
