@@ -276,7 +276,7 @@ function getUsersCompletedGamesAndMax($user): array
     $minAchievementsForCompletion = 5;
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
-            ANY_VALUE(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC,
+            MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC,
             (SUM(aw.HardcoreMode = 0) / inner1.MaxPossible) AS PctWon,
             (SUM(aw.HardcoreMode = 1) / inner1.MaxPossible) AS PctWonHC
         FROM Awarded AS aw
