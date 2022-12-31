@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Models\Badge;
+use App\Legacy\Models\PlayerBadge;
 use RA\AwardType;
 
 function SeparateAwards($userAwards): array
@@ -180,13 +180,13 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $linkdest = "/game/$awardData";
     } elseif ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
-        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . Badge::getBadgeThreshold($awardType, $awardData) . " times!";
+        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " times!";
         $imagepath = asset("/assets/images/badge/contribYield-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?
     } elseif ($awardType == AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
-        $tooltip = "Awarded for producing many valuable achievements, providing over " . Badge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
+        $tooltip = "Awarded for producing many valuable achievements, providing over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
         $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?

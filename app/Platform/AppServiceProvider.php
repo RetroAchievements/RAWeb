@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Platform\Commands\NoIntroImport;
-use App\Platform\Commands\RecalcContribYield;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGameRelations;
@@ -59,10 +58,8 @@ class AppServiceProvider extends ServiceProvider
                 NoIntroImport::class,
 
                 /*
-                 * Server
+                 * Platform
                  */
-                RecalcContribYield::class,
-
                 UnlockPlayerAchievement::class,
 
                 UpdateAllAchievementsMetrics::class,
