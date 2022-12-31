@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RA\Permissions;
-use RA\RatingType;
+use LegacyApp\Community\Enums\RatingType;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);

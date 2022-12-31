@@ -1,7 +1,7 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
-use RA\Permissions;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);

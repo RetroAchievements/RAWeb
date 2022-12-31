@@ -1,7 +1,7 @@
 <?php
 
-use RA\ClaimFilters;
-use RA\ClaimSorting;
+use LegacyApp\Community\Enums\ClaimFilters;
+use LegacyApp\Community\Enums\ClaimSorting;
 
 /*
  *  API_GetUserClaims - returns information about a all users set claims

@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use RA\ArticleType;
-use RA\Permissions;
-use RA\TicketState;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Enums\TicketState;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));

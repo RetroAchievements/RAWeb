@@ -1,6 +1,6 @@
 <?php
 
-use RA\Permissions;
+use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

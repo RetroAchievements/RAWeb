@@ -1,6 +1,6 @@
 <?php
 
-use App\Legacy\Models\User;
+use LegacyApp\Site\Models\User;
 
 /** @var User $user */
 $user = request()->user();
@@ -15,8 +15,8 @@ $user = request()->user();
     </div>
 @endif
 
-{{-- TODO verification message --}}
-{{--@auth
+@auth
+    {{-- TODO verification message
     @if(!auth()->user()->email_verified_at && !request()->routeIs('verification.notice'))
         <div class="alert alert-warning mb-0 p-2">
             <x-container>
@@ -26,28 +26,30 @@ $user = request()->user();
             </x-container>
         </div>
     @endif
-@endauth--}}
-@if ($user && $user->Permissions === RA\Permissions::Unregistered)
-    <x-container>
-        <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
-            <x-fas-exclamation-triangle/>
-            Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
-            <form class="inline" action="/request/auth/send-verification-email.php" method="post">
-                @csrf
-                <button class="btn btn-link bg-transparent p-0 text-white underline">here</button> to resend your activation email.
-            </form>
-        </div>
-    </x-container>
-@endif
+    --}}
+    @if (!$user->hasVerifiedEmail())
+        <x-container>
+            <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
+                <x-fas-exclamation-triangle/>
+                Your email address has not been confirmed yet. Please check your inbox or spam folders, or click
+                <form class="inline" action="/request/auth/send-verification-email.php" method="post">
+                    @csrf
+                    <button class="btn btn-link bg-transparent p-0 text-white underline">here</button>
+                    to resend your activation email.
+                </form>
+            </div>
+        </x-container>
+    @endif
 
-@if ($user && $user->DeleteRequested)
-    <x-container>
-        <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
-            <x-fas-exclamation-triangle/>
-            Your account is marked to be deleted on {{ getDeleteDate($user->DeleteRequested) }}.
-        </div>
-    </x-container>
-@endif
+    @if ($user->DeleteRequested)
+        <x-container>
+            <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
+                <x-fas-exclamation-triangle/>
+                Your account is marked to be deleted on {{ getDeleteDate($user->DeleteRequested) }}.
+            </div>
+        </x-container>
+    @endif
+@endauth
 
 {{-- TODO toasts --}}
 <div class="sticky top-14 z-10 container">

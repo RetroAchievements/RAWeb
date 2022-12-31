@@ -1,10 +1,10 @@
 <?php
 
-use App\Legacy\Models\DeletedModels;
-use App\Legacy\Models\ForumTopic;
-use App\Legacy\Models\User;
 use Illuminate\Support\Facades\Validator;
-use RA\Permissions;
+use LegacyApp\Community\Models\ForumTopic;
+use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
+use LegacyApp\Support\Database\Models\DeletedModels;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));

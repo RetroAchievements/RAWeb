@@ -12,7 +12,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class CleanupAvatars extends Command
 {
-    protected $signature = 'ra:account:user:cleanup-avatars';
+    protected $signature = 'ra:site:user:cleanup-avatars';
     protected $description = 'Delete rejected avatars';
 
     public function __construct(

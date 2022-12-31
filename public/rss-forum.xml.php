@@ -1,6 +1,6 @@
 <?php
 
-use RA\Permissions;
+use LegacyApp\Site\Enums\Permissions;
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 

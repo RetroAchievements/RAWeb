@@ -2,9 +2,9 @@
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RA\AchievementType;
-use RA\ArticleType;
-use RA\Permissions;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);

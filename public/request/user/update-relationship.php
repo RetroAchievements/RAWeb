@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RA\UserRelationship;
+use LegacyApp\Community\Enums\UserRelationship;
 
 if (!authenticateFromCookie($user, $permissions, $userDetail)) {
     return back()->withErrors(__('legacy.error.permissions'));

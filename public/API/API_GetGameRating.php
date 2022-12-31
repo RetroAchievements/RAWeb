@@ -12,7 +12,7 @@
  *   int         AchievementsNumVotes  number of votes contributing to the game's achievements rating (deprecated)
  */
 
-use RA\RatingType;
+use LegacyApp\Community\Enums\RatingType;
 
 $gameID = (int) request()->query('i');
 

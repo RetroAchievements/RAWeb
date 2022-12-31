@@ -1,12 +1,12 @@
 <?php
 
-use RA\ClaimFilters;
-use RA\ClaimSetType;
-use RA\ClaimSorting;
-use RA\ClaimSpecial;
-use RA\ClaimStatus;
-use RA\ClaimType;
-use RA\Permissions;
+use LegacyApp\Community\Enums\ClaimFilters;
+use LegacyApp\Community\Enums\ClaimSetType;
+use LegacyApp\Community\Enums\ClaimSorting;
+use LegacyApp\Community\Enums\ClaimSpecial;
+use LegacyApp\Community\Enums\ClaimStatus;
+use LegacyApp\Community\Enums\ClaimType;
+use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

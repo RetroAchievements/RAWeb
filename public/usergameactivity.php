@@ -1,7 +1,7 @@
 <?php
 
-use RA\AchievementType;
-use RA\Permissions;
+use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     abort(401);

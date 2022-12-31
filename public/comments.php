@@ -1,7 +1,7 @@
 <?php
 
-use RA\ArticleType;
-use RA\Permissions;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

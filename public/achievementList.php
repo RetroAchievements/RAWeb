@@ -1,6 +1,6 @@
 <?php
 
-use RA\AchievementType;
+use LegacyApp\Platform\Enums\AchievementType;
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('z', 0, 'integer');

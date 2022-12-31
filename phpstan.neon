@@ -3,11 +3,8 @@ includes:
 parameters:
     paths:
         # - app
-        - cronjobs
-        - lib
+        - app_legacy
         - public
-        - resources/helpers
-        - src
         # - tests
     # TODO v2 was at level 6
     level: 5
@@ -19,7 +16,7 @@ parameters:
         - '#Unsafe usage of new static#'
         # accessors to polymorphic relationships
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
-        #- '#Access to an undefined property App\\Legacy\\Models\\.*#'
+        #- '#Access to an undefined property LegacyApp\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'
@@ -33,10 +30,9 @@ parameters:
         - public/tmp
         # disabled features
         - public/API/API_GetFeed.php
-        - public/attemptmerge.php
         - public/awardedList.php
         - public/feed.php
         - public/popularGames.php
         - public/rss-activity.xml.php
         # third party
-        - lib/util/recaptcha.php
+        - app_legacy/Helpers/util/recaptcha.php

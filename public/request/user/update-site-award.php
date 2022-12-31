@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use RA\AwardType;
+use LegacyApp\Community\Enums\AwardType;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

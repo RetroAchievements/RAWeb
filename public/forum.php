@@ -1,6 +1,6 @@
 <?php
 
-use RA\Permissions;
+use LegacyApp\Site\Enums\Permissions;
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 

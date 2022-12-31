@@ -1,12 +1,12 @@
 <?php
 
-use RA\AchievementType;
-use RA\ArticleType;
-use RA\Permissions;
-use RA\TicketAction;
-use RA\TicketFilters;
-use RA\TicketState;
-use RA\TicketType;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Enums\TicketAction;
+use LegacyApp\Community\Enums\TicketFilters;
+use LegacyApp\Community\Enums\TicketState;
+use LegacyApp\Community\Enums\TicketType;
+use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
