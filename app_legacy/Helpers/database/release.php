@@ -112,7 +112,11 @@ function getReleasesFromFile(): ?array
 {
     try {
         return file_exists(storage_path('app/releases.php')) ? require_once storage_path('app/releases.php') : null;
-    } catch (Throwable) {
+    } catch (Throwable $throwable) {
+        if (app()->environment('local')) {
+            throw $throwable;
+        }
+        Log::warning($throwable->getMessage());
     }
 
     return [];
