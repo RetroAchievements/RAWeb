@@ -1,24 +1,21 @@
-.awardcount {
+.awardcounter {
   float: right;
-  font-size: 0.65em;
+  margin: 0 .3em;
+  font-size: .65em;
   cursor: help;
 }
 
-.awardcount > * {
+.awardcounter > * {
+  display: inline-block;
   vertical-align: middle;
+  height: 100%;
 }
 
-.awardcount > .icon {
+.awardcounter > .icon {
+  margin-right: .2em;
+  width: 1.9em;
   text-align: center;
+  font-size: .7em;
+  font-family: emoji;
   color: rgb(210, 210, 210);
-  margin-right: 4px;
-}
-
-.component#siteawards .awardcount > .icon {
-  width: 22px;
-}
-
-.component:not(#siteawards) .awardcount > .icon {
-  width: 25px;
-  font-size: 0.65em;
 }

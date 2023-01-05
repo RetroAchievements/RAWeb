@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class UpdatePlayerRanks extends Command
 {
-    protected $signature = 'ra:server:player:update-ranks';
+    protected $signature = 'ra:platform:player:update-ranks';
     protected $description = '';
 
     public function __construct()

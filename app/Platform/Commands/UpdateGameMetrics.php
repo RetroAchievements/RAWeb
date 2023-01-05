@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 class UpdateGameMetrics extends Command
 {
-    protected $signature = 'ra:server:game:update-metrics {game}';
+    protected $signature = 'ra:platform:game:update-metrics {game}';
     protected $description = "Update a game's metrics";
 
     public function __construct(private UpdateGameMetricsAction $updateGameMetricsAction)
