@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community\Listeners;
 
 use App\Community\Models\UserActivity;
-use App\Legacy\Models\User as LegacyUser;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementTriggerEdited;
 use App\Platform\Events\PlayerCompletedAchievementSet;
@@ -34,7 +33,7 @@ class WriteUserActivity
         /** @var User $user */
         $user = $event->user;
 
-        if ($user instanceof LegacyUser) {
+        if (!$user instanceof User) {
             return;
         }
 

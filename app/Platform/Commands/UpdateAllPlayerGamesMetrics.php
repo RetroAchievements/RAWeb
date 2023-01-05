@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class UpdateAllPlayerGamesMetrics extends Command
 {
-    protected $signature = 'ra:server:player:update-all-games-metrics';
+    protected $signature = 'ra:platform:player:update-all-games-metrics';
     protected $description = '';
 
     public function __construct()

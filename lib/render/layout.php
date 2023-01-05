@@ -223,6 +223,9 @@ function RenderToolbar(): void
 
 function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
 {
+    // floor to current page
+    $offset = floor($offset / $perPage) * $perPage;
+
     if ($offset > 0) {
         echo "<a title='First' href='{$urlPrefix}0'>&#x226A;</a>&nbsp;";
 

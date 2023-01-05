@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Models\Badge;
+use App\Legacy\Models\PlayerBadge;
 use RA\AchievementType;
 use RA\AwardType;
 use RA\UnlockMode;
@@ -96,7 +96,7 @@ function getOwnAchievementsObtained(string $user): bool|array|null
 {
     sanitize_sql_inputs($user);
 
-    $query = "SELECT 
+    $query = "SELECT
               SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS SoftcoreCount,
               SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
@@ -208,12 +208,12 @@ function attributeDevelopmentAuthor(string $author, int $count, int $points): vo
         return;
     }
 
-    $newContribTier = Badge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
+    $newContribTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
     if ($newContribTier !== null) {
         AddSiteAward($author, AwardType::AchievementUnlocksYield, $newContribTier);
     }
 
-    $newPointsTier = Badge::getNewBadgeTier(AwardType::AchievementPointsYield, $oldContribYield, $oldContribYield + $points);
+    $newPointsTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementPointsYield, $oldContribYield, $oldContribYield + $points);
     if ($newPointsTier !== null) {
         AddSiteAward($author, AwardType::AchievementPointsYield, $newPointsTier);
     }

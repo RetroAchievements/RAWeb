@@ -32,8 +32,14 @@ class LeaderboardController extends Controller
     {
     }
 
-    public function show(Leaderboard $leaderboard): View
+    public function show(Leaderboard $leaderboard, ?string $slug = null): View|RedirectResponse
     {
+        $this->authorize('view', $leaderboard);
+
+        if (!$this->resolvesToSlug($leaderboard->slug, $slug)) {
+            return redirect($leaderboard->canonicalUrl);
+        }
+
         return view('leaderboard.show')->with('leaderboard', $leaderboard);
     }
 

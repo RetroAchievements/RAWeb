@@ -38,7 +38,7 @@ if ($ticketID != 0) {
     $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticketID, $commentData);
 
     // sets all filters enabled so we get closed/resolved tickets as well
-    $altTicketData = getAllTickets(0, 99, null, null, null, null, $ticketID, TicketFilters::All);
+    $altTicketData = ($ticketData !== null) ? getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All) : [];
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
         settype($pastTicket["ID"], 'integer');
@@ -285,6 +285,7 @@ RenderContentStart($pageTitle);
                 echo $linkFilter('RA Emulator', TicketFilters::EmulatorRA) . ' | ';
                 echo $linkFilter('RetroArch - Core Specified', TicketFilters::EmulatorRetroArchCoreSpecified) . ' | ';
                 echo $linkFilter('RetroArch - Core Not Specified', TicketFilters::EmulatorRetroArchCoreNotSpecified) . ' | ';
+                echo $linkFilter('Other', TicketFilters::EmulatorOther) . ' | ';
                 echo $linkFilter('Unknown', TicketFilters::EmulatorUnknown);
                 echo "</div>";
 

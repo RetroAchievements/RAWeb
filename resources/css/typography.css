@@ -31,3 +31,8 @@ pre, code, .code {
   word-break: break-word;
   white-space: pre-wrap;
 }
+
+.text-overflow-wrap {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
