@@ -1,32 +1,20 @@
-.progressbar {
+.progress {
   position: relative;
-  height: 6px;
-  width: 124px;
-  background-color: var(--embed-color);
-  border: 1px solid var(--embed-highlight-color);
-  border-radius: 2px;
+  width: 130px;
+}
+
+.progress.player {
+  width: 100px;
+}
+
+.progressbar {
   overflow: hidden;
-}
-
-.progressbar-label {
-  font-size: 0.9em;
-}
-
-.completion {
+  margin-right: auto;
   height: 6px;
-  width: inherit;
-  background-color: rgb(11, 113, 193);
-}
-
-.completion-hardcore {
-  height: 6px;
-  width: inherit;
-  background-color: rgb(204, 153, 0);
-  border-top: 0 solid;
-}
-
-.progressbar.player {
-  width: 104px;
+  width: calc(100% - 19px);
+  border: 1px solid var(--embed-highlight-color);
+  border-radius: .5em 0 0 .5em;
+  background-color: var(--embed-color);
 }
 
 .progressbar.global {
@@ -43,4 +31,68 @@
 .progressbar.global .completion-hardcore {
   height: 4px;
   width: inherit;
+}
+
+.progressbar-label {
+  margin-top: .3em;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.progressbar:not(.global) ~ .progressbar-label {
+  margin-left: auto;
+  margin-right: auto;
+  transform: translateX(-8px);
+}
+
+.completion {
+  height: 6px;
+  width: inherit;
+  background-color: rgb(11, 113, 193);
+}
+
+.completion-hardcore {
+  height: 6px;
+  width: inherit;
+  background-color: rgb(204, 153, 0);
+  border-top: 0 solid;
+}
+
+.completion-icon {
+  position: absolute;
+  top: -6.25px;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 19px;
+  width: 19px;
+  border: solid 2px;
+  border-radius: 50%;
+  outline: solid 2px;
+  font-family: emoji;
+  font-size: 7pt;
+  cursor: default;
+}
+
+.completion-icon.tooltip {
+  cursor: help;
+}
+
+.completion-icon.mastered {
+  border-color: #c90;
+  outline-color: #606;
+  background-color: #606;
+}
+
+.completion-icon.completed {
+  border-color: #0b71c1;
+  outline-color: #083171;
+  background-color: #083171;
+}
+
+.completion-icon:not(.mastered):not(.completed) {
+  border-color: var(--embed-highlight-color);
+  outline-color: var(--embed-color);
+  background-color: var(--embed-color);
 }
