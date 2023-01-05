@@ -38,6 +38,7 @@ yarn-error.log
 .buildpath
 .DS_Store
 /.env*
+.deptrac.cache
 .eslintcache
 .php-cs-fixer.cache
 .phpstorm.meta.php

@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class UpdateAllAchievementsMetrics extends Command
 {
-    protected $signature = 'ra:server:achievements:update-all-metrics';
+    protected $signature = 'ra:platform:achievements:update-all-metrics';
     protected $description = "Batch update all achievements' metrics";
 
     public function __construct()

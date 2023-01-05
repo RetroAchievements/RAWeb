@@ -630,6 +630,7 @@ sanitize_outputs(
             }
 
             $escapedGameTitle = attributeEscape($gameTitle);
+            $renderedTitle = renderGameTitle($pageTitle);
             $developer = $gameData['Developer'] ?? null;
             $publisher = $gameData['Publisher'] ?? null;
             $genre = $gameData['Genre'] ?? null;
@@ -639,7 +640,7 @@ sanitize_outputs(
             $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            echo "<h3>$pageTitle</h3>";
+            echo "<h3>$renderedTitle</h3>";
             echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
             echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
             echo "<table><colgroup><col class='w-48'></colgroup><tbody>";

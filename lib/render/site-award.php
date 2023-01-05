@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Models\Badge;
+use App\Legacy\Models\PlayerBadge;
 use RA\AwardType;
 
 function SeparateAwards($userAwards): array
@@ -66,46 +66,54 @@ function RenderSiteAwards($userAwards): void
 function RenderAwardGroup($awards, $title): void
 {
     $numItems = is_countable($awards) ? count($awards) : 0;
-    if ($numItems == 0) {
+    $numHidden = 0;
+    foreach ($awards as $award) {
+        if ($award['DisplayOrder'] < 0) {
+            $numHidden++;
+        }
+    }
+    if ($numItems == $numHidden) {
+        // No items to show
         return;
     }
 
     $icons = [
         "Game Awards" => "👑🎖️",
         "Event Awards" => "🌱",
-        "Site Awards" => "⬩",
+        "Site Awards" => "🌐",
     ];
     if ($title == "Game Awards") {
         // Count and show # of completed/mastered games
-        $numGamesCompleted = 0;
+        [$numCompleted, $numCompletedHidden] = [0, 0];
         foreach ($awards as $award) {
             if ($award['AwardDataExtra'] != 1) {
-                $numGamesCompleted++;
+                $numCompleted++;
+                if ($award['DisplayOrder'] < 0) {
+                    $numCompletedHidden++;
+                }
             }
         }
-        $numGamesMastered = $numItems - $numGamesCompleted;
+        $numMastered = $numItems - $numCompleted;
+        $numMasteredHidden = $numHidden - $numCompletedHidden;
         $counters = "";
-        if ($numGamesMastered > 0) {
+        if ($numMastered > 0) {
             $icon = mb_substr($icons[$title], 0, 1);
-            $counters .= "
-                <div class='awardcount' title='# of mastered games'>
-                    <span class='icon'>$icon</span><span class='numitems'>$numGamesMastered</span>
-                </div>";
+            $text = ($numMastered > 1 ? "games" : "game") . " mastered";
+            $counters .= RenderCounter($icon, $text, $numMastered, $numMasteredHidden);
         }
-        if ($numGamesCompleted > 0) {
+        if ($numCompleted > 0) {
             $icon = mb_substr($icons[$title], 1, 1);
-            $counters .= "
-                <div class='awardcount' title='# of completed games'>
-                    <span class='icon'>$icon</span><span class='numitems'>$numGamesCompleted</span>
-                </div>";
+            $text = ($numCompleted > 1 ? "games" : "game") . " completed";
+            $counters .= RenderCounter($icon, $text, $numCompleted, $numCompletedHidden);
         }
     } else {
         $icon = $icons[$title];
-        $tooltip = "# of " . strtolower($title);
-        $counters = "
-            <div class='awardcount' title='$tooltip'>
-                <span class='icon'>$icon</span><span class='numitems'>$numItems</span>
-            </div>";
+        $text = strtolower($title);
+        if ($numItems == 1) {
+            // Remove 's'
+            $text = mb_substr($text, 0, -1);
+        }
+        $counters = RenderCounter($icon, $text, $numItems, $numHidden);
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
@@ -121,11 +129,28 @@ function RenderAwardGroup($awards, $title): void
                 continue;
             }
 
-            RenderAward($awards[$nOffs], $imageSize);
+            $award = $awards[$nOffs];
+            if ($award['DisplayOrder'] >= 0) {
+                RenderAward($award, $imageSize);
+            }
         }
     }
     echo "</div>";
     echo "</div>";
+}
+
+function RenderCounter($icon, $text, $numItems, $numHidden): string
+{
+    $tooltip = "$numItems $text";
+    if ($numHidden > 0) {
+        $tooltip .= " ($numHidden hidden)";
+    }
+    $counter =
+        "<div class='awardcounter' title='$tooltip'>
+            <div class='icon'>$icon</div><div class='numitems'>$numItems</div>
+        </div>";
+
+    return $counter;
 }
 
 function RenderAward($award, $imageSize, $clickable = true): void
@@ -155,13 +180,13 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $linkdest = "/game/$awardData";
     } elseif ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
-        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . Badge::getBadgeThreshold($awardType, $awardData) . " times!";
+        $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " times!";
         $imagepath = asset("/assets/images/badge/contribYield-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?
     } elseif ($awardType == AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
-        $tooltip = "Awarded for producing many valuable achievements, providing over " . Badge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
+        $tooltip = "Awarded for producing many valuable achievements, providing over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
         $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?

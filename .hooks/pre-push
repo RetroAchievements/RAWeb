@@ -12,6 +12,9 @@ if [ ${#modifiedPhpFiles} -gt 0 ]; then
 
     printf "\n⏳ composer analyse\n"
     vendor/bin/phpstan analyse --memory-limit 512M --no-progress
+
+    printf "\n⏳ composer deptrac\n"
+    vendor/bin/deptrac analyse
 fi
 
 modifiedJsFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.js')"

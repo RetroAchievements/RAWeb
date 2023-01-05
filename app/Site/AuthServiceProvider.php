@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Site;
 
-use App\Legacy\Models\User as LegacyUser;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use App\Site\Policies\UserPolicy;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use RA\Permissions;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -40,12 +39,8 @@ class AuthServiceProvider extends ServiceProvider
          * don't drink and root
          */
         Gate::before(
-            function (User|LegacyUser $user, $ability) {
-                if (method_exists($user, 'hasRole') && $user->hasRole(Role::ROOT)) {
-                    return true;
-                }
-
-                if ($user instanceof LegacyUser && $user->Permissions >= Permissions::Admin) {
+            function (Authenticatable $user, $ability) {
+                if ($user instanceof User && $user->hasRole(Role::ROOT)) {
                     return true;
                 }
 
@@ -117,8 +112,8 @@ class AuthServiceProvider extends ServiceProvider
         /*
          * root features
          */
-        Gate::define('viewLogs', fn (User|LegacyUser $user) => $user->can('root'));
-        Gate::define('viewRouteUsage', fn (User|LegacyUser $user) => $user->can('root'));
-        Gate::define('viewWebSocketsDashboard', fn (User|LegacyUser $user) => $user->can('root'));
+        Gate::define('viewLogs', fn (Authenticatable $user) => $user->can('root'));
+        Gate::define('viewRouteUsage', fn (Authenticatable $user) => $user->can('root'));
+        Gate::define('viewWebSocketsDashboard', fn (Authenticatable $user) => $user->can('root'));
     }
 }

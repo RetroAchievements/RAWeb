@@ -285,6 +285,7 @@ RenderContentStart($pageTitle);
                 echo $linkFilter('RA Emulator', TicketFilters::EmulatorRA) . ' | ';
                 echo $linkFilter('RetroArch - Core Specified', TicketFilters::EmulatorRetroArchCoreSpecified) . ' | ';
                 echo $linkFilter('RetroArch - Core Not Specified', TicketFilters::EmulatorRetroArchCoreNotSpecified) . ' | ';
+                echo $linkFilter('Other', TicketFilters::EmulatorOther) . ' | ';
                 echo $linkFilter('Unknown', TicketFilters::EmulatorUnknown);
                 echo "</div>";
 
@@ -570,7 +571,7 @@ RenderContentStart($pageTitle);
 
                 $hashes = getHashListByGameID($gameID);
                 foreach ($hashes as $hash) {
-                    if (stripos($reportNotes, $hash['Hash']) !== false) {
+                    if (stripos($reportNotes, (string) $hash['Hash']) !== false) {
                         $replacement = "<a href='/linkedhashes.php?g=$gameID' title='" .
                             attributeEscape($hash['Name']) . "'>" . $hash['Hash'] . "</a>";
                         $reportNotes = str_ireplace($hash['Hash'], $replacement, $reportNotes);
