@@ -11,7 +11,7 @@
   overflow: hidden;
   margin-right: auto;
   height: 6px;
-  width: calc(100% - 17px);
+  width: calc(100% - 19px);
   border: 1px solid var(--embed-highlight-color);
   border-radius: .5em 0 0 .5em;
   background-color: var(--embed-color);
@@ -35,6 +35,7 @@
 
 .progressbar-label {
   margin-top: .3em;
+  margin-left: -11px;
   text-align: center;
   font-size: 0.9em;
 }
@@ -54,18 +55,18 @@
 
 .completion-icon {
   position: absolute;
-  top: -5.5px;
+  top: -6.5px;
   right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 17px;
-  width: 17px;
+  height: 19px;
+  width: 19px;
   border: solid 2px;
   border-radius: 50%;
   outline: solid 2px;
   font-family: emoji;
-  font-size: .6em;
+  font-size: 7pt;
   cursor: default;
 }
 
