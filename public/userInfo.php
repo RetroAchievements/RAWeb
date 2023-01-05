@@ -25,7 +25,7 @@ if (empty($userMassData)) {
     abort(404);
 }
 
-if ((int) $userMassData['Permissions'] < Permissions::Registered && $permissions < Permissions::Admin) {
+if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissions < Permissions::Admin) {
     abort(404);
 }
 
