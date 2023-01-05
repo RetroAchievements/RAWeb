@@ -25,6 +25,10 @@ if (empty($userMassData)) {
     abort(404);
 }
 
+if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissions < Permissions::Admin) {
+    abort(404);
+}
+
 $userMotto = $userMassData['Motto'];
 $userPageID = $userMassData['ID'];
 $setRequestList = getUserRequestList($userPage);

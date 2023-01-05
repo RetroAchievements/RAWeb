@@ -5,22 +5,14 @@ use RA\Permissions;
 use RA\SearchType;
 
 function canSearch(int $searchType, int $permissions): bool {
-    switch ($searchType) {
-        case SearchType::UserModerationComment:
-        case SearchType::SetClaimComment:
-            return $permissions >= Permissions::Admin;
-
-        case SearchType::GameHashComment:
-            return $permissions >= Permissions::Developer;
-
-        case SearchType::TicketComment:
-            // technically, just need to be logged in
-            // but a not-logged-in user has Unregistered permissions.
-            return $permissions >= Permissions::Registered;
-
-        default:
-            return true;
-    }
+    return match ($searchType) {
+        SearchType::UserModerationComment, SearchType::SetClaimComment => $permissions >= Permissions::Admin,
+        SearchType::GameHashComment => $permissions >= Permissions::Developer,
+        // technically, just need to be logged in
+        // but a not-logged-in user has Unregistered permissions.
+        SearchType::TicketComment => $permissions >= Permissions::Registered,
+        default => true,
+    };
 }
 
 function performSearch(int $searchType, string $searchQuery, int $offset, int $count,

@@ -571,7 +571,7 @@ RenderContentStart($pageTitle);
 
                 $hashes = getHashListByGameID($gameID);
                 foreach ($hashes as $hash) {
-                    if (stripos($reportNotes, $hash['Hash']) !== false) {
+                    if (stripos($reportNotes, (string) $hash['Hash']) !== false) {
                         $replacement = "<a href='/linkedhashes.php?g=$gameID' title='" .
                             attributeEscape($hash['Name']) . "'>" . $hash['Hash'] . "</a>";
                         $reportNotes = str_ireplace($hash['Hash'], $replacement, $reportNotes);
