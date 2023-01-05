@@ -25,9 +25,9 @@ class PlayerBadge extends BaseModel
         100000,
         250000,
         500000,
-        1000000,
-        2500000,
-        5000000,
+        1_000_000,
+        2_500_000,
+        5_000_000,
     ];
 
     private const DEVELOPER_POINT_BOUNDARIES = [
@@ -40,26 +40,21 @@ class PlayerBadge extends BaseModel
         100000,
         250000,
         500000,
-        1000000,
-        2500000,
-        5000000,
-        10000000,
-        25000000,
-        50000000,
+        1_000_000,
+        2_500_000,
+        5_000_000,
+        10_000_000,
+        25_000_000,
+        50_000_000,
     ];
 
     private static function getThresholds(int $awardType): ?array
     {
-        switch ($awardType) {
-            case AwardType::AchievementUnlocksYield:
-                return self::DEVELOPER_COUNT_BOUNDARIES;
-
-            case AwardType::AchievementPointsYield:
-                return self::DEVELOPER_POINT_BOUNDARIES;
-
-            default:
-                return null;
-        }
+        return match ($awardType) {
+            AwardType::AchievementUnlocksYield => self::DEVELOPER_COUNT_BOUNDARIES,
+            AwardType::AchievementPointsYield => self::DEVELOPER_POINT_BOUNDARIES,
+            default => null,
+        };
     }
 
     public static function getBadgeThreshold(int $awardType, int $tier): int
