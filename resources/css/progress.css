@@ -35,9 +35,14 @@
 
 .progressbar-label {
   margin-top: .3em;
-  margin-left: -11px;
   text-align: center;
   font-size: 0.9em;
+}
+
+.progressbar:not(.global) ~ .progressbar-label {
+  margin-left: auto;
+  margin-right: auto;
+  transform: translateX(-8px);
 }
 
 .completion {
@@ -55,7 +60,7 @@
 
 .completion-icon {
   position: absolute;
-  top: -6.5px;
+  top: -6.25px;
   right: 0;
   display: flex;
   justify-content: center;
