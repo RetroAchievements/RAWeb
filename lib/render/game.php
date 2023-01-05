@@ -13,6 +13,7 @@ function gameAvatar(
     ?string $context = null,
 ): string {
     $id = $game;
+    $title = null;
 
     if (is_array($game)) {
         $id = $game['GameID'] ?? $game['ID'];
@@ -20,7 +21,11 @@ function gameAvatar(
         if ($label !== false) {
             $title = $game['GameTitle'] ?? $game['Title'] ?? null;
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
-            $label = $title . ($consoleName ? ' (' . $consoleName . ')' : '');
+            if ($consoleName) {
+                $title .= " ($consoleName)";
+            }
+            sanitize_outputs($title);   // sanitize before rendering HTML
+            $label = renderGameTitle($title);
         }
 
         if ($icon === null) {
@@ -41,7 +46,37 @@ function gameAvatar(
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
+        sanitize: $title === null,
+        altText: $title ?? $label,
     );
+}
+
+/**
+ * Render game title, wrapping categories for styling
+ * @param   string  $title  Raw game title
+ * @return  string  The resulting HTML code
+ */
+function renderGameTitle(?string $title): string
+{
+    $html = (string) $title;
+    $matches = [];
+    preg_match_all('/~([^~]+)~/', $title, $matches);
+    foreach ($matches[0] as $i => $match) {
+        $category = $matches[1][$i];
+        // $class = strtolower(str_replace(' ', '-', $category));
+        $span = "<span class='tag achievement-set category'>$category</span>";
+        $html = str_replace($match, $span, $html);
+    }
+    preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
+    foreach ($matches[0] as $i => $match) {
+        [$text, $subset] = [$matches[1][$i], $matches[2][$i]];
+        // $class = strtolower(str_replace(' ', '-', $subset));
+        $span = "<span class='tag achievement-set subset'>$text</span>";
+        $html = str_replace($match, $span, $html);
+    }
+    $html = "<div class='achievement-set title'>$html</div>";
+
+    return $html;
 }
 
 function renderGameCard(int|string|array $game): string
@@ -72,7 +107,7 @@ function renderGameCard(int|string|array $game): string
         });
     }
 
-    $gameName = $data['GameTitle'] ?? $data['Title'] ?? '';
+    $gameName = renderGameTitle($data['GameTitle'] ?? $data['Title'] ?? '');
     $consoleName = $data['Console'] ?? $data['ConsoleName'] ?? '';
     $icon = $data['GameIcon'] ?? $data['ImageIcon'] ?? null;
 
