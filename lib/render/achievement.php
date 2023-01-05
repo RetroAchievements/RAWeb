@@ -75,7 +75,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
-    $gameTitle = $data['GameTitle'] ?? null;
+    $gameTitle = renderGameTitle($data['GameTitle'] ?? null);
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
     $tooltip .= "<img src='" . media_asset("Badge/$badgeName.png") . "' width='64' height='64' />";

@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 class UnlockPlayerAchievement extends Command
 {
-    protected $signature = 'ra:server:player:unlock-achievement';
+    protected $signature = 'ra:platform:player:unlock-achievement';
     protected $description = '';
 
     public function __construct(

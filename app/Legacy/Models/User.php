@@ -55,6 +55,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'SaltedPass',
     ];
 
+    public function getAuthPassword()
+    {
+        return $this->Password;
+    }
+
     public function getRouteKeyName(): string
     {
         /*

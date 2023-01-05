@@ -52,28 +52,22 @@ class SyncComments extends Command
         $commentableType = null;
         switch ($origin->ArticleType) {
             case 1:
-                // "Game"
                 $commentableType = resource_type(Game::class);
                 break;
             case 2:
-                // "Achievement"
                 $commentableType = resource_type(Achievement::class);
                 break;
             case 3:
-                // "User"
                 $commentableType = resource_type(User::class);
                 break;
             case 4:
-                // "News"
                 $commentableType = resource_type(News::class);
                 break;
             case 5:
-                // "Activity"
                 // skip activity comments
                 // $commentableType = resource_type(Activity::class);
                 break;
             case 6:
-                // "Leaderboard"
                 $commentableType = resource_type(Leaderboard::class);
                 break;
         }

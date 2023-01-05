@@ -1,0 +1,158 @@
+deptrac:
+  analyser:
+    types:
+      - class
+      - class_superglobal
+      - use
+      - file
+      - function
+      - function_superglobal
+      - function_call
+  paths:
+    - ./app
+    - ./database
+    - ./lib
+    - ./public
+    - ./resources
+    - ./src
+  layers:
+    # Vendors
+    - name: Vendors
+      collectors:
+        - type: directory
+          value: vendors/.*
+    # Domains
+    - name: Api
+      collectors:
+        - type: directory
+          value: app/Api/.*
+    - name: Community
+      collectors:
+        - type: directory
+          value: app/Community/.*
+    - name: Connect
+      collectors:
+        - type: directory
+          value: app/Connect/.*
+    - name: Console
+      collectors:
+        - type: directory
+          value: app/Console/.*
+    - name: Platform
+      collectors:
+        - type: directory
+          value: app/Platform/.*
+    - name: Site
+      collectors:
+        - type: directory
+          value: app/Site/.*
+    - name: Support
+      collectors:
+        - type: directory
+          value: app/Support/.*
+    # Database
+    - name: Database
+      collectors:
+        - type: bool
+          must_not:
+            - type: directory
+              value: database/factories/Legacy/.*
+          must:
+            - type: directory
+              value: database/factories/.*
+        - type: bool
+          must_not:
+            - type: directory
+              value: database/migrations/legacy/.*
+          must:
+            - type: directory
+              value: database/migrations/.*
+        - type: bool
+          must_not:
+            - type: directory
+              value: database/seeders/Legacy/.*
+            - type: className
+              value: Database\\Seeders\\DatabaseSeeder
+          must:
+            - type: directory
+              value: database/seeders/.*
+    - name: DatabaseSeeder
+      collectors:
+        - type: className
+          value: Database\\Seeders\\DatabaseSeeder
+    # Resources
+    - name: Helpers
+      collectors:
+        - type: directory
+          value: resources/helpers/.*
+    - name: Views
+      collectors:
+        - type: directory
+          value: app/View/.*
+        - type: directory
+          value: resources/views/.*
+    # Legacy
+    - name: Legacy
+      collectors:
+        - type: directory
+          value: app/Legacy/.*
+        - type: directory
+          value: lib/.*
+        - type: directory
+          value: public/.*
+        - type: directory
+          value: src/.*
+        - type: directory
+          value: database/factories/Legacy/.*
+        - type: directory
+          value: database/migrations/legacy/.*
+        - type: directory
+          value: database/seeders/Legacy/.*
+  ruleset:
+    # Domains
+    Api:
+      - Support
+    Community:
+      - Platform
+      - Site
+      - Support
+    Connect:
+      - Community
+      - Platform
+      - Site
+      - Support
+    Console:
+      - Support
+    Platform:
+      - Connect
+      - Community
+      - Support
+      - Site
+    Site:
+      - Community
+      - Connect
+      - Platform
+      - Support
+    Support:
+      - Site
+    # Database
+    Database:
+      - Community
+      - Platform
+      - Site
+    DatabaseSeeder:
+      - Database
+      - Legacy
+    # Resources
+    Helpers:
+      - Community
+      - Platform
+      - Site
+      - Support
+    Views:
+      - Helpers
+      - Legacy
+    # Legacy
+    Legacy:
+      - Helpers
+      - Support

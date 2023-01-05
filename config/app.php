@@ -237,6 +237,7 @@ return [
          * Legacy Service Providers
          */
         App\Legacy\AppServiceProvider::class,
+        App\Legacy\AuthServiceProvider::class,
         App\Legacy\RouteServiceProvider::class,
 
         /*
