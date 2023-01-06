@@ -326,10 +326,6 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
 
 /**
  * Render completion icon, given that player achieved 100% set progress
- * @param int $awardedCount How many cheevos player has gotten in set
- * @param int $totalCount How many cheevos set has in total
- * @param float|string $hardcoreRatio Percentage of total cheevos earned on hardcore
- * @param bool $tooltip Whether to show hover tooltip or not
  */
 function renderCompletionIcon(
     int $awardedCount,
