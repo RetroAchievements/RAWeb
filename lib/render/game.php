@@ -53,8 +53,6 @@ function gameAvatar(
 
 /**
  * Render game title, wrapping categories for styling
- * @param   string  $title  Raw game title
- * @return  string  The resulting HTML code
  */
 function renderGameTitle(?string $title): string
 {
@@ -328,11 +326,10 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
 
 /**
  * Render completion icon, given that player achieved 100% set progress
- * @param   $awardedCount   How many cheevos player has gotten in set
- * @param   $totalCount     How many cheevos set has in total
- * @param   $hardcoreRatio  Percentage of total cheevos earned on hardcore
- * @param   $tooltip        Whether to show hover tooltip or not
- * @return  string  The resulting HTML code
+ * @param int $awardedCount How many cheevos player has gotten in set
+ * @param int $totalCount How many cheevos set has in total
+ * @param float|string $hardcoreRatio Percentage of total cheevos earned on hardcore
+ * @param bool $tooltip Whether to show hover tooltip or not
  */
 function renderCompletionIcon(
     int $awardedCount,
