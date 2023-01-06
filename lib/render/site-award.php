@@ -31,25 +31,41 @@ function SeparateAwards($userAwards): array
     return [$gameAwards, $eventAwards, $siteAwards];
 }
 
-function RenderSiteAwards($userAwards): void
+function RenderSiteAwards(array $userAwards): void
 {
     [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
     $groups = [];
 
+    $firstVisibleIndex = function (array $awards) use ($userAwards): int {
+        foreach ($awards as $award) {
+            if ($award['DisplayOrder'] >= 0) {
+                return array_search($award, $userAwards);
+            }
+        }
+
+        return -1;
+    };
+
     if (!empty($gameAwards)) {
-        $firstGameAward = array_search($gameAwards[0], $userAwards);
-        $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
+        $firstGameAward = $firstVisibleIndex($gameAwards);
+        if ($firstGameAward >= 0) {
+            $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
+        }
     }
 
     if (!empty($eventAwards)) {
-        $firstEventAward = array_search($eventAwards[0], $userAwards);
-        $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
+        $firstEventAward = $firstVisibleIndex($eventAwards);
+        if ($firstEventAward >= 0) {
+            $groups[] = [$firstEventAward, $eventAwards, "Event Awards"];
+        }
     }
 
     if (!empty($siteAwards)) {
-        $firstSiteAward = array_search($siteAwards[0], $userAwards);
-        $groups[] = [$firstSiteAward, $siteAwards, "Site Awards"];
+        $firstSiteAward = $firstVisibleIndex($siteAwards);
+        if ($firstSiteAward >= 0) {
+            $groups[] = [$firstSiteAward, $siteAwards, "Site Awards"];
+        }
     }
 
     if (empty($groups)) {
