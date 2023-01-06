@@ -95,6 +95,16 @@ RenderContentStart("Game Compare");
                 echo "<br>";
             }
 
+            if ($permissions >= Permissions::Admin) {
+                echo "<div class='devbox mb-3'>";
+                echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
+                echo "<div id='devboxcontent' style='display: none'>";
+
+                echo "<div><a class='btn btn-link' href='/usergameactivity.php?ID=$gameID&f=$user2'>View User Game Activity</a></div>";
+
+                echo "</div></div>";
+            }
+
             echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> points.<br>";
 
             $iconSize = 48;
