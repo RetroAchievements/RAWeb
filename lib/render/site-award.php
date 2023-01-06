@@ -133,22 +133,12 @@ function RenderAwardGroup($awards, $title): void
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
-    echo "<h3>$title $counters</h3>";
-    echo "<div class='component flex flex-wrap justify-between gap-2'>";
+    echo "<h3 class='flex justify-between'><span>$title</span>$counters</h3>";
+    echo "<div class='component flex flex-wrap justify-start gap-2'>";
     $imageSize = 48;
-    $numCols = 5;
-    for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
-        for ($j = 0; $j < $numCols; $j++) {
-            $nOffs = ($i * $numCols) + $j;
-            if ($nOffs >= $numItems) {
-                echo "<div class='badgeimg' style='width:{$imageSize}px'></div>";
-                continue;
-            }
-
-            $award = $awards[$nOffs];
-            if ($award['DisplayOrder'] >= 0) {
-                RenderAward($award, $imageSize);
-            }
+    foreach ($awards as $award) {
+        if ($award['DisplayOrder'] >= 0) {
+            RenderAward($award, $imageSize);
         }
     }
     echo "</div>";

@@ -11,7 +11,7 @@
   overflow: hidden;
   margin-right: auto;
   height: 6px;
-  width: calc(100% - 19px);
+  width: calc(100% - 18px);
   border: 1px solid var(--embed-highlight-color);
   border-radius: .5em 0 0 .5em;
   background-color: var(--embed-color);
@@ -69,7 +69,6 @@
   width: 19px;
   border: solid 2px;
   border-radius: 50%;
-  outline: solid 2px;
   font-family: emoji;
   font-size: 7pt;
   cursor: default;
@@ -81,18 +80,15 @@
 
 .completion-icon.mastered {
   border-color: #c90;
-  outline-color: #606;
   background-color: #606;
 }
 
 .completion-icon.completed {
   border-color: #0b71c1;
-  outline-color: #083171;
   background-color: #083171;
 }
 
 .completion-icon:not(.mastered):not(.completed) {
   border-color: var(--embed-highlight-color);
-  outline-color: var(--embed-color);
   background-color: var(--embed-color);
 }

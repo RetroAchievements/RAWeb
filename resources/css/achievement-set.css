@@ -4,7 +4,6 @@
 }
 
 .tag.achievement-set.category {
-    outline: solid .1em #555;
     background-color: rgba(32, 32, 32, .8);
     color: white;
 }
@@ -34,7 +33,6 @@
 } */
 
 .tag.achievement-set.subset {
-    outline: solid .1em darkblue;
     border-radius: .2em;
     line-height: 1.3em;
     font-weight: bold;
