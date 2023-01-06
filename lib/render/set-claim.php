@@ -19,6 +19,7 @@ function renderNewClaimsComponent(int $count): void
     echo "<tr>";
     echo "<th></th>";
     echo "<th>User</th>";
+    echo "<th></th>";
     echo "<th>Game</th>";
     echo "<th class='whitespace-nowrap'>Started</th>";
     echo "</tr>";
@@ -33,8 +34,11 @@ function renderNewClaimsComponent(int $count): void
         echo "<td>";
         echo userAvatar($claimUser, label: true);
         echo "</td>";
+        echo "<td>";
+        echo gameAvatar($claim, label: false);
+        echo "</td>";
         echo "<td class='w-full'>";
-        echo gameAvatar($claim);
+        echo gameAvatar($claim, icon: false);
         echo "</td>";
         echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
         echo "</tr>";
@@ -60,6 +64,7 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<tr>";
     echo "<th></th>";
     echo "<th>User</th>";
+    echo "<th></th>";
     echo "<th>Game</th>";
     echo "<th>Type</th>";
     echo "<th>Finished</th>";
@@ -74,8 +79,11 @@ function renderFinishedClaimsComponent(int $count): void
         echo "<td>";
         echo userAvatar($claimUser, icon: false);
         echo "</td>";
+        echo "<td>";
+        echo gameAvatar($claim, label: false);
+        echo "</td>";
         echo "<td class='w-full'>";
-        echo gameAvatar($claim);
+        echo gameAvatar($claim, icon: false);
         echo "</td>";
         echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
         echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
