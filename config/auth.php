@@ -1,7 +1,7 @@
 <?php
 
-use App\Legacy\Models\User as LegacyUser;
 use App\Site\Models\User;
+use LegacyApp\Site\Models\User as LegacyUser;
 
 return [
 

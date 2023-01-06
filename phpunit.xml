@@ -15,9 +15,8 @@
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">./app</directory>
-            <directory suffix=".php">./lib</directory>
+            <directory suffix=".php">./app_legacy</directory>
             <directory suffix=".php">./public</directory>
-            <directory suffix=".php">./src</directory>
         </include>
     </coverage>
     <php>

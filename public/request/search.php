@@ -1,6 +1,6 @@
 <?php
 
-use RA\SearchType;
+use LegacyApp\Site\Enums\SearchType;
 
 if (!request()->has('term')) {
     return response()->json([]);

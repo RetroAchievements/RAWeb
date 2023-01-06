@@ -1,6 +1,6 @@
 <?php
 
-use App\Legacy\Models\User;
+use LegacyApp\Site\Models\User;
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 

@@ -1,6 +1,6 @@
 <?php
 
-use RA\Permissions;
+use LegacyApp\Site\Enums\Permissions;
 
 $consoleList = getConsoleList();
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');

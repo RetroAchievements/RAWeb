@@ -1,6 +1,6 @@
 <?php
 
-use App\Legacy\Models\News;
+use LegacyApp\Community\Models\News;
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 

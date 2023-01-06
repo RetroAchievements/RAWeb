@@ -45,14 +45,12 @@ $project_path = getcwd();
 $finder = Finder::create()
     ->in([
         $project_path . '/app',
+        $project_path . '/app_legacy',
         $project_path . '/config',
         $project_path . '/database',
-        $project_path . '/cronjobs',
         $project_path . '/lang',
-        $project_path . '/lib',
         $project_path . '/public',
         $project_path . '/resources',
-        $project_path . '/src',
         $project_path . '/tests',
     ])
     ->name('*.php');

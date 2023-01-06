@@ -1,6 +1,9 @@
 <?php
 
-use App\Legacy\Models\User;
+use LegacyApp\Community\Enums\TicketFilters;
+use LegacyApp\Community\Enums\TicketState;
+use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 
 /** @var ?User $user */
 $user = request()->user();
@@ -43,29 +46,29 @@ $user = request()->user();
                         <img class="mr-1" id="mailboxicon" alt="Mailbox Icon" src="{{ $user->UnreadMessageCount ? asset('assets/images/icon/mail-unread.png') : asset('assets/images/icon/mail.png') }}">
                         <span id="mailboxcount">{{ $user->UnreadMessageCount }}</span>
                     </a>
-                    @php
-                        $ticketLinks = collect();
-                        if ($user->Permissions >= RA\Permissions::Developer) {
-                            $openTicketsData = countOpenTicketsByDev($user->User);
-                            $ticketLinks->push([
-                                'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateRequest),
-                                'count' => $openTicketsData[RA\TicketState::Open],
-                                'class' => 'text-danger',
-                                'title' => 'Tickets for you to resolve',
-                            ]);
-                            $ticketLinks->push([
-                                'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateOpen),
-                                'count' => $openTicketsData[RA\TicketState::Request],
-                                'title' => 'Tickets pending feedback',
-                            ]);
-                        }
+                    <?php
+                    $ticketLinks = collect();
+                    if ($user->Permissions >= Permissions::Developer) {
+                        $openTicketsData = countOpenTicketsByDev($user->User);
                         $ticketLinks->push([
-                            'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (RA\TicketFilters::Default & ~RA\TicketFilters::StateOpen),
-                            'count' => countRequestTicketsByUser($user->User),
-                            'title' => 'Tickets awaiting your feedback',
+                            'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
+                            'count' => $openTicketsData[TicketState::Open],
+                            'class' => 'text-danger',
+                            'title' => 'Tickets for you to resolve',
                         ]);
-                        $ticketLinks = $ticketLinks->filter(fn ($ticketLink) => $ticketLink['count'] > 0);
-                    @endphp
+                        $ticketLinks->push([
+                            'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                            'count' => $openTicketsData[TicketState::Request],
+                            'title' => 'Tickets pending feedback',
+                        ]);
+                    }
+                    $ticketLinks->push([
+                        'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                        'count' => countRequestTicketsByUser($user->User),
+                        'title' => 'Tickets awaiting your feedback',
+                    ]);
+                    $ticketLinks = $ticketLinks->filter(fn ($ticketLink) => $ticketLink['count'] > 0);
+                    ?>
                     @if ($ticketLinks->isNotEmpty())
                         <div class="flex gap-2">
                             Tickets
@@ -77,7 +80,7 @@ $user = request()->user();
                         </div>
                     @endif
                 </div>
-                @if($user->Permissions >= RA\Permissions::JuniorDeveloper)
+                @if($user->Permissions >= Permissions::JuniorDeveloper)
                     @php
                         // Display claim expiring message if necessary
                         $expiringClaims = getExpiringClaim($user->User);

@@ -40,7 +40,7 @@ return [
         'achievements' => [
             'model' => Achievement::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Achievement::class,
+            'reference_model' => \LegacyApp\Platform\Models\Achievement::class,
             // TODO: make sure timestamp is updated on badge upload
             'reference_key' => 'Updated',
             'unique_key' => 'id',
@@ -115,7 +115,7 @@ return [
         'achievement_set_requests' => [
             'model' => AchievementSetRequest::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\AchievementSetRequest::class,
+            'reference_model' => \LegacyApp\Community\Models\AchievementSetRequest::class,
             'reference_key' => 'Updated',
             'require' => [
                 'games',
@@ -141,7 +141,7 @@ return [
         'comments' => [
             'model' => Comment::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Comment::class,
+            'reference_model' => \LegacyApp\Community\Models\Comment::class,
             'reference_key' => 'Submitted',
             'unique_key' => 'origin_id',
             'require' => [
@@ -179,7 +179,7 @@ return [
         'forum_categories' => [
             'model' => ForumCategory::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\ForumCategory::class,
+            'reference_model' => \LegacyApp\Community\Models\ForumCategory::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'map' => [
@@ -205,7 +205,7 @@ return [
         'forums' => [
             'model' => Forum::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Forum::class,
+            'reference_model' => \LegacyApp\Community\Models\Forum::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'require' => [
@@ -237,7 +237,7 @@ return [
         'forum_topics' => [
             'model' => ForumTopic::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\ForumTopic::class,
+            'reference_model' => \LegacyApp\Community\Models\ForumTopic::class,
             'reference_key' => 'LastForumCommentDateUpdated',
             'reference_column' => 'LastForumCommentDateUpdated',
             'unique_key' => 'id',
@@ -282,7 +282,7 @@ return [
         'games' => [
             'model' => Game::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Game::class,
+            'reference_model' => \LegacyApp\Platform\Models\Game::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'require' => [
@@ -354,7 +354,7 @@ return [
         'game_relations' => [
             'model' => GameRelation::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\GameRelation::class,
+            'reference_model' => \LegacyApp\Platform\Models\GameRelation::class,
             'reference_key' => 'Created',
             'unique_key' => 'id',
             'require' => [
@@ -370,7 +370,7 @@ return [
         'leaderboards' => [
             'model' => Leaderboard::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Leaderboard::class,
+            'reference_model' => \LegacyApp\Platform\Models\Leaderboard::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'require' => [
@@ -386,7 +386,7 @@ return [
         'leaderboard_entries' => [
             'model' => LeaderboardEntry::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\LeaderboardEntry::class,
+            'reference_model' => \LegacyApp\Platform\Models\LeaderboardEntry::class,
             'reference_key' => 'DateSubmitted',
             'unique_key' => 'id',
             'require' => [
@@ -402,7 +402,7 @@ return [
         'memory_notes' => [
             'model' => MemoryNote::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\MemoryNote::class,
+            'reference_model' => \LegacyApp\Platform\Models\MemoryNote::class,
             'reference_key' => 'Created',
             'unique_key' => ['game_hash_set_id', 'address', 'user_id'],
             'require' => [
@@ -438,7 +438,7 @@ return [
         'messages' => [
             'model' => Message::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Message::class,
+            'reference_model' => \LegacyApp\Community\Models\Message::class,
             'reference_key' => 'TimeSent',
             'unique_key' => 'id',
             'require' => [
@@ -454,7 +454,7 @@ return [
         'news' => [
             'model' => News::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\News::class,
+            'reference_model' => \LegacyApp\Community\Models\News::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'require' => [
@@ -489,7 +489,7 @@ return [
         'player_achievements' => [
             'model' => PlayerAchievement::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\PlayerAchievement::class,
+            'reference_model' => \LegacyApp\Platform\Models\PlayerAchievement::class,
             'reference_key' => 'Date',
             'unique_key' => 'id',
             'require' => [
@@ -507,7 +507,7 @@ return [
         'player_badges' => [
             'model' => PlayerBadge::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\PlayerBadge::class,
+            'reference_model' => \LegacyApp\Platform\Models\PlayerBadge::class,
             'reference_key' => 'AwardDate',
             'require' => [
                 'users',
@@ -529,7 +529,7 @@ return [
         'ratings' => [
             'model' => Rating::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Rating::class,
+            'reference_model' => \LegacyApp\Community\Models\Rating::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'require' => [
@@ -545,7 +545,7 @@ return [
         'game_hashes' => [
             'model' => GameHash::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\GameHash::class,
+            'reference_model' => \LegacyApp\Platform\Models\GameHash::class,
             'reference_key' => 'Created',
             'unique_key' => ['system_id', 'hash'],
             'require' => [
@@ -564,7 +564,7 @@ return [
         'systems' => [
             'model' => System::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\System::class,
+            'reference_model' => \LegacyApp\Platform\Models\System::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'map' => [
@@ -583,7 +583,7 @@ return [
         'tickets' => [
             'model' => Ticket::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\Ticket::class,
+            'reference_model' => \LegacyApp\Community\Models\Ticket::class,
             'reference_key' => 'Updated',
             'unique_key' => 'id',
             'require' => [
@@ -599,7 +599,7 @@ return [
         'users' => [
             'model' => User::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \App\Legacy\Models\User::class,
+            'reference_model' => \LegacyApp\Site\Models\User::class,
             // TODO: make sure timestamp is updated on avatar upload
             'reference_key' => 'Updated',
             'unique_key' => 'id',

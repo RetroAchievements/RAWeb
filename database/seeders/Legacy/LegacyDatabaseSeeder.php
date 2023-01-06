@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Legacy;
 
-use App\Legacy\Models\StaticData;
-use App\Legacy\Models\System;
 use Illuminate\Database\Seeder;
+use LegacyApp\Platform\Models\System;
+use LegacyApp\Site\Models\StaticData;
 
 class LegacyDatabaseSeeder extends Seeder
 {

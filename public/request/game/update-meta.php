@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use RA\ClaimSetType;
-use RA\Permissions;
+use LegacyApp\Community\Enums\ClaimSetType;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));

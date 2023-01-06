@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /*
-         * Legacy
+         * TODO move to legacy app domains
          */
         $schedule->call(function () {
             require_once base_path('cronjobs/cron_1m.php');

@@ -2,9 +2,9 @@
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RA\ArticleType;
-use RA\Permissions;
-use RA\UserAction;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Enums\UserAction;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     return back()->withErrors(__('legacy.error.permissions'));

@@ -84,11 +84,11 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-            "RA\\": "src/"
+            "LegacyApp\\": "app_legacy/"
         },
         "files": [
-            "resources/helpers/helpers.php",
-            "lib/functions.php"
+            "app/Helpers/helpers.php",
+            "app_legacy/Helpers/functions.php"
         ]
     },
     "autoload-dev": {

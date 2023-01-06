@@ -132,10 +132,10 @@
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
-use RA\AchievementType;
-use RA\TicketFilters;
-use RA\TicketState;
-use RA\TicketType;
+use LegacyApp\Community\Enums\TicketFilters;
+use LegacyApp\Community\Enums\TicketState;
+use LegacyApp\Community\Enums\TicketType;
+use LegacyApp\Platform\Enums\AchievementType;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;

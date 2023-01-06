@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 class AppDemoLayout extends AppLayout
 {

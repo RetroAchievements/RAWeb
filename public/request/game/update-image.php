@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RA\ArticleType;
-use RA\ClaimSetType;
-use RA\ImageType;
-use RA\Permissions;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Enums\ClaimSetType;
+use LegacyApp\Platform\Enums\ImageType;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));

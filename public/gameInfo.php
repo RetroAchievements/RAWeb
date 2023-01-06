@@ -1,17 +1,17 @@
 <?php
 
-use RA\AchievementType;
-use RA\ArticleType;
-use RA\ClaimFilters;
-use RA\ClaimSetType;
-use RA\ClaimType;
-use RA\ImageType;
-use RA\Permissions;
-use RA\RatingType;
-use RA\SubscriptionSubjectType;
-use RA\TicketFilters;
-use RA\TicketState;
-use RA\UserPreference;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Enums\ClaimFilters;
+use LegacyApp\Community\Enums\ClaimSetType;
+use LegacyApp\Community\Enums\ClaimType;
+use LegacyApp\Community\Enums\RatingType;
+use LegacyApp\Community\Enums\SubscriptionSubjectType;
+use LegacyApp\Community\Enums\TicketFilters;
+use LegacyApp\Community\Enums\TicketState;
+use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Enums\ImageType;
+use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Enums\UserPreference;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {

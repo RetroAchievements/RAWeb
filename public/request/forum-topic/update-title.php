@@ -1,8 +1,8 @@
 <?php
 
-use App\Legacy\Models\ForumTopic;
 use Illuminate\Support\Facades\Validator;
-use RA\Permissions;
+use LegacyApp\Community\Models\ForumTopic;
+use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));

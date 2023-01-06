@@ -1,6 +1,6 @@
 <?php
 
-use RA\Emulators;
+use LegacyApp\Platform\Enums\Emulators;
 
 // TODO: replace with systems, integration release, and emulator release management
 return [

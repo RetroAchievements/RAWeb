@@ -1,7 +1,7 @@
 <?php
 
-use App\Legacy\Models\User;
 use Illuminate\Support\Facades\Validator;
+use LegacyApp\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetail)) {
     return back()->withErrors(__('legacy.error.permissions'));

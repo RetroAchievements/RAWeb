@@ -1,7 +1,7 @@
 <?php
 
-use RA\ClaimFilters;
-use RA\ClaimSorting;
+use LegacyApp\Community\Enums\ClaimFilters;
+use LegacyApp\Community\Enums\ClaimSorting;
 
 /*
  *  API_GetActiveClaims - returns information about all (1000 max) active set claims.

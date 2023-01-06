@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 
 class DeleteUsers extends Command
 {
-    protected $signature = 'ra:account:user:delete';
+    protected $signature = 'ra:site:user:delete';
     protected $description = 'Handle user deletion requests';
 
     public function handle(): void

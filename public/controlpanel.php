@@ -1,7 +1,7 @@
 <?php
 
-use RA\Permissions;
-use RA\UserPreference;
+use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Enums\UserPreference;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

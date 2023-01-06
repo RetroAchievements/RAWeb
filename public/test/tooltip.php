@@ -1,6 +1,6 @@
 <?php
 
-use RA\Ticket;
+use LegacyApp\Community\ViewModels\Ticket;
 
 RenderContentStart();
 

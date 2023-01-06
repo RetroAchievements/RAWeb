@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
-use RA\Permissions;
-use RA\SubscriptionSubjectType;
+use LegacyApp\Community\Enums\SubscriptionSubjectType;
+use LegacyApp\Site\Enums\Permissions;
 
 $input = Validator::validate(request()->post(), [
     'subject_type' => 'required|string',
