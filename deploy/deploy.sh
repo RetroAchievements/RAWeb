@@ -78,8 +78,15 @@ ${PHP_BIN} artisan config:cache
 
 ### Cleanup ###
 
-# cleanup releases - keep the last five (pass +6 to tail)
+# cleanup releases
+
+# keep the last five (pass +1 to tail)
+#cd "${BASEDIR}/${RELEASES_DIR}"
+#ls -1t | tail -n +6 | xargs -d '\n' rm -rf --
+
+# keep the last
 cd "${BASEDIR}/${RELEASES_DIR}"
-ls -1t | tail -n +6 | xargs -d '\n' rm -rf --
+ls -1t | tail -n +2 | xargs -d '\n' rm -rf --
+
 # negative -n value not allowed on all systems
 #ls -1tr | head -n -5 | xargs -d '\n' rm -rf --

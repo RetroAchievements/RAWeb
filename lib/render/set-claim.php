@@ -17,8 +17,9 @@ function renderNewClaimsComponent(int $count): void
     echo "<table class='mb-1'>";
     echo "<thead>";
     echo "<tr>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>User</th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>Game</th>";
     echo "<th class='whitespace-nowrap'>Started</th>";
     echo "</tr>";
@@ -27,14 +28,17 @@ function renderNewClaimsComponent(int $count): void
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr>";
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo userAvatar($claimUser, label: false);
         echo "</td>";
         echo "<td>";
         echo userAvatar($claimUser, label: true);
         echo "</td>";
+        echo "<td class='pr-0'>";
+        echo gameAvatar($claim, label: false);
+        echo "</td>";
         echo "<td class='w-full'>";
-        echo gameAvatar($claim);
+        echo gameAvatar($claim, icon: false);
         echo "</td>";
         echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
         echo "</tr>";
@@ -58,8 +62,9 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<table class='mb-1'>";
     echo "<thead>";
     echo "<tr>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>User</th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>Game</th>";
     echo "<th>Type</th>";
     echo "<th>Finished</th>";
@@ -68,14 +73,17 @@ function renderFinishedClaimsComponent(int $count): void
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr>";
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo userAvatar($claimUser, label: false);
         echo "</td>";
         echo "<td>";
         echo userAvatar($claimUser, icon: false);
         echo "</td>";
+        echo "<td class='pr-0'>";
+        echo gameAvatar($claim, label: false);
+        echo "</td>";
         echo "<td class='w-full'>";
-        echo gameAvatar($claim);
+        echo gameAvatar($claim, icon: false);
         echo "</td>";
         echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
         echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
