@@ -137,20 +137,20 @@ function RenderAwardGroup($awards, $title): void
     echo "<div class='component flex flex-wrap justify-between gap-2'>";
     $imageSize = 48;
     $numCols = 5;
-    for ($i = 0; $i < ceil($numItems / $numCols); $i++) {
-        for ($j = 0; $j < $numCols; $j++) {
-            $nOffs = ($i * $numCols) + $j;
-            if ($nOffs >= $numItems) {
-                echo "<div class='badgeimg' style='width:{$imageSize}px'></div>";
-                continue;
-            }
-
-            $award = $awards[$nOffs];
-            if ($award['DisplayOrder'] >= 0) {
-                RenderAward($award, $imageSize);
-            }
+    $numShown = 0;
+    foreach ($awards as $award) {
+        if ($award['DisplayOrder'] >= 0) {
+            RenderAward($award, $imageSize);
+            $numShown++;
         }
     }
+    $numShown %= $numCols;
+    if ($numShown > 0) {
+        for ($i = $numShown; $i < $numCols; $i++) {
+            echo "<div class='badgeimg' style='width:{$imageSize}px'></div>";
+        }
+    }
+
     echo "</div>";
     echo "</div>";
 }
