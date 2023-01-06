@@ -17,9 +17,9 @@ function renderNewClaimsComponent(int $count): void
     echo "<table class='mb-1'>";
     echo "<thead>";
     echo "<tr>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>User</th>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>Game</th>";
     echo "<th class='whitespace-nowrap'>Started</th>";
     echo "</tr>";
@@ -28,13 +28,13 @@ function renderNewClaimsComponent(int $count): void
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr>";
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo userAvatar($claimUser, label: false);
         echo "</td>";
         echo "<td>";
         echo userAvatar($claimUser, label: true);
         echo "</td>";
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo gameAvatar($claim, label: false);
         echo "</td>";
         echo "<td class='w-full'>";
@@ -62,9 +62,9 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<table class='mb-1'>";
     echo "<thead>";
     echo "<tr>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>User</th>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     echo "<th>Game</th>";
     echo "<th>Type</th>";
     echo "<th>Finished</th>";
@@ -73,13 +73,13 @@ function renderFinishedClaimsComponent(int $count): void
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr>";
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo userAvatar($claimUser, label: false);
         echo "</td>";
         echo "<td>";
         echo userAvatar($claimUser, icon: false);
         echo "</td>";
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo gameAvatar($claim, label: false);
         echo "</td>";
         echo "<td class='w-full'>";

@@ -36,7 +36,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
     $sort6 = ($sortBy == 6) ? 16 : 6;
 
     echo "<tr>";
-    echo "<th></th>";
+    echo "<th class='pr-0'></th>";
     if ($dev == null) {
         echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
         echo "<th><a href='/gameList.php?s=$sort2&$queryParams'>Achievements</a></th>";
@@ -87,7 +87,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
 
         echo "<tr>";
 
-        echo "<td>";
+        echo "<td class='pr-0'>";
         echo gameAvatar($gameEntry, label: false);
         echo "</td>";
         echo "<td class='w-full'>";

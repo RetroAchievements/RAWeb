@@ -118,7 +118,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
         $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
 
-        echo "<th></th>";
+        echo "<th class='pr-0'></th>";
         echo "<th>";
         echo "<a href='/achievementList.php?s=$sort1&p=$params$dev_param'>Title</a>$mark1";
         echo " / ";
@@ -168,7 +168,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
 
             echo "<tr>";
 
-            echo "<td>";
+            echo "<td class='pr-0'>";
             echo achievementAvatar($achEntry, label: false);
             echo "</td>";
             echo "<td class='w-full'>";
