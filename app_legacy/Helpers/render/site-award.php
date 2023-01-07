@@ -133,7 +133,7 @@ function RenderAwardGroup($awards, $title): void
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
-    echo "<h3 class='flex justify-between'><span>$title</span>$counters</h3>";
+    echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='component flex flex-wrap justify-start gap-2'>";
     $imageSize = 48;
     foreach ($awards as $award) {
