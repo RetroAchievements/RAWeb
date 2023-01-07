@@ -1,6 +1,7 @@
 <?php
 
 use LegacyApp\Community\Enums\ActivityType;
+use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 
@@ -177,14 +178,9 @@ function insertAchievementUnlockIntoAwardedTable(string $user, $achIDToAward, $i
     return $dbResult !== false;
 }
 
-function resetAchievements(string $user, $gameID): int
+function resetAchievements(string $user, int $gameID): int
 {
-    sanitize_sql_inputs($user, $gameID);
-    settype($gameID, 'integer');
-
-    if (empty($gameID)) {
-        return 0;
-    }
+    sanitize_sql_inputs($user);
 
     getUserUnlocksDetailed($user, $gameID, $dataOut);
     $resetCount = collect($dataOut)->unique('ID')->count();
@@ -194,6 +190,7 @@ function resetAchievements(string $user, $gameID): int
 
     $achievementIDs = collect($dataOut)->unique('ID')->implode('ID', ',');
 
+    // delete the unlocks for the user
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ($achievementIDs)";
     if (!s_mysql_query($query)) {
         log_sql_fail();
@@ -201,9 +198,17 @@ function resetAchievements(string $user, $gameID): int
         return 0;
     }
 
+    // delete any site awards for the user
+    $query = "DELETE FROM SiteAwards WHERE User = '$user' AND AwardType = " . AwardType::Mastery . " AND AwardData = $gameID";
+    s_mysql_query($query);
+
+    // force the top achievers for the game to be recalculated
     expireGameTopAchievers($gameID);
+
+    // update the player's points
     recalculatePlayerPoints($user);
 
+    // update the developer's contributions
     $query = "SELECT Author, COUNT(*) AS Count, SUM(Points) AS Points
               FROM Achievements WHERE ID IN ($achievementIDs)
               AND Flags=" . AchievementType::OfficialCore . " GROUP BY 1";
@@ -242,9 +247,18 @@ function resetSingleAchievement(string $user, $achID): bool
     if ($numRowsDeleted > 0) {
         $achData = GetAchievementData($achID);
         if ($achData['Flags'] == AchievementType::OfficialCore) {
+            // user no longer has all core achievements, delete their site award
+            // (does nothing if they don't have a site award)
+            $query = "DELETE FROM SiteAwards WHERE User = '$user' AND AwardType = " . AwardType::Mastery . " AND AwardData = " . $achData['GameID'];
+            s_mysql_query($query);
+
+            // force the top achievers for the game to be recalculated
             expireGameTopAchievers($achData['GameID']);
+
+            // update the developer's contributions
             attributeDevelopmentAuthor($achData['Author'], -1, -$achData['Points']);
 
+            // update the player's points
             recalculatePlayerPoints($user);
         }
     }
