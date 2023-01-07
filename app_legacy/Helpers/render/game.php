@@ -64,7 +64,10 @@ function renderGameTitle(?string $title, $append = true): string
     foreach ($matches[0] as $i => $match) {
         $category = $matches[1][$i];
         // $class = strtolower(str_replace(' ', '-', $category));
-        $span = "<span class='tag achievement-set category'>$category</span>";
+        $span =
+            "<span class='tag achievement-set category'>
+                <span class='inner'>$category</span>
+            </span>";
         if ($append) {
             $html = trim(str_replace($match, '', $html) . ' ' . $span);
         } else {
@@ -75,7 +78,10 @@ function renderGameTitle(?string $title, $append = true): string
     foreach ($matches[0] as $i => $match) {
         [$text, $subset] = [$matches[1][$i], $matches[2][$i]];
         // $class = strtolower(str_replace(' ', '-', $subset));
-        $span = "<span class='tag achievement-set subset'>$text</span>";
+        $span =
+            "<span class='tag achievement-set subset'>
+                <span class='inner'>$text</span>
+            </span>";
         $html = trim(str_replace($match, '', $html) . ' ' . $span);
     }
 

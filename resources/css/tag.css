@@ -7,7 +7,10 @@
   vertical-align: text-bottom;
   line-height: 1.1em;
   font-size: .8em;
-  background: var(--text-color);
+  background: currentColor;
   border: 1px solid var(--embed-highlight-color);
+}
+
+.tag .inner {
   color: var(--embed-color);
 }
