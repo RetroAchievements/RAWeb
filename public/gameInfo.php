@@ -958,7 +958,7 @@ sanitize_outputs(
                     echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
                 }
 
-                if (isset($user)) {
+                if (isset($user) && $numAchievements > 0) {
                     echo "<div class='float-right'>";
                     RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
                     echo "</div>";
