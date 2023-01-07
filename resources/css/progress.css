@@ -3,7 +3,7 @@
   height: 6px;
   border: 1px solid var(--embed-highlight-color);
   border-radius: .5em 0 0 .5em;
-  border-right: 0;
+  border-right: 0 none;
   background-color: var(--embed-color);
 }
 
@@ -35,7 +35,6 @@
   border-radius: 50%;
   font-size: 10px;
   line-height: 1em;
-  margin-left: -1px;
 }
 
 .completion-icon.tooltip {
