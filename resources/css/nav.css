@@ -6,7 +6,7 @@
 }
 
 #innermenu li.divider {
-  border-bottom: 1px solid #999;
+  border-bottom: 1px solid var(--menu-link-color);
   margin-left: 10px;
   margin-right: 10px;
   margin-top: 2px;
@@ -58,12 +58,12 @@
 }
 
 #innermenu > ul > li:hover > a {
-  color: #000;
-  background-color: #bebebe;
+  color: var(--menu-link-color);
+  background-color: var(--embed-highlight-color);
 }
 
 #innermenu > ul > li:hover > div {
-  background-color: #bebebe;
+  background-color: var(--embed-highlight-color);
 }
 
 @media all and (max-width: 549px) {
@@ -84,16 +84,7 @@
 }
 
 #innermenu > ul > li:hover > div > ul:not(:last-child) {
-  border-right: 1px solid #888;
-}
-
-#innermenu > ul > li:hover > div > ul > li > a.hassub {
-  color: #fff;
-}
-
-#innermenu > ul > li:hover > div > ul > li:hover > a.hassub {
-  color: #fff;
-  font-style: italic;
+  border-right: 1px solid var(--embed-color);
 }
 
 #innermenu > ul > li:hover > div > ul > li > ul {
@@ -109,7 +100,7 @@
 #innermenu > ul > li:hover > div > ul > li > a,
 #innermenu > ul > li:hover > div > ul > li button {
   display: block;
-  color: #000;
+  color: var(--menu-link-color);
   line-height: 1.4em;
   width: 175px;
   text-align: left;
@@ -137,8 +128,8 @@
 
 #innermenu > ul > li:hover > div > ul > li > a:hover,
 #innermenu > ul > li:hover > div > ul > li button:hover{
-  color: #fff;
-  background: #333;
+  color: var(--link-color);
+  background: var(--embed-color);
 }
 
 #innermenu > ul > li:hover > div > ul > li:hover > ul {
@@ -151,5 +142,5 @@
 .dropdown-header {
   padding: 0 12px;
   text-align: center;
-  color: #888;
+  color: var(--text-color);
 }
