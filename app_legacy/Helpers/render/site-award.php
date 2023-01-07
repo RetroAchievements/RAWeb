@@ -174,7 +174,7 @@ function RenderAward($award, $imageSize, $clickable = true): void
 
     if ($awardType == AwardType::Mastery) {
         if ($awardDataExtra == '1') {
-            $awarded = "MASTERED on $awardDate";
+            $awarded = "Mastered on $awardDate";
             $imgclass = 'goldimage';
         } else {
             $awarded = "Completed on $awardDate";
