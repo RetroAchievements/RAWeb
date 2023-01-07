@@ -76,11 +76,13 @@ function renderGameTitle(?string $title, $append = true): string
     }
     preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
-        [$text, $subset] = [$matches[1][$i], $matches[2][$i]];
+        $subset = $matches[2][$i];
         // $class = strtolower(str_replace(' ', '-', $subset));
         $span =
             "<span class='tag achievement-set subset'>
-                <span class='inner'>$text</span>
+                <span class='label'>Subset</span>
+                <span class='arrow-right'></span>
+                <span class='inner'>$subset</span>
             </span>";
         $html = trim(str_replace($match, '', $html) . ' ' . $span);
     }
