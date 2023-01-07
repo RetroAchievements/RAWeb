@@ -1,6 +1,7 @@
 .awardcounter {
   font-size: .65em;
   cursor: help;
+  white-space: nowrap;
 }
 
 .awardcounter > * {
