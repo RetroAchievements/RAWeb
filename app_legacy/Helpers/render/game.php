@@ -33,7 +33,9 @@ function gameAvatar(
         }
 
         // pre-render tooltip
-        $tooltip = $tooltip !== false ? $game : false;
+        if (!is_string($tooltip)) {
+            $tooltip = $tooltip !== false ? $game : false;
+        }
     }
 
     return avatar(
@@ -54,7 +56,7 @@ function gameAvatar(
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(?string $title): string
+function renderGameTitle(?string $title, $append = true): string
 {
     $html = (string) $title;
     $matches = [];
@@ -63,18 +65,21 @@ function renderGameTitle(?string $title): string
         $category = $matches[1][$i];
         // $class = strtolower(str_replace(' ', '-', $category));
         $span = "<span class='tag achievement-set category'>$category</span>";
-        $html = str_replace($match, $span, $html);
+        if ($append) {
+            $html = trim(str_replace($match, '', $html) . ' ' . $span);
+        } else {
+            $html = str_replace($match, $span, $html);
+        }
     }
     preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         [$text, $subset] = [$matches[1][$i], $matches[2][$i]];
         // $class = strtolower(str_replace(' ', '-', $subset));
         $span = "<span class='tag achievement-set subset'>$text</span>";
-        $html = str_replace($match, $span, $html);
+        $html = trim(str_replace($match, '', $html) . ' ' . $span);
     }
-    $html = "<div class='achievement-set title'>$html</div>";
 
-    return $html;
+    return "<div class='achievement-set title'>$html</div>";
 }
 
 function renderGameCard(int|string|array $game): string
@@ -114,6 +119,12 @@ function renderGameCard(int|string|array $game): string
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleName;
+
+    $mastery = $game['Mastery'] ?? null;
+    if (!empty($mastery)) {
+        $tooltip .= "<div>$mastery</div>";
+    }
+
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
@@ -307,14 +318,16 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     }
     $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
 
-    echo "<div class='progress flex flex-col items-start md:items-center my-2'>";
-    echo "<div class='progressbar'>";
+    echo "<div class='w-40 my-2'>";
+    echo "<div class='flex w-full items-center'>";
+    echo "<div class='progressbar grow'>";
     echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
     echo "<div class='completion-hardcore' style='width:$pctHardcoreProportion%'></div>";
     echo "</div>";
     echo "</div>";
     echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
-    echo "<div class='progressbar-label md:text-center'>";
+    echo "</div>";
+    echo "<div class='progressbar-label pr-5 -mt-1'>";
     if ($pctHardcore >= 100.0) {
         echo "Mastered";
     } else {
@@ -343,7 +356,6 @@ function renderCompletionIcon(
         $tooltipText = $hardcoreRatio == 100.0 ? 'Mastered (hardcore)' : 'Completed';
         $class .= ' tooltip';
     }
-    $html = "<div class='$class' title='$tooltipText'>$icon</div>";
 
-    return $html;
+    return "<div class='$class' title='$tooltipText'>$icon</div>";
 }

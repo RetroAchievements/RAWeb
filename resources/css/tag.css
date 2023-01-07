@@ -1,10 +1,13 @@
 .tag {
-    display: inline-block;
-    opacity: .9;
-    margin: 0 .15em;
-    padding: .1em .4em;
-    border-radius: .4em;
-    vertical-align: text-bottom;
-    line-height: 1.1em;
-    font-size: .8em;
+  display: inline-block;
+  opacity: .9;
+  margin: 0 .15em;
+  padding: .1em .4em;
+  border-radius: .2em;
+  vertical-align: text-bottom;
+  line-height: 1.1em;
+  font-size: .8em;
+  background: var(--text-color);
+  border: 1px solid var(--embed-highlight-color);
+  color: var(--embed-color);
 }
