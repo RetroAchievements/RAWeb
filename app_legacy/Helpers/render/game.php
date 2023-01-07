@@ -33,7 +33,9 @@ function gameAvatar(
         }
 
         // pre-render tooltip
-        $tooltip = $tooltip !== false ? $game : false;
+        if (!is_string($tooltip)) {
+            $tooltip = $tooltip !== false ? $game : false;
+        }
     }
 
     return avatar(
@@ -117,6 +119,12 @@ function renderGameCard(int|string|array $game): string
     $tooltip .= "<div>";
     $tooltip .= "<b>$gameName</b><br>";
     $tooltip .= $consoleName;
+
+    $mastery = $game['Mastery'] ?? null;
+    if (!empty($mastery)) {
+        $tooltip .= "<div>$mastery</div>";
+    }
+
     $tooltip .= "</div>";
     $tooltip .= "</div>";
 
