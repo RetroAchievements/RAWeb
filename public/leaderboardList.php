@@ -21,16 +21,18 @@ $sortBy = requestInputSanitized('s', empty($gameID) ? 3 : 0, 'integer');
 
 $lbCount = getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, $lbData);
 
+$pageTitle = "Leaderboard List";
+
 $gameData = null;
 $codeNotes = [];
 if ($gameID != 0) {
     $gameData = getGameData($gameID);
     getCodeNotes($gameID, $codeNotes);
+    $pageTitle .= " - " . $gameData['Title'];
 }
 
-$requestedConsole = "";
 if ($consoleIDInput) {
-    $requestedConsole = " " . $consoleList[$consoleIDInput];
+    $pageTitle .= " - " . $consoleList[$consoleIDInput];
 }
 
 if (empty($consoleIDInput) && empty($gameID)) {
@@ -45,8 +47,6 @@ sanitize_outputs(
     $requestedConsole,
     $gameData['Title'],
 );
-
-$pageTitle = "Leaderboard List" . $requestedConsole;
 
 RenderContentStart($pageTitle);
 ?>
@@ -94,8 +94,10 @@ function ReloadLBPageByGame() {
     echo "<div>";
     echo "<div class='navpath'>";
     if ($gameID != 0) {
-        echo "<a href='/leaderboardList.php'>Leaderboard List</a>";
-        echo " &raquo; <b>" . $gameData['Title'] . "</b>";
+        echo "<a href='/gameList.php'>All Games</a>";
+        echo " &raquo; <a href='/gameList.php?c=?" . $gameData['ConsoleID'] . "'>" . $gameData['ConsoleName'] . "</a>";
+        echo " &raquo; <a href='/game/" . $gameData['ID'] . "'>" . $gameData['Title'] . "</a>";
+        echo " &raquo; <b>Leaderboards</b>";
     } else {
         echo "<b>Leaderboard List</b>";    // NB. This will be a stub page
     }

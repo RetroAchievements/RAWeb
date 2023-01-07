@@ -30,7 +30,7 @@ sanitize_outputs(
     $gameTitle,
 );
 
-RenderContentStart("Manage Game Hashes");
+RenderContentStart("Manage Game Hashes - $gameTitle");
 ?>
 <script>
 function UpdateHashDetails(user, hash) {

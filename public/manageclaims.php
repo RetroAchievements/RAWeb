@@ -24,7 +24,7 @@ $consoleName = $gameData['ConsoleName'];
 $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 
-RenderContentStart("Manage Claims");
+RenderContentStart("Manage Claims - $gameTitle");
 ?>
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <script src="/vendor/jquery.datetimepicker.full.min.js"></script>

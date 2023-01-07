@@ -14,7 +14,7 @@ sanitize_outputs(
 
 getCodeNotes($gameID, $codeNotes);
 
-RenderContentStart('Code Notes');
+RenderContentStart('Code Notes - ' . $gameData['Title']);
 ?>
 <div id='mainpage'>
     <div id="fullcontainer">
