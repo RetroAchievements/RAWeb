@@ -1255,13 +1255,13 @@ sanitize_outputs(
                             }
                             echo "</div>";
 
-                            echo "<div class='flex flex-col items-start md:items-center my-2'>";
-                            echo "<div class='progressbar global'>";
+                            echo "<div class='w-40 my-2'>";
+                            echo "<div class='progressbar'>";
                             echo "<div class='completion' style='width:$pctAwardedCasual%'>";
                             echo "<div class='completion-hardcore' style='width:$pctAwardedHardcore%'></div>";
                             echo "</div>";
                             echo "</div>";
-                            echo "<div class='progressbar-label md:text-center'>";
+                            echo "<div class='progressbar-label mt-1'>";
                             if ($wonByHardcore > 0) {
                                 echo "$wonBy <strong>($wonByHardcore)</strong> of $numDistinctPlayersCasual<br/>($pctAwardedCasual%) players";
                             } else {
