@@ -19,7 +19,7 @@ $gameIcon = $gameData['ImageIcon'];
 $forumTopicID = $gameData['ForumTopicID'];
 $hashes = getHashListByGameID($gameID);
 
-RenderContentStart("Linked Hashes");
+RenderContentStart("Linked Hashes - $gameTitle");
 ?>
 <div id="mainpage">
     <div id='fullcontainer'>
