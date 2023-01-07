@@ -174,16 +174,21 @@ function RenderAward($award, $imageSize, $clickable = true): void
 
     if ($awardType == AwardType::Mastery) {
         if ($awardDataExtra == '1') {
-            $tooltip = "MASTERED $awardGameTitle ($awardGameConsole)";
+            $awarded = "MASTERED on $awardDate";
             $imgclass = 'goldimage';
         } else {
-            $tooltip = "Completed $awardGameTitle ($awardGameConsole)";
+            $awarded = "Completed on $awardDate";
         }
         if ($awardButGameIsIncomplete) {
-            $tooltip .= "...<br>but more achievements have been added!<br>Click here to find out what you're missing!";
+            $awarded .= "...<br>but more achievements have been added!<br>Click here to find out what you're missing!";
         }
-        $imagepath = media_asset($awardGameImage);
-        $linkdest = "/game/$awardData";
+        $award['GameID'] = $award['AwardData'];
+        $award['Mastery'] = "<br clear=all>$awarded";
+        $tooltip = renderGameCard($award);
+
+        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, iconClass: $imgclass, tooltip: $tooltip) . "</div>";
+
+        return;
     } elseif ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
         $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " times!";
