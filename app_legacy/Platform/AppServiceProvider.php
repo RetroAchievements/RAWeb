@@ -7,6 +7,7 @@ namespace LegacyApp\Platform;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use LegacyApp\Platform\Commands\Developer\RecalculateContributionYield;
+use LegacyApp\Platform\Commands\UpdatePlayerMasteries;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\GameHash;
@@ -24,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 RecalculateContributionYield::class,
+                UpdatePlayerMasteries::class,
             ]);
         }
 
