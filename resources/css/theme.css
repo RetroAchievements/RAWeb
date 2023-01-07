@@ -25,6 +25,7 @@ a:hover {
 :root {
   --bg-color: rgb(26, 26, 26); /*#1a1a1a*/
   --box-bg-color: rgb(35, 35, 35); /*#2a2a2a*/
+  --box-shadow-color: rgb(22, 22, 22);
   --embed-color: rgb(22, 22, 22); /*#161616*/
   --embed-highlight-color: rgb(42, 42, 42);
   --heading-color: rgb(210, 210, 210);
@@ -41,6 +42,7 @@ a:hover {
 [data-scheme="black"] {
   --bg-color: rgb(10, 10, 10);
   --box-bg-color: rgb(20, 20, 20);
+  --box-shadow-color: rgb(0, 0, 0);
   --embed-color: rgb(0, 0, 0);
   --embed-highlight-color: rgb(30, 30, 30);
   --heading-color: rgb(200, 200, 200);
@@ -51,6 +53,7 @@ a:hover {
 [data-scheme="light"] {
   --bg-color:rgb(248, 248, 248);
   --box-bg-color: rgb(255, 255, 255);
+  --box-shadow-color: rgb(22, 22, 22, .3);
   /*--box-bg-color:rgb(248, 248, 248);*/
   /*--bg-color: rgb(255, 255, 255);*/
   --embed-color:  rgb(240, 240, 240);
