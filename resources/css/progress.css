@@ -3,6 +3,7 @@
   height: 6px;
   border: 1px solid var(--embed-highlight-color);
   border-radius: .5em 0 0 .5em;
+  border-right: 0;
   background-color: var(--embed-color);
 }
 
@@ -34,6 +35,7 @@
   border-radius: 50%;
   font-size: 10px;
   line-height: 1em;
+  margin-left: -1px;
 }
 
 .completion-icon.tooltip {
@@ -41,12 +43,12 @@
 }
 
 .completion-icon.mastered {
-  border-color: #c90;
+  border-color: rgb(204, 153, 0);
   background-color: #606;
 }
 
 .completion-icon.completed {
-  border-color: #0b71c1;
+  border-color: rgb(11, 113, 193);
   background-color: #083171;
 }
 
