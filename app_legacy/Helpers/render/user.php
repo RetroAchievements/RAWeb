@@ -185,14 +185,16 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "</td>";
         echo "<td>";
 
-        echo "<div class='progress player'>";
-        echo "<div class='progressbar'>";
+        echo "<div class='w-24'>";
+        echo "<div class='flex w-full items-center'>";
+        echo "<div class='progressbar grow'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
         echo "</div>";
         echo "</div>";
         echo renderCompletionIcon($nextTotalAwarded, $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
-        echo "<div class='progressbar-label lg:text-center'>";
+        echo "</div>";
+        echo "<div class='progressbar-label pr-5 -mt-1'>";
         echo "$nextTotalAwarded of $nextMaxPossible";
         echo "</div>";
         echo "</div>";
