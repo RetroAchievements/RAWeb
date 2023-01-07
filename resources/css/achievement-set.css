@@ -3,12 +3,13 @@
     margin-left: .1em;
 }
 
+/*
 .tag.achievement-set.category {
     background-color: rgba(32, 32, 32, .8);
     color: white;
 }
 
-/* .game-category.demo {
+.game-category.demo {
     background-color: teal;
 }
 
@@ -30,21 +31,18 @@
 
 .game-category.unlicensed {
     background-color: black;
-} */
+}
 
 .tag.achievement-set.subset {
-    border-radius: .2em;
-    line-height: 1.3em;
-    font-weight: bold;
-    font-size: 0.7em;
     background-color: rgb(12, 12, 56);
     color: #ddd;
 }
 
-/* .game-category.subset.bonus {
+.game-category.subset.bonus {
     color: crimson;
 }
 
 .game-category.subset.multi {
     color: deepskyblue;
-} */
+}
+*/
