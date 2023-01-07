@@ -1,7 +1,7 @@
 .awardcounter {
-  margin: 0 .3em;
   font-size: .65em;
   cursor: help;
+  white-space: nowrap;
 }
 
 .awardcounter > * {
