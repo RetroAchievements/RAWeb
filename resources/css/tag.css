@@ -13,7 +13,7 @@
 
 .tag > * {
   color: var(--bg-color);
-  padding: .2em .45em;
+  padding: .15em .45em;
 }
 
 .tag-label {
