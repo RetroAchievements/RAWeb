@@ -1,5 +1,6 @@
 #WzTtDiV {
   width: auto !important;
+  box-shadow: var(--box-shadow-color) 0 30px 60px -12px, var(--box-shadow-color) 0px 18px 36px -18px;
 }
 
 #WzBoDy {
