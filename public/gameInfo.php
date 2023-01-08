@@ -95,7 +95,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 &raquo; <a href='/gameList.php?c=?<?= $consoleID ?>'><?= $consoleName ?></a>
                 &raquo; <b><?= $gameTitle ?></b>
             </div>
-            <h3><?= $pageTitle ?></h3>
+            <h3><?= renderGameTitle($pageTitle) ?></h3>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
