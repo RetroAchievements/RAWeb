@@ -16,21 +16,21 @@
   margin-left: -.45em;
   padding: .15em .3em .15em .45em;
   border-radius: .2em 0 0 .2em;
-  background-color: rgba(255, 255, 255, 0.35);
-  color: var(--embed-color);
+  background-color: rgba(255, 255, 255, 0.5);
+  color: black;
 }
 
 .tag .arrow-right {
   width: 0;
   height: 0;
   border: solid .7em transparent;
-  border-left-color: rgba(255, 255, 255, 0.35);
+  border-left-color: rgba(255, 255, 255, 0.5);
   border-right-width: 0;
 }
 
 .tag .inner {
   padding: .15em 0;
-  color: var(--embed-color);
+  color: black;
 }
 
 .tag .label ~ .inner {
