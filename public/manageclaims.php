@@ -125,7 +125,7 @@ RenderContentStart("Manage Claims - $gameTitle");
         <div class='navpath'>
             <a href='/gameList.php'>All Games</a>
             &raquo; <a href='/gameList.php?c=<?= $gameData['ConsoleID'] ?>'><?= $gameData['ConsoleName'] ?></a>
-            &raquo; <a href='/game/<?= $gameID ?>'><?= $gameTitle ?></a>
+            &raquo; <a href='/game/<?= $gameID ?>'><?= renderGameTitle($gameTitle) ?></a>
             &raquo; <b>Manage Claims</b>
         </div>
 
