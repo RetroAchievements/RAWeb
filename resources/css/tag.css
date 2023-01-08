@@ -1,13 +1,32 @@
 .tag {
-  display: inline-block;
-  opacity: .9;
-  margin: 0 .15em;
-  padding: .1em .4em;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.9;
+  margin: 0 .1em;
   border-radius: .2em;
+  background-color: currentColor;
   vertical-align: text-bottom;
   line-height: 1.1em;
   font-size: .8em;
-  background: var(--text-color);
-  border: 1px solid var(--embed-highlight-color);
-  color: var(--embed-color);
+  overflow: hidden;
+}
+
+.tag > * {
+  color: var(--bg-color);
+  padding: .15em .45em;
+}
+
+.tag-label {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding-right: .2em;
+}
+
+.tag-arrow {
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin-right: -.2em;
+  border: solid .7em transparent;
+  border-left-color: rgba(255, 255, 255, 0.5);
+  border-right-width: 0;
 }
