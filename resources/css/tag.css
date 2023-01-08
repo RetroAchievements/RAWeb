@@ -2,6 +2,7 @@
   display: inline-flex;
   align-items: center;
   opacity: 0.9;
+  margin: 0 .1em;
   border-radius: .2em;
   background-color: currentColor;
   vertical-align: text-bottom;
