@@ -184,9 +184,8 @@ function RenderAward($award, $imageSize, $clickable = true): void
         }
         $award['GameID'] = $award['AwardData'];
         $award['Mastery'] = "<br clear=all>$awarded";
-        $tooltip = renderGameCard($award);
 
-        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, iconClass: $imgclass, tooltip: $tooltip) . "</div>";
+        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, context: 'mastery', iconClass: $imgclass) . "</div>";
 
         return;
     } elseif ($awardType == AwardType::AchievementUnlocksYield) {
