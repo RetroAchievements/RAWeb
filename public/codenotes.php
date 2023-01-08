@@ -21,7 +21,7 @@ RenderContentStart('Code Notes - ' . $gameData['Title']);
         <div class='navpath'>
             <a href='/gameList.php'>All Games</a>
             &raquo; <a href='/gameList.php?c=<?= $gameData['ConsoleID'] ?>'><?= $gameData['ConsoleName'] ?></a>
-            &raquo; <a href='/game/<?= $gameID ?>'><?= $gameData['Title'] ?></a>
+            &raquo; <a href='/game/<?= $gameID ?>'><?= renderGameTitle($gameData['Title']) ?></a>
             &raquo; <b>Code Notes</b>
         </div>
         <h3>Code Notes</h3>

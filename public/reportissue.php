@@ -54,7 +54,7 @@ function displayCore() {
         <div class="navpath">
             <a href="/gameList.php">All Games</a>
             &raquo; <a href="/gameList.php?c=<?= $consoleName ?>"><?= $consoleName ?></a>
-            &raquo; <a href="/game/<?= $gameID ?>"><?= $gameTitle ?></a>
+            &raquo; <a href="/game/<?= $gameID ?>"><?= renderGameTitle($gameTitle) ?></a>
             &raquo; <a href="/achievement/<?= $achievementID ?>"><?= $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>

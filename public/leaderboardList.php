@@ -96,7 +96,7 @@ function ReloadLBPageByGame() {
     if ($gameID != 0) {
         echo "<a href='/gameList.php'>All Games</a>";
         echo " &raquo; <a href='/gameList.php?c=?" . $gameData['ConsoleID'] . "'>" . $gameData['ConsoleName'] . "</a>";
-        echo " &raquo; <a href='/game/" . $gameData['ID'] . "'>" . $gameData['Title'] . "</a>";
+        echo " &raquo; <a href='/game/" . $gameData['ID'] . "'>" . renderGameTitle($gameData['Title']) . "</a>";
         echo " &raquo; <b>Leaderboards</b>";
     } else {
         echo "<b>Leaderboards</b>";    // NB. This will be a stub page
