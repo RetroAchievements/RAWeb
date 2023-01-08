@@ -114,7 +114,8 @@ RenderContentStart();
     <div class="flex justify-between">
         <div>
             <div class="mb-3">
-                <?= Shortcode::render("[game=1]") ?>
+                <?= Shortcode::render('[game=1]') ?>
+                <?= Shortcode::render('[game=17953]') ?>
             </div>
             <div class="mb-3">
                 <?= gameAvatar(1) ?>
@@ -122,6 +123,8 @@ RenderContentStart();
         </div>
         <div>
             <?= renderGameCard(1) ?>
+            <?= renderGameCard(17078) ?>
+            <?= renderGameCard(17953) ?>
         </div>
     </div>
 
