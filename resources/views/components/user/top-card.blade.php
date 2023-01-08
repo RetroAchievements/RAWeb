@@ -48,7 +48,7 @@ $user = request()->user();
                     </a>
                     <?php
                     $ticketLinks = collect();
-                    if ($user->Permissions >= Permissions::Developer) {
+                    if ($user->Permissions >= Permissions::JuniorDeveloper) {
                         $openTicketsData = countOpenTicketsByDev($user->User);
                         $ticketLinks->push([
                             'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
