@@ -2,37 +2,30 @@
   display: inline-flex;
   align-items: center;
   opacity: 0.9;
-  margin: 0 .15em;
-  padding: 0 .45em;
   border-radius: .2em;
   background-color: currentColor;
   vertical-align: text-bottom;
   line-height: 1.1em;
   font-size: .8em;
-  /* border: 1px solid var(--embed-highlight-color); */
+  overflow: hidden;
 }
 
-.tag .label {
-  margin-left: -.45em;
-  padding: .15em .3em .15em .45em;
-  border-radius: .2em 0 0 .2em;
+.tag > * {
+  color: var(--bg-color);
+  padding: .2em .45em;
+}
+
+.tag-label {
   background-color: rgba(255, 255, 255, 0.5);
-  color: black;
+  padding-right: .2em;
 }
 
-.tag .arrow-right {
+.tag-arrow {
   width: 0;
   height: 0;
+  padding: 0;
+  margin-right: -.2em;
   border: solid .7em transparent;
   border-left-color: rgba(255, 255, 255, 0.5);
   border-right-width: 0;
-}
-
-.tag .inner {
-  padding: .15em 0;
-  color: black;
-}
-
-.tag .label ~ .inner {
-  margin-left: .2em;
 }
