@@ -475,7 +475,7 @@ function confirmEmailChange(event) {
             <div class='component'>
                 <h3>Site Awards</h3>
                 <div style="margin-bottom: 10px">
-                    You can manually sort the order your earned awards (badges) are displayed.
+                    You can manually choose the order your earned awards (badges) are displayed.
                 </div>
                 <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
             </div>
