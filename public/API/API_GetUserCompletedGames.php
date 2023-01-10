@@ -14,8 +14,10 @@
  *    string     ConsoleID        unique identifier of the console associated to the game
  *    string     ConsoleName      name of the console associated to the game
  *    string     MaxPossible      number of core achievements associated to the game
- *    string     NumAwarded       number of achievements earned by the user
- *    string     PctWon           NumAwarded divided by MaxPossible
+ *    string     NumAwarded       number of achievements earned by the user in softcore mode
+ *    string.    NumAwardedHC     number of achievements earned by the user in hardcore mode
+ *    string     PctWon           NumAwarded divided by MaxPossible in softcore mode
+ *    string.    PctWonHC         NumAwarded divided by MaxPossible in hardcore mode
  *    string     HardcoreMode     "1" if the data is for hardcore, otherwise "0"
  */
 
