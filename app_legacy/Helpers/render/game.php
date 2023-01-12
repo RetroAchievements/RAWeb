@@ -72,12 +72,31 @@ function renderGameTitle(?string $title, bool $tags = true): string
     preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         $subset = $matches[2][$i];
-        $span = "<span class='tag'>";
-        $span .= "<span class='tag-label'>Subset</span>";
-        $span .= "<span class='tag-arrow'></span>";
-        $span .= "<span>$subset</span>";
-        $span .= "</span>";
+        $span = "<span class='tag'>"
+            . "<span class='tag-label'>Subset</span>"
+            . "<span class='tag-arrow'></span>"
+            . "<span>$subset</span>"
+            . "</span>";
         $updateHtml($html, $match, $tags ? " $span" : '');
+    }
+
+    return $html;
+}
+
+/**
+ * Render breadcrumb prefix `All Games > (console) > (game title)`
+ */
+function renderGameBreadcrumb(array $data, bool $gameLink = true) {
+    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
+    $html = "<a href='/gameList.php'>All Games</a>"
+        . " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
+    
+    $taglessTitle = renderGameTitle($data['GameTitle'] ?? $data['Title'], tags: false);
+    if ($gameLink) {
+        $gameID = $data['GameID'] ?? $data['ID'];
+        $html .= " &raquo; <a href='/game/$gameID'>$taglessTitle</a>";
+    } else {
+        $html .= " &raquo; <b>$taglessTitle</b>";
     }
 
     return $html;

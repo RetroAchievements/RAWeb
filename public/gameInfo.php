@@ -91,9 +91,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
     <div id='mainpage'>
         <div id='leftcontainer'>
             <div class='navpath'>
-                <a href='/gameList.php'>All Games</a>
-                &raquo; <a href='/gameList.php?c=?<?= $consoleID ?>'><?= $consoleName ?></a>
-                &raquo; <b><?= renderGameTitle($gameTitle, tags: false) ?></b>
+                <?= renderGameBreadcrumb($gameData, gameLink: false) ?>
             </div>
             <h3><?= renderGameTitle($pageTitle) ?></h3>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
@@ -618,13 +616,9 @@ sanitize_outputs(
 
             if ($isFullyFeaturedGame) {
                 echo "<div class='navpath'>";
-                echo "<a href='/gameList.php'>All Games</a>";
-                echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-                if ($flags == $unofficialFlag) {
-                    echo " &raquo; <a href='/game/$gameID'>" . renderGameTitle($gameTitle) . "</a>";
+                echo renderGameBreadcrumb($gameData, gameLink: $flags === $unofficialFlag);
+                if ($flags === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
-                } else {
-                    echo " &raquo; <b>" . renderGameTitle($gameTitle, tags: false) . "</b>";
                 }
                 echo "</div>";
             }
