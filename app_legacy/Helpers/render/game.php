@@ -94,30 +94,19 @@ function renderGameTitle(?string $title, bool $tags = true): string
 function renderGameBreadcrumb(array $data, bool $gameLink = true)
 {
     // Return next crumb (i.e `» text`), either as a link or not
-    $nextCrumb = function ($text, $href = '') {
+    $nextCrumb = function ($text, $href = ''): string {
         return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
     };
 
-    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
-    $html = "<a href='/gameList.php'>All Games</a>"
-        . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
-
-    $gameTitle = $data['GameTitle'] ?? $data['Title'];
-    $taglessTitle = renderGameTitle($gameTitle, tags: false);
-    [$matches, $subset] = [[], ''];
-    if (preg_match('/\[Subset - .+\]/', $gameTitle, $matches)) {
-        $subset = $matches[0];
-    }
-
-    if ($gameLink or $subset) {
-        $gameID = $data['GameID'] ?? $data['ID'];
-        $subsetCrumb = '';
-        if ($subset) {
+    // Retrieve separete IDs and titles for main game and subset (if any)
+    $getSplitData = function ($gameID, $gameTitle): array {
+        $matches = [];
+        if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
+            [$gameTitle, $subset] = [trim($matches[1]), $matches[2]];
             $subsetID = $gameID;
             $renderedSubset = renderGameTitle($subset);
-            $subsetCrumb = $nextCrumb($renderedSubset, $gameLink ? "/game/$subsetID" : '');
 
-            // Retrieve base game ID
+            // Retrieve main game ID
             sanitize_sql_inputs($gameID);
             settype($gameID, 'integer');
             $query = "SELECT ga.gameIDAlt FROM GameAlternatives ga
@@ -125,10 +114,35 @@ function renderGameBreadcrumb(array $data, bool $gameLink = true)
             $result = s_mysql_query($query);
             $gameID = $result->fetch_array()[0];
         }
-        $html .= $nextCrumb($taglessTitle, "/game/$gameID");
-        $html .= $subsetCrumb;
-    } else {
-        $html .= $nextCrumb($taglessTitle);
+
+        // Include categories if an unofficial game shares an
+        // identical title with an official one
+        $renderedMain = renderGameTitle($gameTitle, tags: false);
+        if ($renderedMain !== $gameTitle) {
+            sanitize_sql_inputs($gameTitle);
+            $query = "SELECT Title FROM GameData
+                WHERE Title = TRIM(SUBSTRING_INDEX('$gameTitle', '~', -1))";
+            $result = s_mysql_query($query);
+            if (!$result) {
+                $renderedMain = renderGameTitle($gameTitle);
+            }
+        }
+
+        return [$gameID, $renderedMain, $subsetID ?? null, $renderedSubset ?? null];
+    };
+
+    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
+    $html = "<a href='/gameList.php'>All Games</a>"
+        . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
+
+    $gameID = $data['GameID'] ?? $data['ID'];
+    $gameTitle = $data['GameTitle'] ?? $data['Title'];
+    [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($gameID, $gameTitle);
+
+    $baseHref = ($gameLink or $subsetID) ? "/game/$mainID" : '';
+    $html .= $nextCrumb($renderedMain, $baseHref);
+    if ($subsetID) {
+        $html .= $nextCrumb($renderedSubset, $gameLink ? "/game/$subsetID" : '');
     }
 
     return $html;
