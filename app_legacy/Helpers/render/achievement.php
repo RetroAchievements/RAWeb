@@ -53,13 +53,16 @@ function achievementAvatar(
     );
 }
 
-function renderAchievementTitle(string $title): string
-{   
+/**
+ * Render achievement title, parsing `[m]` (missable) as a tag
+ */
+function renderAchievementTitle(string $title, bool $tags = true): string
+{
     if (!str_contains($title, '[m]')) {
         return $title;
     }
-    $span = "<span class='tag missable' title='Missable'><span>m</span></span>";
-    $html = str_replace('[m]', $span, $title);
+    $span = $tags ? "<span class='tag missable' title='Missable'><span>m</span></span>" : '';
+    $html = trim(str_replace('[m]', $span, $title));
 
     return $html;
 }
@@ -86,7 +89,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         });
     }
 
-    $title = $data['AchievementTitle'] ?? $data['Title'] ?? null;
+    $title = renderAchievementTitle($data['AchievementTitle'] ?? $data['Title'] ?? null);
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;

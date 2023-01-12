@@ -55,7 +55,8 @@ function displayCore() {
             <a href="/gameList.php">All Games</a>
             &raquo; <a href="/gameList.php?c=<?= $consoleName ?>"><?= $consoleName ?></a>
             &raquo; <a href="/game/<?= $gameID ?>"><?= renderGameTitle($gameTitle) ?></a>
-            &raquo; <a href="/achievement/<?= $achievementID ?>"><?= $achievementTitle ?></a>
+            &raquo; <a href="/achievement/<?= $achievementID ?>"><?=
+                renderAchievementTitle($achievementTitle, tags: false) ?></a>
             &raquo; <b>Issue Report</b>
         </div>
 
