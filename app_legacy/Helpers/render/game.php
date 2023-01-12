@@ -115,8 +115,8 @@ function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
             $gameID = $result->fetch_array()[0];
         }
 
-        // Include categories if an unofficial game shares an
-        // identical title with an official one
+        // In the rare case of a derived game sharing identical base title
+        // with another one, include category to solve ambiguity
         $renderedMain = renderGameTitle($gameTitle, tags: false);
         if ($renderedMain !== $gameTitle) {
             sanitize_sql_inputs($gameTitle);
