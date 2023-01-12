@@ -58,8 +58,9 @@ function gameAvatar(
  */
 function renderGameTitle(?string $title, bool $tags = true): string
 {
-    $updateHtml = fn(&$html, $text, $replacement) =>
+    $updateHtml = function (&$html, $text, $replacement) {
         $html = trim(str_replace($text, '', $html) . $replacement);
+    };
 
     $html = (string) $title;
     $matches = [];
@@ -90,7 +91,7 @@ function renderGameBreadcrumb(array $data, bool $gameLink = true) {
     [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
     $html = "<a href='/gameList.php'>All Games</a>"
         . " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-    
+
     $taglessTitle = renderGameTitle($data['GameTitle'] ?? $data['Title'], tags: false);
     if ($gameLink) {
         $gameID = $data['GameID'] ?? $data['ID'];
