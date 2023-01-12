@@ -70,34 +70,52 @@ function renderGameTitle(?string $title, bool $tags = true): string
         $span = "<span class='tag'><span>$category</span></span>";
         $updateHtml($html, $match, $tags ? " $span" : '');
     }
-    preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
-    foreach ($matches[0] as $i => $match) {
-        $subset = $matches[2][$i];
+    $matches = [];
+    if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
+        $subset = $matches[1];
         $span = "<span class='tag'>"
             . "<span class='tag-label'>Subset</span>"
             . "<span class='tag-arrow'></span>"
             . "<span>$subset</span>"
             . "</span>";
-        $updateHtml($html, $match, $tags ? " $span" : '');
+        $updateHtml($html, $matches[0], $tags ? " $span" : '');
     }
 
     return $html;
 }
 
 /**
- * Render breadcrumb prefix `All Games > (console) > (game title)`
+ * Render game breadcrumb prefix, with optional link on last crumb
+ *
+ * Format: `All Games » (console) » (game title)`.
+ * If given data is for a subset, then `» Subset - (name)` is also added.
  */
-function renderGameBreadcrumb(array $data, bool $gameLink = true) {
+function renderGameBreadcrumb(array $data, bool $gameLink = true)
+{
+    $nextCrumb = function ($text, $href = '') {
+        return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
+    };
+
     [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
     $html = "<a href='/gameList.php'>All Games</a>"
-        . " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
+        . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
 
-    $taglessTitle = renderGameTitle($data['GameTitle'] ?? $data['Title'], tags: false);
-    if ($gameLink) {
+    $gameTitle = $data['GameTitle'] ?? $data['Title'];
+    $taglessTitle = renderGameTitle($gameTitle, tags: false);
+    [$matches, $subset] = [[], ''];
+    if (preg_match('/\[Subset - .+\]/', $gameTitle, $matches)) {
+        $subset = $matches[0];
+    }
+
+    if ($gameLink or $subset) {
         $gameID = $data['GameID'] ?? $data['ID'];
-        $html .= " &raquo; <a href='/game/$gameID'>$taglessTitle</a>";
+        $html .= $nextCrumb($taglessTitle, "/game/$gameID");
+        if ($subset) {
+            $renderedSubset = renderGameTitle($subset);
+            $html .= $nextCrumb($renderedSubset, $gameLink ? "/game/$gameID" : '');
+        }
     } else {
-        $html .= " &raquo; <b>$taglessTitle</b>";
+        $html .= $nextCrumb($taglessTitle);
     }
 
     return $html;
