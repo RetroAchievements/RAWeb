@@ -58,8 +58,9 @@ function gameAvatar(
  */
 function renderGameTitle(?string $title, bool $tags = true): string
 {
-    $updateHtml = function (&$html, $text, $replacement) {
-        $html = trim(str_replace($text, '', $html) . $replacement);
+    // Update $html by appending text
+    $updateHtml = function (&$html, $text, $append) {
+        $html = trim(str_replace($text, '', $html) . $append);
     };
 
     $html = (string) $title;
@@ -92,6 +93,7 @@ function renderGameTitle(?string $title, bool $tags = true): string
  */
 function renderGameBreadcrumb(array $data, bool $gameLink = true)
 {
+    // Return next crumb (i.e `» text`), either as a link or not
     $nextCrumb = function ($text, $href = '') {
         return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
     };
@@ -109,11 +111,22 @@ function renderGameBreadcrumb(array $data, bool $gameLink = true)
 
     if ($gameLink or $subset) {
         $gameID = $data['GameID'] ?? $data['ID'];
-        $html .= $nextCrumb($taglessTitle, "/game/$gameID");
+        $subsetCrumb = '';
         if ($subset) {
+            $subsetID = $gameID;
             $renderedSubset = renderGameTitle($subset);
-            $html .= $nextCrumb($renderedSubset, $gameLink ? "/game/$gameID" : '');
+            $subsetCrumb = $nextCrumb($renderedSubset, $gameLink ? "/game/$subsetID" : '');
+
+            // Retrieve base game ID
+            sanitize_sql_inputs($gameID);
+            settype($gameID, 'integer');
+            $query = "SELECT ga.gameIDAlt FROM GameAlternatives ga
+                WHERE ga.gameID = $gameID";
+            $result = s_mysql_query($query);
+            $gameID = $result->fetch_array()[0];
         }
+        $html .= $nextCrumb($taglessTitle, "/game/$gameID");
+        $html .= $subsetCrumb;
     } else {
         $html .= $nextCrumb($taglessTitle);
     }
