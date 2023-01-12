@@ -91,7 +91,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
     <div id='mainpage'>
         <div id='leftcontainer'>
             <div class='navpath'>
-                <?= renderGameBreadcrumb($gameData, gameLink: false) ?>
+                <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
             <h3><?= renderGameTitle($pageTitle) ?></h3>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
@@ -616,7 +616,7 @@ sanitize_outputs(
 
             if ($isFullyFeaturedGame) {
                 echo "<div class='navpath'>";
-                echo renderGameBreadcrumb($gameData, gameLink: $flags === $unofficialFlag);
+                echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flags === $unofficialFlag);
                 if ($flags === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
                 }

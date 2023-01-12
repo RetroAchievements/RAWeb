@@ -91,7 +91,7 @@ function renderGameTitle(?string $title, bool $tags = true): string
  * Format: `All Games » (console) » (game title)`.
  * If given data is for a subset, then `» Subset - (name)` is also added.
  */
-function renderGameBreadcrumb(array $data, bool $gameLink = true)
+function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
 {
     // Return next crumb (i.e `» text`), either as a link or not
     $nextCrumb = function ($text, $href = ''): string {
@@ -139,10 +139,10 @@ function renderGameBreadcrumb(array $data, bool $gameLink = true)
     $gameTitle = $data['GameTitle'] ?? $data['Title'];
     [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($gameID, $gameTitle);
 
-    $baseHref = ($gameLink or $subsetID) ? "/game/$mainID" : '';
+    $baseHref = ($addLinkToLastCrumb or $subsetID) ? "/game/$mainID" : '';
     $html .= $nextCrumb($renderedMain, $baseHref);
     if ($subsetID) {
-        $html .= $nextCrumb($renderedSubset, $gameLink ? "/game/$subsetID" : '');
+        $html .= $nextCrumb($renderedSubset, $addLinkToLastCrumb ? "/game/$subsetID" : '');
     }
 
     return $html;
