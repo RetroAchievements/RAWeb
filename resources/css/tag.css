@@ -30,3 +30,8 @@
   border-left-color: rgba(255, 255, 255, 0.5);
   border-right-width: 0;
 }
+
+.tag.missable {
+  opacity: .8;
+  cursor: help;
+}

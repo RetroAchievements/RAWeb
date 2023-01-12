@@ -55,10 +55,10 @@ function achievementAvatar(
 
 function renderAchievementTitle(string $title): string
 {   
-    if (! str_contains($title, '[m]')) {
+    if (!str_contains($title, '[m]')) {
         return $title;
     }
-    $span = "<span class='missable'>[m]</span>";
+    $span = "<span class='tag missable' title='Missable'><span>m</span></span>";
     $html = str_replace('[m]', $span, $title);
 
     return $html;
