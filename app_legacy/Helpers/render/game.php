@@ -56,15 +56,18 @@ function gameAvatar(
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(?string $title): string
+function renderGameTitle(?string $title, bool $tags = true): string
 {
+    $updateHtml = fn(&$html, $text, $replacement) =>
+        $html = trim(str_replace($text, '', $html) . $replacement);
+
     $html = (string) $title;
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         $category = $matches[1][$i];
         $span = "<span class='tag'><span>$category</span></span>";
-        $html = trim(str_replace($match, '', $html) . ' ' . $span);
+        $updateHtml($html, $match, $tags ? " $span" : '');
     }
     preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
@@ -74,7 +77,7 @@ function renderGameTitle(?string $title): string
         $span .= "<span class='tag-arrow'></span>";
         $span .= "<span>$subset</span>";
         $span .= "</span>";
-        $html = trim(str_replace($match, '', $html) . ' ' . $span);
+        $updateHtml($html, $match, $tags ? " $span" : '');
     }
 
     return $html;

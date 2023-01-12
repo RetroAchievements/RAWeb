@@ -168,7 +168,7 @@ RenderContentStart($pageTitle);
         echo "<div class='navpath'>";
         echo "<a href='/gameList.php'>All Games</a>";
         echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-        echo " &raquo; <a href='/game/$gameID'>" . renderGameTitle($gameTitle) . "</a>";
+        echo " &raquo; <a href='/game/$gameID'>" . renderGameTitle($gameTitle, tags: false) . "</a>";
         echo " &raquo; <b>$achievementTitle</b>";
         echo "</div>"; // navpath
 
