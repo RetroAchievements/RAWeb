@@ -21,4 +21,35 @@
 
 $user = request()->query('u');
 
-return response()->json(getUsersCompletedGamesAndMax($user));
+$result = [];
+$completedGames = getUsersCompletedGamesAndMax($user);
+foreach ($completedGames as $completedGame) {
+    if ($completedGame['NumAwarded'] > 0) {
+        $result[] = [
+            'GameID' => $completedGame['GameID'],
+            'Title' => $completedGame['Title'],
+            'ImageIcon' => $completedGame['ImageIcon'],
+            'ConsoleID' => $completedGame['ConsoleID'],
+            'ConsoleName' => $completedGame['ConsoleName'],
+            'MaxPossible' => $completedGame['MaxPossible'],
+            'NumAwarded' => $completedGame['NumAwarded'],
+            'PctWon' => $completedGame['PctWon'],
+            'HardcoreMode' => '0',
+        ];
+    }
+    if ($completedGame['NumAwardedHC'] > 0) {
+        $result[] = [
+            'GameID' => $completedGame['GameID'],
+            'Title' => $completedGame['Title'],
+            'ImageIcon' => $completedGame['ImageIcon'],
+            'ConsoleID' => $completedGame['ConsoleID'],
+            'ConsoleName' => $completedGame['ConsoleName'],
+            'MaxPossible' => $completedGame['MaxPossible'],
+            'NumAwarded' => $completedGame['NumAwardedHC'],
+            'PctWon' => $completedGame['PctWonHC'],
+            'HardcoreMode' => '1',
+        ];
+    }
+}
+
+return response()->json($result);
