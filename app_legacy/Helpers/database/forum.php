@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;
@@ -229,6 +230,13 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
         $topicTitle = "$user's topic";
     }
 
+    $blacklistedWord = findBlacklistedWords($topicTitle);
+    if ($blacklistedWord !== null) {
+        Log::notice("Blocked forum post from $user containing '$blacklistedWord'");
+
+        return false;
+    }
+
     // Replace inverted commas, Remove HTML, TBD: allow phpbb
     $topicTitle = str_replace("'", "''", $topicTitle);
     $topicTitle = strip_tags($topicTitle);
@@ -303,6 +311,13 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
 {
     sanitize_sql_inputs($user, $topicID);
     $userID = getUserIDFromUser($user);
+
+    $blacklistedWord = findBlacklistedWords($commentPayload);
+    if ($blacklistedWord !== null) {
+        Log::notice("Blocked forum post from $user containing '$blacklistedWord'");
+
+        return false;
+    }
 
     // Replace inverted commas, Remove HTML
     $commentPayload = str_replace("'", "''", $commentPayload);

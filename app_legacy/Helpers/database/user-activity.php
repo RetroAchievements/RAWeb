@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Models\Comment;
@@ -342,6 +343,13 @@ function RemoveComment(int $commentID, $userID, $permissions): bool
 function addArticleComment($user, $articleType, $articleID, $commentPayload, $onBehalfOfUser = null): bool
 {
     if (!ArticleType::isValid($articleType)) {
+        return false;
+    }
+
+    $blacklistedWord = findBlacklistedWords($commentPayload);
+    if ($blacklistedWord !== null) {
+        Log::notice("Blocked comment from $user containing '$blacklistedWord'");
+
         return false;
     }
 

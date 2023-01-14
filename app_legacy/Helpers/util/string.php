@@ -57,3 +57,34 @@ function utf8_sanitize(string $input): string
 {
     return mb_convert_encoding($input, "UTF-8", "UTF-8");
 }
+
+function getBlacklistedWordsFromFile(): array
+{
+    static $blacklist = null;
+    if ($blacklist === null) {
+        $blacklist = [];
+        try {
+            if (file_exists(storage_path('app/blacklisted_words.php'))) {
+                $blacklist = require_once storage_path('app/blacklisted_words.php');
+            }
+        } catch (Throwable $throwable) {
+            if (app()->environment('local')) {
+                throw $throwable;
+            }
+            Log::warning($throwable->getMessage());
+        }
+    }
+
+    return $blacklist;
+}
+
+function findBlacklistedWords(string $input): ?string
+{
+    foreach (getBlacklistedWordsFromFile() as $word) {
+        if (str_contains($input, $word)) {
+            return $word;
+        }
+    }
+
+    return null;
+}
