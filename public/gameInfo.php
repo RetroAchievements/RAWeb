@@ -1351,12 +1351,16 @@ sanitize_outputs(
                 RenderGameAlts($gameHubs, 'Collections');
             }
 
-            RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
+            if ($user !== null && $numAchievements > 0) {
+                RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
+            }
 
-            echo "<div id='achdistribution' class='component' >";
-            echo "<h3>Achievement Distribution</h3>";
-            echo "<div id='chart_distribution'></div>";
-            echo "</div>";
+            if ($numAchievements > 0) {
+                echo "<div id='achdistribution' class='component' >";
+                echo "<h3>Achievement Distribution</h3>";
+                echo "<div id='chart_distribution'></div>";
+                echo "</div>";
+            }
 
             RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             RenderGameLeaderboardsComponent($lbData);
