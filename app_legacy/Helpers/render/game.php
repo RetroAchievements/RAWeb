@@ -93,46 +93,42 @@ function renderGameTitle(?string $title, bool $tags = true): string
  */
 function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
 {
+    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
+
     // Return next crumb (i.e `» text`), either as a link or not
     $nextCrumb = function ($text, $href = ''): string {
         return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
     };
 
     // Retrieve separete IDs and titles for main game and subset (if any)
-    $getSplitData = function ($data): array {
+    $getSplitData = function ($data) use ($consoleID): array {
         $gameID = $data['GameID'] ?? $data['ID'];
         $gameTitle = $data['GameTitle'] ?? $data['Title'];
 
+        // Match and possibly split main title and subset
+        [$mainID, $mainTitle] = [$gameID, $gameTitle];
         $matches = [];
         if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
-            [$gameTitle, $subset] = [trim($matches[1]), $matches[2]];
+            [$mainTitle, $subset] = [trim($matches[1]), $matches[2]];
+            $mainID = getGameIDFromTitle($mainTitle, $consoleID);
             $subsetID = $gameID;
             $renderedSubset = renderGameTitle($subset);
-
-            // Retrieve main game ID
-            sanitize_sql_inputs($gameID);
-            settype($gameID, 'integer');
-            $query = "SELECT ga.gameIDAlt FROM GameAlternatives ga
-                WHERE ga.gameID = $gameID";
-            $result = s_mysql_query($query);
-            $gameID = $result->fetch_array()[0];
         }
 
-        $renderedMain = renderGameTitle($gameTitle, tags: false);
-        if ($renderedMain !== $gameTitle) {
+        $renderedMain = renderGameTitle($mainTitle, tags: false);
+        if ($renderedMain !== $mainTitle) {
             // In the rare case of a same-console derived game sharing identical
             // title with a base one, include category to solve ambiguity
-            $baseTitle = trim(substr($gameTitle, strrpos($gameTitle, '~') + 1));
-            $baseID = getGameIDFromTitle($baseTitle, $data['ConsoleID']);
+            $baseTitle = trim(substr($mainTitle, strrpos($mainTitle, '~') + 1));
+            $baseID = getGameIDFromTitle($baseTitle, $consoleID);
             if ($baseID) {
-                $renderedMain = renderGameTitle($gameTitle);
+                $renderedMain = renderGameTitle($mainTitle);
             }
         }
 
-        return [$gameID, $renderedMain, $subsetID ?? null, $renderedSubset ?? null];
+        return [$mainID, $renderedMain, $subsetID ?? null, $renderedSubset ?? null];
     };
 
-    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
     $html = "<a href='/gameList.php'>All Games</a>"
         . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
 
