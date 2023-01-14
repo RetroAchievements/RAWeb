@@ -100,7 +100,7 @@ function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
         return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
     };
 
-    // Retrieve separete IDs and titles for main game and subset (if any)
+    // Retrieve separate IDs and titles for main game and subset (if any)
     $getSplitData = function ($data) use ($consoleID): array {
         $gameID = $data['GameID'] ?? $data['ID'];
         $gameTitle = $data['GameTitle'] ?? $data['Title'];
