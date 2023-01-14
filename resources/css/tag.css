@@ -33,14 +33,15 @@
 
 .tag.missable {
   opacity: .8;
+  font-weight: bold;
   cursor: help;
 }
 
-.tag.missable p {
+.tag.missable div {
   padding: .15em;
   color: currentColor;
 }
 
-.tag.missable p span, a:hover .tag.missable p {
+.tag.missable div span, a:hover .tag.missable div {
   color: var(--bg-color);
 }
