@@ -61,7 +61,12 @@ function renderAchievementTitle(string $title, bool $tags = true): string
     if (!str_contains($title, '[m]')) {
         return $title;
     }
-    $span = $tags ? "<span class='tag missable' title='Missable'><span>m</span></span>" : '';
+    $span = '';
+    if ($tags) {
+        $span = "<span class='tag missable' title='Missable'>"
+            . "<p>[<span>m</span>]</p>"
+            . "</span>";
+    }
     $html = trim(str_replace('[m]', $span, $title));
 
     return $html;

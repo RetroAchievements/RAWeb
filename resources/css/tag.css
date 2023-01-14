@@ -35,3 +35,12 @@
   opacity: .8;
   cursor: help;
 }
+
+.tag.missable p {
+  padding: .15em;
+  color: currentColor;
+}
+
+.tag.missable p span, a:hover .tag.missable p {
+  color: var(--bg-color);
+}
