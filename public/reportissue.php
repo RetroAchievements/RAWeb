@@ -53,6 +53,7 @@ function displayCore() {
     <div id="fullcontainer">
         <div class="navpath">
             <?= renderGameBreadcrumb($dataOut) ?>
+            &raquo; <a href="/achievement/<?= $achievementID ?>"><?= $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>
 
