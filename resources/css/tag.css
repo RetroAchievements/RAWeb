@@ -38,7 +38,7 @@
 }
 
 .tag.missable div {
-  padding: .15em;
+  padding: .14em .15em .16em;
   color: currentColor;
 }
 
