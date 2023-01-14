@@ -99,7 +99,10 @@ function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
     };
 
     // Retrieve separete IDs and titles for main game and subset (if any)
-    $getSplitData = function ($gameID, $gameTitle): array {
+    $getSplitData = function ($data): array {
+        $gameID = $data['GameID'] ?? $data['ID'];
+        $gameTitle = $data['GameTitle'] ?? $data['Title'];
+
         $matches = [];
         if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
             [$gameTitle, $subset] = [trim($matches[1]), $matches[2]];
@@ -115,15 +118,13 @@ function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
             $gameID = $result->fetch_array()[0];
         }
 
-        // In the rare case of a derived game sharing identical base title
-        // with another one, include category to solve ambiguity
         $renderedMain = renderGameTitle($gameTitle, tags: false);
         if ($renderedMain !== $gameTitle) {
-            sanitize_sql_inputs($gameTitle);
-            $query = "SELECT Title FROM GameData
-                WHERE Title = TRIM(SUBSTRING_INDEX('$gameTitle', '~', -1))";
-            $result = s_mysql_query($query);
-            if (!$result) {
+            // In the rare case of a same-console derived game sharing identical
+            // title with a base one, include category to solve ambiguity
+            $baseTitle = trim(substr($gameTitle, strrpos($gameTitle, '~') + 1));
+            $baseID = getGameIDFromTitle($baseTitle, $data['ConsoleID']);
+            if ($baseID) {
                 $renderedMain = renderGameTitle($gameTitle);
             }
         }
@@ -135,10 +136,7 @@ function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
     $html = "<a href='/gameList.php'>All Games</a>"
         . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
 
-    $gameID = $data['GameID'] ?? $data['ID'];
-    $gameTitle = $data['GameTitle'] ?? $data['Title'];
-    [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($gameID, $gameTitle);
-
+    [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($data);
     $baseHref = ($addLinkToLastCrumb or $subsetID) ? "/game/$mainID" : '';
     $html .= $nextCrumb($renderedMain, $baseHref);
     if ($subsetID) {
