@@ -59,7 +59,9 @@ function RecentlyPostedCompletionActivity($user, $gameID, $isHardcore): bool
 
     $query = "SELECT act.ID
               FROM Activity AS act
-              WHERE act.user='$user' AND act.data='$gameID' AND act.data2='$isHardcore' AND act.lastupdate >= DATE_SUB( NOW(), INTERVAL 1 HOUR )
+              WHERE act.user='$user' AND act.activitytype=" . ActivityType::CompleteGame . "
+              AND act.data='$gameID' AND act.data2='$isHardcore'
+              AND act.lastupdate >= DATE_SUB( NOW(), INTERVAL 1 HOUR )
               LIMIT 1";
 
     $dbResult = s_mysql_query($query);
@@ -192,11 +194,7 @@ function postActivity($userIn, $activity, $customMsg, $isalt = null): bool
             break;
 
         case ActivityType::CompleteGame:
-            // Completed a game!
             $gameID = $customMsg;
-            AddSiteAward($user, 1, $gameID, $isalt);
-            expireGameTopAchievers((int) $gameID);
-
             $query .= "(NOW(), $activity, '$user', '$gameID', $isalt)";
             break;
 

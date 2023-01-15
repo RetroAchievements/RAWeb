@@ -84,13 +84,12 @@ RenderContentStart('Leaderboard');
         <div id="lbinfo">
             <?php
             echo "<div class='navpath'>";
-            echo "<a href='/gameList.php'>All Games</a>";
-            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-            echo " &raquo; <a href='/game/$gameID'>" . renderGameTitle($gameTitle) . "</a>";
+            echo renderGameBreadcrumb($lbData);
             echo " &raquo; <b>$lbTitle</b>";
             echo "</div>";
 
-            echo "<h3>$gameTitle ($consoleName)</h3>";
+            $renderedTitle = renderGameTitle("$gameTitle ($consoleName)");
+            echo "<h3>$renderedTitle</h3>";
 
             echo "<table class='nicebox'><tbody>";
 
