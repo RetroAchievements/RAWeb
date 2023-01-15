@@ -23,5 +23,5 @@ if (!$userDetails) {
 return response()->json(array_map('intval', [
     'id' => $userDetails['ID'],
     'points' => $userDetails['RAPoints'],
-    'softcorePoints' => $userDetails['RASoftcorePoints']
+    'softcorePoints' => $userDetails['RASoftcorePoints'],
 ]));
