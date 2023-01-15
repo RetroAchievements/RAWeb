@@ -11,7 +11,6 @@
 
 $user = request()->query('u');
 
-$retVal = [];
 getAccountDetails($user, $userDetails);
 
 if (!$userDetails) {
@@ -21,8 +20,8 @@ if (!$userDetails) {
     ], 404);
 }
 
-$retVal['id'] = (int) $userDetails['ID'];
-$retVal['points'] = (int) $userDetails['RAPoints'];
-$retVal['softcorePoints'] = (int) $userDetails['RASoftcorePoints'];
-
-return response()->json($retVal);
+return response()->json(array_map('intval', [
+    'id' => $userDetails['ID'],
+    'points' => $userDetails['RAPoints'],
+    'softcorePoints' => $userDetails['RASoftcorePoints']
+]));
