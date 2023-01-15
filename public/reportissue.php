@@ -8,7 +8,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     return redirect(route('achievement.show', $achievementID));
 }
 
-$dataOut = null;
+$dataOut = [];
 if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
     abort(404);
 }
@@ -52,9 +52,7 @@ function displayCore() {
 <div id="mainpage">
     <div id="fullcontainer">
         <div class="navpath">
-            <a href="/gameList.php">All Games</a>
-            &raquo; <a href="/gameList.php?c=<?= $consoleName ?>"><?= $consoleName ?></a>
-            &raquo; <a href="/game/<?= $gameID ?>"><?= renderGameTitle($gameTitle) ?></a>
+            <?= renderGameBreadcrumb($dataOut) ?>
             &raquo; <a href="/achievement/<?= $achievementID ?>"><?= $achievementTitle ?></a>
             &raquo; <b>Issue Report</b>
         </div>
