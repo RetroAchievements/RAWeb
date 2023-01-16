@@ -166,11 +166,9 @@ RenderContentStart($pageTitle);
         echo "<div id='achievement'>";
 
         echo "<div class='navpath'>";
-        echo "<a href='/gameList.php'>All Games</a>";
-        echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-        echo " &raquo; <a href='/game/$gameID'>" . renderGameTitle($gameTitle) . "</a>";
-        echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
-        echo "</div>"; // navpath
+        echo renderGameBreadcrumb($dataOut);
+        echo " &raquo; <b>$achievementTitle</b>";
+        echo "</div>";
 
         echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
 
