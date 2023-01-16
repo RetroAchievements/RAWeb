@@ -13,7 +13,7 @@ if (empty($achievementID)) {
     abort(404);
 }
 
-$dataOut = null;
+$dataOut = [];
 getAchievementMetadata($achievementID, $dataOut);
 if (empty($dataOut)) {
     abort(404);
@@ -167,7 +167,7 @@ RenderContentStart($pageTitle);
 
         echo "<div class='navpath'>";
         echo renderGameBreadcrumb($dataOut);
-        echo " &raquo; <b>$achievementTitle</b>";
+        echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
         echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
