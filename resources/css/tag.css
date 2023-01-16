@@ -30,3 +30,17 @@
   border-left-color: rgba(255, 255, 255, 0.5);
   border-right-width: 0;
 }
+
+.tag.missable {
+  opacity: .8;
+}
+
+.tag.missable abbr {
+  padding: .14em .15em .16em;
+  font-weight: normal;
+  color: currentColor;
+}
+
+.tag.missable abbr b, a:hover .tag.missable abbr {
+  color: var(--bg-color);
+}
