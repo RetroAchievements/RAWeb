@@ -64,12 +64,11 @@ function renderAchievementTitle(string $title, bool $tags = true): string
     $span = '';
     if ($tags) {
         $span = "<span class='tag missable' title='Missable'>"
-            . "<div>[<span>m</span>]</div>"
+            . "<abbr>[<b>m</b>]</abbr>"
             . "</span>";
     }
-    $html = trim(str_replace('[m]', $span, $title));
 
-    return $html;
+    return trim(str_replace('[m]', $span, $title));
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null): string
