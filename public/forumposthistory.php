@@ -83,14 +83,14 @@ RenderContentStart("Forum Recent Posts");
                 echo "<span class='smalltext whitespace-nowrap'>";
 
                 if ($count_1d > 1) {
-                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_1d#$commentID_1d'>$count_1d posts in last 24 hours";
+                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_1d#$commentID_1d'>$count_1d posts in the last 24 hours";
                 }
 
                 if ($count_7d > $count_1d) {
                     if ($count_1d > 1) {
                         echo "<div class='mt-1'/>";
                     }
-                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_7d#$commentID_7d'>$count_7d posts in last 7 days";
+                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_7d#$commentID_7d'>$count_7d posts in the last 7 days";
                     if ($count_1d > 1) {
                         echo "</div>";
                     }
