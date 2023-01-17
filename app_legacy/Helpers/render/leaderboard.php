@@ -8,7 +8,7 @@ function RenderGameLeaderboardsComponent($lbData): void
 {
     $numLBs = is_countable($lbData) ? count($lbData) : 0;
     echo "<div class='component'>";
-    echo "<h3>Leaderboards</h3>";
+    echo "<h2 class='like-h3'>Leaderboards</h2>";
 
     if ($numLBs == 0) {
         echo "No leaderboards found: why not suggest some for this game? ";
@@ -226,7 +226,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
     $numTopAchievers = count($gameTopAchievers);
     $masteryThreshold = 10; // Number of masters needed for the "Latest Masters" tab to be selected by default
 
-    echo "<h3>High Scores</h3>";
+    echo "<h2 class='like-h3'>High Scores</h2>";
     echo "<div class='tab'>";
     echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='tabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
     echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='tabClick(event, \"highscores\", \"scores\")'>High Scores</button>";

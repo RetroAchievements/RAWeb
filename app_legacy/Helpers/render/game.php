@@ -133,7 +133,7 @@ function RenderGameAlts($gameAlts, $headerText = null): void
 {
     echo "<div class='component gamealts'>";
     if ($headerText) {
-        echo "<h3>$headerText</h3>";
+        echo "<h2 class='like-h3'>$headerText</h2>";
     }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
