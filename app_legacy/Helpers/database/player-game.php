@@ -331,9 +331,8 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE gd.ID = $gameID
+        WHERE ach.GameID = $gameID
         $hardcoreCond $achievementStateCond
         AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
     ";
