@@ -80,9 +80,7 @@ function UnlinkHash(user, gameID, hash, elem) {
 <div id="mainpage">
     <div id="fullcontainer">
         <div class='navpath'>
-            <a href='/gameList.php'>All Games</a>
-            &raquo; <a href='/gameList.php?c=<?= $consoleID ?>'><?= $consoleName ?></a>
-            &raquo; <a href='/game/<?= $gameID ?>'><?= renderGameTitle($gameTitle) ?></a>
+            <?= renderGameBreadcrumb($gameData) ?>
             &raquo; <b>Manage Hashes</b>
         </div>
 

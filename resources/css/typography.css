@@ -32,6 +32,10 @@ pre, code, .code {
   white-space: pre-wrap;
 }
 
+abbr {
+  cursor: help;
+}
+
 .text-overflow-wrap {
   overflow-wrap: anywhere;
   word-break: normal;
