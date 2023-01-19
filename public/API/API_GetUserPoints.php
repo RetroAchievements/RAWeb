@@ -14,8 +14,7 @@ getAccountDetails($user, $userDetails);
 
 if (!$userDetails) {
     return response()->json([
-        'id' => null,
-        'user' => $user,
+        'User' => $user,
     ], 404);
 }
 
