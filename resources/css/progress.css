@@ -1,3 +1,9 @@
+.progress {
+  margin: .5em .2em;
+  min-width: 12em;
+  max-width: 12em;
+}
+
 .progressbar {
   overflow: hidden;
   height: 6px;

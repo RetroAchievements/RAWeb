@@ -1249,8 +1249,8 @@ sanitize_outputs(
                             }
                             echo "</div>";
 
-                            echo "<div class='my-2'>";
-                            echo "<div class='progressbar w-40'>";
+                            echo "<div class='progress'>";
+                            echo "<div class='progressbar'>";
                             echo "<div class='completion' style='width:$pctAwardedCasual%'>";
                             echo "<div class='completion-hardcore' style='width:$pctAwardedHardcore%'></div>";
                             echo "</div>";
