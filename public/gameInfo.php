@@ -1267,7 +1267,7 @@ sanitize_outputs(
                             echo "</div>";
 
                             echo "</div>";
-                            
+
                             echo "</div>";
 
                             echo "</div>";
