@@ -1225,15 +1225,16 @@ sanitize_outputs(
                                     $pctAwardedHardcoreProportion = $wonByHardcore / $wonBy;
                                 }
 
-                                $pctAwardedCasual = sprintf("%01.2f", $pctAwardedCasual * 100.0);
-                                $pctAwardedHardcore = sprintf("%01.2f", $pctAwardedHardcoreProportion * 100.0);
+                                $pctAwardedCasual = sprintf("%01.1f", $pctAwardedCasual * 100.0);
+                                $pctAwardedHardcore = sprintf("%01.1f", $pctAwardedHardcoreProportion * 100.0);
 
                                 $pctComplete = sprintf(
-                                    "%01.2f",
+                                    "%01.1f",
                                     ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual
                                 );
                             }
                             echo "<div class='achievementdata'>";
+
                             echo "<div class='mb-1 lg:mt-1'>";
                             echo achievementAvatar(
                                 $nextAch,
@@ -1256,14 +1257,10 @@ sanitize_outputs(
                             echo "</div>";
                             echo "</div>";
                             echo "<div class='progressbar-label mt-1'>";
-                            if ($wonByHardcore > 0) {
-                                echo "$wonBy <strong>($wonByHardcore)</strong> of $numDistinctPlayersCasual<br/>($pctAwardedCasual%) players";
-                            } else {
-                                echo "$wonBy of $numDistinctPlayersCasual<br>($pctAwardedCasual%) players";
-                            }
+                            echo "<strong>$wonByHardcore</strong> of $numDistinctPlayersCasual players <small>($pctAwardedCasual%)</small>";
                             echo "</div>";
                             echo "</div>";
-
+                            
                             echo "</div>";
 
                             echo "</div>";
