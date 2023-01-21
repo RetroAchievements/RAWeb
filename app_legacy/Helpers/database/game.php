@@ -485,7 +485,7 @@ function getGameIDFromTitle($gameTitleIn, $consoleID): int
               FROM GameData AS gd
               WHERE gd.Title='$gameTitle' AND gd.ConsoleID='$consoleID'";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = s_mysql_sanitized_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
         settype($retVal['ID'], 'integer');
 
@@ -817,13 +817,18 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
     return $retVal;
 }
 
+/**
+ * Slash-escape special title characters (`\`, `'` and `/`)
+ */
 function sanitizeTitle(string $titleIn): string
 {
-    // Remove single quotes, replace with double quotes:
-    $title = str_replace("'", "''", $titleIn);
-    $title = str_replace("/", "-", $title);
+    $title = $titleIn;
+    $tokens = ["\\", "'", "/"];
+    foreach ($tokens as $token) {
+        $title = str_replace($token, "\\$token", $title);
+    }
 
-    return str_replace("\\", "-", $title);
+    return $title;
 }
 
 function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
