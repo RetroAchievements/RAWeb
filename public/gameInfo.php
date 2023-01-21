@@ -1232,7 +1232,7 @@ sanitize_outputs(
                             }
                             echo "</div>";
 
-                            [$pctAwarded, $pctAwardedHardcore, $pctAwardedCasual] = [0, 0, 0];
+                            [$pctAwarded, $pctAwardedHardcore, $pctAwardedHardcoreProportion, $pctAwardedCasual] = [0, 0, 0, 0];
                             if ($numDistinctPlayersCasual) {
                                 $pctAwarded = $wonBy / $numDistinctPlayersCasual;
                                 $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayersCasual;
