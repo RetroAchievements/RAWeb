@@ -1199,7 +1199,7 @@ sanitize_outputs(
                             echo "<tr>";
                             echo "<td>";
 
-                            echo "<div class='flex justify-between gap-3 items-start'>";
+                            echo "<div class='flex items-center gap-4 p-2'>";
 
                             echo "<div>";
 
@@ -1219,10 +1219,10 @@ sanitize_outputs(
                             );
                             echo "</div>";
 
-                            echo "<div class='md:flex justify-between items-center gap-3 grow'>";
+                            echo "<div class='md:flex grow justify-between items-center gap-4'>";
 
-                            echo "<div class='achievementdata'>";
-                            echo "<div class='mb-1 lg:mt-1'>";
+                            echo "<div class='flex flex-col grow gap-2'>";
+                            echo "<div>";
                             echo achievementAvatar(
                                 $nextAch,
                                 label: true,
@@ -1231,7 +1231,7 @@ sanitize_outputs(
                             );
                             echo " <span class='TrueRatio'>($achTrueRatio)</span>";
                             echo "</div>";
-                            echo "<div class='mb-2'>$achDesc</div>";
+                            echo "<div>$achDesc</div>";
                             if ($achieved) {
                                 echo "<div class='date smalltext italic'>Unlocked on $dateAch</div>";
                             }
