@@ -1214,7 +1214,7 @@ sanitize_outputs(
                             );
                             echo "</div>";
 
-                            echo "<div class='md:flex justify-between items-start gap-3 grow'>";
+                            echo "<div class='md:flex justify-between items-center gap-3 grow'>";
 
                             echo "<div class='achievementdata'>";
                             echo "<div class='mb-1 lg:mt-1'>";
