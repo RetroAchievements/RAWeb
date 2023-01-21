@@ -1203,7 +1203,12 @@ sanitize_outputs(
 
                             echo "<div>";
 
-                            $nextAch['Unlock'] = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>HARDCORE' : null;
+                            $nextAch['Unlock'] = null;
+                            if ($earnedOnHardcore) {
+                                $dataEarned = getNiceDate(strtotime($nextAch['DateEarnedHardcore']));
+                                $nextAch['Unlock'] = "<br>Unlocked: $dataEarned<br>HARDCORE";
+                            }
+
                             echo achievementAvatar(
                                 $nextAch,
                                 label: false,
@@ -1228,7 +1233,7 @@ sanitize_outputs(
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
                             if ($achieved) {
-                                echo "<div class='date smalltext'>Unlocked $dateAch</div>";
+                                echo "<div class='date smalltext italic'>Unlocked on $dateAch</div>";
                             }
                             echo "</div>";
 
