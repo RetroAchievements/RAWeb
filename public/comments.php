@@ -26,12 +26,10 @@ switch ($articleTypeID)
         if ($gameData === null) {
             abort(404);
         }
-        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
         $navPath =
         [
-            'All Games' => '/gameList.php',
-            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID'],
+            '_GamePrefix' => renderGameBreadcrumb($gameData),
         ];
         break;
 
@@ -43,13 +41,11 @@ switch ($articleTypeID)
         if ($gameData === null) {
             abort(404);
         }
-        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
         $commentsLabel = "Hash Comments";
         $navPath =
         [
-            'All Games' => '/gameList.php',
-            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID'],
+            '_GamePrefix' => renderGameBreadcrumb($gameData),
             'Manage Hashes' => '/managehashes.php?g=' . $gameData['ID'],
         ];
         break;
@@ -62,13 +58,11 @@ switch ($articleTypeID)
         if ($gameData === null) {
             abort(404);
         }
-        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
         $commentsLabel = "Modifications";
         $navPath =
         [
-            'All Games' => '/gameList.php',
-            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID'],
+            '_GamePrefix' => renderGameBreadcrumb($gameData),
         ];
         break;
 
@@ -80,13 +74,11 @@ switch ($articleTypeID)
         if ($gameData === null) {
             abort(404);
         }
-        $pageTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+        $pageTitle = renderGameTitle($gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')');
         $commentsLabel = "Claim Comments";
         $navPath =
         [
-            'All Games' => '/gameList.php',
-            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID'],
+            '_GamePrefix' => renderGameBreadcrumb($gameData),
             'Manage Claims' => '/manageclaims.php?g=' . $gameData['ID'],
         ];
         break;
@@ -102,9 +94,7 @@ switch ($articleTypeID)
         }
         $navPath =
         [
-            'All Games' => '/gameList.php',
-            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID'],
+            '_GamePrefix' => renderGameBreadcrumb($gameData),
             $pageTitle => '/achievement/' . $articleID,
         ];
         break;
@@ -120,9 +110,7 @@ switch ($articleTypeID)
         }
         $navPath =
         [
-            'All Games' => '/gameList.php',
-            $gameData['ConsoleName'] => '/gameList.php?c=' . $gameData['ConsoleID'],
-            $gameData['Title'] => '/game/' . $gameData['ID'],
+            '_GamePrefix' => renderGameBreadcrumb($gameData),
             $pageTitle => '/leaderboard/' . $articleID,
         ];
         break;
@@ -178,6 +166,11 @@ RenderContentStart("$commentsLabel: $pageTitle");
     <div id="fullcontainer">
         <?php
             echo "<div class='navpath'>";
+            if (array_key_first($navPath) === '_GamePrefix') {
+                // Render game breadcrumb prefix
+                echo $navPath['_GamePrefix'] . " &raquo; ";
+                array_shift($navPath);
+            }
             foreach ($navPath as $text => $link) {
                 echo "<a href='$link'>$text</a> &raquo; ";
             }
