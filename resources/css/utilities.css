@@ -34,3 +34,8 @@
 span.smalldate {
   display: inline-block;
 }
+
+[title].tooltip-hint {
+  cursor: help;
+  border-bottom: 1px dotted #888a;
+}
