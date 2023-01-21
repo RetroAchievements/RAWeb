@@ -1091,7 +1091,9 @@ sanitize_outputs(
                         }
                         echo "<div>Expires on: $claimExpiration</div>";
                     } else {
-                        echo "No Active Claims";
+                        if ($numAchievements < 1) {
+                            echo "No Active Claims";
+                        }
                     }
                     echo "</div>";
                 }
