@@ -91,7 +91,7 @@ function renderGameTitle(?string $title, bool $tags = true): string
  * Format: `All Games » (console) » (game title)`.
  * If given data is for a subset, then `» Subset - (name)` is also added.
  */
-function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
+function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true): string
 {
     [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
 
