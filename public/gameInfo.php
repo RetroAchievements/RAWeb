@@ -1255,10 +1255,15 @@ sanitize_outputs(
                             echo "<div class='completion-hardcore' style='width:$pctAwardedHardcoreProportion%'></div>";
                             echo "</div>";
                             echo "</div>";
+
+                            $titleWonByCasual = ($wonByCasual > 0) ? " title='+ $wonByCasual softcore unlocks'" : "";
+                            $titlePctAwardedCasual = ($wonByCasual > 0) ? " title='+ $pctAwardedCasual% softcore unlocks'" : "";
                             echo "<div class='progressbar-label mt-1'>";
-                            echo "<strong title='+ $wonByCasual softcore unlocks'>$wonByHardcore</strong> of $numDistinctPlayersCasual players "
-                                . "<small title='+ $pctAwardedCasual% softcore unlocks'>($pctAwardedHardcore%)</small>";
+                            echo "<strong class='hint-tooltip' $titleWonByCasual>$wonByHardcore</strong> "
+                                . "of $numDistinctPlayersCasual players "
+                                . "<small class='hint-tooltip' $titlePctAwardedCasual>($pctAwardedHardcore%)</small>";
                             echo "</div>";
+
                             echo "</div>";
                             
                             echo "</div>";
