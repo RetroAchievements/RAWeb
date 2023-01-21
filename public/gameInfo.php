@@ -1183,6 +1183,7 @@ sanitize_outputs(
 
                             $wonBy = $nextAch['NumAwarded'];
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
+                            $wonByCasual = $wonBy - $wonByHardcore;
                             if ($numDistinctPlayersCasual == 0) {
                                 $completionPctCasual = "0";
                                 $completionPctHardcore = "0";
@@ -1214,27 +1215,8 @@ sanitize_outputs(
                             echo "</div>";
 
                             echo "<div class='md:flex justify-between items-start gap-3 grow'>";
-                            $pctAwardedCasual = 0;
-                            $pctAwardedHardcore = 0;
-                            $pctComplete = 0;
-                            if ($numDistinctPlayersCasual) {
-                                $pctAwardedCasual = $wonBy / $numDistinctPlayersCasual;
-                                $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayersCasual;
-                                $pctAwardedHardcoreProportion = 0;
-                                if ($wonByHardcore > 0 && $wonBy > 0) {
-                                    $pctAwardedHardcoreProportion = $wonByHardcore / $wonBy;
-                                }
 
-                                $pctAwardedCasual = sprintf("%01.1f", $pctAwardedCasual * 100.0);
-                                $pctAwardedHardcore = sprintf("%01.1f", $pctAwardedHardcoreProportion * 100.0);
-
-                                $pctComplete = sprintf(
-                                    "%01.1f",
-                                    ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual
-                                );
-                            }
                             echo "<div class='achievementdata'>";
-
                             echo "<div class='mb-1 lg:mt-1'>";
                             echo achievementAvatar(
                                 $nextAch,
@@ -1250,14 +1232,32 @@ sanitize_outputs(
                             }
                             echo "</div>";
 
+                            [$pctAwarded, $pctAwardedHardcore, $pctAwardedCasual] = [0, 0, 0];
+                            if ($numDistinctPlayersCasual) {
+                                $pctAwarded = $wonBy / $numDistinctPlayersCasual;
+                                $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayersCasual;
+                                $pctAwardedHardcoreProportion = ($wonByHardcore > 0 && $wonBy > 0) ?
+                                    ($pctAwardedHardcoreProportion = $wonByHardcore / $wonBy) : 0;
+                                $pctAwardedCasual = $pctAwarded - $pctAwardedHardcore;
+
+                                $stringify = function (&$pct) {
+                                    $pct = sprintf("%01.1f", $pct * 100.0);
+                                };
+                                $stringify($pctAwardedHardcoreProportion);
+                                $stringify($pctAwardedCasual);
+                                $stringify($pctAwardedHardcore);
+                                $stringify($pctAwarded);
+                            }
+
                             echo "<div class='progress'>";
                             echo "<div class='progressbar'>";
-                            echo "<div class='completion' style='width:$pctAwardedCasual%'>";
-                            echo "<div class='completion-hardcore' style='width:$pctAwardedHardcore%'></div>";
+                            echo "<div class='completion' style='width:$pctAwarded%'>";
+                            echo "<div class='completion-hardcore' style='width:$pctAwardedHardcoreProportion%'></div>";
                             echo "</div>";
                             echo "</div>";
                             echo "<div class='progressbar-label mt-1'>";
-                            echo "<strong>$wonByHardcore</strong> of $numDistinctPlayersCasual players <small>($pctAwardedCasual%)</small>";
+                            echo "<strong title='+ $wonByCasual softcore unlocks'>$wonByHardcore</strong> of $numDistinctPlayersCasual players "
+                                . "<small title='+ $pctAwardedCasual% softcore unlocks'>($pctAwardedHardcore%)</small>";
                             echo "</div>";
                             echo "</div>";
                             
