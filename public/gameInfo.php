@@ -949,49 +949,6 @@ sanitize_outputs(
             }
 
             if ($isFullyFeaturedGame) {
-                if ($flags == $unofficialFlag) {
-                    echo "<h2 class='like-h4'><b>Unofficial</b> Achievements</h2>";
-                    echo "<a href='/game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
-                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
-                } else {
-                    echo "<h2 class='like-h4'>Achievements</h2>";
-                    echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
-                }
-
-                if (isset($user) && $numAchievements > 0) {
-                    echo "<div class='float-right'>";
-                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
-                    echo "</div>";
-                }
-
-                if ($numAchievements > 0) {
-                    echo "<b>Authors:</b> ";
-                    $numItems = count($authorInfo);
-                    $i = 0;
-                    foreach ($authorInfo as $author => $achievementCount) {
-                        echo userAvatar($author, icon: false);
-                        echo " (" . $achievementCount . ")";
-                        if (++$i !== $numItems) {
-                            echo ', ';
-                        }
-                    }
-                    echo "<br>";
-                    echo "<br>";
-                }
-
-                if ($user !== null && $numAchievements > 0) {
-                    if ($numEarnedHardcore > 0) {
-                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>$totalEarnedHardcore</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points.<br>";
-                        if ($numEarnedCasual > 0) { // Some Hardcore earns
-                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
-                        }
-                    } elseif ($numEarnedCasual > 0) {
-                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
-                    } else {
-                        echo "You have not earned any achievements for this game.<br/>";
-                    }
-                }
-
                 $renderRatingControl = function ($label, $containername, $labelname, $ratingData) use ($minimumNumberOfRatingsToDisplay) {
                     echo "<div>";
 
@@ -1061,17 +1018,45 @@ sanitize_outputs(
                     echo "</div>";
                 };
 
+                echo "<div class='md:float-right mb-4 md:mb-0'>";
+
+                // Only show set request option for logged in users, games without achievements, and core achievement page
+                if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
+                    echo "<div>";
+                    echo "<h2 class='like-h4'>Set Requests</h2>";
+                    echo "<div class='gameRequestsLabel'></div>";
+                    echo "<div><button type='button' class='btn setRequestLabel hidden'>Request Set</button></div>";
+                    echo "<div class='userRequestsLabel'></div>";
+                    echo "</div>";
+                }
+
                 if ($user !== null && $numAchievements > 0) {
-                    if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
-                        echo "<div class='devbox'>";
-                        echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
-                        echo "<div id='resetboxcontent' style='display: none'>";
-                        echo "<button class='btn btn-danger' type='button' onclick='ResetProgress()'>Reset your progress for this game</button>";
-                        echo "</div></div>";
+                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
+                    echo "<br class='clear-both'>";
+                }
+
+                echo "</div>";
+
+                if ($flags == $unofficialFlag) {
+                    echo "<h2 class='like-h4'><b>Unofficial</b> Achievements</h2>";
+                    echo "<a href='/game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
+                } else {
+                    echo "<h2 class='like-h4'>Achievements</h2>";
+                }
+
+                if ($numAchievements > 0) {
+                    echo "<b>Authors:</b> ";
+                    $numItems = count($authorInfo);
+                    $i = 0;
+                    foreach ($authorInfo as $author => $achievementCount) {
+                        echo userAvatar($author, icon: false);
+                        echo " (" . $achievementCount . ")";
+                        if (++$i !== $numItems) {
+                            echo ', ';
+                        }
                     }
                 }
 
-                echo "<div class='lg:flex justify-between gap-5 mb-3'>";
                 // Display claim information
                 if ($user !== null && $flags == $officialFlag && !$isEventGame) {
                     echo "<div>";
@@ -1094,24 +1079,51 @@ sanitize_outputs(
                         if ($numAchievements < 1) {
                             echo "No Active Claims";
                         }
+                        echo "<br>";
                     }
                     echo "</div>";
                 }
 
-                // Only show set request option for logged in users, games without achievements, and core achievement page
-                if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
-                    echo "<div>";
-                    echo "<div class='gameRequestsLabel'></div>";
-                    echo "<div><button type='button' class='btn setRequestLabel hidden'>Request Set</button></div>";
-                    echo "<div class='userRequestsLabel'></div>";
+                echo "<br>";
+                echo "<br>";
+
+                if (isset($user) && $numAchievements > 0) {
+                    echo "<div class='md:float-right'>";
+                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
                     echo "</div>";
                 }
 
-                if ($user !== null && $numAchievements > 0) {
-                    $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
+                if ($flags == $unofficialFlag) {
+                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                } else {
+                    echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
                 }
 
-                echo "</div>";
+                if ($user !== null && $numAchievements > 0) {
+                    if ($numEarnedHardcore > 0) {
+                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>$totalEarnedHardcore</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points.<br>";
+                        if ($numEarnedCasual > 0) { // Some Hardcore earns
+                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                        }
+                    } elseif ($numEarnedCasual > 0) {
+                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                    } else {
+                        echo "You have not earned any achievements for this game.<br/>";
+                    }
+                }
+
+                if ($user !== null && $numAchievements > 0) {
+                    if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
+                        echo "<div class='devbox mb-4'>";
+                        echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
+                        echo "<div id='resetboxcontent' style='display: none'>";
+                        echo "<button class='btn btn-danger' type='button' onclick='ResetProgress()'>Reset your progress for this game</button>";
+                        echo "</div></div>";
+                    }
+                }
+
+                echo "<br>";
+                echo "<br>";
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
