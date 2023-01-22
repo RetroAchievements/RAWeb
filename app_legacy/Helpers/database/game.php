@@ -475,10 +475,9 @@ function getGamesListDataNamesOnly($consoleID, $officialFlag = false): array
     return $retval;
 }
 
-function getGameIDFromTitle($gameTitleIn, $consoleID): int
+function getGameIDFromTitle($gameTitle, $consoleID): int
 {
-    sanitize_sql_inputs($consoleID);
-    $gameTitle = sanitizeTitle($gameTitleIn);
+    sanitize_sql_inputs($gameTitle, $consoleID);
     settype($consoleID, 'integer');
 
     $query = "SELECT gd.ID
@@ -690,11 +689,10 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     return $retval;
 }
 
-function createNewGame($titleIn, $consoleID): ?array
+function createNewGame($title, $consoleID): ?array
 {
-    sanitize_sql_inputs($consoleID);
+    sanitize_sql_inputs($title, $consoleID);
     settype($consoleID, 'integer');
-    $title = sanitizeTitle($titleIn);
     // $title = str_replace( "--", "-", $title );    // subtle non-comment breaker
 
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints)
