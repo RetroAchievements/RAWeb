@@ -21,36 +21,44 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
               WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore;
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $minToCompleteGame = 6;
+    if ($dbResult === false) {
+        return [];
+    }
 
-        $data = mysqli_fetch_assoc($dbResult);
+    $data = mysqli_fetch_assoc($dbResult);
 
-        if ($postMastery && $data['NumAch'] >= $minToCompleteGame) {
-            if ($isHardcore && $data['NumAwardedHC'] == $data['NumAch']) {
-                // all hardcore achievements unlocked, award mastery
-                if (!RecentlyPostedCompletionActivity($user, $gameID, 1)) {
-                    postActivity($user, ActivityType::CompleteGame, $gameID, 1);
-                }
-            } elseif ($data['NumAwardedSC'] == $data['NumAch']) {
-                // if unlocking a hardcore achievement, don't update the completion date
-                // if the user already has a completion badge
-                if (!$isHardcore || !HasSiteAward($user, AwardType::Mastery, $gameID, 0)) {
-                    // all non-hardcore achievements unlocked, award completion
-                    if (!RecentlyPostedCompletionActivity($user, $gameID, 0)) {
-                        postActivity($user, ActivityType::CompleteGame, $gameID, 0);
-                    }
-                }
+    $minToCompleteGame = 6;
+    if ($postMastery && $data['NumAch'] >= $minToCompleteGame) {
+        $awardBadge = null;
+        if ($isHardcore && $data['NumAwardedHC'] == $data['NumAch']) {
+            // all hardcore achievements unlocked, award mastery
+            $awardBadge = UnlockMode::Hardcore;
+        } elseif ($data['NumAwardedSC'] == $data['NumAch']) {
+            if ($isHardcore && HasSiteAward($user, AwardType::Mastery, $gameID, UnlockMode::Softcore)) {
+                // when unlocking a hardcore achievement, don't update the completion
+                // date if the user already has a completion badge
+            } else {
+                $awardBadge = UnlockMode::Softcore;
             }
         }
 
-        return [
-            'NumAch' => $data['NumAch'],
-            'NumAwarded' => $isHardcore ? $data['NumAwardedHC'] : $data['NumAwardedSC'],
-        ];
+        if ($awardBadge !== null) {
+            if (!HasSiteAward($user, AwardType::Mastery, $gameID, $awardBadge)) {
+                AddSiteAward($user, AwardType::Mastery, $gameID, $awardBadge);
+            }
+
+            if (!RecentlyPostedCompletionActivity($user, $gameID, $awardBadge)) {
+                postActivity($user, ActivityType::CompleteGame, $gameID, $awardBadge);
+            }
+
+            expireGameTopAchievers((int) $gameID);
+        }
     }
 
-    return [];
+    return [
+        'NumAch' => $data['NumAch'],
+        'NumAwarded' => $isHardcore ? $data['NumAwardedHC'] : $data['NumAwardedSC'],
+    ];
 }
 
 function getGameRankAndScore($gameID, $requestedBy): ?array
@@ -323,9 +331,8 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE gd.ID = $gameID
+        WHERE ach.GameID = $gameID
         $hardcoreCond $achievementStateCond
         AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
     ";

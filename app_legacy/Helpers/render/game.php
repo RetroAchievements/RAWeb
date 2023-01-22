@@ -56,25 +56,87 @@ function gameAvatar(
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(?string $title): string
+function renderGameTitle(?string $title, bool $tags = true): string
 {
+    // Update $html by appending text
+    $updateHtml = function (&$html, $text, $append) {
+        $html = trim(str_replace($text, '', $html) . $append);
+    };
+
     $html = (string) $title;
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         $category = $matches[1][$i];
         $span = "<span class='tag'><span>$category</span></span>";
-        $html = trim(str_replace($match, '', $html) . ' ' . $span);
+        $updateHtml($html, $match, $tags ? " $span" : '');
     }
-    preg_match_all('/\[(Subset - (.+))\]/', $title, $matches);
-    foreach ($matches[0] as $i => $match) {
-        $subset = $matches[2][$i];
-        $span = "<span class='tag'>";
-        $span .= "<span class='tag-label'>Subset</span>";
-        $span .= "<span class='tag-arrow'></span>";
-        $span .= "<span>$subset</span>";
-        $span .= "</span>";
-        $html = trim(str_replace($match, '', $html) . ' ' . $span);
+    $matches = [];
+    if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
+        $subset = $matches[1];
+        $span = "<span class='tag'>"
+            . "<span class='tag-label'>Subset</span>"
+            . "<span class='tag-arrow'></span>"
+            . "<span>$subset</span>"
+            . "</span>";
+        $updateHtml($html, $matches[0], $tags ? " $span" : '');
+    }
+
+    return $html;
+}
+
+/**
+ * Render game breadcrumb prefix, with optional link on last crumb
+ *
+ * Format: `All Games » (console) » (game title)`.
+ * If given data is for a subset, then `» Subset - (name)` is also added.
+ */
+function renderGameBreadcrumb(array $data, bool $addLinkToLastCrumb = true)
+{
+    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
+
+    // Return next crumb (i.e `» text`), either as a link or not
+    $nextCrumb = function ($text, $href = ''): string {
+        return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
+    };
+
+    // Retrieve separate IDs and titles for main game and subset (if any)
+    $getSplitData = function ($data) use ($consoleID): array {
+        $gameID = $data['GameID'] ?? $data['ID'];
+        $gameTitle = $data['GameTitle'] ?? $data['Title'];
+
+        // Match and possibly split main title and subset
+        [$mainID, $mainTitle] = [$gameID, $gameTitle];
+        $matches = [];
+        if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
+            [$mainTitle, $subset] = [trim($matches[1]), $matches[2]];
+            $mainID = getGameIDFromTitle($mainTitle, $consoleID);
+            $subsetID = $gameID;
+            $renderedSubset = renderGameTitle($subset);
+        }
+
+        $renderedMain = renderGameTitle($mainTitle, tags: false);
+        if ($renderedMain !== $mainTitle) {
+            // In the rare case of a same-console derived game sharing identical
+            // title with a base one, include category to solve ambiguity
+            $baseTitle = trim(substr($mainTitle, strrpos($mainTitle, '~') + 1));
+            $baseID = getGameIDFromTitle($baseTitle, $consoleID);
+            if ($baseID) {
+                $renderedMain = renderGameTitle($mainTitle);
+            }
+        }
+
+        return [$mainID, $renderedMain, $subsetID ?? null, $renderedSubset ?? null];
+    };
+
+    $html = "<a href='/gameList.php'>All Games</a>"
+        . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
+
+    [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($data);
+    $baseHref = ($addLinkToLastCrumb or $subsetID) ? "/game/$mainID" : '';
+    $html .= $nextCrumb($renderedMain, $baseHref);
+    if ($subsetID) {
+        $html .= $nextCrumb($renderedSubset, $addLinkToLastCrumb ? "/game/$subsetID" : '');
     }
 
     return $html;
