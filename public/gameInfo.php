@@ -1199,7 +1199,7 @@ sanitize_outputs(
                             echo "<tr>";
                             echo "<td>";
 
-                            echo "<div class='flex items-center gap-4 p-2'>";
+                            echo "<div class='flex items-center gap-3.5 p-2'>";
 
                             echo "<div>";
 
