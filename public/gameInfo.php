@@ -1368,9 +1368,10 @@ sanitize_outputs(
                 echo "<h2 class='like-h3'>Achievement Distribution</h2>";
                 echo "<div id='chart_distribution'></div>";
                 echo "</div>";
+
+                RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             }
 
-            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             RenderGameLeaderboardsComponent($lbData);
             ?>
         </div>
