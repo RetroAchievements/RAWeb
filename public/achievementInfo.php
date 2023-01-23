@@ -175,7 +175,7 @@ RenderContentStart($pageTitle);
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
 
-        echo "<table nicebox'><tbody>";
+        echo "<table class='nicebox'><tbody>";
 
         $descAttr = attributeEscape($desc);
         echo "<tr>";
