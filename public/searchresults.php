@@ -65,8 +65,8 @@ RenderContentStart("Search");
             if ($resultsCount == 0) {
                 echo "No results found!";
             } else {
-                echo "<table><tbody>";
-                echo "<tr>";
+                echo "<table class='table-highlight'><tbody>";
+                echo "<tr class='do-not-highlight'>";
                 echo "<th>Type</th>";
                 echo "<th colspan='2'>Match</th>";
                 echo "</tr>";

@@ -15,12 +15,12 @@ tbody tr:nth-child(odd) {
   background-color: rgba(80, 80, 80, .09);
 }
 
-tbody tr:hover {
+table.table-highlight tr:not(.do-not-highlight):hover {
   outline-color: rgba(128, 128, 128, .3);
   background-color: rgba(128, 128, 128, .1);
 }
 
-[data-scheme="light"] tbody tr:hover {
+[data-scheme="light"] table.table-highlight tr:not(.do-not-highlight):hover {
   outline-color: rgba(128, 128, 128, .4);
   background-color: rgba(128, 128, 128, .22);
 }

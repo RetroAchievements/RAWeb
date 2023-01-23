@@ -175,7 +175,7 @@ RenderContentStart($pageTitle);
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
 
-        echo "<table class='nicebox'><tbody>";
+        echo "<table nicebox'><tbody>";
 
         $descAttr = attributeEscape($desc);
         echo "<tr>";
@@ -369,8 +369,8 @@ RenderContentStart($pageTitle);
         if (empty($winnerInfo)) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {
-            echo "<table><tbody>";
-            echo "<tr><th></th><th>User</th><th>Mode</th><th>Unlocked</th></tr>";
+            echo "<table class='table-highlight'><tbody>";
+            echo "<tr class='do-not-highlight'><th></th><th>User</th><th>Mode</th><th>Unlocked</th></tr>";
             $iter = 0;
             foreach ($winnerInfo as $userObject) {
                 $userWinner = $userObject['User'];

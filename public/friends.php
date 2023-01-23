@@ -31,7 +31,7 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
     }
 
     echo "<br/><h2>$header</h2>";
-    echo "<table><tbody>";
+    echo "<table class='table-highlight'><tbody>";
     foreach ($users as $user) {
         echo "<tr>";
 
@@ -88,7 +88,7 @@ RenderContentStart("Following");
         if (empty($followingList)) {
             echo "You don't appear to be following anyone yet. Why not <a href='/userList.php'>browse the user pages</a> to find someone to add to follow?<br>";
         } else {
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
             foreach ($followingList as $entry) {
                 echo "<tr>";
 

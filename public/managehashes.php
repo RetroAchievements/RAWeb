@@ -93,8 +93,11 @@ function UnlinkHash(user, gameID, hash, elem) {
 
         echo "<br/><div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div>";
 
-        echo "<div class='table-wrapper'><table id='hashTable'><tbody>";
+        echo "<div class='table-wrapper'><table id='hashTable' class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
         echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>Description</th><th>Labels</th><th>Actions</th><th></th>\n";
+        echo "</tr>";
 
         foreach ($hashes as $hashData) {
             $hash = $hashData['Hash'];

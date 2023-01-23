@@ -2,9 +2,9 @@
 
 function RenderCodeNotes($codeNotes): void
 {
-    echo "<table><tbody>";
+    echo "<table class='table-highlight'><tbody>";
 
-    echo "<tr><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
+    echo "<tr class='do-not-highlight'><th style='font-size:100%;'>Mem</th><th style='font-size:100%;'>Note</th><th style='font-size:100%;'>Author</th></tr>";
 
     foreach ($codeNotes as $nextCodeNote) {
         if (empty(trim($nextCodeNote['Note'])) || $nextCodeNote['Note'] == "''") {

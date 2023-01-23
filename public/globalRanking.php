@@ -141,7 +141,9 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         }
         echo "</div>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
 
         // Only show the rank when we actually know the rank
         if ($sort < 10 && ($sort % 10) != 1) {
@@ -206,6 +208,8 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 $sortFilter('Completed', 8);
             }
         }
+
+        echo "</tr>";
 
         // Create the table rows
         $userListed = false;

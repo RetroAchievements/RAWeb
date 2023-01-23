@@ -104,7 +104,7 @@ function confirmEmailChange(event) {
             <div class='component'>
                 <h2>Settings</h2>
                 <?php
-                echo "<table><colgroup><col style='width: 300px'></colgroup><tbody>";
+                echo "<table class='table-highlight'><colgroup><col style='width: 300px'></colgroup><tbody>";
                 echo "<tr>";
                 echo "<td><label for='motto'>Roles</label></td>";
                 echo "<td>";
@@ -153,13 +153,13 @@ function confirmEmailChange(event) {
             </div>
             <div class='component'>
                 <h3>Notifications</h3>
-                <table>
+                <table class='table-highlight'>
                     <colgroup>
                         <col style='width: 300px'>
                         <col style='width: 100px'>
                     </colgroup>
                     <tbody>
-                    <tr>
+                    <tr class='do-not-highlight'>
                         <th>Event</th>
                         <th>Email Me</th>
                         <th>Site Msg</th>
@@ -212,7 +212,7 @@ function confirmEmailChange(event) {
             if ($permissions >= Permissions::Registered) {
                 echo "<div class='component'>";
                 echo "<h3>Keys</h3>";
-                echo "<table><colgroup><col style='width: 200px'></colgroup><tbody>";
+                echo "<table class='table-highlight'><colgroup><col style='width: 200px'></colgroup><tbody>";
 
                 echo "<tr>";
                 echo "<td class='align-top'>Web API Key</td>";
@@ -247,7 +247,7 @@ function confirmEmailChange(event) {
                 <h3>Change Password</h3>
                 <form method='post' action='/request/auth/update-password.php'>
                     <?= csrf_field() ?>
-                    <table>
+                    <table class='table-highlight'>
                         <colgroup>
                             <col style='width: 200px'>
                         </colgroup>
@@ -264,7 +264,7 @@ function confirmEmailChange(event) {
                             <td><label for="password_confirmation"></label>Confirm Password</td>
                             <td><input type="password" name="password_confirmation" id="password_confirmation"></td>
                         </tr>
-                        <tr>
+                        <tr class='do-not-highlight'>
                             <td></td>
                             <td>
                                 <button class="btn">Change Password</button>
@@ -278,7 +278,7 @@ function confirmEmailChange(event) {
                 <h3>Change Email Address</h3>
                 <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return confirmEmailChange()'>
                     <?= csrf_field() ?>
-                    <table>
+                    <table class='table-highlight'>
                         <colgroup>
                             <col style='width: 200px'>
                         </colgroup>
@@ -301,7 +301,7 @@ function confirmEmailChange(event) {
                                 <input type="email" name="email_confirmation" id="email_confirmation">
                             </td>
                         </tr>
-                        <tr>
+                        <tr class='do-not-highlight'>
                             <td></td>
                             <td>
                                 <button class="btn">Change Email Address</button>
@@ -314,7 +314,7 @@ function confirmEmailChange(event) {
             <div class='component'>
                 <h3>Reset Game Progress</h3>
                 <?php
-                echo "<table><colgroup><col style='width: 200px'></colgroup><tbody>";
+                echo "<table class='table-highlight'><colgroup><col style='width: 200px'></colgroup><tbody>";
                 echo "<tr><td>Game</td>";
                 echo "<td><select style='width: 400px' id='resetgameselector' onchange=\"ResetFetchAwarded()\">";
                 echo "<option value=''>--</option>";
@@ -325,7 +325,7 @@ function confirmEmailChange(event) {
                 // Filled by JS
                 echo "</select></td></tr>";
 
-                echo "<tr><td></td><td><button class='btn btn-danger' type='button' onclick=\"ResetProgressForSelection()\">Reset Progress for Selection</button>";
+                echo "<tr class='do-not-highlight'><td></td><td><button class='btn btn-danger' type='button' onclick=\"ResetProgressForSelection()\">Reset Progress for Selection</button>";
                 echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . asset('assets/images/icon/loading.gif') . "' width='16' height='16' alt='loading icon' />";
                 echo "</td></tr></tbody></table>";
                 ?>

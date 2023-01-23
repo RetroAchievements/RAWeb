@@ -63,10 +63,10 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
         }
         echo "</div>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
         // Headers
-        echo "<tr>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th>User</th>";
         echo "<th>Type</th>";
         echo "<th>Game</th>";

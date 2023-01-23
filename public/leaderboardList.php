@@ -327,7 +327,7 @@ function ReloadLBPageByGame() {
                 }
             }
 
-            echo "<table class='mb-3'><tbody>";
+            echo "<table class='table-highlight mb-3'><tbody>";
             echo "<tr>";
             echo "<td style='width:10%;'>Start:</td>";
             echo "<td>";

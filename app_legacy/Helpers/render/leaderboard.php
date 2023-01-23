@@ -13,7 +13,7 @@ function RenderGameLeaderboardsComponent($lbData): void
     if ($numLBs == 0) {
         echo "No leaderboards found: why not suggest some for this game? ";
     } else {
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
         $count = 0;
         foreach ($lbData as $lbItem) {
@@ -130,10 +130,10 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
             $userListed = false;
             $keepAddingRows = true;
             $dateUnix = strtotime($currentDate);
-            echo "<table class='mb-3'><tbody>";
+            echo "<table class='table-highlight mb-3'><tbody>";
 
             // Create table headers
-            echo "<tr><th>Rank</th><th>User</th><th>Points</th></tr>";
+            echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th>Points</th></tr>";
             foreach ($data as $dataPoint) {
                 // Stop adding rows if we hit the number of items to display
                 // We still want to continue lopping through the list to get the user rank.
@@ -234,8 +234,8 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
 
     // Latest Masters Tab
     echo "<div id='latestmasters' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "block" : "none") . "\">";
-    echo "<table><tbody>";
-    echo "<tr><th>#</th><th>User</th><th>Mastered</th></tr>";
+    echo "<table class='table-highlight'><tbody>";
+    echo "<tr class='do-not-highlight'><th>#</th><th>User</th><th>Mastered</th></tr>";
 
     for ($i = 0; $i < $numLatestMasters; $i++) {
         if (!isset($gameLatestMasters[$i])) {
@@ -273,8 +273,8 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
 
     // High Scores Tab
     echo "<div id='highscores' class='tabcontentscores' style=\"display: " . ($numLatestMasters >= $masteryThreshold ? "none" : "block") . "\">";
-    echo "<table><tbody>";
-    echo "<tr><th>#</th><th>User</th><th>Total points</th></tr>";
+    echo "<table class='table-highlight'><tbody>";
+    echo "<tr class='do-not-highlight'><th>#</th><th>User</th><th>Total points</th></tr>";
 
     for ($i = 0; $i < $numTopAchievers; $i++) {
         if (!isset($gameTopAchievers[$i])) {
