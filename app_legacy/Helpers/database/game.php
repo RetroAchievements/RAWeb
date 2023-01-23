@@ -815,20 +815,6 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
     return $retVal;
 }
 
-/**
- * Slash-escape special title characters (`\`, `'` and `/`)
- */
-function sanitizeTitle(string $titleIn): string
-{
-    $title = $titleIn;
-    $tokens = ["\\", "'", "/"];
-    foreach ($tokens as $token) {
-        $title = str_replace($token, "\\$token", $title);
-    }
-
-    return $title;
-}
-
 function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
 {
     getRichPresencePatch($gameID, $existingData);
