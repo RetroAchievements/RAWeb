@@ -104,7 +104,7 @@ function confirmEmailChange(event) {
             <div class='component'>
                 <h2>Settings</h2>
                 <?php
-                echo "<table class='table-highlight'><colgroup><col style='width: 300px'></colgroup><tbody>";
+                echo "<table><colgroup><col style='width: 300px'></colgroup><tbody>";
                 echo "<tr>";
                 echo "<td><label for='motto'>Roles</label></td>";
                 echo "<td>";

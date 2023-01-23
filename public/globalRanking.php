@@ -281,7 +281,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 $userData = getGlobalRankingData($type, $sort, $date, $user, null, $untracked, 0, 1);
                 if (count($userData) > 0) {
                     // Add dummy row to seperate the user from the rest of the table
-                    echo "<tr><td colspan='7'>&nbsp;</td></tr>";
+                    echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
                     echo "<tr style='outline: thin solid'>";
 
                     // Get the user rank when sorting by points or retro points

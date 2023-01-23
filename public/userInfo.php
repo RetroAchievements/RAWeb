@@ -369,7 +369,7 @@ RenderContentStart($userPage);
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
 
-            echo "<table class='table-highlight'>";
+            echo "<table>";
 
             if ($permissions >= $userMassData['Permissions'] && ($user != $userPage)) {
                 echo "<tr>";
@@ -421,7 +421,7 @@ RenderContentStart($userPage);
             echo HasCertifiedLegendBadge($userPage) ? "Certified Legend" : "Not Yet Legendary";
             echo "</td></tr>";
 
-            echo "<tr class='do-not-highlight'><td class='text-right'>";
+            echo "<tr><td class='text-right'>";
             echo "<form method='post' action='/request/user/recalculate-score.php'>";
             echo csrf_field();
             echo "<input type='hidden' name='user' value='$userPage' />";
@@ -442,7 +442,7 @@ RenderContentStart($userPage);
             echo ($userIsUntracked == 1) ? "Untracked User" : "Tracked User";
             echo "</td></tr>";
 
-            echo "<tr class='do-not-highlight'><td class='text-right'>";
+            echo "<tr><td class='text-right'>";
             echo "<form method='post' action='/request/user/remove-avatar.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this avatar?\")'>";
             echo csrf_field();
             echo "<input type='hidden' name='user' value='$userPage' />";

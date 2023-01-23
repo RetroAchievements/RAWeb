@@ -137,7 +137,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
 
     if ($showTotals) {
         // Totals:
-        echo "<tr>";
+        echo "<tr class='do-not-highlight'>";
         echo "<td></td>";
         echo "<td><b>Totals: $gameCount games</b></td>";
         echo "<td><b>$achievementsTally</b></td>";

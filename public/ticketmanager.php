@@ -386,6 +386,7 @@ RenderContentStart($pageTitle);
 
                 echo "<table class='table-highlight'><tbody>";
 
+                echo "<tr class='do-not-highlight'>";
                 echo "<th>ID</th>";
                 echo "<th>State</th>";
                 echo "<th>Achievement</th>";
@@ -396,6 +397,7 @@ RenderContentStart($pageTitle);
                     echo "<th>Resolver</th>";
                 }
                 echo "<th class='whitespace-nowrap'>Reported At</th>";
+                echo "</tr>";
 
                 $rowCount = 0;
 
@@ -524,9 +526,9 @@ RenderContentStart($pageTitle);
                     $resolvedBy
                 );
 
-                echo "<table class='table-highlight'><tbody>";
+                echo "<table><tbody>";
 
-                echo "<tr class='do-not-highlight'>";
+                echo "<tr>";
                 echo "<th>ID</th>";
                 echo "<th>State</th>";
                 echo "<th>Achievement</th>";
@@ -765,7 +767,7 @@ RenderContentStart($pageTitle);
                     echo "<div class='devbox'>";
                     echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Player unlock history for this game ▼</span>";
                     echo "<div id='unlockhistory' style='display: none'>";
-                    echo "<table>";
+                    echo "<table class='table-highlight'>";
 
                     foreach ($unlockData as $unlockEntry) {
                         echo "<tr><td>";

@@ -197,7 +197,7 @@ function updateAchievementsTypeFlag(typeFlag) {
     } else {
         echo "<h3>Pick a game to modify:</h3>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
         $lastConsole = 'NULL';
         foreach ($gamesList as $gameEntry) {
