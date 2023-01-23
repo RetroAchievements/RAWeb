@@ -27,38 +27,47 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
     $parts = [];
     if ($searchType == SearchType::Game || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT " . SearchType::Game . " AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target, CONCAT(gd.Title, ' (', c.Name, ')') as Title FROM GameData AS gd
+        SELECT " . SearchType::Game . " AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target,
+               CONCAT(gd.Title, ' (', c.Name, ')') AS Title,
+               CASE 
+                   WHEN gd.Title LIKE '$searchQuery%' THEN 0 
+                   WHEN gd.Title LIKE '%~ $searchQuery%' THEN 1
+                   ELSE 2 
+               END AS SecondarySort
+        FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.Title LIKE '%$searchQuery%'
         GROUP BY gd.ID, gd.Title
-        ORDER BY gd.Title)";
+        ORDER BY SecondarySort, gd.Title)";
     }
 
     if ($searchType == SearchType::Achievement || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT " . SearchType::Achievement . " AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target, ach.Title FROM Achievements AS ach
-        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%' ORDER BY ach.Title)";
+        SELECT " . SearchType::Achievement . " AS Type, ach.ID, CONCAT( '/achievement/', ach.ID ) AS Target, ach.Title,
+               CASE WHEN ach.Title LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
+        FROM Achievements AS ach
+        WHERE ach.Flags = 3 AND ach.Title LIKE '%$searchQuery%'
+        ORDER BY SecondarySort, ach.Title)";
     }
 
     if ($searchType == SearchType::User || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT " . SearchType::User . " AS Type,
-        ua.User AS ID,
-        CONCAT( '/user/', ua.User ) AS Target,
-        ua.User AS Title
+        SELECT " . SearchType::User . " AS Type, ua.User AS ID,
+               CONCAT( '/user/', ua.User ) AS Target, ua.User AS Title,
+               CASE WHEN ua.User LIKE '$searchQuery%' THEN 0 ELSE 1 END AS SecondarySort
         FROM UserAccounts AS ua
         WHERE ua.User LIKE '%$searchQuery%' AND ua.Permissions >= 0 AND ua.Deleted IS NULL
-        ORDER BY ua.User)";
+        ORDER BY SecondarySort, ua.User)";
     }
 
     if ($searchType == SearchType::Forum || $searchType == SearchType::All) {
         $parts[] = "(
-        SELECT " . SearchType::Forum . " AS Type,
-        ua.User AS ID,
-        CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
-        CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
-        CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) END AS Title
+        SELECT " . SearchType::Forum . " AS Type, ua.User AS ID,
+               CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
+               CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
+               CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) END AS Title,
+               0 AS SecondarySort
         FROM ForumTopicComment AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
         LEFT JOIN ForumTopic AS ft ON ft.ID = ftc.ForumTopicID
@@ -138,7 +147,8 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
             CASE
                 WHEN CHAR_LENGTH(c.Payload) <= 64 THEN c.Payload
                 ELSE CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-25, 1), 60 ), '...' )
-            END AS Title
+            END AS Title,
+            0 AS SecondarySort
             FROM Comment AS c
             LEFT JOIN UserAccounts AS cua ON cua.ID=c.UserID
             LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
@@ -149,7 +159,7 @@ function performSearch(int $searchType, string $searchQuery, int $offset, int $c
     }
 
     $query = "SELECT SQL_CALC_FOUND_ROWS * FROM (" .
-        implode(' UNION ALL ', $parts) . ") AS results ORDER BY Type LIMIT $offset, $count";
+        implode(' UNION ALL ', $parts) . ") AS results ORDER BY Type, SecondarySort LIMIT $offset, $count";
 
     $dbResult = s_mysql_sanitized_query($query);
     if (!$dbResult) {
