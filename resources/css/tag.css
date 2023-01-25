@@ -17,9 +17,8 @@
 }
 
 .tag > img {
-  height: 1.1em;
-  padding-right: .35em;
-  filter: drop-shadow(0 0 .05em black);
+  height: 1.15em;
+  filter: drop-shadow(0 0 .12em black);
 }
 
 .tag-label {

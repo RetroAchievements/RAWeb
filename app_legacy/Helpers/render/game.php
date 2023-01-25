@@ -97,7 +97,7 @@ function renderGameTitle(
     if ($tags and is_array($data)) {
         $id = $data['GameID'] ?? $data['ID'];
         if (isPatchRequired($id)) {
-            $src = asset('/assets/images/labels/rapatches-large.png');
+            $src = asset('/assets/images/labels/rapatches-large-mono.png');
             $img = "<img src=$src>";
             $span = $renderArrowTag("Requires", $img);
             $updateHtml($html, null, $span);
