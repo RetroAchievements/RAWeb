@@ -88,13 +88,13 @@ function renderGameTitle(
         $updateHtml($html, $match, $span);
     }
     $matches = [];
-    if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
+    if ($isSubset = preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
         $subset = $matches[1];
         $span = $renderArrowTag("Subset", "<span>$subset</span>");
         $updateHtml($html, $matches[0], $span);
     }
 
-    if ($tags and is_array($data)) {
+    if ($tags and !$isSubset and is_array($data)) {
         $id = $data['GameID'] ?? $data['ID'];
         if (isPatchRequired($id)) {
             $src = asset('/assets/images/labels/rapatches-large-mono.png');
