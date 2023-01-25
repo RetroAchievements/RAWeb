@@ -59,9 +59,19 @@ function gameAvatar(
 function renderGameTitle(
     array|string|null $data, bool $console = false, bool $tags = true
 ): string {
-    // Update $html by appending text
-    $updateHtml = function (&$html, $text, $append) {
+    // Update $html by removing ascii tags and (possibly) appending rendered ones
+    $updateHtml = function (&$html, $text, $append) use ($tags) {
+        $append = $tags ? " $append" : '';
         $html = trim(str_replace($text, '', $html) . $append);
+    };
+
+    // Render arrow tag (e.g. subsets, requirements, etc)
+    $renderArrowTag = function ($label, $content) {
+        return "<span class='tag'>"
+            . "<span class='tag-label'>$label</span>"
+            . "<span class='tag-arrow'></span>"
+            . $content
+            . "</span>";
     };
 
     if (!$data) {
@@ -75,29 +85,22 @@ function renderGameTitle(
     foreach ($matches[0] as $i => $match) {
         $category = $matches[1][$i];
         $span = "<span class='tag'><span>$category</span></span>";
-        $updateHtml($html, $match, $tags ? " $span" : '');
+        $updateHtml($html, $match, $span);
     }
     $matches = [];
     if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
         $subset = $matches[1];
-        $span = "<span class='tag'>"
-            . "<span class='tag-label'>Subset</span>"
-            . "<span class='tag-arrow'></span>"
-            . "<span>$subset</span>"
-            . "</span>";
-        $updateHtml($html, $matches[0], $tags ? " $span" : '');
+        $span = $renderArrowTag("Subset", "<span>$subset</span>");
+        $updateHtml($html, $matches[0], $span);
     }
 
-    if (is_array($data)) {
+    if ($tags and is_array($data)) {
         $id = $data['GameID'] ?? $data['ID'];
         if (isPatchRequired($id)) {
             $src = asset('/assets/images/labels/rapatches-large.png');
             $img = "<img src=$src>";
-            $html .= " <span class='tag'>"
-                . "<span class='tag-label'>Requires</span>"
-                . "<span class='tag-arrow'></span>"
-                . $img
-                . "</span>";
+            $span = $renderArrowTag("Requires", $img);
+            $updateHtml($html, null, $span);
         }
     }
 
