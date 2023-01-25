@@ -242,6 +242,24 @@ function getGameMetadataByFlags(
     return $numAchievements;
 }
 
+/**
+ * Find whether a game requires a patch to be played
+ */
+function isPatchRequired(int $gameID): bool
+{
+    $hashes = getHashListByGameID($gameID);
+    if (empty($hashes)) {
+        return false;
+    }
+    foreach ($hashes as $hash) {
+        if (!str_contains($hash['Labels'], 'rapatches')) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function getGameAlternatives($gameID): array
 {
     sanitize_sql_inputs($gameID);

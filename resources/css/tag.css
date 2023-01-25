@@ -16,6 +16,12 @@
   padding: .15em .45em;
 }
 
+.tag > img {
+  height: 1.1em;
+  padding-right: .35em;
+  filter: drop-shadow(0 0 .05em black);
+}
+
 .tag-label {
   background-color: rgba(255, 255, 255, 0.5);
   padding-right: .2em;

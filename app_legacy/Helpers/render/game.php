@@ -54,7 +54,7 @@ function gameAvatar(
 }
 
 /**
- * Render game title, wrapping categories for styling
+ * Render game title, styling tags
  */
 function renderGameTitle(
     array|string|null $data, bool $console = false, bool $tags = true
@@ -64,7 +64,10 @@ function renderGameTitle(
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
-    $title = $data['GameTitle'] ?? $data['Title'] ?? $data ?? '';
+    if (!$data) {
+        return '';
+    }
+    $title = $data['GameTitle'] ?? $data['Title'] ?? $data;
     $html = $title . ($console ? (' (' . $data['ConsoleName'] . ')') : '');
 
     $matches = [];
@@ -83,6 +86,19 @@ function renderGameTitle(
             . "<span>$subset</span>"
             . "</span>";
         $updateHtml($html, $matches[0], $tags ? " $span" : '');
+    }
+
+    if (is_array($data)) {
+        $id = $data['GameID'] ?? $data['ID'];
+        if (isPatchRequired($id)) {
+            $src = asset('/assets/images/labels/rapatches-large.png');
+            $img = "<img src=$src>";
+            $html .= " <span class='tag'>"
+                . "<span class='tag-label'>Requires</span>"
+                . "<span class='tag-arrow'></span>"
+                . $img
+                . "</span>";
+        }
     }
 
     return $html;
