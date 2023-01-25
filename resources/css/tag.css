@@ -16,8 +16,9 @@
   padding: .15em .45em;
 }
 
-.tag > img {
-  height: 1.15em;
+.tag img {
+  height: .8em;
+  padding: 0 .45em 0 0;
   filter: drop-shadow(0 0 .12em black);
 }
 

@@ -99,7 +99,7 @@ function renderGameTitle(
         if (isPatchRequired($id)) {
             $src = asset('/assets/images/labels/rapatches-large-mono.png');
             $img = "<img src=$src>";
-            $span = $renderArrowTag("Requires", $img);
+            $span = "<span class='tag'><span>Requires</span>$img</span>";
             $updateHtml($html, null, $span);
         }
     }
