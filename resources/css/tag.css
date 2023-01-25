@@ -17,6 +17,7 @@
 }
 
 .tag img {
+  margin-left: -.05em;
   height: .8em;
   padding: 0 .45em 0 0;
   filter: drop-shadow(0 0 .12em black);
