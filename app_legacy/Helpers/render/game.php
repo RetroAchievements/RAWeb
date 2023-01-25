@@ -25,7 +25,7 @@ function gameAvatar(
                 $title .= " ($consoleName)";
             }
             sanitize_outputs($title);   // sanitize before rendering HTML
-            $label = renderGameTitle($title);
+            $label = renderGameTitle($game);
         }
 
         if ($icon === null) {
@@ -56,14 +56,17 @@ function gameAvatar(
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(?string $title, bool $tags = true): string
-{
+function renderGameTitle(
+    array|string|null $data, bool $console = false, bool $tags = true
+): string {
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
-    $html = (string) $title;
+    $title = $data['GameTitle'] ?? $data['Title'] ?? $data ?? '';
+    $html = $title . ($console ? (' (' . $data['ConsoleName'] . ')') : '');
+
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
@@ -170,7 +173,7 @@ function renderGameCard(int|string|array $game): string
         });
     }
 
-    $gameName = renderGameTitle($data['GameTitle'] ?? $data['Title'] ?? '');
+    $gameName = renderGameTitle($data);
     $consoleName = $data['Console'] ?? $data['ConsoleName'] ?? '';
     $icon = $data['GameIcon'] ?? $data['ImageIcon'] ?? null;
 

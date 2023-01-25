@@ -88,7 +88,7 @@ RenderContentStart('Leaderboard');
             echo " &raquo; <b>$lbTitle</b>";
             echo "</div>";
 
-            $renderedTitle = renderGameTitle("$gameTitle ($consoleName)");
+            $renderedTitle = renderGameTitle($lbData, console: true);
             echo "<h3>$renderedTitle</h3>";
 
             echo "<table class='nicebox'><tbody>";
