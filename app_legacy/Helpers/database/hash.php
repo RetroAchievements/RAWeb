@@ -36,6 +36,9 @@ function getHashListByGameID($gameID): array
 {
     sanitize_sql_inputs($gameID);
     settype($gameID, 'integer');
+    if ($hashList = Cache::get("hashList:$gameID")) {
+        return (array) $hashList;
+    }
     if ($gameID < 1) {
         return [];
     }
@@ -52,6 +55,7 @@ function getHashListByGameID($gameID): array
             $retVal[] = $nextData;
         }
     }
+    Cache::put("hashList:$gameID", $retVal);
 
     return $retVal;
 }
