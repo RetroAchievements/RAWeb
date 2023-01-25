@@ -65,7 +65,7 @@ function renderGameTitle(
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
-    // Render arrow tag (e.g. subsets, requirements, etc)
+    // Render arrow tag (e.g. subsets)
     $renderArrowTag = function ($label, $content) {
         return "<span class='tag'>"
             . "<span class='tag-label'>$label</span>"
