@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSetType;
 use LegacyApp\Community\Enums\ClaimSorting;

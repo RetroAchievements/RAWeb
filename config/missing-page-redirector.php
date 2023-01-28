@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Support\Redirector\LegacyRedirector;
 use Symfony\Component\HttpFoundation\Response;
 

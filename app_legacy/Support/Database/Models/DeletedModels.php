@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Support\Database\Models;
 
 use LegacyApp\Support\Database\Eloquent\BaseModel;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
@@ -9,12 +11,12 @@ use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Site\Enums\Permissions;
 use Symfony\Component\Mime\Email;
 
-function sendRAEmail($to, $header, $body): bool
+function sendRAEmail(string $to, string $subject, string $body): bool
 {
-    return mail_utf8($to, $header, stripslashes(nl2br($body)));
+    return mail_utf8($to, $subject, stripslashes(nl2br($body)));
 }
 
-function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
+function mail_utf8(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
     if (empty($to)) {
         return false;
@@ -31,14 +33,14 @@ function mail_utf8($to, $subject = '(No subject)', $message = ''): bool
     return mail_log($to, $subject, $message);
 }
 
-function mail_log($to, $subject = '(No subject)', $message = ''): bool
+function mail_log(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
     Log::debug('Mail', ['to' => $to, 'subject' => $subject, 'message' => $message]);
 
     return true;
 }
 
-function mail_smtp($to, $subject = '(No subject)', $message = ''): bool
+function mail_smtp(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
     /** @var Mailer $mailer */
     $mailer = app()->make(MailerContract::class);
@@ -57,7 +59,7 @@ function mail_smtp($to, $subject = '(No subject)', $message = ''): bool
     return true;
 }
 
-function mail_ses($to, $subject = '(No subject)', $message = ''): bool
+function mail_ses(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
     /** @var Mailer $mailer */
     $mailer = app()->make(MailerContract::class);
@@ -138,7 +140,7 @@ function mail_ses($to, $subject = '(No subject)', $message = ''): bool
     }
 }
 
-function sendValidationEmail($user, $email): bool
+function sendValidationEmail(string $user, string $email): bool
 {
     // This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailVerificationToken($user);
@@ -162,11 +164,9 @@ function sendValidationEmail($user, $email): bool
     return mail_utf8($email, $subject, $msg);
 }
 
-function sendFriendEmail($user, $email, $type, $friend): bool
+function sendFriendEmail(string $user, string $email, int $type, string $friend): bool
 {
-    settype($type, 'integer');
-
-    if ($user == $friend) {
+    if ($user === $friend) {
         return false;
     }
 
@@ -193,8 +193,12 @@ function sendFriendEmail($user, $email, $type, $friend): bool
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function informAllSubscribersAboutActivity($articleType, $articleID, $activityAuthor, $onBehalfOfUser): void
-{
+function informAllSubscribersAboutActivity(
+    int $articleType,
+    int $articleID,
+    string $activityAuthor,
+    ?string $onBehalfOfUser = null
+): void {
     $subscribers = [];
     $subjectAuthor = null;
     $altURLTarget = null;
@@ -259,22 +263,18 @@ function informAllSubscribersAboutActivity($articleType, $articleID, $activityAu
 }
 
 function sendActivityEmail(
-    $user,
-    $email,
-    $actID,
-    $activityCommenter,
-    $articleType,
-    $articleTitle,
-    $threadInvolved = null,
-    $altURLTarget = null
+    string $user,
+    string $email,
+    int $actID,
+    string $activityCommenter,
+    int $articleType,
+    string $articleTitle,
+    bool $threadInvolved = false,
+    ?string $altURLTarget = null
 ): bool {
-    if ($user == $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
+    if ($user === $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
         return false;
     }
-
-    $emailTitle = '';
-    $link = '';
-    $activityDescription = '';
 
     switch ($articleType) {
         case ArticleType::Game:
@@ -293,7 +293,7 @@ function sendActivityEmail(
             $emailTitle = "New User Wall Comment from $activityCommenter";
             $link = "<a href='" . config('app.url') . "/user/$altURLTarget'>here</a>";
             $activityDescription = "your user wall";
-            if ($articleTitle != $user) {
+            if ($articleTitle !== $user) {
                 $activityDescription = "$articleTitle's user wall";
             }
             break;
@@ -314,7 +314,7 @@ function sendActivityEmail(
             $emailTitle = "New Ticket Comment from $activityCommenter";
             $link = "<a href='" . config('app.url') . "/ticketmanager.php?i=$actID'>here</a>";
             $activityDescription = "the ticket you reported for $articleTitle";
-            if (isset($threadInvolved)) {
+            if ($threadInvolved) {
                 $activityDescription = "a ticket for $articleTitle";
             }
             break;
@@ -324,7 +324,7 @@ function sendActivityEmail(
             $emailTitle = "New Activity Comment from $activityCommenter";
             $link = "<a href='" . config('app.url') . "/feed.php?a=$actID'>here</a>";
             $activityDescription = "Your latest activity";
-            if (isset($threadInvolved)) {
+            if ($threadInvolved) {
                 $activityDescription = "A thread you've commented in";
             }
             break;
@@ -341,9 +341,14 @@ function sendActivityEmail(
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser): bool
-{
-    if ($user == $fromUser) {
+function SendPrivateMessageEmail(
+    string $user,
+    string $email,
+    string $title,
+    string $contentIn,
+    string $fromUser
+): bool {
+    if ($user === $fromUser) {
         return false;
     }
 
@@ -365,7 +370,7 @@ function SendPrivateMessageEmail($user, $email, $title, $contentIn, $fromUser): 
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function SendPasswordResetEmail($user, $email, $token): bool
+function SendPasswordResetEmail(string $user, string $email, string $token): bool
 {
     $emailTitle = "Password Reset Request";
     $link = "<a href='" . config('app.url') . "/resetPassword.php?u=$user&amp;t=$token'>Reset your password</a>";
@@ -379,7 +384,7 @@ function SendPasswordResetEmail($user, $email, $token): bool
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function SendDeleteRequestEmail($user, $email, $deleteRequested): bool
+function SendDeleteRequestEmail(string $user, string $email, string $deleteRequested): bool
 {
     $emailTitle = "Account Deletion Request";
 

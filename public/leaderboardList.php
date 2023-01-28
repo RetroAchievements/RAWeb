@@ -173,7 +173,7 @@ function ReloadLBPageByGame() {
         echo "<select id='consoleselector' onchange=\"ReloadLBPageByConsole()\">";
         echo "<option value='c_'>" . ($consoleIDInput ? 'All Consoles' : 'Filter by Console') . "</option>";
         $lastConsoleName = '';
-        foreach ($uniqueGameList as $gameID => $nextEntry) {
+        foreach ($uniqueGameList as $nextEntry) {
             if ($nextEntry['ConsoleName'] !== $lastConsoleName) {
                 $lastConsoleName = $nextEntry['ConsoleName'];
                 $isSelected = $nextEntry['ConsoleID'] == $consoleIDInput;
@@ -233,7 +233,7 @@ function ReloadLBPageByGame() {
         $lbFormat = $nextLB['Format'];
         $lbLowerIsBetter = $nextLB['LowerIsBetter'];
         $lbNumEntries = $nextLB['NumResults'];
-        settype($lbNumEntries, 'integer');
+        $lbNumEntries = (int) $lbNumEntries;
         $lbDisplayOrder = $nextLB['DisplayOrder'];
         $lbAuthor = $nextLB['Author'];
         $gameID = $nextLB['GameID'];
@@ -243,11 +243,7 @@ function ReloadLBPageByGame() {
 
         $niceFormat = ($lbLowerIsBetter ? "Smallest " : "Largest ") . (($lbFormat == "SCORE") ? "Score" : "Time");
 
-        if ($listCount++ % 2 == 0) {
-            echo "<tr>";
-        } else {
-            echo "<tr>";
-        }
+        echo "<tr>";
 
         if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             // Allow leaderboard edits for devs and jr. devs if they are the author
@@ -435,11 +431,12 @@ function ReloadLBPageByGame() {
         $prevOffset = $offset - $maxCount;
         echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
     }
-    if ($listCount == $maxCount) {
-        // Max number fetched, i.e. there are more. Can goto next 25.
-        $nextOffset = $offset + $maxCount;
-        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
-    }
+    // TODO fix pagination - $listCount is not being increased
+    // if ($listCount == $maxCount) {
+    //     // Max number fetched, i.e. there are more. Can goto next 25.
+    //     $nextOffset = $offset + $maxCount;
+    //     echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
+    // }
     echo "</div>";
     ?>
     <br>

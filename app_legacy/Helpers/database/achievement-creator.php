@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
@@ -111,9 +113,9 @@ function getOwnAchievementsObtained(string $user): bool|array|null
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
-    } else {
-        return null;
     }
+
+    return null;
 }
 
 /**
@@ -156,7 +158,7 @@ function getObtainersOfSpecificUser(string $user): array
 function checkIfSoleDeveloper(string $user, int $gameID): bool
 {
     sanitize_sql_inputs($user, $gameID);
-    settype($gameID, 'integer');
+    $gameID = (int) $gameID;
 
     $query = "
         SELECT distinct(Author) AS Author FROM Achievements AS ach
@@ -171,9 +173,8 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
         while ($data = mysqli_fetch_assoc($dbResult)) {
             if ($user != $data['Author']) {
                 return false;
-            } else {
-                $userFound = true;
             }
+            $userFound = true;
         }
     }
 

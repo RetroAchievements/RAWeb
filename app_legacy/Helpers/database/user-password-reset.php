@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Str;
 
-function RemovePasswordResetToken($username): bool
+function RemovePasswordResetToken(string $username): bool
 {
     $db = getMysqliConnection();
 
@@ -14,7 +16,7 @@ function RemovePasswordResetToken($username): bool
     return mysqli_affected_rows($db) >= 1;
 }
 
-function isValidPasswordResetToken($usernameIn, $passwordResetToken): bool
+function isValidPasswordResetToken(string $usernameIn, string $passwordResetToken): bool
 {
     sanitize_sql_inputs($usernameIn, $passwordResetToken);
 
@@ -32,7 +34,7 @@ function isValidPasswordResetToken($usernameIn, $passwordResetToken): bool
     return false;
 }
 
-function RequestPasswordReset($usernameIn): bool
+function RequestPasswordReset(string $usernameIn): bool
 {
     sanitize_sql_inputs($usernameIn);
 

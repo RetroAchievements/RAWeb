@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace Database\Factories\Legacy;
 
 use Exception;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
-use LegacyApp\Support\Database\Eloquent\Factory;
+use LegacyApp\Support\Database\Eloquent\FakesUsername;
 
 /**
  * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
+    use FakesUsername;
+
     protected $model = User::class;
 
     /**
@@ -26,7 +29,7 @@ class UserFactory extends Factory
         return [
             // required
             'User' => $this->fakeUsername(),
-            'EmailAddress' => $this->faker->unique()->safeEmail,
+            'EmailAddress' => fake()->unique()->safeEmail,
             'Password' => Hash::make('password'),
             'SaltedPass' => '',
             'Permissions' => Permissions::Registered,

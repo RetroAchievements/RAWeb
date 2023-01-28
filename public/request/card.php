@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'type' => ['required', 'string', Rule::in(['user', 'achievement', 'game', 'ticket'])],
     'id' => 'required',
     'context' => 'sometimes|nullable|string',
@@ -12,8 +13,8 @@ $input = Validator::validate(request()->post(), [
 return response()->json([
     'html' => match ($input['type']) {
         'achievement' => renderAchievementCard($input['id'], context: $input['context']),
-        'game' => renderGameCard($input['id']),
-        'ticket' => renderTicketCard($input['id']),
+        'game' => renderGameCard((int) $input['id']),
+        'ticket' => renderTicketCard((int) $input['id']),
         'user' => renderUserCard($input['id']),
         default => '?',
     },

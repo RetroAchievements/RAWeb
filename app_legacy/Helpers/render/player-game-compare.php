@@ -1,7 +1,13 @@
 <?php
 
-function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame): void
-{
+declare(strict_types=1);
+
+function RenderGameCompare(
+    string $user,
+    int $gameID,
+    ?array $friendScores,
+    int $maxTotalPossibleForGame
+): void {
     echo "<div id='gamecompare' class='component' >";
     echo "<h2 class='text-h3'>Compare</h2>";
     echo "<div class='nicebox'>";

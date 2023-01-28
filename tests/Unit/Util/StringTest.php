@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 final class StringTest extends TestCase
 {
-    public function testSeparateList()
+    public function testSeparateList(): void
     {
         $expected = ['x', 10, 20, 30, 40, 50];
 

@@ -100,13 +100,12 @@ switch ($requestType) {
     case "codenotes":
         if (!getCodeNotes($gameID, $codeNotesOut)) {
             return DoRequestError("FAILED!");
-        } else {
-            echo "OK:$gameID:";
-            foreach ($codeNotesOut as $codeNote) {
-                if (mb_strlen($codeNote['Note']) > 2) {
-                    $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
-                    echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";
-                }
+        }
+        echo "OK:$gameID:";
+        foreach ($codeNotesOut as $codeNote) {
+            if (mb_strlen($codeNote['Note']) > 2) {
+                $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
+                echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";
             }
         }
         break;
@@ -187,7 +186,7 @@ switch ($requestType) {
      */
 
     case "achievementwondata":
-        $friendsOnly = (int) request()->input('f', 0);
+        $friendsOnly = (bool) request()->input('f', 0);
         $response['Offset'] = $offset;
         $response['Count'] = $count;
         $response['FriendsOnly'] = $friendsOnly;
@@ -197,7 +196,7 @@ switch ($requestType) {
 
     case "awardachievement":
         $achIDToAward = (int) request()->input('a', 0);
-        $hardcore = (int) request()->input('h', 0);
+        $hardcore = (bool) request()->input('h', 0);
         /**
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
          */
@@ -219,13 +218,12 @@ switch ($requestType) {
         $lbID = (int) request()->input('i', 0);
         // Note: Nearby entry behavior has no effect if $user is null
         // TBD: friendsOnly
-        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, friendsOnly: 0, nearby: true);
+        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, nearby: true);
         break;
 
     case "patch":
         $flags = (int) request()->input('f', 0);
-        // $hardcore = (int) request()->input('h', 0); // not used
-        $response['PatchData'] = GetPatchData($gameID, $flags, $user);
+        $response['PatchData'] = GetPatchData($gameID, $flags);
         if (array_key_exists('Success', $response['PatchData'])) {
             $response['Success'] = $response['PatchData']['Success']; // Passthru
             unset($response['PatchData']['Success']);
@@ -233,8 +231,8 @@ switch ($requestType) {
         break;
 
     case "postactivity":
-        $activityType = request()->input('a');
-        $activityMessage = request()->input('m');
+        $activityType = (int) request()->input('a');
+        $activityMessage = (int) request()->input('m');
         $response['Success'] = postActivity($user, $activityType, $activityMessage);
         break;
 
@@ -289,11 +287,10 @@ switch ($requestType) {
         break;
 
     case "unlocks":
-        $hardcoreMode = (int) request()->input('h', 0);
+        $hardcoreMode = (bool) request()->input('h', 0);
         $response['UserUnlocks'] = GetUserUnlocksData($user, $gameID, $hardcoreMode);
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
-        $response['HardcoreMode'] = $hardcoreMode;  // Repeat this back to the caller?
-        settype($response['HardcoreMode'], 'boolean');
+        $response['HardcoreMode'] = $hardcoreMode;
         break;
 
     case "uploadachievement":
@@ -325,7 +322,7 @@ switch ($requestType) {
         $newSubmitMemString = request()->input('b');
         $newCancelMemString = request()->input('c');
         $newValueMemString = request()->input('l');
-        $newLowerIsBetter = (int) request()->input('w', 0);
+        $newLowerIsBetter = (bool) request()->input('w', 0);
         $newFormat = request()->input('f');
         $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
@@ -339,6 +336,6 @@ switch ($requestType) {
         return DoRequestError("Unknown Request: '" . $requestType . "'");
 }
 
-settype($response['Success'], 'boolean');
+$response['Success'] = (bool) $response['Success'];
 
 return response()->json($response);

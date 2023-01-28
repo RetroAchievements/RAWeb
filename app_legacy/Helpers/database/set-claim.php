@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ClaimFilters;
@@ -135,11 +137,7 @@ function dropClaim(string $user, int $gameID): bool
             AND User = '$user'
             AND GameID = '$gameID'";
 
-    if (s_mysql_query($query)) {
-        return true;
-    }
-
-    return false;
+    return (bool) s_mysql_query($query);
 }
 
 /**
@@ -226,6 +224,8 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  *
  * Results are configurable based on input parameters, allowing sorting on each of the
  * above stats and returning data for a specific user or game.
+ *
+ * @return Collection<int, array>
  */
 function getFilteredClaims(
     ?int $gameID = null,
@@ -289,12 +289,12 @@ function getFilteredClaims(
     }
 
     // Create the special condition
-    $str = ($specialNoneClaim ? ClaimSpecial::None . ',' : '');
-    $str .= ($specialRevisionClaim ? ClaimSpecial::OwnRevision . ',' : '');
-    $str .= ($specialRolloutClaim ? ClaimSpecial::FreeRollout . ',' : '');
-    $str .= ($specialScheduledClaim ? ClaimSpecial::ScheduledRelease : '');
+    $str = ($specialNoneClaim !== 0 ? ClaimSpecial::None . ',' : '');
+    $str .= ($specialRevisionClaim !== 0 ? ClaimSpecial::OwnRevision . ',' : '');
+    $str .= ($specialRolloutClaim !== 0 ? ClaimSpecial::FreeRollout . ',' : '');
+    $str .= ($specialScheduledClaim !== 0 ? ClaimSpecial::ScheduledRelease : '');
 
-    if (!(strlen($str) % 2)) { // Remove trailing comma if necessary
+    if (strlen($str) % 2 === 0) { // Remove trailing comma if necessary
         $str = rtrim($str, ",");
     }
 
@@ -318,7 +318,7 @@ function getFilteredClaims(
         $sortOrder = "DESC";
     } else {
         $sortOrder = "ASC";
-        $sortType = $sortType - 10;
+        $sortType -= 10;
     }
 
     // Create the sorting condition
@@ -477,11 +477,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
         WHERE
             ID = '$claimID'";
 
-    if (s_mysql_query($query)) {
-        return true;
-    }
-
-    return false;
+    return (bool) s_mysql_query($query);
 }
 
 /**
@@ -489,7 +485,6 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
  */
 function getExpiringClaim(string $user): array
 {
-    $retVal = [];
     sanitize_sql_inputs($user);
 
     $query = "
@@ -509,7 +504,7 @@ function getExpiringClaim(string $user): array
         return mysqli_fetch_assoc($dbResult);
     }
 
-    return $retVal;
+    return [];
 }
 
 /**

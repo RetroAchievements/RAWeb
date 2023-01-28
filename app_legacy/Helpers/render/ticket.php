@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Community\Enums\TicketType;
 use LegacyApp\Community\ViewModels\Ticket;
@@ -15,6 +17,10 @@ function ticketAvatar(
 ): string {
     if (is_int($ticket)) {
         $ticket = GetTicketModel($ticket);
+    }
+
+    if ($ticket === null) {
+        return '';
     }
 
     $ticketStateClass = match ($ticket->ticketState) {
@@ -41,6 +47,10 @@ function renderTicketCard(int|Ticket $ticket): string
 {
     if (is_int($ticket)) {
         $ticket = GetTicketModel($ticket);
+    }
+
+    if ($ticket === null) {
+        return '';
     }
 
     $ticketStateClass = match ($ticket->ticketState) {

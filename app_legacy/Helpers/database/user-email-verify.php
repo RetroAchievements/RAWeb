@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Str;
 use LegacyApp\Site\Enums\Permissions;
 
-function generateEmailVerificationToken($user): ?string
+function generateEmailVerificationToken(string $user): ?string
 {
     $emailCookie = Str::random(16);
     $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
@@ -24,7 +26,7 @@ function generateEmailVerificationToken($user): ?string
     return $emailCookie;
 }
 
-function validateEmailVerificationToken($emailCookie, &$user): bool
+function validateEmailVerificationToken(string $emailCookie, ?string &$user): bool
 {
     sanitize_sql_inputs($emailCookie);
 

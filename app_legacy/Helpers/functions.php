@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // TODO migrate to/replace with controllers, models, views
 
 require_once __DIR__ . '/database/achievement.php';
@@ -47,7 +49,6 @@ require_once __DIR__ . '/render/shortcode.php';
 require_once __DIR__ . '/render/site-award.php';
 require_once __DIR__ . '/render/subscription.php';
 require_once __DIR__ . '/render/ticket.php';
-require_once __DIR__ . '/render/twitch.php';
 require_once __DIR__ . '/render/user.php';
 
 require_once __DIR__ . '/util/array.php';

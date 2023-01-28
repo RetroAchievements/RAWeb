@@ -39,7 +39,7 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
 
         [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
-        function RenderAwardOrderTable($title, $awards, &$counter)
+        function RenderAwardOrderTable(string $title, array $awards, int &$counter): void
         {
             echo "<br><h4>$title</h4>";
             echo "<table class='table-highlight'><tbody>";

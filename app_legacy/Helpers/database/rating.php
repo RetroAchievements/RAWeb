@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\RatingType;
 
-function getGameRating($gameID, $user = null): array
+function getGameRating(int $gameID, ?string $user = null): array
 {
     $newRatings = fn () => [
         'RatingCount' => 0,
@@ -17,8 +19,6 @@ function getGameRating($gameID, $user = null): array
     $retVal[RatingType::Game] = $newRatings();
     $retVal[RatingType::Achievement] = $newRatings();
 
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
     $query = "SELECT r.RatingObjectType, r.RatingValue, COUNT(r.RatingValue) AS NumVotes
               FROM Rating AS r
               WHERE r.RatingID = $gameID
@@ -38,7 +38,7 @@ function getGameRating($gameID, $user = null): array
             $ratingData['AverageRating'] = 0.0;
         } else {
             $ratingData['AverageRating'] =
-                floatval($ratingData['Rating1'] * 1 +
+                (float) ($ratingData['Rating1'] * 1 +
                          $ratingData['Rating2'] * 2 +
                          $ratingData['Rating3'] * 3 +
                          $ratingData['Rating4'] * 4 +
@@ -64,9 +64,9 @@ function getGameRating($gameID, $user = null): array
     return $retVal;
 }
 
-function submitGameRating($user, $ratingType, $ratingID, $ratingValue): bool
+function submitGameRating(string $user, int $ratingType, int $ratingID, int $ratingValue): bool
 {
-    sanitize_sql_inputs($user, $ratingType, $ratingID, $ratingValue);
+    sanitize_sql_inputs($user);
 
     $query = "INSERT INTO Rating ( User, RatingObjectType, RatingID, RatingValue )
               VALUES( '$user', $ratingType, $ratingID, $ratingValue )

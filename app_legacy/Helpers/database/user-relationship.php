@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\UserRelationship;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
@@ -28,7 +30,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
         $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ('$user', '$friend', $newStatus)";
     }
 
-    if ($oldStatus == $newStatus) {
+    if ($oldStatus === $newStatus) {
         return "nochange";
     }
 
@@ -45,6 +47,7 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
     switch ($newStatus) {
         case UserRelationship::Following:
             // attempt to notify the target of the new follower
+            $friendData = [];
             if (getAccountDetails($friend, $friendData)) {
                 if ($newRelationship && BitSet($friendData['websitePrefs'], UserPreference::EmailOn_Followed)) {
                     // notify the new friend of the request
@@ -100,16 +103,14 @@ function GetFriendship(string $user, string $friend): int
     return UserRelationship::NotFollowing;
 }
 
-function getAllFriendsProgress($user, $gameID, &$friendScoresOut): int
+function getAllFriendsProgress(string $user, int $gameID, ?array &$friendScoresOut): int
 {
-    sanitize_sql_inputs($user, $gameID);
+    sanitize_sql_inputs($user);
 
     $friendScoresOut = [];
     // Subquery one: select all friends this user has added:
     // Subquery two: select all achievements associated with this game:
 
-    // Manual sanitisation, as we need to call multiple functions (and include semicolons)
-    settype($gameID, 'integer');
     if (!isValidUsername($user)) {
         return 0;
     }
@@ -184,7 +185,7 @@ function GetFriendList(string $user): array
     return $friendList;
 }
 
-function GetFriendsSubquery(string $user, bool $includeUser = true)
+function GetFriendsSubquery(string $user, bool $includeUser = true): string
 {
     $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
          JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . UserRelationship::Following . ") as Friends1 ON Friends1.User=ua.User
@@ -229,8 +230,8 @@ function GetExtendedFriendsList(string $user, ?string $possibleFriend = null): a
         log_sql_fail();
     } else {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            settype($db_entry['Friendship'], 'int');
-            settype($db_entry['LastGameID'], 'int');
+            $db_entry['Friendship'] = (int) $db_entry['Friendship'];
+            $db_entry['LastGameID'] = (int) $db_entry['LastGameID'];
 
             $db_entry["LastSeen"] = empty($db_entry["LastSeen"]) ? "Unknown" : strip_tags($db_entry["LastSeen"]);
             $friendList[] = $db_entry;

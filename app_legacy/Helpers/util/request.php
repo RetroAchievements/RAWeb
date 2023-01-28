@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Get request input sanitized for output
  *
@@ -10,7 +12,7 @@ function requestInputSanitized(string $key, mixed $default = null, mixed $type =
     $input = request()->input($key, $default);
 
     if (!$type || $type === 'string') {
-        return !empty($input) ? htmlentities($input) : null;
+        return !empty($input) ? htmlentities((string) $input) : $default;
     }
 
     settype($input, $type);

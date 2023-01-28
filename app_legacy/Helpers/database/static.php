@@ -1,9 +1,9 @@
 <?php
 
-function static_addnewachievement($id): void
-{
-    sanitize_sql_inputs($id);
+declare(strict_types=1);
 
+function static_addnewachievement(int $id): void
+{
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumAchievements=sd.NumAchievements+1, sd.LastCreatedAchievementID='$id'";
     $dbResult = s_mysql_query($query);
@@ -12,10 +12,8 @@ function static_addnewachievement($id): void
     }
 }
 
-function static_addnewgame($id): void
+function static_addnewgame(int $id): void
 {
-    sanitize_sql_inputs($id);
-
     // Subquery to get # of games that have achievements
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumGames = (SELECT COUNT(DISTINCT ach.GameID) ";
@@ -29,7 +27,7 @@ function static_addnewgame($id): void
     }
 }
 
-function static_addnewregistereduser($user): void
+function static_addnewregistereduser(string $user): void
 {
     sanitize_sql_inputs($user);
 
@@ -41,9 +39,9 @@ function static_addnewregistereduser($user): void
     }
 }
 
-function static_setlastearnedachievement($id, $user, $points): void
+function static_setlastearnedachievement(int $id, string $user, int $points): void
 {
-    sanitize_sql_inputs($id, $user, $points);
+    sanitize_sql_inputs($user);
 
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.NumAwarded = sd.NumAwarded+1, sd.LastAchievementEarnedID = '$id', sd.LastAchievementEarnedByUser = '$user', sd.LastAchievementEarnedAt = NOW(), sd.TotalPointsEarned=sd.TotalPointsEarned+$points";
@@ -53,10 +51,8 @@ function static_setlastearnedachievement($id, $user, $points): void
     }
 }
 
-function static_setlastupdatedgame($id): void
+function static_setlastupdatedgame(int $id): void
 {
-    sanitize_sql_inputs($id);
-
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.LastUpdatedGameID = '$id'";
     $dbResult = s_mysql_query($query);
@@ -65,10 +61,8 @@ function static_setlastupdatedgame($id): void
     }
 }
 
-function static_setlastupdatedachievement($id): void
+function static_setlastupdatedachievement(int $id): void
 {
-    sanitize_sql_inputs($id);
-
     $query = "UPDATE StaticData AS sd ";
     $query .= "SET sd.LastUpdatedAchievementID = '$id'";
     $dbResult = s_mysql_query($query);

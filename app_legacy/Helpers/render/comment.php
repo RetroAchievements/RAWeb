@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;
@@ -38,7 +40,13 @@ function RenderCommentsComponent(
         if ($subjectType !== null) {
             $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
             echo "<div>";
-            RenderUpdateSubscriptionForm("updatesubscription", $subjectType, $articleID, $isSubscribed, $embedded ? 'comments' : null);
+            RenderUpdateSubscriptionForm(
+                'updatesubscription',
+                $subjectType,
+                $articleID,
+                $isSubscribed,
+                $embedded ? 'comments' : null
+            );
             echo "</div>";
         }
     }
@@ -50,9 +58,7 @@ function RenderCommentsComponent(
     $lastKnownDate = 'Init';
 
     foreach ($commentData as $comment) {
-        $nextTime = $comment['Submitted'];
-
-        $dow = date("d/m", $nextTime);
+        $dow = date("d/m", (int) $comment['Submitted']);
         if ($lastKnownDate == 'Init') {
             $lastKnownDate = $dow;
         } elseif ($lastKnownDate !== $dow) {
@@ -63,16 +69,17 @@ function RenderCommentsComponent(
             $lastID = $comment['ID'];
         }
 
-        $canDeleteComment = $articleTypeID == ArticleType::User && $userID == $articleID || $permissions >= Permissions::Admin;
+        $canDeleteComment = $articleTypeID == ArticleType::User && $userID === $articleID || $permissions >= Permissions::Admin;
 
         RenderArticleComment(
             $articleID,
             $comment['User'],
             $comment['CommentPayload'],
-            $comment['Submitted'],
+            // TODO no unix timestamp here
+            (int) $comment['Submitted'],
             $user,
             $articleTypeID,
-            $comment['ID'],
+            (int) $comment['ID'],
             $canDeleteComment
         );
     }
@@ -88,19 +95,19 @@ function RenderCommentsComponent(
 }
 
 function RenderArticleComment(
-    $articleID,
-    $user,
-    $comment,
-    $submittedDate,
-    $localUser,
-    $articleTypeID,
-    $commentID,
-    $allowDelete
+    int $articleID,
+    ?string $user,
+    string $comment,
+    int $submittedDate,
+    string $localUser,
+    int $articleTypeID,
+    int $commentID,
+    bool $allowDelete
 ): void {
     $class = '';
     $deleteIcon = '';
 
-    if ($user && $user == $localUser || $allowDelete) {
+    if ($user && $user === $localUser || $allowDelete) {
         $img = "<img src='" . asset('assets/images/icon/cross.png') . "' width='16' height='16' alt='delete comment'/>";
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
@@ -141,7 +148,7 @@ function RenderArticleComment(
     echo "</tr>";
 }
 
-function RenderCommentInputRow($user, $articleTypeId, $articleId): void
+function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId): void
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";

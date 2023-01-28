@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use LegacyApp\Community\Enums\Rank;
@@ -8,17 +10,15 @@ use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Models\User;
 
-function SetUserUntrackedStatus($usernameIn, $isUntracked): void
+function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
 {
-    sanitize_sql_inputs($usernameIn, $isUntracked);
-
     $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'";
     s_mysql_query($query);
 }
 
-function getPlayerPoints(string $user, &$dataOut): bool
+function getPlayerPoints(?string $user, ?array &$dataOut): bool
 {
-    if (mb_strlen($user) < 2) {
+    if (empty($user) || !isValidUsername($user)) {
         return false;
     }
 
@@ -28,8 +28,8 @@ function getPlayerPoints(string $user, &$dataOut): bool
 
     $dataOut = legacyDbFetch($query, ['username' => $user]);
     if ($dataOut) {
-        settype($dataOut['RAPoints'], 'integer');
-        settype($dataOut['RASoftcorePoints'], 'integer');
+        $dataOut['RAPoints'] = (int) $dataOut['RAPoints'];
+        $dataOut['RASoftcorePoints'] = (int) $dataOut['RASoftcorePoints'];
 
         return true;
     }
@@ -37,7 +37,7 @@ function getPlayerPoints(string $user, &$dataOut): bool
     return false;
 }
 
-function recalculatePlayerPoints($user): bool
+function recalculatePlayerPoints(string $user): bool
 {
     sanitize_sql_inputs($user);
 
@@ -57,11 +57,8 @@ function recalculatePlayerPoints($user): bool
                 WHERE User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
-    }
 
-    return true;
+    return (bool) $dbResult;
 }
 
 function countRankedUsers(int $type = RankType::Hardcore): int
@@ -86,10 +83,10 @@ function countRankedUsers(int $type = RankType::Hardcore): int
     return (int) legacyDbFetch($query)['count'];
 }
 
-function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
+function getTopUsersByScore(int $count, array &$dataOut, ?string $ofFriend = null): int
 {
-    sanitize_sql_inputs($count, $ofFriend);
-    settype($count, 'integer');
+    $i = null;
+    sanitize_sql_inputs($ofFriend);
 
     if ($count > 10) {
         $count = 10;
@@ -112,18 +109,17 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
     if (!$dbResult || mysqli_num_rows($dbResult) == 0) {
         // This is acceptable if the user doesn't have any friends!
         return 0;
-    } else {
-        $i = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            // $dataOut[$i][0] = $db_entry["ID"];
-            $dataOut[$i][1] = $db_entry["User"];
-            $dataOut[$i][2] = $db_entry["RAPoints"];
-            $dataOut[$i][3] = $db_entry["TrueRAPoints"];
-            $i++;
-        }
-
-        return $i;
     }
+    $i = 0;
+    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+        // $dataOut[$i][0] = $db_entry["ID"];
+        $dataOut[$i][1] = $db_entry["User"];
+        $dataOut[$i][2] = $db_entry["RAPoints"];
+        $dataOut[$i][3] = $db_entry["TrueRAPoints"];
+        $i++;
+    }
+
+    return $i;
 }
 
 /**

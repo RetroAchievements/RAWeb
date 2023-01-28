@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Site\Enums\Permissions;
 
@@ -24,12 +26,17 @@ function getUserPermissions(?string $user): int
     return (int) $data['Permissions'];
 }
 
-function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetUser, $targetUserNewPermissions): array
-{
+function SetAccountPermissionsJSON(
+    string $actingUser,
+    int $actingUserPermissions,
+    string $targetUser,
+    int $targetUserNewPermissions
+): array {
     $retVal = [];
     sanitize_sql_inputs($actingUser, $targetUser, $targetUserNewPermissions);
-    settype($targetUserNewPermissions, 'integer');
+    $targetUserNewPermissions = (int) $targetUserNewPermissions;
 
+    $targetUserData = [];
     if (!getAccountDetails($targetUser, $targetUserData)) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUser not found";
@@ -93,7 +100,7 @@ function SetAccountPermissionsJSON($actingUser, $actingUserPermissions, $targetU
  * Manual verification / authorize user to post in forums
  */
 
-function getUserForumPostAuth($user): bool
+function getUserForumPostAuth(string $user): bool
 {
     sanitize_sql_inputs($user);
 
@@ -104,14 +111,12 @@ function getUserForumPostAuth($user): bool
         $data = mysqli_fetch_assoc($dbResult);
 
         return (bool) $data['ManuallyVerified'];
-    } else {
-        log_sql_fail();
-
-        return $user;
     }
+
+    return false;
 }
 
-function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, bool $authorize): bool
+function setAccountForumPostAuth(string $sourceUser, int $sourcePermissions, string $user, bool $authorize): bool
 {
     sanitize_sql_inputs($user, $authorize);
 
@@ -153,7 +158,7 @@ function setAccountForumPostAuth($sourceUser, $sourcePermissions, $user, bool $a
 /**
  * APIKey doesn't have to be reset -> permission >= Registered
  */
-function banAccountByUsername(string $username, $permissions): void
+function banAccountByUsername(string $username, int $permissions): void
 {
     $db = getMysqliConnection();
 

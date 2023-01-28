@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace Database\Factories\Legacy;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Support\Database\Eloquent\Factory;
+use LegacyApp\Support\Database\Eloquent\FakesUsername;
 
 /**
  * @extends Factory<PlayerAchievement>
  */
 class PlayerAchievementFactory extends Factory
 {
+    use FakesUsername;
+
     protected $model = PlayerAchievement::class;
 
     /**

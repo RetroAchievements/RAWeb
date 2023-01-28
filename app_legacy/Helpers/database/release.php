@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+use Illuminate\Support\Facades\Log;
 use LegacyApp\Platform\Models\System;
 
 /**
@@ -130,7 +133,7 @@ function getActiveEmulatorReleases(): array
     $releases = getReleasesFromFile();
     $emulators = array_filter($releases['emulators'] ?? [], fn ($emulator) => $emulator['active'] ?? false);
     if ($consoles->isNotEmpty()) {
-        $emulators = array_map(function ($emulator) use ($consoles) {
+        return array_map(function ($emulator) use ($consoles) {
             $systems = [];
             foreach ($emulator['systems'] as $system) {
                 $systems[$system] = $consoles[$system];

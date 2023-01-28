@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace Database\Factories\Legacy;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use LegacyApp\Platform\Enums\AchievementPoints;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Support\Database\Eloquent\Factory;
+use LegacyApp\Support\Database\Eloquent\FakesUsername;
 
 /**
  * @extends Factory<Achievement>
  */
 class AchievementFactory extends Factory
 {
+    use FakesUsername;
+
     protected $model = Achievement::class;
 
     /**
@@ -23,8 +26,8 @@ class AchievementFactory extends Factory
     {
         return [
             'GameID' => 0,
-            'Title' => ucwords($this->faker->sentence()),
-            'Description' => ucwords($this->faker->sentence()),
+            'Title' => ucwords(fake()->sentence()),
+            'Description' => ucwords(fake()->sentence()),
             'MemAddr' => '0x000000',
             'Author' => $this->fakeUsername(),
             'Flags' => AchievementType::Unofficial,

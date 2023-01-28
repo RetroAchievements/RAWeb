@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\AwardType;
 
-function AddSiteAward($user, $awardType, $data, $dataExtra = 0): void
+function AddSiteAward(string $user, int $awardType, ?int $data = null, int $dataExtra = 0): void
 {
-    sanitize_sql_inputs($user, $awardType, $data, $dataExtra);
-    settype($awardType, 'integer');
-    // settype( $data, 'integer' );    // nullable
-    settype($dataExtra, 'integer');
+    sanitize_sql_inputs($user);
 
     $displayOrder = 0;
     $query = "SELECT MAX( DisplayOrder ) FROM SiteAwards WHERE User = '$user'";
@@ -47,7 +46,7 @@ function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra =
     return isset($dbData['AwardDate']);
 }
 
-function getUsersSiteAwards($user, $showHidden = false): array
+function getUsersSiteAwards(string $user, bool $showHidden = false): array
 {
     sanitize_sql_inputs($user);
 
@@ -91,7 +90,8 @@ function getUsersSiteAwards($user, $showHidden = false): array
         $masteredGames = [];
 
         // Get a separate list of completed and mastered games
-        for ($i = 0; $i < count($retVal); $i++) {
+        $retValCount = count($retVal);
+        for ($i = 0; $i < $retValCount; $i++) {
             if ($retVal[$i]['AwardType'] == AwardType::Mastery &&
                 $retVal[$i]['AwardDataExtra'] == 1) {
                 $masteredGames[] = $retVal[$i]['AwardData'];
@@ -102,7 +102,7 @@ function getUsersSiteAwards($user, $showHidden = false): array
         }
 
         // Get a single list of games both completed and mastered
-        if (count($completedGames) > 0 && count($masteredGames) > 0) {
+        if (!empty($completedGames) && !empty($masteredGames)) {
             $multiAwardGames = array_intersect($completedGames, $masteredGames);
 
             // For games that have been both completed and mastered, remove the completed entry from the award array.
@@ -110,7 +110,7 @@ function getUsersSiteAwards($user, $showHidden = false): array
                 $index = 0;
                 foreach ($retVal as $award) {
                     if (isset($award['AwardData']) &&
-                        $award['AwardData'] == $game &&
+                        $award['AwardData'] === $game &&
                         $award['AwardDataExtra'] == 0 &&
                         $award['AwardType'] == AwardType::Mastery) {
                         $retVal[$index] = "";
@@ -128,43 +128,43 @@ function getUsersSiteAwards($user, $showHidden = false): array
     return $retVal;
 }
 
-function HasPatreonBadge($usernameIn): bool
+function HasPatreonBadge(string $username): bool
 {
-    sanitize_sql_inputs($usernameIn);
+    sanitize_sql_inputs($username);
 
     $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = " . AwardType::PatreonSupporter . " AND sa.User = '$usernameIn'";
+        . "WHERE sa.AwardType = " . AwardType::PatreonSupporter . " AND sa.User = '$username'";
 
     $dbResult = s_mysql_query($query);
 
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetPatreonSupporter($usernameIn, $enable): void
+function SetPatreonSupporter(string $username, bool $enable): void
 {
-    sanitize_sql_inputs($usernameIn);
+    sanitize_sql_inputs($username);
 
     if ($enable) {
-        AddSiteAward($usernameIn, AwardType::PatreonSupporter, 0, 0);
+        AddSiteAward($username, AwardType::PatreonSupporter, 0, 0);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = " . AwardType::PatreonSupporter;
+        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::PatreonSupporter;
         s_mysql_query($query);
     }
 }
 
-function HasCertifiedLegendBadge($usernameIn): bool
+function HasCertifiedLegendBadge(string $username): bool
 {
-    sanitize_sql_inputs($usernameIn);
+    sanitize_sql_inputs($username);
 
     $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = " . AwardType::CertifiedLegend . " AND sa.User = '$usernameIn'";
+        . "WHERE sa.AwardType = " . AwardType::CertifiedLegend . " AND sa.User = '$username'";
 
     $dbResult = s_mysql_query($query);
 
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetCertifiedLegend($usernameIn, $enable): void
+function SetCertifiedLegend(string $usernameIn, bool $enable): void
 {
     sanitize_sql_inputs($usernameIn);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Support\MediaLibrary\PathGenerator;
 use App\Support\MediaLibrary\UrlGenerator;
 

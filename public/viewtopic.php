@@ -45,7 +45,7 @@ if (empty($commentList)) {
 }
 
 $thisTopicID = $topicData['ID'];
-settype($thisTopicID, 'integer');
+$thisTopicID = (int) $thisTopicID;
 $thisTopicAuthor = $topicData['Author'];
 $thisTopicAuthorID = $topicData['AuthorID'];
 $thisTopicCategory = $topicData['Category'];

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Enums\Permissions;
 
@@ -7,20 +9,20 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unre
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer',
 ]);
 
 getUserUnlocksDetailed($user, $input['game'], $dataOut);
 
-$hardcoreUnlocks = collect($dataOut)
+$hardcoreUnlocks = (new Collection($dataOut))
     ->filter(fn ($achievement) => (bool) $achievement['HardcoreMode'])
     ->keyBy('ID');
 
-$dataOut = collect($dataOut)
+$dataOut = (new Collection($dataOut))
     // results in unique IDs
     ->keyBy('ID')
-    ->filter(fn ($achievement) => !(bool) $achievement['HardcoreMode'])
+    ->filter(fn ($achievement) => !$achievement['HardcoreMode'])
     // merge on top to make sure hardcore unlocks take precedence
     ->merge($hardcoreUnlocks)
     ->map(function ($achievement) {

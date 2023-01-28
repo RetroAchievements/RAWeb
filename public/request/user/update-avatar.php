@@ -9,17 +9,17 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 
 try {
     UploadAvatar($user, request()->post('imageData'));
-} catch (Exception $ex) {
-    $error = $ex->getMessage();
+} catch (Exception $exception) {
+    $error = $exception->getMessage();
     if ($error == 'Invalid file type' || $error == 'File too large') {
         return response()->json(['message' => $error], 400);
     }
 
-    if (preg_match('/(not a .* file)/i', $ex->getMessage(), $match)) {
+    if (preg_match('/(not a .* file)/i', $exception->getMessage(), $match)) {
         return response()->json(['message' => ucfirst($match[0])], 400);
     }
 
-    Log::error($ex);
+    Log::error($exception->getMessage());
     abort(500);
 }
 

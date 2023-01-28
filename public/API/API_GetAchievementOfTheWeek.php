@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use LegacyApp\Site\Models\StaticData;
 
 /*
@@ -40,7 +41,6 @@ use LegacyApp\Site\Models\StaticData;
  */
 
 $staticData = StaticData::first();
-$user = null;
 $achievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
 $startAt = $staticData['Event_AOTW_StartAt'] ?? null;
 
@@ -51,7 +51,7 @@ if (empty($achievementID)) {
     ]);
 }
 
-$achievementData = GetAchievementMetadataJSON($achievementID);
+$achievementData = GetAchievementMetadataJSON((int) $achievementID);
 
 $achievement = [
     'ID' => $achievementData['AchievementID'] ?? null,
@@ -78,7 +78,7 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, 0, 500);
+$unlocks = getAchievementUnlocksData((int) $achievementID, $numWinners, $numPossibleWinners, null, 0, 500);
 
 /*
  * reset unlocks if there is no start date to prevent listing invalid entries
@@ -88,7 +88,7 @@ if (empty($startAt)) {
 }
 
 if (!empty($startAt)) {
-    $unlocks = $unlocks->filter(fn ($unlock) => (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt));
+    $unlocks = $unlocks->filter(fn ($unlock) => Carbon::parse($unlock['DateAwarded'])->gte($startAt));
 }
 
 // reverse order so newest winners are last

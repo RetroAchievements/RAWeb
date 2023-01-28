@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Carbon;
+use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 
-function RenderRecentForumPostsComponent($numToFetch = 4): void
+function RenderRecentForumPostsComponent(int $numToFetch = 4): void
 {
     /** @var ?User $user */
     $user = auth()->user();
-    $permissions = $user?->Permissions;
+    $permissions = $user?->Permissions ?? Permissions::Unregistered;
 
     echo "<div class='component'>";
     echo "<h3>Forum Activity</h3>";

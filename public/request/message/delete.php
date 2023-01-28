@@ -1,12 +1,13 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'message' => 'required|integer|exists:mysql_legacy.Messages,ID',
 ]);
 

@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Facades\Validator;
 
-function sanitize_outputs(&...$outputs): void
+function sanitize_outputs(string|int|null &...$outputs): void
 {
+    /** @var string $output */
     foreach ($outputs as &$output) {
         if (!empty($output)) {
-            $output = htmlentities($output, null, null, false);
+            $output = htmlentities($output, double_encode: false);
         }
     }
 }
@@ -26,10 +29,10 @@ function attributeEscape(?string $input): string
     return str_replace('"', "&quot;", $input);
 }
 
-function isValidUsername($username): bool
+function isValidUsername(?string $username = null): bool
 {
     // Note: use request validation where applicable instead of checking the username manually
-    // Note: allow 2 character user names for existing accounts. New accounts are limited to 4.
+    // Note: allow 2 character usernames for existing accounts. New accounts are limited to 4.
     return Validator::make(
         ['username' => $username],
         ['username' => ['min:2', 'max:20', new CtypeAlnum()]]

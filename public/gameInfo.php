@@ -139,8 +139,8 @@ if ($v != 1 && $isFullyFeaturedGame) {
                     </form>
 
                     <?php if ($userWebsitePrefs): ?>
-                        <button 
-                            class='break-words whitespace-normal leading-normal' 
+                        <button
+                            class='break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
                             Yes. And never ask me again for games with mature content.
@@ -1384,15 +1384,15 @@ sanitize_outputs(
             }
             echo "</div>";
 
-            if (count($gameSubsets) > 0) {
+            if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');
             }
 
-            if (count($gameAlts) > 0) {
+            if (!empty($gameAlts)) {
                 RenderGameAlts($gameAlts, 'Similar Games');
             }
 
-            if (count($gameHubs) > 0) {
+            if (!empty($gameHubs)) {
                 RenderGameAlts($gameHubs, 'Collections');
             }
 

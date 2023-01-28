@@ -1,12 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use LegacyApp\Community\Enums\ArticleType;
 
-function getMD5List($consoleID): array
+function getMD5List(int $consoleID): array
 {
-    sanitize_sql_inputs($consoleID);
-    settype($consoleID, 'integer');
-
     $retVal = [];
 
     $whereClause = "";
@@ -23,7 +22,7 @@ function getMD5List($consoleID): array
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            settype($nextData['GameID'], 'integer');
+            $nextData['GameID'] = (int) $nextData['GameID'];
             $retVal[$nextData['MD5']] = $nextData['GameID'];
             // echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
         }
@@ -32,10 +31,8 @@ function getMD5List($consoleID): array
     return $retVal;
 }
 
-function getHashListByGameID($gameID): array
+function getHashListByGameID(int $gameID): array
 {
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
     if ($gameID < 1) {
         return [];
     }
@@ -56,7 +53,7 @@ function getHashListByGameID($gameID): array
     return $retVal;
 }
 
-function getGameIDFromMD5($md5)
+function getGameIDFromMD5(string $md5): int
 {
     sanitize_sql_inputs($md5);
 
@@ -65,18 +62,17 @@ function getGameIDFromMD5($md5)
 
     if ($dbResult !== false && mysqli_num_rows($dbResult) >= 1) {
         $data = mysqli_fetch_assoc($dbResult);
-        settype($data['GameID'], 'integer');
 
-        return $data['GameID'];
-    } else {
-        return 0;
+        return (int) $data['GameID'];
     }
+
+    return 0;
 }
 
 /**
  * Gets the list of hashes and hash information from the databased using the input offset and count.
  */
-function getHashList($offset, $count, $searchedHash): array
+function getHashList(int $offset, int $count, string $searchedHash): array
 {
     sanitize_sql_inputs($offset, $count, $searchedHash);
 
@@ -138,7 +134,7 @@ function getTotalHashes(): int
 
 function removeHash(string $user, int $gameID, string $hash): bool
 {
-    sanitize_sql_inputs($gameID, $hash);
+    sanitize_sql_inputs($hash);
 
     $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$hash'";
     $dbResult = s_mysql_query($query);
@@ -151,9 +147,14 @@ function removeHash(string $user, int $gameID, string $hash): bool
     return $result;
 }
 
-function updateHashDetails(string $user, int $gameID, string $hash, ?string $name, ?string $labels): bool
-{
-    sanitize_sql_inputs($gameID, $hash, $name, $labels);
+function updateHashDetails(
+    string $user,
+    int $gameID,
+    string $hash,
+    ?string $name,
+    ?string $labels
+): bool {
+    sanitize_sql_inputs($hash, $name, $labels);
 
     $query = "UPDATE GameHashLibrary SET Name=";
 

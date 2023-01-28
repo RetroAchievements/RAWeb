@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 function avatar(
-    $resource,
-    $id,
-    $label = null,
-    $link = null,
+    string $resource,
+    int|string $id,
+    ?string $label = null,
+    ?string $link = null,
     string|bool $tooltip = true,
-    $class = 'inline',
-    $iconUrl = null,
-    $iconSize = 32,
-    $iconClass = 'badgeimg',
+    string $class = 'inline',
+    ?string $iconUrl = null,
+    int $iconSize = 32,
+    string $iconClass = 'badgeimg',
     ?string $context = null,
     bool $sanitize = true,
     ?string $altText = null,

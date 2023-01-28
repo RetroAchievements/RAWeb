@@ -144,11 +144,7 @@ RenderContentStart("Game Compare");
                     continue;
                 }
 
-                if ($achIter++ % 2 == 0) {
-                    echo "<tr>";
-                } else {
-                    echo "<tr>";
-                }
+                echo "<tr>";
 
                 $achID = $nextAch['ID'];
                 $achTitle = $nextAch['Title'];

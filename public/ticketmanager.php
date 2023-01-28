@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Str;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\TicketAction;
 use LegacyApp\Community\Enums\TicketFilters;
@@ -42,7 +43,7 @@ if ($ticketID != 0) {
     $altTicketData = ($ticketData !== null) ? getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All) : [];
     $numOpenTickets = 0;
     foreach ($altTicketData as $pastTicket) {
-        settype($pastTicket["ID"], 'integer');
+        $pastTicket["ID"] = (int) $pastTicket["ID"];
 
         if ($pastTicket["ReportState"] == TicketState::Open && $pastTicket["ID"] !== $ticketID) {
             $numOpenTickets++;
@@ -58,6 +59,7 @@ $resolvedByUser = null;
 $gamesTableFlag = 0;
 $gameIDGiven = 0;
 $achievementIDGiven = 0;
+$achievementTitle = null;
 if ($ticketID == 0) {
     $gamesTableFlag = requestInputSanitized('f', 3, 'integer');
     if ($gamesTableFlag == 1) {
@@ -82,6 +84,7 @@ if ($ticketID == 0) {
         if ($achievementIDGiven > 0) {
             $achievementData = Achievement::find($achievementIDGiven);
             $achievementTitle = $achievementData['Title'];
+            sanitize_outputs($achievementTitle);
             $gameIDGiven = $achievementData['GameID']; // overwrite the given game ID
         }
 
@@ -100,14 +103,14 @@ if ($ticketID == 0) {
 }
 
 if (!empty($gameIDGiven)) {
-    getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
+    $gameData = getGameData($gameIDGiven);
+    $gameTitle = $gameData['Title'] ?? '';
+    $consoleName = $gameData['ConsoleName'] ?? '';
+    sanitize_outputs(
+        $gameTitle,
+        $consoleName,
+    );
 }
-
-sanitize_outputs(
-    $achievementTitle,
-    $gameTitle,
-    $consoleName,
-);
 
 $pageTitle = "Ticket Manager";
 
@@ -197,11 +200,7 @@ RenderContentStart($pageTitle);
                     $consoleName,
                 );
 
-                if ($rowCount++ % 2 == 0) {
-                    echo "<tr>";
-                } else {
-                    echo "<tr>";
-                }
+                echo "<tr>";
 
                 echo "<td>";
                 echo gameAvatar($nextTicket);
@@ -230,7 +229,7 @@ RenderContentStart($pageTitle);
                     $appendParam = function (&$link, $param, $fallback, $default) use ($flag, $value, $flag2, $value2) {
                         $param_value = ($flag == $param) ? $value : (($flag2 == $param) ? $value2 : $fallback);
                         if ($param_value != $default) {
-                            $link .= str_contains($link, '?') ? '&' : '?';
+                            $link .= Str::contains($link, '?') ? '&' : '?';
                             $link .= $param . '=' . $param_value;
                         }
                     };
@@ -255,9 +254,9 @@ RenderContentStart($pageTitle);
                         }
 
                         return "<b><a href='" . $createLink('t', $ticketFilters & ~$ticketFilter) . "'>*$label</a></b>";
-                    } else {
-                        return "<a href='" . $createLink('t', $ticketFilters | $ticketFilter) . "'>$label</a>";
                     }
+
+                    return "<a href='" . $createLink('t', $ticketFilters | $ticketFilter) . "'>$label</a>";
                 };
 
                 echo "<div>";
@@ -437,11 +436,7 @@ RenderContentStart($pageTitle);
                         $resolvedBy
                     );
 
-                    if ($rowCount++ % 2 == 0) {
-                        echo "<tr>";
-                    } else {
-                        echo "<tr>";
-                    }
+                    echo "<tr>";
 
                     echo "<td>";
                     echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
@@ -487,7 +482,7 @@ RenderContentStart($pageTitle);
 
                 echo "<div class='float-right row'>";
                 $baseLink = $createLink(null, null);
-                $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
+                $baseLink .= (Str::contains($baseLink, '?') ? '&' : '?');
                 RenderPaginator($filteredTicketsCount, $maxCount, $offset, "{$baseLink}o=");
                 echo "</div>";
             } else {
@@ -630,8 +625,8 @@ RenderContentStart($pageTitle);
 
                         foreach ($altTicketData as $nextTicket) {
                             $nextTicketID = $nextTicket['ID'];
-                            settype($nextTicketID, 'integer');
-                            settype($ticketID, 'integer');
+                            $nextTicketID = (int) $nextTicketID;
+                            $ticketID = (int) $ticketID;
 
                             if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] == TicketState::Open)) {
                                 echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
@@ -648,9 +643,9 @@ RenderContentStart($pageTitle);
 
                         foreach ($altTicketData as $nextTicket) {
                             $nextTicketID = $nextTicket['ID'];
-                            settype($nextTicketID, 'integer');
-                            settype($ticketID, 'integer');
-                            settype($nextTicket['ReportState'], 'integer');
+                            $nextTicketID = (int) $nextTicketID;
+                            $ticketID = (int) $ticketID;
+                            $nextTicket['ReportState'] = (int) $nextTicket['ReportState'];
 
                             if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] !== TicketState::Open)) {
                                 echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
@@ -862,8 +857,7 @@ RenderContentStart($pageTitle);
                 echo "</tbody></table>";
                 echo "</div>";
 
-                $dataOut = null;
-                if ($permissions >= Permissions::Developer && getAchievementMetadata($achID, $dataOut)) {
+                if ($permissions >= Permissions::Developer && $dataOut = getAchievementMetadata($achID)) {
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";

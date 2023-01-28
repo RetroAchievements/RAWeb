@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use LegacyApp\Platform\Models\Achievement;
 
 function achievementAvatar(
@@ -54,23 +57,25 @@ function achievementAvatar(
         iconClass: $iconClass,
         context: $context,
         sanitize: $title === null,
-        altText: $title ?? $label,
+        altText: $title ?? (is_string($label) ? $label : null),
     );
 }
 
 /**
  * Render achievement title, parsing `[m]` (missable) as a tag
  */
-function renderAchievementTitle(string $title, bool $tags = true): string
+function renderAchievementTitle(?string $title, bool $tags = true): string
 {
-    if (!str_contains($title, '[m]')) {
+    if (!$title) {
+        return '';
+    }
+
+    if (!Str::contains($title, '[m]')) {
         return $title;
     }
     $span = '';
     if ($tags) {
-        $span = "<span class='tag missable' title='Missable'>"
-            . "<abbr>[<b>m</b>]</abbr>"
-            . "</span>";
+        $span = '<span class=\'tag missable\' title=\'Missable\'><abbr>[<b>m</b>]</abbr></span>';
     }
 
     return trim(str_replace('[m]', $span, $title));
@@ -90,12 +95,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     }
 
     if (empty($data)) {
-        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', function () use ($id) {
-            $data = [];
-            getAchievementMetadata($id, $data);
-
-            return $data;
-        });
+        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => getAchievementMetadata($id));
     }
 
     $title = renderAchievementTitle($data['AchievementTitle'] ?? $data['Title'] ?? null);
