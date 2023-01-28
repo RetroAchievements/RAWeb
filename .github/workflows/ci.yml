@@ -1,13 +1,13 @@
 on: [pull_request]
 
 jobs:
-  php-cs-fixer:
+  php:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
         php: [8.0]
-    name: php-cs-fixer (PHP ${{ matrix.php }})
+    name: php (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -22,56 +22,18 @@ jobs:
         run: composer install
       - name: Lint
         run: composer lint
-
-  phpstan:
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [8.0]
-    name: phpstan (PHP ${{ matrix.php }})
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: mbstring
-          tools: composer:v2
-          coverage: none
-      - name: Install
-        run: composer install
       - name: Analyse
         run: composer analyse
-
-  phpunit:
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [8.0]
-    name: phpunit (PHP ${{ matrix.php }})
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: mbstring
-          tools: composer:v2
-          coverage: none
-      - name: Install
-        run: composer install
       - name: Test
         run: composer paratest
 
-  eslint:
+  node:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
-    name: eslint
+      matrix:
+        node: [18.8]
+    name: node (node ${{ matrix.node }})
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
