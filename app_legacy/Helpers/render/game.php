@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Cache;
-use LegacyApp\Platform\Models\Game;
 use LegacyApp\Site\Enums\Permissions;
 
 function gameAvatar(
