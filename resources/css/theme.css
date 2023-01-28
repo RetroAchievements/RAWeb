@@ -7,7 +7,7 @@ h1, h2, h3, h4 {
   color: var(--heading-color);
 }
 
-#mainpage h1, #mainpage h2, #mainpage h3 {
+h1, h2, h3 {
   border-bottom: 1px solid var(--heading-color);
 }
 
