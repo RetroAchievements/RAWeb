@@ -3,7 +3,7 @@ body {
   background: var(--bg-color)
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, .text-heading {
   color: var(--heading-color);
 }
 
@@ -17,6 +17,14 @@ a {
 
 a:hover {
   color: var(--link-hover-color);
+}
+
+.text-discord {
+  color: #7289da;
+}
+
+.text-patreon {
+  color: #f96854;
 }
 
 /* Scheme */
