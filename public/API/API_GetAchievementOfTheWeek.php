@@ -78,21 +78,21 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 500);
+$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $user, 0, 500);
 
 /*
  * reset unlocks if there is no start date to prevent listing invalid entries
  */
 if (empty($startAt)) {
-    $winnerInfo = [];
+    $unlocks = collect();
 }
 
 if (!empty($startAt)) {
-    $winnerInfo = array_filter($winnerInfo, fn ($unlock) => (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt));
+    $unlocks = $unlocks->filter(fn ($unlock) => (int) strtotime($unlock['DateAwarded']) >= (int) strtotime($startAt));
 }
 
 // reverse order so newest winners are last
-usort($winnerInfo, fn ($a, $b) => strtotime($a['DateAwarded']) - strtotime($b['DateAwarded']));
+$unlocks->sortByDesc('DateAwarded');
 
 return response()->json([
     'Achievement' => $achievement,
@@ -101,6 +101,6 @@ return response()->json([
     'Game' => $game,
     'StartAt' => $startAt,
     'TotalPlayers' => $numPossibleWinners ?? 0,
-    'Unlocks' => array_values($winnerInfo ?? []),
+    'Unlocks' => $unlocks->values(),
     'UnlocksCount' => $numWinners ?? 0,
 ]);

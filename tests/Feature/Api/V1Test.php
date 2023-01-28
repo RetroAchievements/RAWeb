@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\System;
+use LegacyApp\Site\Models\StaticData;
 use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
@@ -125,22 +127,54 @@ class V1Test extends TestCase
             ]);
     }
 
-    // public function testGetAchievementOfTheWeek(): void
-    // {
-    //     // TODO
-    //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
-    //     $this->get($this->apiUrl('GetAchievementOfTheWeek'))
-    //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
-    // }
-    //
+    public function testGetAchievementOfTheWeek(): void
+    {
+        $this->get($this->apiUrl('GetAchievementOfTheWeek'))
+            ->assertSuccessful()
+            ->assertJson(['Achievement' => ['ID' => null], 'StartAt' => null]);
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->create(['GameID' => $game->ID]);
+        /** @var PlayerAchievement $unlock */
+        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+
+        $staticData = StaticData::factory()->create([
+            'Event_AOTW_AchievementID' => $achievement->ID,
+            'Event_AOTW_StartAt' => Carbon::now()->subDay(),
+        ]);
+
+        $this->get($this->apiUrl('GetAchievementOfTheWeek'))
+            ->assertSuccessful()
+            ->assertJson([
+                'Achievement' => [
+                    'ID' => $achievement->ID,
+                ],
+                'Console' => [
+                    'ID' => $system->ID,
+                ],
+                'ForumTopic' => [
+                    'ID' => 1,
+                ],
+                'Game' => [
+                    'ID' => $game->ID,
+                ],
+                'StartAt' => $staticData->Event_AOTW_StartAt->jsonSerialize(),
+                'TotalPlayers' => 1,
+                'Unlocks' => [
+                    [
+                        'User' => $this->user->User,
+                        'RAPoints' => $this->user->RAPoints,
+                        'HardcoreMode' => $unlock->HardcoreMode,
+                    ],
+                ],
+                'UnlocksCount' => 1,
+            ]);
+    }
+
     // public function testGetAchievementsEarnedBetween(): void
     // {
     //     // TODO
@@ -172,23 +206,46 @@ class V1Test extends TestCase
     //             'Name' => $system->Name,
     //         ]);
     // }
-    //
-    // public function testGetAchievementUnlocks(): void
-    // {
-    //     // TODO
-    //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
-    //     $this->get($this->apiUrl('GetAchievementUnlocks'))
-    //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
-    // }
-    //
+
+    public function testGetAchievementUnlocks(): void
+    {
+        $this->get($this->apiUrl('GetAchievementUnlocks'))
+            ->assertSuccessful()
+            ->assertJson(['Achievement' => ['ID' => null]]);
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->create(['GameID' => $game->ID]);
+        /** @var PlayerAchievement $unlock */
+        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+
+        $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => $achievement->ID]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Achievement' => [
+                    'ID' => $achievement->ID,
+                ],
+                'Console' => [
+                    'ID' => $system->ID,
+                ],
+                'Game' => [
+                    'ID' => $game->ID,
+                ],
+                'TotalPlayers' => 1,
+                'Unlocks' => [
+                    [
+                        'User' => $this->user->User,
+                        'RAPoints' => $this->user->RAPoints,
+                        'HardcoreMode' => $unlock->HardcoreMode,
+                    ],
+                ],
+                'UnlocksCount' => 1,
+            ]);
+    }
+
     // public function testGetActiveClaims(): void
     // {
     //     // TODO

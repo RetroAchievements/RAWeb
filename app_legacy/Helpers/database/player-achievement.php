@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
@@ -328,14 +329,15 @@ function getAchievementUnlocksData(
     &$numWinners,
     &$numPossibleWinners,
     &$numRecentWinners,
-    &$winnerInfo,
     $user,
     $offset = 0,
     $limit = 50
-): bool {
-    sanitize_sql_inputs($achID, $user, $offset, $limit);
-
-    $winnerInfo = [];
+): Collection {
+    $bindings = [
+        $achID,
+        $user,
+        $achID,
+    ];
 
     $query = "
         SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
@@ -344,22 +346,16 @@ function getAchievementUnlocksData(
             SELECT aw.AchievementID
             FROM Awarded AS aw
             INNER JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE aw.AchievementID = $achID AND aw.HardcoreMode = 0
-              AND (NOT ua.Untracked OR ua.User = \"$user\")
+            WHERE aw.AchievementID = ? AND aw.HardcoreMode = 0
+              AND (NOT ua.Untracked OR ua.User = ?)
         ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
-        WHERE ach.ID = $achID
+        WHERE ach.ID = ?
     ";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
-    }
+    $data = legacyDbFetch($query, $bindings);
 
-    $data = mysqli_fetch_assoc($dbResult);
     $numWinners = $data['NumEarned'];
-    $gameID = $data['GameID'];   // Grab GameID at this point
-
-    $numPossibleWinners = getTotalUniquePlayers($gameID, $user, false, null);
+    $numPossibleWinners = getTotalUniquePlayers($data['GameID'], $user);
 
     // Get recent winners, and their most recent activity:
     $query = "SELECT ua.User, ua.RAPoints,
@@ -367,23 +363,22 @@ function getAchievementUnlocksData(
                      CASE WHEN aw_hc.Date IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode
               FROM UserAccounts ua
               INNER JOIN
-                     (SELECT User, Date FROM Awarded WHERE AchievementID = $achID AND HardcoreMode = 0) AS aw_sc
+                     (SELECT User, Date FROM Awarded WHERE AchievementID = ? AND HardcoreMode = 0) AS aw_sc
                      ON aw_sc.User = ua.User
               LEFT JOIN
-                     (SELECT User, Date FROM Awarded WHERE AchievementID = $achID AND HardcoreMode = 1) AS aw_hc
+                     (SELECT User, Date FROM Awarded WHERE AchievementID = ? AND HardcoreMode = 1) AS aw_hc
                      ON aw_hc.User = ua.User
-              WHERE (NOT ua.Untracked OR ua.User = \"$user\" )
+              WHERE (NOT ua.Untracked OR ua.User = ?)
               ORDER BY DateAwarded DESC
-              LIMIT $offset, $limit";
+              LIMIT ?, ?";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $winnerInfo[] = $db_entry;
-        }
-    }
-
-    return true;
+    return legacyDbFetchAll($query, [
+        $achID,
+        $achID,
+        $user,
+        $offset,
+        $limit,
+    ]);
 }
 
 function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = null, $friendsOnly = null): array
@@ -583,8 +578,10 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
         $flags,
     ];
 
+    $requestedByStatement = "";
     if ($requestedBy) {
         $bindings[] = $requestedBy;
+        $requestedByStatement = "OR ua.User = ?";
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
@@ -599,7 +596,7 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
             WHERE gd.ID = ?
               AND aw.HardcoreMode = ?
               AND ach.Flags = ?
-              AND (NOT ua.Untracked" . ($requestedBy ? " OR ua.User = ?" : "") . ")
+              AND (NOT ua.Untracked $requestedByStatement)
             GROUP BY aw.User
             ORDER BY AwardedCount DESC
         ) AS InnerTable

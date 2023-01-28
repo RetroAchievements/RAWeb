@@ -312,19 +312,28 @@ function getUsersCompletedGamesAndMax($user): array
     return $retVal;
 }
 
-function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $flags = null)
+function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOnly = false, $flags = null): int
 {
-    sanitize_sql_inputs($gameID, $requestedBy);
-    settype($gameID, 'integer');
+    $bindings = [
+        $gameID,
+    ];
 
-    $hardcoreCond = "";
+    $hardcoreStatement = '';
     if ($hardcoreOnly) {
-        $hardcoreCond = " AND aw.HardcoreMode =" . UnlockMode::Hardcore;
+        $bindings[] = UnlockMode::Hardcore;
+        $hardcoreStatement = ' AND aw.HardcoreMode = ?';
     }
 
-    $achievementStateCond = "";
+    $achievementStatement = "";
     if ($flags !== null) {
-        $achievementStateCond = "AND ach.Flags = $flags";
+        $bindings[] = $flags;
+        $achievementStatement = "AND ach.Flags = ?";
+    }
+
+    $requestedByStatement = "";
+    if ($requestedBy) {
+        $bindings[] = $requestedBy;
+        $requestedByStatement = "OR ua.User = ?";
     }
 
     $query = "
@@ -332,16 +341,12 @@ function getTotalUniquePlayers($gameID, $requestedBy, $hardcoreOnly = false, $fl
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.GameID = $gameID
-        $hardcoreCond $achievementStateCond
-        AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
+        WHERE ach.GameID = ?
+        $hardcoreStatement $achievementStatement
+        AND (NOT ua.Untracked $requestedByStatement)
     ";
 
-    $dbResult = s_mysql_query($query);
-
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return $data['UniquePlayers'];
+    return legacyDbFetch($query, $bindings)['UniquePlayers'] ?? 0;
 }
 
 function getGameRecentPlayers($gameID, $maximum_results = 0): array
