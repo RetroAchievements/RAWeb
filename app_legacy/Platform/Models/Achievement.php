@@ -42,9 +42,15 @@ class Achievement extends BaseModel
             ->using(PlayerAchievement::class);
     }
 
-    public function unlocks(): HasMany
+    public function unlocks(int $mode = null): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class, 'AchievementID');
+        $hasMany = $this->hasMany(PlayerAchievement::class, 'AchievementID');
+
+        if ($mode === null) {
+            return $hasMany;
+        }
+
+        return $hasMany->where('HardcoreMode', $mode);
     }
 
     public function scopeType(Builder $query, int $type): Builder
