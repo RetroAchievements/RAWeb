@@ -58,37 +58,25 @@ export default defineConfig(({ mode }) => {
 
 // https://freek.dev/2276-making-vite-and-valet-play-nice-together
 function detectServerConfig(env) {
-  const appUrl = new URL(env.APP_URL);
-  let { host } = appUrl;
-
-  // remove port - vite uses its own
-  if (host.startsWith('localhost')) {
-    host = 'localhost';
-
-    return {
-      hmr: { host },
-      host,
-      // port: env.VITE_PORT
-    };
-  }
-
+  const { host } = new URL(env.APP_URL);
   const keyPath = resolve(homedir(), `.config/valet/Certificates/${host}.key`);
   const certificatePath = resolve(homedir(), `.config/valet/Certificates/${host}.crt`);
 
-  const config = {
-    hmr: { host },
-    host,
-    port: env.VITE_PORT
-  };
-
   if (!existsSync(keyPath) || !existsSync(certificatePath)) {
-    return config;
+    return {
+      hmr: { host: 'localhost' },
+      host: 'localhost',
+      port: env.VITE_PORT
+    };
   }
 
-  config.https = {
-    key: readFileSync(keyPath),
-    cert: readFileSync(certificatePath),
+  return {
+    hmr: { host },
+    host,
+    port: env.VITE_PORT,
+    https: {
+      key: readFileSync(keyPath),
+      cert: readFileSync(certificatePath),
+    }
   };
-
-  return config;
 }
