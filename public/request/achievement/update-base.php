@@ -22,6 +22,8 @@ if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Autho
     abort(403);
 }
 
+$achievementId = $achievement['ID'];
+
 if (UploadNewAchievement(
     author: $user,
     gameID: $achievement['GameID'],
@@ -33,7 +35,7 @@ if (UploadNewAchievement(
     points: $input['points'],
     mem: $achievement['MemAddr'],
     type: $achievement['Flags'],
-    idInOut: $achievement['ID'],
+    idInOut: $achievementId,
     badge: $achievement['BadgeName'],
     errorOut: $errorOut
 )) {
