@@ -10,11 +10,12 @@ class UpdateGameWeightedPoints
     {
         sanitize_sql_inputs($gameID);
 
-        $query = "SELECT ach.ID, ach.Points, COUNT(aw.HardcoreMode) AS NumAchieved
+        $query = "SELECT ach.ID, ach.Points, SUM(aw.HardcoreMode) AS NumAchieved
               FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.HardcoreMode = 1
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User AND NOT ua.Untracked
-              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore . "
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+              WHERE ach.GameID = $gameID AND NOT ua.Untracked
+              AND ach.Flags = " . AchievementType::OfficialCore . "
               GROUP BY ach.ID";
 
         $dbResult = s_mysql_query($query);
