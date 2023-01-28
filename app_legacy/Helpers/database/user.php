@@ -21,9 +21,9 @@ function GetUserData($user): ?array
     return mysqli_fetch_assoc($dbResult);
 }
 
-function getAccountDetails(&$user, &$dataOut): bool
+function getAccountDetails(&$username, &$dataOut): bool
 {
-    if (!isset($user) || mb_strlen($user) < 2) {
+    if (!isset($username) || mb_strlen($username) < 2) {
         return false;
     }
 
@@ -33,16 +33,18 @@ function getAccountDetails(&$user, &$dataOut): bool
                      RichPresenceMsg, LastGameID, LastLogin, LastActivityID,
                      Created, DeleteRequested, Untracked
                 FROM UserAccounts
-                WHERE User=?
+                WHERE User = :username
                 AND Deleted IS NULL";
 
-    $dataOut = legacyDbFetch($query, [$user]);
+    $dataOut = legacyDbFetch($query, [
+        'username' => $username,
+    ]);
 
     if (!$dataOut) {
         return false;
     }
 
-    $user = $dataOut['User'];
+    $username = $dataOut['User'];
 
     return true;
 }

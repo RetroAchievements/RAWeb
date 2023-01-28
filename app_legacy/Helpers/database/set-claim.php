@@ -53,16 +53,24 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
 /**
  * Checks if the user already has the game claimed. Allows for checking primary/collaboration claims as well as set type.
  */
-function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
+function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
 {
+    $bindings = [
+        'status' => ClaimStatus::Active,
+        'username' => $username,
+        'gameId' => $gameID,
+    ];
+
     $claimTypeCondition = '';
     if ($isPrimaryClaim) {
-        $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
+        $bindings['claimType'] = ClaimType::Primary;
+        $claimTypeCondition = 'AND ClaimType = :claimType';
     }
 
     $setTypeCondition = '';
     if (isset($setType)) {
-        $setTypeCondition = 'AND SetType = ' . $setType;
+        $bindings['$setType'] = $setType;
+        $setTypeCondition = 'AND SetType = :setType';
     }
 
     $query = "
@@ -71,13 +79,13 @@ function hasSetClaimed(string $user, int $gameID, bool $isPrimaryClaim = false, 
         FROM
             SetClaim
         WHERE
-            Status = " . ClaimStatus::Active . "
+            Status = :status
             $claimTypeCondition
             $setTypeCondition
-            AND User = ?
-            AND GameID = ?";
+            AND User = :username
+            AND GameID = :gameId";
 
-    $dbResult = legacyDbFetch($query, [$user, $gameID]);
+    $dbResult = legacyDbFetch($query, $bindings);
 
     return $dbResult['claimCount'] > 0;
 }
