@@ -4,7 +4,7 @@
         Global Ranking
     </a>
     <a class="btn text-center py-2" href="{{ route('download.index') }}">
-        <span class="text-heading"><x-fas-download/></span>
+        <span class="text-heading"><x-fas-gamepad/></span>
         Download Emulator
     </a>
     @if(config('services.discord.invite_id'))
