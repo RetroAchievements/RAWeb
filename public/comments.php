@@ -32,7 +32,6 @@ switch ($articleTypeID)
         $game = Game::findOrFail($articleID);
         /** @var System $console */
         $console = $game->console;
-
         $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
@@ -92,8 +91,6 @@ switch ($articleTypeID)
         $achievement = Achievement::findOrFail($articleID);
         /** @var Game $game */
         $game = Game::findOrFail($achievement->GameID);
-        /** @var System $console */
-        $console = $game->console;
         $pageTitle = $achievement->Title;
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
@@ -106,7 +103,6 @@ switch ($articleTypeID)
         $leaderboard = Leaderboard::findOrFail($articleID);
         /** @var Game $game */
         $game = Game::findOrFail($leaderboard->GameID);
-        $console = $game->console;
         $pageTitle = $leaderboard->Title;
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
