@@ -127,12 +127,15 @@ class V1Test extends TestCase
             ]);
     }
 
-    public function testGetAchievementOfTheWeek(): void
+    public function testGetAchievementOfTheWeekEmptyResponse(): void
     {
         $this->get($this->apiUrl('GetAchievementOfTheWeek'))
             ->assertSuccessful()
             ->assertJson(['Achievement' => ['ID' => null], 'StartAt' => null]);
+    }
 
+    public function testGetAchievementOfTheWeek(): void
+    {
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -179,32 +182,18 @@ class V1Test extends TestCase
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetAchievementsEarnedBetween'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetAchievementsEarnedOnDay(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetAchievementsEarnedOnDay'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
 
     public function testGetAchievementUnlocks(): void
@@ -250,16 +239,9 @@ class V1Test extends TestCase
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetActiveClaims'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
 
     public function testGetConsoleIds(): void
@@ -286,239 +268,134 @@ class V1Test extends TestCase
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetGame'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetGameExtended(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetGameExtended'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetGameInfoAndUserProgress(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetGameInfoAndUserProgress'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetGameList(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetGameList'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetGameRankAndScore(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetGameRankAndScore'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetGameRating(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetGameRating'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetTicketData(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetTicketData'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetTopTenUsers(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetTopTenUsers'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserClaims(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserClaims'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserCompletedGames(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserCompletedGames'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserGameRankAndScore(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserGameRankAndScore'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserProgress(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserProgress'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserRankAndScore(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserRankAndScore'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserRecentlyPlayedGames(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserRecentlyPlayedGames'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
     //
     // public function testGetUserSummary(): void
     // {
     //     // TODO
     //
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
     //     $this->get($this->apiUrl('GetUserSummary'))
     //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
+    //         ->assertExactJson([]);
     // }
 }
