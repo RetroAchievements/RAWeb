@@ -8,7 +8,10 @@ use Database\Factories\Legacy\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 
 class Achievement extends BaseModel
@@ -33,13 +36,29 @@ class Achievement extends BaseModel
         return $this->belongsTo(Game::class, 'GameID');
     }
 
+    public function players(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
+            ->using(PlayerAchievement::class);
+    }
+
+    public function unlocks(): HasMany
+    {
+        return $this->hasMany(PlayerAchievement::class, 'AchievementID');
+    }
+
+    public function scopeType(Builder $query, int $type): Builder
+    {
+        return $query->where('Flags', $type);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('Flags', AchievementType::OfficialCore);
+        return $this->scopeType($query, AchievementType::OfficialCore);
     }
 
     public function scopeUnpublished(Builder $query): Builder
     {
-        return $query->where('Flags', AchievementType::Unofficial);
+        return $this->scopeType($query, AchievementType::Unofficial);
     }
 }

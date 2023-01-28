@@ -10,6 +10,7 @@ use LegacyApp\Community\Enums\TicketFilters;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\ImageType;
+use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Enums\UserPreference;
 
@@ -148,8 +149,8 @@ if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
 
-    $achDist = getAchievementDistribution($gameID, 0, $user, $flags, $numAchievements);
-    $achDistHardcore = getAchievementDistribution($gameID, 1, $user, $flags, $numAchievements);
+    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flags);
+    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flags);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 

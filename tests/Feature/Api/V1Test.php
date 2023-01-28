@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
+use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Models\User;
 use Tests\TestCase;
@@ -22,7 +25,7 @@ class V1Test extends TestCase
         parent::setUp();
 
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'user', 'APIKey' => 'apiKey']);
+        $user = User::factory()->create();
         $this->user = $user;
     }
 
@@ -64,23 +67,63 @@ class V1Test extends TestCase
             ]);
     }
 
-    // public function testGetAchievementDistribution(): void
-    // {
-    //     $systems = System::factory(3)->create();
-    //     /** @var System $system */
-    //     $system = $systems->first();
-    //
-    //     // /** @var Game $game */
-    //     // $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-    //     // Achievement::factory()->count(3)->create(['GameID' => $game->ID, 'Author' => $user->User]);*/
-    //
-    //     $this->get($this->apiUrl('GetAchievementDistribution'))
-    //         ->assertSuccessful()
-    //         ->assertJsonFragment([
-    //             'ID' => $system->ID,
-    //             'Name' => $system->Name,
-    //         ]);
-    // }
+    public function testGetAchievementDistribution(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(0)->ID, 'User' => $this->user->User]);
+        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(1)->ID, 'User' => $this->user->User]);
+
+        $unpublishedAchievements = Achievement::factory()->count(5)->create(['GameID' => $game->ID]);
+        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $unpublishedAchievements->get(0)->ID, 'User' => $this->user->User]);
+        PlayerAchievement::factory()->create(['AchievementID' => $unpublishedAchievements->get(1)->ID, 'User' => $this->user->User]);
+        PlayerAchievement::factory()->create(['AchievementID' => $unpublishedAchievements->get(2)->ID, 'User' => $this->user->User]);
+        PlayerAchievement::factory()->create(['AchievementID' => $unpublishedAchievements->get(3)->ID, 'User' => $this->user->User]);
+
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => -1]))
+            ->assertSuccessful()
+            ->assertJson([]);
+
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore]))
+            ->assertSuccessful()
+            ->assertExactJson([
+                '1' => 0,
+                '2' => 1,
+                '3' => 0,
+            ]);
+
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore]))
+            ->assertSuccessful()
+            ->assertExactJson([
+                '1' => 0,
+                '2' => 0,
+                '3' => 0,
+            ]);
+
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementType::Unofficial]))
+            ->assertSuccessful()
+            ->assertExactJson([
+                '1' => 1,
+                '2' => 0,
+                '3' => 0,
+                '4' => 0,
+                '5' => 0,
+            ]);
+
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore, 'f' => AchievementType::Unofficial]))
+            ->assertSuccessful()
+            ->assertExactJson([
+                '1' => 0,
+                '2' => 0,
+                '3' => 1,
+                '4' => 0,
+                '5' => 0,
+            ]);
+    }
 
     // public function testGetAchievementOfTheWeek(): void
     // {

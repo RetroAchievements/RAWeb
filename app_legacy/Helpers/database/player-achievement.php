@@ -5,6 +5,7 @@ use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
+use LegacyApp\Platform\Models\Game;
 
 function playerHasUnlock(?string $user, $achievementId): array
 {
@@ -565,13 +566,26 @@ function getUnlocksInDateRange($achievementIDs, $startTime, $endTime, $hardcoreM
 /**
  * Gets the achievement distribution to display on the game page.
  */
-function getAchievementDistribution(int $gameID, int $hardcore, ?string $requestedBy, int $flags, $numAchievements = null): array
+function getAchievementDistribution(int $gameID, int $hardcore, ?string $requestedBy = null, int $flags = AchievementType::OfficialCore): array
 {
-    sanitize_sql_inputs($gameID, $hardcore, $requestedBy, $flags);
-    settype($gameID, 'integer');
-    settype($hardcore, 'integer');
-    settype($flags, 'integer');
-    $retval = [];
+    /** @var Game $game */
+    $game = Game::withCount(['achievements' => fn ($query) => $query->type($flags)])
+        ->find($gameID);
+
+    if (!$game || !$game->achievements_count) {
+        // NOTE this will return an empty array instead of an empty object. keep it like this for backwards compatibility.
+        return [];
+    }
+
+    $bindings = [
+        $gameID,
+        $hardcore,
+        $flags,
+    ];
+
+    if ($requestedBy) {
+        $bindings[] = $requestedBy;
+    }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
     $query = "
@@ -582,36 +596,21 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = $gameID AND aw.HardcoreMode = $hardcore AND ach.Flags = $flags
-              AND (NOT ua.Untracked" . (isset($requestedBy) ? " OR ua.User = '$requestedBy'" : "") . ")
+            WHERE gd.ID = ?
+              AND aw.HardcoreMode = ?
+              AND ach.Flags = ?
+              AND (NOT ua.Untracked" . ($requestedBy ? " OR ua.User = ?" : "") . ")
             GROUP BY aw.User
             ORDER BY AwardedCount DESC
         ) AS InnerTable
         GROUP BY InnerTable.AwardedCount";
 
-    $dbResult = s_mysql_query($query);
+    $data = legacyDbFetchAll($query, $bindings)
+        ->mapWithKeys(fn ($distribution) => [(int) $distribution['AwardedCount'] => (int) $distribution['NumUniquePlayers']]);
 
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $awardedCount = $data['AwardedCount'];
-            $numUnique = $data['NumUniquePlayers'];
-            settype($awardedCount, 'integer');
-            settype($numUnique, 'integer');
-            $retval[$awardedCount] = $numUnique;
-        }
-
-        // fill the gaps and sort
-        if ($numAchievements === null) {
-            $numAchievements = getGameMetadataByFlags($gameID, $requestedBy, $achievementData, $gameData, 1, null, $flags);
-        }
-
-        for ($i = 1; $i <= $numAchievements; $i++) {
-            if (!array_key_exists($i, $retval)) {
-                $retval[$i] = 0;
-            }
-        }
-        ksort($retval);
-    }
-
-    return $retval;
+    return collect()->range(1, $game->achievements_count)
+        ->flip()
+        ->map(fn ($value, $index) => $data->get($index, 0))
+        ->sortKeys()
+        ->toArray();
 }
