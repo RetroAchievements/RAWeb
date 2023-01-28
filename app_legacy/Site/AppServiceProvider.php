@@ -28,9 +28,9 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
-            $schedule->command('ra-legacy:site:log-online-users-count')->everyThirtyMinutes();
-            $schedule->command('ra-legacy:site:delete-expired-email-verification-tokens')->daily();
-            $schedule->command('ra-legacy:site:delete-overdue-user-accounts')->daily();
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
+            $schedule->command(DeleteOverdueUserAccounts::class)->daily();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/legacy')]);
