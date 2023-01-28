@@ -52,9 +52,8 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;
 $numPossibleWinners = 0;
-$numRecentWinners = 0;
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $user, 0, 50);
+$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, 0, 50);
 
 $dateWonLocal = "";
 foreach ($unlocks as $userObject) {

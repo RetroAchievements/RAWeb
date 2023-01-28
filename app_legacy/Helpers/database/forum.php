@@ -472,24 +472,24 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
     }
 }
 
-function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, $fromUser = null): Collection
+function getRecentForumPosts($offset, $limit, $numMessageChars, $permissions, $fromUser = null): Collection
 {
-    $bindings = [];
+    $bindings = [
+        'fromOffset' => $offset,
+        'fromLimit' => $limit + 20,
+        'permissions' => $permissions,
+        'limit' => $limit,
+    ];
 
     if (!empty($fromUser)) {
-        $bindings[] = $fromUser;
-        $userClause = "ftc.Author=?";
+        $bindings['fromAuthor'] = $fromUser;
+        $userClause = "ftc.Author = :fromAuthor";
         if ($permissions < Permissions::Admin) {
-            $userClause .= " AND ftc.Authorised=1";
+            $userClause .= " AND ftc.Authorised = 1";
         }
     } else {
-        $userClause = "ftc.Authorised=1";
+        $userClause = "ftc.Authorised = 1";
     }
-
-    $bindings[] = $offset;
-    $bindings[] = $count + 20;
-    $bindings[] = $permissions;
-    $bindings[] = $count;
 
     // 02:08 21/02/2014 - cater for 20 spam messages
     $query = "
@@ -507,14 +507,14 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, $f
             FROM ForumTopicComment AS ftc
             WHERE $userClause
             ORDER BY ftc.DateCreated DESC
-            LIMIT ?, ?
+            LIMIT :fromOffset, :fromLimit
         ) AS LatestComments
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
         LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
-        WHERE ft.RequiredPermissions <= ?
+        WHERE ft.RequiredPermissions <= :permissions
         ORDER BY LatestComments.DateCreated DESC
-        LIMIT 0, ?";
+        LIMIT 0, :limit";
 
     return legacyDbFetchAll($query, $bindings)
         ->map(function ($post) use ($numMessageChars) {

@@ -325,20 +325,13 @@ function getAchievementUnlockCount(int $achID): int
 }
 
 function getAchievementUnlocksData(
-    $achID,
+    $achievementId,
     &$numWinners,
     &$numPossibleWinners,
-    &$numRecentWinners,
-    $user,
+    $username,
     $offset = 0,
     $limit = 50
 ): Collection {
-    $bindings = [
-        $achID,
-        $user,
-        $achID,
-    ];
-
     $query = "
         SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
         FROM Achievements AS ach
@@ -346,16 +339,21 @@ function getAchievementUnlocksData(
             SELECT aw.AchievementID
             FROM Awarded AS aw
             INNER JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE aw.AchievementID = ? AND aw.HardcoreMode = 0
-              AND (NOT ua.Untracked OR ua.User = ?)
+            WHERE aw.AchievementID = :joinAchievementId AND aw.HardcoreMode = :unlockMode
+              AND (NOT ua.Untracked OR ua.User = :username)
         ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
-        WHERE ach.ID = ?
+        WHERE ach.ID = :achievementId
     ";
 
-    $data = legacyDbFetch($query, $bindings);
+    $data = legacyDbFetch($query, [
+        'unlockMode' => UnlockMode::Softcore,
+        'joinAchievementId' => $achievementId,
+        'username' => $username,
+        'achievementId' => $achievementId,
+    ]);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers($data['GameID'], $user);
+    $numPossibleWinners = getTotalUniquePlayers($data['GameID'], $username);
 
     // Get recent winners, and their most recent activity:
     $query = "SELECT ua.User, ua.RAPoints,
@@ -363,21 +361,21 @@ function getAchievementUnlocksData(
                      CASE WHEN aw_hc.Date IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode
               FROM UserAccounts ua
               INNER JOIN
-                     (SELECT User, Date FROM Awarded WHERE AchievementID = ? AND HardcoreMode = 0) AS aw_sc
+                     (SELECT User, Date FROM Awarded WHERE AchievementID = :joinSoftcoreAchievementId AND HardcoreMode = 0) AS aw_sc
                      ON aw_sc.User = ua.User
               LEFT JOIN
-                     (SELECT User, Date FROM Awarded WHERE AchievementID = ? AND HardcoreMode = 1) AS aw_hc
+                     (SELECT User, Date FROM Awarded WHERE AchievementID = :joinHardcoreAchievementId AND HardcoreMode = 1) AS aw_hc
                      ON aw_hc.User = ua.User
-              WHERE (NOT ua.Untracked OR ua.User = ?)
+              WHERE (NOT ua.Untracked OR ua.User = :username)
               ORDER BY DateAwarded DESC
-              LIMIT ?, ?";
+              LIMIT :offset, :limit";
 
     return legacyDbFetchAll($query, [
-        $achID,
-        $achID,
-        $user,
-        $offset,
-        $limit,
+        'joinSoftcoreAchievementId' => $achievementId,
+        'joinHardcoreAchievementId' => $achievementId,
+        'username' => $username,
+        'offset' => $offset,
+        'limit' => $limit,
     ]);
 }
 
@@ -573,15 +571,15 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
     }
 
     $bindings = [
-        $gameID,
-        $hardcore,
-        $flags,
+        'gameId' => $gameID,
+        'unlockMode' => $hardcore,
+        'achievementType' => $flags,
     ];
 
     $requestedByStatement = "";
     if ($requestedBy) {
-        $bindings[] = $requestedBy;
-        $requestedByStatement = "OR ua.User = ?";
+        $bindings['requestedBy'] = $requestedBy;
+        $requestedByStatement = "OR ua.User = :requestedBy";
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
@@ -593,9 +591,9 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE gd.ID = ?
-              AND aw.HardcoreMode = ?
-              AND ach.Flags = ?
+            WHERE gd.ID = :gameId
+              AND aw.HardcoreMode = :unlockMode
+              AND ach.Flags = :achievementType
               AND (NOT ua.Untracked $requestedByStatement)
             GROUP BY aw.User
             ORDER BY AwardedCount DESC

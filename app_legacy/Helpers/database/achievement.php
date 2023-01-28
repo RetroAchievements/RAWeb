@@ -8,20 +8,23 @@ use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Site\Enums\Permissions;
 
 function getAchievementsList(
-    $user,
+    $username,
     $sortBy,
     $params,
-    $count,
+    $limit,
     $offset,
-    $achFlags = 3,
-    $dev = null
+    $achievementType = AchievementType::OfficialCore,
+    $developer = null
 ): Collection {
-    $bindings = [];
+    $bindings = [
+        'offset' => $offset,
+        'limit' => $limit,
+    ];
 
     $innerJoin = "";
-    if ($params > 0 && $user !== null) {
-        $bindings[] = $user;
-        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = ?";
+    if ($params > 0 && $username !== null) {
+        $bindings['username'] = $username;
+        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = :username";
     }
 
     $query = "SELECT
@@ -32,28 +35,28 @@ function getAchievementsList(
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID ";
 
-    if (isset($achFlags)) {
-        $bindings[] = $achFlags;
-        $query .= "WHERE ach.Flags = ? ";
+    if (isset($achievementType)) {
+        $bindings['achievementType'] = $achievementType;
+        $query .= "WHERE ach.Flags = :achievementType ";
         if ($params == 1) {
             $query .= "AND ( !ISNULL( aw.User ) ) AND aw.HardcoreMode = 0 ";
         }
         if ($params == 2) {
             $query .= "AND ( ISNULL( aw.User ) )  ";
         }
-        if (isset($dev)) {
-            $bindings[] = $dev;
-            $query .= "AND ach.Author = ? ";
+        if (isset($developer)) {
+            $bindings['author'] = $developer;
+            $query .= "AND ach.Author = :author ";
         }
         if ((int) $sortBy == 4) {
             $query .= "AND ach.TrueRatio > 0 ";
         }
-    } elseif (isset($dev)) {
-        $bindings[] = $dev;
-        $query .= "WHERE ach.Author = ? ";
+    } elseif (isset($developer)) {
+        $bindings['developer'] = $developer;
+        $query .= "WHERE ach.Author = :developer ";
     }
 
-    if ($params > 0 && $user !== null) {
+    if ($params > 0 && $username !== null) {
         $query .= "GROUP BY ach.ID ";
     }
 
@@ -109,14 +112,12 @@ function getAchievementsList(
             break;
     }
 
-    $bindings[] = $offset;
-    $bindings[] = $count;
-    $query .= "LIMIT ?, ?";
+    $query .= "LIMIT :offset, :limit";
 
     return legacyDbFetchAll($query, $bindings);
 }
 
-function GetAchievementMetadataJSON($achID): ?array
+function GetAchievementMetadataJSON($achievementId): ?array
 {
     $query = "SELECT ach.ID AS ID, ach.ID AS AchievementID, ach.GameID, ach.Title AS Title, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
                 ach.Flags, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
@@ -124,9 +125,9 @@ function GetAchievementMetadataJSON($achID): ?array
               FROM Achievements AS ach
               LEFT JOIN GameData AS g ON g.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = g.ConsoleID
-              WHERE ach.ID = ?";
+              WHERE ach.ID = :achievementId";
 
-    return legacyDbFetch($query, [$achID]);
+    return legacyDbFetch($query, ['achievementId' => $achievementId]);
 }
 
 function GetAchievementMetadata($achievementID, &$dataOut): bool

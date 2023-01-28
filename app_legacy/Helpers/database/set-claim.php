@@ -232,8 +232,6 @@ function getFilteredClaims(
     int $offset = 0,
     int $limit = 50
 ): Collection {
-    $bindings = [];
-
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
     $newSetClaim = ($claimFilter & ClaimFilters::NewSetClaim);
@@ -334,18 +332,21 @@ function getFilteredClaims(
 
     $sortCondition .= $sortOrder;
 
-    // Creare the user data condition
+    $bindings = [
+        'offset' => $offset,
+        'limit' => $limit,
+    ];
+
     $userCondition = '';
     if (isset($username)) {
-        $bindings[] = $username;
-        $userCondition = "AND sc.User=?";
+        $bindings['username'] = $username;
+        $userCondition = "AND sc.User = :username";
     }
 
-    // Create the game condition
     $gameCondition = '';
     if ($gameID > 0) {
-        $bindings[] = $gameID;
-        $gameCondition = "AND sc.GameID=?";
+        $bindings['gameId'] = $gameID;
+        $gameCondition = "AND sc.GameID = :gameId";
     }
 
     // Get expiring claims only
@@ -397,7 +398,7 @@ function getFilteredClaims(
         ORDER BY
             $sortCondition
         LIMIT
-            $offset, $limit";
+            :offset, :limit";
 
     return legacyDbFetchAll($query, $bindings);
 }

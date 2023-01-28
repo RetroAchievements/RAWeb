@@ -78,7 +78,7 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $user, 0, 500);
+$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, 0, 500);
 
 /*
  * reset unlocks if there is no start date to prevent listing invalid entries

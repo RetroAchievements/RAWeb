@@ -312,28 +312,28 @@ function getUsersCompletedGamesAndMax($user): array
     return $retVal;
 }
 
-function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOnly = false, $flags = null): int
+function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOnly = false, $achievementType = null): int
 {
     $bindings = [
-        $gameID,
+        'gameId' => $gameID,
     ];
 
     $hardcoreStatement = '';
     if ($hardcoreOnly) {
-        $bindings[] = UnlockMode::Hardcore;
-        $hardcoreStatement = ' AND aw.HardcoreMode = ?';
+        $bindings['unlockMode'] = UnlockMode::Hardcore;
+        $hardcoreStatement = ' AND aw.HardcoreMode = :unlockMode';
     }
 
     $achievementStatement = "";
-    if ($flags !== null) {
-        $bindings[] = $flags;
-        $achievementStatement = "AND ach.Flags = ?";
+    if ($achievementType !== null) {
+        $bindings['achievementType'] = $achievementType;
+        $achievementStatement = "AND ach.Flags = :achievementType";
     }
 
     $requestedByStatement = "";
     if ($requestedBy) {
-        $bindings[] = $requestedBy;
-        $requestedByStatement = "OR ua.User = ?";
+        $bindings['requestedBy'] = $requestedBy;
+        $requestedByStatement = "OR ua.User = :requestedBy";
     }
 
     $query = "
@@ -341,7 +341,7 @@ function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOn
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.GameID = ?
+        WHERE ach.GameID = :gameId
         $hardcoreStatement $achievementStatement
         AND (NOT ua.Untracked $requestedByStatement)
     ";
