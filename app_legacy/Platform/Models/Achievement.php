@@ -43,7 +43,7 @@ class Achievement extends BaseModel
     }
 
     /**
-     * If no unlock mode is provided this will return unlocks separated by unlock mode; in "raw" form
+     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
      */
     public function rawUnlocks(): HasMany
     {
@@ -51,8 +51,7 @@ class Achievement extends BaseModel
     }
 
     /**
-     * Unlocks will merge softcore with hardcore entries
-     * If the unlock mode is provided this is not necessary and the
+     * Merge softcore with hardcore entries if the unlock mode is not specified
      */
     public function unlocks(int $mode = null): HasMany
     {
