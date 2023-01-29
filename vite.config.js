@@ -57,9 +57,8 @@ function detectServerConfig(env) {
   const certificatePath = resolve(homedir(), `.config/valet/Certificates/${host}.crt`);
 
   if (!existsSync(keyPath) || !existsSync(certificatePath)) {
+    // NOTE do not set host, it defaults to either localhost or 0.0.0.0 for Docker
     return {
-      hmr: { host: 'localhost' },
-      host: 'localhost',
       port: env.VITE_PORT,
       watch,
     };
