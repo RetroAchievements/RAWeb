@@ -42,15 +42,26 @@ class Achievement extends BaseModel
             ->using(PlayerAchievement::class);
     }
 
+    /**
+     * If no unlock mode is provided this will return unlocks separated by unlock mode; in "raw" form
+     */
+    public function rawUnlocks(): HasMany
+    {
+        return $this->hasMany(PlayerAchievement::class, 'AchievementID');
+    }
+
+    /**
+     * Unlocks will merge softcore with hardcore entries
+     * If the unlock mode is provided this is not necessary and the
+     */
     public function unlocks(int $mode = null): HasMany
     {
-        $hasMany = $this->hasMany(PlayerAchievement::class, 'AchievementID');
-
-        if ($mode === null) {
-            return $hasMany;
+        if ($mode !== null) {
+            return $this->rawUnlocks()->where('HardcoreMode', $mode);
         }
 
-        return $hasMany->where('HardcoreMode', $mode);
+        return $this->rawUnlocks()->selectRaw('AchievementID, User, MAX(Date) Date, MAX(HardcoreMode) HardcoreMode')
+            ->groupBy(['AchievementID', 'User']);
     }
 
     public function scopeType(Builder $query, int $type): Builder
