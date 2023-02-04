@@ -81,7 +81,7 @@ RenderContentStart("Manage Claims - $gameTitle");
                 comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::FreeRollout) ?>. ";
                 break;
             case <?= ClaimSpecial::ScheduledRelease ?>:
-                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::FreeRollout) ?>. ";
+                comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::ScheduledRelease) ?>. ";
                 break;
             default:
                 comment += "Special: <?= ClaimSpecial::toString(ClaimSpecial::None) ?>. ";

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use LegacyApp\Site\Models\User;
 
 function RenderRecentForumPostsComponent($numToFetch = 4): void
@@ -16,15 +17,7 @@ function RenderRecentForumPostsComponent($numToFetch = 4): void
     if ($recentPostData->isNotEmpty()) {
         foreach ($recentPostData as $nextData) {
             $timestamp = strtotime($nextData['PostedAt']);
-            $datePosted = date("d M", $timestamp);
-
-            if (date("d", $timestamp) == date("d")) {
-                $datePosted = "Today";
-            } elseif (date("d", $timestamp) == (date("d") - 1)) {
-                $datePosted = "Y'day";
-            }
-
-            $postedAt = date("H:i", $timestamp);
+            $postedAt = Carbon::createFromTimeStamp($timestamp)->diffForHumans();
 
             $shortMsg = trim($nextData['ShortMsg']);
             if ($nextData['IsTruncated']) {
@@ -41,14 +34,14 @@ function RenderRecentForumPostsComponent($numToFetch = 4): void
                 $forumTopicTitle,
             );
 
-            echo "<div class='embedded mb-1 flex justify-between items-center'>";
-            echo "<div>";
+            echo "<div class='embedded mb-1'>";
+            echo "<div class='flex justify-between items-center'><div>";
             echo userAvatar($author, iconSize: 16);
-            echo " <span class='smalldate'>$datePosted $postedAt</span><br>";
+            echo " <span class='smalldate'>$postedAt</span></div>";
+            echo "<div><a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a></div>";
+            echo "</div>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
             echo "<div class='comment text-overflow-wrap'>$shortMsg</div>";
-            echo "</div>";
-            echo "<a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a>";
             echo "</div>";
         }
     }

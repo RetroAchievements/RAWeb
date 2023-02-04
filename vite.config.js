@@ -1,6 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import livewire from '@defstudio/vite-livewire-plugin';
 import { existsSync, readFileSync } from 'fs';
 import { homedir } from 'os';
 import { resolve } from 'path';
@@ -30,21 +29,7 @@ export default defineConfig(({ mode }) => {
           'resources/css/app.css',
           'resources/js/app.js',
         ],
-        // https://laravel.com/docs/vite#working-with-blade-and-routes
-        // refresh: [{
-        //   paths: [
-        //     'public/css/**',
-        //     'public/js/**',
-        //   ],
-        //   config: { delay: 300 }
-        // }],
-        refresh: false
       }),
-      // livewire({
-      //   refresh: ['resources/css/app.css'],
-      // }),
-      // https://vitejs.dev/guide/build.html#chunking-strategy
-      // splitVendorChunkPlugin(),
     ],
     resolve: {
       alias: {
@@ -56,39 +41,37 @@ export default defineConfig(({ mode }) => {
   };
 });
 
-// https://freek.dev/2276-making-vite-and-valet-play-nice-together
 function detectServerConfig(env) {
-  const appUrl = new URL(env.APP_URL);
-  let { host } = appUrl;
+  const watch = {
+    // Explicitly ignore large volume directories to prevent running into system-level limits
+    // See https://vitejs.dev/config/server-options.html#server-watch
+    ignored: [
+      '**/public/**',
+      '**/storage/**',
+      '**/vendor/**',
+    ],
+  };
 
-  // remove port - vite uses its own
-  if (host.startsWith('localhost')) {
-    host = 'localhost';
-
-    return {
-      hmr: { host },
-      host,
-      // port: env.VITE_PORT
-    };
-  }
-
+  const { host } = new URL(env.APP_URL);
   const keyPath = resolve(homedir(), `.config/valet/Certificates/${host}.key`);
   const certificatePath = resolve(homedir(), `.config/valet/Certificates/${host}.crt`);
 
-  const config = {
-    hmr: { host },
-    host,
-    port: env.VITE_PORT
-  };
-
   if (!existsSync(keyPath) || !existsSync(certificatePath)) {
-    return config;
+    // NOTE do not set host, it defaults to either localhost or 0.0.0.0 for Docker
+    return {
+      port: env.VITE_PORT,
+      watch,
+    };
   }
 
-  config.https = {
-    key: readFileSync(keyPath),
-    cert: readFileSync(certificatePath),
+  return {
+    hmr: { host },
+    host,
+    port: env.VITE_PORT,
+    watch,
+    https: {
+      key: readFileSync(keyPath),
+      cert: readFileSync(certificatePath),
+    },
   };
-
-  return config;
 }

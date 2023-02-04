@@ -29,7 +29,7 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Admin) {
     $thisCategoryID = 0;
     $thisCategoryName = "Unauthorised Links";
 
-    $topicList = getUnauthorisedForumLinks();
+    $topicList = $unofficialLinks;
 
     $requestedForum = "Unauthorised Links";
 } else {

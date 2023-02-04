@@ -108,6 +108,16 @@ class Handler extends ExceptionHandler
             }
         }
 
+        if (is_a($e, AuthenticationException::class)) {
+            // parent::render will call parent::unauthenticated for AuthenticationException,
+            // which redirects to route('login') unless the exception specifies another target.
+            // Since we don't define a login route, this causes an exception. If no redirect
+            // route is provided, just fail with 401 Not Authorized.
+            if (empty($e->redirectTo())) {
+                abort(401);
+            }
+        }
+
         return parent::render($request, $e);
     }
 }

@@ -53,6 +53,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return UserFactory::new();
     }
 
+    public function getRememberTokenName(): ?string
+    {
+        return null;
+    }
+
     public function getAuthPassword()
     {
         return $this->Password;
