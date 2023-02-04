@@ -529,6 +529,55 @@ function getRecentForumPosts($offset, $count, $numMessageChars, $permissions, &$
     }
 }
 
+function getRecentForumTopics(int $offset, int $count, int $permissions, int $numMessageChars = 90): array
+{
+    $query = "
+        SELECT ft.ID as ForumTopicID, ft.Title as ForumTopicTitle,
+               f.ID as ForumID, f.Title as ForumTitle,
+               lc.CommentID, lftc.DateCreated as PostedAt, lftc.Author,
+               LEFT(lftc.Payload, $numMessageChars) AS ShortMsg,
+               LENGTH(lftc.Payload) > $numMessageChars AS IsTruncated,
+               d1.CommentID as CommentID_1d, d1.Count as Count_1d,
+               d7.CommentID as CommentID_7d, d7.Count as Count_7d
+        FROM ForumTopic AS ft
+        LEFT JOIN Forum AS f on f.ID = ft.ForumID
+        LEFT JOIN (
+            SELECT ftc.ForumTopicId, MAX(ftc.ID) as CommentID
+            FROM ForumTopicComment ftc
+            WHERE ftc.Authorised=1
+            GROUP BY ftc.ForumTopicId
+        ) AS lc ON lc.ForumTopicId = ft.ID
+        LEFT JOIN ForumTopicComment AS lftc ON lftc.ID = lc.CommentID
+        LEFT JOIN (
+            SELECT ftc.ForumTopicId, MIN(ftc.ID) as CommentID, COUNT(ftc.ID) as Count
+            FROM ForumTopicComment ftc
+            WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+            GROUP BY ftc.ForumTopicId
+        ) AS d1 ON d1.ForumTopicId = ft.ID
+        LEFT JOIN (
+            SELECT ftc.ForumTopicId, MIN(ftc.ID) as CommentID, COUNT(ftc.ID) as Count
+            FROM ForumTopicComment ftc
+            WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            GROUP BY ftc.ForumTopicId
+        ) AS d7 ON d7.ForumTopicId = ft.ID
+        WHERE ft.RequiredPermissions <= $permissions
+        ORDER BY PostedAt DESC
+        LIMIT $offset, $count";
+
+    $dataOut = [];
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult === false) {
+        log_sql_fail();
+    } else {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $dataOut[] = $db_entry;
+        }
+    }
+
+    return $dataOut;
+}
+
 function updateTopicPermissions(int $topicId, int $permissions): bool
 {
     $query = "  UPDATE ForumTopic AS ft
