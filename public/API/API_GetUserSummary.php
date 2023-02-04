@@ -6,6 +6,7 @@
  *    g : number of recent games to return (default: 5)
  *    a : number of recent achievements to return (default: 10)
  *
+ *  string     ID                      unique identifier of the user
  *  string     TotalPoints             number of hardcore points the user has
  *  string     TotalSoftcorePoints     number of softcore points the user has
  *  string     TotalTruePoints         number of "white" points the user has
@@ -85,16 +86,17 @@ $recentAchievementsEarned = (int) request()->query('a', '10');
 
 $retVal = [];
 getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);
-unset($retVal['ID']);
 
 if (!$retVal) {
     return response()->json([
+        'ID' => null,
         'User' => $user,
     ], 404);
 }
 
 getAccountDetails($user, $userDetails);
 
+$retVal['ID'] = $userDetails['ID'];
 $retVal['Points'] = $userDetails['RAPoints'];
 $retVal['SoftcorePoints'] = $userDetails['RASoftcorePoints'];
 $retVal['Motto'] = $userDetails['Motto'];
