@@ -93,7 +93,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             <div class='navpath'>
                 <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
-            <h3><?= renderGameTitle($pageTitle) ?></h3>
+            <h3><?= renderGameTitle($gameData) ?></h3>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
@@ -624,7 +624,7 @@ sanitize_outputs(
             }
 
             $escapedGameTitle = attributeEscape($gameTitle);
-            $renderedTitle = renderGameTitle($pageTitle);
+            $renderedTitle = renderGameTitle($gameData, console: true);
             $developer = $gameData['Developer'] ?? null;
             $publisher = $gameData['Publisher'] ?? null;
             $genre = $gameData['Genre'] ?? null;

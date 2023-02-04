@@ -25,7 +25,7 @@ function gameAvatar(
                 $title .= " ($consoleName)";
             }
             sanitize_outputs($title);   // sanitize before rendering HTML
-            $label = renderGameTitle($title);
+            $label = renderGameTitle($game);
         }
 
         if ($icon === null) {
@@ -54,32 +54,54 @@ function gameAvatar(
 }
 
 /**
- * Render game title, wrapping categories for styling
+ * Render game title, styling tags
  */
-function renderGameTitle(?string $title, bool $tags = true): string
-{
-    // Update $html by appending text
-    $updateHtml = function (&$html, $text, $append) {
+function renderGameTitle(
+    array|string|null $data, bool $console = false, bool $tags = true
+): string {
+    // Update $html by removing ascii tags and (possibly) appending rendered ones
+    $updateHtml = function (&$html, $text, $append) use ($tags) {
+        $append = $tags ? " $append" : '';
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
-    $html = (string) $title;
+    // Render arrow tag (e.g. subsets)
+    $renderArrowTag = function ($label, $content) {
+        return "<span class='tag'>"
+            . "<span class='tag-label'>$label</span>"
+            . "<span class='tag-arrow'></span>"
+            . $content
+            . "</span>";
+    };
+
+    if (!$data) {
+        return '';
+    }
+    $title = $data['GameTitle'] ?? $data['Title'] ?? $data;
+    $html = $title . ($console ? (' (' . $data['ConsoleName'] . ')') : '');
+
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
         $category = $matches[1][$i];
         $span = "<span class='tag'><span>$category</span></span>";
-        $updateHtml($html, $match, $tags ? " $span" : '');
+        $updateHtml($html, $match, $span);
     }
     $matches = [];
-    if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
+    if ($isSubset = preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
         $subset = $matches[1];
-        $span = "<span class='tag'>"
-            . "<span class='tag-label'>Subset</span>"
-            . "<span class='tag-arrow'></span>"
-            . "<span>$subset</span>"
-            . "</span>";
-        $updateHtml($html, $matches[0], $tags ? " $span" : '');
+        $span = $renderArrowTag("Subset", "<span>$subset</span>");
+        $updateHtml($html, $matches[0], $span);
+    }
+
+    if ($tags and !$isSubset and is_array($data)) {
+        $id = $data['GameID'] ?? $data['ID'];
+        if (isPatchRequired($id)) {
+            $src = asset('/assets/images/labels/rapatches-large-mono.png');
+            $img = "<img src=$src>";
+            $span = "<span class='tag'><span>Requires</span>$img</span>";
+            $updateHtml($html, null, $span);
+        }
     }
 
     return $html;
@@ -170,7 +192,7 @@ function renderGameCard(int|string|array $game): string
         });
     }
 
-    $gameName = renderGameTitle($data['GameTitle'] ?? $data['Title'] ?? '');
+    $gameName = renderGameTitle($data);
     $consoleName = $data['Console'] ?? $data['ConsoleName'] ?? '';
     $icon = $data['GameIcon'] ?? $data['ImageIcon'] ?? null;
 
