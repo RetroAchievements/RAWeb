@@ -12,6 +12,7 @@ function achievementAvatar(
     ?string $context = null,
 ): string {
     $id = $achievement;
+    $title = null;
 
     if (is_array($achievement)) {
         $id = $achievement['AchievementID'] ?? $achievement['ID'];
@@ -20,6 +21,8 @@ function achievementAvatar(
             $title = $achievement['AchievementTitle'] ?? $achievement['Title'];
             $points = $achievement['Points'] ?? null;
             $label = $title . ($points ? ' (' . $points . ')' : '');
+            sanitize_outputs($label);   // sanitize before rendering HTML
+            $label = renderAchievementTitle($label);
         }
 
         if ($icon !== false) {
@@ -45,7 +48,27 @@ function achievementAvatar(
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
+        sanitize: $title === null,
+        altText: $title ?? $label,
     );
+}
+
+/**
+ * Render achievement title, parsing `[m]` (missable) as a tag
+ */
+function renderAchievementTitle(string $title, bool $tags = true): string
+{
+    if (!str_contains($title, '[m]')) {
+        return $title;
+    }
+    $span = '';
+    if ($tags) {
+        $span = "<span class='tag missable' title='Missable'>"
+            . "<abbr>[<b>m</b>]</abbr>"
+            . "</span>";
+    }
+
+    return trim(str_replace('[m]', $span, $title));
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null): string
@@ -70,7 +93,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         });
     }
 
-    $title = $data['AchievementTitle'] ?? $data['Title'] ?? null;
+    $title = renderAchievementTitle($data['AchievementTitle'] ?? $data['Title'] ?? null);
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;

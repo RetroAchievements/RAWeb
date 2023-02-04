@@ -65,9 +65,7 @@ RenderContentStart("Game Compare");
         <div id="gamecompare">
             <?php
             echo "<div class='navpath'>";
-            echo "<a href='/gameList.php'>All Games</a>";
-            echo " &raquo; <a href='/gameList.php?c=$consoleID'>$consoleName</a>";
-            echo " &raquo; <a href='/game/$gameID'>" . renderGameTitle($gameTitle) . "</a>";
+            echo renderGameBreadcrumb($gameData);
             echo " &raquo; <b>Game Compare</b>";
             echo "</div>";
 
