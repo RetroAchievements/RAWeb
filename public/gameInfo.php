@@ -1038,6 +1038,7 @@ sanitize_outputs(
                     echo "<h2 class='like-h4'>Achievements</h2>";
                 }
 
+                echo "<div class='mb-12'>";
                 if ($numAchievements > 0) {
                     echo "<b>Authors:</b> ";
                     $numItems = count($authorInfo);
@@ -1073,14 +1074,12 @@ sanitize_outputs(
                         if ($numAchievements < 1) {
                             echo "No Active Claims";
                         }
-                        echo "<br>";
                     }
                     echo "</div>";
                 }
+                echo "</div>";
 
-                echo "<br>";
-                echo "<br>";
-
+                echo "<div class='my-8'>";
                 if (isset($user) && $numAchievements > 0) {
                     echo "<div class='md:float-right'>";
                     RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
@@ -1116,8 +1115,7 @@ sanitize_outputs(
                     }
                 }
 
-                echo "<br>";
-                echo "<br>";
+                echo "</div>";
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
