@@ -637,7 +637,7 @@ sanitize_outputs(
             echo "<h1 class='text-h3'>$renderedTitle</h1>";
             echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
             echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
-            echo "<table><colgroup><col class='w-48'></colgroup><tbody>";
+            echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
                 RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
@@ -1155,7 +1155,7 @@ sanitize_outputs(
                     echo "<sup>&nbsp;</sup></span></div>";
                 }
 
-                echo "<table class='achievementlist'><tbody>";
+                echo "<table class='achievementlist table-highlight'><tbody>";
 
                 if (isset($achievementData)) {
                     for ($i = 0; $i < 2; $i++) {

@@ -245,13 +245,13 @@ RenderContentStart("$userPage's Legacy");
         echo "<h3>Best Days</h3>";
         echo "<div id='chart_bestdays'></div>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
         $sort1 = ($sortBy == 1) ? 11 : 1;
         $sort2 = ($sortBy == 2) ? 12 : 2;
         $sort3 = ($sortBy == 3) ? 13 : 3;
 
-        echo "<tr>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th><a href='/history.php?s=$sort1&u=$userPage'>Date</a></th>";
         echo "<th><a href='/history.php?s=$sort2&u=$userPage'>Num Achievements</a></th>";
         echo "<th><a href='/history.php?s=$sort3&u=$userPage'>Score Earned</a></th>";

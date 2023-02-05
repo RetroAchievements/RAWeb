@@ -36,7 +36,7 @@ RenderContentStart("Manage News");
         <form action="/request/news/update.php" method="post">
             <?= csrf_field() ?>
             <input type="hidden" name="news" value="<?= $newsId ?>">
-            <table>
+            <table class='table-highlight'>
                 <colgroup>
                     <col style="width: 150px">
                 </colgroup>

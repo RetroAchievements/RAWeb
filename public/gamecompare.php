@@ -107,8 +107,9 @@ RenderContentStart("Game Compare");
 
             $iconSize = 48;
 
-            echo "<table><tbody>";
-            echo "<tr>";
+            echo "<table class='table-highlight'><tbody>";
+
+            echo "<tr class='do-not-highlight'>";
 
             echo "<th class='text-right'>";
             echo "<a href='/user/$user'>$user</a><br>";
@@ -217,7 +218,7 @@ RenderContentStart("Game Compare");
             }
 
             // Repeat user images:
-            echo "<tr>";
+            echo "<tr class='do-not-highlight'>";
 
             echo "<td>";
             echo "<div class='text-right'>";
@@ -236,7 +237,7 @@ RenderContentStart("Game Compare");
             echo "</tr>";
 
             // Draw totals:
-            echo "<tr>";
+            echo "<tr class='do-not-highlight'>";
             echo "<td class='float-right'>";
             echo "<b>$leftHardcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftHardcoreAwardedPoints</b>/$maxPoints points";
             echo "</td>";
@@ -246,7 +247,7 @@ RenderContentStart("Game Compare");
             echo "</td>";
             echo "</tr>";
             if ($leftSoftcoreAwardedCount > 0 || $rightSoftcoreAwardedCount > 0) {
-                echo "<tr>";
+                echo "<tr class='do-not-highlight'>";
                 if ($leftSoftcoreAwardedCount > 0) {
                     echo "<td class='float-right'>";
                     echo "<span class='text-muted'<b>$leftSoftcoreAwardedCount</b>/$numAchievements unlocked<br><b>$leftSoftcoreAwardedPoints</b>/$maxPoints points</span></td>";

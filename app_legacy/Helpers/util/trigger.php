@@ -264,7 +264,7 @@ function getNoteForAddress($memNotes, $address)
 function getAchievementPatchReadableHTML($mem, $memNotes)
 {
     $tableHeader = "
-    <tr>
+    <tr class='do-not-highlight'>
       <th class='whitespace-nowrap'>ID</th>
       <th class='whitespace-nowrap'>Flag</th>
       <th class='whitespace-nowrap'>Type</th>
@@ -277,13 +277,13 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
       <th class='whitespace-nowrap'>Hits</th>
     </tr>";
 
-    $res = "\n<table>";
+    $res = "\n<table class='table-highlight'>";
 
     // separating CoreGroup and AltGroups
     $groups = preg_split("/(?<!0x)[S$]/", $mem);
     $groupsCount = is_countable($groups) ? count($groups) : 0;
     for ($i = 0; $i < $groupsCount; $i++) {
-        $res .= "<tr><td colspan=10><p style='text-align: center'><strong>";
+        $res .= "<tr class='do-not-highlight'><td colspan=10><p style='text-align: center'><strong>";
         $res .= $i === 0 ? "Core Group" : "Alt Group $i";
         $res .= "</p></strong></td></tr>\n";
         $res .= $tableHeader;
@@ -336,7 +336,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             }
             $res .= "\n</tr>\n";
         }
-        $res .= "<tr><td colspan=10>";
+        $res .= "<tr class='do-not-highlight'><td colspan=10>";
         foreach ($codeNotes as $nextCodeNote) {
             $res .= "<pre class='text-xs'>" . $nextCodeNote . "</pre>\n";
         }

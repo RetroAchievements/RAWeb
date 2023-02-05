@@ -141,7 +141,9 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         }
         echo "</div>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
 
         // Only show the rank when we actually know the rank
         if ($sort < 10 && ($sort % 10) != 1) {
@@ -206,6 +208,8 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 $sortFilter('Completed', 8);
             }
         }
+
+        echo "</tr>";
 
         // Create the table rows
         $userListed = false;
@@ -290,7 +294,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 $userData = getGlobalRankingData($type, $sort, $date, $user, null, $untracked, 0, 1);
                 if (count($userData) > 0) {
                     // Add dummy row to seperate the user from the rest of the table
-                    echo "<tr><td colspan='7'>&nbsp;</td></tr>";
+                    echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
                     echo "<tr style='outline: thin solid'>";
 
                     // Get the user rank when sorting by points or retro points

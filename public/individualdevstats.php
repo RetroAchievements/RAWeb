@@ -702,9 +702,9 @@ RenderContentStart("$dev's Developer Stats");
             /*
              * Any Development
              */
-            echo "<table><tbody>";
-            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Any Development</td></tr>";
-            echo "<tr></tr><tr><td colspan='2' align='center'>Stats below are for games that $dev has published at least one achievement for.</td></tr>";
+            echo "<table class='table-highlight'><tbody>";
+            echo "<tr class='do-not-highlight'><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Any Development</td></tr>";
+            echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published at least one achievement for.</td></tr>";
 
             // Any Development - Games developed for
             echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($anyDevGameIDs) . "</td></tr>";
@@ -812,9 +812,9 @@ RenderContentStart("$dev's Developer Stats");
             /*
              * Majority Developer
              */
-            echo "<table><tbody>";
-            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Majority Developer</td></tr>";
-            echo "<tr></tr><tr><td colspan='2' align='center'>Stats below are for games that $dev has published at least half the achievements for.</td></tr>";
+            echo "<table class='table-highlight'><tbody>";
+            echo "<tr class='do-not-highlight'><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Majority Developer</td></tr>";
+            echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published at least half the achievements for.</td></tr>";
 
             // Majority Developer - Games developed for
             echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($majorityDevGameIDs) . "</td></tr>";
@@ -922,9 +922,9 @@ RenderContentStart("$dev's Developer Stats");
             /*
              * Sole Developer
              */
-            echo "<table><tbody>";
-            echo "<tr><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Sole Developer</td></tr>";
-            echo "<tr></tr><tr><td colspan='2' align='center'>Stats below are for games that $dev has published all the achievements for.</td></tr>";
+            echo "<table class='table-highlight'><tbody>";
+            echo "<tr class='do-not-highlight'><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Sole Developer</td></tr>";
+            echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published all the achievements for.</td></tr>";
 
             // Sole Developer - Games developed for
             echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($onlyDevGameIDs) . "</td></tr>";
@@ -1033,7 +1033,7 @@ RenderContentStart("$dev's Developer Stats");
              * Achievements
              */
             echo "<H1>Achievements</H1>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
 
             // Any Development - Achievements created
             echo "<tr><td width='50%'>Achievements Created:</td><td>" . $achievementCount . "</td></tr>";
@@ -1154,7 +1154,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td width='34%'>Achievement</td><td width='33%'>Game</td><td width='19%'>User</td><td width='11%'>Date Obtained</td></tr>";
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
             $rowCount = 0;
             for ($i = 0; $i < count($recentlyObtainedAchievements) && $rowCount < ($maxRecentAchievements / 2); $i++) {
                 $skipNextEntry = false;
@@ -1208,7 +1208,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr colspan='3'><td width='50%'>Game</td><td width='35%'>Notes Created (% of Total)</td><td>Total Notes</td></tr>";
             echo "</tbody></table>";
             echo "<div id='devstatsscrollpane'>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
             foreach ($codeNotes as $game) {
                 echo "<tr><td width='51%'>";
                 echo gameAvatar($game);
@@ -1226,7 +1226,7 @@ RenderContentStart("$dev's Developer Stats");
              * Tickets
              */
             echo "<H1>Tickets</H1>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
 
             // Total tickets created
             echo "<tr><td width='50%'>Total Tickets:</td><td>" . $userTickets['total'];

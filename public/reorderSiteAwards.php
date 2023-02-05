@@ -42,8 +42,9 @@ function updateAwardDisplayOrder(awardType, awardData, awardDataExtra, objID) {
         function RenderAwardOrderTable($title, $awards, &$counter)
         {
             echo "<br><h4>$title</h4>";
-            echo "<table><tbody>";
-            echo "<tr>";
+            echo "<table class='table-highlight'><tbody>";
+
+            echo "<tr class='do-not-highlight'>";
             echo "<th>Badge</th>";
             echo "<th width=\"75%\">Site Award</th>";
             echo "<th width=\"25%\">Award Date</th>";

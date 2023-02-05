@@ -26,7 +26,7 @@ $gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, $sortBy, $sho
 
 function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showConsoleName, $showTotals): void
 {
-    echo "\n<div class='table-wrapper'><table><tbody>";
+    echo "\n<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
     $sort1 = ($sortBy <= 1) ? 11 : 1;
     $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -35,7 +35,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
     $sort5 = ($sortBy == 5) ? 15 : 5;
     $sort6 = ($sortBy == 6) ? 16 : 6;
 
-    echo "<tr>";
+    echo "<tr class='do-not-highlight'>";
     echo "<th class='pr-0'></th>";
     if ($dev == null) {
         echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
@@ -137,7 +137,7 @@ function ListGames($gamesList, $dev, $queryParams, $sortBy, $showTickets, $showC
 
     if ($showTotals) {
         // Totals:
-        echo "<tr>";
+        echo "<tr class='do-not-highlight'>";
         echo "<td></td>";
         echo "<td><b>Totals: $gameCount games</b></td>";
         echo "<td><b>$achievementsTally</b></td>";

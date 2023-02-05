@@ -197,7 +197,7 @@ function RenderGameAlts($gameAlts, $headerText = null): void
     if ($headerText) {
         echo "<h2 class='text-h3'>$headerText</h2>";
     }
-    echo "<table><tbody>";
+    echo "<table class='table-highlight'><tbody>";
     foreach ($gameAlts as $nextGame) {
         echo "<tr>";
         $consoleName = $nextGame['ConsoleName'];
@@ -324,7 +324,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
 function RenderRecentGamePlayers($recentPlayerData): void
 {
     echo "<div class='component'>Recent Players:";
-    echo "<table><tbody>";
+    echo "<table class='table-highlight'><tbody>";
     echo "<tr><th></th><th>User</th><th>When</th><th class='w-full'>Activity</th>";
     foreach ($recentPlayerData as $recentPlayer) {
         echo "<tr>";

@@ -43,11 +43,14 @@ RenderContentStart("Hash List");
             } else {
                 echo "<h2>Search Results</h2>";
             }
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
+
+            echo "<tr class='do-not-highlight'>";
             echo "<th>Hash</th>";
             echo "<th>Game</th>";
             echo "<th>Linked by</th>";
             echo "<th>Date Linked</th>";
+            echo "</tr>";
 
             $hashCount = 0;
 

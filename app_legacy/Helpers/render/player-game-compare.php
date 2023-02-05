@@ -8,7 +8,7 @@ function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGa
     if (isset($friendScores)) {
         if (!empty($friendScores)) {
             echo "Compare to a followed user:<br>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
             foreach ($friendScores as $friendScoreName => $friendData) {
                 $link = "/gamecompare.php?ID=$gameID&f=$friendScoreName";
 

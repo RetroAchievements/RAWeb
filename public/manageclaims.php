@@ -154,7 +154,9 @@ RenderContentStart("Manage Claims - $gameTitle");
         echo "Date the claim will expire, has been completed or was dropped depending on the claim status.</br>";
         echo "</div></br>";
 
-        echo "<div class='table-wrapper mb-5'><table class='condensed'><tbody>";
+        echo "<div class='table-wrapper mb-5'><table class='condensed table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::SetTypeDescending) . "</th>";
@@ -163,6 +165,7 @@ RenderContentStart("Manage Claims - $gameTitle");
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimDateDescending) . " &#9660;</th>";
         echo "<th>End Date</th>";
         echo "<th></th>";
+        echo "</tr>";
 
         $userCount = 0;
         foreach ($claimData as $claim) {

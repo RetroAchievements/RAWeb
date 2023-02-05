@@ -154,7 +154,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
     echo "<h3>Completion Progress</h3>";
     echo "<div id='usercompletedgamescomponent'>";
 
-    echo "<table><tbody>";
+    echo "<table class='table-highlight'><tbody>";
 
     $numItems = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
     for ($i = 0; $i < $numItems; $i++) {

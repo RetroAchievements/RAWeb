@@ -44,7 +44,7 @@ function RenderCommentsComponent(
     }
     echo "</div>";
 
-    echo "<table id='feed'><tbody>";
+    echo "<table id='feed' class='table-highlight'><tbody>";
 
     $lastID = 0;
     $lastKnownDate = 'Init';
@@ -151,7 +151,7 @@ function RenderCommentInputRow($user, $articleTypeId, $articleId): void
     $avatar = media_asset("/UserPic/$user.png");
 
     echo <<<EOL
-        <tr id="comment_$commentId">
+        <tr id="comment_$commentId" class='do-not-highlight'>
             <td class='align-top pb-3'>
                 <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
             </td>

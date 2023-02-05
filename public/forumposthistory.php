@@ -36,10 +36,10 @@ RenderContentStart("Forum Recent Posts");
         $forumIter = 0;
 
         echo "<div class='table-wrapper'>";
-        echo "<table>";
+        echo "<table class='table-highlight'>";
         echo "<tbody>";
 
-        echo "<tr>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th>Last Post By</th>";
         echo "<th>Message</th>";
         echo "<th>Additional Posts</th>";

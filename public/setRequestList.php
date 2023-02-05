@@ -88,11 +88,14 @@ RenderContentStart("Set Requests");
             echo "</select>";
             echo "</div>";
 
+            echo "</br><div class='table-wrapper'><table class='table-highlight'><tbody>";
+
             // Create table headers
-            echo "</br><div class='table-wrapper'><table><tbody>";
+            echo "<tr class='do-not-highlight'>";
             echo "<th>Game</th>";
             echo "<th>Claimed By</th>";
             echo "<th>Requests</th>";
+            echo "</tr>";
 
             // Loop through each set request and display its information
             foreach ($setRequestList as $request) {
@@ -151,10 +154,13 @@ RenderContentStart("Set Requests");
             echo "<br>";
             echo "<br>";
 
+            echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+
             // Create table headers
-            echo "<div class='table-wrapper'><table><tbody>";
+            echo "<tr class='do-not-highlight'>";
             echo "<th>Game</th>";
             echo "<th>Claimed By</th>";
+            echo "</tr>";
 
             // Loop through each set request and display them if they do not have any achievements
             foreach ($setRequestList as $request) {

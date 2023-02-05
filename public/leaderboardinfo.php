@@ -198,8 +198,8 @@ RenderContentStart('Leaderboard');
 
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
-            echo "<table><tbody>";
-            echo "<tr><th>Rank</th><th>User</th><th>Result</th><th>Date Submitted</th></tr>";
+            echo "<table class='table-highlight'><tbody>";
+            echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th>Result</th><th>Date Submitted</th></tr>";
 
             $numActualEntries = 0;
             $localUserFound = false;

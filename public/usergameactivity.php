@@ -55,7 +55,7 @@ RenderContentStart("$user2's activity for $gameTitle");
 
             echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
             echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
-            echo "<table><colgroup><col class='w-48'></colgroup><tbody>";
+            echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
             echo "<tr><td>User:</td><td>" . userAvatar($user2, icon: false) . "</td></tr>";
             echo "<tr><td>Total Playtime:</td><td>" . formatHMS($activity['TotalTime']) . "$estimated</td></tr>";
             echo "<tr><td>Achievement Sessions:</td><td>$sessionInfo</td></tr>";
@@ -64,8 +64,8 @@ RenderContentStart("$user2's activity for $gameTitle");
             echo "</div>";
 
             echo "<div id='activity'>";
-            echo "<table>";
-            echo "<tr><th style='width: 20'></th><th style='width: 250'></th><th></th></tr>";
+            echo "<table class='table-highlight'>";
+            echo "<tr class='do-not-highlight'><th style='width: 20'></th><th style='width: 250'></th><th></th></tr>";
 
             foreach ($activity['Sessions'] as $session) {
                 $startDate = getNiceDate($session['StartTime']);

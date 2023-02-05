@@ -71,9 +71,9 @@ RenderContentStart($pageTitle);
                 echo "<h2>Forum: $nextCategory</h2>";
                 echo "<p class='mb-5'>" . $forumData['CategoryDescription'] . "</p>";
 
-                echo "<table>";
+                echo "<table class='table-highlight'>";
                 echo "<tbody>";
-                echo "<tr>";
+                echo "<tr class='do-not-highlight'>";
                 echo "<th></th>";
                 echo "<th class='w-full'>Forum</th>";
                 echo "<th>Topics</th>";
