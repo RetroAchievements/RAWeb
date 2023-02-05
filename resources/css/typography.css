@@ -5,22 +5,22 @@ body {
   letter-spacing: 0;
 }
 
-h1, h2, h3, h4, .like-h1, .like-h2, .like-h3, .like-h4 {
+h1, h2, h3, h4, .text-h1, .text-h2, .text-h3, .text-h4 {
   font-weight: normal;
   line-height: 1.25em;
   margin-bottom: 10px;
   padding: 0 0 3px;
 }
 
-h1, h2, .like-h1, .like-h2 {
+h1, h2, .text-h1, .text-h2 {
   font-size: 2.0em;
 }
 
-h3, .like-h3 {
+h3, .text-h3 {
   font-size: 1.75em;
 }
 
-h4, .like-h4 {
+h4, .text-h4 {
   font-size: 1.5em;
   border-bottom-width: 0;
 }

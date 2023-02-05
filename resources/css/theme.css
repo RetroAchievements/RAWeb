@@ -11,7 +11,7 @@ h1, h2, h3, h4 {
   border-bottom: 1px solid var(--heading-color);
 }
 
-#mainpage .like-h4, #mainpage .like-h5, #mainpage .like-h6 {
+#mainpage .text-h4, #mainpage .text-h5, #mainpage .text-h6 {
   border-bottom: unset;
 }
 

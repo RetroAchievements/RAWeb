@@ -93,7 +93,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             <div class='navpath'>
                 <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
-            <h1 class="like-h3"><?= renderGameTitle($pageTitle) ?></h1>
+            <h1 class="text-h3"><?= renderGameTitle($pageTitle) ?></h1>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
@@ -634,7 +634,7 @@ sanitize_outputs(
             $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            echo "<h1 class='like-h3'>$renderedTitle</h1>";
+            echo "<h1 class='text-h3'>$renderedTitle</h1>";
             echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
             echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
             echo "<table><colgroup><col class='w-48'></colgroup><tbody>";
@@ -946,7 +946,7 @@ sanitize_outputs(
                 $renderRatingControl = function ($label, $containername, $labelname, $ratingData) use ($minimumNumberOfRatingsToDisplay) {
                     echo "<div>";
 
-                    echo "<h2 class='like-h4'>$label</h2>";
+                    echo "<h2 class='text-h4'>$label</h2>";
 
                     $yourRating = ($ratingData['UserRating'] > 0) ? $ratingData['UserRating'] : 'not rated';
 
@@ -1017,7 +1017,7 @@ sanitize_outputs(
                 // Only show set request option for logged in users, games without achievements, and core achievement page
                 if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
                     echo "<div>";
-                    echo "<h2 class='like-h4'>Set Requests</h2>";
+                    echo "<h2 class='text-h4'>Set Requests</h2>";
                     echo "<div class='gameRequestsLabel'></div>";
                     echo "<div><button type='button' class='btn setRequestLabel hidden'>Request Set</button></div>";
                     echo "<div class='userRequestsLabel'></div>";
@@ -1032,10 +1032,10 @@ sanitize_outputs(
                 echo "</div>";
 
                 if ($flags == $unofficialFlag) {
-                    echo "<h2 class='like-h4'><b>Unofficial</b> Achievements</h2>";
+                    echo "<h2 class='text-h4'><b>Unofficial</b> Achievements</h2>";
                     echo "<a href='/game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
                 } else {
-                    echo "<h2 class='like-h4'>Achievements</h2>";
+                    echo "<h2 class='text-h4'>Achievements</h2>";
                 }
 
                 echo "<div class='mb-12'>";
@@ -1363,7 +1363,7 @@ sanitize_outputs(
 
             if ($numAchievements > 0) {
                 echo "<div id='achdistribution' class='component' >";
-                echo "<h2 class='like-h3'>Achievement Distribution</h2>";
+                echo "<h2 class='text-h3'>Achievement Distribution</h2>";
                 echo "<div id='chart_distribution'></div>";
                 echo "</div>";
 
