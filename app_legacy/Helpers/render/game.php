@@ -195,7 +195,7 @@ function RenderGameAlts($gameAlts, $headerText = null): void
 {
     echo "<div class='component gamealts'>";
     if ($headerText) {
-        echo "<h3>$headerText</h3>";
+        echo "<h2 class='text-h3'>$headerText</h2>";
     }
     echo "<table><tbody>";
     foreach ($gameAlts as $nextGame) {
@@ -315,7 +315,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
             echo "<form action='/request/game/generate-forum-topic.php' method='post' onsubmit='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'>";
             echo csrf_field();
             echo "<input type='hidden' name='game' value='$gameID'>";
-            echo "<button class='btn btn-link py-2 mb-1 w-full'><span class='icon icon-md ml-1 mr-3'>💬</span>Create Forum Topic</button>";
+            echo "<button class='btn btn-link py-2 mb-2 w-full'><span class='icon icon-md ml-1 mr-3'>💬</span>Create Forum Topic</button>";
             echo "</form>";
         }
     }
