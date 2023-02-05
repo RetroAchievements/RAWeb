@@ -17,7 +17,7 @@ $input = Validator::validate(request()->post(), [
 $username = $user->User;
 
 if (!authenticateFromPassword($username, $input['password_current'])) {
-    return back()->withErrors(__('legacy.error.account'));
+    return back()->withErrors(__('legacy.error.credentials'));
 }
 
 RemovePasswordResetToken($username);

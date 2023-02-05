@@ -32,9 +32,12 @@ RenderContentStart("Expiring Claims");
         echo "<h3>Expiring Claims</h3>";
 
         // Add username filter section if the user is in the list
-        $expiringClaims = getExpiringClaim($user);
-        $expired = (int) $expiringClaims["Expired"];
-        $expiring = (int) $expiringClaims["Expiring"];
+        $expired = $expiring = 0;
+        if (isset($user)) {
+            $expiringClaims = getExpiringClaim($user);
+            $expired = (int) $expiringClaims["Expired"];
+            $expiring = (int) $expiringClaims["Expiring"];
+        }
         if ((isset($user) || !empty($username)) && ($expired + $expiring) > 0) {
             echo "<p class='embedded'><b>User:</b> ";
             if (isset($user)) {

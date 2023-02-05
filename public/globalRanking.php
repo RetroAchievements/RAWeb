@@ -216,12 +216,25 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         $userRank = 0;
         $findUserRank = false;
         $rank = $offset + 1;
+        $rowRank = $rank;
+        $rankPoints = null;
         $userCount = 0;
         foreach ($data as $dataPoint) {
             // Break if we have hit the maxCount + 1 user
             if ($userCount == $maxCount) {
                 $userCount++;
                 $findUserRank = true;
+            }
+
+            if ($dataPoint['Points'] != $rankPoints) {
+                if ($rankPoints === null) {
+                    $rankType = ($unlockMode == UnlockMode::Hardcore) ? RankType::Hardcore : RankType::Softcore;
+                    $rank = getUserRank($dataPoint['User'], $rankType);
+                } else {
+                    $rank = $rowRank;
+                }
+
+                $rankPoints = $dataPoint['Points'];
             }
 
             if (!$findUserRank) {
@@ -262,13 +275,13 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
 
                 echo "<td>" . $dataPoint['TotalAwards'] . "</td></tr>";
 
-                $rank++;
+                $rowRank++;
                 $userCount++;
             } else {
                 if ($dataPoint['User'] == $user) {
                     $userRank = $rank;
                 }
-                $rank++;
+                $rowRank++;
             }
         }
 
