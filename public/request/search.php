@@ -28,14 +28,7 @@ if ($source == 'game') {
     $order = [SearchType::Game, SearchType::Achievement, SearchType::User];
 }
 
-$numFound = 0;
-foreach ($order as $searchType) {
-    $numFound += performSearch($searchType, $searchTerm, 0, $maxResults, $permissions, $results);
-    if ($numFound >= $maxResults) {
-        break;
-    }
-    $maxResults -= $numFound;
-}
+performSearch($order, $searchTerm, 0, $maxResults, $permissions, $results, wantTotalResults: false);
 
 $dataOut = [];
 foreach ($results as $nextRow) {

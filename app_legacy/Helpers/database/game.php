@@ -475,17 +475,16 @@ function getGamesListDataNamesOnly($consoleID, $officialFlag = false): array
     return $retval;
 }
 
-function getGameIDFromTitle($gameTitleIn, $consoleID): int
+function getGameIDFromTitle($gameTitle, $consoleID): int
 {
-    sanitize_sql_inputs($consoleID);
-    $gameTitle = sanitizeTitle($gameTitleIn);
+    sanitize_sql_inputs($gameTitle, $consoleID);
     settype($consoleID, 'integer');
 
     $query = "SELECT gd.ID
               FROM GameData AS gd
               WHERE gd.Title='$gameTitle' AND gd.ConsoleID='$consoleID'";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = s_mysql_sanitized_query($query);
     if ($retVal = mysqli_fetch_assoc($dbResult)) {
         settype($retVal['ID'], 'integer');
 
@@ -690,11 +689,10 @@ function getGameListSearch($offset, $count, $method, $consoleID = null): array
     return $retval;
 }
 
-function createNewGame($titleIn, $consoleID): ?array
+function createNewGame($title, $consoleID): ?array
 {
-    sanitize_sql_inputs($consoleID);
+    sanitize_sql_inputs($title, $consoleID);
     settype($consoleID, 'integer');
-    $title = sanitizeTitle($titleIn);
     // $title = str_replace( "--", "-", $title );    // subtle non-comment breaker
 
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints)
@@ -815,15 +813,6 @@ function submitNewGameTitleJSON($user, $md5, $gameIDin, $titleIn, $consoleID, $d
     settype($retVal['GameID'], 'integer');
 
     return $retVal;
-}
-
-function sanitizeTitle(string $titleIn): string
-{
-    // Remove single quotes, replace with double quotes:
-    $title = str_replace("'", "''", $titleIn);
-    $title = str_replace("/", "-", $title);
-
-    return str_replace("\\", "-", $title);
 }
 
 function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool

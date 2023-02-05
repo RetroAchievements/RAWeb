@@ -44,6 +44,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'SaltedPass',
     ];
 
+    public function getRememberTokenName(): ?string
+    {
+        return null;
+    }
+
     public function getAuthPassword()
     {
         return $this->Password;
