@@ -151,7 +151,7 @@ RenderContentStart($pageTitle);
         echo "</div>";
 
         echo "<div class='table-wrapper'>";
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
         // Output all topics, and offer 'prev/next page'
         foreach ($commentList as $commentData) {
             // Output one forum, then loop

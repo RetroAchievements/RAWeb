@@ -14,9 +14,9 @@ function renderNewClaimsComponent(int $count): void
 
     $claimData = getFilteredClaims(0, ClaimFilters::Default, ClaimSorting::ClaimDateDescending, false, null, 0, $count);
 
-    echo "<table class='mb-1'>";
+    echo "<table class='table-highlight mb-1'>";
     echo "<thead>";
-    echo "<tr>";
+    echo "<tr class='do-not-highlight'>";
     echo "<th class='pr-0'></th>";
     echo "<th>User</th>";
     echo "<th class='pr-0'></th>";
@@ -59,9 +59,9 @@ function renderFinishedClaimsComponent(int $count): void
 
     $claimData = getFilteredClaims(0, ClaimFilters::AllCompletedPrimaryClaims, ClaimSorting::FinishedDateDescending, false, null, 0, $count);
 
-    echo "<table class='mb-1'>";
+    echo "<table class='table-highlight mb-1'>";
     echo "<thead>";
-    echo "<tr>";
+    echo "<tr class='do-not-highlight'>";
     echo "<th class='pr-0'></th>";
     echo "<th>User</th>";
     echo "<th class='pr-0'></th>";
@@ -69,6 +69,7 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<th>Type</th>";
     echo "<th>Finished</th>";
     echo "</tr>";
+    echo "</thead>";
     echo "<tbody>";
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];

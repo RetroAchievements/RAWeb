@@ -60,7 +60,9 @@ RenderContentStart("Expiring Claims");
             echo "</p>";
         }
 
-        echo "<div class='table-wrapper'><table><tbody>";
+        echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight>";
         echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::GameDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
@@ -69,6 +71,7 @@ RenderContentStart("Expiring Claims");
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimDateDescending) . "</th>";
         echo "<th><b>" . ClaimSorting::toString(ClaimSorting::FinishedDateDescending) . " &#9660;</b></th>";
         echo "<th>Expiration Status</th>";
+        echo "</tr>";
 
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {

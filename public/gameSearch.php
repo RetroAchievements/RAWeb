@@ -61,14 +61,16 @@ RenderContentStart("Game Search");
 
         // echo " | ";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
+        echo "<tr class='do-not-highlight'>";
         echo "<th>Rank</th>";
         echo "<th>Game</th>";
         echo "<th>Genre</th>";
         echo "<th>Publisher</th>";
         echo "<th>Developer</th>";
         echo "<th>Total Retro Ratio</th>";
+        echo "</tr>";
 
         // $countCol = ( $method == 0 ) ? "Awards Given" : "Played By";
         // echo "<th>$countCol</th>";

@@ -20,7 +20,7 @@ function RenderActivePlayersComponent(): void
                 </div>
             </div>
             <div id='activeplayersbox' style='min-height: 54px'>
-                <table data-bind='hidden: isLoading'>
+                <table data-bind='hidden: isLoading' class='table-highlight'>
                     <tbody>
                         <!-- ko foreach: filteredPlayers -->
                         <tr>

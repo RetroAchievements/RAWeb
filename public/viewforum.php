@@ -87,8 +87,9 @@ RenderContentStart("Forum: $thisForumTitle");
         }
         echo "</div>";
 
-        echo "<table class='my-3'><tbody>";
-        echo "<tr>";
+        echo "<table class='table-highlight my-3'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
         echo "<th></th>";
         echo "<th class='w-full'>Topics</th>";
         echo "<th>Author</th>";

@@ -63,7 +63,7 @@ function displayCore() {
         <form action="/request/ticket/create.php" method="post">
             <?= csrf_field() ?>
             <input type="hidden" value="<?= $achievementID ?>" name="achievement">
-            <table>
+            <table class='table-highlight'>
                 <tbody>
                 <tr>
                     <td>Game</td>

@@ -38,7 +38,9 @@ RenderContentStart("Most Popular Games");
         //
         // echo " | ";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
 
         echo "<th>Rank</th>";
         echo "<th>Game</th>";
@@ -50,6 +52,8 @@ RenderContentStart("Most Popular Games");
 
         $countCol = ($method == 0) ? "Awards Given" : "Played By";
         echo "<th>$countCol</th>";
+
+        echo "</tr>";
 
         $count = 0;
 

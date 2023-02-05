@@ -3,12 +3,12 @@
 function RenderGameCompare($user, $gameID, $friendScores, $maxTotalPossibleForGame): void
 {
     echo "<div id='gamecompare' class='component' >";
-    echo "<h3>Compare</h3>";
+    echo "<h2 class='text-h3'>Compare</h2>";
     echo "<div class='nicebox'>";
     if (isset($friendScores)) {
         if (!empty($friendScores)) {
             echo "Compare to a followed user:<br>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
             foreach ($friendScores as $friendScoreName => $friendData) {
                 $link = "/gamecompare.php?ID=$gameID&f=$friendScoreName";
 

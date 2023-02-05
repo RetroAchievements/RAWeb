@@ -53,7 +53,9 @@ RenderContentStart("Developer Stats");
 
         echo "<div class='float-right'>* = ordered by</div>";
         echo "<br style='clear:both;'>";
-        echo "<div class='table-wrapper'><table><tbody>";
+        echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
         echo "<th></th>";
         echo "<th><a href='/developerstats.php?t=6&f=$devFilter'>Name</a>" . ($type == 6 ? "*" : "") . "</th>";
         echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>" . ($type == 3 ? "*" : "") . "</th>";
@@ -63,6 +65,7 @@ RenderContentStart("Developer Stats");
         echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>" . ($type == 1 ? "*" : "") . "</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>" . ($type == 7 ? "*" : "") . "</th>";
         // echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == AchievementType::UNOFFICIAL ? "*" : "") . "</th>";
+        echo "</tr>";
 
         $userCount = 0;
         foreach ($devStatsList as $devStats) {

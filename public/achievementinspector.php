@@ -138,8 +138,8 @@ function updateAchievementsTypeFlag(typeFlag) {
 
         echo "Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a><br/>";
 
-        echo "<table><tbody>";
-        echo "<tr>";
+        echo "<table class='table-highlight'><tbody>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th>ID</th>";
         echo "<th>Badge</th>";
         echo "<th width='99%'>Title/Description</th>";
@@ -185,7 +185,7 @@ function updateAchievementsTypeFlag(typeFlag) {
             }    // Just remove the input
 
             echo "</tr>";
-            echo "<tr>";
+            echo "<tr class='do-not-highlight'>";
             echo "<td><b>Code:</b></td>";
             echo "<td colspan='7' style='padding: 10px; word-break:break-all;'>";
             echo "<code style='word-break:break-all;'>$achMemAddr</code>";
@@ -197,7 +197,7 @@ function updateAchievementsTypeFlag(typeFlag) {
     } else {
         echo "<h3>Pick a game to modify:</h3>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
         $lastConsole = 'NULL';
         foreach ($gamesList as $gameEntry) {

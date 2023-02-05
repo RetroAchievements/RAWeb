@@ -87,8 +87,9 @@ function MarkAsUnread(msgID) {
                 echo "</div>";
             }
 
-            echo "<table><tbody>";
-            echo "<tr>";
+            echo "<table class='table-highlight'><tbody>";
+
+            echo "<tr class='do-not-highlight'>";
             echo "<th>Date</th>";
             if ($outbox) {
                 echo "<th colspan='2' style='min-width:150px'>To</th>";

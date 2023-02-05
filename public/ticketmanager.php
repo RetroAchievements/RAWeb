@@ -176,10 +176,12 @@ RenderContentStart($pageTitle);
 
         if ($gamesTableFlag == 1) {
             echo "<p class='embedded'><b>If you're a developer and find games that you love in this list, consider helping to resolve their tickets.</b></p>";
-            echo "<table><tbody>";
+            echo "<table class='table-highlight'><tbody>";
 
+            echo "<tr class='do-not-highlight'>";
             echo "<th>Game</th>";
             echo "<th>Number of Open Tickets</th>";
+            echo "</tr>";
 
             $rowCount = 0;
 
@@ -383,8 +385,9 @@ RenderContentStart($pageTitle);
                     echo "</div>";
                 }
 
-                echo "<table><tbody>";
+                echo "<table class='table-highlight'><tbody>";
 
+                echo "<tr class='do-not-highlight'>";
                 echo "<th>ID</th>";
                 echo "<th>State</th>";
                 echo "<th>Achievement</th>";
@@ -395,6 +398,7 @@ RenderContentStart($pageTitle);
                     echo "<th>Resolver</th>";
                 }
                 echo "<th class='whitespace-nowrap'>Reported At</th>";
+                echo "</tr>";
 
                 $rowCount = 0;
 
@@ -525,6 +529,7 @@ RenderContentStart($pageTitle);
 
                 echo "<table><tbody>";
 
+                echo "<tr>";
                 echo "<th>ID</th>";
                 echo "<th>State</th>";
                 echo "<th>Achievement</th>";
@@ -533,6 +538,7 @@ RenderContentStart($pageTitle);
                 echo "<th>Reporter</th>";
                 echo "<th>Resolver</th>";
                 echo "<th>Reported At</th>";
+                echo "</tr>";
 
                 echo "<tr>";
 
@@ -757,12 +763,12 @@ RenderContentStart($pageTitle);
                 echo "</td></tr>";
 
                 if ($numAchievements > 0 && $permissions >= Permissions::Developer) {
-                    echo "<tr><td></td><td colspan='7'>";
+                    echo "<tr class='do-not-highlight'><td></td><td colspan='7'>";
 
                     echo "<div class='devbox'>";
                     echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Player unlock history for this game ▼</span>";
                     echo "<div id='unlockhistory' style='display: none'>";
-                    echo "<table>";
+                    echo "<table class='table-highlight'>";
 
                     foreach ($unlockData as $unlockEntry) {
                         echo "<tr><td>";
@@ -836,7 +842,7 @@ RenderContentStart($pageTitle);
                     echo "</td>";
                     echo "</tr>";
                 }
-                echo "<tr>";
+                echo "<tr class='do-not-highlight'>";
                 echo "<td colspan='5'>";
                 echo "<div class='commentscomponent'>";
 

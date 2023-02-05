@@ -161,7 +161,9 @@ RenderContentStart("Claim List");
         }
         echo "<br style='clear:both'>";
 
-        echo "<div class='table-wrapper'><table><tbody>";
+        echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+
+        echo "<tr class='do-not-highlight'>";
         echo "<th></th>";
         // Sortable table headers
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
@@ -172,6 +174,7 @@ RenderContentStart("Claim List");
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::SpecialDescending), ClaimSorting::SpecialDescending, ClaimSorting::SpecialAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimDateDescending), ClaimSorting::ClaimDateDescending, ClaimSorting::ClaimDateAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::FinishedDateDescending, $claimFilters), ClaimSorting::FinishedDateDescending, ClaimSorting::FinishedDateAscending);
+        echo "</tr>";
 
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {

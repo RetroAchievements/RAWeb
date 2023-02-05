@@ -99,7 +99,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "<div class='float-right'>* = ordered by</div>";
         echo "<br style='clear:both;' />";
 
-        echo "<div class='table-wrapper'><table><tbody>";
+        echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
         $sort1 = ($sortBy == 1) ? 11 : 1;
         $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -118,6 +118,8 @@ RenderContentStart("Achievement List" . $requestedConsole);
         $mark6 = ($sortBy % 10 == 6) ? '&nbsp;*' : '';
         $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
         $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
+
+        echo "<tr class='do-not-highlight'>";
 
         echo "<th class='pr-0'></th>";
         echo "<th>";
@@ -140,6 +142,8 @@ RenderContentStart("Achievement List" . $requestedConsole);
         if (!$mobileBrowser) {
             echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
         }
+
+        echo "</tr>";
 
         foreach ($achData as $achEntry) {
             // $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";

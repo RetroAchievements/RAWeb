@@ -75,9 +75,9 @@ RenderContentStart("$userPage's Legacy - $dateStr");
 
         echo "</div>";
 
-        echo "<table><tbody>";
+        echo "<table class='table-highlight'><tbody>";
 
-        echo "<tr>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th>When</th>";
         echo "<th>Achievement</th>";
         echo "<th>Description</th>";
