@@ -103,6 +103,15 @@ class UpdateUserTimestamps extends Command
             ->keyBy('ID');
         $this->info('Found ' . $commentTimestamps->count() . ' earlier comment timestamps');
 
+        // Manually deleted accounts which have old forum topic comments and would mess with the sequence
+        $ignoredForumTopicAccounts = collect([
+            92596,
+            92599,
+            92600,
+            92601,
+            92602,
+        ]);
+
         $this->line('Interpolate account creation timestamps...');
         $users = User::withTrashed()
             ->where('ID', '<=', $maxId)
@@ -118,16 +127,20 @@ class UpdateUserTimestamps extends Command
             $timestampMemento ??= $user->Created;
 
             // Take earlier forum topic comment timestamp if exists
-            if ($forumTopicTimestamps->has($user->ID)) {
+            if ($forumTopicTimestamps->has($user->ID) && $ignoredForumTopicAccounts->doesntContain($user->ID)) {
                 $forumTopicTimestamp = $forumTopicTimestamps->get($user->ID)['ForumTopicTimestamp'];
-                $timestampMemento = $timestampMemento->isAfter($forumTopicTimestamp) ? Carbon::parse($forumTopicTimestamp) : $timestampMemento;
+                $timestampMemento = $timestampMemento->isAfter($forumTopicTimestamp)
+                    ? Carbon::parse($forumTopicTimestamp)
+                    : $timestampMemento;
                 // $this->line('[' . $user->ID . '] FTC! ' . $timestampMemento->format('Y-m-d H:i:s'));
             }
 
             // Take earlier comment timestamp if exists
             if ($commentTimestamps->has($user->ID)) {
                 $commentTimestamp = $commentTimestamps->get($user->ID)['CommentTimestamp'];
-                $timestampMemento = $timestampMemento->isAfter($commentTimestamp) ? Carbon::parse($commentTimestamp) : $timestampMemento;
+                $timestampMemento = $timestampMemento->isAfter($commentTimestamp)
+                    ? Carbon::parse($commentTimestamp)
+                    : $timestampMemento;
                 // $this->line('[' . $user->ID . '] C! ' . $timestampMemento->format('Y-m-d H:i:s'));
             }
 
