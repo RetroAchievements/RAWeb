@@ -121,24 +121,30 @@ class UpdateUserTimestamps extends Command
             if ($forumTopicTimestamps->has($user->ID)) {
                 $forumTopicTimestamp = $forumTopicTimestamps->get($user->ID)['ForumTopicTimestamp'];
                 $timestampMemento = $timestampMemento->isAfter($forumTopicTimestamp) ? Carbon::parse($forumTopicTimestamp) : $timestampMemento;
+                // $this->line('[' . $user->ID . '] FTC! ' . $timestampMemento->format('Y-m-d H:i:s'));
             }
 
             // Take earlier comment timestamp if exists
             if ($commentTimestamps->has($user->ID)) {
                 $commentTimestamp = $commentTimestamps->get($user->ID)['CommentTimestamp'];
                 $timestampMemento = $timestampMemento->isAfter($commentTimestamp) ? Carbon::parse($commentTimestamp) : $timestampMemento;
+                // $this->line('[' . $user->ID . '] C! ' . $timestampMemento->format('Y-m-d H:i:s'));
             }
 
             // Apply previous timestamp if it's earlier than the current or no Created timestamp exists.
             if (!$user->Created || $user->Created->isAfter($timestampMemento)) {
-                // $this->line('Update ' . $user->User . ' from "' . $user->Created . '" to "' . $timestampMemento . '"');
                 $user->update([
                     'Created' => $timestampMemento,
                 ]);
                 $updated++;
-            } else {
-                $timestampMemento = $user->Created;
+                // $this->line('[' . $user->ID . '] Update ' . $user->User . ' from "' . $user->Created . '" to "' . $timestampMemento . '"');
             }
+
+            if ($user->Created && $user->Created->isBefore($timestampMemento)) {
+                $timestampMemento = $user->Created;
+                // $this->line('[' . $user->ID . '] Use ' . $timestampMemento->format('Y-m-d H:i:s'));
+            }
+
             $progressBar->advance();
         }
         $progressBar->finish();
