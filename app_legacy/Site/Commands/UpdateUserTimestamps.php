@@ -84,6 +84,14 @@ class UpdateUserTimestamps extends Command
             ->selectRaw('UserAccounts.ID, UserAccounts.User, UserAccounts.Created, MIN(ForumTopicComment.DateCreated) ForumTopicTimestamp')
             ->leftJoin('ForumTopicComment', 'Author', '=', 'UserAccounts.User')
             ->where('UserAccounts.ID', '<=', $maxId)
+            // Manually deleted accounts which have old forum topic comments and would mess with the sequence
+            ->whereNotIn('UserAccounts.ID', [
+                92596,
+                92599,
+                92600,
+                92601,
+                92602,
+            ])
             ->whereRaw('ForumTopicComment.DateCreated < UserAccounts.Created')
             ->groupByRaw('UserAccounts.ID, UserAccounts.User, UserAccounts.Created')
             ->orderByDesc('UserAccounts.ID')
@@ -103,15 +111,6 @@ class UpdateUserTimestamps extends Command
             ->keyBy('ID');
         $this->info('Found ' . $commentTimestamps->count() . ' earlier comment timestamps');
 
-        // Manually deleted accounts which have old forum topic comments and would mess with the sequence
-        $ignoredForumTopicAccounts = collect([
-            92596,
-            92599,
-            92600,
-            92601,
-            92602,
-        ]);
-
         $this->line('Interpolate account creation timestamps...');
         $users = User::withTrashed()
             ->where('ID', '<=', $maxId)
@@ -127,7 +126,7 @@ class UpdateUserTimestamps extends Command
             $timestampMemento ??= $user->Created;
 
             // Take earlier forum topic comment timestamp if exists
-            if ($forumTopicTimestamps->has($user->ID) && $ignoredForumTopicAccounts->doesntContain($user->ID)) {
+            if ($forumTopicTimestamps->has($user->ID)) {
                 $forumTopicTimestamp = $forumTopicTimestamps->get($user->ID)['ForumTopicTimestamp'];
                 $timestampMemento = $timestampMemento->isAfter($forumTopicTimestamp)
                     ? Carbon::parse($forumTopicTimestamp)
