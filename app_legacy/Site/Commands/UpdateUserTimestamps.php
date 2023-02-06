@@ -67,7 +67,7 @@ class UpdateUserTimestamps extends Command
                 'Updated' => DB::raw('Updated'),
             ]);
 
-        $this->line('Updated initial account creation timestamps');
+        $this->info('Updated initial account creation timestamps');
     }
 
     /**
@@ -130,7 +130,7 @@ class UpdateUserTimestamps extends Command
             }
 
             // Apply previous timestamp if it's earlier than the current or no Created timestamp exists.
-            if (!$user->Created || $user->Created > $timestampMemento) {
+            if (!$user->Created || $user->Created->isAfter($timestampMemento)) {
                 // $this->line('Update ' . $user->User . ' from "' . $user->Created . '" to "' . $timestampMemento . '"');
                 $user->update([
                     'Created' => $timestampMemento,
