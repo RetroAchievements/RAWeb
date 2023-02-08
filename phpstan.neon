@@ -16,7 +16,7 @@ parameters:
         - '#Unsafe usage of new static#'
         # accessors to polymorphic relationships
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
-        #- '#Access to an undefined property LegacyApp\\Models\\.*#'
+        - '#Access to an undefined property LegacyApp\\Site\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'
