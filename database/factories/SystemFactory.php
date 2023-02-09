@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SystemFactory extends Factory
 {
-    public function definition()
+    /**
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
         return [
             'name' => ucwords($this->faker->words(1, true)),

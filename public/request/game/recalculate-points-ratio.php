@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Validator;
+use LegacyApp\Platform\Actions\UpdateGameWeightedPoints as UpdateGameWeightedPointsAction;
 use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
@@ -11,7 +12,9 @@ $input = Validator::validate(request()->post(), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
 ]);
 
-if (recalculateTrueRatio((int) $input['game'])) {
+/** @var UpdateGameWeightedPointsAction $updateGameWeightedPointsAction */
+$updateGameWeightedPointsAction = app()->make(UpdateGameWeightedPointsAction::class);
+if ($updateGameWeightedPointsAction->run((int) $input['game'])) {
     return back()->with('success', __('legacy.success.points_recalculate'));
 }
 

@@ -12,7 +12,7 @@ $defaultFilter = ClaimFilters::Default; // Show all active claims
 
 $username = requestInputSanitized('u', null);
 
-$claimData = getFilteredClaimData(0, $defaultFilter, ClaimSorting::FinishedDateAscending, true, $username, false); // Active sorted by expiring
+$claimData = getFilteredClaims(0, $defaultFilter, ClaimSorting::FinishedDateAscending, true, $username); // Active sorted by expiring
 $activeClaimCount = getActiveClaimCount();
 
 if (!empty($gameID)) {

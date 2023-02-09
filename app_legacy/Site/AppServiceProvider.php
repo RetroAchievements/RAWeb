@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace LegacyApp\Site;
 
 use Exception;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
+use LegacyApp\Site\Commands\DeleteExpiredEmailVerificationTokens;
+use LegacyApp\Site\Commands\DeleteOverdueUserAccounts;
+use LegacyApp\Site\Commands\LogUsersOnlineCount;
 use LegacyApp\Site\Commands\UpdateUserTimestamps;
 use LegacyApp\Site\Models\User;
 
@@ -17,9 +21,19 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                LogUsersOnlineCount::class,
+                DeleteExpiredEmailVerificationTokens::class,
+                DeleteOverdueUserAccounts::class,
                 UpdateUserTimestamps::class,
             ]);
         }
+
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
+            $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+        });
 
         $this->loadMigrationsFrom([database_path('migrations/legacy')]);
 

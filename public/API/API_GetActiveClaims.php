@@ -29,13 +29,12 @@ use LegacyApp\Community\Enums\ClaimSorting;
  */
 
 return response()->json(
-    getFilteredClaimData(
+    getFilteredClaims(
         0,
         ClaimFilters::Default,
         ClaimSorting::ClaimDateDescending,
         false,
         null,
-        false,
         0,
         1000
     )

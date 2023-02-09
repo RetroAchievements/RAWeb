@@ -1,5 +1,7 @@
 <?php
 
+use LegacyApp\Platform\Models\System;
+
 /*
  *  API_GetConsoleIDs - returns mapping of known consoles
  *
@@ -9,4 +11,4 @@
  *    string    Name                name of the console
  */
 
-return response()->json(getConsoleIDs());
+return response()->json(System::select(['ID', 'Name'])->get());

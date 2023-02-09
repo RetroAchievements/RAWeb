@@ -36,10 +36,10 @@ function performSearch(int|array $searchType, string $searchQuery, int $offset, 
         $parts[] = "
         SELECT " . SearchType::Game . " AS Type, gd.ID, CONCAT( '/game/', gd.ID ) AS Target,
                CONCAT(gd.Title, ' (', c.Name, ')') AS Title,
-               CASE 
-                   WHEN gd.Title LIKE '$searchQuery%' THEN 0 
+               CASE
+                   WHEN gd.Title LIKE '$searchQuery%' THEN 0
                    WHEN gd.Title LIKE '%~ $searchQuery%' THEN 1
-                   ELSE 2 
+                   ELSE 2
                END AS SecondarySort
         FROM GameData AS gd
         LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID AND ach.Flags = 3
@@ -179,7 +179,7 @@ function performSearch(int|array $searchType, string $searchQuery, int $offset, 
         // determine how many rows this subquery would return
         $query = $counts[$i];
 
-        $dbResult = s_mysql_sanitized_query($query);
+        $dbResult = s_mysql_query($query);
         if (!$dbResult) {
             log_sql_fail();
 
@@ -208,7 +208,7 @@ function performSearch(int|array $searchType, string $searchQuery, int $offset, 
         // fetch the results for this subquery
         $query = $parts[$i] . " LIMIT $offset, $count";
 
-        $dbResult = s_mysql_sanitized_query($query);
+        $dbResult = s_mysql_query($query);
         if (!$dbResult) {
             log_sql_fail();
 

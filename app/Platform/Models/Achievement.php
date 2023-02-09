@@ -8,7 +8,6 @@ use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Database\Eloquent\Concerns\PreventLazyLoading;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,7 +26,6 @@ class Achievement extends BaseModel implements HasComments
     /*
      * Shared Traits
      */
-    use PreventLazyLoading;
     use HasFactory;
     use Searchable;
     use SoftDeletes;
@@ -44,9 +42,6 @@ class Achievement extends BaseModel implements HasComments
 
     protected $with = [
         // 'media',
-    ];
-
-    protected array $allowedLazyRelations = [
     ];
 
     public function toSearchableArray(): array

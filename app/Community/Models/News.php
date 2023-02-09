@@ -7,7 +7,6 @@ namespace App\Community\Models;
 use App\Community\Concerns\HasAuthor;
 use App\Community\Contracts\HasComments;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Database\Eloquent\Concerns\PreventLazyLoading;
 use App\Support\Shortcode\HasShortcodeFields;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,16 +44,6 @@ class News extends BaseModel implements HasComments, HasMedia
 
     protected $with = [
         'user',
-        'media',
-    ];
-
-    /**
-     * @see PreventLazyLoading
-     */
-    protected array $allowedLazyRelations = [
-        /*
-         * has to be lazy loadable for singleFile() collections
-         */
         'media',
     ];
 

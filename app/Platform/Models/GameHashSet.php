@@ -6,7 +6,6 @@ namespace App\Platform\Models;
 
 use App\Platform\Contracts\HasVersionedTrigger;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Database\Eloquent\Concerns\PreventLazyLoading;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class GameHashSet extends BaseModel implements HasVersionedTrigger
 {
     use SoftDeletes;
-    use PreventLazyLoading;
 
     protected $table = 'game_hash_sets';
 
@@ -30,11 +28,6 @@ class GameHashSet extends BaseModel implements HasVersionedTrigger
         'game_id',
         'compatible',
     ];
-
-    /**
-     * @see \App\Support\Database\Eloquent\Concerns\PreventLazyLoading
-     */
-    protected array $allowedLazyRelations = [];
 
     // == relations
 

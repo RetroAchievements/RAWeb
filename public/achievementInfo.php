@@ -52,12 +52,11 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;
 $numPossibleWinners = 0;
-$numRecentWinners = 0;
 
-getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $numRecentWinners, $winnerInfo, $user, 0, 50);
+$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, 0, 50);
 
 $dateWonLocal = "";
-foreach ($winnerInfo as $userObject) {
+foreach ($unlocks as $userObject) {
     if ($userObject['User'] == $user) {
         $dateWonLocal = $userObject['DateAwarded'];
         break;
@@ -366,13 +365,13 @@ RenderContentStart($pageTitle);
          */
         echo "<div>";
         echo "<h3>Recent Unlocks</h3>";
-        if (empty($winnerInfo)) {
+        if ($unlocks->isEmpty()) {
             echo "Nobody yet! Will you be the first?!<br>";
         } else {
             echo "<table class='table-highlight'><tbody>";
             echo "<tr class='do-not-highlight'><th></th><th>User</th><th>Mode</th><th>Unlocked</th></tr>";
             $iter = 0;
-            foreach ($winnerInfo as $userObject) {
+            foreach ($unlocks as $userObject) {
                 $userWinner = $userObject['User'];
                 if ($userWinner == null || $userObject['DateAwarded'] == null) {
                     continue;

@@ -17,7 +17,7 @@ if (empty($gameID)) {
     abort(404);
 }
 
-$claimData = getFilteredClaimData($gameID);
+$claimData = getFilteredClaims($gameID);
 $gameData = getGameData($gameID);
 
 $consoleName = $gameData['ConsoleName'];

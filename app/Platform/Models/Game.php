@@ -9,7 +9,6 @@ use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Database\Eloquent\Concerns\PreventLazyLoading;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -34,7 +33,6 @@ class Game extends BaseModel implements HasComments, HasMedia
      * Shared Traits
      */
     use LogsActivity;
-    use PreventLazyLoading;
     use HasFactory;
     use InteractsWithMedia;
     use Searchable;
@@ -48,16 +46,6 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     protected $with = [
         'system',
-        'media',
-    ];
-
-    /**
-     * @see \App\Support\Database\Eloquent\Concerns\PreventLazyLoading
-     */
-    protected array $allowedLazyRelations = [
-        /*
-         * has to be lazy loadable for singleFile() collections
-         */
         'media',
     ];
 

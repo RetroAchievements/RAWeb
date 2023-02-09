@@ -1,8 +1,9 @@
 <?php
 
+use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Enums\Permissions;
 
-$consoleList = getConsoleList();
+$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {

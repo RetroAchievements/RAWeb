@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace LegacyApp\Platform;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
-use LegacyApp\Platform\Commands\Developer\RecalculateContributionYield;
+use LegacyApp\Platform\Commands\DeleteOrphanedLeaderboardEntries;
+use LegacyApp\Platform\Commands\UpdateDeveloperContributionYield;
+use LegacyApp\Platform\Commands\UpdateGameWeightedPoints;
 use LegacyApp\Platform\Commands\UpdatePlayerMasteries;
+use LegacyApp\Platform\Commands\UpdatePlayerPoints;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\GameHash;
@@ -24,10 +28,24 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                RecalculateContributionYield::class,
+                DeleteOrphanedLeaderboardEntries::class,
+                UpdateDeveloperContributionYield::class,
+                UpdateGameWeightedPoints::class,
+                UpdatePlayerPoints::class,
                 UpdatePlayerMasteries::class,
             ]);
         }
+
+        $this->app->booted(function () {
+            /** @var Schedule $schedule */
+            $schedule = $this->app->make(Schedule::class);
+
+            $schedule->command(UpdateDeveloperContributionYield::class)->everyMinute();
+            $schedule->command(UpdateGameWeightedPoints::class)->everyMinute();
+            $schedule->command(UpdatePlayerPoints::class)->everyMinute();
+
+            $schedule->command(DeleteOrphanedLeaderboardEntries::class)->daily();
+        });
 
         Relation::morphMap([
             'achievement' => Achievement::class,

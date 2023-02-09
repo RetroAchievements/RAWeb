@@ -32,16 +32,6 @@ class EmulatorRelease extends BaseModel implements HasMedia
         'media',
     ];
 
-    /**
-     * @see \App\Support\Database\Eloquent\Concerns\PreventLazyLoading
-     */
-    protected array $allowedLazyRelations = [
-        /*
-         * has to be lazy loadable for singleFile() collections
-         */
-        'media',
-    ];
-
     // == media
 
     public function registerMediaCollections(): void

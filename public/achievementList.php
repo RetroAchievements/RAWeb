@@ -1,18 +1,19 @@
 <?php
 
 use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Models\System;
 
-$consoleList = getConsoleList();
-$consoleIDInput = requestInputSanitized('z', 0, 'integer');
+$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+$consoleIDInput = (int) request()->input('z', 0);
 $mobileBrowser = IsMobileBrowser();
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 
-$count = requestInputSanitized('c', $maxCount, 'integer');
-$offset = requestInputSanitized('o', 0, 'integer');
-$params = requestInputSanitized('p', 3, 'integer');
+$count = (int) request()->input('c', $maxCount);
+$offset = (int) request()->input('o', 0);
+$params = (int) request()->input('p', 3);
 $dev = requestInputSanitized('d');
 
 if ($user == null) {
@@ -28,8 +29,8 @@ if ($dev != null) {
     $dev_param .= "&d=$dev";
 }
 
-$sortBy = requestInputSanitized('s', 17, 'integer');
-$achCount = getAchievementsList($consoleIDInput, $user, $sortBy, $params, $count, $offset, $achData, $flags, $dev);
+$sortBy = (int) request()->input('s', 17);
+$achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
@@ -124,7 +125,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "<th>";
         echo "<a href='/achievementList.php?s=$sort1&p=$params$dev_param'>Title</a>$mark1";
         echo " / ";
-        echo "<a href='/achievementList.php?s=$sort2&p=$params$dev_param'>Desc.</a>$mark2";
+        echo "<a href='/achievementList.php?s=$sort2&p=$params$dev_param'>Description</a>$mark2";
         echo "</th>";
 
         if (!$mobileBrowser) {
@@ -216,7 +217,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             $prevOffset = $offset - $maxCount;
             echo "<a href='/achievementList.php?s=$sortBy&o=$prevOffset&p=$params$dev_param'>&lt; Previous $maxCount</a> - ";
         }
-        if ($achCount == $maxCount) {
+        if ($achData->count() === $maxCount) {
             // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='/achievementList.php?s=$sortBy&o=$nextOffset&p=$params$dev_param'>Next $maxCount &gt;</a>";

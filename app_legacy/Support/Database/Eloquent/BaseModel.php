@@ -6,7 +6,7 @@ namespace LegacyApp\Support\Database\Eloquent;
 
 use App\Support\Database\Eloquent\BaseModel as AppBaseModel;
 
-class BaseModel extends AppBaseModel
+abstract class BaseModel extends AppBaseModel
 {
     protected $connection = 'mysql_legacy';
 

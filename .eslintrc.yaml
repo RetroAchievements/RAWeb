@@ -12,10 +12,6 @@ parserOptions:
   ecmaVersion: 6
   sourceType: module
 
-ignorePatterns:
-  - node_modules/
-  - public/vendor/
-
 rules:
   # some javascript functions are used within html attributes rendered within php
   no-unused-vars: off
@@ -57,3 +53,6 @@ rules:
   import/prefer-default-export: off
 
   import/no-extraneous-dependencies: off
+
+  # tailwind.config.js
+  global-require: off

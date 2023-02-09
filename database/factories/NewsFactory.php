@@ -11,6 +11,9 @@ class NewsFactory extends Factory
 {
     use SeedsUsers;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [

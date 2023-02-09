@@ -110,7 +110,7 @@ function authenticateFromPassword(&$user, $pass): bool
         return false;
     }
 
-    $row = mysqli_fetch_array($result);
+    $row = mysqli_fetch_assoc($result);
 
     if (!$row) {
         return false;

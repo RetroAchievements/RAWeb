@@ -32,12 +32,11 @@ use LegacyApp\Community\Enums\ClaimSorting;
 $user = request()->query('u');
 
 return response()->json(
-    getFilteredClaimData(
+    getFilteredClaims(
         0,
         ClaimFilters::AllFilters,
         ClaimSorting::ClaimDateDescending,
         false,
-        $user,
-        false
+        $user
     )
 );

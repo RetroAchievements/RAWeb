@@ -64,7 +64,7 @@ return [
         ],
 
         // 'api' => [
-        //     'driver' => 'token', // 'sanctum',
+        //     'driver' => 'token', // 'sanctum', 'passport',
         //     'provider' => 'users',
         //     'hash' => false,
         // ],

@@ -19,7 +19,7 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $username = mb_substr(str_replace('.', '', $this->faker->userName), 0, 20);
+        $username = mb_substr(str_replace('.', '', $this->faker->unique()->userName), 0, 20);
 
         return [
             'email' => $this->faker->unique()->safeEmail,

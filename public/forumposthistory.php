@@ -2,18 +2,16 @@
 
 use Illuminate\Support\Carbon;
 
-$maxCount = 25;
-
 $offset = requestInputSanitized('o', 0, 'integer');
-$count = $maxCount;
+$count = $maxCount = 25;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $forUser = requestInputSanitized('u');
 if (empty($forUser)) {
-    $recentPostsData = getRecentForumTopics($offset, $count, $permissions);
+    $recentPosts = getRecentForumTopics($offset, $count, $permissions);
 } else {
-    getRecentForumPosts($offset, $count, 90, $permissions, $recentPostsData, $forUser);
+    $recentPosts = getRecentForumPosts($offset, $count, 90, $permissions, $forUser);
 }
 
 RenderContentStart("Forum Recent Posts");
@@ -54,7 +52,7 @@ RenderContentStart("Forum Recent Posts");
         }
         echo "</tr>";
 
-        foreach ($recentPostsData as $topicPostData) {
+        foreach ($recentPosts as $topicPostData) {
             $postMessage = $topicPostData['ShortMsg'];
             if ($topicPostData['IsTruncated']) {
                 $postMessage .= '...';
@@ -127,7 +125,7 @@ RenderContentStart("Forum Recent Posts");
             $prevOffset = $offset - $maxCount;
             echo "<a href='$baseUrl$prevOffset'>&lt; Previous $maxCount</a> - ";
         }
-        if (count($recentPostsData) == $maxCount) {
+        if (count($recentPosts) === $maxCount) {
             // Max number fetched, i.e. there are more. Can goto next 25.
             $nextOffset = $offset + $maxCount;
             echo "<a href='$baseUrl$nextOffset'>Next $maxCount &gt;</a>";

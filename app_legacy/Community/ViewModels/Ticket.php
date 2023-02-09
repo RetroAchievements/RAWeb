@@ -2,7 +2,7 @@
 
 namespace LegacyApp\Community\ViewModels;
 
-// TODO refactor into legacy model
+// TODO refactor to legacy model
 class Ticket
 {
     public int $id;

@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GameHashFactory extends Factory
 {
-    public function definition()
+    /**
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
         return [
             'system_id' => 1,

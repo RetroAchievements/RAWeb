@@ -17,7 +17,6 @@ use App\Site\Concerns\HasAccount;
 use App\Site\Concerns\HasAvatar;
 use App\Site\Concerns\HasPreferences;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
-use App\Support\Database\Eloquent\Concerns\PreventLazyLoading;
 use App\Support\HashId\HasHashId;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -50,7 +49,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
      * Shared Traits
      */
     use HasHashId;
-    use PreventLazyLoading;
     use HasFullTableName;
     /*
      * RA Feature Traits
@@ -115,18 +113,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     protected $with = [
         'media',
         'roles',
-    ];
-
-    /**
-     * @see \App\Support\Database\Eloquent\Concerns\PreventLazyLoading
-     */
-    protected array $allowedLazyRelations = [
-        /*
-         * has to be lazy loadable for singleFile() collections
-         * interestingly enough - user avatar uploads do not have that problem
-         * let's keep it here for safety
-         */
-        'media',
     ];
 
     protected $casts = [

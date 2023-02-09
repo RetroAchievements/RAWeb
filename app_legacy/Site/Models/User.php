@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace LegacyApp\Site\Models;
 
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
+use Database\Factories\Legacy\UserFactory;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
@@ -19,6 +22,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 {
     use Authenticatable;
     use Authorizable;
+    use HasFactory;
     use HasFullTableName;
     use SoftDeletes;
 
@@ -43,6 +47,11 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'PasswordResetToken',
         'SaltedPass',
     ];
+
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
 
     public function getRememberTokenName(): ?string
     {
@@ -92,6 +101,12 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function getAvatarUrlAttribute(): string
     {
         return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+    }
+
+    public function scopeHasAnyPoints(Builder $query): Builder
+    {
+        return $query->where('RAPoints', '>', 0)
+            ->orWhere('RASoftcorePoints', '>', 0);
     }
 
     // Email verification
