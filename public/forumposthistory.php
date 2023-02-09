@@ -2,15 +2,17 @@
 
 use Illuminate\Support\Carbon;
 
-$maxCount = 25;
-
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount = 25;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $forUser = requestInputSanitized('u');
-$recentPosts = getRecentForumTopics($offset, $count, $permissions);
+if (empty($forUser)) {
+    $recentPosts = getRecentForumTopics($offset, $count, $permissions);
+} else {
+    $recentPosts = getRecentForumPosts($offset, $count, 90, $permissions, $forUser);
+}
 
 RenderContentStart("Forum Recent Posts");
 ?>
@@ -40,9 +42,14 @@ RenderContentStart("Forum Recent Posts");
         echo "<tbody>";
 
         echo "<tr class='do-not-highlight'>";
-        echo "<th>Last Post By</th>";
-        echo "<th>Message</th>";
-        echo "<th>Additional Posts</th>";
+        if (empty($forUser)) {
+            echo "<th>Last Post By</th>";
+            echo "<th>Message</th>";
+            echo "<th>Additional Posts</th>";
+        } else {
+            echo "<th>Author</th>";
+            echo "<th>Message</th>";
+        }
         echo "</tr>";
 
         foreach ($recentPosts as $topicPostData) {
@@ -51,8 +58,8 @@ RenderContentStart("Forum Recent Posts");
                 $postMessage .= '...';
             }
             $postAuthor = $topicPostData['Author'];
-            $forumID = $topicPostData['ForumID'];
-            $forumTitle = $topicPostData['ForumTitle'];
+            $forumID = $topicPostData['ForumID'] ?? 0;
+            $forumTitle = $topicPostData['ForumTitle'] ?? '';
             $forumTopicID = $topicPostData['ForumTopicID'];
             $forumTopicTitle = $topicPostData['ForumTopicTitle'];
             $commentID = $topicPostData['CommentID'];
@@ -79,24 +86,26 @@ RenderContentStart("Forum Recent Posts");
             echo "</td>";
 
             echo "<td>";
-            if ($count_7d > 1) {
-                echo "<span class='smalltext whitespace-nowrap'>";
+            if (empty($forUser)) {
+                if ($count_7d > 1) {
+                    echo "<span class='smalltext whitespace-nowrap'>";
 
-                if ($count_1d > 1) {
-                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_1d#$commentID_1d'>$count_1d posts in the last 24 hours";
-                }
-
-                if ($count_7d > $count_1d) {
                     if ($count_1d > 1) {
-                        echo "<div class='mt-1'/>";
+                        echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_1d#$commentID_1d'>$count_1d posts in the last 24 hours";
                     }
-                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_7d#$commentID_7d'>$count_7d posts in the last 7 days";
-                    if ($count_1d > 1) {
-                        echo "</div>";
-                    }
-                }
 
-                echo "</span>";
+                    if ($count_7d > $count_1d) {
+                        if ($count_1d > 1) {
+                            echo "<div class='mt-1'/>";
+                        }
+                        echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_7d#$commentID_7d'>$count_7d posts in the last 7 days";
+                        if ($count_1d > 1) {
+                            echo "</div>";
+                        }
+                    }
+
+                    echo "</span>";
+                }
             }
             echo "</td>";
 
