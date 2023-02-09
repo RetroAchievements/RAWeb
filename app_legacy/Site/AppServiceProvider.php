@@ -12,6 +12,7 @@ use Illuminate\Support\ServiceProvider;
 use LegacyApp\Site\Commands\DeleteExpiredEmailVerificationTokens;
 use LegacyApp\Site\Commands\DeleteOverdueUserAccounts;
 use LegacyApp\Site\Commands\LogUsersOnlineCount;
+use LegacyApp\Site\Commands\UpdateUserTimestamps;
 use LegacyApp\Site\Models\User;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
                 LogUsersOnlineCount::class,
                 DeleteExpiredEmailVerificationTokens::class,
                 DeleteOverdueUserAccounts::class,
+                UpdateUserTimestamps::class,
             ]);
         }
 

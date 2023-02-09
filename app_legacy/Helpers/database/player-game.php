@@ -398,18 +398,20 @@ function getGameTopAchievers(int $gameID): array
 
     $high_scores = [];
     $masters = [];
-    $mastery_score = 0;
+    $numAchievementsInSet = 0;
 
-    $query = "SELECT SUM(Points) AS Points FROM Achievements WHERE GameID = $gameID AND Flags = " . AchievementType::OfficialCore;
+    $query = "SELECT COUNT(*) AS NumAchievementsInSet
+        FROM Achievements
+        WHERE GameID = $gameID AND Flags = " . AchievementType::OfficialCore;
     $dbResult = s_mysql_query($query);
 
     if ($dbResult !== false) {
         if ($data = mysqli_fetch_assoc($dbResult)) {
-            $mastery_score = $data['Points'];
+            $numAchievementsInSet = $data['NumAchievementsInSet'];
         }
     }
 
-    $query = "SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
+    $query = "SELECT aw.User, COUNT(*) AS NumAchievements, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -430,7 +432,7 @@ function getGameTopAchievers(int $gameID): array
                 $high_scores[] = $data;
             }
 
-            if ($data['TotalScore'] == $mastery_score) {
+            if ($data['NumAchievements'] == $numAchievementsInSet) {
                 if (count($masters) == 10) {
                     array_shift($masters);
                 }
