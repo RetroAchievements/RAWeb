@@ -52,49 +52,39 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
     return $retVal;
 }
 
-function getAchievementsEarnedBetween($dateStart, $dateEnd, $user): array
+function getAchievementsEarnedBetween($dateStart, $dateEnd, $username): array
 {
-    $retVal = [];
-
-    if (!isValidUsername($user)) {
-        return $retVal;
+    if (!isValidUsername($username)) {
+        return [];
     }
 
-    sanitize_sql_inputs($dateStart, $dateEnd, $user);
-
-    // $dateStrStart = date( "Y-m-d H:i:s", strtotime( $dateStart ) );
-    // $dateStrEnd = date( "Y-m-d H:i:s", strtotime( $dateEnd ) );
-    $dateStrStart = $dateStart;
-    $dateStrEnd = $dateEnd;
+    $bindings = [
+        'dateStart' => $dateStart,
+        'dateEnd' => $dateEnd,
+        'username' => $username,
+        'achievementType' => AchievementType::OfficialCore,
+    ];
 
     $query = "SELECT aw.Date, aw.HardcoreMode, ach.ID AS AchievementID, ach.Title, ach.Description, ach.BadgeName, ach.Points, ach.Author, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID, c.Name AS ConsoleName
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE User = '$user' AND ach.Flags = " . AchievementType::OfficialCore . "
-              AND Date BETWEEN '$dateStrStart' AND '$dateStrEnd'
+              WHERE User = :username AND ach.Flags = :achievementType
+              AND Date BETWEEN :dateStart AND :dateEnd
               ORDER BY aw.Date
               LIMIT 500";
 
-    $dbResult = s_mysql_query($query);
+    $cumulativeScore = 0;
 
-    if ($dbResult !== false) {
-        $achCount = 0;
-        $cumulScore = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $cumulScore += $db_entry['Points'];
+    return legacyDbFetchAll($query, $bindings)
+        ->map(function ($entry) use (&$cumulativeScore) {
+            $cumulativeScore += (int) $entry['Points'];
+            $entry['CumulScore'] = $cumulativeScore;
 
-            $retVal[$achCount] = $db_entry;
-            $retVal[$achCount]['CumulScore'] = $cumulScore;
-
-            $achCount++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $retVal;
+            return $entry;
+        })
+        ->toArray();
 }
 
 function getAchievementsEarnedOnDay($dateInput, $user): array
