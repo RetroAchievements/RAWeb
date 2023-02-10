@@ -5,12 +5,12 @@ It is a Laravel application ([TALL stack](https://tallstack.dev/)) including ind
 
 ## Requirements
 
--   Local web server
--   [PHP 8.0](http://php.net/manual/en/)
--   [Composer v2](https://getcomposer.org/) PHP dependency manager
--   [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
--   [Node.js 18](https://nodejs.org/)
-
+- Local web server
+- [PHP 8.0](http://php.net/manual/en/)
+- [Composer v2](https://getcomposer.org/) PHP dependency manager
+- [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
+- [Node.js 18](https://nodejs.org/)
+ 
 Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
 
 ### **[Docker Compose](https://docs.docker.com/compose/install/)** (Windows, Linux, macOS)
@@ -22,7 +22,6 @@ See [Laravel Sail documentation](https://laravel.com/docs/sail).
 Install the XAMPP version packaged with PHP 8.0 to run an Apache web server, MySQL/MariaDB, and PHP on your system.
 
 You might have to enable some extensions in `php.ini` (see the `ext-*` requirements in [composer.json](composer.json)):
-
 ```
 extension=curl
 extension=gmp
@@ -75,14 +74,15 @@ sail up -d
 > Mentions of `sail` commands assume that it has been aliased to the `./vendor/bin/sail` executable according to Sail's docs.
 > I.e. run `./vendor/bin/sail up` if you haven't aliased it.
 
-**XAMPP/Valet**
+**XAMPP/Valet** 
 
 Adjust the local environment configuration (`.env`):
 
--   Enter the credentials of your local database instance (`DB_*`)
--   Change the application URL (`APP_URL`) - static assets URL (`ASSET_URL`) should be the same as `APP_URL`
+- Enter the credentials of your local database instance (`DB_*`)
+- Change the application URL (`APP_URL`) - static assets URL (`ASSET_URL`) should be the same as `APP_URL`
 
-> **Note** > `APP_URL` varies depending on your setup. By default it's configured to use the forwarded application Docker container port.
+> **Note**
+> `APP_URL` varies depending on your setup. By default it's configured to use the forwarded application Docker container port.
 > E.g. using an Apache vhost or linking a domain via Laravel Valet this should be adjusted accordingly:
 
 ```dotenv
@@ -103,7 +103,7 @@ REDIS_PORT=${FORWARD_REDIS_PORT}
 
 > **Note**
 > Connect with a database client of you choice using the forwarded ports
-> or use phpMyAdmin which runs at http://localhost:64080 by default.
+> or use phpMyAdmin which runs at http://localhost:64080 by default. 
 
 Use mailhog as SMTP server for local mails testing:
 
@@ -143,7 +143,7 @@ sail artisan ra:storage:link --relative
 ```
 
 ### Setup database
-
+ 
 ```shell
 php artisan migrate
 # Using Sail:
@@ -178,9 +178,9 @@ sail artisan db:seed
 
 Depending on the setup you chose the application should run.
 
--   Docker: http://localhost:64000
--   XAMPP: depending on Apache vhost configuration
--   Laravel Valet: e.g. https://raweb.test - depending on link / parked location and whether you chose to secure it or not
+- Docker: http://localhost:64000
+- XAMPP: depending on Apache vhost configuration
+- Laravel Valet: e.g. https://raweb.test - depending on link / parked location and whether you chose to secure it or not 
 
 ## Usage
 
@@ -189,9 +189,9 @@ Depending on the setup you chose the application should run.
 Add a `host.txt` file next to `RAIntegration.dll` in your local RALibRetro's directory.
 The file should contain the URL to your local RAServer instance. Any of the following will work:
 
--   `http://localhost:64000` when running the server via Docker, `composer start` or `artisan serve`.
--   `https://raweb.test` (example) when running the server via Valet
--   `http://raweb.test` (example) as a configured vhost
+- `http://localhost:64000` when running the server via Docker, `composer start` or `artisan serve`.
+- `https://raweb.test` (example) when running the server via Valet
+- `http://raweb.test` (example) as a configured vhost
 
 ## Security Vulnerabilities
 
