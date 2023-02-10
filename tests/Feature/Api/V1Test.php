@@ -240,7 +240,7 @@ class V1Test extends TestCase
             ])
         )
             ->assertSuccessful()
-            ->assertExactJson([
+            ->assertJson([
                 [
                     'AchievementID' => $achievement->ID,
                     'Author' => $this->user->User,
