@@ -150,14 +150,6 @@ php artisan migrate
 sail artisan migrate
 ```
 
-If you have legacy data in your database you may run sync scripts to populate the new tables:
-
-```shell
-php artisan ra:sync:users --direct
-# Using Sail:
-sail artisan ra:sync:users --direct
-```
-
 Seed your database with additional test data:
 
 ```shell
