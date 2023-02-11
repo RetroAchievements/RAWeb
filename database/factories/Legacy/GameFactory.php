@@ -19,6 +19,7 @@ class GameFactory extends Factory
         return [
             'Title' => ucwords($this->faker->words(2, true)),
             'ConsoleID' => 0,
+            'ImageIcon' => '/Images/000001.png',
         ];
     }
 }

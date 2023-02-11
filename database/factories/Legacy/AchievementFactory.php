@@ -28,6 +28,7 @@ class AchievementFactory extends Factory
             'Author' => $this->fakeUsername(),
             'Flags' => AchievementType::Unofficial,
             'Points' => 0,
+            'BadgeName' => '00001',
         ];
     }
 
