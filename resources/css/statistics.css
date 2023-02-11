@@ -1,5 +1,5 @@
 .stat-box {
-  @apply w-full h-24 border border-[color:var(--embed-highlight-color)];
+  @apply w-full h-20 border border-[color:var(--embed-highlight-color)];
   @apply flex flex-col justify-center items-center;
   @apply cursor-pointer;
   @apply text-[color:var(--link-color)] bg-[color:var(--embed-color)];

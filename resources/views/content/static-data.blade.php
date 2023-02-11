@@ -49,30 +49,37 @@ if ($lastRegisteredUser == null) {
     $lastRegisteredUser = 'unknown';
 }
 ?>
-<div class="component statistics">
+<div class="component statistics !mb-0">
     <h3>Statistics</h3>
 
-    <div class="infobox mb-4">
+    <div class="infobox">
         <div class="w-full">
-            <div class="w-full h-16 mb-2 flex flex-col justify-center items-center">
-                <span class="text-2xl">{{ number_format($totalPointsEarned) }}</span>
-                <span>Points earned since 2nd March 2013</span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-px">
+            <div class="grid grid-cols-2 gap-px mb-2">
                 <x-home-stats-embed label="Games" :count="$numGames" href="/gameList.php?s=1" />
                 <x-home-stats-embed label="Achievements" :count="$numAchievements" href="/gameList.php?s=2" />
                 <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/achievementList.php" />
                 <x-home-stats-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php" />
+            </div>
+
+            <div class="w-full h-16 flex flex-col justify-center items-center">
+                <span>Points earned since 2nd March 2013</span>
+                <span class="text-2xl">{{ number_format($totalPointsEarned) }}</span>
             </div>
         </div>
     </div>
 
     <div>
         @if($staticData->lastRegisteredUser)
-            The newest registered user is
-            <x-user.avatar :user="$staticData->lastRegisteredUser" />, 
-            who joined {{ $lastRegisteredUserTimeAgo }}.
+            <hr class="mt-4 mb-5 border-[color:var(--embed-highlight-color)]">
+
+            <div class="w-full flex flex-col justify-center items-center">
+                <p>Newest user</p>
+
+                <div>
+                    <x-user.avatar :user="$staticData->lastRegisteredUser" /> 
+                    <span class="text-2xs">({{ $lastRegisteredUserTimeAgo }})</span>
+                </div>
+            </div>
         @endif
     </div>
 </div>
