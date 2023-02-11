@@ -232,13 +232,13 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  * above stats and returning data for a specific user or game.
  */
 function getFilteredClaims(
-    int $gameID = 0,
+    int $gameID = null,
     int $claimFilter = ClaimFilters::AllFilters,
     int $sortType = ClaimSorting::ClaimDateDescending,
     bool $getExpiringOnly = false,
     ?string $username = null,
-    int $offset = 0,
-    int $limit = 50
+    int $offset = null,
+    int $limit = null
 ): Collection {
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
@@ -340,10 +340,7 @@ function getFilteredClaims(
 
     $sortCondition .= $sortOrder;
 
-    $bindings = [
-        'offset' => $offset,
-        'limit' => $limit,
-    ];
+    $bindings = [];
 
     $userCondition = '';
     if (isset($username)) {
@@ -352,7 +349,7 @@ function getFilteredClaims(
     }
 
     $gameCondition = '';
-    if ($gameID > 0) {
+    if ($gameID !== null && $gameID > 0) {
         $bindings['gameId'] = $gameID;
         $gameCondition = "AND sc.GameID = :gameId";
     }
@@ -404,9 +401,17 @@ function getFilteredClaims(
             $gameCondition
             $havingCondition
         ORDER BY
-            $sortCondition
-        LIMIT
-            :offset, :limit";
+            $sortCondition";
+
+    if ($limit !== null) {
+        $query .= ' LIMIT';
+        if ($offset !== null) {
+            $query .= ' :offset,';
+            $bindings['offset'] = $offset;
+        }
+        $query .= ' :limit';
+        $bindings['limit'] = $limit;
+    }
 
     return legacyDbFetchAll($query, $bindings);
 }
