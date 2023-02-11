@@ -27,6 +27,8 @@ class AchievementFactory extends Factory
             'MemAddr' => '0x000000',
             'Author' => $this->fakeUsername(),
             'Flags' => AchievementType::Unofficial,
+            'Points' => 0,
+            'BadgeName' => '00001',
         ];
     }
 
