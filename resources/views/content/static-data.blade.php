@@ -24,7 +24,7 @@ $lastRegisteredUser = $staticData['LastRegisteredUser'];
 $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
 $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-$lastRegisteredUserAtDate = new DateTime('2020-05-21 06:05:10');
+$lastRegisteredUserAtDate = new DateTime($lastRegisteredUserAt);
 $now = new DateTime();
 $interval = $lastRegisteredUserAtDate->diff($now);
 
@@ -38,7 +38,7 @@ $timeUnits = [
 ];
 foreach ($timeUnits as $format => $unit) {
     if ($interval->$format >= 1) {
-        $unit = $interval->$format > 1 ? "$unit"."s" : $unit;
+        $unit = $interval->$format > 1 ? $unit . "s" : $unit;
         // "%$format $unit ago" --> "5 minutes ago"
         $lastRegisteredUserTimeAgo = $interval->format("%$format $unit ago");
         break;
