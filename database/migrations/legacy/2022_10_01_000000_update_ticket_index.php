@@ -13,11 +13,11 @@ return new class() extends Migration {
             $sm = Schema::getConnection()->getDoctrineSchemaManager();
             $indexesFound = $sm->listTableIndexes('Ticket');
 
-            if (array_key_exists("achievementid_reportedbyuserid", $indexesFound)) {
-                $table->dropUnique("achievementid_reportedbyuserid");
+            if (array_key_exists('achievementid_reportedbyuserid', $indexesFound)) {
+                $table->dropUnique('achievementid_reportedbyuserid');
             }
 
-            if (array_key_exists("ticket_achievementid_reportedbyuserid_unique", $indexesFound)) {
+            if (array_key_exists('ticket_achievementid_reportedbyuserid_unique', $indexesFound)) {
                 $table->dropUnique(['AchievementID', 'ReportedByUserID']);
             }
 
@@ -28,7 +28,12 @@ return new class() extends Migration {
     public function down()
     {
         Schema::table('Ticket', function (Blueprint $table) {
-            $table->dropIndex('ticket_achievementid_reportedbyuserid_index');
+            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $indexesFound = $sm->listTableIndexes('Ticket');
+
+            if (array_key_exists('ticket_achievementid_reportedbyuserid_index', $indexesFound)) {
+                $table->dropIndex('ticket_achievementid_reportedbyuserid_index');
+            }
         });
     }
 };
