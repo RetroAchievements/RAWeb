@@ -24,7 +24,26 @@ $lastRegisteredUser = $staticData['LastRegisteredUser'];
 $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
 $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-$niceRegisteredAt = date("d M\nH:i", strtotime($lastRegisteredUserAt));
+$lastRegisteredUserAtDate = new DateTime('2020-05-21 06:05:10');
+$now = new DateTime();
+$interval = $lastRegisteredUserAtDate->diff($now);
+
+$timeUnits = [
+    "y" => "year",
+    "m" => "month",
+    "d" => "day",
+    "h" => "hour",
+    "i" => "minute",
+    "s" => "second",
+];
+foreach ($timeUnits as $format => $unit) {
+    if ($interval->$format >= 1) {
+        $unit = $interval->$format > 1 ? "$unit"."s" : $unit;
+        // "%$format $unit ago" --> "5 minutes ago"
+        $lastRegisteredUserTimeAgo = $interval->format("%$format $unit ago");
+        break;
+    }
+}
 
 if ($lastRegisteredUser == null) {
     $lastRegisteredUser = 'unknown';
@@ -32,24 +51,28 @@ if ($lastRegisteredUser == null) {
 ?>
 <div class="component statistics">
     <h3>Statistics</h3>
-    <div class="infobox">
-        There are
-        <a title="Achievement List" href="/gameList.php?s=2">{{ number_format($numAchievements) }}</a>
-        achievements registered for
-        <a title="Game List" href="/gameList.php?s=1">{{ number_format($numGames) }}</a> games.
-        <a title="Achievement List" href="/achievementList.php">{{ number_format($numAwarded) }}</a>
-        achievements have been awarded to the
-        <a title="User List" href="/userList.php">{{ number_format($numRegisteredPlayers) }}</a>
-        registered players (average: {{ $avAwardedPerPlayer }} per player)<br>
-        <br>
-        Since 2nd March 2013, a total of
-        <span title="Awesome!"><strong>{{ number_format($totalPointsEarned) }}</strong></span>
-        points have been earned by users on RetroAchievements.org.<br>
-        <br>
+
+    <div class="infobox mb-4">
+        <div class="w-full">
+            <div class="w-full h-16 mb-2 flex flex-col justify-center items-center">
+                <span class="text-2xl">{{ number_format($totalPointsEarned) }}</span>
+                <span>Points earned since 2nd March 2013</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-px">
+                <x-home-stats-embed label="Games" :count="$numGames" href="/gameList.php?s=1" />
+                <x-home-stats-embed label="Achievements" :count="$numAchievements" href="/gameList.php?s=2" />
+                <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/achievementList.php" />
+                <x-home-stats-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php" />
+            </div>
+        </div>
+    </div>
+
+    <div>
         @if($staticData->lastRegisteredUser)
-            The last registered user was
-            <x-user.avatar :user="$staticData->lastRegisteredUser"/>
-            on {{ $niceRegisteredAt }}.
+            The newest registered user is
+            <x-user.avatar :user="$staticData->lastRegisteredUser" />, 
+            who joined {{ $lastRegisteredUserTimeAgo }}.
         @endif
     </div>
 </div>

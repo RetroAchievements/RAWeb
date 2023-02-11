@@ -29,6 +29,9 @@ export default defineConfig(({ mode }) => {
           'resources/css/app.css',
           'resources/js/app.js',
         ],
+        refresh: [
+          'resources/views/**'
+        ]
       }),
     ],
     resolve: {
