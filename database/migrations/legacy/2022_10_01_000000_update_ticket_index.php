@@ -29,7 +29,6 @@ return new class() extends Migration {
     {
         Schema::table('Ticket', function (Blueprint $table) {
             $table->dropIndex('ticket_achievementid_reportedbyuserid_index');
-            $table->unique(['AchievementID', 'ReportedByUserID']);
         });
     }
 };
