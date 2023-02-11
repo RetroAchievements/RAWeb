@@ -212,11 +212,11 @@ class V1Test extends TestCase
                     'Date' => $unlock->Date->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
                     'GameID' => $game->ID,
-                    'GameIcon' => '/Images/000001.png',
+                    'GameIcon' => $game->ImageIcon,
                     'GameTitle' => $game->Title,
                     'GameURL' => '/game/' . $game->ID,
                     'HardcoreMode' => UnlockMode::Softcore,
-                    'Points' => 100,
+                    'Points' => $achievement->Points,
                     'Title' => $achievement->Title,
                 ],
             ]);
