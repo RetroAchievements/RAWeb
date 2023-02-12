@@ -12,7 +12,7 @@
  *    string     ConsoleID                    unique identifier of the console associated to the game
  *    string     ConsoleName                  name of the console associated to the game
  *    bool       IsMastery                    true if the award was earned while in hardcore mode
- *    string     DisplayOrder                 used for determining which order to display the awards 
+ *    string     DisplayOrder                 used for determining which order to display the awards
  *    bool       IsMissingAchievementUnlocks  true if new achievements were added to the set after the award was earned
  */
 
@@ -50,7 +50,7 @@ foreach ($allUserSiteAwards as $userSiteAward) {
     'ConsoleName' => $gameData['ConsoleName'],
     'IsMastery' => $userSiteAward['AwardDataExtra'] == '1',
     'DisplayOrder' => $userSiteAward['DisplayOrder'],
-    'IsMissingAchievementUnlocks' => (isset($userSiteAward['Incomplete']) && $userSiteAward['Incomplete'] == 1)
+    'IsMissingAchievementUnlocks' => (isset($userSiteAward['Incomplete']) && $userSiteAward['Incomplete'] == 1),
   ];
   $filteredAwards[] = $award;
 }
