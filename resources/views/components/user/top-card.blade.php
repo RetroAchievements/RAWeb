@@ -12,16 +12,17 @@ $user = request()->user();
     @guest
         <form class="mb-2" action="/request/auth/login.php" method="post">
             @csrf
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <label for="username-input" class="sr-only">Username</label>
-                <input class="w-full p-2" type="text" placeholder="Username" id="username-input" name="u">
+            <div class="grid lg:flex gap-2 mb-2">
+                <div>
+                    <label for="username-input" class="sr-only">Username</label>
+                    <input class="w-full p-2" type="text" placeholder="Username" id="username-input" name="u">
+                </div>
+                <div>
+                    <label for="password-input" class="sr-only">Password</label>
+                    <input class="w-full p-2" type="password" placeholder="Password" id="password-input" name="p">
+                </div>
 
-                <label for="password-input" class="sr-only">Password</label>
-                <input class="w-full p-2" type="password" placeholder="Password" id="password-input" name="p">
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <button type="submit" name="submit" class="flex justify-center p-2">Log In</button>
+                <button type="submit" name="submit" class="flex items-center justify-center p-2">Log In</button>
             </div>
         </form>
 
