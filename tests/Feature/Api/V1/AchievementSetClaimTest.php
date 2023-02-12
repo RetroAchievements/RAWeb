@@ -13,6 +13,7 @@ use LegacyApp\Community\Enums\ClaimType;
 use LegacyApp\Community\Models\AchievementSetClaim;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\System;
+use LegacyApp\Site\Enums\Permissions;
 use Tests\TestCase;
 
 class AchievementSetClaimTest extends TestCase
@@ -43,11 +44,16 @@ class AchievementSetClaimTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        /** @var AchievementSetClaim $claim */
-        $claim = AchievementSetClaim::factory()->create([
-            'GameID' => $game->ID,
-            'User' => $this->user->User,
-        ]);
+
+        insertClaim(
+            $this->user->User,
+            $game->ID,
+            ClaimType::Primary,
+            ClaimSetType::NewSet,
+            ClaimSpecial::None,
+            Permissions::Developer
+        );
+        $claim = AchievementSetClaim::first();
 
         $this->get($this->apiUrl('GetUserClaims', ['u' => $this->user->User]))
             ->assertSuccessful()
@@ -62,7 +68,7 @@ class AchievementSetClaimTest extends TestCase
                     'GameIcon' => '/Images/000001.png',
                     'GameTitle' => $game->Title,
                     'ID' => $claim->ID,
-                    'MinutesLeft' => Carbon::now()->diffInMinutes(Carbon::now()->addMonths(3)),
+                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
                     'SetType' => ClaimSetType::NewSet,
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Active,
