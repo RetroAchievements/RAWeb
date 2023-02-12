@@ -40,7 +40,6 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(UpdateDeveloperContributionYield::class)->everyMinute();
             $schedule->command(UpdateGameWeightedPoints::class)->everyMinute();
             $schedule->command(UpdatePlayerPoints::class)->everyMinute();
 

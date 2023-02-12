@@ -13,30 +13,13 @@ use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Models\StaticData;
-use LegacyApp\Site\Models\User;
+use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\TestCase;
 
 class V1Test extends TestCase
 {
     use RefreshDatabase;
-
-    private User $user;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        /** @var User $user */
-        $user = User::factory()->create();
-        $this->user = $user;
-    }
-
-    private function apiUrl(string $method, array $params = []): string
-    {
-        $params = array_merge(['y' => $this->user->APIKey], $params);
-
-        return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
-    }
+    use BootstrapsApiV1;
 
     public function testUnauthorizedResponse(): void
     {
@@ -300,15 +283,6 @@ class V1Test extends TestCase
             ]);
     }
 
-    // public function testGetActiveClaims(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetActiveClaims'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-
     public function testGetConsoleIds(): void
     {
         $systems = System::factory(3)->create();
@@ -397,15 +371,6 @@ class V1Test extends TestCase
     //     // TODO
     //
     //     $this->get($this->apiUrl('GetTopTenUsers'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserClaims(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserClaims'))
     //         ->assertSuccessful()
     //         ->assertExactJson([]);
     // }

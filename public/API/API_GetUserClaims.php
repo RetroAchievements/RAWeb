@@ -1,8 +1,5 @@
 <?php
 
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
-
 /*
  *  API_GetUserClaims - returns information about a all users set claims
  *    u : username
@@ -33,10 +30,6 @@ $user = request()->query('u');
 
 return response()->json(
     getFilteredClaims(
-        0,
-        ClaimFilters::AllFilters,
-        ClaimSorting::ClaimDateDescending,
-        false,
-        $user
+        username: $user
     )
 );

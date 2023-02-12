@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSetType;
@@ -15,39 +16,36 @@ use LegacyApp\Site\Enums\Permissions;
  */
 function insertClaim(string $user, int $gameID, int $claimType, int $setType, int $special, int $permissions): bool
 {
-    sanitize_sql_inputs($user, $gameID, $claimType, $setType, $special);
-
-    if ($claimType == ClaimType::Primary) { // Primary Claim
+    if ($claimType === ClaimType::Primary) {
+        // Primary Claim
         // Prevent if user has no available slots except for when they are the sole dev of the set
-        if ($special == ClaimSpecial::None && getActiveClaimCount($user, false) >= permissionsToClaim($permissions)) {
+        if ($special === ClaimSpecial::None && getActiveClaimCount($user, false) >= permissionsToClaim($permissions)) {
             return false;
         }
 
+        $now = Carbon::now();
+        $finished = Carbon::now()->addMonths(3);
+
         $query = "
             INSERT INTO
                 SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
             VALUES
-                ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '$special', NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), NOW())";
+                ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '$special', '$now', '$finished', '$now')";
 
-        if (s_mysql_query($query)) {
-            return true;
-        }
-    } else { // Collaboration claim
-        // For a collaboration claim we want to use the same Finished time as the primary claim
-        $query = "
-            INSERT INTO
-                SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
-            VALUES
-                ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '" . ClaimSpecial::None . "', NOW(),
-                (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status = " . ClaimStatus::Active . " AND ClaimType = " . ClaimType::Primary . ") AS sc),
-                NOW())";
-
-        if (s_mysql_query($query)) {
-            return true;
-        }
+        return legacyDbStatement($query);
     }
 
-    return false;
+    // Collaboration claim
+    // For a collaboration claim we want to use the same Finished time as the primary claim
+    $query = "
+        INSERT INTO
+            SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
+        VALUES
+            ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '" . ClaimSpecial::None . "', NOW(),
+            (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status = " . ClaimStatus::Active . " AND ClaimType = " . ClaimType::Primary . ") AS sc),
+            NOW())";
+
+    return legacyDbStatement($query);
 }
 
 /**
@@ -85,9 +83,7 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
             AND User = :username
             AND GameID = :gameId";
 
-    $dbResult = legacyDbFetch($query, $bindings);
-
-    return $dbResult['claimCount'] > 0;
+    return legacyDbFetch($query, $bindings)['claimCount'] > 0;
 }
 
 /**
@@ -232,13 +228,13 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  * above stats and returning data for a specific user or game.
  */
 function getFilteredClaims(
-    int $gameID = 0,
+    ?int $gameID = null,
     int $claimFilter = ClaimFilters::AllFilters,
     int $sortType = ClaimSorting::ClaimDateDescending,
     bool $getExpiringOnly = false,
     ?string $username = null,
-    int $offset = 0,
-    int $limit = 50
+    ?int $offset = null,
+    ?int $limit = null
 ): Collection {
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
@@ -340,10 +336,7 @@ function getFilteredClaims(
 
     $sortCondition .= $sortOrder;
 
-    $bindings = [
-        'offset' => $offset,
-        'limit' => $limit,
-    ];
+    $bindings = [];
 
     $userCondition = '';
     if (isset($username)) {
@@ -352,7 +345,7 @@ function getFilteredClaims(
     }
 
     $gameCondition = '';
-    if ($gameID > 0) {
+    if ($gameID !== null && $gameID > 0) {
         $bindings['gameId'] = $gameID;
         $gameCondition = "AND sc.GameID = :gameId";
     }
@@ -404,9 +397,17 @@ function getFilteredClaims(
             $gameCondition
             $havingCondition
         ORDER BY
-            $sortCondition
-        LIMIT
-            :offset, :limit";
+            $sortCondition";
+
+    if ($limit !== null) {
+        $query .= ' LIMIT';
+        if ($offset !== null) {
+            $query .= ' :offset,';
+            $bindings['offset'] = $offset;
+        }
+        $query .= ' :limit';
+        $bindings['limit'] = $limit;
+    }
 
     return legacyDbFetchAll($query, $bindings);
 }
@@ -417,20 +418,26 @@ function getFilteredClaims(
  */
 function getActiveClaimCount(?string $user = null, bool $countCollaboration = true, bool $countSpecial = false): int
 {
+    $bindings = [
+        'status' => ClaimStatus::Active,
+    ];
+
     $userCondition = '';
     if (isset($user)) {
-        sanitize_sql_inputs($user);
-        $userCondition = "AND User = '$user'";
+        $bindings['user'] = $user;
+        $userCondition = "AND User = :user";
     }
 
     $claimTypeCondition = '';
     if (!$countCollaboration) {
-        $claimTypeCondition = 'AND ClaimType = ' . ClaimType::Primary;
+        $bindings['type'] = ClaimType::Primary;
+        $claimTypeCondition = 'AND ClaimType = :type';
     }
 
     $specialCondition = '';
     if (!$countSpecial) {
-        $specialCondition = 'AND Special = ' . ClaimSpecial::None;
+        $bindings['special'] = ClaimSpecial::None;
+        $specialCondition = 'AND Special = :special';
     }
 
     $query = "
@@ -443,15 +450,9 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
             $userCondition
             $claimTypeCondition
             $specialCondition
-            AND Status = " . ClaimStatus::Active;
+            AND Status = :status";
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return (int) (mysqli_fetch_assoc($dbResult)['ActiveClaims'] ?? 0);
-    }
-
-    return 0;
+    return (int) legacyDbFetch($query, $bindings)['ActiveClaims'];
 }
 
 /**
