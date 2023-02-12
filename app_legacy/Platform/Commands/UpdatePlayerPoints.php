@@ -44,6 +44,7 @@ class UpdatePlayerPoints extends Command
     private function calculate(string $username): void
     {
         recalculatePlayerPoints($username);
+        // TODO queue UpdateDeveloperContributionYield command instead for a more detailed contribution yield update
         recalculateDeveloperContribution($username);
     }
 }
