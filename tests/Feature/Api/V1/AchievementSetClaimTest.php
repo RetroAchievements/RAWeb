@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use LegacyApp\Community\Enums\ClaimSetType;
 use LegacyApp\Community\Enums\ClaimSpecial;
 use LegacyApp\Community\Enums\ClaimStatus;
@@ -25,16 +26,19 @@ class AchievementSetClaimTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        AchievementSetClaim::factory()->count(100)->create();
+        AchievementSetClaim::factory()->count(51)->create();
 
         $response = $this->get($this->apiUrl('GetActiveClaims'))
             ->assertSuccessful();
 
-        $this->assertCount(100, $response->json());
+        $this->assertCount(51, $response->json());
     }
 
     public function testGetUserClaims(): void
     {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now());
+
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -58,7 +62,7 @@ class AchievementSetClaimTest extends TestCase
                     'GameIcon' => '/Images/000001.png',
                     'GameTitle' => $game->Title,
                     'ID' => $claim->ID,
-                    'MinutesLeft' => 0,
+                    'MinutesLeft' => Carbon::now()->diffInMinutes(Carbon::now()->addMonths(3)),
                     'SetType' => ClaimSetType::NewSet,
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Active,

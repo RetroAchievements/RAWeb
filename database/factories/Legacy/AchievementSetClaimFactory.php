@@ -31,9 +31,9 @@ class AchievementSetClaimFactory extends Factory
             'ClaimType' => ClaimType::Primary,
             'SetType' => ClaimSetType::NewSet,
             'Status' => ClaimStatus::Active,
-            'Extension' => ClaimStatus::Active,
+            'Extension' => 0,
             'Special' => ClaimSpecial::None,
-            'Finished' => Carbon::now(),
+            'Finished' => Carbon::now()->addMonths(3),
         ];
     }
 }
