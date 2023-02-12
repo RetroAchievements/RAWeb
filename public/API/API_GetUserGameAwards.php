@@ -35,7 +35,7 @@ foreach ($allUserSiteAwards as $userSiteAward) {
   getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopicID, $gameData);
 
   // If we're unable to find the game, skip it.
-  if (!gameData || !isset($gameData['Title'])) {
+  if (!$gameData || !isset($gameData['Title'])) {
     continue;
   }
 
