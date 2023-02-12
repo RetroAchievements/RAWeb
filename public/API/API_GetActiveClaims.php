@@ -29,6 +29,6 @@ use LegacyApp\Community\Enums\ClaimFilters;
 
 return response()->json(
     getFilteredClaims(
-        claimFilter: ClaimFilters::Open,
+        claimFilter: ClaimFilters::AllActiveClaims,
     )
 );

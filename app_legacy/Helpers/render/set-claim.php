@@ -12,7 +12,10 @@ function renderNewClaimsComponent(int $count): void
     echo "<div class='component'>";
     echo "<h3>Sets in Progress</h3>";
 
-    $claimData = getFilteredClaims(null, ClaimFilters::Open, ClaimSorting::ClaimDateDescending, false, null, 0, $count);
+    $claimData = getFilteredClaims(
+        claimFilter: ClaimFilters::AllActiveClaims,
+        limit: $count,
+    );
 
     echo "<table class='table-highlight mb-1'>";
     echo "<thead>";

@@ -8,11 +8,15 @@ use LegacyApp\Community\Enums\ClaimType;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$defaultFilter = ClaimFilters::Open; // Show all active claims
-
 $username = requestInputSanitized('u', null);
 
-$claimData = getFilteredClaims(null, $defaultFilter, ClaimSorting::FinishedDateAscending, true, $username); // Active sorted by expiring
+// Active sorted by expiring
+$claimData = getFilteredClaims(
+    claimFilter: ClaimFilters::AllActiveClaims,
+    sortType: ClaimSorting::FinishedDateAscending,
+    getExpiringOnly: true,
+    username: $username
+);
 $activeClaimCount = getActiveClaimCount();
 
 if (!empty($gameID)) {
