@@ -83,9 +83,7 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
             AND User = :username
             AND GameID = :gameId";
 
-    $dbResult = legacyDbFetch($query, $bindings);
-
-    return $dbResult['claimCount'] > 0;
+    return legacyDbFetch($query, $bindings)['claimCount'] > 0;
 }
 
 /**
