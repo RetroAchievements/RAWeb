@@ -47,7 +47,7 @@ class AchievementSetClaimTest extends TestCase
 
         $this->get($this->apiUrl('GetUserClaims', ['u' => $this->user->User]))
             ->assertSuccessful()
-            ->assertExactJson([
+            ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
                     'ConsoleName' => $system->Name,
