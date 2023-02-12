@@ -27,8 +27,8 @@ $user = request()->user();
         </form>
 
         <div class="grid grid-cols-2 lg:flex lg:justify-between text-center">
-            <a href="/createaccount.php">Register</a>
             <a href="/resetPassword.php">Forgot Password?</a>
+            <a href="/createaccount.php">Register</a>
         </div>
     @endguest
     @auth
