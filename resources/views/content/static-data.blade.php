@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Site\Models\StaticData;
 use Illuminate\Support\Carbon;
+use LegacyApp\Site\Models\StaticData;
 
 /** @var ?StaticData $staticData */
 $staticData = StaticData::with('lastRegisteredUser')
