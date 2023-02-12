@@ -137,7 +137,7 @@
         "coverage": "export XDEBUG_MODE=coverage && php artisan test --coverage --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
         "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
         "deptrac": "vendor/bin/deptrac analyse",
-        "fix": "vendor/bin/php-cs-fixer fix --verbose --ansi",
+        "fix": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --ansi",
         "ide-helpers": [
             "php artisan ide-helper:generate",
             "php artisan ide-helper:meta",
