@@ -1,6 +1,7 @@
 <?php
 
 use LegacyApp\Site\Models\StaticData;
+use Illuminate\Support\Carbon;
 
 /** @var ?StaticData $staticData */
 $staticData = StaticData::with('lastRegisteredUser')
@@ -24,26 +25,7 @@ $lastRegisteredUser = $staticData['LastRegisteredUser'];
 $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
 $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-$lastRegisteredUserAtDate = new DateTime($lastRegisteredUserAt);
-$now = new DateTime();
-$interval = $lastRegisteredUserAtDate->diff($now);
-
-$timeUnits = [
-    "y" => "year",
-    "m" => "month",
-    "d" => "day",
-    "h" => "hour",
-    "i" => "minute",
-    "s" => "second",
-];
-foreach ($timeUnits as $format => $unit) {
-    if ($interval->$format >= 1) {
-        $unit = $interval->$format > 1 ? $unit . "s" : $unit;
-        // "%$format $unit ago" --> "5 minutes ago"
-        $lastRegisteredUserTimeAgo = $interval->format("%$format $unit ago");
-        break;
-    }
-}
+$lastRegisteredUserTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $lastRegisteredUserAt)->diffForHumans();
 
 if ($lastRegisteredUser == null) {
     $lastRegisteredUser = 'unknown';
