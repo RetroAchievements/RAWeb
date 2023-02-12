@@ -57,8 +57,8 @@ if ($lastRegisteredUser == null) {
             <div class="grid grid-cols-2 gap-px mb-2">
                 <x-home-stats-embed label="Games" :count="$numGames" href="/gameList.php?s=1" />
                 <x-home-stats-embed label="Achievements" :count="$numAchievements" href="/gameList.php?s=2" />
-                <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/achievementList.php" />
                 <x-home-stats-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php" />
+                <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/achievementList.php" />
             </div>
 
             <div class="w-full h-16 flex flex-col justify-center items-center">
