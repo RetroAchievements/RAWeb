@@ -232,13 +232,13 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  * above stats and returning data for a specific user or game.
  */
 function getFilteredClaims(
-    int $gameID = null,
+    ?int $gameID = null,
     int $claimFilter = ClaimFilters::AllFilters,
     int $sortType = ClaimSorting::ClaimDateDescending,
     bool $getExpiringOnly = false,
     ?string $username = null,
-    int $offset = null,
-    int $limit = null
+    ?int $offset = null,
+    ?int $limit = null
 ): Collection {
     $primaryClaim = ($claimFilter & ClaimFilters::PrimaryClaim);
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
