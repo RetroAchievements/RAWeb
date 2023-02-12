@@ -10,18 +10,25 @@ $user = request()->user();
 ?>
 <div class="bg-embedded rounded lg:w-[340px] lg:my-4 px-5 py-3">
     @guest
-        <form class="flex justify-center items-end gap-2" action="/request/auth/login.php" method="post">
+        <form class="mb-2" action="/request/auth/login.php" method="post">
             @csrf
-            <div class="flex flex-col gap-1">
-                <input class="w-full" type="text" placeholder="Username" name="u">
-                <input class="w-full" type="password" placeholder="Password" name="p">
-                <a href="/resetPassword.php">Forgot password?</a>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <label for="username-input" class="sr-only">Username</label>
+                <input class="w-full p-2" type="text" placeholder="Username" id="username-input" name="u">
+
+                <label for="password-input" class="sr-only">Password</label>
+                <input class="w-full p-2" type="password" placeholder="Password" id="password-input" name="p">
             </div>
-            <div class="flex flex-col gap-1 flex-1">
-                <input type="submit" value="Login" name="submit">
-                <a href="/createaccount.php">Register</a>
+
+            <div class="flex flex-col gap-2">
+                <button type="submit" name="submit" class="flex justify-center p-2">Log In</button>
             </div>
         </form>
+
+        <div class="grid grid-cols-2 text-center">
+            <a href="/createaccount.php">Register</a>
+            <a href="/resetPassword.php">Forgot Password?</a>
+        </div>
     @endguest
     @auth
         <div class="flex justify-between items-start gap-2">
