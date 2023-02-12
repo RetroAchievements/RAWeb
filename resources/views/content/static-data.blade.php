@@ -25,10 +25,14 @@ $lastRegisteredUser = $staticData['LastRegisteredUser'];
 $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
 $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-$lastRegisteredUserTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $lastRegisteredUserAt)->diffForHumans();
-
 if ($lastRegisteredUser == null) {
     $lastRegisteredUser = 'unknown';
+}
+
+if ($lastRegisteredUserAt) {
+    $lastRegisteredUserTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $lastRegisteredUserAt)->diffForHumans();
+} else {
+    $lastRegisteredUserTimeAgo = null;
 }
 ?>
 <div class="component statistics !mb-0">
@@ -59,7 +63,9 @@ if ($lastRegisteredUser == null) {
 
                 <div>
                     <x-user.avatar :user="$staticData->lastRegisteredUser" /> 
-                    <span class="text-2xs">({{ $lastRegisteredUserTimeAgo }})</span>
+                    @if($lastRegisteredUserTimeAgo)
+                        <span class="text-2xs">({{ $lastRegisteredUserTimeAgo }})</span>
+                    @endif
                 </div>
             </div>
         @endif
