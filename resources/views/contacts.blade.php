@@ -6,11 +6,11 @@
 
                 <p class="mb-3">
                     <a href='/createmessage.php?t=RAdmin'>Send a message to RAdmin</a> for:
-                    <ul>
-                        <li>&#x2022; Reporting offensive behavior.</li>
-                        <li>&#x2022; Reporting copyrighted material.</li>
-                        <li>&#x2022; Reporting cheating to be investigated.</li>
-                        <li>&#x2022; Requesting to be untracked.</li>
+                    <ul class="list-disc list-inside">
+                        <li>Reporting offensive behavior.</li>
+                        <li>Reporting copyrighted material.</li>
+                        <li>Reporting cheating to be investigated.</li>
+                        <li>Requesting to be untracked.</li>
                     </ul>
                 </p>
             </x-section>
@@ -20,10 +20,10 @@
 
                 <p class="mb-3">
                     <a href='/createmessage.php?t=DevCompliance'>Send a message to DevCompliance</a> for:
-                    <ul>
-                        <li>&#x2022; Requesting set approval or early set release.</li>
-                        <li>&#x2022; Reporting achievements or sets with unwelcome concepts.</li>
-                        <li>&#x2022; Reporting sets failing to cover basic progression.</li>
+                    <ul class="list-disc list-inside">
+                        <li>Requesting set approval or early set release.</li>
+                        <li>Reporting achievements or sets with unwelcome concepts.</li>
+                        <li>Reporting sets failing to cover basic progression.</li>
                     </ul>
                 </p>
             </x-section>
@@ -33,13 +33,13 @@
 
                 <p class="mb-3">
                     <a href='/createmessage.php?t=QATeam'>Send a message to QATeam</a> for:
-                    <ul>
-                        <li>&#x2022; Reporting a broken set, leaderboard, or rich presence.</li>
-                        <li>&#x2022; Reporting achievements with grammatical mistakes.</li>
-                        <li>&#x2022; Requesting a set be playtested.</li>
-                        <li>&#x2022; Hash compatibility questions.</li>
-                        <li>&#x2022; Hub organizational questions.</li>
-                        <li>&#x2022; Getting involved in a QA sub-team.</li>
+                    <ul class="list-disc list-inside">
+                        <li>Reporting a broken set, leaderboard, or rich presence.</li>
+                        <li>Reporting achievements with grammatical mistakes.</li>
+                        <li>Requesting a set be playtested.</li>
+                        <li>Hash compatibility questions.</li>
+                        <li>Hub organizational questions.</li>
+                        <li>Getting involved in a QA sub-team.</li>
                     </ul>
                 </p>
             </x-section>
@@ -51,11 +51,11 @@
 
                 <p class="mb-3">
                     <a href='/createmessage.php?t=RANews'>Send a message to RANews</a> for:
-                    <ul>
-                        <li>&#x2022; Submitting a Play This Set, Wish This Set, or RAdvantage entry.</li>
-                        <li>&#x2022; Submitting a retrogaming article.</li>
-                        <li>&#x2022; Proposing a new article idea.</li>
-                        <li>&#x2022; Getting involved with RANews.</li>
+                    <ul class="list-disc list-inside">
+                        <li>Submitting a Play This Set, Wish This Set, or RAdvantage entry.</li>
+                        <li>Submitting a retrogaming article.</li>
+                        <li>Proposing a new article idea.</li>
+                        <li>Getting involved with RANews.</li>
                     </ul>
                 </p>
             </x-section>
