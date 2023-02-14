@@ -210,6 +210,7 @@ deptrac:
     LegacyConnect:
       - LegacySupport
     LegacyCommunity:
+      - LegacyDatabase
       - LegacyPlatform
       - LegacySupport
       - Support
@@ -238,6 +239,7 @@ deptrac:
       - Support
     # Legacy Database
     LegacyDatabase:
+      - LegacyCommunity
       - LegacyPlatform
       - LegacySite
       - LegacySupport
