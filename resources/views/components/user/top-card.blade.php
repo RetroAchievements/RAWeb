@@ -31,10 +31,6 @@ $user = request()->user();
                 <button type="submit" name="submit" class="lg:col-start-2 lg:row-span-2 flex items-center justify-center p-2 w-full lg:w-24">Log In</button>
             </div>
         </form>
-
-        <!-- <div class="grid grid-cols-2 lg:flex lg:justify-between text-center">
-            <a href="/createaccount.php">Register</a>
-        </div> -->
     @endguest
     @auth
         <div class="flex justify-between items-start gap-2">
