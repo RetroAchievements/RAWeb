@@ -10,25 +10,23 @@ $user = request()->user();
 ?>
 <div class="bg-embedded rounded lg:w-[340px] lg:my-4 px-5 py-3">
     @guest
-        <form class="mb-2" action="/request/auth/login.php" method="post">
+        <form class="grid grid-cols-2 gap-2" action="/request/auth/login.php" method="post">
             @csrf
-            <div class="grid gap-1 mb-2">
-                <div>
-                    <label for="username-input" class="sr-only">Username</label>
-                    <input class="w-full py-[6px]" type="text" placeholder="Username" id="username-input" name="u">
-                </div>
-                <div class="lg:row-start-2">
-                    <label for="password-input" class="sr-only">Password</label>
-                    <input class="w-full py-[6px]" type="password" placeholder="Password" id="password-input" name="p">
-                </div>
-            </div>
+            <div class="flex gap-2 flex-col w-full">
+                <label class="sr-only" for="username-input">Username</label>
+                <input class="w-full" type="text" placeholder="Username" id="username-input" name="u">
 
-            <div class="flex lg:flex-row flex-col-reverse justify-between gap-y-2">
-                <div class="flex w-full justify-around lg:flex-col">
-                    <a href="/resetPassword.php">Forgot Password?</a>
-                    <a href="/createaccount.php">Register</a>
+                <label class="sr-only" for="password-input">Password</label>
+                <input class="w-full" type="password" placeholder="Password" id="password-input" name="p">
+            </div>
+            
+            <div class="flex flex-col items-center gap-2 w-full h-full">
+                <div class="h-7 flex items-center justify-center gap-x-2">
+                    <button class="flex items-center justify-center p-2" type="submit" name="submit">Log In</button>
+                    <a class="btn btn-link p-2" href="/createaccount.php">Register</a>
                 </div>
-                <button type="submit" name="submit" class="lg:col-start-2 lg:row-span-2 flex items-center justify-center p-2 w-full lg:w-24">Log In</button>
+
+                <a class="btn btn-link p-2 text-xs" href="/resetPassword.php">Forgot password?</a>
             </div>
         </form>
     @endguest
