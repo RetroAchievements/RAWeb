@@ -12,24 +12,29 @@ $user = request()->user();
     @guest
         <form class="mb-2" action="/request/auth/login.php" method="post">
             @csrf
-            <div class="grid lg:flex gap-2 mb-2">
+            <div class="grid gap-1 mb-2">
                 <div>
                     <label for="username-input" class="sr-only">Username</label>
-                    <input class="w-full p-2" type="text" placeholder="Username" id="username-input" name="u">
+                    <input class="w-full py-[6px]" type="text" placeholder="Username" id="username-input" name="u">
                 </div>
-                <div>
+                <div class="lg:row-start-2">
                     <label for="password-input" class="sr-only">Password</label>
-                    <input class="w-full p-2" type="password" placeholder="Password" id="password-input" name="p">
+                    <input class="w-full py-[6px]" type="password" placeholder="Password" id="password-input" name="p">
                 </div>
+            </div>
 
-                <button type="submit" name="submit" class="flex items-center justify-center p-2">Log In</button>
+            <div class="flex lg:flex-row flex-col-reverse justify-between gap-y-2">
+                <div class="flex w-full justify-around lg:flex-col">
+                    <a href="/resetPassword.php">Forgot Password?</a>
+                    <a href="/createaccount.php">Register</a>
+                </div>
+                <button type="submit" name="submit" class="lg:col-start-2 lg:row-span-2 flex items-center justify-center p-2 w-full lg:w-24">Log In</button>
             </div>
         </form>
 
-        <div class="grid grid-cols-2 lg:flex lg:justify-between text-center">
-            <a href="/resetPassword.php">Forgot Password?</a>
+        <!-- <div class="grid grid-cols-2 lg:flex lg:justify-between text-center">
             <a href="/createaccount.php">Register</a>
-        </div>
+        </div> -->
     @endguest
     @auth
         <div class="flex justify-between items-start gap-2">
