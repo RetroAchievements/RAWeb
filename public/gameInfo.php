@@ -1215,7 +1215,6 @@ sanitize_outputs(
 
                             echo "<div>";
 
-                            $nextAch['Unlock'] = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>HARDCORE' : null;
                             echo achievementAvatar(
                                 $nextAch,
                                 label: false,

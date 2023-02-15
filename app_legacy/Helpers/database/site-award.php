@@ -125,9 +125,12 @@ function getUsersSiteAwards($user, $showHidden = false): array
         $retVal = array_values(array_filter($retVal));
     }
 
-    $query = "SELECT ach.ID, ach.GameID, ach.Title, ach.BadgeName, UNIX_TIMESTAMP(aw.Date) AS AwardedAt
+    // Get unlocked 100-point achievements
+    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName,
+            gd.Title AS GameTitle, UNIX_TIMESTAMP(aw.Date) AS AwardedAt
         FROM Awarded aw
         LEFT JOIN Achievements ach ON aw.AchievementID = ach.ID
+        LEFT JOIN GameData gd ON ach.GameID = gd.ID
         WHERE aw.User = '$user' AND aw.HardcoreMode = 1 AND ach.Points = 100
         GROUP BY ach.ID";
 

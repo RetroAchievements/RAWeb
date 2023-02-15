@@ -225,7 +225,8 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $imgclass = 'goldimage';
         $linkdest = '';
     } elseif ($awardType == AwardType::HundredPointAchievement) {
-        echo "<div>" . achievementAvatar($award, label: false, iconSize: $imageSize, iconClass: 'goldimage') . "</div>";
+        $avatar = achievementAvatar($award, label: false, iconSize: $imageSize, iconClass: 'goldimage', unlockDate: $awardDate);
+        echo "<div>$avatar</div>";
 
         return;
     } else {
