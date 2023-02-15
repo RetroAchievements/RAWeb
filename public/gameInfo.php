@@ -98,7 +98,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
          * @param {number} gameId
          */
         function disableMatureContentWarningPreference(currentPreferenceValue, matureContentEnumValue, gameId) {
-            // eslint-disable-next-line no-bitwise -- this must be calculate via bitwise operations
+            // eslint-disable-next-line no-bitwise -- this must be calculated via bitwise operations
             const newPreferencesValue = currentPreferenceValue + (1 << matureContentEnumValue);
 
             fetch('/request/user/update-notification.php', {
