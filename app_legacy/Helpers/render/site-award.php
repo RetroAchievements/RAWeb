@@ -225,8 +225,8 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $imgclass = 'goldimage';
         $linkdest = '';
     } elseif ($awardType == AwardType::HundredPointAchievement) {
-        $imgclass = $award['HardcoreMode'] ? 'goldimage' : 'badgeimg';
-        echo "<div>" . achievementAvatar($award, label: false, iconSize: $imageSize, iconClass: $imgclass) . "</div>";
+        echo "<div>" . achievementAvatar($award, label: false, iconSize: $imageSize, iconClass: 'goldimage') . "</div>";
+
         return;
     } else {
         // Unknown or inactive award type
