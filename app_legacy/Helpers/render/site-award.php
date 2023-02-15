@@ -24,8 +24,11 @@ function SeparateAwards($userAwards): array
 
     $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
 
-    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType'])) ||
-        in_array($award, $devEventAwards)
+    $siteAwards = array_values(array_filter(
+        $userAwards,
+        fn ($award) => (!in_array($award['AwardType'], [AwardType::Mastery, AwardType::HundredPointAchievement])
+                && AwardType::isActive((int) $award['AwardType']))
+            || in_array($award, $devEventAwards)
     ));
 
     $hundredPointAchievements = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::HundredPointAchievement));
@@ -70,7 +73,7 @@ function RenderSiteAwards(array $userAwards): void
         }
     }
 
-    if (!empty($siteAwards)) {
+    if (!empty($hundredPointAchievements)) {
         $firstSiteAward = $firstVisibleIndex($hundredPointAchievements);
         if ($firstSiteAward >= 0) {
             $groups[] = [$firstSiteAward, $hundredPointAchievements, "100-point Achievements"];
