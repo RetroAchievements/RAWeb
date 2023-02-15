@@ -28,12 +28,14 @@ function SeparateAwards($userAwards): array
         in_array($award, $devEventAwards)
     ));
 
-    return [$gameAwards, $eventAwards, $siteAwards];
+    $hundredPointAchievements = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::HundredPointAchievement));
+
+    return [$gameAwards, $eventAwards, $siteAwards, $hundredPointAchievements];
 }
 
 function RenderSiteAwards(array $userAwards): void
 {
-    [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
+    [$gameAwards, $eventAwards, $siteAwards, $hundredPointAchievements] = SeparateAwards($userAwards);
 
     $groups = [];
 
@@ -68,6 +70,13 @@ function RenderSiteAwards(array $userAwards): void
         }
     }
 
+    if (!empty($siteAwards)) {
+        $firstSiteAward = $firstVisibleIndex($hundredPointAchievements);
+        if ($firstSiteAward >= 0) {
+            $groups[] = [$firstSiteAward, $hundredPointAchievements, "100-point Achievements"];
+        }
+    }
+
     if (empty($groups)) {
         $groups[] = [0, $gameAwards, "Game Awards"];
     }
@@ -97,6 +106,7 @@ function RenderAwardGroup($awards, $title): void
         "Game Awards" => "👑🎖️",
         "Event Awards" => "🌱",
         "Site Awards" => "🌐",
+        "100-point Achievements" => "💯",
     ];
     if ($title == "Game Awards") {
         // Count and show # of completed/mastered games
@@ -163,11 +173,11 @@ function RenderAward($award, $imageSize, $clickable = true): void
 {
     $awardType = $award['AwardType'];
     settype($awardType, 'integer');
-    $awardData = $award['AwardData'];
-    $awardDataExtra = $award['AwardDataExtra'];
-    $awardGameTitle = $award['Title'];
-    $awardGameConsole = $award['ConsoleName'];
-    $awardGameImage = $award['ImageIcon'];
+    $awardData = $award['AwardData'] ?? null;
+    $awardDataExtra = $award['AwardDataExtra'] ?? null;
+    // $awardGameTitle = $award['Title'];
+    // $awardGameConsole = $award['ConsoleName'];
+    // $awardGameImage = $award['ImageIcon'];
     $awardDate = getNiceDate($award['AwardedAt']);
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
@@ -214,6 +224,10 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $imagepath = asset('/assets/images/badge/legend.png');
         $imgclass = 'goldimage';
         $linkdest = '';
+    } elseif ($awardType == AwardType::HundredPointAchievement) {
+        $imgclass = $award['HardcoreMode'] ? 'goldimage' : 'badgeimg';
+        echo "<div>" . achievementAvatar($award, label: false, iconSize: $imageSize, iconClass: $imgclass) . "</div>";
+        return;
     } else {
         // Unknown or inactive award type
         return;

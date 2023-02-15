@@ -18,6 +18,8 @@ abstract class AwardType
 
     public const CertifiedLegend = 7;
 
+    public const HundredPointAchievement = 8;
+
     public static function cases(): array
     {
         return [
@@ -26,6 +28,7 @@ abstract class AwardType
             self::AchievementPointsYield,
             self::PatreonSupporter,
             self::CertifiedLegend,
+            self::HundredPointAchievement,
         ];
     }
 
