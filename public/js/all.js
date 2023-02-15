@@ -121,6 +121,31 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
+let wasTouchDeviceDetected = false;
+function mobileSafeTipTouchStart() {
+  wasTouchDeviceDetected = true;
+}
+
+const mobileSafeTipEvents = {
+  touchStart: () => {
+    wasTouchDeviceDetected = true;
+  },
+  mouseOver: (tipArgs) => {
+    /**
+     * wz_tooltip.js causes issues with touch events on
+     * mobile devices.
+     * @see https://github.com/RetroAchievements/RAWeb/issues/1365
+     */
+    if (wasTouchDeviceDetected) {
+      return;
+    }
+
+    if (window.Tip) {
+      window.Tip(tipArgs);
+    }
+  }
+};
+
 var cardsCache = {};
 
 function useCard(type, id, context = null, html = '') {
