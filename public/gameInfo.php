@@ -24,6 +24,9 @@ if (authenticateFromCookie($user, $permissions, $userDetails)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
 $userID = $userDetails['ID'] ?? 0;
+$userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
+$matureContentPref = UserPreference::SiteMsgOff_MatureContent;
+
 
 $officialFlag = AchievementType::OfficialCore;
 $unofficialFlag = AchievementType::Unofficial;
@@ -79,7 +82,7 @@ $gate = false;
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
-            if ($userDetails && BitSet($userDetails['websitePrefs'], UserPreference::SiteMsgOff_MatureContent)) {
+            if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
                 break;
             }
             $gate = true;
@@ -89,6 +92,29 @@ if ($v != 1 && $isFullyFeaturedGame) {
 ?>
 <?php if ($gate): ?>
     <?php RenderContentStart($pageTitle) ?>
+    <script>
+        /**
+         * @param {number} currentPreferenceValue
+         * @param {number} matureContentEnumValue
+         * @param {number} gameId
+         */
+        function disableMatureContentWarningPreference(currentPreferenceValue, matureContentEnumValue, gameId) {
+            // eslint-disable-next-line no-bitwise -- this must be calculate via bitwise operations
+            const newPreferencesValue = currentPreferenceValue + (1 << matureContentEnumValue);
+
+            fetch('/request/user/update-notification.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: `preferences=${newPreferencesValue}`,
+                credentials: 'same-origin'
+            }).then(() => {
+                window.location = `/game/${gameId}`;
+            })
+        }
+    </script>
     <div id='mainpage'>
         <div id='leftcontainer'>
             <div class='navpath'>
@@ -101,14 +127,24 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 Are you sure that you want to view this game?
                 <br/>
                 <br/>
-                <form id='consentform' action='/game/<?= $gameID ?>' style='float:left'>
-                    <input type='hidden' name='v' value='1'/>
-                    <input type='submit' value='Yes. I&apos;m an adult'/>
-                </form>
-                <form id='escapeform' action='/gameList.php' style='float:left; margin-left:16px'>
-                    <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                    <input type='submit' value='Not Interested'/>
-                </form>
+
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
+                    <form id='escapeform' action='/gameList.php'>
+                        <input type='hidden' name='c' value='<?= $consoleID ?>'/>
+                        <input type='submit' value='No, get me out of here.'/>
+                    </form>
+
+                    <form id='consentform' action='/game/<?= $gameID ?>'>
+                        <input type='hidden' name='v' value='1'/>
+                        <input type='submit' value='Yes, I&apos;m an adult.'/>
+                    </form>
+
+                    <?php
+                    if ($userWebsitePrefs) {
+                        echo "<button class='w-max' onclick='disableMatureContentWarningPreference({$userWebsitePrefs}, {$matureContentPref}, {$gameID})'>Yes, and never ask me again.</button>";
+                    }
+                    ?>
+                </div>
             </div>
         </div>
     </div>
