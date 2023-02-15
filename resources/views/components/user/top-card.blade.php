@@ -8,19 +8,19 @@ use LegacyApp\Site\Models\User;
 /** @var ?User $user */
 $user = request()->user();
 ?>
-<div class="bg-embedded rounded lg:w-[340px] lg:my-4 px-5 py-3">
+<div class="bg-embedded rounded lg:w-[340px] lg:my-4 p-[1.125rem]">
     @guest
-        <form class="grid grid-cols-2 gap-2" action="/request/auth/login.php" method="post">
+        <form class="flex gap-[1.125rem]" action="/request/auth/login.php" method="post">
             @csrf
-            <div class="flex gap-2 flex-col w-full">
+            <div class="flex flex-col grow gap-2">
                 <label class="sr-only" for="username-input">Username</label>
-                <input class="w-full" type="text" placeholder="Username" id="username-input" name="u">
+                <input id="username-input" class="w-full" type="text" placeholder="Username" name="u">
 
                 <label class="sr-only" for="password-input">Password</label>
-                <input class="w-full" type="password" placeholder="Password" id="password-input" name="p">
+                <input id="password-input" class="w-full" type="password" placeholder="Password" name="p">
             </div>
             
-            <div class="flex flex-col items-center gap-2 w-full h-full">
+            <div class="flex flex-col items-center gap-2">
                 <div class="h-7 flex items-center justify-center gap-x-2">
                     <button class="flex items-center justify-center p-2" type="submit" name="submit">Log In</button>
                     <a class="btn btn-link p-2" href="/createaccount.php">Register</a>
