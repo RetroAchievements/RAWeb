@@ -76,7 +76,7 @@ function RenderSiteAwards(array $userAwards): void
     if (!empty($hundredPointAchievements)) {
         $firstSiteAward = $firstVisibleIndex($hundredPointAchievements);
         if ($firstSiteAward >= 0) {
-            $groups[] = [$firstSiteAward, $hundredPointAchievements, "100-point Achievements"];
+            $groups[] = [$firstSiteAward, $hundredPointAchievements, "100-Point Achievements"];
         }
     }
 
@@ -109,7 +109,7 @@ function RenderAwardGroup($awards, $title): void
         "Game Awards" => "👑🎖️",
         "Event Awards" => "🌱",
         "Site Awards" => "🌐",
-        "100-point Achievements" => "💯",
+        "100-Point Achievements" => "💯",
     ];
     if ($title == "Game Awards") {
         // Count and show # of completed/mastered games
