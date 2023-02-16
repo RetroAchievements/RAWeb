@@ -130,17 +130,24 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
                     <form id='escapeform' action='/gameList.php'>
                         <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                        <input type='submit' value='No, get me out of here.'/>
+                        <input type='submit' class='leading-normal' value='No, get me out of here.'/>
                     </form>
 
                     <form id='consentform' action='/game/<?= $gameID ?>'>
                         <input type='hidden' name='v' value='1'/>
-                        <input type='submit' value='Yes, I&apos;m an adult.'/>
+                        <input type='submit' class='leading-normal' value='Yes, I&apos;m an adult.'/>
                     </form>
 
                     <?php
                     if ($userWebsitePrefs) {
-                        echo "<button class='w-max' onclick='disableMatureContentWarningPreference({$userWebsitePrefs}, {$matureContentPref}, {$gameID})'>Yes, and never ask me again for games with mature content.</button>";
+                        echo "
+                            <button 
+                                class='break-words whitespace-normal leading-normal' 
+                                onclick='disableMatureContentWarningPreference({$userWebsitePrefs}, {$matureContentPref}, {$gameID})'
+                            >
+                                Yes, and never ask me again for games with mature content.
+                            </button>
+                        ";
                     }
                     ?>
                 </div>
