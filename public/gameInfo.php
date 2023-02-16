@@ -96,8 +96,9 @@ if ($v != 1 && $isFullyFeaturedGame) {
          * @param {number} currentPreferenceValue
          * @param {number} gameId
          */
-        function disableMatureContentWarningPreference(currentPreferenceValue, gameId) {
+        function disableMatureContentWarningPreference(currentPreferenceValue) {
             const newPreferencesValue = <?= $userDetails['websitePrefs'] | (1 << $matureContentPref) ?>;
+            const gameId = <?= $gameID ?>;
 
             fetch('/request/user/update-notification.php', {
                 method: 'POST',
@@ -139,10 +140,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
                     <?php if ($userWebsitePrefs): ?>
                         <button 
                             class='break-words whitespace-normal leading-normal' 
-                            onclick='disableMatureContentWarningPreference(
-                                <?= $userWebsitePrefs ?>,
-                                <?= $gameID ?>
-                            )'
+                            onclick='disableMatureContentWarningPreference(<?= $userWebsitePrefs ?>)'
                         >
                             Yes. Never ask me again for games with mature content.
                         </button>
