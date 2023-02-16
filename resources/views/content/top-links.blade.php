@@ -1,10 +1,10 @@
 <x-section class="mb-3 flex flex-col">
     <a class="btn flex justify-center gap-1.5 p-3" href="/globalRanking.php?s=5&t=2">
-        <span class="text-yellow-400"><x-fas-medal/></span>
+        <span class="text-yellow-500"><x-fas-medal/></span>
         Global Ranking
     </a>
     <a class="btn flex justify-center gap-1.5 p-3" href="{{ route('download.index') }}">
-        <span class="text-heading"><x-fas-gamepad/></span>
+        <span class="text-blue-400"><x-fas-gamepad/></span>
         Download Emulator
     </a>
     @if(config('services.discord.invite_id'))
@@ -21,19 +21,19 @@
     @endif
     <div class="grid grid-cols-4">
         <a class="btn flex flex-col items-center gap-3 p-3 text-xs" href="https://news.retroachievements.org/">
-            <span class="text-heading"><x-fas-newspaper/></span>
+            <span class="text-gray-400"><x-fas-newspaper/></span>
             RANews
         </a>
         <a class="btn flex flex-col items-center gap-3 p-3 text-xs" href="https://www.youtube.com/channel/UCIGdJGxrzmNYMaAGPsk2sIA">
-            <span class="text-heading"><x-fas-microphone/></span>
+            <span class="text-gray-400"><x-fas-microphone/></span>
             RAPodcast
         </a>
         <a class="btn flex flex-col items-center gap-3 p-3 text-xs" href='https://docs.retroachievements.org/'>
-            <span class="text-heading"><x-fas-book/></span>
+            <span class="text-gray-400"><x-fas-book/></span>
             Docs
         </a>
         <a class="btn flex flex-col items-center gap-3 p-3 text-xs" href='https://docs.retroachievements.org/FAQ/'>
-            <span class="text-heading"><x-fas-question-circle/></span>
+            <span class="text-gray-400"><x-fas-question-circle/></span>
             FAQ
         </a>
     </div>
