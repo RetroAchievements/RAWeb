@@ -10,8 +10,8 @@ use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$defaultFilter = ClaimFilters::Default; // Show all active claims
-$defaultSorting = ClaimSorting::ClaimDateDescending; // Sort by claim date
+$defaultFilter = ClaimFilters::AllActiveClaims;
+$defaultSorting = ClaimSorting::ClaimDateDescending;
 $maxCount = 50;
 $offset = 0;
 $totalClaims = 0;
@@ -57,7 +57,7 @@ RenderContentStart("Claim List");
 
             $link = "/claimlist.php";
             $appendParam($link, 's', $sortType, 8);
-            $appendParam($link, 'f', $claimFilters, ClaimFilters::Default);
+            $appendParam($link, 'f', $claimFilters, ClaimFilters::AllActiveClaims);
             $appendParam($link, 'u', $username, null);
             $appendParam($link, 'g', $gameID, null);
 
