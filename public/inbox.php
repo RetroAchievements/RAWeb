@@ -182,10 +182,12 @@ function MarkAsUnread(msgID) {
                 echo "</a>";
             }
 
-            if ($totalMessageCount - $offset > $count) {
+            $messagesLeft = $totalMessageCount - $offset;
+            if ($messagesLeft > $count) {
                 $newOffset = $offset + $count;
+                $messagesNext = min($count, $messagesLeft - $count);
                 echo "<a class='btn btn-link' href='/inbox.php?c=$count&o=$newOffset&u=$unreadOnly&s=$outbox'>";
-                echo "Next $count &gt;";
+                echo "Next $messagesNext &gt;";
                 echo "</a>";
             }
 
