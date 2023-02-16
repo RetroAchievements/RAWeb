@@ -132,7 +132,8 @@ function getUsersSiteAwards($user, $showHidden = false): array
         LEFT JOIN Achievements ach ON aw.AchievementID = ach.ID
         LEFT JOIN GameData gd ON ach.GameID = gd.ID
         WHERE aw.User = '$user' AND aw.HardcoreMode = 1 AND ach.Points = 100
-        GROUP BY ach.ID";
+        GROUP BY ach.ID
+        ORDER BY AwardedAt";
 
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
