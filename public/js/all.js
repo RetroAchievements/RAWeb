@@ -121,11 +121,6 @@ function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
 
-let wasTouchDeviceDetected = false;
-function mobileSafeTipTouchStart() {
-  wasTouchDeviceDetected = true;
-}
-
 const mobileSafeTipEvents = {
   touchStart: () => {
     wasTouchDeviceDetected = true;
