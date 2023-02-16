@@ -390,9 +390,9 @@ function getGameTopAchievers(int $gameID): array
 {
     $cacheKey = "game:$gameID:topachievers";
     $retval = Cache::get($cacheKey);
-    // if ($retval !== null) {
-    //     return $retval;
-    // }
+    if ($retval !== null) {
+        return $retval;
+    }
 
     sanitize_sql_inputs($gameID);
 
