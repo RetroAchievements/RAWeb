@@ -183,7 +183,7 @@ function MarkAsUnread(msgID) {
                 echo "</a>";
             }
 
-            if ($totalMsgs == $maxCount) {
+            if ($totalMessageCount - $offset > $maxCount) {
                 echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
                 echo "Next $maxCount &gt;";
                 echo "</a>";
