@@ -98,8 +98,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
          * @param {number} gameId
          */
         function disableMatureContentWarningPreference(currentPreferenceValue, matureContentEnumValue, gameId) {
-            // eslint-disable-next-line no-bitwise -- this must be calculated via bitwise operations
-            const newPreferencesValue = currentPreferenceValue + (1 << matureContentEnumValue);
+            const newPreferencesValue = <?= $userDetails['websitePrefs'] | (1 << $matureContentPref) ?>;
 
             fetch('/request/user/update-notification.php', {
                 method: 'POST',
@@ -130,26 +129,26 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
                     <form id='escapeform' action='/gameList.php'>
                         <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                        <input type='submit' class='leading-normal' value='No, get me out of here.'/>
+                        <input type='submit' class='leading-normal' value='No. Get me out of here.'/>
                     </form>
 
                     <form id='consentform' action='/game/<?= $gameID ?>'>
                         <input type='hidden' name='v' value='1'/>
-                        <input type='submit' class='leading-normal' value='Yes, I&apos;m an adult.'/>
+                        <input type='submit' class='leading-normal' value='Yes. I&apos;m an adult.'/>
                     </form>
 
-                    <?php
-                    if ($userWebsitePrefs) {
-                        echo "
-                            <button 
-                                class='break-words whitespace-normal leading-normal' 
-                                onclick='disableMatureContentWarningPreference({$userWebsitePrefs}, {$matureContentPref}, {$gameID})'
-                            >
-                                Yes, and never ask me again for games with mature content.
-                            </button>
-                        ";
-                    }
-                    ?>
+                    <?php if ($userWebsitePrefs): ?>
+                        <button 
+                            class='break-words whitespace-normal leading-normal' 
+                            onclick='disableMatureContentWarningPreference(
+                                <?= $userWebsitePrefs ?>,
+                                <?= $matureContentPref ?>,
+                                <?= $gameID ?>
+                            )'
+                        >
+                            Yes. Never ask me again for games with mature content.
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
