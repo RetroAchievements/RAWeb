@@ -140,7 +140,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
 
                     <?php
                     if ($userWebsitePrefs) {
-                        echo "<button class='w-max' onclick='disableMatureContentWarningPreference({$userWebsitePrefs}, {$matureContentPref}, {$gameID})'>Yes, and never ask me again.</button>";
+                        echo "<button class='w-max' onclick='disableMatureContentWarningPreference({$userWebsitePrefs}, {$matureContentPref}, {$gameID})'>Yes, and never ask me again for games with mature content.</button>";
                     }
                     ?>
                 </div>
