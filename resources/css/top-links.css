@@ -1,0 +1,29 @@
+.top-links {
+    @apply mb-4;
+}
+
+.top-links a {
+    @apply btn;
+    @apply flex justify-center items-center gap-2;
+    @apply p-3 text-center text-xs rounded-none;
+}
+
+.top-links > a:first-child {
+    @apply rounded-t-lg;
+}
+
+.top-links div:last-child a {
+    @apply flex-col gap-3;
+}
+
+.top-links div:last-child a:first-child {
+    @apply rounded-bl-lg;
+}
+
+.top-links div:last-child a:last-child {
+    @apply rounded-br-lg;
+}
+
+.top-links div:last-child a > span {
+    @apply text-gray-400;
+}

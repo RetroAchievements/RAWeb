@@ -35,6 +35,7 @@
 @import "tag.css";
 @import "table.css";
 @import "tooltip.css";
+@import "top-links.css";
 
 /* TODO split into components or replace with utility classes */
 @import "active-players.css";
