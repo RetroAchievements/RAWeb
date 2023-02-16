@@ -173,15 +173,10 @@ function MarkAsUnread(msgID) {
 
             echo "</tbody></table>";
 
-            // Get message count and build URL from current GET parameters
+            // Get message count and build paginator URL from current GET parameters
             $messageCount = $unreadOnly ? $unreadMessageCount : $totalMessageCount;
-            $urlPrefix = '/inbox.php?';
-            foreach ($_GET as $parameter => $value) {
-                if ($parameter !== 'o') {
-                    $urlPrefix .= "$parameter=$value&";
-                }
-            }
-            $urlPrefix .= 'o=';
+            unset($_GET['o']);
+            $urlPrefix = '/inbox.php?' . http_build_query($_GET) . '&o=';
 
             echo "<div class='float-right'>";
             RenderPaginator($messageCount, $displayCount, $offset, $urlPrefix);
