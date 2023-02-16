@@ -2,10 +2,10 @@
 
 use App\Support\Shortcode\Shortcode;
 
+$outbox = requestInputSanitized('s', 0, 'integer');
+$unreadOnly = requestInputSanitized('u', 0, 'integer');
 $count = requestInputSanitized('c', 10, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$unreadOnly = requestInputSanitized('u', 0, 'integer');
-$outbox = requestInputSanitized('s', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -76,7 +76,7 @@ function MarkAsUnread(msgID) {
                 echo "<a class='btn btn-link' href='/inbox.php?s=1'>Outbox</a>";
                 echo "<div class='flex gap-2'>";
                 if ($unreadOnly) {
-                    echo "<a class='btn btn-link' href='/inbox.php?u=0'>View All Messages</a>";
+                    echo "<a class='btn btn-link' href='/inbox.php'>View All Messages</a>";
                 } else {
                     echo "<a class='btn btn-link' href='/inbox.php?u=1'>View Unread Only</a>";
                 }
@@ -177,7 +177,7 @@ function MarkAsUnread(msgID) {
 
             if ($offset > 0) {
                 $newOffset = max($offset - $count, 0);
-                echo "<a class='btn btn-link' href='/inbox.php?c=$count&o=$newOffset&u=$unreadOnly&s=$outbox'>";
+                echo "<a class='btn btn-link' href='/inbox.php?s=$outbox&u=$unreadOnly&c=$count&o=$newOffset'>";
                 echo "&lt; Previous $count";
                 echo "</a>";
             }
@@ -186,7 +186,7 @@ function MarkAsUnread(msgID) {
             if ($messagesLeft > $count) {
                 $newOffset = $offset + $count;
                 $messagesNext = min($count, $messagesLeft - $count);
-                echo "<a class='btn btn-link' href='/inbox.php?c=$count&o=$newOffset&u=$unreadOnly&s=$outbox'>";
+                echo "<a class='btn btn-link' href='/inbox.php?s=$outbox&u=$unreadOnly&c=$count&o=$newOffset'>";
                 echo "Next $messagesNext &gt;";
                 echo "</a>";
             }
