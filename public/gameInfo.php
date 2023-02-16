@@ -92,12 +92,13 @@ if ($v != 1 && $isFullyFeaturedGame) {
 <?php if ($gate): ?>
     <?php RenderContentStart($pageTitle) ?>
     <script>
-        /**
-         * @param {number} currentPreferenceValue
-         * @param {number} gameId
-         */
-        function disableMatureContentWarningPreference(currentPreferenceValue) {
-            const newPreferencesValue = <?= $userDetails['websitePrefs'] | (1 << $matureContentPref) ?>;
+        function disableMatureContentWarningPreference() {
+            const isLoggedIn = <?= isset($userDetails) ?>;
+            if (!isLoggedIn) {
+                throw new Error('Tried to modify settings for an unauthenticated user.');
+            }
+
+            const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
             const gameId = <?= $gameID ?>;
 
             fetch('/request/user/update-notification.php', {
@@ -109,7 +110,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 body: `preferences=${newPreferencesValue}`,
                 credentials: 'same-origin'
             }).then(() => {
-                window.location = `/game/${gameId}`;
+                window.location = `/game/<?= $gameID ?>`;
             })
         }
     </script>
@@ -140,9 +141,9 @@ if ($v != 1 && $isFullyFeaturedGame) {
                     <?php if ($userWebsitePrefs): ?>
                         <button 
                             class='break-words whitespace-normal leading-normal' 
-                            onclick='disableMatureContentWarningPreference(<?= $userWebsitePrefs ?>)'
+                            onclick='disableMatureContentWarningPreference()'
                         >
-                            Yes. Never ask me again for games with mature content.
+                            Yes. And never ask me again for games with mature content.
                         </button>
                     <?php endif; ?>
                 </div>
