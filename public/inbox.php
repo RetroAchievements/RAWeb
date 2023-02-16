@@ -2,10 +2,8 @@
 
 use App\Support\Shortcode\Shortcode;
 
-$maxCount = 10;
-
+$count = requestInputSanitized('c', 10, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$count = requestInputSanitized('c', $maxCount, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
 
@@ -178,14 +176,16 @@ function MarkAsUnread(msgID) {
             echo "<div class='float-right'>";
 
             if ($offset > 0) {
-                echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
-                echo "&lt; Previous $maxCount";
+                $newOffset = $offset - $count;
+                echo "<a class='btn btn-link' href='/inbox.php?c=$count&o=$newOffset&u=$unreadOnly&s=$outbox'>";
+                echo "&lt; Previous $count";
                 echo "</a>";
             }
 
-            if ($totalMessageCount - $offset > $maxCount) {
-                echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
-                echo "Next $maxCount &gt;";
+            if ($totalMessageCount - $offset > $count) {
+                $newOffset = $offset + $count;
+                echo "<a class='btn btn-link' href='/inbox.php?c=$count&o=$newOffset&u=$unreadOnly&s=$outbox'>";
+                echo "Next $count &gt;";
                 echo "</a>";
             }
 
