@@ -4,7 +4,7 @@ use App\Support\Shortcode\Shortcode;
 
 $outbox = requestInputSanitized('s', 0, 'integer');
 $unreadOnly = requestInputSanitized('u', 0, 'integer');
-$count = requestInputSanitized('c', 10, 'integer');
+$displayCount = requestInputSanitized('c', 10, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
@@ -14,11 +14,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 if ($outbox) {
     $unreadMessageCount = 0;
     $totalMessageCount = GetSentMessageCount($user);
-    $allMessages = GetSentMessages($user, $offset, $count);
+    $allMessages = GetSentMessages($user, $offset, $displayCount);
     RenderContentStart('Outbox');
 } else {
     $unreadMessageCount = GetMessageCount($user, $totalMessageCount);
-    $allMessages = GetAllMessages($user, $offset, $count, $unreadOnly);
+    $allMessages = GetAllMessages($user, $offset, $displayCount, $unreadOnly);
     RenderContentStart('Inbox');
 }
 ?>
@@ -173,27 +173,19 @@ function MarkAsUnread(msgID) {
 
             echo "</tbody></table>";
 
+            // Get message count and build URL from current GET parameters
+            $messageCount = $unreadOnly ? $unreadMessageCount : $totalMessageCount;
+            $urlPrefix = '/inbox.php?';
+            foreach ($_GET as $parameter => $value) {
+                if ($parameter !== 'o') {
+                    $urlPrefix .= "$parameter=$value&";
+                }
+            }
+            $urlPrefix .= 'o=';
+
             echo "<div class='float-right'>";
-
-            if ($offset > 0) {
-                $newOffset = max($offset - $count, 0);
-                echo "<a class='btn btn-link' href='/inbox.php?s=$outbox&u=$unreadOnly&c=$count&o=$newOffset'>";
-                echo "&lt; Previous $count";
-                echo "</a>";
-            }
-
-            $messagesLeft = ($unreadOnly ? $unreadMessageCount : $totalMessageCount) - $offset;
-            if ($messagesLeft > $count) {
-                $newOffset = $offset + $count;
-                $messagesNext = min($count, $messagesLeft - $count);
-                echo "<a class='btn btn-link' href='/inbox.php?s=$outbox&u=$unreadOnly&c=$count&o=$newOffset'>";
-                echo "Next $messagesNext &gt;";
-                echo "</a>";
-            }
-
+            RenderPaginator($messageCount, $displayCount, $offset, $urlPrefix);
             echo "</div>";
-
-            echo "<br>";
 
             ?>
         </div>
