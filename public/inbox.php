@@ -176,7 +176,7 @@ function MarkAsUnread(msgID) {
             echo "<div class='float-right'>";
 
             if ($offset > 0) {
-                $newOffset = $offset - $count;
+                $newOffset = max($offset - $count, 0);
                 echo "<a class='btn btn-link' href='/inbox.php?c=$count&o=$newOffset&u=$unreadOnly&s=$outbox'>";
                 echo "&lt; Previous $count";
                 echo "</a>";
