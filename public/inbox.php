@@ -182,7 +182,7 @@ function MarkAsUnread(msgID) {
                 echo "</a>";
             }
 
-            $messagesLeft = $totalMessageCount - $offset;
+            $messagesLeft = ($unreadOnly ? $unreadMessageCount : $totalMessageCount) - $offset;
             if ($messagesLeft > $count) {
                 $newOffset = $offset + $count;
                 $messagesNext = min($count, $messagesLeft - $count);
