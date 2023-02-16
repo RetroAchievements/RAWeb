@@ -94,10 +94,9 @@ if ($v != 1 && $isFullyFeaturedGame) {
     <script>
         /**
          * @param {number} currentPreferenceValue
-         * @param {number} matureContentEnumValue
          * @param {number} gameId
          */
-        function disableMatureContentWarningPreference(currentPreferenceValue, matureContentEnumValue, gameId) {
+        function disableMatureContentWarningPreference(currentPreferenceValue, gameId) {
             const newPreferencesValue = <?= $userDetails['websitePrefs'] | (1 << $matureContentPref) ?>;
 
             fetch('/request/user/update-notification.php', {
@@ -142,7 +141,6 @@ if ($v != 1 && $isFullyFeaturedGame) {
                             class='break-words whitespace-normal leading-normal' 
                             onclick='disableMatureContentWarningPreference(
                                 <?= $userWebsitePrefs ?>,
-                                <?= $matureContentPref ?>,
                                 <?= $gameID ?>
                             )'
                         >
