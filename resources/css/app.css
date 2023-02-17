@@ -36,6 +36,9 @@
 @import "table.css";
 @import "tooltip.css";
 
+/* FIXME:refactor */
+@import "playground.css";
+
 /* TODO split into components or replace with utility classes */
 @import "active-players.css";
 @import "award-count.css";

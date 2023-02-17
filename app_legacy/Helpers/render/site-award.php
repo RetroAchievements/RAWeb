@@ -5,9 +5,9 @@ use LegacyApp\Platform\Models\PlayerBadge;
 
 function SeparateAwards($userAwards): array
 {
-    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
+    $gameAwards = array_values(array_filter($userAwards, fn($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
+    $eventAwards = array_filter($userAwards, fn($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
 
     $devEventsPrefix = "[Dev Events - ";
     $devEventsHub = "[Central - Developer Events]";
@@ -22,11 +22,15 @@ function SeparateAwards($userAwards): array
         }
     }
 
-    $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
+    $eventAwards = array_values(array_filter($eventAwards, fn($award) => !in_array($award, $devEventAwards)));
 
-    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType'])) ||
-        in_array($award, $devEventAwards)
-    ));
+    $siteAwards = array_values(
+        array_filter(
+            $userAwards,
+            fn($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType'])) ||
+            in_array($award, $devEventAwards)
+        )
+    );
 
     return [$gameAwards, $eventAwards, $siteAwards];
 }
@@ -72,7 +76,7 @@ function RenderSiteAwards(array $userAwards): void
         $groups[] = [0, $gameAwards, "Game Awards"];
     }
 
-    usort($groups, fn ($a, $b) => $a[0] - $b[0]);
+    usort($groups, fn($a, $b) => $a[0] - $b[0]);
 
     foreach ($groups as $group) {
         RenderAwardGroup($group[1], $group[2]);
@@ -132,15 +136,20 @@ function RenderAwardGroup($awards, $title): void
         $counters = RenderCounter($icon, $text, $numItems, $numHidden);
     }
 
+    $fadeHiddenBottom = count($awards) <= 50 ? 'fade-hidden-bottom' : '';
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='component flex flex-wrap justify-start gap-2'>";
+    echo "<div class='relative'>";
+    echo "<div onscroll='foo(event)' class='awards-fade fade-hidden-top $fadeHiddenBottom component flex flex-wrap justify-start gap-2 max-h-[340px] lg:max-h-[640px] lg:scrollbar-none overflow-y-auto transition'>";
+
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
             RenderAward($award, $imageSize);
         }
     }
+
+    echo "</div>";
     echo "</div>";
     echo "</div>";
 }
@@ -165,9 +174,6 @@ function RenderAward($award, $imageSize, $clickable = true): void
     settype($awardType, 'integer');
     $awardData = $award['AwardData'];
     $awardDataExtra = $award['AwardDataExtra'];
-    $awardGameTitle = $award['Title'];
-    $awardGameConsole = $award['ConsoleName'];
-    $awardGameImage = $award['ImageIcon'];
     $awardDate = getNiceDate($award['AwardedAt']);
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
@@ -200,10 +206,10 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?
-    // } elseif ($awardType == AwardType::Referrals) {
-    //     $tooltip = "Referred $awardData members";
-    //     $imagepath = "/Badge/00083.png";
-    //     $linkdest = ''; // TBD: referrals page?
+        // } elseif ($awardType == AwardType::Referrals) {
+        //     $tooltip = "Referred $awardData members";
+        //     $imagepath = "/Badge/00083.png";
+        //     $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::PatreonSupporter) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
         $imagepath = asset('/assets/images/badge/patreon.png');

@@ -376,3 +376,21 @@ function initializeTextareaCounter() {
 }
 
 window.addEventListener('load', initializeTextareaCounter);
+
+let shouldShowTopFade = false;
+let shouldShowBottomFade = true;
+
+// FIXME: Rename me.
+/**
+ * @param {Event} event
+ */
+function foo(event) {
+  const minimumScrollPosition = event.target.offsetHeight;
+  const scrollPosition = event.target.scrollTop + event.target.offsetHeight;
+
+  shouldShowBottomFade = scrollPosition < event.target.scrollHeight;
+  shouldShowTopFade = scrollPosition > minimumScrollPosition + 0;
+
+  event.target.classList.toggle('fade-hidden-top', !shouldShowTopFade);
+  event.target.classList.toggle('fade-hidden-bottom', !shouldShowBottomFade);
+}
