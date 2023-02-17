@@ -206,10 +206,10 @@ function RenderAward($award, $imageSize, $clickable = true): void
         $imagepath = asset("/assets/images/badge/contribPoints-$awardData.png");
         $imgclass = 'goldimage';
         $linkdest = ''; // TBD: developer sets page?
-        // } elseif ($awardType == AwardType::Referrals) {
-        //     $tooltip = "Referred $awardData members";
-        //     $imagepath = "/Badge/00083.png";
-        //     $linkdest = ''; // TBD: referrals page?
+    // } elseif ($awardType == AwardType::Referrals) {
+    //     $tooltip = "Referred $awardData members";
+    //     $imagepath = "/Badge/00083.png";
+    //     $linkdest = ''; // TBD: referrals page?
     } elseif ($awardType == AwardType::PatreonSupporter) {
         $tooltip = 'Awarded for being a Patreon supporter! Thank-you so much for your support!';
         $imagepath = asset('/assets/images/badge/patreon.png');
