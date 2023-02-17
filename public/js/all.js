@@ -378,15 +378,34 @@ function initializeTextareaCounter() {
 window.addEventListener('load', initializeTextareaCounter);
 
 /**
+ * Creates a throttled version of a function that can be called at most
+ * once per `waitMs` milliseconds.
+ *
+ * @param {Function} fn - The function to throttle.
+ * @param {number} waitMs - The number of milliseconds to wait before allowing the function to be called again.
+ * @returns {Function} A throttled version of the original function.
+ */
+function throttle(fn, waitMs) {
+  let isThrottled = false;
+
+  return (...args) => {
+    if (!isThrottled) {
+      isThrottled = true;
+
+      setTimeout(() => {
+        fn(...args);
+        isThrottled = false;
+      }, waitMs);
+    }
+  };
+}
+
+/**
  * @type {Record<string, {top: Element, bottom: Element} | null>}
  */
 const cachedAwardsScrollElements = {};
 
-/**
- * @param {Event} event
- * @param {string} containerKind
- */
-function handleAwardsScroll(event, containerKind) {
+window.handleAwardsScroll = throttle((event, containerId) => {
   const minimumContainerScrollPosition = event.target.offsetHeight;
   const userCurrentScrollPosition = event.target.scrollTop + event.target.offsetHeight;
 
@@ -394,15 +413,15 @@ function handleAwardsScroll(event, containerKind) {
   const newBottomFadeOpacity = Math.min((event.target.scrollHeight - userCurrentScrollPosition) / 180, 1.0);
 
   // Cache the returned elements so we're not querying constantly.
-  if (!cachedAwardsScrollElements[containerKind]) {
-    cachedAwardsScrollElements[containerKind] = {
-      top: event.target.querySelector('#gameawards .awards-fade-top'),
-      bottom: event.target.querySelector('#gameawards .awards-fade-bottom')
+  if (!cachedAwardsScrollElements[containerId]) {
+    cachedAwardsScrollElements[containerId] = {
+      top: event.target.querySelector(`#${containerId} .awards-fade-top`),
+      bottom: event.target.querySelector(`#${containerId} .awards-fade-bottom`)
     };
   }
 
-  if (cachedAwardsScrollElements[containerKind]) {
-    cachedAwardsScrollElements[containerKind].top.style.opacity = newTopFadeOpacity;
-    cachedAwardsScrollElements[containerKind].bottom.style.opacity = newBottomFadeOpacity;
+  if (cachedAwardsScrollElements[containerId]) {
+    cachedAwardsScrollElements[containerId].top.style.opacity = newTopFadeOpacity;
+    cachedAwardsScrollElements[containerId].bottom.style.opacity = newBottomFadeOpacity;
   }
-}
+}, 25);
