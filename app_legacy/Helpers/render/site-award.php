@@ -140,7 +140,7 @@ function RenderAwardGroup($awards, $title): void
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='relative'>";
-    echo "<div onscroll='foo(event)' class='component flex flex-wrap justify-start gap-2 max-h-[340px] lg:max-h-[640px] lg:scrollbar-none overflow-y-auto transition'>";
+    echo "<div onscroll='handleAwardsScroll(event, \"$title\")' class='component flex flex-wrap justify-start gap-2 max-h-[340px] lg:max-h-[640px] lg:scrollbar-none overflow-y-auto transition'>";
     echo "<div class='awards-fade-top $fadeEnabled'></div>";
 
     $imageSize = 48;

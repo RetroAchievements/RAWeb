@@ -377,18 +377,32 @@ function initializeTextareaCounter() {
 
 window.addEventListener('load', initializeTextareaCounter);
 
-// FIXME: Rename me.
+/**
+ * @type {Record<string, {top: Element, bottom: Element} | null>}
+ */
+const cachedAwardsScrollElements = {};
+
 /**
  * @param {Event} event
+ * @param {string} containerKind
  */
-function foo(event) {
-  const minimumScrollPosition = event.target.offsetHeight;
-  const scrollPosition = event.target.scrollTop + event.target.offsetHeight;
+function handleAwardsScroll(event, containerKind) {
+  const minimumContainerScrollPosition = event.target.offsetHeight;
+  const userCurrentScrollPosition = event.target.scrollTop + event.target.offsetHeight;
 
-  const topFadeOpacity = Math.min((scrollPosition - minimumScrollPosition) / 180, 1.0);
-  const bottomFadeOpacity = Math.min((event.target.scrollHeight - scrollPosition) / 180, 1.0);
+  const newTopFadeOpacity = Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 180, 1.0);
+  const newBottomFadeOpacity = Math.min((event.target.scrollHeight - userCurrentScrollPosition) / 180, 1.0);
 
-  event.target.querySelector('.awards-fade-top').style.opacity = topFadeOpacity;
-  event.target.querySelector('.awards-fade-bottom').style.opacity = bottomFadeOpacity;
-  // event.target.classList.toggle('fade-hidden-bottom', !shouldShowBottomFade);
+  // Cache the returned elements so we're not querying constantly.
+  if (!cachedAwardsScrollElements[containerKind]) {
+    cachedAwardsScrollElements[containerKind] = {
+      top: event.target.querySelector('#gameawards .awards-fade-top'),
+      bottom: event.target.querySelector('#gameawards .awards-fade-bottom')
+    };
+  }
+
+  if (cachedAwardsScrollElements[containerKind]) {
+    cachedAwardsScrollElements[containerKind].top.style.opacity = newTopFadeOpacity;
+    cachedAwardsScrollElements[containerKind].bottom.style.opacity = newBottomFadeOpacity;
+  }
 }
