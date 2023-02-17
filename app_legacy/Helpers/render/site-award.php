@@ -5,9 +5,9 @@ use LegacyApp\Platform\Models\PlayerBadge;
 
 function SeparateAwards($userAwards): array
 {
-    $gameAwards = array_values(array_filter($userAwards, fn($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
+    $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
 
-    $eventAwards = array_filter($userAwards, fn($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
+    $eventAwards = array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] == 'Events');
 
     $devEventsPrefix = "[Dev Events - ";
     $devEventsHub = "[Central - Developer Events]";
@@ -22,12 +22,12 @@ function SeparateAwards($userAwards): array
         }
     }
 
-    $eventAwards = array_values(array_filter($eventAwards, fn($award) => !in_array($award, $devEventAwards)));
+    $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
 
     $siteAwards = array_values(
         array_filter(
             $userAwards,
-            fn($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType'])) ||
+            fn ($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType'])) ||
             in_array($award, $devEventAwards)
         )
     );
@@ -76,7 +76,7 @@ function RenderSiteAwards(array $userAwards): void
         $groups[] = [0, $gameAwards, "Game Awards"];
     }
 
-    usort($groups, fn($a, $b) => $a[0] - $b[0]);
+    usort($groups, fn ($a, $b) => $a[0] - $b[0]);
 
     foreach ($groups as $group) {
         RenderAwardGroup($group[1], $group[2]);
