@@ -136,11 +136,12 @@ function RenderAwardGroup($awards, $title): void
         $counters = RenderCounter($icon, $text, $numItems, $numHidden);
     }
 
-    $fadeHiddenBottom = count($awards) <= 50 ? 'fade-hidden-bottom' : '';
+    $fadeEnabled = count($awards) > 50 ? 'fade-enabled' : '';
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='relative'>";
-    echo "<div onscroll='foo(event)' class='awards-fade fade-hidden-top $fadeHiddenBottom component flex flex-wrap justify-start gap-2 max-h-[340px] lg:max-h-[640px] lg:scrollbar-none overflow-y-auto transition'>";
+    echo "<div onscroll='foo(event)' class='component flex flex-wrap justify-start gap-2 max-h-[340px] lg:max-h-[640px] lg:scrollbar-none overflow-y-auto transition'>";
+    echo "<div class='awards-fade-top $fadeEnabled'></div>";
 
     $imageSize = 48;
     foreach ($awards as $award) {
@@ -149,6 +150,7 @@ function RenderAwardGroup($awards, $title): void
         }
     }
 
+    echo "<div class='awards-fade-bottom $fadeEnabled'></div>";
     echo "</div>";
     echo "</div>";
     echo "</div>";

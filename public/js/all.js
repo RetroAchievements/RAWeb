@@ -377,9 +377,6 @@ function initializeTextareaCounter() {
 
 window.addEventListener('load', initializeTextareaCounter);
 
-let shouldShowTopFade = false;
-let shouldShowBottomFade = true;
-
 // FIXME: Rename me.
 /**
  * @param {Event} event
@@ -388,9 +385,10 @@ function foo(event) {
   const minimumScrollPosition = event.target.offsetHeight;
   const scrollPosition = event.target.scrollTop + event.target.offsetHeight;
 
-  shouldShowBottomFade = scrollPosition < event.target.scrollHeight;
-  shouldShowTopFade = scrollPosition > minimumScrollPosition + 0;
+  const topFadeOpacity = Math.min((scrollPosition - minimumScrollPosition) / 180, 1.0);
+  const bottomFadeOpacity = Math.min((event.target.scrollHeight - scrollPosition) / 180, 1.0);
 
-  event.target.classList.toggle('fade-hidden-top', !shouldShowTopFade);
-  event.target.classList.toggle('fade-hidden-bottom', !shouldShowBottomFade);
+  event.target.querySelector('.awards-fade-top').style.opacity = topFadeOpacity;
+  event.target.querySelector('.awards-fade-bottom').style.opacity = bottomFadeOpacity;
+  // event.target.classList.toggle('fade-hidden-bottom', !shouldShowBottomFade);
 }
