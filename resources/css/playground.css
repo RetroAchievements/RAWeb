@@ -1,10 +1,26 @@
-.awards-fade {
-  --webkit-mask-image: linear-gradient(to bottom,
-      rgba(0, 0, 0, 1) calc(100% - 120px),
-      rgba(0, 0, 0, 0));
-  mask-image: linear-gradient(to bottom,
-      rgba(0, 0, 0, 1) calc(100% - 120px),
-      rgba(0, 0, 0, 0));
+.awards-group > div {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: .5em;
+  overflow-y: auto;
+
+  @apply max-h-[68vh] lg:max-h-[64vh];
+  @apply lg:scrollbar-none;
+}
+
+.awards-group > div.awards-fade {
+  --webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) calc(100% - 120px),
+    rgba(0, 0, 0, 0)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) calc(100% - 120px),
+    rgba(0, 0, 0, 0)
+  );
 }
 
 /* FIXME: go to another file or rename this file */

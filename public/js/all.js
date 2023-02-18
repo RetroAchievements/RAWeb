@@ -411,11 +411,12 @@ window.handleAwardsScroll = throttle((event) => {
   const newTopFadeOpacity = 1.0 - Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 180, 1.0);
   const newBottomFadeOpacity = 1.0 - Math.min((event.target.scrollHeight - userCurrentScrollPosition) / 180, 1.0);
 
-  const opacityGradient = `linear-gradient(to bottom,
-      rgba(0, 0, 0, ${newTopFadeOpacity}),
-      rgba(0, 0, 0, 1) 120px calc(100% - 120px),
-      rgba(0, 0, 0, ${newBottomFadeOpacity})
-    )`;
+  const opacityGradient = `linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, ${newTopFadeOpacity}),
+    rgba(0, 0, 0, 1) 120px calc(100% - 120px),
+    rgba(0, 0, 0, ${newBottomFadeOpacity})
+  )`;
   event.target.style['-webkit-mask-image'] = opacityGradient;
   event.target.style['mask-image'] = opacityGradient;
 }, 25);

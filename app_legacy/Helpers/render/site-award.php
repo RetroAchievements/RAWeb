@@ -137,12 +137,10 @@ function RenderAwardGroup($awards, $title): void
     }
 
     $awardsFade = count($awards) > 50 ? 'awards-fade' : '';
-    $containerId = strtolower(str_replace(' ', '', $title));
 
-    echo "<div id='$containerId'>";
+    echo "<div class='awards-group'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='relative'>";
-    echo "<div onscroll='handleAwardsScroll(event, \"$containerId\")' class='$awardsFade component flex flex-wrap justify-start gap-2 max-h-[340px] lg:max-h-[640px] lg:scrollbar-none overflow-y-auto transition'>";
+    echo "<div class='component $awardsFade' onscroll='handleAwardsScroll(event)'>";
 
     $imageSize = 48;
     foreach ($awards as $award) {
@@ -151,7 +149,6 @@ function RenderAwardGroup($awards, $title): void
         }
     }
 
-    echo "</div>";
     echo "</div>";
     echo "</div>";
 }
