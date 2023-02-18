@@ -400,28 +400,22 @@ function throttle(fn, waitMs) {
   };
 }
 
-/**
- * @type {Record<string, {top: Element, bottom: Element} | null>}
- */
-const cachedAwardsScrollElements = {};
-
-window.handleAwardsScroll = throttle((event, containerId) => {
+window.handleAwardsScroll = throttle((event) => {
+  // Based on the user's scroll position, we will adjust the "shadow"
+  // on the top and bottom of the awards container div. This provides
+  // a helpful contextual clue that scrolling is available in the
+  // given direction.
   const minimumContainerScrollPosition = event.target.offsetHeight;
   const userCurrentScrollPosition = event.target.scrollTop + event.target.offsetHeight;
 
-  const newTopFadeOpacity = Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 180, 1.0);
-  const newBottomFadeOpacity = Math.min((event.target.scrollHeight - userCurrentScrollPosition) / 180, 1.0);
+  const newTopFadeOpacity = 1.0 - Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 180, 1.0);
+  const newBottomFadeOpacity = 1.0 - Math.min((event.target.scrollHeight - userCurrentScrollPosition) / 180, 1.0);
 
-  // Cache the returned elements so we're not querying constantly.
-  if (!cachedAwardsScrollElements[containerId]) {
-    cachedAwardsScrollElements[containerId] = {
-      top: event.target.querySelector(`#${containerId} .awards-fade-top`),
-      bottom: event.target.querySelector(`#${containerId} .awards-fade-bottom`)
-    };
-  }
-
-  if (cachedAwardsScrollElements[containerId]) {
-    cachedAwardsScrollElements[containerId].top.style.opacity = newTopFadeOpacity;
-    cachedAwardsScrollElements[containerId].bottom.style.opacity = newBottomFadeOpacity;
-  }
+  const opacityGradient = `linear-gradient(to bottom,
+      rgba(0, 0, 0, ${newTopFadeOpacity}),
+      rgba(0, 0, 0, 1) 120px calc(100% - 120px),
+      rgba(0, 0, 0, ${newBottomFadeOpacity})
+    )`;
+  event.target.style['-webkit-mask-image'] = opacityGradient;
+  event.target.style['mask-image'] = opacityGradient;
 }, 25);

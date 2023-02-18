@@ -1,26 +1,10 @@
-.awards-fade-top,
-.awards-fade-bottom {
-  position: absolute;
-  z-index: 100;
-  width: 100%;
-  height: 80px;
-  /* transition: opacity 0s cubic-bezier(0.4, 0, 0.2, 1); */
-}
-
-.awards-fade-top {
-  top: 0;
-  opacity: 0;
-  background: linear-gradient(to top, transparent, #1b1b1b);
-}
-
-.awards-fade-bottom {
-  bottom: 0;
-  background: linear-gradient(to bottom, transparent, #1b1b1b);
-}
-
-.awards-fade-top:not(.fade-enabled),
-.awards-fade-bottom:not(.fade-enabled) {
-  display: none;
+.awards-fade {
+  --webkit-mask-image: linear-gradient(to bottom,
+      rgba(0, 0, 0, 1) calc(100% - 120px),
+      rgba(0, 0, 0, 0));
+  mask-image: linear-gradient(to bottom,
+      rgba(0, 0, 0, 1) calc(100% - 120px),
+      rgba(0, 0, 0, 0));
 }
 
 /* FIXME: go to another file or rename this file */
