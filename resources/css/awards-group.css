@@ -6,10 +6,10 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  gap: .5em;
   overflow-y: auto;
-  transition: max-height 3s ease-in;
+  transition: max-height 200ms ease-in-out;
 
+  @apply gap-[.5em] lg:gap-2;
   @apply max-h-[64vh] lg:max-h-[76vh];
   @apply lg:scrollbar-none;
 }
@@ -29,26 +29,18 @@
 
 .awards-see-all {
   position: absolute;
-  bottom: 10px;
-  left: calc(50% - .96em);
+  right: 50%;
+  bottom: 0;  
   display: flex;
   justify-content: center;
   align-items: center;
-  opacity: .9;
-  width: 1.5em;
-  height: 1.5em;
-  border: 3px solid var(--link-color);
-  border-radius: 50%;
+  border: 2px solid var(--link-color);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
   background-color: var(--bg-color);
-  font-size: 2.5em;
-  font-weight: bold;
+
+  @apply transform translate-x-1/2;
+  @apply transition;
+  @apply hover:-translate-y-1 hover:scale-110;
+  @apply active:scale-100;
 }
-
-.awards-see-all:hover {
-  border: 3px solid var(--bg-color);
-  background-color: var(--link-color);
-  color: var(--bg-color);
-}
-
-
-/* FIXME: go to another file or rename this file */

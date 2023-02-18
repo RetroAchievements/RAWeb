@@ -13,6 +13,7 @@
 @import "legacy.css";
 
 /* components */
+@import "awards-group.css";
 @import "background.css";
 @import "badge.css";
 @import "brand-top.css";
@@ -35,9 +36,6 @@
 @import "tag.css";
 @import "table.css";
 @import "tooltip.css";
-
-/* FIXME:refactor */
-@import "playground.css";
 
 /* TODO split into components or replace with utility classes */
 @import "active-players.css";

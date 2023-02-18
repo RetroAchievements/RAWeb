@@ -136,23 +136,22 @@ function RenderAwardGroup($awards, $title): void
         $counters = RenderCounter($icon, $text, $numItems, $numHidden);
     }
 
-    $awardsFade = count($awards) > 50 ? 'awards-fade' : '';
+    $visibleAwards = array_filter($awards, fn ($award) => $award['DisplayOrder'] >= 0);
+    $awardsFade = count($visibleAwards) > 50 ? 'awards-fade' : '';
 
     echo "<div class='awards-group'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='component $awardsFade' onscroll='handleAwardsScroll(event)'>";
 
     $imageSize = 48;
-    foreach ($awards as $award) {
-        if ($award['DisplayOrder'] >= 0) {
-            RenderAward($award, $imageSize);
-        }
+    foreach ($visibleAwards as $award) {
+        RenderAward($award, $imageSize);
     }
 
     echo "</div>";
 
     if ($awardsFade) {
-        echo "<button class='awards-see-all' onclick='showFullAwards(event)'>+</button>";
+        echo "<button class='awards-see-all' onclick='showFullAwards(event)'>Show all (" . count($visibleAwards) . ")</button>";
     }
 
     echo "</div>";

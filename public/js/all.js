@@ -400,11 +400,14 @@ function throttle(fn, waitMs) {
   };
 }
 
-window.handleAwardsScroll = throttle((event) => {
-  // Based on the user's scroll position, we will adjust the "shadow"
-  // on the top and bottom of the awards container div. This provides
-  // a helpful contextual clue that scrolling is available in the
-  // given direction.
+/**
+ * @param {Event} event
+ * Based on the user's scroll position, we will adjust the "shadow"
+ * on the top and bottom of the awards container div. This provides
+ * a helpful contextual clue that scrolling is available in the given
+ * direction.
+ */
+const onAwardsScroll = (event) => {
   const awards = event.target;
   const minimumContainerScrollPosition = awards.offsetHeight;
   const userCurrentScrollPosition = awards.scrollTop + awards.offsetHeight;
@@ -412,20 +415,35 @@ window.handleAwardsScroll = throttle((event) => {
   const newTopFadeOpacity = 1.0 - Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 120, 1.0);
   const newBottomFadeOpacity = 1.0 - Math.min((awards.scrollHeight - userCurrentScrollPosition) / 120, 1.0);
 
+  const seeAllButton = document.querySelector('.awards-see-all'); // FIXME
+  if (userCurrentScrollPosition >= awards.scrollHeight - 100) {
+    seeAllButton.style.opacity = 0;
+  } else {
+    seeAllButton.style.opacity = 100;
+  }
+
   const opacityGradient = `linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, ${newTopFadeOpacity}),
-      rgba(0, 0, 0, 1) 120px calc(100% - 120px),
-      rgba(0, 0, 0, ${newBottomFadeOpacity})
-    )`;
+    to bottom,
+    rgba(0, 0, 0, ${newTopFadeOpacity}),
+    rgba(0, 0, 0, 1) 120px calc(100% - 120px),
+    rgba(0, 0, 0, ${newBottomFadeOpacity})
+  )`;
   awards.style['-webkit-mask-image'] = opacityGradient;
   awards.style['mask-image'] = opacityGradient;
-}, 25);
+};
+window.handleAwardsScroll = throttle(onAwardsScroll, 25);
 
-window.showFullAwards = ((event) => {
+/**
+ * @param {Event} event
+ * When executed, the entire awards div is displayed at full
+ * height with no scrolling.
+ */
+function showFullAwards(event) {
   const button = event.target;
   const awards = button.parentElement.querySelector('.component');
+
   awards.style['max-height'] = '20000px';
   awards.classList.remove('awards-fade');
+
   button.remove();
-});
+}
