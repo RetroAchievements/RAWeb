@@ -405,18 +405,27 @@ window.handleAwardsScroll = throttle((event) => {
   // on the top and bottom of the awards container div. This provides
   // a helpful contextual clue that scrolling is available in the
   // given direction.
-  const minimumContainerScrollPosition = event.target.offsetHeight;
-  const userCurrentScrollPosition = event.target.scrollTop + event.target.offsetHeight;
+  const awards = event.target;
+  const minimumContainerScrollPosition = awards.offsetHeight;
+  const userCurrentScrollPosition = awards.scrollTop + awards.offsetHeight;
 
-  const newTopFadeOpacity = 1.0 - Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 180, 1.0);
-  const newBottomFadeOpacity = 1.0 - Math.min((event.target.scrollHeight - userCurrentScrollPosition) / 180, 1.0);
+  const newTopFadeOpacity = 1.0 - Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 120, 1.0);
+  const newBottomFadeOpacity = 1.0 - Math.min((awards.scrollHeight - userCurrentScrollPosition) / 120, 1.0);
 
   const opacityGradient = `linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, ${newTopFadeOpacity}),
-    rgba(0, 0, 0, 1) 120px calc(100% - 120px),
-    rgba(0, 0, 0, ${newBottomFadeOpacity})
-  )`;
-  event.target.style['-webkit-mask-image'] = opacityGradient;
-  event.target.style['mask-image'] = opacityGradient;
+      to bottom,
+      rgba(0, 0, 0, ${newTopFadeOpacity}),
+      rgba(0, 0, 0, 1) 120px calc(100% - 120px),
+      rgba(0, 0, 0, ${newBottomFadeOpacity})
+    )`;
+  awards.style['-webkit-mask-image'] = opacityGradient;
+  awards.style['mask-image'] = opacityGradient;
 }, 25);
+
+window.showFullAwards = ((event) => {
+  const button = event.target;
+  const awards = button.parentElement.querySelector('.component');
+  awards.style['max-height'] = '20000px';
+  awards.classList.remove('awards-fade');
+  button.remove();
+});

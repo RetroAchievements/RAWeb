@@ -150,6 +150,11 @@ function RenderAwardGroup($awards, $title): void
     }
 
     echo "</div>";
+
+    if ($awardsFade) {
+        echo "<button class='awards-see-all' onclick='showFullAwards(event)'>+</button>";
+    }
+
     echo "</div>";
 }
 

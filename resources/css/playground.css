@@ -1,16 +1,20 @@
-.awards-group > div {
+.awards-group {
   position: relative;
+}
+
+.awards-group > .component {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   gap: .5em;
   overflow-y: auto;
+  transition: max-height 3s ease-in;
 
-  @apply max-h-[68vh] lg:max-h-[64vh];
+  @apply max-h-[64vh] lg:max-h-[76vh];
   @apply lg:scrollbar-none;
 }
 
-.awards-group > div.awards-fade {
+.awards-group > .component.awards-fade {
   --webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) calc(100% - 120px),
@@ -22,5 +26,29 @@
     rgba(0, 0, 0, 0)
   );
 }
+
+.awards-see-all {
+  position: absolute;
+  bottom: 10px;
+  left: calc(50% - .96em);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: .9;
+  width: 1.5em;
+  height: 1.5em;
+  border: 3px solid var(--link-color);
+  border-radius: 50%;
+  background-color: var(--bg-color);
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+.awards-see-all:hover {
+  border: 3px solid var(--bg-color);
+  background-color: var(--link-color);
+  color: var(--bg-color);
+}
+
 
 /* FIXME: go to another file or rename this file */
