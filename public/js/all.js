@@ -401,13 +401,21 @@ function throttle(fn, waitMs) {
 }
 
 /**
+ * @type Record<string, Element>
+ */
+const cachedAwardsExpandButtons = {};
+
+/**
  * @param {Event} event
+ * @param {string} expandButtonId - The ID for the expand button of
+ * this awards section.
+ *
  * Based on the user's scroll position, we will adjust the "shadow"
  * on the top and bottom of the awards container div. This provides
  * a helpful contextual clue that scrolling is available in the given
  * direction.
  */
-const onAwardsScroll = (event) => {
+const onAwardsScroll = (event, expandButtonId) => {
   const awards = event.target;
   const minimumContainerScrollPosition = awards.offsetHeight;
   const userCurrentScrollPosition = awards.scrollTop + awards.offsetHeight;
@@ -415,21 +423,33 @@ const onAwardsScroll = (event) => {
   const newTopFadeOpacity = 1.0 - Math.min((userCurrentScrollPosition - minimumContainerScrollPosition) / 120, 1.0);
   const newBottomFadeOpacity = 1.0 - Math.min((awards.scrollHeight - userCurrentScrollPosition) / 120, 1.0);
 
-  const seeAllButton = document.querySelector('.awards-see-all'); // FIXME
-  if (userCurrentScrollPosition >= awards.scrollHeight - 100) {
-    seeAllButton.style.opacity = 0;
-  } else {
-    seeAllButton.style.opacity = 100;
+  // It is better to not be constantly querying the whole DOM tree for this
+  // element. Generally, the tree is going to be huge if this is needed
+  // in the first place.
+  let expandButton = cachedAwardsExpandButtons[expandButtonId];
+  if (!expandButton) {
+    cachedAwardsExpandButtons[expandButtonId] = document.getElementById(expandButtonId);
+    expandButton = cachedAwardsExpandButtons[expandButtonId];
   }
 
-  const opacityGradient = `linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, ${newTopFadeOpacity}),
-    rgba(0, 0, 0, 1) 120px calc(100% - 120px),
-    rgba(0, 0, 0, ${newBottomFadeOpacity})
-  )`;
-  awards.style['-webkit-mask-image'] = opacityGradient;
-  awards.style['mask-image'] = opacityGradient;
+  if (userCurrentScrollPosition >= awards.scrollHeight - 100) {
+    expandButton.style.opacity = 0;
+  } else {
+    expandButton.style.opacity = 100;
+  }
+
+  // When the button is clicked, it is removed from the DOM.
+  // We don't want the fade to ever be applied if all awards are in view.
+  if (expandButton) {
+    const opacityGradient = `linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, ${newTopFadeOpacity}),
+      rgba(0, 0, 0, 1) 120px calc(100% - 120px),
+      rgba(0, 0, 0, ${newBottomFadeOpacity})
+    )`;
+    awards.style['-webkit-mask-image'] = opacityGradient;
+    awards.style['mask-image'] = opacityGradient;
+  }
 };
 window.handleAwardsScroll = throttle(onAwardsScroll, 25);
 
@@ -442,8 +462,12 @@ function showFullAwards(event) {
   const button = event.target;
   const awards = button.parentElement.querySelector('.component');
 
-  awards.style['max-height'] = '20000px';
+  awards.style['max-height'] = '100000px';
+  awards.style['mask-image'] = '';
+  awards.style['-webkit-mask-image'] = '';
+
   awards.classList.remove('awards-fade');
 
+  delete cachedAwardsExpandButtons[event.target.id];
   button.remove();
 }

@@ -138,10 +138,11 @@ function RenderAwardGroup($awards, $title): void
 
     $visibleAwards = array_filter($awards, fn ($award) => $award['DisplayOrder'] >= 0);
     $awardsFade = count($visibleAwards) > 50 ? 'awards-fade' : '';
+    $awardsExpandButtonId = $title . '-see-all-button';
 
     echo "<div class='awards-group'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='component $awardsFade' onscroll='handleAwardsScroll(event)'>";
+    echo "<div class='component $awardsFade' onscroll='handleAwardsScroll(event, \"$awardsExpandButtonId\")'>";
 
     $imageSize = 48;
     foreach ($visibleAwards as $award) {
@@ -151,7 +152,7 @@ function RenderAwardGroup($awards, $title): void
     echo "</div>";
 
     if ($awardsFade) {
-        echo "<button class='awards-see-all' onclick='showFullAwards(event)'>Show all (" . count($visibleAwards) . ")</button>";
+        echo "<button id='$awardsExpandButtonId' class='awards-see-all-button' onclick='showFullAwards(event)'>Expand (" . count($visibleAwards) . ")</button>";
     }
 
     echo "</div>";
