@@ -145,8 +145,8 @@ function RenderAwardGroup($awards, $title): void
      * @see public/controlpanel.php
      */
     $expandedAwardsCookieName = 'prefers_always_expanded_rewards';
-    $doesPreferAlwaysExpandedRewards = 
-        isset($_COOKIE[$expandedAwardsCookieName]) 
+    $doesPreferAlwaysExpandedRewards =
+        isset($_COOKIE[$expandedAwardsCookieName])
         && $_COOKIE[$expandedAwardsCookieName] === 'true';
 
     // We can be quite certain we'll need to expand the list if the player
