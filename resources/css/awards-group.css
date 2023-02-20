@@ -15,6 +15,8 @@
 }
 
 .awards-group > .component.awards-fade {
+  margin-bottom: 2rem;
+
   --webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) calc(100% - 120px),
@@ -27,10 +29,10 @@
   );
 }
 
-.awards-see-all-button {
+.awards-expand-button {
   position: absolute;
   right: 50%;
-  bottom: 0;  
+  bottom: 1rem;  
   display: flex;
   justify-content: center;
   align-items: center;

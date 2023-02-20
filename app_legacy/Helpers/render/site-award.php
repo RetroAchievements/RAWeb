@@ -137,12 +137,22 @@ function RenderAwardGroup($awards, $title): void
     }
 
     $visibleAwards = array_filter($awards, fn ($award) => $award['DisplayOrder'] >= 0);
-    $awardsFade = count($visibleAwards) > 50 ? 'awards-fade' : '';
-    $awardsExpandButtonId = $title . '-see-all-button';
+    
+    // We can be quite certain we'll need to expand the list if the player
+    // has more than 120 masteries. We'll also check if the container is
+    // overflowing on the client and apply the fade classes if so.
+    $shouldAddOptimisticAwardsFade = count($visibleAwards) >= 120;
+    $awardsFadeClassName = 'awards-fade';
+
+    $optimisticAwardsFade = $shouldAddOptimisticAwardsFade ? $awardsFadeClassName : '';
+    $initialAwardsButtonExpandClass = $shouldAddOptimisticAwardsFade ? '' : 'hidden';
+
+    $awardsContainerId = $title . '-container';
+    $awardsExpandButtonId = $title . '-expand-button';
 
     echo "<div class='awards-group'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='component $awardsFade' onscroll='handleAwardsScroll(event, \"$awardsExpandButtonId\")'>";
+    echo "<div id='$awardsContainerId' class='component $optimisticAwardsFade' onscroll='handleAwardsScroll(event, \"$awardsExpandButtonId\")' x-init='shouldApplyAwardsGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'>";
 
     $imageSize = 48;
     foreach ($visibleAwards as $award) {
@@ -151,9 +161,7 @@ function RenderAwardGroup($awards, $title): void
 
     echo "</div>";
 
-    if ($awardsFade) {
-        echo "<button id='$awardsExpandButtonId' class='awards-see-all-button' onclick='showFullAwards(event)'>Expand (" . count($visibleAwards) . ")</button>";
-    }
+    echo "<button id='$awardsExpandButtonId' class='awards-expand-button $initialAwardsButtonExpandClass' onclick='showFullAwards(event)'>Expand (" . count($visibleAwards) . ")</button>";
 
     echo "</div>";
 }

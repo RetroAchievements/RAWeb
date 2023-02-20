@@ -471,3 +471,33 @@ function showFullAwards(event) {
   delete cachedAwardsExpandButtons[event.target.id];
   button.remove();
 }
+
+/**
+ * @param {string} awardsContainerId
+ * @param {string} awardsExpandButtonId
+ * @param {string} awardsFadeClassName
+ * Determines whether to apply the awards group fade and show the
+ * expand button based on the difference between the container's true
+ * height and the rendered height in the user's browser. This executes
+ * after an optimistic check for this runs on the server. This follow-up
+ * check gives us greater precision on when to show the expand and fade.
+ */
+function shouldApplyAwardsGroupFade(
+  awardsContainerId,
+  awardsExpandButtonId,
+  awardsFadeClassName
+) {
+  const awardsContainerEl = document.getElementById(awardsContainerId);
+  const awardsExpandButtonEl = document.getElementById(awardsExpandButtonId);
+
+  const renderedContainerHeight = awardsContainerEl.clientHeight;
+  const trueContainerHeight = awardsContainerEl.scrollHeight;
+
+  if (renderedContainerHeight < trueContainerHeight) {
+    awardsContainerEl.classList.add(awardsFadeClassName);
+    awardsExpandButtonEl.classList.remove('hidden');
+  } else {
+    awardsContainerEl.classList.remove(awardsFadeClassName);
+    awardsExpandButtonEl.classList.add('hidden');
+  }
+}

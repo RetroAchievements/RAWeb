@@ -602,6 +602,7 @@ RenderContentStart($userPage);
     </div>
     <div id="rightcontainer">
         <?php
+        echo "<div class='grid gap-2'>";
         RenderSiteAwards(getUsersSiteAwards($userPage));
         RenderCompletedGamesList($userCompletedGamesList);
 
@@ -614,6 +615,7 @@ RenderContentStart($userPage);
         if ($user !== null && $user === $userPage) {
             RenderScoreLeaderboardComponent($user, true);
         }
+        echo "</div>";
         ?>
     </div>
 </div>
