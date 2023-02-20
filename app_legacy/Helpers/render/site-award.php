@@ -138,10 +138,21 @@ function RenderAwardGroup($awards, $title): void
 
     $visibleAwards = array_filter($awards, fn ($award) => $award['DisplayOrder'] >= 0);
 
+    /**
+     * It is possible for the user to specify they want awards to
+     * always be expanded. This is set via a temporary cookie value.
+     * If it's set, we must never conceal an awards group.
+     * @see public/controlpanel.php
+     */
+    $expandedAwardsCookieName = 'prefers_always_expanded_rewards';
+    $doesPreferAlwaysExpandedRewards = 
+        isset($_COOKIE[$expandedAwardsCookieName]) 
+        && $_COOKIE[$expandedAwardsCookieName] === 'true';
+
     // We can be quite certain we'll need to expand the list if the player
     // has more than 120 masteries. We'll also check if the container is
     // overflowing on the client and apply the fade classes if so.
-    $shouldAddOptimisticAwardsFade = count($visibleAwards) >= 120;
+    $shouldAddOptimisticAwardsFade = !$doesPreferAlwaysExpandedRewards && count($visibleAwards) >= 120;
     $awardsFadeClassName = 'awards-fade';
 
     $optimisticAwardsFade = $shouldAddOptimisticAwardsFade ? $awardsFadeClassName : '';
@@ -152,7 +163,7 @@ function RenderAwardGroup($awards, $title): void
 
     echo "<div class='awards-group'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div id='$awardsContainerId' class='component $optimisticAwardsFade' onscroll='handleAwardsScroll(event, \"$awardsExpandButtonId\")' x-init='shouldApplyAwardsGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'>";
+    echo "<div id='$awardsContainerId' " . ($doesPreferAlwaysExpandedRewards ? "class='component'" : "class='component component--with-scrolling $optimisticAwardsFade' onscroll='handleAwardsScroll(event, \"$awardsExpandButtonId\")' x-init='shouldApplyAwardsGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'") . ">";
 
     $imageSize = 48;
     foreach ($visibleAwards as $award) {

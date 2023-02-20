@@ -10,6 +10,9 @@
   transition: max-height 200ms ease-in-out;
 
   @apply gap-[.5em] lg:gap-2;
+}
+
+.awards-group > .component--with-scrolling {
   @apply max-h-[64vh] lg:max-h-[76vh];
   @apply lg:scrollbar-none;
 }

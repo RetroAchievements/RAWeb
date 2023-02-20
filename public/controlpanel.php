@@ -21,6 +21,11 @@ $userWallActive = $userDetails['UserWallActive'];
 $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
+$expandedAwardsCookieName = 'prefers_always_expanded_rewards';
+$doesPreferAlwaysExpandedRewards = 
+    isset($_COOKIE[$expandedAwardsCookieName]) 
+    && $_COOKIE[$expandedAwardsCookieName] === 'true';
+
 RenderContentStart("My Settings");
 
 function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): void
@@ -97,6 +102,37 @@ function confirmEmailChange(event) {
     return true;
     <?php endif ?>
 }
+
+const expandedAwardsCookieName = '<?= $expandedAwardsCookieName ?>';
+let isExpandedAwardsCheckboxChecked = document.cookie.includes(`${expandedAwardsCookieName}=true`);
+function handleExpandedAwardsCheckboxClick(event) {
+    isExpandedAwardsCheckboxChecked = event.target.checked;
+}
+
+// FIXME: This is a reimplementation of _resources/js/cookie.js_.
+// However, that function is not available in this execution context.
+// When this page gets refactored, just use that function instead.
+/**
+ * @param {string} cookieName
+ * @param {string} value
+ */
+function setCookie(cookieName, value) {
+  const days = 30;
+  const date = new Date();
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  const expires = `; expires=${date.toGMTString()}`;
+  document.cookie = `${cookieName}=${value}${expires}; path=/`;
+}
+
+function handleExpandedAwardsSettingSave() {
+    if (isExpandedAwardsCheckboxChecked) {
+        setCookie(expandedAwardsCookieName, 'true');
+    } else {
+        setCookie(expandedAwardsCookieName, 'false');
+    }
+
+    alert('Saved!');
+}
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
@@ -118,7 +154,7 @@ function confirmEmailChange(event) {
                     echo "<td>";
                     echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
                     echo csrf_field();
-                    echo "<input name='motto' value=\"$userMottoString\" maxlength='50' size='50' id='motto' placeholder='Your motto'>";
+                    echo "<input name='motto' value=\"$userMottoString\" maxlength='40' size='40' id='motto' placeholder='Your motto'>";
                     echo "<button class='btn'>Set Motto</button>";
                     echo "</form>";
                     echo "<div>No profanity.</div>";
@@ -127,7 +163,7 @@ function confirmEmailChange(event) {
                 }
                 if ($permissions >= Permissions::Unregistered) {
                     echo "<tr>";
-                    echo "<td>Allow Comments on my User Wall</td>";
+                    echo "<td>Allow comments on my User Wall</td>";
                     echo "<td>";
                     echo "<form method='post' action='/request/user-comment/toggle.php'>";
                     echo csrf_field();
@@ -148,6 +184,17 @@ function confirmEmailChange(event) {
                     echo "</td>";
                     echo "</tr>";
                 }
+                echo "<tr>";
+                echo "<td>Always expand User Awards on profiles</td>";
+                echo "<td>";
+                echo "<div class='flex flex-col'>";
+                echo "<div>";
+                echo "<input onclick='handleExpandedAwardsCheckboxClick(event)' class='mr-2' type='checkbox' " . ($doesPreferAlwaysExpandedRewards ? 'checked' : '') . ">";
+                echo "<button class='btn mr-4' onclick='handleExpandedAwardsSettingSave()'>Save</button>";
+                echo "</div>";
+                echo "<span class='text-xs'>This only applies to your current device.</span>";
+                echo "</div>";
+                echo "</td>";
                 echo "</tbody></table>";
                 ?>
             </div>
