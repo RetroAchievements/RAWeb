@@ -137,7 +137,7 @@ function RenderAwardGroup($awards, $title): void
     }
 
     $visibleAwards = array_filter($awards, fn ($award) => $award['DisplayOrder'] >= 0);
-    
+
     // We can be quite certain we'll need to expand the list if the player
     // has more than 120 masteries. We'll also check if the container is
     // overflowing on the client and apply the fade classes if so.
