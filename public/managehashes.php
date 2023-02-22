@@ -13,9 +13,8 @@ if (empty($gameID)) {
     abort(404);
 }
 
-$achievementList = [];
 $gamesList = [];
-getGameMetadata($gameID, $user, $achievementData, $gameData);
+$gameData = getGameData($gameID);
 
 $hashes = getHashListByGameID($gameID);
 $numLinks = count($hashes);

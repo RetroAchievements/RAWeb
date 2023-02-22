@@ -39,7 +39,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadataByFlags($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags);
+$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags, metrics:true);
 
 if (empty($gameData)) {
     abort(404);
