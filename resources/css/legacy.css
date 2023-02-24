@@ -104,6 +104,7 @@
 #usercompletedgamescomponent {
   max-height: 30.0em;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #devstatsscrollpane {
