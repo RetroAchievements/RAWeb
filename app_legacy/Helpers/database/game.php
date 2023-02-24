@@ -6,32 +6,27 @@ use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
 
-function getGameData($gameID): ?array
+function getGameData(int $gameID): ?array
 {
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
     if ($gameID <= 0) {
         return null;
     }
+
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
               FROM GameData AS gd
               LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
               WHERE gd.ID = $gameID";
 
-    $dbResult = s_mysql_query($query);
-    if ($retVal = mysqli_fetch_assoc($dbResult)) {
+    $retVal = legacyDbFetch($query);
+    if ($retVal) {
         settype($retVal['ID'], 'integer');
         settype($retVal['ConsoleID'], 'integer');
         settype($retVal['Flags'], 'integer');
         settype($retVal['ForumTopicID'], 'integer');
         settype($retVal['IsFinal'], 'boolean');
-
-        return $retVal;
-    } else {
-        log_sql_fail();
-
-        return null;
     }
+
+    return $retVal;
 }
 
 function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData): bool
