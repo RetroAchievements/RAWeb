@@ -66,7 +66,7 @@ class DatabaseTest extends TestCase
             // active for 10 minutes
             'Created' => Carbon::now()->subMinutes(10),
             // 10 minutes remaining
-            'Updated' => Carbon::now()->addMinutes(10),
+            'Updated' => Carbon::now()->addMonths(3),
         ]);
 
         $passed = diffMinutesPassedStatement('Created', 'MinutesPassed');
@@ -76,6 +76,7 @@ class DatabaseTest extends TestCase
             SELECT
                 User,
                 Created,
+                Updated,
                 $remaining,
                 $passed
             FROM UserAccounts u
@@ -83,6 +84,6 @@ class DatabaseTest extends TestCase
         ");
 
         $this->assertEquals(10, $result['MinutesPassed']);
-        $this->assertEquals(10, $result['MinutesRemaining']);
+        $this->assertEquals(Carbon::now()->addMonths(3)->diffInRealMinutes(Carbon::now()), $result['MinutesRemaining']);
     }
 }

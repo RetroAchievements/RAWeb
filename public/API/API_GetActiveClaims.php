@@ -1,7 +1,6 @@
 <?php
 
 use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
 
 /*
  *  API_GetActiveClaims - returns information about all (1000 max) active set claims.
@@ -30,12 +29,6 @@ use LegacyApp\Community\Enums\ClaimSorting;
 
 return response()->json(
     getFilteredClaims(
-        0,
-        ClaimFilters::Default,
-        ClaimSorting::ClaimDateDescending,
-        false,
-        null,
-        0,
-        1000
+        claimFilter: ClaimFilters::AllActiveClaims,
     )
 );
