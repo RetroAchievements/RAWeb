@@ -8,11 +8,15 @@ use LegacyApp\Community\Enums\ClaimType;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$defaultFilter = ClaimFilters::Default; // Show all active claims
-
 $username = requestInputSanitized('u', null);
 
-$claimData = getFilteredClaims(0, $defaultFilter, ClaimSorting::FinishedDateAscending, true, $username); // Active sorted by expiring
+// Active sorted by expiring
+$claimData = getFilteredClaims(
+    claimFilter: ClaimFilters::AllActiveClaims,
+    sortType: ClaimSorting::FinishedDateAscending,
+    getExpiringOnly: true,
+    username: $username
+);
 $activeClaimCount = getActiveClaimCount();
 
 if (!empty($gameID)) {
@@ -62,7 +66,7 @@ RenderContentStart("Expiring Claims");
 
         echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
-        echo "<tr class='do-not-highlight>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::GameDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
