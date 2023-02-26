@@ -9,13 +9,16 @@
   overflow-y: auto;
   transition: max-height 200ms ease-in-out;
 
-  @apply gap-[.5em];
-  @apply max-h-[64vh] lg:max-h-[76vh];
-  /* Stopped applying as it hides the scrollbar within the awards-group div */
-  /*@apply lg:scrollbar-none;*/
+  @apply gap-2;
+}
+
+.awards-group > .component--with-scrolling {
+  @apply max-h-[64vh] lg:max-h-[76vh] !gap-[.5em];
 }
 
 .awards-group > .component.awards-fade {
+  margin-bottom: 2rem;
+
   --webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) calc(100% - 120px),
@@ -28,10 +31,10 @@
   );
 }
 
-.awards-see-all {
+.awards-expand-button {
   position: absolute;
   right: 50%;
-  bottom: 0;  
+  bottom: 1rem;  
   display: flex;
   justify-content: center;
   align-items: center;
