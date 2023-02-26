@@ -14,6 +14,7 @@
 
 .awards-group > .component--with-scrolling {
   @apply max-h-[64vh] lg:max-h-[76vh] !gap-[.5em];
+  @apply scrollbar-thin scrollbar-thumb-raTheme-scrollthumb scrollbar-track-raTheme-scrolltrack
 }
 
 .awards-group > .component.awards-fade {
