@@ -48,13 +48,13 @@ module.exports = {
       '2xl': '1536px',
     },
     extend: {
-            colors: {
-                raTheme: {
-                    DEFAULT: 'var(--link-color)',
-                    background: 'var(--text-color-muted)'
-                }
-            }
+      colors: {
+        raTheme: {
+          DEFAULT: 'var(--link-color)',
+          background: 'var(--text-color-muted)'
+        }
       }
+    }
   },
 
   plugins: [
