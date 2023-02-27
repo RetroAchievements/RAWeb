@@ -712,7 +712,7 @@ function getUserGameActivity(string $user, int $gameID): array
     // reverse sort by date so we can update the appropriate session when we find it
     usort($sessions, function ($a, $b) { return $b['StartTime'] - $a['StartTime']; });
 
-    $query = "SELECT a.timestamp, a.data, a.data2, ach.Title, ach.Points, ach.BadgeName, ach.Flags
+    $query = "SELECT a.timestamp, a.data, a.data2, ach.Title, ach.Description, ach.Points, ach.BadgeName, ach.Flags
               FROM Activity a
               LEFT JOIN Achievements ach ON ach.ID = a.data
               WHERE ach.GameID=$gameID AND a.User='$user'
@@ -740,6 +740,7 @@ function getUserGameActivity(string $user, int $gameID): array
                     'When' => $when,
                     'AchievementID' => $row['data'],
                     'Title' => $row['Title'],
+                    'Description' => $row['Description'],
                     'Points' => $row['Points'],
                     'BadgeName' => $row['BadgeName'],
                     'Flags' => $row['Flags'],
