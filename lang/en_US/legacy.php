@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'email_check' => __("Please check your email for further instructions."),
     'email_validate' => __("An email has been sent to the email address you supplied. Please click the link in that email."),
