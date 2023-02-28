@@ -6,7 +6,7 @@ namespace Database\Factories\Legacy;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use LegacyApp\Community\Enums\ActivityType;
-use LegacyApp\Site\Models\UserActivity;
+use LegacyApp\Community\Models\UserActivity;
 use LegacyApp\Support\Database\Eloquent\FakesUsername;
 
 /**
