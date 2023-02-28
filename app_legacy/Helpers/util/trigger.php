@@ -302,11 +302,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
             if ($lSize) {
                 $lNote = getNoteForAddress($memNotes, $lMemory);
                 if ($lNote) {
-                    $lTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($lNote) . "\"";
+                    $lTooltip = " class=\"cursor-help whitespace-nowrap\" title=\"" . htmlspecialchars($lNote) . "\"";
                     $codeNotes[$lMemory] = '<strong><u>' . $lMemory . '</u></strong>: ' . htmlspecialchars($lNote);
                 }
             } elseif ($lType == 'Value') {
-                $lTooltip = " class=\"cursor-help\" title=\"" . hexdec($lMemory) . "\"";
+                $lTooltip = " class=\"cursor-help whitespace-nowrap\" title=\"" . hexdec($lMemory) . "\"";
             }
 
             $res .= "\n<tr>\n  <td class='whitespace-nowrap'>" . ($j + 1) . "</td>";
@@ -321,11 +321,11 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
                 if ($rSize) {
                     $rNote = getNoteForAddress($memNotes, $rMemVal);
                     if ($rNote) {
-                        $rTooltip = " class=\"cursor-help\" title=\"" . htmlspecialchars($rNote) . "\"";
+                        $rTooltip = " class=\"cursor-help whitespace-nowrap\" title=\"" . htmlspecialchars($rNote) . "\"";
                         $codeNotes[$rMemVal] = '<strong><u>' . $rMemVal . '</u></strong>: ' . htmlspecialchars($rNote);
                     }
                 } elseif ($rType == 'Value') {
-                    $rTooltip = " class=\"cursor-help\" title=\"" . hexdec($rMemVal) . "\"";
+                    $rTooltip = " class=\"cursor-help whitespace-nowrap\" title=\"" . hexdec($rMemVal) . "\"";
                 }
 
                 $res .= "\n  <td class='whitespace-nowrap'> " . htmlspecialchars($cmp) . " </td>";
