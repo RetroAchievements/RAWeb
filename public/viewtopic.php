@@ -207,7 +207,7 @@ RenderContentStart($pageTitle);
             echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
             echo "</td>";
 
-            echo "<td class='w-full py-3' id='$nextCommentID'>";
+            echo "<td class='w-full py-3 break-all' id='$nextCommentID'>";
 
             echo "<div class='flex justify-between mb-2'>";
             echo "<div>";

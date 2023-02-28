@@ -2,12 +2,10 @@
 
 use App\Support\Shortcode\Shortcode;
 
-$maxCount = 10;
-
-$offset = requestInputSanitized('o', 0, 'integer');
-$count = requestInputSanitized('c', $maxCount, 'integer');
-$unreadOnly = requestInputSanitized('u', 0, 'integer');
 $outbox = requestInputSanitized('s', 0, 'integer');
+$unreadOnly = requestInputSanitized('u', 0, 'integer');
+$displayCount = requestInputSanitized('c', 10, 'integer');
+$offset = requestInputSanitized('o', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -16,11 +14,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 if ($outbox) {
     $unreadMessageCount = 0;
     $totalMessageCount = GetSentMessageCount($user);
-    $allMessages = GetSentMessages($user, $offset, $count);
+    $allMessages = GetSentMessages($user, $offset, $displayCount);
     RenderContentStart('Outbox');
 } else {
     $unreadMessageCount = GetMessageCount($user, $totalMessageCount);
-    $allMessages = GetAllMessages($user, $offset, $count, $unreadOnly);
+    $allMessages = GetAllMessages($user, $offset, $displayCount, $unreadOnly);
     RenderContentStart('Inbox');
 }
 ?>
@@ -78,7 +76,7 @@ function MarkAsUnread(msgID) {
                 echo "<a class='btn btn-link' href='/inbox.php?s=1'>Outbox</a>";
                 echo "<div class='flex gap-2'>";
                 if ($unreadOnly) {
-                    echo "<a class='btn btn-link' href='/inbox.php?u=0'>View All Messages</a>";
+                    echo "<a class='btn btn-link' href='/inbox.php'>View All Messages</a>";
                 } else {
                     echo "<a class='btn btn-link' href='/inbox.php?u=1'>View Unread Only</a>";
                 }
@@ -175,23 +173,14 @@ function MarkAsUnread(msgID) {
 
             echo "</tbody></table>";
 
+            // Get message count and build paginator URL from current GET parameters
+            $messageCount = $unreadOnly ? $unreadMessageCount : $totalMessageCount;
+            unset($_GET['o']);
+            $urlPrefix = '/inbox.php?' . http_build_query($_GET) . '&o=';
+
             echo "<div class='float-right'>";
-
-            if ($offset > 0) {
-                echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset - $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
-                echo "&lt; Previous $maxCount";
-                echo "</a>";
-            }
-
-            if ($totalMsgs == $maxCount) {
-                echo "<a class='btn btn-link' href='/inbox.php?o=" . ($offset + $maxCount) . "&amp;u=$unreadOnly&amp;s=$outbox'>";
-                echo "Next $maxCount &gt;";
-                echo "</a>";
-            }
-
+            RenderPaginator($messageCount, $displayCount, $offset, $urlPrefix);
             echo "</div>";
-
-            echo "<br>";
 
             ?>
         </div>
