@@ -28,8 +28,6 @@ function getForumList(int $categoryID = 0): array
 
 function getForumDetails(int $forumID, ?array &$forumDataOut): bool
 {
-    sanitize_sql_inputs($forumID);
-    $forumID = (int) $forumID;
     $query = "    SELECT f.ID, f.Title AS ForumTitle, f.Description AS ForumDescription, fc.ID AS CategoryID, fc.Name AS CategoryName
                 FROM Forum AS f
                 LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
@@ -49,9 +47,6 @@ function getForumDetails(int $forumID, ?array &$forumDataOut): bool
 
 function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): ?array
 {
-    sanitize_sql_inputs($forumID, $offset, $count);
-    $forumID = (int) $forumID;
-
     $query = "  SELECT COUNT(*) FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
@@ -122,8 +117,6 @@ function getUnauthorisedForumLinks(): ?array
 
 function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
 {
-    sanitize_sql_inputs($topicID);
-    $topicID = (int) $topicID;
     $query = "  SELECT ft.ID, ft.Author, ft.AuthorID, fc.ID AS CategoryID, fc.Name AS Category, fc.ID as CategoryID, f.ID AS ForumID, f.Title AS Forum, ft.Title AS TopicTitle, ft.RequiredPermissions
                 FROM ForumTopic AS ft
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
@@ -180,8 +173,6 @@ function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCount
 
 function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
 {
-    sanitize_sql_inputs($forumPostID);
-    $forumPostID = (int) $forumPostID;
     $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified
                 FROM ForumTopicComment
                 WHERE ID=$forumPostID";
@@ -380,8 +371,7 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
 
 function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID): bool
 {
-    sanitize_sql_inputs($user, $gameID);
-    $gameID = (int) $gameID;
+    sanitize_sql_inputs($user);
     if ($gameID == 0) {
         return false;
     }
