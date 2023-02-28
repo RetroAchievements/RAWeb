@@ -1297,7 +1297,9 @@ sanitize_outputs(
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
                             if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-                                echo "<p class='text-2xs'>Author: <a href='/user/$achAuthor/'>$achAuthor</a></p>";
+                                echo "<div class='text-2xs'>Author: ";
+                                echo userAvatar($achAuthor, icon: false);
+                                echo "</div>";
                             }
                             if ($achieved) {
                                 echo "<div class='date smalltext'>Unlocked $dateAch</div>";
