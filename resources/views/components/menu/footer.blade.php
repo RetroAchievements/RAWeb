@@ -71,9 +71,9 @@ $menu = collect([
         'title' => config('app.name'),
         'items' => [
             [
-                'active' => Route::is('contacts'),
+                'active' => Route::is('contact'),
                 'label' => __('Contact Us'),
-                'url' => route('contacts'),
+                'url' => route('contact'),
                 'visible' => true,
             ],
             [
