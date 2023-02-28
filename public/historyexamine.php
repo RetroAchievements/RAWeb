@@ -9,20 +9,14 @@ if (empty($userPage)) {
     abort(404);
 }
 
-getUserPageInfo($userPage, $userMassData, 0, 0, $user);
-if (!$userMassData) {
+if (!getAccountDetails($userPage, $userDetails)) {
     abort(404);
 }
 
 $dateInput = requestInputSanitized('d', 0, 'integer');
 
-$userPageHardcorePoints = 0;
-$userPageSoftcorePoints = 0;
-
-if (getPlayerPoints($userPage, $userPoints)) {
-    $userPageHardcorePoints = $userPoints['RAPoints'];
-    $userPageSoftcorePoints = $userPoints['RASoftcorePoints'];
-}
+$userPageHardcorePoints = $userDetails['RAPoints'];
+$userPageSoftcorePoints = $userDetails['RASoftcorePoints'];
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
 

@@ -269,13 +269,10 @@ function resetSingleAchievement(string $user, $achID): bool
     return true;
 }
 
-function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievements, &$dataOut): void
+function getUsersRecentAwardedForGames(string $user, string $gameIDsCSV, int $numAchievements): array
 {
-    sanitize_sql_inputs($user, $numAchievements);
-    settype($numAchievements, 'integer');
-
     if (empty($gameIDsCSV)) {
-        return;
+        return [];
     }
 
     $gameIDsArray = explode(',', $gameIDsCSV);
@@ -292,21 +289,25 @@ function getUsersRecentAwardedForGames(string $user, $gameIDsCSV, $numAchievemen
     // TODO: because of the "ORDER BY HardcoreAchieved", this query only returns non-hardcore
     //       unlocks if the user has more than $limit unlocks. Note that $limit appears to be
     //       default (5000) for all use cases except API_GetUserSummary
-    $query = "SELECT ach.ID, ach.GameID, gd.Title AS GameTitle, ach.Title, ach.Description, ach.Points, ach.BadgeName, (!ISNULL(aw.User)) AS IsAwarded, aw.Date AS DateAwarded, (aw.HardcoreMode) AS HardcoreAchieved
+    $query = "SELECT ach.ID, ach.GameID, gd.Title AS GameTitle, ach.Title, ach.Description, ach.Points, ach.BadgeName,
+                     aw.User AS IsAwarded, aw.Date AS DateAwarded, aw.HardcoreMode AS HardcoreAchieved
               FROM Achievements AS ach
-              LEFT OUTER JOIN Awarded AS aw ON aw.User = '$user' AND aw.AchievementID = ach.ID
+              LEFT OUTER JOIN Awarded AS aw ON aw.User = :username AND aw.AchievementID = ach.ID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               WHERE ach.Flags = " . AchievementType::OfficialCore . "
               AND ach.GameID IN ( $gameIDs )
               ORDER BY IsAwarded DESC, HardcoreAchieved, DateAwarded DESC, ach.DisplayOrder, ach.ID
               LIMIT $limit";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
-        }
+    $dataOut = [];
+    $dbResult = legacyDbFetchAll($query, ['username' => $user]);
+    foreach ($dbResult as $db_entry) {
+        $db_entry['IsAwarded'] = !empty($db_entry['IsAwarded']) ? '1' : '0';
+
+        $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
     }
+
+    return $dataOut;
 }
 
 function getAchievementUnlockCount(int $achID): int

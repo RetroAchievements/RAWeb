@@ -17,6 +17,7 @@ use LegacyApp\Community\Models\Message;
 use LegacyApp\Community\Models\News;
 use LegacyApp\Community\Models\Rating;
 use LegacyApp\Community\Models\Ticket;
+use LegacyApp\Community\Models\UserActivity;
 use LegacyApp\Community\Models\UserRelation;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
             'message' => Message::class,
             'news' => News::class,
             'rating' => Rating::class,
+            'user-activity' => UserActivity::class,
             'user-relation' => UserRelation::class,
 
             'achievement-set-claim' => AchievementSetClaim::class,
