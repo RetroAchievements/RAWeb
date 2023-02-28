@@ -11,7 +11,7 @@ if (empty($gameID)) {
     abort(404);
 }
 
-getGameMetadata($gameID, $user, $achievementData, $gameData);
+$gameData = getGameData($gameID);
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
 $gameTitle = $gameData['Title'];
