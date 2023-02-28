@@ -13,6 +13,7 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",
+        "ext-mysqli": "*",
         "ext-pdo": "*",
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.235",
