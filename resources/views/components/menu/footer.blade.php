@@ -4,45 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 $menu = collect([
     [
-        'title' => config('app.name'),
-        'items' => [
-            [
-                'active' => Route::is('achievement*'),
-                'label' => __res('achievement'),
-                'url' => url('achievementList.php'),
-                // 'url' => route('achievement.index'),
-                // 'visible' => Gate::allows('viewAny', App\Platform\Models\Achievement::class),
-            ],
-            // [
-            //     'active' => Route::is('leaderboard*'),
-            //     'label' => __res('leaderboard'),
-            //     'url' => url('leaderboardList.php'),
-            //     // 'url' => route('leaderboard.index'),
-            //     // 'visible' => Gate::allows('viewAny', App\Platform\Models\Leaderboard::class),
-            // ],
-            // [
-            //     'active' => Route::is('system*'),
-            //     'label' => __res('system'),
-            //     'url' => route('system.index'),
-            //     'visible' => Gate::allows('viewAny', App\Platform\Models\System::class),
-            // ],
-            [
-                'active' => Route::is('game*'),
-                'label' => __res('game'),
-                'url' => url('gameList.php'),
-                // 'url' => route('game.index'),
-                // 'visible' => Gate::allows('viewAny', App\Platform\Models\Game::class),
-            ],
-            [
-                'active' => Route::is('downloads*'),
-                'label' => __res('emulator'),
-                'url' => url('download.php'),
-                // 'url' => route('download.index'),
-                'visible' => true,
-            ],
-        ],
-    ],
-    [
         'title' => __('Documentation'),
         'items' => [
             [
@@ -107,8 +68,14 @@ $menu = collect([
         ],
     ],
     [
-        'title' => __('About'),
+        'title' => config('app.name'),
         'items' => [
+            [
+                'active' => Route::is('contacts'),
+                'label' => __('Contact Us'),
+                'url' => route('contacts'),
+                'visible' => true,
+            ],
             [
                 'active' => Route::is('terms'),
                 'label' => __('Privacy Policy'),
