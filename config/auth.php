@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use App\Site\Models\User;
 use LegacyApp\Site\Models\User as LegacyUser;
 

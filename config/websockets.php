@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 
 return [

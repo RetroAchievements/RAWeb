@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use App\Site\RouteServiceProvider;
 use Laravel\Fortify\Features;
 
