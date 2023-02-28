@@ -55,7 +55,7 @@
                     such cases.
                 </p>
 
-                <ul class="mb-3">
+                <ul class="mb-3 list-disc list-inside">
                     <li>Without your explicit consent or a legal basis, your personal data is not passed on to third parties.</li>
                     <li>Before or at the time of collecting personal information, we will identify the purposes for which information is being collected.</li>
                     <li>We will only retain personal information as long as necessary for the fulfillment of those purposes.</li>

@@ -48,7 +48,7 @@
  */
 
 $gameID = (int) request()->query('i');
-getGameMetadata($gameID, null, $achData, $gameData);
+getGameMetadata($gameID, null, $achData, $gameData, metrics: true);
 
 foreach ($achData as &$achievement) {
     $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
