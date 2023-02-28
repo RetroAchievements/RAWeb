@@ -16,6 +16,7 @@ function CacheCardDiv(type, id, title, subtitle, icon) {
 }
 
 var ActivePlayersViewModel = function () {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
   var self = this;
   this.players = ko.observableArray([]);
   this.hasError = ko.observable(false);
