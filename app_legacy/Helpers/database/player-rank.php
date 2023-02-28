@@ -86,7 +86,7 @@ function countRankedUsers(int $type = RankType::Hardcore): int
     return (int) legacyDbFetch($query)['count'];
 }
 
-function getTopUsersByScore(int $count, $ofFriend = null): array
+function getTopUsersByScore(int $count): array
 {
     if ($count > 10) {
         $count = 10;
@@ -98,16 +98,13 @@ function getTopUsersByScore(int $count, $ofFriend = null): array
               ORDER BY RAPoints DESC, TrueRAPoints DESC
               LIMIT 0, $count ";
 
-    $dataOut = [];
-    foreach (legacyDbFetchAll($query) as $row) {
-        $dataOut[] = [
+    return legacyDbFetchAll($query)->map(function ($row) {
+        return [
             1 => $row['User'],
             2 => $row['RAPoints'],
             3 => $row['TrueRAPoints'],
         ];
-    }
-
-    return $dataOut;
+    })->toArray();
 }
 
 /**
