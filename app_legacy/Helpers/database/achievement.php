@@ -117,7 +117,7 @@ function getAchievementsList(
     return legacyDbFetchAll($query, $bindings);
 }
 
-function GetAchievementMetadataJSON(int $achievementId): ?array
+function GetAchievementData(int $achievementId): ?array
 {
     $query = "SELECT ach.ID AS ID, ach.ID AS AchievementID, ach.GameID, ach.Title AS Title, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
                 ach.Flags, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
@@ -128,12 +128,6 @@ function GetAchievementMetadataJSON(int $achievementId): ?array
               WHERE ach.ID = :achievementId";
 
     return legacyDbFetch($query, ['achievementId' => $achievementId]);
-}
-
-// TODO replace GetAchievementMetadataJSON()
-function GetAchievementMetadata(int $achievementID): ?array
-{
-    return GetAchievementMetadataJSON($achievementID);
 }
 
 function UploadNewAchievement(

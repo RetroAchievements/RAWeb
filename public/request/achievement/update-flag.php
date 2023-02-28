@@ -19,7 +19,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $achievementIds = $input['achievements'];
 $value = (int) $input['flag'];
 
-$achievement = GetAchievementMetadataJSON((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
+$achievement = GetAchievementData((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
 if ($value === AchievementType::OfficialCore && !isValidConsoleId($achievement['ConsoleID'])) {
     abort(400, 'Invalid console');
 }

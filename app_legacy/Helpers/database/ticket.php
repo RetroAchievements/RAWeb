@@ -121,7 +121,7 @@ function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore,
 
 function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, string $note): int
 {
-    $achData = GetAchievementMetadata($achID);
+    $achData = GetAchievementData($achID);
     if (empty($achData)) {
         return 0;
     }

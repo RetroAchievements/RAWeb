@@ -857,7 +857,7 @@ RenderContentStart($pageTitle);
                 echo "</tbody></table>";
                 echo "</div>";
 
-                if ($permissions >= Permissions::Developer && $dataOut = getAchievementMetadata($achID)) {
+                if ($permissions >= Permissions::Developer && $dataOut = GetAchievementData($achID)) {
                     getCodeNotes($gameID, $codeNotes);
                     $achMem = $dataOut['MemAddr'];
                     echo "<div class='devbox'>";

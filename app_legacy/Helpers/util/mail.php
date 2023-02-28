@@ -212,7 +212,7 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::Achievement:
-            $achievementData = getAchievementMetadataJSON($articleID);
+            $achievementData = GetAchievementData($articleID);
             $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
             $subjectAuthor = $achievementData['Author'];
             $articleTitle = $achievementData['Title'] . ' (' . $achievementData['GameTitle'] . ')';

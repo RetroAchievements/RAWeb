@@ -95,7 +95,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     }
 
     if (empty($data)) {
-        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => getAchievementMetadata($id));
+        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
     }
 
     $title = renderAchievementTitle($data['AchievementTitle'] ?? $data['Title'] ?? null);

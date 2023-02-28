@@ -157,8 +157,7 @@ function getObtainersOfSpecificUser(string $user): array
  */
 function checkIfSoleDeveloper(string $user, int $gameID): bool
 {
-    sanitize_sql_inputs($user, $gameID);
-    $gameID = (int) $gameID;
+    sanitize_sql_inputs($user);
 
     $query = "
         SELECT distinct(Author) AS Author FROM Achievements AS ach

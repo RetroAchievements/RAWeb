@@ -136,9 +136,7 @@ final class Shortcode
 
     private function embedAchievement(int $id): string
     {
-        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', function () use ($id) {
-            return getAchievementMetadata($id);
-        });
+        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
 
         if (empty($data)) {
             return '';

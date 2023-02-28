@@ -70,7 +70,7 @@ function unlockAchievement(string $user, int $achIDToAward, bool $isHardcore): a
         return $retVal;
     }
 
-    $achData = GetAchievementMetadataJSON($achIDToAward);
+    $achData = GetAchievementData($achIDToAward);
     if (!$achData) {
         $retVal['Error'] = "Achievement data cannot be found for $achIDToAward";
 

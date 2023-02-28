@@ -40,7 +40,7 @@ if (empty($achievementID)) {
     ]);
 }
 
-$achievementData = GetAchievementMetadataJSON($achievementID);
+$achievementData = GetAchievementData($achievementID);
 
 $achievement = [
     'ID' => $achievementData['AchievementID'] ?? null,
