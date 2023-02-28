@@ -66,7 +66,7 @@ RenderContentStart("Expiring Claims");
 
         echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
-        echo "<tr class='do-not-highlight>";
+        echo "<tr class='do-not-highlight'>";
         echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::GameDescending) . "</th>";
         echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";

@@ -95,12 +95,11 @@ function getGameRankAndScore($gameID, $requestedBy): ?array
     return $retval;
 }
 
-function getUserProgress($user, $gameIDsCSV, &$dataOut): ?int
+function getUserProgress(string $user, string $gameIDsCSV): array
 {
     if (empty($gameIDsCSV) || !isValidUsername($user)) {
-        return null;
+        return [];
     }
-    sanitize_sql_inputs($user);
 
     // Create null entries so that we pass 'something' back.
     $gameIDsArray = explode(',', $gameIDsCSV);
@@ -119,22 +118,14 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut): ?int
 
     // Count num possible achievements
     $query = "SELECT GameID, COUNT(*) AS AchCount, SUM(ach.Points) AS PointCount FROM Achievements AS ach
-              WHERE ach.Flags = 3 AND ach.GameID IN ( $gameIDs )
+              WHERE ach.Flags = " . AchievementType::OfficialCore . " AND ach.GameID IN ( $gameIDs )
               GROUP BY ach.GameID
               HAVING COUNT(*)>0 ";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    while ($data = mysqli_fetch_assoc($dbResult)) {
+    $dbResult = legacyDbFetchAll($query);
+    foreach ($dbResult as $data) {
         $dataOut[$data['GameID']]['NumPossibleAchievements'] = $data['AchCount'];
         $dataOut[$data['GameID']]['PossibleScore'] = $data['PointCount'];
-        $dataOut[$data['GameID']]['NumAchieved'] = 0;
-        $dataOut[$data['GameID']]['ScoreAchieved'] = 0;
-        $dataOut[$data['GameID']]['NumAchievedHardcore'] = 0;
-        $dataOut[$data['GameID']]['ScoreAchievedHardcore'] = 0;
     }
 
     // Foreach return value from this, cross-reference with 'earned' achievements. If not found, assume 0.
@@ -142,16 +133,12 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut): ?int
     $query = "SELECT GameID, COUNT(*) AS AchCount, SUM( ach.Points ) AS PointCount, aw.HardcoreMode
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON aw.AchievementID = ach.ID
-              WHERE ach.GameID IN ( $gameIDsCSV ) AND ach.Flags = " . AchievementType::OfficialCore . "
-              AND aw.User = '$user'
+              WHERE ach.GameID IN ( $gameIDs ) AND ach.Flags = " . AchievementType::OfficialCore . "
+              AND aw.User = :username
               GROUP BY aw.HardcoreMode, ach.GameID";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    while ($data = mysqli_fetch_assoc($dbResult)) {
+    $dbResult = legacyDbFetchAll($query, ['username' => $user]);
+    foreach ($dbResult as $data) {
         if ($data['HardcoreMode'] == 0) {
             $dataOut[$data['GameID']]['NumAchieved'] = $data['AchCount'];
             $dataOut[$data['GameID']]['ScoreAchieved'] = $data['PointCount'];
@@ -161,7 +148,7 @@ function getUserProgress($user, $gameIDsCSV, &$dataOut): ?int
         }
     }
 
-    return 0;
+    return $dataOut;
 }
 
 function GetAllUserProgress($user, $consoleID): array

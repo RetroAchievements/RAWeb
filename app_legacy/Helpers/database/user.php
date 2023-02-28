@@ -223,20 +223,13 @@ function getUserActivityRange($user, &$firstLogin, &$lastLogin): bool
     return false;
 }
 
-function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements, $localUser): void
+function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0): array
 {
-    sanitize_sql_inputs($user, $localUser);
-
-    getAccountDetails($user, $userInfo);
-
-    if (!$userInfo) {
-        return;
+    if (!getAccountDetails($user, $userInfo)) {
+        return [];
     }
 
     $libraryOut = [];
-    // getUserActivityRange($user, $firstLogin, $lastLogin);
-    // $libraryOut['MemberSince'] = $firstLogin;
-    // $libraryOut['LastLogin'] = $lastLogin;
 
     $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
@@ -258,7 +251,7 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
     $libraryOut['UserWallActive'] = $userInfo['UserWallActive'];
     $libraryOut['Motto'] = $userInfo['Motto'];
 
-    $libraryOut['Rank'] = getUserRank($user); // ANOTHER call... can't we cache this?
+    $libraryOut['Rank'] = getUserRank($user);
 
     $numRecentlyPlayed = is_countable($recentlyPlayedData) ? count($recentlyPlayedData) : 0;
 
@@ -266,17 +259,17 @@ function getUserPageInfo(&$user, &$libraryOut, $numGames, $numRecentAchievements
         $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
 
         for ($i = 1; $i < $numRecentlyPlayed; $i++) {
-            $gameIDsCSV .= ", " . $recentlyPlayedData[$i]['GameID'];
+            $gameIDsCSV .= "," . $recentlyPlayedData[$i]['GameID'];
         }
 
-        getUserProgress($user, $gameIDsCSV, $awardedData);
-
+        $awardedData = getUserProgress($user, $gameIDsCSV);
         $libraryOut['Awarded'] = $awardedData;
 
-        getUsersRecentAwardedForGames($user, $gameIDsCSV, $numRecentAchievements, $achievementData);
-
+        $achievementData = getUsersRecentAwardedForGames($user, $gameIDsCSV, $numRecentAchievements);
         $libraryOut['RecentAchievements'] = $achievementData;
     }
+
+    return $libraryOut;
 }
 
 function getControlPanelUserInfo($user, &$libraryOut): bool

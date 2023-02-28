@@ -6,6 +6,7 @@ use LegacyApp\Community\Enums\Rank;
 use LegacyApp\Community\Enums\RankType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
+use LegacyApp\Site\Models\User;
 
 function SetUserUntrackedStatus($usernameIn, $isUntracked): void
 {
@@ -15,21 +16,18 @@ function SetUserUntrackedStatus($usernameIn, $isUntracked): void
     s_mysql_query($query);
 }
 
-function getPlayerPoints($user, &$dataOut): bool
+function getPlayerPoints(string $user, &$dataOut): bool
 {
-    if (!isset($user) || mb_strlen($user) < 2) {
+    if (mb_strlen($user) < 2) {
         return false;
     }
 
-    sanitize_sql_inputs($user);
-
     $query = "SELECT ua.RAPoints, ua.RASoftcorePoints
               FROM UserAccounts AS ua
-              WHERE ua.User='$user'";
+              WHERE ua.User=:username";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = mysqli_fetch_assoc($dbResult);
+    $dataOut = legacyDbFetch($query, ['username' => $user]);
+    if ($dataOut) {
         settype($dataOut['RAPoints'], 'integer');
         settype($dataOut['RASoftcorePoints'], 'integer');
 
@@ -85,12 +83,7 @@ function countRankedUsers(int $type = RankType::Hardcore): int
 
     $query .= " AND NOT Untracked";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    return (int) mysqli_fetch_assoc($dbResult)['count'];
+    return (int) legacyDbFetch($query)['count'];
 }
 
 function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
@@ -136,34 +129,56 @@ function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
 /**
  * Gets the points or retro points rank of the user.
  */
-function getUserRank(string $user, int $type = RankType::Hardcore): ?int
+function getUserRank(string $username, int $type = RankType::Hardcore): ?int
 {
-    return Cache::remember('user:' . $user . ':rank:' . ($type === RankType::Hardcore ? 'hardcore' : 'softcore'), Carbon::now()->addMinutes(15), function () use ($user, $type) {
-        sanitize_sql_inputs($user);
+    $key = "user:$username:rank:";
+    $key .= match ($type) {
+        default => 'hardcore',
+        RankType::Softcore => 'softcore',
+        RankType::TruePoints => 'truepoints',
+    };
 
-        $joinCond = match ($type) {
-            default => "RIGHT JOIN UserAccounts AS ua2 ON ua.RAPoints < ua2.RAPoints AND NOT ua2.Untracked",
-            RankType::Softcore => "RIGHT JOIN UserAccounts AS ua2 ON ua.RASoftcorePoints < ua2.RASoftcorePoints AND NOT ua2.Untracked",
-            RankType::TruePoints => "RIGHT JOIN UserAccounts AS ua2 ON ua.TrueRAPoints < ua2.TrueRAPoints AND NOT ua2.Untracked",
-        };
-
-        $query = "SELECT ( COUNT(*) + 1 ) AS UserRank, ua.Untracked
-                    FROM UserAccounts AS ua
-                    $joinCond
-                    WHERE ua.User = '$user'";
-
-        $dbResult = s_mysql_query($query);
-        if (!$dbResult) {
-            log_sql_fail();
-
+    return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
+        $user = User::firstWhere('User', $username);
+        if (!$user || $user->Untracked) {
             return null;
         }
 
-        $data = mysqli_fetch_assoc($dbResult);
-        if ($data['Untracked']) {
-            return null;
+        $points = 0;
+        $field = '';
+        switch ($type) {
+            default: // hardcore
+                $points = $user->RAPoints;
+                if ($points < Rank::MIN_POINTS) {
+                    return null;
+                }
+
+                $field = 'RAPoints';
+                break;
+
+            case RankType::Softcore:
+                $points = $user->RASoftcorePoints;
+                if ($points < Rank::MIN_POINTS) {
+                    return null;
+                }
+
+                $field = 'RASoftcorePoints';
+                break;
+
+            case RankType::TruePoints:
+                $points = $user->TrueRAPoints;
+                if ($points < Rank::MIN_TRUE_POINTS) {
+                    return null;
+                }
+
+                $field = 'TrueRAPoints';
+                break;
         }
 
-        return (int) $data['UserRank'];
+        $query = "SELECT ( COUNT(*) + 1 ) AS UserRank
+                  FROM UserAccounts AS ua
+                  WHERE ua.$field > $points AND NOT ua.Untracked";
+
+        return (int) legacyDbFetch($query)['UserRank'];
     });
 }

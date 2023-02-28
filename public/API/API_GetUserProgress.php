@@ -18,6 +18,6 @@
 $user = request()->query('u');
 $gameCSV = request()->query('i', "");
 
-getUserProgress($user, $gameCSV, $data);
+$data = getUserProgress($user, $gameCSV);
 
 return response()->json($data);
