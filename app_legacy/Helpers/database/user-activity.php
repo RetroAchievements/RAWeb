@@ -277,16 +277,12 @@ function UpdateUserRichPresence($user, $gameID, $presenceMsg): bool
     return true;
 }
 
-function getActivityMetadata($activityID): ?array
+function getActivityMetadata(int $activityID): ?array
 {
-    sanitize_sql_inputs($activityID);
-
     $query = "SELECT * FROM Activity
               WHERE ID='$activityID'";
 
-    $dbResult = s_mysql_query($query);
-
-    return mysqli_fetch_assoc($dbResult);
+    return legacyDbFetch($query);
 }
 
 function RemoveComment(int $commentID, $userID, $permissions): bool
@@ -480,23 +476,19 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
                   FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE gd.ID IN ($recentlyPlayedGameIDs)";
 
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            $gameData = [];
-            while ($data = mysqli_fetch_assoc($dbResult)) {
-                $gameData[$data['GameID']] = $data;
-            }
+        $gameData = [];
+        $dbResult = legacyDbFetchAll($query);
+        foreach ($dbResult as $data) {
+            $gameData[$data['GameID']] = $data;
+        }
 
-            foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
-                $gameID = $recentlyPlayedGame['GameID'];
-                if (array_key_exists($gameID, $gameData)) {
-                    $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
-                    $dataOut[] = $gameData[$gameID];
-                    $numFound++;
-                }
+        foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
+            $gameID = $recentlyPlayedGame['GameID'];
+            if (array_key_exists($gameID, $gameData)) {
+                $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
+                $dataOut[] = $gameData[$gameID];
+                $numFound++;
             }
-        } else {
-            log_sql_fail();
         }
     }
 
@@ -505,8 +497,6 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
 
 function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
 {
-    sanitize_sql_inputs($user, $offset, $count);
-
     // $query = "SELECT g.ID AS GameID, g.ConsoleID, c.Name AS ConsoleName, g.Title, MAX(act.lastupdate) AS LastPlayed, g.ImageIcon
     // FROM Activity AS act
     // LEFT JOIN GameData AS g ON g.ID = act.data
@@ -525,23 +515,12 @@ function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
     $query = "
  SELECT MAX(act.ID) as ActivityID, MAX(act.lastupdate) AS LastPlayed, act.data as GameID
  FROM Activity AS act
- WHERE act.user='$user' AND act.activitytype = " . ActivityType::StartedPlaying . "
+ WHERE act.user=:username AND act.activitytype = " . ActivityType::StartedPlaying . "
  GROUP BY act.data
  ORDER BY MAX( act.lastupdate ) DESC
  LIMIT $offset, $count";
 
-    $recentlyPlayedGames = [];
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $recentlyPlayedGames[] = $data;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $recentlyPlayedGames;
+    return legacyDbFetchAll($query, ['username' => $user])->toArray();
 }
 
 function getArticleComments(int $articleTypeID, int $articleID, int $offset, int $count, ?array &$dataOut, bool $recent = false): int
