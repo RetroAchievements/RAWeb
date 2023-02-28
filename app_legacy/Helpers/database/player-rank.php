@@ -86,44 +86,28 @@ function countRankedUsers(int $type = RankType::Hardcore): int
     return (int) legacyDbFetch($query)['count'];
 }
 
-function getTopUsersByScore($count, &$dataOut, $ofFriend = null): int
+function getTopUsersByScore(int $count, $ofFriend = null): array
 {
-    sanitize_sql_inputs($count, $ofFriend);
-    settype($count, 'integer');
-
     if ($count > 10) {
         $count = 10;
     }
 
-    $subquery = "WHERE !ua.Untracked";
-    if (isset($ofFriend)) {
-        $friendSubquery = GetFriendsSubquery($ofFriend);
-        $subquery = "WHERE !ua.Untracked AND ua.User IN ($friendSubquery)";
-    }
-
     $query = "SELECT User, RAPoints, TrueRAPoints
               FROM UserAccounts AS ua
-              $subquery
-              ORDER BY RAPoints DESC
+              WHERE NOT ua.Untracked
+              ORDER BY RAPoints DESC, TrueRAPoints DESC
               LIMIT 0, $count ";
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult || mysqli_num_rows($dbResult) == 0) {
-        // This is acceptable if the user doesn't have any friends!
-        return 0;
-    } else {
-        $i = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            // $dataOut[$i][0] = $db_entry["ID"];
-            $dataOut[$i][1] = $db_entry["User"];
-            $dataOut[$i][2] = $db_entry["RAPoints"];
-            $dataOut[$i][3] = $db_entry["TrueRAPoints"];
-            $i++;
-        }
-
-        return $i;
+    $dataOut = [];
+    foreach (legacyDbFetchAll($query) as $row) {
+        $dataOut[] = [
+            1 => $row['User'],
+            2 => $row['RAPoints'],
+            3 => $row['TrueRAPoints'],
+        ];
     }
+
+    return $dataOut;
 }
 
 /**

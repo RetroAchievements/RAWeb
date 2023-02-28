@@ -58,7 +58,7 @@ class UserCompletedGamesTest extends TestCase
             'ImageIcon' => '/Images/004567.png',
         ]);
         $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->ID]);
-        
+
         foreach ($publishedAchievements as $ach) {
             PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
             PlayerAchievement::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
