@@ -21,11 +21,6 @@ class ContentController extends Controller
     //     return view('docs');
     // }
 
-    public function contacts(): View
-    {
-        return view('contacts');
-    }
-
     public function terms(): View
     {
         return view('terms');
