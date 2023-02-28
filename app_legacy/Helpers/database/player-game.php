@@ -7,6 +7,7 @@ use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 
 function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
 {
@@ -61,28 +62,34 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
     ];
 }
 
-function getGameRankAndScore(int $gameID, string $user): array
+function getGameRankAndScore(int $gameID, string $username): array
 {
-    if (empty($gameID) || !isValidUsername($user)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user || empty($gameID)) {
         return [];
     }
-    $retval = [];
+
+    $rankClause = "ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank";
+    $untrackedClause = "AND NOT ua.Untracked";
+    if ($user->Untracked) {
+        $rankClause = "NULL AS UserRank";
+        $untrackedClause = "";
+    }
 
     $query = "WITH data
     AS (SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward,
-        ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank
+        $rankClause
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE NOT ua.Untracked
-          AND ach.Flags = " . AchievementType::OfficialCore . "
-          AND gd.ID = $gameID
+        WHERE ach.Flags = " . AchievementType::OfficialCore . "
+          AND gd.ID = $gameID $untrackedClause
         GROUP BY aw.User
         ORDER BY TotalScore DESC, LastAward ASC
    ) SELECT * FROM data WHERE User = :username";
 
-    return legacyDbFetchAll($query, ['username' => $user])->toArray();
+    return legacyDbFetchAll($query, ['username' => $username])->toArray();
 }
 
 function getUserProgress(string $user, string $gameIDsCSV): array
