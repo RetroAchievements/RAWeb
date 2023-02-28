@@ -24,11 +24,11 @@ function RenderCodeNotes($codeNotes): void
         $memNote = nl2br($memNote);
 
         echo "<td style='width: 25%;'>";
-        echo "<code>0x$addrFormatted</code>";
+        echo "<span class='font-mono'>0x$addrFormatted</span>";
         echo "</td>";
 
         echo "<td>";
-        echo "<div style='word-break:break-word'>$memNote</div>";
+        echo "<div class='font-mono' style='word-break:break-word'>$memNote</div>";
         echo "</td>";
 
         echo "<td>";
