@@ -8,8 +8,7 @@ if (!isset($userPage) || !isValidUsername($userPage)) {
     abort(404);
 }
 
-getUserPageInfo($userPage, $userMassData, 0, 0, $user);
-if (!$userMassData) {
+if (!getAccountDetails($userPage, $userDetails)) {
     abort(404);
 }
 
@@ -23,13 +22,8 @@ if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
 
-$userPageHardcorePoints = 0;
-$userPageSoftcorePoints = 0;
-
-if (getPlayerPoints($userPage, $userPoints)) {
-    $userPageHardcorePoints = $userPoints['RAPoints'];
-    $userPageSoftcorePoints = $userPoints['RASoftcorePoints'];
-}
+$userPageHardcorePoints = $userDetails['RAPoints'];
+$userPageSoftcorePoints = $userDetails['RASoftcorePoints'];
 
 getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 

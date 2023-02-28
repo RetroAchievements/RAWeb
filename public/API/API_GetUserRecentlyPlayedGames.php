@@ -16,7 +16,6 @@
  *    string     ConsoleName              name of the console associated to the game
  *    string     ImageIcon                site-relative path to the game's icon image
  *    datetime   LastPlayed               when the user last played the game
- *    string     MyVote                   user's rating of the game (1-5)
  *    int        NumAchieved              number of achievements earned by the user in softcore
  *    int        ScoreAchieved            number of points earned by the user in softcore
  *    int        NumAchievedHardcore      number of achievements earned by the user in hardcore
@@ -36,10 +35,10 @@ if (!empty($user)) {
 if (!empty($recentlyPlayedData)) {
     $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
     for ($i = 1; $i < $numRecentlyPlayed; $i++) {
-        $gameIDsCSV .= ", " . $recentlyPlayedData[$i]['GameID'];
+        $gameIDsCSV .= "," . $recentlyPlayedData[$i]['GameID'];
     }
 
-    getUserProgress($user, $gameIDsCSV, $awardedData);
+    $awardedData = getUserProgress($user, $gameIDsCSV);
 
     foreach ($awardedData as $nextAwardID => $nextAwardData) {
         $entry = array_search($nextAwardID, array_column($recentlyPlayedData, 'GameID'));
@@ -47,8 +46,6 @@ if (!empty($recentlyPlayedData)) {
             $recentlyPlayedData[$entry] = array_merge($recentlyPlayedData[$entry], $nextAwardData);
         }
     }
-
-    $libraryOut['Awarded'] = $awardedData;
 }
 
 return response()->json($recentlyPlayedData);

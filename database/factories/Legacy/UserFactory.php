@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'RAPoints' => random_int(0, 10000),
             'fbUser' => 0,
             'Untracked' => 0,
+            'UserWallActive' => 1,
 
             // nullable
             'APIKey' => 'apiKey',
