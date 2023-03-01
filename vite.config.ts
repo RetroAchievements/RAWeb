@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { existsSync, readFileSync } from 'fs';
@@ -38,6 +40,9 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': resolve(__dirname, './resources/js'),
       },
+    },
+    test: {
+      setupFiles: ['resources/js/setupTests.ts']
     },
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),

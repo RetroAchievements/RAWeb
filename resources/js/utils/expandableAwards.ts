@@ -47,9 +47,9 @@ const onAwardsScroll = (event: UIEvent, expandButtonId: string) => {
   }
 
   if (userCurrentScrollPosition >= awardsContainerEl.scrollHeight - 100) {
-    expandButtonEl.style.opacity = '0';
+    expandButtonEl.style.setProperty('opacity', '0');
   } else {
-    expandButtonEl.style.opacity = '100';
+    expandButtonEl.style.setProperty('opacity', '100');
   }
 
   // When the button is clicked, it is to be removed from the DOM.
