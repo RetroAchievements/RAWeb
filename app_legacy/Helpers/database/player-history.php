@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 

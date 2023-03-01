@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;

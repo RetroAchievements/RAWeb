@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 function IsMobileBrowser(): bool
 {
     $mobile_browser = '0';

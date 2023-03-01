@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Community\Enums\RatingType;
 
 function getGameRating(int $gameID, ?string $user = null): array

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // TODO migrate to/replace with controllers, models, views
 
 require_once __DIR__ . '/database/achievement.php';

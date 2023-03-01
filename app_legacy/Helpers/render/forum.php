@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Support\Carbon;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;

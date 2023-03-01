@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Community\Enums\TicketType;
 use LegacyApp\Community\ViewModels\Ticket;

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 function RenderShortcodeButtons(): void
 {
     echo "<div class='bg-embedded mb-2 p-1'>";

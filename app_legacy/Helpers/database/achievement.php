@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Support\Collection;
 use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Community\Enums\ArticleType;

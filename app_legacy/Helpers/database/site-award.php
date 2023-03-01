@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Community\Enums\AwardType;
 
 function AddSiteAward(string $user, int $awardType, ?int $data = null, int $dataExtra = 0): void

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use LegacyApp\Community\Enums\ActivityType;

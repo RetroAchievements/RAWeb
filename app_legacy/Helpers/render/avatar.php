@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 function avatar(
     string $resource,
     int|string $id,

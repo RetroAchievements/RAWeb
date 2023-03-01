@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Community\Enums\Rank;
 use LegacyApp\Platform\Enums\UnlockMode;

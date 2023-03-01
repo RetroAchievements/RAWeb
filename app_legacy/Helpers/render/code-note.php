@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 function RenderCodeNotes(array $codeNotes): void
 {
     echo "<table class='table-highlight'><tbody>";

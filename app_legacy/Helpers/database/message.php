@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Site\Enums\UserPreference;
 use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Models\DeletedModels;

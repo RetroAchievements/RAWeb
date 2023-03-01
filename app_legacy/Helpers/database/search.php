@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Enums\SearchType;

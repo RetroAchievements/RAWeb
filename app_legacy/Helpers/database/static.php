@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 function static_addnewachievement(int $id): void
 {
     $query = "UPDATE StaticData AS sd ";

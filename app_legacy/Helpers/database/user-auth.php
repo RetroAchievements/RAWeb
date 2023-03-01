@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LegacyApp\Community\Enums\ActivityType;

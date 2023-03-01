@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;

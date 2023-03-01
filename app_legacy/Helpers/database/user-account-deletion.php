@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;

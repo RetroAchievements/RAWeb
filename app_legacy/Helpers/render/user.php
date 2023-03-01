@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Support\Facades\Cache;
 use LegacyApp\Community\Enums\Rank;
 use LegacyApp\Community\Enums\RankType;
