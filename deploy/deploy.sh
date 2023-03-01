@@ -5,6 +5,7 @@ GIT_REMOTE="https://github.com/RetroAchievements/RAWeb"
 GIT_BRANCH="master"
 
 # php binary to use - should match the composer platform config and crontab php version
+PHP_FPM='php8.0-fpm'
 PHP_BIN='php'
 NPM_BIN='npm'
 
@@ -75,6 +76,7 @@ ${PHP_BIN} artisan config:cache
 #${PHP_BIN} artisan octane:reload
 #${PHP_BIN} artisan horizon:terminate
 
+sudo -S service ${PHP_FPM} reload
 
 ### Cleanup ###
 
