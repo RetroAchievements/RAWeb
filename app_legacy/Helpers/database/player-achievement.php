@@ -366,7 +366,20 @@ function getAchievementUnlocksData(
     $numWinners = $data['NumEarned'];
     $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $username);
 
-    // Get recent winners, and their most recent activity:
+    // Get recent winners, and their most recent activity
+    $bindings = [
+        'joinSoftcoreAchievementId' => $achievementId,
+        'joinHardcoreAchievementId' => $achievementId,
+        'offset' => $offset,
+        'limit' => $limit,
+    ];
+
+    $requestedByStatement = '';
+    if ($username) {
+        $bindings['username'] = $username;
+        $requestedByStatement = 'OR ua.User = :username';
+    }
+
     $query = "SELECT ua.User, ua.RAPoints,
                      IFNULL(aw_hc.Date, aw_sc.Date) AS DateAwarded,
                      CASE WHEN aw_hc.Date IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode
@@ -381,12 +394,7 @@ function getAchievementUnlocksData(
               ORDER BY DateAwarded DESC
               LIMIT :offset, :limit";
 
-    return legacyDbFetchAll($query, [
-        'joinSoftcoreAchievementId' => $achievementId,
-        'joinHardcoreAchievementId' => $achievementId,
-        'offset' => $offset,
-        'limit' => $limit,
-    ]);
+    return legacyDbFetchAll($query, $bindings);
 }
 
 function getRecentUnlocksPlayersData(
