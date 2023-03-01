@@ -8,6 +8,7 @@
         "fix": "npm run fix:eslint",
         "fix:eslint": "eslint public/js resources/js postcss.config.js tailwind.config.js vite.config.ts --fix",
         "test": "vitest",
+        "test:ci": "vitest run",
         "analyze": "cross-env ANALYZE=true npm run prod",
         "apidoc": "npm run apidoc:connect",
         "apidoc:connect": "apidoc -i src/Connect/ -c docs/src/connect-api -t docs/src/connect-api/template -o docs/dist/api/connect"
