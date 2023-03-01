@@ -92,3 +92,5 @@ jobs:
         run: npm install
       - name: Test
         run: npm run test
+        env:
+          VITE_BUILD_PATH: dist
