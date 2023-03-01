@@ -90,7 +90,7 @@ function SubmitLeaderboardEntryJSON(
     return $retVal;
 }
 
-function removeLeaderboardEntry(string $user, int $lbID, int &$score): bool
+function removeLeaderboardEntry(string $user, int $lbID, ?int &$score): bool
 {
     sanitize_sql_inputs($user);
 
@@ -162,7 +162,7 @@ function GetLeaderboardRankingJSON(string $user, int $lbID, bool $lowerIsBetter)
 }
 
 // TODO Deprecate: fold into above
-function getLeaderboardRanking(string $user, int $lbID, int &$rankOut = 0, int &$totalEntries = 0): bool
+function getLeaderboardRanking(string $user, int $lbID, ?int &$rankOut = 0, ?int &$totalEntries = 0): bool
 {
     sanitize_sql_inputs($user);
 
@@ -199,7 +199,7 @@ function getLeaderboardRanking(string $user, int $lbID, int &$rankOut = 0, int &
     return false;
 }
 
-function getLeaderboardsForGame(int $gameID, array &$dataOut, string $localUser): int
+function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUser): int
 {
     sanitize_sql_inputs($localUser);
 
@@ -504,7 +504,7 @@ function isValidLeaderboardFormat(string $formatType): bool
            $formatType == 'SCORE';       // Number padded to six digits
 }
 
-function getLeaderboardUserPosition(int $lbID, string $user, int &$lbPosition): bool
+function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition): bool
 {
     sanitize_sql_inputs($user);
 
@@ -544,7 +544,7 @@ function getLeaderboardsList(
     int $sortBy,
     int $count,
     int $offset,
-    array &$lbDataOut
+    ?array &$lbDataOut
 ): int {
     $lbCount = 0;
 
@@ -666,7 +666,7 @@ function submitLBData(
     return false;
 }
 
-function SubmitNewLeaderboard(int $gameID, int &$lbIDOut, string $user): bool
+function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, string $user): bool
 {
     if ($gameID == 0) {
         return false;
@@ -697,7 +697,7 @@ function UploadNewLeaderboard(
     bool $lowerIsBetter,
     string $mem,
     ?int &$idInOut,
-    string &$errorOut
+    ?string &$errorOut
 ): bool {
     $displayOrder = 0;
     $originalAuthor = '';

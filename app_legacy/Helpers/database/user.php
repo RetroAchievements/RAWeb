@@ -75,7 +75,7 @@ function getUserMetadataFromID(int $userID): ?array
     return null;
 }
 
-function getUserUnlockDates(string $user, int $gameID, array &$dataOut): int
+function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -110,7 +110,7 @@ function getUserUnlockDates(string $user, int $gameID, array &$dataOut): int
 /**
  * @param array<string, mixed> $dataOut
  */
-function getUserUnlocksDetailed(string $user, int $gameID, array &$dataOut): int
+function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -262,7 +262,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDsCSV .= "," . $recentlyPlayedData[$i]['GameID'];
         }
 
-        $awardedData = getUserProgress($user, $gameIDsCSV);
+        $awardedData = getUserProgress($user, (string) $gameIDsCSV);
         $libraryOut['Awarded'] = $awardedData;
 
         $achievementData = getUsersRecentAwardedForGames($user, $gameIDsCSV, $numRecentAchievements);

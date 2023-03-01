@@ -527,7 +527,7 @@ function getLatestRichPresenceUpdates(): array
     return $playersFound;
 }
 
-function getLatestNewAchievements(int $numToFetch, array &$dataOut): int
+function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
 {
     sanitize_sql_inputs($numToFetch);
 

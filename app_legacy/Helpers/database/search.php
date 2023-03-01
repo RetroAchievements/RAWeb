@@ -23,7 +23,7 @@ function performSearch(
     int $offset,
     int $count,
     int $permissions,
-    array &$searchResultsOut,
+    ?array &$searchResultsOut,
     bool $wantTotalResults = true
 ): int {
     sanitize_sql_inputs($searchQuery, $offset, $count);

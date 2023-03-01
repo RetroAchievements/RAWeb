@@ -222,7 +222,7 @@ function getGameAlternatives(int $gameID): array
     return $results;
 }
 
-function getGamesListWithNumAchievements(int $consoleID, array &$dataOut, int $sortBy): int
+function getGamesListWithNumAchievements(int $consoleID, ?array &$dataOut, int $sortBy): int
 {
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy);
 }
@@ -230,7 +230,7 @@ function getGamesListWithNumAchievements(int $consoleID, array &$dataOut, int $s
 function getGamesListByDev(
     ?string $dev,
     int $consoleID,
-    array &$dataOut,
+    ?array &$dataOut,
     int $sortBy,
     bool $ticketsFlag = false,
     ?int $filter = 0,
@@ -406,7 +406,7 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     return $retVal;
 }
 
-function getGamesList(?int $consoleID, array &$dataOut, bool $officialFlag = false): int
+function getGamesList(?int $consoleID, ?array &$dataOut, bool $officialFlag = false): int
 {
     $dataOut = getGamesListData($consoleID, $officialFlag);
 
@@ -787,7 +787,7 @@ function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
     return true;
 }
 
-function getRichPresencePatch(int $gameID, array &$dataOut): bool
+function getRichPresencePatch(int $gameID, ?array &$dataOut): bool
 {
     $query = "SELECT gd.RichPresencePatch FROM GameData AS gd WHERE gd.ID = $gameID ";
     $dbResult = s_mysql_query($query);

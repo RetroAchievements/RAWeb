@@ -99,7 +99,7 @@ function RenderArticleComment(
     ?string $user,
     string $comment,
     int $submittedDate,
-    string $localUser,
+    ?string $localUser,
     int $articleTypeID,
     int $commentID,
     bool $allowDelete
