@@ -270,7 +270,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
     return $libraryOut;
 }
 
-function getControlPanelUserInfo(string $user, array &$libraryOut): bool
+function getControlPanelUserInfo(string $user, ?array &$libraryOut): bool
 {
     sanitize_sql_inputs($user);
 
