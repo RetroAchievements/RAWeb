@@ -93,13 +93,11 @@ function getTopUsersByScore(int $count): array
               ORDER BY RAPoints DESC, TrueRAPoints DESC
               LIMIT 0, $count ";
 
-    return legacyDbFetchAll($query)->map(function ($row) {
-        return [
-            1 => $row['User'],
-            2 => $row['RAPoints'],
-            3 => $row['TrueRAPoints'],
-        ];
-    })->toArray();
+    return legacyDbFetchAll($query)->map(fn ($row) => [
+        1 => $row['User'],
+        2 => $row['RAPoints'],
+        3 => $row['TrueRAPoints'],
+    ])->toArray();
 }
 
 /**
@@ -156,5 +154,5 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         return (int) legacyDbFetch($query)['UserRank'];
     });
 
-    return $cachedRank !== null ? (int) $cachedRank : null;
+    return $cachedRank ?? null;
 }

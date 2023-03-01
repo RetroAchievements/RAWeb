@@ -106,7 +106,7 @@ function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
 }
 
 /**
- * @param array<string, mixed> $dataOut
+ * @param array<string, mixed>|null $dataOut
  */
 function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
 {

@@ -181,7 +181,8 @@ function performSearch(
     }
 
     $resultCount = 0;
-    for ($i = 0; $i < count($parts); $i++) {
+    $partsCount = count($parts);
+    for ($i = 0; $i < $partsCount; $i++) {
         // determine how many rows this subquery would return
         $query = $counts[$i];
 
