@@ -108,31 +108,6 @@ let isExpandedAwardsCheckboxChecked = document.cookie.includes(`${expandedAwards
 function handleExpandedAwardsCheckboxClick(event) {
     isExpandedAwardsCheckboxChecked = event.target.checked;
 }
-
-// FIXME: This is a reimplementation of _resources/js/cookie.js_.
-// However, that function is not available in this execution context.
-// When this page gets refactored, just use that function instead.
-/**
- * @param {string} cookieName
- * @param {string} value
- */
-function setCookie(cookieName, value) {
-  const days = 30;
-  const date = new Date();
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-  const expires = `; expires=${date.toGMTString()}`;
-  document.cookie = `${cookieName}=${value}${expires}; path=/`;
-}
-
-function handleExpandedAwardsSettingSave() {
-    if (isExpandedAwardsCheckboxChecked) {
-        setCookie(expandedAwardsCookieName, 'true');
-    } else {
-        setCookie(expandedAwardsCookieName, 'false');
-    }
-
-    alert('Saved!');
-}
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
@@ -190,7 +165,7 @@ function handleExpandedAwardsSettingSave() {
                 echo "<div class='flex flex-col'>";
                 echo "<div>";
                 echo "<input onclick='handleExpandedAwardsCheckboxClick(event)' class='mr-2' type='checkbox' " . ($doesPreferAlwaysExpandedRewards ? 'checked' : '') . ">";
-                echo "<button class='btn mr-4' onclick='handleExpandedAwardsSettingSave()'>Save</button>";
+                echo "<button class='btn mr-4' onclick='expandableAwards.saveExpandableAwardsPreference(\"$expandedAwardsCookieName\", isExpandedAwardsCheckboxChecked)'>Save</button>";
                 echo "</div>";
                 echo "<span class='text-xs'>This only applies to your current device.</span>";
                 echo "</div>";
