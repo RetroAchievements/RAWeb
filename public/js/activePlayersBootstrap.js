@@ -16,6 +16,7 @@ function CacheCardDiv(type, id, title, subtitle, icon) {
 }
 
 var ActivePlayersViewModel = function () {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
   var self = this;
   this.players = ko.observableArray([]);
   this.hasError = ko.observable(false);
@@ -105,10 +106,10 @@ var ActivePlayersViewModel = function () {
     self.isLoading(true);
     $.post('/request/user/list-currently-active.php')
       .done(function (data) {
-        self.players([]);
-        data.forEach((player) => {
-          self.players.push(self.ConvertToObservablePlayer(player));
-        });
+        self.players(data.reduce(function (result, player) {
+          return result.concat(self.ConvertToObservablePlayer(player));
+        }, []));
+
         self.lastUpdate(new Date());
         self.hasError(false);
         self.isLoading(false);
@@ -119,8 +120,21 @@ var ActivePlayersViewModel = function () {
       });
   };
 
-  this.RefreshActivePlayers();
-  setInterval(this.RefreshActivePlayers, 5000 * 60);
+  this.init = function () {
+    const FIVE_MINUTES = 5000 * 60;
+
+    this.RefreshActivePlayers();
+    setInterval(this.RefreshActivePlayers, FIVE_MINUTES);
+  };
+
+  // This check will fail in Safari.
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      this.init();
+    });
+  } else {
+    this.init();
+  }
 };
 
 ko.applyBindings(new ActivePlayersViewModel(), document.getElementById('active-players-component'));

@@ -6,32 +6,27 @@ use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
 
-function getGameData($gameID): ?array
+function getGameData(int $gameID): ?array
 {
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
     if ($gameID <= 0) {
         return null;
     }
+
     $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
               FROM GameData AS gd
               LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
               WHERE gd.ID = $gameID";
 
-    $dbResult = s_mysql_query($query);
-    if ($retVal = mysqli_fetch_assoc($dbResult)) {
+    $retVal = legacyDbFetch($query);
+    if ($retVal) {
         settype($retVal['ID'], 'integer');
         settype($retVal['ConsoleID'], 'integer');
         settype($retVal['Flags'], 'integer');
         settype($retVal['ForumTopicID'], 'integer');
         settype($retVal['IsFinal'], 'boolean');
-
-        return $retVal;
-    } else {
-        log_sql_fail();
-
-        return null;
     }
+
+    return $retVal;
 }
 
 function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData): bool
@@ -70,27 +65,24 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
     return true;
 }
 
-function getGameMetadata($gameID, $user, &$achievementDataOut, &$gameDataOut, $sortBy = 0, $user2 = null, $flag = null): int
-{
-    return getGameMetadataByFlags($gameID, $user, $achievementDataOut, $gameDataOut, $sortBy, $user2, $flag);
-}
-
-function getGameMetadataByFlags(
+function getGameMetadata(
     $gameID,
     ?string $user,
     &$achievementDataOut,
     &$gameDataOut,
     $sortBy = 1,
     $user2 = null,
-    $flags = 0
+    $flags = AchievementType::OfficialCore,
+    $metrics = false,
 ): int {
     sanitize_sql_inputs($gameID, $user, $user2, $flags);
     settype($gameID, 'integer');
     settype($sortBy, 'integer');
     settype($flags, 'integer');
 
-    // flag = 5 -> Unofficial / flag = 3 -> Core
-    $flags = $flags != 5 ? 3 : 5;
+    if ($flags != AchievementType::Unofficial) {
+        $flags = AchievementType::OfficialCore;
+    }
 
     $orderBy = match ($sortBy) {
         11 => "ORDER BY ach.DisplayOrder DESC, ach.ID DESC ",
@@ -116,6 +108,23 @@ function getGameMetadataByFlags(
         return 0;
     }
 
+    $metricsColumns = '';
+    $metricsJoin = '';
+    if ($metrics) {
+        $metricsColumns = 'IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
+                           IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,';
+        $metricsJoin = "LEFT JOIN (
+            SELECT ach.ID AS AchievementID,
+                (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
+                (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
+            FROM Achievements AS ach
+            INNER JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+            INNER JOIN UserAccounts AS ua ON ua.User = aw.User
+            WHERE ach.GameID = $gameID AND ach.Flags = $flags AND NOT ua.Untracked
+            GROUP BY ach.ID
+        ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+    }
+
     //    Get all achievements data
     //  WHERE reads: If never won, or won by a tracked gamer, or won by me
     // $query = "SELECT ach.ID, ( COUNT( aw.AchievementID ) - SUM( IFNULL( aw.HardcoreMode, 0 ) ) ) AS NumAwarded, SUM( IFNULL( aw.HardcoreMode, 0 ) ) AS NumAwardedHardcore, ach.Title, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateModified, ach.DateCreated, ach.BadgeName, ach.DisplayOrder, ach.MemAddr
@@ -129,8 +138,7 @@ function getGameMetadataByFlags(
     $query = "
     SELECT
         ach.ID,
-        IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
-        IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,
+        $metricsColumns
         ach.Title,
         ach.Description,
         ach.Points,
@@ -142,18 +150,7 @@ function getGameMetadataByFlags(
         ach.DisplayOrder,
         ach.MemAddr
     FROM Achievements AS ach
-    LEFT JOIN (
-        SELECT
-            ach.ID AS AchievementID,
-            (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
-            (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
-        FROM Achievements AS ach
-        INNER JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-        INNER JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.GameID = $gameID AND ach.Flags = $flags
-          AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
-        GROUP BY ach.ID
-    ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
+    $metricsJoin
     WHERE ach.GameID = $gameID AND ach.Flags = $flags
     $orderBy";
 
@@ -214,30 +211,33 @@ function getGameMetadataByFlags(
         }
     }
 
-    $numDistinctPlayersCasual = 0;
-    $numDistinctPlayersHardcore = 0;
+    if ($metrics) {
+        $numDistinctPlayersCasual = 0;
+        $numDistinctPlayersHardcore = 0;
 
-    $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-              WHERE ach.GameID = $gameID AND ach.Flags = $flags
-              AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
-              GROUP BY aw.HardcoreMode";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
-                $numDistinctPlayersHardcore = $data['Users'];
-            } else {
-                $numDistinctPlayersCasual = $data['Users'];
+        $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
+                FROM Awarded AS aw
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                LEFT JOIN UserAccounts as ua ON ua.User = aw.User
+                WHERE ach.GameID = $gameID AND ach.Flags = $flags
+                AND (NOT ua.Untracked" . (isset($user) ? " OR ua.User = '$user'" : "") . ")
+                GROUP BY aw.HardcoreMode";
+        $dbResult = s_mysql_query($query);
+        if ($dbResult !== false) {
+            while ($data = mysqli_fetch_assoc($dbResult)) {
+                if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
+                    $numDistinctPlayersHardcore = $data['Users'];
+                } else {
+                    $numDistinctPlayersCasual = $data['Users'];
+                }
             }
         }
+
+        $gameDataOut['NumDistinctPlayersCasual'] = $numDistinctPlayersCasual;
+        $gameDataOut['NumDistinctPlayersHardcore'] = $numDistinctPlayersHardcore;
     }
 
     $gameDataOut['NumAchievements'] = $numAchievements;
-    $gameDataOut['NumDistinctPlayersCasual'] = $numDistinctPlayersCasual;
-    $gameDataOut['NumDistinctPlayersHardcore'] = $numDistinctPlayersHardcore;
 
     return $numAchievements;
 }

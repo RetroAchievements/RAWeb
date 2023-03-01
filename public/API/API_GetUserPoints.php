@@ -10,9 +10,7 @@
 
 $user = request()->query('u');
 
-getAccountDetails($user, $userDetails);
-
-if (!$userDetails) {
+if (!getPlayerPoints($user, $userDetails)) {
     return response()->json([
         'User' => $user,
     ], 404);

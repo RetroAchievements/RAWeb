@@ -35,7 +35,6 @@
  *   string     Genre                  genre information for the game
  *   string     Released               release date information for the game
  *   bool       IsFinal
- *   string     RichPresencePatch      script for generating the rich presence for the game
  *  string     RichPresenceMsg         activity information about the last game the user played
  *  int        RecentlyPlayedCount     number of items in the RecentlyPlayed array
  *  array      RecentlyPlayed
@@ -45,7 +44,6 @@
  *   string     ConsoleName            name of the console associated to the game
  *   string     ImageIcon              site-relative path to te game's icon
  *   datetime   LastPlayed             when the user last played the game
- *   string     MyVote                 the user's rating of the game
  *  object     LastActivity
  *   string     ID                     unique identifier of the activity
  *   datetime   timestamp              when the activity occurred
@@ -75,7 +73,7 @@
  *     string     GameTitle            name of the game
  *     string     IsAwarded            always "1"
  *     datetime   DateAwarded          when the user earned the achievement
- *     string     HardcoreAchieved     always "0"?
+ *     string     HardcoreAchieved     "1" for hardcore award, "0" for non-hardcore award, null if not achieved
  *  string     ContribCount            achievements won by others
  *  string     ContribYield            points awarded to others
  */
@@ -84,8 +82,7 @@ $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '5');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
-$retVal = [];
-getUserPageInfo($user, $retVal, $recentGamesPlayed, $recentAchievementsEarned, null);
+$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
 
 if (!$retVal) {
     return response()->json([
@@ -94,18 +91,17 @@ if (!$retVal) {
     ], 404);
 }
 
-getAccountDetails($user, $userDetails);
-
-$retVal['ID'] = $userDetails['ID'];
-$retVal['Points'] = $userDetails['RAPoints'];
-$retVal['SoftcorePoints'] = $userDetails['RASoftcorePoints'];
-$retVal['Motto'] = $userDetails['Motto'];
 $retVal['UserPic'] = "/UserPic/" . $user . ".png";
-$retVal['Rank'] = getUserRank($user);
 $retVal['TotalRanked'] = countRankedUsers();
 
+// assume caller doesn't care about the rich presence script for the last game played
+if (in_array('LastGame', $retVal)) {
+    unset($retVal['LastGame']['RichPresencePatch']);
+}
+
 // Find out if we're online or offline
-$retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID']);
+getAccountDetails($user, $userDetails);
+$retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID'] ?? 0);
 
 $status = 'Offline';
 if ($retVal['LastActivity']) {

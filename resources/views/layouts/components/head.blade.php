@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 
-    @vite(['resources/js/app.js', 'resources/css/app.css'], config('vite.build_path'))
+    @vite(['resources/js/app.ts', 'resources/css/app.css'], config('vite.build_path'))
 
     {{-- TODO add livewire--}}
     {{--<livewire:styles />--}}
