@@ -10,7 +10,6 @@
  *    string     3                     total "white" points earned by the user
  */
 
-$dataOut = [];
-$numFound = getTopUsersByScore(10, $dataOut);
+$dataOut = getTopUsersByScore(10);
 
 return response()->json($dataOut);
