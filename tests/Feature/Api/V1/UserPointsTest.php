@@ -13,7 +13,7 @@ class UserPointsTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
-    public function testGetUserRankAndScoreUnknownUser(): void
+    public function testGetUserPointsUnknownUser(): void
     {
         $this->user->RAPoints = 600; // make sure enough points to be ranked
         $this->user->save();
@@ -25,7 +25,7 @@ class UserPointsTest extends TestCase
             ]);
     }
 
-    public function testGetUserRankAndScore(): void
+    public function testGetUserPoints(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
