@@ -7,6 +7,7 @@ use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 
 function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
 {
@@ -61,38 +62,34 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
     ];
 }
 
-function getGameRankAndScore($gameID, $requestedBy): ?array
+function getGameRankAndScore(int $gameID, string $username): array
 {
-    sanitize_sql_inputs($gameID, $requestedBy);
-
-    if (empty($gameID) || !isValidUsername($requestedBy)) {
-        return null;
+    $user = User::firstWhere('User', $username);
+    if (!$user || empty($gameID)) {
+        return [];
     }
-    $retval = [];
+
+    $rankClause = "ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank";
+    $untrackedClause = "AND NOT ua.Untracked";
+    if ($user->Untracked) {
+        $rankClause = "NULL AS UserRank";
+        $untrackedClause = "";
+    }
 
     $query = "WITH data
     AS (SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward,
-        ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank
+        $rankClause
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ( !ua.Untracked OR ua.User = '$requestedBy')
-          AND ach.Flags = " . AchievementType::OfficialCore . "
-          AND gd.ID = $gameID
+        WHERE ach.Flags = " . AchievementType::OfficialCore . "
+          AND gd.ID = $gameID $untrackedClause
         GROUP BY aw.User
         ORDER BY TotalScore DESC, LastAward ASC
-   ) SELECT * FROM data WHERE User = '$requestedBy'";
+   ) SELECT * FROM data WHERE User = :username";
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
-    }
-
-    return $retval;
+    return legacyDbFetchAll($query, ['username' => $username])->toArray();
 }
 
 function getUserProgress(string $user, string $gameIDsCSV): array
@@ -257,23 +254,19 @@ function getUsersGameList($user, &$dataOut): int
     return $i;
 }
 
-function getUsersCompletedGamesAndMax($user): array
+function getUsersCompletedGamesAndMax(string $user): array
 {
-    $retVal = [];
-
     if (!isValidUsername($user)) {
-        return $retVal;
+        return [];
     }
-
-    sanitize_sql_inputs($user);
 
     $requiredFlags = AchievementType::OfficialCore;
     $minAchievementsForCompletion = 5;
 
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
-            MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC,
-            (SUM(aw.HardcoreMode = 0) / inner1.MaxPossible) AS PctWon,
-            (SUM(aw.HardcoreMode = 1) / inner1.MaxPossible) AS PctWonHC
+            MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, " .
+            floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
+            floatDivisionStatement('SUM(aw.HardcoreMode = 1)', 'inner1.MaxPossible') . " AS PctWonHC
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -285,18 +278,7 @@ function getUsersCompletedGamesAndMax($user): array
         GROUP BY ach.GameID, gd.Title
         ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    $gamesFound = 0;
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[$gamesFound] = $db_entry;
-            $gamesFound++;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query)->toArray();
 }
 
 function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOnly = false, $achievementType = null): int
