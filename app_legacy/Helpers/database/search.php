@@ -181,42 +181,51 @@ function performSearch(
     }
 
     $resultCount = 0;
-    foreach ($parts as $i => $part) {
+    for ($i = 0; $i < count($parts); $i++) {
         // determine how many rows this subquery would return
         $query = $counts[$i];
+
         $dbResult = s_mysql_query($query);
         if (!$dbResult) {
             log_sql_fail();
 
             return 0;
         }
+
         $partCount = mysqli_fetch_assoc($dbResult)['Count'];
         if ($partCount == 0) {
             continue;
         }
+
         // tally up the results that would be returned by this subquery
         $resultCount += $partCount;
+
         if ($count <= 0) {
             // already have all the requested results. proceed to next subquery
             continue;
         }
+
         if ($offset > $partCount) {
             // subquery does not return at least $offset records. proceed to next subquery
             $offset -= $partCount;
             continue;
         }
+
         // fetch the results for this subquery
-        $query = $part . " LIMIT $offset, $count";
+        $query = $parts[$i] . " LIMIT $offset, $count";
+
         $dbResult = s_mysql_query($query);
         if (!$dbResult) {
             log_sql_fail();
 
             return 0;
         }
+
         while ($nextData = mysqli_fetch_assoc($dbResult)) {
             $searchResultsOut[] = $nextData;
             $count--;
         }
+
         if ($count <= 0 && !$wantTotalResults) {
             break;
         }

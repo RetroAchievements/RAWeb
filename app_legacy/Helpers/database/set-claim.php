@@ -287,12 +287,12 @@ function getFilteredClaims(
     }
 
     // Create the special condition
-    $str = ($specialNoneClaim !== 0 ? ClaimSpecial::None . ',' : '');
-    $str .= ($specialRevisionClaim !== 0 ? ClaimSpecial::OwnRevision . ',' : '');
-    $str .= ($specialRolloutClaim !== 0 ? ClaimSpecial::FreeRollout . ',' : '');
-    $str .= ($specialScheduledClaim !== 0 ? ClaimSpecial::ScheduledRelease : '');
+    $str = ($specialNoneClaim ? ClaimSpecial::None . ',' : '');
+    $str .= ($specialRevisionClaim ? ClaimSpecial::OwnRevision . ',' : '');
+    $str .= ($specialRolloutClaim ? ClaimSpecial::FreeRollout . ',' : '');
+    $str .= ($specialScheduledClaim ? ClaimSpecial::ScheduledRelease : '');
 
-    if (strlen($str) % 2 === 0) { // Remove trailing comma if necessary
+    if (!(strlen($str) % 2)) { // Remove trailing comma if necessary
         $str = rtrim($str, ",");
     }
 
@@ -316,7 +316,7 @@ function getFilteredClaims(
         $sortOrder = "DESC";
     } else {
         $sortOrder = "ASC";
-        $sortType -= 10;
+        $sortType = $sortType - 10;
     }
 
     // Create the sorting condition

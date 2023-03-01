@@ -12,7 +12,7 @@ function updateSubscription(string $subjectType, int $subjectID, int $userID, bo
     sanitize_sql_inputs($subjectType);
     $state = (int) $state;
 
-    $stateInt = $state !== 0 ? 1 : 0;
+    $stateInt = $state ? 1 : 0;
     $query = "
         INSERT INTO Subscription(SubjectType, SubjectID, UserID, State)
         VALUES ('$subjectType', $subjectID, $userID, '$stateInt')
@@ -32,7 +32,7 @@ function updateSubscription(string $subjectType, int $subjectID, int $userID, bo
  */
 function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?string $implicitSubscriptionQry = null): bool
 {
-    if ($userID === 0) {
+    if (!$userID) {
         return false;
     }
     sanitize_sql_inputs($subjectType, $subjectID, $userID);
