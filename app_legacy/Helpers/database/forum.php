@@ -477,7 +477,7 @@ function getRecentForumPosts($offset, $limit, $numMessageChars, $permissions, $f
     $bindings = [
         'fromOffset' => $offset,
         'fromLimit' => $limit + 20,
-        'permissions' => $permissions,
+        'permissions' => $permissions ?? Permissions::Unregistered,
         'limit' => $limit,
     ];
 
