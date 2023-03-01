@@ -10,7 +10,7 @@
  *    string     User             name of user
  *    string     TotalScore       total number of points earned by the user for the game
  *    datetime   LastAward        when the last achievement was unlocked for the user
- *    string     UserRank         position of user on the game's High Scores list
+ *    string?    UserRank         position of user on the game's High Scores list
  */
 
 $gameId = (int) request()->query('g');
