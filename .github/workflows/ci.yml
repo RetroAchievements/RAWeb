@@ -95,3 +95,4 @@ jobs:
         env:
           VITE_BUILD_PATH: dist
           APP_URL: https://raweb.test
+          LARAVEL_BYPASS_ENV_CHECK: 1
