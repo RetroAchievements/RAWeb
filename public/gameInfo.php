@@ -1215,6 +1215,7 @@ sanitize_outputs(
                             $achID = $nextAch['ID'];
                             $achTitle = $nextAch['Title'];
                             $achDesc = $nextAch['Description'];
+                            $achAuthor = $nextAch['Author'];
                             $achPoints = $nextAch['Points'];
                             $achTrueRatio = $nextAch['TrueRatio'];
                             $dateAch = "";
@@ -1295,6 +1296,9 @@ sanitize_outputs(
                             echo " <span class='TrueRatio'>($achTrueRatio)</span>";
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
+                            if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+                                echo "<div class='text-2xs'>Author: " . userAvatar($achAuthor, icon: false) . "</div>";
+                            }
                             if ($achieved) {
                                 echo "<div class='date smalltext'>Unlocked $dateAch</div>";
                             }
