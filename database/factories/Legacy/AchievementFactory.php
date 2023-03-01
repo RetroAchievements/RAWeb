@@ -28,7 +28,7 @@ class AchievementFactory extends Factory
             'MemAddr' => '0x000000',
             'Author' => $this->fakeUsername(),
             'Flags' => AchievementType::Unofficial,
-            'Points' => array_rand(AchievementPoints::cases()),
+            'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
             'BadgeName' => '00001',
         ];
     }

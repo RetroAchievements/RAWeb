@@ -60,6 +60,15 @@ function diffMinutesPassedStatement(string $column, string $alias): string
     };
 }
 
+function floatDivisionStatement(string $dividend, string $divisor): string
+{
+    return match (legacyDbDriver()) {
+        'sqlite' => "(CAST($dividend AS REAL) / $divisor)",
+        // mysql
+        default => "($dividend / $divisor)",
+    };
+}
+
 /**
  * @deprecated
  */
