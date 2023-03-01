@@ -38,7 +38,7 @@ function getAccountDetails(?string &$username = null, ?array &$dataOut = []): bo
     return true;
 }
 
-function getUserIDFromUser(?string $user = null): int
+function getUserIDFromUser(?string $user): int
 {
     if (!$user) {
         return 0;
@@ -308,12 +308,11 @@ function getControlPanelUserInfo(string $user, ?array &$libraryOut): bool
     return true;
 }
 
-function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, ?int &$perms = null, bool $showUntracked = false): int
+function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
 {
     $whereQuery = null;
     $permsFilter = null;
 
-    $perms = (int) $perms;
     if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
         $permsFilter = "ua.Permissions = $perms ";
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {

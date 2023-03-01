@@ -271,7 +271,7 @@ function submitTopicComment(
     string $commentPayload,
     ?int &$newCommentIDOut
 ): bool {
-    sanitize_sql_inputs($user, $topicID);
+    sanitize_sql_inputs($user);
     $userID = getUserIDFromUser($user);
 
     // Replace inverted commas, Remove HTML

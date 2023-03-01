@@ -194,7 +194,6 @@ function toggleSetRequest(string $user, int $gameID, int $remaining): bool
 function getSetRequestCount(int $gameID): int
 {
     sanitize_sql_inputs($gameID);
-    $gameID = (int) $gameID;
     if ($gameID < 1) {
         return 0;
     }
@@ -218,7 +217,6 @@ function getSetRequestCount(int $gameID): int
 function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 {
     sanitize_sql_inputs($gameID);
-    $gameID = (int) $gameID;
 
     $retVal = [];
 

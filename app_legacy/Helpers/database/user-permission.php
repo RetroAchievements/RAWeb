@@ -31,8 +31,7 @@ function SetAccountPermissionsJSON(
     int $targetUserNewPermissions
 ): array {
     $retVal = [];
-    sanitize_sql_inputs($actingUser, $targetUser, $targetUserNewPermissions);
-    $targetUserNewPermissions = (int) $targetUserNewPermissions;
+    sanitize_sql_inputs($actingUser, $targetUser);
 
     $targetUserData = [];
     if (!getAccountDetails($targetUser, $targetUserData)) {

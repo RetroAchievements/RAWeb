@@ -27,7 +27,7 @@ function attributeEscape(?string $input): string
     return str_replace('"', "&quot;", $input);
 }
 
-function isValidUsername(?string $username = null): bool
+function isValidUsername(?string $username): bool
 {
     // Note: use request validation where applicable instead of checking the username manually
     // Note: allow 2 character usernames for existing accounts. New accounts are limited to 4.

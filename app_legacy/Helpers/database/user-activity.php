@@ -311,7 +311,7 @@ function addArticleComment(
         return false;
     }
 
-    sanitize_sql_inputs($activityID, $commentPayload);
+    sanitize_sql_inputs($commentPayload);
 
     // Note: $user is the person who just made a comment.
 

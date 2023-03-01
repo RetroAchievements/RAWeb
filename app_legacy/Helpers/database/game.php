@@ -524,8 +524,7 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
             $toAdd = preg_replace("/[^0-9]+/", ",", $parameter);
             $tok = strtok($toAdd, ",");
             while ($tok !== false && $tok > 0) {
-                $tok = (int) $tok;
-                $ids[] = $tok;
+                $ids[] = (int) $tok;
                 $tok = strtok(",");
             }
         } elseif (is_array($parameter)) {

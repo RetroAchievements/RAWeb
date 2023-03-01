@@ -322,8 +322,6 @@ function getTicket(int $ticketID): ?array
 
 function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reason = null): bool
 {
-    sanitize_sql_inputs($ticketID, $ticketVal);
-
     $userID = getUserIDFromUser($user);
 
     // get the ticket data before updating so we know what the previous state was
