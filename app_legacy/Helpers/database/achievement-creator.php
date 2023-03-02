@@ -86,13 +86,13 @@ function getOwnAchievementsObtained(string $username): array
               AND a.Flags = :achievementType
               AND gd.ConsoleID NOT IN (100, 101)";
 
-    return legacyDbFetchAll($query, [
+    return legacyDbFetch($query, [
         'author' => $username,
         'username' => $username,
         'achievementType' => AchievementType::OfficialCore,
         'sumUnlockModeSoftcore' => UnlockMode::Softcore,
         'sumUnlockModeHardcore' => UnlockMode::Hardcore,
-    ])->toArray();
+    ]);
 }
 
 /**
