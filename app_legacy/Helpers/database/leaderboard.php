@@ -6,7 +6,7 @@ use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Models\DeletedModels;
 
-function SubmitLeaderboardEntryJSON(
+function SubmitLeaderboardEntry(
     string $user,
     int $lbID,
     int $newEntry,
