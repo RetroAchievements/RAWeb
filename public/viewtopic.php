@@ -246,7 +246,7 @@ RenderContentStart($pageTitle);
             echo "</div>";
             echo "</div>";
 
-            echo "<div class='comment'>";
+            echo "<div class='comment' style='word-break: normal; overflow-wrap: anywhere;'>";
             echo Shortcode::render($nextCommentPayload);
             echo "</div>";
 
