@@ -22,4 +22,13 @@ abstract class UnlockMode
     {
         return in_array($type, self::cases());
     }
+
+    public static function toString(int $type): string
+    {
+        return match ($type) {
+            UnlockMode::Softcore => 'Softcore',
+            UnlockMode::Hardcore => 'Hardcore',
+            default => 'Unknown',
+        };
+    }
 }

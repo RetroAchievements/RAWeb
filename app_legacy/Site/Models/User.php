@@ -18,6 +18,8 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
 use LegacyApp\Community\Models\UserActivity;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Platform\Models\PlayerAchievement;
+use LegacyApp\Platform\Models\PlayerBadge;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 
 class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, MustVerifyEmail
@@ -86,6 +88,16 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     protected function getHashIdAttribute(): int
     {
         return app(Optimus::class)->encode($this->getAttribute('ID'));
+    }
+
+    public function playerAchievements(): HasMany
+    {
+        return $this->hasMany(PlayerAchievement::class, 'User', 'User');
+    }
+
+    public function playerBadges(): HasMany
+    {
+        return $this->hasMany(PlayerBadge::class, 'User', 'User');
     }
 
     // v2 attribute shims
