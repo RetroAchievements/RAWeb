@@ -6,7 +6,7 @@ use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Models\DeletedModels;
 
-function SubmitLeaderboardEntryJSON($user, $lbID, $newEntry, $validation): array
+function SubmitLeaderboardEntry($user, $lbID, $newEntry, $validation): array
 {
     $db = getMysqliConnection();
     sanitize_sql_inputs($user, $lbID, $newEntry);

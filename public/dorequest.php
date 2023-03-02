@@ -269,7 +269,7 @@ switch ($requestType) {
         $lbID = (int) request()->input('i', 0);
         $score = (int) request()->input('s', 0);
         $validation = request()->input('v'); // Ignore for now?
-        $response['Response'] = SubmitLeaderboardEntryJSON($user, $lbID, $score, $validation);
+        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];

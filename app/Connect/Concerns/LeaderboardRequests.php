@@ -39,8 +39,8 @@ trait LeaderboardRequests
         // $lbID = seekPOSTorGET('i', 0, 'integer');
         // $score = seekPOSTorGET('s', 0, 'integer');
         // $validation = seekPOSTorGET('v'); // Ignore for now?
-        // $response['Response'] = SubmitLeaderboardEntryJSON($user, $lbID, $score, $validation);
-        // $response['Success'] = $response['Response']['Success']; // Passthru
+        // $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
+        // $response['Success'] = $response['Response']['Success'];
         // if ($response['Success'] == false) {
         //     $response['Error'] = $response['Response']['Error'];
         // }
