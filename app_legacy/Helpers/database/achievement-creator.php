@@ -15,12 +15,15 @@ function getUserAchievementsPerConsole(string $username): array
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = :author
-              AND a.Flags = " . AchievementType::OfficialCore . "
+              AND a.Flags = :achievementType
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY AchievementCount DESC, ConsoleName";
 
-    return legacyDbFetchAll($query, ['author' => $username])->toArray();
+    return legacyDbFetchAll($query, [
+        'author' => $username,
+        'achievementType' => AchievementType::OfficialCore,
+    ])->toArray();
 }
 
 /**
@@ -33,12 +36,15 @@ function getUserSetsPerConsole(string $username): array
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = :author
-              AND a.Flags = " . AchievementType::OfficialCore . "
+              AND a.Flags = :achievementType
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
 
-    return legacyDbFetchAll($query, ['author' => $username])->toArray();
+    return legacyDbFetchAll($query, [
+        'author' => $username,
+        'achievementType' => AchievementType::OfficialCore,
+    ])->toArray();
 }
 
 /**
@@ -52,11 +58,15 @@ function getUserAchievementInformation(string $username): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = :joinUsername
               WHERE Author LIKE :author
-              AND a.Flags = " . AchievementType::OfficialCore . "
+              AND a.Flags = :achievementType
               AND gd.ConsoleID NOT IN (100, 101)
               ORDER BY a.DateCreated";
 
-    return legacyDbFetchAll($query, ['author' => $username, 'joinUsername' => $username])->toArray();
+    return legacyDbFetchAll($query, [
+        'author' => $username,
+        'joinUsername' => $username,
+        'achievementType' => AchievementType::OfficialCore,
+    ])->toArray();
 }
 
 /**
@@ -65,18 +75,24 @@ function getUserAchievementInformation(string $username): array
 function getOwnAchievementsObtained(string $username): array
 {
     $query = "SELECT
-              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END) AS HardcoreCount
+              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeSoftcore THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeHardcore THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
               LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author LIKE :author
               AND aw.User LIKE :username
-              AND a.Flags = " . AchievementType::OfficialCore . "
+              AND a.Flags = :achievementType
               AND gd.ConsoleID NOT IN (100, 101)";
 
-    return legacyDbFetchAll($query, ['author' => $username, 'username' => $username])->toArray();
+    return legacyDbFetchAll($query, [
+        'author' => $username,
+        'username' => $username,
+        'achievementType' => AchievementType::OfficialCore,
+        'sumUnlockModeSoftcore' => UnlockMode::Softcore,
+        'sumUnlockModeHardcore' => UnlockMode::Hardcore,
+    ])->toArray();
 }
 
 /**
@@ -85,8 +101,8 @@ function getOwnAchievementsObtained(string $username): array
 function getObtainersOfSpecificUser(string $username): array
 {
     $query = "SELECT aw.User, COUNT(aw.User) AS ObtainCount,
-              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END) AS HardcoreCount
+              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeSoftcore THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeHardcore THEN 1 ELSE 0 END) AS HardcoreCount
               FROM Achievements AS a
               LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
@@ -94,13 +110,19 @@ function getObtainersOfSpecificUser(string $username): array
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE a.Author LIKE :author
               AND aw.User NOT LIKE :username
-              AND a.Flags = " . AchievementType::OfficialCore . "
+              AND a.Flags = :achievementType
               AND gd.ConsoleID NOT IN (100, 101)
               AND Untracked = 0
               GROUP BY aw.User
               ORDER BY ObtainCount DESC";
 
-    return legacyDbFetchAll($query, ['author' => $username, 'username' => $username])->toArray();
+    return legacyDbFetchAll($query, [
+        'author' => $username,
+        'username' => $username,
+        'achievementType' => AchievementType::OfficialCore,
+        'sumUnlockModeSoftcore' => UnlockMode::Softcore,
+        'sumUnlockModeHardcore' => UnlockMode::Hardcore,
+    ])->toArray();
 }
 
 /**
@@ -111,10 +133,13 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
     $query = "
         SELECT distinct(Author) AS Author FROM Achievements AS ach
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE ach.GameID = $gameID
-        AND ach.Flags = " . AchievementType::OfficialCore;
+        WHERE ach.GameID = :gameId
+        AND ach.Flags = :achievementType";
 
-    return legacyDbFetchAll($query, ['gameId' => $gameID])
+    return legacyDbFetchAll($query, [
+        'gameId' => $gameID,
+        'achievementType' => AchievementType::OfficialCore,
+    ])
         ->filter(fn ($data) => $data['Author'] !== $user)
         ->isNotEmpty();
 }
