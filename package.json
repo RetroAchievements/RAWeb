@@ -15,7 +15,8 @@
     },
     "dependencies": {
         "alpinejs": "^3.0.6",
-        "js-cookie": "^3.0.1"
+        "js-cookie": "^3.0.1",
+        "lodash.throttle": "^4.1.1"
     },
     "devDependencies": {
         "@defstudio/vite-livewire-plugin": "^1.0.0",
@@ -28,6 +29,7 @@
         "@testing-library/user-event": "^14.4.3",
         "@types/alpinejs": "^3.7.1",
         "@types/js-cookie": "^3.0.3",
+        "@types/lodash.throttle": "^4.1.7",
         "@typescript-eslint/eslint-plugin": "^5.53.0",
         "@typescript-eslint/parser": "^5.53.0",
         "autoprefixer": "^10.4.7",
