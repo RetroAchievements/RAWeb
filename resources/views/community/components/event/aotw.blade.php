@@ -26,6 +26,6 @@ if (empty($achData)) {
         <div>
             {!! gameAvatar($achData, iconSize: 24) !!}
         </div>
-        <a class="btn mt-2" href="/viewtopic.php?t=$forumTopicID">Join this tournament!</a>
+        <a class="btn mt-2" href="/viewtopic.php?t=<?= $forumTopicID ?>">Join this tournament!</a>
     </div>
 </div>

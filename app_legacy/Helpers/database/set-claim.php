@@ -67,7 +67,7 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
 
     $setTypeCondition = '';
     if (isset($setType)) {
-        $bindings['$setType'] = $setType;
+        $bindings['setType'] = $setType;
         $setTypeCondition = 'AND SetType = :setType';
     }
 

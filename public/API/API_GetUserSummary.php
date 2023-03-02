@@ -95,7 +95,7 @@ $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
 // assume caller doesn't care about the rich presence script for the last game played
-if ($retVal['LastGame']) {
+if (in_array('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
 }
 
