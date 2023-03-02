@@ -4,10 +4,6 @@ namespace LegacyApp\Platform\Actions;
 
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Platform\Models\PlayerBadge;
 use LegacyApp\Site\Models\User;
 
 class ResetPlayerAchievementAction
@@ -17,7 +13,7 @@ class ResetPlayerAchievementAction
         $clause = '';
         if ($achievementID !== null) {
             $clause = "AND ach.ID=$achievementID";
-        } else if ($gameID !== null) {
+        } elseif ($gameID !== null) {
             $clause = "AND ach.GameID=$gameID";
         }
 
@@ -32,7 +28,7 @@ class ResetPlayerAchievementAction
                   LEFT JOIN Achievements ach ON ach.ID = aw_ach.AchievementID
                   WHERE ach.Flags = " . AchievementType::OfficialCore . "
                   GROUP BY ach.Author, ach.GameID, aw_ach.HardcoreMode";
-    
+
         $affectedGames = [];
         foreach (legacyDbFetchAll($query, ['username' => $user->User]) as $row) {
             if ($row['HardcoreMode']) {
@@ -41,14 +37,9 @@ class ResetPlayerAchievementAction
             } else {
                 $user->RASoftcorePoints -= $row['Points'];
             }
-            
+
             if ($row['Author'] !== $user->User) {
-                $author = User::firstWhere('User', $row['Author']);
-                if ($author !== null) {
-                    $author->ContribYield -= $row['Points'];
-                    $author->ContribCount -= $row['Count'];
-                    $author->save();
-                }
+                attributeDevelopmentAuthor($row['Author'], -$row['Count'], -$row['Points']);
             }
 
             if (!in_array($row['GameID'], $affectedGames)) {
@@ -75,7 +66,7 @@ class ResetPlayerAchievementAction
             // force the top achievers for the game to be recalculated
             expireGameTopAchievers($affectedGameID);
         }
-        
+
         $user->save();
 
         return true;

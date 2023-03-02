@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Platform\Actions\ResetPlayerAchievementAction;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 
@@ -80,6 +81,20 @@ function deleteOverdueUserAccounts(): void
 
 function clearAccountData(User $user): void
 {
+    // disable account access while we destroy it (prevents creating new records during delete)
+    legacyDbStatement("UPDATE UserAccounts u SET
+        u.Password = null,
+        u.SaltedPass = '',
+        u.cookie = null,
+        u.appToken = null,
+        u.APIKey = null
+        WHERE u.ID = :userId", ['userId' => $user->ID]
+    );
+
+    // reset all achievements earned by the player
+    $action = new ResetPlayerAchievementAction();
+    $action->execute($user);
+
     // TODO $user->activities()->delete();
     legacyDbStatement('DELETE FROM Activity WHERE User = :username', ['username' => $user->User]);
     // TODO $user->achievementUnlocks()->delete();
@@ -97,6 +112,9 @@ function clearAccountData(User $user): void
     legacyDbStatement('DELETE FROM SiteAwards WHERE User = :username', ['username' => $user->User]);
     // TODO $user->subscriptions()->delete();
     legacyDbStatement('DELETE FROM Subscription WHERE UserID = :userId', ['userId' => $user->ID]);
+
+    // Cap permissions to 0 - negative values may stay
+    $permission = min($user['Permissions'], 0);
 
     legacyDbStatement("UPDATE UserAccounts u SET
         u.Password = null,

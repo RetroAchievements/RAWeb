@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
 use LegacyApp\Community\Models\UserActivity;
-use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\PlayerBadge;
+use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 
 class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, MustVerifyEmail

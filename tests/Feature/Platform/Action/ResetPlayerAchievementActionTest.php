@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Action;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Site\Models\User;
 use LegacyApp\Platform\Actions\ResetPlayerAchievementAction;
-use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
+use LegacyApp\Site\Models\User;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\Feature\Platform\TestsPlayerBadges;
 use Tests\TestCase;
@@ -31,9 +28,9 @@ class ResetPlayerAchievementActionTest extends TestCase
         $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['Points' => 5, 'TrueRatio' => 7, 'Author' => $author->User]);
-        
+
         $this->addSoftcoreUnlock($user, $achievement);
-        
+
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertDoesNotHaveHardcoreUnlock($user, $achievement);
         $this->assertEquals(123, $user->RASoftcorePoints);
@@ -69,7 +66,7 @@ class ResetPlayerAchievementActionTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['Points' => 5, 'TrueRatio' => 7, 'Author' => $author->User]);
 
         $this->addHardcoreUnlock($user, $achievement);
-        
+
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
         $this->assertEquals(123, $user->RASoftcorePoints);
@@ -104,7 +101,7 @@ class ResetPlayerAchievementActionTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['Points' => 5, 'TrueRatio' => 7, 'Author' => $user->User]);
 
         $this->addHardcoreUnlock($user, $achievement);
-        
+
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
         $this->assertEquals(123, $user->RASoftcorePoints);
@@ -138,10 +135,10 @@ class ResetPlayerAchievementActionTest extends TestCase
         $user2 = User::factory()->create();
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create();
-        
+
         $this->addSoftcoreUnlock($user, $achievement);
         $this->addHardcoreUnlock($user2, $achievement);
-        
+
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertDoesNotHaveHardcoreUnlock($user, $achievement);
         $this->assertHasSoftcoreUnlock($user2, $achievement);
@@ -168,7 +165,7 @@ class ResetPlayerAchievementActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->get(2));
         $this->addMasteryBadge($user, $game);
         $this->assertHasMasteryBadge($user, $game);
-        
+
         $action = new ResetPlayerAchievementAction();
         $this->assertTrue($action->execute($user, $achievements->get(1)->ID));
 

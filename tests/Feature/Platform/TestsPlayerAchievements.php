@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Application;
-use LegacyApp\Site\Models\User;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\PlayerAchievement;
+use LegacyApp\Site\Models\User;
 
 trait TestsPlayerAchievements
 {
@@ -71,11 +69,12 @@ trait TestsPlayerAchievements
         {
             if ($unlock->HardcoreMode === $mode) {
                 $this->assertTrue(true);
+
                 return;
             }
         }
 
-        $this->fail("No " . UnlockMode::toString($mode) . " unlock for achievement " . 
+        $this->fail("No " . UnlockMode::toString($mode) . " unlock for achievement " .
                     $achievement->ID . "/user " . $user->ID);
     }
 
@@ -95,7 +94,7 @@ trait TestsPlayerAchievements
         foreach ($unlocks as $unlock)
         {
             if ($unlock->HardcoreMode === $mode) {
-                $this->fail("Found " . UnlockMode::toString($mode) . " unlock for achievement " . 
+                $this->fail("Found " . UnlockMode::toString($mode) . " unlock for achievement " .
                             $achievement->ID . "/user " . $user->ID);
                 break;
             }
@@ -119,7 +118,7 @@ trait TestsPlayerAchievements
         $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->ID)->get();
         foreach ($unlocks as $unlock)
         {
-            $this->fail("Found " . UnlockMode::toString($unlock->HardcoreMode) . " unlock for achievement " . 
+            $this->fail("Found " . UnlockMode::toString($unlock->HardcoreMode) . " unlock for achievement " .
                         $achievement->ID . "/user " . $user->ID);
             break;
         }

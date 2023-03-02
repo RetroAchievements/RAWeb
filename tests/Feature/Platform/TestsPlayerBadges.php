@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Application;
-use LegacyApp\Site\Models\User;
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerBadge;
+use LegacyApp\Site\Models\User;
 
 trait TestsPlayerBadges
 {
