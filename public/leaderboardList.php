@@ -85,7 +85,7 @@ RenderContentStart($pageTitle);
         echo "</div>";
     }
 
-    if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+    if ($permissions >= Permissions::JuniorDeveloper) {
         $numGames = getGamesList(0, $gamesList);
 
         echo "<div class='devbox'>";
@@ -93,40 +93,23 @@ RenderContentStart($pageTitle);
         echo "<div id='devboxcontent' style='display: none'>";
 
         echo "<ul>";
-        if (isset($gameID)) {
-            echo "<li>";
-            echo "<form method='post' action='/request/leaderboard/create.php'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='game' value='$gameID' />";
-            echo "<button class='btn'>Create Leaderboard</button>";
-            echo "</form>";
-            echo "<form method='post' action='/request/leaderboard/create.php'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='game' value='$gameID'>";
-            echo "Duplicate leaderboard ID: ";
-            echo "<input style='width: 10%;' min='1' name='leaderboard'> ";
-            echo "Amount: ";
-            echo "<input style='width: 10%;' type='number' min='1' max='25' value='1' name='amount'>";
-            echo "&nbsp;&nbsp;";
-            echo "<button>Duplicate</button>";
-            echo "</form>";
-            echo "</li>";
-        } else {
-            echo "<li>New leaderboard<br>";
-            echo "<form method='post' action='/request/leaderboard/create.php'>";
-            echo csrf_field();
-            echo "<select name='game'>";
-            foreach ($gamesList as $nextGame) {
-                $nextGameID = $nextGame['ID'];
-                $nextGameTitle = $nextGame['Title'];
-                $nextGameConsole = $nextGame['ConsoleName'];
-                echo "<option value='$nextGameID'>$nextGameTitle ($nextGameConsole)</option>";
-            }
-            echo "</select>";
-            echo "<button>Create Leaderboard</button>";
-            echo "</form>";
-            echo "</li>";
-        }
+        echo "<li>";
+        echo "<form method='post' action='/request/leaderboard/create.php'>";
+        echo csrf_field();
+        echo "<input type='hidden' name='game' value='$gameID' />";
+        echo "<button class='btn'>Create Leaderboard</button>";
+        echo "</form>";
+        echo "<form method='post' action='/request/leaderboard/create.php'>";
+        echo csrf_field();
+        echo "<input type='hidden' name='game' value='$gameID'>";
+        echo "Duplicate leaderboard ID: ";
+        echo "<input style='width: 10%;' min='1' name='leaderboard'> ";
+        echo "Amount: ";
+        echo "<input style='width: 10%;' type='number' min='1' max='25' value='1' name='amount'>";
+        echo "&nbsp;&nbsp;";
+        echo "<button>Duplicate</button>";
+        echo "</form>";
+        echo "</li>";
         echo "</ul>";
 
         echo "</div>";
@@ -143,7 +126,7 @@ RenderContentStart($pageTitle);
     $sort6 = ($sortBy == 6) ? 16 : 6;
     $sort7 = ($sortBy == 7) ? 17 : 7;
 
-    if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+    if ($permissions >= Permissions::JuniorDeveloper) {
         echo "<th>ID</th>";
         echo "<th>Title/Description</th>";
         echo "<th>Type</th>";
@@ -182,7 +165,7 @@ RenderContentStart($pageTitle);
 
         echo "<tr>";
 
-        if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+        if ($permissions >= Permissions::JuniorDeveloper) {
             // Allow leaderboard edits for devs and jr. devs if they are the author
             if ($permissions >= Permissions::Developer || ($lbAuthor == $user && $permissions === Permissions::JuniorDeveloper)) {
                 $editAllowed = true;
