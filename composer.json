@@ -150,7 +150,10 @@
         "mfs": "php artisan migrate:refresh --seed",
         "octane": "php artisan octane:start --watch --port=64888",
         "paratest": "php artisan test --parallel",
-        "rector": "vendor/bin/rector process",
+        "rector": [
+            "Composer\\Config::disableProcessTimeout",
+            "vendor/bin/rector process"
+        ],
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
