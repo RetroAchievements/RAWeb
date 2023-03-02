@@ -78,6 +78,15 @@
  *  string     ContribYield            points awarded to others
  */
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => 'required',
+    'g' => 'nullable|integer|min:0',
+    'a' => 'nullable|integer|min:0',
+]);
+
 $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '5');
 $recentAchievementsEarned = (int) request()->query('a', '10');

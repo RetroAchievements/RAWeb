@@ -22,15 +22,21 @@
  *    int        ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => 'required',
+    'c' => 'nullable|integer|min:0',
+    'o' => 'nullable|integer|min:0',
+]);
+
 $user = request()->query('u');
 $count = min((int) request()->query('c', '10'), 50);
 $offset = (int) request()->query('o');
 
 $recentlyPlayedData = [];
-$numRecentlyPlayed = 0;
-if (!empty($user)) {
-    $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
-}
+$numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
 
 if (!empty($recentlyPlayedData)) {
     $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
