@@ -556,12 +556,14 @@ return [
         'name_short' => 'TI-83',
         'manufacturer' => 'Texas Instruments',
         'active' => false,
+    ],
     80 => [
         'name' => 'Uzebox',
         'name_full' => 'Uzebox',
         'name_short' => 'Uzebox',
         'manufacturer' => '',
         'active' => false,
+    ],
     100 => [
         'name' => 'Hubs',
         'name_full' => null,
