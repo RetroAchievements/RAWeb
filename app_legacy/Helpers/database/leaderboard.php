@@ -666,29 +666,15 @@ function getLeaderboardUserPosition($lbID, $user, &$lbPosition): bool
     }
 }
 
-function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, &$lbDataOut): int
-{
-    sanitize_sql_inputs($consoleIDInput, $gameID, $count, $offset);
-    settype($sortBy, 'integer');
-    settype($consoleIDInput, 'integer');
-    settype($gameID, 'integer');
-
-    $lbCount = 0;
-
-    $whereClause = "";
-
-    if ($gameID != 0) {
-        $whereClause = "WHERE gd.ID = $gameID";
-    } elseif ($consoleIDInput != 0) {
-        $whereClause = "WHERE gd.ConsoleID = $consoleIDInput";
-    }
-
+function getLeaderboardsList(
+    int $gameID,
+    int $sortBy,
+): array {
     $ifDesc = "";
     if ($sortBy >= 10) {
         $ifDesc = " DESC";
     }
 
-    $orderClause = "";
     switch ($sortBy % 10) {
         case 0:
             $orderClause = "ORDER BY ld.DisplayOrder $ifDesc, c.ID, GameTitle";
@@ -709,11 +695,7 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
             $orderClause = "ORDER BY ld.LowerIsBetter $ifDesc, ld.Format $ifDesc";
             break;
         case 7:
-            if ($sortBy == 17) {
-                $ifDesc = "ASC";
-            } else {
-                $ifDesc = "DESC";
-            }
+            $ifDesc = $sortBy == 17 ? "ASC" : "DESC";
 
             $orderClause = "ORDER BY NumResults $ifDesc";
             break;
@@ -744,24 +726,12 @@ function getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset,
                     GROUP BY le.LeaderboardID
                     ) AS leInner ON leInner.LeaderboardID = ld.ID
                 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-
-                $whereClause
-
+                WHERE gd.ID = :gameId
                 GROUP BY ld.GameID, ld.ID
                 $orderClause
                 ";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $lbDataOut[$lbCount] = $db_entry;
-            $lbCount++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $lbCount;
+    return legacyDbFetchAll($query, ['gameId' => $gameID])->toArray();
 }
 
 function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder): bool

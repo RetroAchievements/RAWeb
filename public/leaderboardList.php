@@ -4,15 +4,11 @@ use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
-$consoleIDInput = requestInputSanitized('c', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
-$maxCount = 25;
-
-$count = 25;
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $gameID = requestInputSanitized('g', null, 'integer');
@@ -20,27 +16,20 @@ $gameID = requestInputSanitized('g', null, 'integer');
 // If a game is picked, sort the LBs by DisplayOrder
 $sortBy = requestInputSanitized('s', empty($gameID) ? 3 : 0, 'integer');
 
-$lbCount = getLeaderboardsList($consoleIDInput, $gameID, $sortBy, $count, $offset, $lbData);
-
-$pageTitle = "Leaderboards - ";
-
-$gameData = null;
-$codeNotes = [];
-if ($gameID != 0) {
-    $gameData = getGameData($gameID);
-    getCodeNotes($gameID, $codeNotes);
-    $pageTitle .= $gameData['Title'];
-}
-
-if ($consoleIDInput) {
-    $pageTitle .= $consoleList[$consoleIDInput];
-}
-
-if (empty($consoleIDInput) && empty($gameID)) {
+if (empty($gameID)) {
     abort(404);
 }
 
-if (!$lbCount) {
+$pageTitle = "Leaderboards - ";
+
+$gameData = getGameData($gameID);
+$codeNotes = [];
+getCodeNotes($gameID, $codeNotes);
+$pageTitle .= $gameData['Title'];
+
+$lbData = getLeaderboardsList($gameID, $sortBy);
+
+if (empty($lbData)) {
     return redirect(route('game.show', $gameID));
 }
 
@@ -51,21 +40,6 @@ sanitize_outputs(
 
 RenderContentStart($pageTitle);
 ?>
-<script>
-function ReloadLBPageByConsole() {
-    var ID = $('#consoleselector').val();
-    location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
-}
-
-function ReloadLBPageByGame() {
-    var ID = $('#gameselector').val();
-    if (ID.indexOf('c_') === 0) {
-        location.href = '/leaderboardList.php?c=' + ID.replace('c_', '');
-        return;
-    }
-    location.href = '/leaderboardList.php?g=' + ID;
-}
-</script>
 <?php if ($permissions >= Permissions::JuniorDeveloper): ?>
     <script>
     function UpdateLeaderboard(lbID) {
@@ -159,43 +133,6 @@ function ReloadLBPageByGame() {
         echo "</div>";
     }
 
-    if (!isset($gameData)) {
-        $uniqueGameList = [];
-        foreach ($lbData as $nextLB) {
-            if (!isset($uniqueGameList[$nextLB['GameID']])) {
-                $uniqueGameList[$nextLB['GameID']] = $nextLB;
-                $uniqueGameList[$nextLB['GameID']]['NumLeaderboards'] = 1;
-            } else {
-                $uniqueGameList[$nextLB['GameID']]['NumLeaderboards']++;
-            }
-        }
-
-        echo "<select id='consoleselector' onchange=\"ReloadLBPageByConsole()\">";
-        echo "<option value='c_'>" . ($consoleIDInput ? 'All Consoles' : 'Filter by Console') . "</option>";
-        $lastConsoleName = '';
-        foreach ($uniqueGameList as $gameID => $nextEntry) {
-            if ($nextEntry['ConsoleName'] !== $lastConsoleName) {
-                $lastConsoleName = $nextEntry['ConsoleName'];
-                $isSelected = $nextEntry['ConsoleID'] == $consoleIDInput;
-                echo "<option value='c_{$nextEntry['ConsoleID']}' " . ($isSelected ? 'selected' : '') . ">$lastConsoleName</option>";
-            }
-        }
-        echo "</select>";
-
-        echo "<select id='gameselector' onchange=\"ReloadLBPageByGame()\">";
-        echo "<option>Pick a Game</option>";
-        $lastConsoleName = '';
-        foreach ($uniqueGameList as $gameID => $nextEntry) {
-            if (!$consoleIDInput && $nextEntry['ConsoleName'] !== $lastConsoleName) {
-                $lastConsoleName = $nextEntry['ConsoleName'];
-                $isSelected = $nextEntry['ConsoleID'] == $consoleIDInput;
-                echo "<option value='c_{$nextEntry['ConsoleID']}' " . ($isSelected ? 'selected' : '') . ">-= $lastConsoleName =-</option>";
-            }
-            echo "<option value='$gameID'> " . $nextEntry['GameTitle'] . " (" . $nextEntry['ConsoleName'] . ") (" . $nextEntry['NumLeaderboards'] . " LBs) Achievements</option>";
-        }
-        echo "</select>";
-    }
-
     echo "<table><tbody>";
 
     $sort1 = ($sortBy == 1) ? 11 : 1;
@@ -243,11 +180,7 @@ function ReloadLBPageByGame() {
 
         $niceFormat = ($lbLowerIsBetter ? "Smallest " : "Largest ") . (($lbFormat == "SCORE") ? "Score" : "Time");
 
-        if ($listCount++ % 2 == 0) {
-            echo "<tr>";
-        } else {
-            echo "<tr>";
-        }
+        echo "<tr>";
 
         if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
             // Allow leaderboard edits for devs and jr. devs if they are the author
@@ -422,27 +355,9 @@ function ReloadLBPageByGame() {
         echo "</tr>";
     }
 
-    // hack:
-    if (isset($gameData) && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        $listCount /= 2;
-    }
-
     echo "</tbody></table>";
     echo "</div>";
-
-    echo "<div class='float-right row'>";
-    if ($offset > 0) {
-        $prevOffset = $offset - $maxCount;
-        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$prevOffset'>&lt; Previous $maxCount</a> - ";
-    }
-    if ($listCount == $maxCount) {
-        // Max number fetched, i.e. there are more. Can goto next 25.
-        $nextOffset = $offset + $maxCount;
-        echo "<a href='/achievementList.php?s=$sortBy&amp;o=$nextOffset'>Next $maxCount &gt;</a>";
-    }
-    echo "</div>";
     ?>
-    <br>
 </div>
 </div>
 
