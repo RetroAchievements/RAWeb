@@ -153,6 +153,7 @@ function RenderAwardGroup($awards, $title): void
     // has more than 120 masteries. We'll also check if the container is
     // overflowing on the client and apply the fade classes if so.
     $shouldAddOptimisticAwardsFade = !$doesPreferAlwaysExpandedRewards && count($visibleAwards) >= 120;
+
     $awardsFadeClassName = 'awards-fade';
 
     $optimisticAwardsFade = $shouldAddOptimisticAwardsFade ? $awardsFadeClassName : '';
@@ -161,16 +162,20 @@ function RenderAwardGroup($awards, $title): void
     $awardsContainerId = $title . '-container';
     $awardsExpandButtonId = $title . '-expand-button';
 
-    echo "<div class='awards-group'>";
+    $expandButtonClassNames = 'absolute right-1/2 bottom-4 flex justify-center items-center border-2 border-[color:var(--link-color)] rounded p-2 bg-[color:var(--bg-color)] transition transform translate-x-1/2 hover:-translate-y-1 hover:scale-110 active:scale-100';
+    $awardsGroupComponentBaseClassNames = 'gap-2 flex flex-wrap justify-start overflow-y-auto transition duration-200 mb-8';
+    $withScrollingClassNames = 'max-h-[64vh] lg:max-h-[76vh] !gap-[.5em] scrollbar-thin scrollbar-thumb-raTheme-scrollthumb scrollbar-track-raTheme-scrolltrack';
+
+    echo "<div class='relative'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div id='$awardsContainerId' " . ($doesPreferAlwaysExpandedRewards ? "class='component'" : "class='component component--with-scrolling $optimisticAwardsFade' onscroll='expandableAwards.handleAwardsScroll(event, \"$awardsExpandButtonId\")' x-init='expandableAwards.shouldApplyAwardsGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'") . ">";
+    echo "<div id='$awardsContainerId' " . ($doesPreferAlwaysExpandedRewards ? "class='$awardsGroupComponentBaseClassNames'" : "class='$awardsGroupComponentBaseClassNames $withScrollingClassNames $optimisticAwardsFade' onscroll='expandableAwards.handleAwardsScroll(event, \"$awardsExpandButtonId\")' x-init='expandableAwards.shouldApplyAwardsGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'") . ">";
     $imageSize = 48;
     foreach ($visibleAwards as $award) {
         RenderAward($award, $imageSize);
     }
     echo "</div>";
 
-    echo "<button id='$awardsExpandButtonId' class='awards-expand-button $initialAwardsButtonExpandClass' onclick='expandableAwards.handleExpandAwardsClick(event)'>Expand (" . count($visibleAwards) . ")</button>";
+    echo "<button id='$awardsExpandButtonId' class='$expandButtonClassNames $initialAwardsButtonExpandClass' onclick='expandableAwards.handleExpandAwardsClick(event, \"$awardsContainerId\")'>Expand (" . count($visibleAwards) . ")</button>";
 
     echo "</div>";
 }

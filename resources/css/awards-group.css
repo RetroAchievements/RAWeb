@@ -1,25 +1,4 @@
-.awards-group {
-  position: relative;
-}
-
-.awards-group > .component {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  overflow-y: auto;
-  transition: max-height 200ms ease-in-out;
-
-  @apply gap-2;
-}
-
-.awards-group > .component--with-scrolling {
-  @apply max-h-[64vh] lg:max-h-[76vh] !gap-[.5em];
-  @apply scrollbar-thin scrollbar-thumb-raTheme-scrollthumb scrollbar-track-raTheme-scrolltrack
-}
-
-.awards-group > .component.awards-fade {
-  margin-bottom: 2rem;
-
+.awards-fade {
   --webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) calc(100% - 120px),
@@ -30,22 +9,4 @@
     rgba(0, 0, 0, 1) calc(100% - 120px),
     rgba(0, 0, 0, 0)
   );
-}
-
-.awards-expand-button {
-  position: absolute;
-  right: 50%;
-  bottom: 1rem;  
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid var(--link-color);
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-  background-color: var(--bg-color);
-
-  @apply transform translate-x-1/2;
-  @apply transition;
-  @apply hover:-translate-y-1 hover:scale-110;
-  @apply active:scale-100;
 }

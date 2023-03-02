@@ -19,19 +19,18 @@ describe('Util: expandableAwards', () => {
     it('should expand the awards container and remove the expand button', async () => {
       // ARRANGE
       (document as any).expandableAwards = expandableAwards;
-      document.body.innerHTML = /* @html */`
-        <div class="awards-group">
+      document.body.innerHTML = /** @html */`
+        <div>
           <div 
             id="Game Awards-container" 
-            class="component component--with-scrolling awards-fade" 
+            class="awards-fade" 
             data-testid="awards-container"
             style="max-height: 75vh;"
           ></div>
 
           <button 
             id="Game Awards-expand-button" 
-            class="awards-expand-button" 
-            onclick="expandableAwards.handleExpandAwardsClick(event)"
+            onclick="expandableAwards.handleExpandAwardsClick(event, 'Game Awards-container')"
           >
             Expand
           </button>

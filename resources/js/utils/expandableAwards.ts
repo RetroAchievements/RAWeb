@@ -6,17 +6,19 @@ const cachedAwardsExpandButtons: Record<string, HTMLButtonElement> = {};
 /**
  * Show the full list of awards and remove the Expand button.
  */
-const handleExpandAwardsClick = (event: MouseEvent) => {
+const handleExpandAwardsClick = (event: MouseEvent, awardsContainerId:string) => {
   const buttonEl = event.target as HTMLButtonElement;
-  const awardsContainerEl = buttonEl.parentElement?.querySelector('.component') as HTMLElement;
+  const awardsContainerEl = document.getElementById(awardsContainerId);
 
-  awardsContainerEl.style.setProperty('max-height', '100000px');
-  awardsContainerEl.style.setProperty('-webkit-mask-image', '');
-  awardsContainerEl.style.setProperty('mask-image', '');
-  awardsContainerEl.classList.remove('awards-fade');
+  if (awardsContainerEl) {
+    awardsContainerEl.style.setProperty('max-height', '100000px');
+    awardsContainerEl.style.setProperty('-webkit-mask-image', '');
+    awardsContainerEl.style.setProperty('mask-image', '');
+    awardsContainerEl.classList.remove('awards-fade');
 
-  delete cachedAwardsExpandButtons[buttonEl.id];
-  buttonEl.remove();
+    delete cachedAwardsExpandButtons[buttonEl.id];
+    buttonEl.remove();
+  }
 };
 
 /**
