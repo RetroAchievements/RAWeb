@@ -21,7 +21,7 @@ $userWallActive = $userDetails['UserWallActive'];
 $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
-$expandedAwardsCookieName = 'prefers_always_expanded_rewards';
+$expandedAwardsCookieName = 'prefers_always_expanded_badge_groups';
 $doesPreferAlwaysExpandedRewards =
     isset($_COOKIE[$expandedAwardsCookieName])
     && $_COOKIE[$expandedAwardsCookieName] === 'true';

@@ -144,7 +144,7 @@ function RenderAwardGroup($awards, $title): void
      * If it's set, we must never conceal an awards group.
      * @see public/controlpanel.php
      */
-    $expandedAwardsCookieName = 'prefers_always_expanded_rewards';
+    $expandedAwardsCookieName = 'prefers_always_expanded_badge_groups';
     $doesPreferAlwaysExpandedRewards =
         isset($_COOKIE[$expandedAwardsCookieName])
         && $_COOKIE[$expandedAwardsCookieName] === 'true';
