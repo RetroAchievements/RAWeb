@@ -440,7 +440,7 @@ function getRecentForumPosts(
     int $offset,
     int $limit,
     int $numMessageChars,
-    int $permissions = 0,
+    ?int $permissions = Permissions::Unregistered,
     ?string $fromUser = null
 ): Collection {
     $bindings = [
