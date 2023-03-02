@@ -149,7 +149,7 @@ function RenderAwardGroup($awards, $title): void
         isset($_COOKIE[$expandedAwardsCookieName])
         && $_COOKIE[$expandedAwardsCookieName] === 'true';
 
-    // We can be quite certain we'll need to expand the list if the player
+    // We can be quite certain we'll need to collapse the list if the player
     // has more than 120 masteries. We'll also check if the container is
     // overflowing on the client and apply the fade classes if so.
     $shouldAddOptimisticAwardsFade = !$doesPreferAlwaysExpandedRewards && count($visibleAwards) >= 120;
