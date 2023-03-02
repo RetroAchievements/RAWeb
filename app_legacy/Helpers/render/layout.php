@@ -247,6 +247,9 @@ function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
 
     echo "Page <select class='gameselector' onchange='window.location=\"$urlPrefix\" + this.options[this.selectedIndex].value'>";
     $pages = floor(($numItems + $perPage - 1) / $perPage);
+    if ($pages < 1) {
+        $pages = 1;
+    }
     for ($i = 1; $i <= $pages; $i++) {
         $pageOffset = ($i - 1) * $perPage;
         echo "<option value='$pageOffset'" . (($offset == $pageOffset) ? " selected" : "") . ">$i</option>";

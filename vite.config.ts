@@ -27,8 +27,11 @@ export default defineConfig(({ mode }) => {
       laravel({
         input: [
           'resources/css/app.css',
-          'resources/js/app.js',
+          'resources/js/app.ts',
         ],
+        refresh: [
+          'resources/views/**'
+        ]
       }),
     ],
     resolve: {

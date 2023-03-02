@@ -24,6 +24,8 @@ if (authenticateFromCookie($user, $permissions, $userDetails)) {
     getAllFriendsProgress($user, $gameID, $friendScores);
 }
 $userID = $userDetails['ID'] ?? 0;
+$userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
+$matureContentPref = UserPreference::SiteMsgOff_MatureContent;
 
 $officialFlag = AchievementType::OfficialCore;
 $unofficialFlag = AchievementType::Unofficial;
@@ -39,7 +41,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadataByFlags($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags);
+$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags, metrics:true);
 
 if (empty($gameData)) {
     abort(404);
@@ -79,7 +81,7 @@ $gate = false;
 if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
-            if ($userDetails && BitSet($userDetails['websitePrefs'], UserPreference::SiteMsgOff_MatureContent)) {
+            if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
                 break;
             }
             $gate = true;
@@ -89,6 +91,29 @@ if ($v != 1 && $isFullyFeaturedGame) {
 ?>
 <?php if ($gate): ?>
     <?php RenderContentStart($pageTitle) ?>
+    <script>
+        function disableMatureContentWarningPreference() {
+            const isLoggedIn = <?= isset($userDetails) ?>;
+            if (!isLoggedIn) {
+                throw new Error('Tried to modify settings for an unauthenticated user.');
+            }
+
+            const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
+            const gameId = <?= $gameID ?>;
+
+            fetch('/request/user/update-notification.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: `preferences=${newPreferencesValue}`,
+                credentials: 'same-origin'
+            }).then(() => {
+                window.location = `/game/<?= $gameID ?>`;
+            })
+        }
+    </script>
     <div id='mainpage'>
         <div id='leftcontainer'>
             <div class='navpath'>
@@ -101,14 +126,27 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 Are you sure that you want to view this game?
                 <br/>
                 <br/>
-                <form id='consentform' action='/game/<?= $gameID ?>' style='float:left'>
-                    <input type='hidden' name='v' value='1'/>
-                    <input type='submit' value='Yes. I&apos;m an adult'/>
-                </form>
-                <form id='escapeform' action='/gameList.php' style='float:left; margin-left:16px'>
-                    <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                    <input type='submit' value='Not Interested'/>
-                </form>
+
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
+                    <form id='escapeform' action='/gameList.php'>
+                        <input type='hidden' name='c' value='<?= $consoleID ?>'/>
+                        <input type='submit' class='leading-normal' value='No. Get me out of here.'/>
+                    </form>
+
+                    <form id='consentform' action='/game/<?= $gameID ?>'>
+                        <input type='hidden' name='v' value='1'/>
+                        <input type='submit' class='leading-normal' value='Yes. I&apos;m an adult.'/>
+                    </form>
+
+                    <?php if ($userWebsitePrefs): ?>
+                        <button 
+                            class='break-words whitespace-normal leading-normal' 
+                            onclick='disableMatureContentWarningPreference()'
+                        >
+                            Yes. And never ask me again for games with mature content.
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
@@ -1006,7 +1044,7 @@ sanitize_outputs(
                     echo "</div>";
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
-                    echo "<div style='float: left; clear: left' onmouseover=\"Tip({$containername}tooltip)\" onmouseout=\"UnTip()\">";
+                    echo "<div style='float: left; clear: left' ontouchstart=\"mobileSafeTipEvents.touchStart()\" onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
                     echo "<span class='$labelname'>$labelcontent</span>";
                     echo "</div>";
 
@@ -1177,6 +1215,7 @@ sanitize_outputs(
                             $achID = $nextAch['ID'];
                             $achTitle = $nextAch['Title'];
                             $achDesc = $nextAch['Description'];
+                            $achAuthor = $nextAch['Author'];
                             $achPoints = $nextAch['Points'];
                             $achTrueRatio = $nextAch['TrueRatio'];
                             $dateAch = "";
@@ -1257,6 +1296,9 @@ sanitize_outputs(
                             echo " <span class='TrueRatio'>($achTrueRatio)</span>";
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
+                            if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+                                echo "<div class='text-2xs'>Author: " . userAvatar($achAuthor, icon: false) . "</div>";
+                            }
                             if ($achieved) {
                                 echo "<div class='date smalltext'>Unlocked $dateAch</div>";
                             }

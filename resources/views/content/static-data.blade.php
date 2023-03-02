@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use LegacyApp\Site\Models\StaticData;
 
 /** @var ?StaticData $staticData */
@@ -24,32 +25,49 @@ $lastRegisteredUser = $staticData['LastRegisteredUser'];
 $lastRegisteredUserAt = $staticData['LastRegisteredUserAt'];
 $totalPointsEarned = $staticData['TotalPointsEarned'];
 
-$niceRegisteredAt = date("d M\nH:i", strtotime($lastRegisteredUserAt));
-
 if ($lastRegisteredUser == null) {
     $lastRegisteredUser = 'unknown';
 }
+
+if ($lastRegisteredUserAt) {
+    $lastRegisteredUserTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $lastRegisteredUserAt)->diffForHumans();
+} else {
+    $lastRegisteredUserTimeAgo = null;
+}
 ?>
-<div class="component statistics">
+<div class="component statistics !mb-0">
     <h3>Statistics</h3>
+
     <div class="infobox">
-        There are
-        <a title="Achievement List" href="/gameList.php?s=2">{{ $numAchievements }}</a>
-        achievements registered for
-        <a title="Game List" href="/gameList.php?s=1">{{ $numGames }}</a> games.
-        <a title="Achievement List" href="/achievementList.php">{{ $numAwarded }}</a>
-        achievements have been awarded to the
-        <a title="User List" href="/userList.php">{{ $numRegisteredPlayers }}</a>
-        registered players (average: {{ $avAwardedPerPlayer }} per player)<br>
-        <br>
-        Since 2nd March 2013, a total of
-        <span title="Awesome!"><strong>{{ $totalPointsEarned }}</strong></span>
-        points have been earned by users on RetroAchievements.org.<br>
-        <br>
+        <div class="w-full">
+            <div class="grid grid-cols-2 gap-px mb-2">
+                <x-home-stats-embed label="Games" :count="$numGames" href="/gameList.php?s=1" />
+                <x-home-stats-embed label="Achievements" :count="$numAchievements" href="/achievementList.php" />
+                <x-home-stats-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php" />
+                <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/recentMastery.php" />
+            </div>
+
+            <div class="w-full h-16 flex flex-col justify-center items-center">
+                <span>Points earned since 2nd March 2013</span>
+                <span class="text-2xl">{{ number_format($totalPointsEarned) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div>
         @if($staticData->lastRegisteredUser)
-            The last registered user was
-            <x-user.avatar :user="$staticData->lastRegisteredUser"/>
-            on {{ $niceRegisteredAt }}.
+            <hr class="mt-4 mb-5 border-[color:var(--embed-highlight-color)]">
+
+            <div class="w-full flex flex-col justify-center items-center">
+                <p>Newest user</p>
+
+                <div>
+                    <x-user.avatar :user="$staticData->lastRegisteredUser" /> 
+                    @if($lastRegisteredUserTimeAgo)
+                        <span class="text-2xs">({{ $lastRegisteredUserTimeAgo }})</span>
+                    @endif
+                </div>
+            </div>
         @endif
     </div>
 </div>

@@ -13,30 +13,13 @@ use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Models\StaticData;
-use LegacyApp\Site\Models\User;
+use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\TestCase;
 
 class V1Test extends TestCase
 {
     use RefreshDatabase;
-
-    private User $user;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        /** @var User $user */
-        $user = User::factory()->create();
-        $this->user = $user;
-    }
-
-    private function apiUrl(string $method, array $params = []): string
-    {
-        $params = array_merge(['y' => $this->user->APIKey], $params);
-
-        return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
-    }
+    use BootstrapsApiV1;
 
     public function testUnauthorizedResponse(): void
     {
@@ -178,23 +161,88 @@ class V1Test extends TestCase
             ]);
     }
 
-    // public function testGetAchievementsEarnedBetween(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetAchievementsEarnedBetween'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetAchievementsEarnedOnDay(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetAchievementsEarnedOnDay'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
+    public function testGetAchievementsEarnedBetweenEmptyResponse(): void
+    {
+        $this->get($this->apiUrl('GetAchievementsEarnedBetween'))
+            ->assertSuccessful()
+            ->assertExactJson([]);
+    }
+
+    public function testGetAchievementsEarnedBetween(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100]);
+        /** @var PlayerAchievement $unlock */
+        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+
+        $this->get(
+            $this->apiUrl('GetAchievementsEarnedBetween', [
+                'u' => $this->user->User,
+                'f' => Carbon::now()->subDay()->startOfDay()->unix(),
+                't' => Carbon::now()->addDay()->endOfDay()->unix(),
+            ])
+        )
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'AchievementID' => $achievement->ID,
+                    'ConsoleName' => $system->Name,
+                    'CumulScore' => 100,
+                    'Date' => $unlock->Date->format('Y-m-d H:i:s'),
+                    'Description' => $achievement->Description,
+                    'GameID' => $game->ID,
+                    'GameIcon' => $game->ImageIcon,
+                    'GameTitle' => $game->Title,
+                    'GameURL' => '/game/' . $game->ID,
+                    'HardcoreMode' => UnlockMode::Softcore,
+                    'Points' => $achievement->Points,
+                    'Title' => $achievement->Title,
+                ],
+            ]);
+    }
+
+    public function testGetAchievementsEarnedOnDay(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User]);
+        /** @var PlayerAchievement $unlock */
+        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+
+        $this->get(
+            $this->apiUrl('GetAchievementsEarnedOnDay', [
+                'u' => $this->user->User,
+                'd' => $unlock->Date->format('Y-m-d'),
+            ])
+        )
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'AchievementID' => $achievement->ID,
+                    'Author' => $this->user->User,
+                    'BadgeName' => $achievement->BadgeName,
+                    'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
+                    'ConsoleName' => $system->Name,
+                    'CumulScore' => 100,
+                    'Date' => $unlock->Date->format('Y-m-d H:i:s'),
+                    'Description' => $achievement->Description,
+                    'GameID' => $game->ID,
+                    'GameIcon' => $game->ImageIcon,
+                    'GameTitle' => $game->Title,
+                    'GameURL' => '/game/' . $game->ID,
+                    'HardcoreMode' => UnlockMode::Softcore,
+                    'Points' => $achievement->Points,
+                    'Title' => $achievement->Title,
+                ],
+            ]);
+    }
 
     public function testGetAchievementUnlocks(): void
     {
@@ -234,15 +282,6 @@ class V1Test extends TestCase
                 'UnlocksCount' => 1,
             ]);
     }
-
-    // public function testGetActiveClaims(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetActiveClaims'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
 
     public function testGetConsoleIds(): void
     {
@@ -332,15 +371,6 @@ class V1Test extends TestCase
     //     // TODO
     //
     //     $this->get($this->apiUrl('GetTopTenUsers'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetUserClaims(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetUserClaims'))
     //         ->assertSuccessful()
     //         ->assertExactJson([]);
     // }

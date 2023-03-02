@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories\Legacy;
 
+use LegacyApp\Platform\Enums\AchievementPoints;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Support\Database\Eloquent\Factory;
@@ -27,6 +28,8 @@ class AchievementFactory extends Factory
             'MemAddr' => '0x000000',
             'Author' => $this->fakeUsername(),
             'Flags' => AchievementType::Unofficial,
+            'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
+            'BadgeName' => '00001',
         ];
     }
 

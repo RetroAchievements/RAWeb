@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "noImplicitAny": true,
+        "strict": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "outDir": "public/js",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["resources/js/*"]
+        }
+    },
+    "include": ["resources/js/**/*.ts"],
+    "exclude": ["node_modules"]
+}

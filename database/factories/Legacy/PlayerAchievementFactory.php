@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories\Legacy;
 
+use Illuminate\Support\Carbon;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Support\Database\Eloquent\Factory;
@@ -23,6 +24,7 @@ class PlayerAchievementFactory extends Factory
         return [
             'User' => $this->fakeUsername(),
             'HardcoreMode' => UnlockMode::Softcore,
+            'Date' => Carbon::now(),
         ];
     }
 

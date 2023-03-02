@@ -227,7 +227,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
             }
 
             if ($dataPoint['Points'] != $rankPoints) {
-                if ($rankPoints === null) {
+                if ($rankPoints === null && $friends !== 1) {
                     $rankType = ($unlockMode == UnlockMode::Hardcore) ? RankType::Hardcore : RankType::Softcore;
                     $rank = getUserRank($dataPoint['User'], $rankType);
                 } else {

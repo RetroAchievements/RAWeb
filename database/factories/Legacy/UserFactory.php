@@ -31,8 +31,10 @@ class UserFactory extends Factory
             'SaltedPass' => '',
             'Permissions' => Permissions::Registered,
             'RAPoints' => random_int(0, 10000),
+            'RASoftcorePoints' => 0,
             'fbUser' => 0,
             'Untracked' => 0,
+            'UserWallActive' => 1,
 
             // nullable
             'APIKey' => 'apiKey',

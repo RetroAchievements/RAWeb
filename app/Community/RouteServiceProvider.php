@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community;
 
+use App\Community\Controllers\ContactController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,8 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])
             ->group(function () {
+                Route::get('contact', ContactController::class)->name('contact');
+
                 /*
                  * shallow comment routes - keep comments at the root level, not nested (topic.comment, user.comment, achievement.comment)
                  * -> deeplinks & legacy links
