@@ -20,6 +20,19 @@ class UserRecentlyPlayedGamesTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
+    public function testItValidates(): void
+    {
+        $this->get($this->apiUrl('GetUserRecentlyPlayedGames', [
+            'c' => 'nope',
+            'o' => -1,
+        ]))
+            ->assertJsonValidationErrors([
+                'u',
+                'c',
+                'o',
+            ]);
+    }
+
     public function testGetUserRecentlyPlayedGamesUnknownUser(): void
     {
         $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => 'nonExistant']))
