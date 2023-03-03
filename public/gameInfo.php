@@ -1365,7 +1365,7 @@ sanitize_outputs(
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            if (isset($raGuideURL)) {
+            if (isset($raGuideURL) && !empty($raGuideURL)) {
                 echo "<a class='btn py-2 mb-2 block' href='$raGuideURL'><span class='icon icon-md ml-1 mr-3'>📖</span>Official RAGuide</a>";
             }
             echo "</li>";
@@ -1390,7 +1390,7 @@ sanitize_outputs(
                 if ($numAchievements == 0) {
                     echo "<li><a class='btn py-2 mb-2 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
                 }
-                if ($numAchievements >= 1 && !isset($raGuideURL)) {
+                if ($numAchievements >= 1 && (!isset($raGuideURL) || (isset($raGuideURL) && empty($raGuideURL)))) {
                     echo "<a class='btn py-2 mb-2 block' href='https://github.com/RetroAchievements/guides/wiki' target='_blank' rel='noreferrer'><span class='icon icon-md ml-1 mr-3'>📖</span>Create an RAGuide</a>";
                 }
                 echo "</ul>";
