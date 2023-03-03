@@ -50,7 +50,7 @@ module.exports = {
     extend: {
       colors: {
         raTheme: {
-          scrollthumb: 'var(--link-color)',
+          scrollthumb: 'var(--text-color)',
           scrolltrack: 'var(--text-color-muted)'
         }
       }

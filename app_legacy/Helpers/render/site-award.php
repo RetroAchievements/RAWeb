@@ -154,7 +154,7 @@ function RenderAwardGroup($awards, $title): void
     // overflowing on the client and apply the fade classes if so.
     $shouldAddOptimisticAwardsFade = !$doesPreferAlwaysExpandedRewards && count($visibleAwards) >= 120;
 
-    $awardsFadeClassName = 'awards-fade';
+    $awardsFadeClassName = 'group-fade';
 
     $optimisticAwardsFade = $shouldAddOptimisticAwardsFade ? $awardsFadeClassName : '';
     $initialAwardsButtonExpandClass = $shouldAddOptimisticAwardsFade ? '' : 'hidden';
@@ -168,14 +168,14 @@ function RenderAwardGroup($awards, $title): void
 
     echo "<div class='relative'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div id='$awardsContainerId' " . ($doesPreferAlwaysExpandedRewards ? "class='$awardsGroupComponentBaseClassNames'" : "class='$awardsGroupComponentBaseClassNames $withScrollingClassNames $optimisticAwardsFade' onscroll='expandableAwards.handleAwardsScroll(event, \"$awardsExpandButtonId\")' x-init='expandableAwards.shouldApplyAwardsGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'") . ">";
+    echo "<div id='$awardsContainerId' " . ($doesPreferAlwaysExpandedRewards ? "class='$awardsGroupComponentBaseClassNames'" : "class='$awardsGroupComponentBaseClassNames $withScrollingClassNames $optimisticAwardsFade' onscroll='badgeGroup.handleBadgeGroupScroll(event, \"$awardsExpandButtonId\")' x-init='badgeGroup.shouldApplyBadgeGroupFade(\"$awardsContainerId\", \"$awardsExpandButtonId\", \"$awardsFadeClassName\")'") . ">";
     $imageSize = 48;
     foreach ($visibleAwards as $award) {
         RenderAward($award, $imageSize);
     }
     echo "</div>";
 
-    echo "<button id='$awardsExpandButtonId' class='$expandButtonClassNames $initialAwardsButtonExpandClass' onclick='expandableAwards.handleExpandAwardsClick(event, \"$awardsContainerId\")'>Expand (" . count($visibleAwards) . ")</button>";
+    echo "<button id='$awardsExpandButtonId' class='$expandButtonClassNames $initialAwardsButtonExpandClass' onclick='badgeGroup.handleExpandGroupClick(event, \"$awardsContainerId\")'>Expand (" . count($visibleAwards) . ")</button>";
 
     echo "</div>";
 }

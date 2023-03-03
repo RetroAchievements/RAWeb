@@ -165,7 +165,7 @@ function handleExpandedAwardsCheckboxClick(event) {
                 echo "<div class='flex flex-col'>";
                 echo "<div>";
                 echo "<input onclick='handleExpandedAwardsCheckboxClick(event)' class='mr-2' type='checkbox' " . ($doesPreferAlwaysExpandedRewards ? 'checked' : '') . ">";
-                echo "<button class='btn mr-4' onclick='expandableAwards.saveExpandableAwardsPreference(\"$expandedAwardsCookieName\", isExpandedAwardsCheckboxChecked)'>Save</button>";
+                echo "<button class='btn mr-4' onclick='badgeGroup.saveExpandableBadgeGroupsPreference(\"$expandedAwardsCookieName\", isExpandedAwardsCheckboxChecked)'>Save</button>";
                 echo "</div>";
                 echo "<span class='text-xs'>This only applies to your current device.</span>";
                 echo "</div>";

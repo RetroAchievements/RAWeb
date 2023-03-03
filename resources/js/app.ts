@@ -2,12 +2,12 @@ import Alpine from 'alpinejs';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-import { clipboard, expandableAwards, themeChange } from './utils';
+import { badgeGroup, clipboard, themeChange } from './utils';
 
 // livewire_hot_reload();
 
 window.clipboard = clipboard;
-window.expandableAwards = expandableAwards;
+window.badgeGroup = badgeGroup;
 
 themeChange();
 
