@@ -19,7 +19,7 @@ trait HandlesPublicFileRequests
         }
 
         $scriptPath = public_path("$file.php");
-        if (!file_exists($scriptPath)) {
+        if (!file_exists($scriptPath) || $file === 'index') {
             throw new NotFoundHttpException();
         }
 
@@ -57,7 +57,7 @@ trait HandlesPublicFileRequests
     private function handleRequest(string $path): Response|RedirectResponse|JsonResponse|StreamedResponse
     {
         $scriptPath = public_path("$path.php");
-        if (!file_exists($scriptPath)) {
+        if (!file_exists($scriptPath) || $scriptPath === 'index') {
             throw new NotFoundHttpException();
         }
 

@@ -7,9 +7,9 @@ if ($newsData->isEmpty()) {
     return;
 }
 ?>
-<link type="text/css" rel="stylesheet" href="<?= asset('/vendor/rcarousel/rcarousel.css') ?>"/>
-<script src="<?= asset('/vendor/rcarousel/jquery.ui.widget.min.js') ?>"></script>
-<script src="<?= asset('/vendor/rcarousel/jquery.ui.rcarousel.min.js') ?>"></script>
+<link type="text/css" rel="stylesheet" href="{{ asset('vendor/rcarousel/rcarousel.css') }}"/>
+<script src="{{ asset('vendor/rcarousel/jquery.ui.widget.min.js') }}"></script>
+<script src="{{ asset('vendor/rcarousel/jquery.ui.rcarousel.min.js') }}"></script>
 <script>
     $(function () {
         function generatePages() {
