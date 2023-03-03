@@ -127,7 +127,6 @@ function RenderToolbar(): void
     echo "<li><a href='#'>Achievements</a>";
     echo "<div>";
     echo "<ul>";
-    echo "<li class='divider'></li>";
     echo "<li><a href='/achievementList.php'>All Achievements</a></li>";
     echo "<li class='divider'></li>";
     // echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
