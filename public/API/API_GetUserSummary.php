@@ -78,11 +78,12 @@
  *  string     ContribYield            points awarded to others
  */
 
+use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => 'required',
+    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'g' => 'nullable|integer|min:0',
     'a' => 'nullable|integer|min:0',
 ]);

@@ -22,11 +22,12 @@
  *    int        ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
+use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
-    'u' => 'required',
+    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'c' => 'nullable|integer|min:0',
     'o' => 'nullable|integer|min:0',
 ]);
