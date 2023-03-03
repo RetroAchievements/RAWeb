@@ -865,7 +865,7 @@ sanitize_outputs(
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "<label for='game_release'>First Released</label><input type='text' name='release' id='game_release' value='" . attributeEscape($released) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                    echo "<label for='ra_guide_url'>RA Guide URL</label><input type='url' name='ra_guide_url' id='ra_guide_url' value='" . attributeEscape($raGuideURL) . "' class='w-full'>";
+                    echo "<label for='ra_guide_url'>RAGuide URL</label><input type='url' name='ra_guide_url' id='ra_guide_url' value='" . attributeEscape($raGuideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -1390,7 +1390,7 @@ sanitize_outputs(
                 if ($numAchievements == 0) {
                     echo "<li><a class='btn py-2 mb-2 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
                 }
-                if ($numAchievements >= 1 && (!isset($raGuideURL) || (isset($raGuideURL) && empty($raGuideURL)))) {
+                if ($numAchievements >= 1 && (!isset($raGuideURL) || (empty($raGuideURL)))) {
                     echo "<a class='btn py-2 mb-2 block' href='https://github.com/RetroAchievements/guides/wiki' target='_blank' rel='noreferrer'><span class='icon icon-md ml-1 mr-3'>📖</span>Create an RAGuide</a>";
                 }
                 echo "</ul>";
