@@ -14,7 +14,7 @@ $input = Validator::validate(request()->post(), [
     'publisher' => 'nullable|string|max:50',
     'genre' => 'nullable|string|max:50',
     'release' => 'nullable|string|max:50',
-    'ra_guide_url' => 'nullable|active_url'
+    'ra_guide_url' => 'nullable|active_url',
 ]);
 
 $gameId = (int) $input['game'];
