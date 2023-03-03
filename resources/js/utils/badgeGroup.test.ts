@@ -15,24 +15,25 @@ import * as CookieModule from './cookie';
 global.badgeGroup = badgeGroup;
 
 describe('Util: badgeGroup', () => {
-  describe('handleExpandGroupClick', () => {
-    it('should expand the awards container and remove the expand button', async () => {
+  describe('handleSizeToggleButtonClick', () => {
+    it('given the button is clicked to expand, it should expand the awards container, switch to a collapse button, and persist a preference', async () => {
       // ARRANGE
+      const setCookieSpy = vi.spyOn(CookieModule, 'setCookie');
+
       (document as any).badgeGroup = badgeGroup;
       document.body.innerHTML = /** @html */`
         <div>
           <div 
             id="Game Awards-container" 
-            class="group-fade" 
+            class="group-fade max-h-[64vh]" 
             data-testid="awards-container"
-            style="max-height: 75vh;"
           ></div>
 
           <button 
             id="Game Awards-expand-button" 
-            onclick="badgeGroup.handleExpandGroupClick(event, 'Game Awards-container')"
+            onclick="badgeGroup.handleSizeToggleButtonClick(event, 'Game Awards-container', 100)"
           >
-            Expand
+            Expand (100)
           </button>
         </div>
       `;
@@ -46,26 +47,65 @@ describe('Util: badgeGroup', () => {
       await waitFor(() => {
         const awardsContainerEl = screen.getByTestId('awards-container');
 
-        expect(awardsContainerEl.style.getPropertyValue('max-height')).toEqual('100000px');
         expect(awardsContainerEl.style.getPropertyValue('mask-image')).toEqual('');
 
+        expect(awardsContainerEl.classList.contains('max-h-[64vh]')).not.toBeTruthy();
         expect(awardsContainerEl.classList.contains('group-fade')).not.toBeTruthy();
 
-        expect(buttonEl).not.toBeInTheDocument();
+        expect(screen.getByRole('button')).toHaveTextContent(/collapse/i);
+
+        expect(setCookieSpy).toHaveBeenCalledWith(expect.anything(), 'true');
       });
+    });
+  });
+
+  it('given the button is clicked to collapse, it should collapse the awards container, switch to an expand button, and persist a preference', async () => {
+    // ARRANGE
+    const setCookieSpy = vi.spyOn(CookieModule, 'setCookie');
+
+    (document as any).badgeGroup = badgeGroup;
+    document.body.innerHTML = /** @html */`
+      <div>
+        <div 
+          id="Game Awards-container" 
+          class="group-fade max-h-[64vh]" 
+          data-testid="awards-container"
+        ></div>
+
+        <button 
+          id="Game Awards-expand-button" 
+          onclick="badgeGroup.handleSizeToggleButtonClick(event, 'Game Awards-container', 100)"
+        >
+          Collapse
+        </button>
+      </div>
+    `;
+
+    const buttonEl = screen.getByRole('button', { name: /collapse/i });
+
+    // ACT
+    await userEvent.click(buttonEl);
+
+    // ASSERT
+    await waitFor(() => {
+      const awardsContainerEl = screen.getByTestId('awards-container');
+
+      expect(awardsContainerEl.classList.contains('max-h-[64vh]')).toBeTruthy();
+      expect(awardsContainerEl.classList.contains('group-fade')).toBeTruthy();
+
+      expect(screen.getByRole('button')).toHaveTextContent(/expand/i);
+
+      expect(setCookieSpy).toHaveBeenCalledWith(expect.anything(), 'false');
     });
   });
 
   describe('saveExpandableBadgeGroupsPreference', () => {
     it('sets a cookie and pops an alert', () => {
-      const mockAlert = vi.fn();
-      globalThis.alert = mockAlert;
       const setCookieSpy = vi.spyOn(CookieModule, 'setCookie');
 
-      badgeGroup.saveExpandableBadgeGroupsPreference('mock-cookie-name', true);
+      badgeGroup.saveExpandableBadgeGroupsPreference(true);
 
-      expect(mockAlert).toHaveBeenCalledWith('Saved!');
-      expect(setCookieSpy).toHaveBeenCalledWith('mock-cookie-name', 'true');
+      expect(setCookieSpy).toHaveBeenCalledWith('prefers_always_expanded_badge_groups', 'true');
     });
   });
 });

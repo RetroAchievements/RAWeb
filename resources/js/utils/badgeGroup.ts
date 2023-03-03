@@ -3,22 +3,65 @@ import { throttle } from './throttle';
 
 const cachedBadgeGroupButtons: Record<string, HTMLButtonElement> = {};
 
+const handleSizeToggleButtonClick = (
+  event: MouseEvent,
+  groupContainerId: string,
+  visibleAwardsCount: number
+) => {
+  const buttonEl = event.target as HTMLButtonElement;
+  const isAlreadyExpanded = buttonEl.innerHTML.includes('Collapse');
+
+  if (isAlreadyExpanded) {
+    collapse(event, groupContainerId, visibleAwardsCount);
+  } else {
+    expand(event, groupContainerId);
+  }
+};
+
 /**
  * Show the full list of badges and remove the Expand button.
  */
-const handleExpandGroupClick = (event: MouseEvent, groupContainerId:string) => {
+const expand = (event: MouseEvent, groupContainerId: string) => {
   const buttonEl = event.target as HTMLButtonElement;
   const groupContainerEl = document.getElementById(groupContainerId);
 
+  // NOTE: You can dynamically remove Tailwind classes, but you cannot dynamically add them.
   if (groupContainerEl) {
-    groupContainerEl.style.setProperty('max-height', '100000px');
-    groupContainerEl.style.setProperty('-webkit-mask-image', '');
+    groupContainerEl.classList.remove('max-h-[64vh]', 'lg:max-h-[76vh]', 'group-fade', '!gap-[.5em]');
+    groupContainerEl.style.setProperty('margin-bottom', '2.5rem');
     groupContainerEl.style.setProperty('mask-image', '');
-    groupContainerEl.classList.remove('group-fade');
+    groupContainerEl.style.setProperty('webkit-mask-image', '');
 
-    delete cachedBadgeGroupButtons[buttonEl.id];
-    buttonEl.remove();
+    buttonEl.classList.remove('bottom-4', 'transform', 'hover:-translate-y-1', 'hover:scale-105', 'active:scale-100');
+    buttonEl.style.setProperty('bottom', '-0.1rem');
+    buttonEl.style.setProperty('right', '10%');
+    buttonEl.innerHTML = 'Collapse';
   }
+
+  saveExpandableBadgeGroupsPreference(true);
+};
+
+const collapse = (
+  event: MouseEvent,
+  groupContainerId: string,
+  visibleAwardsCount: number
+) => {
+  const buttonEl = event.target as HTMLButtonElement;
+  const groupContainerEl = document.getElementById(groupContainerId);
+
+  // NOTE: You can dynamically remove Tailwind classes, but you cannot dynamically add them.
+  if (groupContainerEl) {
+    groupContainerEl.classList.add('max-h-[64vh]', 'lg:max-h-[76vh]', 'group-fade', '!gap-[.5em]');
+    groupContainerEl.style.setProperty('margin-bottom', '');
+
+    buttonEl.classList.add('bottom-4', 'transform', 'hover:-translate-y-1', 'hover:scale-105', 'active:scale-100');
+    buttonEl.style.setProperty('bottom', '');
+    buttonEl.style.setProperty('right', '');
+    buttonEl.style.setProperty('opacity', '100');
+    buttonEl.innerHTML = `Expand (${visibleAwardsCount})`;
+  }
+
+  saveExpandableBadgeGroupsPreference(false);
 };
 
 /**
@@ -69,15 +112,13 @@ const onGroupScroll = (event: UIEvent, expandButtonId: string) => {
 };
 
 /**
- * A user may prefer to always see fully-expanded badge groups.
- * Set a cookie and inform them their preference was saved.
+ * On expand (or collapse), persist the preference to the user's machine.
  */
 const saveExpandableBadgeGroupsPreference = (
-  cookieName: string,
-  shouldAlwaysExpand: boolean
+  shouldAlwaysExpand: boolean,
+  cookieName = 'prefers_always_expanded_badge_groups',
 ) => {
   setCookie(cookieName, String(shouldAlwaysExpand));
-  alert('Saved!');
 };
 
 /**
@@ -108,7 +149,7 @@ const shouldApplyBadgeGroupFade = (
 };
 
 export const badgeGroup = {
-  handleExpandGroupClick,
+  handleSizeToggleButtonClick,
   saveExpandableBadgeGroupsPreference,
   shouldApplyBadgeGroupFade,
   handleBadgeGroupScroll: throttle(onGroupScroll, 25)
