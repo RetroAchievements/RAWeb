@@ -17,6 +17,14 @@ class UserCompletedGamesTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
+    public function testItValidates(): void
+    {
+        $this->get($this->apiUrl('GetUserSummary'))
+            ->assertJsonValidationErrors([
+                'u',
+            ]);
+    }
+
     public function testGetUserCompletedGamesUnknownUser(): void
     {
         $this->get($this->apiUrl('GetUserCompletedGames', ['u' => 'nonExistant']))
