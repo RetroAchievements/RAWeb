@@ -24,7 +24,9 @@ $pageTitle = "Leaderboards - ";
 
 $gameData = getGameData($gameID);
 $codeNotes = [];
-getCodeNotes($gameID, $codeNotes);
+if ($permissions >= Permissions::JuniorDeveloper) {
+    getCodeNotes($gameID, $codeNotes);
+}
 $pageTitle .= $gameData['Title'];
 
 $lbData = getLeaderboardsList($gameID, $sortBy);
@@ -133,14 +135,14 @@ RenderContentStart($pageTitle);
         echo "<th>Lower Is Better</th>";
         echo "<th>Display Order</th>";
     } else {
-        echo "<th><a href='/leaderboardList.php?s=$sort1'>ID</a></th>";
+        echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort1'>ID</a></th>";
         echo "<th></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort2'>Game</a></th>";
-        // echo "<th><a href='/leaderboardList.php?s=$sort3'>Console</a></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort4'>Title</a></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort5'>Description</a></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort6'>Type</a></th>";
-        echo "<th><a href='/leaderboardList.php?s=$sort7'>Entries</a></th>";
+        echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort2'>Game</a></th>";
+        // echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort3'>Console</a></th>";
+        echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort4'>Title</a></th>";
+        echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort5'>Description</a></th>";
+        echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort6'>Type</a></th>";
+        echo "<th><a href='/leaderboardList.php?g=$gameID&s=$sort7'>Entries</a></th>";
     }
 
     $listCount = 0;
