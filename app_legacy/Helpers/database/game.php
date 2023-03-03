@@ -12,7 +12,7 @@ function getGameData(int $gameID): ?array
         return null;
     }
 
-    $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, gd.RAGuideURL, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
+    $query = "SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, IFNULL( gd.Flags, 0 ) AS Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, gd.GuideURL, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.RichPresencePatch
               FROM GameData AS gd
               LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
               WHERE gd.ID = $gameID";
@@ -497,7 +497,7 @@ function getGameIDFromTitle($gameTitle, $consoleID): int
 }
 
 function modifyGameData(string $user, int $gameID, ?string $developer,
-    ?string $publisher, ?string $genre, ?string $released, ?string $raGuideURL): bool
+    ?string $publisher, ?string $genre, ?string $released, ?string $guideURL): bool
 {
     $gameData = getGameData($gameID);
     if (empty($gameData)) {
@@ -517,18 +517,18 @@ function modifyGameData(string $user, int $gameID, ?string $developer,
     if ($gameData['Released'] != $released) {
         $modifications[] = 'first released';
     }
-    if ($gameData['RAGuideURL'] != $raGuideURL) {
-        $modifications[] = 'RAGuide URL';
+    if ($gameData['GuideURL'] != $guideURL) {
+        $modifications[] = 'Guide URL';
     }
 
     if (count($modifications) == 0) {
         return true;
     }
 
-    sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released, $raGuideURL);
+    sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released, $guideURL);
 
     $query = "UPDATE GameData AS gd
-              SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released', gd.RAGuideURL = '$raGuideURL'
+              SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released', gd.GuideURL = '$guideURL'
               WHERE gd.ID = $gameID";
 
     $db = getMysqliConnection();

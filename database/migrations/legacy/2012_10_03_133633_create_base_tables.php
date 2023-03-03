@@ -352,7 +352,7 @@ return new class() extends Migration {
                 $table->string('Developer', 50)->nullable();
                 $table->string('Genre', 50)->nullable();
                 $table->string('Released', 50)->nullable();
-                $table->string('RAGuideURL')->nullable();
+                $table->string('GuideURL')->nullable();
                 $table->unsignedTinyInteger('IsFinal')->default(0);
                 $table->text('RichPresencePatch')->nullable();
                 $table->unsignedInteger('TotalTruePoints')->default(0);
@@ -376,9 +376,9 @@ return new class() extends Migration {
             // UPDATE `GameData` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
 
-        if (!Schema::hasColumns('GameData', ['RAGuideURL'])) {
+        if (!Schema::hasColumns('GameData', ['GuideURL'])) {
             Schema::table('GameData', function (Blueprint $table) {
-                $table->string('RAGuideURL')->nullable();
+                $table->string('GuideURL')->nullable();
             });
         }
 
