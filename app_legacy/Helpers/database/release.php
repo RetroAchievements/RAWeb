@@ -89,6 +89,9 @@ function isValidConsoleId(int $consoleId): bool
         // 75, // Elektor TV Games Computer
         76, // PC Engine CD
         // 77, // Atari Jaguar CD
+        // 78, // Nintendo DSi
+        // 79, // TI-83
+        // 80, // Uzebox
         // 100, // Hubs (not an actual console)
         101 => true, // Events (not an actual console)
         default => false,
