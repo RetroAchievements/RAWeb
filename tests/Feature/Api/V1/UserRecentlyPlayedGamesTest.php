@@ -23,7 +23,6 @@ class UserRecentlyPlayedGamesTest extends TestCase
     public function testItValidates(): void
     {
         $this->get($this->apiUrl('GetUserRecentlyPlayedGames', [
-            'u' => null,
             'c' => 'nope',
             'o' => -1,
         ]))

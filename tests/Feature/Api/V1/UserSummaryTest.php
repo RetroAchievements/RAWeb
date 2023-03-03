@@ -24,7 +24,6 @@ class UserSummaryTest extends TestCase
     public function testItValidates(): void
     {
         $this->get($this->apiUrl('GetUserSummary', [
-            'u' => null,
             'g' => 'nope',
             'a' => -1,
         ]))
