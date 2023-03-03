@@ -14,6 +14,7 @@ $input = Validator::validate(request()->post(), [
     'publisher' => 'nullable|string|max:50',
     'genre' => 'nullable|string|max:50',
     'release' => 'nullable|string|max:50',
+    'ra_guide_url' => 'nullable|active_url'
 ]);
 
 $gameId = (int) $input['game'];
@@ -23,7 +24,7 @@ if ($permissions === Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($use
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['release'])) {
+if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['release'], $input['ra_guide_url'])) {
     return back()->with('success', __('legacy.success.update'));
 }
 
