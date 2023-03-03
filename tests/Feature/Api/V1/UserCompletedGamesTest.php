@@ -19,7 +19,7 @@ class UserCompletedGamesTest extends TestCase
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetUserSummary'))
+        $this->get($this->apiUrl('GetUserCompletedGames'))
             ->assertJsonValidationErrors([
                 'u',
             ]);
