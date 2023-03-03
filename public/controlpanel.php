@@ -21,11 +21,6 @@ $userWallActive = $userDetails['UserWallActive'];
 $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
-$expandedAwardsCookieName = 'prefers_always_expanded_badge_groups';
-$doesPreferAlwaysExpandedRewards =
-    isset($_COOKIE[$expandedAwardsCookieName])
-    && $_COOKIE[$expandedAwardsCookieName] === 'true';
-
 RenderContentStart("My Settings");
 
 function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): void
@@ -102,12 +97,6 @@ function confirmEmailChange(event) {
     return true;
     <?php endif ?>
 }
-
-const expandedAwardsCookieName = '<?= $expandedAwardsCookieName ?>';
-let isExpandedAwardsCheckboxChecked = document.cookie.includes(`${expandedAwardsCookieName}=true`);
-function handleExpandedAwardsCheckboxClick(event) {
-    isExpandedAwardsCheckboxChecked = event.target.checked;
-}
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
@@ -129,7 +118,7 @@ function handleExpandedAwardsCheckboxClick(event) {
                     echo "<td>";
                     echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
                     echo csrf_field();
-                    echo "<input name='motto' value=\"$userMottoString\" maxlength='40' size='40' id='motto' placeholder='Your motto'>";
+                    echo "<input name='motto' value=\"$userMottoString\" maxlength='50' size='50' id='motto' placeholder='Your motto'>";
                     echo "<button class='btn'>Set Motto</button>";
                     echo "</form>";
                     echo "<div>No profanity.</div>";
@@ -138,7 +127,7 @@ function handleExpandedAwardsCheckboxClick(event) {
                 }
                 if ($permissions >= Permissions::Unregistered) {
                     echo "<tr>";
-                    echo "<td>Allow comments on my User Wall</td>";
+                    echo "<td>Allow Comments on my User Wall</td>";
                     echo "<td>";
                     echo "<form method='post' action='/request/user-comment/toggle.php'>";
                     echo csrf_field();
@@ -159,17 +148,6 @@ function handleExpandedAwardsCheckboxClick(event) {
                     echo "</td>";
                     echo "</tr>";
                 }
-                echo "<tr>";
-                echo "<td>Always expand User Awards on profiles</td>";
-                echo "<td>";
-                echo "<div class='flex flex-col'>";
-                echo "<div>";
-                echo "<input onclick='handleExpandedAwardsCheckboxClick(event)' class='mr-2' type='checkbox' " . ($doesPreferAlwaysExpandedRewards ? 'checked' : '') . ">";
-                echo "<button class='btn mr-4' onclick='badgeGroup.saveExpandableBadgeGroupsPreference(\"$expandedAwardsCookieName\", isExpandedAwardsCheckboxChecked)'>Save</button>";
-                echo "</div>";
-                echo "<span class='text-xs'>This only applies to your current device.</span>";
-                echo "</div>";
-                echo "</td>";
                 echo "</tbody></table>";
                 ?>
             </div>
