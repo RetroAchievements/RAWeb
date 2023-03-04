@@ -21,11 +21,55 @@ class UserSummaryTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
+    public function testItValidates(): void
+    {
+        $this->get($this->apiUrl('GetUserSummary', [
+            'g' => 'nope',
+            'a' => -1,
+        ]))
+            ->assertJsonValidationErrors([
+                'u',
+                'g',
+                'a',
+            ]);
+    }
+
     public function testGetUserSummaryUnknownUser(): void
     {
         $this->get($this->apiUrl('GetUserSummary', ['u' => 'nonExistant']))
             ->assertNotFound()
             ->assertJson(['ID' => null, 'User' => 'nonExistant']);
+    }
+
+    public function testGetUserSummaryNoGameHistory(): void
+    {
+        // user with no game history should have no points
+        $this->user->RAPoints = 0;
+        $this->user->RASoftcorePoints = 0;
+        $this->user->save();
+
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $this->user->ID,
+                'TotalPoints' => $this->user->RAPoints,
+                'TotalSoftcorePoints' => $this->user->RASoftcorePoints,
+                'TotalTruePoints' => $this->user->TrueRAPoints,
+                'Permissions' => $this->user->Permissions,
+                'MemberSince' => $this->user->Created->__toString(),
+                'Untracked' => $this->user->Untracked,
+                'UserPic' => '/UserPic/' . $this->user->User . '.png',
+                'Motto' => $this->user->Motto,
+                'UserWallActive' => $this->user->UserWallActive,
+                'ContribCount' => $this->user->ContribCount,
+                'ContribYield' => $this->user->ContribYield,
+                'Rank' => null,
+                'TotalRanked' => 0,
+                'LastGameID' => null,
+                'RichPresenceMsg' => null,
+                'RecentlyPlayedCount' => 0,
+                'RecentlyPlayed' => [],
+            ]);
     }
 
     public function testGetUserSummary(): void

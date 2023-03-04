@@ -74,7 +74,7 @@
                 </p>
 
                 <p class="mb-3">
-                    <a href='/createmessage.php?t=RAEvents'>Send a message to TheUnwanted</a> for
+                    <a href='/createmessage.php?t=TheUnwanted'>Send a message to TheUnwanted</a> for
                     submissions, questions, ideas, or reporting issues specifically related to
                     <a href='/game/4271'>The Unwanted</a>.
                 </p>

@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 const DEFAULT_COOKIE_EXPIRY_DAYS = 30;
 
 export const setCookie = (cookieName: string, value: string | null) => {
-  if (!value) {
+  if (value === null) {
     return;
   }
 

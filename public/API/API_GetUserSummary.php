@@ -78,6 +78,16 @@
  *  string     ContribYield            points awarded to others
  */
 
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'g' => 'nullable|integer|min:0',
+    'a' => 'nullable|integer|min:0',
+]);
+
 $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '5');
 $recentAchievementsEarned = (int) request()->query('a', '10');
@@ -95,7 +105,7 @@ $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
 // assume caller doesn't care about the rich presence script for the last game played
-if ($retVal['LastGame']) {
+if (in_array('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
 }
 
