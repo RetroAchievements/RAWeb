@@ -112,7 +112,7 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
         RankType::TruePoints => 'truepoints',
     };
 
-    $cachedRank = Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
+    return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
         $user = User::firstWhere('User', $username);
         if (!$user || $user->Untracked) {
             return null;
@@ -153,6 +153,4 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
 
         return (int) legacyDbFetch($query)['UserRank'];
     });
-
-    return $cachedRank ?? null;
 }
