@@ -135,7 +135,7 @@ function GetUserUnlocksData(string $user, int $gameID, bool $hardcoreMode): arra
 {
     sanitize_sql_inputs($user, $gameID);
 
-    $hardcoreMode = $hardcoreMode ? 1 : 0;
+    $hardcoreMode = (int) $hardcoreMode;
 
     $query = "SELECT AchievementID
         FROM Achievements AS ach

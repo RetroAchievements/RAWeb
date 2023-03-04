@@ -12,11 +12,10 @@ function updateSubscription(string $subjectType, int $subjectID, int $userID, bo
     sanitize_sql_inputs($subjectType);
     $state = (int) $state;
 
-    $stateInt = $state ? 1 : 0;
     $query = "
         INSERT INTO Subscription(SubjectType, SubjectID, UserID, State)
-        VALUES ('$subjectType', $subjectID, $userID, '$stateInt')
-        ON DUPLICATE KEY UPDATE State = '$stateInt'
+        VALUES ('$subjectType', $subjectID, $userID, '$state')
+        ON DUPLICATE KEY UPDATE State = '$state'
     ";
 
     $dbResult = s_mysql_query($query);
@@ -35,7 +34,7 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
     if (!$userID) {
         return false;
     }
-    sanitize_sql_inputs($subjectType, $subjectID, $userID);
+    sanitize_sql_inputs($subjectType);
 
     if ($implicitSubscriptionQry === null) {
         $query = "
@@ -102,7 +101,7 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
  */
 function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePrefs = null, string $implicitSubscriptionQry = null): array
 {
-    sanitize_sql_inputs($subjectType, $subjectID, $reqWebsitePrefs);
+    sanitize_sql_inputs($subjectType);
 
     $websitePrefsFilter = (
         $reqWebsitePrefs === null ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0"

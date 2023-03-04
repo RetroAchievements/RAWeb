@@ -198,7 +198,7 @@ function markMessageAsRead(string $user, int $messageID, bool $setAsUnread = fal
 {
     sanitize_sql_inputs($user);
 
-    $newReadStatus = $setAsUnread ? 1 : 0;
+    $newReadStatus = (int) $setAsUnread;
 
     $query = "UPDATE Messages AS msg
             SET msg.Unread=$newReadStatus

@@ -168,7 +168,7 @@ function insertAchievementUnlockIntoAwardedTable(string $user, int $achIDToAward
 {
     sanitize_sql_inputs($user);
 
-    $isHardcore = $isHardcore ? 1 : 0;
+    $isHardcore = (int) $isHardcore;
 
     $query = "INSERT INTO Awarded ( User, AchievementID, Date, HardcoreMode )
               VALUES ( '$user', '$achIDToAward', NOW(), '$isHardcore' )

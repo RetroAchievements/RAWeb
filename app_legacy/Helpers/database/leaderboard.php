@@ -643,7 +643,7 @@ function submitLBData(
 ): bool {
     sanitize_sql_inputs($user, $lbMem, $lbTitle, $lbDescription, $lbFormat);
 
-    $lbLowerIsBetter = $lbLowerIsBetter ? 1 : 0;
+    $lbLowerIsBetter = (int) $lbLowerIsBetter;
 
     $query = "UPDATE LeaderboardDef AS ld SET
               ld.Mem = '$lbMem',
