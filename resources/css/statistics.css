@@ -1,8 +1,8 @@
 .stat-box {
-  @apply w-full h-20 border border-[color:var(--embed-highlight-color)];
+  @apply w-full h-20 border border-embed-highlight;
   @apply flex flex-col justify-center items-center;
   @apply cursor-pointer;
-  @apply text-[color:var(--link-color)] bg-[color:var(--embed-color)];
-  @apply hover:text-white hover:border-[color:var(--menu-link-color)] hover:bg-[color:var(--embed-highlight-color)];
+  @apply text-link bg-embed;
+  @apply hover:text-white hover:border-menu-link hover:bg-embed-highlight;
   @apply select-none;
 }
