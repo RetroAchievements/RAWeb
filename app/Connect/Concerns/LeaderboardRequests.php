@@ -40,7 +40,7 @@ trait LeaderboardRequests
         // $score = seekPOSTorGET('s', 0, 'integer');
         // $validation = seekPOSTorGET('v'); // Ignore for now?
         // $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
-        // $response['Success'] = $response['Response']['Success']; // Passthru
+        // $response['Success'] = $response['Response']['Success'];
         // if ($response['Success'] == false) {
         //     $response['Error'] = $response['Response']['Error'];
         // }

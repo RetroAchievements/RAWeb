@@ -21,6 +21,19 @@ class UserSummaryTest extends TestCase
     use RefreshDatabase;
     use BootstrapsApiV1;
 
+    public function testItValidates(): void
+    {
+        $this->get($this->apiUrl('GetUserSummary', [
+            'g' => 'nope',
+            'a' => -1,
+        ]))
+            ->assertJsonValidationErrors([
+                'u',
+                'g',
+                'a',
+            ]);
+    }
+
     public function testGetUserSummaryUnknownUser(): void
     {
         $this->get($this->apiUrl('GetUserSummary', ['u' => 'nonExistant']))

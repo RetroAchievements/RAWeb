@@ -537,29 +537,14 @@ function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition):
 }
 
 function getLeaderboardsList(
-    int $consoleIDInput,
     int $gameID,
     int $sortBy,
-    int $count,
-    int $offset,
-    ?array &$lbDataOut
-): int {
-    $lbCount = 0;
-
-    $whereClause = "";
-
-    if ($gameID != 0) {
-        $whereClause = "WHERE gd.ID = $gameID";
-    } elseif ($consoleIDInput != 0) {
-        $whereClause = "WHERE gd.ConsoleID = $consoleIDInput";
-    }
-
+): array {
     $ifDesc = "";
     if ($sortBy >= 10) {
         $ifDesc = " DESC";
     }
 
-    $orderClause = "";
     switch ($sortBy % 10) {
         case 0:
             $orderClause = "ORDER BY ld.DisplayOrder $ifDesc, c.ID, GameTitle";
@@ -611,24 +596,12 @@ function getLeaderboardsList(
                     GROUP BY le.LeaderboardID
                     ) AS leInner ON leInner.LeaderboardID = ld.ID
                 LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-
-                $whereClause
-
+                WHERE gd.ID = :gameId
                 GROUP BY ld.GameID, ld.ID
                 $orderClause
                 ";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $lbDataOut[$lbCount] = $db_entry;
-            $lbCount++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $lbCount;
+    return legacyDbFetchAll($query, ['gameId' => $gameID])->toArray();
 }
 
 function submitLBData(
