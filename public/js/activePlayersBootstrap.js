@@ -1,6 +1,6 @@
 function CreateCardIconDiv(type, id, title, icon, url) {
   return '<div class=\'inline\' '
-    + 'ontouchstart="mobileSafeTipEvents.touchStart()" onmouseover="mobileSafeTipEvents.mouseOver(loadCard(this, \'' + type + '\', \'' + id + '\'))" onmouseout="UnTip()" >'
+    + 'onmouseover="mobileSafeTipEvents.mouseOver(loadCard(this, \'' + type + '\', \'' + id + '\'))" onmouseout="UnTip()" >'
     + '<a href=\'' + url + '\'>'
     + '<img src=\'' + mediaAsset(icon) + '\' width=\'32\' height=\'32\' '
     + ' alt="' + title + '" title="' + title + '" class=\'badgeimg\' loading=\'lazy\' />'
