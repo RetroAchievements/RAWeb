@@ -13,7 +13,7 @@ function SubmitLeaderboardEntry(
     string $validation
 ): array {
     $db = getMysqliConnection();
-    sanitize_sql_inputs($user, $lbID, $newEntry);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
     $retVal['Success'] = true;
