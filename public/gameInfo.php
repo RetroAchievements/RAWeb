@@ -1060,7 +1060,7 @@ sanitize_outputs(
                     echo "</div>";
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
-                    echo "<div style='float: left; clear: left' ontouchstart=\"mobileSafeTipEvents.touchStart()\" onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
+                    echo "<div style='float: left; clear: left' onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
                     echo "<span class='$labelname'>$labelcontent</span>";
                     echo "</div>";
 
