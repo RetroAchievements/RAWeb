@@ -5,4 +5,5 @@
   @apply text-[color:var(--link-color)] bg-[color:var(--embed-color)];
   @apply hover:text-white hover:border-[color:var(--menu-link-color)] hover:bg-[color:var(--embed-highlight-color)];
   @apply select-none;
+  @apply rounded;
 }
