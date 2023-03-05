@@ -865,8 +865,6 @@ sanitize_outputs(
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "<label for='game_release'>First Released</label><input type='text' name='release' id='game_release' value='" . attributeEscape($released) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
-                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
 
@@ -926,6 +924,21 @@ sanitize_outputs(
                     echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='game_forum_topic'>New Forum Topic ID</label>";
                     echo "<input type='text' name='forum_topic' id='game_forum_topic' size='20'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "</div>";
+                    echo "</form>";
+                }
+
+                if ($hasMinimumDeveloperPermissions) {
+                    echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<input type='hidden' name='developer' value='$developer'>";
+                    echo "<input type='hidden' name='publisher' value='$publisher'>";
+                    echo "<input type='hidden' name='genre' value='$genre'>";
+                    echo "<input type='hidden' name='release' value='$released'>";
+                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -1389,9 +1402,6 @@ sanitize_outputs(
                 }
                 if ($numAchievements == 0) {
                     echo "<li><a class='btn py-2 mb-2 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
-                }
-                if ($numAchievements >= 1 && (!isset($guideURL) || (empty($guideURL)))) {
-                    echo "<a class='btn py-2 mb-2 block' href='https://github.com/RetroAchievements/guides/wiki' target='_blank' rel='noreferrer'><span class='icon icon-md ml-1 mr-3'>📖</span>Create a Guide</a>";
                 }
                 echo "</ul>";
             }
