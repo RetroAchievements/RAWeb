@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
@@ -21,11 +22,23 @@ module.exports = {
     container: {
       center: true,
     },
-    // extend: {
-    //   fontFamily: {
-    //     sans: ['Verdana', ...defaultTheme.fontFamily.sans],
-    //   },
-    // },
+    extend: {
+      colors: {
+        bg: 'var(--bg-color)',
+        'box-bg': 'var(--box-bg-color)',
+        'box-shadow': 'var(--box-shadow-color)',
+        embed: 'var(--embed-color)',
+        'embed-highlight': 'var(--embed-highlight-color)',
+        heading: 'var(--heading-color)',
+        link: 'var(--link-color)',
+        'link-hover': 'var(--link-hover-color)',
+        'menu-link': 'var(--menu-link-color)',
+        'menu-link-hover': 'var(--menu-link-hover-color)',
+        text: 'var(--text-color)',
+        'text-danger': 'var(--text-color-danger)',
+        'text-muted': 'var(--text-color-muted)'
+      }
+    },
     fontSize: {
       '2xs': '.70rem',
       xs: '.75rem',
