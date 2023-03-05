@@ -1379,7 +1379,7 @@ sanitize_outputs(
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
             if (isset($guideURL) && !empty($guideURL)) {
-                echo "<a class='btn py-2 mb-2 block' href='$guideURL'><span class='icon icon-md ml-1 mr-3'>📖</span>Official Guide</a>";
+                echo "<a class='btn py-2 mb-2 block' href='$guideURL'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
             }
             echo "</li>";
             if (isset($user)) {
