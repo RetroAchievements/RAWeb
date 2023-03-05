@@ -7,7 +7,7 @@ use LegacyApp\Site\Models\User;
 
 function GetUserData(string $username): ?array
 {
-    return User::find($username)?->toArray();
+    return User::firstWhere($username)?->toArray();
 }
 
 function getAccountDetails(?string &$username = null, ?array &$dataOut = []): bool
