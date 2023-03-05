@@ -11,6 +11,7 @@ use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Models\StaticData;
+use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class AchievementOfTheWeekTest extends TestCase
@@ -27,6 +28,10 @@ class AchievementOfTheWeekTest extends TestCase
 
     public function testGetAchievementOfTheWeek(): void
     {
+        /** @var User $user2 */
+        $user2 = User::factory()->create();
+        /** @var User $user3 */
+        $user3 = User::factory()->create();
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -34,7 +39,12 @@ class AchievementOfTheWeekTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create(['GameID' => $game->ID]);
         /** @var PlayerAchievement $unlock */
-        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        $now = Carbon::now();
+        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User, 'Date' => $now]);
+        /** @var PlayerAchievement $unlock2 */
+        $unlock2 = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user2->User, 'Date' => $now->copy()->subMinutes(5)]);
+        /** @var PlayerAchievement $unlock3 */
+        $unlock3 = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user3->User, 'Date' => $now->copy()->addMinutes(5)]);
 
         $staticData = StaticData::factory()->create([
             'Event_AOTW_AchievementID' => $achievement->ID,
@@ -57,15 +67,25 @@ class AchievementOfTheWeekTest extends TestCase
                     'ID' => $game->ID,
                 ],
                 'StartAt' => $staticData->Event_AOTW_StartAt->jsonSerialize(),
-                'TotalPlayers' => 1,
+                'TotalPlayers' => 3,
                 'Unlocks' => [
+                    [
+                        'User' => $user3->User,
+                        'RAPoints' => $user3->RAPoints,
+                        'HardcoreMode' => $unlock3->HardcoreMode,
+                    ],
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
                         'HardcoreMode' => $unlock->HardcoreMode,
                     ],
+                    [
+                        'User' => $user2->User,
+                        'RAPoints' => $user2->RAPoints,
+                        'HardcoreMode' => $unlock2->HardcoreMode,
+                    ],
                 ],
-                'UnlocksCount' => 1,
+                'UnlocksCount' => 3,
             ]);
     }
 }
