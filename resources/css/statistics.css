@@ -5,4 +5,5 @@
   @apply text-link bg-embed;
   @apply hover:text-white hover:border-menu-link hover:bg-embed-highlight;
   @apply select-none;
+  @apply rounded;
 }
