@@ -111,7 +111,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $tooltip .= "<div><b>$title</b></div>";
     $tooltip .= "<div class='mb-1'>$description</div>";
     if ($achPoints) {
-        $tooltip .= "<div>$achPoints " . ($achPoints == 1 ? "Point" : "Points") . "</div>";
+        $tooltip .= "<div>$achPoints " . __res('point', $achPoints) . "</div>";
     }
     if ($gameTitle) {
         $tooltip .= "<div><i>$gameTitle</i></div>";
