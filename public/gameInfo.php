@@ -52,6 +52,7 @@ $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
 $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
+$guideURL = $gameData['GuideURL'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
 $isFullyFeaturedGame = $consoleName !== 'Hubs';
@@ -928,6 +929,21 @@ sanitize_outputs(
                     echo "</form>";
                 }
 
+                if ($hasMinimumDeveloperPermissions) {
+                    echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<input type='hidden' name='developer' value='$developer'>";
+                    echo "<input type='hidden' name='publisher' value='$publisher'>";
+                    echo "<input type='hidden' name='genre' value='$genre'>";
+                    echo "<input type='hidden' name='release' value='$released'>";
+                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "</div>";
+                    echo "</form>";
+                }
+
                 if ($permissions >= Permissions::Developer) {
                     echo "<form class='mb-2' method='post' action='/request/game-relation/create.php'>";
                     echo csrf_field();
@@ -1362,6 +1378,9 @@ sanitize_outputs(
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+            if (isset($guideURL) && !empty($guideURL)) {
+                echo "<a class='btn py-2 mb-2 block' href='$guideURL'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
+            }
             echo "</li>";
             if (isset($user)) {
                 if ($permissions >= Permissions::Registered) {
@@ -1386,6 +1405,7 @@ sanitize_outputs(
                 }
                 echo "</ul>";
             }
+
             echo "</div>";
 
             if (count($gameSubsets) > 0) {
