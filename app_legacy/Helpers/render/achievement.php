@@ -11,6 +11,7 @@ function achievementAvatar(
     string $iconClass = 'badgeimg',
     bool|string|array $tooltip = true,
     ?string $context = null,
+    ?string $unlockDate = null,
 ): string {
     $id = $achievement;
     $title = null;
@@ -48,7 +49,7 @@ function achievementAvatar(
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
         link: route('achievement.show', $id),
-        tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
+        tooltip: is_array($tooltip) ? renderAchievementCard($tooltip, unlockDate: $unlockDate) : $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,
         iconClass: $iconClass,
@@ -76,7 +77,7 @@ function renderAchievementTitle(string $title, bool $tags = true): string
     return trim(str_replace('[m]', $span, $title));
 }
 
-function renderAchievementCard(int|string|array $achievement, ?string $context = null): string
+function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $unlockDate = null): string
 {
     $id = is_int($achievement) || is_string($achievement) ? (int) $achievement : ($achievement['AchievementID'] ?? $achievement['ID'] ?? null);
 
@@ -102,7 +103,6 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
-    $unlock = $data['Unlock'] ?? null;
     $gameTitle = renderGameTitle($data['GameTitle'] ?? null);
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
@@ -117,8 +117,12 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $tooltip .= "<div><i>$gameTitle</i></div>";
     }
 
-    if ($unlock) {
-        $tooltip .= "<div>$unlock</div>";
+    if ($unlockDate) {
+        $unlockedStr = "<br clear=all>Unlocked on $unlockDate";
+        if (!array_key_exists('HardcoreMode', $achievement) or $achievement['HardcoreMode'] === 1) {
+            $unlockedStr .= "<br>HARDCORE";
+        }
+        $tooltip .= "<div>$unlockedStr</div>";
     }
 
     $tooltip .= "</div>";

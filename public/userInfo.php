@@ -547,14 +547,9 @@ RenderContentStart($userPage);
                         $class = 'badgeimglarge';
 
                         if (!$achData['IsAwarded']) {
-                            $badgeName .= "_lock";
-                        } else {
-                            $unlockedStr = "<br clear=all>Unlocked: $achUnlockDate";
-                            if ($achHardcore == 1) {
-                                $unlockedStr .= "<br>HARDCORE";
-                                $class = 'goldimage';
-                            }
-                            $achData['Unlock'] = $unlockedStr;
+                            $badgeName .= '_lock';
+                        } elseif ($achHardcore == 1) {
+                            $class = 'goldimage';
                         }
 
                         echo achievementAvatar(
@@ -563,6 +558,7 @@ RenderContentStart($userPage);
                             icon: $badgeName,
                             iconSize: 48,
                             iconClass: $class,
+                            unlockDate: $achUnlockDate,
                         );
                     }
                 }
