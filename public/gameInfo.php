@@ -140,8 +140,8 @@ if ($v != 1 && $isFullyFeaturedGame) {
                     </form>
 
                     <?php if ($userWebsitePrefs): ?>
-                        <button 
-                            class='break-words whitespace-normal leading-normal' 
+                        <button
+                            class='break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
                             Yes. And never ask me again for games with mature content.
@@ -1378,8 +1378,8 @@ sanitize_outputs(
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-            if (isset($guideURL) && !empty($guideURL)) {
-                echo "<a class='btn py-2 mb-2 block' href='$guideURL'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
+            if (!empty($guideURL)) {
+                echo "<a class='btn py-2 mb-2 block' href='" . attributeEscape($guideURL) . "'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
             }
             echo "</li>";
             if (isset($user)) {
