@@ -11,7 +11,7 @@ return new class() extends Migration {
     {
         if (!Schema::hasColumns('GameData', ['GuideURL'])) {
             Schema::table('GameData', function (Blueprint $table) {
-                $table->string('GuideURL')->nullable();
+                $table->string('GuideURL')->nullable()->after('TotalTruePoints');
             });
         }
     }
