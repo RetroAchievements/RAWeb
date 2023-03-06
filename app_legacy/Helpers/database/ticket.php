@@ -197,32 +197,31 @@ function getExistingTicketID(User $user, int $achievementID): int
 }
 
 function getAllTickets(
-    $offset = 0,
-    $limit = 50,
-    $assignedToUser = null,
-    $reportedByUser = null,
-    $resolvedByUser = null,
-    $givenGameID = null,
-    $givenAchievementID = null,
-    $ticketFilters = TicketFilters::Default,
-    $getUnofficial = false
+    int $offset = 0,
+    int $limit = 50,
+    ?string $assignedToUser = null,
+    ?string $reportedByUser = null,
+    ?string $resolvedByUser = null,
+    ?int $givenGameID = null,
+    ?int $givenAchievementID = null,
+    int $ticketFilters = TicketFilters::Default,
+    bool $getUnofficial = false
 ): array {
-    sanitize_sql_inputs($offset, $limit, $assignedToUser, $givenGameID, $givenAchievementID);
-
     $retVal = [];
-    settype($givenGameID, 'integer');
-    settype($ticketFilters, 'integer');
-    settype($givenAchievementID, 'integer');
+    $bindings = [];
 
     $innerCond = "TRUE";
     if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
-        $innerCond .= " AND ach.Author = '$assignedToUser'";
+        $innerCond .= " AND ach.Author = :assignedToUsername";
+        $bindings['assignedToUsername'] = $assignedToUser;
     }
     if (!empty($reportedByUser) && isValidUsername($reportedByUser)) {
-        $innerCond .= " AND ua.User = '$reportedByUser'";
+        $innerCond .= " AND ua.User = :reportedByUsername";
+        $bindings['reportedByUsername'] = $reportedByUser;
     }
     if (!empty($resolvedByUser) && isValidUsername($resolvedByUser)) {
-        $innerCond .= " AND ua2.User = '$resolvedByUser'";
+        $innerCond .= " AND ua2.User = :resolvedByUsername";
+        $bindings['resolvedByUsername'] = $resolvedByUser;
     }
     if ($givenGameID != 0) {
         $innerCond .= " AND gd.ID = $givenGameID";
@@ -291,20 +290,11 @@ function getAllTickets(
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query, $bindings)->toArray();
 }
 
-function getTicket($ticketID): ?array
+function getTicket(int $ticketID): ?array
 {
-    sanitize_sql_inputs($ticketID);
-
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
@@ -317,12 +307,7 @@ function getTicket($ticketID): ?array
               WHERE tick.ID = $ticketID
               ";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return null;
-    }
-
-    return mysqli_fetch_assoc($dbResult);
+    return legacyDbFetch($query);
 }
 
 function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
@@ -472,10 +457,8 @@ function countOpenTicketsByDev($dev): ?array
     return $retVal;
 }
 
-function countOpenTicketsByAchievement($achievementID): int
+function countOpenTicketsByAchievement(int $achievementID): int
 {
-    sanitize_sql_inputs($achievementID);
-    settype($achievementID, 'integer');
     if ($achievementID <= 0) {
         return 0;
     }
@@ -485,25 +468,20 @@ function countOpenTicketsByAchievement($achievementID): int
         FROM Ticket
         WHERE AchievementID = $achievementID AND ReportState IN (" . TicketState::Open . "," . TicketState::Request . ')';
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return (int) mysqli_fetch_assoc($dbResult)['count'];
-    }
-
-    return 0;
+    $results = legacyDbFetch($query);
+    return ($results != null) ? $results['count'] : 0;
 }
 
 function countOpenTickets(
-    $unofficialFlag = false,
-    $ticketFilters = TicketFilters::Default,
-    $assignedToUser = null,
-    $reportedByUser = null,
-    $resolvedByUser = null,
-    $gameID = null,
-    $achievementID = null
+    bool $unofficialFlag = false,
+    int $ticketFilters = TicketFilters::Default,
+    ?string $assignedToUser = null,
+    ?string $reportedByUser = null,
+    ?string $resolvedByUser = null,
+    ?int $gameID = null,
+    ?int $achievementID = null
 ): int {
-    sanitize_sql_inputs($assignedToUser, $reportedByUser, $resolvedByUser, $gameID);
+    $bindings = [];
 
     // State condition
     $stateCond = getStateCondition($ticketFilters);
@@ -550,7 +528,8 @@ function countOpenTickets(
     // Author condition
     $authorCond = "";
     if ($assignedToUser != null) {
-        $authorCond = " AND ach.Author LIKE '$assignedToUser'";
+        $authorCond = " AND ach.Author = :assignedToUser";
+        $bindings['assignedToUsername'] = $assignedToUser;
     }
 
     // Reporter condition
@@ -558,16 +537,16 @@ function countOpenTickets(
     $reporterJoin = "";
     if ($reportedByUser != null) {
         $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
-        $reporterCond = " AND ua.User LIKE '$reportedByUser'";
+        $reporterCond = " AND ua.User = :reportedByUsername";
+        $bindings['reportedByUsername'] = $reportedByUser;
     }
 
     // Resolver condition
     $resolverCond = "";
     if ($resolvedByUser != null) {
-        $resolverCond = " AND ua2.User LIKE '$resolvedByUser'";
-        if ($resolverJoin == "") {
-            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-        }
+        $resolverCond = " AND ua2.User = :resolvedByUsername";
+        $bindings['resolvedByUsername'] = $resolvedByUser;
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
     // Game condition
@@ -579,7 +558,6 @@ function countOpenTickets(
         $gameCond .= " AND ach.ID = $achievementID";
     }
 
-    settype($unofficialFlag, 'boolean');
     $achFlagCond = $unofficialFlag ? "ach.Flags = '5'" : "ach.Flags = '3'";
 
     $query = "
@@ -592,20 +570,13 @@ function countOpenTickets(
         $devJoin
         WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $reporterCond $resolverCond";
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    return (int) mysqli_fetch_assoc($dbResult)['count'];
+    $results = legacyDbFetch($query);
+    return ($results != null) ? $results['count'] : 0;
 }
 
-function gamesSortedByOpenTickets($count): array
+function gamesSortedByOpenTickets(int $count): array
 {
-    sanitize_sql_inputs($count);
-    settype($count, 'integer');
-    if ($count == 0) {
+    if ($count < 1) {
         $count = 20;
     }
 
@@ -625,22 +596,14 @@ function gamesSortedByOpenTickets($count): array
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = 3
+            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementType::OfficialCore . "
         GROUP BY
             gd.ID
         ORDER BY
             OpenTickets DESC
         LIMIT 0, $count";
 
-    $retVal = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query)->toArray();
 }
 
 /**
@@ -847,24 +810,15 @@ function getEmulatorCondition(int $ticketFilters): string
  */
 function getTicketsForUser(string $user): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = '$user' AND a.Flags = '3'
+              WHERE a.Author = :username AND a.Flags = " . AchievementType::OfficialCore . "
               GROUP BY t.AchievementID, ReportState
               ORDER BY t.AchievementID";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query, ['username' => $user])->toArray();
 }
 
 /**

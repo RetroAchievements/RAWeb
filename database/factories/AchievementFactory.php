@@ -16,7 +16,7 @@ class AchievementFactory extends Factory
         return [
             'title' => ucwords($this->faker->words(2, true)),
             // 'status_flag' => mt_rand(1, 3),
-            'description' => ucwords($this->faker->sentence()),
+            'description' => $this->faker->sentence(),
             // 'badge_name' => 'badge',
         ];
     }

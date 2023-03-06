@@ -31,9 +31,6 @@ function getGameData(int $gameID): ?array
 
 function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$forumTopicID, &$allData): bool
 {
-    sanitize_sql_inputs($gameID);
-    settype($gameID, "integer");
-
     $gameTitle = "UNRECOGNISED";
 
     if (empty($gameID)) {
@@ -43,15 +40,8 @@ function getGameTitleFromID($gameID, &$gameTitle, &$consoleID, &$consoleName, &$
               FROM GameData AS gd
               LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
               WHERE gd.ID=$gameID";
-    $dbResult = s_mysql_query($query);
 
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
+    $data = legacyDbFetch($query);
     if (empty($data)) {
         return false;
     }
