@@ -856,6 +856,7 @@ sanitize_outputs(
                     echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<input type='hidden' name='guide_url' value='" . attributeEscape($guideURL) . "'>";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='game_developer'>Developer</label><input type='text' name='developer' id='game_developer' value='" . attributeEscape($developer) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
@@ -933,10 +934,10 @@ sanitize_outputs(
                     echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<input type='hidden' name='developer' value='$developer'>";
-                    echo "<input type='hidden' name='publisher' value='$publisher'>";
-                    echo "<input type='hidden' name='genre' value='$genre'>";
-                    echo "<input type='hidden' name='release' value='$released'>";
+                    echo "<input type='hidden' name='developer' value='" . attributeEscape($developer) . "'>";
+                    echo "<input type='hidden' name='publisher' value='" . attributeEscape($publisher) . "'>";
+                    echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
+                    echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
