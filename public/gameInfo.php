@@ -876,7 +876,7 @@ sanitize_outputs(
                         echo "<input type='hidden' name='type' value='" . ImageType::GameTitle . "'>";
                         echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='image_" . ImageType::GameTitle . "'>Title Screenshot</label>";
-                        echo "<input class='grow' type='file' name='file' id='image_" . ImageType::GameTitle . "'>";
+                        echo "<input type='file' name='file' id='image_" . ImageType::GameTitle . "' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</div>";
                         echo "</form>";
@@ -887,7 +887,7 @@ sanitize_outputs(
                         echo "<input type='hidden' name='type' value='" . ImageType::GameInGame . "'>";
                         echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='image_" . ImageType::GameInGame . "'>In-game Screenshot</label>";
-                        echo "<input type='file' name='file' id='image_" . ImageType::GameInGame . "'>";
+                        echo "<input type='file' name='file' id='image_" . ImageType::GameInGame . "' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</div>";
                         echo "</form>";
@@ -899,7 +899,7 @@ sanitize_outputs(
                     echo "<input type='hidden' name='type' value='" . ImageType::GameIcon . "'>";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='image_" . ImageType::GameIcon . "'>Icon</label>";
-                    echo "<input type='file' name='file' id='image_" . ImageType::GameIcon . "'>";
+                    echo "<input type='file' name='file' id='image_" . ImageType::GameIcon . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -911,7 +911,7 @@ sanitize_outputs(
                         echo "<input type='hidden' name='type' value='" . ImageType::GameBoxArt . "'>";
                         echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='image_" . ImageType::GameBoxArt . "'>Box Art</label>";
-                        echo "<input type='file' name='file' id='image_" . ImageType::GameBoxArt . "'>";
+                        echo "<input type='file' name='file' id='image_" . ImageType::GameBoxArt . "' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</div>";
                         echo "</form>";
