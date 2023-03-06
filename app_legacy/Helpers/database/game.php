@@ -449,7 +449,8 @@ function modifyGameData(
     ?string $developer,
     ?string $publisher,
     ?string $genre,
-    ?string $released
+    ?string $released,
+    ?string $guideURL
 ): bool {
     $gameData = getGameData($gameID);
     if (empty($gameData)) {
@@ -469,15 +470,18 @@ function modifyGameData(
     if ($gameData['Released'] != $released) {
         $modifications[] = 'first released';
     }
+    if ($gameData['GuideURL'] != $guideURL) {
+        $modifications[] = 'Guide URL';
+    }
 
     if (count($modifications) == 0) {
         return true;
     }
 
-    sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released);
+    sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released, $guideURL);
 
     $query = "UPDATE GameData AS gd
-              SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released'
+              SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released', gd.GuideURL = '$guideURL'
               WHERE gd.ID = $gameID";
 
     $db = getMysqliConnection();
