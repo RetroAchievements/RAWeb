@@ -5,6 +5,7 @@ import Alpine from 'alpinejs';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
+  injectShortcode,
   mobileSafeTipEvents,
   themeChange
 } from './utils';
@@ -13,6 +14,7 @@ import {
 
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
+window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
 
 // Alpine needs to be placed after all `window` injection

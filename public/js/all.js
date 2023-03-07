@@ -93,34 +93,6 @@ function focusOnArticleID(id) {
   $('#art_' + id).scrollIntoView();
 }
 
-function injectShortcode(start, end) {
-  var commentTextarea = document.getElementById('commentTextarea');
-  if (commentTextarea !== undefined) {
-    // Something's selected: wrap it
-    var startPos = commentTextarea.selectionStart;
-    var endPos = commentTextarea.selectionEnd;
-    var selectedText = commentTextarea.value.substring(startPos, endPos);
-
-    var textBeforeSelection = commentTextarea.value.substr(0, commentTextarea.selectionStart);
-    var textAfterSelection = commentTextarea.value.substr(
-      commentTextarea.selectionEnd,
-      commentTextarea.value.length
-    );
-    commentTextarea.value = textBeforeSelection + start + selectedText + end + textAfterSelection;
-  } else {
-    // Nothing selected, just inject at the end of the message
-    commentTextarea.value += start;
-    commentTextarea.value += ' ';
-    commentTextarea.value += end;
-  }
-
-  commentTextarea.focus();
-}
-
-function replaceAll(find, replace, str) {
-  return str.replace(new RegExp(find, 'g'), replace);
-}
-
 var cardsCache = {};
 
 function useCard(type, id, context = null, html = '') {
