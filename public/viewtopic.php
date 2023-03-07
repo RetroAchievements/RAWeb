@@ -240,7 +240,7 @@ RenderContentStart($pageTitle);
             if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
                 echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
             }
-            echo "<span class='btn py-1' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
+            echo "<span class='btn py-1' onclick='copy(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
             echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
             echo "</span>";
             echo "</div>";

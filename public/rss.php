@@ -5,6 +5,10 @@ authenticateFromCookie($user, $permissions, $userDetails);
 RenderContentStart("RSS Feeds");
 ?>
 <div id="mainpage">
+    <?php
+    $yOffs = 0;
+    // RenderTwitchTVStream( $yOffs );
+    ?>
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";

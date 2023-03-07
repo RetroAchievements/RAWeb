@@ -201,6 +201,20 @@ function UpdateMailboxCount(messageCount) {
   $('#mailboxcount').html(messageCount);
 }
 
+function reloadTwitchContainer(videoID) {
+  var vidHTML = '<iframe src="https://player.twitch.tv/?channel=retroachievementsorg" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>';
+  if (videoID && archiveURLs[videoID]) {
+    var vidTitle = archiveTitles[videoID];
+    var vidURL = archiveURLs[videoID];
+    vidURL = vidURL.split('/');
+    vidHTML = '<iframe src="https://player.twitch.tv/?video='
+      + vidURL[vidURL.length - 1]
+      + '" height="500" width="100%" frameborder="0" scrolling="no" allowfullscreen="true">'
+      + '</iframe>';
+  }
+  $('.streamvid').html(vidHTML);
+}
+
 jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
@@ -326,6 +340,38 @@ function showStatusFailure(message) {
 
 function hideStatusMessage() {
   $('#status').hide();
+}
+
+function tabClick(evt, tabName, type) {
+  // Declare all variables
+  var i;
+  var tabcontent;
+  var tablinks;
+
+  // Get all elements with class="tabcontent" and hide them
+  tabcontent = document.getElementsByClassName('tabcontent'.concat(type));
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  tablinks = document.getElementsByClassName(type);
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabName).style.display = 'block';
+  evt.currentTarget.className += ' active';
+}
+
+function copy(text) {
+  var inp = document.createElement('input');
+  document.body.appendChild(inp);
+  inp.value = text;
+  inp.select();
+  document.execCommand('copy', false);
+  inp.remove();
 }
 
 function initializeTextareaCounter() {
