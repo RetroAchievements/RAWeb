@@ -52,6 +52,7 @@ function RenderToolbar(): void
     echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
     echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
     echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
+    // echo "<li><a href='/gameList.php?c=78'>Nintendo DSi</a></li>";
     echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
     echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
     // Sony
@@ -64,6 +65,7 @@ function RenderToolbar(): void
     echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
     echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
     echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
+    // echo "<li><a href='/gameList.php?c=77'>Atari Jaguar CD</a></li>";
     echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
     // NEC
     echo "<li class='dropdown-header'>NEC</li>";
@@ -105,9 +107,19 @@ function RenderToolbar(): void
     echo "</ul>";
 
     echo "<ul>";
+    echo "<li class='dropdown-header'>Miscellaneous</li>";
     echo "<li><a href='/gameList.php'>All Games</a></li>";
     // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
+    echo "<li><a href='/claimlist.php?s=9&f=8109'>New Sets & Revisions</a></li>";
+    echo "<li><a href='/claimlist.php'>Sets in Progress</a></li>";
+    echo "<li class='dropdown-header'>Hubs</li>";
+    echo "<li><a href='/gameList.php?s=6&c=100&f=1'>Hub List</a></li>";
+    echo "<li><a href='/game/6914'>Central Hub</a></li>";
+    echo "<li><a href='/game/9553'>Genre & Subgenre Hub</a></li>";
+    echo "<li><a href='/game/5771'>Series Hub</a></li>";
+    echo "<li><a href='/game/3105'>Community Events Hub</a></li>";
+    echo "<li><a href='/game/3273'>Developer Events Hub</a></li>";
     echo "</ul>";
     echo "</div>";
     echo "</li>";
@@ -127,18 +139,18 @@ function RenderToolbar(): void
     echo "<li><a href='#'>Community</a>";
     echo "<div>";
     echo "<ul>";
-    echo "<li><a href='/forum.php'>Forums</a></li>";
-    echo "<li><a href='/forum.php?c=1'>- Community</a></li>";
-    echo "<li><a href='/viewforum.php?f=25'>+- Competitions</a></li>";
-    echo "<li><a href='/forum.php?c=7'>- Developers</a></li>";
-    echo "<li><a href='/forumposthistory.php'>Recent Posts</a></li>";
+    echo "<li><a href='/forum.php'>Forum Index</a></li>";
+    echo "<li><a href='/viewforum.php?f=25'>Event Forums</a></li>";
+    echo "<li><a href='/forumposthistory.php'>Recent Forum Posts</a></li>";
     echo "<li class='divider'></li>";
-    echo "<li><a href='/userList.php'>Users</a></li>";
-    echo "<li><a href='/developerstats.php'>Developers</a></li>";
-    // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
+    echo "<li><a href='/userList.php'>User List</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
     echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
-    echo "<li><a href='/claimlist.php'>Claim List</a></li>";
+    // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
+    echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
+    echo "<li class='divider'></li>";
+    echo "<li><a href='https://news.retroachievements.org/'>RANews</li>";
+    echo "<li><a href='https://github.com/RetroAchievements/guides/wiki/'>RAGuides Wiki</li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
     echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
@@ -189,7 +201,6 @@ function RenderToolbar(): void
         echo "<li><a href='/ticketmanager.php'>Ticket Manager</a></li>";
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
-        echo "<li><a href='/setRequestList.php'>Most Requested Sets</a></li>";
         echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";

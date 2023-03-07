@@ -13,7 +13,8 @@
     },
     "dependencies": {
         "alpinejs": "^3.0.6",
-        "js-cookie": "^3.0.1"
+        "js-cookie": "^3.0.1",
+        "ua-parser-js": "^1.0.33"
     },
     "devDependencies": {
         "@defstudio/vite-livewire-plugin": "^1.0.0",
@@ -23,6 +24,7 @@
         "@tailwindcss/typography": "^0.5.0",
         "@types/alpinejs": "^3.7.1",
         "@types/js-cookie": "^3.0.3",
+        "@types/ua-parser-js": "^0.7.36",
         "@typescript-eslint/eslint-plugin": "^5.53.0",
         "@typescript-eslint/parser": "^5.53.0",
         "autoprefixer": "^10.4.7",
