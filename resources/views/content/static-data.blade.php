@@ -56,7 +56,7 @@ if ($lastRegisteredUserAt) {
 
     <div>
         @if($staticData->lastRegisteredUser)
-            <hr class="mt-4 mb-5 border-[color:var(--embed-highlight-color)]">
+            <hr class="mt-4 mb-5 border-embed-highlight">
 
             <div class="w-full flex flex-col justify-center items-center">
                 <p>Newest user</p>

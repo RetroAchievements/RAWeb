@@ -363,6 +363,7 @@ function getFilteredClaims(
         sc.GameID AS GameID,
         gd.Title AS GameTitle,
         gd.ImageIcon AS GameIcon,
+        c.ID AS ConsoleID,
         c.Name AS ConsoleName,
         sc.ClaimType AS ClaimType,
         sc.SetType AS SetType,

@@ -60,8 +60,6 @@ function renderFinishedClaimsComponent(int $count): void
     echo "<div class='component'>";
     echo "<h3>New Sets/Revisions</h3>";
 
-    $claimData = getFilteredClaims(null, ClaimFilters::AllCompletedPrimaryClaims, ClaimSorting::FinishedDateDescending, false, null, 0, $count);
-
     echo "<table class='table-highlight mb-1'>";
     echo "<thead>";
     echo "<tr class='do-not-highlight'>";
@@ -74,25 +72,47 @@ function renderFinishedClaimsComponent(int $count): void
     echo "</tr>";
     echo "</thead>";
     echo "<tbody>";
-    foreach ($claimData as $claim) {
-        $claimUser = $claim['User'];
-        echo "<tr>";
-        echo "<td class='pr-0'>";
-        echo userAvatar($claimUser, label: false);
-        echo "</td>";
-        echo "<td>";
-        echo userAvatar($claimUser, icon: false);
-        echo "</td>";
-        echo "<td class='pr-0'>";
-        echo gameAvatar($claim, label: false);
-        echo "</td>";
-        echo "<td class='w-full'>";
-        echo gameAvatar($claim, icon: false);
-        echo "</td>";
-        echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
-        echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
-        echo "</tr>";
-    }
+
+    $remaining = $count;
+    $offset = 0;
+    do {
+        $claimData = getFilteredClaims(null, ClaimFilters::AllCompletedPrimaryClaims, ClaimSorting::FinishedDateDescending, false, null, $offset, $count);
+        if ($claimData->isEmpty()) {
+            break;
+        }
+
+        foreach ($claimData as $claim) {
+            if (!isValidConsoleId($claim['ConsoleID'])) {
+                continue;
+            }
+
+            $claimUser = $claim['User'];
+            echo "<tr>";
+            echo "<td class='pr-0'>";
+            echo userAvatar($claimUser, label: false);
+            echo "</td>";
+            echo "<td>";
+            echo userAvatar($claimUser, icon: false);
+            echo "</td>";
+            echo "<td class='pr-0'>";
+            echo gameAvatar($claim, label: false);
+            echo "</td>";
+            echo "<td class='w-full'>";
+            echo gameAvatar($claim, icon: false);
+            echo "</td>";
+            echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+            echo "<td class='smalldate'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
+            echo "</tr>";
+
+            $remaining--;
+            if ($remaining === 0) {
+                break;
+            }
+        }
+
+        $offset += $count;
+    } while ($remaining > 0);
+
     echo "</tbody></table>";
 
     echo "<div class='text-right'><a class='btn btn-link' href='/claimlist.php?s=" . ClaimSorting::FinishedDateDescending . "&f=" . ClaimFilters::AllCompletedPrimaryClaims . "'>more...</a></div>";
