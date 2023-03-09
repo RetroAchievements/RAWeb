@@ -19,8 +19,8 @@ $input = Validator::validate(request()->post(), [
 
 if ($input['type'] === ImageType::GameIcon) {
     Validator::make(
-        request()->all(), 
-        ['file' => ['dimensions:width=96,height=96']], 
+        request()->all(),
+        ['file' => ['dimensions:width=96,height=96']],
         ['file.dimensions' => 'The game icon must be exactly 96x96 pixels.']
     )->validate();
 }
