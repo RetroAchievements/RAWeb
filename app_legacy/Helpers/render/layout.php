@@ -109,7 +109,7 @@ function RenderToolbar(): void
     echo "<ul>";
     echo "<li class='dropdown-header'>Miscellaneous</li>";
     echo "<li><a href='/gameList.php'>All Games</a></li>";
-    // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/gameSearch.php?p=0'>Hardest Games</a></li>";
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "<li><a href='/claimlist.php?s=9&f=8109'>New Sets & Revisions</a></li>";
     echo "<li><a href='/claimlist.php'>Sets in Progress</a></li>";
