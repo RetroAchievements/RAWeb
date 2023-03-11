@@ -2,19 +2,24 @@
     @guest
         @include('content.welcome')
     @endguest
-    <x-news.carousel/>
-    <?php
-    renderFinishedClaimsComponent(5);
-    RenderActivePlayersComponent();
-    ?>
-    <x-user.online-count-chart/>
-    <?php
-    renderNewClaimsComponent(5);
-    RenderRecentForumPostsComponent();
-    ?>
+
+    <x-news.carousel />
+    <x-claims.finished-claims count="6" />
+
+    @php
+        RenderActivePlayersComponent();
+    @endphp
+
+    <x-user.online-count-chart />
+    <x-claims.new-claims count="5" />
+
+    @php
+        RenderRecentForumPostsComponent();
+    @endphp
+
     @slot('sidebar')
         @include('content.top-links')
-        <x-event.aotw/>
+        <x-event.aotw />
         @include('content.static-data')
     @endslot
 </x-app-layout>
