@@ -1,8 +1,6 @@
 <?php
 
-use Illuminate\Support\Carbon;
 use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSetType;
 use LegacyApp\Community\Enums\ClaimSorting;
 
 $claimData = getFilteredClaims(
