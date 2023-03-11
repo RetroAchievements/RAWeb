@@ -336,22 +336,39 @@ function confirmEmailChange(event) {
                 var achievementSelect = document.getElementById('resetachievementscontainer');
 
                 function GetAllResettableGamesList() {
-                    gameSelect.setAttribute('disabled', 'disabled');
-                    achievementSelect.setAttribute('disabled', 'disabled');
+                    // Disable achievement select and clear game select
+                    achievementSelect.disabled = true;
                     gameSelect.replaceChildren();
+                    
+                    // Show loading icon
                     $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
-                    $.post('/request/user/list-games.php')
-                        .done(function (data) {
-                            var gameList = data;
-                            gameSelect.replaceChildren();
-                            gameSelect.innerHTML += '<option value=\'\'>--</option>';
-                            for (var i = 0; i < gameList.length; i++) {
-                                var game = gameList[i];
-                                gameSelect.innerHTML += '<option value=\'' + game.ID + '\'>' + htmlEntities(game.GameTitle) + ' (' + htmlEntities(game.ConsoleName) + ') (' + game.NumAwarded + ' / ' + game.NumPossible + ' won)</option>';
-                            }
-                            gameSelect.removeAttribute('disabled');
-                            $loadingIcon.delay(750).fadeTo('slow', 0.0);
-                        });
+                    
+                    // Make API call to get game list
+                    $.post('/request/user/list-games.php').done(data => {
+                        // Create a document fragment to hold the options
+                        const fragment = new DocumentFragment();
+
+                        // Create a default option
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = '--';
+                        fragment.appendChild(option);
+
+                        // Create an option for each game and append it to the fragment
+                        for (const game of data) {
+                            const option = document.createElement('option');
+                            option.value = game.ID;
+                            option.textContent = `${htmlEntities(game.GameTitle)} (${htmlEntities(game.ConsoleName)}) (${game.NumAwarded} / ${game.NumPossible} won)`;
+                            fragment.appendChild(option);
+                        }
+
+                        // Replace the game select's contents with the fragment and re-enable it
+                        gameSelect.replaceChildren(fragment);
+                        gameSelect.disabled = false;
+
+                        // Hide the loading icon after a delay
+                        $loadingIcon.delay(750).fadeTo('slow', 0.0);
+                    });
                 }
 
                 function ResetFetchAwarded() {
