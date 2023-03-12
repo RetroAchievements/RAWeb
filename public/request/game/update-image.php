@@ -15,8 +15,16 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
     'type' => ['required', 'string', Rule::in(ImageType::cases())],
-    'file' => 'image',
+    'file' => ['image'],
 ]);
+
+if ($input['type'] === ImageType::GameIcon) {
+    Validator::make(
+        request()->all(),
+        ['file' => ['dimensions:width=96,height=96']],
+        ['file.dimensions' => 'Game icons are required to have dimensions of 96x96 pixels.']
+    )->validate();
+}
 
 $gameID = (int) $input['game'];
 $imageType = $input['type'];

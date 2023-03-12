@@ -19,29 +19,29 @@ $gameIcon = $gameData['ImageIcon'];
 $forumTopicID = $gameData['ForumTopicID'];
 $hashes = getHashListByGameID($gameID);
 
-RenderContentStart("Linked Hashes - $gameTitle");
+RenderContentStart("Supported Game Files - $gameTitle");
 ?>
 <div id="mainpage">
     <div id='fullcontainer'>
         <div class='navpath'>
             <?= renderGameBreadcrumb($gameData) ?>
-            &raquo; <b>Linked Hashes</b>
+            &raquo; <b>Supported Game Files</b>
         </div>
 
-        <h3>List of Linked Hashes</h3>
+        <h3>List of Supported Game Files</h3>
 
         <?php
         echo gameAvatar($gameData, iconSize: 64);
         echo "<br><br>";
 
-        echo "<p class='embedded'><b>Hashes are used to confirm if two copies of a file are identical. " .
+        echo "<p class='embedded p-4'><b>Game file hashes are used to confirm if two copies of a game file are identical. " .
              "We use it to ensure the player is using the same ROM as the achievement developer, or a compatible one." .
-             "<br/><br/>RetroAchievements only hashes portions of larger games to minimize load times, and strips " .
+             "<br/><br/>RetroAchievements only hashes portions of larger game files to minimize load times, and strips " .
              "headers on smaller ones. Details on how the hash is generated for each system can be found " .
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-        echo "\n<br>Currently this game has <b>" . count($hashes) . "</b> unique hashes registered for it:<br><br>";
+        echo "<p class='mt-4 mb-1'>There are currently <span class='font-bold'>" . count($hashes) . "</span> supported game file hashes registered for this game.</p>";
 
         echo "<ul>";
         $hasUnlabeledHashes = false;
@@ -53,7 +53,7 @@ RenderContentStart("Linked Hashes - $gameTitle");
 
             $hashName = $hash['Name'];
             sanitize_outputs($hashName);
-            echo "<li><p class='embedded'><b>$hashName</b>";
+            echo "<li><p class='embedded p-4'><b>$hashName</b>";
             if (!empty($hash['Labels'])) {
                 foreach (explode(',', $hash['Labels']) as $label) {
                     if (empty($label)) {
@@ -77,7 +77,7 @@ RenderContentStart("Linked Hashes - $gameTitle");
         }
 
         if ($hasUnlabeledHashes) {
-            echo '<li><p class="embedded"><b>Unlabeled</b><br/>';
+            echo '<li><p class="embedded p-4"><b>Unlabeled Game File Hashes</b><br/>';
             foreach ($hashes as $hash) {
                 if (!empty($hash['Name'])) {
                     continue;
