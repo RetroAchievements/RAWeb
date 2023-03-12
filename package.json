@@ -12,6 +12,7 @@
         "apidoc:connect": "apidoc -i src/Connect/ -c docs/src/connect-api -t docs/src/connect-api/template -o docs/dist/api/connect"
     },
     "dependencies": {
+        "@floating-ui/dom": "^1.2.3",
         "alpinejs": "^3.0.6",
         "js-cookie": "^3.0.1",
         "ua-parser-js": "^1.0.33"

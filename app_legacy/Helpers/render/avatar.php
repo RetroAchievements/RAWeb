@@ -27,10 +27,10 @@ function avatar(
 
     $tooltipTrigger = '';
     if ($tooltip) {
-        $tooltipTrigger = "onmouseover=\"mobileSafeTipEvents.mouseOver(loadCard(this, '$resource', '$id', '$context'))\" onmouseout=\"UnTip()\"";
+        $tooltipTrigger = "x-init=\"mobileSafeTipEvents.attachTooltip(\$el, { dynamicType: '$resource', dynamicId: '$id', dynamicContext: '$context' })\"";
         if (is_string($tooltip)) {
             $escapedTooltip = tooltipEscape($tooltip);
-            $tooltipTrigger = "onmouseover=\"mobileSafeTipEvents.mouseOver(useCard('$resource', '$id', '$context', '$escapedTooltip'))\" onmouseout=\"UnTip()\"";
+            $tooltipTrigger = "x-init=\"mobileSafeTipEvents.attachTooltip(\$el, { staticHtmlContent: useCard('$resource', '$id', '$context', '$escapedTooltip') })\"";
         }
     }
 

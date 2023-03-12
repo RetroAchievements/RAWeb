@@ -163,6 +163,7 @@ function loadCard(target, type, id, context = null) {
         $(`#${cardId}_yield`).html(data.html);
       });
   }, 200);
+
   $(target).mouseleave(function () {
     $(target).off('mouseleave');
     clearTimeout(timeoutObject);
