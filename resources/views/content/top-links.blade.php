@@ -24,7 +24,7 @@
             <span class="text-heading"><x-fas-newspaper/></span>
             RANews
         </a>
-        <a class="btn text-center py-2 grow" href="https://www.youtube.com/channel/UCIGdJGxrzmNYMaAGPsk2sIA">
+        <a class="btn text-center py-2 grow" href="https://www.youtube.com/@RAPodcast">
             <span class="text-heading"><x-fas-microphone/></span>
             RAPodcast
         </a>
