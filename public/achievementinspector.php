@@ -34,7 +34,7 @@ if ($gameIDSpecified) {
 
     getCodeNotes($gameID, $codeNotes);
 } else {
-    getGamesList(0, $gamesList);
+    getGamesList(null, $gamesList);
 }
 
 RenderContentStart("Manage Achievements");

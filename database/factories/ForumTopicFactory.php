@@ -17,7 +17,7 @@ class ForumTopicFactory extends Factory
         $user = User::inRandomOrder()->first();
 
         return [
-            'title' => ucwords($this->faker->words(2, true)),
+            'title' => ucwords(fake()->words(2, true)),
             'user_id' => $user->id,
         ];
     }

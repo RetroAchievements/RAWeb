@@ -6,7 +6,7 @@ use LegacyApp\Site\Models\User;
 // see resources/views/layouts/app.blade.php
 // see resources/views/layouts/partials/head.blade.php
 
-function RenderContentStart($pageTitle = null): void
+function RenderContentStart(?string $pageTitle = null): void
 {
     // hijack view variables
     view()->share('pageTitle', $pageTitle);
@@ -19,7 +19,7 @@ function RenderContentEnd(): void
     // TBD add legacy content wrapper end
 }
 
-function RenderOpenGraphMetadata($title, $OGType, $imageURL, $description): void
+function RenderOpenGraphMetadata(string $title, ?string $OGType, string $imageURL, string $description): void
 {
     // hijack view variables
     view()->share('pageTitle', $title);
@@ -232,7 +232,7 @@ function RenderToolbar(): void
     echo "</form>";
 }
 
-function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
+function RenderPaginator(int $numItems, int $perPage, int $offset, string $urlPrefix): void
 {
     // floor to current page
     $offset = floor($offset / $perPage) * $perPage;

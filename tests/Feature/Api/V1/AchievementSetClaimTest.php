@@ -25,8 +25,7 @@ class AchievementSetClaimTest extends TestCase
     {
         /** @var System $system */
         $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['ConsoleID' => $system->ID]);
         AchievementSetClaim::factory()->count(51)->create();
 
         $response = $this->get($this->apiUrl('GetActiveClaims'))

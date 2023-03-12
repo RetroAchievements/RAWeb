@@ -8,8 +8,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     return redirect(route('achievement.show', $achievementID));
 }
 
-$dataOut = [];
-if ($achievementID == 0 || !getAchievementMetadata($achievementID, $dataOut)) {
+if ($achievementID == 0) {
+    abort(404);
+}
+$dataOut = GetAchievementData($achievementID);
+if (empty($dataOut)) {
     abort(404);
 }
 

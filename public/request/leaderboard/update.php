@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Site\Enums\Permissions;
@@ -8,7 +9,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'leaderboard' => 'required|integer',
     'trigger' => 'required',
     'title' => 'required',
@@ -26,7 +27,7 @@ $lbFormat = $input['format'];
 $lbLowerIsBetter = $input['lowerIsBetter'];
 $lbDisplayOrder = $input['order'];
 
-$prevData = GetLeaderboardData($lbID, $user, 1, 0, false);
+$prevData = GetLeaderboardData($lbID, $user, 1, 0);
 $prevUpdated = strtotime($prevData["LBUpdated"]);
 
 // Only let jr. devs update their own leaderboards
@@ -35,7 +36,7 @@ if ($permissions == Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $us
 }
 
 if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
-    $updatedData = GetLeaderboardData($lbID, $user, 2, 0, false);
+    $updatedData = GetLeaderboardData($lbID, $user, 2, 0);
     $updated = strtotime($updatedData['LBUpdated']);
     $dateDiffMins = ($updated - $prevUpdated) / 60;
 

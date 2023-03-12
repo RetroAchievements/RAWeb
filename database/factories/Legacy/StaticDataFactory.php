@@ -7,6 +7,9 @@ namespace Database\Factories\Legacy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use LegacyApp\Site\Models\StaticData;
 
+/**
+ * @extends Factory<StaticData>
+ */
 class StaticDataFactory extends Factory
 {
     protected $model = StaticData::class;

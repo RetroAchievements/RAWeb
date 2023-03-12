@@ -1409,15 +1409,15 @@ sanitize_outputs(
 
             echo "</div>";
 
-            if (count($gameSubsets) > 0) {
+            if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');
             }
 
-            if (count($gameAlts) > 0) {
+            if (!empty($gameAlts)) {
                 RenderGameAlts($gameAlts, 'Similar Games');
             }
 
-            if (count($gameHubs) > 0) {
+            if (!empty($gameHubs)) {
                 RenderGameAlts($gameHubs, 'Collections');
             }
 

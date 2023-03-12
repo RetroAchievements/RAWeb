@@ -110,11 +110,7 @@ function recaptcha_get_html($pubkey, $error = null, $use_ssl = false)
         exit("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
     }
 
-    if ($use_ssl) {
-        $server = RECAPTCHA_API_SECURE_SERVER;
-    } else {
-        $server = RECAPTCHA_API_SERVER;
-    }
+    $server = $use_ssl ? RECAPTCHA_API_SECURE_SERVER : RECAPTCHA_API_SERVER;
 
     $errorpart = "";
     if ($error) {
@@ -204,7 +200,7 @@ function recaptcha_get_signup_url($domain = null, $appname = null)
     return "https://www.google.com/recaptcha/admin/create?" . _recaptcha_qsencode(['domains' => $domain, 'app' => $appname]);
 }
 
-function _recaptcha_aes_pad($val)
+function _recaptcha_aes_pad($val): string
 {
     $block_size = 16;
     $numpad = $block_size - (mb_strlen($val) % $block_size);
@@ -226,7 +222,7 @@ function _recaptcha_aes_encrypt($val, $ky)
     return mcrypt_encrypt($enc, $ky, $val, $mode, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
 }
 
-function _recaptcha_mailhide_urlbase64($x)
+function _recaptcha_mailhide_urlbase64($x): string
 {
     return strtr(base64_encode($x), '+/', '-_');
 }

@@ -48,9 +48,9 @@ foreach ($dataOut as &$entry) {
         'DateModified' => $entry['DateModified'],
         'ForumTopicID' => $entry['ForumTopicID'],
     ];
-    settype($responseEntry['NumAchievements'], 'integer');
-    settype($responseEntry['NumLeaderboards'], 'integer');
-    settype($responseEntry['Points'], 'integer');
+    $responseEntry['NumAchievements'] = (int) $responseEntry['NumAchievements'];
+    $responseEntry['NumLeaderboards'] = (int) $responseEntry['NumLeaderboards'];
+    $responseEntry['Points'] = (int) $responseEntry['Points'];
 
     if ($withHashes) {
         $responseEntry['Hashes'] = [];

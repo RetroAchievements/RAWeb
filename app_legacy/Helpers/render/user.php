@@ -74,9 +74,9 @@ function renderUserCard(string|array $user): string
 
     if (empty($data)) {
         $data = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
-            getAccountDetails($username, $data);
+            getAccountDetails($username, $dataOut);
 
-            return $data;
+            return $dataOut;
         });
     }
 
@@ -147,7 +147,7 @@ function renderUserCard(string|array $user): string
     return $tooltip;
 }
 
-function RenderCompletedGamesList($userCompletedGamesList): void
+function RenderCompletedGamesList(array $userCompletedGamesList): void
 {
     echo "<div id='completedgames' class='component' >";
 
@@ -156,7 +156,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
 
     echo "<table class='table-highlight'><tbody>";
 
-    $numItems = is_countable($userCompletedGamesList) ? count($userCompletedGamesList) : 0;
+    $numItems = count($userCompletedGamesList);
     for ($i = 0; $i < $numItems; $i++) {
         $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
 
@@ -192,7 +192,7 @@ function RenderCompletedGamesList($userCompletedGamesList): void
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
         echo "</div>";
         echo "</div>";
-        echo renderCompletionIcon($nextTotalAwarded, $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
+        echo renderCompletionIcon((int) $nextTotalAwarded, (int) $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
         echo "</div>";
         echo "<div class='progressbar-label pr-5 -mt-1'>";
         echo "$nextTotalAwarded of $nextMaxPossible";

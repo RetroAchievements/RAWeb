@@ -4,7 +4,7 @@ use LegacyApp\Site\Enums\UserPreference;
 use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Models\DeletedModels;
 
-function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn): bool
+function CreateNewMessage(string $author, string $destUser, string $messageTitle, string $messagePayloadIn): bool
 {
     $messagePayload = nl2br($messagePayloadIn);
 
@@ -29,15 +29,14 @@ function CreateNewMessage($author, $destUser, $messageTitle, $messagePayloadIn):
         }
 
         return true;
-    } else {
-        // Unconfirmed friend:
-        log_sql_fail();
-
-        return false;
     }
+    // Unconfirmed friend:
+    log_sql_fail();
+
+    return false;
 }
 
-function GetMessageCount($user, &$totalMessageCount): int
+function GetMessageCount(string $user, ?int &$totalMessageCount = null): int
 {
     sanitize_sql_inputs($user);
 
@@ -73,12 +72,12 @@ function GetMessageCount($user, &$totalMessageCount): int
         }
 
         return $unreadMessageCount;
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
-function GetSentMessageCount($user): int
+function GetSentMessageCount(string $user): int
 {
     sanitize_sql_inputs($user);
 
@@ -105,7 +104,7 @@ function GetSentMessageCount($user): int
     return $messageCount;
 }
 
-function GetMessage($user, $id): ?array
+function GetMessage(string $user, int $id): ?array
 {
     sanitize_sql_inputs($user, $id);
 
@@ -126,7 +125,7 @@ function GetMessage($user, $id): ?array
     return null;
 }
 
-function GetAllMessages($user, $offset, $count, $unreadOnly): array
+function GetAllMessages(string $user, int $offset, int $count, bool $unreadOnly): array
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -155,7 +154,7 @@ function GetAllMessages($user, $offset, $count, $unreadOnly): array
     return $retval;
 }
 
-function GetSentMessages($user, $offset, $count): array
+function GetSentMessages(string $user, int $offset, int $count): array
 {
     sanitize_sql_inputs($user, $offset, $count);
 
@@ -177,7 +176,7 @@ function GetSentMessages($user, $offset, $count): array
     return $retval;
 }
 
-function UpdateCachedUnreadTotals($user): void
+function UpdateCachedUnreadTotals(string $user): void
 {
     sanitize_sql_inputs($user);
 
@@ -195,11 +194,11 @@ function UpdateCachedUnreadTotals($user): void
     s_mysql_query($query);
 }
 
-function markMessageAsRead($user, $messageID, $setAsUnread = 0): bool
+function markMessageAsRead(string $user, int $messageID, bool $setAsUnread = false): bool
 {
-    sanitize_sql_inputs($user, $messageID);
+    sanitize_sql_inputs($user);
 
-    $newReadStatus = $setAsUnread == 1 ? 1 : 0;
+    $newReadStatus = (int) $setAsUnread;
 
     $query = "UPDATE Messages AS msg
             SET msg.Unread=$newReadStatus
@@ -214,9 +213,9 @@ function markMessageAsRead($user, $messageID, $setAsUnread = 0): bool
     return $dbResult !== false;
 }
 
-function DeleteMessage($user, $messageID): bool
+function DeleteMessage(string $user, int $messageID): bool
 {
-    sanitize_sql_inputs($user, $messageID);
+    sanitize_sql_inputs($user);
 
     $messageToDelete = GetMessage($user, $messageID);
 

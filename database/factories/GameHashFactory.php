@@ -15,7 +15,7 @@ class GameHashFactory extends Factory
     {
         return [
             'system_id' => 1,
-            'hash' => $this->faker->md5,
+            'hash' => fake()->md5,
         ];
     }
 }

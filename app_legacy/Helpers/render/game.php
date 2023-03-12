@@ -49,21 +49,23 @@ function gameAvatar(
         iconClass: $iconClass,
         context: $context,
         sanitize: $title === null,
-        altText: $title ?? $label,
+        altText: $title ?? (is_string($label) ? $label : null),
     );
 }
 
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(?string $title, bool $tags = true): string
+function renderGameTitle(?string $title = null, bool $tags = true): string
 {
+    $title ??= '';
+
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
-    $html = (string) $title;
+    $html = $title;
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
@@ -96,25 +98,24 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
     if (is_int($data)) {
         $data = getGameData($data);
     }
-
     // TODO refactor to Game
-    [$consoleID, $consoleName] = [$data['ConsoleID'], $data['ConsoleName']];
+    $consoleID = $data['ConsoleID'];
+    $consoleName = $data['ConsoleName'];
 
     // Return next crumb (i.e `» text`), either as a link or not
-    $nextCrumb = function ($text, $href = ''): string {
-        return " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
-    };
+    $nextCrumb = fn ($text, $href = ''): string => " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
 
     // Retrieve separate IDs and titles for main game and subset (if any)
     $getSplitData = function ($data) use ($consoleID): array {
         $gameID = $data['GameID'] ?? $data['ID'];
         $gameTitle = $data['GameTitle'] ?? $data['Title'];
-
         // Match and possibly split main title and subset
-        [$mainID, $mainTitle] = [$gameID, $gameTitle];
+        $mainID = $gameID;
+        $mainTitle = $gameTitle;
         $matches = [];
         if (preg_match('/(.+)(\[Subset - .+\])/', $gameTitle, $matches)) {
-            [$mainTitle, $subset] = [trim($matches[1]), $matches[2]];
+            $mainTitle = trim($matches[1]);
+            $subset = $matches[2];
             $mainID = getGameIDFromTitle($mainTitle, $consoleID);
             $subsetID = $gameID;
             $renderedSubset = renderGameTitle($subset);
@@ -138,7 +139,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
 
     [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($data);
-    $baseHref = (($addLinkToLastCrumb or $subsetID) and $mainID) ? "/game/$mainID" : '';
+    $baseHref = (($addLinkToLastCrumb || $subsetID) && $mainID) ? "/game/$mainID" : '';
     $html .= $nextCrumb($renderedMain, $baseHref);
     if ($subsetID) {
         $html .= $nextCrumb($renderedSubset, $addLinkToLastCrumb ? "/game/$subsetID" : '');
@@ -147,9 +148,9 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
     return $html;
 }
 
-function renderGameCard(int|string|array $game): string
+function renderGameCard(int|array $game): string
 {
-    $id = is_string($game) || is_int($game) ? (int) $game : ($game['GameID'] ?? $game['ID'] ?? null);
+    $id = is_int($game) ? $game : ($game['GameID'] ?? $game['ID'] ?? null);
 
     if (empty($id)) {
         return __('legacy.error.error');
@@ -161,18 +162,11 @@ function renderGameCard(int|string|array $game): string
     }
 
     if (empty($data)) {
-        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', function () use ($id) {
-            getGameTitleFromID(
-                $id,
-                $gameName,
-                $consoleIDOut,
-                $consoleName,
-                $forumTopicID,
-                $data
-            );
+        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', fn () => getGameData($id));
+    }
 
-            return $data;
-        });
+    if (empty($data)) {
+        return '';
     }
 
     $gameName = renderGameTitle($data['GameTitle'] ?? $data['Title'] ?? '');
@@ -196,7 +190,7 @@ function renderGameCard(int|string|array $game): string
     return $tooltip;
 }
 
-function RenderGameAlts($gameAlts, $headerText = null): void
+function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
 {
     echo "<div class='component gamealts'>";
     if ($headerText) {
@@ -208,8 +202,8 @@ function RenderGameAlts($gameAlts, $headerText = null): void
         $consoleName = $nextGame['ConsoleName'];
         $points = $nextGame['Points'];
         $totalTP = $nextGame['TotalTruePoints'];
-        settype($points, 'integer');
-        settype($totalTP, 'integer');
+        $points = (int) $points;
+        $totalTP = (int) $totalTP;
 
         $isFullyFeaturedGame = $consoleName != 'Hubs';
         if (!$isFullyFeaturedGame) {
@@ -243,8 +237,12 @@ function RenderGameAlts($gameAlts, $headerText = null): void
     echo "</div>";
 }
 
-function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLabels = []): void
-{
+function RenderMetadataTableRow(
+    string $label,
+    ?string $gameDataValue,
+    ?array $gameHubs = null,
+    array $altLabels = []
+): void {
     $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
     $unmergedKeys = array_keys($gameDataValues);
 
@@ -307,13 +305,13 @@ function RenderMetadataTableRow($label, $gameDataValue, $gameHubs = null, $altLa
     }
 }
 
-function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions = 0): void
+function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicID, int $permissions = Permissions::Unregistered): void
 {
     sanitize_outputs(
         $gameTitle,
     );
 
-    if (isset($forumTopicID) && $forumTopicID != 0 && getTopicDetails($forumTopicID, $topicData)) {
+    if (!empty($forumTopicID) && getTopicDetails($forumTopicID)) {
         echo "<a class='btn py-2 mb-2 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {
@@ -326,7 +324,7 @@ function RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions 
     }
 }
 
-function RenderRecentGamePlayers($recentPlayerData): void
+function RenderRecentGamePlayers(array $recentPlayerData): void
 {
     echo "<div class='component'>Recent Players:";
     echo "<table class='table-highlight'><tbody>";
@@ -354,7 +352,7 @@ function RenderRecentGamePlayers($recentPlayerData): void
     echo "</div>";
 }
 
-function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore)
+function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore): void
 {
     $pctComplete = 0;
     $pctHardcore = 0;
@@ -411,7 +409,7 @@ function renderCompletionIcon(
     float|string $hardcoreRatio,
     bool $tooltip = false,
 ): string {
-    if ($awardedCount === 0 or $awardedCount < $totalCount) {
+    if ($awardedCount === 0 || $awardedCount < $totalCount) {
         return "<div class='completion-icon'></div>";
     }
     [$icon, $class] = $hardcoreRatio == 100.0 ? ['👑', 'mastered'] : ['🎖️', 'completed'];

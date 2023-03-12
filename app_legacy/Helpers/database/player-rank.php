@@ -8,17 +8,15 @@ use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Models\User;
 
-function SetUserUntrackedStatus($usernameIn, $isUntracked): void
+function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
 {
-    sanitize_sql_inputs($usernameIn, $isUntracked);
-
     $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'";
     s_mysql_query($query);
 }
 
-function getPlayerPoints(string $user, &$dataOut): bool
+function getPlayerPoints(?string $user, ?array &$dataOut): bool
 {
-    if (mb_strlen($user) < 2) {
+    if (empty($user) || !isValidUsername($user)) {
         return false;
     }
 
@@ -28,8 +26,8 @@ function getPlayerPoints(string $user, &$dataOut): bool
 
     $dataOut = legacyDbFetch($query, ['username' => $user]);
     if ($dataOut) {
-        settype($dataOut['RAPoints'], 'integer');
-        settype($dataOut['RASoftcorePoints'], 'integer');
+        $dataOut['RAPoints'] = (int) $dataOut['RAPoints'];
+        $dataOut['RASoftcorePoints'] = (int) $dataOut['RASoftcorePoints'];
 
         return true;
     }
@@ -37,7 +35,7 @@ function getPlayerPoints(string $user, &$dataOut): bool
     return false;
 }
 
-function recalculatePlayerPoints($user): bool
+function recalculatePlayerPoints(string $user): bool
 {
     sanitize_sql_inputs($user);
 
@@ -57,11 +55,8 @@ function recalculatePlayerPoints($user): bool
                 WHERE User = '$user'";
 
     $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
-    }
 
-    return true;
+    return (bool) $dbResult;
 }
 
 function countRankedUsers(int $type = RankType::Hardcore): int
@@ -98,13 +93,11 @@ function getTopUsersByScore(int $count): array
               ORDER BY RAPoints DESC, TrueRAPoints DESC
               LIMIT 0, $count ";
 
-    return legacyDbFetchAll($query)->map(function ($row) {
-        return [
-            1 => $row['User'],
-            2 => $row['RAPoints'],
-            3 => $row['TrueRAPoints'],
-        ];
-    })->toArray();
+    return legacyDbFetchAll($query)->map(fn ($row) => [
+        1 => $row['User'],
+        2 => $row['RAPoints'],
+        3 => $row['TrueRAPoints'],
+    ])->toArray();
 }
 
 /**
@@ -125,8 +118,6 @@ function getUserRank(string $username, int $type = RankType::Hardcore): ?int
             return null;
         }
 
-        $points = 0;
-        $field = '';
         switch ($type) {
             default: // hardcore
                 $points = $user->RAPoints;
