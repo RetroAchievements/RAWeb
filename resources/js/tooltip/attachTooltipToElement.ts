@@ -3,46 +3,44 @@ import { loadDynamicTooltip } from './utils/loadDynamicTooltip';
 import { renderTooltip } from './utils/renderTooltip';
 import { trackTooltipMouseMovement } from './utils/trackTooltipMouseMovement';
 
+interface TooltipOptions {
+  staticHtmlContent: string;
+  dynamicType: string;
+  dynamicId: string;
+  dynamicContext: unknown;
+}
+
+function attachTooltipListeners(
+  anchorEl: HTMLElement,
+  options: Partial<TooltipOptions>,
+  showFn: () => void
+) {
+  const tooltipListeners = [
+    ['mouseover', showFn],
+    ['mouseleave', hideTooltip],
+    ['mousemove', (event: MouseEvent) => trackTooltipMouseMovement(anchorEl, event)],
+    ['focus', showFn],
+    ['blur', hideTooltip],
+  ];
+
+  tooltipListeners.forEach(([event, listenerFn]) => {
+    anchorEl.addEventListener(event as keyof HTMLElementEventMap, listenerFn as EventListener);
+  });
+}
+
 export function attachTooltipToElement(
   anchorEl: HTMLElement,
-  options: Partial<{
-    staticHtmlContent: string;
-    dynamicType: string;
-    dynamicId: string;
-    dynamicContext: unknown;
-  }>
+  options: Partial<TooltipOptions>
 ) {
-  if (options?.dynamicType && options?.dynamicId) {
-    const dynamicHtmlTooltipListeners = [
-      [
-        'mouseover',
-        () => loadDynamicTooltip(
-          anchorEl,
-          options.dynamicType as string,
-          options.dynamicId as string,
-          options?.dynamicContext
-        ),
-      ],
-      ['mouseleave', hideTooltip],
-      ['mousemove', (event: MouseEvent) => trackTooltipMouseMovement(anchorEl, event)],
-      ['focus', renderTooltip],
-      ['blur', hideTooltip],
-    ];
+  // Do we need to dynamically fetch this tooltip's contents?
+  if (options.dynamicType && options.dynamicId) {
+    const showDynamicTooltip = () => (
+      loadDynamicTooltip(anchorEl, options.dynamicType as string, options.dynamicId as string, options?.dynamicContext)
+    );
 
-    dynamicHtmlTooltipListeners.forEach(([event, listenerFn]) => {
-      anchorEl.addEventListener(event as keyof HTMLElementEventMap, listenerFn as EventListener);
-    });
-  } else if (options?.staticHtmlContent) {
-    const staticHtmlTooltipListeners = [
-      ['mouseover', () => renderTooltip(anchorEl, options?.staticHtmlContent ?? '')],
-      ['mouseleave', hideTooltip],
-      ['mousemove', (event: MouseEvent) => trackTooltipMouseMovement(anchorEl, event)],
-      ['focus', renderTooltip],
-      ['blur', hideTooltip],
-    ];
-
-    staticHtmlTooltipListeners.forEach(([event, listenerFn]) => {
-      anchorEl.addEventListener(event as keyof HTMLElementEventMap, listenerFn as EventListener);
-    });
+    attachTooltipListeners(anchorEl, options, showDynamicTooltip);
+  } else if (options.staticHtmlContent) {
+    const showStaticTooltip = () => renderTooltip(anchorEl, options.staticHtmlContent as string);
+    attachTooltipListeners(anchorEl, options, showStaticTooltip);
   }
 }
